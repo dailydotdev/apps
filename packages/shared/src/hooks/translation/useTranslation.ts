@@ -10,6 +10,7 @@ import type {
   TranslateablePostField,
 } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
+import { dailyClientHeader } from '../../graphql/common';
 import { getFeedApiItemPost } from '../../graphql/feed';
 import {
   updateCachedPagePost,
@@ -18,7 +19,7 @@ import {
 } from '../../lib/query';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePlusSubscription } from '../usePlusSubscription';
-import { isExtension } from '../../lib/func';
+import { getDailyClientPlatform } from '../../lib/func';
 
 export enum ServerEvents {
   Connect = 'connect',
@@ -281,7 +282,7 @@ export const useTranslation: UseTranslation = ({
         Authorization: `Bearer ${accessToken.token}`,
         'Content-Language': language,
         'Content-Type': 'application/json',
-        'X-Daily-Client': isExtension ? 'extension' : 'webapp',
+        [dailyClientHeader]: getDailyClientPlatform(),
       });
       if (process.env.CURRENT_VERSION) {
         requestHeaders.set('X-Daily-Version', process.env.CURRENT_VERSION);

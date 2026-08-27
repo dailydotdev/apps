@@ -60,4 +60,5 @@ export type HeroCardsConfig = {
    */
   startIndex: number;
   chipLabels: Partial<Record<PostHeroSignificance, string>>;
+  allowedPostTypes: Partial<Record<PostType, boolean>>;
 };

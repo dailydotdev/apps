@@ -32,12 +32,13 @@ import type {
 } from '../../components/layouts/SettingsLayout/Security';
 import AccountSecurityDefault from '../../components/layouts/SettingsLayout/Security';
 import EmailFormPage from '../../components/layouts/SettingsLayout/Security/EmailFormPage';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Account & Security'),
+  ...noindexSeoProps,
 };
 
 const BETTER_AUTH_CHANGE_EMAIL_MESSAGE =

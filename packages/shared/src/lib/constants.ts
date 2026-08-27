@@ -23,6 +23,8 @@ export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';
 export const docs = 'https://r.daily.dev/docs';
 export const plusPublicApiDocs = 'https://docs.daily.dev/docs/plus/public-api';
+export const plusOverviewDocs = 'https://docs.daily.dev/plus-overview/';
+export const trustpilotReviews = 'https://www.trustpilot.com/review/daily.dev';
 export const chipsDocs = 'https://docs.daily.dev/chips/';
 export const markdownGuide = 'https://r.daily.dev/markdown-guide';
 export const careers = 'https://r.daily.dev/careers';
@@ -67,8 +69,15 @@ export const plusSuccessUrl = `${plusUrl}/success`;
 export const walletUrl = `${webappUrl}wallet`;
 export const settingsUrl = `${webappUrl}settings`;
 export const briefingUrl = `${webappUrl}briefing`;
+export const scheduledPostsUrl = `${webappUrl}scheduled`;
 export const opportunityUrl = `${webappUrl}jobs`;
 export const recruiterUrl = `${webappUrl}recruiter`;
+export const watercoolerUrl = `${webappUrl}watercooler`;
+// The squad backing the /watercooler feed. This is the single point of
+// configuration for the feature: swapping it repoints the feed, the posting
+// gate and the join-on-post flow at a different squad, no other change needed.
+// The source query resolves either an id or a handle, so both work here.
+export const watercoolerSquadId = 'fd062672-63b7-4a10-87bd-96dcd10e9613';
 export const boostOpportunityLink = 'https://r.daily.dev/boost-opportunity';
 
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';

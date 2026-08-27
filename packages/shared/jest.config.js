@@ -20,5 +20,6 @@ module.exports = {
     '\\.css$': 'identity-obj-proxy',
     'react-markdown': '<rootDir>/__mocks__/reactMarkdownMock.tsx',
     'react-turnstile': 'identity-obj-proxy',
+    '^edge-aura/react$': '<rootDir>/__mocks__/edgeAuraMock.tsx',
   },
 };

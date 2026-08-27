@@ -3,7 +3,7 @@ import { MOST_DISCUSSED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed'
 import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
@@ -18,6 +18,17 @@ import type { CommentFeedData } from '@dailydotdev/shared/src/graphql/comments';
 import { COMMENT_FEED_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import Discussed from '../pages/discussed';
 import { defaultCommentsPage } from './ProfileRepliesPage';
+
+// Compiling the feed module graph takes seconds on a cold jest transform cache,
+// so both the compile in beforeAll and the render need more than the defaults.
+jest.setTimeout(30000);
+const feedTimeout = 5000;
+
+beforeAll(async () => {
+  // MainFeedLayout only reaches the page through next/dynamic, so without this
+  // its compile lands inside the first findBy* wait and eats the whole budget.
+  await import('@dailydotdev/shared/src/components/MainFeedLayout');
+});
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -41,6 +52,7 @@ const createFeedMock = (
     first: 7,
     after: '',
     loggedIn: true,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -91,10 +103,10 @@ function renderComponent(
 
 it('should request most discussed feed when logged-in', async () => {
   renderComponent([createCommentFeedMock()]);
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('comment');
-    expect(elements.length).toBeTruthy();
+  const elements = await screen.findAllByTestId('comment', undefined, {
+    timeout: feedTimeout,
   });
+  expect(elements.length).toBeTruthy();
 });
 
 it('should not request most discussed feed when not logged-in', async () => {

@@ -5,6 +5,7 @@ import type { Post } from '../../../graphql/posts';
 import { CardAction } from '../../buttons/CardAction';
 import { CardActionBar } from '../../buttons/CardActionBar';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
   DownvoteIcon,
@@ -20,6 +21,8 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
+import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
+import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -36,11 +39,13 @@ export interface ActionButtonsProps {
   showAwardAction?: boolean;
 }
 
-const FEED_CARD_DENSITY = 'compact';
+const FEED_CARD_DENSITY = 'tight';
 
 const variantConfig = {
   grid: {
-    containerClassName: 'px-1 pb-1',
+    // Matches the v1 bar: `py-1.5` holds the row at 36px around the h-6
+    // buttons, and the wider right edge gives the trailing number room.
+    containerClassName: 'py-1.5 pl-1 pr-2.5',
     showTagsPanel: false,
     useCommentLink: false,
   },
@@ -104,6 +109,13 @@ const ActionButtons = ({
       brandLogo: animationResult.brandLogo,
     };
   }, [getUpvoteAnimation, post.tags]);
+
+  const onImpressionsClick = usePostImpressionsModal(post);
+  const {
+    enabled: impressionsEnabled,
+    showImpressions,
+    impressions,
+  } = usePostImpressions(post);
 
   if (isFeedPreview) {
     return null;
@@ -175,6 +187,7 @@ const ActionButtons = ({
             buttonClassName="pointer-events-auto"
           />
         </Tooltip>
+        {commentButton}
         {showDownvoteAction && (
           <Tooltip
             content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
@@ -193,8 +206,7 @@ const ActionButtons = ({
             />
           </Tooltip>
         )}
-        {commentButton}
-        {showAwardAction && (
+        {showAwardAction && !impressionsEnabled && (
           <PostAwardAction post={post} density={FEED_CARD_DENSITY} />
         )}
         <BookmarkButton
@@ -212,7 +224,7 @@ const ActionButtons = ({
           side={variant === 'grid' ? 'bottom' : undefined}
         >
           <CardAction
-            id="copy-post-btn"
+            id={`post-${post.id}-copy-btn`}
             density={FEED_CARD_DENSITY}
             icon={<LinkIcon />}
             label="Copy link"
@@ -223,6 +235,25 @@ const ActionButtons = ({
             )}
           />
         </Tooltip>
+        {showImpressions && (
+          <Tooltip
+            content="Impressions"
+            side={variant === 'grid' ? 'bottom' : undefined}
+          >
+            <CardAction
+              id={`post-${post.id}-impressions-btn`}
+              density={FEED_CARD_DENSITY}
+              icon={<AnalyticsIcon />}
+              label="Impressions"
+              count={impressions}
+              onClick={onImpressionsClick}
+              color={ButtonColor.Cheese}
+              buttonClassName={classNames(
+                variant === 'list' && 'pointer-events-auto',
+              )}
+            />
+          </Tooltip>
+        )}
       </CardActionBar>
     </div>
   );

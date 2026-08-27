@@ -1,5 +1,3 @@
-import { BrowserName } from './func';
-
 const DAILY_MEDIA_HOST = 'media.daily.dev';
 const PLACEHOLDER_IMAGE_PATTERN = /placeholder/i;
 
@@ -145,6 +143,18 @@ export const cloudinaryOnboardingHeroDesk = {
     'https://media.daily.dev/image/upload/s--opbsGDUn--/f_auto,q_auto/v1780929680/webapp/onboarding-hero-desk-2560',
 };
 
+// The hero cover for the signup wall — the dev and their dog at their tent,
+// looking out over a glowing valley. Square (1254x1254) with the pair low and
+// left in the frame, so wide crops have to bias downwards to keep them.
+export const signupWallCover =
+  'https://media.daily.dev/image/upload/s--a8E1hVet--/f_auto,q_auto/v1785059413/public/daily.dev%20-%20signup%20wall';
+
+// No width variants: the signature covers the transformation, so `w_768` 404s
+// rather than resizing. Sized derivatives must be exported and signed upstream
+// before a srcSet can exist.
+export const signupWallHorizon =
+  'https://media.daily.dev/image/upload/s--NCILTqRq--/f_auto,q_auto/v1785661216/public/daily.dev%20-%20main%20image';
+
 export const cloudinaryStreakSplash =
   'https://media.daily.dev/image/upload/v1705386465/Splash_v1lxjk.svg';
 
@@ -249,20 +259,12 @@ export const cloudinaryAppIconV10 = cloudinaryAppIcons[9].url;
 export const cloudinaryAppIconV11 = cloudinaryAppIcons[10].url;
 export const cloudinaryAppIconV12 = cloudinaryAppIcons[11].url;
 
-export const cloudinaryOnboardingExtension = {
-  [BrowserName.Chrome]: {
-    default:
-      'https://media.daily.dev/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
-    retina:
-      'https://media.daily.dev/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
-  },
-  [BrowserName.Edge]: {
-    default:
-      'https://media.daily.dev/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
-    retina:
-      'https://media.daily.dev/image/upload/s--kvj5ZB_s--/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
-  },
-};
+// 1920×1080 VP9/WebM. Only the original derivative is available on the CDN
+// (strict transformations), so there is no mp4 fallback or generated poster.
+// The extension step only renders on desktop Chrome/Brave/Edge, which all
+// play VP9.
+export const cloudinaryOnboardingExtensionVideo =
+  'https://media.daily.dev/video/upload/v1783942037/1_3_nljcyu.webm';
 
 export const cloudinaryOnboardingActivationDemo =
   'https://media.daily.dev/video/upload/v1780303637/daily.dev_-_Keep_it_acphx8.mp4';
@@ -474,3 +476,12 @@ export const cloudinaryCharmNoPosts =
 
 export const cloudinaryCharmNotEnoughTags =
   'https://media.daily.dev/image/upload/s--0PIPx07_--/f_auto,q_auto/v1781529338/public/daily.dev%20Charm%20-%20no%20enoght%20tags%20(1)';
+
+// The Giveback charm (genie-themed). Artwork sits on solid black — render with
+// `mix-blend-screen` on a dark surface so the black drops out.
+export const cloudinaryCharmGiveback =
+  'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)';
+
+// Dedicated Open Graph / social share image for the giveback pages (1280×800).
+export const cloudinaryGivebackOpenGraph =
+  'https://media.daily.dev/image/upload/s--lQzU56yU--/f_auto,q_auto/v1783863597/public/daily.dev%20Givevback%20-%201280x800%20(1)';

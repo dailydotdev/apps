@@ -36,8 +36,6 @@ import {
   isIOSNative,
   shouldUseSocialAuthPopup,
 } from '../../lib/func';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureAuthGoogleOneTap } from '../../lib/featureManagement';
 import { useGoogleOneTap } from '../../hooks/auth/useGoogleOneTap';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
@@ -144,11 +142,15 @@ function AuthOptionsInner({
   ignoreMessages = false,
   onboardingSignupButton,
   hideLoginLink,
+  hideSignupDisclaimer,
+  isOnboardingFunnel,
   compact,
-  splitSignupStyle,
+  signupStyle,
   preferGithub,
   autoTriggerProvider,
   socialProviderScopes,
+  registrationExtraFields,
+  hideRegistrationHeadline,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -179,6 +181,12 @@ function AuthOptionsInner({
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
+  // A mistyped address is only fixable on the screen that owns the email
+  // field, and verification is reached both from signup and from an
+  // unverified login, so remember which one to return to.
+  const [emailVerificationReturn, setEmailVerificationReturn] = useState(
+    AuthDisplay.Registration,
+  );
   const socialErrorEventName = useRef(AuthEventNames.LoginError);
   const [chosenProvider, setChosenProvider] = usePersistentState(
     CHOSEN_PROVIDER_KEY,
@@ -251,6 +259,7 @@ function AuthOptionsInner({
     useRegistration({
       key: ['registration_form'],
       onInitializeVerification: () => {
+        setEmailVerificationReturn(AuthDisplay.Registration);
         onSetActiveDisplay(AuthDisplay.EmailVerification);
       },
       onInvalidRegistration: setRegistrationHints,
@@ -335,6 +344,7 @@ function AuthOptionsInner({
 
   const onLoginCheck = async (shouldVerify?: boolean) => {
     if (shouldVerify) {
+      setEmailVerificationReturn(AuthDisplay.Default);
       onSetActiveDisplay(AuthDisplay.EmailVerification);
       return;
     }
@@ -647,19 +657,18 @@ function AuthOptionsInner({
     await handleLoginMessage();
   };
 
+  const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);
+
   const canUseOneTap =
     isAuthReady &&
     !user &&
     !checkIsExtension() &&
     !isIOSNative() &&
     !isAndroidApp &&
-    !isNativeAuthSupported('google');
-  const { value: isOneTapEnabled } = useConditionalFeature({
-    feature: featureAuthGoogleOneTap,
-    shouldEvaluate: canUseOneTap,
-  });
+    !isNativeAuthSupported('google') &&
+    hasLoggedAuthOpen;
   useGoogleOneTap({
-    enabled: canUseOneTap && isOneTapEnabled,
+    enabled: canUseOneTap,
     onCredential: handleOneTapCredential,
   });
 
@@ -762,6 +771,7 @@ function AuthOptionsInner({
             providers={providers}
             simplified={simplified}
             trigger={trigger}
+            onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />
         </Tab>
         <Tab label={AuthDisplay.SocialRegistration}>
@@ -773,6 +783,7 @@ function AuthOptionsInner({
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
             simplified={simplified}
+            isOnboardingFunnel={isOnboardingFunnel}
             {...(user?.isPlus && {
               title: 'Complete your profile',
             })}
@@ -782,6 +793,9 @@ function AuthOptionsInner({
           <RegistrationForm
             formRef={formRef}
             simplified={simplified}
+            showHeadline={!hideRegistrationHeadline}
+            isOnboardingFunnel={isOnboardingFunnel}
+            extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
@@ -854,9 +868,11 @@ function AuthOptionsInner({
             className={className}
             onboardingSignupButton={onboardingSignupButton}
             hideLoginLink={hideLoginLink}
+            hideSignupDisclaimer={hideSignupDisclaimer}
             compact={compact}
-            splitSignupStyle={splitSignupStyle}
+            signupStyle={signupStyle}
             preferGithub={preferGithub}
+            onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
@@ -873,6 +889,7 @@ function AuthOptionsInner({
             onProviderClick={onProviderClick}
             isProviderLoading={isSocialAuthLoading}
             simplified={simplified}
+            isOnboardingFunnel={isOnboardingFunnel}
             onShowLoginOptions={() => {
               if (!isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: true });
@@ -912,8 +929,14 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
           <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
-          <AuthHeader simplified={simplified} title="Verify your email" />
+          <AuthHeader
+            simplified={simplified}
+            onboardingHeadline={isOnboardingFunnel}
+            title="Verify your email"
+            onBack={() => onSetActiveDisplay(emailVerificationReturn)}
+          />
           <EmailCodeVerification
+            isOnboardingFunnel={isOnboardingFunnel}
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);

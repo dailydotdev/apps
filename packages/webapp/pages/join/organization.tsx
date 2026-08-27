@@ -32,6 +32,7 @@ import { InfoIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import Custom404Seo from '../404';
+import { noindexSeoProps } from '../../next-seo';
 
 const Page = ({
   token,
@@ -240,5 +241,8 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
 };
+
+// Personal, token-bearing invite link: never index it.
+Page.layoutProps = { seo: { ...noindexSeoProps } };
 
 export default Page;

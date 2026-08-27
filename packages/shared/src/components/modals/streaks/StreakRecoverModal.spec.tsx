@@ -140,6 +140,7 @@ beforeEach(async () => {
       total: 12,
       weekStart: DayOfWeek.Monday,
       lastViewAt: subDays(new Date(), 2),
+      freezesAvailable: 0,
     },
     updateStreakConfig: jest.fn(),
     checkReadingStreak: jest.fn(),

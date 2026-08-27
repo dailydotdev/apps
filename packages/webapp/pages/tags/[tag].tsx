@@ -19,13 +19,15 @@ import { GET_RECOMMENDED_TAGS_QUERY } from '@dailydotdev/shared/src/graphql/feed
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import { formatKeyword } from '@dailydotdev/shared/src/lib/strings';
 import { TagTopicPage } from '@dailydotdev/shared/src/components/tags/TagTopicPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { getAppOrigin } from '../../lib/seo';
+import { getTagSeoTitle } from '../../lib/tagSeoTitle';
 
 const appOrigin = getAppOrigin();
 
@@ -47,7 +49,7 @@ const getTagPageJsonLd = ({
   topPosts: TopPost[];
 }): string => {
   const encodedTag = encodeURIComponent(tag);
-  const tagTitle = initialData.flags?.title || tag;
+  const tagTitle = initialData.flags?.title || formatKeyword(tag);
   const tagDescription =
     initialData.flags?.description ||
     `Find all the recent posts, videos, updates and discussions about ${tagTitle}`;
@@ -60,7 +62,7 @@ const getTagPageJsonLd = ({
         '@type': 'CollectionPage',
         '@id': `${tagUrl}#page`,
         url: tagUrl,
-        name: `${tagTitle} posts on daily.dev`,
+        name: getTagSeoTitle(tag, tagTitle),
         description: tagDescription,
         isPartOf: { '@type': 'WebSite', url: appOrigin },
       },
@@ -142,10 +144,12 @@ interface TagPageParams extends ParsedUrlQuery {
 }
 
 const getSeoData = (
+  tag: string,
   title: string,
   description = `Find all the recent posts, videos, updates and discussions about ${title}`,
+  tagSlug = title,
 ): NextSeoProps => {
-  const seoTitles = getPageSeoTitles(`${title} posts`);
+  const seoTitles = getPageSeoTitles(getTagSeoTitle(tag, title));
 
   return {
     ...defaultSeo,
@@ -153,6 +157,13 @@ const getSeoData = (
     openGraph: {
       ...defaultOpenGraph,
       ...seoTitles.openGraph,
+      images: [
+        {
+          url: getShareImageUrl('tags', tagSlug),
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
     description,
   };
@@ -176,7 +187,7 @@ export async function getStaticProps({
       topPosts: [],
       recommendedTags: [],
       topContributors: [],
-      seo: getSeoData(tag),
+      seo: getSeoData(tag, formatKeyword(tag)),
     },
   };
 
@@ -225,8 +236,10 @@ export async function getStaticProps({
     const recommendedTags = recommendedTagsResult?.recommendedTags?.tags ?? [];
     const topContributors = topContributorsResult?.topCreatorsByTag ?? [];
     const seo = getSeoData(
-      initialData.flags?.title || tag,
+      tag,
+      initialData.flags?.title || formatKeyword(tag),
       initialData.flags?.description,
+      tag,
     );
 
     return {

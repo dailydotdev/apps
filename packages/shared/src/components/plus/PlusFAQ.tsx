@@ -9,12 +9,9 @@ import {
 import { Accordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
-import { plusFAQItemsApi, plusFAQItemsControl } from './common';
+import { plusFAQItemsApi } from './common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { useConditionalFeature } from '../../hooks';
-import { featurePlusApiLanding } from '../../lib/featureManagement';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 interface FAQ {
   question: string;
@@ -53,12 +50,7 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => {
 export const PlusFAQ = (): ReactElement => {
   const id = useId();
   const titleId = `${id}-title`;
-  const { isPlus } = usePlusSubscription();
-  const { value: isApiLanding } = useConditionalFeature({
-    feature: featurePlusApiLanding,
-    shouldEvaluate: !isPlus,
-  });
-  const items = isApiLanding ? plusFAQItemsApi : plusFAQItemsControl;
+  const items = plusFAQItemsApi;
   return (
     <section aria-labelledby={titleId} className="my-10">
       <Typography

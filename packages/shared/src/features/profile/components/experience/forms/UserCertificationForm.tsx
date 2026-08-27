@@ -93,6 +93,7 @@ const UserCertificationForm = ({ company }: UserCertificationFormProps) => {
             name="description"
             label="Key topics covered, skills validated"
             maxLength={5000}
+            rows={6}
           />
         </div>
       </div>

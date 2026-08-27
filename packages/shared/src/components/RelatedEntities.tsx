@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { ElementPlaceholder } from './ElementPlaceholder';
 import Link from './utilities/Link';
+import { EntitySectionHeading } from './entity/EntitySectionHeading';
 
 export interface RelatedEntity {
   id?: string;
@@ -45,7 +46,7 @@ export const RelatedEntities = ({
 
   return (
     <div className={classNames('mb-10 w-auto', className)}>
-      <p className="mb-3 h-10 font-bold typo-body">{title}</p>
+      <EntitySectionHeading className="mb-3">{title}</EntitySectionHeading>
       <div className="no-scrollbar flex gap-2 overflow-x-auto">
         {items.map((item) => {
           return (

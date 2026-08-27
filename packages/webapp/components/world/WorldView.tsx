@@ -1,0 +1,579 @@
+import type { ReactElement } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import { WorldBack } from './WorldBack';
+import { WorldBoot } from './WorldBoot';
+import { WorldDistrictFeed } from './WorldDistrictFeed';
+import { WorldGuideSheet } from './WorldGuide';
+import { WorldIntro } from './WorldIntro';
+import { useIsOwnWorld, WorldInvite } from './WorldInvite';
+import { useWorldIntro } from './useWorldIntro';
+import { WorldImmersiveToggle, WorldMark } from './WorldMark';
+import { WorldPanel } from './WorldPanel';
+import { WorldPrivate } from './WorldPrivate';
+import { WorldRiding } from './WorldRiding';
+import { WorldStatus } from './WorldStatus';
+import { WorldTimeline } from './WorldTimeline';
+import type { WorldEngine, WorldState } from './worldState';
+import type { UserWorldResult } from './useUserWorld';
+import { useWorldDraft } from './useWorldDraft';
+import { useWorldLog } from './useWorldLog';
+import { RIDE_MUTED_KEY, useWorldMusic } from './useWorldMusic';
+import { useWorldPlate } from './useWorldPlate';
+import { buildWorld } from './engine/buildWorld';
+import { createWorldEngine } from './engine/world';
+import { buildUnbuiltWorld } from './unbuiltWorld';
+import {
+  isWorldCustomised,
+  resolveCrest,
+  resolveLook,
+  resolveSky,
+} from './worldCustomization';
+import { isHandheld } from './worldDevice';
+
+const INITIAL: WorldState = {
+  status: 'loading',
+  progress: 0,
+  message: '',
+  playing: false,
+  speed: 1,
+  day: 0,
+  totalDays: 1,
+  rank: [],
+};
+
+/* Where the overlay is standing, so the camera frames the world into the part
+   of the screen that is actually visible rather than into the window. Below
+   laptop the rail is gone and only the timeline is in the way; with the panels
+   hidden nothing is, apart from the headroom the realm names always need. */
+const PAD_DESKTOP = { l: 344, r: 18, t: 96, b: 112 };
+/* Below laptop nothing but two corner plates stands over the world, so the top
+   band is the same one the realm names always need. Only the foot differs, and
+   only over whether the scrubber is down there: a handheld has no replay, and a
+   narrow desktop window is laid out the same way but still does. */
+const PAD_MOBILE = { l: 16, r: 16, t: 96, b: 128 };
+const PAD_HANDHELD = { l: 16, r: 16, t: 96, b: 24 };
+const PAD_IMMERSIVE = { l: 16, r: 16, t: 96, b: 16 };
+/* Same rail, no scrubber under an unbuilt world (nothing to replay), and a
+   deep band kept clear at the top for the one thing that asks anything of the
+   reader, which stands on the world rather than in the rail. */
+const PAD_UNBUILT_DESKTOP = { l: 344, r: 18, t: 176, b: 40 };
+const PAD_UNBUILT_MOBILE = { l: 16, r: 16, t: 208, b: 32 };
+
+interface WorldViewProps {
+  user: PublicProfile;
+  /* Fetched by the page, not here: this component only exists once its own
+     chunk has landed, and a query started at that point is a query that could
+     have been running for the whole of the download. */
+  world: UserWorldResult;
+}
+
+/**
+ * The page's whole client half: one WebGL world, one overlay reading its state.
+ *
+ * The engine is created once on mount and torn down on unmount: it holds a
+ * WebGL context, and browsers cap those low enough that leaking one is a page
+ * that silently stops rendering the third time you visit it.
+ */
+export function WorldView({ user, world }: WorldViewProps): ReactElement {
+  const mountRef = useRef<HTMLDivElement>(null);
+
+  const engineRef = useRef<WorldEngine | null>(null);
+  const [state, setState] = useState<WorldState>(INITIAL);
+  const [failed, setFailed] = useState<string | null>(null);
+  const [isImmersive, setIsImmersive] = useState(false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { autoDismissNotifications } = useSettingsContext();
+  /* Answered before the engine is built and never asked again: it decides how
+     the renderer is configured, and a WebGL context cannot be reconfigured
+     without being replaced. */
+  const [isLite] = useState(isHandheld);
+
+  const {
+    districts,
+    timeline,
+    settings,
+    isPending,
+    isHistoryPending,
+    isEmpty,
+    isPrivate,
+    error,
+  } = world;
+  const isOwn = useIsOwnWorld(user);
+  const draft = useWorldDraft(user.id, settings);
+  const { applied } = draft;
+
+  /* The app keeps a permanent scrollbar gutter on the body so feeds don't jump
+     when they grow. Nothing on this page scrolls, and a fixed layer is laid out
+     inside that gutter, so the gutter reads as a dead strip down the right of
+     the world. The shared `hidden-scrollbar` class is no help: it pads the body
+     and the fixed layers back out by the same width on purpose. */
+  useEffect(() => {
+    const { style } = document.body;
+    const previous = style.overflowY;
+    style.overflowY = 'hidden';
+
+    return () => {
+      style.overflowY = previous;
+    };
+  }, []);
+
+  useEffect(() => {
+    const engine = createWorldEngine({
+      container: mountRef.current,
+      onState: setState,
+      lite: isLite,
+    }) as WorldEngine;
+    engineRef.current = engine;
+
+    return () => {
+      engineRef.current = null;
+      engine.dispose();
+    };
+    // The tier is read once, deliberately: see `isLite`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Districts alone put a finished world on screen: the layout packs islands by
+  // lifetime totals, and those are on the small query. So nothing waits for the
+  // growth log.
+  //
+  // Once per reader, and no more. These queries refetch on window focus, and a
+  // reload tears the world down and builds it again: camera reframed, the day
+  // back at the end, the realm you had walked into closed. Coming back to the
+  // tab is not a reason to take somebody's place away from them.
+  //
+  // State rather than a ref, because the render BEFORE this effect runs has to
+  // know: a soft navigation from one world to another keeps this component and
+  // its engine state, and for that one render the queries have settled on the
+  // new reader while everything the overlay reads still describes the old one.
+  const [raisedFor, setRaisedFor] = useState<string | null>(null);
+  const [hasNoReplay, setHasNoReplay] = useState(false);
+  useEffect(() => {
+    const engine = engineRef.current;
+    if (!engine || raisedFor === user.id) {
+      return;
+    }
+    /* Nothing read is still a place: a reader with no districts gets their six
+       realms as bare ground rather than a sentence on a black screen. It is
+       raised through the same path a real world is, so everything below here
+       (the camera, the chrome, the failure case) is unaware of the difference. */
+    const hasDistricts = !!districts?.length;
+    if (!hasDistricts && !isEmpty) {
+      return;
+    }
+    setRaisedFor(user.id);
+    setHasNoReplay(false);
+
+    /* Building the model throws; raising the world rejects. Both have to land
+       in `failed`, or the boot bar sweeps forever over a world that died. */
+    try {
+      engine
+        .load(
+          hasDistricts
+            ? buildWorld(user.id, districts, [])
+            : buildUnbuiltWorld(user.id),
+        )
+        .catch((bootError: Error) => setFailed(bootError.message));
+    } catch (buildError) {
+      setFailed((buildError as Error).message);
+    }
+  }, [districts, isEmpty, raisedFor, user?.id]);
+
+  // And the log, once it lands, folded in under a world that is already up. The
+  // day it is folded in on carries the same lifetime totals the world was
+  // raised on, so there is nothing to rebuild and nothing to watch happen.
+  //
+  // `hasNoReplay` is only ever set when the log turns out to hold no replay,
+  // never on the way to one. The timeline bar reads it, and the two facts that
+  // keep it on screen (a log still on the wire, and a world that says it is
+  // replayable) are separated by the render this effect runs after. Flipping a
+  // single "is it pending" flag would take the bar down for that one frame and
+  // put it straight back.
+  const historyForRef = useRef<string | null>(null);
+  useEffect(() => {
+    const engine = engineRef.current;
+    if (!engine || failed || raisedFor !== user.id) {
+      return;
+    }
+    // Bare ground has no history and no query on the wire for one. Said here
+    // rather than skipped, because this is what takes the scrubber down. Same
+    // for a handheld, where the log was never asked for.
+    if (isEmpty || isLite) {
+      setHasNoReplay(true);
+      return;
+    }
+    if (isHistoryPending || historyForRef.current === user.id) {
+      return;
+    }
+    historyForRef.current = user.id;
+
+    const model = timeline?.length
+      ? buildWorld(user.id, districts, timeline)
+      : null;
+    if (model?.replayable && engine.attachHistory(model)) {
+      return;
+    }
+    setHasNoReplay(true);
+  }, [
+    districts,
+    timeline,
+    isHistoryPending,
+    isEmpty,
+    isLite,
+    failed,
+    raisedFor,
+    user?.id,
+  ]);
+
+  /* Look and crest are the world's, not the viewer's, so every visitor sees them
+     as dressed. While the bench is open these read the draft instead, so chips
+     land live on the frame behind the panel. */
+  useEffect(() => {
+    engineRef.current?.setLook(resolveLook(applied));
+  }, [applied]);
+
+  useEffect(() => {
+    engineRef.current?.setCrest(resolveCrest(applied, user.id, districts));
+  }, [applied, districts, user.id]);
+
+  useEffect(() => {
+    engineRef.current?.setSky(resolveSky(applied));
+  }, [applied]);
+
+  /* Unlike the look and the crest, this one is the VIEWER's: how far a plot is
+     through its level is the owner's own business, and on a stranger's world it
+     is a number about somebody else's reading on a plate the size of a stamp. */
+  useEffect(() => {
+    engineRef.current?.setLevelProgress(isOwn);
+  }, [isOwn]);
+
+  /* The share card is composed server-side around a render only this machine
+     can cheaply make. Reads the STORED settings, not the draft: a plate is what
+     the world looks like to everyone, not what the owner is trying on. */
+  useWorldPlate({
+    userId: user.id,
+    isOwn,
+    isPrivate,
+    isReady: state.status === 'ready' && raisedFor === user.id,
+    engineRef,
+    districts,
+    settings,
+  });
+
+  useEffect(() => {
+    if (isImmersive) {
+      engineRef.current?.setPadding(PAD_IMMERSIVE);
+      return;
+    }
+
+    if (isEmpty) {
+      engineRef.current?.setPadding(
+        isLaptop ? PAD_UNBUILT_DESKTOP : PAD_UNBUILT_MOBILE,
+      );
+      return;
+    }
+
+    if (isLaptop) {
+      engineRef.current?.setPadding(PAD_DESKTOP);
+      return;
+    }
+
+    engineRef.current?.setPadding(isLite ? PAD_HANDHELD : PAD_MOBILE);
+  }, [isLaptop, isLite, isImmersive, isEmpty]);
+
+  const onSeek = useCallback((day: number) => engineRef.current?.seek(day), []);
+  const onToggle = useCallback(() => engineRef.current?.toggle(), []);
+  const onStart = useCallback(() => engineRef.current?.toStart(), []);
+  const onEnd = useCallback(() => engineRef.current?.toEnd(), []);
+  const onSpeed = useCallback(
+    (speed: number) => engineRef.current?.setSpeed(speed),
+    [],
+  );
+  const onFocus = useCallback(
+    (key: string) => engineRef.current?.focus(key),
+    [],
+  );
+  const onLeaveRealm = useCallback(() => engineRef.current?.leaveRealm(), []);
+  /* Closing the feed drops the engine's selection rather than hiding the panel
+     in React: the lit plot border and the highlighted rail row are the same
+     fact, and a panel dismissed on its own would leave the world claiming a
+     town is open. Dropping the selection is also what lets clicking the same
+     town again reopen it. */
+  const onCloseDistrict = useCallback(() => engineRef.current?.deselect(), []);
+  const attachSpark = useCallback(
+    (canvas: HTMLCanvasElement | null) =>
+      engineRef.current?.attachSpark(canvas),
+    [],
+  );
+
+  /* Kept as the reason rather than as a boolean so it still reads in a stack
+     trace and in the devtools, and never as copy: what a reader is told is
+     `WorldStatus`'s own line. */
+  const failure = failed ?? error?.message;
+  // `raisedFor` is the third term for the same reason it is state: until the
+  // engine has been handed THIS reader, `state` is somebody else's world.
+  const isBooting =
+    state.status === 'loading' || isPending || raisedFor !== user.id;
+  // Riding hides everything that reads the world from outside it: a panel
+  // anchored to a plot means nothing from the shoulder of a bird.
+  const isRiding = !!state.riding;
+  const isStanding = !isBooting && !failure;
+  /* Bare ground is a world, and it keeps the whole shell: same rail, same
+     header, same identity block. What the shell says changes (every counter is
+     a zero and the realms are listed as ground to raise), and the scrubber is
+     gone, because a world with no reading in it has no history to walk. */
+  const isUnbuilt = isStanding && isEmpty;
+  const isChromeVisible = isStanding && !isRiding && !isImmersive;
+  const onToggleImmersive = useCallback(
+    () => setIsImmersive((previous) => !previous),
+    [],
+  );
+
+  const [isMuted, setIsMuted] = usePersistentContext<boolean>(
+    RIDE_MUTED_KEY,
+    false,
+    [true, false],
+    false,
+  );
+  const onToggleMute = useCallback(
+    () => setIsMuted(!isMuted),
+    [isMuted, setIsMuted],
+  );
+  useWorldMusic({ isRiding, isMuted });
+
+  useWorldLog({
+    userId: user.id,
+    isOwn,
+    isLite,
+    isSettled: !isPending,
+    isPrivate,
+    isUnbuilt,
+    isReady: isStanding,
+    failure,
+    state,
+    districts,
+  });
+
+  /* The bench is the owner's only, and the rail's only: below laptop there is
+     no room to dress a world and look at it at the same time, so a phone shows
+     the place and a laptop is where it is made yours. */
+  const ownerDraft = isOwn ? draft : undefined;
+  const worldName = applied?.name ?? undefined;
+  /* Reads the STORED setting rather than the draft: what a visitor following
+     the link will hit is what has been saved, not what the bench is previewing.
+     A visitor never gets here with a hidden world at all — that returns above —
+     so this only ever takes the button off the owner's own hidden world, where
+     the link it would hand out opens on WorldPrivate for everyone else. */
+  const canShare = !settings?.private;
+  /* Never on an unbuilt world: WorldInvite already makes the one ask there,
+     and it makes it nowhere else. */
+  const showNudge = isOwn && !isUnbuilt && !isWorldCustomised(applied);
+  /* A district is only ever selected inside a realm, so this is also what says
+     the reader has walked in and clicked a town. Not while the bench is open:
+     dressing a world means clicking towns to see chips land on them, and a feed
+     opening over every one of those clicks is noise on top of the one job the
+     owner is there to do. */
+  const openDistrict =
+    isChromeVisible && !ownerDraft?.isOpen ? state.district : null;
+
+  /* Below laptop only: on a laptop the same guide replaces the rail, and the
+     rail is where it is asked for. */
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  /* The scrubber is the one piece of chrome the bar has to stand clear of, and
+     the conditions are the same ones that put it on screen below. */
+  const hasTimeline =
+    isChromeVisible &&
+    !isLite &&
+    !isUnbuilt &&
+    (state.replayable || !hasNoReplay) &&
+    (isLaptop || !openDistrict);
+
+  const { step: introStep, dismiss: dismissIntro } = useWorldIntro({
+    userId: user.id,
+    isOwn,
+    /* Never over bare ground, where `WorldInvite` already makes the one ask and
+       there is nothing to walk into anyway. Never while the bench is open, or
+       riding, or immersive: each of those is a reader who has found something
+       to do, and this is for one who has not. */
+    isEligible: isChromeVisible && !isUnbuilt && !ownerDraft?.isOpen,
+    isInRealm: !!state.open,
+    hasDistrict: !!state.district,
+  });
+
+  /* A hidden world draws nothing — no map, timeline or crest — so this returns
+     before the boot screen too. */
+  if (isPrivate) {
+    return (
+      <div className="fixed inset-0 overflow-hidden bg-background-default">
+        {/* Kept mounted and empty: the engine holds a WebGL context on this node,
+            and unmounting would leak it rather than release it. `load` is never
+            reached here since there are no districts. */}
+        <div ref={mountRef} className="absolute inset-0" />
+        <WorldPrivate user={user} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 overflow-hidden bg-background-default">
+      <div ref={mountRef} className="absolute inset-0" />
+
+      {/* Hidden rather than dropped: the rail carries the signup card, which
+          logs `open signup` from its mount, so dropping it reports another
+          signup open every time the panels come back. Standing is what it is
+          mounted on, because that is the visit worth counting. */}
+      {isStanding && isLaptop && (
+        <div hidden={!isChromeVisible}>
+          <WorldPanel
+            user={user}
+            state={state}
+            unbuilt={isUnbuilt}
+            isHidden={!isChromeVisible}
+            isImmersive={isImmersive}
+            worldName={worldName}
+            isOwn={isOwn}
+            canShare={canShare}
+            draft={ownerDraft}
+            districts={districts}
+            showNudge={showNudge}
+            onToggleImmersive={onToggleImmersive}
+            onFocus={onFocus}
+            onLeaveRealm={onLeaveRealm}
+          />
+        </div>
+      )}
+
+      {/* Whatever the last click selected, read out. Deliberately does NOT
+          repad the camera: `setPadding` refits the whole realm, which would
+          throw away the reader's zoom and pan every time they clicked a town,
+          a steep price for a panel that opens and closes on single clicks. So
+          it overlays the world's edge and the reader pans if they need to. */}
+      {!!openDistrict && (
+        <WorldDistrictFeed
+          userId={user.id}
+          userName={user.name}
+          isOwn={isOwn}
+          district={openDistrict}
+          onClose={onCloseDistrict}
+        />
+      )}
+
+      {isChromeVisible && !isLaptop && (
+        <WorldBack
+          user={user}
+          isInRealm={!!state.open}
+          worldName={worldName}
+          isOwn={isOwn}
+          canShare={canShare}
+          onLeaveRealm={onLeaveRealm}
+          onOpenGuide={() => setIsGuideOpen(true)}
+        />
+      )}
+
+      {isStanding && !isLaptop && isGuideOpen && (
+        <WorldGuideSheet
+          state={state}
+          userName={user.name}
+          isOwn={isOwn}
+          districts={districts}
+          /* Both of these are laptop-only surfaces, so neither is promised to a
+             reader who has no way to reach them: the scrubber is not rendered
+             on a handheld, and the bench is rail-only on every screen. */
+          hasReplay={hasTimeline}
+          canCustomize={false}
+          isTouch={isLite}
+          onClose={() => setIsGuideOpen(false)}
+        />
+      )}
+
+      {/* On screen while the growth log is still on the wire, inert, in the
+          place it will be live in. It is the last thing to arrive and the
+          only one that changes the layout, so it reserves its own room.
+
+          Never on a handheld. The bar is a transport, a scrubber, three
+          speeds and a sparkline, and a phone has room for one of those
+          five; the log it drives is not fetched there either. What is left
+          is a world, which is the thing worth the screen anyway. */}
+      {/* Below laptop the district feed is a sheet across the bottom, sitting
+          exactly where this bar does. Nothing is gained by leaving a scrubber
+          under it that cannot be reached, so the bar comes down for as long as
+          the feed is up. On laptop it stops short of the panel instead. */}
+      {hasTimeline && (
+        <WorldTimeline
+          state={state}
+          pending={!state.replayable}
+          sparkRef={attachSpark}
+          insetRight={!!openDistrict}
+          onToggle={onToggle}
+          onSeek={onSeek}
+          onStart={onStart}
+          onEnd={onEnd}
+          onSpeed={onSpeed}
+        />
+      )}
+
+      {isRiding && (
+        <WorldRiding
+          state={state}
+          isMuted={isMuted}
+          onToggleMute={onToggleMute}
+        />
+      )}
+
+      {isUnbuilt && !isRiding && <WorldInvite user={user} />}
+
+      {/* Under the guide sheet on purpose: the sheet is the same explanation
+          asked for deliberately, and a hint bar poking out from under it is two
+          answers to one question. */}
+      {!!introStep && !isGuideOpen && (
+        <WorldIntro
+          step={introStep}
+          hasTimeline={hasTimeline}
+          isTouch={isLite}
+          isOwn={isOwn}
+          onDismiss={dismissIntro}
+        />
+      )}
+
+      {/* No bar anywhere holds it any more, so it always stands on the world:
+          top right, opposite whatever is in the other corner. */}
+      {isStanding && <WorldMark floating insetRight={!!openDistrict} />}
+
+      {/* The toggle lives in whatever chrome is on screen. Once none is, it
+          stands on the world too, opposite the mark, because it is then the
+          only way back to the panels. */}
+      {isStanding && !isChromeVisible && !isRiding && (
+        <WorldImmersiveToggle
+          floating
+          isImmersive={isImmersive}
+          onToggleImmersive={onToggleImmersive}
+        />
+      )}
+
+      {!isStanding &&
+        (failure ? (
+          <WorldStatus user={user} />
+        ) : (
+          /* Determinate only once the engine is raising something. Before that
+             the wait is a chunk download and a query, neither of which can be
+             measured, so the same bar sweeps instead of lying about a number. */
+          <WorldBoot
+            user={user}
+            progress={state.progress > 0 ? state.progress : undefined}
+            message={state.progress > 0 ? state.message : undefined}
+          />
+        ))}
+
+      {/* The app mounts this in MainLayout, which this page deliberately has
+          none of, so every toast raised here would be written to a renderer
+          that is not on screen — including the one that confirms a copied
+          link, which is the whole of the share button's feedback on a pointer. */}
+      <Toast autoDismissNotifications={autoDismissNotifications} />
+    </div>
+  );
+}

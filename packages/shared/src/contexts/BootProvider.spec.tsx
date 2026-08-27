@@ -20,6 +20,8 @@ import SettingsContext, {
   themeModes,
 } from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { dailyClientHeader, gqlClient } from '../graphql/common';
+import { getDailyClientPlatform } from '../lib/func';
 import AlertContext from './AlertContext';
 import NotificationsContext from './NotificationsContext';
 import type { Alerts } from '../graphql/alerts';
@@ -83,6 +85,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutStreakFreeze: false,
   optOutAchievements: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
@@ -672,4 +675,34 @@ it('should display accurate information of anonymous user', async () => {
   );
   const user = await screen.findByText('User');
   await expectToHaveTestValue(user, 'anonymous');
+});
+
+it('should set the calling platform header on the gql client', async () => {
+  const setHeaderSpy = jest.spyOn(gqlClient, 'setHeader');
+  renderComponent(<AuthMock />);
+  await waitFor(() =>
+    expect(setHeaderSpy).toHaveBeenCalledWith(
+      dailyClientHeader,
+      getDailyClientPlatform('test-version'),
+    ),
+  );
+  setHeaderSpy.mockRestore();
+});
+
+it('should unset the content language header when user language is cleared', async () => {
+  gqlClient.setHeader('content-language', 'de');
+  const unsetHeaderSpy = jest.spyOn(gqlClient, 'unsetHeader');
+
+  renderComponent(<AuthMock />, {
+    ...defaultBootData,
+    user: { ...defaultUser, isPlus: true, language: null },
+  });
+
+  await waitFor(() =>
+    expect(unsetHeaderSpy).toHaveBeenCalledWith('content-language'),
+  );
+  expect(
+    Reflect.get(Reflect.get(gqlClient, 'options'), 'headers'),
+  ).not.toHaveProperty('content-language');
+  unsetHeaderSpy.mockRestore();
 });

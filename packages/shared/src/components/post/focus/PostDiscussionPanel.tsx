@@ -24,6 +24,7 @@ import { ClickableText } from '../../buttons/ClickableText';
 import { IconSize } from '../../Icon';
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { SortCommentsBy } from '../../../graphql/comments';
+import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 
@@ -78,6 +79,7 @@ export const PostDiscussionPanel = ({
 }: PostDiscussionPanelProps): ReactElement => {
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
+  const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
   const commentRef = useRef<NewCommentRef | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -168,7 +170,7 @@ export const PostDiscussionPanel = ({
         />
       </div>
       <DiscussionShareRow post={post} withSquads />
-      {showSortHeader && (
+      {showSortHeader && commentsCount > 0 && (
         // A text link (not a button) so it aligns flush-left with the comments
         // below it; `mb-2` adds breathing room before the first comment.
         <ClickableText

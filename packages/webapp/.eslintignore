@@ -4,3 +4,9 @@ next.config.js
 public/push/onesignal/OneSignalSDKWorker.js
 public/scripts/*.js
 public/sw.js
+
+# The DEVCRAFT world renderer, ported near-verbatim from devcraft
+# `world-lab.html`. Reformatting or restyling it would make every future diff
+# against the source unreadable, which is the one thing that has to stay cheap
+# while the art is still moving.
+components/world/engine/*.js

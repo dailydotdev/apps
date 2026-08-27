@@ -26,9 +26,12 @@ export enum AccountSecurityDisplay {
   ConnectEmail = 'connect_email',
 }
 
+// Without `min-w-0` the section's `overflow-x-hidden` below is inert: a `flex-1`
+// item defaults to `min-width: auto`, so wide content grows this column past the
+// viewport and scrolls the page sideways instead of being clipped.
 export const AccountPageContent = classed(
   'main',
-  'flex flex-col tablet:border border-border-subtlest-tertiary flex-1 rounded-16 h-fit',
+  'flex min-w-0 flex-col tablet:border border-border-subtlest-tertiary flex-1 rounded-16 h-fit',
 );
 export const AccountPageSection = classed(
   'section',

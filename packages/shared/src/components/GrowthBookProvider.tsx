@@ -209,3 +209,7 @@ export const useFeature: GetFeatureValue = (feature) =>
 
 export const useGrowthBookContext = (): GrowthBookContextValue =>
   useContext(GrowthBookContext);
+
+// Re-exported so harnesses (Storybook, tests) can pin an experiment arm without
+// depending on the GrowthBook package directly.
+export { GrowthBookContext };

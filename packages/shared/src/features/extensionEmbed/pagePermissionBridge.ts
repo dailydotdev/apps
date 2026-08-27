@@ -46,7 +46,12 @@ export const frameEmbeddingPermissionBridgeTiming = {
   pingMaxAttempts: 25,
 } as const;
 
-const PAGE_HELPER_TIMEOUT_MS = 60_000;
+// Long enough for the user to answer the browser's permission prompt plus
+// the post-grant reload poll (~6s worst case), but short enough that a dead
+// bridge — extension builds that stamp the install marker but predate the
+// bridge listener — resolves into the caller's error fallback without the
+// UI feeling hung.
+const PAGE_HELPER_TIMEOUT_MS = 20_000;
 
 // Drives chrome.permissions.request through the installed extension's
 // content script. Must be invoked synchronously from a user-input handler

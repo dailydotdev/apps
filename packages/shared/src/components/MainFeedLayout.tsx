@@ -1,4 +1,9 @@
-import type { ReactElement, ReactNode, SetStateAction } from 'react';
+import type {
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  SetStateAction,
+} from 'react';
 import React, {
   cloneElement,
   useCallback,
@@ -19,6 +24,9 @@ import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
+import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
+import FeedContext from '../contexts/FeedContext';
+import feedStyles from './Feed.module.css';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -77,6 +85,7 @@ import { ClientQuestEventType } from '../graphql/quests';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
+import { FeedExploreTabs } from './header/FeedExploreTabs';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
@@ -85,8 +94,6 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
-import { ExploreSectionTabs } from './header/ExploreSectionTabs';
-import { ExploreSortDropdown } from './header/ExploreSortDropdown';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -231,6 +238,7 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -250,7 +258,6 @@ export default function MainFeedLayout({
     isPopular,
     isAnyExplore,
     isExploreLatest,
-    isDiscussed,
     isSortableFeed,
     isCustomFeed,
     isSearch: isSearchPage,
@@ -326,7 +333,7 @@ export default function MainFeedLayout({
     feature: featureFeedChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const showExploreChips =
     !!user && isLaptop && isChipStripPage && isFeedChipsEnabled;
   const { feeds } = useFeeds();
@@ -345,10 +352,9 @@ export default function MainFeedLayout({
           categories={exploreCategories}
           isPending={!feeds}
           compact={isV2}
-          onNavTabClick={onNavTabClick}
         />
       ) : null,
-    [showExploreChips, exploreCategories, feeds, isV2, onNavTabClick],
+    [showExploreChips, exploreCategories, feeds, isV2],
   );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
@@ -708,14 +714,11 @@ export default function MainFeedLayout({
     );
   }, [isLaptop, onTabChange, tab]);
 
-  // v2 hoists the explore section tabs into the floating card's
-  // page-header strip (matching the SquadDirectoryLayout pattern). The
-  // inline FeedExploreComponent is suppressed below to avoid showing
-  // the same tabs twice.
-  // The Discussions feed (/discussed) is part of the Explore hub — show the
-  // same section tabs there so the hub persists. The Sort dropdown is only
-  // for the actual Explore sorts, so it stays gated on isAnyExplore.
-  const showExploreV2PageHeader = (isAnyExplore || isDiscussed) && isV2;
+  // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
+  // Discussions) from the sidebar's Explore panel, so the page header no longer
+  // carries a section-tab strip. The header now only hosts the Explore sort
+  // dropdown, so it's gated on isAnyExplore.
+  const showExploreV2PageHeader = isAnyExplore && isV2;
 
   // v2 also hoists the regular page-header strip up here, OUTSIDE
   // `FeedPageLayoutComponent`, so it can span the full floating-card
@@ -754,8 +757,9 @@ export default function MainFeedLayout({
     <>
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
-          <ExploreSectionTabs />
-          {isAnyExplore && <ExploreSortDropdown />}
+          {/* Sort options as pill tabs — same navbar as the Tags / Squad
+              directory pages, not the underlined TabContainer. */}
+          <FeedExploreTabs />
         </header>
       )}
       {showFeedV2PageHeader && (
@@ -775,6 +779,25 @@ export default function MainFeedLayout({
         {isSearchOn && isFinder && !isSearchPageLaptop && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
+        {/* Share the feed's own width container so the banner lines up with
+            the feed: full width normally, and clamped + centered to the same
+            card-based max-width as the grid on wide screens (desktopL). The
+            CSS vars feed that `styles.container` max-width calc (grid gap is
+            2rem). */}
+        <div
+          className={classNames(
+            'relative flex w-full flex-col laptopL:mx-auto',
+            feedStyles.container,
+          )}
+          style={
+            {
+              '--num-cards': feedSpacinessCards.eco,
+              '--feed-gap': '2rem',
+            } as CSSProperties
+          }
+        >
+          <FeedEngagementBanner className="mb-3" />
+        </div>
         {isHomePage && (
           <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
         )}

@@ -26,7 +26,7 @@ import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
 
@@ -206,6 +206,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Appearance'),
+  ...noindexSeoProps,
 };
 
 AccountManageSubscriptionPage.getLayout = getSettingsLayout;

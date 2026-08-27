@@ -21,6 +21,7 @@ export interface FormWrapperProps {
   copy?: Copy;
   leftButtonProps?: ButtonProps<'button'>;
   rightButtonProps?: ButtonProps<'button'>;
+  headerActions?: ReactNode;
   title?: string | React.ReactNode;
   isHeaderTitle?: boolean;
   headerRef?: MutableRefObject<HTMLDivElement>;
@@ -33,6 +34,7 @@ export function FormWrapper({
   copy = {},
   leftButtonProps = {},
   rightButtonProps = {},
+  headerActions,
   title,
   isHeaderTitle,
   headerRef,
@@ -63,14 +65,17 @@ export function FormWrapper({
           {isHeaderTitle ? null : left}
         </Button>
         {isHeaderTitle && title && titleElement}
-        <Button
-          {...rightButtonProps}
-          variant={ButtonVariant.Primary}
-          form={form}
-          className={classNames('ml-auto', rightButtonProps.className)}
-        >
-          {right}
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          {headerActions}
+          <Button
+            {...rightButtonProps}
+            variant={ButtonVariant.Primary}
+            form={form}
+            className={rightButtonProps.className}
+          >
+            {right}
+          </Button>
+        </div>
       </PageHeader>
       {!isHeaderTitle && title && titleElement}
       {children}

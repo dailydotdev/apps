@@ -3,20 +3,23 @@ import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
+  CompassIcon,
+  CookieIcon,
   DiscussIcon,
   EarthIcon,
   HashtagIcon,
   HotIcon,
-  SquadIcon,
   TourIcon,
+  WorldIcon,
 } from '../../icons';
+import { MedalIcon } from '../../icons/Medal';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
-import { webappUrl } from '../../../lib/constants';
+import { watercoolerUrl, webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
@@ -24,11 +27,19 @@ import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
 interface DiscoverSectionProps extends SidebarSectionProps {
   onNavTabClick?: (tab: string) => void;
+  // Hot Takes is a modal launcher rather than a hub section; the v2 Explore
+  // panel opts out of it. Defaults on so the v1 sidebar is unchanged.
+  showHotTakes?: boolean;
+  // Extra rows injected right after "Explore" (e.g. the v2 Explore panel slots
+  // Happening Now between Explore and Tags).
+  itemsAfterExplore?: SidebarMenuItem[];
 }
 
 export const DiscoverSection = ({
   isItemsButton,
   onNavTabClick,
+  showHotTakes = true,
+  itemsAfterExplore,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction } = useActions();
@@ -40,7 +51,7 @@ export const DiscoverSection = ({
     return [
       {
         icon: (active: boolean) => (
-          <ListIcon Icon={() => <HotIcon secondary={active} />} />
+          <ListIcon Icon={() => <CompassIcon secondary={active} />} />
         ),
         title: 'Explore',
         // Bare path (not webappUrl) so it active-matches the in-place Explore
@@ -49,6 +60,7 @@ export const DiscoverSection = ({
         path: '/posts',
         action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
+      ...(itemsAfterExplore ?? []),
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
@@ -67,10 +79,26 @@ export const DiscoverSection = ({
       },
       {
         icon: (active: boolean) => (
-          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+          <ListIcon Icon={() => <MedalIcon secondary={active} />} />
         ),
         title: 'Leaderboard',
         path: `${webappUrl}users`,
+        isForcedLink: true,
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <WorldIcon secondary={active} />} />
+        ),
+        title: 'Worlds',
+        path: `${webappUrl}world`,
+        isForcedLink: true,
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <CookieIcon secondary={active} />} />
+        ),
+        title: 'Watercooler',
+        path: watercoolerUrl,
         isForcedLink: true,
       },
       {
@@ -86,20 +114,32 @@ export const DiscoverSection = ({
           }
         },
       },
-      {
+      showHotTakes && {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotTakesIcon secondary={active} />} />
         ),
         title: 'Hot Takes',
         requiresLogin: true,
         path: `${webappUrl}?openModal=hottakes`,
+        // Modal launcher, not a page: its path is "/" + query, and the active
+        // check strips queries, so on the home feed it would light up as the
+        // current page.
+        disableActiveState: true,
         isForcedLink: true,
         action: () => {
           logEvent({ event_name: LogEvent.OpenHotAndCold });
         },
       },
-    ].filter(Boolean);
-  }, [completeAction, user, logEvent, onNavTabClick, HotTakesIcon]);
+    ].filter(Boolean) as SidebarMenuItem[];
+  }, [
+    completeAction,
+    user,
+    logEvent,
+    onNavTabClick,
+    HotTakesIcon,
+    showHotTakes,
+    itemsAfterExplore,
+  ]);
 
   return (
     <Section

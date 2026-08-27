@@ -1,4 +1,4 @@
-import type { FormEvent, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { WriteLinkPreview } from '../write/WriteLinkPreview';
@@ -7,8 +7,13 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { MiniCloseIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { ExternalLinkPreview } from '../../../graphql/posts';
+import { useAutoResizeTextarea } from '../../../hooks/utils/useAutoResizeTextarea';
 import { TITLE_MAX_LENGTH, type LinkFormState } from './types';
-import { isPreviewForComposerUrl, normalizeComposerUrl } from './utils';
+import {
+  isPreviewForComposerUrl,
+  normalizeComposerUrl,
+  normalizeSingleLineComposerText,
+} from './utils';
 
 interface LinkFormProps {
   value: LinkFormState;
@@ -17,6 +22,7 @@ interface LinkFormProps {
   isLoadingPreview?: boolean;
   fetchPreview: (url?: string) => void;
   onDismissPreview?: () => void;
+  initialUrl?: string;
 }
 
 export const LinkForm = ({
@@ -26,8 +32,10 @@ export const LinkForm = ({
   isLoadingPreview,
   fetchPreview,
   onDismissPreview,
+  initialUrl,
 }: LinkFormProps): ReactElement => {
   const urlRef = useRef<HTMLInputElement>(null);
+  const commentaryRef = useRef<HTMLTextAreaElement>(null);
   const [dismissedUrl, setDismissedUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -46,8 +54,7 @@ export const LinkForm = ({
   const isDismissedForCurrentUrl =
     !!dismissedUrl && normalizedUrl === dismissedUrl;
 
-  const onUrlChange = (event: FormEvent<HTMLInputElement>) => {
-    const next = event.currentTarget.value;
+  const onUrlChange = (next: string) => {
     onChange({ ...value, url: next });
     const nextNormalized = normalizeComposerUrl(next);
     if (dismissedUrl && nextNormalized !== dismissedUrl) {
@@ -55,6 +62,8 @@ export const LinkForm = ({
     }
     checkUrl(nextNormalized);
   };
+  const onUrlChangeRef = useRef(onUrlChange);
+  onUrlChangeRef.current = onUrlChange;
 
   const dismissPreview = () => {
     setDismissedUrl(normalizedUrl || value.url || null);
@@ -64,6 +73,33 @@ export const LinkForm = ({
   const showPreview =
     isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl;
   const showSkeleton = isLoadingPreview && !isDismissedForCurrentUrl;
+
+  useAutoResizeTextarea(commentaryRef, value.commentary);
+
+  const onEnterKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (event.nativeEvent.isComposing || event.key !== 'Enter') {
+        return;
+      }
+
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey) {
+        event.currentTarget.form?.requestSubmit();
+        return;
+      }
+
+      commentaryRef.current?.focus();
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!initialUrl) {
+      return;
+    }
+
+    onUrlChangeRef.current(initialUrl);
+  }, [initialUrl]);
 
   return (
     <div className="flex flex-1 flex-col gap-3">
@@ -78,11 +114,15 @@ export const LinkForm = ({
         spellCheck={false}
         placeholder="Paste a link…"
         value={value.url}
-        onInput={onUrlChange}
+        onInput={(event) => {
+          onUrlChange(event.currentTarget.value);
+        }}
+        onKeyDown={onEnterKeyDown}
         aria-label="Link URL"
         className="w-full bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
       />
       <textarea
+        ref={commentaryRef}
         name="commentary"
         placeholder="Add a comment (optional)"
         maxLength={TITLE_MAX_LENGTH}
@@ -91,14 +131,17 @@ export const LinkForm = ({
         onChange={(event) =>
           onChange({
             ...value,
-            commentary: event.currentTarget.value.replace(/\n/g, ''),
+            commentary: normalizeSingleLineComposerText(
+              event.currentTarget.value,
+            ),
           })
         }
+        onKeyDown={onEnterKeyDown}
         aria-label="Post commentary"
-        className="w-full resize-none overflow-hidden break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+        className="max-h-36 w-full resize-none overflow-y-auto break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
       />
       {(showSkeleton || (preview && showPreview)) && (
-        <div className="relative">
+        <div className="relative flex flex-col gap-3">
           {showSkeleton && (
             <WritePreviewSkeleton
               link={normalizedUrl || value.url}

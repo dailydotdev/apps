@@ -97,5 +97,33 @@ describe('ads', () => {
         { credentials: 'include' },
       );
     });
+
+    it('should append IAB consent params when a consent context is provided', async () => {
+      await fetchAdByPlacement({
+        placement: AdPlacement.Feed,
+        consent: {
+          gdprApplies: true,
+          consentString: 'tc-string',
+          addtlConsent: '1~1.2',
+        },
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/v1/a?active=false&gdpr=1&gdpr_consent=tc-string&addtl_consent=1%7E1.2',
+        { credentials: 'include' },
+      );
+    });
+
+    it('should send gdpr=0 without consent strings outside GDPR scope', async () => {
+      await fetchAdByPlacement({
+        placement: AdPlacement.PostComment,
+        consent: { gdprApplies: false },
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/v1/a/post?gdpr=0',
+        { credentials: 'include' },
+      );
+    });
   });
 });

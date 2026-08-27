@@ -107,6 +107,13 @@ const NewStreakModal = dynamic(
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
 );
 
+const StreakOffersModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakOffersModal" */ './streaks/StreakOffersModal'
+    ),
+);
+
 const ReputationPrivilegesModal = dynamic(
   () =>
     import(
@@ -149,6 +156,13 @@ const StreakRecoverModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "streakRecoverModal" */ './streaks/StreakRecoverModal'
+    ),
+);
+
+const StreakFreezePurchaseModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakFreezePurchaseModal" */ './streaks/StreakFreezePurchaseModal'
     ),
 );
 
@@ -512,6 +526,13 @@ const ReaderPreviewLazyModal = dynamic(
     ),
 );
 
+const PostImpressionsModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "postImpressionsModal" */ './post/PostImpressionsModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -530,6 +551,7 @@ export const modals = {
   [LazyModal.Video]: VideoModal,
   [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
+  [LazyModal.StreakOffers]: StreakOffersModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
@@ -537,6 +559,7 @@ export const modals = {
   [LazyModal.TopMembers]: TopMembersModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
+  [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
@@ -595,6 +618,7 @@ export const modals = {
   [LazyModal.ReaderInstallPrompt]: ReaderInstallPromptModal,
   [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
+  [LazyModal.PostImpressions]: PostImpressionsModal,
 };
 
 type GetComponentProps<T> = T extends

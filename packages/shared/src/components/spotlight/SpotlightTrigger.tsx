@@ -39,10 +39,13 @@ export const SpotlightTrigger = ({
         'hover:bg-surface-hover',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2',
         // Same compact desktop width used by SearchPanelInput in production
-        // (26.25rem default, capped at 29.5rem on laptop and 35rem on
-        // laptopL). Without this the trigger stretches edge-to-edge,
-        // which read as a different field even though the styling matched.
-        'laptop:w-[26.25rem] laptop:max-w-[29.5rem] laptop:py-1 laptop:backdrop-blur-[3.75rem] laptopL:max-w-[35rem]',
+        // (26.25rem). Without this the trigger stretches edge-to-edge, which
+        // read as a different field even though the styling matched. It is a
+        // cap rather than a fixed width so the field can give up space when a
+        // crowded header action rail would otherwise overflow; the larger
+        // laptop/laptopL max-widths that used to sit here were dead, since the
+        // fixed width never reached them.
+        'laptop:max-w-[26.25rem] laptop:py-1 laptop:backdrop-blur-[3.75rem]',
         className,
       )}
     >

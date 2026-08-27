@@ -16,6 +16,7 @@ import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
+import { useTrackPostView } from '../../../hooks/post/useTrackPostView';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
 import { EarthIcon } from '../../icons';
@@ -33,9 +34,14 @@ import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
-import { combinedClicks } from '../../../lib/click';
+import { combinedClicks, withSelectionGuard } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import {
+  feature,
+  featureCommunitySentiment,
+} from '../../../lib/featureManagement';
+import { isDevelopment } from '../../../lib/constants';
 import { SourceStrip } from '../reader/SourceStrip';
 import Link from '../../utilities/Link';
 import HoverCard from '../../cards/common/HoverCard';
@@ -47,9 +53,15 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostMenuOptions } from '../PostMenuOptions';
+import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
+import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
+import {
+  CommunitySentiment,
+  mapCommunitySentimentPost,
+} from './CommunitySentiment';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -205,7 +217,7 @@ const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
   );
 };
 
-export const PostFocusCard = ({
+const PostFocusCardRaw = ({
   post,
   origin,
   leftVariant,
@@ -240,8 +252,24 @@ export const PostFocusCard = ({
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const { isReaderEnabled } = useReaderModalEligibility();
-  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
+  const isReaderVariant = isReaderEnabled && article.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
+  const communitySentimentData = article.communitySentiment
+    ? mapCommunitySentimentPost(article.communitySentiment)
+    : undefined;
+  // Conditional enrollment: only evaluate (and log exposure for) the
+  // community_sentiment experiment on posts that actually have a take, so
+  // take-less posts don't dilute the treatment/control split. Backend keeps
+  // generating the take for every eligible post regardless of this flag.
+  const { value: communitySentimentEnabled } = useConditionalFeature({
+    feature: featureCommunitySentiment,
+    shouldEvaluate: !!communitySentimentData,
+  });
+  // Only when the post actually has a take. `isDevelopment` lets the surface be
+  // previewed locally without flipping the committed (always-`false`) flag
+  // default.
+  const showCommunitySentiment =
+    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
@@ -252,6 +280,9 @@ export const PostFocusCard = ({
   const videoWrapperRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
+  const canReadArticle = !!readHref && !isInternalReadType(article);
+
+  useTrackPostView({ post });
 
   useEffect(() => {
     if (!isVideoType || isVideoExpanded) {
@@ -295,20 +326,36 @@ export const PostFocusCard = ({
   // to the title regardless of the cover image height. The engagement bar lives
   // further down by the comment composer where the reader's cursor rests.
   const renderReadButton = (className: string): ReactElement | null =>
-    readHref && !isInternalReadType(post) ? (
+    canReadArticle ? (
       <Button
         tag="a"
         href={readHref}
         target="_blank"
         rel="noopener"
         icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
-        onClick={handleReadClick}
+        {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
         variant={ButtonVariant.Primary}
-        size={ButtonSize.Small}
+        size={ButtonSize.Medium}
         className={className}
       >
         {getReadPostButtonText(post)}
       </Button>
+    ) : null;
+
+  const coverClassName =
+    'block h-fit w-24 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40';
+  const coverImage =
+    !isVideoType && article.image ? (
+      <LazyImage
+        eager
+        // Small square thumbnail below tablet; from tablet (656px) up it uses
+        // the original wide cover ratio (52% => 25/13).
+        className="aspect-square w-full tablet:aspect-[25/13]"
+        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+        fetchPriority="high"
+        imgAlt="Post cover image"
+        imgSrc={article.image}
+      />
     ) : null;
 
   return (
@@ -403,9 +450,8 @@ export const PostFocusCard = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* Title and image are top-aligned columns. The cover image opens a
-                lightbox rather than navigating away. The read button lives in
-                the title column (right under the title) so it hugs the title
+            {/* Title and image are top-aligned columns. The read button lives
+                in the title column (right under the title) so it hugs the title
                 regardless of the image height — a short title next to a tall
                 image keeps the button close instead of dragging it down. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
@@ -420,38 +466,57 @@ export const PostFocusCard = ({
                   )}
                   data-testid="post-modal-title"
                 >
-                  {title}
+                  {canReadArticle ? (
+                    <a
+                      href={readHref}
+                      target="_blank"
+                      rel="noopener"
+                      {...combinedClicks<HTMLAnchorElement>(
+                        withSelectionGuard(handleReadClick),
+                      )}
+                      className="transition-colors hover:text-text-link"
+                    >
+                      {title}
+                    </a>
+                  ) : (
+                    title
+                  )}
                 </h1>
-                {renderReadButton('w-fit')}
+                {renderReadButton('w-full tablet:w-fit')}
               </div>
-              {!isVideoType && article.image && (
-                <button
-                  type="button"
-                  aria-label="View cover image"
-                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  onClick={(event) => {
-                    openModal({
-                      type: LazyModal.ImageView,
-                      props: {
-                        src: article.image as string,
-                        alt: 'Post cover image',
-                        originRect: getImageOriginRect(event.currentTarget),
-                      },
-                    });
-                  }}
-                >
-                  <LazyImage
-                    eager
-                    // Small square thumbnail below tablet; from tablet (656px)
-                    // up it uses the original wide cover ratio (52% => 25/13).
-                    className="aspect-square w-full tablet:aspect-[25/13]"
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    fetchPriority="high"
-                    imgAlt="Post cover image"
-                    imgSrc={article.image}
-                  />
-                </button>
-              )}
+              {coverImage &&
+                (canReadArticle ? (
+                  <a
+                    href={readHref}
+                    target="_blank"
+                    rel="noopener"
+                    {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
+                    aria-hidden
+                    tabIndex={-1}
+                    data-testid="post-cover-link"
+                    className={classNames(coverClassName, 'cursor-pointer')}
+                  >
+                    {coverImage}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    aria-label="View cover image"
+                    className={classNames(coverClassName, 'cursor-zoom-in')}
+                    onClick={(event) => {
+                      openModal({
+                        type: LazyModal.ImageView,
+                        props: {
+                          src: article.image as string,
+                          alt: 'Post cover image',
+                          originRect: getImageOriginRect(event.currentTarget),
+                        },
+                      });
+                    }}
+                  >
+                    {coverImage}
+                  </button>
+                ))}
             </div>
           </div>
 
@@ -526,6 +591,10 @@ export const PostFocusCard = ({
 
           <PostTagList post={article} />
 
+          {showCommunitySentiment && (
+            <CommunitySentiment data={communitySentimentData} />
+          )}
+
           <PostUpvotesCommentsCount
             post={post}
             onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
@@ -557,6 +626,8 @@ export const PostFocusCard = ({
             className="-mt-2"
           />
 
+          {!onClose && <PostAnsweredQuestions post={article} />}
+
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel
               showMetaBar={false}
@@ -573,3 +644,8 @@ export const PostFocusCard = ({
     </article>
   );
 };
+
+// Feed-opened modals hand over the feed's lighter post payload, which omits
+// fields like `communitySentiment`. Hydrating from the post-by-id cache keeps
+// the modal and the standalone post page rendering the same surfaces.
+export const PostFocusCard = withPostById(PostFocusCardRaw);

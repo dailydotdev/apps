@@ -4,7 +4,11 @@ import { FacebookIcon, GoogleIcon, GitHubIcon, AppleIcon } from '../icons';
 import classed from '../../lib/classed';
 import type { IconType, ButtonProps } from '../buttons/Button';
 import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import type { AnonymousUser, LoggedUser } from '../../lib/user';
+import type {
+  AnonymousUser,
+  LoggedUser,
+  ProfileExtraField,
+} from '../../lib/user';
 import type { AuthTriggersType } from '../../lib/auth';
 
 export interface Provider {
@@ -92,6 +96,11 @@ export const actionToAuthDisplay: Record<OnboardingActions, AuthDisplay> = {
   [OnboardingActions.VerifyEmail]: AuthDisplay.EmailVerification,
 } as const;
 
+/** Signup-wall treatment. Both values imply the split-column geometry and
+ * then differ in copy and CTA hierarchy. One name rather than independent
+ * booleans, so a caller cannot ask for a hierarchy without its geometry. */
+export type SignupStyle = 'splitCreateAccount' | 'singlePrimary';
+
 export interface AuthProps {
   isAuthenticating: boolean;
   isLoginFlow: boolean;
@@ -126,10 +135,24 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
-  /** X-style split onboarding: "Sign up with", "Create account", Sign in button */
-  splitSignupStyle?: boolean;
+  signupStyle?: SignupStyle;
   /** Order GitHub before Google in the OAuth provider list (developer-first). */
   preferGithub?: boolean;
   autoTriggerProvider?: string;
   socialProviderScopes?: string[];
+  /** Extra profile fields to collect on the email registration form, driven
+   * by the onboarding funnel (campaign cohorts). */
+  registrationExtraFields?: ProfileExtraField[];
+  /** Hide the "The homepage developers deserve" headline on the email
+   * registration form (e.g. when the onboarding funnel already shows that copy
+   * on the signup wall). */
+  hideRegistrationHeadline?: boolean;
+  /** Hide the "By continuing, you agree to…" strip under the signup options. */
+  hideSignupDisclaimer?: boolean;
+  /**
+   * The funnel's headline scale and glass CTA. Explicit rather than read from
+   * `FunnelProgressContext`, because these screens render before the stepper
+   * mounts. Not folded into `simplified`, which eleven other surfaces set.
+   */
+  isOnboardingFunnel?: boolean;
 }

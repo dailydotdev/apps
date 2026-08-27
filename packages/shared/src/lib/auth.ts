@@ -61,7 +61,6 @@ export enum AuthTriggers {
   SearchSuggestion = 'search suggestion',
   LoginPage = 'login page',
   GenericReferral = 'generic referral',
-  Roast = 'roast',
   CollectionSubscribe = 'collection subscribe',
   SourceSubscribe = 'source subscribe',
   CommentDownvote = 'comment downvote',
@@ -78,7 +77,7 @@ export enum AuthTriggers {
   AddToStack = 'add to stack',
   PostPage = 'post page',
   Hackathon = 'hackathon',
-  Giveback = 'giveback',
+  World = 'world',
 }
 
 export type AuthTriggersType =
@@ -115,6 +114,9 @@ export interface RegistrationParameters {
   'traits.image'?: string;
   'traits.acceptedMarketing'?: boolean;
   'traits.experienceLevel'?: string;
+  'traits.company'?: string;
+  'traits.title'?: string;
+  'traits.cloudProvider'?: string;
   'traits.language'?: string;
   optOutMarketing?: boolean;
   id_token?: string;
@@ -133,7 +135,7 @@ export interface SocialRegistrationParameters {
   acceptedMarketing?: boolean;
   optOutMarketing?: boolean;
   experienceLevel?: string;
-  language?: string;
+  language?: string | null;
 }
 
 export const isNativeAuthSupported = (provider: string): boolean =>

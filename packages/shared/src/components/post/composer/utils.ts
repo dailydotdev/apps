@@ -6,6 +6,9 @@ export const normalizeComposerUrl = (value: string): string => {
   return result.success ? result.data : '';
 };
 
+export const normalizeSingleLineComposerText = (value: string): string =>
+  value.replace(/\s*[\r\n]+\s*/g, ' ');
+
 export const isPreviewForComposerUrl = (
   preview: ExternalLinkPreview | undefined,
   value: string,

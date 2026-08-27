@@ -22,10 +22,16 @@ import { PopoverContent } from './popover/Popover';
 import { SearchIcon } from './icons';
 import { StaleTime } from '../lib/query';
 
+const SEARCH_TYPES = {
+  searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
+  searchBookmarksSuggestions: SEARCH_BOOKMARKS_SUGGESTIONS,
+  searchReadingHistorySuggestions: SEARCH_READING_HISTORY_SUGGESTIONS,
+};
+
 export type PostsSearchProps = {
   initialQuery?: string;
   placeholder?: string;
-  suggestionType?: string;
+  suggestionType?: keyof typeof SEARCH_TYPES;
   autoFocus?: boolean;
   className?: string;
   onSubmitQuery: (
@@ -35,13 +41,14 @@ export type PostsSearchProps = {
     },
   ) => Promise<unknown>;
   onClearQuery?: () => Promise<unknown>;
+  /**
+   * Autocomplete suggestions (Mimir-backed) are not scoped to the current
+   * feed/source. Surfaces that search within a narrower scope (e.g. a single
+   * squad) should opt out rather than show suggestions from the wrong scope.
+   * Defaults to `true` to preserve existing behavior.
+   */
+  enableSuggestions?: boolean;
 } & Pick<HTMLAttributes<HTMLInputElement>, 'onFocus'>;
-
-const SEARCH_TYPES = {
-  searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
-  searchBookmarksSuggestions: SEARCH_BOOKMARKS_SUGGESTIONS,
-  searchReadingHistorySuggestions: SEARCH_READING_HISTORY_SUGGESTIONS,
-};
 
 export default function PostsSearch({
   initialQuery: initialQueryProp,
@@ -52,14 +59,18 @@ export default function PostsSearch({
   suggestionType = 'searchPostSuggestions',
   onFocus,
   onClearQuery,
+  enableSuggestions = true,
 }: PostsSearchProps): ReactElement {
   const { time, contentCurationFilter } = useSearchContextProvider();
-  const searchBoxRef = useRef<HTMLDivElement>();
+  const searchBoxRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>();
   const [items, setItems] = useState<string[]>([]);
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
-    shouldEvaluate: !!query && suggestionType === 'searchPostSuggestions',
+    shouldEvaluate:
+      !!query &&
+      suggestionType === 'searchPostSuggestions' &&
+      enableSuggestions,
   });
   const SEARCH_URL = SEARCH_TYPES[suggestionType];
   const purify = useDomPurify();
@@ -72,7 +83,7 @@ export default function PostsSearch({
     queryKey: [suggestionType, query],
     queryFn: () =>
       gqlClient.request(SEARCH_URL, { query, version: searchVersion }),
-    enabled: !!query,
+    enabled: !!query && enableSuggestions,
     staleTime: StaleTime.Default,
   });
 
@@ -88,7 +99,7 @@ export default function PostsSearch({
 
   const submitQuery = async (item?: string) => {
     const itemQuery = item?.replace?.(sanitizeSearchTitleMatch, '');
-    await onSubmitQuery(itemQuery || query, {
+    await onSubmitQuery(itemQuery || query || '', {
       filters: {
         time: time.toString(),
         contentCuration: contentCurationFilter,
@@ -126,7 +137,7 @@ export default function PostsSearch({
 
   useEffect(() => {
     if (autoFocus) {
-      searchBoxRef.current?.querySelector('input').focus();
+      searchBoxRef.current?.querySelector('input')?.focus();
     }
   }, [searchBoxRef, autoFocus]);
 

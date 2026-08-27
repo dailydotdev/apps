@@ -5,6 +5,9 @@ import { adLogEvent, feedLogExtra } from '../../../../lib/feed';
 import { LogEvent } from '../../../../lib/log';
 import { OtherFeedPage } from '../../../../lib/query';
 import { useLogContext } from '../../../../contexts/LogContext';
+import { AdActions } from '../../../../lib/ads';
+import type { ViewabilityData } from '../../../../features/monetization/viewability';
+import { viewabilityLogExtra } from '../../../../features/monetization/viewability';
 
 export const useSquadsDirectoryLogging = (ad?: Ad) => {
   const { ref, inView } = useInView({
@@ -15,14 +18,27 @@ export const useSquadsDirectoryLogging = (ad?: Ad) => {
   const shouldLogEvent = inView && ad && !isLoggedRef.current;
 
   const onLogAdEvent = useCallback(
-    (action: LogEvent.Impression | LogEvent.Click) => {
+    (
+      action: LogEvent.Impression | LogEvent.Click | AdActions.Viewable,
+      extra?: Record<string, unknown>,
+    ) => {
       if (!ad) {
         throw new Error('Missing ad for squads directory logging');
       }
 
-      logEvent(adLogEvent(action, ad, feedLogExtra(OtherFeedPage.Squad)));
+      logEvent(
+        adLogEvent(action, ad, {
+          extra: { ...feedLogExtra(OtherFeedPage.Squad).extra, ...extra },
+        }),
+      );
     },
     [ad, logEvent],
+  );
+
+  const onViewableAd = useCallback(
+    (data: ViewabilityData) =>
+      onLogAdEvent(AdActions.Viewable, viewabilityLogExtra(data)),
+    [onLogAdEvent],
   );
 
   useEffect(() => {
@@ -42,5 +58,5 @@ export const useSquadsDirectoryLogging = (ad?: Ad) => {
     onLogAdEvent(LogEvent.Click);
   };
 
-  return { ref, onClickAd };
+  return { ref, onClickAd, onViewableAd };
 };

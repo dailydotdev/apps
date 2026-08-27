@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { BreadCrumbs } from './BreadCrumbs';
-import { CalendarIcon, HotIcon } from '../icons';
+import { CalendarIcon, CompassIcon } from '../icons';
 import { IconSize } from '../Icon';
 import TabList from '../tabs/TabList';
 import { Tab, TabContainer } from '../tabs/TabContainer';
@@ -91,7 +91,7 @@ export function FeedExploreHeader({
             isListMode && 'tablet:pt-4 laptop:pt-5',
           )}
         >
-          <HotIcon size={IconSize.XSmall} secondary /> Explore
+          <CompassIcon size={IconSize.XSmall} secondary /> Explore
         </BreadCrumbs>
       )}
       <div

@@ -29,7 +29,7 @@ const makePost = (
   return {
     id: rest.id ?? 'p1',
     type: rest.type ?? PostType.Article,
-    image: '',
+    image: 'https://example.com/img.jpg',
     commentsPermalink: '',
     ...(significance !== undefined && {
       hero: significance
@@ -49,6 +49,14 @@ const makePost = (
 const makePostItem = (post: Post): FeedItem =>
   ({ type: FeedItemType.Post, post } as FeedItem);
 
+const ALL_WIDENABLE: ReadonlySet<PostType> = new Set([
+  PostType.Article,
+  PostType.VideoYouTube,
+  PostType.Share,
+  PostType.Freeform,
+  PostType.Collection,
+]);
+
 const makeAdItem = (): FeedItem =>
   ({
     type: FeedItemType.Ad,
@@ -63,7 +71,7 @@ const makeAdItem = (): FeedItem =>
 
 describe('requestedColSpan', () => {
   it('returns 1 for items without hero', () => {
-    expect(requestedColSpan(makePostItem(makePost()))).toBe(1);
+    expect(requestedColSpan(makePostItem(makePost()), ALL_WIDENABLE)).toBe(1);
   });
 
   it.each<[PostHeroSignificance, number]>([
@@ -74,23 +82,68 @@ describe('requestedColSpan', () => {
     ['breakout', 3],
     ['evergreen', 2],
   ])('maps %s significance to span %i', (significance, expected) => {
-    expect(requestedColSpan(makePostItem(makePost({ significance })))).toBe(
-      expected,
-    );
+    expect(
+      requestedColSpan(makePostItem(makePost({ significance })), ALL_WIDENABLE),
+    ).toBe(expected);
   });
 
   it('returns 1 for ad items even when their post has a highlight', () => {
-    expect(requestedColSpan(makeAdItem())).toBe(1);
+    expect(requestedColSpan(makeAdItem(), ALL_WIDENABLE)).toBe(1);
   });
 
-  it('returns 1 for non-article post types with a highlight', () => {
+  it('returns 1 for a widenable post type when it is not in the runtime allowed set', () => {
     expect(
       requestedColSpan(
         makePostItem(
           makePost({ type: PostType.Share, significance: 'breaking' }),
         ),
+        new Set([PostType.Article]),
       ),
     ).toBe(1);
+  });
+
+  it('returns 1 for non-widenable post types with a highlight', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({ type: PostType.Poll, significance: 'breaking' }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(1);
+  });
+
+  it('allows widening for Share posts', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({ type: PostType.Share, significance: 'breaking' }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(4);
+  });
+
+  it('allows widening for Freeform posts', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({ type: PostType.Freeform, significance: 'major' }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(3);
+  });
+
+  it('allows widening for Collection posts', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({ type: PostType.Collection, significance: 'notable' }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(2);
   });
 
   it('allows widening for VideoYouTube posts', () => {
@@ -99,6 +152,7 @@ describe('requestedColSpan', () => {
         makePostItem(
           makePost({ type: PostType.VideoYouTube, significance: 'major' }),
         ),
+        ALL_WIDENABLE,
       ),
     ).toBe(3);
   });
@@ -107,7 +161,7 @@ describe('requestedColSpan', () => {
     const post = {
       id: 'p',
       type: PostType.Article,
-      image: '',
+      image: 'https://example.com/img.jpg',
       commentsPermalink: '',
       hero: {
         id: 'h',
@@ -117,7 +171,56 @@ describe('requestedColSpan', () => {
         highlightedAt: '2026-05-25T00:00:00.000Z',
       },
     } as Post;
-    expect(requestedColSpan(makePostItem(post))).toBe(4);
+    expect(requestedColSpan(makePostItem(post), ALL_WIDENABLE)).toBe(4);
+  });
+
+  it('returns 1 for a widenable post with no image', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({
+            type: PostType.Article,
+            significance: 'breaking',
+            image: undefined,
+          }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(1);
+  });
+
+  it('returns 1 for a widenable post with an empty image string', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({
+            type: PostType.Article,
+            significance: 'breaking',
+            image: '',
+          }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(1);
+  });
+
+  it('qualifies a share post that only has sharedPost.image', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({
+            type: PostType.Share,
+            significance: 'notable',
+            image: undefined,
+            sharedPost: {
+              id: 'sp',
+              image: 'https://example.com/shared.jpg',
+            } as Post['sharedPost'],
+          }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(2);
   });
 });
 
@@ -129,6 +232,7 @@ describe('createPlacementBuilder', () => {
     isEnabled: true,
     minSpacing: 10,
     startIndex: 0,
+    widenableTypes: ALL_WIDENABLE,
   };
 
   it('returns colSpan 1 with naive row/col when layout is disabled', () => {
@@ -252,6 +356,61 @@ describe('createPlacementBuilder', () => {
     });
     expect(placement.colSpan).toBe(1);
   });
+
+  describe('firstSlotOffset', () => {
+    it('starts the first item at column offset when a top-slot card takes col 0', () => {
+      const builder = createPlacementBuilder({ ...opts, firstSlotOffset: 1 });
+      expect(builder.next(makePostItem(makePost()))).toEqual({
+        colSpan: 1,
+        row: 0,
+        column: 1,
+      });
+      expect(builder.next(makePostItem(makePost()))).toEqual({
+        colSpan: 1,
+        row: 0,
+        column: 2,
+      });
+    });
+
+    it('clamps a wide card on row 0 to the actual remaining cells', () => {
+      const builder = createPlacementBuilder({ ...opts, firstSlotOffset: 1 });
+      const placement = builder.next(
+        makePostItem(makePost({ significance: 'breaking' })),
+      );
+      expect(placement).toEqual({ colSpan: 3, row: 0, column: 1 });
+    });
+
+    it('wraps to row 1 col 0 after the first row fills, unshifted', () => {
+      const builder = createPlacementBuilder({ ...opts, firstSlotOffset: 1 });
+      builder.next(makePostItem(makePost()));
+      builder.next(makePostItem(makePost()));
+      const third = builder.next(makePostItem(makePost()));
+      const fourth = builder.next(makePostItem(makePost()));
+      expect(third).toEqual({ colSpan: 1, row: 0, column: 3 });
+      expect(fourth).toEqual({ colSpan: 1, row: 1, column: 0 });
+    });
+
+    it('shifts row/column in the layout-disabled path (list/mobile)', () => {
+      const builder = createPlacementBuilder({
+        ...opts,
+        isEnabled: false,
+        firstSlotOffset: 1,
+      });
+      const items = Array.from({ length: 4 }, () => makePostItem(makePost()));
+      expect(items.map((item) => builder.next(item))).toEqual([
+        { colSpan: 1, row: 0, column: 1 },
+        { colSpan: 1, row: 0, column: 2 },
+        { colSpan: 1, row: 0, column: 3 },
+        { colSpan: 1, row: 1, column: 0 },
+      ]);
+    });
+
+    it('caps an out-of-range offset to numCards - 1', () => {
+      const builder = createPlacementBuilder({ ...opts, firstSlotOffset: 99 });
+      const placement = builder.next(makePostItem(makePost()));
+      expect(placement).toEqual({ colSpan: 1, row: 0, column: 3 });
+    });
+  });
 });
 
 describe('computePlacements', () => {
@@ -262,6 +421,7 @@ describe('computePlacements', () => {
     isEnabled: true,
     minSpacing: 10,
     startIndex: 0,
+    widenableTypes: ALL_WIDENABLE,
   };
 
   const colSpans = (items: FeedItem[], o = opts) =>

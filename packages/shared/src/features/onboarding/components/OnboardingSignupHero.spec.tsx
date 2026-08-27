@@ -1,7 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { OnboardingSignupHero } from './OnboardingSignupHero';
-import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
+import { FunnelProgressContext } from '../shared/FunnelStepDots';
+import {
+  cloudinaryOnboardingLoginBackground,
+  signupWallHorizon,
+} from '../../../lib/image';
 import { useViewSize } from '../../../hooks';
 
 jest.mock('../../../contexts/SettingsContext', () => ({
@@ -55,6 +59,25 @@ const renderHero = (
     </OnboardingSignupHero>,
   );
 
+// Same hero, wrapped in the post-signup funnel's progress context — which is
+// how the component knows it is on `/onboarding` rather than the paid funnel.
+const renderHeroInFunnel = (
+  props: Partial<React.ComponentProps<typeof OnboardingSignupHero>> = {},
+) =>
+  render(
+    <FunnelProgressContext.Provider
+      value={{
+        chapters: [{ steps: 1 }],
+        position: { chapter: 0, step: 0 },
+        isOnboarding: true,
+      }}
+    >
+      <OnboardingSignupHero background="desk" {...props}>
+        <div data-testid="auth-form" />
+      </OnboardingSignupHero>
+    </FunnelProgressContext.Provider>,
+  );
+
 describe('OnboardingSignupHero', () => {
   const mockUseViewSize = useViewSize as jest.MockedFunction<
     typeof useViewSize
@@ -103,6 +126,42 @@ describe('OnboardingSignupHero', () => {
     expect(screen.getByText('Hello devs')).not.toHaveClass('onb-headline');
   });
 
+  describe('horizon background', () => {
+    const renderHorizon = (
+      props: Partial<React.ComponentProps<typeof OnboardingSignupHero>> = {},
+    ) => renderHero({ background: 'horizon', ...props });
+
+    it('owns its artwork instead of delegating to the background layer', () => {
+      renderHorizon();
+      expect(screen.queryByTestId('bg-layer')).not.toBeInTheDocument();
+    });
+
+    it('renders the homepage hero artwork full-bleed', () => {
+      renderHorizon();
+      const art = screen.getAllByTestId('horizon-art');
+      expect(art).toHaveLength(2);
+      art.forEach((image) =>
+        expect(image).toHaveAttribute('src', signupWallHorizon),
+      );
+    });
+
+    it('sanitizes funnel copy rather than printing markup', () => {
+      renderHorizon({
+        headline: 'Where developers <b>discover</b><script>bad()</script>',
+      });
+      const heading = screen.getByRole('heading', { level: 1 });
+      expect(heading.innerHTML).toContain('<b>discover</b>');
+      expect(heading.innerHTML).not.toContain('script');
+    });
+
+    it('leaves the artwork free of overlaid copy', () => {
+      renderHorizon();
+      expect(
+        screen.queryByTestId('landing-app-install'),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it('renders aurora orbs by default', () => {
     renderHero();
     expect(screen.getByTestId('hero-orbs')).toBeInTheDocument();
@@ -123,9 +182,84 @@ describe('OnboardingSignupHero', () => {
     expect(screen.queryByTestId('hero-halo')).not.toBeInTheDocument();
   });
 
+  it('renders the hero cover and the full element set for the panel background', () => {
+    renderHero({ background: 'panel', headline: 'Hello devs' });
+    expect(screen.getAllByTestId('landing-hero-cover').length).toBeGreaterThan(
+      0,
+    );
+    expect(screen.queryByTestId('bg-layer')).not.toBeInTheDocument();
+    expect(screen.getByTestId('logo')).toBeInTheDocument();
+    expect(screen.getByText('Hello devs')).toBeInTheDocument();
+    expect(screen.getByTestId('auth-form')).toBeInTheDocument();
+    expect(screen.getByTestId('footer')).toBeInTheDocument();
+    expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
+  });
+
+  describe('legal row on the panel background', () => {
+    // jsdom does not evaluate media queries, so an element hidden by a `hidden`
+    // class is still in the DOM and a presence assertion proves nothing. The
+    // breakpoint it reappears at has to be read off the class list instead.
+    const revealBreakpoint = (element: HTMLElement): string | undefined => {
+      let node = element.parentElement;
+
+      while (node) {
+        if (/(^|\s)hidden(\s|$)/.test(node.className)) {
+          return node.className.match(/(\w+):(?:flex|block)/)?.[1];
+        }
+        node = node.parentElement;
+      }
+
+      return undefined;
+    };
+
+    // The cards/desk walls render neither below `tablet` (their `isMobile`
+    // branch omits both), so the panel matches rather than becoming the only
+    // wall with a phone-width disclosure.
+    it('reveals the signup disclosure at the same breakpoint as the other walls', () => {
+      renderHero({ background: 'panel' });
+
+      expect(revealBreakpoint(screen.getByTestId('disclaimer'))).toBe('tablet');
+    });
+
+    it('holds the footer links back to the two-column layout', () => {
+      renderHero({ background: 'panel' });
+
+      expect(revealBreakpoint(screen.getByTestId('footer'))).toBe('laptop');
+    });
+  });
+
   it('renders the form and headline', () => {
     renderHero({ headline: 'Hello devs' });
     expect(screen.getByTestId('auth-form')).toBeInTheDocument();
     expect(screen.getByText('Hello devs')).toBeInTheDocument();
+  });
+
+  describe('when the form is expanded (email step)', () => {
+    it('drops the marketing background and headline', () => {
+      renderHero({ headline: 'Hello devs', isFormExpanded: true });
+      expect(screen.getByTestId('auth-form')).toBeInTheDocument();
+      expect(screen.queryByTestId('bg-layer')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('hero-orbs')).not.toBeInTheDocument();
+      expect(screen.queryByText('Hello devs')).not.toBeInTheDocument();
+    });
+
+    it('drops the background on mobile too', () => {
+      mockUseViewSize.mockReturnValue(true);
+      renderHero({ isFormExpanded: true });
+      expect(
+        screen.queryByAltText('Onboarding background'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId('logo')).toBeInTheDocument();
+    });
+
+    // The shell carries no footer chrome and no consent line of its own: it
+    // also serves sign-back and verify-email, where the account already exists.
+    // The Terms/Privacy notice belongs to RegistrationForm, which renders it
+    // under the button that creates the account.
+    it('renders neither footer links nor a disclaimer in the funnel', () => {
+      renderHeroInFunnel({ isFormExpanded: true });
+      expect(screen.queryByTestId('footer')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('disclaimer')).not.toBeInTheDocument();
+    });
   });
 });

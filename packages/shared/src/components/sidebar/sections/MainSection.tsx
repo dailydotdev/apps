@@ -27,15 +27,12 @@ import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
-import {
-  DailyPageVariant,
-  featureDailyPage,
-  featurePlusApiLanding,
-  featureYearInReview,
-} from '../../../lib/featureManagement';
+import { featureYearInReview } from '../../../lib/featureManagement';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
+import { usePlusSale } from '../../../hooks/usePlusSale';
+import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 
 export const MainSection = ({
   isItemsButton,
@@ -46,22 +43,12 @@ export const MainSection = ({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
-  const { value: isApiLanding } = useConditionalFeature({
-    feature: featurePlusApiLanding,
-    shouldEvaluate: !isPlus,
-  });
-  const ctaCopy = isApiLanding
-    ? { full: 'Get API Access', short: 'API access' }
-    : { full: 'Level Up with Plus', short: 'Upgrade' };
+  const { isActive: isSaleActive } = usePlusSale();
+  const ctaCopy = { full: 'Get API Access', short: 'API access' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
   });
-  const { value: dailyVariant } = useConditionalFeature({
-    feature: featureDailyPage,
-    shouldEvaluate: isLoggedIn,
-  });
-  const showDailyPage = dailyVariant === DailyPageVariant.V1;
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>
@@ -110,13 +97,10 @@ export const MainSection = ({
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
-          color: isApiLanding
-            ? 'text-action-plus-default'
-            : 'text-accent-avocado-default',
-          itemClassName: isApiLanding
-            ? 'bg-action-plus-float/50 hover:bg-action-plus-float'
-            : 'bg-action-upvote-float/50 hover:bg-action-upvote-float',
+          color: 'text-action-plus-default',
+          itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
           disableDefaultBackground: true,
+          ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
         }
       : undefined;
 
@@ -150,19 +134,6 @@ export const MainSection = ({
           }
         : undefined;
 
-    const daily =
-      isLoggedIn && showDailyPage
-        ? {
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <MagicIcon secondary={active} />} />
-            ),
-            title: 'Daily',
-            path: `${webappUrl}daily`,
-            isForcedLink: true,
-            requiresLogin: true,
-          }
-        : undefined;
-
     const yearInReview = showYearInReview
       ? {
           icon: () => <ListIcon Icon={() => <YearInReviewIcon />} />,
@@ -190,7 +161,6 @@ export const MainSection = ({
     return (
       [
         myFeed,
-        daily,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly
@@ -229,13 +199,12 @@ export const MainSection = ({
   }, [
     claimableMilestoneCount,
     ctaCopy.full,
-    isApiLanding,
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
+    isSaleActive,
     isV2,
     onNavTabClick,
-    showDailyPage,
     showYearInReview,
     user,
   ]);

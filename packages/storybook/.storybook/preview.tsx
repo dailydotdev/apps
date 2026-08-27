@@ -18,6 +18,7 @@ const preview: Preview = {
           'Atoms',
           'Components',
           'Pages',
+          'Open Graph',
           'Experiments',
           'Extension',
         ],

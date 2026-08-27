@@ -17,6 +17,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useEventListener } from '../../hooks';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { getEngagementLogExtra } from '../../lib/engagementAds';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -98,7 +99,7 @@ function BasePostModal({
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
-            ...(creative && { gen_id: creative.genId }),
+            ...(creative && getEngagementLogExtra(creative)),
           };
         }}
       >

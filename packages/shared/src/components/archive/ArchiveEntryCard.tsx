@@ -18,6 +18,7 @@ import { RequestKey, StaleTime } from '../../lib/query';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 
 interface ArchiveEntryCardProps {
   scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
@@ -57,8 +58,10 @@ export function ArchiveEntryCard({
 
   return (
     <section className={classNames('flex flex-col gap-3', className)}>
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold typo-body">Best of {scopeName}</h2>
+      <div className="mb-3 flex items-center justify-between">
+        <EntitySectionHeading className="mb-0 mt-0">
+          Best of {scopeName}
+        </EntitySectionHeading>
         <Link href={indexUrl} prefetch={false}>
           <a className="group flex items-center gap-1 text-text-tertiary transition-colors typo-footnote hover:text-text-primary">
             All archives

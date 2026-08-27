@@ -19,7 +19,11 @@ import {
   VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import type { PostCommentsData } from '@dailydotdev/shared/src/graphql/comments';
-import { POST_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
+import {
+  POST_COMMENTS_QUERY,
+  SortCommentsBy,
+} from '@dailydotdev/shared/src/graphql/comments';
+import commentFixture from '@dailydotdev/shared/__tests__/fixture/comment';
 import type { Action } from '@dailydotdev/shared/src/graphql/actions';
 import {
   ActionType,
@@ -50,7 +54,7 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import type { Props } from '../pages/posts/[id]';
-import { PostPage } from '../pages/posts/[id]';
+import { isPostDetailPath, PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
@@ -101,10 +105,11 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   },
 }));
 
-beforeEach(() => {
-  nock.cleanAll();
-  jest.clearAllMocks();
-  mockRedesignOn = false;
+// The ad-teardown effect subscribes to router events on anonymous renders,
+// so the mock has to carry the emitter surface.
+const routerEvents = { on: jest.fn(), off: jest.fn(), emit: jest.fn() };
+
+const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -112,8 +117,18 @@ beforeEach(() => {
         pathname: '/posts',
         isReady: true,
         query: {},
+        events: routerEvents,
+        beforePopState: jest.fn(),
+        ...overrides,
       } as unknown as NextRouter),
   );
+};
+
+beforeEach(() => {
+  nock.cleanAll();
+  jest.clearAllMocks();
+  mockRedesignOn = false;
+  mockRouter();
 });
 
 const defaultPost = {
@@ -213,6 +228,27 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
   },
 });
 
+const createPostCommentsMock = (
+  edges: PostCommentsData['postComments']['edges'] = [],
+): MockedGraphQLResponse<PostCommentsData> => ({
+  request: {
+    query: POST_COMMENTS_QUERY,
+    variables: {
+      postId: '0e4005b2d3cf191f8c44c2718a457a1e',
+      first: 500,
+      sortBy: SortCommentsBy.OldestFirst,
+    },
+  },
+  result: {
+    data: {
+      postComments: {
+        pageInfo: {},
+        edges,
+      },
+    },
+  },
+});
+
 const mockVoteMutation = ({
   vote,
   onSuccess,
@@ -277,6 +313,17 @@ function renderPost(
         variables: { type: ActionType.SeenPostPollTooltip },
       },
       result: () => ({ data: { _: true } }),
+    },
+    // Opening any post (including articles) now logs a view on mount; tests
+    // that don't assert on this explicitly still need it mocked so the
+    // mutation doesn't fire an unmatched request against nock. Registered
+    // last so a test-supplied `mocks` entry for the same request wins.
+    {
+      request: {
+        query: VIEW_POST_MUTATION,
+        variables: { id: defaultProps.id },
+      },
+      result: () => ({ data: { viewPost: { _: true } } }),
     },
   ];
 
@@ -577,6 +624,23 @@ it('should show impressions when it is greater than zero', async () => {
   expect(el).toHaveTextContent('15 Impressions');
 });
 
+it('should hide the comments sort toggle when the comments empty state shows', async () => {
+  renderPost({}, [createPostMock(), createPostCommentsMock()]);
+  await screen.findByText('No comments yet');
+  expect(screen.queryByText('Sort:')).not.toBeInTheDocument();
+  expect(screen.queryByText('Oldest first')).not.toBeInTheDocument();
+});
+
+it('should show the comments sort toggle when there are comments', async () => {
+  renderPost({}, [
+    createPostMock({ numComments: 1 }),
+    createPostCommentsMock([{ node: commentFixture }]),
+  ]);
+  await screen.findByText('Oldest first');
+  expect(screen.getByText('Sort:')).toBeInTheDocument();
+  expect(screen.queryByText('No comments yet')).not.toBeInTheDocument();
+});
+
 it('should not show author link when author is null', async () => {
   renderPost();
   const el = screen.queryByTestId('authorLink');
@@ -590,13 +654,7 @@ it('should not show author onboarding by default', () => {
 });
 
 it('should show author onboarding when the query param is set', async () => {
-  jest.mocked(useRouter).mockImplementation(
-    () =>
-      ({
-        isFallback: false,
-        query: { author: 'true' },
-      } as unknown as NextRouter),
-  );
+  mockRouter({ query: { author: 'true' } });
   renderPost();
   const el = await screen.findByTestId('authorOnboarding');
   expect(el).toBeInTheDocument();
@@ -1035,19 +1093,44 @@ describe('article', () => {
       }),
     );
   });
+
+  // Unified view logging: opening an article now logs a view on mount too,
+  // matching every other post type, rather than only on "Read article" click.
+  it('should log post view on mount', async () => {
+    let viewPostMutationCalled = false;
+    renderPost({}, [
+      createPostMock(),
+      createCommentsMock(),
+      {
+        request: {
+          query: VIEW_POST_MUTATION,
+          variables: {
+            id: '0e4005b2d3cf191f8c44c2718a457a1e',
+          },
+        },
+        result: () => {
+          viewPostMutationCalled = true;
+
+          return {
+            data: {
+              viewPost: {
+                _: true,
+              },
+            },
+          };
+        },
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(viewPostMutationCalled).toBe(true);
+    });
+  });
 });
 
 describe('post redesign', () => {
   const mockRouterQuery = (query: Record<string, string>) => {
-    jest.mocked(useRouter).mockImplementation(
-      () =>
-        ({
-          isFallback: false,
-          pathname: '/posts',
-          isReady: true,
-          query,
-        } as unknown as NextRouter),
-    );
+    mockRouter({ query });
   };
 
   it('should render the focus card redesign when the flag is on', async () => {
@@ -1055,6 +1138,42 @@ describe('post redesign', () => {
     renderPost();
     expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
     expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
+  });
+
+  it('should log a view for tracked posts when the focus card is on', async () => {
+    mockRedesignOn = true;
+    let viewPostMutationCalled = false;
+    renderPost(
+      {},
+      [
+        createPostMock({ type: PostType.Collection }),
+        createCommentsMock(),
+        {
+          request: {
+            query: VIEW_POST_MUTATION,
+            variables: {
+              id: '0e4005b2d3cf191f8c44c2718a457a1e',
+            },
+          },
+          result: () => {
+            viewPostMutationCalled = true;
+
+            return {
+              data: {
+                viewPost: {
+                  _: true,
+                },
+              },
+            };
+          },
+        },
+      ],
+      defaultUser,
+    );
+
+    await waitFor(() => {
+      expect(viewPostMutationCalled).toBe(true);
+    });
   });
 
   it('should keep the classic layout when the flag is off', async () => {
@@ -1070,5 +1189,22 @@ describe('post redesign', () => {
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+  });
+});
+
+describe('isPostDetailPath (ad navigation boundary)', () => {
+  it('keeps client-side navigation only for other post detail pages', () => {
+    expect(isPostDetailPath('/posts/abc123')).toBe(true);
+    expect(isPostDetailPath('/posts/abc123?comment=1')).toBe(true);
+    expect(isPostDetailPath('/posts/abc123/share')).toBe(true);
+  });
+
+  it('treats the post list pages as departures that tear ads down', () => {
+    expect(isPostDetailPath('/posts/best-of/2026/08')).toBe(false);
+    expect(isPostDetailPath('/posts/latest')).toBe(false);
+    expect(isPostDetailPath('/posts/discussed')).toBe(false);
+    expect(isPostDetailPath('/posts/upvoted')).toBe(false);
+    expect(isPostDetailPath('/posts')).toBe(false);
+    expect(isPostDetailPath('/my-feed')).toBe(false);
   });
 });

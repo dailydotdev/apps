@@ -295,6 +295,9 @@ export const OPPORTUNITY_MATCHES_QUERY = gql`
             recentlyRead {
               keyword {
                 value
+                flags {
+                  title
+                }
               }
               issuedAt
             }
@@ -671,6 +674,9 @@ export const OPPORTUNITY_PREVIEW = gql`
           recentlyRead {
             keyword {
               value
+              flags {
+                title
+              }
             }
             issuedAt
           }

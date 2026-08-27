@@ -19,6 +19,7 @@ import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
+import { isOnboardingFeedPathname } from '../lib/onboarding';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
@@ -35,7 +36,8 @@ import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
-import { FeedbackWidget } from './feedback';
+import { FeedbackWidget } from './feedback/FeedbackWidget';
+import { useFeedbackShortcut } from '../hooks/useFeedbackShortcut';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
@@ -130,6 +132,7 @@ function MainLayoutComponent({
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   useRecordRecentPages(isV2);
   useNotificationParams();
+  useFeedbackShortcut();
 
   // Settings pages render their navigation only inside the v2 context panel,
   // so the sidebar force-expands there regardless of the stored preference.
@@ -176,13 +179,33 @@ function MainLayoutComponent({
     ? contentTransitionsEnabled
     : layoutSettled;
 
+  const isPageReady =
+    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
+
+  // Everything that isn't feed-shaped (post, tag, source, profile) prerenders
+  // real data through `getStaticProps`, but `isPageReady` can never be true on
+  // the server. Unmounting the layout until boot therefore shipped an empty
+  // `<div id="__next">`, so every crawler that doesn't run JS (including the
+  // answer engines `PostSEOSchema` targets) saw nothing but meta tags.
+  //
+  // Keep variant-specific chrome hidden until boot resolves, while allowing
+  // the prerendered page content itself to paint immediately.
+  const isHoldingChrome = !isPageReady && showSidebar;
+
   // On laptop the v1 and v2 chrome (sidebar + global header) look different,
   // so rendering before the experiment resolves makes v2 users flash the v1
   // layout and then swap. Hold the variant-specific chrome until the flag has
   // resolved so the correct layout paints once. Below laptop there is no v2
   // chrome and `isLayoutVariantLoading` never resolves (the flag isn't
   // evaluated there), so treat non-laptop as always resolved.
-  const isLayoutChromeResolved = !isLaptop || !isLayoutVariantLoading;
+  //
+  // The held render must also stay viewport-independent: `useMedia` seeds its
+  // state from `window.matchMedia`, so the first client render already knows
+  // the real breakpoint while the server assumed mobile. Leaving the header to
+  // `isLaptop` alone made the server emit one and the client skip it, which
+  // shifted `<main>` and broke hydration.
+  const isLayoutChromeResolved =
+    !isHoldingChrome && (!isLaptop || !isLayoutVariantLoading);
 
   // Extension new tab mounts its own `ExtensionTopBanners` strip, so
   // the webapp strip is suppressed there to avoid duplicate cards.
@@ -199,6 +222,15 @@ function MainLayoutComponent({
   const sidebarOwnsHeader =
     isV2 && (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
 
+  let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
+  if (sidebarOwnsHeader) {
+    stickyHeaderOffset = isBannerAvailable
+      ? 'laptop:[--sticky-header-offset:2rem]'
+      : 'laptop:[--sticky-header-offset:0rem]';
+  } else if (isBannerAvailable) {
+    stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
+  }
+
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
       return;
@@ -214,18 +246,21 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasLoggedImpression]);
 
-  const isPageReady =
-    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const isPageApplicableForOnboarding =
+  // Feed-shaped pages hold their paint until boot so the resolved chrome
+  // renders once. Broader than the onboarding gate below on purpose: this is
+  // about layout stability, not about forcing onboarding.
+  const isFeedShapedPage =
     !page || feeds.includes(page) || isCustomFeed || isExploreTag;
   const shouldRedirectOnboarding =
     !isExtension &&
     !user &&
     isPageReady &&
-    isPageApplicableForOnboarding &&
-    // Install referrals (`?ref=install`) are routed by the permission-primer
-    // flow in `_app` (to `/activate` or `/onboarding`). Redirecting here too
-    // would race that and bounce the user off `/activate`.
+    // Same set the webapp's `getOnboardingRedirect` uses for signed-in users,
+    // so a given URL doesn't force onboarding for one audience and not the
+    // other.
+    isOnboardingFeedPathname(router?.pathname) &&
+    // Install referrals (`?ref=install`) are routed by `_app` (to `/activate`).
+    // Redirecting here too would race that and bounce the user off `/activate`.
     router?.query?.ref !== 'install' &&
     !isTesting;
 
@@ -270,17 +305,10 @@ function MainLayoutComponent({
     });
   }, [shouldShowLogin, showLogin]);
 
-  // Pages that render the app chrome (sidebar layout) wait for boot before
-  // painting — the same `isPageReady` gate the feeds already use. The v1/v2
-  // chrome differs structurally and the variant only resolves after boot, so
-  // rendering early makes v2 users paint the v1 layout and then snap. Holding
-  // until boot lets the resolved layout paint once. The gate is
-  // breakpoint-independent (false on both server and first client render until
-  // ready), so it stays free of hydration mismatches.
-  if (
-    (!isPageReady && (isPageApplicableForOnboarding || showSidebar)) ||
-    shouldRedirectOnboarding
-  ) {
+  // Feed-shaped pages have nothing prerendered worth showing (the feed is
+  // fetched on the client) and anonymous visitors may still bounce to
+  // onboarding, so they keep bailing out entirely.
+  if (shouldRedirectOnboarding || (!isPageReady && isFeedShapedPage)) {
     return null;
   }
 
@@ -313,7 +341,10 @@ function MainLayoutComponent({
         />
       )}
 
-      {!sidebarOwnsHeader && isLayoutChromeResolved && (
+      {/* Temporary while layout v2 is experimental: production users are on
+          v1, so render its header in the initial HTML instead of waiting for
+          feature resolution and delaying the post page's LCP. */}
+      {!sidebarOwnsHeader && (
         <MainLayoutHeader
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
@@ -335,6 +366,21 @@ function MainLayoutComponent({
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
+          // The rail is `fixed` and drops by the banner's height on its own
+          // (--safe-area-top-offset), so the content has to drop by the same
+          // 2rem or the pinned banner paints over the top of it.
+          isBannerAvailable && sidebarOwnsHeader && 'laptop:pt-8',
+          // Mirrors the padding above as an inheritable value, so a sticky
+          // descendant can pin directly under whatever fixed chrome this
+          // layout actually has. A hardcoded offset overshoots wherever the
+          // chrome is shorter or absent (v2, tablet, mobile), and a sticky
+          // element whose `top` exceeds its natural position is pushed *down*
+          // over the content that follows it. One ternary rather than stacked
+          // classes because arbitrary properties have no reliable cascade
+          // order between them. Below laptop no chrome is fixed above the
+          // content, so the base value is zero.
+          '[--sticky-header-offset:0px]',
+          stickyHeaderOffset,
         )}
       >
         {isAuthReady && isLayoutChromeResolved && showSidebar && (
@@ -365,7 +411,9 @@ function MainLayoutComponent({
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
                 !hasTopBanners &&
                   !topBanner &&
-                  'laptop:min-h-[calc(100vh-1.5rem)]',
+                  (isBannerAvailable
+                    ? 'laptop:min-h-[calc(100vh-3.5rem)]'
+                    : 'laptop:min-h-[calc(100vh-1.5rem)]'),
               )}
             >
               <RouteProgressBar />

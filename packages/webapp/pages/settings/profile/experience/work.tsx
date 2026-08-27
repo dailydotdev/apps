@@ -12,13 +12,14 @@ import { ExperienceSettings } from '@dailydotdev/shared/src/components/profile/E
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
-import { defaultSeo } from '../../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Work Experience'),
+  ...noindexSeoProps,
 };
 
 const WorkExperiencePage = (): ReactElement => {

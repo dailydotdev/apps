@@ -22,9 +22,11 @@ import {
   AddUserIcon,
   SquadIcon,
   MegaphoneIcon,
+  WorldIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
+import { AgentIcon } from '../icons/Agent';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
 import type {
   NotificationChannel,
@@ -64,8 +66,11 @@ export enum NotificationType {
   UserPostAdded = 'user_post_added',
   UserTopReaderBadge = 'user_given_top_reader',
   UserReceivedAward = 'user_received_award',
+  UserAwardThanks = 'user_award_thanks',
   BriefingReady = 'briefing_ready',
   DigestReady = 'digest_ready',
+  InterestContentAvailable = 'interest_content_available',
+  InterestContentBatch = 'interest_content_batch',
   UserFollow = 'user_follow',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
@@ -73,6 +78,8 @@ export enum NotificationType {
   PostBookmarkReminder = 'post_bookmark_reminder',
   StreakReminder = 'streak_reminder',
   StreakResetRestore = 'streak_reset_restore',
+  StreakFreezeUsed = 'streak_freeze_used',
+  StreakFreezeDepleted = 'streak_freeze_depleted',
   SourcePostApproved = 'source_post_approved',
   DevCardUnlocked = 'dev_card_unlocked',
   PostMention = 'post_mention',
@@ -95,6 +102,7 @@ export enum NotificationType {
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
   LiveRoomStarted = 'live_room_started',
+  WorldDistrictLevelUp = 'world_district_level_up',
 }
 
 export enum NotificationIconType {
@@ -115,6 +123,7 @@ export enum NotificationIconType {
   Core = 'Core',
   Analytics = 'Analytics',
   Opportunity = 'Opportunity',
+  World = 'World',
 }
 
 export const notificationIcon: Record<
@@ -138,6 +147,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Core]: CoreIcon,
   [NotificationIconType.Analytics]: AnalyticsIcon,
   [NotificationIconType.Opportunity]: JobIcon,
+  [NotificationIconType.World]: WorldIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -163,6 +173,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Core]: '',
   [NotificationIconType.Analytics]: 'text-brand-default',
   [NotificationIconType.Opportunity]: 'text-black',
+  [NotificationIconType.World]: 'text-brand-default',
 };
 
 export const notificationIconStyle: Record<
@@ -186,6 +197,7 @@ export const notificationIconStyle: Record<
   [NotificationIconType.Core]: null,
   [NotificationIconType.Analytics]: null,
   [NotificationIconType.Opportunity]: { background: briefButtonBg },
+  [NotificationIconType.World]: null,
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -204,8 +216,10 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserPostAdded]: 'text-brand-default',
     [NotificationType.UserTopReaderBadge]: 'text-brand-default',
     [NotificationType.UserReceivedAward]: 'text-brand-default',
+    [NotificationType.UserAwardThanks]: 'text-brand-default',
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.DigestReady]: 'text-brand-default',
+    [NotificationType.InterestContentBatch]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
   };
 
@@ -291,6 +305,10 @@ export const ACHIEVEMENT_KEYS = [
   NotificationType.DevCardUnlocked,
   NotificationType.ArticleAnalytics,
 ];
+// Its own group rather than one of the achievement keys. Sharing that toggle
+// would mean the only way to stop hearing about a world is to also stop
+// hearing about badges, under a label that never mentions worlds.
+export const WORLD_KEYS = [NotificationType.WorldDistrictLevelUp];
 export const MENTION_KEYS = [
   NotificationType.PostMention,
   NotificationType.CommentMention,
@@ -298,6 +316,8 @@ export const MENTION_KEYS = [
 export const STREAK_KEYS = [
   NotificationType.StreakReminder,
   NotificationType.StreakResetRestore,
+  NotificationType.StreakFreezeUsed,
+  NotificationType.StreakFreezeDepleted,
 ];
 export const SQUAD_ROLE_KEYS = [
   NotificationType.PromotedToAdmin,
@@ -356,6 +376,7 @@ export enum NotificationFilterCategory {
   Comments = 'comments',
   Followers = 'followers',
   Squads = 'squads',
+  Agents = 'agents',
   Updates = 'updates',
 }
 
@@ -393,6 +414,10 @@ export const notificationCategoryToTypes: Record<
     NotificationType.SourcePostRejected,
     NotificationType.ArticlePicked,
   ],
+  [NotificationFilterCategory.Agents]: [
+    NotificationType.InterestContentAvailable,
+    NotificationType.InterestContentBatch,
+  ],
   [NotificationFilterCategory.Updates]: [
     NotificationType.System,
     NotificationType.SourcePostAdded,
@@ -402,6 +427,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.PollResult,
     NotificationType.PollResultAuthor,
     NotificationType.UserReceivedAward,
+    NotificationType.UserAwardThanks,
     NotificationType.UserTopReaderBadge,
     NotificationType.DevCardUnlocked,
     NotificationType.ArticleReportApproved,
@@ -413,6 +439,8 @@ export const notificationCategoryToTypes: Record<
     NotificationType.DigestReady,
     NotificationType.StreakReminder,
     NotificationType.StreakResetRestore,
+    NotificationType.StreakFreezeUsed,
+    NotificationType.StreakFreezeDepleted,
     NotificationType.Marketing,
     NotificationType.Announcements,
     NotificationType.NewUserWelcome,
@@ -421,6 +449,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.LiveRoomStarted,
+    NotificationType.WorldDistrictLevelUp,
   ],
 };
 
@@ -431,6 +460,7 @@ export const notificationFilterCategoryList: NotificationFilterCategory[] = [
   NotificationFilterCategory.Comments,
   NotificationFilterCategory.Followers,
   NotificationFilterCategory.Squads,
+  NotificationFilterCategory.Agents,
   NotificationFilterCategory.Updates,
 ];
 
@@ -443,6 +473,7 @@ export const notificationFilterCategoryLabel: Record<
   [NotificationFilterCategory.Comments]: 'Comments',
   [NotificationFilterCategory.Followers]: 'Followers',
   [NotificationFilterCategory.Squads]: 'Squads',
+  [NotificationFilterCategory.Agents]: 'Agents',
   [NotificationFilterCategory.Updates]: 'Updates',
 };
 
@@ -461,34 +492,54 @@ export const getNotificationCategory = (
   notificationTypeToCategory[type] ?? NotificationFilterCategory.Updates;
 
 // Eye-catching colored type badge overlaid on the avatar (Instagram/Facebook/
-// TikTok pattern): a solid accent circle + white glyph that signals the
-// notification type at a glance.
+// TikTok pattern): a solid accent circle + glyph that signals the notification
+// type at a glance.
+//
+// `fg` is chosen for contrast against the badge fill, not for decoration: the
+// food-palette accents split into bright (avocado green, blueCheese cyan, bun
+// orange) where a white glyph washes out, and dark (cabbage/onion purples)
+// where white reads. Bright fills get a dark glyph, dark fills get white — so
+// the icon stays legible in both light and dark themes (the fill hue barely
+// shifts between themes, so a fixed per-badge `fg` is enough).
 export const notificationCategoryBadge: Record<
   NotificationFilterCategory,
-  { bg: string; Icon: ComponentType<IconProps> }
+  { bg: string; fg: string; Icon: ComponentType<IconProps> }
 > = {
   [NotificationFilterCategory.Upvotes]: {
     bg: 'bg-accent-avocado-default',
+    fg: 'text-black',
     Icon: UpvoteIcon,
   },
   [NotificationFilterCategory.Mentions]: {
     bg: 'bg-accent-cabbage-default',
+    fg: 'text-white',
     Icon: AtIcon,
   },
   [NotificationFilterCategory.Comments]: {
     bg: 'bg-accent-blueCheese-default',
+    fg: 'text-black',
     Icon: DiscussIcon,
   },
   [NotificationFilterCategory.Followers]: {
     bg: 'bg-accent-onion-default',
+    fg: 'text-white',
     Icon: AddUserIcon,
   },
+  // Squads shares the Followers purple — the cheese yellow read poorly and a
+  // white glyph on yellow had almost no contrast.
   [NotificationFilterCategory.Squads]: {
-    bg: 'bg-accent-cheese-default',
+    bg: 'bg-accent-onion-default',
+    fg: 'text-white',
     Icon: SquadIcon,
+  },
+  [NotificationFilterCategory.Agents]: {
+    bg: 'bg-accent-water-default',
+    fg: 'text-white',
+    Icon: AgentIcon,
   },
   [NotificationFilterCategory.Updates]: {
     bg: 'bg-accent-bun-default',
+    fg: 'text-black',
     Icon: MegaphoneIcon,
   },
 };
@@ -624,6 +675,16 @@ export const STREAK_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.StreakResetRestore,
     label: 'Restore broken streak',
+    group: false,
+  },
+  {
+    id: NotificationType.StreakFreezeUsed,
+    label: 'Streak freeze used',
+    group: false,
+  },
+  {
+    id: NotificationType.StreakFreezeDepleted,
+    label: 'Out of streak freezes',
     group: false,
   },
 ];

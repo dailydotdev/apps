@@ -1,14 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import {
-  EmptyScreenButton,
   EmptyScreenContainer,
   EmptyScreenDescription,
   EmptyScreenIcon,
   EmptyScreenTitle,
 } from './EmptyScreen';
 import { PageContainer } from './utilities';
-import { ButtonSize, ButtonVariant } from './buttons/common';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { SquadIcon } from './icons';
 import { webappUrl } from '../lib/constants';
 import Link from './utilities/Link';
@@ -27,18 +26,20 @@ function FollowingFeedEmptyScreen(): ReactElement {
           or there is not enough content. Explore more Squads and Sources
         </EmptyScreenDescription>
         <div className="flex flex-col gap-4 tablet:flex-row">
-          <Link href={`${webappUrl}squads`}>
-            <EmptyScreenButton size={ButtonSize.Large}>
+          <Link href={`${webappUrl}squads`} passHref>
+            <Button tag="a" className="mt-10" size={ButtonSize.Large}>
               Find Squads
-            </EmptyScreenButton>
+            </Button>
           </Link>
-          <Link href={`${webappUrl}sources`}>
-            <EmptyScreenButton
+          <Link href={`${webappUrl}sources`} passHref>
+            <Button
+              tag="a"
+              className="mt-10"
               size={ButtonSize.Large}
               variant={ButtonVariant.Secondary}
             >
               Discover Sources
-            </EmptyScreenButton>
+            </Button>
           </Link>
         </div>
       </EmptyScreenContainer>

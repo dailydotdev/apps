@@ -13,8 +13,12 @@ import { webappUrl } from '../../lib/constants';
 import { useViewSize, ViewSize } from '../../hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
-import { IconSize } from '../Icon';
-import { railTabClass, railTabLabelClass } from '../sidebar/common';
+import {
+  RAIL_ICON_SIZE,
+  railCountBubbleClass,
+  railTabClass,
+  railTabLabelClass,
+} from '../sidebar/common';
 
 function NotificationsBell({
   compact,
@@ -64,27 +68,40 @@ function NotificationsBell({
           <a
             href={`${webappUrl}notifications`}
             aria-label="Notifications"
+            // It's a tab in the rail tablist; the role makes `aria-selected`
+            // valid and lets the v2 rail's shared sliding pill track this tab
+            // like the others (the pill renders the selected background, so here
+            // we only own the active text color).
+            role="tab"
+            aria-selected={atNotificationsPage}
+            // Every other rail tab is a <button>; this one is an anchor, which
+            // browsers drag natively. That native link-drag ran alongside the
+            // rail's dnd-kit reorder and navigated on drop — reloading
+            // /notifications. Only dnd-kit should drive this drag.
+            draggable={false}
             className={classNames(
               railTabClass,
-              atNotificationsPage && 'bg-background-default !text-text-primary',
+              atNotificationsPage && '!text-text-primary',
             )}
             onClick={onNavigateNotifications}
           >
             <span className="relative flex items-center justify-center">
               <BellIcon
                 secondary={atNotificationsPage}
-                size={IconSize.Small}
+                size={RAIL_ICON_SIZE}
                 aria-hidden
                 className="pointer-events-none"
               />
               {hasNotification && (
-                <Bubble className="-right-1 -top-1 cursor-pointer px-1">
+                // Shared with the gamification tab's count so every rail badge
+                // sits in exactly the same place (see railCountBubbleClass).
+                <Bubble className={railCountBubbleClass}>
                   {getUnreadText(unreadCount)}
                 </Bubble>
               )}
             </span>
             {!railHideLabel && (
-              <span className={railTabLabelClass}>Alerts</span>
+              <span className={railTabLabelClass}>Activity</span>
             )}
           </a>
         </Link>

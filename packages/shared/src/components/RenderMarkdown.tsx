@@ -16,6 +16,7 @@ import {
 } from './buttons/Button';
 import { ArrowIcon, CopyIcon } from './icons';
 import { useCopyText } from '../hooks/useCopy';
+import { getVideoMimeType, isVideoUrl } from '../lib/video';
 import {
   Typography,
   TypographyColor,
@@ -163,6 +164,18 @@ const RenderMarkdown = ({
       components={{
         ol({ children }) {
           return <ol>{children}</ol>;
+        },
+        img({ node, src, alt, ...props }) {
+          if (src && isVideoUrl(src)) {
+            const type = getVideoMimeType(src);
+            return (
+              // eslint-disable-next-line jsx-a11y/media-has-caption
+              <video controls preload="metadata" aria-label={alt}>
+                <source src={src} type={type} />
+              </video>
+            );
+          }
+          return <img src={src} alt={alt} {...props} />;
         },
         code({
           node,

@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import PostEngagements from './PostEngagements';
 import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
+import { PostAnsweredQuestions } from './PostAnsweredQuestions';
 import { ButtonSize } from '../buttons/common';
 
 const Custom404 = dynamic(
@@ -31,6 +32,8 @@ export function BasePostContent({
   navigationProps,
   engagementProps,
   shouldOnboardAuthor,
+  aboveComments,
+  commentAds,
   isPostPage,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
@@ -62,12 +65,17 @@ export function BasePostContent({
         </GoBackHeaderMobile>
       )}
       {children}
+      {isPostPage && <PostAnsweredQuestions post={post} className="mt-6" />}
+      {aboveComments}
       {!!engagementProps && (
         <PostEngagements
           post={post}
           onCopyLinkClick={onCopyPostLink}
           logOrigin={origin}
           shouldOnboardAuthor={shouldOnboardAuthor}
+          hideInternalAd={!!commentAds}
+          interleaveEvery={commentAds?.interleaveEvery}
+          renderInterleaved={commentAds?.renderInterleaved}
         />
       )}
     </>

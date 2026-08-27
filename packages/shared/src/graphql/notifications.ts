@@ -14,6 +14,7 @@ export enum NotificationAvatarType {
   Brief = 'brief',
   Digest = 'digest',
   Achievement = 'achievement',
+  World = 'world',
 }
 
 export interface NotificationAvatar extends WithClassNameProps {
@@ -49,6 +50,7 @@ export interface Notification {
   attachments?: NotificationAttachment[];
   targetUrl: string;
   numTotalAvatars?: number;
+  hasThanks?: boolean;
 }
 
 export interface NotificationsData {
@@ -86,6 +88,7 @@ export const NOTIFICATIONS_QUERY = gql`
           }
           targetUrl
           numTotalAvatars
+          hasThanks
         }
       }
     }

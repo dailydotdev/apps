@@ -19,7 +19,7 @@ import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isExtension } from '../../lib/func';
+import { isExtension, isInExtensionIframe } from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import {
   groupLabels,
@@ -404,20 +404,6 @@ const Hint = ({ label, combo }: { label: string; combo: string }) => (
   </span>
 );
 
-const isInExtensionIframe = (target: EventTarget | null): boolean => {
-  if (!isExtension || typeof window === 'undefined') {
-    return false;
-  }
-  const node = target instanceof HTMLElement ? target : null;
-  if (!node) {
-    return false;
-  }
-  // If focus is in any iframe owned by the host page rather than the
-  // extension's own surface, bail out so we don't steal native browser
-  // bindings (Linear-style scoping).
-  return node.tagName === 'IFRAME';
-};
-
 export const Spotlight = ({
   isOpen,
   onClose,
@@ -761,12 +747,16 @@ export const Spotlight = ({
         )}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            // First Escape backs out of a pending destructive confirm;
+            // otherwise it closes the palette (the "esc Close" hint).
             if (pendingConfirmId) {
-              event.preventDefault();
-              event.stopPropagation();
               clearConfirm();
               return;
             }
+            onClose();
+            return;
           }
           if (
             event.altKey &&
@@ -867,6 +857,19 @@ export const Spotlight = ({
                 >
                   <ClearIcon size={IconSize.XSmall} />
                 </button>
+              )}
+              {/* Mobile has no physical keyboard, so the "esc Close" footer
+                  hint is useless — give a tappable Close instead. */}
+              {isMobile && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  className="border border-border-subtlest-tertiary"
+                  onClick={onClose}
+                >
+                  Close
+                </Button>
               )}
             </div>
             {scope === SpotlightScope.All && (
@@ -1139,12 +1142,14 @@ export const Spotlight = ({
           </Command.List>
         )}
 
-        <div className="flex h-8 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-4 text-text-quaternary typo-caption2">
-          <span className="flex items-center gap-4">
-            <Hint label="Open" combo="↵" />
-            <Hint label="Close" combo="esc" />
-          </span>
-        </div>
+        {!isMobile && (
+          <div className="flex h-8 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-4 text-text-quaternary typo-caption2">
+            <span className="flex items-center gap-4">
+              <Hint label="Open" combo="↵" />
+              <Hint label="Close" combo="esc" />
+            </span>
+          </div>
+        )}
       </Command>
     </>
   );
@@ -1158,8 +1163,11 @@ export const Spotlight = ({
         appendOnRoot
         className={{
           drawer: 'p-0',
+          // !p-0 overrides BaseDrawer's default `px-4 pt-3` (added when the
+          // drawer has no title); the palette supplies its own insets, so the
+          // extra horizontal padding was clipping the search field.
           wrapper:
-            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default p-0',
+            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default !p-0',
         }}
       >
         {paletteBody}

@@ -121,10 +121,10 @@ it('should show the top reading tags of the user', async () => {
   renderComponent();
   await waitForNock();
   await screen.findByText('Top tags by reading days');
-  // Tags are rendered capitalized without the # prefix
-  await screen.findByText('Javascript');
-  await screen.findByText('Golang');
-  await screen.findByText('C#');
+  // No keyword title available: the raw tag value is rendered as-is
+  await screen.findByText('javascript');
+  await screen.findByText('golang');
+  await screen.findByText('c#');
 });
 
 it('should show the about me section with readme of the user', async () => {

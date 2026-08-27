@@ -113,9 +113,19 @@ const FeedContext = React.createContext<FeedContextData>(
   baseFeedSettings.default,
 );
 
+interface FeedLayoutProviderProps {
+  /**
+   * Upper bound on the column count, for a feed in a narrower box than its
+   * page. Without it the count comes purely from the viewport, so an embedded
+   * feed divides its own width by a full page's worth of columns.
+   */
+  maxNumCards?: number;
+}
+
 export function FeedLayoutProvider({
   children,
-}: PropsWithChildren): ReactElement {
+  maxNumCards,
+}: PropsWithChildren<FeedLayoutProviderProps>): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
@@ -193,8 +203,27 @@ export function FeedLayoutProvider({
     defaultFeedSettings,
   );
 
+  const cappedSettings = useMemo(() => {
+    if (!maxNumCards) {
+      return currentSettings;
+    }
+
+    const { numCards } = currentSettings;
+
+    return {
+      ...currentSettings,
+      numCards: Object.entries(numCards).reduce(
+        (acc, [spaciness, count]) => ({
+          ...acc,
+          [spaciness]: Math.min(count, maxNumCards),
+        }),
+        {} as FeedContextData['numCards'],
+      ),
+    };
+  }, [currentSettings, maxNumCards]);
+
   return (
-    <FeedContext.Provider value={currentSettings}>
+    <FeedContext.Provider value={cappedSettings}>
       {children}
     </FeedContext.Provider>
   );

@@ -22,8 +22,9 @@ export const capitalize = (value: string): string =>
   (value && value[0].toUpperCase() + value.slice(1)) || '';
 
 /**
- * Formats a keyword/tag value to be human-readable by removing hyphens
- * and capitalizing each word. For example: "machine-learning" -> "Machine Learning"
+ * Formats a keyword/tag value into a human-readable page title, e.g.
+ * "machine-learning" -> "Machine Learning". Only for titles and SEO metadata of
+ * a keyword's own page; tag labels render the keyword title or the raw value.
  * @param value - The keyword/tag value to format
  * @returns The formatted string
  */

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { ButtonSize } from '../buttons/Button';
 import { pageHeaderClassName } from '../layout/PageHeader';
@@ -8,8 +9,8 @@ import {
   SquadDirectoryNavbarItem,
 } from '../squads/layout/SquadDirectoryNavbar';
 import { getTagPageLink } from '../../lib/links';
-import { formatKeyword } from '../../lib/strings';
 import { webappUrl } from '../../lib/constants';
+import { tagTitlesQueryOptions } from '../../graphql/keywords';
 
 interface TagPageNavbarProps {
   // The tag currently being viewed; rendered as the active tab.
@@ -33,6 +34,7 @@ export function TagPageNavbar({
   recommendedTags = [],
   className,
 }: TagPageNavbarProps): ReactElement {
+  const { data: tagTitles = {} } = useQuery(tagTitlesQueryOptions());
   const tags = useMemo(() => {
     const rec = recommendedTags.filter((tag) => tag && tag !== activeTag);
     const ordered = activeTag ? [activeTag, ...rec] : rec;
@@ -50,18 +52,18 @@ export function TagPageNavbar({
         <SquadDirectoryNavbarItem
           buttonSize={ButtonSize.Small}
           isActive={!activeTag}
-          label="Explore"
+          label="All tags"
           path={tagsUrl}
-          ariaLabel="Explore tags"
+          ariaLabel="All tags"
         />
         {tags.map((tag) => (
           <SquadDirectoryNavbarItem
             key={tag}
             buttonSize={ButtonSize.Small}
             isActive={tag === activeTag}
-            label={formatKeyword(tag)}
+            label={tagTitles[tag] || tag}
             path={getTagPageLink(tag)}
-            ariaLabel={formatKeyword(tag)}
+            ariaLabel={tagTitles[tag] || tag}
           />
         ))}
       </SquadDirectoryNavbar>

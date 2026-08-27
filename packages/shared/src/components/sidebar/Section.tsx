@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import type { ItemInnerProps, SidebarMenuItem } from './common';
 import { NavHeader, NavSection } from './common';
 import { SidebarItem } from './SidebarItem';
@@ -11,6 +11,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { isNullOrUndefined } from '../../lib/func';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import Link from '../utilities/Link';
+import { HorizontalSeparator } from '../utilities';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -57,16 +58,19 @@ export function Section({
   // always expanded.
   const initialIsVisible =
     !title || isNullOrUndefined(currentFlagValue) ? true : currentFlagValue;
-  const isVisible = useRef(initialIsVisible);
+  // State (not a ref) so toggling re-renders even for sections without a
+  // persisted `flag` (e.g. the settings panel groups) — otherwise the
+  // collapse never visibly happens.
+  const [isVisible, setIsVisible] = useState(initialIsVisible);
 
   const toggleFlag = () => {
-    const nextIsVisible = !isVisible.current;
+    const nextIsVisible = !isVisible;
 
     if (flag) {
       updateFlag(flag, nextIsVisible);
     }
 
-    isVisible.current = nextIsVisible;
+    setIsVisible(nextIsVisible);
   };
 
   return (
@@ -97,7 +101,7 @@ export function Section({
               type="button"
               onClick={toggleFlag}
               aria-label={`Toggle ${title}`}
-              aria-expanded={!!isVisible.current}
+              aria-expanded={!!isVisible}
               aria-controls={flag ? `section-${flag}` : undefined}
               className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
             >
@@ -122,7 +126,7 @@ export function Section({
                   compact
                     ? 'opacity-0 transition-[transform,opacity] group-focus-within/section:opacity-100 group-hover/section:opacity-100'
                     : 'h-2.5 w-2.5 transition-transform',
-                  isVisible.current ? 'rotate-180' : 'rotate-90',
+                  isVisible ? 'rotate-180' : 'rotate-90',
                 )}
               />
             </button>
@@ -157,7 +161,7 @@ export function Section({
           // only toggle). A flagged-but-title-less section — e.g. the Squads
           // and Saved panels — would otherwise get stuck hidden when its flag
           // is false, with no arrow to re-expand it.
-          !title || isVisible.current || shouldAlwaysBeVisible
+          !title || isVisible || shouldAlwaysBeVisible
             ? 'grid-rows-[1fr] opacity-100'
             : 'grid-rows-[0fr] opacity-0',
         )}
@@ -168,15 +172,22 @@ export function Section({
             compact && 'gap-px',
           )}
         >
-          {items.map((item) => (
-            <SidebarItem
-              key={`${item.title}-${item.path}`}
-              item={item}
-              activePage={activePage}
-              isItemsButton={isItemsButton}
-              shouldShowLabel={shouldShowLabel}
-            />
-          ))}
+          {items.map((item) =>
+            item.isSeparator ? (
+              <HorizontalSeparator
+                key={item.title}
+                className="mx-3 my-2 w-auto"
+              />
+            ) : (
+              <SidebarItem
+                key={`${item.title}-${item.path}`}
+                item={item}
+                activePage={activePage}
+                isItemsButton={isItemsButton}
+                shouldShowLabel={shouldShowLabel}
+              />
+            ),
+          )}
         </div>
       </div>
     </NavSection>

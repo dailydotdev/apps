@@ -24,7 +24,7 @@ const HACKATHON_TITLE = 'Hackathon';
 const HACKATHON_DESCRIPTION =
   '5 days, the daily.dev Public API, and three open tracks. Work on it at your own pace. Build something for developers, from developers.';
 
-const HACKATHON_OG_IMAGE = fromCDN('/assets/hackathon-og.png?v=3');
+const HACKATHON_OG_IMAGE = fromCDN('/app/assets/hackathon-og.png?v=3');
 
 const seoTitles = getPageSeoTitles(HACKATHON_TITLE);
 const seo: NextSeoProps = {

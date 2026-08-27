@@ -90,6 +90,7 @@ const defaultStreak: UserStreak = {
   current: 8,
   weekStart: 1,
   lastViewAt: new Date(),
+  freezesAvailable: 0,
 };
 
 const defaultMostReadTags: MostReadTag[] = [

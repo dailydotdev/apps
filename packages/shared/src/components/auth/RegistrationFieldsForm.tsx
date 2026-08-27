@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { TextField } from '../fields/TextField';
 import { PasswordField } from '../fields/PasswordField';
 import { Checkbox } from '../fields/Checkbox';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
-import type { UserExperienceLevel } from '../../lib/user';
+import CloudProviderDropdown from '../profile/CloudProviderDropdown';
+import type {
+  CloudProvider,
+  ProfileExtraField,
+  UserExperienceLevel,
+} from '../../lib/user';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { useGenerateUsername } from '../../hooks';
 import { labels } from '../../lib';
+import { AtIcon, MailIcon, UserIcon } from '../icons';
 
 export type UserExperienceLevelKey = keyof typeof UserExperienceLevel;
 
@@ -19,6 +26,9 @@ export interface RegistrationFieldsFormValues {
   experienceLevel?: UserExperienceLevelKey;
   optOutMarketing: boolean;
   image?: string;
+  company?: string;
+  title?: string;
+  cloudProvider?: keyof typeof CloudProvider;
 }
 
 type FormValues = Omit<RegistrationFieldsFormValues, 'image'>;
@@ -31,6 +41,11 @@ export interface RegistrationFieldsFormProps {
   errors?: Partial<Record<keyof RegistrationFieldsFormValues, string>>;
   onResetErrors?: (field?: keyof RegistrationFieldsFormValues) => void;
   withPassword?: boolean;
+  // Optional extra profile fields to render, driven by the onboarding funnel
+  // (campaign cohorts). Empty/undefined renders the default fields only.
+  extraFields?: ProfileExtraField[];
+  /** Suppresses the form's own submit button, for a docked `<button form={id}>`. */
+  formId?: string;
 }
 
 const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
@@ -41,6 +56,8 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
   errors: serverErrors = {},
   onResetErrors,
   withPassword,
+  extraFields = [],
+  formId,
 }) => {
   const [values, setValues] = useState<FormValues>({
     email: initialValues.email || '',
@@ -49,7 +66,13 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
     username: initialValues.username || '',
     experienceLevel: initialValues.experienceLevel as UserExperienceLevelKey,
     optOutMarketing: initialValues.optOutMarketing || false,
+    company: initialValues.company || '',
+    title: initialValues.title || '',
+    cloudProvider: initialValues.cloudProvider,
   });
+  const showCompany = extraFields.includes('company');
+  const showJobTitle = extraFields.includes('jobTitle');
+  const showCloudProvider = extraFields.includes('cloudProvider');
   const { username, isLoading: isLoadingUsername } = useGenerateUsername(
     initialValues.username ? undefined : initialValues.name,
   );
@@ -106,12 +129,29 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       // reach this branch, but its declared type is `string | undefined`
       // because `useGenerateUsername` can be loading. Fall back to '' to
       // satisfy the FormValues contract without a non-null assertion.
-      onSubmit({ ...values, username: inputUsername ?? '' });
+      // Only include the optional extra fields when they're actually rendered
+      // (and non-empty), so default registration flows never submit them and
+      // overwrite existing profile values with blanks.
+      onSubmit({
+        ...values,
+        username: inputUsername ?? '',
+        company: showCompany && values.company ? values.company : undefined,
+        title: showJobTitle && values.title ? values.title : undefined,
+        cloudProvider: showCloudProvider ? values.cloudProvider : undefined,
+      });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-2">
+    <form
+      id={formId}
+      onSubmit={handleSubmit}
+      className={classNames(
+        'flex flex-col items-center',
+        // `formId` doubles as the marker for the funnel's roomier field stack.
+        formId ? 'w-full gap-4' : 'gap-2',
+      )}
+    >
       {initialValues.image && (
         <ImageInput
           className={{ container: 'mb-4' }}
@@ -124,6 +164,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         name="email"
         inputId="email"
         label="Email"
+        leftIcon={
+          formId ? <MailIcon aria-hidden role="presentation" /> : undefined
+        }
         type="email"
         value={values.email}
         onChange={handleChange('email')}
@@ -139,6 +182,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       />
       <TextField
         name="name"
+        leftIcon={
+          formId ? <UserIcon aria-hidden role="presentation" /> : undefined
+        }
         inputId="name"
         label="Name"
         value={values.name}
@@ -175,6 +221,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       )}
       <TextField
         name="username"
+        leftIcon={
+          formId ? <AtIcon aria-hidden role="presentation" /> : undefined
+        }
         inputId="username"
         label="Enter a username"
         value={inputUsername}
@@ -209,7 +258,50 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         }
         saveHintSpace
       />
+      {showCompany && (
+        <TextField
+          name="company"
+          inputId="company"
+          label="Company name"
+          value={values.company}
+          onChange={handleChange('company')}
+          onBlur={handleBlur('company')}
+          hint={serverErrors.company || ''}
+          autoComplete="organization"
+          className={{ container: 'w-full' }}
+        />
+      )}
+      {showJobTitle && (
+        <TextField
+          name="title"
+          inputId="title"
+          label="Job title"
+          value={values.title}
+          onChange={handleChange('title')}
+          onBlur={handleBlur('title')}
+          hint={serverErrors.title || ''}
+          autoComplete="organization-title"
+          className={{ container: 'w-full' }}
+        />
+      )}
+      {showCloudProvider && (
+        <CloudProviderDropdown
+          name="cloudProvider"
+          className={{ container: 'w-full' }}
+          defaultValue={values.cloudProvider}
+          onChange={(val) => {
+            setValues((v) => ({ ...v, cloudProvider: val }));
+            setTouched((t) => ({ ...t, cloudProvider: true }));
+            onResetErrors?.('cloudProvider');
+          }}
+          hint={serverErrors.cloudProvider || ''}
+          saveHintSpace
+        />
+      )}
       <Checkbox
+        // An inline-flex label would otherwise shrink to its text and float to
+        // the middle of the centred form, off the fields' left edge.
+        className={formId ? 'mt-2 w-full' : undefined}
         name="optOutMarketing"
         checked={values.optOutMarketing}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,14 +311,16 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       >
         I don&apos;t want to receive updates and promotions via email
       </Checkbox>
-      <Button
-        className="w-full"
-        type="submit"
-        variant={ButtonVariant.Primary}
-        disabled={disabled}
-      >
-        {submitLabel}
-      </Button>
+      {!formId && (
+        <Button
+          className="w-full"
+          type="submit"
+          variant={ButtonVariant.Primary}
+          disabled={disabled}
+        >
+          {submitLabel}
+        </Button>
+      )}
     </form>
   );
 };

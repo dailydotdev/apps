@@ -1,11 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import type { NextSeoProps } from 'next-seo';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
-import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { cloudinaryGivebackOpenGraph } from '@dailydotdev/shared/src/lib/image';
 import { GivebackPage } from '@dailydotdev/shared/src/features/giveback/components/GivebackPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -18,34 +14,24 @@ const seo: NextSeoProps = {
   openGraph: {
     ...defaultOpenGraph,
     ...seoTitles.openGraph,
+    // Dedicated giveback share card, overriding the site-wide default OG image.
+    images: [
+      {
+        url: cloudinaryGivebackOpenGraph,
+        width: 1280,
+        height: 800,
+        alt: 'daily.dev Giveback: thank you, the campaign is now closed',
+      },
+    ],
   },
   ...defaultSeo,
   description:
-    'Help daily.dev grow and we will fund good causes. Complete community actions to help unlock donations toward a shared goal.',
+    'The daily.dev Giveback campaign has ended. See what the community unlocked together and where the donations go.',
   nofollow: true,
   noindex: true,
 };
 
-const GivebackRoute = (): ReactElement | null => {
-  const router = useRouter();
-  const { isAuthReady } = useAuthContext();
-  const { value: isEnabled, isLoading } = useConditionalFeature({
-    feature: featureGiveback,
-    shouldEvaluate: isAuthReady,
-  });
-
-  useEffect(() => {
-    if (!isLoading && !isEnabled) {
-      router.replace(webappUrl);
-    }
-  }, [isLoading, isEnabled, router]);
-
-  if (!isEnabled) {
-    return null;
-  }
-
-  return <GivebackPage />;
-};
+const GivebackRoute = (): ReactElement => <GivebackPage />;
 
 const getGivebackLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));

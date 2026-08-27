@@ -102,9 +102,11 @@ const Toast = ({
       return;
     }
 
-    // Auto-dismiss (and the countdown ring) only when the setting is on and the
-    // toast isn't explicitly persistent; otherwise it stays until dismissed.
-    const shouldAutoDismiss = autoDismissNotifications && !toast.persistent;
+    // Auto-dismiss (and the countdown ring) when the setting is on — or a toast
+    // forces it — and the toast isn't explicitly persistent; otherwise it stays
+    // until dismissed.
+    const shouldAutoDismiss =
+      (autoDismissNotifications || toast.forceAutoDismiss) && !toast.persistent;
 
     if (!toastRef.current) {
       toastRef.current = toast;
@@ -133,9 +135,13 @@ const Toast = ({
       return;
     }
 
-    // No running countdown when auto-dismiss is off or the toast is persistent,
-    // so clear directly; otherwise let the timed animation play out.
-    if (!autoDismissNotifications || acted.persistent) {
+    // No running countdown when auto-dismiss is off (and not forced) or the
+    // toast is persistent, so clear directly; otherwise let the timed animation
+    // play out.
+    if (
+      (!autoDismissNotifications && !acted.forceAutoDismiss) ||
+      acted.persistent
+    ) {
       toastRef.current = null;
       client.setQueryData(TOAST_NOTIF_KEY, null);
       return;
@@ -192,7 +198,8 @@ const Toast = ({
   // The dismiss ring is the auto-dismiss countdown made visible, so it shows
   // exactly when the toast will auto-dismiss (setting on + not persistent).
   // dashoffset drains 0→100 as the remaining time elapses.
-  const shouldAutoDismiss = autoDismissNotifications && !isPersistentToast;
+  const shouldAutoDismiss =
+    (autoDismissNotifications || toast.forceAutoDismiss) && !isPersistentToast;
   const showRing = shouldAutoDismiss && toast.timer > 0;
   const remaining = toast.timer > 0 ? (timer / toast.timer) * 100 : 0;
   const dashoffset = Math.min(100, Math.max(0, 100 - remaining));

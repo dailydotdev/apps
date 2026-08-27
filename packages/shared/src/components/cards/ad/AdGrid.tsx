@@ -10,9 +10,12 @@ import {
 } from '../common/Card';
 import AdLink from './common/AdLink';
 import { combinedClicks } from '../../../lib/click';
-import AdAttribution from './common/AdAttribution';
+import AdAttribution, { adAttributionSpacing } from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
+import { AdMeasurement } from './common/AdMeasurement';
+import { AdViewability } from './common/AdViewability';
+import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import type { AdCardProps } from './common/common';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
@@ -26,15 +29,15 @@ import { useFeature } from '../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
+import { useAdLabel } from '../../../features/monetization/useAdLabel';
 
 export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
-  { ad, onLinkClick, domProps, index, feedIndex },
+  { ad, onLinkClick, onViewable, domProps, index, feedIndex },
   forwardedRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
-  const useGlass = useFeedCardGlassActions();
+  const { showAdvertiseLink } = useAdLabel();
   const { ref } = useAutoRotatingAds(
     ad,
     index,
@@ -42,6 +45,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
     forwardedRef as InViewRef,
   );
   const matchingTags = ad?.matchingTags ?? [];
+  const clickUrl = useAdClickUrl(ad);
 
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
@@ -56,17 +60,18 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
             className="!items-end"
           />
         ) : null}
-        <AdAttribution className={{ main: 'font-normal' }} />
+        <AdAttribution
+          ad={ad}
+          className={{ main: `${adAttributionSpacing} font-normal` }}
+        />
       </CardTextContainer>
-      {!useGlass && (
-        <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
-      )}
+      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
       <CardTextContainer className="!mx-1 my-1">
         <div className="flex items-center">
           {!!ad.callToAction && (
             <Button
               tag="a"
-              href={ad.link}
+              href={clickUrl}
               target="_blank"
               rel="noopener"
               variant={ButtonVariant.Primary}
@@ -77,11 +82,13 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
               {ad.callToAction}
             </Button>
           )}
-          <AdvertiseLink
-            targetId={TargetId.AdCard}
-            buttonStyle
-            size={ButtonSize.Small}
-          />
+          {showAdvertiseLink && (
+            <AdvertiseLink
+              targetId={TargetId.AdCard}
+              buttonStyle
+              size={ButtonSize.Small}
+            />
+          )}
           <div className="ml-auto flex items-center gap-2">
             {!isPlus && (
               <RemoveAd
@@ -93,14 +100,9 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
           </div>
         </div>
       </CardTextContainer>
-      {useGlass && (
-        <AdImage
-          className="!mx-0 !mb-0 !rounded-b-16 !rounded-t-none [&_img]:!rounded-none"
-          ad={ad}
-          ImageComponent={CardImage}
-        />
-      )}
       <AdPixel pixel={ad.pixel} />
+      <AdMeasurement ad={ad} />
+      <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />
     </Card>
   );
 });

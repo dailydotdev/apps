@@ -23,9 +23,9 @@ export const getContentCurationList = (
 export const getAdvancedContentTypes = (
   titles: string[],
   advancedSettings: AdvancedSettings[],
-) =>
+): AdvancedSettings[] =>
   titles
     .map((title) =>
       advancedSettings?.find((advanced) => advanced.title === title),
     )
-    .filter(Boolean);
+    .filter((advanced): advanced is AdvancedSettings => !!advanced);

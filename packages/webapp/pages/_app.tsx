@@ -13,16 +13,13 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  useCookieBanner,
-  cookieAcknowledgedKey,
-} from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { useIubendaConsentMirror } from '@dailydotdev/shared/src/hooks/useIubendaConsentMirror';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
-import { featureOnboardingPermissionPrimer } from '@dailydotdev/shared/src/lib/featureManagement';
 import '@dailydotdev/shared/src/styles/globals.css';
+import '../styles/iubenda.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
@@ -37,10 +34,7 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import {
-  useConditionalFeature,
-  useManualScrollRestoration,
-} from '@dailydotdev/shared/src/hooks';
+import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
@@ -56,19 +50,14 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
-import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
+import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
+import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
+import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
-
-const CookieBanner = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
-    ),
-);
 
 const AuthModal = dynamic(
   () =>
@@ -100,30 +89,9 @@ const getRedirectUri = () =>
 
 const getPage = () => window.location.pathname;
 
-const onboardingExcludedPaths = [
-  '/onboarding',
-  '/activate',
-  '/recruiter',
-  '/jobs',
-  '/settings',
-];
-// While an auth intent is active, only force the rest of onboarding when the
-// user lands on the main feed.
-const mainFeedPathnames = new Set([
-  '/',
-  '/popular',
-  '/upvoted',
-  '/discussed',
-  '/latest',
-  '/following',
-  '/my-feed',
-]);
 const hotAndColdModalQueryKey = 'openModal';
 const hotAndColdModalQueryValue = 'hottakes';
 const hotAndColdModalLegacyQueryValue = 'hotAndCold';
-const swipeOnboardingPreviewQueryKey = 'swipeOnboardingPreview';
-const isOnboardingExcludedPath = (pathname: string): boolean =>
-  onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();
@@ -177,26 +145,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const {
     user,
     trackingId,
-    isAuthReady,
     isFunnel,
     shouldShowLogin,
     closeLogin,
     loginState,
   } = useAuthContext();
   // Users arriving from the extension install link land on `/?ref=install`.
-  // Evaluate the permission primer experiment as soon as auth is ready (so
-  // GrowthBook attributes are set) — gating on onboarding actions would stall
-  // logged-out users forever, since the actions query only runs for a user.
   const isComingFromInstall = router.query.ref === 'install';
-  const {
-    value: isPermissionPrimerEnabled,
-    isLoading: isPermissionPrimerLoading,
-  } = useConditionalFeature({
-    feature: featureOnboardingPermissionPrimer,
-    shouldEvaluate: isComingFromInstall && isAuthReady,
-  });
-  const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
-    useCookieBanner();
+  useIubendaConsentMirror();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal, openModal } = useLazyModal();
@@ -214,14 +170,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     (Array.isArray(hotAndColdModalQuery) &&
       (hotAndColdModalQuery.includes(hotAndColdModalQueryValue) ||
         hotAndColdModalQuery.includes(hotAndColdModalLegacyQueryValue)));
-  const swipeOnboardingPreviewQuery =
-    router.query[swipeOnboardingPreviewQueryKey];
-  const isSwipeOnboardingPreviewForced =
-    swipeOnboardingPreviewQuery === '1' ||
-    swipeOnboardingPreviewQuery === 'true' ||
-    (Array.isArray(swipeOnboardingPreviewQuery) &&
-      (swipeOnboardingPreviewQuery.includes('1') ||
-        swipeOnboardingPreviewQuery.includes('true')));
 
   useEffect(() => {
     if (!shouldOpenHotAndColdFromQuery) {
@@ -255,61 +203,25 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
-    // Don't act on the query until it's parsed; `ref=install` is read below and
-    // is undefined on the first render of a hard load.
-    if (!router.isReady) {
+    const redirect = getOnboardingRedirect({
+      pathname: router.pathname,
+      isRouterReady: router.isReady,
+      hasRoutedInstallReferral: installReferralRoutedRef.current,
+      isComingFromInstall,
+      isFunnel,
+      isOnboardingActionsReady,
+      isOnboardingComplete,
+    });
+
+    if (!redirect) {
       return;
     }
 
-    // Never redirect away from onboarding-related surfaces (prevents loops).
-    if (isOnboardingExcludedPath(router.pathname)) {
-      return;
-    }
-
-    // Once an install referral has been routed, stop here. The redirect drops
-    // the `ref` query, so a later run on the still-pending `/` flips
-    // `isComingFromInstall` to false and would race a second redirect on top.
-    if (installReferralRoutedRef.current) {
-      return;
-    }
-
-    // Wait for the permission primer experiment to resolve before routing
-    // install referrals.
-    if (isComingFromInstall && isPermissionPrimerLoading) {
-      return;
-    }
-
-    // `MainLayout` defers `?ref=install` referrals to this effect, so route
-    // them here exclusively. Enrolled users get the activation primer (which
-    // takes priority over onboarding completion). Logged-out users who aren't
-    // enrolled still need onboarding — the gate below never fires for them
-    // since their onboarding actions never load while logged out.
-    if (isComingFromInstall && isPermissionPrimerEnabled) {
+    if (redirect.isInstallReferral) {
       installReferralRoutedRef.current = true;
-      router.replace('/activate');
-      return;
     }
 
-    if (isComingFromInstall && !user) {
-      installReferralRoutedRef.current = true;
-      router.replace('/onboarding');
-      return;
-    }
-
-    if (isFunnel || !isOnboardingActionsReady || isOnboardingComplete) {
-      return;
-    }
-
-    // While the auth intent is active, defer the rest of onboarding until they
-    // navigate to the main feed.
-    if (shouldShowLogin && !mainFeedPathnames.has(router.pathname)) {
-      return;
-    }
-
-    const destination = isSwipeOnboardingPreviewForced
-      ? '/onboarding?swipeOnboardingPreview=1'
-      : '/onboarding';
-    router.replace(destination);
+    router.replace(redirect.destination);
     // `router.pathname` is depended on explicitly because the `router` ref is
     // stable across in-app navigations.
   }, [
@@ -319,12 +231,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     router.pathname,
     router.isReady,
     isOnboardingComplete,
-    shouldShowLogin,
-    isSwipeOnboardingPreviewForced,
     isComingFromInstall,
-    isPermissionPrimerEnabled,
-    isPermissionPrimerLoading,
-    user,
   ]);
 
   useEffect(() => {
@@ -432,6 +339,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             title="Sitemap"
             href="/sitemap.xml"
           />
+          <link rel="llms-txt" href="/llms.txt" />
           <link
             rel="alternate"
             type="text/plain"
@@ -470,8 +378,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             url: canonical,
           }}
           titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
+          robotsProps={robotsProps}
         />
-        {!!seo && <NextSeo {...seo} />}
+        {!!seo && <NextSeo robotsProps={robotsProps} {...seo} />}
         <LazyModalElement />
         <DndContextProvider>
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
@@ -484,19 +393,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             trigger={loginState?.trigger}
           />
         )}
-        {showBanner && !isFunnel && !isImageGenerator && (
-          <CookieBanner
-            onAccepted={onAcceptCookies}
-            onHideBanner={onHideBanner}
-            onModalClose={() => {
-              const interacted = !!localStorage.getItem(cookieAcknowledgedKey);
-
-              if (!interacted) {
-                onOpenBanner();
-              }
-            }}
-          />
-        )}
+        {!isImageGenerator && <Iubenda />}
         <div className="award-easter-egg-container" />
       </>
     </SerwistProvider>
@@ -511,6 +408,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
  */
 const isDevReviewRoute = (pathname: string | undefined): boolean =>
   !!pathname && pathname.startsWith('/dev/');
+
+/**
+ * `/embed/mf` is loaded as an iframe by the extension and must load as fast as
+ * possible. It needs none of the app shell (boot, auth, providers), so it
+ * shares the minimal short-circuit tree.
+ */
+const isBareEmbedRoute = (pathname: string | undefined): boolean =>
+  isDevReviewRoute(pathname) || pathname === '/embed/mf';
 
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,
@@ -527,7 +432,7 @@ export default function App(
   const { Component, pageProps, router } = props;
   const { dehydratedState } = pageProps;
 
-  if (isDevReviewRoute(router?.pathname)) {
+  if (isBareEmbedRoute(router?.pathname)) {
     return (
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={dehydratedState}>

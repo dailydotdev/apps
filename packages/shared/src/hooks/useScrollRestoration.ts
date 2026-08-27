@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useRouter } from 'next/router';
 
 const scrollPositions: Record<string, number> = {};
-const RESTORE_TIMEOUT_MS = 1000;
+// A feed restored from cache needs longer than a second to reconcile on a
+// mid-range phone. A shorter budget expires mid-render, which is exactly when
+// the page is still too short to hold the saved position.
+const RESTORE_TIMEOUT_MS = 2000;
 
 const getScrollKey = (asPath: string): string => {
   if (typeof window === 'undefined') {
@@ -15,9 +18,16 @@ const getScrollKey = (asPath: string): string => {
 
 export const useScrollRestoration = (): void => {
   const { asPath } = useRouter();
+  const isRestoringRef = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
+      // Our own restore pass and Next's reset-to-top on navigation both emit
+      // scroll events, and neither is where the user actually was.
+      if (isRestoringRef.current) {
+        return;
+      }
+
       scrollPositions[getScrollKey(asPath)] = window.scrollY;
     };
 
@@ -30,30 +40,55 @@ export const useScrollRestoration = (): void => {
 
   useEffect(() => {
     const target = scrollPositions[getScrollKey(asPath)] ?? 0;
-    if (target === 0) {
+
+    if (!target) {
       return undefined;
     }
 
-    // Wait until the page is tall enough before scrolling, so we don't clamp
-    // to the bottom while feed content is still hydrating.
+    isRestoringRef.current = true;
     const deadline = performance.now() + RESTORE_TIMEOUT_MS;
     let frame = 0;
+
+    const stop = () => {
+      isRestoringRef.current = false;
+      cancelAnimationFrame(frame);
+      window.removeEventListener('wheel', stop);
+      window.removeEventListener('touchmove', stop);
+      window.removeEventListener('keydown', stop);
+      window.removeEventListener('mousedown', stop);
+    };
 
     const tick = () => {
       const maxScroll =
         document.documentElement.scrollHeight - window.innerHeight;
 
-      if (maxScroll >= target || performance.now() >= deadline) {
-        window.scrollTo(0, Math.min(target, Math.max(0, maxScroll)));
+      // Scrolling before the page is tall enough clamps to the bottom of what
+      // has rendered so far, so wait rather than settle for a wrong position.
+      if (maxScroll >= target) {
+        window.scrollTo(0, target);
+        stop();
+        return;
+      }
+
+      // Out of budget: the feed never got there, so leave the user at the top.
+      if (performance.now() >= deadline) {
+        stop();
         return;
       }
 
       frame = requestAnimationFrame(tick);
     };
 
+    // Restoring must never fight the user, any real input ends the attempt.
+    // `mousedown` covers scrollbar drags, which emit no wheel event.
+    window.addEventListener('wheel', stop, { passive: true });
+    window.addEventListener('touchmove', stop, { passive: true });
+    window.addEventListener('keydown', stop);
+    window.addEventListener('mousedown', stop);
+
     frame = requestAnimationFrame(tick);
 
-    return () => cancelAnimationFrame(frame);
+    return stop;
   }, [asPath]);
 };
 

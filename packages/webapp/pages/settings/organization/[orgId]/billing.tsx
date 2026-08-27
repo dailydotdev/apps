@@ -27,7 +27,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useOrganizationSubscription } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizationSubscription';
 import { PlusPriceType } from '@dailydotdev/shared/src/lib/featureValues';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
-import { defaultSeo } from '../../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
 
@@ -201,6 +201,7 @@ const Page = (): ReactElement | null => {
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Billing'),
+  ...noindexSeoProps,
 };
 
 Page.getLayout = getOrganizationLayout;

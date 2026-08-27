@@ -46,6 +46,7 @@ import { requestFrameEmbeddingPermissionFromPage } from '../../features/extensio
 
 interface ReaderInstallPromptModalProps extends LazyModalCommonProps {
   post: Post;
+  targetPost?: Post;
   /**
    * Close handler for the surface that owns the Read post click (e.g. the
    * classic post modal). Fired alongside the prompt's own dismiss paths
@@ -245,6 +246,7 @@ function BlurredArticleBackdrop(): ReactElement {
 
 function ReaderInstallPromptModal({
   post,
+  targetPost = post,
   isOpen,
   onRequestClose,
   onCloseParent,
@@ -306,7 +308,7 @@ function ReaderInstallPromptModal({
     ? 'Install Chrome extension'
     : 'Install Edge extension';
   const browser = isChromeBrowser ? 'chrome' : 'edge';
-  const host = getPostHost(post);
+  const host = getPostHost(targetPost);
   const faviconSrc = useFaviconSrc(host);
   const displayUrl = getDisplayUrl(host);
 
@@ -334,7 +336,7 @@ function ReaderInstallPromptModal({
   const [embedStatus, setEmbedStatus] =
     useState<ExtensionSiteEmbedStatus>('idle');
   const hasOpenedReaderRef = useRef(false);
-  const isTargetEmbeddable = isEmbeddableSiteTarget(post.permalink ?? '');
+  const isTargetEmbeddable = isEmbeddableSiteTarget(targetPost.permalink ?? '');
   const canRequestPermissions =
     !!embedExtensionId && isTargetEmbeddable && hasInstalledExtension;
 
@@ -349,9 +351,9 @@ function ReaderInstallPromptModal({
     // (e.g. the classic post modal behind it).
     openModal({
       type: LazyModal.ReaderPreview,
-      props: { post, onCloseParent },
+      props: { post, targetPost, onCloseParent },
     });
-  }, [closeModal, onCloseParent, openModal, post]);
+  }, [closeModal, onCloseParent, openModal, post, targetPost]);
 
   // `preparing-tab` arrives once `PermissionsReady` has fired (the user has
   // either just granted access or had it from a previous session). Transition
@@ -376,7 +378,16 @@ function ReaderInstallPromptModal({
     // Targets the extension can't embed (non-http(s)) or surfaces without a
     // resolvable extension id skip the inline permission step — the reader
     // modal falls back to its own classic flow.
-    if (!canRequestPermissions) {
+    //
+    // The bridge additionally needs the extension's content script listening
+    // in this exact tab. The install marker is stamped by that same script,
+    // so a missing marker — install detected via the resource probe only:
+    // tab opened before the extension was installed, or the extension's own
+    // new-tab surface where content scripts never run — means the request
+    // event would go unanswered and the button would spin until the bridge
+    // timeout. The reader preview owns an in-iframe permission screen that
+    // talks to the extension directly, so route there instead.
+    if (!canRequestPermissions || !isBrowserExtensionInstalled()) {
       openReaderPreview();
       return;
     }
@@ -389,16 +400,27 @@ function ReaderInstallPromptModal({
     setIsRequestingPermission(true);
     const permissionPromise = requestFrameEmbeddingPermissionFromPage();
 
-    permissionPromise.then(({ granted }) => {
+    permissionPromise.then(({ granted, error }) => {
       setIsRequestingPermission(false);
-      if (!granted) {
+      if (granted) {
+        // Persist enablement only once permission is actually granted.
+        // Setting it optimistically would leave the reader "enabled" after a
+        // denied OS prompt, so every later read would re-trigger the
+        // permission request.
+        updateFlag('readerInstallPromptAcknowledged', true);
+        setIsPreparingReader(true);
         return;
       }
-      // Persist enablement only once permission is actually granted. Setting
-      // it optimistically would leave the reader "enabled" after a denied OS
-      // prompt, so every later read would re-trigger the permission request.
-      updateFlag('readerInstallPromptAcknowledged', true);
-      setIsPreparingReader(true);
+      // `error` set means the bridge broke — orphaned content script after
+      // the post-grant runtime.reload, extension builds that stamp the
+      // marker but predate the bridge listener, or a timeout — rather than
+      // the user declining the browser prompt. Recover into the reader
+      // preview and let its in-iframe permission screen take over instead
+      // of silently resetting the button. A clean denial (no error) keeps
+      // the prompt so the user can pick the new-tab path instead.
+      if (error) {
+        openReaderPreview();
+      }
     });
   };
 
@@ -408,8 +430,12 @@ function ReaderInstallPromptModal({
       event_name: LogEvent.ClickReaderInstallSkip,
       extra: JSON.stringify({ browser, post_id: post.id }),
     });
-    if (post.permalink) {
-      globalThis.window?.open(post.permalink, '_blank', 'noopener,noreferrer');
+    if (targetPost.permalink) {
+      globalThis.window?.open(
+        targetPost.permalink,
+        '_blank',
+        'noopener,noreferrer',
+      );
     }
     onRequestClose({} as MouseEvent<HTMLButtonElement>);
   };
@@ -423,8 +449,12 @@ function ReaderInstallPromptModal({
       event_name: LogEvent.ClickReaderInstallSkip,
       extra: JSON.stringify({ browser, post_id: post.id }),
     });
-    if (post.permalink) {
-      globalThis.window?.open(post.permalink, '_blank', 'noopener,noreferrer');
+    if (targetPost.permalink) {
+      globalThis.window?.open(
+        targetPost.permalink,
+        '_blank',
+        'noopener,noreferrer',
+      );
     }
     onRequestClose(event);
   };
@@ -460,7 +490,7 @@ function ReaderInstallPromptModal({
             <div className="z-10 relative flex min-h-0 w-full flex-1 flex-col">
               <ExtensionSiteEmbed
                 extensionId={embedExtensionId}
-                targetUrl={post.permalink ?? ''}
+                targetUrl={targetPost.permalink ?? ''}
                 enabled
                 className="h-full w-full"
                 permissionFrameTitle="Embedded browsing permissions"

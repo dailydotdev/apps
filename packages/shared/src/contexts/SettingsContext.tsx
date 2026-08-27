@@ -52,12 +52,18 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutReadingStreak: () => Promise<void>;
+  toggleOptOutStreakFreeze: () => Promise<void>;
   toggleOptOutLevelSystem: () => Promise<void>;
   toggleOptOutQuestSystem: () => Promise<void>;
   toggleOptOutAchievements: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
   isGamificationEnabled: boolean;
   toggleAllGamification: () => Promise<void>;
+  // The quest experience as one switch: levels + quests + achievements together
+  // (reading streaks stay separate). Needed because the individual toggles each
+  // setState off the same captured snapshot, so they can't be chained.
+  isQuestExperienceEnabled: boolean;
+  toggleQuestExperience: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   toggleShowFeedbackButton: () => Promise<void>;
   loadedSettings: boolean;
@@ -131,6 +137,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: false,
+  optOutStreakFreeze: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
   optOutAchievements: false,
@@ -265,6 +272,11 @@ export const SettingsContextProvider = ({
           optOutReadingStreak: !settings.optOutReadingStreak,
         });
       },
+      toggleOptOutStreakFreeze: () =>
+        setSettings({
+          ...settings,
+          optOutStreakFreeze: !settings.optOutStreakFreeze,
+        }),
       toggleOptOutLevelSystem: () =>
         setSettings({
           ...settings,
@@ -299,6 +311,22 @@ export const SettingsContextProvider = ({
         return setSettings({
           ...settings,
           optOutReadingStreak: anyEnabled,
+          optOutLevelSystem: anyEnabled,
+          optOutQuestSystem: anyEnabled,
+          optOutAchievements: anyEnabled,
+        });
+      },
+      isQuestExperienceEnabled:
+        !settings.optOutLevelSystem ||
+        !settings.optOutQuestSystem ||
+        !settings.optOutAchievements,
+      toggleQuestExperience: () => {
+        const anyEnabled =
+          !settings.optOutLevelSystem ||
+          !settings.optOutQuestSystem ||
+          !settings.optOutAchievements;
+        return setSettings({
+          ...settings,
           optOutLevelSystem: anyEnabled,
           optOutQuestSystem: anyEnabled,
           optOutAchievements: anyEnabled,

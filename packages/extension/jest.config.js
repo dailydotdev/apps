@@ -22,5 +22,6 @@ module.exports = {
     '\\.svg$': '<rootDir>/__mocks__/svgrMock.ts',
     '\\.css$': 'identity-obj-proxy',
     'react-markdown': '<rootDir>/__mocks__/reactMarkdownMock.tsx',
+    '^edge-aura/react$': '<rootDir>/../shared/__mocks__/edgeAuraMock.tsx',
   },
 };

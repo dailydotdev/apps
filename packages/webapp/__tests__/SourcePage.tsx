@@ -75,6 +75,7 @@ const createFeedMock = (
     source: 'react',
     ranking: 'TIME',
     supportedTypes: baseFeedSupportedTypes,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -128,7 +129,9 @@ const renderComponent = (
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=false&gdpr=0')
+    .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
     openNewTab: true,
@@ -232,6 +235,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
         source: 'react',
         ranking: 'TIME',
         supportedTypes: baseFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,

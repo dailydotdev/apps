@@ -29,6 +29,7 @@ const mockCreative: EngagementCreative = {
   tools: ['copilot', 'vscode'],
   keywords: ['AI', 'copilot'],
   tags: ['ai', 'copilot', 'machine-learning'],
+  placements: [],
 };
 
 let queryClient: QueryClient;

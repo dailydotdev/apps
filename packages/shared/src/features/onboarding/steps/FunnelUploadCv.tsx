@@ -1,21 +1,33 @@
 import React, { useRef, useState, useEffect } from 'react';
+import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import type { FunnelStepUploadCv } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { FunnelStepCtaWrapper } from '../shared';
+import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { UploadCv } from '../components/UploadCv';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
+
+const profileUploadCvCopy = {
+  headline: 'Autofill your profile with your CV',
+  description:
+    'Upload your CV to import your experience and skills into your profile.',
+};
 
 function FunnelUploadCvComponent({
   parameters,
   onTransition,
 }: FunnelStepUploadCv): ReactElement | null {
   const { user } = useAuthContext();
+  // Shared with the paid funnel, which keeps its original chrome.
+  const isOnboarding = useIsOnboardingFunnel();
+  const { isJobsEnabled } = useJobsFeature();
   const { onUpload, status, isSuccess } = useUploadCv({
     shouldOpenModal: false,
   });
@@ -23,6 +35,13 @@ function FunnelUploadCvComponent({
   if (!user) {
     return null;
   }
+
+  const uploadCvParameters = isJobsEnabled
+    ? parameters
+    : {
+        ...parameters,
+        ...profileUploadCvCopy,
+      };
 
   const handleComplete = () => {
     onTransition({
@@ -34,15 +53,42 @@ function FunnelUploadCvComponent({
 
   return (
     <FunnelStepCtaWrapper
+      isGlass={isOnboarding}
       disabled={isDisabled}
+      // The stepper's header used to carry this step's skip; onboarding hides
+      // that header, so the step supplies it to its own top bar.
+      {...(isOnboarding && {
+        skip: {
+          cta: 'Skip',
+          onClick: () => onTransition({ type: FunnelStepTransitionType.Skip }),
+        },
+      })}
       onClick={handleComplete}
-      containerClassName="flex w-full flex-1 flex-col items-center justify-center overflow-hidden"
+      containerClassName={
+        isOnboarding
+          ? 'flex w-full flex-1 flex-col items-center overflow-hidden'
+          : 'flex w-full flex-1 flex-col items-center justify-center overflow-hidden'
+      }
     >
-      <UploadCv
-        {...parameters}
-        onFilesDrop={([file]) => onUpload(file)}
-        status={status}
-      />
+      <div
+        className={
+          isOnboarding
+            ? classNames(
+                funnelStepRail,
+                // Production's own max-width for this step: the LinkedIn
+                // helper is a two-column block and does not fit the 440px rail.
+                'flex flex-col gap-6 py-6 pt-3 laptop:max-w-[48.75rem]',
+              )
+            : undefined
+        }
+      >
+        <UploadCv
+          {...uploadCvParameters}
+          isOnboarding={isOnboarding}
+          onFilesDrop={([file]) => onUpload(file)}
+          status={status}
+        />
+      </div>
     </FunnelStepCtaWrapper>
   );
 }
@@ -66,6 +112,8 @@ export const FunnelUploadCv = withShouldSkipStepGuard(
       }
     }, [isActionsFetched, hasUploadedCv]);
 
-    return { shouldSkip };
+    return {
+      shouldSkip,
+    };
   },
 );

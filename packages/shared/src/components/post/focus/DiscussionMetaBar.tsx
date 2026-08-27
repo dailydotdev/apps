@@ -9,6 +9,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { AnalyticsIcon } from '../../icons';
 import { SortCommentsBy } from '../../../graphql/comments';
+import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { ClickableText } from '../../buttons/ClickableText';
 import Link from '../../utilities/Link';
 import { largeNumberFormat } from '../../../lib';
@@ -36,6 +37,7 @@ export const DiscussionMetaBar = ({
   const { onShowUpvoted } = useUpvoteQuery();
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
+  const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const canSeeAnalytics = canViewPostAnalytics({ user, post });
@@ -74,27 +76,29 @@ export const DiscussionMetaBar = ({
             </ClickableText>
           </Link>
         )}
-        <Button
-          type="button"
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Tertiary}
-          icon={
-            <TimeSortIcon
-              secondary
-              className={isNewestFirst ? undefined : 'rotate-180'}
-            />
-          }
-          onClick={() =>
-            setSortBy(
-              isNewestFirst
-                ? SortCommentsBy.OldestFirst
-                : SortCommentsBy.NewestFirst,
-            )
-          }
-          aria-label={sortLabel}
-          title={sortLabel}
-          className="!text-text-secondary"
-        />
+        {commentsCount > 0 && (
+          <Button
+            type="button"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            icon={
+              <TimeSortIcon
+                secondary
+                className={isNewestFirst ? undefined : 'rotate-180'}
+              />
+            }
+            onClick={() =>
+              setSortBy(
+                isNewestFirst
+                  ? SortCommentsBy.OldestFirst
+                  : SortCommentsBy.NewestFirst,
+              )
+            }
+            aria-label={sortLabel}
+            title={sortLabel}
+            className="!text-text-secondary"
+          />
+        )}
       </div>
       {rightSlot && (
         <div className="flex shrink-0 items-center [&_.mr-2]:!mr-0 [&_.mt-4]:!mt-0 [&_.mt-6]:!mt-0">

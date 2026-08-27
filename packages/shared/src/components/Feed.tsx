@@ -24,7 +24,7 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
+import type { FeaturedWideColSpan } from './cards/common/featuredWide';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
@@ -45,6 +45,14 @@ import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
 import { MarketingCtaVariant } from './marketing/cta/common';
+import { MarketingCtaCard } from './marketing/cta';
+import { MarketingCtaList } from './marketing/cta/MarketingCtaList';
+import { MarketingCtaBriefing } from './marketing/cta/MarketingCtaBriefing';
+import { MarketingCtaYearInReview } from './marketing/cta/MarketingCtaYearInReview';
+import { MarketingCtaVideo } from './marketing/cta/MarketingCtaVideo';
+import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
+import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
+import PlusGrid from './cards/plus/PlusGrid';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
@@ -65,6 +73,8 @@ import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { EngagementFeedStrip } from './brand/EngagementFeedStrip';
+import { isEngagementAdFeed } from '../hooks/feed/useFeedName';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
@@ -76,7 +86,7 @@ const FeedErrorScreen = dynamic(
 );
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options'>,
+  extends Pick<UseFeedOptionalParams<T>, 'options' | 'excludePinnedPosts'>,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: QueryKey;
@@ -98,6 +108,16 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
+  /**
+   * Single-source feeds (e.g. one squad) where repeating the source on every
+   * card is noise. Cards drop the source avatar and fall back to the author
+   * for their labels.
+   */
+  hideSource?: boolean;
+  /**
+   * Drop the tag chips (and the row they sit on) from every card.
+   */
+  hideTags?: boolean;
   topContent?: ReactNode;
 }
 
@@ -190,6 +210,9 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
+  excludePinnedPosts = false,
+  hideSource = false,
+  hideTags = false,
   topContent: topContentProp,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
@@ -259,7 +282,53 @@ export default function Feed<T>({
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
   const { isV2 } = useLayoutVariant();
-  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
+
+  const getFirstSlotCard = (): ReactElement | null => {
+    const canShowGrowthCta =
+      !disableAds &&
+      !isHorizontal &&
+      feedQueryKey?.[0] !== RequestKey.FeedPreview;
+    const canShowNonPlusCta = canShowGrowthCta && !user?.isPlus;
+
+    if (canShowNonPlusCta && plusEntryFeed) {
+      return <PlusGrid {...plusEntryFeed} />;
+    }
+    if (canShowGrowthCta && showMarketingCta && marketingCta) {
+      if (marketingCta.variant === MarketingCtaVariant.BriefCard) {
+        return <MarketingCtaBriefing {...marketingCta} />;
+      }
+      if (marketingCta.variant === MarketingCtaVariant.YearInReview) {
+        return <MarketingCtaYearInReview marketingCta={marketingCta} />;
+      }
+      if (marketingCta.variant === MarketingCtaVariant.Video) {
+        return <MarketingCtaVideo marketingCta={marketingCta} />;
+      }
+      const Component = shouldUseListFeedLayout
+        ? MarketingCtaList
+        : MarketingCtaCard;
+      return <Component marketingCta={marketingCta} />;
+    }
+    if (canShowNonPlusCta && showAcquisitionForm) {
+      const Component = shouldUseListFeedLayout
+        ? AcquisitionFormList
+        : AcquisitionFormGrid;
+      return <Component />;
+    }
+    if (showProfileCompletionCard) {
+      return <ProfileCompletionCard className={{ container: 'p-4 pt-0' }} />;
+    }
+    if (showBriefCard) {
+      return (
+        <BriefCardFeed
+          targetId={TargetId.Feed}
+          className={{ container: 'p-4 pt-0' }}
+        />
+      );
+    }
+    return null;
+  };
+
+  const eligibleFirstSlotCard = getFirstSlotCard();
   const {
     items,
     placements: itemPlacements,
@@ -272,6 +341,7 @@ export default function Feed<T>({
     isFetching,
     isInitialLoading,
     isError,
+    hasFirstSlotCard,
     error: feedError,
   } = useFeed(
     feedQueryKey,
@@ -289,15 +359,15 @@ export default function Feed<T>({
       variables,
       options,
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
-      firstSlotOffset: Number(showFirstSlotCard),
+      engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
+      firstSlotOffset: Number(eligibleFirstSlotCard !== null),
       disableTopHero: isV2,
+      isHorizontal,
+      excludePinnedPosts,
       settings: {
         disableAds,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
-        showAcquisitionForm,
-        ...(showMarketingCta && { marketingCta }),
-        ...(plusEntryFeed && { plusEntry: plusEntryFeed }),
         feedName,
       },
     },
@@ -328,6 +398,13 @@ export default function Feed<T>({
         containIntrinsicSize: shouldUseListFeedLayout
           ? 'auto 12rem'
           : 'auto 24rem',
+        // `content-visibility: auto` applies paint containment, which clips
+        // anything drawn outside the box — including the "Video" type label and
+        // the "Hot"/"Pinned" flag, which straddle the card's top edge with a
+        // negative offset. Extend the paint-clip region so those labels aren't
+        // truncated. Covers the tallest overhang (the grid flag, ~1.25rem)
+        // without any layout shift.
+        overflowClipMargin: '1.5rem',
       }
     : undefined;
   const {
@@ -363,6 +440,9 @@ export default function Feed<T>({
   const {
     showPromoBanner,
     indexWhenShowingPromoBanner,
+    showEngagementStrip,
+    indexWhenShowingEngagementStrip,
+    engagementStripCreative,
     hero: {
       shouldShowTopHero,
       title: readingReminderTitle,
@@ -663,7 +743,7 @@ export default function Feed<T>({
         actionButtons,
         isHorizontal,
         feedContainerRef,
-        showBriefCard,
+        hasFirstSlotCard,
         disableListFrame,
       };
 
@@ -674,21 +754,7 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
-            {showProfileCompletionCard && (
-              <ProfileCompletionCard
-                className={{
-                  container: 'p-4 pt-0',
-                }}
-              />
-            )}
-            {showBriefCard && !showProfileCompletionCard && (
-              <BriefCardFeed
-                targetId={TargetId.Feed}
-                className={{
-                  container: 'p-4 pt-0',
-                }}
-              />
-            )}
+            {hasFirstSlotCard && eligibleFirstSlotCard}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
               const { colSpan } = placement;
@@ -741,6 +807,8 @@ export default function Feed<T>({
               } else if (useContentVisibility) {
                 // List cards stack at natural height; grid cards must keep
                 // filling their equal-height row, so preserve the h-full pass-through.
+                // The overhanging card labels are handled by `overflowClipMargin`
+                // on `contentVisibilityStyle` (see above), so both branches are safe.
                 renderedItem = (
                   <div
                     className={
@@ -762,6 +830,8 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
+                    hideSource,
+                    hideTags,
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (
@@ -773,6 +843,18 @@ export default function Feed<T>({
                       }}
                     />
                   )}
+                  {showEngagementStrip &&
+                    engagementStripCreative &&
+                    index === indexWhenShowingEngagementStrip && (
+                      <EngagementFeedStrip
+                        creative={engagementStripCreative}
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
                   {renderedItem}
                 </FeedCardContext.Provider>
               );

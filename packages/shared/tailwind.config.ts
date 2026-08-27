@@ -200,9 +200,6 @@ export default {
       minHeight: {
         page: 'calc(100vh - 4rem)',
         card: '24rem',
-        // Shorter floor for the glass-action-bar feed card variant: the action
-        // bar floats over the cover image instead of taking its own row.
-        cardGlass: '21.5rem',
       },
       gap: {
         unset: 'unset',
@@ -315,11 +312,6 @@ export default {
           '0%, 100%': { opacity: '0.35', transform: 'scale(1)' },
           '50%': { opacity: '0.7', transform: 'scale(1.08)' },
         },
-        'reward-pop': {
-          '0%': { transform: 'scale(0.6)', opacity: '0' },
-          '55%': { transform: 'scale(1.18)', opacity: '1' },
-          '100%': { transform: 'scale(1)', opacity: '1' },
-        },
         'mascot-bob': {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-6px)' },
@@ -389,7 +381,6 @@ export default {
         'nudge-shake': 'nudge-shake 600ms ease-in-out',
         'meter-shine': 'meter-shine 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite',
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
-        'reward-pop': 'reward-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
         'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',

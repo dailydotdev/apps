@@ -27,6 +27,11 @@ import { webappUrl } from '../../lib/constants';
 import { UserTransactionStatus } from '../../graphql/njord';
 import type { LoggedUser } from '../../lib/user';
 import { isExtension } from '../../lib/func';
+import { useLazyModal } from '../useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
+import { useConditionalFeature } from '../useConditionalFeature';
+import { featureStreakFreeze } from '../../lib/featureManagement';
+import { useHasAccessToCores } from '../useCoresFeature';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
@@ -63,7 +68,13 @@ export const useStreakRecover = ({
   const { logEvent } = useLogContext();
   const { updateAlerts } = useAlertsContext();
   const { user, updateUser } = useAuthContext();
-  const { isStreaksEnabled } = useReadingStreak();
+  const { streak, isStreaksEnabled } = useReadingStreak();
+  const { openModal } = useLazyModal();
+  const hasAccessToCores = useHasAccessToCores();
+  const { value: isStreakFreezeEnabled } = useConditionalFeature({
+    feature: featureStreakFreeze,
+    shouldEvaluate: hasAccessToCores && isStreaksEnabled,
+  });
   const client = useQueryClient();
   const router = useRouter();
   const {
@@ -91,7 +102,7 @@ export const useStreakRecover = ({
         exact: false,
       });
 
-      if (data.balance) {
+      if (data.balance && user) {
         updateUser({
           ...user,
           balance: data.balance,
@@ -109,7 +120,8 @@ export const useStreakRecover = ({
         if (
           errorExtensions.extensions.status ===
             UserTransactionStatus.InsufficientFunds &&
-          errorExtensions.extensions.balance
+          errorExtensions.extensions.balance &&
+          user
         ) {
           await updateUser({
             ...user,
@@ -121,7 +133,7 @@ export const useStreakRecover = ({
   });
 
   const hideRemoteAlert = useCallback(async () => {
-    await updateAlerts({
+    await updateAlerts?.({
       showRecoverStreak: false,
     });
   }, [updateAlerts]);
@@ -166,6 +178,10 @@ export const useStreakRecover = ({
   ]);
 
   const onRecover = useCallback(async () => {
+    if (!user || !data) {
+      return;
+    }
+
     try {
       if (user.balance.amount < data.streakRecover.cost) {
         const searchParams = new URLSearchParams();
@@ -182,6 +198,17 @@ export const useStreakRecover = ({
 
       await recoverMutation.mutateAsync();
       displayToast('Lucky you! Your streak has been restored');
+
+      // Restoring costs Cores; a freeze would have prevented the break, so
+      // prompt users with an empty freeze stash right after the save.
+      const shouldPromptFreezes =
+        hasAccessToCores &&
+        isStreakFreezeEnabled &&
+        (streak?.freezesAvailable ?? 0) === 0;
+
+      if (shouldPromptFreezes) {
+        openModal({ type: LazyModal.StreakFreezePurchase });
+      }
     } catch (e) {
       displayToast(
         'Oops! We are unable to recover your streak. Could you try again later?',
@@ -190,12 +217,16 @@ export const useStreakRecover = ({
 
     await onClose?.();
   }, [
-    data?.streakRecover?.cost,
+    data,
     displayToast,
+    hasAccessToCores,
+    isStreakFreezeEnabled,
     onClose,
+    openModal,
     recoverMutation,
     router,
-    user?.balance?.amount,
+    streak?.freezesAvailable,
+    user,
   ]);
 
   useEffect(() => {
@@ -219,6 +250,9 @@ export const useStreakRecover = ({
     onRecover,
     recover: {
       ...data?.streakRecover,
+      canRecover: data?.streakRecover?.canRecover ?? false,
+      cost: data?.streakRecover?.cost ?? 0,
+      oldStreakLength: data?.streakRecover?.oldStreakLength ?? 0,
       isLoading,
       isRecoverPending: recoverMutation.isPending,
     },

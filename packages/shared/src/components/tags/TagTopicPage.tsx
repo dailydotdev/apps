@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Head from 'next/head';
 import Feed from '../Feed';
 import {
@@ -15,7 +15,12 @@ import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { AuthTriggers } from '../../lib/auth';
-import { OtherFeedPage, RequestKey, StaleTime } from '../../lib/query';
+import {
+  generateQueryKey,
+  OtherFeedPage,
+  RequestKey,
+  StaleTime,
+} from '../../lib/query';
 import { LogEvent, Origin } from '../../lib/log';
 import type { Keyword } from '../../graphql/keywords';
 import { IconSize } from '../Icon';
@@ -47,13 +52,23 @@ import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 import { ArchiveEntryCard } from '../archive/ArchiveEntryCard';
 import { ArchiveScopeType } from '../../graphql/archive';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../graphql/contentPreference';
+import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import { TOP_CREATORS_BY_TAG_QUERY } from '../../graphql/users';
 import type { UserShortProfile } from '../../lib/user';
 import { SponsoredTagHero } from '../brand/SponsoredTagHero';
+import { EngagementFeedStrip } from '../brand/EngagementFeedStrip';
+import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { EngagementPlacement } from '../../lib/engagementAds';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
+import { EntitySectionHeading } from '../entity/EntitySectionHeading';
+import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
@@ -82,34 +97,6 @@ export interface TagTopicPageProps {
   topContributors: UserShortProfile[];
   jsonLd?: string | null;
 }
-
-const SectionHeading = ({
-  children,
-}: {
-  children: ReactNode;
-}): ReactElement => (
-  <Typography
-    tag={TypographyTag.H2}
-    type={TypographyType.Title3}
-    color={TypographyColor.Primary}
-    bold
-    className="mb-4 mt-2"
-  >
-    {children}
-  </Typography>
-);
-
-// Wraps a horizontal post rail with a right-edge gradient so the last card
-// blends into the background instead of being hard-cut by the scroll overflow.
-const RailWithFade = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="relative mb-10">
-    {children}
-    <div
-      aria-hidden
-      className="pointer-events-none absolute bottom-0 right-0 top-11 w-12 bg-gradient-to-r from-transparent to-background-default"
-    />
-  </div>
-);
 
 // Render the user/source cards in the same grid the post feed uses (same
 // column count + card width) so every card on the page lines up identically.
@@ -145,7 +132,13 @@ const EntityGridSkeleton = (): ReactElement => (
   </EntityFeedGrid>
 );
 
-const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
+const TagTopSources = ({
+  tag,
+  title,
+}: {
+  tag: string;
+  title: string;
+}): ReactElement | null => {
   const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
     queryFn: async () =>
@@ -165,7 +158,7 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
 
   return (
     <section className="mb-10">
-      <SectionHeading>Top sources covering it</SectionHeading>
+      <EntitySectionHeading>Top sources covering {title}</EntitySectionHeading>
       {isPending ? (
         <EntityGridSkeleton />
       ) : (
@@ -185,9 +178,11 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
 
 const WhoToFollow = ({
   tag,
+  title,
   initialUsers = [],
 }: {
   tag: string;
+  title: string;
   initialUsers?: UserShortProfile[];
 }): ReactElement | null => {
   const { data: topContributors, isPending } = useQuery({
@@ -210,7 +205,7 @@ const WhoToFollow = ({
 
   return (
     <section className="mb-10">
-      <SectionHeading>Who to follow</SectionHeading>
+      <EntitySectionHeading>Who to follow for {title}</EntitySectionHeading>
       {isLoading ? (
         <EntityGridSkeleton />
       ) : (
@@ -237,13 +232,21 @@ export const TagTopicPage = ({
   jsonLd,
 }: TagTopicPageProps): ReactElement => {
   const { push } = useRouter();
+  const queryClient = useQueryClient();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const { feedSettings } = useFeedSettings();
   const { FeedPageLayoutComponent } = useFeedLayout();
+  const { getCreativeForPlacement } = useEngagementAdsContext();
+  // A campaign that opted into the feed-strip placement takes over the tag
+  // page's engagement slot: render the strip (below the header) instead of the
+  // SponsoredTagHero, so there's a single ad.
+  const engagementStripCreative = getCreativeForPlacement(
+    EngagementPlacement.FeedStrip,
+  );
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
-  const { follow, unfollow } = useContentPreference({
+  const { follow, unfollow, subscribe, unsubscribe } = useContentPreference({
     showToastOnSuccess: false,
   });
 
@@ -281,6 +284,21 @@ export const TagTopicPage = ({
     return 'unfollowed';
   }, [feedSettings, tag]);
 
+  // Follow state for tags lives in feed settings (`includeTags`), which can't
+  // tell "following" apart from "subscribed" — read the keyword's content
+  // preference so the notify bell knows which state it's in. Only followed
+  // tags render the bell, so don't spend a request on every other visitor.
+  const tagPreferenceQueryKey = generateQueryKey(
+    RequestKey.ContentPreference,
+    user,
+    { id: tag, entity: ContentPreferenceType.Keyword },
+  );
+  const { data: tagPreference } = useContentPreferenceStatusQuery({
+    id: tag,
+    entity: ContentPreferenceType.Keyword,
+    queryOptions: { enabled: tagStatus === 'followed' },
+  });
+
   const followButtonProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
@@ -294,6 +312,12 @@ export const TagTopicPage = ({
       } else {
         await onFollowTags({ tags: [tag] });
       }
+      // Following here goes through feed settings, which never touches the
+      // keyword's content-preference status key. Drop the cached entry rather
+      // than invalidating it: the query is disabled the moment the tag is
+      // unfollowed, so an invalidated-but-present entry would just be replayed
+      // on re-follow and render a stale `subscribed` bell.
+      queryClient.removeQueries({ queryKey: tagPreferenceQueryKey });
     },
   };
 
@@ -312,6 +336,26 @@ export const TagTopicPage = ({
       }
     },
   };
+
+  const isSubscribedToTag =
+    tagPreference?.status === ContentPreferenceStatus.Subscribed;
+
+  const { mutate: onNotifyClick, isPending: isNotifyPending } = useMutation({
+    mutationFn: async (): Promise<void> => {
+      const params = {
+        id: tag,
+        entity: ContentPreferenceType.Keyword,
+        entityName: title,
+        opts: { extra: { origin: Origin.TagPage } },
+      };
+
+      if (isSubscribedToTag) {
+        await unsubscribe(params);
+      } else {
+        await subscribe(params);
+      }
+    },
+  });
 
   const statParts: ReactNode[] = [];
   if (typeof followers === 'number') {
@@ -345,7 +389,7 @@ export const TagTopicPage = ({
         <div className="flex w-full flex-col px-4 py-6 tablet:px-6">
           {/* Hero cover — centered on the page; content below spans full width. */}
           <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
-            <SponsoredTagHero tag={tag} />
+            {!engagementStripCreative && <SponsoredTagHero tag={tag} />}
             <Typography
               tag={TypographyTag.H1}
               type={TypographyType.LargeTitle}
@@ -387,6 +431,13 @@ export const TagTopicPage = ({
                 >
                   {tagStatus === 'followed' ? 'Following' : 'Follow'}
                 </Button>
+              )}
+              {tagStatus === 'followed' && (
+                <SourceActionsNotify
+                  haveNotificationsOn={isSubscribedToTag}
+                  onClick={() => onNotifyClick()}
+                  disabled={isNotifyPending}
+                />
               )}
               {tagStatus !== 'followed' && (
                 <Button
@@ -461,9 +512,16 @@ export const TagTopicPage = ({
 
           <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
 
+          {engagementStripCreative && (
+            <EngagementFeedStrip
+              creative={engagementStripCreative}
+              className="mb-10 w-full"
+            />
+          )}
+
           {showRoadmap && initialData?.flags?.roadmap && (
             <section className="mb-10">
-              <SectionHeading>Roadmaps</SectionHeading>
+              <EntitySectionHeading>Roadmaps</EntitySectionHeading>
               <Link href={initialData.flags.roadmap} passHref prefetch={false}>
                 <a
                   target="_blank"
@@ -493,11 +551,13 @@ export const TagTopicPage = ({
             </section>
           )}
 
-          {/* Recommended stories */}
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsTopPosts }}
           >
-            <RailWithFade>
+            <EntitySectionHeading>
+              Recommended {title} stories
+            </EntitySectionHeading>
+            <EntityRailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsTopPosts}
                 feedQueryKey={[
@@ -507,20 +567,24 @@ export const TagTopicPage = ({
                 ]}
                 query={TAG_FEED_QUERY}
                 variables={topPostsQueryVariables}
-                title={{ copy: 'Recommended stories' }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
-            </RailWithFade>
+            </EntityRailWithFade>
           </ActiveFeedNameContext.Provider>
 
-          <WhoToFollow tag={tag} initialUsers={topContributors} />
-          <TagTopSources tag={tag} />
+          <WhoToFollow tag={tag} title={title} initialUsers={topContributors} />
+          <TagTopSources tag={tag} title={title} />
 
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
           >
-            <RailWithFade>
+            <EntitySectionHeading
+              icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
+            >
+              Most upvoted {title} posts
+            </EntitySectionHeading>
+            <EntityRailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsMostUpvoted}
                 feedQueryKey={[
@@ -530,21 +594,20 @@ export const TagTopicPage = ({
                 ]}
                 query={MOST_UPVOTED_FEED_QUERY}
                 variables={mostUpvotedQueryVariables}
-                title={{
-                  copy: 'Most upvoted posts',
-                  icon: (
-                    <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />
-                  ),
-                }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
-            </RailWithFade>
+            </EntityRailWithFade>
           </ActiveFeedNameContext.Provider>
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
           >
-            <RailWithFade>
+            <EntitySectionHeading
+              icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
+            >
+              Best discussed {title} posts
+            </EntitySectionHeading>
+            <EntityRailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsBestDiscussed}
                 feedQueryKey={[
@@ -554,16 +617,10 @@ export const TagTopicPage = ({
                 ]}
                 query={MOST_DISCUSSED_FEED_QUERY}
                 variables={bestDiscussedQueryVariables}
-                title={{
-                  copy: 'Best discussed posts',
-                  icon: (
-                    <DiscussIcon size={IconSize.Medium} className="mr-1.5" />
-                  ),
-                }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
-            </RailWithFade>
+            </EntityRailWithFade>
           </ActiveFeedNameContext.Provider>
           <ArchiveEntryCard
             scopeType={ArchiveScopeType.Tag}
@@ -574,7 +631,7 @@ export const TagTopicPage = ({
 
           <div className="my-2 h-px w-full bg-border-subtlest-tertiary" />
 
-          <SectionHeading>All posts about {title}</SectionHeading>
+          <EntitySectionHeading>All posts about {title}</EntitySectionHeading>
           <Feed
             feedName={OtherFeedPage.Tag}
             feedQueryKey={['tagFeed', user?.id ?? 'anonymous', tag]}

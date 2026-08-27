@@ -42,7 +42,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout } from '../../../components/layouts/MainLayout';
-import { getSquadOpenGraph } from '../../../next-seo';
+import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
 import type { DynamicSeoProps } from '../../../components/common';
 
 const getOthers = (others: Edge<SourceMember>[], total: number) => {
@@ -306,14 +306,22 @@ export async function getStaticProps({
 
   if (!source || !user) {
     return {
-      props: { handle, token, initialData: null },
+      props: {
+        handle,
+        token,
+        initialData: null,
+        seo: { ...noindexSeoProps },
+      },
     };
   }
 
+  // Invite tokens are personal, single-squad links (private squads included) and
+  // must never end up in search results.
   const seo: NextSeoProps = {
     title: `${user.name} invited you to ${source.name}`,
     description: source.description,
     openGraph: getSquadOpenGraph({ squad: source }),
+    ...noindexSeoProps,
   };
 
   return {

@@ -6,22 +6,16 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
-import { isExtension } from '../../lib/func';
-import { SharedFeedPage } from '../utilities';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import {
-  DailyPageVariant,
-  featureDailyPage,
-} from '../../lib/featureManagement';
-import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import type { ExploreCategory } from './exploreCategories';
 import { findActiveChipId } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
 import { NewStripCta } from './NewStripCta';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedChips } from '../../lib/featureManagement';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
@@ -31,7 +25,6 @@ interface ExploreChipsBarProps {
   // (text + active Float background + bottom-border underline) so the chips
   // header matches the canonical tabbed page header. Off → legacy pills.
   compact?: boolean;
-  onNavTabClick?: (tab: string) => void;
 }
 
 const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
@@ -43,26 +36,17 @@ export function ExploreChipsBar({
   isPending,
   className,
   compact,
-  onNavTabClick,
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
   const { isLoggedIn } = useAuthContext();
-  const { value: dailyVariant } = useConditionalFeature({
-    feature: featureDailyPage,
-    shouldEvaluate: isLoggedIn,
-  });
-  // When Daily is on, the Daily/Feed switcher replaces the "For you" chip.
-  const showDailySwitcher = isLoggedIn && dailyVariant === DailyPageVariant.V1;
-
-  // On the extension the feed tab must switch the internal view (like the
-  // sidebar "For You"), not navigate out to the webapp.
-  const onFeedClick =
-    isExtension && onNavTabClick
-      ? () => onNavTabClick(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/')
-      : undefined;
-
+  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
+    {
+      feature: featureFeedChips,
+      shouldEvaluate: isLoggedIn,
+    },
+  );
   const forYouCategory: ExploreCategory = useMemo(() => {
     const path = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
     return {
@@ -79,8 +63,8 @@ export function ExploreChipsBar({
   }, [isCustomDefaultFeed]);
 
   const allCategories = useMemo(
-    () => (showDailySwitcher ? categories : [forYouCategory, ...categories]),
-    [showDailySwitcher, forYouCategory, categories],
+    () => [forYouCategory, ...categories],
+    [forYouCategory, categories],
   );
 
   const activeId = useMemo(
@@ -92,7 +76,16 @@ export function ExploreChipsBar({
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastCenteredIdRef = useRef<string | null>(null);
   useEffect(() => {
+    if (!activeId) {
+      lastCenteredIdRef.current = null;
+      return;
+    }
+    if (lastCenteredIdRef.current === activeId) {
+      return;
+    }
+
     const active = scrollRef.current?.querySelector<HTMLElement>(
       '[data-active="true"]',
     );
@@ -100,7 +93,8 @@ export function ExploreChipsBar({
       return;
     }
     active.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }, [activeId, allCategories]);
+    lastCenteredIdRef.current = activeId;
+  }, [activeId]);
 
   return (
     <div className={classNames('relative', className)}>
@@ -111,9 +105,6 @@ export function ExploreChipsBar({
         <NewStripCta
           className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
         />
-        {showDailySwitcher && (
-          <DailySwitcher reverse compact={compact} onFeedClick={onFeedClick} />
-        )}
         {allCategories.map((category) => {
           const isActive = category.id === activeId;
           const onClick = () => {
@@ -124,6 +115,10 @@ export function ExploreChipsBar({
             logEvent({
               event_name: LogEvent.ClickFeedTagChip,
               target_id: category.tag,
+              extra: JSON.stringify({
+                variant: isVariantLoading ? undefined : variant,
+                origin: category.origin,
+              }),
             });
           };
 

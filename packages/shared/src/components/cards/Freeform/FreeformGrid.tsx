@@ -1,8 +1,7 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useRef } from 'react';
-import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
-import { Container, generateTitleClamp } from '../common/common';
+import { Container } from '../common/common';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
@@ -16,13 +15,9 @@ import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
-import {
-  FeedCardGlassActions,
-  glassCoverImageClassName,
-} from '../common/FeedCardGlassActions';
 import { ClickbaitShield } from '../common/ClickbaitShield';
+import PostTags from '../common/PostTags';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
@@ -48,7 +43,6 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
-  const useGlass = useFeedCardGlassActions();
 
   if (isHidden) {
     return (
@@ -70,11 +64,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(
-          post,
-          domProps.className,
-          useGlass ? 'min-h-cardGlass' : 'min-h-card',
-        ),
+        className: getPostClassNames(post, domProps.className, 'min-h-card'),
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
@@ -90,70 +80,40 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           post={post}
           enableSourceHeader={enableSourceHeader}
         />
-        <FreeformCardTitle
-          className={classNames(
-            generateTitleClamp({
-              hasImage: !!image,
-              hasHtmlContent: !!post.contentHtml,
-            }),
-          )}
-        >
-          {title}
-        </FreeformCardTitle>
+        <FreeformCardTitle className="line-clamp-3">{title}</FreeformCardTitle>
       </CardTextContainer>
-      <>
-        {image && <CardSpace />}
-        <div
-          className={classNames(
-            'mx-4 mb-2 flex items-center',
-            !image && 'mt-1',
-          )}
-        >
+      {/* Match the collection card: push the tags + date to the bottom of the
+          text area, just above the footer (cover image or text preview). */}
+      <Container>
+        <CardSpace />
+        <div className="mx-4 flex items-center">
           {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
+          <PostTags post={post} />
         </div>
         <PostMetadata
-          className={classNames(
-            'mx-4 line-clamp-1 break-words',
-            image ? 'mt-0' : 'mt-1',
-          )}
+          className="mx-4"
           createdAt={post.createdAt}
           readTime={post.readTime}
         />
-      </>
-      <Container
-        ref={containerRef}
-        className={useGlass && image ? 'flex-none' : undefined}
-      >
+      </Container>
+      <Container ref={containerRef}>
         <WelcomePostCardFooter
           image={image}
           contentHtml={post.contentHtml}
           post={post}
-          glassActions={useGlass}
-          imageClassName={
-            useGlass && image ? glassCoverImageClassName : undefined
-          }
+          // pt-2 gives the text a bit of breathing room below the date without
+          // growing the footer (box-border keeps min-h), matching the collection.
+          contentClassName="min-h-[10.5rem] pt-2"
         />
-        {useGlass ? (
-          <FeedCardGlassActions
-            post={post}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onCopyLinkClick={onCopyLinkClick}
-            onBookmarkClick={onBookmarkClick}
-            onDownvoteClick={onDownvoteClick}
-            coverScrim={!!image}
-          />
-        ) : (
-          <ActionButtons
-            post={post}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onCopyLinkClick={onCopyLinkClick}
-            onBookmarkClick={onBookmarkClick}
-            className="mt-auto"
-            onDownvoteClick={onDownvoteClick}
-          />
-        )}
+        <ActionButtons
+          post={post}
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onCopyLinkClick={onCopyLinkClick}
+          onBookmarkClick={onBookmarkClick}
+          className="mt-auto"
+          onDownvoteClick={onDownvoteClick}
+        />
       </Container>
       {children}
     </FeedItemContainer>
