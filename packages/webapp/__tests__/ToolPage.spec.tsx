@@ -172,8 +172,6 @@ it('should render the stat tiles from adoption and vote data', async () => {
   renderComponent();
 
   expect(await screen.findByText('In stacks')).toBeInTheDocument();
-  // Rendered via toLocaleString, so the exact output depends on the machine
-  // locale — derive the expectation the same way.
   expect(screen.getByText(formatDataTileValue(1200))).toBeInTheDocument();
   expect(screen.getByText('Dev sentiment')).toBeInTheDocument();
   expect(screen.getByText('80%')).toBeInTheDocument();

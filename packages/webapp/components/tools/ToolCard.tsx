@@ -56,7 +56,8 @@ export const ToolCard = ({
         title={tool.title}
         faviconUrl={tool.faviconUrl}
         url={tool.url}
-        className="pointer-events-none size-12 rounded-14 bg-white p-1.5"
+        className="pointer-events-none size-12 rounded-14"
+        plateClassName="bg-white p-1.5"
       />
       <span className="pointer-events-none flex min-w-0 flex-1 flex-col">
         <Typography type={TypographyType.Body} bold truncate>
@@ -91,7 +92,7 @@ export const ToolCard = ({
               'relative shrink-0',
               isInStack
                 ? '!text-brand-default'
-                : 'transition-opacity focus-visible:opacity-100 tablet:opacity-0 tablet:group-hover:opacity-100',
+                : 'transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100',
             )}
           />
         </Tooltip>

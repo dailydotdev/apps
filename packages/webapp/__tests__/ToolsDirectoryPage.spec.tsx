@@ -139,7 +139,7 @@ it('should surface tools from the API beyond the build-time list', async () => {
   expect(await screen.findByText('Grafana')).toBeInTheDocument();
 });
 
-it('should fall back to a local title match when the API errors', async () => {
+it('should show the no-results state when the search API errors', async () => {
   renderComponent();
 
   mockGraphQL({
@@ -147,14 +147,11 @@ it('should fall back to a local title match when the API errors', async () => {
       query: TOP_TOOLS_QUERY,
       variables: { first: 100, query: 'react' },
     },
-    result: () => ({ errors: [{ message: 'unknown argument' }] }),
+    result: () => ({ errors: [{ message: 'search unavailable' }] }),
   });
   searchFor('react');
 
-  await screen.findByText('Results for “react”');
-  expect(
-    screen.getByRole('link', { name: 'React, 100 in stacks' }),
-  ).toBeInTheDocument();
+  expect(await screen.findByText('No tools match “react”')).toBeInTheDocument();
 });
 
 it('should offer to clear a search with no matches', async () => {

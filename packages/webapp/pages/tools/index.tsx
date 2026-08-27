@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
@@ -24,8 +24,8 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
-import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { CharmEmptyState } from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
+import { MIN_SEARCH_QUERY_LENGTH } from '@dailydotdev/shared/src/hooks/useTagSearch';
 import { cloudinaryCharmSearchNoResults } from '@dailydotdev/shared/src/lib/image';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -45,7 +45,6 @@ const TRENDING_COUNT = 6;
 const CATEGORY_FETCH_LIMIT = 100;
 const SEARCH_RESULTS_LIMIT = 100;
 const RECOMMENDED_COUNT = 5;
-const SEARCH_LOG_DELAY = 1000;
 // Catch-all section for stacked tools without a curated category, rendered
 // below the curated ones. Only sees tools inside the overall top-N fetch.
 const OTHER_CATEGORY = 'Other';
@@ -143,60 +142,40 @@ const ToolsDirectoryPage = ({
   );
 
   const normalizedSearch = search.trim();
-  const isSearching = normalizedSearch.length > 0;
-  const {
-    data: apiResults,
-    isPending: isSearchPending,
-    isError: isSearchError,
-  } = useQuery({
+  const isSearching = normalizedSearch.length >= MIN_SEARCH_QUERY_LENGTH;
+  const { data: apiResults, isPending: isSearchPending } = useQuery({
     queryKey: ['toolsDirectorySearch', normalizedSearch.toLowerCase()],
-    queryFn: () =>
-      getTopTools({ query: normalizedSearch, first: SEARCH_RESULTS_LIMIT }),
+    // Logged inside queryFn (like useTagSearch) so the logged term and result
+    // count always come from the same response.
+    queryFn: async () => {
+      const result = await getTopTools({
+        query: normalizedSearch,
+        first: SEARCH_RESULTS_LIMIT,
+      });
+      logEvent({
+        event_name: LogEvent.SearchTools,
+        extra: JSON.stringify({
+          query: normalizedSearch.toLowerCase(),
+          resultCount: result.length,
+        }),
+      });
+      return result;
+    },
     enabled: isSearching,
     staleTime: StaleTime.Default,
     placeholderData: keepPreviousData,
   });
 
-  // Tolerate the API not supporting the query argument yet during deploy
-  // windows by falling back to a title match over the tools already loaded.
-  const searchResults = useMemo(() => {
-    if (!isSearching) {
-      return [];
-    }
-    if (isSearchError) {
-      const query = normalizedSearch.toLowerCase();
-      return tools.filter(({ title }) => title.toLowerCase().includes(query));
-    }
-    return apiResults ?? [];
-  }, [isSearching, isSearchError, apiResults, normalizedSearch, tools]);
-  const isSearchLoading = isSearching && isSearchPending && !isSearchError;
-
-  const [logSearch, cancelLogSearch] = useDebounceFn((extra?: string) => {
-    logEvent({ event_name: LogEvent.SearchTools, extra });
-  }, SEARCH_LOG_DELAY);
-
-  useEffect(() => {
-    if (isSearching && !isSearchLoading) {
-      logSearch(
-        JSON.stringify({
-          query: normalizedSearch.toLowerCase(),
-          resultCount: searchResults.length,
-        }),
-      );
-    }
-  }, [
-    isSearching,
-    isSearchLoading,
-    normalizedSearch,
-    searchResults.length,
-    logSearch,
-  ]);
+  const searchResults = useMemo(
+    () => (isSearching ? apiResults ?? [] : []),
+    [isSearching, apiResults],
+  );
+  const isSearchLoading = isSearching && isSearchPending;
 
   const clearSearch = useCallback(() => {
-    cancelLogSearch();
     setInputValue('');
     setSearch('');
-  }, [cancelLogSearch]);
+  }, []);
 
   const renderGrid = useCallback(
     (gridTools: DirectoryTool[], extraProps?: Record<string, unknown>) => (

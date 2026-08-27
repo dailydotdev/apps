@@ -131,6 +131,9 @@ const getToolPageJsonLd = (
   topPosts: ToolTopPost[],
 ): string => {
   const toolUrl = `${appOrigin}/tools/${tool.slug}`;
+  // Mirrors the server-rendered "Top reads" list exactly - structured data
+  // must describe content that is actually in the HTML.
+  const linkablePosts = topPosts.filter((post) => !!post.title);
   const breadcrumbItems = [
     { name: 'Tools', item: `${appOrigin}/tools` },
     ...(tool.category
@@ -165,17 +168,17 @@ const getToolPageJsonLd = (
           item: item.item,
         })),
       },
-      ...(topPosts.length
+      ...(linkablePosts.length
         ? [
             {
               '@type': 'ItemList',
               '@id': `${toolUrl}#posts`,
-              numberOfItems: topPosts.length,
-              itemListElement: topPosts.map((post, index) => ({
+              numberOfItems: linkablePosts.length,
+              itemListElement: linkablePosts.map((post, index) => ({
                 '@type': 'ListItem',
                 position: index + 1,
                 url: `${appOrigin}/posts/${post.slug || post.id}`,
-                name: post.title || '',
+                name: post.title,
               })),
             },
           ]
@@ -666,7 +669,8 @@ const ToolPage = ({
             faviconUrl={tool.faviconUrl}
             url={tool.url}
             size={160}
-            className="size-20 rounded-16 border border-border-subtlest-tertiary bg-white typo-title2"
+            className="size-20 rounded-16 border border-border-subtlest-tertiary typo-title2"
+            plateClassName="bg-white p-3"
           />
           <Typography
             tag={TypographyTag.H1}
@@ -1020,6 +1024,23 @@ const ToolPage = ({
                   </EntityRailWithFade>
                 </FeedLayoutProvider>
               </ActiveFeedNameContext.Provider>
+              {/* Server-rendered counterpart of the JSON-LD ItemList: the rail
+                  above only exists after hydration, so crawlers and JS-off
+                  visitors get these links instead. */}
+              <ul className="flex flex-wrap items-center gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
+                <li aria-hidden>Top reads:</li>
+                {topPosts
+                  .filter((post) => !!post.title)
+                  .map((post) => (
+                    <li key={post.id}>
+                      <Link href={`/posts/${post.slug || post.id}`} passHref>
+                        <a className="text-text-secondary underline decoration-border-subtlest-tertiary underline-offset-2 hover:text-text-primary">
+                          {post.title}
+                        </a>
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
             </ToolSection>
           )}
 
@@ -1088,7 +1109,8 @@ const ToolPage = ({
                         title={related.title}
                         faviconUrl={related.faviconUrl}
                         url={related.url}
-                        className="size-6 rounded-6 bg-white p-0.5"
+                        className="size-6 rounded-6"
+                        plateClassName="bg-white p-0.5"
                       />
                       {related.title}
                     </a>

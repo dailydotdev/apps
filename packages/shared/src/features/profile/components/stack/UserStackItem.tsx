@@ -176,8 +176,11 @@ function UserStackItemBody({
                 url={sponsoredCreative ? null : tool.url}
                 className={classNames(
                   'size-6 typo-footnote',
-                  sponsoredCreative ? 'rounded-full bg-white p-0.5' : 'rounded',
+                  sponsoredCreative ? 'rounded-full' : 'rounded',
                 )}
+                plateClassName={
+                  sponsoredCreative ? 'bg-white p-0.5' : undefined
+                }
               />
               {!!title && (
                 <div className="flex min-w-0 flex-1 flex-col">
