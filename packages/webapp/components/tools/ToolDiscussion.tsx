@@ -150,11 +150,7 @@ export const ToolDiscussion = ({
       }
 
       return (
-        <NewComment
-          post={post}
-          ref={commentRef}
-          CommentInput={CommentInput}
-        />
+        <NewComment post={post} ref={commentRef} CommentInput={CommentInput} />
       );
     };
 
