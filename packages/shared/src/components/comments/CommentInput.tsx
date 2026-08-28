@@ -7,18 +7,20 @@ import { useMutateComment } from '../../hooks/post/useMutateComment';
 import { useViewSize, ViewSize } from '../../hooks';
 import { Drawer, DrawerPosition } from '../drawers/Drawer';
 
-interface CommentInputProps extends CommentMarkdownInputProps {
+export interface CommentInputProps extends CommentMarkdownInputProps {
   onClose?: () => void;
+  /** Inline on small viewports too — the companion must not cover the host page. */
+  forceInline?: boolean;
 }
 
 export default function CommentInput({
   onClose,
   className,
+  forceInline = false,
   ...props
 }: CommentInputProps): ReactElement {
-  const isFullScreen = !useViewSize(ViewSize.Laptop);
-  // Crossing the Laptop breakpoint (tablet rotation) swaps the drawer and
-  // inline trees, remounting the editor — the draft has to survive up here.
+  const isFullScreen = !useViewSize(ViewSize.Laptop) && !forceInline;
+  // The draft lives above the drawer/inline swap at the Laptop breakpoint.
   const [draft, setDraft] = useState<string>();
 
   const mutateCommentResult = useMutateComment({
