@@ -115,6 +115,78 @@ describe('Drawer', () => {
     expect(wrapper).toHaveClass('overscroll-contain');
   });
 
+  it('exposes dialog semantics and takes focus on open', () => {
+    render(
+      <Drawer isOpen title="Filters" onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Filters' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveFocus();
+  });
+
+  it('restores focus to the opener when it closes', () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+
+    const { unmount } = render(
+      <Drawer isOpen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+    expect(opener).not.toHaveFocus();
+
+    unmount();
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+
+  it('closes the top-most drawer on Escape', () => {
+    jest.useFakeTimers();
+    const onCloseOuter = jest.fn();
+    const onCloseInner = jest.fn();
+    render(
+      <Drawer isOpen instantOpen onClose={onCloseOuter}>
+        outer
+      </Drawer>,
+    );
+    render(
+      <Drawer isOpen instantOpen onClose={onCloseInner}>
+        inner
+      </Drawer>,
+    );
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    act(() => {
+      jest.advanceTimersByTime(400);
+    });
+    expect(onCloseInner).toHaveBeenCalledTimes(1);
+    expect(onCloseOuter).not.toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
+  it('keeps Tab cycling inside the drawer', () => {
+    render(
+      <Drawer isOpen onClose={jest.fn()}>
+        <button type="button">first</button>
+        <button type="button">last</button>
+      </Drawer>,
+    );
+
+    const first = screen.getByRole('button', { name: 'first' });
+    const last = screen.getByRole('button', { name: 'last' });
+
+    last.focus();
+    fireEvent.keyDown(last, { key: 'Tab' });
+    expect(first).toHaveFocus();
+
+    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(last).toHaveFocus();
+  });
+
   it('closes only on a direct backdrop hit, not on bubbled child clicks', () => {
     jest.useFakeTimers();
     const onClose = jest.fn();
