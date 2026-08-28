@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Post } from '../../../graphql/posts';
@@ -6,6 +6,18 @@ import { WriteCommentContext } from '../../../contexts/WriteCommentContext';
 import { CommentMarkdownInput } from './CommentMarkdownInput';
 
 const mockRichTextProps = jest.fn();
+
+const mockNotificationToggle = {
+  shouldShowCta: false,
+  isEnabled: true,
+  onToggle: jest.fn(),
+  onSubmitted: jest.fn().mockResolvedValue(undefined),
+};
+
+// The real hook needs auth/push contexts that are irrelevant to this suite.
+jest.mock('../../../hooks/notifications', () => ({
+  useNotificationToggle: () => mockNotificationToggle,
+}));
 
 jest.mock('../RichTextInput', () => {
   const react = jest.requireActual('react') as typeof React;
@@ -27,12 +39,13 @@ const post = {
 
 const renderComposer = (
   props: Partial<React.ComponentProps<typeof CommentMarkdownInput>> = {},
+  mutateComment: jest.Mock = jest.fn(),
 ) =>
   render(
     <WriteCommentContext.Provider
       value={{
         mutateComment: {
-          mutateComment: jest.fn(),
+          mutateComment,
           isLoading: false,
           isSuccess: false,
         } as never,
@@ -59,6 +72,47 @@ const setViewportHeight = (height: number) => {
 describe('CommentMarkdownInput', () => {
   beforeEach(() => {
     mockRichTextProps.mockClear();
+    mockNotificationToggle.onSubmitted.mockClear();
+    mockNotificationToggle.shouldShowCta = false;
+  });
+
+  it('offers the notification opt-in above the full-screen action bar', () => {
+    mockNotificationToggle.shouldShowCta = true;
+    renderComposer({ fills: true });
+
+    const props = mockRichTextProps.mock.calls.at(-1)[0];
+    expect(props.stackToolbarLeading).toBe(true);
+    expect(props.toolbarLeading).toBeTruthy();
+  });
+
+  it('hides the notification opt-in on the inline composer', () => {
+    mockNotificationToggle.shouldShowCta = true;
+    renderComposer({ fills: false });
+
+    const props = mockRichTextProps.mock.calls.at(-1)[0];
+    expect(props.toolbarLeading).toBeUndefined();
+  });
+
+  it('primes the notification prompt only after a successful submit', async () => {
+    mockNotificationToggle.shouldShowCta = true;
+    renderComposer({ fills: true }, jest.fn().mockResolvedValue({ id: 'c1' }));
+
+    fireEvent.submit(screen.getByRole('form'));
+
+    await waitFor(() =>
+      expect(mockNotificationToggle.onSubmitted).toHaveBeenCalled(),
+    );
+  });
+
+  it('does not prime the notification prompt when the submit fails', async () => {
+    mockNotificationToggle.shouldShowCta = true;
+    const mutateComment = jest.fn().mockResolvedValue(undefined);
+    renderComposer({ fills: true }, mutateComment);
+
+    fireEvent.submit(screen.getByRole('form'));
+
+    await waitFor(() => expect(mutateComment).toHaveBeenCalled());
+    expect(mockNotificationToggle.onSubmitted).not.toHaveBeenCalled();
   });
 
   it('caps its height to the visible viewport so the keyboard cannot hide it', () => {
