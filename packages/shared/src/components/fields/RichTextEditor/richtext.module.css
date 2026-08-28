@@ -86,13 +86,8 @@
 
   /* Tiptap ProseMirror specific */
   & :global(.ProseMirror) {
-    /* Flexes to fill the editor rather than adding a second floor inside its
-       padding. A floor here stacked on top of the container's
-       `minHeightClassName`, so the rich editor always sat `p-4` taller than
-       the markdown textarea and the box jumped whenever the two swapped.
-       Flexing rather than `height: 100%` so the editable still fills the box
-       where its height comes from `min-height` (the top-toolbar editors) and
-       clicks below the first line keep landing on the editor. */
+    /* flex-1, not a min-height (it would stack on `minHeightClassName`) nor
+       `height: 100%` (it resolves to nothing under a min-height-only ancestor). */
     @apply outline-none flex-1;
   }
 

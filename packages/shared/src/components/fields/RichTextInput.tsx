@@ -605,9 +605,8 @@ function RichTextInput(
     if (!ta) {
       return;
     }
-    // Measured from 0, not `auto`, so `rows` never acts as a floor —
-    // `minHeightClassName` sets the empty height in both modes.
-    ta.style.height = '0px';
+    // Measured from `auto` so `rows` (and `min-height`) stay the floor.
+    ta.style.height = 'auto';
     ta.style.height = `${ta.scrollHeight}px`;
     // Swapping editors momentarily shrinks the scroll container, clamping its
     // offset to 0; restore before paint — a later frame is too late.

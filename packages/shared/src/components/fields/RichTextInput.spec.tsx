@@ -86,8 +86,7 @@ jest.mock('../tooltip/Tooltip', () => ({
   Tooltip: ({ children }: React.PropsWithChildren) => children,
 }));
 
-// Cloning the tooltip content onto the child as an aria-label lets tests reach
-// the icon-only toggle button by an accessible name.
+// The tooltip content doubles as an aria-label so icon-only buttons stay reachable.
 jest.mock('../tooltips/SimpleTooltip', () => ({
   SimpleTooltip: ({
     content,
