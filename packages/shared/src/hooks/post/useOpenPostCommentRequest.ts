@@ -1,24 +1,19 @@
 import type { RefObject } from 'react';
 import { useEffect } from 'react';
 import type { NewCommentRef } from '../../components/post/NewComment';
-import { subscribeOpenPostComment } from '../../lib/postComment';
+import { useActivePostContext } from '../../contexts/ActivePostContext';
 
-// Opens this post's composer when the layout's floating bar asks for it (see
-// requestOpenPostComment). Every surface that owns a NewComment for a full
-// post page must register, or the bar's comment tap silently does nothing.
+// Opens this post's composer when the layout's floating bar asks for it.
 export const useOpenPostCommentRequest = (
-  postId: string,
   commentRef: RefObject<NewCommentRef>,
 ): void => {
+  const { onOpenCommentRequest } = useActivePostContext();
+
   useEffect(
     () =>
-      subscribeOpenPostComment((detail) => {
-        if (detail.postId !== postId) {
-          return;
-        }
-
-        commentRef.current?.onShowInput(detail.origin);
-      }),
-    [postId, commentRef],
+      onOpenCommentRequest?.((origin) =>
+        commentRef.current?.onShowInput(origin),
+      ),
+    [onOpenCommentRequest, commentRef],
   );
 };

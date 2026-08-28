@@ -53,8 +53,6 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import { requestOpenPostComment } from '@dailydotdev/shared/src/lib/postComment';
 import type { Props } from '../pages/posts/[id]';
 import { isPostDetailPath, PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
@@ -594,22 +592,13 @@ it('should open the comment composer when the mobile floating bar requests it', 
   renderPost();
   await screen.findByText('Learn SQL');
 
-  act(() => {
-    requestOpenPostComment({
-      postId: 'another-post',
-      origin: Origin.PostCommentButton,
-    });
+  const commentButton = await waitFor(() => {
+    const el = document.getElementById('mobile-comment-post-btn');
+    expect(el).toBeInTheDocument();
+    return el;
   });
-  expect(
-    screen.queryByRole('form', { name: 'Comment' }),
-  ).not.toBeInTheDocument();
+  fireEvent.click(commentButton);
 
-  act(() => {
-    requestOpenPostComment({
-      postId: '0e4005b2d3cf191f8c44c2718a457a1e',
-      origin: Origin.PostCommentButton,
-    });
-  });
   expect(
     await screen.findByRole('form', { name: 'Comment' }),
   ).toBeInTheDocument();

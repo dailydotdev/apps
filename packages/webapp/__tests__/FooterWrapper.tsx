@@ -1,10 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import type { OpenPostCommentEventDetail } from '@dailydotdev/shared/src/lib/postComment';
-import { OPEN_POST_COMMENT_EVENT } from '@dailydotdev/shared/src/lib/postComment';
+import type { Origin } from '@dailydotdev/shared/src/lib/log';
+import {
+  ActivePostContextProvider,
+  useActivePostContext,
+} from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import FooterWrapper from '../components/footer/FooterWrapper';
 
 jest.mock('@dailydotdev/shared/src/components/ScrollToTopButton', () => ({
@@ -29,21 +31,34 @@ jest.mock(
 
 const post = { id: 'p1', type: PostType.Article } as Post;
 
+const ComposerOwner = ({
+  onOpenRequest,
+}: {
+  onOpenRequest: (origin: Origin) => void;
+}): null => {
+  const { onOpenCommentRequest } = useActivePostContext();
+
+  useEffect(
+    () => onOpenCommentRequest?.(onOpenRequest),
+    [onOpenCommentRequest, onOpenRequest],
+  );
+
+  return null;
+};
+
 describe('FooterWrapper', () => {
   it('asks the in-page composer to open instead of mounting its own', async () => {
-    const received: OpenPostCommentEventDetail[] = [];
-    const listener = (event: Event): void => {
-      received.push((event as CustomEvent<OpenPostCommentEventDetail>).detail);
-    };
-    window.addEventListener(OPEN_POST_COMMENT_EVENT, listener);
+    const onOpenRequest = jest.fn();
+    render(
+      <ActivePostContextProvider post={post}>
+        <ComposerOwner onOpenRequest={onOpenRequest} />
+        <FooterWrapper post={post} />
+      </ActivePostContextProvider>,
+    );
 
-    render(<FooterWrapper post={post} />);
     fireEvent.click(await screen.findByRole('button', { name: 'Comment' }));
 
-    window.removeEventListener(OPEN_POST_COMMENT_EVENT, listener);
-    expect(received).toEqual([
-      { postId: 'p1', origin: Origin.PostCommentButton },
-    ]);
+    expect(onOpenRequest).toHaveBeenCalledWith('comment button');
   });
 
   it('renders no floating bar without a post', () => {
