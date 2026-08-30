@@ -2,6 +2,13 @@ import React, { useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnapshotButton } from '@dailydotdev/shared/src/components/imageShare/SnapshotButton';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+// Via the barrel on purpose: the direct hook path is aliased to a mock that
+// swallows toasts into console.log, so the real one never runs.
+import {
+  ToastType,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
 import {
   ButtonSize,
   ButtonVariant,
@@ -239,6 +246,56 @@ const Specimen = ({
     <span className="text-text-tertiary typo-caption1">{used}</span>
   </div>
 );
+
+/**
+ * Toasts render into a portal the app mounts once, so a story has to mount it
+ * too or the feedback is invisible while testing.
+ */
+const ToastPreview = () => {
+  const { displayToast } = useToastNotification();
+
+  return (
+    <section className="flex flex-col gap-3">
+      <h3 className="font-bold text-text-primary typo-title3">Feedback</h3>
+      <p className="max-w-[46rem] text-text-tertiary typo-callout">
+        A download is silent on most browsers, so a capture confirms itself.
+        Press a Snapshot button anywhere on this page to see the real one, or
+        trigger them here.
+      </p>
+      <div className="flex flex-wrap items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
+        <Button
+          onClick={() =>
+            displayToast('Snapshot saved', { variant: ToastType.Success })
+          }
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Secondary}
+        >
+          Success
+        </Button>
+        <Button
+          onClick={() =>
+            displayToast('Could not create the snapshot, please try again', {
+              variant: ToastType.Error,
+            })
+          }
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Secondary}
+        >
+          Error
+        </Button>
+        <Button
+          onClick={() =>
+            displayToast('Link copied', { variant: ToastType.Success })
+          }
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Secondary}
+        >
+          Copy link
+        </Button>
+      </div>
+    </section>
+  );
+};
 
 const Panel = ({
   step,
@@ -617,6 +674,8 @@ const Placements = () => {
             </p>
           )}
         </section>
+
+        <ToastPreview />
 
         <section className="flex flex-col gap-3">
           <h3 className="font-bold text-text-primary typo-title3">
@@ -1077,6 +1136,9 @@ const meta: Meta<typeof Placements> = {
     (Story) => (
       <QueryClientProvider client={new QueryClient()}>
         <Story />
+        {/* The app mounts this once; a story has to as well or the feedback
+            never appears. */}
+        <Toast autoDismissNotifications />
       </QueryClientProvider>
     ),
   ],

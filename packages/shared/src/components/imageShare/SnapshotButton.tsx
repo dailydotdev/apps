@@ -4,7 +4,10 @@ import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SnapshotIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import {
+  ToastType,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 import type {
   CaptureShareImageOptions,
   CaptureTarget,
@@ -77,8 +80,13 @@ export function SnapshotButton({
         }
 
         downloadShareImage(blob, filename);
+        // A download is silent on most browsers, so without this the press
+        // reads as having done nothing at all.
+        displayToast('Snapshot saved', { variant: ToastType.Success });
       } catch {
-        displayToast('Could not create the snapshot, please try again');
+        displayToast('Could not create the snapshot, please try again', {
+          variant: ToastType.Error,
+        });
       } finally {
         setIsCapturing(false);
       }
