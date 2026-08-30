@@ -223,6 +223,23 @@ const SelectionShareBarDemo = () => {
   );
 };
 
+/** One control with the surfaces it appears on, so the set stays auditable. */
+const Specimen = ({
+  control,
+  name,
+  used,
+}: {
+  control: React.ReactNode;
+  name: string;
+  used: string;
+}) => (
+  <div className="flex w-64 flex-col gap-2">
+    <div className="flex h-12 items-center">{control}</div>
+    <span className="font-bold text-text-primary typo-footnote">{name}</span>
+    <span className="text-text-tertiary typo-caption1">{used}</span>
+  </div>
+);
+
 const Panel = ({
   step,
   title,
@@ -605,25 +622,100 @@ const Placements = () => {
           <h3 className="font-bold text-text-primary typo-title3">
             The control
           </h3>
-          <div className="flex flex-wrap items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
-            <Snapshot filename="daily-snapshot" target={{ current: null }} />
-            <Snapshot
-              filename="daily-snapshot"
-              target={{ current: null }}
-              variant={ButtonVariant.Secondary}
+          <div className="flex flex-wrap gap-8 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-6">
+            <Specimen
+              control={
+                <Snapshot
+                  filename="daily-snapshot"
+                  target={{ current: null }}
+                  variant={ButtonVariant.Secondary}
+                />
+              }
+              name="Snapshot — labelled"
+              used="Leads on Happening now, hot takes, briefing, streak, copy my feed and the profile widgets"
             />
-            <Snapshot
-              filename="daily-snapshot"
-              showLabel={false}
-              target={{ current: null }}
-              variant={ButtonVariant.Float}
+            <Specimen
+              control={
+                <Snapshot
+                  filename="daily-snapshot"
+                  showLabel={false}
+                  size={ButtonSize.XSmall}
+                  target={{ current: null }}
+                  variant={ButtonVariant.Float}
+                />
+              }
+              name="Snapshot — icon, hover revealed"
+              used="Leaderboard rows and achievement cards, where a labelled button would crowd the list"
             />
-            <Snapshot
-              filename="daily-snapshot"
-              showLabel={false}
-              size={ButtonSize.XSmall}
-              target={{ current: null }}
-              variant={ButtonVariant.Float}
+            <Specimen
+              control={
+                <Snapshot
+                  filename="daily-snapshot"
+                  showLabel={false}
+                  target={{ current: null }}
+                  variant={ButtonVariant.Secondary}
+                />
+              }
+              name="Snapshot — icon, emphasised"
+              used="The floating selection bar, where every control is an icon and this one leads"
+            />
+            <Specimen
+              control={
+                <Button
+                  icon={<LinkIcon />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Secondary}
+                >
+                  Copy link
+                </Button>
+              }
+              name="Copy link — labelled"
+              used="Leads on the post, watercooler, profile header, tags and sources, leaderboard page, history, squads, best-of and invite"
+            />
+            <Specimen
+              control={
+                <Button
+                  icon={<ShareIcon />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Secondary}
+                >
+                  Share
+                </Button>
+              }
+              name="Share — labelled"
+              used="Leads on the DevCard, which is already an image"
+            />
+            <Specimen
+              control={
+                <div className="flex items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1">
+                  <Button
+                    aria-label="Copy link"
+                    icon={<LinkIcon />}
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                  />
+                  <Button
+                    aria-label="Copy text"
+                    icon={<CopyIcon />}
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                  />
+                  <Button
+                    aria-label="Quote"
+                    icon={<DiscussIcon />}
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                  />
+                  <Button
+                    aria-label="Share"
+                    icon={<ShareIcon />}
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                  />
+                </div>
+              }
+              name="Secondary set — icons only"
+              used="The floating selection bar from #6352: copy link, copy text, quote, share"
             />
           </div>
         </section>
