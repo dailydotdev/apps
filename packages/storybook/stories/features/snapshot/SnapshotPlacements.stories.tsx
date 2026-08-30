@@ -79,6 +79,85 @@ const LEAD_STYLE: Record<LeadAction, string> = {
   Snapshot: 'text-accent-cabbage-default border-accent-cabbage-default',
 };
 
+/**
+ * Most remaining surfaces are one of two shapes: a section header with a
+ * control on the right, or a card with a control in its footer. Two mocks
+ * cover them rather than thirteen bespoke ones.
+ */
+const HeaderSurface = ({
+  eyebrow,
+  title,
+  meta,
+  leads,
+  filename,
+  trailing,
+}: {
+  eyebrow?: string;
+  title: string;
+  meta?: string;
+  leads: LeadAction;
+  filename: string;
+  trailing?: React.ReactNode;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  return (
+    <div
+      ref={ref}
+      className="flex items-center gap-4 rounded-12 bg-background-default p-4"
+    >
+      <div className="flex min-w-0 flex-1 flex-col">
+        {eyebrow && (
+          <span className="font-bold uppercase text-text-quaternary typo-caption1">
+            {eyebrow}
+          </span>
+        )}
+        <span className="truncate font-bold text-text-primary typo-title3">
+          {title}
+        </span>
+        {meta && (
+          <span className="truncate text-text-tertiary typo-footnote">
+            {meta}
+          </span>
+        )}
+      </div>
+      {trailing}
+      <PreferredActions filename={filename} leads={leads} target={ref} />
+    </div>
+  );
+};
+
+const CardSurface = ({
+  title,
+  body,
+  footer,
+  leads,
+  filename,
+}: {
+  title: string;
+  body?: string;
+  footer?: React.ReactNode;
+  leads: LeadAction;
+  filename: string;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  return (
+    <div className="flex flex-col gap-3 rounded-12 bg-background-default p-4">
+      <div ref={ref} className="flex flex-col gap-2">
+        <span className="font-bold text-text-primary typo-title3">{title}</span>
+        {body && (
+          <p className="text-text-secondary typo-callout">{body}</p>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        {footer}
+        <PreferredActions filename={filename} leads={leads} target={ref} />
+      </div>
+    </div>
+  );
+};
+
 const Panel = ({
   step,
   title,
@@ -434,10 +513,9 @@ const Placements = () => {
             <b className="text-text-primary">Sharing map</b>.
           </p>
           <p className="max-w-[46rem] text-text-quaternary typo-footnote">
-            Covers the seven placements built so far. The tracker holds roughly
-            thirty once multi-placement PRs are split — the text-selection bar,
-            the streak popup, the briefing, and the Happening Now page and topic
-            levels are mapped but not yet built.
+            Placements 1–7 are built and live; 8–20 are mock-ups of surfaces the
+            Sharing map covers but the code does not touch yet, so the control
+            and its verdict can be reviewed before anything is wired.
           </p>
         </header>
 
@@ -617,6 +695,220 @@ const Placements = () => {
             <AchievementCard userAchievement={ACHIEVEMENT} />
             <AchievementCard userAchievement={LOCKED_ACHIEVEMENT} />
           </div>
+        </Panel>
+
+        <Panel
+          step="Placement 8"
+          leads="Snapshot"
+          title="Text selection — the quote bar"
+          note="Snapshot leads: someone marking a sentence has already decided that sentence is the thing worth passing on. A link makes the recipient hunt for it."
+        >
+          <CardSurface
+            filename="daily-quote"
+            leads="Snapshot"
+            title="Why iconic tech brands lost their dominance"
+            body="TypeScript has become the default across frontend frameworks — a highlighted run of text, with the bar floating over the selection."
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 9"
+          leads="Link"
+          title="End of conversation"
+          note="Copy link leads: the thread keeps moving, and a still frame of it goes stale the moment someone replies."
+        >
+          <CardSurface
+            filename="daily-thread"
+            leads="Link"
+            title="Enjoyed this discussion?"
+            body="24 replies · last one 4 minutes ago"
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 10"
+          leads="Link"
+          title="After an upvote"
+          note="Copy link leads: same payload as the post, so this reuses the post's own image rather than making a second one."
+        >
+          <CardSurface
+            filename="daily-upvoted"
+            leads="Link"
+            title="Should anyone else see this?"
+            body="You upvoted “Why iconic tech brands lost their dominance”"
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 11"
+          leads="Snapshot"
+          title="Briefing and digest"
+          note="Snapshot leads: a briefing is personalized, so a link gives the recipient their briefing or nothing at all."
+        >
+          <HeaderSurface
+            eyebrow="Your briefing"
+            filename="daily-briefing"
+            leads="Snapshot"
+            meta="Tuesday, 26 August · 5 posts"
+            title="5 things worth your morning"
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 12"
+          leads="Link"
+          title="Tag and source pages"
+          note="Copy link leads: a live feed is worth landing on. These currently unfurl as the generic daily.dev tile — a real OG image would lift every share of the URL, not just the ones that press a button."
+        >
+          <div className="flex flex-col gap-3">
+            <HeaderSurface
+              filename="daily-tag"
+              leads="Link"
+              meta="48.2K followers · 1.2K posts"
+              title="#typescript"
+              trailing={
+                <Button size={ButtonSize.Small} variant={ButtonVariant.Float}>
+                  Follow
+                </Button>
+              }
+            />
+            <HeaderSurface
+              filename="daily-source"
+              leads="Link"
+              meta="12.4K followers · 8.6K posts"
+              title="XDA Developers"
+              trailing={
+                <Button size={ButtonSize.Small} variant={ButtonVariant.Float}>
+                  Follow
+                </Button>
+              }
+            />
+          </div>
+        </Panel>
+
+        <Panel
+          step="Placement 13"
+          leads="Link"
+          title="Leaderboard page"
+          note="Copy link leads for the board itself — it changes weekly, so a link stays true where an image does not. Sharing your own rank is Placement 3."
+        >
+          <HeaderSurface
+            eyebrow="Leaderboard"
+            filename="daily-leaderboard"
+            leads="Link"
+            meta="Updated weekly"
+            title="Highest level"
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 14"
+          leads="Snapshot"
+          title="Reading streak popup"
+          note="Snapshot leads: a link to your streak means nothing to anyone else. There is no page for the recipient to visit."
+        >
+          <CardSurface
+            filename="daily-streak"
+            leads="Snapshot"
+            title="100 day reading streak"
+            body="A new personal best — longest streak 100, 720 total reading days."
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 15"
+          leads="Share to"
+          title="DevCard"
+          note="Share to leads: the DevCard already is an image. Wrapping an image in another image adds nothing."
+        >
+          <CardSurface
+            filename="daily-devcard"
+            leads="Share to"
+            title="Your DevCard is ready"
+            body="Download it, or send it straight to a network."
+            footer={
+              <Button size={ButtonSize.Small} variant={ButtonVariant.Float}>
+                Download
+              </Button>
+            }
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 16"
+          leads="Link"
+          title="Reading history row"
+          note="Copy link leads: each row is just a post, and the post's own OG image does the work."
+        >
+          <HeaderSurface
+            filename="daily-history"
+            leads="Link"
+            meta="Read yesterday · xda-developers.com"
+            title="Why iconic tech brands lost their dominance"
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 17"
+          leads="Snapshot"
+          title="Copy my feed"
+          note="Snapshot leads: your feed has no URL anyone else can open, so an image is the only thing that can carry it."
+        >
+          <HeaderSurface
+            eyebrow="My feed"
+            filename="daily-my-feed"
+            leads="Snapshot"
+            meta="Top 20 posts right now"
+            title="What I'm reading"
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 18"
+          leads="Link"
+          title="Squad directory card"
+          note="Copy link leads: the point is that they join. Same generic-OG gap as tags and sources."
+        >
+          <HeaderSurface
+            filename="daily-squad"
+            leads="Link"
+            meta="3.4K members · 820 posts"
+            title="Frontend Fans"
+            trailing={
+              <Button size={ButtonSize.Small} variant={ButtonVariant.Float}>
+                Join
+              </Button>
+            }
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 19"
+          leads="Link"
+          title="Best of and discovery"
+          note="Copy link leads: an evergreen page worth landing on, and the link keeps working as the collection grows."
+        >
+          <HeaderSurface
+            eyebrow="Best of August"
+            filename="daily-best-of"
+            leads="Link"
+            meta="The 5 posts developers upvoted most"
+            title="August's most upvoted reads"
+          />
+        </Panel>
+
+        <Panel
+          step="Placement 20"
+          leads="Link"
+          title="Invite a friend"
+          note="Copy link leads, and this one is not a preference: an image of a referral link cannot be clicked. Share only the picture and the referral silently fails."
+        >
+          <CardSurface
+            filename="daily-invite"
+            leads="Link"
+            title="Come read with me on daily.dev"
+            body="We both get a month of Plus · daily.dev/join/tomer"
+          />
         </Panel>
       </div>
     </CaptureContext.Provider>
