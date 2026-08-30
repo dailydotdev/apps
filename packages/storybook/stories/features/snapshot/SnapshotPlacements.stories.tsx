@@ -37,10 +37,7 @@ const Snapshot = (
 
 type LeadAction = 'Link' | 'Share to' | 'Snapshot';
 
-/**
- * The recommended set for a surface: the leading action is labelled, the rest
- * are icon-only. Snapshot is the real control, so it still captures.
- */
+/** Only the action that should lead the surface — see the Sharing map. */
 const PreferredActions = ({
   leads,
   target,
@@ -51,36 +48,29 @@ const PreferredActions = ({
   target: React.RefObject<HTMLElement>;
   filename: string;
   className?: string;
-}) => (
-  <div className={`flex items-center gap-2 ${className ?? ''}`}>
+}) => {
+  if (leads === 'Snapshot') {
+    return (
+      <Snapshot
+        className={className}
+        filename={filename}
+        target={target}
+        variant={ButtonVariant.Secondary}
+      />
+    );
+  }
+
+  return (
     <Button
-      icon={<LinkIcon />}
+      className={className}
+      icon={leads === 'Link' ? <LinkIcon /> : <ShareIcon />}
       size={ButtonSize.Small}
-      variant={
-        leads === 'Link' ? ButtonVariant.Secondary : ButtonVariant.Tertiary
-      }
+      variant={ButtonVariant.Secondary}
     >
-      {leads === 'Link' ? 'Copy link' : undefined}
+      {leads === 'Link' ? 'Copy link' : 'Share'}
     </Button>
-    <Button
-      icon={<ShareIcon />}
-      size={ButtonSize.Small}
-      variant={
-        leads === 'Share to' ? ButtonVariant.Secondary : ButtonVariant.Tertiary
-      }
-    >
-      {leads === 'Share to' ? 'Share' : undefined}
-    </Button>
-    <Snapshot
-      filename={filename}
-      showLabel={leads === 'Snapshot'}
-      target={target}
-      variant={
-        leads === 'Snapshot' ? ButtonVariant.Secondary : ButtonVariant.Tertiary
-      }
-    />
-  </div>
-);
+  );
+};
 
 /** Snapshot leads only where the payload is the value — see the Sharing map. */
 const LEAD_STYLE: Record<LeadAction, string> = {
