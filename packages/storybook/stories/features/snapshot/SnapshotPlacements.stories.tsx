@@ -20,6 +20,7 @@ import {
   BookmarkIcon,
   LinkIcon,
   ShareIcon,
+  CopyIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -154,6 +155,70 @@ const CardSurface = ({
         {footer}
         <PreferredActions filename={filename} leads={leads} target={ref} />
       </div>
+    </div>
+  );
+};
+
+/**
+ * The floating bar from #6352: copy link, copy text, quote, share. Rebuilt
+ * here because that PR is closed and SelectionShareBar never reached main —
+ * same control set and chrome, with Snapshot added as the action that leads.
+ */
+const SelectionShareBarDemo = () => {
+  const ref = useRef<HTMLSpanElement>(null);
+
+  return (
+    <div className="relative flex flex-col gap-2 rounded-12 bg-background-default p-4 pt-16">
+      <div
+        className="absolute left-6 top-4 flex items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2"
+        role="toolbar"
+        aria-label="Share selected text"
+      >
+        <Button
+          aria-label="Copy link to this post"
+          icon={<LinkIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
+        <Button
+          aria-label="Copy selected text"
+          icon={<CopyIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
+        <Button
+          aria-label="Quote in a comment"
+          icon={<DiscussIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
+        <Button
+          aria-label="Share"
+          icon={<ShareIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
+        <Snapshot
+          filename="daily-quote"
+          showLabel={false}
+          target={ref}
+          variant={ButtonVariant.Secondary}
+        />
+      </div>
+
+      <span className="font-bold text-text-primary typo-title3">
+        Why iconic tech brands like HTC and LG lost their dominance
+      </span>
+      <p className="text-text-secondary typo-callout">
+        A brief retrospective on how once-dominant brands declined.{' '}
+        <span
+          ref={ref}
+          className="rounded-4 bg-overlay-quaternary-cabbage text-text-primary"
+        >
+          TypeScript has become the default across frontend frameworks
+        </span>{' '}
+        and the rest of the stack followed within two release cycles.
+      </p>
     </div>
   );
 };
@@ -700,15 +765,10 @@ const Placements = () => {
         <Panel
           step="Placement 8"
           leads="Snapshot"
-          title="Text selection — the quote bar"
-          note="Snapshot leads: someone marking a sentence has already decided that sentence is the thing worth passing on. A link makes the recipient hunt for it."
+          title="Floating share bar — selected text in posts and comments"
+          note="From #6352: copy link, copy text, quote, share. Snapshot joins them and leads — someone marking a sentence has already decided that sentence is worth passing on, and it captures the selection, not the page."
         >
-          <CardSurface
-            filename="daily-quote"
-            leads="Snapshot"
-            title="Why iconic tech brands lost their dominance"
-            body="TypeScript has become the default across frontend frameworks — a highlighted run of text, with the bar floating over the selection."
-          />
+          <SelectionShareBarDemo />
         </Panel>
 
         <Panel
