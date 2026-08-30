@@ -1,7 +1,10 @@
 import React, { useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { fn } from 'storybook/test';
 import { SnapshotButton } from '@dailydotdev/shared/src/components/imageShare/SnapshotButton';
+import { SnapshotShareActions } from '@dailydotdev/shared/src/components/imageShare/SnapshotShareActions';
 import {
   ButtonSize,
   ButtonVariant,
@@ -37,7 +40,16 @@ const Snapshot = (
 
 type LeadAction = 'Link' | 'Share to' | 'Snapshot';
 
-/** Only the action that should lead the surface — see the Sharing map. */
+const LEAD_TO_ACTION = {
+  Link: 'link',
+  'Share to': 'share',
+  Snapshot: 'snapshot',
+} as const;
+
+/**
+ * The surface's leading action sits outside; everything else lives behind the
+ * chevron. Which one leads is decided per surface in the Sharing map.
+ */
 const PreferredActions = ({
   leads,
   target,
@@ -48,29 +60,17 @@ const PreferredActions = ({
   target: React.RefObject<HTMLElement>;
   filename: string;
   className?: string;
-}) => {
-  if (leads === 'Snapshot') {
-    return (
-      <Snapshot
-        className={className}
-        filename={filename}
-        target={target}
-        variant={ButtonVariant.Secondary}
-      />
-    );
-  }
-
-  return (
-    <Button
-      className={className}
-      icon={leads === 'Link' ? <LinkIcon /> : <ShareIcon />}
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Secondary}
-    >
-      {leads === 'Link' ? 'Copy link' : 'Share'}
-    </Button>
-  );
-};
+}) => (
+  <SnapshotShareActions
+    className={className}
+    filename={filename}
+    lead={LEAD_TO_ACTION[leads]}
+    link="https://app.daily.dev/posts/example"
+    onCapture={useCaptureSink()}
+    target={target}
+    text="Worth a read"
+  />
+);
 
 /** Snapshot leads only where the payload is the value — see the Sharing map. */
 const LEAD_STYLE: Record<LeadAction, string> = {
@@ -630,9 +630,30 @@ const meta: Meta<typeof Placements> = {
     layout: 'fullscreen',
   },
   decorators: [
+    // The share controls read the logged-in user to build referral links.
     (Story) => (
       <QueryClientProvider client={new QueryClient()}>
-        <Story />
+        <AuthContextProvider
+          getRedirectUri={fn()}
+          isAndroidApp={false}
+          loadedUserFromCache
+          loadingUser={false}
+          refetchBoot={fn()}
+          squads={[]}
+          tokenRefreshed
+          updateUser={fn()}
+          user={{
+            id: 'storybook-user',
+            name: 'Tomer Redlich',
+            username: 'tomer',
+            image: AVATAR,
+            permalink: 'https://app.daily.dev/tomer',
+            createdAt: '2021-06-01T00:00:00Z',
+            reputation: 12400,
+          }}
+        >
+          <Story />
+        </AuthContextProvider>
       </QueryClientProvider>
     ),
   ],
