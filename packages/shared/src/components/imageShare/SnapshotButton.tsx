@@ -14,6 +14,7 @@ import type {
 } from '../../lib/imageShare/captureShareImage';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
+import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { playShutterSound } from '../../features/snapshot/shutterSound';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
@@ -72,17 +73,22 @@ export function SnapshotButton({
       setIsCapturing(true);
 
       try {
-        const blob = await captureShareImage(target, captureOptions);
+        const capture = captureShareImage(target, captureOptions);
 
         if (onCapture) {
-          onCapture(blob);
+          onCapture(await capture);
           return;
         }
 
-        downloadShareImage(blob, filename);
-        // A download is silent on most browsers, so without this the press
-        // reads as having done nothing at all.
-        displayToast('Snapshot saved', { variant: ToastType.Success });
+        // Pasting beats a file in Downloads for every target we share to, so
+        // the clipboard leads and the download is the fallback.
+        if (await copyShareImage(capture)) {
+          displayToast('Image copied', { variant: ToastType.Success });
+          return;
+        }
+
+        downloadShareImage(await capture, filename);
+        displayToast('Image saved', { variant: ToastType.Success });
       } catch {
         displayToast('Could not create the snapshot, please try again', {
           variant: ToastType.Error,

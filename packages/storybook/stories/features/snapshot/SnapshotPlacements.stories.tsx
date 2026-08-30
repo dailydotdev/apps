@@ -258,19 +258,29 @@ const ToastPreview = () => {
     <section className="flex flex-col gap-3">
       <h3 className="font-bold text-text-primary typo-title3">Feedback</h3>
       <p className="max-w-[46rem] text-text-tertiary typo-callout">
-        A download is silent on most browsers, so a capture confirms itself.
+        Snapshot puts the image on the clipboard, so it can be pasted straight
+        into a chat or a composer. That is invisible without a confirmation.
         Press a Snapshot button anywhere on this page to see the real one, or
         trigger them here.
       </p>
       <div className="flex flex-wrap items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
         <Button
           onClick={() =>
-            displayToast('Snapshot saved', { variant: ToastType.Success })
+            displayToast('Image copied', { variant: ToastType.Success })
           }
           size={ButtonSize.Small}
           variant={ButtonVariant.Secondary}
         >
-          Success
+          Image copied
+        </Button>
+        <Button
+          onClick={() =>
+            displayToast('Image saved', { variant: ToastType.Success })
+          }
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Secondary}
+        >
+          Image saved (fallback)
         </Button>
         <Button
           onClick={() =>
