@@ -18,6 +18,8 @@ import {
   UpvoteIcon,
   DiscussIcon,
   BookmarkIcon,
+  LinkIcon,
+  ShareIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -34,6 +36,51 @@ const Snapshot = (
 ) => <SnapshotButton {...props} onCapture={useCaptureSink()} />;
 
 type LeadAction = 'Link' | 'Share to' | 'Snapshot';
+
+/**
+ * The recommended set for a surface: the leading action is labelled, the rest
+ * are icon-only. Snapshot is the real control, so it still captures.
+ */
+const PreferredActions = ({
+  leads,
+  target,
+  filename,
+  className,
+}: {
+  leads: LeadAction;
+  target: React.RefObject<HTMLElement>;
+  filename: string;
+  className?: string;
+}) => (
+  <div className={`flex items-center gap-2 ${className ?? ''}`}>
+    <Button
+      icon={<LinkIcon />}
+      size={ButtonSize.Small}
+      variant={
+        leads === 'Link' ? ButtonVariant.Secondary : ButtonVariant.Tertiary
+      }
+    >
+      {leads === 'Link' ? 'Copy link' : undefined}
+    </Button>
+    <Button
+      icon={<ShareIcon />}
+      size={ButtonSize.Small}
+      variant={
+        leads === 'Share to' ? ButtonVariant.Secondary : ButtonVariant.Tertiary
+      }
+    >
+      {leads === 'Share to' ? 'Share' : undefined}
+    </Button>
+    <Snapshot
+      filename={filename}
+      showLabel={leads === 'Snapshot'}
+      target={target}
+      variant={
+        leads === 'Snapshot' ? ButtonVariant.Secondary : ButtonVariant.Tertiary
+      }
+    />
+  </div>
+);
 
 /** Snapshot leads only where the payload is the value — see the Sharing map. */
 const LEAD_STYLE: Record<LeadAction, string> = {
@@ -102,7 +149,12 @@ const PostTldrPlacement = () => {
           America to a niche VR-focused company.
         </p>
       </div>
-      <Snapshot className="self-start" filename="daily-post" target={ref} />
+      <PreferredActions
+        className="self-start"
+        filename="daily-post"
+        leads="Link"
+        target={ref}
+      />
     </div>
   );
 };
@@ -133,7 +185,11 @@ const HighlightPlacement = () => {
         </p>
         <div className="flex items-center gap-4">
           <a className="font-bold text-text-link typo-footnote">Read more</a>
-          <Snapshot filename="daily-highlight" target={ref} />
+          <PreferredActions
+            filename="daily-highlight"
+            leads="Snapshot"
+            target={ref}
+          />
         </div>
       </div>
     </article>
@@ -202,11 +258,10 @@ const WatercoolerPlacement = () => {
         <UpvoteIcon />
         <DiscussIcon />
         <BookmarkIcon />
-        <Snapshot
+        <PreferredActions
           filename="daily-watercooler"
-          showLabel={false}
+          leads="Link"
           target={ref}
-          variant={ButtonVariant.Tertiary}
         />
       </div>
     </div>
@@ -239,11 +294,10 @@ const HotTakePlacement = () => {
               128
             </span>
           </div>
-          <Snapshot
+          <PreferredActions
             filename="daily-hot-take"
-            showLabel={false}
+            leads="Snapshot"
             target={ref}
-            variant={ButtonVariant.Float}
           />
         </div>
       </div>
@@ -274,12 +328,10 @@ const ProfileHeaderPlacement = () => {
             aria-label="Edit profile"
             className="text-text-secondary"
           />
-          <Snapshot
+          <PreferredActions
             filename="daily-profile"
-            showLabel={false}
-            size={ButtonSize.Medium}
+            leads="Link"
             target={ref}
-            variant={ButtonVariant.Float}
           />
         </div>
         <span className="font-bold text-text-primary typo-title2">
@@ -314,7 +366,11 @@ const WidgetPlacement = ({
         </h2>
         <div className="flex items-center gap-1">
           {trailing}
-          <Snapshot filename="daily-widget" showLabel={false} target={ref} />
+          <PreferredActions
+            filename="daily-widget"
+            leads="Snapshot"
+            target={ref}
+          />
         </div>
       </div>
       {children}
@@ -443,7 +499,7 @@ const Placements = () => {
           step="Placement 1"
           leads="Link"
           title="Post page — under the TLDR"
-          note="Labelled button, left-aligned below the summary. Captures the source, title, metadata and TLDR."
+          note="Copy link leads: posts already have a real per-post OG image, so an unfurled link carries the article better than a picture of it."
         >
           <PostTldrPlacement />
         </Panel>
@@ -452,7 +508,7 @@ const Placements = () => {
           step="Placement 2"
           leads="Snapshot"
           title="Happening now — expanded highlight"
-          note="Sits in the footer row beside Read more. Captures the headline and its TLDR."
+          note="Snapshot leads: the headline and TLDR are the whole payload, and news travels through chat apps where an image gets read in the scroll."
         >
           <HighlightPlacement />
         </Panel>
@@ -461,7 +517,7 @@ const Placements = () => {
           step="Placement 3"
           leads="Snapshot"
           title="Leaderboards — on row hover"
-          note="Icon-only, revealed on hover or keyboard focus so the tables stay quiet. Hover a row."
+          note="Snapshot leads: a rank is status, and a link shows the reader this week's board, not your moment. Icon-only on hover so the table stays quiet."
         >
           <LeaderboardPlacement />
         </Panel>
@@ -470,7 +526,7 @@ const Placements = () => {
           step="Placement 4"
           leads="Link"
           title="Watercooler feed — per post card"
-          note="Labelled button in the card action row, only on the watercooler feed."
+          note="Copy link leads: it is a post with a destination. Snapshot sits beside the bookmark, watercooler feed only."
         >
           <WatercoolerPlacement />
         </Panel>
@@ -479,7 +535,7 @@ const Placements = () => {
           step="Placement 5"
           leads="Snapshot"
           title="Hot takes — per take"
-          note="Icon-only, floated over the top-right of the active swipe card."
+          note="Snapshot leads: a take is self-contained and quotable, and there is no per-take page to send anyone to."
         >
           <HotTakePlacement />
         </Panel>
@@ -488,7 +544,7 @@ const Placements = () => {
           step="Placement 6"
           leads="Link"
           title="Profile — header and widgets"
-          note="Next to the edit action in the header, and in each widget header: reading overview, badges and worlds, achievements."
+          note="Copy link leads on the header — profiles have a real OG and the point is that they follow you. Snapshot leads in the widgets: reading overview, badges and achievements have no URL anyone else can open."
         >
           <div className="flex flex-col gap-4">
             <ProfileHeaderPlacement />
@@ -565,7 +621,7 @@ const Placements = () => {
           step="Placement 7"
           leads="Snapshot"
           title="Achievements page — per achievement box"
-          note="Icon-only, revealed on card hover beside the points value. Uses the real AchievementCard."
+          note="Snapshot leads: an unlocked achievement is status with no shareable URL. Icon-only on hover, beside the points value."
         >
           <div className="grid gap-4 laptop:grid-cols-2">
             <AchievementCard userAchievement={ACHIEVEMENT} />
