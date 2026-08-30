@@ -44,6 +44,9 @@ import { AgentAttachmentChip } from './AgentAttachmentChip';
 import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
 import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
+import { AgentBriefBlock } from './AgentBriefBlock';
+import { AgentQuestionBlock } from './AgentQuestionBlock';
+import { AgentReviewBlock } from './AgentReviewBlock';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 
 const postLinkId = (href: string): string | undefined => {
@@ -79,6 +82,18 @@ const BlockRenderer = ({
   onPostLinkClick: (postId: string) => void;
   activePostId?: string;
 }): ReactElement => {
+  if (block.type === 'question') {
+    return <AgentQuestionBlock block={block} />;
+  }
+
+  if (block.type === 'review') {
+    return <AgentReviewBlock />;
+  }
+
+  if (block.type === 'brief') {
+    return <AgentBriefBlock html={block.html} brief={block.brief} />;
+  }
+
   if (block.type === 'text') {
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
@@ -457,7 +472,10 @@ const MessageRow = ({
               activePostId={activePostId}
             />
           ))}
-          {!!message.blocks?.length && <MessageActions message={message} />}
+          {message.blocks?.some(
+            ({ type }) =>
+              type !== 'question' && type !== 'review' && type !== 'brief',
+          ) && <MessageActions message={message} />}
         </>
       )}
     </FlexCol>

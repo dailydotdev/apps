@@ -52,6 +52,7 @@ export const AgentWorkspace = ({
     isHistoryPending,
     isRunView,
     isHistoryLimited,
+    advanceOnboarding,
   } = useAgent();
   const shellHeight = useAgentShellHeight(isStandalone);
   const [storedWidth, setStoredWidth, isWidthLoaded] =
@@ -192,6 +193,38 @@ export const AgentWorkspace = ({
     // The reply landing is the trigger; the length is the other effect's.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTailPending]);
+
+  // "Press Enter" has to hold anywhere on the screen: clicking a chip moves
+  // focus onto that button, and the composer's own handler only fires while the
+  // field is focused.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter' || event.shiftKey || event.defaultPrevented) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName;
+
+      // The composer, and any other field, answer for themselves.
+      if (
+        tag === 'INPUT' ||
+        tag === 'TEXTAREA' ||
+        target?.isContentEditable ||
+        target?.closest('[role="dialog"]')
+      ) {
+        return;
+      }
+
+      if (advanceOnboarding()) {
+        event.preventDefault();
+      }
+    };
+
+    globalThis.addEventListener('keydown', onKeyDown);
+
+    return () => globalThis.removeEventListener('keydown', onKeyDown);
+  }, [advanceOnboarding]);
 
   useEffect(() => {
     const measure = () => {
