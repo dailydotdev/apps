@@ -536,7 +536,7 @@ const Placements = () => {
 };
 
 const meta: Meta<typeof Placements> = {
-  title: 'Features/Snapshot/Placements',
+  title: 'Features/Snapshot/Button placements',
   component: Placements,
   parameters: {
     layout: 'fullscreen',
