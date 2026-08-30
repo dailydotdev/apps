@@ -33,15 +33,26 @@ const Snapshot = (
   props: Omit<React.ComponentProps<typeof SnapshotButton>, 'onCapture'>,
 ) => <SnapshotButton {...props} onCapture={useCaptureSink()} />;
 
+type LeadAction = 'Link' | 'Share to' | 'Snapshot';
+
+/** Snapshot leads only where the payload is the value — see the Sharing map. */
+const LEAD_STYLE: Record<LeadAction, string> = {
+  Link: 'text-text-tertiary border-border-subtlest-tertiary',
+  'Share to': 'text-text-tertiary border-border-subtlest-tertiary',
+  Snapshot: 'text-accent-cabbage-default border-accent-cabbage-default',
+};
+
 const Panel = ({
   step,
   title,
   note,
+  leads,
   children,
 }: {
   step: string;
   title: string;
   note: string;
+  leads: LeadAction;
   children: React.ReactNode;
 }) => (
   <section className="flex flex-col gap-3">
@@ -49,7 +60,14 @@ const Panel = ({
       <span className="font-bold text-text-quaternary typo-caption1">
         {step}
       </span>
-      <h3 className="font-bold text-text-primary typo-title3">{title}</h3>
+      <div className="flex items-center gap-3">
+        <h3 className="font-bold text-text-primary typo-title3">{title}</h3>
+        <span
+          className={`rounded-8 border px-2 py-0.5 typo-caption1 ${LEAD_STYLE[leads]}`}
+        >
+          leads with {leads}
+        </span>
+      </div>
       <p className="text-text-tertiary typo-callout">{note}</p>
     </header>
     <div className="rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
@@ -349,14 +367,31 @@ const Placements = () => {
   return (
     <CaptureContext.Provider value={onCapture}>
       <div className="flex flex-col gap-10 p-6">
-        <header className="flex flex-col gap-2">
+        <header className="flex flex-col gap-3">
           <h1 className="font-bold text-text-primary typo-mega3">
             Snapshot button placements
           </h1>
           <p className="max-w-[46rem] text-text-tertiary typo-body">
-            Every surface that gets a Snapshot control. Pressing any of them
-            captures the surrounding block and composes it onto the 1200×630
-            share image — the result appears in the panel below.
+            Every surface that gets a Snapshot control, and which of the three
+            share actions leads there. Pressing any button captures its
+            surrounding block into the square share image, shown in the panel
+            below.
+          </p>
+          <p className="max-w-[46rem] text-text-tertiary typo-callout">
+            <b className="text-text-primary">Snapshot leads</b> where the
+            payload is the value and there is often no page to visit: a quote, a
+            rank, a take, an unlocked achievement.{' '}
+            <b className="text-text-primary">Link leads</b> where the
+            destination adds something the image cannot — the article, the
+            profile you can follow, the squad you can join. Snapshot still
+            appears on those surfaces, just not first. Full reasoning in{' '}
+            <b className="text-text-primary">Sharing map</b>.
+          </p>
+          <p className="max-w-[46rem] text-text-quaternary typo-footnote">
+            Covers the seven placements built so far. The tracker holds roughly
+            thirty once multi-placement PRs are split — the text-selection bar,
+            the streak popup, the briefing, and the Happening Now page and topic
+            levels are mapped but not yet built.
           </p>
         </header>
 
@@ -406,6 +441,7 @@ const Placements = () => {
 
         <Panel
           step="Placement 1"
+          leads="Link"
           title="Post page — under the TLDR"
           note="Labelled button, left-aligned below the summary. Captures the source, title, metadata and TLDR."
         >
@@ -414,6 +450,7 @@ const Placements = () => {
 
         <Panel
           step="Placement 2"
+          leads="Snapshot"
           title="Happening now — expanded highlight"
           note="Sits in the footer row beside Read more. Captures the headline and its TLDR."
         >
@@ -422,6 +459,7 @@ const Placements = () => {
 
         <Panel
           step="Placement 3"
+          leads="Snapshot"
           title="Leaderboards — on row hover"
           note="Icon-only, revealed on hover or keyboard focus so the tables stay quiet. Hover a row."
         >
@@ -430,6 +468,7 @@ const Placements = () => {
 
         <Panel
           step="Placement 4"
+          leads="Link"
           title="Watercooler feed — per post card"
           note="Labelled button in the card action row, only on the watercooler feed."
         >
@@ -438,6 +477,7 @@ const Placements = () => {
 
         <Panel
           step="Placement 5"
+          leads="Snapshot"
           title="Hot takes — per take"
           note="Icon-only, floated over the top-right of the active swipe card."
         >
@@ -446,6 +486,7 @@ const Placements = () => {
 
         <Panel
           step="Placement 6"
+          leads="Link"
           title="Profile — header and widgets"
           note="Next to the edit action in the header, and in each widget header: reading overview, badges and worlds, achievements."
         >
@@ -522,6 +563,7 @@ const Placements = () => {
 
         <Panel
           step="Placement 7"
+          leads="Snapshot"
           title="Achievements page — per achievement box"
           note="Icon-only, revealed on card hover beside the points value. Uses the real AchievementCard."
         >
