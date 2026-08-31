@@ -38,10 +38,8 @@ interface FocusCardActionBarProps {
 }
 
 /**
- * Engagement bar for the redesign focus card: one full-width floating glass bar
- * (translucent, blurred, soft shadow) with post-contribution actions on the
- * left and utility actions on the right. Floats pinned to the BOTTOM of the
- * scroll area on tablet up (never the top).
+ * Engagement bar for the redesign focus card. Floats pinned to the bottom of
+ * the scroll area from tablet up — never the top.
  */
 export const FocusCardActionBar = ({
   post,
@@ -109,10 +107,6 @@ export const FocusCardActionBar = ({
   return (
     <div
       className={classNames(
-        // One full-width floating glass bar (macOS/iOS style): translucent,
-        // blurred, soft shadow. Post-contribution actions on the left, utility
-        // actions on the right. Floats pinned to the bottom from tablet up
-        // (never the top).
         'relative z-3 flex w-full items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky tablet:bottom-4',
         className,
       )}
@@ -169,8 +163,6 @@ export const FocusCardActionBar = ({
       </div>
 
       <div className="flex items-center gap-1">
-        {/* BookmarkButton rather than a plain CardAction: it carries the
-            bookmark-reminder dropdown (edit / remove reminder). */}
         <BookmarkButton
           post={post}
           iconSize={IconSize.Small}

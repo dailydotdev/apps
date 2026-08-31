@@ -79,8 +79,7 @@ interface PostFocusCardProps {
   origin: PostOrigin;
   leftVariant?: FocusCardLeftVariant;
   /**
-   * Passed by the post modal only. The action bar no longer renders a close
-   * button, so this is never invoked — it is read purely as an "am I in the
+   * Never invoked — nothing in the card calls it. Read only as an "am I in the
    * modal?" flag (clamped title, no answered-questions block).
    */
   onClose?: () => void;
@@ -245,28 +244,21 @@ const PostFocusCardRaw = ({
     post.type === PostType.Welcome
       ? post.author
       : undefined;
-  // Squad attribution under the header. Author-led posts show the author
-  // there, so the squad must be named separately: shared into a squad →
-  // "Shared via {squad}", written directly in a squad (freeform/welcome) →
-  // "Posted in {squad}". Shared to a profile → just "Shared post" (we don't
-  // repeat the author's name), and publication-sourced posts already show
-  // their source strip in the header.
+  // Author-led posts show the author in the header, so the squad needs naming
+  // separately; publication-sourced posts already show their source strip.
   const squadAttribution =
     post.source?.type === SourceType.Squad && (isShared || author)
       ? { label: isShared ? 'Shared via' : 'Posted in', source: post.source }
       : undefined;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
-  // A share post carries the user's own commentary in `post.title` (separate
-  // from the shared article's title). Surface it so the text the user actually
-  // wrote isn't dropped; skip it when it just mirrors the article's title.
+  // A share post's own `title` is the sharer's commentary, not the article's
+  // title — but it mirrors the article title when they wrote nothing.
   const commentary =
     isShared && post.title && post.title !== article.title ? post.title : null;
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
-  // Boost CTA for eligible authors — lived in PostHeaderActions, which the
-  // redesign card doesn't render, so surface it here in the header row.
   const showBoostButton = useShowBoostButton({ post });
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
@@ -341,8 +333,6 @@ const PostFocusCardRaw = ({
     focusCommentRef.current();
   };
 
-  // "Read the full article" is the deliberate CTA copy for articles; videos and
-  // X/Twitter posts keep their own verb ("Watch video" / "Read on").
   const readCtaLabel =
     isVideoType || isPostOrSharedPostTwitter(post)
       ? getReadPostButtonText(post)
@@ -352,7 +342,6 @@ const PostFocusCardRaw = ({
     ? `${readCtaLabel} on ${article.domain}`
     : readCtaLabel;
 
-  // Post body: the rendered content, or the TL;DR when there is no content.
   const postBody = article.contentHtml ? (
     <>
       <Markdown content={article.contentHtml} className="break-words" />
@@ -377,8 +366,6 @@ const PostFocusCardRaw = ({
       href={readHref}
       target="_blank"
       rel="noopener"
-      // `combinedClicks` so a middle-click (which never fires React's onClick)
-      // still logs the read and still reaches the reader gate.
       {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
       aria-label={readCtaAccessibleLabel}
       className="group flex w-fit items-center gap-2 rounded-12 bg-text-primary py-2 pl-4 pr-3 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
@@ -517,16 +504,12 @@ const PostFocusCardRaw = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* The sharer's own words, above the shared article they reference. */}
             {commentary && (
               <p className="whitespace-pre-line break-words font-bold text-text-primary typo-title3">
                 {commentary}
               </p>
             )}
-            {/* Title column and cover image sit side by side, top-aligned. The
-                image keeps a fixed ratio (square on mobile/small tablet, the
-                wide open-graph cover ratio from tablet up) so a short title
-                can't squash it. */}
+            {/* The cover keeps a fixed ratio so a short title can't squash it. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <h1
@@ -555,11 +538,8 @@ const PostFocusCardRaw = ({
                     title
                   )}
                 </h1>
-                {/* Directly under the title so a short title pulls the strip
-                    up (rather than sitting below a taller cover image). */}
                 <PostMetadata
-                  // Wrap to a second line on mobile so a long domain stays fully
-                  // visible (no ellipsis); single line from tablet up.
+                  // Wraps on mobile so a long domain stays whole (no ellipsis).
                   className="flex-wrap !typo-callout tablet:flex-nowrap"
                   createdAt={article.createdAt}
                   domain={
@@ -583,13 +563,8 @@ const PostFocusCardRaw = ({
                   readTime={article.readTime}
                 />
               </div>
-              {/* The cover is the biggest target on the card, so when there is
-                  a source article it opens it — same href, reader gate and
-                  logging as the title and the read CTA. It duplicates the title
-                  link, so it stays out of the tab order and the accessibility
-                  tree rather than adding a third identical stop. Native posts
-                  (freeform, welcome) have nothing to open, so there the cover
-                  keeps the zoom-in lightbox. */}
+              {/* Duplicates the title link, so it stays out of the tab order and
+                  the accessibility tree rather than adding an identical stop. */}
               {coverImage &&
                 (canReadArticle ? (
                   <a
@@ -655,15 +630,11 @@ const PostFocusCardRaw = ({
             </div>
           )}
 
-          {/* The read CTA sits above the TL;DR on mobile and after it from
-              tablet up. `flex-col-reverse` flips the pair at the small width
-              rather than rendering the CTA twice behind `hidden` wrappers — one
-              link in the DOM, so keyboard and screen-reader users get one stop,
-              not two identical ones. `gap-4` matches the parent column, so the
-              spacing is unchanged. */}
+          {/* `flex-col-reverse` puts the CTA above the body on mobile without
+              rendering it twice behind `hidden` wrappers — one link, one stop in
+              the accessibility tree. */}
           <div className="flex flex-col-reverse gap-4 tablet:flex-col">
-            {/* Exactly two children, so the reversal only ever swaps the body
-                and the CTA; the body keeps its own gap-4 column inside. */}
+            {/* Must stay two children, or the reversal reorders the body too. */}
             {postBody && <div className="flex flex-col gap-4">{postBody}</div>}
             {readCta}
           </div>
@@ -699,8 +670,6 @@ const PostFocusCardRaw = ({
             origin={origin}
             onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
-            // Extra breathing room above and below the action row (on top of
-            // the column's gap-4).
             className="my-2"
           />
 

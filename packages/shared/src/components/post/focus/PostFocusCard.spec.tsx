@@ -26,8 +26,7 @@ if (!squadSource) {
   throw new Error('sharePost fixture must include a squad source');
 }
 
-// Freeform posts live inside a squad; reuse the share fixture's squad so the
-// "Posted in {squad}" attribution has something to name.
+// Reuse the share fixture's squad — the default post fixture has no squad.
 const freeformSquadPost: Post = {
   ...freeformPost,
   id: 'freeform-squad-post-id',
@@ -192,8 +191,6 @@ describe('PostFocusCard squad attribution', () => {
 });
 
 describe('PostFocusCard read CTA', () => {
-  // Rendered once, repositioned with `flex-col-reverse` — not duplicated
-  // behind breakpoint-gated wrappers, so there is exactly one link.
   it('renders a single read CTA pointing at the source article', () => {
     renderCard(post);
 
