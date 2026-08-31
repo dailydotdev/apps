@@ -14,6 +14,7 @@ import {
   LinkIcon,
   MedalBadgeIcon,
   MenuIcon,
+  MiniCloseIcon,
   OpenLinkIcon,
   ShareIcon,
   TwitterIcon,
@@ -655,6 +656,232 @@ const TypeView = ({
   </div>
 );
 
+
+/* --------------------------------------------------------- the poll variant */
+
+type PollSpot = 'today' | 'result' | 'postvote';
+
+const PollResults = () => (
+  <div className="flex flex-col gap-2">
+    {[
+      ['Postgres', 62],
+      ['Redis', 21],
+      ['SQLite', 11],
+      ['Something else', 6],
+    ].map(([label, share]) => (
+      <div
+        key={label}
+        className="relative overflow-hidden rounded-10 border border-border-subtlest-tertiary px-3 py-2"
+      >
+        <span
+          className="absolute inset-y-0 left-0 bg-overlay-float-cabbage"
+          style={{ width: `${share as number}%` }}
+        />
+        <span className="relative flex justify-between text-text-primary typo-footnote">
+          <span>{label}</span>
+          <span className="font-bold">{share}%</span>
+        </span>
+      </div>
+    ))}
+  </div>
+);
+
+const PollView = ({
+  device,
+  spot,
+}: {
+  device: DeviceName;
+  spot: PollSpot;
+}) => (
+  <Device name={device}>
+    <div className="flex flex-col gap-3 p-4">
+      <div className="flex items-center gap-2 text-text-tertiary typo-footnote">
+        <span className="text-text-secondary typo-callout">Frontend Fans</span>
+        <span className="text-text-quaternary">·</span>
+        <span className="font-bold text-text-link">Follow</span>
+        <Button
+          aria-label="Options"
+          className="ml-auto"
+          icon={<MenuIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
+      </div>
+
+      <h1
+        className={`font-bold text-text-primary ${
+          isCompact(device) ? 'typo-title2' : 'typo-large-title'
+        }`}
+      >
+        Which do you reach for first in a new service?
+      </h1>
+
+      <PollResults />
+
+      <div className="flex items-center gap-2">
+        <span className="flex-1 text-text-quaternary typo-caption1">
+          1,284 votes · 2 days left
+        </span>
+        {spot === 'result' && <Control action="Snapshot" />}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-16 bg-action-comment-float p-3">
+        <span className="flex items-center gap-1 font-bold text-text-primary typo-footnote">
+          <DiscussIcon className="text-action-comment-default" secondary />
+          Why did you vote this way?
+        </span>
+        <div className="flex items-center gap-2">
+          {spot === 'postvote' && (
+            <Control
+              action="Snapshot"
+              label={!isCompact(device)}
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Primary}
+            />
+          )}
+          <Button size={ButtonSize.XSmall} variant={ButtonVariant.Subtle}>
+            Comment
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-1 rounded-16 border border-border-subtlest-tertiary p-2">
+        <BarAction icon={<UpvoteIcon />} label="Upvote" />
+        <BarAction icon={<DownvoteIcon />} label="Downvote" />
+        <BarAction
+          icon={<DiscussIcon />}
+          label="Comment"
+          labelVisible={!isCompact(device)}
+        />
+        <BarAction
+          icon={<BookmarkIcon />}
+          label="Bookmark"
+          labelVisible={!isCompact(device)}
+        />
+        <BarAction
+          icon={<LinkIcon />}
+          label="Copy"
+          labelVisible={!isCompact(device)}
+        />
+      </div>
+    </div>
+  </Device>
+);
+
+const AllPolls = ({ spot }: { spot: PollSpot }) => (
+  <Rail>
+    <PollView device="Desktop" spot={spot} />
+    <PollView device="Tablet" spot={spot} />
+    <PollView device="Mobile" spot={spot} />
+  </Rail>
+);
+
+/* ---------------------------------------------- the modal and the sticky nav */
+
+/** PostNavigation with `inlineActions`: Read post loses its label. */
+const NavActions = ({ close }: { close?: boolean }) => (
+  <div className="ml-auto flex items-center gap-1">
+    <Button
+      aria-label="Read post"
+      icon={<OpenLinkIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    />
+    <Button
+      aria-label="Options"
+      icon={<MenuIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    />
+    {close && (
+      <Button
+        aria-label="Close"
+        icon={<MiniCloseIcon />}
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+      />
+    )}
+  </div>
+);
+
+const NavBar = ({
+  close,
+  share,
+}: {
+  close?: boolean;
+  share?: boolean;
+}) => (
+  <div className="flex items-center gap-1 border-b border-border-subtlest-tertiary bg-background-subtle px-4 py-1">
+    <Button
+      aria-label="Previous"
+      className="-rotate-90"
+      icon={<ArrowIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    />
+    <Button
+      aria-label="Next"
+      className="rotate-90"
+      icon={<ArrowIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    />
+    {share && (
+      <div className="ml-auto flex items-center gap-1">
+        <BarAction icon={<LinkIcon />} label="Copy link" />
+        <NavActions close={close} />
+      </div>
+    )}
+    {!share && <NavActions close={close} />}
+  </div>
+);
+
+const ModalOrNavView = ({
+  device,
+  kind,
+  share,
+}: {
+  device: DeviceName;
+  kind: 'modal' | 'nav';
+  share?: boolean;
+}) => (
+  <Device name={device}>
+    {kind === 'nav' && (
+      <div className="p-4 pb-0 text-text-quaternary typo-caption1">
+        scrolled past the header
+      </div>
+    )}
+    <NavBar close={kind === 'modal'} share={share} />
+
+    <div className="flex flex-col gap-3 p-4">
+      <div className="flex items-center gap-2 text-text-tertiary typo-footnote">
+        <span className="text-text-secondary typo-callout">XDA Developers</span>
+        <span className="text-text-quaternary">·</span>
+        <span className="font-bold text-text-link">Follow</span>
+        {/* `navigation.actions: ml-auto tablet:hidden` — gone from tablet up. */}
+        {device === 'Mobile' && <NavActions />}
+      </div>
+
+      <h1
+        className={`font-bold text-text-primary ${
+          isCompact(device) ? 'typo-title2' : 'typo-large-title'
+        }`}
+      >
+        {TITLE}
+      </h1>
+      <p className="text-text-secondary typo-footnote">{SUMMARY_LEAD}</p>
+      <CopySummary />
+
+      {kind === 'modal' && (
+        <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary pt-3">
+          <CommentBar />
+          <ShareStrip device={device} />
+        </div>
+      )}
+    </div>
+  </Device>
+);
+
 /* -------------------------------------------------------------------- page */
 
 const PostPage = () => (
@@ -716,49 +943,6 @@ const PostPage = () => (
     </Category>
 
     <Category
-      covers="types.ts · PostType has eleven members"
-      title="The gap: not every post is an article"
-      verdict="Everything above assumes an article with a summary and an external link. Eleven post types route through the same BasePostContent and the same action bar, and the share affordances break differently on each. None of the sharing PRs mentions a post type."
-    >
-      <Variant
-        headline="Seven types, seven different problems"
-        note="Each frame notes what sharing gets wrong on that type. The action bar is identical on all of them — it is everything above the bar that differs."
-        step="Audit"
-      >
-        <Rail>
-          <TypeView
-            gap="Baseline. Summary and external link both exist, so Copy summary and Copy link both mean something."
-            kind="article"
-          />
-          <TypeView
-            gap="Has a summary, so Copy summary works — but a video share almost always wants a timestamp, and nothing carries one."
-            kind="video"
-          />
-          <TypeView
-            gap="No summary field at all. Copy summary cannot exist here, and the markdown body has no obvious excerpt — the first paragraph is a guess."
-            kind="freeform"
-          />
-          <TypeView
-            gap="The strongest unclaimed snapshot payload in the product: a result with percentages, self-contained, and stale the moment voting closes. 'Why did you vote this way?' is a peak-intent moment with no share option on it."
-            kind="poll"
-          />
-          <TypeView
-            gap="Summary plus a source stack. Uses its own CollectionPostHeaderActions, so any header-level control has to be added twice."
-            kind="collection"
-          />
-          <TypeView
-            gap="Two links exist — the squad post and the original article — and nothing says which one Copy copies. No Read post button either (hideShareReadButton)."
-            kind="shared"
-          />
-          <TypeView
-            gap="An embedded tweet we did not write. A snapshot here reproduces someone else's post inside our frame, which is an attribution question before it is a design one."
-            kind="twitter"
-          />
-        </Rail>
-      </Variant>
-    </Category>
-
-    <Category
       covers="DiscussionShareRow.tsx · #6349 · end of conversation · #6351 · post-upvote prompt"
       title="The prompted moments"
       verdict="Three controls that appear on their own rather than waiting to be found, all additive to the action bar rather than replacements for it. The strip is the only one of the three that already exists in code."
@@ -785,6 +969,115 @@ const PostPage = () => (
         <AllDevices spot="upvote" />
       </Variant>
     </Category>
+    <Category
+      covers="types.ts · PostType has eleven members"
+      title="The gap: not every post is an article"
+      verdict="Everything above assumes an article with a summary and an external link. Eleven post types route through the same BasePostContent and the same action bar, and the share affordances break differently on each. None of the sharing PRs mentions a post type."
+    >
+      <Variant
+        headline="Seven types, seven different problems"
+        note="Each frame notes what sharing gets wrong on that type. The action bar is identical on all of them — it is everything above the bar that differs."
+        step="Audit"
+      >
+        <Rail>
+          <TypeView
+            gap="Baseline. Summary and external link both exist, so Copy summary and Copy link both mean something."
+            kind="article"
+          />
+          <TypeView
+            gap="Has a summary, so Copy summary works — but a video share almost always wants a timestamp, and nothing carries one."
+            kind="video"
+          />
+          <TypeView
+            gap="No summary field at all. Copy summary cannot exist here, and the markdown body has no obvious excerpt — the first paragraph is a guess."
+            kind="freeform"
+          />
+          <TypeView
+            gap="The strongest unclaimed snapshot payload in the product — drawn out as the recommendation above."
+            kind="poll"
+          />
+          <TypeView
+            gap="Summary plus a source stack. Uses its own CollectionPostHeaderActions, so any header-level control has to be added twice."
+            kind="collection"
+          />
+          <TypeView
+            gap="Two links exist — the squad post and the original article — and nothing says which one Copy copies. No Read post button either (hideShareReadButton)."
+            kind="shared"
+          />
+          <TypeView
+            gap="An embedded tweet we did not write. A snapshot here reproduces someone else's post inside our frame, which is an attribution question before it is a design one."
+            kind="twitter"
+          />
+        </Rail>
+      </Variant>
+    </Category>
+
+    <Category
+      covers="PollPostContent.tsx · no PR covers this"
+      title="The recommendation: put snapshot on the poll"
+      verdict="Of the eleven post types this is the one where snapshot beats a link outright. The result is a bar chart with percentages — self-contained, visual, and worthless as a URL once voting closes. It is also the only type that already renders a peak-intent prompt we can attach to, and no PR in the tracker touches it."
+    >
+      <Variant
+        headline="A result nobody can take with them"
+        note="1,284 votes, a clear winner, and the only way out is the same copy link every other post gets. In two days the page shows a closed poll."
+        step="Today"
+      >
+        <AllPolls spot="today" />
+      </Variant>
+      <Variant
+        headline="Snapshot beside the vote count"
+        note="Recommended. Sits with the result rather than in the action bar, because it is the result being shared, not the post. Icon only — the numbers above it are the message."
+        step="Recommended"
+      >
+        <AllPolls spot="result" />
+      </Variant>
+      <Variant
+        headline="Snapshot on the post-vote prompt"
+        note="PollPostContent already renders “Why did you vote this way?” the moment someone votes — the one prompt in the product that fires on a completed action rather than a scroll position. Snapshot leads and Comment stays; the prompt keeps its original job."
+        step="Push"
+      >
+        <AllPolls spot="postvote" />
+      </Variant>
+    </Category>
+
+    <Category
+      covers="ArticlePostModal.tsx · BasePostModal.tsx · FixedPostNavigation.tsx"
+      title="The two surfaces the page audit missed"
+      verdict="Both are the post page in a different frame, and in both the article header loses its controls to a nav bar. Anything placed in the source row is absent here."
+    >
+      <Variant
+        headline="The modal already has the share strip"
+        note="ArticlePostModal passes `navigation.actions: 'ml-auto tablet:hidden'`, so from tablet up the source-row cluster is gone and the modal nav carries it, plus a close button. Under the redesign the modal renders PostFocusCard — which is where DiscussionShareRow already ships. The strip is not a proposal in the modal; it is live."
+        step="Post modal"
+      >
+        <Rail>
+          <ModalOrNavView device="Desktop" kind="modal" />
+          <ModalOrNavView device="Tablet" kind="modal" />
+          <ModalOrNavView device="Mobile" kind="modal" />
+        </Rail>
+      </Variant>
+      <Variant
+        headline="The sticky nav is a share slot nobody uses"
+        note="FixedPostNavigation pins itself to the top for the whole read, and PostHeaderActions runs with `inlineActions`, so Read post drops its label and the ⋯ is the only way out. It is the one control on the page that is on screen at every scroll position — and the only share route through it is a menu."
+        step="Sticky nav · today"
+      >
+        <Rail>
+          <ModalOrNavView device="Desktop" kind="nav" />
+          <ModalOrNavView device="Mobile" kind="nav" />
+        </Rail>
+      </Variant>
+      <Variant
+        headline="One copy-link icon in the sticky nav"
+        note="Cheapest visibility win on the whole page: a single icon in a bar that is already rendered, already right-aligned, and already on screen for the entire read. No new chrome and nothing moves."
+        step="Sticky nav · recommended"
+      >
+        <Rail>
+          <ModalOrNavView device="Desktop" kind="nav" share />
+          <ModalOrNavView device="Mobile" kind="nav" share />
+        </Rail>
+      </Variant>
+    </Category>
+
   </SurfacePage>
 );
 
