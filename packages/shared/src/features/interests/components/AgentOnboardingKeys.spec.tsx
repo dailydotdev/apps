@@ -95,7 +95,7 @@ describe('onboarding Enter handling', () => {
     renderStep(UserInterestOnboardingStep.Brief, [briefTurn]);
 
     fireEvent.click(screen.getByText('Edit it'));
-    fireEvent.change(screen.getByLabelText('Edit the brief'), {
+    fireEvent.input(screen.getByLabelText('Edit the brief'), {
       target: { value: 'Only source-level teardowns' },
     });
     // Focus is outside the textarea, so this reaches the workspace handler.
@@ -118,7 +118,7 @@ describe('onboarding Enter handling', () => {
     renderStep(UserInterestOnboardingStep.Brief, [briefTurn]);
 
     fireEvent.click(screen.getByText('Edit it'));
-    fireEvent.change(screen.getByLabelText('Edit the brief'), {
+    fireEvent.input(screen.getByLabelText('Edit the brief'), {
       target: { value: 'Only source-level teardowns' },
     });
     fireEvent.click(screen.getByText('Save and continue'));
