@@ -58,16 +58,6 @@ export interface DrawerOnMobileProps {
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
-// TEMP-DEBUG: persist the readout flag at chunk load, before any client-side
-// navigation drops the query string. Revert before merge.
-try {
-  if (globalThis.window?.location.search.includes('drawerDebug')) {
-    globalThis.window.localStorage.setItem('drawerDebug', '1');
-  }
-} catch {
-  // storage unavailable
-}
-
 // Drawers can stack; the page unlocks only when the last one leaves.
 let scrollLockCount = 0;
 let previousHtmlOverflow = '';
@@ -140,54 +130,6 @@ function BaseDrawer({
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
   const isAnimating = !hasAnimated || isClosing;
-
-  // TEMP-DEBUG: on-screen geometry readout, revert before merge.
-  const [debugInfo, setDebugInfo] = useState('');
-  useEffect(() => {
-    if (!isFullScreen) {
-      return undefined;
-    }
-    try {
-      if (!window.localStorage.getItem('drawerDebug')) {
-        return undefined;
-      }
-    } catch {
-      return undefined;
-    }
-    const id = setInterval(() => {
-      const wrapper = container.current;
-      const overlay = wrapper?.parentElement;
-      if (!wrapper || !overlay) {
-        return;
-      }
-      const oc = getComputedStyle(overlay);
-      const or = overlay.getBoundingClientRect();
-      const wr = wrapper.getBoundingClientRect();
-      const rootStyle = getComputedStyle(document.documentElement);
-      setDebugInfo(
-        JSON.stringify({
-          oTop: oc.top,
-          oH: oc.height,
-          oRect: [Math.round(or.top), Math.round(or.bottom)],
-          wRect: [Math.round(wr.top), Math.round(wr.bottom)],
-          sat: rootStyle.getPropertyValue('--safe-area-top'),
-          satOff: overlay.style.getPropertyValue('--safe-area-top-offset'),
-          cls: document.documentElement.className,
-          vv: [
-            Math.round(window.visualViewport?.height ?? -1),
-            Math.round(window.visualViewport?.offsetTop ?? -1),
-          ],
-          sy: Math.round(window.scrollY),
-          ih: window.innerHeight,
-          underBody: overlay.parentElement === document.body,
-          par: overlay.parentElement?.tagName,
-          // eslint-disable-next-line no-underscore-dangle, @typescript-eslint/no-explicit-any
-          bid: (window as any).__NEXT_DATA__?.buildId,
-        }),
-      );
-    }, 700);
-    return () => clearInterval(id);
-  }, [isFullScreen]);
 
   useEffect(() => {
     onAfterOpen?.();
@@ -353,34 +295,9 @@ function BaseDrawer({
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
-      style={
-        debugInfo
-          ? { ...overlayKeyboardStyle, outline: '3px solid lime' }
-          : overlayKeyboardStyle
-      }
+      style={overlayKeyboardStyle}
       onClick={handleOverlayClick}
     >
-      {debugInfo && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 120,
-            left: 8,
-            right: 8,
-            zIndex: 2000,
-            background: '#000',
-            color: '#0f0',
-            fontSize: 11,
-            fontFamily: 'monospace',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-all',
-            pointerEvents: 'none',
-            padding: 4,
-          }}
-        >
-          {debugInfo}
-        </div>
-      )}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         {...props}
