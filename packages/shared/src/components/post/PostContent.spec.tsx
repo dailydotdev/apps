@@ -37,6 +37,20 @@ const renderPostPage = (gb?: GrowthBook) =>
     </TestBootProvider>,
   );
 
+/** Anonymous visitors get in-content ads, and then the page renders the
+    summary itself through this prop rather than PostContent's own paragraph. */
+const renderWithAdSegments = (gb?: GrowthBook) =>
+  render(
+    <TestBootProvider client={new QueryClient()} gb={gb}>
+      <PostContentRaw
+        post={{ ...postWithCommunitySentiment, summary: QUOTE }}
+        origin={Origin.ArticlePage}
+        isPostPage
+        renderSummarySegments={(summary) => <p>{summary}</p>}
+      />
+    </TestBootProvider>,
+  );
+
 const selectTheSummary = () => {
   const node = screen.getByTestId('tldr-container').firstChild as Node;
   const range = document.createRange();
@@ -133,6 +147,23 @@ describe('PostContent copy summary', () => {
 
   it('stays off the paragraph when the flag is disabled', () => {
     renderPostPage();
+
+    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
+  });
+});
+
+describe('PostContent copy summary with in-content ads', () => {
+  it('still offers the summary when the page renders it in segments', () => {
+    const gb = new GrowthBook();
+    gb.setFeatures({ [featurePostCopySummary.id]: { defaultValue: true } });
+
+    renderWithAdSegments(gb);
+
+    expect(screen.getByLabelText('Copy summary')).toBeInTheDocument();
+  });
+
+  it('stays away in the segmented summary when the flag is disabled', () => {
+    renderWithAdSegments();
 
     expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
   });

@@ -243,7 +243,21 @@ export function PostContentRaw({
         )}
         {post.summary &&
           (renderSummarySegments ? (
-            renderSummarySegments(post.summary)
+            <>
+              {renderSummarySegments(post.summary)}
+              {/* The segmented summary is the page's own render prop, with ad
+                  slots between the parts, so the icon cannot run into the last
+                  line the way it does below — it trails the block instead. */}
+              {isCopySummaryEnabled && (
+                <div className="-mt-4 mb-6 flex">
+                  <CopySummaryButton
+                    link={post.commentsPermalink}
+                    summary={post.summary}
+                    title={title}
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <div
               className={classNames(
