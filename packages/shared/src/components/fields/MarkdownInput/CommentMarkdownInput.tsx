@@ -184,8 +184,11 @@ export function CommentMarkdownInputComponent(
           }
         }}
         className={{
+          // `overflow-clip`, not `overflow-hidden`: iOS's caret reveal
+          // scrolls hidden-overflow ancestors programmatically, pushing the
+          // header (with the close button) out of the clipped region.
           container: classNames(
-            '!min-h-0 flex-1 overflow-hidden',
+            '!min-h-0 flex-1 overflow-clip',
             fills
               ? '!rounded-none !bg-transparent'
               : 'border border-border-subtlest-tertiary',
