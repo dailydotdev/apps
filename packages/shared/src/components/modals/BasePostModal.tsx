@@ -1,20 +1,21 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
-import { Modal } from './common/Modal';
+import { Modal, modalSizeToClassName } from './common/Modal';
 import styles from './BasePostModal.module.css';
 import PostLoadingSkeleton from '../post/PostLoadingSkeleton';
 import type { Post, PostType } from '../../graphql/posts';
 import type { Source } from '../../graphql/sources';
 import PostNavigation from '../post/PostNavigation';
+import FixedPostNavigation from '../post/FixedPostNavigation';
 import type { PostPosition } from '../../hooks/usePostModalNavigation';
 import { usePostReferrerContext } from '../../contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../contexts/LogExtraContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
-import { useEventListener } from '../../hooks';
+import { useEventListener, useViewSize, ViewSize } from '../../hooks';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 import { getEngagementLogExtra } from '../../lib/engagementAds';
@@ -37,6 +38,12 @@ interface BasePostModalProps extends ModalProps {
    * stats + "…" menu + close.
    */
   navigationRedesign?: boolean;
+  /**
+   * Scroll state from `usePostNavigationPosition`. The classic layout feeds
+   * this to `PostContent`; the redesign card has no equivalent, so the modal
+   * floats the fixed bar itself once it turns `fixed`.
+   */
+  navigationPosition?: CSSProperties['position'];
   loadingChildren?: ReactNode;
   post?: Post;
 }
@@ -56,6 +63,7 @@ function BasePostModal({
   navigationContainerClassName,
   navigationHideSubscribeAction,
   navigationRedesign,
+  navigationPosition,
   loadingChildren,
   post,
   onRequestClose,
@@ -90,6 +98,14 @@ function BasePostModal({
 
   const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
   useEventListener(scrollNode, 'scroll', debouncedOnScroll);
+
+  // The redesign card renders no navigation of its own, so the strip above it
+  // scrolls away with the header and takes the close button with it. Float the
+  // same fixed bar the classic layout uses once scrolled past the offset.
+  // Matches `PostContentContainer`, which also skips it below MobileL.
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const showFixedNavigation =
+    navigationRedesign && navigationPosition === 'fixed' && !isMobile;
 
   return (
     <ActivePostContextProvider post={post}>
@@ -129,6 +145,20 @@ function BasePostModal({
             </>
           ) : (
             <>
+              {showFixedNavigation && (
+                <FixedPostNavigation
+                  postPosition={postPosition}
+                  onPreviousPost={onPreviousPost}
+                  onNextPost={onNextPost}
+                  hideOptions
+                  onClose={onRequestClose}
+                  post={post}
+                  className={{
+                    container: modalSizeToClassName[size],
+                    actions: 'ml-auto',
+                  }}
+                />
+              )}
               <PostNavigation
                 className={{
                   container: classNames('px-4', navigationContainerClassName),

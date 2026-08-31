@@ -41,6 +41,7 @@ export default function ArticlePostModal({
       size={showRedesign ? Modal.Size.Large : Modal.Size.XLarge}
       className={showRedesign ? 'laptop:!overflow-clip' : undefined}
       navigationRedesign={showRedesign}
+      navigationPosition={position}
       onRequestClose={onRequestClose}
       postType={PostType.Article}
       source={post.source}
