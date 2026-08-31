@@ -44,13 +44,13 @@ jest.mock('../image/Image', () => ({
   Image: () => null,
 }));
 
-const CommentInputOrModal = ({
-  inputId,
-}: {
-  inputId: string;
-}): React.ReactElement => (
-  <div data-testid="comment-input" id={inputId} tabIndex={-1} />
-);
+const mockCommentInputProps = jest.fn();
+
+const CommentInput = (props: { inputId: string }): React.ReactElement => {
+  mockCommentInputProps(props);
+  const { inputId } = props;
+  return <div data-testid="comment-input" id={inputId} tabIndex={-1} />;
+};
 
 describe('NewComment', () => {
   const originalRequestAnimationFrame = window.requestAnimationFrame;
@@ -76,7 +76,7 @@ describe('NewComment', () => {
     render(
       <NewComment
         post={{ id: 'post-1' } as never}
-        CommentInputOrModal={CommentInputOrModal}
+        CommentInput={CommentInput}
       />,
     );
 
@@ -87,5 +87,22 @@ describe('NewComment', () => {
     await waitFor(() => {
       expect(screen.getByTestId('comment-input')).toHaveFocus();
     });
+  });
+
+  it('lets the composer own its focus, since its editor mounts async', () => {
+    render(
+      <NewComment
+        post={{ id: 'post-1' } as never}
+        CommentInput={CommentInput}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /share your thoughts/i }),
+    );
+
+    expect(mockCommentInputProps).toHaveBeenCalledWith(
+      expect.objectContaining({ autoFocus: true }),
+    );
   });
 });

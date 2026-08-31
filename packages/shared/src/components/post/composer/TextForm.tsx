@@ -38,6 +38,7 @@ interface TextFormProps {
   onCoverChange?: (cover: TextFormCover | null) => void;
   toolbarLeading?: ReactNode;
   toolbarRightActions?: ReactNode;
+  stackToolbarLeading?: boolean;
   onMarkdownModeChange?: (isMarkdownMode: boolean) => void;
 }
 
@@ -58,6 +59,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
       onCoverChange,
       toolbarLeading,
       toolbarRightActions,
+      stackToolbarLeading,
       onMarkdownModeChange,
     },
     ref,
@@ -219,6 +221,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
           toolbarPosition="bottom"
           toolbarLeading={toolbarLeading}
           toolbarRightActions={toolbarRightActions}
+          stackToolbarLeading={stackToolbarLeading}
           hideMarkdownToggle
           hideMarkdownHeader
           hideFooter

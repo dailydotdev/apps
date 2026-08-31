@@ -109,7 +109,7 @@ export const PollForm = ({ value, onChange }: PollFormProps): ReactElement => {
                 placeholder={`Option ${index + 1}`}
                 onChange={(e) => updateOption(index, e.currentTarget.value)}
                 aria-label={`Poll option ${index + 1}`}
-                className="flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+                className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
               />
               <span className="text-text-quaternary typo-caption2">
                 {POLL_OPTION_MAX_LENGTH - option.length}

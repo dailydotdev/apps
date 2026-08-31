@@ -578,7 +578,7 @@ it('should send cancel upvote mutation', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should open new comment modal and set the correct props', async () => {
+it('should open the comment composer inline on the page', async () => {
   renderPost();
   // Wait for GraphQL to return
   await screen.findByText('Learn SQL');
@@ -586,6 +586,24 @@ it('should open new comment modal and set the correct props', async () => {
   fireEvent.click(el);
   const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();
+});
+
+it('should open the comment composer when the mobile floating bar requests it', async () => {
+  renderPost();
+  await screen.findByText('Learn SQL');
+
+  const commentButton = await waitFor(() => {
+    const el = document.getElementById('mobile-comment-post-btn');
+    if (!el) {
+      throw new Error('mobile comment button not rendered');
+    }
+    return el;
+  });
+  fireEvent.click(commentButton);
+
+  expect(
+    await screen.findByRole('form', { name: 'Comment' }),
+  ).toBeInTheDocument();
 });
 
 it('should not show stats when they are zero', async () => {
