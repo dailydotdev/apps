@@ -58,14 +58,11 @@ export const LABELS: Record<LeadAction, string> = {
 export const Control = ({
   action,
   label,
-  text,
   size = ButtonSize.Small,
   variant = ButtonVariant.Tertiary,
 }: {
   action: LeadAction;
   label?: boolean;
-  /** Overrides the default label where the surface needs shorter copy. */
-  text?: string;
   size?: ButtonSize;
   variant?: ButtonVariant;
 }) => (
@@ -75,7 +72,7 @@ export const Control = ({
     size={size}
     variant={variant}
   >
-    {label ? text ?? LABELS[action] : undefined}
+    {label ? LABELS[action] : undefined}
   </Button>
 );
 
@@ -101,71 +98,144 @@ export const Screen = ({
 );
 
 /**
- * The real context menu, not an illustration of one. Every surface below
- * passes its production item list — today the share entry is "Share via",
- * which opens the share modal; no surface offers Copy link from a menu.
+ * The real post menu, in the real order — PostOptionButton.tsx. There is no
+ * "Copy link" item here or on any other surface; the menu leads with "Share
+ * via", which opens the share sheet.
  */
+export const POST_MENU = [
+  'Share via',
+  'Hide',
+  'Report',
+  'Read it later',
+  'Translate',
+  'Follow XDA Developers',
+];
+
 export const OverflowMenu = ({
   items,
   highlight,
   className,
 }: {
   items: string[];
-  /** The share entry, drawn with its icon and picked out from the rest.
-   * Omitted where the menu has no share action at all — several do not. */
+  /** The share item, whatever this surface actually calls it. */
   highlight?: string;
   className?: string;
 }) => (
   <div
-    className={`absolute z-10 flex w-56 flex-col rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 ${
-      className ?? 'right-0 top-8'
+    className={`absolute z-20 flex w-56 flex-col rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 ${
+      className ?? 'right-3 top-10'
     }`}
   >
-    {items.map((item) =>
-      item === highlight ? (
+    {items.map((item) => {
+      const isShare = item === highlight;
+
+      return (
         <span
           key={item}
-          className="flex items-center gap-2 rounded-8 bg-surface-float px-3 py-2 text-text-primary typo-callout"
+          className={`flex items-center gap-3 rounded-8 px-3 py-2 typo-callout ${
+            isShare
+              ? 'bg-surface-float font-bold text-text-primary'
+              : 'text-text-tertiary'
+          }`}
         >
-          <ShareIcon />
+          {isShare && <ShareIcon />}
           {item}
         </span>
-      ) : (
-        <span
-          key={item}
-          className="px-3 py-2 text-text-tertiary typo-callout"
-        >
-          {item}
-        </span>
-      ),
-    )}
+      );
+    })}
   </div>
 );
 
-/** The production post/feed context menu, in order. */
-export const POST_MENU = [
-  'Share via',
-  'Hide',
-  'Report',
-  'Downvote',
-  'Read it later',
-];
+/** The production share modal: copy link, then the named targets. */
+export const ShareSheet = () => (
+  <div className="absolute inset-0 z-30 flex items-end justify-center bg-overlay-quaternary-onion p-4">
+    <div className="w-full rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4">
+      <span className="font-bold text-text-primary typo-title3">Share</span>
+      <div className="mt-3 flex flex-wrap gap-3">
+        {[
+          ['Copy link', 'bg-accent-cabbage-default'],
+          ['X', 'bg-text-primary'],
+          ['WhatsApp', 'bg-accent-avocado-default'],
+          ['Facebook', 'bg-accent-bun-default'],
+          ['Reddit', 'bg-accent-ketchup-default'],
+          ['LinkedIn', 'bg-accent-blueCheese-default'],
+          ['Telegram', 'bg-accent-water-default'],
+          ['Email', 'bg-accent-burger-default'],
+        ].map(([label, tone]) => (
+          <div key={label} className="flex w-16 flex-col items-center gap-1">
+            <span className={`size-10 rounded-full ${tone}`} />
+            <span className="text-center text-text-tertiary typo-caption2">
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+export type DeviceName = 'Desktop' | 'Tablet' | 'Mobile';
+
+/**
+ * Breakpoints matter more than usual here. PostSourceInfo renders the whole
+ * header cluster as `hidden laptop:flex`, so the ⋯ menu that carries sharing
+ * on desktop is simply not in the article header below 1020px — it moves to a
+ * sticky back-bar, and a floating action bar appears at the bottom. A
+ * recommendation that only works on one of the three is not a recommendation.
+ */
+export const DEVICES: Record<
+  DeviceName,
+  { width: number; viewport: string }
+> = {
+  Desktop: { width: 680, viewport: '1020px and up' },
+  Tablet: { width: 560, viewport: '768px' },
+  Mobile: { width: 375, viewport: '375px' },
+};
+
+/** A surface drawn at one real viewport width, so density is comparable. */
+export const Device = ({
+  name,
+  children,
+  height,
+}: {
+  name: DeviceName;
+  children: React.ReactNode;
+  /** Mobile surfaces pin a floating bar, so the frame needs a known height. */
+  height?: number;
+}) => (
+  <div className="flex shrink-0 flex-col gap-2">
+    <span className="font-bold uppercase text-text-quaternary typo-caption2">
+      {name} · {DEVICES[name].viewport}
+    </span>
+    <div
+      className="relative shrink-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
+      style={{ width: DEVICES[name].width, height }}
+    >
+      {children}
+    </div>
+  </div>
+);
+
+/** Devices sit in a scroller rather than wrapping, so widths stay honest. */
+export const Rail = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex w-full items-start gap-6 overflow-x-auto pb-3">
+    {children}
+  </div>
+);
 
 export const Variant = ({
   step,
   headline,
   note,
-  wide,
   children,
 }: {
   step: string;
   headline: string;
   note: string;
-  /** Full width, for a variation drawn at several breakpoints. */
-  wide?: boolean;
   children: React.ReactNode;
 }) => (
-  <div className={`flex shrink-0 flex-col gap-3 ${wide ? 'w-full' : 'w-[26rem]'}`}>
+  // Full width so a device rail can scroll across the whole canvas.
+  <div className="flex w-full flex-col gap-3">
     <div className="flex flex-col gap-1">
       <span className="font-bold uppercase text-text-quaternary typo-caption2">
         {step}
@@ -198,7 +268,7 @@ export const Category = ({
         {verdict}
       </p>
     </div>
-    <div className="flex flex-wrap items-start gap-8">{children}</div>
+    <div className="flex flex-col gap-10">{children}</div>
   </section>
 );
 
@@ -219,49 +289,6 @@ export const SurfacePage = ({
       <H1>{title}</H1>
       <P>{intro}</P>
       <Note>{map}</Note>
-    </div>
-    {children}
-  </div>
-);
-
-/**
- * Breakpoints matter more than usual here: PostHeaderActions is
- * `hidden laptop:flex`, so the control that leads on desktop is simply not
- * on the page below 1020px. Every recommendation is drawn at all three.
- */
-export const DEVICES = {
-  desktop: { label: 'Desktop · 1280', width: 'w-[40rem]' },
-  tablet: { label: 'Tablet · 768', width: 'w-[30rem]' },
-  mobile: { label: 'Mobile · 375', width: 'w-[23.4rem]' },
-} as const;
-
-export type Device = keyof typeof DEVICES;
-
-export const DeviceRail = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => (
-  <div className="flex w-full gap-6 overflow-x-auto pb-3">{children}</div>
-);
-
-export const DeviceFrame = ({
-  device,
-  note,
-  children,
-}: {
-  device: Device;
-  note?: string;
-  children: React.ReactNode;
-}) => (
-  <div className={`flex shrink-0 flex-col gap-2 ${DEVICES[device].width}`}>
-    <div className="flex items-baseline gap-2">
-      <span className="font-bold uppercase text-text-quaternary typo-caption2">
-        {DEVICES[device].label}
-      </span>
-      {note && (
-        <span className="text-text-quaternary typo-caption2">{note}</span>
-      )}
     </div>
     {children}
   </div>
