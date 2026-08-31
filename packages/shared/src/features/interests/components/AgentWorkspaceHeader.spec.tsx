@@ -66,7 +66,7 @@ describe('the workspace header', () => {
 
     expect(
       screen.getByRole('link', { name: 'Back to agents' }),
-    ).toHaveAttribute('href', '/agent');
+    ).toHaveAttribute('href', '/agents');
   });
 
   // A tooltip needs a ref, and `Link` is a plain function component.

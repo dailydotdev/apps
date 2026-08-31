@@ -12,6 +12,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
+import MarkdownInput from '../../../components/fields/MarkdownInput';
 import { transcriptProse } from '../prose';
 import { useAgent } from '../AgentContext';
 
@@ -23,7 +24,6 @@ export const AgentBriefBlock = ({
   brief: string;
 }): ReactElement => {
   const {
-    interest,
     isBriefOpen,
     confirmBrief,
     isConfirmingBrief,
@@ -33,8 +33,6 @@ export const AgentBriefBlock = ({
   // Gated on the step too: once it advances there are no buttons under the
   // editor, so a stray draft would leave a textarea that does nothing.
   const isEditing = draft !== null && isBriefOpen;
-  // Reflects a rewrite immediately, rather than the snapshot the run stored.
-  const current = interest?.brief ?? brief;
 
   return (
     <FlexCol className="gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
@@ -46,27 +44,25 @@ export const AgentBriefBlock = ({
       </Typography>
 
       {isEditing ? (
-        <textarea
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-          aria-label="Edit the brief"
-          rows={5}
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          className="agent-scroll w-full resize-none rounded-12 border border-border-subtlest-secondary bg-transparent px-3 py-2 text-text-primary outline-none typo-callout"
+        <MarkdownInput
+          allowPreview={false}
+          showMarkdownGuide={false}
+          initialContent={draft}
+          textareaProps={{
+            'aria-label': 'Edit the brief',
+            rows: 5,
+            maxLength: 1500,
+          }}
+          // A brief is an instruction to the agent, so neither mentioning
+          // someone nor attaching an image means anything here.
+          enabledCommand={{ upload: false, mention: false }}
+          onValueUpdate={setDraft}
         />
       ) : (
         <blockquote className="border-l-2 border-brand-default pl-3">
-          {current === brief ? (
-            <Markdown className={transcriptProse} content={html} />
-          ) : (
-            <Typography
-              type={TypographyType.Callout}
-              className="!leading-relaxed"
-            >
-              {current}
-            </Typography>
-          )}
+          {/* Always the stored HTML: a rewrite re-renders the block server
+              side, so there is no raw-text case left to fall back to. */}
+          <Markdown className={transcriptProse} content={html} />
         </blockquote>
       )}
 
@@ -104,7 +100,7 @@ export const AgentBriefBlock = ({
               <Button
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Float}
-                onClick={() => setDraft(current)}
+                onClick={() => setDraft(brief)}
               >
                 Edit it
               </Button>
