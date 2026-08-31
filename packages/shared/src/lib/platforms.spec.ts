@@ -34,6 +34,24 @@ describe('detectPlatformFromUrl', () => {
     ).toBe('substack');
   });
 
+  it('should detect discord profile and invite URLs', () => {
+    expect(
+      detectPlatformFromUrl(
+        'https://discord.com/users/123456789012345678',
+        USER_PLATFORMS,
+      ),
+    ).toBe('discord');
+    expect(
+      detectPlatformFromUrl('https://discord.gg/inviteCode', USER_PLATFORMS),
+    ).toBe('discord');
+    expect(
+      detectPlatformFromUrl(
+        'https://discordapp.com/users/123456789012345678',
+        USER_PLATFORMS,
+      ),
+    ).toBe('discord');
+  });
+
   it('should return null for unknown URLs', () => {
     expect(
       detectPlatformFromUrl('https://example.com/profile', USER_PLATFORMS),
