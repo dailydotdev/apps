@@ -736,14 +736,13 @@ const SnapshotDevPage = (): ReactElement => {
               </p>
               <p className="max-w-[52rem] rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 text-text-secondary typo-callout">
                 Every control below is the production component, wired to the
-                real post page behind a flag that defaults to off. What is
-                mocked here is the page around them, not the controls. To see
-                them on a real post, enable{' '}
-                <code>snapshot_selection_share</code> (selection bar),{' '}
-                <code>post_copy_summary</code>, <code>post_share_prompts</code>{' '}
-                (share strip and end-of-thread band), <code>poll_snapshot</code>{' '}
-                (both poll placements) or <code>post_nav_copy_link</code>{' '}
-                (sticky nav).
+                real post page. On a branch preview all of them are on, so open
+                any post on this deployment and they are there — no GrowthBook
+                needed. On app.daily.dev each sits behind its own flag:{' '}
+                <code>snapshot_selection_share</code>,{' '}
+                <code>post_copy_summary</code>, <code>post_share_prompts</code>,{' '}
+                <code>poll_snapshot</code> and <code>post_nav_copy_link</code>,
+                all defaulting to off.
               </p>
             </div>
 

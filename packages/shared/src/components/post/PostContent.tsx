@@ -35,6 +35,7 @@ import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
 import { CopySummaryButton } from '../../features/snapshot/CopySummaryButton';
+import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import {
   CommunitySentiment,
@@ -137,13 +138,13 @@ export function PostContentRaw({
     !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
   // Only the post page: in the modal the quote competes with the close and
   // navigation controls, and the decision was to keep snapshot off it.
-  const { value: isSelectionSnapshotEnabled } = useConditionalFeature({
+  const isSelectionSnapshotEnabled = useSharePlacement({
     feature: featureSnapshotSelectionShare,
     shouldEvaluate: isPostPage,
   });
   // Only where there is a summary to copy, so posts without one stay out of
   // the experiment entirely.
-  const { value: isCopySummaryEnabled } = useConditionalFeature({
+  const isCopySummaryEnabled = useSharePlacement({
     feature: featurePostCopySummary,
     shouldEvaluate: isPostPage && !!post.summary,
   });

@@ -33,8 +33,8 @@ import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePostComments } from '../../hooks/comments/usePostComments';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featurePostSharePrompts } from '../../lib/featureManagement';
+import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 import { DiscussionShareRow } from './focus/DiscussionShareRow';
 import { EndOfThreadShare } from '../../features/snapshot/EndOfThreadShare';
 
@@ -94,7 +94,7 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
-  const { value: areSharePromptsEnabled } = useConditionalFeature({
+  const areSharePromptsEnabled = useSharePlacement({
     feature: featurePostSharePrompts,
   });
 

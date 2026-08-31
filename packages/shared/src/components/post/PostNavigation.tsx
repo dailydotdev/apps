@@ -10,7 +10,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { PostType } from '../../types';
 import { BriefPlusUpgradeCTA } from '../../features/briefing/components/BriefPlusUpgradeCTA';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 import { featurePostNavCopyLink } from '../../lib/featureManagement';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
 
@@ -32,7 +32,7 @@ function PostNavigation({
   const shouldShowUpgrade = canUserUpgrade && isFixedNavigation && isBrief;
   // The sticky nav only: the inline navigation sits inches under the action
   // bar, which already ends with Copy, and two of them is one too many.
-  const { value: isNavCopyLinkEnabled } = useConditionalFeature({
+  const isNavCopyLinkEnabled = useSharePlacement({
     feature: featurePostNavCopyLink,
     shouldEvaluate: isFixedNavigation,
   });

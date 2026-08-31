@@ -22,7 +22,7 @@ import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
 import usePoll from '../../../hooks/usePoll';
 import PollOptions from '../../cards/poll/PollOptions';
 import { PollSnapshotButton } from '../../../features/snapshot/PollSnapshotButton';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
 import { featurePollSnapshot } from '../../../lib/featureManagement';
 import PostMetadata from '../../cards/common/PostMetadata';
 import { PostTagList } from '../tags/PostTagList';
@@ -54,7 +54,7 @@ function PollPostContentRaw({
   const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
   // Only where there is a result to share: an unvoted poll has nothing to
   // put in the image, so those posts stay out of the experiment.
-  const { value: isPollSnapshotEnabled } = useConditionalFeature({
+  const isPollSnapshotEnabled = useSharePlacement({
     feature: featurePollSnapshot,
     shouldEvaluate: !!post?.numPollVotes,
   });
