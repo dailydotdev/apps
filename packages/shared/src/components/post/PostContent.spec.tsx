@@ -51,6 +51,18 @@ const renderWithAdSegments = (gb?: GrowthBook) =>
     </TestBootProvider>,
   );
 
+/** No isPostPage: that is the post modal, the overlay opened from a feed. */
+const renderModal = (gb?: GrowthBook) =>
+  render(
+    <TestBootProvider client={new QueryClient()} gb={gb}>
+      <PostContentRaw
+        post={{ ...postWithCommunitySentiment, summary: QUOTE }}
+        origin={Origin.ArticleModal}
+        onClose={jest.fn()}
+      />
+    </TestBootProvider>,
+  );
+
 const selectTheSummary = () => {
   const node = screen.getByTestId('tldr-container').firstChild as Node;
   const range = document.createRange();
@@ -166,5 +178,32 @@ describe('PostContent copy summary with in-content ads', () => {
     renderWithAdSegments();
 
     expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
+  });
+});
+
+describe('PostContent selection snapshot in the post modal', () => {
+  beforeAll(() => {
+    Range.prototype.getBoundingClientRect = () =>
+      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+  });
+
+  it('offers a snapshot of a quote selected in the modal', () => {
+    renderModal(snapshotFlagOn());
+
+    selectTheSummary();
+
+    expect(
+      screen.getByRole('toolbar', { name: 'Share selected text' }),
+    ).toBeInTheDocument();
+  });
+
+  it('stays out of the modal when the flag is disabled', () => {
+    renderModal();
+
+    selectTheSummary();
+
+    expect(
+      screen.queryByRole('toolbar', { name: 'Share selected text' }),
+    ).not.toBeInTheDocument();
   });
 });

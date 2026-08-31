@@ -138,9 +138,10 @@ export function PostContentRaw({
     !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
   // Only the post page: in the modal the quote competes with the close and
   // navigation controls, and the decision was to keep snapshot off it.
+  // Page and modal both: a reader highlights a line wherever they are reading
+  // it, and the modal is where most of the reading on desktop happens.
   const isSelectionSnapshotEnabled = useSharePlacement({
     feature: featureSnapshotSelectionShare,
-    shouldEvaluate: isPostPage,
   });
   // Only where there is a summary to copy, so posts without one stay out of
   // the experiment entirely.

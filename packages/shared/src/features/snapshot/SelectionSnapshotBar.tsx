@@ -77,7 +77,10 @@ export function SelectionSnapshotBar({
         <div
           ref={barRef}
           aria-label="Share selected text"
-          className="fixed z-popup inline-flex -translate-x-1/2 items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2"
+          // z-max, not z-popup: the bar is portaled to the body and the post
+          // modal's own overlay is z-modal, so anything lower renders behind
+          // the modal the quote was selected in.
+          className="fixed z-max inline-flex -translate-x-1/2 items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2"
           role="toolbar"
           style={position(selection)}
         >

@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import post, {
   postWithCommunitySentiment,
@@ -10,7 +10,11 @@ import post, {
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
-import { featureCommunitySentiment } from '../../../lib/featureManagement';
+import {
+  featureCommunitySentiment,
+  featurePostCopySummary,
+  featureSnapshotSelectionShare,
+} from '../../../lib/featureManagement';
 import { getPostByIdKey } from '../../../lib/query';
 import { PostFocusCard } from './PostFocusCard';
 
@@ -147,6 +151,75 @@ describe('PostFocusCard community sentiment', () => {
 
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+/* The redesigned layout is what the post_redesign flag serves, and the share
+   placements were wired to the classic one first — these hold that line. */
+describe('PostFocusCard share placements', () => {
+  const QUOTE =
+    'They optimised the product they had instead of the one their customers were moving to.';
+  const summaryPost: Post = { ...post, summary: QUOTE };
+
+  const withFlag = (feature: { id: string }) => {
+    const gb = new GrowthBook();
+    gb.setFeatures({ [feature.id]: { defaultValue: true } });
+
+    return gb;
+  };
+
+  beforeAll(() => {
+    // jsdom has no layout, and the bar refuses a selection it cannot place.
+    Range.prototype.getBoundingClientRect = () =>
+      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+  });
+
+  it('runs copy summary into the end of the TLDR', () => {
+    renderCard(summaryPost, { gb: withFlag(featurePostCopySummary) });
+
+    expect(screen.getByTestId('tldr-container')).toContainElement(
+      screen.getByLabelText('Copy summary'),
+    );
+  });
+
+  it('leaves the TLDR alone when copy summary is disabled', () => {
+    renderCard(summaryPost);
+
+    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
+  });
+
+  it('offers a snapshot of a quote selected in the card', () => {
+    renderCard(summaryPost, { gb: withFlag(featureSnapshotSelectionShare) });
+
+    const node = screen.getByTestId('tldr-container').firstChild as Node;
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(node, node.textContent?.length ?? 0);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    fireEvent.pointerUp(document);
+
+    expect(
+      screen.getByRole('toolbar', { name: 'Share selected text' }),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps the bar away from a selection when the flag is off', () => {
+    renderCard(summaryPost);
+
+    const node = screen.getByTestId('tldr-container').firstChild as Node;
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(node, node.textContent?.length ?? 0);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    fireEvent.pointerUp(document);
+
+    expect(
+      screen.queryByRole('toolbar', { name: 'Share selected text' }),
     ).not.toBeInTheDocument();
   });
 });
