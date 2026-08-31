@@ -1,14 +1,9 @@
 import { useContext } from 'react';
-import {
-  featurePostAdsense,
-  featureReadAdsense,
-} from '../../../lib/featureManagement';
+import { featureReadAdsense } from '../../../lib/featureManagement';
 import AuthContext from '../../../contexts/AuthContext';
 import { isDevelopment } from '../../../lib/constants';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useFeature } from '../../GrowthBookProvider';
 import type { AdsenseSlots } from '../../../features/monetization/adsense';
-import { hasLiveAdsenseUnits } from '../../../features/monetization/adsense';
 import { ORGANIC_ADSENSE_SLOTS, READ_ADSENSE_SLOTS } from './slots';
 
 const NO_SLOTS: AdsenseSlots = {};
@@ -44,9 +39,9 @@ export const useReadAdsenseSlots = (): AdsenseSlots => {
 };
 
 /**
- * The organic post page's units: only while the `post_adsense` flag is on,
- * and only for anonymous visitors — any logged-in user (member or Plus)
- * never sees programmatic ads on their post pages.
+ * The organic post page's units, permanent since the post_adsense experiment
+ * won: anonymous visitors only — any logged-in user (member or Plus) never
+ * sees programmatic ads on their post pages.
  *
  * `canRender` is the caller's own knowledge of whether its slots can appear
  * at all — the post page passes false in the focus-card redesign arm, whose
@@ -54,14 +49,6 @@ export const useReadAdsenseSlots = (): AdsenseSlots => {
  */
 export const useOrganicAdsenseSlots = (canRender = true): AdsenseSlots => {
   const isAnonymous = useIsAnonymous();
-  // Conditional evaluation, because evaluating enrolls: a visitor who is
-  // logged in — or who cannot be shown a unit — would fill the experiment
-  // with byte-identical variants.
-  const { value: enabled } = useConditionalFeature({
-    feature: featurePostAdsense,
-    shouldEvaluate:
-      canRender && isAnonymous && hasLiveAdsenseUnits(ORGANIC_ADSENSE_SLOTS),
-  });
 
-  return enabled && isAnonymous && canRender ? ORGANIC_ADSENSE_SLOTS : NO_SLOTS;
+  return isAnonymous && canRender ? ORGANIC_ADSENSE_SLOTS : NO_SLOTS;
 };
