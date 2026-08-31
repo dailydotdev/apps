@@ -14,8 +14,8 @@ const POINTER_INSET_PX = 16;
 const clamp = (value: number, min: number, max: number): number =>
   Math.min(Math.max(value, min), Math.max(min, max));
 
-// The brand ring the Storybook mock drew around a rail "region". Here it is
-// painted over the measured target instead, so the rail keeps its own markup.
+// Painted over the measured target rather than as a class on the rail, so the
+// rail keeps its own markup.
 export const CoachHighlight = ({
   rect,
 }: {

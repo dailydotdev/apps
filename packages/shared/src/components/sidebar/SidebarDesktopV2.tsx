@@ -935,9 +935,8 @@ export const SidebarDesktopV2 = ({
     [isAnyDragging, setSidebarDragging],
   );
 
-  // The v2 onboarding tour and the two ambient coaches. Everything below is
-  // inert unless the `sidebar_tour` flag is on, so the rail renders exactly as
-  // it does today for the control arm.
+  // Every tour and coach hook below is inert unless the `sidebar_tour` flag is
+  // on, so the control arm keeps the rail's unmodified markup and behaviour.
   const tour = useSidebarTourState();
   const dotsCoach = useDotsCoach(tour.dotsCoach);
   const {
