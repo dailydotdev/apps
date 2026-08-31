@@ -238,17 +238,15 @@ export const Variant = ({
   step,
   headline,
   note,
-  wide,
   children,
 }: {
   step: string;
   headline: string;
   note: string;
-  /** Full width, for a variation drawn at several breakpoints. */
-  wide?: boolean;
   children: React.ReactNode;
 }) => (
-  <div className={`flex shrink-0 flex-col gap-3 ${wide ? 'w-full' : 'w-[26rem]'}`}>
+  // Full width so a device rail can scroll across the whole canvas.
+  <div className="flex w-full flex-col gap-3">
     <div className="flex flex-col gap-1">
       <span className="font-bold uppercase text-text-quaternary typo-caption2">
         {step}
