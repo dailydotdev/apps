@@ -1,5 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Support } from './sharingMap';
+import { SHARING_MAP } from './sharingMap';
 
 const H1 = ({ children }: { children: React.ReactNode }) => (
   <h1 className="font-bold text-text-primary typo-mega3">{children}</h1>
@@ -63,32 +65,20 @@ const Primary = ({ children }: { children: string }) => (
   <span className="font-bold text-text-primary">{children}</span>
 );
 
-const Yes = () => <span className="text-accent-avocado-default">core</span>;
-const Sub = () => <span className="text-text-tertiary">secondary</span>;
-const No = () => <span className="text-text-quaternary">—</span>;
+const SUPPORT: Record<Support, React.ReactNode> = {
+  core: <span className="text-accent-avocado-default">core</span>,
+  secondary: <span className="text-text-tertiary">secondary</span>,
+  none: <span className="text-text-quaternary">—</span>,
+};
 
-const MAP: React.ReactNode[][] = [
-  ['Post page & modal', '6350', <Yes />, <Sub />, <Primary>Link</Primary>, 'They want to read it, not look at a picture of it'],
-  ['Highlighted text', '6352', <Sub />, <Yes />, <Primary>Snapshot</Primary>, 'The quote is the share; the link is attribution'],
-  ['End of conversation', '6349', <Yes />, <Sub />, <Primary>Link</Primary>, 'The thread keeps moving; a still frame goes stale'],
-  ['Post-upvote prompt', '6351', <Yes />, <No />, <Primary>Link</Primary>, 'Same payload as the post — no second image'],
-  ['Briefing / digest', '6353', <No />, <Yes />, <Primary>Snapshot</Primary>, 'Personalized: a link gives them their briefing, or nothing'],
-  ['Profile', '6354', <Yes />, <Sub />, <Primary>Link</Primary>, 'The point is that they follow you'],
-  ['Tags & sources', '6357', <Yes />, <No />, <Primary>Link</Primary>, 'A live feed; an image of a tag says little'],
-  ['Leaderboard — the board', '6359', <Yes />, <Sub />, <Primary>Link</Primary>, 'It changes weekly'],
-  ['Leaderboard — my rank', '6359', <Sub />, <Yes />, <Primary>Snapshot</Primary>, 'Status content is image-first'],
-  ['Happening Now', '6355', <Sub />, <Yes />, <Primary>Snapshot</Primary>, 'Payload ≈ the whole page, and news travels in chat apps'],
-  ['Reading streak', '6358', <No />, <Yes />, <Primary>Snapshot</Primary>, 'A link to your streak means nothing to anyone else'],
-  ['Celebrations & achievements', '6360', <No />, <Yes />, <Primary>Snapshot</Primary>, 'Pure status'],
-  ['DevCard', '6356', <Sub />, <No />, <Primary>Share to</Primary>, 'Already an image — do not wrap an image in an image'],
-  ['Reading history', '6361', <Yes />, <No />, <Primary>Link</Primary>, 'Each row is just a post'],
-  ['Copy my feed', '6362', <No />, <Yes />, <Primary>Snapshot</Primary>, 'No URL anyone else can open'],
-  ['Squad directory', '6363', <Yes />, <Sub />, <Primary>Link</Primary>, 'The point is joining'],
-  ['Best-of / discovery', '6364', <Yes />, <Sub />, <Primary>Link</Primary>, 'Evergreen page worth landing on'],
-  ['Hot takes', '6365', <Sub />, <Yes />, <Primary>Snapshot</Primary>, 'Opinion is quotable and self-contained'],
-  ['Invite a friend', '6366', <Yes />, <Sub />, <Primary>Link</Primary>, 'An image of a referral cannot be clicked'],
-  ['Watercooler post', '—', <Yes />, <Sub />, <Primary>Link</Primary>, 'It is a post'],
-];
+const MAP: React.ReactNode[][] = SHARING_MAP.map((row) => [
+  row.surface,
+  row.pr,
+  SUPPORT[row.link],
+  SUPPORT[row.snapshot],
+  <Primary>{row.leads}</Primary>,
+  row.why,
+]);
 
 const TARGETS: React.ReactNode[][] = [
   ['Copy link', 'Link only', 'Going into a Slack thread or a DM, where a URL is the useful thing'],
