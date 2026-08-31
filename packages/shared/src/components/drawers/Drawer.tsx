@@ -58,6 +58,16 @@ export interface DrawerOnMobileProps {
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
+// TEMP-DEBUG: persist the readout flag at chunk load, before any client-side
+// navigation drops the query string. Revert before merge.
+try {
+  if (globalThis.window?.location.search.includes('drawerDebug')) {
+    globalThis.window.localStorage.setItem('drawerDebug', '1');
+  }
+} catch {
+  // storage unavailable
+}
+
 // Drawers can stack; the page unlocks only when the last one leaves.
 let scrollLockCount = 0;
 let previousHtmlOverflow = '';
@@ -138,9 +148,6 @@ function BaseDrawer({
       return undefined;
     }
     try {
-      if (window.location.search.includes('drawerDebug')) {
-        window.localStorage.setItem('drawerDebug', '1');
-      }
       if (!window.localStorage.getItem('drawerDebug')) {
         return undefined;
       }
@@ -172,6 +179,8 @@ function BaseDrawer({
           ],
           sy: Math.round(window.scrollY),
           ih: window.innerHeight,
+          underBody: overlay.parentElement === document.body,
+          par: overlay.parentElement?.tagName,
           // eslint-disable-next-line no-underscore-dangle, @typescript-eslint/no-explicit-any
           bid: (window as any).__NEXT_DATA__?.buildId,
         }),
