@@ -1,6 +1,7 @@
 import type { Post } from '../../graphql/posts';
 import type { AgentActivityItem, AgentContentTarget } from './AgentContext';
 import type { AgentAttachment, AgentMessage } from './chat';
+import { isPostsBlock } from './chat';
 
 // Ids match the strings the content tabs use, so a post open in the panel and
 // the same post in the transcript dedupe to one entry.
@@ -74,7 +75,7 @@ const transcriptPosts = (messages: AgentMessage[]): Post[] =>
     .slice()
     .reverse()
     .flatMap(({ blocks }) => blocks ?? [])
-    .flatMap((block) => (block.type === 'text' ? [] : block.posts));
+    .flatMap((block) => (isPostsBlock(block) ? block.posts : []));
 
 export const mentionCandidates = ({
   openContent,

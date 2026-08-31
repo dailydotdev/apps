@@ -47,7 +47,7 @@ export const ARBITRAGE_SLOT = {
  * TODO(chris): enable "Anchor ads" under Auto ads in the AdSense account,
  * with BOTH preconditions met first:
  * 1. Scope it with an AdSense URL group to /articles only. The script also
- *    loads on /posts/[id] whenever post_adsense is on, so an unscoped
+ *    loads on /posts/[id] for every anonymous visitor, so an unscoped
  *    account-level anchor lands on the organic post page too, on top of the
  *    two reviewed units there.
  * 2. Verify the anchor against FooterNavBarLayout's fixed bottom bar on a
@@ -91,8 +91,7 @@ export const MAX_CONTENT_ADS_PER_SECTION = 4;
  * The AdSense units behind each slot, keyed by slot number. Deliberately in
  * code rather than remote config: unit ids are public (visible in the page
  * source of any live page) and stable after setup, and as a GrowthBook JSON
- * value they shipped in every boot payload of every surface. The remote side
- * is just the `post_adsense` boolean; the /read template needs none.
+ * value they shipped in every boot payload of every surface.
  *
  * A unit's `type` is set when it is created in AdSense and cannot be
  * overridden from here: an in-article unit is fluid whatever the <ins> asks
@@ -140,8 +139,8 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
 };
 
 /**
- * The organic post page (/posts/[id]) carries two units, gated by the
- * `post_adsense` boolean and hidden from Plus members like the internal ads.
+ * The organic post page (/posts/[id]) carries these units for anonymous
+ * visitors only — logged-in users never see them, like the internal ads.
  * Numbered after the /read range so reports never collide.
  */
 export const ORGANIC_SLOT = {

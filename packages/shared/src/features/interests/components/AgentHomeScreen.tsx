@@ -9,7 +9,7 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
-import { ArrowIcon, SettingsIcon } from '../../../components/icons';
+import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { DateFormat } from '../../../components/utilities/DateFormat';
@@ -25,20 +25,8 @@ import {
   toMonitorItems,
 } from '../monitorItems';
 import type { CreateInterestSettings } from '../../../graphql/interests';
-import {
-  UserInterestCadence,
-  defaultCreateInterestSettings,
-} from '../../../graphql/interests';
 import { composerBar, composerColumn, composerFrame } from './AgentComposer';
 import { AgentSendButton } from './AgentSendButton';
-import {
-  CadenceSection,
-  FomoSection,
-  HistorySection,
-  OutputModesSection,
-  cadenceOptions,
-  outputOptions,
-} from './AgentSettingsFields';
 
 const maxFieldHeight = 120;
 
@@ -49,7 +37,7 @@ const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => {
 
   return (
     <li className="tablet:[&:first-child>a]:rounded-t-12 tablet:[&:last-child>a]:rounded-b-12">
-      <Link href={`${webappUrl}agent/${item.id}`}>
+      <Link href={`${webappUrl}agents/${item.id}`}>
         <a className="agent-press-row group/item flex items-start gap-2.5 rounded-12 bg-surface-float px-3 py-2.5 transition-colors hover:bg-surface-hover tablet:items-center tablet:gap-3 tablet:rounded-none tablet:bg-transparent tablet:py-2 tablet:hover:bg-surface-float">
           <span
             aria-hidden
@@ -141,6 +129,7 @@ export const AgentHomeScreen = ({
   onCreate: (input: {
     query: string;
     settings?: CreateInterestSettings;
+    onboarding?: boolean;
   }) => void | Promise<unknown>;
   isCreating?: boolean;
   isStandalone?: boolean;
@@ -150,10 +139,6 @@ export const AgentHomeScreen = ({
   const shellHeight = useAgentShellHeight(isStandalone);
   const fieldRef = useRef<HTMLTextAreaElement>(null);
   const [query, setQuery] = useState(initialQuery);
-  const [isSettingsOpen, setSettingsOpen] = useState(false);
-  const [settings, setSettings] = useState<CreateInterestSettings>(
-    defaultCreateInterestSettings,
-  );
   // On this statically optimised route the query is empty until after hydration,
   // so it arrives a render after `useState` read its argument. Only adopted into
   // an empty field, so it cannot overwrite what was typed.
@@ -191,35 +176,10 @@ export const AgentHomeScreen = ({
 
     // The mutation reports its own failure with a toast, so swallowing here only
     // stops the same failure escaping as an unhandled rejection.
-    Promise.resolve(onCreate({ query: trimmed, settings })).catch(
+    Promise.resolve(onCreate({ query: trimmed, onboarding: true })).catch(
       () => undefined,
     );
   };
-
-  const cadenceSummary =
-    cadenceOptions.find(({ value }) => value === settings.cadence)?.label ??
-    'Whenever it matters';
-  const deliverySummary = outputOptions
-    .filter(({ key }) => settings.outputModes?.[key])
-    .map(({ short }) => short)
-    .join(', ');
-  const threshold = settings.fomoThreshold ?? 0.5;
-  let fomoSummary = 'Balanced';
-  if (threshold > 0.7) {
-    fomoSummary = 'Only the best';
-  }
-  if (threshold < 0.3) {
-    fomoSummary = 'Show me everything';
-  }
-  const peekRows = [
-    ['When it reports', cadenceSummary],
-    ['FOMO vs quality', fomoSummary],
-    ['What it delivers', deliverySummary || 'Nothing yet'],
-    [
-      'History',
-      settings.showHistory === false ? 'Latest only' : 'Full history',
-    ],
-  ];
 
   return (
     <FlexCol className={classNames('w-full overflow-hidden', shellHeight)}>
@@ -353,98 +313,6 @@ export const AgentHomeScreen = ({
                 onClick={onSubmit}
               />
             </FlexRow>
-          </FlexCol>
-
-          <FlexCol className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
-            <button
-              type="button"
-              aria-label="Agent settings"
-              aria-expanded={isSettingsOpen}
-              className="flex w-full flex-col gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
-              onClick={() => setSettingsOpen((open) => !open)}
-            >
-              <div className="flex w-full flex-col gap-1 tablet:flex-row tablet:items-center tablet:gap-2">
-                <FlexRow className="w-full items-center gap-2 tablet:w-auto tablet:flex-1">
-                  <SettingsIcon
-                    size={IconSize.Size16}
-                    className="text-text-tertiary"
-                  />
-                  <strong className="flex-1 text-text-secondary typo-footnote">
-                    Agent settings
-                  </strong>
-                  <ArrowIcon
-                    size={IconSize.Size16}
-                    className={classNames(
-                      'text-text-quaternary transition-transform tablet:hidden',
-                      isSettingsOpen ? 'rotate-180' : 'rotate-90',
-                    )}
-                    aria-hidden
-                  />
-                </FlexRow>
-                <FlexRow className="items-center gap-2 pl-6 tablet:pl-0">
-                  <span className="font-bold text-text-quaternary typo-caption1">
-                    {isSettingsOpen ? 'Done' : 'Tailor it to your needs'}
-                  </span>
-                  <ArrowIcon
-                    size={IconSize.Size16}
-                    className={classNames(
-                      'hidden text-text-quaternary transition-transform tablet:block',
-                      isSettingsOpen ? 'rotate-180' : 'rotate-90',
-                    )}
-                    aria-hidden
-                  />
-                </FlexRow>
-              </div>
-              {!isSettingsOpen && (
-                <FlexCol className="w-full gap-1">
-                  {peekRows.map(([label, value]) => (
-                    <FlexRow key={label} className="items-baseline gap-3">
-                      <span className="w-28 shrink-0 text-text-quaternary typo-caption1">
-                        {label}
-                      </span>
-                      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-caption1">
-                        {value}
-                      </span>
-                    </FlexRow>
-                  ))}
-                </FlexCol>
-              )}
-            </button>
-
-            {isSettingsOpen && (
-              <FlexCol className="agent-scroll max-h-[50vh] overflow-y-auto border-t border-border-subtlest-tertiary px-4">
-                <CadenceSection
-                  value={settings.cadence ?? UserInterestCadence.Auto}
-                  disabled={isCreating}
-                  onChange={(cadence) =>
-                    setSettings((current) => ({ ...current, cadence }))
-                  }
-                />
-                <FomoSection
-                  value={settings.fomoThreshold ?? 0.5}
-                  onChange={(fomoThreshold) =>
-                    setSettings((current) => ({ ...current, fomoThreshold }))
-                  }
-                />
-                <OutputModesSection
-                  value={settings.outputModes}
-                  disabled={isCreating}
-                  onChange={(outputModes) =>
-                    setSettings((current) => ({
-                      ...current,
-                      outputModes: { ...current.outputModes, ...outputModes },
-                    }))
-                  }
-                />
-                <HistorySection
-                  value={settings.showHistory ?? true}
-                  disabled={isCreating}
-                  onChange={(showHistory) =>
-                    setSettings((current) => ({ ...current, showHistory }))
-                  }
-                />
-              </FlexCol>
-            )}
           </FlexCol>
         </FlexCol>
       </div>
