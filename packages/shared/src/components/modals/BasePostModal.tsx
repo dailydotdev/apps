@@ -115,6 +115,11 @@ function BasePostModal({
           className={classNames(
             className,
             'mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto laptop:overflow-hidden',
+            // A sticky child can only travel within this box. `tablet:h-full`
+            // caps it at one viewport, which would un-stick the header partway
+            // down a long post between tablet and laptop; let it grow with its
+            // content the way it already does from laptop up.
+            navigationRedesign && 'tablet:!h-auto',
             '!overscroll-y-auto', // TODO: remove when fixing modal scroll issues see https://github.com/dailydotdev/daily/issues/2036
           )}
         >

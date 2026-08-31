@@ -14,6 +14,12 @@ import { featureCommunitySentiment } from '../../../lib/featureManagement';
 import { getPostByIdKey } from '../../../lib/query';
 import { PostFocusCard } from './PostFocusCard';
 
+// The real hook needs a boost-eligible author plus a warm post-by-id cache;
+// force it on so the tests exercise this card's own gating.
+jest.mock('../../../features/boost/useShowBoostButton', () => ({
+  useShowBoostButton: jest.fn(() => true),
+}));
+
 const freeformPost: Post = {
   ...post,
   id: 'freeform-post-id',
@@ -214,5 +220,23 @@ describe('PostFocusCard share commentary', () => {
     renderCard(sharePost);
 
     expect(screen.getByText(sharePost.title as string)).toBeInTheDocument();
+  });
+});
+
+describe('PostFocusCard boost button', () => {
+  // The modal's top strip renders PostHeaderActions, which already carries a
+  // boost button off the same hook — rendering one here too duplicated it.
+  it('is hidden in the modal, where the top strip already has one', () => {
+    renderCard(post, { onClose: jest.fn() });
+
+    expect(
+      screen.queryByRole('button', { name: 'Boost' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows on the standalone post page, which has no top strip', () => {
+    renderCard(post);
+
+    expect(screen.getByRole('button', { name: 'Boost' })).toBeInTheDocument();
   });
 });

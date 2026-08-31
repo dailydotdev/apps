@@ -259,7 +259,9 @@ const PostFocusCardRaw = ({
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
-  const showBoostButton = useShowBoostButton({ post });
+  // Post page only: in the modal, the top strip renders PostHeaderActions,
+  // which carries its own boost button off this same hook.
+  const showBoostButton = useShowBoostButton({ post }) && !onClose;
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const { isReaderEnabled } = useReaderModalEligibility();
@@ -632,8 +634,17 @@ const PostFocusCardRaw = ({
 
           {/* `flex-col-reverse` puts the CTA above the body on mobile without
               rendering it twice behind `hidden` wrappers — one link, one stop in
-              the accessibility tree. */}
-          <div className="flex flex-col-reverse gap-4 tablet:flex-col">
+              the accessibility tree. It reverses paint order only, so it is
+              skipped for videos: VideoSummary's "Show more" is focusable, and
+              reversing there would hand keyboard users the body before the CTA
+              they see first. Article bodies are a plain <p>, so ordering the
+              two is purely visual. */}
+          <div
+            className={classNames(
+              'flex flex-col gap-4',
+              !isVideoType && 'flex-col-reverse tablet:flex-col',
+            )}
+          >
             {/* Must stay two children, or the reversal reorders the body too. */}
             {postBody && <div className="flex flex-col gap-4">{postBody}</div>}
             {readCta}

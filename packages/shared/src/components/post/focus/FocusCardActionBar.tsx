@@ -173,14 +173,19 @@ export const FocusCardActionBar = ({
             size: ButtonSize.Medium,
           }}
         />
-        <Tooltip content="Copy link">
-          <CardAction
-            label="Copy link"
-            color={ButtonColor.Cabbage}
-            icon={<LinkIcon />}
-            onClick={() => onCopyLinkClick?.(post)}
-          />
-        </Tooltip>
+        {/* Hidden below tablet: the row is fixed-width icon targets that
+            cannot compress, and copy link is the one action with an easy
+            alternative (the "…" menu in the card header). */}
+        <div className="hidden tablet:flex">
+          <Tooltip content="Copy link">
+            <CardAction
+              label="Copy link"
+              color={ButtonColor.Cabbage}
+              icon={<LinkIcon />}
+              onClick={() => onCopyLinkClick?.(post)}
+            />
+          </Tooltip>
+        </div>
         {post.clickbaitTitleDetected && (
           <PostClickbaitShield post={post} iconOnly />
         )}
