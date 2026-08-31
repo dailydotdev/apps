@@ -83,16 +83,21 @@ const writeFormTabKeyToKind: Record<keyof typeof WriteFormTab, ComposerKind> = {
   Standup: 'standup',
 };
 
+const isWriteFormTabKey = (value: string): value is keyof typeof WriteFormTab =>
+  value in writeFormTabKeyToKind;
+
 const resolveDefaultKind = (
-  defaultWriteTab: WriteFormTab | undefined,
+  defaultWriteTab: string | undefined,
   isStandupEnabled: boolean,
 ): ComposerKind => {
-  const key = defaultWriteTab as unknown as keyof typeof WriteFormTab;
-  const defaultKind = key ? writeFormTabKeyToKind[key] : 'text';
+  const defaultKind =
+    defaultWriteTab && isWriteFormTabKey(defaultWriteTab)
+      ? writeFormTabKeyToKind[defaultWriteTab]
+      : 'text';
   if (defaultKind === 'standup' && !isStandupEnabled) {
     return 'text';
   }
-  return defaultKind ?? 'text';
+  return defaultKind;
 };
 
 export interface SmartComposerModalProps extends LazyModalCommonProps {
@@ -386,10 +391,12 @@ export function SmartComposerModal({
       initialSquadId ?? editPost?.source?.id,
     );
   // An edit must target the post's own source — the audience list only holds
-  // currently postable squads, and its fallback would silently retarget.
+  // currently postable squads, and its fallback would silently retarget. The
+  // cast mirrors generateUserSourceAsSquad: non-squad sources are deliberately
+  // handled as squads here.
   const editSource = editPost
     ? audiences.find((audience) => audience.id === editPost.source?.id) ??
-      (editPost.source as Squad)
+      (editPost.source as Squad | undefined)
     : undefined;
   const primary = editSource ?? selected[0];
   const isMulti = !editPost && selected.length > 1;
@@ -402,7 +409,7 @@ export function SmartComposerModal({
     !isEditing &&
     !isMulti &&
     !!primary &&
-    !moderationRequired(primary as Squad);
+    !moderationRequired(primary);
 
   const {
     handleSubmit,

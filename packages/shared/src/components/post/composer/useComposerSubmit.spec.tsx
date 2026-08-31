@@ -2,7 +2,12 @@ import { renderHook, act } from '@testing-library/react';
 import type { FormEvent } from 'react';
 import { usePostToSquad } from '../../../hooks';
 import type { Squad } from '../../../graphql/sources';
-import { DEFAULT_LINK, DEFAULT_POLL, DEFAULT_TEXT } from './types';
+import {
+  DEFAULT_LINK,
+  DEFAULT_POLL,
+  DEFAULT_STANDUP,
+  DEFAULT_TEXT,
+} from './types';
 import { useComposerSubmit } from './useComposerSubmit';
 
 const mockOnUpdateSharePost = jest.fn();
@@ -40,14 +45,16 @@ jest.mock('../../../features/squads/hooks/useMultipleSourcePost', () => ({
 
 const squad = { id: 'squad-1', handle: 'squad' } as Squad;
 
-const renderSubmit = (overrides = {}) =>
+type ComposerSubmitProps = Parameters<typeof useComposerSubmit>[0];
+
+const renderSubmit = (overrides: Partial<ComposerSubmitProps> = {}) =>
   renderHook(() =>
     useComposerSubmit({
       kind: 'link',
       text: DEFAULT_TEXT,
       link: { ...DEFAULT_LINK, commentary: '  updated take  ' },
       poll: DEFAULT_POLL,
-      standup: { topic: '', description: '' },
+      standup: DEFAULT_STANDUP,
       cover: null,
       primary: squad,
       selectedIds: ['squad-1'],
@@ -55,7 +62,7 @@ const renderSubmit = (overrides = {}) =>
       onComplete: jest.fn(),
       editPostId: 'post-1',
       ...overrides,
-    } as unknown as Parameters<typeof useComposerSubmit>[0]),
+    }),
   );
 
 describe('useComposerSubmit editing a share', () => {
