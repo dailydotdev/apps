@@ -98,10 +98,7 @@ function BaseDrawer({
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement | null>(null);
-  const stackToken = useRef<symbol>();
-  if (!stackToken.current) {
-    stackToken.current = Symbol('drawer');
-  }
+  const stackToken = useRef(Symbol('drawer'));
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);

@@ -594,7 +594,9 @@ it('should open the comment composer when the mobile floating bar requests it', 
 
   const commentButton = await waitFor(() => {
     const el = document.getElementById('mobile-comment-post-btn');
-    expect(el).toBeInTheDocument();
+    if (!el) {
+      throw new Error('mobile comment button not rendered');
+    }
     return el;
   });
   fireEvent.click(commentButton);
