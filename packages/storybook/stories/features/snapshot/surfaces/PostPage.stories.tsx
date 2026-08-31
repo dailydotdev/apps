@@ -6,143 +6,228 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  ArrowIcon,
   BookmarkIcon,
   CopyIcon,
   DiscussIcon,
   DownvoteIcon,
   LinkIcon,
+  MedalBadgeIcon,
   MenuIcon,
   OpenLinkIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import type { Device } from '../surfaceChrome';
+import type { DeviceName } from '../surfaceChrome';
 import {
   AVATAR,
   Category,
-  Control,
-  DeviceFrame,
-  DeviceRail,
-  DEVICES,
   OverflowMenu,
   POST_MENU,
-  Screen,
+  Control,
+  Device,
+  Rail,
+  ShareSheet,
   SurfacePage,
   Variant,
 } from '../surfaceChrome';
 
-type Spot = 'today' | 'selection' | 'endband' | 'upvote';
+type Spot =
+  | 'today'
+  | 'today-sheet'
+  | 'summary'
+  | 'actionbar'
+  | 'selection'
+  | 'endband'
+  | 'upvote';
 
 const TITLE = 'Why iconic tech brands lost their dominance';
 
-const SUMMARY =
-  'Nokia, BlackBerry and Kodak all led their categories and all missed the same turn: they optimised the product they had instead of the one their customers were moving to.';
+const SUMMARY_LEAD =
+  'Nokia, BlackBerry and Kodak all led their categories and all missed the same turn. ';
 
-const TAGS = ['tech', 'business', 'startups'];
+const SUMMARY_QUOTE =
+  'Every one of them optimised the product they had instead of the one their customers were moving to.';
 
-const isCompact = (device: Device) => device !== 'desktop';
+const isCompact = (device: DeviceName) => device !== 'Desktop';
 
-/* Source row. PostHeaderActions is `hidden laptop:flex`, so Read post and the
-   ⋯ menu only exist on desktop; below that the Follow link takes their place. */
+/* ------------------------------------------------------------ the real page */
+
+/** Desktop only: the header cluster is `hidden laptop:flex` in production. */
+const HeaderActions = ({ menu }: { menu?: boolean }) => (
+  <div className="relative ml-auto flex items-center gap-2">
+    <Button
+      icon={<OpenLinkIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Secondary}
+    >
+      Read post
+    </Button>
+    <Button
+      aria-label="Options"
+      icon={<MenuIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    />
+    {menu && <OverflowMenu
+        className="right-0 top-9"
+        highlight="Share via"
+        items={POST_MENU}
+      />}
+  </div>
+);
+
+/** Below laptop the same cluster lives in a sticky bar with the back arrow. */
+const MobileTopBar = ({ menu }: { menu?: boolean }) => (
+  <div className="relative flex items-center gap-2 border-b border-border-subtlest-tertiary bg-background-subtle px-4 py-2">
+    <Button
+      aria-label="Back"
+      icon={<ArrowIcon className="-rotate-90" />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    />
+    <HeaderActions menu={menu} />
+  </div>
+);
+
 const SourceRow = ({
   device,
   menu,
 }: {
-  device: Device;
+  device: DeviceName;
   menu?: boolean;
 }) => (
-  <div className="relative flex items-center gap-2 text-text-tertiary typo-footnote">
-    <img alt="" className="size-8 rounded-full object-cover" src={AVATAR} />
-    <a className="text-text-secondary typo-callout" href="#s">
-      XDA Developers
-    </a>
-    {isCompact(device) ? (
-      <>
-        <span className="text-text-quaternary">·</span>
-        <span className="text-text-link">Follow</span>
-      </>
-    ) : (
-      <div className="ml-auto flex items-center gap-2">
-        <Button
-          icon={<OpenLinkIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Secondary}
-        >
-          Read post
-        </Button>
-        <Button
-          aria-label="Options"
-          icon={<MenuIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-        />
-      </div>
-    )}
-    {menu && <OverflowMenu highlight="Share via" items={POST_MENU} />}
+  <div className="flex items-center text-text-tertiary typo-footnote">
+    <span className="text-text-secondary typo-callout">XDA Developers</span>
+    <span className="mx-1 text-text-quaternary">·</span>
+    <span className="font-bold text-text-link">Follow</span>
+    {!isCompact(device) && <HeaderActions menu={menu} />}
+  </div>
+);
+
+const Summary = ({
+  device,
+  highlighted,
+  trailing,
+}: {
+  device: DeviceName;
+  highlighted?: boolean;
+  trailing?: React.ReactNode;
+}) => (
+  <div className="flex flex-col gap-3">
+    <p
+      className={`select-text break-words text-text-secondary ${
+        isCompact(device) ? 'typo-callout' : 'typo-body'
+      }`}
+    >
+      {SUMMARY_LEAD}
+      <span
+        className={
+          highlighted
+            ? 'rounded-4 bg-overlay-float-cabbage text-text-primary'
+            : undefined
+        }
+      >
+        {SUMMARY_QUOTE}
+      </span>
+    </p>
+    {trailing}
   </div>
 );
 
 const Tags = () => (
-  <ul className="flex flex-wrap gap-2">
-    {TAGS.map((tag) => (
-      <li
+  <div className="flex flex-wrap gap-2">
+    {['#tech-industry', '#brands', '#strategy'].map((tag) => (
+      <span
         key={tag}
-        className="inline-flex h-6 items-center rounded-8 bg-surface-float px-2 text-text-tertiary typo-caption1"
+        className="rounded-8 bg-surface-float px-2 py-1 text-text-tertiary typo-caption1"
       >
-        #{tag}
-      </li>
+        {tag}
+      </span>
     ))}
-  </ul>
+  </div>
 );
 
-/* The production engagement bar: a bordered pill, labels on everything but
-   the votes, and Copy — not Share — as the last action. */
-const ActionBar = ({ device }: { device: Device }) => {
-  const labels = !isCompact(device);
+const Metadata = () => (
+  <span className="text-text-quaternary typo-footnote">
+    Aug 31, 2026 · 4 min read · From xda-developers.com
+  </span>
+);
 
-  return (
-    <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
-      <div className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6">
-        <Button
-          aria-label="Upvote"
-          icon={<UpvoteIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-        />
-        <Button
-          aria-label="Downvote"
-          icon={<DownvoteIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-        />
-        <Button
-          aria-label="Comment"
-          icon={<DiscussIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-        >
-          {labels ? 'Comment' : undefined}
-        </Button>
-        <Button
-          aria-label="Bookmark"
-          icon={<BookmarkIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-        >
-          {labels ? 'Bookmark' : undefined}
-        </Button>
-        <Button
-          aria-label="Copy"
-          icon={<LinkIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-        >
-          {labels ? 'Copy' : undefined}
-        </Button>
-      </div>
-    </div>
-  );
-};
+const BarAction = ({
+  icon,
+  label,
+  labelVisible,
+}: {
+  icon: React.ReactElement;
+  label: string;
+  labelVisible?: boolean;
+}) => (
+  <Button
+    aria-label={label}
+    icon={icon}
+    size={ButtonSize.Small}
+    variant={ButtonVariant.Tertiary}
+  >
+    {labelVisible ? label : undefined}
+  </Button>
+);
 
+/** PostActions.v2: a bordered bar, labels visible from Comment rightwards. */
+const InlineActionBar = ({
+  device,
+  snapshot,
+}: {
+  device: DeviceName;
+  snapshot?: boolean;
+}) => (
+  <div className="flex items-center justify-between gap-1 rounded-16 border border-border-subtlest-tertiary p-2">
+    <BarAction icon={<UpvoteIcon />} label="Upvote" />
+    <BarAction icon={<DownvoteIcon />} label="Downvote" />
+    <BarAction
+      icon={<DiscussIcon />}
+      label="Comment"
+      labelVisible={!isCompact(device)}
+    />
+    {!isCompact(device) && (
+      <BarAction icon={<MedalBadgeIcon />} label="Award" labelVisible />
+    )}
+    <BarAction
+      icon={<BookmarkIcon />}
+      label="Bookmark"
+      labelVisible={!isCompact(device)}
+    />
+    <BarAction
+      icon={<LinkIcon />}
+      label="Copy"
+      labelVisible={!isCompact(device)}
+    />
+    {snapshot && <Control action="Snapshot" />}
+  </div>
+);
+
+/** MobilePostFloatingBar.v2: pinned, icons only, copy link last. */
+const FloatingBar = ({ snapshot }: { snapshot?: boolean }) => (
+  <div className="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-2">
+    <Button
+      icon={<UpvoteIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    >
+      128
+    </Button>
+    <BarAction icon={<DownvoteIcon />} label="Downvote" />
+    <Button
+      icon={<DiscussIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    >
+      24
+    </Button>
+    <BarAction icon={<BookmarkIcon />} label="Bookmark" />
+    <BarAction icon={<LinkIcon />} label="Copy link" />
+    {snapshot && <Control action="Snapshot" />}
+  </div>
+);
 
 const SelectionBar = () => (
   <div
@@ -172,160 +257,216 @@ const SelectionBar = () => (
   </div>
 );
 
-const MobileFloatingBar = () => (
-  <div className="sticky bottom-2 mx-2 mb-2 flex w-auto items-center justify-between rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-2 backdrop-blur-[2.5rem]">
-    <Button
-      aria-label="Upvote"
-      icon={<UpvoteIcon />}
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Tertiary}
-    >
-      128
-    </Button>
-    <Button
-      aria-label="Downvote"
-      icon={<DownvoteIcon />}
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Tertiary}
-    />
-    <Button
-      aria-label="Comment"
-      icon={<DiscussIcon />}
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Tertiary}
-    >
-      24
-    </Button>
-    <Button
-      aria-label="Bookmark"
-      icon={<BookmarkIcon />}
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Tertiary}
-    />
-    <Button
-      aria-label="Copy link"
-      icon={<LinkIcon />}
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Tertiary}
-    />
+const Comments = ({ device }: { device: DeviceName }) => (
+  <div className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-4">
+    <span className="font-bold text-text-primary typo-callout">24 comments</span>
+    <div className="flex gap-3">
+      <img alt="" className="size-8 rounded-full object-cover" src={AVATAR} />
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="font-bold text-text-primary typo-footnote">
+          Bobby Iliev
+        </span>
+        <span
+          className={`text-text-tertiary ${
+            isCompact(device) ? 'typo-caption1' : 'typo-footnote'
+          }`}
+        >
+          The org chart point is the whole article, honestly.
+        </span>
+      </div>
+    </div>
   </div>
 );
 
-const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
+const Band = ({
+  title,
+  body,
+  children,
+  accent,
+}: {
+  title: string;
+  body: string;
+  children: React.ReactNode;
+  accent?: boolean;
+}) => (
+  <div
+    className={`flex flex-wrap items-center gap-3 rounded-12 p-3 ${
+      accent
+        ? 'border border-accent-cabbage-default bg-overlay-float-cabbage'
+        : 'bg-surface-float'
+    }`}
+  >
+    <div className="flex min-w-0 flex-1 flex-col">
+      <span className="font-bold text-text-primary typo-footnote">{title}</span>
+      <span className="text-text-tertiary typo-caption1">{body}</span>
+    </div>
+    {children}
+  </div>
+);
+
+const PostView = ({
+  device,
+  spot,
+}: {
+  device: DeviceName;
+  spot: Spot;
+}) => {
   const compact = isCompact(device);
+  const showsMenu = spot === 'today';
 
   return (
-    <Screen width={DEVICES[device].width}>
-      <div className="flex flex-col gap-4 p-4">
-        <SourceRow device={device} menu={spot === 'today' && !compact} />
+    <Device height={compact ? 620 : undefined} name={device}>
+      {compact && <MobileTopBar menu={showsMenu} />}
+
+      <div
+        className={`flex flex-col gap-4 p-4 ${compact ? 'pb-20' : ''}`}
+        style={compact ? { height: 620 - 44, overflow: 'hidden' } : undefined}
+      >
+        <SourceRow device={device} menu={showsMenu} />
 
         <h1
-          className={`break-words font-bold ${
+          className={`break-words font-bold text-text-primary ${
             compact ? 'typo-title2' : 'typo-large-title'
           }`}
         >
           {TITLE}
         </h1>
 
-        <p className="select-text break-words text-text-secondary typo-callout">
-          The pattern repeats across decades.{' '}
-          <span
-            className={
-              spot === 'selection'
-                ? 'rounded-4 bg-overlay-float-cabbage text-text-primary'
-                : undefined
-            }
-          >
-            {SUMMARY}
-          </span>
-        </p>
-        {spot === 'selection' && <SelectionBar />}
+        <Summary
+          device={device}
+          highlighted={spot === 'selection'}
+          trailing={
+            (spot === 'selection' && <SelectionBar />) ||
+            (spot === 'summary' && (
+              <Control
+                action="Snapshot"
+                label={!compact}
+                variant={ButtonVariant.Float}
+              />
+            )) ||
+            undefined
+          }
+        />
 
         <Tags />
+        <Metadata />
 
-        <span className="text-text-tertiary typo-footnote">
-          Aug 12, 2026 · 4 min read
-        </span>
+        {!compact && (
+          <InlineActionBar device={device} snapshot={spot === 'actionbar'} />
+        )}
 
-        <div className="h-28 rounded-12 bg-surface-float" />
+        {spot === 'upvote' && (
+          <Band
+            accent
+            body="You upvoted it — pass it on"
+            title="Should anyone else see this?"
+          >
+            <Control action="Link" label variant={ButtonVariant.Primary} />
+          </Band>
+        )}
 
-        <span className="text-text-tertiary typo-footnote">
-          128 Upvotes · 24 Comments
-        </span>
+        <Comments device={device} />
 
-        <ActionBar device={device} />
-
-
-        <div className="flex gap-3 border-t border-border-subtlest-tertiary pt-3">
-          <img
-            alt=""
-            className="size-8 shrink-0 rounded-full object-cover"
-            src={AVATAR}
-          />
-          <div className="flex flex-col gap-1">
-            <span className="font-bold text-text-primary typo-footnote">
-              Bobby Iliev
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              The org chart point is the whole article, honestly.
-            </span>
-          </div>
-        </div>
-
+        {spot === 'endband' && (
+          <Band body="24 comments and counting" title="Enjoyed this discussion?">
+            <Control action="Snapshot" />
+            <Control action="Link" label variant={ButtonVariant.Secondary} />
+          </Band>
+        )}
       </div>
 
-      {compact && <MobileFloatingBar />}
-    </Screen>
+      {compact && <FloatingBar snapshot={spot === 'actionbar'} />}
+      {spot === 'today-sheet' && <ShareSheet />}
+    </Device>
   );
 };
 
-const Rail = ({ spot }: { spot: Spot }) => (
-  <DeviceRail>
-    <DeviceFrame device="desktop">
-      <PostScreen device="desktop" spot={spot} />
-    </DeviceFrame>
-    <DeviceFrame device="tablet" note="no header actions">
-      <PostScreen device="tablet" spot={spot} />
-    </DeviceFrame>
-    <DeviceFrame device="mobile" note="floating bar">
-      <PostScreen device="mobile" spot={spot} />
-    </DeviceFrame>
-  </DeviceRail>
+const AllDevices = ({ spot }: { spot: Spot }) => (
+  <Rail>
+    <PostView device="Desktop" spot={spot} />
+    <PostView device="Tablet" spot={spot} />
+    <PostView device="Mobile" spot={spot} />
+  </Rail>
 );
+
+/* -------------------------------------------------------------------- page */
 
 const PostPage = () => (
   <SurfacePage
-    intro="Our highest-traffic surface by an order of magnitude — 1.38m views in 30 days. It is also the one surface that already has a real per-post OG image, which settles the payload question before it is asked. Drawn from the production components: PostSourceInfo, PostActions and MobilePostFloatingBar."
-    map="Decision: no snapshot on the post page or the modal. The post already has an OG image, so a copied link previews properly wherever it lands — an image would be a second, worse copy of something we already generate. The one exception is highlighted text, where the quote is the payload and no OG exists for it."
+    intro="Our highest-traffic surface by an order of magnitude — 1.38m views in 30 days — so a percentage point of share rate is worth more here than anywhere else. It is also the surface where the least is missing: copy link already ships, labeled, in the action bar."
+    map="Sharing map: lead with Copy link (#6350). People want to read the article, not look at a picture of it. Snapshot earns a place on the summary and the quote, which stand alone without the page."
     title="Post page & modal"
   >
     <Category
-      covers="PostOptionButton · PostActions · MobilePostFloatingBar"
+      covers="PostOptionButton.tsx · PostActions.v2.tsx · MobilePostFloatingBar.v2.tsx"
       title="What actually ships today"
-      verdict="Correcting an earlier version of this page: there is no Copy link in the ⋯ menu. The menu offers Share via, which opens the share modal, and Copy link already sits in the engagement bar as Copy."
+      verdict="Corrected: there is no “Copy link” item in the ⋯ menu anywhere in the product. The menu leads with “Share via”, which opens the share sheet — copy link is one level deeper. Meanwhile the desktop action bar already carries a labeled Copy, and mobile carries it as an icon in the floating bar. So the post page is not a visibility problem; it is a snapshot-has-nowhere-to-go problem."
     >
       <Variant
-        headline="⋯ opens with Share via; the bar ends with Copy"
-        note="Two share affordances already exist and neither is missing, so the visibility problem here is not a missing control. Note the breakpoint: Read post and ⋯ are hidden below laptop, so on tablet the only share action on the whole screen is Copy in the bar."
-        step="Today"
-        wide
+        headline="⋯ → Share via, then the sheet"
+        note="Two levels to reach a URL. Note the header cluster is `hidden laptop:flex` — on tablet and mobile the ⋯ is not in the article header at all, it moves to the sticky back-bar."
+        step="Today · the menu"
       >
-        <Rail spot="today" />
+        <AllDevices spot="today" />
+      </Variant>
+      <Variant
+        headline="The share sheet the menu opens"
+        note="Copy link is the first and only Primary-weighted item, then the eight named targets. This is where a snapshot option would slot in without adding any new chrome to the page."
+        step="Today · the sheet"
+      >
+        <Rail>
+          <PostView device="Desktop" spot="today-sheet" />
+          <PostView device="Mobile" spot="today-sheet" />
+        </Rail>
+      </Variant>
+      <Variant
+        headline="Copy is already labeled in the action bar"
+        note="PostActions.v2 renders Comment, Award, Bookmark and Copy with `labelVisible`. Below laptop the labels drop and the bar becomes the pinned floating bar, icons only."
+        step="Today · the action bar"
+      >
+        <AllDevices spot="actionbar" />
       </Variant>
     </Category>
 
     <Category
-      covers="#6352 · text-selection share bar"
-      title="The one addition: selected text"
-      verdict="Snapshot leads here and nowhere else on this page. A quote has no URL of its own and no OG image — the card is the only way it travels with attribution."
+      covers="#6350 · summary · #6352 · text selection"
+      title="Where snapshot belongs"
+      verdict="Two payloads on this page stand alone without the article: the summary and a highlighted line. Both are already text we generated or the reader chose, which is exactly what a card can carry."
     >
       <Variant
-        headline="Floating bar on selected text"
-        note="Copy link, copy text and quote-in-a-comment are the bar from #6352; snapshot is the fourth. Selection is awkward on touch, so this is a desktop-first bet — on mobile the native selection callout takes over and we cannot restyle it."
+        headline="Snapshot after the summary"
+        note="Built and live. Float weight so it does not compete with the article itself; label drops below laptop where the column is 375px wide."
         step="Recommended"
-        wide
       >
-        <Rail spot="selection" />
+        <AllDevices spot="summary" />
+      </Variant>
+      <Variant
+        headline="Floating bar on selected text"
+        note="Snapshot leads here — the quote is the share and the link is attribution. The bar appears exactly when intent exists, and it is the one control on this page that costs no permanent chrome."
+        step="Recommended"
+      >
+        <AllDevices spot="selection" />
+      </Variant>
+    </Category>
+
+    <Category
+      covers="#6349 · end of conversation · #6351 · post-upvote prompt"
+      title="The two prompted moments"
+      verdict="Both add a control that appears on its own rather than waiting to be found. Both are additive to the action bar, not replacements for it."
+    >
+      <Variant
+        headline="Band under the last comment"
+        note="Peak-end: it sits where reading actually stops. Snapshot rides along for anyone who wants the thread as an image; on mobile the band and the floating bar both compete for the bottom of the screen, which is the real design problem here."
+        step="End of thread"
+      >
+        <AllDevices spot="endband" />
+      </Variant>
+      <Variant
+        headline="Prompt after an upvote"
+        note="The strongest intent signal we get. Snapshot stays out — it would be the same payload twice."
+        step="After upvote"
+      >
+        <AllDevices spot="upvote" />
       </Variant>
     </Category>
   </SurfacePage>
