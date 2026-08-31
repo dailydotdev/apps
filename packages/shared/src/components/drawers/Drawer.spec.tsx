@@ -32,9 +32,9 @@ describe('Drawer', () => {
     expect(overlay.style.getPropertyValue('--safe-area-top-offset')).toBe(
       '40px',
     );
-    // The overlay keeps its CSS height so the page cannot show through the
-    // translucent keyboard; only the wrapper tracks the visual viewport.
-    expect(overlay).toHaveStyle({ height: '' });
+    // The overlay stays at full layout height so the page cannot show
+    // through the keyboard; only the wrapper tracks the visual viewport.
+    expect(overlay).toHaveStyle({ height: '100vh' });
     const wrapper = screen
       .getByText('content')
       .closest('.overflow-y-auto') as HTMLElement;
@@ -72,6 +72,38 @@ describe('Drawer', () => {
     expect(document.body).not.toHaveClass('hidden-scrollbar');
     expect(document.documentElement).not.toHaveStyle({ overflow: 'hidden' });
     expect(document.body).not.toHaveStyle({ position: 'fixed' });
+  });
+
+  it('undoes the iOS keyboard reveal scroll while full-screen', () => {
+    const scrollTo = jest.fn();
+    Object.defineProperty(window, 'scrollTo', {
+      configurable: true,
+      value: scrollTo,
+    });
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      value: 120,
+      writable: true,
+    });
+
+    const { unmount } = render(
+      <Drawer isOpen isFullScreen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    fireEvent.scroll(window);
+    expect(scrollTo).toHaveBeenCalledWith(0, 0);
+
+    scrollTo.mockClear();
+    unmount();
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      value: 0,
+      writable: true,
+    });
+    fireEvent.scroll(window);
+    expect(scrollTo).not.toHaveBeenCalledWith(0, 0);
   });
 
   it('keeps the page locked until the last stacked drawer closes', () => {

@@ -109,10 +109,13 @@ function BaseDrawer({
   // drawer header behind the cover, where it cannot be tapped. Feeding the
   // visual-viewport offset through `--safe-area-top-offset` lets the
   // safeArea.css rules keep both constraints.
+  // Height is pinned to 100vh (not the safeArea.css calc, which shrinks by
+  // the offset): even mid-pan the opaque cover must reach the keyboard.
   const overlayKeyboardStyle =
     isFullScreen && viewportHeight
       ? ({
           '--safe-area-top-offset': `${offsetTop ?? 0}px`,
+          height: '100vh',
         } as React.CSSProperties)
       : undefined;
   // Only the wrapper tracks the visual viewport; the overlay keeps its full
@@ -201,6 +204,50 @@ function BaseDrawer({
       if (lockedScrollY) {
         window.scrollTo(0, lockedScrollY);
       }
+    };
+  }, [isFullScreen]);
+
+  // iOS pans the webview to reveal the focused input when the keyboard
+  // opens — a native scroll the body pin cannot stop (WKWebView extends the
+  // scroll range by the keyboard inset). Undoing it keeps the drawer's
+  // geometry static; the wrapper already keeps the caret above the keyboard.
+  useEffect(() => {
+    if (!isFullScreen) {
+      return undefined;
+    }
+
+    const undoPan = () => {
+      if (window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+    // Touch pans reach the native scroller even from unscrollable content;
+    // block them unless an inner scroller (textarea, drawer body) owns them.
+    const onTouchMove = (e: TouchEvent) => {
+      let el = e.target as HTMLElement | null;
+      while (el && el !== e.currentTarget) {
+        if (el.scrollHeight > el.clientHeight) {
+          const { overflowY } = getComputedStyle(el);
+          if (overflowY === 'auto' || overflowY === 'scroll') {
+            return;
+          }
+        }
+        el = el.parentElement;
+      }
+      e.preventDefault();
+    };
+
+    const overlay = container.current?.parentElement;
+    window.addEventListener('scroll', undoPan);
+    window.visualViewport?.addEventListener('scroll', undoPan);
+    window.visualViewport?.addEventListener('resize', undoPan);
+    overlay?.addEventListener('touchmove', onTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('scroll', undoPan);
+      window.visualViewport?.removeEventListener('scroll', undoPan);
+      window.visualViewport?.removeEventListener('resize', undoPan);
+      overlay?.removeEventListener('touchmove', onTouchMove);
     };
   }, [isFullScreen]);
 
