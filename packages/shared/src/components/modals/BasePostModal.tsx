@@ -131,7 +131,15 @@ function BasePostModal({
             <>
               <PostNavigation
                 className={{
-                  container: classNames('px-4', navigationContainerClassName),
+                  container: classNames(
+                    'px-4',
+                    // The redesign card renders no navigation of its own, so
+                    // this strip carries the only close button. Stick it to the
+                    // top of the modal's scroll area rather than letting it
+                    // scroll away with the header.
+                    navigationRedesign && 'sticky top-0 z-postNavigation',
+                    navigationContainerClassName,
+                  ),
                 }}
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}
