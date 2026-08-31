@@ -61,6 +61,7 @@ export interface DrawerOnMobileProps {
 // Drawers can stack; the page unlocks only when the last one leaves.
 let scrollLockCount = 0;
 let previousHtmlOverflow = '';
+let lockedScrollY = 0;
 
 // Escape must close only the top-most drawer of a stack.
 const drawerStack: symbol[] = [];
@@ -102,9 +103,25 @@ function BaseDrawer({
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
-  const keyboardSafeStyle =
+  // The native iOS shell draws the webview under the status bar and covers
+  // that strip with an opaque `body::before` (safeArea.css), so the overlay
+  // must start below `--safe-area-top` — a plain `top: offsetTop` hides the
+  // drawer header behind the cover, where it cannot be tapped. Feeding the
+  // visual-viewport offset through `--safe-area-top-offset` lets the
+  // safeArea.css rules keep both constraints.
+  const overlayKeyboardStyle =
     isFullScreen && viewportHeight
-      ? { height: viewportHeight, top: offsetTop }
+      ? ({
+          '--safe-area-top-offset': `${offsetTop ?? 0}px`,
+        } as React.CSSProperties)
+      : undefined;
+  // Only the wrapper tracks the visual viewport; the overlay keeps its full
+  // layout height so the page never shows through the translucent keyboard.
+  const wrapperKeyboardStyle =
+    isFullScreen && viewportHeight
+      ? ({
+          '--drawer-viewport-height': `${viewportHeight}px`,
+        } as React.CSSProperties)
       : undefined;
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
@@ -154,6 +171,13 @@ function BaseDrawer({
     // alone never reaches the viewport.
     if (scrollLockCount === 0) {
       previousHtmlOverflow = document.documentElement.style.overflow;
+      // WebKit's keyboard reveal scroll ignores `overflow: hidden`; pinning
+      // the body removes the scrollable range so the page cannot move at all.
+      lockedScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${lockedScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
     }
     scrollLockCount += 1;
     document.body.classList.add('hidden-scrollbar');
@@ -165,10 +189,17 @@ function BaseDrawer({
         return;
       }
       document.body.classList.remove('hidden-scrollbar');
+      document.body.style.removeProperty('position');
+      document.body.style.removeProperty('top');
+      document.body.style.removeProperty('left');
+      document.body.style.removeProperty('right');
       if (previousHtmlOverflow) {
         document.documentElement.style.overflow = previousHtmlOverflow;
       } else {
         document.documentElement.style.removeProperty('overflow');
+      }
+      if (lockedScrollY) {
+        window.scrollTo(0, lockedScrollY);
       }
     };
   }, [isFullScreen]);
@@ -211,15 +242,13 @@ function BaseDrawer({
     <div
       className={classNames(
         'fixed z-modal transition-opacity duration-300 ease-in-out',
-        // Sized to the *visual* viewport: iOS never shrinks the layout
-        // viewport for the keyboard, so `inset-0` alone leaves the bottom
-        // actions underneath it.
-        isFullScreen ? 'inset-x-0 top-0 h-full' : 'inset-0',
-        !isFullScreen && 'bg-overlay-quaternary-onion',
+        isFullScreen
+          ? 'inset-x-0 top-0 h-full bg-background-default'
+          : 'inset-0 bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
-      style={keyboardSafeStyle}
+      style={overlayKeyboardStyle}
       onClick={handleOverlayClick}
     >
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
@@ -232,9 +261,16 @@ function BaseDrawer({
         }
         tabIndex={-1}
         onKeyDown={trapFocus}
+        // iOS never shrinks the layout viewport for the keyboard, so the
+        // wrapper is sized to the visual viewport to keep the bottom actions
+        // above it. The height wins over `inset-0`'s bottom edge; without the
+        // inline variable the calc is invalid and `inset-0` takes over.
+        style={wrapperKeyboardStyle}
         className={classNames(
           'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
-          isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
+          isFullScreen
+            ? 'inset-0 h-[calc(var(--drawer-viewport-height)_-_var(--safe-area-top,0px))]'
+            : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
           !title && 'px-4 pt-3',
