@@ -63,6 +63,7 @@
     "@dailydotdev/eslint-config": "workspace:*",
     "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "workspace:*",
     "@dailydotdev/prettier-config": "workspace:*",
+    "@dailydotdev/world-kit": "workspace:*",
     "@next/bundle-analyzer": "16.2.6",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.17.0",

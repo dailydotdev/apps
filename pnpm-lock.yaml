@@ -970,6 +970,9 @@ importers:
       '@dailydotdev/prettier-config':
         specifier: workspace:*
         version: link:../prettier-config
+      '@dailydotdev/world-kit':
+        specifier: workspace:*
+        version: link:../world-kit
       '@next/bundle-analyzer':
         specifier: 16.2.6
         version: 16.2.6
@@ -1117,6 +1120,14 @@ importers:
       vercel:
         specifier: ^21.3.3
         version: 21.3.3
+
+  packages/world-cli:
+    dependencies:
+      '@dailydotdev/world-kit':
+        specifier: workspace:*
+        version: link:../world-kit
+
+  packages/world-kit: {}
 
 packages:
 

@@ -1,0 +1,19 @@
+{
+  "name": "@dailydotdev/world-kit",
+  "version": "0.1.0",
+  "description": "Authoring API, recorder and validator for daily.dev world objects.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": {
+      "types": "./src/types.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "sideEffects": false,
+  "license": "AGPL-3.0-or-later",
+  "types": "./src/types.d.ts"
+}
