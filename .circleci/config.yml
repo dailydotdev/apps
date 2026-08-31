@@ -30,6 +30,8 @@ jobs:
             - ./packages/webapp/node_modules
             - ./packages/extension/node_modules
             - ./packages/storybook/node_modules
+            - ./packages/world-kit/node_modules
+            - ./packages/world-cli/node_modules
   test_extension:
     docker:
       - image: cimg/node:24.18

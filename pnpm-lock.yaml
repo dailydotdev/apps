@@ -858,6 +858,9 @@ importers:
       '@dailydotdev/shared':
         specifier: workspace:*
         version: link:../shared
+      '@dailydotdev/world-kit':
+        specifier: workspace:*
+        version: link:../world-kit
       '@growthbook/growthbook':
         specifier: 0.26.0
         version: 0.26.0
@@ -1117,6 +1120,14 @@ importers:
       vercel:
         specifier: ^21.3.3
         version: 21.3.3
+
+  packages/world-cli:
+    dependencies:
+      '@dailydotdev/world-kit':
+        specifier: workspace:*
+        version: link:../world-kit
+
+  packages/world-kit: {}
 
 packages:
 
