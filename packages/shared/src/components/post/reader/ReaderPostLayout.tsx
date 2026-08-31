@@ -37,6 +37,7 @@ const SHELL_MAX_WIDTH = 'min(96vw, 100rem)';
 
 type ReaderPostLayoutProps = {
   post: Post;
+  targetPost?: Post;
   postPosition?: PostPosition;
   onPreviousPost?: () => void;
   onNextPost?: () => void;
@@ -57,6 +58,7 @@ type ReaderPostLayoutProps = {
 
 export function ReaderPostLayout({
   post: initialPost,
+  targetPost = initialPost,
   postPosition,
   onPreviousPost,
   onNextPost,
@@ -70,12 +72,12 @@ export function ReaderPostLayout({
   // icons keep showing the initial prop's state.
   const { post: cachedPost } = usePostById({ id: initialPost?.id });
   const post = cachedPost ?? initialPost;
-  const { targetUrl, isEmbeddable } = useIframeEmbed(post.permalink);
+  const { targetUrl, isEmbeddable } = useIframeEmbed(targetPost.permalink);
   const { logEvent } = useLogContext();
   const { openNewTab } = useContext(SettingsContext);
   const surface = isPostPage ? Origin.ArticlePage : Origin.ArticleModal;
   const onReadArticle = useReadArticle({ post, origin: surface });
-  const readArticleHref = getReadArticleHref(post);
+  const readArticleHref = getReadArticleHref(targetPost);
   const hasEmbed = !!targetUrl && isEmbeddable;
 
   useEffect(() => {
@@ -203,6 +205,7 @@ export function ReaderPostLayout({
                   <ArticleReaderFrame
                     post={post}
                     targetUrl={targetUrl}
+                    previewHost={targetPost.domain}
                     isEmbeddable={isEmbeddable}
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"

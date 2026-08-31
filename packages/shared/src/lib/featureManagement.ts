@@ -61,6 +61,8 @@ export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureStandupCreation = new Feature('standup_creation', false);
 
+export const featureJobsUI = new Feature('jobs_ui', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
@@ -209,6 +211,14 @@ export const featureCompanionDemoWidget = new Feature(
 
 export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
+// Experiment: the horizon signup wall against the served one, measured on
+// signup completion. Remove once Freyja can serve `background: 'horizon'`
+// itself. Default MUST stay `false` — it is the control.
+export const featureSignupWallHorizon = new Feature(
+  'signup_wall_horizon',
+  false,
+);
+
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;
@@ -233,6 +243,8 @@ export enum HijackingVariant {
   Default = 'default',
   CTA = 'cta',
   Auth = 'auth',
+  /** Homepage cover art behind centered copy and a pair of CTAs. */
+  Cover = 'cover',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
   'hijacking_variants3',
@@ -292,16 +304,9 @@ export const featurePublicSignupBanner = new Feature(
 // ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
 
+// Gates every agent surface; control hides all of them. Keep the default
+// `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
-
-// Post-signup feed activation bar: a persistent, non-dismissible strip shown
-// above the header on every page for signed-in users who registered but have
-// not set up their feed yet (no tag/content customization). Control hides it
-// entirely. Keep the default `false` — GrowthBook ramps it.
-export const featurePostSignupActivation = new Feature(
-  'post_signup_activation',
-  false,
-);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -329,3 +334,10 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
     endDate: '2026-09-01T00:00:00.000Z',
   },
 );
+
+// Emergency kill switch for the /read template's ads — NOT an experiment, so
+// the true default is deliberate: the surface ships always-on (it is only
+// reachable through paid placements), and the flag exists solely so a policy
+// warning, bad creative or revenue anomaly can be stopped without a deploy
+// and an ISR revalidation cycle. Never ramp or target with this flag.
+export const featureReadAdsense = new Feature('read_adsense', true);

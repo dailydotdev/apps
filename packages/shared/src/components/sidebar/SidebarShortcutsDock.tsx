@@ -82,6 +82,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { briefingUrl, walletUrl, webappUrl } from '../../lib/constants';
 import { toWebappHref } from '../../lib/links';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 type ShortcutIcon = (active: boolean) => ReactElement;
 
@@ -188,6 +189,9 @@ const normalizePath = (path: string): string =>
     .replace(/^https?:\/\/[^/]+/, '')
     .split('?')[0]
     .split('#')[0] || '/';
+
+const isJobsPath = (path: string): boolean =>
+  normalizePath(path).split('/').filter(Boolean)[0] === 'jobs';
 
 const CATALOG_BY_PATH = new Map(
   SHORTCUT_CATALOG.map((item) => [normalizePath(item.path), item]),
@@ -428,6 +432,7 @@ export const useLegacyShortcutsMigration = (): void => {
 // (which lists shortcuts when the rail is too short to show the dock inline).
 export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const { displayToast } = useToastNotification();
+  const { isJobsEnabled } = useJobsFeature();
   const { flags, updateFlag } = useSettingsContext();
   const stored = flags?.sidebarShortcuts;
   const items = useMemo(() => {
@@ -448,6 +453,9 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
         if (!valid) {
           return false;
         }
+        if (!isJobsEnabled && isJobsPath(keyOf(entry))) {
+          return false;
+        }
         const key = keyOf(entry);
         if (seen.has(key)) {
           return false;
@@ -455,7 +463,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
         seen.add(key);
         return true;
       });
-  }, [stored]);
+  }, [isJobsEnabled, stored]);
   const keys = useMemo(() => items.map(keyOf), [items]);
   const pinnedPaths = useMemo(
     () => new Set(items.map((entry) => normalizePath(keyOf(entry)))),
@@ -519,6 +527,12 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const pinPage = useCallback(
     (payload: ShortcutDragData, index?: number) => {
       const normalized = normalizePath(payload.path);
+      if (!isJobsEnabled && isJobsPath(payload.path)) {
+        displayToast('Jobs shortcuts are currently unavailable', {
+          forceAutoDismiss: true,
+        });
+        return;
+      }
       if (pinnedPaths.has(normalized)) {
         return;
       }
@@ -545,7 +559,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
         forceAutoDismiss: true,
       });
     },
-    [displayToast, items, persist, pinnedPaths],
+    [displayToast, isJobsEnabled, items, persist, pinnedPaths],
   );
 
   // Is this page already pinned to the dock (by normalised path)?

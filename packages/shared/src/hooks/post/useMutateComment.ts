@@ -17,11 +17,13 @@ import {
   updatePostCache,
 } from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
-import type { Edge } from '../../graphql/common';
+import type { ApiErrorResult, Edge } from '../../graphql/common';
+import { DEFAULT_ERROR } from '../../graphql/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { Post } from '../../graphql/posts';
+import { useToastNotification } from '../useToastNotification';
 
 interface SubmitComment {
   id?: string;
@@ -68,6 +70,15 @@ export const useMutateComment = ({
   const { requestMethod, isCompanion } = useRequestProtocol();
   const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
+  const { displayToast } = useToastNotification();
+
+  const onError = useCallback(
+    (error: unknown) => {
+      const message = (error as ApiErrorResult)?.response?.errors?.[0]?.message;
+      displayToast(message ?? DEFAULT_ERROR);
+    },
+    [displayToast],
+  );
 
   const key = useMemo(
     () =>
@@ -179,6 +190,7 @@ export const useMutateComment = ({
       }),
 
     onSuccess: (data) => onSuccess(data?.comment),
+    onError,
   });
 
   useBackgroundRequest(key, {
@@ -197,6 +209,7 @@ export const useMutateComment = ({
       }),
 
     onSuccess: (data) => onSuccess(data?.comment),
+    onError,
   });
 
   const onSubmit = useCallback(

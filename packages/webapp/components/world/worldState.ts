@@ -1,6 +1,12 @@
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 import { pluralize } from '@dailydotdev/shared/src/lib/strings';
-import type { WorldCrest, WorldLook, WorldSky } from '../../graphql/world';
+import type {
+  WorldCrest,
+  WorldLook,
+  WorldObjectTarget,
+  WorldObjectUpsert,
+  WorldSky,
+} from '../../graphql/world';
 
 /**
  * What the engine pushes at the overlay.
@@ -75,6 +81,12 @@ export interface WorldModel {
   unbuilt?: boolean;
 }
 
+export type WorldAuthoredTarget = WorldObjectTarget;
+
+export interface WorldAuthoredEntry extends WorldObjectUpsert {
+  payloadHash: string | null;
+}
+
 /**
  * The counter line, shared by the mobile header and the timeline so the two
  * never drift, and formatted the same way the stat tiles are, because 22,479
@@ -111,6 +123,17 @@ export interface WorldEngine {
   focus: (key: string) => void;
   /** Clears the selected district without leaving the realm it is in. */
   deselect: () => void;
+  /** Replace the complete authored project and rebuild each visible island once. */
+  replaceAuthored: (entries: WorldAuthoredEntry[]) => {
+    ok: boolean;
+    rebuilt?: boolean;
+    changes?: number;
+  };
+  /** Apply one dev-server transaction without replaying the rest of the project. */
+  patchAuthored: (
+    upserts: WorldAuthoredEntry[],
+    removals: WorldAuthoredTarget[],
+  ) => { ok: boolean; rebuilt?: boolean; changes?: number };
   leaveRealm: () => void;
   frameWorld: () => void;
   attachSpark: (canvas: HTMLCanvasElement | null) => void;

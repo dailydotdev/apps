@@ -28,6 +28,29 @@ export interface WorldGrowth {
   reads: number;
 }
 
+export interface WorldObjectTarget {
+  scope: 'realm' | 'district';
+  realm: string;
+  niche: string | null;
+  family: string;
+}
+
+export interface WorldObjectPayload {
+  variants?: Array<{ ops: unknown[]; size: number[] }>;
+  tiers?: Record<string, Array<{ ops: unknown[]; size: number[] }>>;
+}
+
+export interface WorldObject extends WorldObjectTarget {
+  opsVersion: number;
+  payload: WorldObjectPayload;
+  updatedAt: string;
+}
+
+export interface WorldObjectUpsert extends WorldObjectTarget {
+  opsVersion: number;
+  payload: WorldObjectPayload;
+}
+
 export interface UserWorldTimelineData {
   userWorldTimeline: WorldGrowth[];
 }
@@ -119,6 +142,7 @@ export interface WorldEntitlement {
 export interface UserWorldData {
   userWorld: WorldDistrict[];
   userWorldSettings: WorldSettings | null;
+  userWorldObjects: WorldObject[];
 }
 
 export interface UserWorldEntitlementsData {
@@ -127,6 +151,10 @@ export interface UserWorldEntitlementsData {
 
 export interface UpdateUserWorldSettingsData {
   updateUserWorldSettings: WorldSettings | null;
+}
+
+export interface UpdateUserWorldObjectsData {
+  updateUserWorldObjects: WorldObject[];
 }
 
 export interface UploadUserWorldPlateData {
@@ -174,10 +202,22 @@ const WORLD_SETTINGS_FRAGMENT = gql`
   }
 `;
 
+const WORLD_OBJECT_FRAGMENT = gql`
+  fragment WorldObject on UserWorldObject {
+    scope
+    realm
+    niche
+    family
+    opsVersion
+    payload
+    updatedAt
+  }
+`;
+
 /**
- * Districts and settings in one round trip — neither can draw without the
- * other. The growth log is NOT in here (tens of thousands of rows on a
- * long-tenured world; fetched separately). A private world comes back as
+ * Districts, settings and authored objects in one round trip — all three draw
+ * the standing world. The growth log is NOT in here (tens of thousands of rows
+ * on a long-tenured world; fetched separately). A private world comes back as
  * FORBIDDEN rather than an empty list, which is what distinguishes it from one
  * that is simply empty.
  */
@@ -196,8 +236,12 @@ export const USER_WORLD_QUERY = gql`
     userWorldSettings(id: $id) {
       ...WorldSettings
     }
+    userWorldObjects(id: $id) {
+      ...WorldObject
+    }
   }
   ${WORLD_SETTINGS_FRAGMENT}
+  ${WORLD_OBJECT_FRAGMENT}
 `;
 
 /** What the bench needs, not what displaying a world needs — asked for only once the owner opens it. */
@@ -230,6 +274,15 @@ export const UPDATE_USER_WORLD_SETTINGS_MUTATION = gql`
     }
   }
   ${WORLD_SETTINGS_FRAGMENT}
+`;
+
+export const UPDATE_USER_WORLD_OBJECTS_MUTATION = gql`
+  mutation UpdateUserWorldObjects($data: UserWorldObjectsUpdateInput!) {
+    updateUserWorldObjects(data: $data) {
+      ...WorldObject
+    }
+  }
+  ${WORLD_OBJECT_FRAGMENT}
 `;
 
 /**

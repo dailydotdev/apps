@@ -3,6 +3,8 @@ import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import Link from '../../../../components/utilities/Link';
+import ConditionalWrapper from '../../../../components/ConditionalWrapper';
 import type { UserStack } from '../../../../graphql/user/userStack';
 import {
   Typography,
@@ -14,12 +16,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import {
-  EditIcon,
-  MenuIcon,
-  PlusIcon,
-  TrashIcon,
-} from '../../../../components/icons';
+import { EditIcon, MenuIcon, TrashIcon } from '../../../../components/icons';
+import { ToolLogo } from '../../../../components/tools/ToolLogo';
 import { formatMonthYearOnly } from '../../../../lib/dateFormat';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useToolTopSquads } from '../../hooks/useToolTopSquads';
@@ -27,7 +25,7 @@ import { UserStackTopSquadsTooltip } from './UserStackTopSquadsTooltip';
 import { useEngagementAdsContext } from '../../../../contexts/EngagementAdsContext';
 import { SponsoredTooltip } from '../../../../components/brand/SponsoredTooltip';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { LogEvent, Origin } from '../../../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../../../lib/log';
 import { getEngagementLogExtra } from '../../../../lib/engagementAds';
 
 interface UserStackItemProps {
@@ -63,6 +61,18 @@ function UserStackItemBody({
   const hasLoggedHoverRef = useRef(false);
 
   const iconUrl = sponsoredCreative?.logo || tool.faviconUrl;
+  // Sponsored rows keep their pre-existing behavior: the tooltip CTA is the
+  // interaction, so the label doesn't also link to /tools.
+  const isLinkable = !!tool.slug && !sponsoredCreative;
+
+  const handleLinkClick = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.Tool,
+      target_id: tool.slug,
+      extra: JSON.stringify({ origin: Origin.ProfileStack }),
+    });
+  }, [logEvent, tool.slug]);
 
   const handleSponsoredHover = useCallback(() => {
     if (!sponsoredCreative || hasLoggedHoverRef.current) {
@@ -105,6 +115,7 @@ function UserStackItemBody({
     <UserStackTopSquadsTooltip
       toolTitle={title}
       toolFaviconUrl={tool.faviconUrl}
+      toolUrl={tool.url}
       topSquads={topSquads}
       isPending={isPending}
       hasError={isError}
@@ -140,42 +151,59 @@ function UserStackItemBody({
           handleSponsoredHover();
         }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           {dragHandle}
-          {iconUrl ? (
-            <img
-              src={iconUrl}
-              alt=""
-              className={classNames(
-                'size-6 flex-shrink-0',
-                sponsoredCreative
-                  ? 'rounded-full bg-white object-cover p-0.5'
-                  : 'rounded',
-              )}
-            />
-          ) : (
-            <PlusIcon className="size-6 flex-shrink-0 text-text-tertiary" />
-          )}
-          {!!title && (
-            <div className="flex min-w-0 flex-1 flex-col">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-                bold
-                truncate
-              >
-                {title}
-              </Typography>
-              {!!usingSince && (
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
+          <ConditionalWrapper
+            condition={isLinkable}
+            wrapper={(labelChildren) => (
+              <Link href={`/tools/${tool.slug}`}>
+                <a
+                  href={`/tools/${tool.slug}`}
+                  className="flex min-w-0 items-center gap-2"
+                  onClick={handleLinkClick}
                 >
-                  {usingSince}
-                </Typography>
+                  {labelChildren}
+                </a>
+              </Link>
+            )}
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <ToolLogo
+                title={title}
+                faviconUrl={iconUrl}
+                // Sponsored rows stay creative-only: a site-resolved logo on
+                // an ad surface could misrepresent what the sponsor supplied.
+                url={sponsoredCreative ? null : tool.url}
+                className={classNames(
+                  'size-6 typo-footnote',
+                  sponsoredCreative ? 'rounded-full' : 'rounded',
+                )}
+                plateClassName={
+                  sponsoredCreative ? 'bg-white p-0.5' : undefined
+                }
+              />
+              {!!title && (
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                    bold
+                    truncate
+                  >
+                    {title}
+                  </Typography>
+                  {!!usingSince && (
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                    >
+                      {usingSince}
+                    </Typography>
+                  )}
+                </div>
               )}
             </div>
-          )}
+          </ConditionalWrapper>
         </div>
         {isOwner && (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">

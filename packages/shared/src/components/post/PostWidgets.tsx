@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { PageWidgets } from '../utilities';
@@ -43,14 +43,68 @@ const SquadEntityCard = dynamic(
   },
 );
 
+/**
+ * The points in the rail an ad template may follow with a slot, in render
+ * order. MentionedToolsWidget has no position on purpose — it is itself a
+ * commercial unit and /read skips DirectAd for the same reason; the organic
+ * template deliberately groups its programmatic unit with the direct-sold
+ * one instead.
+ */
+export enum PostWidgetPosition {
+  Source = 'source',
+  Creator = 'creator',
+  DirectAd = 'directAd',
+  Share = 'share',
+  Highlights = 'highlights',
+  SimilarPosts = 'similarPosts',
+}
+
 export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
-  Omit<ShareMobileProps, 'link'>;
+  Omit<ShareMobileProps, 'link'> & {
+    /** Ad templates optimise for impressions, not accounts. */
+    hideSignupWidget?: boolean;
+    /** Ad templates give the table of contents' space to a slot instead. */
+    hideToc?: boolean;
+    /** Renders a slot after the widget at each position. */
+    getRailAd?: (position: PostWidgetPosition) => ReactNode;
+    /** Rendered last, below the footer links. */
+    trailing?: ReactNode;
+    /** Drops the internal sidebar ad — for templates carrying their own. */
+    hideAdWidget?: boolean;
+  };
+
+/**
+ * Half the rail's widgets decide internally whether they have anything to show,
+ * so an ad placed after one can end up following nothing and landing against
+ * the previous ad. `display: contents` keeps the pair in the rail's own flex
+ * flow, and the slot hides itself whenever it comes out first — which only
+ * happens when its widget rendered nothing.
+ */
+function WidgetWithAd({
+  widget,
+  ad,
+}: {
+  widget: ReactNode;
+  ad: ReactNode;
+}): ReactElement {
+  return (
+    <div className="contents">
+      {widget}
+      <div className="contents [&:first-child]:hidden">{ad}</div>
+    </div>
+  );
+}
 
 export function PostWidgets({
   onCopyPostLink,
   post,
   className,
   origin,
+  hideSignupWidget = false,
+  hideToc = false,
+  getRailAd,
+  trailing,
+  hideAdWidget,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -81,34 +135,79 @@ export function PostWidgets({
     );
   }
 
+  const withAd = (
+    position: PostWidgetPosition,
+    widget: ReactNode,
+  ): ReactNode => {
+    const ad = getRailAd?.(position);
+
+    if (!ad) {
+      return widget;
+    }
+
+    // After the direct-sold widget the programmatic unit IS the backfill:
+    // it must render exactly when the widget has nothing (Plus, no fill),
+    // so the first-child-hidden rule that protects every other position
+    // would remove it at the moment it matters most.
+    if (position === PostWidgetPosition.DirectAd) {
+      return (
+        <>
+          {widget}
+          {ad}
+        </>
+      );
+    }
+
+    return <WidgetWithAd widget={widget} ad={ad} />;
+  };
+
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
-      {sourceCard}
-      {creator && (
-        <UserEntityCard
-          className={{
-            container: cardClasses,
-          }}
-          user={creator as UserShortProfile}
+      {!hideSignupWidget && <PostSignupWidget />}
+      {withAd(PostWidgetPosition.Source, sourceCard)}
+      {withAd(
+        PostWidgetPosition.Creator,
+        creator && (
+          <UserEntityCard
+            className={{
+              container: cardClasses,
+            }}
+            user={creator as UserShortProfile}
+          />
+        ),
+      )}
+      {!hideAdWidget &&
+        withAd(
+          PostWidgetPosition.DirectAd,
+          <PostSidebarAdWidget
+            postId={post.id}
+            className={{ container: cardClasses }}
+          />,
+        )}
+      <MentionedToolsWidget postTags={post.tags || []} />
+      {withAd(
+        PostWidgetPosition.Share,
+        <>
+          <ShareBar post={post} />
+          <ShareMobile
+            post={post}
+            origin={origin}
+            link={post.commentsPermalink}
+            onCopyPostLink={onCopyPostLink}
+          />
+        </>,
+      )}
+      {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
+      {tokenRefreshed && (
+        <FurtherReading
+          currentPost={post}
+          hideToc={hideToc}
+          betweenSections={getRailAd?.(PostWidgetPosition.SimilarPosts)}
         />
       )}
-      <PostSidebarAdWidget
-        postId={post.id}
-        className={{ container: cardClasses }}
-      />
-      <MentionedToolsWidget postTags={post.tags || []} />
-      <ShareBar post={post} />
-      <ShareMobile
-        post={post}
-        origin={origin}
-        link={post.commentsPermalink}
-        onCopyPostLink={onCopyPostLink}
-      />
-      <HighlightPostSidebarWidget />
-      {tokenRefreshed && <FurtherReading currentPost={post} />}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
+      {trailing}
     </PageWidgets>
   );
 }

@@ -20,6 +20,8 @@ export enum Origin {
   BlockedFilter = 'blocked filter',
   SourcePage = 'source page',
   TagPage = 'tag page',
+  ToolPage = 'tool page',
+  ToolsDirectory = 'tools directory',
   Profile = 'profile',
   PostTags = 'post tags',
   // squads - start
@@ -30,6 +32,7 @@ export enum Origin {
   Auto = 'auto',
   Sidebar = 'sidebar',
   Share = 'share',
+  Agent = 'agent',
   Notification = 'notification',
   NotificationsPage = 'notifications page',
   Boot = 'boot',
@@ -104,6 +107,14 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  // AdSense slots on the /read template and the organic post page. First-party
+  // per-placement lifecycle — the shared unit ids blend AdSense's own
+  // reporting, and Google reports nothing about requests it never answered.
+  RequestAdsenseSlot = 'request adsense slot',
+  FillAdsenseSlot = 'fill adsense slot',
+  EmptyAdsenseSlot = 'empty adsense slot',
+  AdsenseSlotError = 'adsense slot error',
+  AdsenseTestMode = 'adsense test mode',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -127,6 +138,7 @@ export enum LogEvent {
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
+  SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
@@ -371,6 +383,7 @@ export enum LogEvent {
   ShareComment = 'share comment',
   ShareLog = 'share log',
   ShareWorld = 'share world',
+  ShareTool = 'share tool',
   // End Share
   /* Start World
      `world view` is the denominator and fires whatever happens next, so the
@@ -464,6 +477,13 @@ export enum LogEvent {
   RemoveUserStack = 'remove user stack',
   ReorderUserStack = 'reorder user stack',
   ShareUserStack = 'share user stack',
+  // Tool pages
+  UpvoteTool = 'upvote tool',
+  RemoveToolUpvote = 'remove tool upvote',
+  DownvoteTool = 'downvote tool',
+  RemoveToolDownvote = 'remove tool downvote',
+  ClickClaimTool = 'click claim tool',
+  ClaimTool = 'claim tool',
   // Hot Takes
   StartAddHotTake = 'start add hot take',
   AddHotTake = 'add hot take',
@@ -531,7 +551,6 @@ export enum TargetType {
   SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
-  PostSignupActivation = 'post signup activation',
   EnableNotifications = 'enable notifications',
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
@@ -569,6 +588,7 @@ export enum TargetType {
   ReadingReminder = 'reading reminder',
   Source = 'source',
   Tag = 'tag',
+  Tool = 'tool',
   Quest = 'quest',
   IntroQuestModal = 'intro quest modal',
   // Settings

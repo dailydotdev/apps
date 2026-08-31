@@ -5,6 +5,7 @@ import {
 } from './SidebarShortcutsDock';
 import { webappUrl } from '../../lib/constants';
 import type { SidebarShortcut } from '../../features/shortcuts/types';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 const mockSetLegacy = jest.fn().mockResolvedValue(undefined);
 let mockLegacy: unknown[] = [];
@@ -31,12 +32,22 @@ jest.mock('../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: jest.fn() }),
 }));
 
+jest.mock('../../hooks/useJobsFeature');
+
 describe('useSidebarShortcutItems stored entry handling', () => {
+  const mockUseJobsFeature = useJobsFeature as jest.MockedFunction<
+    typeof useJobsFeature
+  >;
+
   beforeEach(() => {
     mockStored = [];
     mockLegacy = [];
     mockUpdateFlag.mockClear();
     mockSetLegacy.mockClear();
+    mockUseJobsFeature.mockReturnValue({
+      isJobsEnabled: true,
+      isLoading: false,
+    });
   });
 
   it('keeps a shortcut whose catalog entry this layout retired', () => {
@@ -59,6 +70,17 @@ describe('useSidebarShortcutItems stored entry handling', () => {
     expect(result.current.items).toEqual([
       { title: 'Jobs', path: `${webappUrl}jobs` },
     ]);
+  });
+
+  it('filters jobs shortcuts when jobs UI is disabled', () => {
+    mockUseJobsFeature.mockReturnValue({
+      isJobsEnabled: false,
+      isLoading: false,
+    });
+    mockStored = ['jobs'];
+    const { result } = renderHook(() => useSidebarShortcutItems());
+
+    expect(result.current.items).toEqual([]);
   });
 
   it('still drops an id that was never a catalog entry', () => {
