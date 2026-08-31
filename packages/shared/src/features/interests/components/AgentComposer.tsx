@@ -90,6 +90,12 @@ export const AgentComposer = (): ReactElement => {
     openContent,
     openContentTarget,
     setSettingsOpen,
+    isOnboarding,
+    activeQuestion,
+    answerQuestion,
+    advanceOnboarding,
+    isBriefOpen,
+    isReviewOpen,
     attachments,
     attachContext,
     detachContext,
@@ -249,6 +255,18 @@ export const AgentComposer = (): ReactElement => {
     write('');
   };
 
+  // Typing only answers an open free-text question. Every other onboarding step
+  // is driven by its own controls, so the field stands down rather than
+  // inviting input nothing is waiting on. Enter still advances: the workspace
+  // listens for it, which a disabled field could not.
+  const needsTypedAnswer = activeQuestion?.input === 'text';
+  const isComposerOff = isOnboarding && !needsTypedAnswer;
+  // A free-text question is not advanced by an empty submit, so send must not
+  // look live on one: the button would be enabled and do nothing.
+  const canAdvance =
+    isOnboarding &&
+    ((!!activeQuestion && !needsTypedAnswer) || isBriefOpen || isReviewOpen);
+
   const onSubmit = () => {
     const trimmed = feedback.trim();
     const typed = command ? undefined : parseCommand(trimmed);
@@ -256,6 +274,24 @@ export const AgentComposer = (): ReactElement => {
     const sending =
       parsed && isCommandAvailable(parsed, canDebug) ? parsed : undefined;
     const args = typed ? typed.args : trimmed;
+
+    // Empty Enter accepts whatever step is open, so the whole flow can be
+    // stepped through from the keyboard. A picked command has no text either,
+    // so it must not be swallowed here.
+    if (!trimmed && !sending) {
+      if (advanceOnboarding()) {
+        clear();
+      }
+
+      return;
+    }
+
+    if (activeQuestion && trimmed) {
+      answerQuestion({ text: trimmed, questionId: activeQuestion.questionId });
+      clear();
+
+      return;
+    }
 
     if (!sending && !trimmed) {
       return;
@@ -333,6 +369,18 @@ export const AgentComposer = (): ReactElement => {
   const placeholder = (() => {
     if (command) {
       return command.ask ?? 'Press enter to run it…';
+    }
+
+    if (isComposerOff) {
+      if (isReviewOpen) {
+        return 'Start hunting above…';
+      }
+
+      return isBriefOpen ? 'Use the buttons above…' : 'Pick an option above…';
+    }
+
+    if (needsTypedAnswer) {
+      return 'Type your answer…';
     }
 
     return isWorking
@@ -437,6 +485,7 @@ export const AgentComposer = (): ReactElement => {
                   aria-controls={hasMenuItems ? composerMenuId : undefined}
                   aria-activedescendant={activeOptionId}
                   placeholder={placeholder}
+                  disabled={isComposerOff}
                   value={feedback}
                   className={classNames(
                     'block w-full resize-none bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary',
@@ -454,7 +503,9 @@ export const AgentComposer = (): ReactElement => {
               <AgentSendButton
                 label="Send to agent"
                 className="shrink-0"
-                disabled={!feedback.trim() && !command}
+                disabled={
+                  isComposerOff || (!feedback.trim() && !command && !canAdvance)
+                }
                 onClick={onSubmit}
               />
             </FlexRow>

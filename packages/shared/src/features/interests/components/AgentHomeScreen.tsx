@@ -35,9 +35,7 @@ import {
   CadenceSection,
   FomoSection,
   HistorySection,
-  OutputModesSection,
   cadenceOptions,
-  outputOptions,
 } from './AgentSettingsFields';
 
 const maxFieldHeight = 120;
@@ -141,6 +139,7 @@ export const AgentHomeScreen = ({
   onCreate: (input: {
     query: string;
     settings?: CreateInterestSettings;
+    onboarding?: boolean;
   }) => void | Promise<unknown>;
   isCreating?: boolean;
   isStandalone?: boolean;
@@ -191,18 +190,14 @@ export const AgentHomeScreen = ({
 
     // The mutation reports its own failure with a toast, so swallowing here only
     // stops the same failure escaping as an unhandled rejection.
-    Promise.resolve(onCreate({ query: trimmed, settings })).catch(
-      () => undefined,
-    );
+    Promise.resolve(
+      onCreate({ query: trimmed, settings, onboarding: true }),
+    ).catch(() => undefined);
   };
 
   const cadenceSummary =
     cadenceOptions.find(({ value }) => value === settings.cadence)?.label ??
     'Whenever it matters';
-  const deliverySummary = outputOptions
-    .filter(({ key }) => settings.outputModes?.[key])
-    .map(({ short }) => short)
-    .join(', ');
   const threshold = settings.fomoThreshold ?? 0.5;
   let fomoSummary = 'Balanced';
   if (threshold > 0.7) {
@@ -214,7 +209,6 @@ export const AgentHomeScreen = ({
   const peekRows = [
     ['When it reports', cadenceSummary],
     ['FOMO vs quality', fomoSummary],
-    ['What it delivers', deliverySummary || 'Nothing yet'],
     [
       'History',
       settings.showHistory === false ? 'Latest only' : 'Full history',
@@ -424,16 +418,6 @@ export const AgentHomeScreen = ({
                   value={settings.fomoThreshold ?? 0.5}
                   onChange={(fomoThreshold) =>
                     setSettings((current) => ({ ...current, fomoThreshold }))
-                  }
-                />
-                <OutputModesSection
-                  value={settings.outputModes}
-                  disabled={isCreating}
-                  onChange={(outputModes) =>
-                    setSettings((current) => ({
-                      ...current,
-                      outputModes: { ...current.outputModes, ...outputModes },
-                    }))
                   }
                 />
                 <HistorySection

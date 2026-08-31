@@ -173,6 +173,7 @@ describe('AgentHomeScreen spawn settings', () => {
     expect(onCreate).toHaveBeenCalledWith({
       query: 'Rust in production',
       settings: defaultCreateInterestSettings,
+      onboarding: true,
     });
   });
 
@@ -186,7 +187,6 @@ describe('AgentHomeScreen spawn settings', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Agent settings' }));
     fireEvent.click(screen.getByLabelText('Every week'));
-    fireEvent.click(screen.getByLabelText('Send a digest email'));
     fireEvent.change(field(), { target: { value: 'Zig internals' } });
     fireEvent.click(screen.getByLabelText('Spawn the agent'));
 
@@ -198,11 +198,12 @@ describe('AgentHomeScreen spawn settings', () => {
         outputModes: {
           feed: true,
           post: true,
-          digest: true,
+          digest: false,
           notification: true,
         },
         showHistory: true,
       },
+      onboarding: true,
     });
   });
 
@@ -211,7 +212,6 @@ describe('AgentHomeScreen spawn settings', () => {
 
     expect(screen.getByText('Whenever it matters')).toBeInTheDocument();
     expect(screen.getByText('Balanced')).toBeInTheDocument();
-    expect(screen.getByText('feed, posts, notifications')).toBeInTheDocument();
     expect(screen.getByText('Full history')).toBeInTheDocument();
     expect(screen.queryByLabelText('Every week')).not.toBeInTheDocument();
 

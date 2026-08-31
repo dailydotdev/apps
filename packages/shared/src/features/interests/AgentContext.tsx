@@ -17,10 +17,13 @@ import type {
 import {
   InterestRunStatus,
   InterestRunTrigger,
+  UserInterestOnboardingStep,
   UserInterestStatus,
 } from '../../graphql/interests';
 import { useSendInterestCommand } from './hooks/useSendInterestCommand';
 import { useUpdateInterest } from './hooks/useUpdateInterest';
+import { useCompleteInterestOnboarding } from './hooks/useCompleteInterestOnboarding';
+import { useConfirmInterestBrief } from './hooks/useConfirmInterestBrief';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
@@ -30,7 +33,12 @@ import {
 } from './queries';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import type { Post } from '../../graphql/posts';
-import type { AgentAttachment, AgentBlock, AgentMessage } from './chat';
+import type {
+  AgentAttachment,
+  AgentBlock,
+  AgentMessage,
+  AgentQuestionBlock,
+} from './chat';
 import { promptWithContext, restoreCommandText } from './chat';
 import type { AgentFeedItem } from './hooks/useAgentFeed';
 
@@ -82,6 +90,7 @@ type RunCommandArgs = {
   label?: string;
   targetId?: string;
   attachments?: AgentAttachment[];
+  questionId?: string;
   onComplete?: () => void;
 };
 
@@ -111,6 +120,34 @@ type AgentContextValue = {
   clearDraft: () => void;
   update: (data: UpdateInterestInput) => void;
   isUpdating: boolean;
+  isOnboarding: boolean;
+  onboardingStep?: UserInterestOnboardingStep | null;
+  /** The question at the tail of the transcript, still waiting on an answer. */
+  activeQuestion?: AgentQuestionBlock;
+  answerQuestion: (args: { text: string; questionId: string }) => void;
+  /** Selection for the open question, shared so Enter and the chips agree. */
+  pendingAnswer: string[];
+  togglePendingAnswer: (value: string) => void;
+  /** The review card is open and waiting to be confirmed. */
+  isReviewOpen: boolean;
+  completeOnboarding: () => void;
+  isCompleting: boolean;
+  /** The brief is on screen and can still be rewritten. */
+  isBriefOpen: boolean;
+  confirmBrief: (brief?: string) => void;
+  isConfirmingBrief: boolean;
+  /**
+   * The rewrite in progress, held here rather than in the block: Enter can be
+   * pressed with focus outside the editor, and a draft nobody can see would be
+   * silently discarded.
+   */
+  briefDraft: string | null;
+  setBriefDraft: (draft: string | null) => void;
+  /**
+   * Accepts whichever onboarding step is open. Shared by the composer and the
+   * workspace-wide Enter, so both do exactly the same thing.
+   */
+  advanceOnboarding: () => boolean;
   activity: AgentActivityItem[];
   messages: AgentMessage[];
   isHistoryPending: boolean;
@@ -179,6 +216,15 @@ const mapServerBlocks = (
 ): AgentBlock[] =>
   (turn.blocks ?? []).reduce<AgentBlock[]>((acc, block) => {
     if (block.type === 'text') {
+      acc.push(block);
+      return acc;
+    }
+
+    if (
+      block.type === 'question' ||
+      block.type === 'brief' ||
+      block.type === 'review'
+    ) {
       acc.push(block);
       return acc;
     }
@@ -305,6 +351,10 @@ export const AgentProvider = ({
   const { displayToast } = useToastNotification();
   const { sendCommand } = useSendInterestCommand(id);
   const { isUpdating, updateInterest } = useUpdateInterest(id);
+  const { isCompleting, completeOnboarding: runCompleteOnboarding } =
+    useCompleteInterestOnboarding(id);
+  const { isConfirmingBrief, confirmBrief: runConfirmBrief } =
+    useConfirmInterestBrief(id);
   const queryClient = useQueryClient();
   const [demoMessages, setDemoMessages] =
     useState<AgentMessage[]>(initialMessages);
@@ -513,6 +563,27 @@ export const AgentProvider = ({
     );
   }, [findings, isDemo, turns]);
 
+  const isOnboarding = interest?.status === UserInterestStatus.Onboarding;
+  // Live only at the tail: every earlier question already has its answer sitting
+  // under it, so the flow never has two open at once.
+  const lastMessage = messages[messages.length - 1];
+  const activeQuestion =
+    isOnboarding && lastMessage?.role === 'agent' && !lastMessage.isPending
+      ? (lastMessage.blocks?.find((block) => block.type === 'question') as
+          | AgentQuestionBlock
+          | undefined)
+      : undefined;
+
+  const isReviewOpen =
+    !!isOnboarding &&
+    lastMessage?.role === 'agent' &&
+    !lastMessage.isPending &&
+    !!lastMessage.blocks?.some((block) => block.type === 'review');
+
+  const isBriefOpen =
+    !!isOnboarding &&
+    interest?.onboardingStep === UserInterestOnboardingStep.Brief;
+
   const serverPending = historyTurns.some(isRunPending);
   const echoPending = unresolvedEchoes.some((echo) => echo.state !== 'error');
   const isWorking = isDemo
@@ -549,6 +620,7 @@ export const AgentProvider = ({
       label,
       targetId,
       attachments: pointedAt,
+      questionId,
       onComplete,
     }: RunCommandArgs) => {
       workingRef.current = true;
@@ -614,7 +686,7 @@ export const AgentProvider = ({
         },
       ]);
 
-      sendCommand({ text: prompt })
+      sendCommand({ text: prompt, questionId })
         .then(() => {
           setEchoes((current) =>
             current.map((echo) =>
@@ -677,6 +749,111 @@ export const AgentProvider = ({
     },
     [interest, isDemo, sendCommand],
   );
+
+  // Seeded from the question's own preselection and reset when the question
+  // changes, so the chips and the composer's Enter always submit the same set.
+  const [pendingAnswer, setPendingAnswer] = useState<string[]>([]);
+  const openQuestionId = activeQuestion?.questionId;
+
+  useEffect(() => {
+    setPendingAnswer(activeQuestion?.selected ?? []);
+    // Keyed on the question, not the block: re-renders must not wipe a choice.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openQuestionId]);
+
+  const togglePendingAnswer = useCallback(
+    (value: string) =>
+      setPendingAnswer((current) => {
+        if (!activeQuestion?.multi) {
+          return [value];
+        }
+
+        return current.includes(value)
+          ? current.filter((item) => item !== value)
+          : [...current, value];
+      }),
+    [activeQuestion?.multi],
+  );
+
+  const [briefDraft, setBriefDraft] = useState<string | null>(null);
+
+  const confirmBrief = useCallback(
+    (brief?: string) => {
+      runConfirmBrief(brief)
+        // Cleared only on success: a failed save keeps the rewrite so it can be
+        // retried rather than silently losing what was typed.
+        .then(() => setBriefDraft(null))
+        .catch(() => undefined);
+    },
+    [runConfirmBrief],
+  );
+
+  const completeOnboarding = useCallback(() => {
+    runCompleteOnboarding().catch(() => undefined);
+  }, [runCompleteOnboarding]);
+
+  const answerQuestion = useCallback(
+    ({ text, questionId }: { text: string; questionId: string }) =>
+      runCommand({ text, questionId, label: text }),
+    [runCommand],
+  );
+
+  const advanceOnboarding = useCallback((): boolean => {
+    if (activeQuestion) {
+      const picked = (activeQuestion.choices ?? [])
+        .filter(({ value }) => pendingAnswer.includes(value))
+        .map(({ label }) => label)
+        .join(', ');
+
+      if (!picked) {
+        return false;
+      }
+
+      answerQuestion({
+        text: picked,
+        questionId: activeQuestion.questionId,
+      });
+
+      return true;
+    }
+
+    if (isBriefOpen) {
+      // An open editor wins: accepting the original would throw the rewrite
+      // away without saying so.
+      if (briefDraft !== null) {
+        const edited = briefDraft.trim();
+
+        if (!edited) {
+          return false;
+        }
+
+        confirmBrief(edited);
+
+        return true;
+      }
+
+      confirmBrief();
+
+      return true;
+    }
+
+    if (isReviewOpen) {
+      completeOnboarding();
+
+      return true;
+    }
+
+    return false;
+  }, [
+    activeQuestion,
+    answerQuestion,
+    briefDraft,
+    completeOnboarding,
+    confirmBrief,
+    isBriefOpen,
+    isReviewOpen,
+    pendingAnswer,
+  ]);
 
   const attachContext = useCallback((attachment: AgentAttachment) => {
     setAttachments((current) =>
@@ -834,6 +1011,21 @@ export const AgentProvider = ({
       clearDraft: () => setDraft(undefined),
       update,
       isUpdating,
+      isOnboarding: !!isOnboarding,
+      onboardingStep: interest?.onboardingStep,
+      activeQuestion,
+      answerQuestion,
+      pendingAnswer,
+      togglePendingAnswer,
+      isReviewOpen,
+      completeOnboarding,
+      isCompleting,
+      isBriefOpen,
+      confirmBrief,
+      isConfirmingBrief,
+      briefDraft,
+      setBriefDraft,
+      advanceOnboarding,
       activity,
       messages,
       isHistoryPending: historyQuery.isPending,
@@ -881,6 +1073,19 @@ export const AgentProvider = ({
       id,
       interest,
       isDemo,
+      isOnboarding,
+      activeQuestion,
+      answerQuestion,
+      pendingAnswer,
+      togglePendingAnswer,
+      isReviewOpen,
+      completeOnboarding,
+      isCompleting,
+      isBriefOpen,
+      confirmBrief,
+      isConfirmingBrief,
+      briefDraft,
+      advanceOnboarding,
       isSettingsOpen,
       isUpdating,
       isWorking,

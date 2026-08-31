@@ -2,37 +2,29 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { sendInterestCommand } from '../../../graphql/interests';
+import { completeInterestOnboarding } from '../../../graphql/interests';
 
-export const useSendInterestCommand = (id: string) => {
+export const useCompleteInterestOnboarding = (id: string) => {
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const queryClient = useQueryClient();
 
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: ({
-      text,
-      triggerRun,
-      questionId,
-    }: {
-      text: string;
-      triggerRun?: boolean;
-      questionId?: string;
-    }) => sendInterestCommand({ id, text, triggerRun, questionId }),
+    mutationFn: () => completeInterestOnboarding(id),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: generateQueryKey(RequestKey.Interests, user, id),
         }),
         queryClient.invalidateQueries({
-          queryKey: generateQueryKey(RequestKey.InterestFindings, user, id),
+          queryKey: generateQueryKey(RequestKey.Interests, user),
         }),
       ]);
     },
     onError: () => {
-      displayToast('Failed to send the command. Please try again.');
+      displayToast('Failed to start the agent. Please try again.');
     },
   });
 
-  return { isSending: isPending, sendCommand: mutateAsync };
+  return { isCompleting: isPending, completeOnboarding: mutateAsync };
 };

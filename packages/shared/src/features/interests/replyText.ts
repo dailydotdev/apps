@@ -1,4 +1,5 @@
 import type { AgentBlock, AgentMessage } from './chat';
+import { isPostsBlock } from './chat';
 
 // For attribute position: a quote in an API title would otherwise close it.
 const escapeAttribute = (value: string) =>
@@ -37,6 +38,10 @@ export const messageAsMarkdown = (message: AgentMessage): string =>
         return blockParagraphs(block).join('\n\n');
       }
 
+      if (!isPostsBlock(block)) {
+        return '';
+      }
+
       const links = block.posts
         .map((post) => `- [${post.title}](${post.commentsPermalink})`)
         .join('\n');
@@ -55,6 +60,10 @@ export const messageAsHtml = (message: AgentMessage): string =>
     .map((block) => {
       if (block.type === 'text') {
         return block.html;
+      }
+
+      if (!isPostsBlock(block)) {
+        return '';
       }
 
       const items = block.posts
