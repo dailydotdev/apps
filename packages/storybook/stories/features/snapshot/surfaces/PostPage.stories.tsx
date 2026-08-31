@@ -23,7 +23,6 @@ import {
   DeviceFrame,
   DeviceRail,
   DEVICES,
-  Note,
   OverflowMenu,
   POST_MENU,
   Screen,
@@ -31,7 +30,7 @@ import {
   Variant,
 } from '../surfaceChrome';
 
-type Spot = 'today' | 'selection';
+type Spot = 'today' | 'selection' | 'endband' | 'upvote';
 
 const TITLE = 'Why iconic tech brands lost their dominance';
 
@@ -144,6 +143,24 @@ const ActionBar = ({ device }: { device: Device }) => {
   );
 };
 
+/* #6351 as it ships: PostContentWidget + InviteLinkInput, shown only after
+   an upvote. The copy is "Should anyone else see this post?" */
+const UpvoteWidget = () => (
+  <div className="flex flex-col items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-3 laptop:flex-row laptop:gap-4">
+    <span className="font-bold text-text-tertiary typo-callout">
+      Should anyone else see this post?
+    </span>
+    <div className="flex w-full flex-1 items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-background-subtle px-3 py-1.5">
+      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-footnote">
+        dly.to/9xKp2mQ
+      </span>
+      <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
+        Copy link
+      </Button>
+    </div>
+  </div>
+);
+
 const SelectionBar = () => (
   <div
     aria-label="Share selected text"
@@ -255,6 +272,8 @@ const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
 
         <ActionBar device={device} />
 
+        {spot === 'upvote' && <UpvoteWidget />}
+
         <div className="flex gap-3 border-t border-border-subtlest-tertiary pt-3">
           <img
             alt=""
@@ -271,6 +290,16 @@ const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
           </div>
         </div>
 
+        {spot === 'endband' && (
+          <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
+            <span className="flex-1 font-bold text-text-tertiary typo-callout">
+              Enjoyed this discussion?
+            </span>
+            <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
+              Copy link
+            </Button>
+          </div>
+        )}
       </div>
 
       {compact && <MobileFloatingBar />}
@@ -328,6 +357,28 @@ const PostPage = () => (
       </Variant>
     </Category>
 
+    <Category
+      covers="the engagement bar · the summary · #6349 · #6351"
+      title="Ruled out, and why"
+      verdict="Every other placement on this page was considered and dropped. They are drawn here as they ship — with no snapshot — so the decision stays visible rather than becoming a gap someone re-opens later."
+    >
+      <Variant
+        headline="Not in the engagement bar, not beside the summary"
+        note="Both were built and both are being removed. The bar is already full at six actions and collapses its labels under pressure; the summary is covered by the OG image, which carries the same text to the same recipient with one fewer step."
+        step="Dropped"
+        wide
+      >
+        <Rail spot="endband" />
+      </Variant>
+      <Variant
+        headline="End-of-thread band and post-upvote prompt stay link-only"
+        note="Both are real moments and both belong to #6349 and #6351 rather than to snapshot. The upvote prompt already ships a short URL and a Copy link button — the payload it sends is the OG card, which is the right one."
+        step="Dropped"
+        wide
+      >
+        <Rail spot="upvote" />
+      </Variant>
+    </Category>
   </SurfacePage>
 );
 
