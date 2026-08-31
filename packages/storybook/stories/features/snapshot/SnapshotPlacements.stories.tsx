@@ -49,6 +49,8 @@ const PreferredActions = ({
   filename,
   className,
   compact,
+  size = ButtonSize.Small,
+  variant = ButtonVariant.Secondary,
 }: {
   leads: LeadAction;
   target: React.RefObject<HTMLElement>;
@@ -56,6 +58,9 @@ const PreferredActions = ({
   className?: string;
   /** Icon only, for headers that already carry a title and a link. */
   compact?: boolean;
+  /** Match whatever sits beside it — a control that differs reads as a bug. */
+  size?: ButtonSize;
+  variant?: ButtonVariant;
 }) => {
   if (leads === 'Snapshot') {
     return (
@@ -63,8 +68,9 @@ const PreferredActions = ({
         className={className}
         filename={filename}
         showLabel={!compact}
+        size={size}
         target={target}
-        variant={ButtonVariant.Secondary}
+        variant={variant}
       />
     );
   }
@@ -74,8 +80,8 @@ const PreferredActions = ({
       aria-label={leads === 'Link' ? 'Copy link' : 'Share'}
       className={className}
       icon={leads === 'Link' ? <LinkIcon /> : <ShareIcon />}
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Secondary}
+      size={size}
+      variant={variant}
     >
       {compact ? undefined : leads === 'Link' ? 'Copy link' : 'Share'}
     </Button>
@@ -148,12 +154,14 @@ const CardSurface = ({
   footer,
   leads,
   filename,
+  variant,
 }: {
   title: string;
   body?: string;
   footer?: React.ReactNode;
   leads: LeadAction;
   filename: string;
+  variant?: ButtonVariant;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -165,7 +173,12 @@ const CardSurface = ({
       </div>
       <div className="flex items-center gap-3">
         {footer}
-        <PreferredActions filename={filename} leads={leads} target={ref} />
+        <PreferredActions
+          filename={filename}
+          leads={leads}
+          target={ref}
+          variant={variant}
+        />
       </div>
     </div>
   );
@@ -555,7 +568,9 @@ const ProfileHeaderPlacement = () => {
             compact
             filename="daily-profile"
             leads="Link"
+            size={ButtonSize.Medium}
             target={ref}
+            variant={ButtonVariant.Float}
           />
         </div>
         <span className="font-bold text-text-primary typo-title2">
@@ -595,6 +610,7 @@ const WidgetPlacement = ({
             filename="daily-widget"
             leads="Snapshot"
             target={ref}
+            variant={ButtonVariant.Tertiary}
           />
         </div>
       </div>
@@ -788,10 +804,16 @@ const Placements = () => {
                     size={ButtonSize.Small}
                     variant={ButtonVariant.Tertiary}
                   />
+                  <Snapshot
+                    filename="daily-snapshot"
+                    showLabel={false}
+                    target={{ current: null }}
+                    variant={ButtonVariant.Tertiary}
+                  />
                 </div>
               }
-              name="Secondary set — icons only"
-              used="The floating selection bar from #6352: copy link, copy text, quote, share"
+              name="The selection bar set"
+              used="#6352 in full: copy link, copy text, quote, share, and Snapshot alongside them"
             />
           </div>
         </section>
@@ -1052,6 +1074,7 @@ const Placements = () => {
           <CardSurface
             filename="daily-devcard"
             leads="Share to"
+            variant={ButtonVariant.Float}
             title="Your DevCard is ready"
             body="Download it, or send it straight to a network."
             footer={
