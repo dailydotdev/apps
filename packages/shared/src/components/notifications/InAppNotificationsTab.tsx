@@ -233,6 +233,15 @@ const InAppNotificationsTab = (): ReactElement => {
             }
           />
           <NotificationSwitch
+            id="world"
+            label="Your world"
+            description="Get notified when a district in your world reaches a new level."
+            checked={getGroupStatus('world', 'inApp')}
+            onToggle={() =>
+              toggleGroup('world', !getGroupStatus('world', 'inApp'), 'inApp')
+            }
+          />
+          <NotificationSwitch
             id="opportunities"
             label="Personalized job matches"
             description={

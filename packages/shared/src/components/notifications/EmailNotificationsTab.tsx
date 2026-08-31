@@ -122,6 +122,15 @@ const EmailNotificationsTab = (): ReactElement => {
             }
           />
           <NotificationSwitch
+            id="world"
+            label="Your world"
+            description="Get an email when a district in your world reaches a new level. At most one a week."
+            checked={getGroupStatus('world', 'email')}
+            onToggle={() =>
+              toggleGroup('world', !getGroupStatus('world', 'email'), 'email')
+            }
+          />
+          <NotificationSwitch
             id="creator_updates"
             label="Creator updates"
             description="Get email notifications about your posts, source suggestions, analytics, and other creator activity on daily.dev."

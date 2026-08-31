@@ -8,7 +8,7 @@ import {
 } from '../../typography/Typography';
 import { VIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { useSettingsBooleanFlag } from '../../../hooks/useSettingsBooleanFlag';
+import { useSidebarCompact } from '../../../hooks/useSidebarCompact';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 
@@ -94,8 +94,7 @@ const SidebarDensityOption = ({
 
 export const SidebarDensitySection = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const { value: isCompact, set: setCompact } =
-    useSettingsBooleanFlag('sidebarCompact');
+  const { value: isCompact, set: setCompact } = useSidebarCompact();
 
   const onSelect = (compact: boolean) => {
     if (compact === isCompact) {

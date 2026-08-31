@@ -45,6 +45,14 @@ import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
 import { MarketingCtaVariant } from './marketing/cta/common';
+import { MarketingCtaCard } from './marketing/cta';
+import { MarketingCtaList } from './marketing/cta/MarketingCtaList';
+import { MarketingCtaBriefing } from './marketing/cta/MarketingCtaBriefing';
+import { MarketingCtaYearInReview } from './marketing/cta/MarketingCtaYearInReview';
+import { MarketingCtaVideo } from './marketing/cta/MarketingCtaVideo';
+import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
+import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
+import PlusGrid from './cards/plus/PlusGrid';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
@@ -274,7 +282,53 @@ export default function Feed<T>({
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
   const { isV2 } = useLayoutVariant();
-  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
+
+  const getFirstSlotCard = (): ReactElement | null => {
+    const canShowGrowthCta =
+      !disableAds &&
+      !isHorizontal &&
+      feedQueryKey?.[0] !== RequestKey.FeedPreview;
+    const canShowNonPlusCta = canShowGrowthCta && !user?.isPlus;
+
+    if (canShowNonPlusCta && plusEntryFeed) {
+      return <PlusGrid {...plusEntryFeed} />;
+    }
+    if (canShowGrowthCta && showMarketingCta && marketingCta) {
+      if (marketingCta.variant === MarketingCtaVariant.BriefCard) {
+        return <MarketingCtaBriefing {...marketingCta} />;
+      }
+      if (marketingCta.variant === MarketingCtaVariant.YearInReview) {
+        return <MarketingCtaYearInReview marketingCta={marketingCta} />;
+      }
+      if (marketingCta.variant === MarketingCtaVariant.Video) {
+        return <MarketingCtaVideo marketingCta={marketingCta} />;
+      }
+      const Component = shouldUseListFeedLayout
+        ? MarketingCtaList
+        : MarketingCtaCard;
+      return <Component marketingCta={marketingCta} />;
+    }
+    if (canShowNonPlusCta && showAcquisitionForm) {
+      const Component = shouldUseListFeedLayout
+        ? AcquisitionFormList
+        : AcquisitionFormGrid;
+      return <Component />;
+    }
+    if (showProfileCompletionCard) {
+      return <ProfileCompletionCard className={{ container: 'p-4 pt-0' }} />;
+    }
+    if (showBriefCard) {
+      return (
+        <BriefCardFeed
+          targetId={TargetId.Feed}
+          className={{ container: 'p-4 pt-0' }}
+        />
+      );
+    }
+    return null;
+  };
+
+  const eligibleFirstSlotCard = getFirstSlotCard();
   const {
     items,
     placements: itemPlacements,
@@ -287,6 +341,7 @@ export default function Feed<T>({
     isFetching,
     isInitialLoading,
     isError,
+    hasFirstSlotCard,
     error: feedError,
   } = useFeed(
     feedQueryKey,
@@ -305,7 +360,7 @@ export default function Feed<T>({
       options,
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
       engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
-      firstSlotOffset: Number(showFirstSlotCard),
+      firstSlotOffset: Number(eligibleFirstSlotCard !== null),
       disableTopHero: isV2,
       isHorizontal,
       excludePinnedPosts,
@@ -313,9 +368,6 @@ export default function Feed<T>({
         disableAds,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
-        showAcquisitionForm,
-        ...(showMarketingCta && { marketingCta }),
-        ...(plusEntryFeed && { plusEntry: plusEntryFeed }),
         feedName,
       },
     },
@@ -691,7 +743,7 @@ export default function Feed<T>({
         actionButtons,
         isHorizontal,
         feedContainerRef,
-        showBriefCard,
+        hasFirstSlotCard,
         disableListFrame,
       };
 
@@ -702,21 +754,7 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
-            {showProfileCompletionCard && (
-              <ProfileCompletionCard
-                className={{
-                  container: 'p-4 pt-0',
-                }}
-              />
-            )}
-            {showBriefCard && !showProfileCompletionCard && (
-              <BriefCardFeed
-                targetId={TargetId.Feed}
-                className={{
-                  container: 'p-4 pt-0',
-                }}
-              />
-            )}
+            {hasFirstSlotCard && eligibleFirstSlotCard}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
               const { colSpan } = placement;

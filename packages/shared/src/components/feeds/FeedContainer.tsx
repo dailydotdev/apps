@@ -45,7 +45,7 @@ export interface FeedContainerProps {
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
-  showBriefCard?: boolean;
+  hasFirstSlotCard?: boolean;
   disableListFrame?: boolean;
 }
 
@@ -131,7 +131,7 @@ export const FeedContainer = ({
   actionButtons,
   isHorizontal,
   feedContainerRef,
-  showBriefCard,
+  hasFirstSlotCard,
   disableListFrame = false,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
@@ -230,14 +230,14 @@ export const FeedContainer = ({
         <div
           className={classNames(
             'laptop:px-0 laptop:pt-0',
-            showBriefCard ? 'px-4' : 'tablet:px-4 tablet:pt-1',
+            hasFirstSlotCard ? 'px-4' : 'tablet:px-4 tablet:pt-1',
           )}
         >
           <ProfileUploadBanner
             className={{
               container: classNames({
                 'mb-0': isList,
-                'mt-0 tablet:mt-4': !showBriefCard,
+                'mt-0 tablet:mt-4': !hasFirstSlotCard,
               }),
               image: isList
                 ? 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]'

@@ -17,15 +17,18 @@ interface UseSettingsBooleanFlag {
 
 /**
  * Reads a boolean flag from `SettingsFlags` and exposes setters that persist
- * through the shared `useSettingsContext`. Coerces undefined to `false` so
- * callers can use the value directly. Only accepts keys whose value type is
+ * through the shared `useSettingsContext`. An unset flag falls back to
+ * `defaultValue`, so a flag that ships on by default stays distinguishable from
+ * one the user explicitly turned off. Only accepts keys whose value type is
  * `boolean | undefined`.
  */
 export const useSettingsBooleanFlag = <K extends BooleanFlagKey>(
   key: K,
+  defaultValue = false,
 ): UseSettingsBooleanFlag => {
   const { flags, updateFlag } = useSettingsContext();
-  const value = Boolean(flags?.[key]);
+  const stored = flags?.[key];
+  const value = stored === undefined ? defaultValue : Boolean(stored);
   return {
     value,
     set: (next) => updateFlag(key, next as SettingsFlags[K]),

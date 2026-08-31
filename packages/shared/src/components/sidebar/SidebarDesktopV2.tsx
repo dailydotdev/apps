@@ -92,7 +92,7 @@ import {
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
-import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
+import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -141,10 +141,6 @@ import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureGiveback } from '../../lib/featureManagement';
-import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
-import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/giveback/components/GivebackGiftDock';
 import { FeedbackWidget } from '../feedback/FeedbackWidget';
 import {
   Typography,
@@ -405,38 +401,17 @@ const RailHoverCard = ({
   );
 };
 
-const railGiftLink = (label: string, href: string): ReactElement => (
-  <Tooltip side="right" content={label}>
-    <Link href={href} passHref>
-      <a aria-label={label} className={railButtonClass}>
+// Theme toggling now lives in the profile dropdown (ThemeSection, matching
+// production), so the rail gift is the "Invite friends" shortcut.
+const SidebarInviteButton = (): ReactElement => (
+  <Tooltip side="right" content="Invite friends">
+    <Link href={`${settingsUrl}/invite`} passHref>
+      <a aria-label="Invite friends" className={railButtonClass}>
         <GiftIcon size={RAIL_ICON_SIZE} aria-hidden />
       </a>
     </Link>
   </Tooltip>
 );
-
-// Theme toggling now lives in the profile dropdown (ThemeSection, matching
-// production). When the giveback experiment is on, the rail gift becomes the
-// giveback entry point — carrying the live money jumps + invite prompt via
-// GivebackGiftEntry — and otherwise falls back to the "Invite friends"
-// shortcut.
-const SidebarInviteButton = (): ReactElement => {
-  const { isAuthReady, isLoggedIn } = useAuthContext();
-  const { value: givebackEnabled } = useConditionalFeature({
-    feature: featureGiveback,
-    shouldEvaluate: isAuthReady && isLoggedIn,
-  });
-
-  if (givebackEnabled) {
-    return (
-      <GivebackGiftEntry variant="rail" isFeatureEnabled={givebackEnabled}>
-        {railGiftLink('Giveback', `${webappUrl}giveback`)}
-      </GivebackGiftEntry>
-    );
-  }
-
-  return railGiftLink('Invite friends', `${settingsUrl}/invite`);
-};
 
 const supportItems: ProfileSectionItemProps[] = [
   {
@@ -756,7 +731,7 @@ export const SidebarDesktopV2 = ({
   if (isExtension) {
     myFeedPath = `${webappUrl}my-feed`;
   }
-  const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
+  const { value: isCompact } = useSidebarCompact();
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
   // padding so the content never overlaps the rail.
@@ -1995,9 +1970,6 @@ export const SidebarDesktopV2 = ({
         {!isSettingsSelected && (
           <nav
             aria-label="Primary navigation"
-            // Lets the giveback gift's milestone card measure the rail it has
-            // to clear (see RAIL_ANCHOR_ATTRIBUTE).
-            {...{ [RAIL_ANCHOR_ATTRIBUTE]: '' }}
             className={classNames(
               // pt matches the streak tile's side gap (54px tile centred in the
               // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right
@@ -2394,60 +2366,72 @@ export const SidebarDesktopV2 = ({
             suppressTransition,
           )}
         >
-          {/* pl-5 lines the panel title up with the list rows' icon glyphs
-            (icons sit ~8px into their w-9 column) and the section titles. */}
-          <div className="pl-5 pr-3 pt-6">
-            {isSettingsSelected ? (
-              <Button
-                type="button"
-                variant={ButtonVariant.Subtle}
-                size={ButtonSize.Small}
-                // Smaller glyph, flipped to point left (it's a back action).
-                icon={
-                  <MoveToIcon size={IconSize.Size16} className="-scale-x-100" />
-                }
-                onClick={onBackToApp}
-                className="-ml-1"
+          {/* Pinned to the open width so the content does not reflow while
+            the panel animates its own width. */}
+          <div
+            className={classNames(
+              'flex min-h-0 flex-1 flex-col',
+              !isSettingsSelected && 'w-60',
+            )}
+          >
+            {/* pl-5 lines the panel title up with the list rows' icon glyphs
+              (icons sit ~8px into their w-9 column) and the section titles. */}
+            <div className="pl-5 pr-3 pt-6">
+              {isSettingsSelected ? (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  // Smaller glyph, flipped to point left (it's a back action).
+                  icon={
+                    <MoveToIcon
+                      size={IconSize.Size16}
+                      className="-scale-x-100"
+                    />
+                  }
+                  onClick={onBackToApp}
+                  className="-ml-1"
+                >
+                  Back to app
+                </Button>
+              ) : (
+                <div className="flex h-10 items-center gap-1">
+                  <Typography bold type={TypographyType.Callout}>
+                    {utilityPanelTitle}
+                  </Typography>
+                </div>
+              )}
+            </div>
+
+            {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
+              <div className="mt-2 flex items-center gap-1 px-3">
+                {additionalButtons}
+              </div>
+            )}
+
+            <SidebarScrollWrapper
+              className={classNames(
+                'mt-1 min-h-0 flex-1',
+                showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
+              )}
+            >
+              <Nav
+                className={classNames(
+                  isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
+                  isStreakPanel && 'min-h-0 flex-1',
+                )}
               >
-                Back to app
-              </Button>
-            ) : (
-              <div className="flex h-10 items-center gap-1">
-                <Typography bold type={TypographyType.Callout}>
-                  {utilityPanelTitle}
-                </Typography>
+                {renderSelectedSection()}
+              </Nav>
+            </SidebarScrollWrapper>
+
+            {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
+            {showFeedbackWidget && !isUtilityPanelSelected && (
+              <div className="absolute inset-x-3 bottom-3">
+                <FeedbackWidget placement="sidebar" />
               </div>
             )}
           </div>
-
-          {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
-            <div className="mt-2 flex items-center gap-1 px-3">
-              {additionalButtons}
-            </div>
-          )}
-
-          <SidebarScrollWrapper
-            className={classNames(
-              'mt-1 min-h-0 flex-1',
-              showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
-            )}
-          >
-            <Nav
-              className={classNames(
-                isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
-                isStreakPanel && 'min-h-0 flex-1',
-              )}
-            >
-              {renderSelectedSection()}
-            </Nav>
-          </SidebarScrollWrapper>
-
-          {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
-          {showFeedbackWidget && !isUtilityPanelSelected && (
-            <div className="absolute inset-x-3 bottom-3">
-              <FeedbackWidget placement="sidebar" />
-            </div>
-          )}
         </section>
       </SidebarAside>
     </SidebarDragStateProvider>
