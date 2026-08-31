@@ -30,6 +30,10 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
+export const featureSnapshotSelectionShare = new Feature(
+  'snapshot_selection_share',
+  false,
+);
 // Experiment: community takes — an LLM-generated digest of what the developer
 // community on HN/Lobsters thinks about a post. Control hides the surface,
 // treatment shows it. Enrollment is conditional on the post actually having a

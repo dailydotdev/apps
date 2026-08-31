@@ -1299,6 +1299,48 @@ img.agent-media-ring {
    against the container instead, at the same 500px the card switches on, so a
    panel dragged wide gets the side-by-side layout back. */
 
+/* Shutter feedback on the snapshot button: a highlight crossing the face once,
+   left to right, so the press reads as a capture rather than a submit. */
+@keyframes snapshot-shutter-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-120%) skewX(-18deg);
+  }
+
+  22% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(220%) skewX(-18deg);
+  }
+}
+
+.snapshot-shutter-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.85) 50%,
+    transparent 100%
+  );
+  animation: snapshot-shutter-sweep 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snapshot-shutter-sweep::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* Snapshot copy is rasterized once and never reflows, so it can afford the
    expensive wrapping: balance evens the line lengths and removes the orphan
    word, and anywhere keeps long URLs or type names inside the card. */

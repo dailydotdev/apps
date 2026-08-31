@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
@@ -22,6 +22,7 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import {
   feature,
   featureCommunitySentiment,
+  featureSnapshotSelectionShare,
 } from '../../lib/featureManagement';
 import { isDevelopment } from '../../lib/constants';
 import { LazyImage } from '../LazyImage';
@@ -31,6 +32,7 @@ import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
+import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import {
   CommunitySentiment,
@@ -97,6 +99,7 @@ export function PostContentRaw({
   commentAds,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
+  const postContainerRef = useRef<HTMLElement>(null);
   const engagementActions = usePostContent({
     origin,
     post,
@@ -130,6 +133,12 @@ export function PostContentRaw({
   });
   const showCommunitySentiment =
     !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
+  // Only the post page: in the modal the quote competes with the close and
+  // navigation controls, and the decision was to keep snapshot off it.
+  const { value: isSelectionSnapshotEnabled } = useConditionalFeature({
+    feature: featureSnapshotSelectionShare,
+    shouldEvaluate: isPostPage,
+  });
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const hasToc = (post.toc?.length ?? 0) > 0;
@@ -164,6 +173,7 @@ export function PostContentRaw({
 
   const postMainColumn = (
     <PostContainer
+      ref={postContainerRef}
       className={classNames(
         'relative',
         !!contentLeading && '!overflow-x-clip !overflow-y-visible',
@@ -171,6 +181,9 @@ export function PostContentRaw({
       )}
       data-testid="postContainer"
     >
+      {isSelectionSnapshotEnabled && (
+        <SelectionSnapshotBar containerRef={postContainerRef} post={post} />
+      )}
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
