@@ -5,10 +5,7 @@ import { SnapshotButton } from '@dailydotdev/shared/src/components/imageShare/Sn
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 // Via the barrel on purpose: the direct hook path is aliased to a mock that
 // swallows toasts into console.log, so the real one never runs.
-import {
-  ToastType,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks';
+import { ToastType, useToastNotification } from '@dailydotdev/shared/src/hooks';
 import {
   ButtonSize,
   ButtonVariant,
@@ -51,17 +48,21 @@ const PreferredActions = ({
   target,
   filename,
   className,
+  compact,
 }: {
   leads: LeadAction;
   target: React.RefObject<HTMLElement>;
   filename: string;
   className?: string;
+  /** Icon only, for headers that already carry a title and a link. */
+  compact?: boolean;
 }) => {
   if (leads === 'Snapshot') {
     return (
       <Snapshot
         className={className}
         filename={filename}
+        showLabel={!compact}
         target={target}
         variant={ButtonVariant.Secondary}
       />
@@ -70,12 +71,13 @@ const PreferredActions = ({
 
   return (
     <Button
+      aria-label={leads === 'Link' ? 'Copy link' : 'Share'}
       className={className}
       icon={leads === 'Link' ? <LinkIcon /> : <ShareIcon />}
       size={ButtonSize.Small}
       variant={ButtonVariant.Secondary}
     >
-      {leads === 'Link' ? 'Copy link' : 'Share'}
+      {compact ? undefined : leads === 'Link' ? 'Copy link' : 'Share'}
     </Button>
   );
 };
@@ -130,7 +132,12 @@ const HeaderSurface = ({
         )}
       </div>
       {trailing}
-      <PreferredActions filename={filename} leads={leads} target={ref} />
+      <PreferredActions
+        compact
+        filename={filename}
+        leads={leads}
+        target={ref}
+      />
     </div>
   );
 };
@@ -154,9 +161,7 @@ const CardSurface = ({
     <div className="flex flex-col gap-3 rounded-12 bg-background-default p-4">
       <div ref={ref} className="flex flex-col gap-2">
         <span className="font-bold text-text-primary typo-title3">{title}</span>
-        {body && (
-          <p className="text-text-secondary typo-callout">{body}</p>
-        )}
+        {body && <p className="text-text-secondary typo-callout">{body}</p>}
       </div>
       <div className="flex items-center gap-3">
         {footer}
@@ -209,7 +214,7 @@ const SelectionShareBarDemo = () => {
           filename="daily-quote"
           showLabel={false}
           target={ref}
-          variant={ButtonVariant.Secondary}
+          variant={ButtonVariant.Tertiary}
         />
       </div>
 
@@ -547,6 +552,7 @@ const ProfileHeaderPlacement = () => {
             className="text-text-secondary"
           />
           <PreferredActions
+            compact
             filename="daily-profile"
             leads="Link"
             target={ref}
@@ -585,6 +591,7 @@ const WidgetPlacement = ({
         <div className="flex items-center gap-1">
           {trailing}
           <PreferredActions
+            compact
             filename="daily-widget"
             leads="Snapshot"
             target={ref}
@@ -722,11 +729,11 @@ const Placements = () => {
                   filename="daily-snapshot"
                   showLabel={false}
                   target={{ current: null }}
-                  variant={ButtonVariant.Secondary}
+                  variant={ButtonVariant.Tertiary}
                 />
               }
-              name="Snapshot — icon, emphasised"
-              used="The floating selection bar, where every control is an icon and this one leads"
+              name="Snapshot — icon, quiet"
+              used="The floating selection bar and the profile widget headers, where it sits among other icons"
             />
             <Specimen
               control={
