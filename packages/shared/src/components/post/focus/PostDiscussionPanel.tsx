@@ -27,6 +27,10 @@ import { SortCommentsBy } from '../../../graphql/comments';
 import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
+import { EndOfThreadShare } from '../../../features/snapshot/EndOfThreadShare';
+import { PostContentShare } from '../common/PostContentShare';
+import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
+import { featurePostSharePrompts } from '../../../lib/featureManagement';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -80,6 +84,9 @@ export const PostDiscussionPanel = ({
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
   const { commentsCount } = usePostComments({ postId: post.id, sortBy });
+  const areSharePromptsEnabled = useSharePlacement({
+    feature: featurePostSharePrompts,
+  });
   const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
   const commentRef = useRef<NewCommentRef | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -170,6 +177,9 @@ export const PostDiscussionPanel = ({
         />
       </div>
       <DiscussionShareRow post={post} withSquads />
+      {/* The classic page gets this from PostEngagements; the focus layout
+          renders its own discussion, so it has to be asked for here. */}
+      {areSharePromptsEnabled && <PostContentShare post={post} />}
       {showSortHeader && commentsCount > 0 && (
         // A text link (not a button) so it aligns flush-left with the comments
         // below it; `mb-2` adds breathing room before the first comment.
@@ -205,6 +215,9 @@ export const PostDiscussionPanel = ({
           removeTopSpacing
         />
       </div>
+      {areSharePromptsEnabled && (
+        <EndOfThreadShare commentsCount={commentsCount} post={post} />
+      )}
       {showMetaBar && (
         <div className="flex shrink-0 flex-col gap-3 pt-3">
           <DiscussionMetaBar post={post} />
