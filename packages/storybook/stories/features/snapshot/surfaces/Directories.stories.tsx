@@ -25,6 +25,8 @@ const TopicHeader = ({
   meta,
   cta,
   round,
+  menu,
+  highlight,
 }: {
   spot: Spot;
   eyebrow?: string;
@@ -32,6 +34,10 @@ const TopicHeader = ({
   meta: string;
   cta: string;
   round?: boolean;
+  /** The production menu items for this surface. */
+  menu: string[];
+  /** Omitted where the menu carries no share action. */
+  highlight?: string;
 }) => (
   <Screen>
     <div className="relative flex items-center gap-3 p-4">
@@ -74,14 +80,22 @@ const TopicHeader = ({
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
           />
-          <OverflowMenu action="Link" />
+          <OverflowMenu highlight={highlight} items={menu} />
         </>
       )}
     </div>
   </Screen>
 );
 
-const CollectionHeader = ({ spot }: { spot: Spot }) => (
+const CollectionHeader = ({
+  spot,
+  menu,
+  highlight,
+}: {
+  spot: Spot;
+  menu: string[];
+  highlight?: string;
+}) => (
   <Screen>
     <div className="relative flex flex-col gap-3 p-4">
       <div className="flex items-center gap-3">
@@ -108,7 +122,7 @@ const CollectionHeader = ({ spot }: { spot: Spot }) => (
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
             />
-            <OverflowMenu action="Link" />
+            <OverflowMenu highlight={highlight} items={menu} />
           </>
         )}
       </div>
@@ -142,12 +156,13 @@ const Directories = () => (
       verdict="Link leads. Snapshot stays out entirely — there is no static payload worth an image."
     >
       <Variant
-        headline="Hidden in the ⋯ menu"
-        note="Sharing a topic takes two taps and prior knowledge that it is possible."
+        headline="No share action anywhere on the page"
+        note="Verified: the tag and source ⋯ menus carry Block and Report only, and no share control sits beside Follow. This is the one surface in the set where the control is genuinely missing rather than buried."
         step="Today"
       >
         <TopicHeader
           cta="Follow"
+          menu={['Block #typescript', 'Report']}
           meta="48.2k followers"
           spot="menu"
           title="#typescript"
@@ -160,6 +175,7 @@ const Directories = () => (
       >
         <TopicHeader
           cta="Follow"
+          menu={['Block #typescript', 'Report']}
           meta="48.2k followers"
           spot="beside"
           title="#typescript"
@@ -172,6 +188,7 @@ const Directories = () => (
       >
         <TopicHeader
           cta="Follow"
+          menu={['Block #typescript', 'Report']}
           meta="48.2k followers"
           spot="labeled"
           title="#typescript"
@@ -192,6 +209,8 @@ const Directories = () => (
         <TopicHeader
           cta="Join"
           eyebrow="Squad"
+          highlight="Share via"
+          menu={['Share via', 'Hide', 'Block frontend-fans', 'Report']}
           meta="2.4k members"
           round
           spot="menu"
@@ -206,6 +225,8 @@ const Directories = () => (
         <TopicHeader
           cta="Join"
           eyebrow="Squad"
+          highlight="Share via"
+          menu={['Share via', 'Hide', 'Block frontend-fans', 'Report']}
           meta="2.4k members"
           round
           spot="beside"
@@ -224,21 +245,21 @@ const Directories = () => (
         note="The most linkable thing we publish, with no share affordance on it."
         step="Today"
       >
-        <CollectionHeader spot="menu" />
+        <CollectionHeader menu={['Share', 'Add to custom feed']} highlight="Share" spot="menu" />
       </Variant>
       <Variant
         headline="Icon in the section header"
         note="Recommended. Quiet, conventional, and enough for a page people already arrive at with intent."
         step="Recommended"
       >
-        <CollectionHeader spot="beside" />
+        <CollectionHeader menu={['Share', 'Add to custom feed']} highlight="Share" spot="beside" />
       </Variant>
       <Variant
         headline="Labeled link, with a snapshot of the top five"
         note="The snapshot is a teaser that carries the link home in the card footer. Blocked until short URLs are baked into the cards."
         step="Push"
       >
-        <CollectionHeader spot="labeled" />
+        <CollectionHeader menu={['Share', 'Add to custom feed']} highlight="Share" spot="labeled" />
       </Variant>
     </Category>
   </SurfacePage>

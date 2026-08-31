@@ -10,6 +10,7 @@ import {
   Category,
   Control,
   OverflowMenu,
+  POST_MENU,
   Screen,
   SurfacePage,
   Variant,
@@ -65,7 +66,7 @@ const HappeningScreen = ({ spot }: { spot: Spot }) => (
             variant={ButtonVariant.Tertiary}
           />
         )}
-        {spot === 'menu' && <OverflowMenu action="Link" />}
+        {spot === 'menu' && <OverflowMenu highlight="Share via" items={POST_MENU} />}
       </div>
 
       {HIGHLIGHTS.map((item, index) => {

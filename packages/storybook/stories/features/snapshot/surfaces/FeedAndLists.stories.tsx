@@ -17,6 +17,7 @@ import {
   Category,
   Control,
   OverflowMenu,
+  POST_MENU,
   Screen,
   SurfacePage,
   Variant,
@@ -36,7 +37,7 @@ const FeedCard = ({ spot }: { spot: 'menu' | 'row' | 'labeled' }) => (
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
         />
-        {spot === 'menu' && <OverflowMenu action="Link" />}
+        {spot === 'menu' && <OverflowMenu highlight="Share via" items={POST_MENU} />}
       </div>
 
       <span className="font-bold text-text-primary typo-callout">
@@ -90,7 +91,7 @@ const HotTakeCard = ({ spot }: { spot: 'menu' | 'row' | 'lead' }) => (
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
         />
-        {spot === 'menu' && <OverflowMenu action="Link" />}
+        {spot === 'menu' && <OverflowMenu highlight="Share via" items={POST_MENU} />}
       </div>
 
       <p className="font-bold text-text-primary typo-callout">
@@ -212,8 +213,8 @@ const FeedAndLists = () => (
       verdict="Each row is just a post, so the payload question never arises. Only reach does."
     >
       <Variant
-        headline="No per-row control"
-        note="Re-sharing something you already read means finding the post again."
+        headline="Share post via… in the row menu"
+        note="Verified against ReadingHistoryOptionsMenu: the row menu offers ‘Share post via…’, ‘Save to bookmarks’ and ‘Remove post’. So the action exists — it is two taps deep on a page built for re-finding things."
         step="Today"
       >
         <HistoryList spot="today" />

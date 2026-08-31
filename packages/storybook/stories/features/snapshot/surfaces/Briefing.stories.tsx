@@ -11,6 +11,7 @@ import {
   Category,
   Control,
   OverflowMenu,
+  POST_MENU,
   Screen,
   SurfacePage,
   Variant,
@@ -59,7 +60,7 @@ const BriefingScreen = ({ spot }: { spot: Spot }) => (
             variant={ButtonVariant.Tertiary}
           />
         )}
-        {spot === 'menu' && <OverflowMenu action="Link" />}
+        {spot === 'menu' && <OverflowMenu highlight="Share via" items={POST_MENU} />}
       </div>
 
       <div className="flex flex-col gap-3">

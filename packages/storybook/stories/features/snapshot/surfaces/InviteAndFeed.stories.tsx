@@ -103,7 +103,10 @@ const FeedExportScreen = ({
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
             />
-            <OverflowMenu action="Link" />
+            <OverflowMenu
+              highlight="Share"
+              items={['Share', 'Add to custom feed']}
+            />
           </>
         )}
       </div>

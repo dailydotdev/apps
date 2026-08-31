@@ -93,7 +93,7 @@ const ProfileScreen = ({ spot }: { spot: Spot }) => (
             </>
           )}
         </div>
-        {spot === 'menu' && <OverflowMenu action="Link" />}
+        {spot === 'menu' && <OverflowMenu items={['Block @tomer', 'Report']} />}
       </div>
 
       <div className="flex gap-6">
@@ -238,8 +238,8 @@ const Profile = () => (
       verdict="Link leads: the point of sharing a profile is that someone follows it, and an image cannot be followed."
     >
       <Variant
-        headline="Inside the ⋯ menu"
-        note="The before. #6354 already promoted it out of here — this is what it looked like."
+        headline="Nothing in the ⋯ menu — it is Block and Report only"
+        note="Verified against ProfileActions: the profile menu has never carried a share action. What ships today is the separate ‘Public profile & URL’ widget, with a Copy link icon and a row of social targets."
         step="Today"
       >
         <ProfileScreen spot="menu" />
