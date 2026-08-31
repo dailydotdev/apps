@@ -14,11 +14,29 @@ import { featureCommunitySentiment } from '../../../lib/featureManagement';
 import { getPostByIdKey } from '../../../lib/query';
 import { PostFocusCard } from './PostFocusCard';
 
+// The real hook needs a boost-eligible author plus a warm post-by-id cache;
+// force it on so the tests exercise this card's own gating.
+jest.mock('../../../features/boost/useShowBoostButton', () => ({
+  useShowBoostButton: jest.fn(() => true),
+}));
+
 const freeformPost: Post = {
   ...post,
   id: 'freeform-post-id',
   type: PostType.Freeform,
   contentHtml: '<p>Freeform body</p>',
+};
+
+const squadSource = sharePost.source;
+if (!squadSource) {
+  throw new Error('sharePost fixture must include a squad source');
+}
+
+// Reuse the share fixture's squad — the default post fixture has no squad.
+const freeformSquadPost: Post = {
+  ...freeformPost,
+  id: 'freeform-squad-post-id',
+  source: squadSource,
 };
 
 const sharedFreeformPost: Post = {
@@ -148,5 +166,77 @@ describe('PostFocusCard community sentiment', () => {
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('PostFocusCard squad attribution', () => {
+  it('shows "Posted in {squad}" for a freeform squad post', () => {
+    renderCard(freeformSquadPost);
+
+    expect(screen.getByText('Posted in')).toBeInTheDocument();
+    const squadLink = screen.getByRole('link', { name: squadSource.name });
+    expect(squadLink).toHaveAttribute('href', squadSource.permalink);
+  });
+
+  it('shows "Shared via {squad}" for a post shared into a squad', () => {
+    renderCard(sharePost);
+
+    expect(screen.getByText('Shared via')).toBeInTheDocument();
+    expect(screen.queryByText('Posted in')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: squadSource.name }),
+    ).toHaveAttribute('href', squadSource.permalink);
+  });
+
+  it('shows no attribution line for a publication article', () => {
+    renderCard(post);
+
+    expect(screen.queryByText('Posted in')).not.toBeInTheDocument();
+    expect(screen.queryByText('Shared via')).not.toBeInTheDocument();
+  });
+});
+
+describe('PostFocusCard read CTA', () => {
+  it('renders a single read CTA pointing at the source article', () => {
+    renderCard(post);
+
+    const cta = screen.getAllByRole('link', { name: /Read the full article/ });
+    expect(cta).toHaveLength(1);
+    expect(cta[0]).toHaveAttribute('href', post.permalink);
+    expect(cta[0]).toHaveAttribute('target', '_blank');
+  });
+
+  it('does not render a read CTA on a native post', () => {
+    renderCard(freeformPost);
+
+    expect(
+      screen.queryAllByRole('link', { name: /Read the full article/ }),
+    ).toHaveLength(0);
+  });
+});
+
+describe('PostFocusCard share commentary', () => {
+  it("surfaces the sharer's own words above the shared article", () => {
+    renderCard(sharePost);
+
+    expect(screen.getByText(sharePost.title as string)).toBeInTheDocument();
+  });
+});
+
+describe('PostFocusCard boost button', () => {
+  // The modal's top strip renders PostHeaderActions, which already carries a
+  // boost button off the same hook — rendering one here too duplicated it.
+  it('is hidden in the modal, where the top strip already has one', () => {
+    renderCard(post, { onClose: jest.fn() });
+
+    expect(
+      screen.queryByRole('button', { name: 'Boost' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows on the standalone post page, which has no top strip', () => {
+    renderCard(post);
+
+    expect(screen.getByRole('button', { name: 'Boost' })).toBeInTheDocument();
   });
 });
