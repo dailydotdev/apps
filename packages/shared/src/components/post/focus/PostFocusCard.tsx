@@ -7,6 +7,7 @@ import {
   getReadArticleHref,
   getReadPostButtonText,
   isInternalReadType,
+  isPostOrSharedPostTwitter,
   isVideoPost,
   PostType,
 } from '../../../graphql/posts';
@@ -20,6 +21,7 @@ import { useTrackPostView } from '../../../hooks/post/useTrackPostView';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
 import { EarthIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { getImageOriginRect } from '../../modals/ImageModal';
@@ -29,11 +31,10 @@ import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
-import { TruncateText } from '../../utilities';
 import { combinedClicks, withSelectionGuard } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
@@ -53,6 +54,8 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostMenuOptions } from '../PostMenuOptions';
+import { BoostPostButton } from '../../../features/boost/BoostButton';
+import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
@@ -75,7 +78,11 @@ interface PostFocusCardProps {
   post: Post;
   origin: PostOrigin;
   leftVariant?: FocusCardLeftVariant;
-  /** When opened in the post modal, lets the sticky action bar close it. */
+  /**
+   * Passed by the post modal only. The action bar no longer renders a close
+   * button, so this is never invoked — it is read purely as an "am I in the
+   * modal?" flag (clamped title, no answered-questions block).
+   */
   onClose?: () => void;
 }
 
@@ -228,12 +235,6 @@ const PostFocusCardRaw = ({
   // treatment — auto-written articles/freeform posts render their own source.
   const isShared = post.type === PostType.Share && !!post.sharedPost;
   const article = (isShared ? post.sharedPost : post) as Post;
-  // Shared into a squad → "Shared via {squad}"; shared to a profile → just
-  // "Shared post" (we don't repeat the author's name).
-  const sharedVia =
-    isShared && post.source?.type === SourceType.Squad
-      ? post.source
-      : undefined;
   const isCollection = article.type === PostType.Collection;
   // Posts authored by a user (shared, freeform, welcome) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
@@ -244,11 +245,29 @@ const PostFocusCardRaw = ({
     post.type === PostType.Welcome
       ? post.author
       : undefined;
+  // Squad attribution under the header. Author-led posts show the author
+  // there, so the squad must be named separately: shared into a squad →
+  // "Shared via {squad}", written directly in a squad (freeform/welcome) →
+  // "Posted in {squad}". Shared to a profile → just "Shared post" (we don't
+  // repeat the author's name), and publication-sourced posts already show
+  // their source strip in the header.
+  const squadAttribution =
+    post.source?.type === SourceType.Squad && (isShared || author)
+      ? { label: isShared ? 'Shared via' : 'Posted in', source: post.source }
+      : undefined;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
+  // A share post carries the user's own commentary in `post.title` (separate
+  // from the shared article's title). Surface it so the text the user actually
+  // wrote isn't dropped; skip it when it just mirrors the article's title.
+  const commentary =
+    isShared && post.title && post.title !== article.title ? post.title : null;
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
+  // Boost CTA for eligible authors — lived in PostHeaderActions, which the
+  // redesign card doesn't render, so surface it here in the header row.
+  const showBoostButton = useShowBoostButton({ post });
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const { isReaderEnabled } = useReaderModalEligibility();
@@ -322,28 +341,61 @@ const PostFocusCardRaw = ({
     focusCommentRef.current();
   };
 
-  // Rendered in the title column, directly under the title, so it stays close
-  // to the title regardless of the cover image height. The engagement bar lives
-  // further down by the comment composer where the reader's cursor rests.
-  const renderReadButton = (className: string): ReactElement | null =>
-    canReadArticle ? (
-      <Button
-        tag="a"
-        href={readHref}
-        target="_blank"
-        rel="noopener"
-        icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
-        {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
-        className={className}
+  // "Read the full article" is the deliberate CTA copy for articles; videos and
+  // X/Twitter posts keep their own verb ("Watch video" / "Read on").
+  const readCtaLabel =
+    isVideoType || isPostOrSharedPostTwitter(post)
+      ? getReadPostButtonText(post)
+      : 'Read the full article';
+  // The accessible name names the destination, which the visible label doesn't.
+  const readCtaAccessibleLabel = article.domain
+    ? `${readCtaLabel} on ${article.domain}`
+    : readCtaLabel;
+
+  // Post body: the rendered content, or the TL;DR when there is no content.
+  const postBody = article.contentHtml ? (
+    <>
+      <Markdown content={article.contentHtml} className="break-words" />
+      <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
+    </>
+  ) : (
+    article.summary &&
+    (isVideoType ? (
+      <VideoSummary summary={article.summary} />
+    ) : (
+      <p
+        className="select-text break-words text-text-secondary typo-markdown"
+        data-testid="tldr-container"
       >
-        {getReadPostButtonText(post)}
-      </Button>
-    ) : null;
+        {article.summary}
+      </p>
+    ))
+  );
+
+  const readCta = canReadArticle ? (
+    <a
+      href={readHref}
+      target="_blank"
+      rel="noopener"
+      // `combinedClicks` so a middle-click (which never fires React's onClick)
+      // still logs the read and still reaches the reader gate.
+      {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
+      aria-label={readCtaAccessibleLabel}
+      className="group flex w-fit items-center gap-2 rounded-12 bg-text-primary py-2 pl-4 pr-3 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
+    >
+      <span className="font-bold typo-callout">{readCtaLabel}</span>
+      <span className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none">
+        {isReaderVariant ? (
+          <EarthIcon size={IconSize.Medium} />
+        ) : (
+          getReadPostButtonIcon(post)
+        )}
+      </span>
+    </a>
+  ) : null;
 
   const coverClassName =
-    'block h-fit w-24 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40';
+    'block w-28 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-48';
   const coverImage =
     !isVideoType && article.image ? (
       <LazyImage
@@ -368,16 +420,21 @@ const PostFocusCardRaw = ({
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
               <div className="flex min-w-0 items-center gap-3">
-                <UserShortInfo
-                  user={author as unknown as UserShortProfile}
-                  imageSize={ProfileImageSize.Large}
-                  showDescription={false}
-                  transformUsername={() => null}
-                  className={{
-                    container: 'min-w-0 !p-0 hover:bg-transparent',
-                    textWrapper: 'min-w-0',
-                  }}
-                />
+                <Link href={author.permalink} passHref prefetch={false}>
+                  <UserShortInfo
+                    tag="a"
+                    href={author.permalink}
+                    user={author as unknown as UserShortProfile}
+                    imageSize={ProfileImageSize.Large}
+                    showDescription={false}
+                    transformUsername={() => null}
+                    className={{
+                      container:
+                        'min-w-0 cursor-pointer !p-0 hover:bg-transparent',
+                      textWrapper: 'min-w-0',
+                    }}
+                  />
+                </Link>
                 <FollowButton
                   className="shrink-0"
                   entityId={author.id}
@@ -399,19 +456,27 @@ const PostFocusCardRaw = ({
                 />
               )
             )}
-            <div className="ml-auto shrink-0">
-              <PostMenuOptions
-                post={post}
-                origin={origin}
-                buttonSize={ButtonSize.Medium}
-              />
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              {showBoostButton && (
+                <BoostPostButton
+                  post={post}
+                  buttonProps={{ size: ButtonSize.Small }}
+                />
+              )}
+              <div className="[&_svg]:rotate-90">
+                <PostMenuOptions
+                  post={post}
+                  origin={origin}
+                  buttonSize={ButtonSize.Medium}
+                />
+              </div>
             </div>
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
-            {sharedVia && (
+            {squadAttribution && (
               <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                <span>Shared via</span>
+                <span>{squadAttribution.label}</span>
                 <HoverCard
                   appendTo={globalThis?.document?.body}
                   side="top"
@@ -420,40 +485,48 @@ const PostFocusCardRaw = ({
                   trigger={
                     <span className="inline-flex items-center">
                       <Link
-                        href={sharedVia.permalink}
+                        href={squadAttribution.source.permalink}
                         passHref
                         prefetch={false}
                       >
                         <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
-                          {sharedVia.image && (
+                          {squadAttribution.source.image && (
                             <img
-                              src={sharedVia.image}
+                              src={squadAttribution.source.image}
                               alt=""
                               aria-hidden
                               className="size-4 rounded-full object-cover"
                               loading="lazy"
                             />
                           )}
-                          {sharedVia.name}
+                          {squadAttribution.source.name}
                         </a>
                       </Link>
                     </span>
                   }
                 >
-                  <SourceEntityCard source={sharedVia as SourceTooltip} />
+                  <SourceEntityCard
+                    source={squadAttribution.source as SourceTooltip}
+                  />
                 </HoverCard>
               </p>
             )}
-            {isShared && !sharedVia && (
+            {isShared && !squadAttribution && (
               <p className="text-text-tertiary typo-footnote">Shared post</p>
             )}
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* Title and image are top-aligned columns. The read button lives
-                in the title column (right under the title) so it hugs the title
-                regardless of the image height — a short title next to a tall
-                image keeps the button close instead of dragging it down. */}
+            {/* The sharer's own words, above the shared article they reference. */}
+            {commentary && (
+              <p className="whitespace-pre-line break-words font-bold text-text-primary typo-title3">
+                {commentary}
+              </p>
+            )}
+            {/* Title column and cover image sit side by side, top-aligned. The
+                image keeps a fixed ratio (square on mobile/small tablet, the
+                wide open-graph cover ratio from tablet up) so a short title
+                can't squash it. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <h1
@@ -482,8 +555,41 @@ const PostFocusCardRaw = ({
                     title
                   )}
                 </h1>
-                {renderReadButton('w-full tablet:w-fit')}
+                {/* Directly under the title so a short title pulls the strip
+                    up (rather than sitting below a taller cover image). */}
+                <PostMetadata
+                  // Wrap to a second line on mobile so a long domain stays fully
+                  // visible (no ellipsis); single line from tablet up.
+                  className="flex-wrap !typo-callout tablet:flex-nowrap"
+                  createdAt={article.createdAt}
+                  domain={
+                    !isVideoType &&
+                    article.domain &&
+                    article.domain.length > 0 && (
+                      <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
+                        From{' '}
+                        <ArticleLink
+                          className="hover:text-text-link hover:underline"
+                          href={article.permalink}
+                          onClick={onReadArticle}
+                          title={article.domain}
+                        >
+                          {article.domain}
+                        </ArticleLink>
+                      </span>
+                    )
+                  }
+                  isVideoType={isVideoType}
+                  readTime={article.readTime}
+                />
               </div>
+              {/* The cover is the biggest target on the card, so when there is
+                  a source article it opens it — same href, reader gate and
+                  logging as the title and the read CTA. It duplicates the title
+                  link, so it stays out of the tab order and the accessibility
+                  tree rather than adding a third identical stop. Native posts
+                  (freeform, welcome) have nothing to open, so there the cover
+                  keeps the zoom-in lightbox. */}
               {coverImage &&
                 (canReadArticle ? (
                   <a
@@ -494,7 +600,10 @@ const PostFocusCardRaw = ({
                     aria-hidden
                     tabIndex={-1}
                     data-testid="post-cover-link"
-                    className={classNames(coverClassName, 'cursor-pointer')}
+                    className={classNames(
+                      coverClassName,
+                      'cursor-pointer transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none',
+                    )}
                   >
                     {coverImage}
                   </a>
@@ -519,30 +628,6 @@ const PostFocusCardRaw = ({
                 ))}
             </div>
           </div>
-
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={article.createdAt}
-            domain={
-              !isVideoType &&
-              article.domain &&
-              article.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={article.permalink}
-                    onClick={onReadArticle}
-                    title={article.domain}
-                  >
-                    {article.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={article.readTime}
-          />
 
           {isVideoType && (
             <div
@@ -570,24 +655,18 @@ const PostFocusCardRaw = ({
             </div>
           )}
 
-          {article.contentHtml ? (
-            <>
-              <Markdown content={article.contentHtml} className="break-words" />
-              <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
-            </>
-          ) : (
-            article.summary &&
-            (isVideoType ? (
-              <VideoSummary summary={article.summary} />
-            ) : (
-              <p
-                className="select-text break-words text-text-secondary typo-markdown"
-                data-testid="tldr-container"
-              >
-                {article.summary}
-              </p>
-            ))
-          )}
+          {/* The read CTA sits above the TL;DR on mobile and after it from
+              tablet up. `flex-col-reverse` flips the pair at the small width
+              rather than rendering the CTA twice behind `hidden` wrappers — one
+              link in the DOM, so keyboard and screen-reader users get one stop,
+              not two identical ones. `gap-4` matches the parent column, so the
+              spacing is unchanged. */}
+          <div className="flex flex-col-reverse gap-4 tablet:flex-col">
+            {/* Exactly two children, so the reversal only ever swaps the body
+                and the CTA; the body keeps its own gap-4 column inside. */}
+            {postBody && <div className="flex flex-col gap-4">{postBody}</div>}
+            {readCta}
+          </div>
 
           <PostTagList post={article} />
 
@@ -620,10 +699,9 @@ const PostFocusCardRaw = ({
             origin={origin}
             onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
-            onClose={onClose}
-            // Tighten the gap to the stats row above (the column's gap-4 alone
-            // read as too large here).
-            className="-mt-2"
+            // Extra breathing room above and below the action row (on top of
+            // the column's gap-4).
+            className="my-2"
           />
 
           {!onClose && <PostAnsweredQuestions post={article} />}

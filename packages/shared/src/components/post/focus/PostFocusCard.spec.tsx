@@ -21,6 +21,19 @@ const freeformPost: Post = {
   contentHtml: '<p>Freeform body</p>',
 };
 
+const squadSource = sharePost.source;
+if (!squadSource) {
+  throw new Error('sharePost fixture must include a squad source');
+}
+
+// Freeform posts live inside a squad; reuse the share fixture's squad so the
+// "Posted in {squad}" attribution has something to name.
+const freeformSquadPost: Post = {
+  ...freeformPost,
+  id: 'freeform-squad-post-id',
+  source: squadSource,
+};
+
 const sharedFreeformPost: Post = {
   ...sharePost,
   id: 'shared-freeform-id',
@@ -148,5 +161,61 @@ describe('PostFocusCard community sentiment', () => {
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('PostFocusCard squad attribution', () => {
+  it('shows "Posted in {squad}" for a freeform squad post', () => {
+    renderCard(freeformSquadPost);
+
+    expect(screen.getByText('Posted in')).toBeInTheDocument();
+    const squadLink = screen.getByRole('link', { name: squadSource.name });
+    expect(squadLink).toHaveAttribute('href', squadSource.permalink);
+  });
+
+  it('shows "Shared via {squad}" for a post shared into a squad', () => {
+    renderCard(sharePost);
+
+    expect(screen.getByText('Shared via')).toBeInTheDocument();
+    expect(screen.queryByText('Posted in')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: squadSource.name }),
+    ).toHaveAttribute('href', squadSource.permalink);
+  });
+
+  it('shows no attribution line for a publication article', () => {
+    renderCard(post);
+
+    expect(screen.queryByText('Posted in')).not.toBeInTheDocument();
+    expect(screen.queryByText('Shared via')).not.toBeInTheDocument();
+  });
+});
+
+describe('PostFocusCard read CTA', () => {
+  // Rendered once, repositioned with `flex-col-reverse` — not duplicated
+  // behind breakpoint-gated wrappers, so there is exactly one link.
+  it('renders a single read CTA pointing at the source article', () => {
+    renderCard(post);
+
+    const cta = screen.getAllByRole('link', { name: /Read the full article/ });
+    expect(cta).toHaveLength(1);
+    expect(cta[0]).toHaveAttribute('href', post.permalink);
+    expect(cta[0]).toHaveAttribute('target', '_blank');
+  });
+
+  it('does not render a read CTA on a native post', () => {
+    renderCard(freeformPost);
+
+    expect(
+      screen.queryAllByRole('link', { name: /Read the full article/ }),
+    ).toHaveLength(0);
+  });
+});
+
+describe('PostFocusCard share commentary', () => {
+  it("surfaces the sharer's own words above the shared article", () => {
+    renderCard(sharePost);
+
+    expect(screen.getByText(sharePost.title as string)).toBeInTheDocument();
   });
 });
