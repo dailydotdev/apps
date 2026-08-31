@@ -112,10 +112,13 @@ const SourceRow = ({
 const Summary = ({
   device,
   highlighted,
+  inlineTrailing,
   trailing,
 }: {
   device: DeviceName;
   highlighted?: boolean;
+  /** Runs in at the end of the last line, inside the paragraph. */
+  inlineTrailing?: React.ReactNode;
   trailing?: React.ReactNode;
 }) => (
   <div className="flex flex-col gap-3">
@@ -134,6 +137,7 @@ const Summary = ({
       >
         {SUMMARY_QUOTE}
       </span>
+      {inlineTrailing}
     </p>
     {trailing}
   </div>
@@ -228,13 +232,14 @@ const FloatingBar = () => (
 
 /**
  * #6350's 'Copy summary': one tap puts the headline, the TLDR and the article
- * link on the clipboard. Icon only and XSmall — it sits under body copy, so
- * anything larger reads as part of the article.
+ * link on the clipboard. Icon only, XSmall, inline, and quieter than the body
+ * copy it trails — it runs in at the end of the summary's last line, so it has
+ * to sit below the text in the reading order without breaking the paragraph.
  */
 const CopySummary = () => (
   <Button
     aria-label="Copy summary"
-    className="self-start"
+    className="ml-1 align-middle !text-text-quaternary"
     icon={<CopyIcon />}
     size={ButtonSize.XSmall}
     variant={ButtonVariant.Tertiary}
@@ -386,11 +391,8 @@ const PostView = ({
         <Summary
           device={device}
           highlighted={spot === 'selection'}
-          trailing={
-            (spot === 'selection' && <SelectionBar />) ||
-            (spot === 'summary' && <CopySummary />) ||
-            undefined
-          }
+          inlineTrailing={spot === 'summary' ? <CopySummary /> : undefined}
+          trailing={spot === 'selection' ? <SelectionBar /> : undefined}
         />
 
         <Tags />
@@ -502,7 +504,13 @@ const PollBody = () => (
   </div>
 );
 
-const TypeBody = ({ kind }: { kind: PostKind }) => {
+const TypeBody = ({
+  kind,
+  trailing,
+}: {
+  kind: PostKind;
+  trailing?: React.ReactNode;
+}) => {
   if (kind === 'poll') {
     return <PollBody />;
   }
@@ -555,7 +563,10 @@ const TypeBody = ({ kind }: { kind: PostKind }) => {
   if (kind === 'collection') {
     return (
       <div className="flex flex-col gap-2">
-        <p className="text-text-secondary typo-footnote">{SUMMARY_LEAD}</p>
+        <p className="text-text-secondary typo-footnote">
+          {SUMMARY_LEAD}
+          {trailing}
+        </p>
         <div className="flex items-center gap-2">
           <div className="flex">
             {[0, 1, 2, 3].map((i) => (
@@ -590,7 +601,12 @@ const TypeBody = ({ kind }: { kind: PostKind }) => {
     );
   }
 
-  return <p className="text-text-secondary typo-body">{SUMMARY_LEAD}</p>;
+  return (
+    <p className="text-text-secondary typo-body">
+      {SUMMARY_LEAD}
+      {trailing}
+    </p>
+  );
 };
 
 const TypeView = ({
@@ -639,9 +655,10 @@ const TypeView = ({
           {TYPE_TITLE[kind]}
         </h3>
 
-        <TypeBody kind={kind} />
-
-        {HAS_SUMMARY.includes(kind) && <CopySummary />}
+        <TypeBody
+          kind={kind}
+          trailing={HAS_SUMMARY.includes(kind) ? <CopySummary /> : undefined}
+        />
 
         <div className="flex items-center justify-between gap-1 rounded-16 border border-border-subtlest-tertiary p-2">
           <BarAction icon={<UpvoteIcon />} label="Upvote" />
@@ -869,8 +886,10 @@ const ModalOrNavView = ({
       >
         {TITLE}
       </h1>
-      <p className="text-text-secondary typo-footnote">{SUMMARY_LEAD}</p>
-      <CopySummary />
+      <p className="text-text-secondary typo-footnote">
+        {SUMMARY_LEAD}
+        <CopySummary />
+      </p>
 
       {kind === 'modal' && (
         <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary pt-3">
