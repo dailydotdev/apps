@@ -858,6 +858,9 @@ importers:
       '@dailydotdev/shared':
         specifier: workspace:*
         version: link:../shared
+      '@dailydotdev/world-kit':
+        specifier: workspace:*
+        version: link:../world-kit
       '@growthbook/growthbook':
         specifier: 0.26.0
         version: 0.26.0
@@ -970,9 +973,6 @@ importers:
       '@dailydotdev/prettier-config':
         specifier: workspace:*
         version: link:../prettier-config
-      '@dailydotdev/world-kit':
-        specifier: workspace:*
-        version: link:../world-kit
       '@next/bundle-analyzer':
         specifier: 16.2.6
         version: 16.2.6
