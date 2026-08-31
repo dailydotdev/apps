@@ -143,23 +143,6 @@ const ActionBar = ({ device }: { device: Device }) => {
   );
 };
 
-/* #6351 as it ships: PostContentWidget + InviteLinkInput, shown only after
-   an upvote. The copy is "Should anyone else see this post?" */
-const UpvoteWidget = () => (
-  <div className="flex flex-col items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-3 laptop:flex-row laptop:gap-4">
-    <span className="font-bold text-text-tertiary typo-callout">
-      Should anyone else see this post?
-    </span>
-    <div className="flex w-full flex-1 items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-background-subtle px-3 py-1.5">
-      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-footnote">
-        dly.to/9xKp2mQ
-      </span>
-      <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
-        Copy link
-      </Button>
-    </div>
-  </div>
-);
 
 const SelectionBar = () => (
   <div
@@ -272,7 +255,6 @@ const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
 
         <ActionBar device={device} />
 
-        {spot === 'upvote' && <UpvoteWidget />}
 
         <div className="flex gap-3 border-t border-border-subtlest-tertiary pt-3">
           <img
@@ -290,16 +272,6 @@ const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
           </div>
         </div>
 
-        {spot === 'endband' && (
-          <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
-            <span className="flex-1 font-bold text-text-tertiary typo-callout">
-              Enjoyed this discussion?
-            </span>
-            <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
-              Copy link
-            </Button>
-          </div>
-        )}
       </div>
 
       {compact && <MobileFloatingBar />}
@@ -323,8 +295,8 @@ const Rail = ({ spot }: { spot: Spot }) => (
 
 const PostPage = () => (
   <SurfacePage
-    intro="Our highest-traffic surface by an order of magnitude — 1.38m views in 30 days. It is also the one surface that already has a real per-post OG image, which settles the payload question: the link renders as a card with the title, source and artwork, so copying it loses nothing."
-    map="Decision: no snapshot on the post page or modal. The post already has an OG image, so Copy link carries the payload on its own. The single exception is selected text — a highlighted line has no OG of its own, and that is the one place a snapshot adds something the link cannot."
+    intro="Our highest-traffic surface by an order of magnitude — 1.38m views in 30 days. It is also the one surface that already has a real per-post OG image, which settles the payload question before it is asked. Drawn from the production components: PostSourceInfo, PostActions and MobilePostFloatingBar."
+    map="Decision: no snapshot on the post page or the modal. The post already has an OG image, so a copied link previews properly wherever it lands — an image would be a second, worse copy of something we already generate. The one exception is highlighted text, where the quote is the payload and no OG exists for it."
     title="Post page & modal"
   >
     <Category
@@ -334,7 +306,7 @@ const PostPage = () => (
     >
       <Variant
         headline="⋯ opens with Share via; the bar ends with Copy"
-        note="Two share affordances already exist and neither is missing. Note the breakpoint: Read post and ⋯ are hidden below laptop, so on tablet the only share action on the whole screen is Copy in the bar."
+        note="Two share affordances already exist and neither is missing, so the visibility problem here is not a missing control. Note the breakpoint: Read post and ⋯ are hidden below laptop, so on tablet the only share action on the whole screen is Copy in the bar."
         step="Today"
         wide
       >
@@ -344,39 +316,16 @@ const PostPage = () => (
 
     <Category
       covers="#6352 · text-selection share bar"
-      title="The one place snapshot belongs"
-      verdict="A highlighted line has no OG image of its own. The quote is the share and the link is only attribution — the only moment on this page where an image beats the URL."
+      title="The one addition: selected text"
+      verdict="Snapshot leads here and nowhere else on this page. A quote has no URL of its own and no OG image — the card is the only way it travels with attribution."
     >
       <Variant
-        headline="Snapshot in the floating selection bar"
-        note="The bar appears exactly when intent exists, so nothing is added to the page for everyone else. Icon-only, alongside copy link, copy text and quote-in-a-comment. On mobile the browser's own selection callout takes over and we cannot restyle it, so treat this as a desktop-first bet and measure it there."
+        headline="Floating bar on selected text"
+        note="Copy link, copy text and quote-in-a-comment are the bar from #6352; snapshot is the fourth. Selection is awkward on touch, so this is a desktop-first bet — on mobile the native selection callout takes over and we cannot restyle it."
         step="Recommended"
         wide
       >
         <Rail spot="selection" />
-      </Variant>
-    </Category>
-
-    <Category
-      covers="the engagement bar · the summary · #6349 · #6351"
-      title="Ruled out, and why"
-      verdict="Every other placement on this page was considered and dropped. They are drawn here as they ship — with no snapshot — so the decision stays visible rather than becoming a gap someone re-opens later."
-    >
-      <Variant
-        headline="Not in the engagement bar, not beside the summary"
-        note="Both were built and both are being removed. The bar is already full at six actions and collapses its labels under pressure; the summary is covered by the OG image, which carries the same text to the same recipient with one fewer step."
-        step="Dropped"
-        wide
-      >
-        <Rail spot="endband" />
-      </Variant>
-      <Variant
-        headline="End-of-thread band and post-upvote prompt stay link-only"
-        note="Both are real moments and both belong to #6349 and #6351 rather than to snapshot. The upvote prompt already ships a short URL and a Copy link button — the payload it sends is the OG card, which is the right one."
-        step="Dropped"
-        wide
-      >
-        <Rail spot="upvote" />
       </Variant>
     </Category>
   </SurfacePage>
