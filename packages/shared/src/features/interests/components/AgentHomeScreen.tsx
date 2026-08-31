@@ -37,7 +37,7 @@ const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => {
 
   return (
     <li className="tablet:[&:first-child>a]:rounded-t-12 tablet:[&:last-child>a]:rounded-b-12">
-      <Link href={`${webappUrl}agent/${item.id}`}>
+      <Link href={`${webappUrl}agents/${item.id}`}>
         <a className="agent-press-row group/item flex items-start gap-2.5 rounded-12 bg-surface-float px-3 py-2.5 transition-colors hover:bg-surface-hover tablet:items-center tablet:gap-3 tablet:rounded-none tablet:bg-transparent tablet:py-2 tablet:hover:bg-surface-float">
           <span
             aria-hidden
