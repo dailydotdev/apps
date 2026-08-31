@@ -5,7 +5,7 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
-import React, { forwardRef, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { defaultMarkdownCommands } from '../../../hooks/input';
 import type { RichTextInputRef } from '../RichTextInput';
@@ -122,6 +122,55 @@ export function CommentMarkdownInputComponent(
     ? 'Switch to rich text'
     : 'Switch to Markdown';
 
+  // TEMP-DEBUG: report the composer's dialog ancestry, revert before merge.
+  const debugRef = useRef<HTMLFormElement | null>(null);
+  const [debugInfo, setDebugInfo] = useState('');
+  useEffect(() => {
+    try {
+      if (!window.localStorage.getItem('drawerDebug')) {
+        return undefined;
+      }
+    } catch {
+      return undefined;
+    }
+    const id = setInterval(() => {
+      const el = debugRef.current;
+      if (!el) {
+        return;
+      }
+      const dialog = el.closest<HTMLElement>('[role="dialog"]');
+      const overlay = dialog?.parentElement;
+      const chain: string[] = [];
+      let cur: HTMLElement | null = el.parentElement;
+      while (cur && cur !== document.body && chain.length < 12) {
+        chain.push(
+          cur.tagName +
+            (cur.className && typeof cur.className === 'string'
+              ? `.${cur.className.split(' ').slice(0, 2).join('.')}`
+              : ''),
+        );
+        cur = cur.parentElement;
+      }
+      const rect = el.getBoundingClientRect();
+      setDebugInfo(
+        JSON.stringify({
+          fills,
+          formRect: [Math.round(rect.top), Math.round(rect.bottom)],
+          hasDialog: !!dialog,
+          dialogTop: dialog
+            ? Math.round(dialog.getBoundingClientRect().top)
+            : null,
+          overlayTop: overlay
+            ? Math.round(overlay.getBoundingClientRect().top)
+            : null,
+          overlayCls: overlay?.className?.slice(0, 80),
+          chain,
+        }),
+      );
+    }, 900);
+    return () => clearInterval(id);
+  }, [fills]);
+
   const onSubmitForm: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
@@ -170,8 +219,37 @@ export function CommentMarkdownInputComponent(
         className?.container,
       )}
       style={{ maxHeight }}
-      ref={ref}
+      ref={(node) => {
+        debugRef.current = node;
+        if (typeof ref === 'function') {
+          ref(node);
+        } else if (ref) {
+          // eslint-disable-next-line no-param-reassign
+          ref.current = node;
+        }
+      }}
     >
+      {debugInfo && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 430,
+            left: 8,
+            right: 8,
+            zIndex: 2001,
+            background: '#000',
+            color: '#ff0',
+            fontSize: 11,
+            fontFamily: 'monospace',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-all',
+            pointerEvents: 'none',
+            padding: 4,
+          }}
+        >
+          {debugInfo}
+        </div>
+      )}
       <RichTextInput
         inputId={inputId}
         ref={(richTextRefInstance) => {

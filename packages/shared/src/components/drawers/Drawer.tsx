@@ -353,7 +353,11 @@ function BaseDrawer({
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
-      style={overlayKeyboardStyle}
+      style={
+        debugInfo
+          ? { ...overlayKeyboardStyle, outline: '3px solid lime' }
+          : overlayKeyboardStyle
+      }
       onClick={handleOverlayClick}
     >
       {debugInfo && (
