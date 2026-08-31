@@ -32,10 +32,10 @@ import {
 } from '../surfaceChrome';
 
 type Spot =
+  | 'plain'
   | 'today'
   | 'today-sheet'
   | 'summary'
-  | 'actionbar'
   | 'selection'
   | 'endband'
   | 'upvote';
@@ -173,13 +173,7 @@ const BarAction = ({
 );
 
 /** PostActions.v2: a bordered bar, labels visible from Comment rightwards. */
-const InlineActionBar = ({
-  device,
-  snapshot,
-}: {
-  device: DeviceName;
-  snapshot?: boolean;
-}) => (
+const InlineActionBar = ({ device }: { device: DeviceName }) => (
   <div className="flex items-center justify-between gap-1 rounded-16 border border-border-subtlest-tertiary p-2">
     <BarAction icon={<UpvoteIcon />} label="Upvote" />
     <BarAction icon={<DownvoteIcon />} label="Downvote" />
@@ -201,12 +195,11 @@ const InlineActionBar = ({
       label="Copy"
       labelVisible={!isCompact(device)}
     />
-    {snapshot && <Control action="Snapshot" />}
   </div>
 );
 
 /** MobilePostFloatingBar.v2: pinned, icons only, copy link last. */
-const FloatingBar = ({ snapshot }: { snapshot?: boolean }) => (
+const FloatingBar = () => (
   <div className="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-2">
     <Button
       icon={<UpvoteIcon />}
@@ -225,8 +218,22 @@ const FloatingBar = ({ snapshot }: { snapshot?: boolean }) => (
     </Button>
     <BarAction icon={<BookmarkIcon />} label="Bookmark" />
     <BarAction icon={<LinkIcon />} label="Copy link" />
-    {snapshot && <Control action="Snapshot" />}
   </div>
+);
+
+/**
+ * #6350's 'Copy summary': one tap puts the headline, the TLDR and the article
+ * link on the clipboard. Icon only and XSmall — it sits under body copy, so
+ * anything larger reads as part of the article.
+ */
+const CopySummary = () => (
+  <Button
+    aria-label="Copy summary"
+    className="self-start"
+    icon={<CopyIcon />}
+    size={ButtonSize.XSmall}
+    variant={ButtonVariant.Tertiary}
+  />
 );
 
 const SelectionBar = () => (
@@ -337,13 +344,7 @@ const PostView = ({
           highlighted={spot === 'selection'}
           trailing={
             (spot === 'selection' && <SelectionBar />) ||
-            (spot === 'summary' && (
-              <Control
-                action="Snapshot"
-                label={!compact}
-                variant={ButtonVariant.Float}
-              />
-            )) ||
+            (spot === 'summary' && <CopySummary />) ||
             undefined
           }
         />
@@ -352,7 +353,7 @@ const PostView = ({
         <Metadata />
 
         {!compact && (
-          <InlineActionBar device={device} snapshot={spot === 'actionbar'} />
+          <InlineActionBar device={device} />
         )}
 
         {spot === 'upvote' && (
@@ -369,13 +370,12 @@ const PostView = ({
 
         {spot === 'endband' && (
           <Band body="24 comments and counting" title="Enjoyed this discussion?">
-            <Control action="Snapshot" />
             <Control action="Link" label variant={ButtonVariant.Secondary} />
           </Band>
         )}
       </div>
 
-      {compact && <FloatingBar snapshot={spot === 'actionbar'} />}
+      {compact && <FloatingBar />}
       {spot === 'today-sheet' && <ShareSheet />}
     </Device>
   );
@@ -394,7 +394,7 @@ const AllDevices = ({ spot }: { spot: Spot }) => (
 const PostPage = () => (
   <SurfacePage
     intro="Our highest-traffic surface by an order of magnitude — 1.38m views in 30 days — so a percentage point of share rate is worth more here than anywhere else. It is also the surface where the least is missing: copy link already ships, labeled, in the action bar."
-    map="Sharing map: lead with Copy link (#6350). People want to read the article, not look at a picture of it. Snapshot earns a place on the summary and the quote, which stand alone without the page."
+    map="Sharing map: lead with Copy link (#6350). People want to read the article, not look at a picture of it. Snapshot appears exactly once on this page — on selected text, where the quote is the share and the link is only attribution."
     title="Post page & modal"
   >
     <Category
@@ -421,28 +421,28 @@ const PostPage = () => (
       </Variant>
       <Variant
         headline="Copy is already labeled in the action bar"
-        note="PostActions.v2 renders Comment, Award, Bookmark and Copy with `labelVisible`. Below laptop the labels drop and the bar becomes the pinned floating bar, icons only."
+        note="PostActions.v2 renders Comment, Award, Bookmark and Copy with `labelVisible`. Below laptop the labels drop and the bar becomes the pinned floating bar, icons only. Nothing is added here."
         step="Today · the action bar"
       >
-        <AllDevices spot="actionbar" />
+        <AllDevices spot="plain" />
       </Variant>
     </Category>
 
     <Category
-      covers="#6350 · summary · #6352 · text selection"
-      title="Where snapshot belongs"
-      verdict="Two payloads on this page stand alone without the article: the summary and a highlighted line. Both are already text we generated or the reader chose, which is exactly what a card can carry."
+      covers="#6350 · copy summary · #6352 · text selection"
+      title="The two additions"
+      verdict="Two payloads on this page stand alone without the article: the summary we generated and a line the reader chose. The summary goes out as text, because the whole point is that it can be pasted into a thread; the selection goes out as an image, because a quote is worth looking at."
     >
       <Variant
-        headline="Snapshot after the summary"
-        note="Built and live. Float weight so it does not compete with the article itself; label drops below laptop where the column is 375px wide."
+        headline="Copy summary — a tiny icon under the TLDR"
+        note="One tap copies the headline, the TLDR and the article link together, so pasting into Slack gives a usable message rather than a bare URL. Icon only and XSmall: it sits directly under body copy, and anything larger reads as part of the article."
         step="Recommended"
       >
         <AllDevices spot="summary" />
       </Variant>
       <Variant
         headline="Floating bar on selected text"
-        note="Snapshot leads here — the quote is the share and the link is attribution. The bar appears exactly when intent exists, and it is the one control on this page that costs no permanent chrome."
+        note="The only snapshot on the post page. The bar appears exactly when intent exists, so it is also the one control here that costs no permanent chrome."
         step="Recommended"
       >
         <AllDevices spot="selection" />
@@ -456,7 +456,7 @@ const PostPage = () => (
     >
       <Variant
         headline="Band under the last comment"
-        note="Peak-end: it sits where reading actually stops. Snapshot rides along for anyone who wants the thread as an image; on mobile the band and the floating bar both compete for the bottom of the screen, which is the real design problem here."
+        note="Peak-end: it sits where reading actually stops, and copy link is the whole offer — a still image of a live thread goes stale within hours. On mobile the band and the pinned floating bar both want the bottom of the screen, which is the real design problem here."
         step="End of thread"
       >
         <AllDevices spot="endband" />
