@@ -223,6 +223,12 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserFollow]: 'text-brand-default',
   };
 
+export const contentArrivalNotificationTypes = new Set<NotificationType>([
+  NotificationType.SourcePostAdded,
+  NotificationType.SquadPostAdded,
+  NotificationType.UserPostAdded,
+]);
+
 export const notificationTypeNotClickable: Partial<
   Record<NotificationType, boolean>
 > = {
