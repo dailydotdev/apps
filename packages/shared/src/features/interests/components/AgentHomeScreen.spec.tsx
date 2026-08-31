@@ -4,11 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../__tests__/helpers/media';
 import { AgentHomeScreen } from './AgentHomeScreen';
-import {
-  UserInterestCadence,
-  defaultCreateInterestSettings,
-  interestDisplayName,
-} from '../../../graphql/interests';
+import { interestDisplayName } from '../../../graphql/interests';
 import { recentMockAgents } from '../mock';
 
 const renderHome = (
@@ -158,8 +154,8 @@ describe('AgentHomeScreen given a shared prompt', () => {
   });
 });
 
-describe('AgentHomeScreen spawn settings', () => {
-  it('spawns with the default settings untouched', () => {
+describe('AgentHomeScreen spawn', () => {
+  it('spawns with just the prompt and lets onboarding ask the rest', () => {
     const onCreate = jest.fn();
     render(
       <TestBootProvider client={new QueryClient()}>
@@ -172,62 +168,19 @@ describe('AgentHomeScreen spawn settings', () => {
 
     expect(onCreate).toHaveBeenCalledWith({
       query: 'Rust in production',
-      settings: defaultCreateInterestSettings,
       onboarding: true,
     });
   });
 
-  it('spawns with what was picked in the settings', () => {
-    const onCreate = jest.fn();
+  it('offers no settings to tailor before spawning', () => {
     render(
       <TestBootProvider client={new QueryClient()}>
-        <AgentHomeScreen agents={[]} onCreate={onCreate} />
+        <AgentHomeScreen agents={[]} onCreate={jest.fn()} />
       </TestBootProvider>,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Agent settings' }));
-    fireEvent.click(screen.getByLabelText('Every week'));
-    fireEvent.change(field(), { target: { value: 'Zig internals' } });
-    fireEvent.click(screen.getByLabelText('Spawn the agent'));
-
-    expect(onCreate).toHaveBeenCalledWith({
-      query: 'Zig internals',
-      settings: {
-        cadence: UserInterestCadence.Weekly,
-        fomoThreshold: 0.5,
-        outputModes: {
-          feed: true,
-          post: true,
-          digest: false,
-          notification: true,
-        },
-        showHistory: true,
-      },
-      onboarding: true,
-    });
-  });
-
-  it('peeks the current values until the controls are asked for', () => {
-    renderHome();
-
-    expect(screen.getByText('Whenever it matters')).toBeInTheDocument();
-    expect(screen.getByText('Balanced')).toBeInTheDocument();
-    expect(screen.getByText('Full history')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Every week')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Agent settings' }));
-
-    expect(screen.getByLabelText('Every week')).toBeInTheDocument();
-  });
-
-  it('reflects what was picked back into the peek', () => {
-    renderHome();
-
-    const toggle = screen.getByRole('button', { name: 'Agent settings' });
-    fireEvent.click(toggle);
-    fireEvent.click(screen.getByLabelText('Every week'));
-    fireEvent.click(toggle);
-
-    expect(screen.getByText('Every week')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Agent settings' }),
+    ).not.toBeInTheDocument();
   });
 });
