@@ -30,13 +30,7 @@ import {
   Variant,
 } from '../surfaceChrome';
 
-type Spot =
-  | 'today'
-  | 'bar'
-  | 'summary'
-  | 'selection'
-  | 'endband'
-  | 'upvote';
+type Spot = 'today' | 'selection' | 'endband' | 'upvote';
 
 const TITLE = 'Why iconic tech brands lost their dominance';
 
@@ -102,13 +96,7 @@ const Tags = () => (
 
 /* The production engagement bar: a bordered pill, labels on everything but
    the votes, and Copy — not Share — as the last action. */
-const ActionBar = ({
-  device,
-  extra,
-}: {
-  device: Device;
-  extra?: React.ReactNode;
-}) => {
+const ActionBar = ({ device }: { device: Device }) => {
   const labels = !isCompact(device);
 
   return (
@@ -150,7 +138,6 @@ const ActionBar = ({
         >
           {labels ? 'Copy' : undefined}
         </Button>
-        {extra}
       </div>
     </div>
   );
@@ -158,7 +145,7 @@ const ActionBar = ({
 
 /* #6351 as it ships: PostContentWidget + InviteLinkInput, shown only after
    an upvote. The copy is "Should anyone else see this post?" */
-const UpvoteWidget = ({ withSnapshot }: { withSnapshot?: boolean }) => (
+const UpvoteWidget = () => (
   <div className="flex flex-col items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-3 laptop:flex-row laptop:gap-4">
     <span className="font-bold text-text-tertiary typo-callout">
       Should anyone else see this post?
@@ -167,7 +154,6 @@ const UpvoteWidget = ({ withSnapshot }: { withSnapshot?: boolean }) => (
       <span className="min-w-0 flex-1 truncate text-text-tertiary typo-footnote">
         dly.to/9xKp2mQ
       </span>
-      {withSnapshot && <Control action="Snapshot" />}
       <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
         Copy link
       </Button>
@@ -203,7 +189,7 @@ const SelectionBar = () => (
   </div>
 );
 
-const MobileFloatingBar = ({ withSnapshot }: { withSnapshot?: boolean }) => (
+const MobileFloatingBar = () => (
   <div className="sticky bottom-2 mx-2 mb-2 flex w-auto items-center justify-between rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-2 backdrop-blur-[2.5rem]">
     <Button
       aria-label="Upvote"
@@ -239,13 +225,11 @@ const MobileFloatingBar = ({ withSnapshot }: { withSnapshot?: boolean }) => (
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
     />
-    {withSnapshot && <Control action="Snapshot" />}
   </div>
 );
 
 const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
   const compact = isCompact(device);
-  const snapshotInBar = spot === 'bar';
 
   return (
     <Screen width={DEVICES[device].width}>
@@ -274,15 +258,6 @@ const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
         </p>
         {spot === 'selection' && <SelectionBar />}
 
-        {spot === 'summary' && (
-          <div className="flex items-center gap-2">
-            <span className="flex-1 text-text-quaternary typo-caption1">
-              Summary by daily.dev
-            </span>
-            <Control action="Snapshot" label variant={ButtonVariant.Float} />
-          </div>
-        )}
-
         <Tags />
 
         <span className="text-text-tertiary typo-footnote">
@@ -295,12 +270,9 @@ const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
           128 Upvotes · 24 Comments
         </span>
 
-        <ActionBar
-          device={device}
-          extra={snapshotInBar ? <Control action="Snapshot" /> : undefined}
-        />
+        <ActionBar device={device} />
 
-        {spot === 'upvote' && <UpvoteWidget withSnapshot />}
+        {spot === 'upvote' && <UpvoteWidget />}
 
         <div className="flex gap-3 border-t border-border-subtlest-tertiary pt-3">
           <img
@@ -323,7 +295,6 @@ const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
             <span className="flex-1 font-bold text-text-tertiary typo-callout">
               Enjoyed this discussion?
             </span>
-            <Control action="Snapshot" />
             <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
               Copy link
             </Button>
@@ -331,9 +302,7 @@ const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
         )}
       </div>
 
-      {compact && (
-        <MobileFloatingBar withSnapshot={spot === 'bar' && device === 'mobile'} />
-      )}
+      {compact && <MobileFloatingBar />}
     </Screen>
   );
 };
@@ -354,8 +323,8 @@ const Rail = ({ spot }: { spot: Spot }) => (
 
 const PostPage = () => (
   <SurfacePage
-    intro="Our highest-traffic surface by an order of magnitude — 1.38m views in 30 days — so a percentage point of share rate is worth more here than anywhere else. Drawn from the production components: PostSourceInfo, PostActions, PostContentWidget and MobilePostFloatingBar."
-    map="Sharing map: lead with Copy link (#6350, #6352, #6349, #6351). The destination is the value — people want to read the article, not look at a picture of it. Snapshot earns its place on the quote and the summary, which stand alone."
+    intro="Our highest-traffic surface by an order of magnitude — 1.38m views in 30 days. It is also the one surface that already has a real per-post OG image, which settles the payload question: the link renders as a card with the title, source and artwork, so copying it loses nothing."
+    map="Decision: no snapshot on the post page or modal. The post already has an OG image, so Copy link carries the payload on its own. The single exception is selected text — a highlighted line has no OG of its own, and that is the one place a snapshot adds something the link cannot."
     title="Post page & modal"
   >
     <Category
@@ -365,7 +334,7 @@ const PostPage = () => (
     >
       <Variant
         headline="⋯ opens with Share via; the bar ends with Copy"
-        note="Two share affordances already exist and neither is missing — which means the visibility problem here is not a missing control. Note the breakpoint: Read post and ⋯ are hidden below laptop, so on tablet the only share action on the whole screen is Copy in the bar."
+        note="Two share affordances already exist and neither is missing. Note the breakpoint: Read post and ⋯ are hidden below laptop, so on tablet the only share action on the whole screen is Copy in the bar."
         step="Today"
         wide
       >
@@ -374,53 +343,37 @@ const PostPage = () => (
     </Category>
 
     <Category
-      covers="#6350 · the engagement bar"
-      title="Adding snapshot to the bar"
-      verdict="The bar is full at six actions and already collapses its labels when it runs out of room. A seventh has to earn its width."
+      covers="#6352 · text-selection share bar"
+      title="The one place snapshot belongs"
+      verdict="A highlighted line has no OG image of its own. The quote is the share and the link is only attribution — the only moment on this page where an image beats the URL."
     >
       <Variant
-        headline="Snapshot after Copy"
-        note="Consistent with the other actions and cheap to build. On mobile it lands in the floating bar, which is where every share on a phone actually happens — worth more than the desktop placement."
+        headline="Snapshot in the floating selection bar"
+        note="The bar appears exactly when intent exists, so nothing is added to the page for everyone else. Icon-only, alongside copy link, copy text and quote-in-a-comment. On mobile the browser's own selection callout takes over and we cannot restyle it, so treat this as a desktop-first bet and measure it there."
         step="Recommended"
-        wide
-      >
-        <Rail spot="bar" />
-      </Variant>
-      <Variant
-        headline="Snapshot beside the summary"
-        note="Built and live. The summary is a self-contained payload, so this is the one place on the post page where an image genuinely beats a link. It also sits above the fold, unlike the bar."
-        step="Also"
-        wide
-      >
-        <Rail spot="summary" />
-      </Variant>
-    </Category>
-
-    <Category
-      covers="#6352 · selection · #6349 · end of conversation · #6351 · post-upvote"
-      title="The moments inside the post"
-      verdict="Three moments where intent spikes and the control can appear on its own rather than waiting to be found."
-    >
-      <Variant
-        headline="Floating bar on selected text"
-        note="Snapshot leads here: the quote is the share, the link is only attribution. Selection is awkward on touch, so this is a desktop-first bet — the mobile equivalent is the native selection callout, which we cannot restyle."
-        step="Selection"
         wide
       >
         <Rail spot="selection" />
       </Variant>
+    </Category>
+
+    <Category
+      covers="the engagement bar · the summary · #6349 · #6351"
+      title="Ruled out, and why"
+      verdict="Every other placement on this page was considered and dropped. They are drawn here as they ship — with no snapshot — so the decision stays visible rather than becoming a gap someone re-opens later."
+    >
       <Variant
-        headline="Band under the last comment"
-        note="Peak-end. The band sits where reading actually stops. Built on PostContentWidget so it matches the upvote prompt rather than inventing a second band style."
-        step="End of thread"
+        headline="Not in the engagement bar, not beside the summary"
+        note="Both were built and both are being removed. The bar is already full at six actions and collapses its labels under pressure; the summary is covered by the OG image, which carries the same text to the same recipient with one fewer step."
+        step="Dropped"
         wide
       >
         <Rail spot="endband" />
       </Variant>
       <Variant
-        headline="Snapshot inside the existing upvote prompt"
-        note="This widget already ships — a short URL and a Copy link button, shown only after an upvote. Adding snapshot beside the field costs nothing and needs no new moment."
-        step="After upvote"
+        headline="End-of-thread band and post-upvote prompt stay link-only"
+        note="Both are real moments and both belong to #6349 and #6351 rather than to snapshot. The upvote prompt already ships a short URL and a Copy link button — the payload it sends is the OG card, which is the right one."
+        step="Dropped"
         wide
       >
         <Rail spot="upvote" />

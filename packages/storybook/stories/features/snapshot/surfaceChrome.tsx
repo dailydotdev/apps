@@ -58,11 +58,14 @@ export const LABELS: Record<LeadAction, string> = {
 export const Control = ({
   action,
   label,
+  text,
   size = ButtonSize.Small,
   variant = ButtonVariant.Tertiary,
 }: {
   action: LeadAction;
   label?: boolean;
+  /** Overrides the default label where the surface needs shorter copy. */
+  text?: string;
   size?: ButtonSize;
   variant?: ButtonVariant;
 }) => (
@@ -72,7 +75,7 @@ export const Control = ({
     size={size}
     variant={variant}
   >
-    {label ? LABELS[action] : undefined}
+    {label ? text ?? LABELS[action] : undefined}
   </Button>
 );
 

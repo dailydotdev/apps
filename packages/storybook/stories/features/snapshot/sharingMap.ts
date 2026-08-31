@@ -20,9 +20,9 @@ export const SHARING_MAP: SharingMapRow[] = [
     surface: 'Post page & modal',
     pr: '6350',
     link: 'core',
-    snapshot: 'secondary',
+    snapshot: 'none',
     leads: 'Link',
-    why: 'They want to read it, not look at a picture of it',
+    why: 'It already has a real OG image, so the link carries the payload',
   },
   {
     surface: 'Highlighted text',
