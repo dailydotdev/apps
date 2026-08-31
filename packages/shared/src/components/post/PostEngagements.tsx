@@ -121,7 +121,7 @@ function PostEngagements({
     }
   }, [shouldOnboardAuthor]);
 
-  useOpenPostCommentRequest(post.id, commentRef);
+  useOpenPostCommentRequest(commentRef);
 
   return (
     <>

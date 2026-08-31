@@ -62,6 +62,12 @@ export interface DrawerOnMobileProps {
 let scrollLockCount = 0;
 let previousHtmlOverflow = '';
 
+// Escape must close only the top-most drawer of a stack.
+const drawerStack: symbol[] = [];
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'bottom-0 rounded-t-16',
   [DrawerPosition.Top]: 'top-0 rounded-b-16',
@@ -92,6 +98,12 @@ function BaseDrawer({
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement | null>(null);
+  const stackToken = useRef<symbol>();
+  if (!stackToken.current) {
+    stackToken.current = Symbol('drawer');
+  }
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
   const keyboardSafeStyle =
     isFullScreen && viewportHeight
@@ -108,6 +120,33 @@ function BaseDrawer({
       onAfterClose?.();
     };
   }, [onAfterClose, onAfterOpen]);
+
+  useEffect(() => {
+    const token = stackToken.current;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    drawerStack.push(token);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || drawerStack[drawerStack.length - 1] !== token) {
+        return;
+      }
+      e.stopPropagation();
+      onCloseRef.current(e);
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    if (!container.current?.contains(document.activeElement)) {
+      container.current?.focus();
+    }
+
+    return () => {
+      drawerStack.splice(drawerStack.indexOf(token), 1);
+      document.removeEventListener('keydown', onKeyDown);
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!isFullScreen) {
@@ -137,6 +176,29 @@ function BaseDrawer({
     };
   }, [isFullScreen]);
 
+  const trapFocus = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Tab' || !container.current) {
+      return;
+    }
+    const focusable = Array.from(
+      container.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    );
+    if (!focusable.length) {
+      e.preventDefault();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey && (active === first || active === container.current)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -163,8 +225,16 @@ function BaseDrawer({
       style={keyboardSafeStyle}
       onClick={handleOverlayClick}
     >
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         {...props}
+        role="dialog"
+        aria-modal="true"
+        aria-label={
+          props['aria-label'] ?? (typeof title === 'string' ? title : undefined)
+        }
+        tabIndex={-1}
+        onKeyDown={trapFocus}
         className={classNames(
           'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',

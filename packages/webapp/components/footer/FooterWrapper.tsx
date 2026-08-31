@@ -6,7 +6,7 @@ import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-import { requestOpenPostComment } from '@dailydotdev/shared/src/lib/postComment';
+import { useActivePostContext } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 
 const MobilePostFloatingBar = dynamic(() =>
   import(
@@ -35,6 +35,7 @@ export default function FooterWrapper({
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
+  const { requestOpenComment } = useActivePostContext();
 
   const showPlusButton =
     !router?.pathname?.startsWith('/settings') &&
@@ -56,9 +57,7 @@ export default function FooterWrapper({
         <div className="my-2 w-full px-2 tablet:hidden">
           <MobilePostFloatingBar
             post={post}
-            onCommentClick={(origin) =>
-              requestOpenPostComment({ postId: post.id, origin })
-            }
+            onCommentClick={(origin) => requestOpenComment?.(origin)}
           />
         </div>
       )}

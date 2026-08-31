@@ -87,7 +87,7 @@ export const PostDiscussionPanel = ({
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(origin);
 
-  useOpenPostCommentRequest(post.id, commentRef);
+  useOpenPostCommentRequest(commentRef);
 
   useEffect(() => {
     if (!onRegisterFocusComment) {

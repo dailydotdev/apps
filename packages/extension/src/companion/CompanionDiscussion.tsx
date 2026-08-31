@@ -10,7 +10,12 @@ import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import { generateCommentsQueryKey } from '@dailydotdev/shared/src/lib/query';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
+import type { CommentInputProps } from '@dailydotdev/shared/src/components/comments/CommentInput';
 import CommentInput from '@dailydotdev/shared/src/components/comments/CommentInput';
+
+const CompanionCommentInput = (props: CommentInputProps): ReactElement => (
+  <CommentInput {...props} forceInline />
+);
 
 interface CompanionDiscussionProps {
   post: PostBootData;
@@ -49,7 +54,7 @@ export function CompanionDiscussion({
           size={ProfileImageSize.Medium}
           post={post}
           className={{ container: 'companion-new-comment-button mb-4' }}
-          CommentInput={CommentInput}
+          CommentInput={CompanionCommentInput}
         />
         <PostComments
           post={post}

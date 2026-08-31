@@ -5,8 +5,7 @@ import { RichTextToolbar } from './RichTextToolbar';
 
 const mockTriggerProps = jest.fn();
 
-// Radix menu content does not render in jsdom, so the module is mocked with
-// an always-open content slot (same convention as other dropdown specs).
+// Radix menu content does not render in jsdom; mocked always-open.
 jest.mock('../../dropdown/DropdownMenu', () => ({
   DropdownMenu: ({ children }: React.PropsWithChildren) => (
     <div>{children}</div>

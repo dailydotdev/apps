@@ -19,6 +19,9 @@ import CloseButton from '../../CloseButton';
 import { MarkdownIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
+import { useNotificationToggle } from '../../../hooks/notifications';
+import { NotificationPromptSource } from '../../../lib/log';
+import { Switch } from '../Switch';
 import {
   Typography,
   TypographyColor,
@@ -81,6 +84,9 @@ export function CommentMarkdownInputComponent(
   const richTextRef = useRef<RichTextInputRef | null>(null);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
 
+  const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
+    useNotificationToggle({ source: NotificationPromptSource.NewComment });
+
   const { height: viewportHeight } = useVisualViewport(!fills);
   const maxHeight =
     viewportHeight && !fills
@@ -127,9 +133,9 @@ export function CommentMarkdownInputComponent(
 
     const result = await mutateComment(content);
 
-    // Clear draft after successful submission
-    if (result && richTextRef.current) {
-      richTextRef.current.clearDraft();
+    if (result) {
+      richTextRef.current?.clearDraft();
+      await onSubmitted();
     }
 
     return result;
@@ -144,9 +150,9 @@ export function CommentMarkdownInputComponent(
 
     const result = await mutateComment(content);
 
-    // Clear draft after successful submission
-    if (result && richTextRef.current) {
-      richTextRef.current.clearDraft();
+    if (result) {
+      richTextRef.current?.clearDraft();
+      await onSubmitted();
     }
 
     return result;
@@ -196,8 +202,6 @@ export function CommentMarkdownInputComponent(
         editCommentId={editCommentId}
         parentCommentId={parentCommentId}
         minHeightClassName="min-h-[6rem]"
-        // No `rows`: the textarea auto-grows from a measured 0px, so it would
-        // never act as a floor. `minHeightClassName` sets the empty height.
         textareaProps={{
           name: 'content',
           placeholder: 'Share your thoughts',
@@ -209,6 +213,22 @@ export function CommentMarkdownInputComponent(
         hideMarkdownHeader
         hideFooter
         hideMarkdownToggle
+        stackToolbarLeading
+        toolbarLeading={
+          fills && shouldShowCta ? (
+            <Switch
+              inputId="push_notification-switch"
+              name="push_notification"
+              className="flex-1"
+              labelClassName="flex-1 font-normal"
+              compact={false}
+              checked={isEnabled}
+              onToggle={onToggle}
+            >
+              Receive updates when other members engage
+            </Switch>
+          ) : undefined
+        }
         onMarkdownModeChange={setIsMarkdownMode}
         header={
           <div
