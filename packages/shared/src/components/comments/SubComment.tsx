@@ -23,6 +23,7 @@ export interface SubCommentProps
   extendTopConnector?: boolean;
   canReply?: boolean;
   onReplyBlocked?: () => void;
+  forceInlineComposer?: boolean;
 }
 
 function SubComment({
@@ -36,6 +37,7 @@ function SubComment({
   extendTopConnector = false,
   canReply = true,
   onReplyBlocked,
+  forceInlineComposer = false,
   ...props
 }: SubCommentProps): ReactElement {
   const { inputProps, commentId, onReplyTo } = useComments(props.post);
@@ -116,6 +118,7 @@ function SubComment({
         <CommentInput
           {...editProps}
           post={props.post}
+          forceInline={forceInlineComposer}
           onCommented={(data, isNew) => {
             onEdit(null);
             onCommented?.(data, isNew);
@@ -130,6 +133,7 @@ function SubComment({
             {...inputProps}
             className={className}
             post={props.post}
+            forceInline={forceInlineComposer}
             onCommented={(...params) => {
               onReplyTo(null);
               onCommented?.(...params);

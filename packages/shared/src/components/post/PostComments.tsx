@@ -45,6 +45,7 @@ interface PostCommentsProps {
   removeTopSpacing?: boolean;
   canReply?: MainCommentProps['canReply'];
   onReplyBlocked?: MainCommentProps['onReplyBlocked'];
+  forceInlineComposer?: MainCommentProps['forceInlineComposer'];
   /**
    * Renders after the top-level comment at which the running total of
    * comments — replies included, every comment counts — crosses a multiple
@@ -75,6 +76,7 @@ export function PostComments({
   removeTopSpacing = false,
   canReply,
   onReplyBlocked,
+  forceInlineComposer,
   interleaveEvery,
   renderInterleaved,
 }: PostCommentsProps): ReactElement {
@@ -186,6 +188,7 @@ export function PostComments({
                 lazy={!commentHash && index >= lazyCommentThreshold}
                 canReply={canReply}
                 onReplyBlocked={onReplyBlocked}
+                forceInlineComposer={forceInlineComposer}
               />
               {shouldInterleave &&
                 renderInterleaved(Math.floor(seen / interleaveEvery))}
