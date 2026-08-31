@@ -109,7 +109,7 @@ export const AgentWorkspaceHeader = (): ReactElement => {
             and cannot take one. `passHref` because legacyBehavior only injects
             the href into a plain `<a>` child. */}
         <span className="flex">
-          <Link href={`${webappUrl}agent`} passHref>
+          <Link href={`${webappUrl}agents`} passHref>
             <Button
               tag="a"
               icon={headerIcon(<MoveToIcon className="rotate-180" />)}

@@ -243,6 +243,8 @@ export enum HijackingVariant {
   Default = 'default',
   CTA = 'cta',
   Auth = 'auth',
+  /** Homepage cover art behind centered copy and a pair of CTAs. */
+  Cover = 'cover',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
   'hijacking_variants3',
@@ -332,12 +334,6 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
     endDate: '2026-09-01T00:00:00.000Z',
   },
 );
-
-// AdSense on the organic post page: two units, anonymous visitors only. The
-// unit map lives in code (post/arbitrage/slots.ts) — ids are public in any
-// live page's source, and a remote JSON value cost every surface's boot
-// payload the whole map.
-export const featurePostAdsense = new Feature('post_adsense', false);
 
 // Emergency kill switch for the /read template's ads — NOT an experiment, so
 // the true default is deliberate: the surface ships always-on (it is only

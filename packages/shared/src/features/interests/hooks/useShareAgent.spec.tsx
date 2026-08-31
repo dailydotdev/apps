@@ -20,7 +20,7 @@ describe('the shared agent link', () => {
       agentShareLink('Rust in production'),
     );
 
-    expect(pathname).toBe('/agent');
+    expect(pathname).toBe('/agents');
     expect(searchParams.get('q')).toBe('Rust in production');
   });
 
