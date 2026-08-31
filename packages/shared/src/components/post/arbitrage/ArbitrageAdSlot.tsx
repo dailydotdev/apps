@@ -36,9 +36,9 @@ export interface ArbitrageAdSlotProps {
    */
   hideOnPhone?: boolean;
   /**
-   * Which slot map and flag gate the unit: the /read arbitrage template
-   * (default) or the organic post page. The dashed density-review placeholder
-   * is a /read-template tool and never renders for the organic surface.
+   * Which slot map gates the unit: the /read arbitrage template (default) or
+   * the organic post page. The dashed density-review placeholder is a
+   * /read-template tool and never renders for the organic surface.
    */
   surface?: ArbitrageAdSurface;
   /**
@@ -143,20 +143,17 @@ function OrganicArbitrageAdSlot(
 }
 
 /**
- * A programmatic ad slot. Live only while its surface's boolean flag is on
- * AND its hardcoded map (slots.ts) carries a unit id for this slot number;
- * everything else collapses to nothing — visitors get a clean page. The
- * dashed density-review placeholder only ever appears in local development
- * builds of the /read template.
+ * A programmatic ad slot. Live only while its surface's hook says so — the
+ * /read template sits behind the read_adsense kill switch, the organic post
+ * page is anonymous-only — AND its hardcoded map (slots.ts) carries a unit id
+ * for this slot number; everything else collapses to nothing — visitors get a
+ * clean page. The dashed density-review placeholder only ever appears in
+ * local development builds of the /read template.
  */
 export function ArbitrageAdSlot({
   surface = 'read',
   ...props
 }: ArbitrageAdSlotProps): ReactElement | null {
-  // Split by surface so each branch evaluates only its own slot source: the
-  // organic hook conditionally evaluates the post_adsense flag, and a /read
-  // page calling it would enroll every visitor in an experiment that does not
-  // govern that route.
   if (surface === 'organic') {
     return <OrganicArbitrageAdSlot {...props} />;
   }
