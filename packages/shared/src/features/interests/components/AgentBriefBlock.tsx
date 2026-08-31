@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import Markdown from '../../../components/Markdown';
 import {
   Typography,
@@ -22,8 +22,14 @@ export const AgentBriefBlock = ({
   html: string;
   brief: string;
 }): ReactElement => {
-  const { interest, isBriefOpen, confirmBrief, isConfirmingBrief } = useAgent();
-  const [draft, setDraft] = useState<string | null>(null);
+  const {
+    interest,
+    isBriefOpen,
+    confirmBrief,
+    isConfirmingBrief,
+    briefDraft: draft,
+    setBriefDraft: setDraft,
+  } = useAgent();
   const isEditing = draft !== null;
   // Reflects a rewrite immediately, rather than the snapshot the run stored.
   const current = interest?.brief ?? brief;
@@ -103,6 +109,7 @@ export const AgentBriefBlock = ({
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Quaternary}
+                className="hidden tablet:inline"
               >
                 or press Enter
               </Typography>

@@ -10,6 +10,7 @@ import {
 import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { oneDay } from '../../../lib/dateFormat';
 import { useAgentShellHeight } from '../shell';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
@@ -195,36 +196,34 @@ export const AgentWorkspace = ({
   }, [isTailPending]);
 
   // "Press Enter" has to hold anywhere on the screen: clicking a chip moves
-  // focus onto that button, and the composer's own handler only fires while the
-  // field is focused.
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Enter' || event.shiftKey || event.defaultPrevented) {
-        return;
-      }
+  // focus onto that button, and the composer's own handler only fires while
+  // the field is focused.
+  useKeyboardNavigation(
+    globalThis?.window,
+    [
+      [
+        'Enter',
+        (event) => {
+          const target = event.target as HTMLElement | null;
 
-      const target = event.target as HTMLElement | null;
-      const tag = target?.tagName;
+          // A focused control activates on Enter by way of the default action,
+          // so preventing it here would cancel the press instead of helping.
+          // They all run the same actions anyway.
+          if (
+            event.shiftKey ||
+            target?.closest('button, a, select, [role="button"]')
+          ) {
+            return;
+          }
 
-      // The composer, and any other field, answer for themselves.
-      if (
-        tag === 'INPUT' ||
-        tag === 'TEXTAREA' ||
-        target?.isContentEditable ||
-        target?.closest('[role="dialog"]')
-      ) {
-        return;
-      }
-
-      if (advanceOnboarding()) {
-        event.preventDefault();
-      }
-    };
-
-    globalThis.addEventListener('keydown', onKeyDown);
-
-    return () => globalThis.removeEventListener('keydown', onKeyDown);
-  }, [advanceOnboarding]);
+          if (advanceOnboarding()) {
+            event.preventDefault();
+          }
+        },
+      ],
+    ],
+    { disableOnTags: ['input', 'textarea'], disabledModalOpened: true },
+  );
 
   useEffect(() => {
     const measure = () => {

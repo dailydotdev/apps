@@ -124,6 +124,7 @@ export const AgentQuestionBlock = ({
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Quaternary}
+                className="hidden tablet:inline"
               >
                 or press Enter
               </Typography>

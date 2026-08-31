@@ -261,8 +261,11 @@ export const AgentComposer = (): ReactElement => {
   // listens for it, which a disabled field could not.
   const needsTypedAnswer = activeQuestion?.input === 'text';
   const isComposerOff = isOnboarding && !needsTypedAnswer;
+  // A free-text question is not advanced by an empty submit, so send must not
+  // look live on one: the button would be enabled and do nothing.
   const canAdvance =
-    isOnboarding && (!!activeQuestion || isBriefOpen || isReviewOpen);
+    isOnboarding &&
+    ((!!activeQuestion && !needsTypedAnswer) || isBriefOpen || isReviewOpen);
 
   const onSubmit = () => {
     const trimmed = feedback.trim();
@@ -370,12 +373,10 @@ export const AgentComposer = (): ReactElement => {
 
     if (isComposerOff) {
       if (isReviewOpen) {
-        return 'Press Enter to start hunting…';
+        return 'Start hunting above…';
       }
 
-      return isBriefOpen
-        ? 'Use the buttons above, or press Enter…'
-        : 'Pick an option above, or press Enter…';
+      return isBriefOpen ? 'Use the buttons above…' : 'Pick an option above…';
     }
 
     if (needsTypedAnswer) {

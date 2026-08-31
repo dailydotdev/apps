@@ -132,6 +132,7 @@ export const AgentReviewBlock = (): ReactElement => {
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Quaternary}
+            className="hidden tablet:inline"
           >
             or press Enter
           </Typography>

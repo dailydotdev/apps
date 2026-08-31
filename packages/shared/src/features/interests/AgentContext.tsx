@@ -137,6 +137,13 @@ type AgentContextValue = {
   confirmBrief: (brief?: string) => void;
   isConfirmingBrief: boolean;
   /**
+   * The rewrite in progress, held here rather than in the block: Enter can be
+   * pressed with focus outside the editor, and a draft nobody can see would be
+   * silently discarded.
+   */
+  briefDraft: string | null;
+  setBriefDraft: (draft: string | null) => void;
+  /**
    * Accepts whichever onboarding step is open. Shared by the composer and the
    * workspace-wide Enter, so both do exactly the same thing.
    */
@@ -574,6 +581,7 @@ export const AgentProvider = ({
     !!lastMessage.blocks?.some((block) => block.type === 'review');
 
   const isBriefOpen =
+    !!isOnboarding &&
     interest?.onboardingStep === UserInterestOnboardingStep.Brief;
 
   const serverPending = historyTurns.some(isRunPending);
@@ -767,6 +775,8 @@ export const AgentProvider = ({
     [activeQuestion?.multi],
   );
 
+  const [briefDraft, setBriefDraft] = useState<string | null>(null);
+
   const confirmBrief = useCallback(
     (brief?: string) => {
       runConfirmBrief(brief).catch(() => undefined);
@@ -804,6 +814,20 @@ export const AgentProvider = ({
     }
 
     if (isBriefOpen) {
+      // An open editor wins: accepting the original would throw the rewrite
+      // away without saying so.
+      if (briefDraft !== null) {
+        const edited = briefDraft.trim();
+
+        if (!edited) {
+          return false;
+        }
+
+        confirmBrief(edited);
+
+        return true;
+      }
+
       confirmBrief();
 
       return true;
@@ -819,6 +843,7 @@ export const AgentProvider = ({
   }, [
     activeQuestion,
     answerQuestion,
+    briefDraft,
     completeOnboarding,
     confirmBrief,
     isBriefOpen,
@@ -994,6 +1019,8 @@ export const AgentProvider = ({
       isBriefOpen,
       confirmBrief,
       isConfirmingBrief,
+      briefDraft,
+      setBriefDraft,
       advanceOnboarding,
       activity,
       messages,
@@ -1053,6 +1080,7 @@ export const AgentProvider = ({
       isBriefOpen,
       confirmBrief,
       isConfirmingBrief,
+      briefDraft,
       advanceOnboarding,
       isSettingsOpen,
       isUpdating,
