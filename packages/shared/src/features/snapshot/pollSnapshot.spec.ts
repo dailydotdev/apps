@@ -50,6 +50,8 @@ describe('pollSnapshotFromPost', () => {
   });
 
   it('refuses a post with no options at all', () => {
-    expect(pollSnapshotFromPost({ ...poll, pollOptions: [] } as Post)).toBeNull();
+    expect(
+      pollSnapshotFromPost({ ...poll, pollOptions: [] } as Post),
+    ).toBeNull();
   });
 });
