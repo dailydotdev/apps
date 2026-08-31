@@ -13,6 +13,7 @@ import { NewOpportunityPopover } from './NewOpportunityPopover';
 import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 const OpportunityTooltip = ({
   children,
@@ -39,8 +40,9 @@ const OpportunityTooltip = ({
   );
 };
 
-export const OpportunityEntryButton = () => {
+export const OpportunityEntryButton = (): ReactElement | null => {
   const { alerts } = useAlertsContext();
+  const { isJobsEnabled } = useJobsFeature();
   const hasOpportunityAlert = !!alerts.opportunityId;
   const { checkHasCompleted } = useActions();
   const hasNotClickedOpportunity = !checkHasCompleted(
@@ -51,6 +53,10 @@ export const OpportunityEntryButton = () => {
     hasOpportunityAlert && hasNotClickedOpportunity
       ? OpportunityTooltip
       : SimpleTooltip;
+
+  if (!isJobsEnabled) {
+    return null;
+  }
 
   return (
     <RenderTooltip content="Jobs" placement="bottom-end">

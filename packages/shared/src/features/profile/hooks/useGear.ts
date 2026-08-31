@@ -6,13 +6,10 @@ import type {
   ReorderGearInput,
 } from '../../../graphql/user/gear';
 import { addGear, deleteGear, reorderGear } from '../../../graphql/user/gear';
-import type { ProfileShowcase } from '../../../graphql/user/profileShowcase';
 import { useProfileShowcase } from './useProfileShowcase';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-
-const selectGear = (data: ProfileShowcase) => data.gear;
 
 export function useGear(user: PublicProfile | null) {
   const { user: loggedUser } = useAuthContext();
@@ -23,7 +20,7 @@ export function useGear(user: PublicProfile | null) {
     queryKey,
     invalidate: invalidateQuery,
     ...query
-  } = useProfileShowcase(user, selectGear);
+  } = useProfileShowcase(user, 'gear');
 
   const gearItems = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],

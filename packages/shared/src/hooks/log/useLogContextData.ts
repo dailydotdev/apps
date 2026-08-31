@@ -2,6 +2,7 @@ import type { MutableRefObject } from 'react';
 import { useMemo } from 'react';
 import type { LogEvent, PushToQueueFunc } from './useLogQueue';
 import { getCurrentLifecycleState } from '../../lib/lifecycle';
+import { generateLogEventId } from '../../lib/logEventId';
 import type { Origin } from '../../lib/log';
 
 export type LogContextData = {
@@ -9,12 +10,6 @@ export type LogContextData = {
   logEventStart: (id: string, event: LogEvent) => void;
   logEventEnd: (id: string, now?: Date) => void;
   sendBeacon: () => void;
-};
-
-const generateEventId = (now = new Date()): string => {
-  const randomStr = (Math.random() + 1).toString(36).substring(8);
-  const timePart = (now.getTime() / 1000).toFixed(0);
-  return `${timePart}${randomStr}`;
 };
 
 export type PostOrigin =
@@ -42,7 +37,7 @@ const generateEvent = (
   ...sharedPropsRef.current,
   ...getGlobalSharedProps(),
   event_timestamp: now,
-  event_id: generateEventId(now),
+  event_id: generateLogEventId(now),
   event_page: page,
   ...event,
 });

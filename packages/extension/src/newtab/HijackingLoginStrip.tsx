@@ -24,11 +24,17 @@ import {
 import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
+  cloudinaryHijackingCoverArt,
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
   cloudinaryReadingReminderCat,
@@ -49,6 +55,13 @@ const primaryCta =
 
 const glassCta =
   '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
+
+const LIVE_COPY = {
+  heading: 'Own your new tab. Make it your dev briefing.',
+  body: 'Sign in and daily.dev remembers the topics, saves, and discussions that matter to you.',
+  signup: 'Sign up',
+  login: 'Log in',
+} as const;
 
 // The extension can't run social OAuth from its own origin (the API rejects it
 // with a 403). The CTA arm hands auth off to the webapp onboarding flow, which
@@ -78,6 +91,7 @@ function BrandLockup(): ReactElement {
 interface SigninHeroProps {
   onSignupClick: () => void;
   onLoginClick: () => void;
+  isLoggedOut: boolean;
   formRef: AuthOptionsProps['formRef'];
   onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'];
 }
@@ -100,7 +114,7 @@ function HeroActionButtons({
         className={classNames('flex-1', primaryCta)}
         onClick={onSignupClick}
       >
-        Sign up
+        {LIVE_COPY.signup}
       </Button>
       <Button
         type="button"
@@ -109,8 +123,66 @@ function HeroActionButtons({
         className={classNames('flex-1', glassCta)}
         onClick={onLoginClick}
       >
-        Log in
+        {LIVE_COPY.login}
       </Button>
+    </div>
+  );
+}
+
+const CONTROL_COPY = {
+  heading: 'Unlock the full daily.dev experience',
+  loggedOut: {
+    body: 'Log in to pick up where you left off.',
+    cta: 'Log in to continue',
+  },
+  onboarding: {
+    body: 'You still have a few onboarding steps left. Finish them to unlock the full experience.',
+    cta: 'Continue onboarding',
+  },
+} as const;
+
+// Rendered invisibly by the cover arms to reserve the control's exact height,
+// so editing the control cannot silently break the experiment's height parity.
+function ControlTextColumn({
+  isLoggedOut,
+  action,
+}: {
+  isLoggedOut: boolean;
+  action?: ReactNode;
+}): ReactElement {
+  const copy = isLoggedOut ? CONTROL_COPY.loggedOut : CONTROL_COPY.onboarding;
+
+  return (
+    <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
+      <div className="flex flex-col items-center gap-1 tablet:items-start">
+        <h3 className="font-bold text-white typo-title2">
+          {CONTROL_COPY.heading}
+        </h3>
+        <p className="text-white/80 text-sm">{copy.body}</p>
+        {action ?? (
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            className="mt-4 w-fit"
+          >
+            {copy.cta}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ControlMediaPanel({
+  children,
+}: {
+  children?: ReactNode;
+}): ReactElement {
+  return (
+    <div className="bg-black/20 flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+      {children ?? (
+        <div className="w-full" style={{ aspectRatio: '1040 / 758' }} />
+      )}
     </div>
   );
 }
@@ -136,12 +208,9 @@ function CatStageHero({
           <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
             <div className="flex flex-col items-center gap-1 tablet:items-start">
               <h3 className="font-bold text-white typo-title2">
-                Own your new tab. Make it your dev briefing.
+                {LIVE_COPY.heading}
               </h3>
-              <p className="text-white/70 text-sm">
-                Sign in and daily.dev remembers the topics, saves, and
-                discussions that matter to you.
-              </p>
+              <p className="text-white/70 text-sm">{LIVE_COPY.body}</p>
               <HeroActionButtons
                 onSignupClick={onSignupClick}
                 onLoginClick={onLoginClick}
@@ -231,11 +300,78 @@ function OnboardingSignupHero({
   );
 }
 
+const coverArtPosition = { objectPosition: '50% 62%' };
+
+function CoverSignupHero({
+  onSignupClick,
+  onLoginClick,
+  isLoggedOut,
+}: SigninHeroProps): ReactElement {
+  return (
+    <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
+      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
+        <img
+          src={cloudinaryHijackingCoverArt}
+          alt=""
+          aria-hidden
+          role="presentation"
+          className="pointer-events-none absolute inset-0 size-full object-cover"
+          style={coverArtPosition}
+        />
+        <div className="cover-hero-dome pointer-events-none absolute inset-0" />
+        <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
+        <div
+          aria-hidden
+          className="invisible hidden tablet:flex tablet:flex-row tablet:items-stretch"
+        >
+          <ControlTextColumn isLoggedOut={isLoggedOut} />
+          <ControlMediaPanel />
+        </div>
+        <div className="dark relative z-1 flex flex-col items-center justify-center p-5 text-center tablet:absolute tablet:inset-0">
+          <h3 className="font-bold text-white typo-title2 [text-shadow:0_2px_18px_rgba(0,0,0,0.6)]">
+            {LIVE_COPY.heading}
+          </h3>
+          <p className="text-white/80 mt-1 max-w-[34rem] text-balance text-sm [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
+            {LIVE_COPY.body}
+          </p>
+          <div className="mt-4 flex flex-row justify-center gap-2.5">
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              className={classNames(
+                'group/cta shadow-2 shadow-black/40',
+                primaryCta,
+              )}
+              onClick={onSignupClick}
+            >
+              {LIVE_COPY.signup}
+              <span className="ml-1 inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5">
+                →
+              </span>
+            </Button>
+            <Button
+              type="button"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Medium}
+              className={glassCta}
+              onClick={onLoginClick}
+            >
+              {LIVE_COPY.login}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const SigninHeroMap = {
   [HijackingVariant.CTA]: CatStageHero,
   [HijackingVariant.Auth]: OnboardingSignupHero,
+  [HijackingVariant.Cover]: CoverSignupHero,
 } satisfies Record<
-  HijackingVariant.CTA | HijackingVariant.Auth,
+  Exclude<HijackingVariant, HijackingVariant.Default>,
   (props: SigninHeroProps) => ReactElement
 >;
 
@@ -261,17 +397,10 @@ function DefaultHijackingStrip(): ReactElement {
         <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
           <div className="flex flex-col tablet:flex-row tablet:items-stretch">
-            <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
-              <div className="flex flex-col items-center gap-1 tablet:items-start">
-                <h3 className="font-bold text-white typo-title2">
-                  Unlock the full daily.dev experience
-                </h3>
-                <p className="text-white/80 text-sm">
-                  {isLoggedOut
-                    ? 'Log in to pick up where you left off.'
-                    : 'You still have a few onboarding steps left. Finish them to unlock the full experience.'}
-                </p>
-                {isLoggedOut ? (
+            <ControlTextColumn
+              isLoggedOut={isLoggedOut}
+              action={
+                isLoggedOut ? (
                   <Button
                     type="button"
                     variant={ButtonVariant.Primary}
@@ -285,7 +414,7 @@ function DefaultHijackingStrip(): ReactElement {
                       });
                     }}
                   >
-                    Log in to continue
+                    {CONTROL_COPY.loggedOut.cta}
                   </Button>
                 ) : (
                   <Button
@@ -295,18 +424,18 @@ function DefaultHijackingStrip(): ReactElement {
                     className="mt-4 w-fit"
                     onClick={logHijackingClick}
                   >
-                    Continue onboarding
+                    {CONTROL_COPY.onboarding.cta}
                   </Button>
-                )}
-              </div>
-            </div>
-            <div className="bg-black/20 flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+                )
+              }
+            />
+            <ControlMediaPanel>
               <img
                 src={cloudinaryReadingReminderCat}
                 alt="Sleeping cat on laptop"
                 className="m-0 h-full w-full max-w-none scale-105 object-contain laptopL:scale-110"
               />
-            </div>
+            </ControlMediaPanel>
           </div>
         </div>
       </div>
@@ -317,7 +446,7 @@ function DefaultHijackingStrip(): ReactElement {
 function HijackingHeroStrip({
   variant: experimentVariant,
 }: {
-  variant: HijackingVariant.CTA | HijackingVariant.Auth;
+  variant: Exclude<HijackingVariant, HijackingVariant.Default>;
 }): ReactElement {
   const { showLogin, user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -518,27 +647,32 @@ function HijackingHeroStrip({
       onLoginClick={onLoginClick}
       formRef={authFormRef}
       onAuthStateUpdate={onAuthStateUpdate}
+      isLoggedOut={isLoggedOut}
     />
   );
 }
 
 export default function HijackingLoginStrip(): ReactElement | null {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2, isLoading: isLayoutLoading } = useLayoutVariant();
+  // Below laptop the layout hook never evaluates, so its `isLoading` stays
+  // true for good. Only above it does that flag mean "still resolving".
+  const isLayoutResolved = !isLaptop || !isLayoutLoading;
   const { value, isLoading } = useConditionalFeature({
     feature: featureHijackingVariants,
-    shouldEvaluate: true,
+    shouldEvaluate: isLayoutResolved && !isV2,
   });
 
-  if (isLoading) {
+  if (!isLayoutResolved || isV2 || isLoading) {
     return null;
   }
 
-  const hijackingVariant = value as HijackingVariant;
+  const variant = value as HijackingVariant;
 
-  if (
-    hijackingVariant === HijackingVariant.CTA ||
-    hijackingVariant === HijackingVariant.Auth
-  ) {
-    return <HijackingHeroStrip variant={hijackingVariant} />;
+  if (variant in SigninHeroMap) {
+    return (
+      <HijackingHeroStrip variant={variant as keyof typeof SigninHeroMap} />
+    );
   }
 
   return <DefaultHijackingStrip />;

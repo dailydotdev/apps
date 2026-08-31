@@ -49,6 +49,13 @@ export interface MainCommentProps
   logImpression?: boolean;
   logClick?: boolean;
   isModalThread?: boolean;
+  /**
+   * Gates the reply affordance without hiding it (mirrors how `onReplyTo`
+   * already blocks logged-out users). Defaults to true so existing
+   * consumers are unaffected.
+   */
+  canReply?: boolean;
+  onReplyBlocked?: () => void;
 }
 
 const shouldShowBannerOnComment = (
@@ -71,6 +78,8 @@ export default function MainComment({
   logImpression,
   logClick,
   isModalThread = false,
+  canReply = true,
+  onReplyBlocked,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -163,13 +172,18 @@ export default function MainComment({
               ...className?.commentBox,
             }}
             appendTooltipTo={appendTooltipTo}
-            onComment={(selected, parentId) =>
+            onComment={(selected, parentId) => {
+              if (!canReply) {
+                onReplyBlocked?.();
+                return;
+              }
+
               onReplyTo({
                 username: selected.author?.username ?? null,
                 parentCommentId: parentId,
                 commentId: selected.id,
-              })
-            }
+              });
+            }}
             onEdit={({ id, lastUpdatedAt }) =>
               onEdit({ commentId: id, lastUpdatedAt })
             }
@@ -279,6 +293,8 @@ export default function MainComment({
               isFirst={index === 0}
               isLast={index === commentChildren.length - 1}
               extendTopConnector={isModalThread && commentId === comment.id}
+              canReply={canReply}
+              onReplyBlocked={onReplyBlocked}
             />
           ))}
         </div>

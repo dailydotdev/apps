@@ -29,8 +29,19 @@ export const WORLD_CSS = `
 .world-root canvas{display:block}
 .world-stage{position:absolute;inset:0}
 .world-stage.grab{cursor:grab}
-.world-stage.grabbing{cursor:grabbing}
-.world-stage.ride,.world-stage.ride.grab{cursor:pointer}
+/* NO BACKTICKS ANYWHERE IN THIS FILE: it is all one template literal, and one
+   of them ends the stylesheet in the middle of a comment.
+   The plates already say they are clickable (.lb below carries its own pointer),
+   but the GROUND is the bigger target and said nothing: a realm you walk into by
+   clicking its island looked exactly like a map you can only drag. The cursor is
+   the whole of the affordance on purpose: the labels deliberately do not react
+   to a pointer (see the note in world.js), because anything that swells or
+   lights up rewrites the map under the reader mid-read. */
+.world-stage.pick,.world-stage.pick.grab{cursor:pointer}
+/* Both of these beat pick: a drag in progress is not an offer to click, and a
+   bird under the pointer is the more specific offer of the two. */
+.world-stage.grabbing,.world-stage.grabbing.pick{cursor:grabbing}
+.world-stage.ride,.world-stage.ride.grab,.world-stage.ride.pick{cursor:pointer}
 
 /* =================================================================== labels */
 /* ONE component at both levels. A realm label and a district label are the same

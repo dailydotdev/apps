@@ -16,13 +16,14 @@ import {
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import ConditionalWrapper from '../../../../components/ConditionalWrapper';
 import { LockIcon, PlusIcon } from '../../../../components/icons';
+import { ToolLogo } from '../../../../components/tools/ToolLogo';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
   UserStack,
   AddUserStackInput,
-  DatasetTool,
+  AutocompleteTool,
 } from '../../../../graphql/user/userStack';
 import { useStackSearch } from '../../hooks/useStackSearch';
 import YearSelect from '../../../../components/profile/YearSelect';
@@ -105,7 +106,7 @@ export function UserStackModal({
   const finalSection = isCustomSection ? customSection || section : section;
   const canSubmit = title.trim().length > 0 && finalSection.trim().length > 0;
 
-  const handleSelectSuggestion = (suggestion: DatasetTool) => {
+  const handleSelectSuggestion = (suggestion: AutocompleteTool) => {
     setValue('title', suggestion.title);
     setShowSuggestions(false);
   };
@@ -230,15 +231,12 @@ export function UserStackModal({
                       className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
                       onClick={() => handleSelectSuggestion(suggestion)}
                     >
-                      {suggestion.faviconUrl ? (
-                        <img
-                          src={suggestion.faviconUrl}
-                          alt=""
-                          className="rounded size-4"
-                        />
-                      ) : (
-                        <PlusIcon className="size-4 text-text-tertiary" />
-                      )}
+                      <ToolLogo
+                        title={suggestion.title}
+                        faviconUrl={suggestion.faviconUrl}
+                        url={suggestion.url}
+                        className="rounded size-4 typo-caption2"
+                      />
                       <span className="typo-callout">{suggestion.title}</span>
                     </button>
                   ))}

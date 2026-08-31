@@ -14,6 +14,7 @@ export enum NotificationAvatarType {
   Brief = 'brief',
   Digest = 'digest',
   Achievement = 'achievement',
+  World = 'world',
 }
 
 export interface NotificationAvatar extends WithClassNameProps {

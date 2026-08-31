@@ -20,7 +20,8 @@ export interface WorldDraft {
   setSettings: (next: WorldDraftSettings) => void;
   open: () => void;
   cancel: () => void;
-  save: () => Promise<void>;
+  /** Resolves true once the bench has closed, false when the write failed and the bench stayed open with the error. */
+  save: () => Promise<boolean>;
   isSaving: boolean;
   error?: string;
   /** What the engine is told: the draft while the bench is open, stored settings otherwise. */
@@ -98,7 +99,7 @@ export const useWorldDraft = (
 
   const save = useCallback(async () => {
     if (!settings) {
-      return;
+      return true;
     }
     const patch = worldSettingsPatch(settings, saved);
     // An untouched bench is not a write; an empty patch spares the round trip.
@@ -108,7 +109,7 @@ export const useWorldDraft = (
       } catch {
         // The mutation's own error state carries the message; the bench stays
         // open so nothing typed is lost.
-        return;
+        return false;
       }
       /* The patch rather than the draft, so this says what was CHANGED and not
          what happens to be set. `is_first` is the one that matters: whether
@@ -125,6 +126,7 @@ export const useWorldDraft = (
       });
     }
     setSettings(null);
+    return true;
   }, [logEvent, persist, saved, settings, userId]);
 
   /* The draft while the bench is open, stored settings the moment it closes —

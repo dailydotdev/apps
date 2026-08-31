@@ -20,13 +20,6 @@ Available at: [daily.dev](https://daily.dev)
 * `pages` - Contains the pages of the app. This is required by Next.js
 * `public` - Files that should be publicly available and not processed by any way.
 
-## Local environment
-
-daily.dev web app requires a running environment of daily.dev.
-[Check out this guide](https://github.com/dailydotdev/daily#-running-dailydev-locally) of how to run daily.dev locally.
-
-Finally run `npm run dev:notls` to run the service and listen to port `5002`.
-
 ## Want to Help?
 
 So you want to contribute to daily.dev web app and make an impact, we are glad to hear it. :heart_eyes:

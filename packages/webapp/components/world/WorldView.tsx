@@ -1,25 +1,45 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useRouter } from 'next/router';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { WorldBack } from './WorldBack';
 import { WorldBoot } from './WorldBoot';
+import { WorldDistrictFeed } from './WorldDistrictFeed';
+import { WorldGuideSheet } from './WorldGuide';
+import { WorldIntro } from './WorldIntro';
 import { useIsOwnWorld, WorldInvite } from './WorldInvite';
+import { useWorldIntro } from './useWorldIntro';
+import { authoringEndpoint, useWorldAuthoring } from './useWorldAuthoring';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
 import { WorldPrivate } from './WorldPrivate';
 import { WorldRiding } from './WorldRiding';
 import { WorldStatus } from './WorldStatus';
 import { WorldTimeline } from './WorldTimeline';
-import type { WorldEngine, WorldState } from './worldState';
+import type {
+  WorldAuthoredEntry,
+  WorldAuthoredTarget,
+  WorldEngine,
+  WorldState,
+} from './worldState';
 import type { UserWorldResult } from './useUserWorld';
 import { useWorldDraft } from './useWorldDraft';
 import { useWorldLog } from './useWorldLog';
 import { RIDE_MUTED_KEY, useWorldMusic } from './useWorldMusic';
 import { useWorldPlate } from './useWorldPlate';
+import { useUpdateWorldObjects } from './useWorldObjects';
+import { worldPayloadHash } from './authoredPayload';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
 import { buildUnbuiltWorld } from './unbuiltWorld';
@@ -60,6 +80,21 @@ const PAD_IMMERSIVE = { l: 16, r: 16, t: 96, b: 16 };
 const PAD_UNBUILT_DESKTOP = { l: 344, r: 18, t: 176, b: 40 };
 const PAD_UNBUILT_MOBILE = { l: 16, r: 16, t: 208, b: 32 };
 
+const authoredEntriesOf = (
+  objects: UserWorldResult['objects'],
+): WorldAuthoredEntry[] =>
+  (objects ?? []).map(
+    ({ scope, realm, niche, family, opsVersion, payload }) => ({
+      scope,
+      realm,
+      niche,
+      family,
+      opsVersion,
+      payload,
+      payloadHash: worldPayloadHash(payload),
+    }),
+  );
+
 interface WorldViewProps {
   user: PublicProfile;
   /* Fetched by the page, not here: this component only exists once its own
@@ -83,6 +118,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const [failed, setFailed] = useState<string | null>(null);
   const [isImmersive, setIsImmersive] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const router = useRouter();
   const { autoDismissNotifications } = useSettingsContext();
   /* Answered before the engine is built and never asked again: it decides how
      the renderer is configured, and a WebGL context cannot be reconfigured
@@ -93,6 +129,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     districts,
     timeline,
     settings,
+    objects,
     isPending,
     isHistoryPending,
     isEmpty,
@@ -102,6 +139,35 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const isOwn = useIsOwnWorld(user);
   const draft = useWorldDraft(user.id, settings);
   const { applied } = draft;
+  const savedEntries = useMemo(() => authoredEntriesOf(objects), [objects]);
+  const { save: saveWorldObjects } = useUpdateWorldObjects(user.id);
+  const persistAuthored = useCallback(
+    async (
+      upserts: WorldAuthoredEntry[],
+      reverts: WorldAuthoredTarget[],
+    ): Promise<WorldAuthoredEntry[]> => {
+      const saved = await saveWorldObjects({
+        upserts: upserts.map(
+          ({ scope, realm, niche, family, opsVersion, payload }) => ({
+            scope,
+            realm,
+            niche,
+            family,
+            opsVersion,
+            payload,
+          }),
+        ),
+        reverts: reverts.map(({ scope, realm, niche, family }) => ({
+          scope,
+          realm,
+          niche,
+          family,
+        })),
+      });
+      return authoredEntriesOf(saved);
+    },
+    [saveWorldObjects],
+  );
 
   /* The app keeps a permanent scrollbar gutter on the body so feeds don't jump
      when they grow. Nothing on this page scrolls, and a fixed layer is laid out
@@ -164,6 +230,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     }
     setRaisedFor(user.id);
     setHasNoReplay(false);
+    engine.replaceAuthored([]);
 
     /* Building the model throws; raising the world rejects. Both have to land
        in `failed`, or the boot bar sweeps forever over a world that died. */
@@ -248,9 +315,65 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     engineRef.current?.setLevelProgress(isOwn);
   }, [isOwn]);
 
+  /* Live authoring, and only while the owner has the bench open. `world dev` on
+     their own machine synchronizes recorded realm object sets here as one
+     transaction. Nobody else's page ever opens the connection: for every
+     visitor this is one boolean that stays false. */
+  const [isBuildOpen, setIsBuildOpen] = useState(false);
+  const openBuild = useCallback(() => {
+    engineRef.current?.deselect();
+    setIsBuildOpen(true);
+  }, []);
+  /* Narrowed once: the handle either exists and building is offered, or it is
+     undefined and nothing downstream re-tests the same fact. */
+  const buildHandle =
+    isOwn && !isEmpty && !isPrivate ? user.username ?? undefined : undefined;
+  const canBuild = !!buildHandle;
+  useEffect(() => {
+    if (
+      isBuildOpen ||
+      !objects ||
+      state.status !== 'ready' ||
+      raisedFor !== user.id
+    ) {
+      return;
+    }
+    engineRef.current?.replaceAuthored(savedEntries);
+  }, [isBuildOpen, objects, raisedFor, savedEntries, state.status, user.id]);
+
+  const authoring = useWorldAuthoring(engineRef, {
+    endpoint: authoringEndpoint(router.query.authoring),
+    userId: user.id,
+    handle: buildHandle ?? '',
+    baseline: savedEntries,
+    onSave: persistAuthored,
+    enabled:
+      canBuild &&
+      isBuildOpen &&
+      state.status === 'ready' &&
+      raisedFor === user.id,
+  });
+
+  /* Closing drops the live preview back to the saved world; the project on
+     disk keeps everything, and the toast is what stops that looking like a
+     loss. */
+  const { displayToast } = useToastNotification();
+  const { unsaved: unsavedBuilds } = authoring;
+  const closeBuild = useCallback(() => {
+    /* A district clicked while building was a look around, not a feed request:
+       carrying the selection out would pop a stale feed over the world. */
+    engineRef.current?.deselect();
+    setIsBuildOpen(false);
+    if (unsavedBuilds > 0) {
+      displayToast(
+        'Live preview closed. Your local project still has your changes.',
+      );
+    }
+  }, [displayToast, unsavedBuilds]);
+
   /* The share card is composed server-side around a render only this machine
-     can cheaply make. Reads the STORED settings, not the draft: a plate is what
-     the world looks like to everyone, not what the owner is trying on. */
+     can cheaply make. Reads the STORED settings and objects, not either local
+     preview: a plate is what everyone sees, not what the owner is trying on. */
   useWorldPlate({
     userId: user.id,
     isOwn,
@@ -259,6 +382,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     engineRef,
     districts,
     settings,
+    objects,
   });
 
   useEffect(() => {
@@ -295,6 +419,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
   const onLeaveRealm = useCallback(() => engineRef.current?.leaveRealm(), []);
+  /* Closing the feed drops the engine's selection rather than hiding the panel
+     in React: the lit plot border and the highlighted rail row are the same
+     fact, and a panel dismissed on its own would leave the world claiming a
+     town is open. Dropping the selection is also what lets clicking the same
+     town again reopen it. */
+  const onCloseDistrict = useCallback(() => engineRef.current?.deselect(), []);
   const attachSpark = useCallback(
     (canvas: HTMLCanvasElement | null) =>
       engineRef.current?.attachSpark(canvas),
@@ -363,6 +493,39 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   /* Never on an unbuilt world: WorldInvite already makes the one ask there,
      and it makes it nowhere else. */
   const showNudge = isOwn && !isUnbuilt && !isWorldCustomised(applied);
+  /* A district is only ever selected inside a realm, so this is also what says
+     the reader has walked in and clicked a town. Not while the bench is open:
+     dressing a world means clicking towns to see chips land on them, and a feed
+     opening over every one of those clicks is noise on top of the one job the
+     owner is there to do. */
+  const openDistrict =
+    isChromeVisible && !ownerDraft?.isOpen && !isBuildOpen
+      ? state.district
+      : null;
+
+  /* Below laptop only: on a laptop the same guide replaces the rail, and the
+     rail is where it is asked for. */
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  /* The scrubber is the one piece of chrome the bar has to stand clear of, and
+     the conditions are the same ones that put it on screen below. */
+  const hasTimeline =
+    isChromeVisible &&
+    !isLite &&
+    !isUnbuilt &&
+    (state.replayable || !hasNoReplay) &&
+    (isLaptop || !openDistrict);
+
+  const { step: introStep, dismiss: dismissIntro } = useWorldIntro({
+    userId: user.id,
+    isOwn,
+    /* Never over bare ground, where `WorldInvite` already makes the one ask and
+       there is nothing to walk into anyway. Never while the bench is open, or
+       riding, or immersive: each of those is a reader who has found something
+       to do, and this is for one who has not. */
+    isEligible: isChromeVisible && !isUnbuilt && !ownerDraft?.isOpen,
+    isInRealm: !!state.open,
+    hasDistrict: !!state.district,
+  });
 
   /* A hidden world draws nothing — no map, timeline or crest — so this returns
      before the boot screen too. */
@@ -382,55 +545,109 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     <div className="fixed inset-0 overflow-hidden bg-background-default">
       <div ref={mountRef} className="absolute inset-0" />
 
-      {isChromeVisible && (
-        <>
-          {isLaptop ? (
-            <WorldPanel
-              user={user}
-              state={state}
-              unbuilt={isUnbuilt}
-              isImmersive={isImmersive}
-              worldName={worldName}
-              isOwn={isOwn}
-              canShare={canShare}
-              draft={ownerDraft}
-              districts={districts}
-              showNudge={showNudge}
-              onToggleImmersive={onToggleImmersive}
-              onFocus={onFocus}
-              onLeaveRealm={onLeaveRealm}
-            />
-          ) : (
-            <WorldBack
-              user={user}
-              isInRealm={!!state.open}
-              worldName={worldName}
-              isOwn={isOwn}
-              canShare={canShare}
-              onLeaveRealm={onLeaveRealm}
-            />
-          )}
-          {/* On screen while the growth log is still on the wire, inert, in the
-              place it will be live in. It is the last thing to arrive and the
-              only one that changes the layout, so it reserves its own room.
+      {/* Hidden rather than dropped: the rail carries the signup card, which
+          logs `open signup` from its mount, so dropping it reports another
+          signup open every time the panels come back. Standing is what it is
+          mounted on, because that is the visit worth counting. */}
+      {isStanding && isLaptop && (
+        <div hidden={!isChromeVisible}>
+          <WorldPanel
+            user={user}
+            state={state}
+            unbuilt={isUnbuilt}
+            isHidden={!isChromeVisible}
+            isImmersive={isImmersive}
+            worldName={worldName}
+            isOwn={isOwn}
+            canShare={canShare}
+            draft={ownerDraft}
+            districts={districts}
+            showNudge={showNudge}
+            build={
+              buildHandle
+                ? {
+                    handle: buildHandle,
+                    authoring,
+                    isOpen: isBuildOpen,
+                    open: openBuild,
+                    close: closeBuild,
+                  }
+                : undefined
+            }
+            onToggleImmersive={onToggleImmersive}
+            onFocus={onFocus}
+            onLeaveRealm={onLeaveRealm}
+          />
+        </div>
+      )}
 
-              Never on a handheld. The bar is a transport, a scrubber, three
-              speeds and a sparkline, and a phone has room for one of those
-              five; the log it drives is not fetched there either. What is left
-              is a world, which is the thing worth the screen anyway. */}
-          {!isLite && !isUnbuilt && (state.replayable || !hasNoReplay) && (
-            <WorldTimeline
-              state={state}
-              pending={!state.replayable}
-              sparkRef={attachSpark}
-              onToggle={onToggle}
-              onSeek={onSeek}
-              onStart={onStart}
-              onEnd={onEnd}
-              onSpeed={onSpeed}
-            />
-          )}
-        </>
+      {/* Whatever the last click selected, read out. Deliberately does NOT
+          repad the camera: `setPadding` refits the whole realm, which would
+          throw away the reader's zoom and pan every time they clicked a town,
+          a steep price for a panel that opens and closes on single clicks. So
+          it overlays the world's edge and the reader pans if they need to. */}
+      {!!openDistrict && (
+        <WorldDistrictFeed
+          userId={user.id}
+          userName={user.name}
+          isOwn={isOwn}
+          district={openDistrict}
+          onClose={onCloseDistrict}
+        />
+      )}
+
+      {isChromeVisible && !isLaptop && (
+        <WorldBack
+          user={user}
+          isInRealm={!!state.open}
+          worldName={worldName}
+          isOwn={isOwn}
+          canShare={canShare}
+          onLeaveRealm={onLeaveRealm}
+          onOpenGuide={() => setIsGuideOpen(true)}
+        />
+      )}
+
+      {isStanding && !isLaptop && isGuideOpen && (
+        <WorldGuideSheet
+          state={state}
+          userName={user.name}
+          isOwn={isOwn}
+          districts={districts}
+          /* Both of these are laptop-only surfaces, so neither is promised to a
+             reader who has no way to reach them: the scrubber is not rendered
+             on a handheld, and the bench is rail-only on every screen. */
+          hasReplay={hasTimeline}
+          canCustomize={false}
+          isTouch={isLite}
+          onClose={() => setIsGuideOpen(false)}
+        />
+      )}
+
+      {/* On screen while the growth log is still on the wire, inert, in the
+          place it will be live in. It is the last thing to arrive and the
+          only one that changes the layout, so it reserves its own room.
+
+          Never on a handheld. The bar is a transport, a scrubber, three
+          speeds and a sparkline, and a phone has room for one of those
+          five; the log it drives is not fetched there either. What is left
+          is a world, which is the thing worth the screen anyway. */}
+      {/* Below laptop the district feed is a sheet across the bottom, sitting
+          exactly where this bar does. Nothing is gained by leaving a scrubber
+          under it that cannot be reached, so the bar comes down for as long as
+          the feed is up. On laptop it stops short of the panel instead. */}
+      {hasTimeline && (
+        <WorldTimeline
+          state={state}
+          pending={!state.replayable}
+          sparkRef={attachSpark}
+          insetRight={!!openDistrict}
+          onToggle={onToggle}
+          onSeek={onSeek}
+          onStart={onStart}
+          onEnd={onEnd}
+          onSpeed={onSpeed}
+        />
       )}
 
       {isRiding && (
@@ -443,9 +660,22 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
 
       {isUnbuilt && !isRiding && <WorldInvite user={user} />}
 
+      {/* Under the guide sheet on purpose: the sheet is the same explanation
+          asked for deliberately, and a hint bar poking out from under it is two
+          answers to one question. */}
+      {!!introStep && !isGuideOpen && (
+        <WorldIntro
+          step={introStep}
+          hasTimeline={hasTimeline}
+          isTouch={isLite}
+          isOwn={isOwn}
+          onDismiss={dismissIntro}
+        />
+      )}
+
       {/* No bar anywhere holds it any more, so it always stands on the world:
           top right, opposite whatever is in the other corner. */}
-      {isStanding && <WorldMark floating />}
+      {isStanding && <WorldMark floating insetRight={!!openDistrict} />}
 
       {/* The toggle lives in whatever chrome is on screen. Once none is, it
           stands on the world too, opposite the mark, because it is then the

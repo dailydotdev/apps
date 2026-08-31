@@ -1,7 +1,17 @@
 import { gql } from 'graphql-request';
+import { SUPPORTED_TYPES } from '@dailydotdev/shared/src/graphql/feed';
+import type { Connection } from '@dailydotdev/shared/src/graphql/common';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 
 export interface WorldNiche {
   slug: string;
+  /**
+   * What the API filters posts by. Optional because an unbuilt world fabricates
+   * its six seed districts out of the taxonomy (`buildUnbuiltWorld`), and those
+   * have no niche behind them to carry an id: nothing can be selected on bare
+   * ground, so nothing ever asks them for one.
+   */
+  id?: string;
 }
 
 export interface WorldDistrict {
@@ -16,6 +26,29 @@ export interface WorldGrowth {
   date: string;
   niche: WorldNiche;
   reads: number;
+}
+
+export interface WorldObjectTarget {
+  scope: 'realm' | 'district';
+  realm: string;
+  niche: string | null;
+  family: string;
+}
+
+export interface WorldObjectPayload {
+  variants?: Array<{ ops: unknown[]; size: number[] }>;
+  tiers?: Record<string, Array<{ ops: unknown[]; size: number[] }>>;
+}
+
+export interface WorldObject extends WorldObjectTarget {
+  opsVersion: number;
+  payload: WorldObjectPayload;
+  updatedAt: string;
+}
+
+export interface WorldObjectUpsert extends WorldObjectTarget {
+  opsVersion: number;
+  payload: WorldObjectPayload;
 }
 
 export interface UserWorldTimelineData {
@@ -109,6 +142,7 @@ export interface WorldEntitlement {
 export interface UserWorldData {
   userWorld: WorldDistrict[];
   userWorldSettings: WorldSettings | null;
+  userWorldObjects: WorldObject[];
 }
 
 export interface UserWorldEntitlementsData {
@@ -117,6 +151,10 @@ export interface UserWorldEntitlementsData {
 
 export interface UpdateUserWorldSettingsData {
   updateUserWorldSettings: WorldSettings | null;
+}
+
+export interface UpdateUserWorldObjectsData {
+  updateUserWorldObjects: WorldObject[];
 }
 
 export interface UploadUserWorldPlateData {
@@ -164,10 +202,22 @@ const WORLD_SETTINGS_FRAGMENT = gql`
   }
 `;
 
+const WORLD_OBJECT_FRAGMENT = gql`
+  fragment WorldObject on UserWorldObject {
+    scope
+    realm
+    niche
+    family
+    opsVersion
+    payload
+    updatedAt
+  }
+`;
+
 /**
- * Districts and settings in one round trip — neither can draw without the
- * other. The growth log is NOT in here (tens of thousands of rows on a
- * long-tenured world; fetched separately). A private world comes back as
+ * Districts, settings and authored objects in one round trip — all three draw
+ * the standing world. The growth log is NOT in here (tens of thousands of rows
+ * on a long-tenured world; fetched separately). A private world comes back as
  * FORBIDDEN rather than an empty list, which is what distinguishes it from one
  * that is simply empty.
  */
@@ -175,6 +225,7 @@ export const USER_WORLD_QUERY = gql`
   query UserWorld($id: ID!) {
     userWorld(id: $id) {
       niche {
+        id
         slug
       }
       reads
@@ -185,8 +236,12 @@ export const USER_WORLD_QUERY = gql`
     userWorldSettings(id: $id) {
       ...WorldSettings
     }
+    userWorldObjects(id: $id) {
+      ...WorldObject
+    }
   }
   ${WORLD_SETTINGS_FRAGMENT}
+  ${WORLD_OBJECT_FRAGMENT}
 `;
 
 /** What the bench needs, not what displaying a world needs — asked for only once the owner opens it. */
@@ -221,6 +276,15 @@ export const UPDATE_USER_WORLD_SETTINGS_MUTATION = gql`
   ${WORLD_SETTINGS_FRAGMENT}
 `;
 
+export const UPDATE_USER_WORLD_OBJECTS_MUTATION = gql`
+  mutation UpdateUserWorldObjects($data: UserWorldObjectsUpdateInput!) {
+    updateUserWorldObjects(data: $data) {
+      ...WorldObject
+    }
+  }
+  ${WORLD_OBJECT_FRAGMENT}
+`;
+
 /**
  * Stores the render the share card is composed around. Takes no id: like every
  * world customisation it writes the caller's own row, which is what stops a
@@ -250,6 +314,80 @@ export const USER_WORLD_TIMELINE_QUERY = gql`
         slug
       }
       reads
+    }
+  }
+`;
+
+/**
+ * A row in the district panel, and nothing more: its source's mark, a title and
+ * two counts. A share carries its title on the post it shares rather than on
+ * itself, which is the only reason `sharedPost` is here.
+ */
+export type WorldDistrictPost = Pick<
+  Post,
+  | 'id'
+  | 'title'
+  | 'commentsPermalink'
+  | 'numUpvotes'
+  | 'numComments'
+  | 'source'
+  | 'sharedPost'
+>;
+
+export interface UserWorldDistrictFeedData {
+  page: Connection<WorldDistrictPost>;
+}
+
+/**
+ * What the world's owner upvoted in one district's niche, newest vote first.
+ *
+ * Filtered by niche ID rather than slug. Resolving slugs inside the subquery
+ * hid the niche from the query planner's per-value stats, which flipped a heavy
+ * upvoter onto a plan that scanned the whole niche instead of that user's votes.
+ *
+ * Deliberately NOT the shared feed fragment. That one carries everything a feed
+ * card can draw (content, awards, flags, translations, campaign fields), and
+ * a row here is three lines in a 20rem column. The world page is already
+ * holding a WebGL context and most of a megabyte of renderer, so the fields it
+ * does not draw are the ones worth not asking for.
+ */
+export const USER_WORLD_DISTRICT_FEED_QUERY = gql`
+  query UserWorldDistrictFeed(
+    $id: ID!
+    $nicheIds: [ID!]
+    $after: String
+    $first: Int
+    ${SUPPORTED_TYPES}
+  ) {
+    page: userUpvotedFeed(
+      userId: $id
+      nicheIds: $nicheIds
+      after: $after
+      first: $first
+      supportedTypes: $supportedTypes
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          id
+          title
+          commentsPermalink
+          numUpvotes
+          numComments
+          source {
+            id
+            name
+            image
+          }
+          sharedPost {
+            id
+            title
+          }
+        }
+      }
     }
   }
 `;
