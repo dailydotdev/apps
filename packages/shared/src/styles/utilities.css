@@ -1298,3 +1298,12 @@ img.agent-media-ring {
    panel, hanging off the right edge. These re-run the card's own mobile rules
    against the container instead, at the same 500px the card switches on, so a
    panel dragged wide gets the side-by-side layout back. */
+
+/* Snapshot copy is rasterized once and never reflows, so it can afford the
+   expensive wrapping: balance evens the line lengths and removes the orphan
+   word, and anywhere keeps long URLs or type names inside the card. */
+.snapshot-copy {
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  hyphens: none;
+}

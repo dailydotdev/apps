@@ -15,6 +15,8 @@ import {
   OpenLinkIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
+import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
 import type { Device } from '../surfaceChrome';
 import {
   AVATAR,
@@ -211,6 +213,32 @@ const MobileFloatingBar = () => (
   </div>
 );
 
+/* The card from #6544 at a third of its size: it is built for a 1080px canvas,
+   so it is drawn full-size and scaled rather than made responsive. */
+const PREVIEW_SIZE = 360;
+
+const SnapshotResult = () => (
+  <div
+    className="overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+    style={{ width: PREVIEW_SIZE, height: PREVIEW_SIZE }}
+  >
+    <div
+      style={{
+        transform: `scale(${PREVIEW_SIZE / SNAPSHOT_SIZE})`,
+        transformOrigin: 'top left',
+      }}
+    >
+      <HighlightTextSnapshotCard
+        domain="xda-developers.com"
+        postTitle={TITLE}
+        seed={SUMMARY}
+        source={{ name: 'XDA Developers', image: AVATAR }}
+        text={SUMMARY}
+      />
+    </div>
+  </div>
+);
+
 const PostScreen = ({ device, spot }: { device: Device; spot: Spot }) => {
   const compact = isCompact(device);
 
@@ -325,6 +353,14 @@ const PostPage = () => (
         wide
       >
         <Rail spot="selection" />
+      </Variant>
+
+      <Variant
+        headline="What the button exports"
+        note="The 1080×1080 PNG from #6544, drawn from the real HighlightTextSnapshotCard and scaled to a third. The quote is the payload; the source and the post title sit under it as attribution, which is why the link stops being the thing being shared."
+        step="Result"
+      >
+        <SnapshotResult />
       </Variant>
     </Category>
 
