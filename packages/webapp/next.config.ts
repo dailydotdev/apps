@@ -49,11 +49,6 @@ const noindexHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // The default buildId is stable across deployments here, so the immutable
-  // /_next/static/<buildId>/_buildManifest.js URL never changes and clients
-  // (the iOS webview above all) keep an eternally stale route manifest,
-  // loading old page chunks on every client-side navigation.
-  generateBuildId: () => process.env.VERCEL_GIT_COMMIT_SHA ?? null,
   transpilePackages: ['@dailydotdev/shared'],
   allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
   turbopack: {
