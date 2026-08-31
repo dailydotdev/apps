@@ -1126,7 +1126,7 @@ importers:
   packages/world-cli:
     dependencies:
       '@dailydotdev/world-kit':
-        specifier: workspace:*
+        specifier: 0.1.1
         version: link:../world-kit
 
   packages/world-kit: {}
