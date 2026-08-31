@@ -145,6 +145,7 @@ import { useSidebarTourState } from '../../features/sidebarTour/useSidebarTourSt
 import { SidebarTourOverlay } from '../../features/sidebarTour/SidebarTourOverlay';
 import { PinCoach } from '../../features/sidebarTour/PinCoach';
 import { DotsCoach, useDotsCoach } from '../../features/sidebarTour/DotsCoach';
+import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/sidebarTour/useCoachAnchor';
 import {
   Typography,
   TypographyColor,
@@ -2049,6 +2050,9 @@ export const SidebarDesktopV2 = ({
         {!isSettingsSelected && (
           <nav
             aria-label="Primary navigation"
+            // Lets the sidebar tour's coach cards measure the rail they have to
+            // clear (see RAIL_ANCHOR_ATTRIBUTE).
+            {...{ [RAIL_ANCHOR_ATTRIBUTE]: '' }}
             className={classNames(
               // pt matches the streak tile's side gap (54px tile centred in the
               // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right

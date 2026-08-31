@@ -1,6 +1,12 @@
 import type { RefObject } from 'react';
 import { useLayoutEffect, useState } from 'react';
-import { RAIL_ANCHOR_ATTRIBUTE } from '../giveback/components/GivebackGiftDock';
+
+// Marks the sidebar rail the coach cards must clear. An explicit hook rather
+// than `closest('nav, aside')`: a selector list resolves to whichever ancestor
+// is nearest, so the element measured would depend on where the card happens to
+// sit in the tree, and picking the aside instead of the rail would shift it by
+// the whole panel width. Set by the rail in SidebarDesktopV2.
+export const RAIL_ANCHOR_ATTRIBUTE = 'data-rail-anchor';
 
 // Gap between the sidebar's visible right edge and the card, matching the
 // `ml-2` every other rail dropdown uses.

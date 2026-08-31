@@ -1,6 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { RAIL_ANCHOR_ATTRIBUTE } from '../giveback/components/GivebackGiftDock';
-import { useCoachAnchor } from './useCoachAnchor';
+import { RAIL_ANCHOR_ATTRIBUTE, useCoachAnchor } from './useCoachAnchor';
 
 const TARGET_SELECTOR = '#coach-target';
 const COACH_GAP_PX = 8;
