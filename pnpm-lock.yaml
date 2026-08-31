@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+packageExtensionsChecksum: sha256-eZMQ4MSwwkiqFDfLk4lvGgDqkfKxnnJAu5evrKDz7fU=
+
 patchedDependencies:
   graphql-request@3.7.0:
     hash: 0ab9ec08fff95d6fe401cbe554d4f92ca596df7c35c2636c4fd3fb2e914936aa
@@ -975,7 +977,7 @@ importers:
         version: link:../prettier-config
       '@next/bundle-analyzer':
         specifier: 16.2.6
-        version: 16.2.6
+        version: 16.2.6(next@16.2.6(@babel/core@7.26.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))
       '@svgr/webpack':
         specifier: ^5.5.0
         version: 5.5.0
@@ -2934,6 +2936,8 @@ packages:
 
   '@next/bundle-analyzer@16.2.6':
     resolution: {integrity: sha512-amPkVtHCTJAdBwyhhl5+qztHk24O4JlASgrWqh15AmnYi74apfZR46NGC0u4pM6BMAU1mYld4WdzD3cRBP3dOA==}
+    peerDependencies:
+      next: '*'
 
   '@next/env@15.5.18':
     resolution: {integrity: sha512-hAV85Ckd9QR6RvH04MEKwsfLTksvFpO47j9xwtoIuvuPnlwecpSi+uZTtm8HirVbtlI2Fnz//xpcSTjFdyJk+g==}
@@ -12331,8 +12335,9 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@next/bundle-analyzer@16.2.6':
+  '@next/bundle-analyzer@16.2.6(next@16.2.6(@babel/core@7.26.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0))':
     dependencies:
+      next: 16.2.6(@babel/core@7.26.0)(@playwright/test@1.58.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.82.0)
       webpack-bundle-analyzer: 4.10.1
     transitivePeerDependencies:
       - bufferutil
