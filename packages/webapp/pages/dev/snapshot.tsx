@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode, RefObject } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { NextSeo } from 'next-seo';
+import dynamic from 'next/dynamic';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import {
   Button,
@@ -13,16 +14,13 @@ import {
   DownvoteIcon,
   LinkIcon,
   MenuIcon,
-  ShareIcon,
-  TwitterIcon,
   UpvoteIcon,
-  WhatsappIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { SnapshotButton } from '@dailydotdev/shared/src/components/imageShare/SnapshotButton';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
 import { PollSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/PollSnapshotCard';
 import { CopySummaryButton } from '@dailydotdev/shared/src/features/snapshot/CopySummaryButton';
 import { SelectionSnapshotBar } from '@dailydotdev/shared/src/features/snapshot/SelectionSnapshotBar';
+import { PollSnapshotButton } from '@dailydotdev/shared/src/features/snapshot/PollSnapshotButton';
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
 import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
@@ -31,6 +29,28 @@ import {
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import type { LogContextData } from '@dailydotdev/shared/src/hooks/log/useLogContextData';
+
+/* Both reach for the auth context — squads, and the link shortener — which is
+   only populated on the client, and this page renders outside the app shell. */
+const DiscussionShareRow = dynamic(
+  () =>
+    import(
+      '@dailydotdev/shared/src/components/post/focus/DiscussionShareRow'
+    ).then((mod) => mod.DiscussionShareRow),
+  { ssr: false },
+);
+
+const EndOfThreadShare = dynamic(
+  () =>
+    import('@dailydotdev/shared/src/features/snapshot/EndOfThreadShare').then(
+      (mod) => mod.EndOfThreadShare,
+    ),
+  { ssr: false },
+);
 
 /**
  * /dev/snapshot — internal review surface for every share placement the
@@ -81,6 +101,22 @@ const POLL = {
   source: { name: 'Frontend Fans' },
 };
 
+/* The real PollSnapshotButton reads a post, so the poll above is expressed as
+   one — the same numbers, in the shape production hands it. */
+const POLL_POST = {
+  id: 'dev-snapshot-poll',
+  title: POLL.question,
+  numPollVotes: 1284,
+  commentsPermalink: LINK,
+  source: { id: 'frontend-fans', name: 'Frontend Fans' },
+  pollOptions: [
+    { id: '1', text: 'Postgres', order: 0, numVotes: 796 },
+    { id: '2', text: 'Redis', order: 1, numVotes: 270 },
+    { id: '3', text: 'SQLite', order: 2, numVotes: 141 },
+    { id: '4', text: 'Something else', order: 3, numVotes: 77 },
+  ],
+} as unknown as Post;
+
 const QUOTE_TIERS = [
   { label: '<=70 chars . 72px', text: 'They optimised the product they had.' },
   { label: '<=140 chars . 60px', text: QUOTE },
@@ -114,6 +150,39 @@ const useIsAllowedHost = () => {
 
   return allowed;
 };
+
+const LogContext = getLogContextStatic();
+
+/**
+ * `/dev/*` short-circuits to a QueryClient-only tree in _app — no boot, no
+ * auth — which is what makes these pages load without the API. The production
+ * share components reach for both, so the review harness stands in for them:
+ * signed out, no squads, and logging swallowed.
+ */
+const AUTH_STUB = {
+  isLoggedIn: false,
+  isAuthReady: true,
+  tokenRefreshed: true,
+  shouldShowLogin: false,
+  squads: [],
+  showLogin: () => {},
+  closeLogin: () => {},
+  logout: async () => {},
+  updateUser: async () => {},
+  getRedirectUri: () => '',
+} as unknown as AuthContextData;
+
+const LOG_STUB = {
+  logEvent: () => {},
+  logEventStart: () => {},
+  logEventEnd: () => {},
+} as unknown as LogContextData;
+
+const DevProviders = ({ children }: { children: ReactNode }) => (
+  <AuthContext.Provider value={AUTH_STUB}>
+    <LogContext.Provider value={LOG_STUB}>{children}</LogContext.Provider>
+  </AuthContext.Provider>
+);
 
 /* ----------------------------------------------------------- page furniture */
 
@@ -464,33 +533,7 @@ const ThePromptedMoments = (): ReactElement => (
             Share your thoughts
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-text-tertiary typo-footnote">
-            Share this post
-          </span>
-          <div className="flex items-center gap-1">
-            <CopyLink />
-            <Inert icon={<TwitterIcon />} label="Share on X" />
-            <Inert
-              icon={<WhatsappIcon secondary />}
-              label="Share on WhatsApp"
-            />
-            {[0, 1, 2, 3].map((squad) => (
-              <Inert
-                key={squad}
-                icon={
-                  <img
-                    alt=""
-                    className="size-6 rounded-full object-cover"
-                    src={SOURCE.image}
-                  />
-                }
-                label="Share to squad"
-              />
-            ))}
-            <Inert icon={<ShareIcon />} label="More sharing options" />
-          </div>
-        </div>
+        <DiscussionShareRow post={POST} withSquads />
       </div>
     </Placement>
 
@@ -515,16 +558,14 @@ const ThePromptedMoments = (): ReactElement => (
             </span>
           </div>
         </div>
-        <Band body="24 comments and counting" title="Enjoyed this discussion?">
-          <CopyLink label variant={ButtonVariant.Secondary} />
-        </Band>
+        <EndOfThreadShare commentsCount={24} post={POST} />
       </div>
     </Placement>
 
     <Placement
-      headline="Prompt after an upvote"
-      note="The strongest intent signal we get. Snapshot stays out — it would be the same payload the post's own OG image already carries."
-      step="After upvote"
+      headline="Prompt after an upvote — already ships"
+      note="PostContentShare renders this the moment you upvote a post, with a copy-link input rather than a button. Nothing was built for it: the Storybook page proposed a placement production already had. Snapshot stays out either way — it would be the payload the post's own OG image already carries."
+      step="After upvote · shipping"
     >
       <Band
         accent
@@ -560,12 +601,7 @@ const ThePoll = ({
           <span className="flex-1 text-text-quaternary typo-caption1">
             {POLL.votes} · 2 days left
           </span>
-          <SnapshotButton
-            captureOptions={CAPTURE_OPTIONS}
-            filename="daily-poll"
-            showLabel={false}
-            target={pollRef}
-          />
+          <PollSnapshotButton post={POLL_POST} showLabel={false} />
         </div>
       </div>
     </Placement>
@@ -581,11 +617,9 @@ const ThePoll = ({
           Why did you vote this way?
         </span>
         <div className="flex items-center gap-2">
-          <SnapshotButton
-            captureOptions={CAPTURE_OPTIONS}
-            filename="daily-poll"
+          <PollSnapshotButton
+            post={POLL_POST}
             size={ButtonSize.XSmall}
-            target={pollRef}
             variant={ButtonVariant.Primary}
           />
           <Button
@@ -687,33 +721,40 @@ const SnapshotDevPage = (): ReactElement => {
     <>
       <NextSeo nofollow noindex title="Snapshot review · daily.dev" />
       <Toast autoDismissNotifications />
-      <div className="min-h-screen bg-background-default">
-        <div className="mx-auto flex max-w-[72rem] flex-col gap-8 p-8">
-          <div className="flex flex-col gap-3">
-            <h1 className="font-bold text-text-primary typo-mega3">
-              Post page share placements
-            </h1>
-            <p className="max-w-[52rem] text-text-secondary typo-body">
-              Every placement the Storybook post-page page argues for, with
-              working controls instead of pictures of them. Each copy button
-              really copies; each Snapshot really rasterizes the card it would
-              share.
-            </p>
-            <p className="max-w-[52rem] rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 text-text-secondary typo-callout">
-              Only the text-selection bar is wired into the real post page, and
-              there it sits behind <code>snapshot_selection_share</code>, which
-              defaults to off. Everything else is a placement mock: the controls
-              are real, the surfaces around them are not.
-            </p>
-          </div>
+      <DevProviders>
+        <div className="min-h-screen bg-background-default">
+          <div className="mx-auto flex max-w-[72rem] flex-col gap-8 p-8">
+            <div className="flex flex-col gap-3">
+              <h1 className="font-bold text-text-primary typo-mega3">
+                Post page share placements
+              </h1>
+              <p className="max-w-[52rem] text-text-secondary typo-body">
+                Every placement the Storybook post-page page argues for, with
+                working controls instead of pictures of them. Each copy button
+                really copies; each Snapshot really rasterizes the card it would
+                share.
+              </p>
+              <p className="max-w-[52rem] rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 text-text-secondary typo-callout">
+                Every control below is the production component, wired to the
+                real post page behind a flag that defaults to off. What is
+                mocked here is the page around them, not the controls. To see
+                them on a real post, enable{' '}
+                <code>snapshot_selection_share</code> (selection bar),{' '}
+                <code>post_copy_summary</code>, <code>post_share_prompts</code>{' '}
+                (share strip and end-of-thread band), <code>poll_snapshot</code>{' '}
+                (both poll placements) or <code>post_nav_copy_link</code>{' '}
+                (sticky nav).
+              </p>
+            </div>
 
-          <TheTwoAdditions quoteRef={quoteRef} />
-          <ThePromptedMoments />
-          <ThePoll pollRef={pollRef} />
-          <TheStickyNav />
-          <ShipsToday />
+            <TheTwoAdditions quoteRef={quoteRef} />
+            <ThePromptedMoments />
+            <ThePoll pollRef={pollRef} />
+            <TheStickyNav />
+            <ShipsToday />
+          </div>
         </div>
-      </div>
+      </DevProviders>
 
       {/* The full-size cards every capture on the page reads from. */}
       <div

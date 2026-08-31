@@ -22,6 +22,7 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import {
   feature,
   featureCommunitySentiment,
+  featurePostCopySummary,
   featureSnapshotSelectionShare,
 } from '../../lib/featureManagement';
 import { isDevelopment } from '../../lib/constants';
@@ -33,6 +34,7 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
+import { CopySummaryButton } from '../../features/snapshot/CopySummaryButton';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import {
   CommunitySentiment,
@@ -138,6 +140,12 @@ export function PostContentRaw({
   const { value: isSelectionSnapshotEnabled } = useConditionalFeature({
     feature: featureSnapshotSelectionShare,
     shouldEvaluate: isPostPage,
+  });
+  // Only where there is a summary to copy, so posts without one stay out of
+  // the experiment entirely.
+  const { value: isCopySummaryEnabled } = useConditionalFeature({
+    feature: featurePostCopySummary,
+    shouldEvaluate: isPostPage && !!post.summary,
   });
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
@@ -247,6 +255,13 @@ export function PostContentRaw({
                 data-testid="tldr-container"
               >
                 {post.summary}
+                {isCopySummaryEnabled && (
+                  <CopySummaryButton
+                    link={post.commentsPermalink}
+                    summary={post.summary}
+                    title={title}
+                  />
+                )}
               </p>
             </div>
           ))}

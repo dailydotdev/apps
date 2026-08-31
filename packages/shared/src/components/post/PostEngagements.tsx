@@ -33,6 +33,10 @@ import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { usePostComments } from '../../hooks/comments/usePostComments';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featurePostSharePrompts } from '../../lib/featureManagement';
+import { DiscussionShareRow } from './focus/DiscussionShareRow';
+import { EndOfThreadShare } from '../../features/snapshot/EndOfThreadShare';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -90,6 +94,9 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
+  const { value: areSharePromptsEnabled } = useConditionalFeature({
+    feature: featurePostSharePrompts,
+  });
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -178,6 +185,12 @@ function PostEngagements({
         shouldHandleCommentQuery
         CommentInputOrModal={CommentInputOrModal}
       />
+      {/* #6348: the densest share affordance we ship, directly under the
+          composer — the one place on the page where someone has already
+          decided to engage. */}
+      {areSharePromptsEnabled && (
+        <DiscussionShareRow className="mt-3" post={post} withSquads />
+      )}
       {!isPlus && !hideInternalAd && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
@@ -192,6 +205,9 @@ function PostEngagements({
         joinNotificationCommentId={joinNotificationCommentId}
         onCommented={onCommented}
       />
+      {areSharePromptsEnabled && (
+        <EndOfThreadShare commentsCount={commentsCount} post={post} />
+      )}
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={

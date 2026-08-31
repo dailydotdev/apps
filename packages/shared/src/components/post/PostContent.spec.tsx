@@ -7,6 +7,7 @@ import { postWithCommunitySentiment } from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/log';
 import {
   featureCommunitySentiment,
+  featurePostCopySummary,
   featureSnapshotSelectionShare,
 } from '../../lib/featureManagement';
 import { PostContentRaw } from './PostContent';
@@ -109,5 +110,30 @@ describe('PostContent selection snapshot', () => {
     expect(
       screen.queryByRole('toolbar', { name: 'Share selected text' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('PostContent copy summary', () => {
+  const withFlag = () => {
+    const gb = new GrowthBook();
+    gb.setFeatures({ [featurePostCopySummary.id]: { defaultValue: true } });
+
+    return gb;
+  };
+
+  it('runs the icon into the end of the TLDR when the flag is enabled', () => {
+    renderPostPage(withFlag());
+
+    expect(screen.getByLabelText('Copy summary')).toBeInTheDocument();
+    // It has to live inside the paragraph, not under it.
+    expect(screen.getByTestId('tldr-container')).toContainElement(
+      screen.getByLabelText('Copy summary'),
+    );
+  });
+
+  it('stays off the paragraph when the flag is disabled', () => {
+    renderPostPage();
+
+    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
   });
 });
