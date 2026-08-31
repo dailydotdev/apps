@@ -239,11 +239,11 @@ export const PostPage = ({
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
   const showRedesign =
     isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
-  // Empty for every logged-in visitor and while post_adsense is off; the slot
-  // components check the same hook, so with it empty neither markup nor script
-  // exists. Gated on a unit id being present, not key presence — the map keeps
-  // placeholder entries with empty ids, and the script must not load for
-  // inventory that cannot fill.
+  // Empty for every logged-in visitor; the slot components check the same
+  // hook, so with it empty neither markup nor script exists. Gated on a unit
+  // id being present, not key presence — the map keeps placeholder entries
+  // with empty ids, and the script must not load for inventory that cannot
+  // fill.
   const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
   const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
   // The same in-content treatment the /articles template ships, reused on
