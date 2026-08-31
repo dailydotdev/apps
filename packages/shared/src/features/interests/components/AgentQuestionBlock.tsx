@@ -51,13 +51,20 @@ export const AgentQuestionBlock = ({
     answerQuestion({ text, questionId: block.questionId });
   };
 
-  const toggle = (value: string) => {
+  const toggle = (value: string, event: React.MouseEvent<HTMLElement>) => {
     if (!block.multi) {
       submit([value]);
       return;
     }
 
     togglePendingAnswer(value);
+
+    // A pointer click leaves focus on the chip, where Enter re-fires the click
+    // and un-picks it instead of reaching the workspace handler. Keyboard
+    // activation reports no detail, and keeps focus so tab order survives.
+    if (event.detail > 0) {
+      event.currentTarget.blur();
+    }
   };
 
   return (
@@ -104,7 +111,9 @@ export const AgentQuestionBlock = ({
                   pressed={isOn}
                   aria-pressed={isOn}
                   disabled={!isLive || isWorking}
-                  onClick={() => toggle(value)}
+                  onClick={(event: React.MouseEvent<HTMLElement>) =>
+                    toggle(value, event)
+                  }
                 >
                   {label}
                 </Button>

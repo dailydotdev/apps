@@ -779,7 +779,11 @@ export const AgentProvider = ({
 
   const confirmBrief = useCallback(
     (brief?: string) => {
-      runConfirmBrief(brief).catch(() => undefined);
+      runConfirmBrief(brief)
+        // Cleared only on success: a failed save keeps the rewrite so it can be
+        // retried rather than silently losing what was typed.
+        .then(() => setBriefDraft(null))
+        .catch(() => undefined);
     },
     [runConfirmBrief],
   );

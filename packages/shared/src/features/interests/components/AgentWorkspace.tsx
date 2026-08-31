@@ -195,9 +195,10 @@ export const AgentWorkspace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTailPending]);
 
-  // "Press Enter" has to hold anywhere on the screen: clicking a chip moves
-  // focus onto that button, and the composer's own handler only fires while
-  // the field is focused.
+  // "Press Enter" has to hold anywhere on the screen, not just in the composer,
+  // whose own handler only fires while the field is focused. Controls that
+  // activate on Enter are left alone below; a pointer-clicked chip blurs itself
+  // so that its Enter reaches here rather than un-picking the chip.
   useKeyboardNavigation(
     globalThis?.window,
     [

@@ -30,7 +30,9 @@ export const AgentBriefBlock = ({
     briefDraft: draft,
     setBriefDraft: setDraft,
   } = useAgent();
-  const isEditing = draft !== null;
+  // Gated on the step too: once it advances there are no buttons under the
+  // editor, so a stray draft would leave a textarea that does nothing.
+  const isEditing = draft !== null && isBriefOpen;
   // Reflects a rewrite immediately, rather than the snapshot the run stored.
   const current = interest?.brief ?? brief;
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { UserInterest } from '../../../graphql/interests';
@@ -14,6 +14,12 @@ import { useConfirmInterestBrief } from '../hooks/useConfirmInterestBrief';
 
 jest.mock('../hooks/useConfirmInterestBrief');
 
+// The composer imports this lazily; in jsdom it throws once the import
+// resolves, which only an async test waits around long enough to see.
+jest.mock('border-beam', () => ({
+  BorderBeam: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 const confirmBrief = jest.fn().mockResolvedValue(undefined);
 
 const interest = {
@@ -23,6 +29,26 @@ const interest = {
   status: UserInterestStatus.Onboarding,
   onboardingStep: UserInterestOnboardingStep.Brief,
 } as UserInterest;
+
+const questionTurn: AgentMessage = {
+  id: 'm2',
+  role: 'agent',
+  at: new Date().toISOString(),
+  blocks: [
+    {
+      type: 'question',
+      questionId: 'q1',
+      html: '<p>What do you want?</p>',
+      input: 'chips',
+      multi: true,
+      choices: [
+        { value: 'shipped', label: 'Things that shipped' },
+        { value: 'deep', label: 'Deep dives' },
+      ],
+      selected: [],
+    },
+  ],
+};
 
 const briefTurn: AgentMessage = {
   id: 'm1',
@@ -36,6 +62,23 @@ const briefTurn: AgentMessage = {
     },
   ],
 };
+
+const renderStep = (
+  step: UserInterestOnboardingStep,
+  messages: AgentMessage[],
+) =>
+  render(
+    <TestBootProvider client={new QueryClient()}>
+      <AgentProvider
+        id="a1"
+        isDemo
+        interest={{ ...interest, onboardingStep: step }}
+        initialMessages={messages}
+      >
+        <AgentWorkspace items={[]} onDelete={jest.fn()} isDeleting={false} />
+      </AgentProvider>
+    </TestBootProvider>,
+  );
 
 const renderBriefStep = () =>
   render(
@@ -89,5 +132,45 @@ describe('onboarding Enter handling', () => {
     fireEvent.keyDown(screen.getByText('Edit it'), { key: 'Enter' });
 
     expect(confirmBrief).not.toHaveBeenCalled();
+  });
+
+  it('closes the editor once the rewrite is saved', async () => {
+    renderBriefStep();
+
+    fireEvent.click(screen.getByText('Edit it'));
+    fireEvent.change(screen.getByLabelText('Edit the brief'), {
+      target: { value: 'Only source-level teardowns' },
+    });
+    fireEvent.click(screen.getByText('Save and continue'));
+
+    // Left open, the card would keep a textarea with no buttons under it.
+    await waitFor(() =>
+      expect(screen.queryByLabelText('Edit the brief')).not.toBeInTheDocument(),
+    );
+  });
+
+  it('drops focus from a chip picked with the pointer', () => {
+    renderStep(UserInterestOnboardingStep.Questions, [questionTurn]);
+
+    const chip = screen
+      .getByText('Deep dives')
+      .closest('button') as HTMLElement;
+    // detail > 0 marks a real pointer press; keeping focus here would let the
+    // next Enter re-fire the click and un-pick the chip.
+    fireEvent.click(chip, { detail: 1 });
+
+    expect(chip).not.toHaveFocus();
+  });
+
+  it('keeps focus on a chip toggled from the keyboard', () => {
+    renderStep(UserInterestOnboardingStep.Questions, [questionTurn]);
+
+    const chip = screen
+      .getByText('Deep dives')
+      .closest('button') as HTMLElement;
+    chip.focus();
+    fireEvent.click(chip, { detail: 0 });
+
+    expect(chip).toHaveFocus();
   });
 });
