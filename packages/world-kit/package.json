@@ -13,6 +13,14 @@
   "files": [
     "src"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dailydotdev/apps.git",
+    "directory": "packages/world-kit"
+  },
   "sideEffects": false,
   "license": "AGPL-3.0-or-later",
   "types": "./src/types.d.ts"
