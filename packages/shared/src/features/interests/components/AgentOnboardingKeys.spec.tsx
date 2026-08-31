@@ -7,18 +7,12 @@ import {
   UserInterestOnboardingStep,
   UserInterestStatus,
 } from '../../../graphql/interests';
-import type { AgentMessage } from '../chat';
+import type { AgentBlock, AgentMessage } from '../chat';
 import { AgentProvider } from '../AgentContext';
 import { AgentWorkspace } from './AgentWorkspace';
 import { useConfirmInterestBrief } from '../hooks/useConfirmInterestBrief';
 
 jest.mock('../hooks/useConfirmInterestBrief');
-
-// The composer imports this lazily; in jsdom it throws once the import
-// resolves, which only an async test waits around long enough to see.
-jest.mock('border-beam', () => ({
-  BorderBeam: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
 
 const confirmBrief = jest.fn().mockResolvedValue(undefined);
 
@@ -30,24 +24,24 @@ const interest = {
   onboardingStep: UserInterestOnboardingStep.Brief,
 } as UserInterest;
 
+const questionBlock: AgentBlock = {
+  type: 'question',
+  questionId: 'q1',
+  html: '<p>What do you want?</p>',
+  input: 'chips',
+  multi: true,
+  choices: [
+    { value: 'shipped', label: 'Things that shipped' },
+    { value: 'deep', label: 'Deep dives' },
+  ],
+  selected: [],
+};
+
 const questionTurn: AgentMessage = {
   id: 'm2',
   role: 'agent',
   at: new Date().toISOString(),
-  blocks: [
-    {
-      type: 'question',
-      questionId: 'q1',
-      html: '<p>What do you want?</p>',
-      input: 'chips',
-      multi: true,
-      choices: [
-        { value: 'shipped', label: 'Things that shipped' },
-        { value: 'deep', label: 'Deep dives' },
-      ],
-      selected: [],
-    },
-  ],
+  blocks: [questionBlock],
 };
 
 const briefTurn: AgentMessage = {
@@ -80,20 +74,6 @@ const renderStep = (
     </TestBootProvider>,
   );
 
-const renderBriefStep = () =>
-  render(
-    <TestBootProvider client={new QueryClient()}>
-      <AgentProvider
-        id="a1"
-        isDemo
-        interest={interest}
-        initialMessages={[briefTurn]}
-      >
-        <AgentWorkspace items={[]} onDelete={jest.fn()} isDeleting={false} />
-      </AgentProvider>
-    </TestBootProvider>,
-  );
-
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(useConfirmInterestBrief).mockReturnValue({
@@ -104,7 +84,7 @@ beforeEach(() => {
 
 describe('onboarding Enter handling', () => {
   it('accepts the brief on Enter from the page', () => {
-    renderBriefStep();
+    renderStep(UserInterestOnboardingStep.Brief, [briefTurn]);
 
     fireEvent.keyDown(document.body, { key: 'Enter' });
 
@@ -112,7 +92,7 @@ describe('onboarding Enter handling', () => {
   });
 
   it('submits the rewrite rather than the original when the editor is open', () => {
-    renderBriefStep();
+    renderStep(UserInterestOnboardingStep.Brief, [briefTurn]);
 
     fireEvent.click(screen.getByText('Edit it'));
     fireEvent.change(screen.getByLabelText('Edit the brief'), {
@@ -125,7 +105,7 @@ describe('onboarding Enter handling', () => {
   });
 
   it('leaves a focused button to its own activation', () => {
-    renderBriefStep();
+    renderStep(UserInterestOnboardingStep.Brief, [briefTurn]);
 
     // Enter on a button is the button's default action; hijacking it here
     // would cancel the press instead of helping.
@@ -135,7 +115,7 @@ describe('onboarding Enter handling', () => {
   });
 
   it('closes the editor once the rewrite is saved', async () => {
-    renderBriefStep();
+    renderStep(UserInterestOnboardingStep.Brief, [briefTurn]);
 
     fireEvent.click(screen.getByText('Edit it'));
     fireEvent.change(screen.getByLabelText('Edit the brief'), {
