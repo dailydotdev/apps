@@ -1,11 +1,15 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment } from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/log';
-import { featureCommunitySentiment } from '../../lib/featureManagement';
+import {
+  featureCommunitySentiment,
+  featurePostCopySummary,
+  featureSnapshotSelectionShare,
+} from '../../lib/featureManagement';
 import { PostContentRaw } from './PostContent';
 
 const renderContent = (gb?: GrowthBook) =>
@@ -18,6 +22,56 @@ const renderContent = (gb?: GrowthBook) =>
       />
     </TestBootProvider>,
   );
+
+const QUOTE =
+  'They optimised the product they had instead of the one their customers were moving to.';
+
+const renderPostPage = (gb?: GrowthBook) =>
+  render(
+    <TestBootProvider client={new QueryClient()} gb={gb}>
+      <PostContentRaw
+        post={{ ...postWithCommunitySentiment, summary: QUOTE }}
+        origin={Origin.ArticlePage}
+        isPostPage
+      />
+    </TestBootProvider>,
+  );
+
+/** Anonymous visitors get in-content ads, and then the page renders the
+    summary itself through this prop rather than PostContent's own paragraph. */
+const renderWithAdSegments = (gb?: GrowthBook) =>
+  render(
+    <TestBootProvider client={new QueryClient()} gb={gb}>
+      <PostContentRaw
+        post={{ ...postWithCommunitySentiment, summary: QUOTE }}
+        origin={Origin.ArticlePage}
+        isPostPage
+        renderSummarySegments={(summary) => <p>{summary}</p>}
+      />
+    </TestBootProvider>,
+  );
+
+const selectTheSummary = () => {
+  const node = screen.getByTestId('tldr-container').firstChild as Node;
+  const range = document.createRange();
+  range.setStart(node, 0);
+  range.setEnd(node, node.textContent?.length ?? 0);
+
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+  // The reader letting go of the drag is what commits the quote.
+  fireEvent.pointerUp(document);
+};
+
+const snapshotFlagOn = () => {
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featureSnapshotSelectionShare.id]: { defaultValue: true },
+  });
+
+  return gb;
+};
 
 describe('PostContent community sentiment', () => {
   it('renders in the classic post modal when the flag is enabled', () => {
@@ -42,5 +96,75 @@ describe('PostContent community sentiment', () => {
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('PostContent selection snapshot', () => {
+  beforeAll(() => {
+    // jsdom has no layout, and the bar refuses a selection it cannot place.
+    Range.prototype.getBoundingClientRect = () =>
+      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+  });
+
+  it('offers a snapshot of a quote on the post page when the flag is enabled', () => {
+    renderPostPage(snapshotFlagOn());
+
+    selectTheSummary();
+
+    expect(
+      screen.getByRole('toolbar', { name: 'Share selected text' }),
+    ).toBeInTheDocument();
+  });
+
+  it('stays out of the way when the flag is disabled', () => {
+    renderPostPage();
+
+    selectTheSummary();
+
+    expect(
+      screen.queryByRole('toolbar', { name: 'Share selected text' }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe('PostContent copy summary', () => {
+  const withFlag = () => {
+    const gb = new GrowthBook();
+    gb.setFeatures({ [featurePostCopySummary.id]: { defaultValue: true } });
+
+    return gb;
+  };
+
+  it('runs the icon into the end of the TLDR when the flag is enabled', () => {
+    renderPostPage(withFlag());
+
+    expect(screen.getByLabelText('Copy summary')).toBeInTheDocument();
+    // It has to live inside the paragraph, not under it.
+    expect(screen.getByTestId('tldr-container')).toContainElement(
+      screen.getByLabelText('Copy summary'),
+    );
+  });
+
+  it('stays off the paragraph when the flag is disabled', () => {
+    renderPostPage();
+
+    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
+  });
+});
+
+describe('PostContent copy summary with in-content ads', () => {
+  it('still offers the summary when the page renders it in segments', () => {
+    const gb = new GrowthBook();
+    gb.setFeatures({ [featurePostCopySummary.id]: { defaultValue: true } });
+
+    renderWithAdSegments(gb);
+
+    expect(screen.getByLabelText('Copy summary')).toBeInTheDocument();
+  });
+
+  it('stays away in the segmented summary when the flag is disabled', () => {
+    renderWithAdSegments();
+
+    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
   });
 });

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon, MiniCloseIcon as CloseIcon } from '../icons';
+import { ArrowIcon, MiniCloseIcon as CloseIcon, LinkIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import type { PostNavigationProps } from './common';
@@ -10,6 +10,9 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { PostType } from '../../types';
 import { BriefPlusUpgradeCTA } from '../../features/briefing/components/BriefPlusUpgradeCTA';
+import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
+import { featurePostNavCopyLink } from '../../lib/featureManagement';
+import { useCopyPostLink } from '../../hooks/useCopyPostLink';
 
 function PostNavigation({
   postPosition,
@@ -27,6 +30,13 @@ function PostNavigation({
   const canUserUpgrade = isAuthReady && !user?.isPlus;
   const isBrief = post?.type === PostType.Brief;
   const shouldShowUpgrade = canUserUpgrade && isFixedNavigation && isBrief;
+  // The sticky nav only: the inline navigation sits inches under the action
+  // bar, which already ends with Copy, and two of them is one too many.
+  const isNavCopyLinkEnabled = useSharePlacement({
+    feature: featurePostNavCopyLink,
+    shouldEvaluate: isFixedNavigation,
+  });
+  const [, copyLink] = useCopyPostLink(post?.commentsPermalink);
 
   return (
     <div
@@ -70,6 +80,17 @@ function PostNavigation({
       <div className="ml-auto flex items-center gap-1">
         {customActions}
         {shouldShowUpgrade && <BriefPlusUpgradeCTA />}
+        {isNavCopyLinkEnabled && post && (
+          <Tooltip side="bottom" content="Copy link">
+            <Button
+              icon={<LinkIcon />}
+              onClick={() => copyLink()}
+              size={ButtonSize.Small}
+              type="button"
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+        )}
         {post && (
           <PostHeaderActions
             {...props}
