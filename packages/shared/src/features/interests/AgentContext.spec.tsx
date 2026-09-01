@@ -722,6 +722,85 @@ describe('the live path', () => {
     );
     expect(agent.current.isHistoryLimited).toBe(false);
   });
+
+  it('renders a reply as the agent answering the turn it belongs to', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'what single pick do you recommend?',
+          replyStatus: 'completed' as never,
+          replyBlocks: [
+            { type: 'text', html: '<p>Read the teardown first.</p>' },
+          ] as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(
+      agent.current.messages.map(({ id, role, isPending }) => [
+        id,
+        role,
+        !!isPending,
+      ]),
+    ).toEqual([
+      ['fb-1', 'user', false],
+      ['fb-1-reply', 'agent', false],
+    ]);
+  });
+
+  it('shows a queued reply as pending', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'too shallow',
+          replyStatus: 'queued' as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(agent.current.messages[1]).toMatchObject({
+      id: 'fb-1-reply',
+      role: 'agent',
+      isPending: true,
+    });
+  });
+
+  it('sends the run the reader has open, then leaves the run view', async () => {
+    const send = jest.fn().mockResolvedValue(undefined);
+    const agent = mountLive({
+      send,
+      runId: 'run-1',
+      run: {
+        id: 'run-1',
+        role: 'agent',
+        createdAt: '2026-01-01T00:01:00Z',
+        blocks: [],
+      } as never,
+    });
+
+    await flushQueries();
+    await act(async () => {
+      agent.current.runCommand({ text: 'what single pick do you recommend?' });
+    });
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'what single pick do you recommend?',
+        runId: 'run-1',
+      }),
+    );
+    expect(agent.onLeaveRunView).toHaveBeenCalled();
+  });
 });
 
 describe('running commands', () => {

@@ -15,6 +15,7 @@ import type {
   UserInterest,
 } from '../../graphql/interests';
 import {
+  InterestReplyStatus,
   InterestRunStatus,
   InterestRunTrigger,
   UserInterestOnboardingStep,
@@ -197,6 +198,14 @@ const isRunPending = (turn: InterestTurn): boolean =>
   (turn.status === InterestRunStatus.Queued ||
     turn.status === InterestRunStatus.Running);
 
+const isReplyPending = (turn: InterestTurn): boolean =>
+  turn.role === 'user' &&
+  (turn.replyStatus === InterestReplyStatus.Queued ||
+    turn.replyStatus === InterestReplyStatus.Running);
+
+const isTurnPending = (turn: InterestTurn): boolean =>
+  isRunPending(turn) || isReplyPending(turn);
+
 const resolvePosts = (
   postIds: string[],
   postsById: Map<string, Post>,
@@ -273,6 +282,23 @@ const turnsToMessages = ({
         text: turn.text ?? '',
         relationships: turn.relationships,
       });
+
+      if (turn.replyStatus) {
+        const replyBlocks = mapServerBlocks(
+          { ...turn, blocks: turn.replyBlocks },
+          postsById,
+          allPosts,
+        );
+        acc.push({
+          id: `${turn.id}-reply`,
+          role: 'agent',
+          at: turn.createdAt,
+          isPending: isReplyPending(turn),
+          isError: turn.replyStatus === InterestReplyStatus.Failed,
+          retryText: turn.text ?? undefined,
+          blocks: replyBlocks,
+        });
+      }
       return acc;
     }
 
@@ -408,7 +434,7 @@ export const AgentProvider = ({
     ...interestHistoryQueryOptions(id, user, historyLast),
     enabled: isHistoryEnabled,
     refetchInterval: (query) =>
-      query.state.data?.edges.some(({ node }) => isRunPending(node)) ||
+      query.state.data?.edges.some(({ node }) => isTurnPending(node)) ||
       hasSentEcho
         ? pendingPollMs
         : false,
@@ -674,6 +700,7 @@ export const AgentProvider = ({
 
       const echoId = nextId();
       const prompt = promptWithContext(text, pointedAt ?? []);
+      leaveRunView();
       setEchoes((current) => [
         ...current,
         {
@@ -686,7 +713,7 @@ export const AgentProvider = ({
         },
       ]);
 
-      sendCommand({ text: prompt, questionId })
+      sendCommand({ text: prompt, questionId, runId })
         .then(() => {
           setEchoes((current) =>
             current.map((echo) =>
@@ -704,7 +731,7 @@ export const AgentProvider = ({
           );
         });
     },
-    [displayToast, interest, isDemo, sendCommand],
+    [displayToast, interest, isDemo, leaveRunView, runId, sendCommand],
   );
 
   // Draining in an effect, not inside the updater that removes the entry:
@@ -745,9 +772,9 @@ export const AgentProvider = ({
         return;
       }
 
-      await sendCommand({ text, triggerRun: false });
+      await sendCommand({ text, runId });
     },
-    [interest, isDemo, sendCommand],
+    [interest, isDemo, runId, sendCommand],
   );
 
   // Seeded from the question's own preselection and reset when the question

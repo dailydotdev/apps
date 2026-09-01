@@ -12,13 +12,13 @@ export const useSendInterestCommand = (id: string) => {
   const { isPending, mutateAsync } = useMutation({
     mutationFn: ({
       text,
-      triggerRun,
+      runId,
       questionId,
     }: {
       text: string;
-      triggerRun?: boolean;
+      runId?: string;
       questionId?: string;
-    }) => sendInterestCommand({ id, text, triggerRun, questionId }),
+    }) => sendInterestCommand({ id, text, runId, questionId }),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
@@ -30,7 +30,7 @@ export const useSendInterestCommand = (id: string) => {
       ]);
     },
     onError: () => {
-      displayToast('Failed to send the command. Please try again.');
+      displayToast('Failed to send your message. Please try again.');
     },
   });
 
