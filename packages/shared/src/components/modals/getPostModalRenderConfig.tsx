@@ -11,6 +11,7 @@ import { SocialTwitterPostContent } from '../post/SocialTwitterPostContent';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
+import { getPostContentType } from '../post/getPostContentComponent';
 import { Origin } from '../../lib/log';
 
 export interface PostModalRenderConfig {
@@ -25,20 +26,6 @@ type GetPostModalRenderConfigProps = PassedPostNavigationProps & {
   position: CSSProperties['position'];
   post: Post;
   hideSubscribeAction?: boolean;
-};
-
-const modalPostTypeByPostType: Partial<Record<PostType, PostType>> = {
-  [PostType.Share]: PostType.Share,
-  [PostType.Welcome]: PostType.Share,
-  [PostType.Freeform]: PostType.Share,
-  [PostType.Collection]: PostType.Collection,
-  [PostType.Brief]: PostType.Brief,
-  [PostType.Poll]: PostType.Poll,
-  [PostType.SocialTwitter]: PostType.SocialTwitter,
-};
-
-const getModalPostType = (post: Post): PostType => {
-  return modalPostTypeByPostType[post.type] ?? PostType.Article;
 };
 
 const articleLikeNavigationClassName = {
@@ -75,7 +62,7 @@ export const getPostModalRenderConfig = ({
   post,
   hideSubscribeAction,
 }: GetPostModalRenderConfigProps): PostModalRenderConfig => {
-  const modalPostType = getModalPostType(post);
+  const modalPostType = getPostContentType(post);
   const commonProps = {
     position,
     post,
