@@ -121,7 +121,7 @@ export const AgentPostCard = ({
         the overlay that makes the whole card clickable swallows the press. */}
     <AgentRowActions post={post} reveal />
     <Image
-      src={post.image}
+      src={post.image ?? post.sharedPost?.image}
       alt=""
       loading="lazy"
       fallbackSrc={cloudinaryPostImageCoverPlaceholder}
