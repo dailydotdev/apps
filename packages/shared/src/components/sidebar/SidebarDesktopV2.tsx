@@ -1579,7 +1579,7 @@ export const SidebarDesktopV2 = ({
     // you are. Hovering only previews the panel and shows the row's hover
     // background; it doesn't claim the selected state.
     const isSelected = selectedRailItem === category.id;
-    const isPreviewing = !isSelected && activeCategory === category.id;
+    const isPreviewing = !isSelected && hoveredCategory === category.id;
     // The gamification tab. With reading streaks on it's the "Streak" tab: the
     // state-driven StreakBadge stands in for the glyph and the day count is the
     // label. With streaks off (but other gamification on) it reads as the
@@ -1812,7 +1812,7 @@ export const SidebarDesktopV2 = ({
           isSelected={selectedRailItem === SidebarCategory.Profile}
           isPreviewing={
             selectedRailItem !== SidebarCategory.Profile &&
-            activeCategory === SidebarCategory.Profile
+            hoveredCategory === SidebarCategory.Profile
           }
           isCompact={isCompact}
           isExpanded={isExpanded}
