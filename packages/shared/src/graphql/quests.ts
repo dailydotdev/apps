@@ -47,6 +47,11 @@ export interface UserQuest {
   rewards: QuestReward[];
 }
 
+// A claim is only reliably detected by checking both: the API stamps
+// `claimedAt` without always flipping `status` to `claimed`.
+export const isQuestClaimed = (quest: UserQuest): boolean =>
+  quest.status === QuestStatus.Claimed || Boolean(quest.claimedAt);
+
 export interface QuestBucket {
   regular: UserQuest[];
   plus: UserQuest[];

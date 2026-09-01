@@ -140,6 +140,26 @@ it('opens the offers modal on the first claimed daily quest of the day', async (
   expect(mockSetLastSeen).toHaveBeenCalled();
 });
 
+// The API stamps claimedAt without always flipping status, so keying off
+// status alone counted zero claims and the popup never fired.
+it('counts a quest claimed by timestamp even when its status lags', async () => {
+  const { queryClient } = renderComponent(
+    makeDashboard([
+      makeQuest({
+        status: QuestStatus.Completed,
+        claimedAt: new Date(),
+      }),
+    ]),
+  );
+
+  await waitFor(() =>
+    expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+      type: LazyModal.QuestOffers,
+      props: { summary: { total: 1, claimed: 1, xpEarned: 50 } },
+    }),
+  );
+});
+
 it('does not open before anything has been claimed', async () => {
   const { queryClient } = renderComponent(
     makeDashboard([

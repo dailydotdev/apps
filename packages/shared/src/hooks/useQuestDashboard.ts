@@ -5,7 +5,7 @@ import type { QuestDashboard, QuestDashboardData } from '../graphql/quests';
 import {
   QUEST_DASHBOARD_QUERY,
   QuestRewardType,
-  QuestStatus,
+  isQuestClaimed,
 } from '../graphql/quests';
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useRequestProtocol } from './useRequestProtocol';
@@ -69,9 +69,7 @@ export const getDailyQuestSummary = (
     ...(dashboard?.daily.regular ?? []),
     ...(dashboard?.daily.plus ?? []),
   ].filter((quest) => !quest.locked);
-  const claimed = quests.filter(
-    (quest) => quest.status === QuestStatus.Claimed,
-  );
+  const claimed = quests.filter(isQuestClaimed);
 
   return {
     total: quests.length,
