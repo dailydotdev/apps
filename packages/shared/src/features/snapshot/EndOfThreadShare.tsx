@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
+import { ButtonV2 } from '../../components/buttons/ButtonV2';
 import {
-  Button,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../../components/buttons/Button';
+} from '../../components/buttons/common';
 import { LinkIcon } from '../../components/icons';
 import { useCopyText } from '../../hooks/useCopy';
 import {
@@ -55,7 +55,7 @@ export function EndOfThreadShare({
           Send it to someone who&apos;d have opinions.
         </span>
       </div>
-      <Button
+      <ButtonV2
         icon={<LinkIcon />}
         iconPosition={ButtonIconPosition.Right}
         onClick={onCopy}
@@ -64,7 +64,7 @@ export function EndOfThreadShare({
         variant={ButtonVariant.Primary}
       >
         Copy link
-      </Button>
+      </ButtonV2>
     </div>
   );
 }

@@ -61,6 +61,7 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
+import { PostContentShare } from '../common/PostContentShare';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
 import {
@@ -669,6 +670,10 @@ const PostFocusCardRaw = ({
             // read as too large here).
             className="-mt-2"
           />
+
+          {/* Directly under the upvote that raises it — the classic page gets
+              this from PostEngagements, in the same place. */}
+          <PostContentShare post={post} />
 
           {!onClose && <PostAnsweredQuestions post={article} />}
 

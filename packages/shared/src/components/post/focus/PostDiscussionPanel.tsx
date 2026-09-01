@@ -28,7 +28,6 @@ import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 import { EndOfThreadShare } from '../../../features/snapshot/EndOfThreadShare';
-import { PostContentShare } from '../common/PostContentShare';
 import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
 import { featurePostSharePrompts } from '../../../lib/featureManagement';
 
@@ -177,9 +176,6 @@ export const PostDiscussionPanel = ({
         />
       </div>
       <DiscussionShareRow post={post} withSquads />
-      {/* The classic page gets this from PostEngagements; the focus layout
-          renders its own discussion, so it has to be asked for here. */}
-      {areSharePromptsEnabled && <PostContentShare post={post} />}
       {showSortHeader && commentsCount > 0 && (
         // A text link (not a button) so it aligns flush-left with the comments
         // below it; `mb-2` adds breathing room before the first comment.

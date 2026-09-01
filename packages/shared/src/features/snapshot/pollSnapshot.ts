@@ -1,4 +1,7 @@
+import isAfter from 'date-fns/isAfter';
 import type { Post } from '../../graphql/posts';
+import { postDateFormat } from '../../lib/dateFormat';
+import { largeNumberFormat } from '../../lib';
 import type { PollSnapshotCardProps } from './PollSnapshotCard';
 
 /**
@@ -24,16 +27,23 @@ export function pollSnapshotFromPost(post: Post): PollSnapshotCardProps | null {
   }
 
   const votes = post.numPollVotes ?? total;
+  const hasEnded = !!post.endsAt && isAfter(new Date(), new Date(post.endsAt));
 
   return {
     question: post.title ?? '',
+    // The same line the poll carries in the product, in the same order:
+    // status, then the count, then when it was posted.
+    meta: [
+      hasEnded ? 'Voting ended' : 'Voting open',
+      `${largeNumberFormat(votes)} ${hasEnded ? 'total votes' : 'votes'}`,
+      post.createdAt ? postDateFormat(post.createdAt) : undefined,
+    ].filter(Boolean) as string[],
     options: [...options]
       .sort((a, b) => (b.numVotes ?? 0) - (a.numVotes ?? 0))
       .map((option) => ({
         text: option.text,
         share: Math.round(((option.numVotes ?? 0) / total) * 100),
       })),
-    votes: `${votes.toLocaleString()} ${votes === 1 ? 'vote' : 'votes'}`,
     source: post.source ? { name: post.source.name } : undefined,
     seed: post.id,
   };

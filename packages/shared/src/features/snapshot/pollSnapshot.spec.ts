@@ -30,12 +30,31 @@ describe('pollSnapshotFromPost', () => {
     expect(shares.reduce((sum, option) => sum + option.share, 0)).toBe(100);
   });
 
-  it('carries the vote count and the source as attribution', () => {
-    const snapshot = pollSnapshotFromPost(poll);
+  it('carries the same status line the product shows above the options', () => {
+    // Frozen: postDateFormat says "Now" inside the first minute, and a clock
+    // read at test time decides which branch this lands on.
+    jest.useFakeTimers().setSystemTime(new Date('2026-09-01T18:00:00.000Z'));
+    const snapshot = pollSnapshotFromPost({
+      ...poll,
+      createdAt: '2026-09-01T09:00:00.000Z',
+    } as Post);
+    jest.useRealTimers();
 
-    expect(snapshot?.votes).toBe('1,284 votes');
+    expect(snapshot?.meta).toEqual(['Voting open', '1.3K votes', 'Today']);
     expect(snapshot?.source).toEqual({ name: 'Frontend Fans' });
     expect(snapshot?.seed).toBe('poll-1');
+  });
+
+  it('says the voting ended once the poll has closed', () => {
+    const snapshot = pollSnapshotFromPost({
+      ...poll,
+      endsAt: new Date(Date.now() - 60_000).toISOString(),
+    } as Post);
+
+    expect(snapshot?.meta?.slice(0, 2)).toEqual([
+      'Voting ended',
+      '1.3K total votes',
+    ]);
   });
 
   it('refuses a poll nobody has voted in', () => {

@@ -9,12 +9,12 @@ import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
 import { PostContentWidget } from './PostContentWidget';
 import { useActiveFeedContext } from '../../../contexts';
 import { postLogEvent } from '../../../lib/feed';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import {
-  Button,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/Button';
+} from '../../buttons/common';
 import { LinkIcon } from '../../icons';
 import { useCopyText } from '../../../hooks/useCopy';
 import {
@@ -80,19 +80,24 @@ export function PostContentShare({
     // be used, and there is only one thing to do with it.
     return (
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <span className="min-w-0 flex-1 font-bold text-text-tertiary typo-callout">
-          Should anyone else see this post?
-        </span>
-        <Button
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="font-bold text-text-primary typo-callout">
+            Should anyone else see this post?
+          </span>
+          <span className="text-text-tertiary typo-callout">
+            You upvoted it — pass it on.
+          </span>
+        </div>
+        <ButtonV2
           icon={<LinkIcon />}
           iconPosition={ButtonIconPosition.Right}
           onClick={onCopy}
           size={ButtonSize.Small}
           type="button"
-          variant={ButtonVariant.Secondary}
+          variant={ButtonVariant.Primary}
         >
           Copy link
-        </Button>
+        </ButtonV2>
       </div>
     );
   }

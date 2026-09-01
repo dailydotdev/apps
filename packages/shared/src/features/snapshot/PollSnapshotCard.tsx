@@ -28,19 +28,19 @@ export interface PollSnapshotOption {
 export interface PollSnapshotCardProps {
   question: string;
   options: PollSnapshotOption[];
-  votes?: string;
+  /** Status, vote count and date — the line the poll carries in the product. */
+  meta?: string[];
   source?: { name: string };
   seed?: string;
 }
 
 function PollSnapshotCardComponent(
-  { question, options, votes, source, seed }: PollSnapshotCardProps,
+  { question, options, meta, source, seed }: PollSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   // A closed poll is a result, and the result is the winner: it is drawn in
   // the accent while the rest stay quiet, so the answer reads before the bars.
   const leader = Math.max(...options.map((option) => option.share));
-  const footer = [votes, source?.name].filter(Boolean).join(' · ');
 
   return (
     <SnapshotFrame ref={ref} seed={seed ?? question}>
@@ -67,7 +67,16 @@ function PollSnapshotCardComponent(
           {question}
         </h1>
 
-        <ol className="mt-9 flex flex-1 flex-col justify-center gap-5">
+        {!!meta?.length && (
+          <span
+            className="mt-4 truncate"
+            style={{ color: MUTED, fontSize: 26 }}
+          >
+            {meta.join(' · ')}
+          </span>
+        )}
+
+        <ol className="mt-8 flex flex-1 flex-col justify-center gap-5">
           {options.slice(0, 4).map((option) => (
             <li
               key={option.text}
@@ -107,12 +116,12 @@ function PollSnapshotCardComponent(
           ))}
         </ol>
 
-        {footer && (
+        {source && (
           <span
-            className="mt-9 truncate"
-            style={{ color: MUTED, fontSize: 26 }}
+            className="mt-8 truncate font-bold text-white"
+            style={{ fontSize: 28 }}
           >
-            {footer}
+            {source.name}
           </span>
         )}
       </div>
