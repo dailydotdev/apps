@@ -223,10 +223,31 @@ const readStoredFlags = (userId?: string): Partial<SettingsFlags> => {
 const isClientOnlyFlag = (flag: string): boolean =>
   clientOnlySettingsFlags.includes(flag as ClientOnlyFlagKey);
 
+const legacyLocalSettingsFlags = [
+  'sidebarCompact',
+  'sidebarShortcuts',
+  'sidebarPinnedExpanded',
+  'sidebarRecentExpanded',
+] as const satisfies ReadonlyArray<keyof SettingsFlags>;
+
 const pickClientOnlyFlags = (
   flags: Partial<SettingsFlags>,
 ): ClientOnlySettingsFlags =>
   clientOnlySettingsFlags.reduce((picked, flag) => {
+    if (flag in flags) {
+      return { ...picked, [flag]: flags[flag] };
+    }
+
+    return picked;
+  }, {});
+
+const hasFlags = (flags: Partial<SettingsFlags>): boolean =>
+  Object.keys(flags).length > 0;
+
+const pickLegacyLocalSettingsFlags = (
+  flags: Partial<SettingsFlags>,
+): Partial<SettingsFlags> =>
+  legacyLocalSettingsFlags.reduce((picked, flag) => {
     if (flag in flags) {
       return { ...picked, [flag]: flags[flag] };
     }
@@ -249,11 +270,19 @@ const writeStoredFlags = (
 
 // The one write that has to remove keys: a graduated flag leaves the store for
 // good once the API holds it, which is what stops the migration repeating.
-const dropGraduatedStoredFlags = (userId?: string): void =>
-  storageWrapper.setItem(
-    clientOnlyFlagsKey(userId),
-    JSON.stringify(pickClientOnlyFlags(readStoredFlags(userId))),
-  );
+const dropGraduatedStoredFlags = (userId?: string): void => {
+  const remaining = pickClientOnlyFlags(readStoredFlags(userId));
+
+  if (hasFlags(remaining)) {
+    storageWrapper.setItem(
+      clientOnlyFlagsKey(userId),
+      JSON.stringify(remaining),
+    );
+    return;
+  }
+
+  storageWrapper.removeItem(clientOnlyFlagsKey(userId));
+};
 
 // Hand the pre-per-account entry to the first account that loads after the
 // change, then delete it so the next account on this device starts clean.
@@ -272,15 +301,6 @@ const adoptLegacyStoredFlags = (userId: string): void => {
 
   storageWrapper.removeItem(legacyClientOnlyFlagsKey);
 };
-
-// Graduated = dropped from `clientOnlySettingsFlags` because the API stores it
-// now, but still sitting in this user's local storage.
-const pickGraduatedFlags = (
-  flags: Partial<SettingsFlags>,
-): Partial<SettingsFlags> =>
-  Object.fromEntries(
-    Object.entries(flags).filter(([flag]) => !isClientOnlyFlag(flag)),
-  );
 
 const withoutClientOnlyFlags = (settings: RemoteSettings): RemoteSettings => {
   if (!settings.flags) {
@@ -426,8 +446,11 @@ export const SettingsContextProvider = ({
 
   const setSettings = async (newSettings: RemoteSettings): Promise<void> => {
     if (newSettings.flags) {
-      writeStoredFlags(userId, pickClientOnlyFlags(newSettings.flags));
-      setStoredFlagsRevision((revision) => revision + 1);
+      const clientOnlyFlags = pickClientOnlyFlags(newSettings.flags);
+      if (hasFlags(clientOnlyFlags)) {
+        writeStoredFlags(userId, clientOnlyFlags);
+        setStoredFlagsRevision((revision) => revision + 1);
+      }
     }
 
     updateSettings({ ...settings, ...newSettings });
@@ -457,8 +480,8 @@ export const SettingsContextProvider = ({
       return;
     }
 
-    const graduated = pickGraduatedFlags(readStoredFlags(userId));
-    if (!Object.keys(graduated).length) {
+    const graduated = pickLegacyLocalSettingsFlags(readStoredFlags(userId));
+    if (!hasFlags(graduated)) {
       return;
     }
 
@@ -469,15 +492,21 @@ export const SettingsContextProvider = ({
       ),
     );
 
-    if (Object.keys(pending).length) {
-      setSettings({
-        ...settings,
-        flags: { ...settings.flags, ...pending },
-      }).catch(() => undefined);
-    }
+    const migrate = async () => {
+      if (hasFlags(pending)) {
+        await setSettings({
+          ...settings,
+          flags: { ...settings.flags, ...pending },
+        });
+      }
 
-    dropGraduatedStoredFlags(userId);
-    setStoredFlagsRevision((revision) => revision + 1);
+      dropGraduatedStoredFlags(userId);
+      setStoredFlagsRevision((revision) => revision + 1);
+    };
+
+    migrate().catch(() => {
+      hasMigratedFlagsRef.current = false;
+    });
     // `settings`/`setSettings` are re-created every render; the ref bounds this
     // to one run, so their identity is noise here.
     // eslint-disable-next-line react-hooks/exhaustive-deps

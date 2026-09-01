@@ -56,20 +56,12 @@ export type SettingsFlags = {
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 
-// The API declares its accepted flags one by one in `SettingsFlagsPublicInput`.
-// Sending one it doesn't know fails GraphQL validation, and since every write
-// ships the whole `flags` object, that breaks the persistence of ALL settings.
-// These have no API field yet, so they're kept in local storage and stripped
-// from the remote payload.
-//
-// Deleting an entry here is the only change needed once the API stores it.
-// See docs/settings-flags-backend.md.
-export const clientOnlySettingsFlags = [
-  'sidebarCompact',
-  'sidebarShortcuts',
-  'sidebarPinnedExpanded',
-  'sidebarRecentExpanded',
-] as const satisfies ReadonlyArray<keyof SettingsFlags>;
+// Keep only flags the API does not know yet. Sending an unknown flag fails
+// GraphQL validation, and since every write ships the whole `flags` object,
+// that breaks the persistence of all settings in the same payload.
+export const clientOnlySettingsFlags = [] as const satisfies ReadonlyArray<
+  keyof SettingsFlags
+>;
 
 export type ClientOnlyFlagKey = (typeof clientOnlySettingsFlags)[number];
 

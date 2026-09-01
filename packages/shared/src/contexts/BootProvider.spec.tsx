@@ -39,7 +39,7 @@ import { BootApp, getBootData } from '../lib/boot';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
-import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
+import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { SortCommentsBy } from '../graphql/comments';
 
 jest.mock('../lib/boot', () => {
@@ -301,8 +301,8 @@ it('should toggle the sidebar callback', async () => {
 
 const clientOnlyFlagsKey = `dailydev:settings:clientOnlyFlags:${defaultUser.id}`;
 
-const ClientOnlyFlagMock = () => {
-  const { value, toggle } = useSettingsBooleanFlag('sidebarCompact');
+const SidebarCompactMock = () => {
+  const { value, toggle } = useSidebarCompact();
 
   return (
     <button onClick={toggle} type="button" data-test-value={value}>
@@ -311,111 +311,115 @@ const ClientOnlyFlagMock = () => {
   );
 };
 
-const renderWithClientOnlyFlag = () =>
+const renderWithSidebarCompactFlag = () =>
   renderComponent(
     <>
       <SettingsMock />
-      <ClientOnlyFlagMock />
+      <SidebarCompactMock />
     </>,
   );
 
-it('should store a client-only flag locally without calling the API', async () => {
-  // The payload of a compact toggle, if one were sent: every key it changed is
-  // stripped, so the request would be identical to the last one.
-  mockSettingsMutation({ flags: {} as SettingsFlags });
-  renderWithClientOnlyFlag();
+it('should store a sidebar flag through the settings API', async () => {
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderWithSidebarCompactFlag();
   await waitForRemoteBoot();
   const compact = await screen.findByText('Compact sidebar');
-  await expectToHaveTestValue(compact, 'false');
-  fireEvent.click(compact);
   await expectToHaveTestValue(compact, 'true');
-  await waitFor(() =>
-    expect(localStorage.getItem(clientOnlyFlagsKey)).toEqual(
-      JSON.stringify({ sidebarCompact: true }),
-    ),
-  );
-  expect(nock.isDone()).toBe(false);
-});
-
-it('should keep client-only flags out of a real settings write', async () => {
-  localStorage.setItem(
-    clientOnlyFlagsKey,
-    JSON.stringify({ sidebarCompact: true }),
-  );
-  // The nock only matches if `sidebarCompact` was stripped from the payload.
-  mockSettingsMutation({
-    sidebarExpanded: false,
-    flags: {} as SettingsFlags,
-  });
-  renderComponent(<SettingsMock />);
-  await waitForRemoteBoot();
-  fireEvent.click(await screen.findByText('Sidebar'));
-  await waitFor(() => expect(nock.isDone()).toBe(true));
-});
-
-it('should keep a client-only flag another writer stored while updating its own', async () => {
-  renderWithClientOnlyFlag();
-  await waitForRemoteBoot();
-  const compact = await screen.findByText('Compact sidebar');
-  await expectToHaveTestValue(compact, 'false');
-  // A second tab owns a different key in the same store and wrote it after this
-  // one had already read.
-  localStorage.setItem(
-    clientOnlyFlagsKey,
-    JSON.stringify({ sidebarShortcuts: ['tags'] }),
-  );
   fireEvent.click(compact);
-  await waitFor(() =>
-    expect(
-      JSON.parse(localStorage.getItem(clientOnlyFlagsKey) as string),
-    ).toEqual({
+  await expectToHaveTestValue(compact, 'false');
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull();
+});
+
+it('should migrate stored sidebar flags into settings', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({
+      sidebarCompact: false,
       sidebarShortcuts: ['tags'],
-      sidebarCompact: true,
+      sidebarPinnedExpanded: false,
+      sidebarRecentExpanded: true,
+      removedFlag: true,
     }),
   );
-});
-
-it('should push a flag the API has learned to store up to the server', async () => {
-  // `clickbaitShieldEnabled` is a server flag, so a value in the client-only
-  // store is a leftover from before the API grew the field. `sidebarCompact`
-  // sits beside it and has NOT graduated: the migration must take one and
-  // leave the other, so this can't pass just because the store was cleared.
-  localStorage.setItem(
-    clientOnlyFlagsKey,
-    JSON.stringify({ clickbaitShieldEnabled: false, sidebarCompact: true }),
-  );
   mockSettingsMutation({
-    flags: { clickbaitShieldEnabled: false } as SettingsFlags,
+    flags: {
+      sidebarCompact: false,
+      sidebarShortcuts: ['tags'],
+      sidebarPinnedExpanded: false,
+      sidebarRecentExpanded: true,
+    } as SettingsFlags,
   });
   renderComponent(<SettingsMock />);
   await waitForRemoteBoot();
-  // A consumed mock IS the assertion that the local value reached the API.
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
+});
+
+it('should keep stored sidebar flags when the migration write fails', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({ sidebarCompact: false }),
+  );
+  nock('http://localhost:3000')
+    .post('/graphql', {
+      query: UPDATE_USER_SETTINGS_MUTATION,
+      variables: {
+        data: {
+          ...defaultSettings,
+          flags: { sidebarCompact: false },
+        },
+      },
+    })
+    .reply(500, {});
+  renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
   await waitFor(() => expect(nock.isDone()).toBe(true));
   await waitFor(() =>
     expect(localStorage.getItem(clientOnlyFlagsKey)).toEqual(
-      JSON.stringify({ sidebarCompact: true }),
+      JSON.stringify({ sidebarCompact: false }),
     ),
   );
+});
+
+it('should let remote settings win over the legacy local sidebar store', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({ sidebarCompact: false }),
+  );
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderComponent(<SettingsMock />, {
+    ...defaultBootData,
+    settings: {
+      ...defaultSettings,
+      flags: { sidebarCompact: true } as SettingsFlags,
+    },
+  });
+  await waitForRemoteBoot();
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
+  expect(nock.isDone()).toBe(false);
 });
 
 it('should hand the pre-per-account flag store to the first account that loads', async () => {
   localStorage.setItem(
     'dailydev:settings:clientOnlyFlags:global',
-    JSON.stringify({ sidebarCompact: true }),
+    JSON.stringify({ sidebarCompact: false }),
   );
-  renderWithClientOnlyFlag();
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderWithSidebarCompactFlag();
   await waitForRemoteBoot();
-  const compact = await screen.findByText('Compact sidebar');
-  await expectToHaveTestValue(compact, 'true');
-  await waitFor(() =>
-    expect(localStorage.getItem(clientOnlyFlagsKey)).toEqual(
-      JSON.stringify({ sidebarCompact: true }),
-    ),
-  );
+  await waitFor(() => expect(nock.isDone()).toBe(true));
   // Removed, so the next account on this device doesn't inherit it too.
   expect(
     localStorage.getItem('dailydev:settings:clientOnlyFlags:global'),
   ).toBeNull();
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
 });
 
 it('should trigger set theme callback', async () => {
