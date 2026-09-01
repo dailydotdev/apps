@@ -8,8 +8,7 @@ import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { HighlightSnapshotButton } from '../../features/snapshot/HighlightSnapshotButton';
+import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
 import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 import { featureSnapshotHighlightExpanded } from '../../lib/featureManagement';
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
@@ -108,13 +107,7 @@ export const HighlightItem = ({
                 Read more
               </a>
             </Link>
-            {expandedSnapshot && (
-              <HighlightSnapshotButton
-                {...snapshotProps}
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-              />
-            )}
+            {expandedSnapshot && <HighlightShareActions {...snapshotProps} />}
           </div>
         </div>
       )}

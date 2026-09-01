@@ -82,6 +82,7 @@ describe('HighlightItem', () => {
     renderWithFlag(featureSnapshotHighlightExpanded, true);
 
     expect(screen.getByRole('button', { name: /snapshot/i })).toBeVisible();
+    expect(screen.getByRole('button', { name: /copy link/i })).toBeVisible();
     expect(screen.getByRole('link', { name: /read more/i })).toBeVisible();
   });
 });

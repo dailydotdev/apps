@@ -8,21 +8,13 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  ArrowIcon,
-  LinkIcon,
-  MenuIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon, MenuIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { HighlightSnapshotButton } from '@dailydotdev/shared/src/features/snapshot/HighlightSnapshotButton';
+import { HighlightShareActions } from '@dailydotdev/shared/src/features/snapshot/HighlightShareActions';
 import { HighlightSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightSnapshotCard';
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
-import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
-import {
-  ToastType,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks/useToastNotification';
+
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -158,35 +150,6 @@ const Inert = ({ icon, label }: { icon: ReactElement; label: string }) => (
   />
 );
 
-const CopyLink = ({ label }: { label?: boolean }) => {
-  const [, copy] = useCopyText(LINK);
-  const { displayToast } = useToastNotification();
-  // The clipboard rejects outright when the document is not focused, and a
-  // press that reports nothing at all reads as a dead button.
-  const onCopy = async () => {
-    try {
-      await copy({ message: '✅ Copied link' });
-    } catch {
-      displayToast('❌ Your browser blocked the clipboard', {
-        variant: ToastType.Error,
-      });
-    }
-  };
-
-  return (
-    <Button
-      aria-label="Copy link"
-      icon={<LinkIcon />}
-      onClick={onCopy}
-      size={ButtonSize.Small}
-      type="button"
-      variant={ButtonVariant.Tertiary}
-    >
-      {label ? 'Copy link' : undefined}
-    </Button>
-  );
-};
-
 /* --------------------------------------------------------------- the mocks */
 
 type Spot = 'menu' | 'expanded';
@@ -242,12 +205,7 @@ const HighlightRow = ({
             <span className="flex-1 font-bold text-text-link typo-footnote">
               Read more
             </span>
-            <CopyLink />
-            <HighlightSnapshotButton
-              {...snapshotProps}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-            />
+            <HighlightShareActions {...snapshotProps} />
           </div>
         </div>
       )}
