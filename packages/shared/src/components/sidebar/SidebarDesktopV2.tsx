@@ -31,6 +31,8 @@ import {
   ListIcon,
   Nav,
   RAIL_ICON_SIZE,
+  RAIL_ROW_GAP_PX,
+  railColumnGapClass,
   railCountBubbleClass,
   railDividerBgClass,
   railDividerBorderClass,
@@ -90,13 +92,14 @@ import {
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
-import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
+import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
 import {
   SidebarShortcutsDock,
+  useLegacyShortcutsMigration,
   useSidebarShortcutItems,
 } from './SidebarShortcutsDock';
 import { RailMoreMenu } from './RailMoreMenu';
@@ -211,7 +214,6 @@ const RAIL_DRAG_CLICK_GUARD_FALLBACK_MS = 500;
 // the exact class it mirrors, so editing a class has one obvious place to
 // follow — a silent desync only shows up as one tab too many or too few folding
 // into "More" at a particular viewport height, which nothing in CI can catch.
-const RAIL_ROW_GAP_PX = 4; // `gap-1` on the rail column
 const SHORTCUT_ROW_PX = 40; // shortcut dot row height
 const CREATE_BUTTON_PX = 36; // New post `!size-9`
 const CREATE_MARGIN_Y_PX = 16; // New post `my-2`
@@ -655,7 +657,7 @@ const SidebarProfileButton = ({
         <span className={railGlyphBoxClass}>
           <ProfilePicture
             user={user}
-            size={ProfileImageSize.Small}
+            size={ProfileImageSize.XSmall}
             nativeLazyLoading
             // 1px frame around the avatar when this is the selected tab. A ring
             // (not a border) so the image doesn't shrink/shift on select.
@@ -729,7 +731,7 @@ export const SidebarDesktopV2 = ({
   if (isExtension) {
     myFeedPath = `${webappUrl}my-feed`;
   }
-  const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
+  const { value: isCompact } = useSidebarCompact();
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
   // padding so the content never overlaps the rail.
@@ -836,9 +838,11 @@ export const SidebarDesktopV2 = ({
   }, []);
 
   const { resolved: shortcutItems } = useSidebarShortcutItems();
+  useLegacyShortcutsMigration();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
   const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
-  const tabRowPx = (isCompact ? 44 : 56) + RAIL_ROW_GAP_PX;
+  // Measured from a rendered tab, not derived from the classes.
+  const tabRowPx = (isCompact ? 40 : 58) + RAIL_ROW_GAP_PX;
   const tabCount = foldableTabIds.length;
   // The pinned items sit inside the measured region but never fold into
   // "More" — reserve their rows up front so the tabs/dock budget is only what's
@@ -1213,7 +1217,7 @@ export const SidebarDesktopV2 = ({
       sidebarExpanded: true,
       shouldShowLabel: true,
       activePage,
-      compact: true,
+      isV2Panel: true,
     }),
     [activePage],
   );
@@ -1502,7 +1506,9 @@ export const SidebarDesktopV2 = ({
         <ProfilePanelSection
           {...defaultRenderSectionProps}
           onNavTabClick={onNavTabClick}
-          isItemsButton={false}
+          // Its feed rows carry root-relative paths, which only survive the
+          // extension as buttons. See docs/sidebar-links-extension-audit.md.
+          isItemsButton={isNavButtons ?? false}
         />
       );
     }
@@ -1972,7 +1978,8 @@ export const SidebarDesktopV2 = ({
               // swap is triggered by the pointer being anywhere on the rail,
               // not just on the logo, so the way home is visible while you're
               // reading the tabs rather than only after you already found it.
-              'group/rail flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
+              'group/rail flex h-dvh min-h-dvh shrink-0 flex-col items-center px-1.5 pb-3 pt-[13px]',
+              railColumnGapClass,
               railNavWidth,
             )}
           >
@@ -2094,7 +2101,10 @@ export const SidebarDesktopV2 = ({
               between the framing separators. */}
             <div
               ref={lowerRegionRef}
-              className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
+              className={classNames(
+                'flex min-h-0 w-full flex-1 flex-col items-center',
+                railColumnGapClass,
+              )}
             >
               {/* Rail tabs that fit — fixed above the scrollable dock / More.
                 As the viewport shrinks, the lowest-priority tabs peel off into
@@ -2104,7 +2114,10 @@ export const SidebarDesktopV2 = ({
                 ref={tablistRef}
                 role="tablist"
                 aria-label="Sidebar categories"
-                className="relative flex w-full flex-col items-center gap-1"
+                className={classNames(
+                  'relative flex w-full flex-col items-center',
+                  railColumnGapClass,
+                )}
               >
                 {/* The selected pill — a single background that slides between
                   tabs. Sits behind them (z-0; tabs are relative z-1). The
@@ -2206,9 +2219,9 @@ export const SidebarDesktopV2 = ({
                 <div
                   aria-hidden
                   className={classNames(
-                    // Symmetric margins so the line sits exactly midway between
-                    // New post above it and the shortcuts "•••" below it.
-                    'my-3 h-px w-6',
+                    // No top margin on purpose: New post sits directly above
+                    // with its own `my-2`, so this lands 10px on both sides.
+                    'mb-2 h-px w-6',
                     railDividerBgClass,
                     shortcutCount === 0 &&
                       'opacity-0 transition-opacity group-hover:opacity-100',
@@ -2220,7 +2233,12 @@ export const SidebarDesktopV2 = ({
                 separators. The tiny -mx/px keeps focus rings from being
                 clipped. */}
               {showInlineDock && (
-                <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
+                <div
+                  className={classNames(
+                    'no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto px-0.5',
+                    railColumnGapClass,
+                  )}
+                >
                   <SidebarShortcutsDock />
                 </div>
               )}
@@ -2242,7 +2260,10 @@ export const SidebarDesktopV2 = ({
             <div
               aria-label="Sidebar utilities"
               onMouseEnter={handleRailMouseLeave}
-              className="flex w-full flex-col items-center gap-1"
+              className={classNames(
+                'flex w-full flex-col items-center',
+                railColumnGapClass,
+              )}
             >
               {/* Keyed on isLoggedIn (a constant, not shortcutCount or the
                 height-derived overflow state): it sits OUTSIDE the measured
@@ -2345,60 +2366,72 @@ export const SidebarDesktopV2 = ({
             suppressTransition,
           )}
         >
-          {/* pl-5 lines the panel title up with the list rows' icon glyphs
-            (icons sit ~8px into their w-9 column) and the section titles. */}
-          <div className="pl-5 pr-3 pt-6">
-            {isSettingsSelected ? (
-              <Button
-                type="button"
-                variant={ButtonVariant.Subtle}
-                size={ButtonSize.Small}
-                // Smaller glyph, flipped to point left (it's a back action).
-                icon={
-                  <MoveToIcon size={IconSize.Size16} className="-scale-x-100" />
-                }
-                onClick={onBackToApp}
-                className="-ml-1"
+          {/* Pinned to the open width so the content does not reflow while
+            the panel animates its own width. */}
+          <div
+            className={classNames(
+              'flex min-h-0 flex-1 flex-col',
+              !isSettingsSelected && 'w-60',
+            )}
+          >
+            {/* pl-5 lines the panel title up with the list rows' icon glyphs
+              (icons sit ~8px into their w-9 column) and the section titles. */}
+            <div className="pl-5 pr-3 pt-6">
+              {isSettingsSelected ? (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  // Smaller glyph, flipped to point left (it's a back action).
+                  icon={
+                    <MoveToIcon
+                      size={IconSize.Size16}
+                      className="-scale-x-100"
+                    />
+                  }
+                  onClick={onBackToApp}
+                  className="-ml-1"
+                >
+                  Back to app
+                </Button>
+              ) : (
+                <div className="flex h-10 items-center gap-1">
+                  <Typography bold type={TypographyType.Callout}>
+                    {utilityPanelTitle}
+                  </Typography>
+                </div>
+              )}
+            </div>
+
+            {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
+              <div className="mt-2 flex items-center gap-1 px-3">
+                {additionalButtons}
+              </div>
+            )}
+
+            <SidebarScrollWrapper
+              className={classNames(
+                'mt-1 min-h-0 flex-1',
+                showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
+              )}
+            >
+              <Nav
+                className={classNames(
+                  isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
+                  isStreakPanel && 'min-h-0 flex-1',
+                )}
               >
-                Back to app
-              </Button>
-            ) : (
-              <div className="flex h-10 items-center gap-1">
-                <Typography bold type={TypographyType.Callout}>
-                  {utilityPanelTitle}
-                </Typography>
+                {renderSelectedSection()}
+              </Nav>
+            </SidebarScrollWrapper>
+
+            {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
+            {showFeedbackWidget && !isUtilityPanelSelected && (
+              <div className="absolute inset-x-3 bottom-3">
+                <FeedbackWidget placement="sidebar" />
               </div>
             )}
           </div>
-
-          {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
-            <div className="mt-2 flex items-center gap-1 px-3">
-              {additionalButtons}
-            </div>
-          )}
-
-          <SidebarScrollWrapper
-            className={classNames(
-              'mt-1 min-h-0 flex-1',
-              showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
-            )}
-          >
-            <Nav
-              className={classNames(
-                isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
-                isStreakPanel && 'min-h-0 flex-1',
-              )}
-            >
-              {renderSelectedSection()}
-            </Nav>
-          </SidebarScrollWrapper>
-
-          {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
-          {showFeedbackWidget && !isUtilityPanelSelected && (
-            <div className="absolute inset-x-3 bottom-3">
-              <FeedbackWidget placement="sidebar" />
-            </div>
-          )}
         </section>
       </SidebarAside>
     </SidebarDragStateProvider>
