@@ -124,6 +124,9 @@ const QuestStrip = ({
   </div>
 );
 
+const completionHeadline = ({ total, claimed }: DailyQuestSummary): string =>
+  claimed >= total ? 'Daily quests complete' : 'Quest complete';
+
 export type QuestOfferCelebrationProps = {
   level: number;
   levelProgress: number;
@@ -161,7 +164,7 @@ export const QuestOfferCelebration = ({
           {`/ ${summary.total} quests`}
         </span>
       </div>
-      <h2 className="typo-title3">Daily quests complete</h2>
+      <h2 className="typo-title3">{completionHeadline(summary)}</h2>
     </div>
     <QuestStrip total={summary.total} claimed={summary.claimed} />
   </div>
@@ -193,7 +196,7 @@ export const QuestOfferCelebrationCompact = ({
         <span className="font-bold tabular-nums typo-mega2">
           {`${summary.claimed}/${summary.total}`}
         </span>
-        <span className="typo-callout">Daily quests complete</span>
+        <span className="typo-callout">{completionHeadline(summary)}</span>
       </span>
     </div>
     {children}

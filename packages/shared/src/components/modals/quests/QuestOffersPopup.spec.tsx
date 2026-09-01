@@ -113,33 +113,37 @@ beforeEach(() => {
   mockOffersResponse(offers);
 });
 
-const expectedModal = {
-  type: LazyModal.QuestOffers,
-  props: {
-    level: 12,
-    summary: { total: 2, claimed: 2, xpEarned: 100 },
-    offers,
-  },
-};
-
-it('opens the offers modal once every daily quest is claimed', async () => {
+// The day's first claim is the moment; waiting for the whole set is too rare.
+it('opens the offers modal on the first claimed daily quest of the day', async () => {
   const { queryClient } = renderComponent(
     makeDashboard([
       makeQuest(),
-      makeQuest({ rotationId: 'rot-2', userQuestId: 'uq-2' }),
+      makeQuest({
+        rotationId: 'rot-2',
+        userQuestId: 'uq-2',
+        status: QuestStatus.Completed,
+        claimable: true,
+      }),
     ]),
   );
 
   await waitFor(() =>
-    expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject(expectedModal),
+    expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+      type: LazyModal.QuestOffers,
+      props: {
+        level: 12,
+        summary: { total: 2, claimed: 1, xpEarned: 50 },
+        offers,
+      },
+    }),
   );
   expect(mockSetLastSeen).toHaveBeenCalled();
 });
 
-it('does not open while a daily quest is still unclaimed', async () => {
+it('does not open before anything has been claimed', async () => {
   const { queryClient } = renderComponent(
     makeDashboard([
-      makeQuest(),
+      makeQuest({ status: QuestStatus.InProgress }),
       makeQuest({
         rotationId: 'rot-2',
         userQuestId: 'uq-2',
@@ -155,9 +159,9 @@ it('does not open while a daily quest is still unclaimed', async () => {
   expect(mockSetLastSeen).not.toHaveBeenCalled();
 });
 
-// A free user can never claim the Plus bucket, so counting it would keep them
-// permanently one quest short of the popup.
-it('ignores locked quests when deciding the day is done', async () => {
+// A free user can never claim the Plus bucket, so counting it would show them
+// a progress denominator they can never close.
+it('keeps locked quests out of the progress total', async () => {
   const dashboard = makeDashboard([makeQuest()]);
   dashboard.daily.plus = [
     makeQuest({

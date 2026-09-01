@@ -113,6 +113,22 @@ describe('QuestOffersModal', () => {
     );
   });
 
+  // The popup now rides the first claim, so the headline must not promise the
+  // whole set is done until it actually is.
+  it('only claims the day is complete once every quest is claimed', () => {
+    const { unmount } = renderComponent({
+      summary: { total: 3, claimed: 1, xpEarned: 50 },
+    });
+
+    expect(screen.getByText('Quest complete')).toBeInTheDocument();
+    expect(screen.getByText('/ 3 quests')).toBeInTheDocument();
+
+    unmount();
+    renderComponent();
+
+    expect(screen.getByText('Daily quests complete')).toBeInTheDocument();
+  });
+
   it('shows the XP earned from the day, and hides the chip when there is none', () => {
     const { unmount } = renderComponent();
 

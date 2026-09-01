@@ -32,13 +32,16 @@ const hasSeenToday = (lastSeen: string | null): boolean => {
 };
 
 /**
- * Standalone daily quest completion modal trigger.
+ * Standalone daily quest reward modal trigger.
  *
  * Like `StreakMilestonePopup`, this sits outside BootPopups so it is NOT
- * subject to the one-per-day boot popup queue. Eligibility is a plain state
- * check rather than a transition watch, so the moment survives a reload: a
- * user who finished their quests hours ago still gets it on their next visit,
- * and the persisted day stamp keeps it to one showing.
+ * subject to the one-per-day boot popup queue. It rides the day's first
+ * claimed daily quest: waiting for the whole set is a moment too rare to be
+ * worth measuring, and Plus users would have had to clear their unlocked Plus
+ * quests too. Eligibility is a plain state check rather than a transition
+ * watch, so the moment survives a reload — someone who claimed hours ago
+ * still gets it on their next visit — and the persisted day stamp keeps it to
+ * one showing.
  */
 const QuestOffersTrigger = (): null => {
   const { openModal, modal } = useLazyModal();
@@ -55,8 +58,7 @@ const QuestOffersTrigger = (): null => {
     !dashboard,
     !isLastSeenFetched,
     hasSeenToday(lastSeen),
-    !summary.total,
-    summary.claimed < summary.total,
+    !summary.claimed,
     !!modal,
   ].some(Boolean);
 
