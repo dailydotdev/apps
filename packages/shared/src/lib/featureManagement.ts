@@ -38,6 +38,20 @@ export const featurePostCopySummary = new Feature('post_copy_summary', false);
 export const featurePostSharePrompts = new Feature('post_share_prompts', false);
 export const featurePollSnapshot = new Feature('poll_snapshot', false);
 export const featurePostNavCopyLink = new Feature('post_nav_copy_link', false);
+// Snapshot on Happening Now. Three levels compete for the control and only one
+// should ship, so each is its own flag rather than a variant string.
+export const featureSnapshotHighlightRow = new Feature(
+  'snapshot_highlight_row',
+  false,
+);
+export const featureSnapshotHighlightExpanded = new Feature(
+  'snapshot_highlight_expanded',
+  false,
+);
+export const featureSnapshotHighlightsPage = new Feature(
+  'snapshot_highlights_page',
+  false,
+);
 // Experiment: community takes — an LLM-generated digest of what the developer
 // community on HN/Lobsters thinks about a post. Control hides the surface,
 // treatment shows it. Enrollment is conditional on the post actually having a
