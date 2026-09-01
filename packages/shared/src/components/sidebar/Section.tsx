@@ -21,7 +21,7 @@ export interface SectionCommonProps
   flag?: keyof SettingsFlags;
   // v2 sidebar polish: hover-only collapse arrow + 1px item gap. Defaults to
   // the v1 always-visible arrow and no gap so the v1 sidebar is unchanged.
-  compact?: boolean;
+  isV2Panel?: boolean;
 }
 
 interface SectionProps extends SectionCommonProps {
@@ -45,7 +45,7 @@ export function Section({
   isAlwaysOpenOnMobile,
   onAdd,
   addHref,
-  compact = false,
+  isV2Panel = false,
 }: SectionProps): ReactElement {
   const { flags, updateFlag } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
@@ -117,13 +117,13 @@ export function Section({
                 // `size` controls the real glyph dimensions — a w/h className
                 // here loses to the Icon's size class (Tailwind resolves the
                 // conflict by stylesheet order, not JSX order).
-                size={compact ? IconSize.XXSmall : undefined}
+                size={isV2Panel ? IconSize.XXSmall : undefined}
                 className={classNames(
                   'text-text-quaternary duration-200',
                   // v2: revealed only while hovering/focusing the section
                   // (header or its items) — see group/section above. v1 keeps
                   // the arrow always visible at its original size.
-                  compact
+                  isV2Panel
                     ? 'opacity-0 transition-[transform,opacity] group-focus-within/section:opacity-100 group-hover/section:opacity-100'
                     : 'h-2.5 w-2.5 transition-transform',
                   isVisible ? 'rotate-180' : 'rotate-90',
@@ -169,7 +169,7 @@ export function Section({
         <div
           className={classNames(
             'flex min-h-0 flex-col overflow-hidden',
-            compact && 'gap-px',
+            isV2Panel && 'gap-px',
           )}
         >
           {items.map((item) =>

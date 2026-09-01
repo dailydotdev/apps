@@ -1,20 +1,41 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { fireEvent, render, renderHook, screen } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   SidebarShortcutsDock,
+  useLegacyShortcutsMigration,
   useSidebarShortcutItems,
 } from './SidebarShortcutsDock';
 import { webappUrl } from '../../lib/constants';
+import type { SidebarShortcut } from '../../features/shortcuts/types';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 
-const mockSetStored = jest.fn().mockResolvedValue(undefined);
-let mockStored: unknown[] = [];
+const mockSetLegacy = jest.fn().mockResolvedValue(undefined);
+let mockLegacy: unknown[] = [];
+
+const mockUpdateFlag = jest.fn().mockResolvedValue(undefined);
+let mockStored: SidebarShortcut[] | undefined;
+let mockRemoteSettingsLoaded = true;
 
 jest.mock('../../hooks/usePersistentContext', () => ({
   __esModule: true,
-  default: () => [mockStored, mockSetStored, true, false],
+  default: () => [mockLegacy, mockSetLegacy, true, false],
+}));
+
+jest.mock('../../contexts/SettingsContext', () => ({
+  ...jest.requireActual('../../contexts/SettingsContext'),
+  useSettingsContext: () => ({
+    flags: { sidebarShortcuts: mockStored },
+    updateFlag: mockUpdateFlag,
+    isRemoteSettingsLoaded: mockRemoteSettingsLoaded,
+  }),
 }));
 
 jest.mock('../../hooks/useToastNotification', () => ({
@@ -30,7 +51,9 @@ describe('useSidebarShortcutItems stored entry handling', () => {
 
   beforeEach(() => {
     mockStored = [];
-    mockSetStored.mockClear();
+    mockLegacy = [];
+    mockUpdateFlag.mockClear();
+    mockSetLegacy.mockClear();
     mockUseJobsFeature.mockReturnValue({
       isJobsEnabled: true,
       isLoading: false,
@@ -83,6 +106,62 @@ describe('useSidebarShortcutItems stored entry handling', () => {
 
     expect(result.current.resolved).toHaveLength(1);
   });
+
+  it('does not migrate from the items hook, which mounts once per squad row', async () => {
+    mockStored = undefined;
+    mockLegacy = ['tags'];
+    renderHook(() => useSidebarShortcutItems());
+
+    await waitFor(() => expect(mockUpdateFlag).not.toHaveBeenCalled());
+  });
+
+  it('persists a mutation to settings, not to device storage', () => {
+    mockStored = [];
+    const { result } = renderHook(() => useSidebarShortcutItems());
+    result.current.addCatalog('tags');
+
+    expect(mockUpdateFlag).toHaveBeenCalledWith('sidebarShortcuts', ['tags']);
+    expect(mockSetLegacy).not.toHaveBeenCalled();
+  });
+});
+
+describe('useSidebarShortcutItems device-storage migration', () => {
+  beforeEach(() => {
+    mockStored = undefined;
+    mockLegacy = [];
+    mockUpdateFlag.mockClear();
+    mockSetLegacy.mockClear();
+  });
+
+  it('lifts a pre-existing IndexedDB dock into settings once', async () => {
+    mockLegacy = ['tags', { title: 'Squad', path: `${webappUrl}squads/dev` }];
+    renderHook(() => useLegacyShortcutsMigration());
+
+    await waitFor(() =>
+      expect(mockUpdateFlag).toHaveBeenCalledWith(
+        'sidebarShortcuts',
+        mockLegacy,
+      ),
+    );
+    expect(mockSetLegacy).toHaveBeenCalledWith([]);
+  });
+
+  it('waits for the remote settings before migrating', async () => {
+    mockRemoteSettingsLoaded = false;
+    mockLegacy = ['tags'];
+    renderHook(() => useLegacyShortcutsMigration());
+
+    await waitFor(() => expect(mockUpdateFlag).not.toHaveBeenCalled());
+    mockRemoteSettingsLoaded = true;
+  });
+
+  it('leaves a deliberately emptied dock alone', async () => {
+    mockStored = [];
+    mockLegacy = ['tags'];
+    renderHook(() => useLegacyShortcutsMigration());
+
+    await waitFor(() => expect(mockUpdateFlag).not.toHaveBeenCalled());
+  });
 });
 
 const onCustomizeInteraction = jest.fn();
@@ -101,7 +180,8 @@ const getCustomizeButton = () => screen.getByLabelText('Customize shortcuts');
 describe('SidebarShortcutsDock customize button', () => {
   beforeEach(() => {
     mockStored = [];
-    mockSetStored.mockClear();
+    mockLegacy = [];
+    mockUpdateFlag.mockClear();
     onCustomizeInteraction.mockClear();
   });
 

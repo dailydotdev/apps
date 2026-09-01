@@ -29,10 +29,10 @@ import { CharmEmptyState } from '@dailydotdev/shared/src/components/charm/CharmE
 import { cloudinaryCharmNoComments } from '@dailydotdev/shared/src/lib/image';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 
-const CommentInputOrModal = dynamic(
+const CommentInput = dynamic(
   () =>
     import(
-      /* webpackChunkName: "commentInputOrModal" */ '@dailydotdev/shared/src/components/comments/CommentInputOrModal'
+      /* webpackChunkName: "commentInput" */ '@dailydotdev/shared/src/components/comments/CommentInput'
     ),
 );
 
@@ -150,11 +150,7 @@ export const ToolDiscussion = ({
       }
 
       return (
-        <NewComment
-          post={post}
-          ref={commentRef}
-          CommentInputOrModal={CommentInputOrModal}
-        />
+        <NewComment post={post} ref={commentRef} CommentInput={CommentInput} />
       );
     };
 

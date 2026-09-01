@@ -57,6 +57,20 @@ export const WithCustomContent: Story = {
   },
 };
 
+export const LongMultiLineContent: Story = {
+  args: {
+    content: (
+      <div className="text-center">
+        We are showing your reading streak in your selected timezone.
+        <br />
+        Click to adjust your timezone if needed or traveling.
+      </div>
+    ),
+    open: true,
+    children: <button>Long tooltip content</button>,
+  },
+};
+
 export const Controlled: Story = {
   args: {
     content: 'This tooltip is controlled',
