@@ -77,12 +77,19 @@ const AgentSettingsPage = ({ id }: { id: string }): ReactElement | null => {
   const shellHeight = useAgentShellHeight();
 
   const interest = interestQuery.data ?? undefined;
+  const isMissing = interestQuery.isSuccess && !interest;
 
   useEffect(() => {
     if (isGatedOut) {
       router.replace(webappUrl);
     }
   }, [isGatedOut, router]);
+
+  useEffect(() => {
+    if (isMissing) {
+      router.replace(`${webappUrl}agent`);
+    }
+  }, [isMissing, router]);
 
   if (isGatedOut) {
     return null;

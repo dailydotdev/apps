@@ -50,15 +50,21 @@ const LiveAgentPage = ({
   const feed = useAgentFeed({ id, enabled: isQueryEnabled });
 
   const posts = postsQuery.data ?? [];
-  // The query resolves `null` for an agent that is not there, which everything
-  // downstream treats the same as not having loaded yet.
+  // The query resolves `null` for an agent that is not there.
   const interest = interestQuery.data ?? undefined;
+  const isMissing = interestQuery.isSuccess && !interest;
 
   useEffect(() => {
     if (isGatedOut) {
       router.replace(webappUrl);
     }
   }, [isGatedOut, router]);
+
+  useEffect(() => {
+    if (isMissing) {
+      router.replace(`${webappUrl}agent`);
+    }
+  }, [isMissing, router]);
 
   if (isGatedOut) {
     return null;
@@ -88,7 +94,7 @@ const LiveAgentPage = ({
         posts={posts}
         key={id}
       >
-        {isLoading ? (
+        {isLoading || isMissing ? (
           <AgentWorkspaceSkeleton />
         ) : (
           <AgentWorkspace
