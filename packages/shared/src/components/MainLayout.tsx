@@ -29,6 +29,7 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
+import { QuestOffersPopup } from './modals/quests/QuestOffersPopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
@@ -333,6 +334,7 @@ function MainLayoutComponent({
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
+      <QuestOffersPopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"

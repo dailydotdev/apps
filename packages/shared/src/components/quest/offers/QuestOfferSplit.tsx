@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import type { UserOffer } from '../../../graphql/offers';
+import type { DailyQuestSummary } from '../../../hooks/useQuestDashboard';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   ClaimedChip,
@@ -9,7 +10,7 @@ import {
   OfferLogo,
   offerBadgeLabels,
 } from './common';
-import { StreakOfferCelebration } from './StreakOfferCelebration';
+import { QuestOfferCelebration } from './QuestOfferCelebration';
 
 const OfferListRow = ({
   offer,
@@ -52,14 +53,18 @@ const OfferListRow = ({
   </div>
 );
 
-export const StreakOfferSplit = ({
-  currentStreak,
+export const QuestOfferSplit = ({
+  level,
+  levelProgress,
+  summary,
   offers,
   claimedUids,
   onClaim,
   onVisible,
 }: {
-  currentStreak: number;
+  level: number;
+  levelProgress: number;
+  summary: DailyQuestSummary;
   offers: UserOffer[];
   claimedUids: Set<string>;
   onClaim: (offer: UserOffer) => void;
@@ -79,8 +84,10 @@ export const StreakOfferSplit = ({
 
   return (
     <div className="flex w-full">
-      <StreakOfferCelebration
-        currentStreak={currentStreak}
+      <QuestOfferCelebration
+        level={level}
+        levelProgress={levelProgress}
+        summary={summary}
         className="w-[19rem] shrink-0 border-r border-border-subtlest-tertiary"
       />
 

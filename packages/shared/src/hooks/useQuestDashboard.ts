@@ -2,7 +2,11 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import type { QuestDashboard, QuestDashboardData } from '../graphql/quests';
-import { QUEST_DASHBOARD_QUERY } from '../graphql/quests';
+import {
+  QUEST_DASHBOARD_QUERY,
+  QuestRewardType,
+  QuestStatus,
+} from '../graphql/quests';
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useRequestProtocol } from './useRequestProtocol';
 
@@ -47,4 +51,38 @@ export const useClaimableQuestCount = (): number => {
   const { data } = useQuestDashboard();
 
   return useMemo(() => getClaimableQuestCount(data), [data]);
+};
+
+export type DailyQuestSummary = {
+  total: number;
+  claimed: number;
+  xpEarned: number;
+};
+
+// Progress through today's daily quests. Locked quests are excluded: the Plus
+// bucket is unreachable for free users, so counting it would mean they can
+// never reach `claimed === total`.
+export const getDailyQuestSummary = (
+  dashboard?: QuestDashboard,
+): DailyQuestSummary => {
+  const quests = [
+    ...(dashboard?.daily.regular ?? []),
+    ...(dashboard?.daily.plus ?? []),
+  ].filter((quest) => !quest.locked);
+  const claimed = quests.filter(
+    (quest) => quest.status === QuestStatus.Claimed,
+  );
+
+  return {
+    total: quests.length,
+    claimed: claimed.length,
+    xpEarned: claimed.reduce(
+      (total, quest) =>
+        total +
+        quest.rewards
+          .filter((reward) => reward.type === QuestRewardType.Xp)
+          .reduce((sum, reward) => sum + reward.amount, 0),
+      0,
+    ),
+  };
 };
