@@ -14,11 +14,47 @@ import { useUpdateInterest } from '@dailydotdev/shared/src/features/interests/ho
 import { useDeleteInterest } from '@dailydotdev/shared/src/features/interests/hooks/useDeleteInterest';
 import { useAgentShellHeight } from '@dailydotdev/shared/src/features/interests/shell';
 import { AgentSettingsPane } from '@dailydotdev/shared/src/features/interests/components/AgentSettingsPane';
-import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
+
+const Block = ({ className }: { className: string }): ReactElement => (
+  <ElementPlaceholder
+    className={classNames('agent-skeleton rounded-8', className)}
+  />
+);
+
+const SettingsSkeleton = (): ReactElement => (
+  <>
+    <FlexRow
+      className="h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:px-4"
+      aria-busy
+      aria-label="Loading the agent settings"
+    >
+      <Block className="size-8 rounded-10" />
+      <Block className="h-4 w-40" />
+    </FlexRow>
+    <div className="min-h-0 flex-1 overflow-hidden px-5 tablet:px-8 laptop:px-10">
+      <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pt-6">
+        <FlexCol className="gap-2.5">
+          <Block className="h-4 w-40" />
+          <Block className="h-10 w-full rounded-12" />
+        </FlexCol>
+        <FlexCol className="gap-2.5">
+          <Block className="h-4 w-56" />
+          <Block className="h-10 w-full rounded-12" />
+        </FlexCol>
+        <FlexCol className="gap-2.5">
+          <Block className="h-4 w-48" />
+          <Block className="h-6 w-2/3 rounded-12" />
+        </FlexCol>
+      </FlexCol>
+    </div>
+  </>
+);
 
 const AgentSettingsPage = ({ id }: { id: string }): ReactElement | null => {
   const router = useRouter();
@@ -68,14 +104,18 @@ const AgentSettingsPage = ({ id }: { id: string }): ReactElement | null => {
           shellHeight,
         )}
       >
-        <AgentSettingsPane
-          interest={interest}
-          update={update}
-          isUpdating={isUpdating}
-          backHref={`${webappUrl}agent/${id}`}
-          onDelete={() => deleteInterest(id).catch(() => undefined)}
-          isDeleting={isDeleting}
-        />
+        {interest ? (
+          <AgentSettingsPane
+            interest={interest}
+            update={update}
+            isUpdating={isUpdating}
+            backHref={`${webappUrl}agent/${id}`}
+            onDelete={() => deleteInterest(id).catch(() => undefined)}
+            isDeleting={isDeleting}
+          />
+        ) : (
+          <SettingsSkeleton />
+        )}
       </FlexCol>
     </ProtectedPage>
   );
