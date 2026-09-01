@@ -50,7 +50,7 @@ const LiveAgentPage = ({
   });
   const feed = useAgentFeed({ id, enabled: isQueryEnabled });
   const { isDeleting, deleteInterest } = useDeleteInterest({
-    onDeleted: () => router.push(`${webappUrl}agents`),
+    onDeleted: () => router.push(`${webappUrl}agent`),
   });
 
   const posts = postsQuery.data ?? [];

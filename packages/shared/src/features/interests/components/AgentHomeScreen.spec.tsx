@@ -107,7 +107,7 @@ describe('AgentHomeScreen given a shared prompt', () => {
     expect(field().value).toBe('');
   });
 
-  // `/agents` is statically optimised, so `router.query` is empty on the render
+  // `/agent` is statically optimised, so `router.query` is empty on the render
   // that mounts the field and the prompt lands one render later.
   it('takes a prompt that arrives after the field has mounted', () => {
     const { rerender } = render(

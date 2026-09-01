@@ -5,7 +5,7 @@ import { ReferralCampaignKey } from '../../../lib/referral';
 import type { UserInterest } from '../../../graphql/interests';
 
 export const agentShareLink = (query: string): string => {
-  const path = `${webappUrl}agents?q=${encodeURIComponent(query)}`;
+  const path = `${webappUrl}agent?q=${encodeURIComponent(query)}`;
   // Must be absolute: the share pipeline runs `new URL(link)`, and `webappUrl`
   // is a bare path in development, which threw rather than degrading.
   const origin = globalThis?.location?.origin;
