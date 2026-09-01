@@ -11,15 +11,14 @@ import {
   interestQueryOptions,
   interestPostsQueryOptions,
 } from '@dailydotdev/shared/src/features/interests/queries';
-import { useDeleteInterest } from '@dailydotdev/shared/src/features/interests/hooks/useDeleteInterest';
 import { useAgentFeed } from '@dailydotdev/shared/src/features/interests/hooks/useAgentFeed';
 import { AgentProvider } from '@dailydotdev/shared/src/features/interests/AgentContext';
 import { AgentWorkspace } from '@dailydotdev/shared/src/features/interests/components/AgentWorkspace';
 import { AgentWorkspaceSkeleton } from '@dailydotdev/shared/src/features/interests/components/AgentWorkspaceSkeleton';
-import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { getLayout } from '../../components/layouts/MainLayout';
-import ProtectedPage from '../../components/ProtectedPage';
-import { getPageSeoTitles } from '../../components/layouts/utils';
+import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../../../components/layouts/MainLayout';
+import ProtectedPage from '../../../components/ProtectedPage';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const LiveAgentPage = ({
   id,
@@ -49,9 +48,6 @@ const LiveAgentPage = ({
     enabled: isQueryEnabled,
   });
   const feed = useAgentFeed({ id, enabled: isQueryEnabled });
-  const { isDeleting, deleteInterest } = useDeleteInterest({
-    onDeleted: () => router.push(`${webappUrl}agent`),
-  });
 
   const posts = postsQuery.data ?? [];
   // The query resolves `null` for an agent that is not there, which everything
@@ -87,6 +83,7 @@ const LiveAgentPage = ({
             shallow: true,
           })
         }
+        onOpenSettings={() => router.push(`${webappUrl}agent/${id}/settings`)}
         findings={feed.items}
         posts={posts}
         key={id}
@@ -96,10 +93,6 @@ const LiveAgentPage = ({
         ) : (
           <AgentWorkspace
             items={feed.items}
-            // The mutation toasts its own failure; swallowed so the press does
-            // not also reject unhandled.
-            onDelete={() => deleteInterest(id).catch(() => undefined)}
-            isDeleting={isDeleting}
             runId={runId}
             isFeedReady={!feed.isPending}
           />
