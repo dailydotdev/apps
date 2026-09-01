@@ -16,44 +16,67 @@ import {
   Variant,
 } from '../surfaceChrome';
 
+/**
+ * NewStreakModal: a reminder switch and close at the top, the fire art with
+ * the count overlaid in typo-tera, a title, one line of copy, the freeze
+ * upsell, and an opt-out checkbox. No share control, and no primary button.
+ */
 const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
   <Screen>
-    <div className="relative flex flex-col items-center gap-3 p-6 text-center">
-      <Button
-        aria-label="Close"
-        className="absolute right-3 top-3"
-        icon={<MiniCloseIcon />}
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-      />
-      <span className="text-[3rem] leading-none">🔥</span>
-      <span className="font-bold text-text-primary typo-title2">100</span>
-      <span className="font-bold text-text-primary typo-callout">
-        day reading streak
-      </span>
-      <span className="text-text-tertiary typo-footnote">
-        {spot === 'milestone' ? 'Your longest yet' : 'Keep it going tomorrow'}
-      </span>
-      {spot === 'today' ? (
+    <div className="relative flex flex-col items-center gap-2 p-6 text-center">
+      <div className="flex h-10 w-full items-center justify-between">
+        <span className="flex items-center gap-2 text-text-tertiary typo-footnote">
+          <span className="h-4 w-7 rounded-8 bg-accent-cabbage-default" />
+          Remind me
+        </span>
         <Button
-          className="mt-2"
+          aria-label="Close"
+          icon={<MiniCloseIcon />}
           size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
+      </div>
+
+      <span className="relative flex items-center justify-center">
+        <span className="text-[6rem] leading-none">🔥</span>
+        <strong className="absolute text-text-primary typo-tera">100</strong>
+      </span>
+
+      <strong className="mt-6 text-text-primary typo-title1">
+        {spot === 'milestone' ? 'New streak record!' : '100 days streak'}
+      </strong>
+      <p className="mt-3 text-text-secondary typo-body">
+        {spot === 'milestone'
+          ? 'Epic win! You are in a league of your own'
+          : 'New milestone reached! You are unstoppable.'}
+      </p>
+
+      <span className="mt-6 text-text-link typo-footnote">
+        Protect your streak with streak freezes
+      </span>
+
+      {spot !== 'today' && (
+        <Control
+          action="Snapshot"
+          className="mt-6"
+          label
           variant={ButtonVariant.Primary}
-        >
-          Keep reading
-        </Button>
-      ) : (
-        <div className="mt-2 flex items-center gap-2">
-          <Button size={ButtonSize.Small} variant={ButtonVariant.Float}>
-            Keep reading
-          </Button>
-          <Control action="Snapshot" label variant={ButtonVariant.Primary} />
-        </div>
+        />
       )}
+
+      <span className="mt-6 flex items-center gap-2 text-text-tertiary typo-footnote">
+        <span className="size-4 rounded-4 border border-border-subtlest-tertiary" />
+        Never show this again
+      </span>
     </div>
   </Screen>
 );
 
+/**
+ * AchievementCard: a 48px thumbnail, name and description, then the snapshot
+ * button and the points. The snapshot is `opacity-0 group-hover:opacity-100`,
+ * so it is invisible until hover — and permanently invisible on touch.
+ */
 const AchievementScreen = ({
   spot,
 }: {
@@ -66,27 +89,46 @@ const AchievementScreen = ({
           Just unlocked
         </span>
       )}
-      <div className="relative overflow-hidden rounded-12 bg-surface-float">
-        <img alt="" className="h-44 w-full object-cover" src={ART} />
-        {spot !== 'today' && (
-          <div className="absolute right-2 top-2">
-            <Control action="Snapshot" variant={ButtonVariant.Primary} />
+
+      <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+        <div className="flex items-start gap-3">
+          <img alt="" className="size-12 shrink-0 rounded-12 object-cover" src={ART} />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate font-bold text-text-primary typo-callout">
+              Can&apos;t spend it all
+            </span>
+            <span className="mt-0.5 line-clamp-2 text-text-tertiary typo-footnote">
+              Hold more than 10,000 cores without spending any of them.
+            </span>
           </div>
-        )}
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="font-bold text-text-primary typo-footnote">
-            Can&apos;t spend it all
-          </span>
-          <span className="text-text-tertiary typo-caption1">
-            {spot === 'celebration'
-              ? 'Only 4% of readers get here'
-              : 'Unlocked 12 Aug 2026'}
-          </span>
+          <div className="flex shrink-0 items-center gap-1 self-center">
+            {spot !== 'today' && (
+              <Control
+                action="Snapshot"
+                size={ButtonSize.XSmall}
+                variant={
+                  spot === 'celebration'
+                    ? ButtonVariant.Primary
+                    : ButtonVariant.Float
+                }
+              />
+            )}
+            <span className="font-bold text-text-primary typo-callout">
+              120
+            </span>
+          </div>
         </div>
-        {spot === 'celebration' && (
-          <Control action="Snapshot" label variant={ButtonVariant.Primary} />
+
+        {spot !== 'celebration' && (
+          <div className="flex flex-col gap-1">
+            <span className="flex justify-between text-text-tertiary typo-footnote">
+              <span>Progress</span>
+              <span>8/10</span>
+            </span>
+            <span className="h-1.5 overflow-hidden rounded-14 bg-surface-invert">
+              <span className="block h-full w-4/5 rounded-14 bg-accent-cabbage-default" />
+            </span>
+          </div>
         )}
       </div>
     </div>

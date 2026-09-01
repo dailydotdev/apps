@@ -1,157 +1,178 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { MenuIcon } from '@dailydotdev/shared/src/components/icons';
+import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import type { DeviceName } from '../surfaceChrome';
 import {
   Category,
   Control,
-  OverflowMenu,
-  POST_MENU,
-  Screen,
+  Device,
+  Rail,
   SurfacePage,
   Variant,
 } from '../surfaceChrome';
 
-type Spot = 'menu' | 'row' | 'expanded' | 'page';
+type Spot = 'today' | 'collapsed' | 'header' | 'lead';
+
+const TABS = ['Major headlines', 'All highlights', 'AI', 'Web'];
 
 const HIGHLIGHTS = [
   {
-    title: 'OpenAI ships a cheaper model tier',
-    body: 'Priced at a third of the previous tier, with the same context window.',
-    meta: '12 sources · 2h ago',
+    headline: 'OpenAI ships a cheaper model tier',
+    time: '2h ago',
+    tldr: 'Priced at a third of the previous tier with the same context window. Existing keys work unchanged, and the older tier stays available until March.',
   },
-  {
-    title: 'React 20 drops the legacy render path',
-    body: 'The codemod covers most apps; class components are the exception.',
-    meta: '8 sources · 4h ago',
-  },
-  {
-    title: 'Postgres 19 lands async I/O by default',
-    body: 'Early benchmarks show double-digit gains on write-heavy workloads.',
-    meta: '5 sources · 6h ago',
-  },
+  { headline: 'React 20 drops the legacy render path', time: '4h ago' },
+  { headline: 'Postgres 19 lands async I/O by default', time: '6h ago' },
+  { headline: 'Cloudflare open-sources its edge router', time: '9h ago' },
 ];
 
-const LivePill = () => (
-  <span className="flex items-center gap-1.5 rounded-8 bg-overlay-float-ketchup px-2 py-0.5 font-bold uppercase text-accent-ketchup-default typo-caption2">
-    <span className="size-1.5 rounded-full bg-accent-ketchup-default" />
-    Live
-  </span>
-);
+const HappeningScreen = ({
+  device,
+  spot,
+}: {
+  device: DeviceName;
+  spot: Spot;
+}) => (
+  <Device name={device}>
+    <div className="flex flex-col">
+      <header className="flex items-center gap-3 px-4 py-4">
+        {/* feed-highlights-title-gradient in production. */}
+        <h1
+          className={`flex-1 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default bg-clip-text font-bold text-transparent ${
+            device === 'Mobile' ? 'typo-title2' : 'typo-large-title'
+          }`}
+        >
+          Happening Now
+        </h1>
+        {spot === 'header' && <Control action="Snapshot" />}
+      </header>
 
-const HappeningScreen = ({ spot }: { spot: Spot }) => (
-  <Screen>
-    <div className="flex flex-col gap-4 p-4">
-      <div className="relative flex items-center gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <LivePill />
-          <span className="font-bold text-text-primary typo-title3">
-            Happening now
+      <div className="no-scrollbar flex gap-4 overflow-x-auto border-b border-border-subtlest-tertiary px-4">
+        {TABS.map((tab, index) => (
+          <span
+            key={tab}
+            className={`whitespace-nowrap border-b-2 pb-2 typo-callout ${
+              index === 0
+                ? 'border-text-primary font-bold text-text-primary'
+                : 'border-transparent text-text-tertiary'
+            }`}
+          >
+            {tab}
           </span>
-          <span className="text-text-quaternary typo-caption1">
-            Updated 4 minutes ago
-          </span>
-        </div>
-        {spot === 'page' ? (
-          <Control action="Snapshot" label variant={ButtonVariant.Secondary} />
-        ) : (
-          <Button
-            aria-label="Options"
-            icon={<MenuIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          />
-        )}
-        {spot === 'menu' && <OverflowMenu highlight="Share via" items={POST_MENU} />}
+        ))}
       </div>
 
       {HIGHLIGHTS.map((item, index) => {
-        const expanded = spot === 'expanded' && index === 0;
+        const open = index === 0 && spot !== 'today';
 
         return (
-          <div
-            key={item.title}
-            className={`flex flex-col gap-2 rounded-12 border p-3 ${
-              expanded
-                ? 'border-border-subtlest-tertiary bg-surface-float'
-                : 'border-transparent'
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <span className="mt-1 size-1.5 shrink-0 rounded-full bg-accent-cabbage-default" />
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="font-bold text-text-primary typo-footnote">
-                  {item.title}
+          <article key={item.headline}>
+            <div className="flex w-full items-center gap-2 px-4 py-3 text-left">
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="font-bold text-text-primary typo-body">
+                  {item.headline}
                 </span>
-                <span className="text-text-tertiary typo-caption1">
-                  {expanded ? item.body : item.meta}
+                <span className="mt-0.5 text-text-quaternary typo-footnote">
+                  {item.time}
                 </span>
               </div>
-              {spot === 'row' && <Control action="Snapshot" />}
+              {spot === 'collapsed' && <Control action="Snapshot" />}
+              <ArrowIcon
+                className={`shrink-0 text-text-tertiary ${
+                  open ? 'rotate-180' : 'rotate-90'
+                }`}
+                size={IconSize.Small}
+              />
             </div>
 
-            {expanded && (
-              <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary pt-2">
-                <span className="flex-1 text-text-quaternary typo-caption1">
-                  {item.meta}
-                </span>
-                <Control action="Link" />
-                <Control
-                  action="Snapshot"
-                  label
-                  variant={ButtonVariant.Primary}
-                />
+            {open && item.tldr && (
+              <div className="flex flex-col gap-3 px-4 pb-3">
+                <p className="text-text-secondary typo-footnote">{item.tldr}</p>
+                <div className="flex items-center gap-4">
+                  <span className="font-bold text-text-link typo-footnote">
+                    Read more
+                  </span>
+                  <Control
+                    action="Snapshot"
+                    label
+                    variant={
+                      spot === 'lead'
+                        ? ButtonVariant.Primary
+                        : ButtonVariant.Secondary
+                    }
+                  />
+                </div>
               </div>
             )}
-          </div>
+          </article>
         );
       })}
     </div>
-  </Screen>
+  </Device>
+);
+
+const AllDevices = ({ spot }: { spot: Spot }) => (
+  <Rail>
+    <HappeningScreen device="Desktop" spot={spot} />
+    <HappeningScreen device="Tablet" spot={spot} />
+    <HappeningScreen device="Mobile" spot={spot} />
+  </Rail>
 );
 
 const HappeningNow = () => (
   <SurfacePage
-    intro="Three levels can be shared here — the whole page, a topic, and a single highlight — and today none of them can. The page also has the shortest shelf life in the product, which is exactly why the image matters: a link sends someone to a page that has already moved on."
-    map="Sharing map: lead with Snapshot (#6355). The payload is effectively the whole page, and news travels through chat apps where an image renders inline and a link collapses to a grey card."
+    intro="A gradient title, a tab strip, and a list of collapsed headlines that expand in place. The page has the shortest shelf life in the product, which is exactly why the image matters: a link sends someone to a page that has already moved on."
+    map="Sharing map: lead with Snapshot (#6355). Each highlight is a self-contained claim with sources behind it, and news travels through chat apps where an image renders inline and a link collapses to a grey card."
     title="Happening now"
   >
     <Category
-      covers="#6355 · page, topic and highlight level"
-      title="Where the control goes"
-      verdict="Snapshot leads at every level. The open question is per-highlight versus page-level, not which action wins."
+      covers="HighlightsPage.tsx · HighlightItem.tsx"
+      title="What actually ships today"
+      verdict="Corrected: a highlight is a collapsed row — headline, relative time, chevron — that expands to a TLDR with a Read more link. There is no live pill, no source count on the row, and no share control until it is expanded."
     >
       <Variant
-        headline="Nothing to share, at any level"
-        note="The fastest-moving page we publish and nothing can be lifted out of it."
+        headline="Collapsed rows, nothing shareable"
+        note="Four headlines, a tab strip, and a gradient H1. Sharing requires expanding a row first, so nothing on the default view offers it."
         step="Today"
       >
-        <HappeningScreen spot="menu" />
+        <AllDevices spot="today" />
       </Variant>
       <Variant
-        headline="Snapshot on every highlight"
-        note="Recommended. Each highlight is already a self-contained claim with sources behind it — exactly the shape a snapshot card wants."
+        headline="Expanded: Read more, then snapshot"
+        note="Built and live. Expansion is the intent signal and the TLDR is the payload, so the control appears exactly where the content it captures does."
+        step="Shipped"
+      >
+        <AllDevices spot="header" />
+      </Variant>
+    </Category>
+
+    <Category
+      covers="#6355 · page, tab and highlight level"
+      title="Making it visible before the expand"
+      verdict="The shipped control is correct but conditional: it only exists after a tap. Everything below is about whether sharing should be offered before someone has committed to reading."
+    >
+      <Variant
+        headline="Snapshot on the collapsed row"
+        note="Recommended. Puts the offer in the list itself, at the cost of an icon on every row — and the row is already a button, so the control has to stop the click from toggling it."
         step="Recommended"
       >
-        <HappeningScreen spot="row" />
+        <AllDevices spot="collapsed" />
       </Variant>
       <Variant
-        headline="Expanded highlight, snapshot leading"
-        note="Built and live. Expansion is the intent signal, and there is finally room for a label without crowding the row."
-        step="Expanded"
+        headline="Snapshot filled in the expanded row"
+        note="Keeps the control conditional but makes it the loudest thing in the expansion, ahead of Read more. Cheap to try, and it competes with the one link that sends people to the actual article."
+        step="Push"
       >
-        <HappeningScreen spot="expanded" />
+        <AllDevices spot="lead" />
       </Variant>
       <Variant
         headline="One control on the page header"
-        note="Cheapest to build and the weakest offer: a snapshot of the whole page is a wall of headlines nobody reads at thumbnail size."
+        note="Cheapest to build and the weakest offer: a snapshot of the whole page is a wall of headlines nobody reads at thumbnail size, and the tab strip means the page has no single canonical state to capture."
         step="Alternative"
       >
-        <HappeningScreen spot="page" />
+        <AllDevices spot="header" />
       </Variant>
     </Category>
   </SurfacePage>

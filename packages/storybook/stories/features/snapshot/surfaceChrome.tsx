@@ -57,17 +57,20 @@ export const LABELS: Record<LeadAction, string> = {
  */
 export const Control = ({
   action,
+  className,
   label,
   size = ButtonSize.Small,
   variant = ButtonVariant.Tertiary,
 }: {
   action: LeadAction;
+  className?: string;
   label?: boolean;
   size?: ButtonSize;
   variant?: ButtonVariant;
 }) => (
   <Button
     aria-label={LABELS[action]}
+    className={className}
     icon={ICONS[action]}
     size={size}
     variant={variant}
