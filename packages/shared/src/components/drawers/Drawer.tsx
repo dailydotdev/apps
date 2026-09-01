@@ -120,10 +120,16 @@ function BaseDrawer({
       : undefined;
   // Only the wrapper tracks the visual viewport; the overlay keeps its full
   // layout height so the page never shows through the translucent keyboard.
+  // --keyboard-inset lets content cancel the stale safe-area-inset-bottom
+  // that WKWebView keeps reporting while the keyboard covers it.
   const wrapperKeyboardStyle =
     isFullScreen && viewportHeight
       ? ({
           '--drawer-viewport-height': `${viewportHeight}px`,
+          '--keyboard-inset': `${Math.max(
+            0,
+            (globalThis.window?.innerHeight ?? 0) - viewportHeight,
+          )}px`,
         } as React.CSSProperties)
       : undefined;
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
