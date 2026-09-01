@@ -309,10 +309,8 @@ function BaseDrawer({
         }
         tabIndex={-1}
         onKeyDown={trapFocus}
-        // iOS never shrinks the layout viewport for the keyboard, so the
-        // wrapper is sized to the visual viewport to keep the bottom actions
-        // above it. The height wins over `inset-0`'s bottom edge; without the
-        // inline variable the calc is invalid and `inset-0` takes over.
+        // The height below beats `inset-0`'s bottom edge only while this
+        // variable is set; without it the calc is invalid and `inset-0` wins.
         style={wrapperKeyboardStyle}
         className={classNames(
           'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
