@@ -40,6 +40,7 @@ import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
 import ReadingReminderToggle from './ReadingReminderToggle';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -53,6 +54,9 @@ const InAppNotificationsTab = (): ReactElement => {
     toggleGroup,
     getGroupStatus,
   } = useNotificationSettings();
+  const { isJobsEnabled } = useJobsFeature();
+  const showOpportunitiesToggle =
+    isJobsEnabled || getGroupStatus('opportunities', 'inApp');
 
   const onTogglePush = async () => {
     logEvent({
@@ -233,23 +237,34 @@ const InAppNotificationsTab = (): ReactElement => {
             }
           />
           <NotificationSwitch
-            id="opportunities"
-            label="Personalized job matches"
-            description={
-              <>
-                Get notified only when there&apos;s a role that fits your skills
-                and preferences. No spam, no pressure.
-              </>
-            }
-            checked={getGroupStatus('opportunities', 'inApp')}
+            id="world"
+            label="Your world"
+            description="Get notified when a district in your world reaches a new level."
+            checked={getGroupStatus('world', 'inApp')}
             onToggle={() =>
-              toggleGroup(
-                'opportunities',
-                !getGroupStatus('opportunities', 'inApp'),
-                'inApp',
-              )
+              toggleGroup('world', !getGroupStatus('world', 'inApp'), 'inApp')
             }
           />
+          {showOpportunitiesToggle && (
+            <NotificationSwitch
+              id="opportunities"
+              label="Personalized job matches"
+              description={
+                <>
+                  Get notified only when there&apos;s a role that fits your
+                  skills and preferences. No spam, no pressure.
+                </>
+              }
+              checked={getGroupStatus('opportunities', 'inApp')}
+              onToggle={() =>
+                toggleGroup(
+                  'opportunities',
+                  !getGroupStatus('opportunities', 'inApp'),
+                  'inApp',
+                )
+              }
+            />
+          )}
         </NotificationContainer>
       </NotificationSection>
       <HorizontalSeparator className="mx-4" />

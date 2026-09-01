@@ -9,10 +9,12 @@ import {
 } from '../../../../components/typography/Typography';
 import { largeNumberFormat } from '../../../../lib/numberFormat';
 import type { ToolTopSquad } from '../../../../graphql/user/userStack';
+import { ToolLogo } from '../../../../components/tools/ToolLogo';
 
 interface UserStackTopSquadsTooltipProps {
   toolTitle: string;
   toolFaviconUrl?: string | null;
+  toolUrl?: string | null;
   topSquads?: ToolTopSquad[];
   isPending: boolean;
   hasError: boolean;
@@ -21,14 +23,19 @@ interface UserStackTopSquadsTooltipProps {
 const ToolHeader = ({
   toolTitle,
   toolFaviconUrl,
-}: Pick<UserStackTopSquadsTooltipProps, 'toolTitle' | 'toolFaviconUrl'>) => {
+  toolUrl,
+}: Pick<
+  UserStackTopSquadsTooltipProps,
+  'toolTitle' | 'toolFaviconUrl' | 'toolUrl'
+>) => {
   return (
     <div className="flex items-center gap-2">
-      {toolFaviconUrl ? (
-        <img src={toolFaviconUrl} alt="" className="size-8 rounded-8" />
-      ) : (
-        <div className="size-8 rounded-8 bg-surface-hover" />
-      )}
+      <ToolLogo
+        title={toolTitle}
+        faviconUrl={toolFaviconUrl}
+        url={toolUrl}
+        className="size-8 rounded-8 bg-surface-hover typo-footnote"
+      />
       <div className="flex min-w-0 flex-col">
         <Typography
           type={TypographyType.Callout}
@@ -88,13 +95,18 @@ const EmptyState = ({
 export const UserStackTopSquadsTooltip = ({
   toolTitle,
   toolFaviconUrl,
+  toolUrl,
   topSquads = [],
   isPending,
   hasError,
 }: UserStackTopSquadsTooltipProps): ReactElement => {
   return (
     <div className="w-[16.5rem] max-w-[calc(100vw-1.5rem)] p-3">
-      <ToolHeader toolTitle={toolTitle} toolFaviconUrl={toolFaviconUrl} />
+      <ToolHeader
+        toolTitle={toolTitle}
+        toolFaviconUrl={toolFaviconUrl}
+        toolUrl={toolUrl}
+      />
 
       <div className="mt-2.5 flex flex-col gap-1">
         {!topSquads.length ? (

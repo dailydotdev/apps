@@ -1,6 +1,12 @@
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 import { pluralize } from '@dailydotdev/shared/src/lib/strings';
-import type { WorldCrest, WorldLook, WorldSky } from '../../graphql/world';
+import type {
+  WorldCrest,
+  WorldLook,
+  WorldObjectTarget,
+  WorldObjectUpsert,
+  WorldSky,
+} from '../../graphql/world';
 
 /**
  * What the engine pushes at the overlay.
@@ -30,6 +36,16 @@ export interface WorldOpenRealm {
   articles: number;
 }
 
+/** The district a click has opened, and the niche its feed is filtered by. */
+export interface WorldSelectedDistrict {
+  /** The niche the API knows the district by, which is what filters the feed. */
+  nicheId: string;
+  /** What the taxonomy calls the topic: "Rust", "CSS & UI". */
+  name: string;
+  /** Hex, from the district's own accent. */
+  color: string;
+}
+
 export interface WorldState {
   status: 'loading' | 'ready';
   progress: number;
@@ -50,6 +66,8 @@ export interface WorldState {
   districts?: number;
   realms?: number;
   open?: WorldOpenRealm | null;
+  /** Only ever set inside a realm: at world scale a click enters one instead. */
+  district?: WorldSelectedDistrict | null;
   rank?: WorldRankRow[];
   /** Set while you are riding a bird. */
   riding?: { manual: boolean } | null;
@@ -61,6 +79,12 @@ export interface WorldModel {
   nT: number;
   /** The six realms as bare ground: no reader, no reads, nothing standing. */
   unbuilt?: boolean;
+}
+
+export type WorldAuthoredTarget = WorldObjectTarget;
+
+export interface WorldAuthoredEntry extends WorldObjectUpsert {
+  payloadHash: string | null;
 }
 
 /**
@@ -97,6 +121,19 @@ export interface WorldEngine {
   toEnd: () => void;
   setSpeed: (speed: number) => void;
   focus: (key: string) => void;
+  /** Clears the selected district without leaving the realm it is in. */
+  deselect: () => void;
+  /** Replace the complete authored project and rebuild each visible island once. */
+  replaceAuthored: (entries: WorldAuthoredEntry[]) => {
+    ok: boolean;
+    rebuilt?: boolean;
+    changes?: number;
+  };
+  /** Apply one dev-server transaction without replaying the rest of the project. */
+  patchAuthored: (
+    upserts: WorldAuthoredEntry[],
+    removals: WorldAuthoredTarget[],
+  ) => { ok: boolean; rebuilt?: boolean; changes?: number };
   leaveRealm: () => void;
   frameWorld: () => void;
   attachSpark: (canvas: HTMLCanvasElement | null) => void;

@@ -6,7 +6,6 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { NotificationItemProps } from './NotificationItem';
 import NotificationItem from './NotificationItem';
-import NotificationItemLegacy from './NotificationItemLegacy';
 import {
   NotificationAttachmentType,
   NotificationAvatarType,
@@ -135,6 +134,93 @@ describe('notification attachment', () => {
   });
 });
 
+describe('content-arrival rows', () => {
+  const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000);
+  const sourcePost: NotificationItemProps = {
+    icon: NotificationIconType.Bell,
+    type: NotificationType.SourcePostAdded,
+    title: '<p>New post in <b>The New Stack</b></p>',
+    referenceId: 'source-post',
+    targetUrl: 'post url',
+    createdAt: hoursAgo(3),
+    avatars: [sampleNotificationAvatars[0]],
+    attachments: [
+      {
+        title: "Anthropic's Claude now has a browser of its own",
+        image: 'cover',
+        type: NotificationAttachmentType.Post,
+      },
+    ],
+  };
+
+  it('should lead with the post headline, not the announcing sentence', async () => {
+    renderComponent(<NotificationItem {...sourcePost} />);
+    const headline = await screen.findByText(
+      "Anthropic's Claude now has a browser of its own",
+    );
+    expect(headline).toHaveClass('font-bold');
+    expect(screen.queryAllByText(/New post in/)).toHaveLength(0);
+    await screen.findByText('source');
+  });
+
+  it('should credit the person and the squad when both are present', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sourcePost}
+        type={NotificationType.SquadPostAdded}
+        avatars={sampleNotificationAvatars}
+      />,
+    );
+    await screen.findByText('user in source');
+  });
+
+  it('should keep the actor-first layout when there is no post to promote', async () => {
+    renderComponent(<NotificationItem {...sourcePost} attachments={[]} />);
+    // The source sits in a <b>, so the sentence spans several text nodes.
+    const matches = await screen.findAllByText(/New post in/);
+    expect(matches.length).toBeGreaterThan(0);
+  });
+});
+
+describe('notification timestamp', () => {
+  const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000);
+
+  it('should follow the last grey line rather than the title', async () => {
+    renderComponent(
+      <NotificationItem {...sampleNotification} createdAt={hoursAgo(5)} />,
+    );
+    const time = await screen.findByText('5h');
+    expect(time.closest('div')).toHaveTextContent(/Sample attachment\s*·\s*5h/);
+  });
+
+  it('should never sit inside a clamped line, so a long title cannot hide it', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        description={undefined}
+        createdAt={hoursAgo(5)}
+      />,
+    );
+    const time = await screen.findByText('5h');
+    expect(time.closest('.line-clamp-1, .line-clamp-2')).toBeNull();
+    expect(time.closest('.truncate')).toBeNull();
+  });
+
+  it('should take a line of its own when the row has no grey text', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        description={undefined}
+        attachments={[]}
+        createdAt={hoursAgo(9)}
+      />,
+    );
+    const time = await screen.findByText('9h');
+    expect(time.closest('div')).toHaveTextContent('9h');
+    expect(time.closest('div')).not.toHaveTextContent('·');
+  });
+});
+
 describe('notification avatars', () => {
   it('should display the avatar of the source', async () => {
     const [source] = sampleNotificationAvatars;
@@ -257,11 +343,6 @@ describe('UserReceivedAward say thanks action', () => {
   it('should render the "Say thanks" action on the recipient notification', async () => {
     renderComponent(<NotificationItem {...receivedAwardNotification} />);
     await screen.findByText('Say thanks');
-  });
-
-  it('should render the "Say thanks" action in the legacy notification item', async () => {
-    renderComponent(<NotificationItemLegacy {...receivedAwardNotification} />);
-    await screen.findByRole('button', { name: 'Say thanks' });
   });
 
   it('should not render the action on other notification types', async () => {

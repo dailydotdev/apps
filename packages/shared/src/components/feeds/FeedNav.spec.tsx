@@ -120,10 +120,6 @@ jest.mock('../notifications/NotificationsBell', () => ({
   default: () => <div data-testid="notifications-bell" />,
 }));
 
-jest.mock('../../features/giveback/components/GivebackGiftEntry', () => ({
-  GivebackGiftEntry: () => <div data-testid="giveback-entry" />,
-}));
-
 jest.mock('../marketing/banners/PlusMobileEntryBanner', () => ({
   __esModule: true,
   default: () => <div data-testid="plus-mobile-entry-banner" />,
@@ -274,15 +270,12 @@ describe('FeedNav', () => {
     render(<FeedNav />);
 
     const chipsScrollContainer = screen.getByTestId('chips-scroll-container');
-    const givebackEntry = screen.getByTestId('giveback-entry');
     const notificationsBell = screen.getByTestId('notifications-bell');
 
     expect(
       screen.queryByRole('button', { name: 'Feed settings' }),
     ).not.toBeInTheDocument();
-    expect(screen.getAllByTestId('giveback-entry')).toHaveLength(1);
     expect(screen.getAllByTestId('notifications-bell')).toHaveLength(1);
-    expect(chipsScrollContainer.parentElement).toContainElement(givebackEntry);
     expect(chipsScrollContainer.parentElement).toContainElement(
       notificationsBell,
     );
@@ -310,7 +303,7 @@ describe('FeedNav', () => {
       'pr-28',
     );
     expect(screen.getByRole('menuitem', { name: 'Leaderboard' })).toHaveClass(
-      'tablet:last-of-type:mr-24',
+      'tablet:last-of-type:mr-12',
     );
     expect(stickyActions).toHaveClass(
       'sticky',

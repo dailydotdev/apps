@@ -31,8 +31,16 @@ let defaultAlerts: Alerts = { filter: true };
 const updateAlerts = jest.fn();
 const originalScrollTo = window.scrollTo;
 
-beforeAll(() => {
+// Compiling the feed module graph takes seconds on a cold jest transform cache,
+// so both the compile in beforeAll and the render need more than the defaults.
+jest.setTimeout(30000);
+const feedTimeout = 5000;
+
+beforeAll(async () => {
   window.scrollTo = jest.fn();
+  // MainFeedLayout only reaches the page through next/dynamic, so without this
+  // its compile lands inside the first findBy* wait and eats the whole budget.
+  await import('@dailydotdev/shared/src/components/MainFeedLayout');
 });
 
 afterAll(() => {
@@ -144,7 +152,9 @@ it('should request user feed', async () => {
     });
 
   renderComponent([]);
-  const elements = await screen.findAllByTestId('postItem');
+  const elements = await screen.findAllByTestId('postItem', undefined, {
+    timeout: feedTimeout,
+  });
   expect(elements.length).toBeTruthy();
   await waitFor(() => {
     expect(graphQLRequests).toHaveLength(1);
@@ -174,7 +184,9 @@ it('should request anonymous my feed', async () => {
     ],
     undefined,
   );
-  await waitForNock();
-  const elements = await screen.findAllByTestId('postItem');
+  const elements = await screen.findAllByTestId('postItem', undefined, {
+    timeout: feedTimeout,
+  });
   expect(elements.length).toBeTruthy();
+  await waitForNock();
 });

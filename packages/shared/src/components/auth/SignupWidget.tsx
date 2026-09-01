@@ -3,7 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { AuthTriggersType } from '../../lib/auth';
-import { AuthTriggers } from '../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import AuthOptions from './AuthOptions';
 import { AuthDisplay } from './common';
@@ -104,8 +103,12 @@ export function SignupWidget({
           forceDefaultDisplay
           onAuthStateUpdate={(props) => {
             showLogin({
-              trigger: AuthTriggers.Onboarding,
-              options: { isLogin: true, formValues: props },
+              trigger,
+              options: {
+                isLogin: !!props.isLoginFlow,
+                defaultDisplay: props.defaultDisplay,
+                formValues: props.email ? { email: props.email } : undefined,
+              },
             });
           }}
           onboardingSignupButton={{

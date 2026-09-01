@@ -21,9 +21,6 @@ interface UseCardCoverProps {
     bookmark?: {
       container?: string;
     };
-    share?: {
-      container?: string;
-    };
   };
 }
 
@@ -60,7 +57,6 @@ export const useCardCover = ({
       return (
         <CardCoverShare
           post={post}
-          className={className?.share?.container}
           onCopy={() => onInteract('none')}
           onShare={() => {
             onInteract('none');
@@ -91,7 +87,6 @@ export const useCardCover = ({
     return undefined;
   }, [
     className?.bookmark?.container,
-    className?.share?.container,
     interaction,
     onInteract,
     onShare,

@@ -16,9 +16,10 @@ import type {
   SourceStack,
   AddSourceStackInput,
 } from '../../../graphql/source/sourceStack';
-import type { DatasetTool } from '../../../graphql/user/userStack';
+import type { AutocompleteTool } from '../../../graphql/user/userStack';
 import { useStackSearch } from '../../../features/profile/hooks/useStackSearch';
 import { PlusIcon } from '../../icons';
+import { ToolLogo } from '../../tools/ToolLogo';
 
 const sourceStackFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
@@ -62,7 +63,7 @@ export function SourceStackModal({
 
   const canSubmit = title.trim().length > 0;
 
-  const handleSelectSuggestion = (suggestion: DatasetTool) => {
+  const handleSelectSuggestion = (suggestion: AutocompleteTool) => {
     setValue('title', suggestion.title);
     setShowSuggestions(false);
   };
@@ -144,15 +145,12 @@ export function SourceStackModal({
                       className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-surface-hover"
                       onClick={() => handleSelectSuggestion(suggestion)}
                     >
-                      {suggestion.faviconUrl ? (
-                        <img
-                          src={suggestion.faviconUrl}
-                          alt=""
-                          className="rounded size-4"
-                        />
-                      ) : (
-                        <PlusIcon className="size-4 text-text-tertiary" />
-                      )}
+                      <ToolLogo
+                        title={suggestion.title}
+                        faviconUrl={suggestion.faviconUrl}
+                        url={suggestion.url}
+                        className="rounded size-4 typo-caption2"
+                      />
                       <span className="typo-callout">{suggestion.title}</span>
                     </button>
                   ))}

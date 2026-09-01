@@ -70,7 +70,7 @@
       "mcp__playwright__*",
       "mcp__atlassian__*",
       "mcp__plugin_context7_context7__*",
-      "mcp__plugin_linear_*",
+      "mcp__plugin_linear_linear__*",
       "mcp__ide__*"
     ],
     "deny": [

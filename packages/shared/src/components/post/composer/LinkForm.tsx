@@ -23,6 +23,8 @@ interface LinkFormProps {
   fetchPreview: (url?: string) => void;
   onDismissPreview?: () => void;
   initialUrl?: string;
+  /** Drops the URL field and preview removal; only the commentary is open. */
+  isUrlLocked?: boolean;
 }
 
 export const LinkForm = ({
@@ -33,14 +35,19 @@ export const LinkForm = ({
   fetchPreview,
   onDismissPreview,
   initialUrl,
+  isUrlLocked = false,
 }: LinkFormProps): ReactElement => {
   const urlRef = useRef<HTMLInputElement>(null);
   const commentaryRef = useRef<HTMLTextAreaElement>(null);
   const [dismissedUrl, setDismissedUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isUrlLocked) {
+      commentaryRef.current?.focus();
+      return;
+    }
     urlRef.current?.focus();
-  }, []);
+  }, [isUrlLocked]);
 
   const hasPreviewForUrl = useCallback(
     (next?: string): boolean =>
@@ -70,9 +77,16 @@ export const LinkForm = ({
     onDismissPreview?.();
   };
 
+  const hasPreviewContent = !!(
+    preview?.title ||
+    preview?.url ||
+    preview?.permalink
+  );
   const showPreview =
-    isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl;
-  const showSkeleton = isLoadingPreview && !isDismissedForCurrentUrl;
+    (isUrlLocked && hasPreviewContent) ||
+    (isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl);
+  const showSkeleton =
+    !isUrlLocked && isLoadingPreview && !isDismissedForCurrentUrl;
 
   useAutoResizeTextarea(commentaryRef, value.commentary);
 
@@ -94,33 +108,35 @@ export const LinkForm = ({
   );
 
   useEffect(() => {
-    if (!initialUrl) {
+    if (!initialUrl || isUrlLocked) {
       return;
     }
 
     onUrlChangeRef.current(initialUrl);
-  }, [initialUrl]);
+  }, [initialUrl, isUrlLocked]);
 
   return (
     <div className="flex flex-1 flex-col gap-3">
-      <input
-        ref={urlRef}
-        type="text"
-        name="url"
-        inputMode="url"
-        autoComplete="url"
-        autoCapitalize="none"
-        autoCorrect="off"
-        spellCheck={false}
-        placeholder="Paste a link…"
-        value={value.url}
-        onInput={(event) => {
-          onUrlChange(event.currentTarget.value);
-        }}
-        onKeyDown={onEnterKeyDown}
-        aria-label="Link URL"
-        className="w-full bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
-      />
+      {!isUrlLocked && (
+        <input
+          ref={urlRef}
+          type="text"
+          name="url"
+          inputMode="url"
+          autoComplete="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          placeholder="Paste a link…"
+          value={value.url}
+          onInput={(event) => {
+            onUrlChange(event.currentTarget.value);
+          }}
+          onKeyDown={onEnterKeyDown}
+          aria-label="Link URL"
+          className="w-full bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
+        />
+      )}
       <textarea
         ref={commentaryRef}
         name="commentary"
@@ -152,21 +168,23 @@ export const LinkForm = ({
             <WriteLinkPreview
               className="!w-auto flex-col-reverse"
               preview={preview}
-              link={normalizedUrl}
+              link={normalizedUrl || value.url}
               showPreviewLink={false}
             />
           )}
-          <Tooltip content="Remove link preview">
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              icon={<MiniCloseIcon />}
-              onClick={dismissPreview}
-              aria-label="Remove link preview"
-              className="absolute right-3 top-3 z-1 !rounded-full !bg-surface-invert !text-text-primary !shadow-3 hover:!bg-text-primary hover:!text-surface-invert"
-            />
-          </Tooltip>
+          {!isUrlLocked && (
+            <Tooltip content="Remove link preview">
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                icon={<MiniCloseIcon />}
+                onClick={dismissPreview}
+                aria-label="Remove link preview"
+                className="absolute right-3 top-3 z-1 !rounded-full !bg-surface-invert !text-text-primary !shadow-3 hover:!bg-text-primary hover:!text-surface-invert"
+              />
+            </Tooltip>
+          )}
         </div>
       )}
     </div>

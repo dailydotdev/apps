@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Head from 'next/head';
 import Feed from '../Feed';
 import {
@@ -15,7 +15,12 @@ import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { AuthTriggers } from '../../lib/auth';
-import { OtherFeedPage, RequestKey, StaleTime } from '../../lib/query';
+import {
+  generateQueryKey,
+  OtherFeedPage,
+  RequestKey,
+  StaleTime,
+} from '../../lib/query';
 import { LogEvent, Origin } from '../../lib/log';
 import type { Keyword } from '../../graphql/keywords';
 import { IconSize } from '../Icon';
@@ -47,7 +52,12 @@ import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
 import { ArchiveEntryCard } from '../archive/ArchiveEntryCard';
 import { ArchiveScopeType } from '../../graphql/archive';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../graphql/contentPreference';
+import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import { TOP_CREATORS_BY_TAG_QUERY } from '../../graphql/users';
 import type { UserShortProfile } from '../../lib/user';
 import { SponsoredTagHero } from '../brand/SponsoredTagHero';
@@ -222,6 +232,7 @@ export const TagTopicPage = ({
   jsonLd,
 }: TagTopicPageProps): ReactElement => {
   const { push } = useRouter();
+  const queryClient = useQueryClient();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const { feedSettings } = useFeedSettings();
@@ -235,7 +246,7 @@ export const TagTopicPage = ({
   );
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
-  const { follow, unfollow } = useContentPreference({
+  const { follow, unfollow, subscribe, unsubscribe } = useContentPreference({
     showToastOnSuccess: false,
   });
 
@@ -273,6 +284,21 @@ export const TagTopicPage = ({
     return 'unfollowed';
   }, [feedSettings, tag]);
 
+  // Follow state for tags lives in feed settings (`includeTags`), which can't
+  // tell "following" apart from "subscribed" — read the keyword's content
+  // preference so the notify bell knows which state it's in. Only followed
+  // tags render the bell, so don't spend a request on every other visitor.
+  const tagPreferenceQueryKey = generateQueryKey(
+    RequestKey.ContentPreference,
+    user,
+    { id: tag, entity: ContentPreferenceType.Keyword },
+  );
+  const { data: tagPreference } = useContentPreferenceStatusQuery({
+    id: tag,
+    entity: ContentPreferenceType.Keyword,
+    queryOptions: { enabled: tagStatus === 'followed' },
+  });
+
   const followButtonProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
@@ -286,6 +312,12 @@ export const TagTopicPage = ({
       } else {
         await onFollowTags({ tags: [tag] });
       }
+      // Following here goes through feed settings, which never touches the
+      // keyword's content-preference status key. Drop the cached entry rather
+      // than invalidating it: the query is disabled the moment the tag is
+      // unfollowed, so an invalidated-but-present entry would just be replayed
+      // on re-follow and render a stale `subscribed` bell.
+      queryClient.removeQueries({ queryKey: tagPreferenceQueryKey });
     },
   };
 
@@ -304,6 +336,26 @@ export const TagTopicPage = ({
       }
     },
   };
+
+  const isSubscribedToTag =
+    tagPreference?.status === ContentPreferenceStatus.Subscribed;
+
+  const { mutate: onNotifyClick, isPending: isNotifyPending } = useMutation({
+    mutationFn: async (): Promise<void> => {
+      const params = {
+        id: tag,
+        entity: ContentPreferenceType.Keyword,
+        entityName: title,
+        opts: { extra: { origin: Origin.TagPage } },
+      };
+
+      if (isSubscribedToTag) {
+        await unsubscribe(params);
+      } else {
+        await subscribe(params);
+      }
+    },
+  });
 
   const statParts: ReactNode[] = [];
   if (typeof followers === 'number') {
@@ -379,6 +431,13 @@ export const TagTopicPage = ({
                 >
                   {tagStatus === 'followed' ? 'Following' : 'Follow'}
                 </Button>
+              )}
+              {tagStatus === 'followed' && (
+                <SourceActionsNotify
+                  haveNotificationsOn={isSubscribedToTag}
+                  onClick={() => onNotifyClick()}
+                  disabled={isNotifyPending}
+                />
               )}
               {tagStatus !== 'followed' && (
                 <Button

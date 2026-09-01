@@ -6771,10 +6771,204 @@ const KITS={
            lamp:(P,r)=>postLamp(P,r,'scroll'), fly:'dove', motes:true},
 };
 
+/* ========================================================= authored objects
+   A reader's realm object set standing in for the stock kit everywhere that
+   realm appears, with an optional district override as the narrow exception.
+
+   Nothing here executes anyone's code. A builder runs ONCE, in a sandbox, on
+   its author's own machine, against a recorder that logs calls instead of
+   making geometry; what lands here is the flat op list that came out of it. So
+   a visitor replays data through the engine's own `mat` and `meshOf` and never
+   evaluates a line another reader wrote.
+
+   Two rules keep an authored object from lying about how much reading is behind
+   it, and both are enforced on this side rather than trusted from the payload:
+
+   COLOUR IS A NAME. An op names a palette key and the district resolves it, so
+   the same source placed in Rust and in Python is two different objects, and no
+   author can paint outside the realm.
+
+   SIZE IS THE CALLER'S. `fitOf` scales the recorded object into an envelope
+   derived from the district's live level. An object drawn too big is FITTED,
+   not rejected — the cheat renders as a shrunken blob, which is why there is
+   nothing here to police. */
+const AUTHORED=new Map();              // `${scope}:${realm|niche}:${family}` -> recorded tiers
+const AUTH_OPS_VERSION=1;
+const AUTH_FAMILIES=['house','tower','hall','garden','plant','lamp','feature','landmark','monument'];
+/* Landmark and monument are placed by name (each district stands exactly one);
+   everything else flows through the kit. Named exclusion, not a slice bound, so
+   a family appended to both tables cannot silently fall outside the kit. */
+const AUTH_OBJECT_FAMILIES=AUTH_FAMILIES.filter(f=>f!=='landmark'&&f!=='monument');
+
+/* Envelope per family per tier, and the rung each tier starts at. The copy in
+   `@dailydotdev/world-kit` is what the CLI validates against; this one is what
+   actually draws. They are the same table twice on purpose — the package cannot
+   import the renderer, and the renderer must not need the package to boot — and
+   a test diffs them so the pair cannot drift in silence. */
+const AUTH_TIER_AT={
+  house:[2,7,12], tower:[6,9,12], hall:[6,10,12], garden:[4,9,12],
+  plant:[1,6,11], lamp:[3,8,12], feature:[5,10,12],
+  landmark:[1,6,11], monument:[3,7,11],
+};
+const AUTH_ENV={
+  house:  [[1.8,1.8,1.8],[2.2,2.6,2.2],[2.6,3.4,2.6]],
+  tower:  [[2.2,6.0,2.2],[2.6,7.2,2.6],[3.0,9.0,3.0]],
+  hall:   [[3.4,2.4,3.4],[4.0,3.0,4.0],[4.6,3.6,4.6]],
+  garden: [[1.2,0.5,1.2],[1.6,0.8,1.6],[2.0,1.1,2.0]],
+  plant:  [[1.2,1.8,1.2],[1.6,2.6,1.6],[2.0,3.4,2.0]],
+  lamp:   [[0.7,1.6,0.7],[0.8,2.0,0.8],[0.9,2.4,0.9]],
+  feature:[[1.6,1.0,1.6],[2.0,1.4,2.0],[2.4,1.8,2.4]],
+  landmark:[[3.2,3.2,3.2],[7.0,8.0,7.0],[12.0,14.0,12.0]],
+  monument:[[3.6,4.0,3.6],[5.0,7.0,5.0],[6.8,10.0,6.8]],
+};
+function authTier(family,level){
+  const at=AUTH_TIER_AT[family]; if(!at) return 0;
+  const l=Math.max(1,Math.min(12,level|0));
+  return l>=at[2]?3:l>=at[1]?2:l>=at[0]?1:0;
+}
+/* Shrink-only. Scaling a small object UP to fill its plot would hand the "how
+   big" decision to whoever authored the smallest thing, so an author who wants
+   to fill the ground sizes it themselves and the envelope only ever caps. */
+function fitOf(size,env){
+  return Math.min(1, env[0]/(size[0]||1e-6), env[1]/(size[1]||1e-6), env[2]/(size[2]||1e-6));
+}
+
+const AUTH_GEOM={
+  box:    a=>new THREE.BoxGeometry(a[0],a[1],a[2]),
+  cyl:    a=>new THREE.CylinderGeometry(a[0],a[1],a[2],a[3]),
+  sphere: a=>new THREE.SphereGeometry(a[0],a[1],a[2]),
+  cone:   a=>new THREE.ConeGeometry(a[0],a[1],a[2]),
+  torus:  a=>new THREE.TorusGeometry(a[0],a[1],a[2],a[3]),
+  octa:   a=>new THREE.OctahedronGeometry(a[0]),
+  plane:  a=>new THREE.PlaneGeometry(a[0],a[1]),
+};
+
+/* One recorded variant, drawn. No tick anywhere in here, so `mergeStatic` folds
+   an authored object into the same batches as a generated one and a district
+   full of them costs what the stock district costs. Glow is clamped because it
+   is a light level from data, not code the CLI has vetted on this machine. */
+function replayOps(P,ops,scale){
+  const g=new THREE.Group();
+  for(const op of ops){
+    const build=AUTH_GEOM[op.g]; if(!build) continue;
+    const hex=P[op.m]; if(hex===undefined) continue;
+    const o=op.o||{};
+    const material=o.glow>0
+      ? glowMat(hex,Math.min(o.glow,4))
+      : mat(hex,{rough:o.rough??0.82,flat:o.flat??true,
+                 side:op.g==='plane'?THREE.DoubleSide:undefined});
+    const m=meshOf(build(op.a),material);
+    m.position.set(op.p[0],op.p[1],op.p[2]);
+    m.rotation.set(op.r[0],op.r[1],op.r[2]);
+    m.scale.set(op.s[0],op.s[1],op.s[2]);
+    g.add(m);
+  }
+  if(scale!==1) g.scale.setScalar(scale);
+  return g;
+}
+
+/* The envelope is enforced against MEASURED geometry, never the payload's own
+   `size` claim: a record that under-reports its size would otherwise dodge the
+   cap and dwarf the island. Cached in a WeakMap, NOT on the variant — the
+   variant objects are shared with the page's payload state, and writing to
+   them would change every serialisation-based comparison over there. */
+const AUTH_BOX=new THREE.Box3(), AUTH_SIZE=new THREE.Vector3();
+const AUTH_MEASURED=new WeakMap();
+function measuredSize(v,g){
+  let size=AUTH_MEASURED.get(v);
+  if(!size){
+    AUTH_BOX.setFromObject(g); AUTH_BOX.getSize(AUTH_SIZE);
+    size=[AUTH_SIZE.x,AUTH_SIZE.y,AUTH_SIZE.z];
+    AUTH_MEASURED.set(v,size);
+  }
+  return size;
+}
+
+/* A district stands as many as a dozen of one family, so a single recorded op
+   list would give a dozen identical clones. The author's source was run once
+   per seed and the instance's own rng picks between them, which is the same
+   variation a generated builder gets from its own `rnd`. */
+function authoredBuilder(rec,family,level,heightCap){
+  const tier=authTier(family,level);
+  const env=AUTH_ENV[family][Math.max(0,tier-1)];
+  const variants=(rec.tiers&&rec.tiers[tier])||rec.variants||[];
+  return (P,rnd)=>{
+    const v=variants[Math.floor(rnd()*variants.length)%variants.length];
+    const box=heightCap?[env[0],Math.min(env[1],heightCap),env[2]]:env;
+    const g=replayOps(P,v.ops,1);
+    const size=measuredSize(v,g);
+    const s=fitOf(size,box);
+    if(s!==1) g.scale.setScalar(s);
+    /* The one honest height an authored object has, for anything that anchors
+       to a top the stock builders used to promise (crowns, sky bridges). */
+    g.userData.h=size[1]*s;
+    return g;
+  };
+}
+
+const authKey=({scope,realm,niche,family})=>
+  scope+':'+(scope==='realm'?realm:niche)+':'+family;
+function authoredFor(P,family,realmOnly){
+  const realm=AUTHORED.get('realm:'+P.kit+':'+family);
+  if(realmOnly)return realm;
+  return AUTHORED.get('district:'+P.id+':'+family)||realm;
+}
+/* The variants a record actually has for THIS level, or null. Everything that
+   asks "does an authored object stand here" asks through this one gate, so a
+   record with no variants at the current tier is invisible everywhere at once
+   (including the monument footprint, which must match what is drawn). */
+function authoredVariants(P,family,level,realmOnly){
+  const rec=authoredFor(P,family,realmOnly);
+  const tier=authTier(family,level);
+  if(!rec||!tier)return null;
+  const variants=(rec.tiers&&rec.tiers[tier])||rec.variants;
+  return variants&&variants.length?{rec,variants}:null;
+}
+function authoredObject(P,family,level,realmOnly,rnd){
+  const found=authoredVariants(P,family,level,realmOnly);
+  if(!found)return null;
+  const object=authoredBuilder(found.rec,family,level)(P,rnd);
+  object.userData.authored=true;
+  return object;
+}
+
+/* The one place an authored object enters the world. Every family call in
+   `buildIsland` already goes through this single binding, so nothing below it
+   knows or cares whether a builder is the realm's or the reader's. */
+function kitFor(P,level,realmOnly){
+  const stock=KITS[P.kit];
+  let out=null;
+  for(const family of AUTH_OBJECT_FAMILIES){
+    const found=authoredVariants(P,family,level,realmOnly);
+    if(!found)continue;
+    if(!out) out={...stock};
+    /* The tower is the one family whose caller owns a height of its own, and it
+       keeps it: the envelope caps, `h` varies underneath the cap. The `great`
+       flag rides through too — the crown is the caller's promise, drawn at the
+       authored tower's measured top rather than the stock roll. */
+    out[family]=family==='tower'
+      ? (P2,rnd,h,great)=>{
+          const g=authoredBuilder(found.rec,family,level,h)(P2,rnd);
+          if(great) greatCrown(P2,g,(g.userData.h||h)+1.9,0.5);
+          return g;
+        }
+      : authoredBuilder(found.rec,family,level);
+  }
+  return out||stock;
+}
+
 /* The frameworks are the one realm whose landform claims the centre — the Great
    Tree stands there for the life of the plot — so their monument is placed off
    it, at a fixed bearing and radius like everything else. */
 const SIG_AT={frame:{r:3.2,a:2.1}};
+
+/* Authored landmarks keep terrain generation intact and stand in a reserved
+   piece of it. Frameworks is the exception because its stock Great Tree already
+   owns the centre; an authored landmark replaces that tree exactly. */
+const LANDMARK_AT={
+  swarm:{r:3.0,a:0.35}, forge:{r:3.2,a:2.55}, ship:{r:3.2,a:4.15},
+  bastion:{r:3.0,a:5.1}, quarter:{r:3.0,a:1.2},
+};
 
 /* How much ground each monument actually covers. Everything used to claim a
    flat 2.4, which is roughly right for an obelisk and nowhere near right for a
@@ -6790,6 +6984,14 @@ const SIG_R={
   keep:2.8,    vault:2.4,      watchfire:2.6,
   clocktower:1.5, market:3.4,  workshop:3.0,  library:2.6,
 };
+/* The footprint must describe the monument actually DRAWN: a record whose
+   variants only start at a higher tier still renders the stock signature, and
+   claiming the authored radius for it would let houses stand inside it. */
+function monumentRadius(P,level){
+  const tier=authTier('monument',level);
+  if(!tier||!authoredVariants(P,'monument',level,false))return SIG_R[P.sig]??2.4;
+  return AUTH_ENV.monument[tier-1][0]*0.46;
+}
 
 /* And the same for the late-game structure: a footprint the town has to respect.
    Line-shaped ones (aqueduct, gantry, arcade) are claimed as a chain of discs
@@ -7325,7 +7527,7 @@ function flatUp(pos){
    which is the whole reason the world view can look as good as the lab does. */
 function buildIsland(P,level,opt){
   const out=new THREE.Group();
-  const sp=spec(level), R=sp.radius, K=KITS[P.kit];
+  const sp=spec(level), R=sp.radius, K=kitFor(P,level,!!opt.keel);
   const prof=profile(P.seed,30,0.13);
   const nodes=[];
   const node=(o2,o3)=>nodes.push({obj:o2,mode:o3.mode,delay:o3.delay||0,done:false});
@@ -7489,15 +7691,31 @@ function buildIsland(P,level,opt){
   const placeF=(lat,minD,make)=>{ let n=0;
     for(const p of lat){ if(p.f>sp.fill)continue; if(!accept(p,minD))continue; make(p,n); n++; } };
 
-  /* ---- the Great Tree (frameworks only) -------------------------------- */
-  /* Placed before everything else so it claims the centre first, and claimed
-     generously: buildings under the canopy are wanted, buildings inside the
-     trunk are not. */
-  if(P.form==='greattree'){
+  /* ---- the realm landmark ---------------------------------------------- */
+  /* A realm builder is compiled once and reused here at both scales. Terrain,
+     terraces and collision remain the engine's; the authored landmark gets a
+     protected footprint inside them. In Frameworks it replaces the Great Tree,
+     which already owns the centre. */
+  const landmark=authoredObject(P,'landmark',level,!!opt.keel,
+    rngOf(hash2(P.seed,5500)));
+  const landmarkStanding=!!landmark||P.form==='greattree';
+  if(landmark){
+    const at=LANDMARK_AT[P.kit];
+    if(at){
+      const rr=Math.min(at.r,R*0.52), wr=radiusAt(prof,at.a)*rr;
+      landmark.position.set(Math.cos(at.a)*wr,tierY(rr)+0.16,Math.sin(at.a)*wr);
+      landmark.rotation.y=-at.a+Math.PI/2;
+      const claim=Math.min(AUTH_ENV.landmark[authTier('landmark',level)-1][0]*0.42,R*0.3);
+      claimed.push({x:landmark.position.x,z:landmark.position.z,d:claim});
+    }else{
+      landmark.position.set(0,0.16,0);
+      claimed.push({x:0,z:0,d:Math.min(AUTH_ENV.landmark[authTier('landmark',level)-1][0]*0.42,R*0.3)});
+    }
+    landmark.userData.key='landmark'; out.add(landmark);
+    node(landmark,{mode:'build',delay:0.05});
+  }else if(P.form==='greattree'){
     const tr=greatTree(P,level);
     tr.position.set(0,0.16,0); tr.userData.key='tree'; tr.userData.keep=true; out.add(tr);
-    /* It genuinely changes shape every level, so it is the one carried object
-       that re-animates: it GROWS, which is exactly what it should look like. */
     node(tr,{mode:'build',delay:0.05});
     claimed.push({x:0,z:0,d:0.9+((level-1)/11)*2.4});
   }
@@ -7510,29 +7728,35 @@ function buildIsland(P,level,opt){
        Where the landform already owns the centre — the frameworks' Great Tree —
        every monument goes on the lattice instead. */
     const put0=(sig,key,p)=>{
-      const g=realmSignature(sig.P,rngOf(hash2(sig.P.seed,1)),spec(clamp(sig.level+2,3,12)));
+      const g=authoredObject(sig.P,'monument',sig.level,false,
+        rngOf(hash2(sig.P.seed,1)))||
+        realmSignature(sig.P,rngOf(hash2(sig.P.seed,1)),spec(clamp(sig.level+2,3,12)));
       /* The forge wheel, the orrery, the watchfire: a realm's monuments are the
          one thing on it you can read at a glance, so they keep their motion
          through the merge. */
-      g.userData.keep=true;
+      if(!g.userData.authored)g.userData.keep=true;
       g.scale.setScalar(clamp(0.46+sig.level*0.062,0.46,1.1));
       if(p) return put(g,p,key,0.04);
       g.position.set(0,0.16,0); g.userData.key=key; out.add(g);
       node(g,{mode:carry&&prevKeys.has(key)?'keep':'build',delay:0});
-      claimed.push({x:0,z:0,d:SIG_R[sig.P.sig]??2.4});
+      claimed.push({x:0,z:0,d:monumentRadius(sig.P,sig.level)});
       return g;
     };
     let n=0;
-    if(P.form!=='greattree') put0(opt.signatures[n++],'sig0',null);
+    if(!landmarkStanding) put0(opt.signatures[n++],'sig0',null);
     const lat=lattice(52,1.9,RMAX*0.78,hash2(P.seed,777));
     for(const p of lat){
       if(n>=opt.signatures.length)break;
-      if(!accept(p,(SIG_R[opt.signatures[n].P.sig]??2.4)*0.9))continue;
+      if(!accept(p,monumentRadius(opt.signatures[n].P,opt.signatures[n].level)*0.9))continue;
       put0(opt.signatures[n],'sig'+n,p); n++;
     }
   }else if(sp.signature){
-    const g=realmSignature(P,rngOf(hash2(P.seed,1)),sp);
-    const at=SIG_AT[P.kit];
+    const g=authoredObject(P,'monument',level,false,rngOf(hash2(P.seed,1)))||
+      realmSignature(P,rngOf(hash2(P.seed,1)),sp);
+    const landmarkAt=LANDMARK_AT[P.kit];
+    const at=landmarkStanding
+      ? (SIG_AT[P.kit]||{r:3.2,a:(landmarkAt?landmarkAt.a+Math.PI:2.1)})
+      : SIG_AT[P.kit];
     if(at){
       /* Pulled in on a small island rather than falling back to the centre: the
          centre belongs to the Great Tree from L1, and a monument that stood
@@ -7543,12 +7767,12 @@ function buildIsland(P,level,opt){
       const wr=radiusAt(prof,at.a)*rr;
       g.position.set(Math.cos(at.a)*wr,tierY(rr)+0.16,Math.sin(at.a)*wr);
       g.rotation.y=-at.a+Math.PI/2;
-      claimed.push({x:g.position.x,z:g.position.z,d:SIG_R[P.sig]??2.4});
+      claimed.push({x:g.position.x,z:g.position.z,d:monumentRadius(P,level)});
     }else{
       g.position.set(0,0.16,0);
-      claimed.push({x:0,z:0,d:SIG_R[P.sig]??2.4});
+      claimed.push({x:0,z:0,d:monumentRadius(P,level)});
     }
-    g.userData.key='sig'; g.userData.keep=true; out.add(g);
+    g.userData.key='sig'; if(!g.userData.authored)g.userData.keep=true; out.add(g);
     node(g,{mode:carry&&prevKeys.has('sig')?'keep':'build',delay:0});
   }
 
@@ -7607,7 +7831,10 @@ function buildIsland(P,level,opt){
        stops being magic and starts being a prop. It is also half again the size
        of its neighbours, so it takes a wider claim than the slot gave it. */
     if(great){ s.userData.keep=true; claimed.push({x:s.position.x,z:s.position.z,d:3.0}); }
-    towerTops.push(new THREE.Vector3(s.position.x,s.position.y+h*0.8,s.position.z));
+    /* An authored tower is envelope-capped below the rolled h; its measured
+       height keeps the bridge anchored to the actual top. */
+    towerTops.push(new THREE.Vector3(s.position.x,
+      s.position.y+(s.userData.h??h)*0.8,s.position.z));
   });
 
   placeN(lattice(46,2.2,RMAX*0.6,hash2(P.seed,30)),sp.halls,2.4,
@@ -8029,10 +8256,9 @@ function hideDistrict(d){
   const i=active.indexOf(d); if(i>=0)active.splice(i,1);
 }
 /* --------------------------------------------------------- the realm island */
-/* A realm is the lab island built at the realm's own level, floating on its own
-   keel, carrying one signature per district. Everything here is the locked art
-   running at a different scale — no second art direction to maintain, which is
-   why the world view can be as nice as the realm view. */
+/* A realm is the same authored or stock object set built at the realm's own
+   level, floating on its keel and carrying one monument per district. There is
+   no second world-view art direction for an agent to implement or maintain. */
 /* The ten districts an island carries a signature for, and that list as one
    comparable string. Both read the same districts in the same order, so a key
    that has not moved means an island that would be rebuilt identically. */
@@ -8059,7 +8285,7 @@ function raiseRealm(q,level,animate){
   q.animated=animated.splice(a0);
   q.island=r.group; q.nodes=r.nodes; q.keys=r.keys; q.builtR=r.radius;
   birdsDirty();
-  q.level=level;
+  q.level=level; q.authStale=false;
   q.baseY=0;
   q.island.position.set(q.x,0,q.z);
   worldRoot.add(q.island);
@@ -8101,7 +8327,7 @@ function enterRealm(q){
   if(W.unbuilt)return;
   handAbort(); unpossess(); birdsDirty();
   worldDay=DAY;
-  OPEN=q; selected=null; hovered=null;
+  OPEN=q; selected=null; hovered=null; stageEl.classList.remove('pick');
   for(const d of W.districts) hideDistrict(d);
   for(const d of q.list){
     if(d.shown>0) raise(d,levelOf(d.shown),false);
@@ -8112,13 +8338,16 @@ function enterRealm(q){
   fade=0; fadeTo=1;
   frameBounds(q.bounds);
   rootEl.classList.add('inrealm');
-  updateHud(); renderRank(true); buildAir(); placeClouds();
+  updateHud(); renderRank(true); emitDistrict(); buildAir(); placeClouds();
 }
 function leaveRealm(){
   if(!OPEN)return;
   handAbort(); unpossess(); birdsDirty();
   for(const d of OPEN.list) hideDistrict(d);
   landRoot.clear(); OPEN=null; selected=null; hovered=null;
+  /* The ground under a stationary pointer is a different thing on either side of
+     this, so the offer is withdrawn and the next move makes it again. */
+  stageEl.classList.remove('pick');
   worldRoot.visible=true;
   landRoot.visible=townRoot.visible=false;
   /* Bring the islands up to the day the scrubber is actually on. Land is
@@ -8136,10 +8365,15 @@ function leaveRealm(){
     queue.length=0;
     worldDay=DAY;
   }
+  /* Authoring only rebuilds the representation on screen. A realm edited from
+     inside is refreshed once here before its world-level island is shown. */
+  for(const q of W.quarters){
+    if(q.authStale&&q.island&&q.level)raiseRealm(q,q.level,false);
+  }
   fade=0; fadeTo=1;
   frameBounds(W.worldBounds);
   rootEl.classList.remove('inrealm');
-  updateHud(); renderRank(true); buildAir(); placeClouds();
+  updateHud(); renderRank(true); emitDistrict(); buildAir(); placeClouds();
 }
 
 /* The sky, its eight palettes and its five hours, all in `sky.js` — the bench
@@ -8489,12 +8723,12 @@ function pick(cx,cy,click){
       if(Math.hypot(p.x-q.x,p.z-q.z)<=spec(Math.max(1,q.level)).radius+3){ hit=q; break; }
     }
   }
-  /* No hover card at either scale. Nothing follows the cursor now: `hovered` is
-     still tracked, but the only thing it does is light the plot border under the
-     pointer. The affordance the card used to carry — "click to walk in" — is
-     already stated in the hint bar, permanently, where it does not have to
-     appear over the world to be read. */
   if(hit!==hovered){ hovered=hit; paintBorders(); }
+  /* Only ground a click does something with. An unread realm does not open, and
+     inside one, only a district with something standing on it has a feed. Never
+     while riding: the pointer is a flight stick then, not a cursor. */
+  stageEl.classList.toggle('pick',
+    !POV.bird&&!!hit&&(OPEN?!!hit.built:hit.shown>0));
   if(click){
     /* Only the bird the reticle is already on. Re-testing the cursor here
        instead would let a bird that happened to fly under the pointer between
@@ -8505,12 +8739,12 @@ function pick(cx,cy,click){
     if(bird&&bird[0].parent){ possess(bird[0],bird[1]); return; }
     if(!OPEN) { if(hit) enterRealm(hit); }
     else{
-      /* Inside a realm a click on a town is a SLAP, full stop. It used to have
-         to earn it by selecting first, which meant the one gesture people
-         actually try on a town did nothing the first time. Selection still
-         happens — it lights the plot border and syncs the sidebar — but it
-         moves nothing, so the two never fight over the same click. */
-      if(hit&&hit.built) slap(hit,clock.getElapsedTime());
+      /* Inside a realm the first click on a town OPENS it: the plot lights and
+         the panel beside it reads out what was upvoted there, which is the
+         thing somebody clicking a district is asking for. The slap is what a
+         second click on the town already open does, so the toy is still one
+         click away and never lands on top of the answer. */
+      if(hit&&hit.built&&hit.i===selected) slap(hit,clock.getElapsedTime());
       select(hit?hit.i:null);
     }
   }
@@ -8526,7 +8760,18 @@ function pick(cx,cy,click){
 function select(i){
   if(selected===i)return;
   selected=i;
-  paintBorders(); renderRank(true);
+  paintBorders(); renderRank(true); emitDistrict();
+}
+/* Which district is selected, by NICHE ID, so the overlay can ask the API what
+   this reader upvoted in that niche. That id is the one fact about a district
+   only the engine holds: everything else the overlay has is a rank row, and a
+   rank row is capped at fourteen while a realm can hold more than fourteen
+   towns. Emitted from `select` and from both realm doors, which are the only
+   three places `selected` moves. */
+function emitDistrict(){
+  const d=OPEN&&selected!==null?W.districts[selected]:null;
+  emit({district:d?{nicheId:d.nicheId, name:nameOf(d),
+                    color:hexs(d.niche.accent)}:null});
 }
 function paintBorders(){
   const on=VIEW.border&&!!OPEN;
@@ -8924,6 +9169,120 @@ function readDay(t){
   for(const d of W.districts) d.shown=W.cum[t*W.nD+d.i];
   for(const q of W.quarters) q.shown=q.list.reduce((s,d)=>s+d.shown,0);
 }
+/* Rebuild the visible result of one authoring transaction. A realm object set
+   can affect every district inside the open realm, but each district and realm
+   island is raised at most once no matter how many families arrived together. */
+function rebuildAuthored(realms,niches){
+  if(!W)return false;
+  let did=false;
+  if(OPEN){
+    for(const d of W.districts){
+      if(!d.built)continue;
+      if(!realms.has(d.realm.id)&&!niches.has(d.niche.id))continue;
+      raise(d,d.level,false); did=true;
+    }
+    for(const q of W.quarters){
+      if(realms.has(q.realm.id)||q.list.some(d=>niches.has(d.niche.id)))
+        q.authStale=true;
+    }
+    if(did)buildLand();
+  }else{
+    for(const q of W.quarters){
+      if(!q.island||!q.level)continue;
+      const districtHit=q.list.some(d=>niches.has(d.niche.id));
+      if(!realms.has(q.realm.id)&&!districtHit)continue;
+      raiseRealm(q,q.level,false); did=true;
+    }
+  }
+  if(did&&!OPEN)landDirty=true;
+  return did;
+}
+
+function markAuthored(entry,realms,niches){
+  if(entry.scope==='realm')realms.add(entry.realm);
+  else niches.add(entry.niche);
+}
+/* The payload is data from a database row, not output this page's CLI vetted:
+   one malformed op would throw in the middle of buildIsland and take the world
+   down for every visitor, so every field replayOps touches is checked here and
+   a record that fails is dropped whole. */
+const authVec3=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite);
+function validVariants(variants){
+  return Array.isArray(variants)&&variants.length>0&&
+    variants.every(v=>v&&Array.isArray(v.ops)&&
+      v.ops.every(op=>op&&typeof op.g==='string'&&typeof op.m==='string'&&
+        Array.isArray(op.a)&&op.a.every(Number.isFinite)&&
+        authVec3(op.p)&&authVec3(op.r)&&authVec3(op.s)));
+}
+/* The engine derives its own hash rather than trusting one from the caller: a
+   caller that forgot it would make every compare undefined===undefined, which
+   reads as "unchanged" and swallows real edits. Sorted keys, because the same
+   payload can arrive from the CLI and from the API with different key order. */
+function authHash(value){
+  const sorted=v=>Array.isArray(v)?v.map(sorted)
+    :v&&typeof v==='object'
+      ?Object.fromEntries(Object.keys(v).sort().map(k=>[k,sorted(v[k])]))
+      :v;
+  const source=JSON.stringify(sorted(value));
+  let hash=0x811c9dc5;
+  for(let i=0;i<source.length;i+=1){
+    hash^=source.charCodeAt(i);
+    hash=Math.imul(hash,0x01000193)>>>0;
+  }
+  return hash.toString(16).padStart(8,'0');
+}
+function authoredRecord(entry){
+  if(entry.opsVersion!==AUTH_OPS_VERSION)return null;
+  if(!AUTH_FAMILIES.includes(entry.family))return null;
+  if(entry.scope!=='realm'&&entry.scope!=='district')return null;
+  if(entry.scope==='realm'&&!entry.realm)return null;
+  if(entry.scope==='district'&&!entry.niche)return null;
+  const payload=entry.payload||{};
+  const tiers=payload.tiers&&typeof payload.tiers==='object'?payload.tiers:null;
+  if(tiers&&!Object.values(tiers).every(validVariants))return null;
+  const variants=validVariants(payload.variants)?payload.variants:null;
+  if(!tiers&&!variants)return null;
+  /* Built field by field — a spread would let payload keys overwrite the
+     scope and family the guards above just validated. */
+  return {
+    scope:entry.scope, realm:entry.realm, niche:entry.niche,
+    family:entry.family, opsVersion:entry.opsVersion,
+    payloadHash:authHash(payload), tiers, variants,
+  };
+}
+function replaceAuthored(entries){
+  const next=new Map(), realms=new Set(), niches=new Set();
+  for(const entry of entries||[]){
+    const rec=authoredRecord(entry); if(!rec)continue;
+    next.set(authKey(rec),rec);
+  }
+  for(const [key,old] of AUTHORED){
+    const rec=next.get(key);
+    if(!rec||rec.payloadHash!==old.payloadHash)markAuthored(old,realms,niches);
+  }
+  for(const [key,rec] of next){
+    const old=AUTHORED.get(key);
+    if(!old||rec.payloadHash!==old.payloadHash)markAuthored(rec,realms,niches);
+  }
+  AUTHORED.clear(); for(const [key,rec] of next)AUTHORED.set(key,rec);
+  return {ok:true,rebuilt:rebuildAuthored(realms,niches),changes:AUTHORED.size};
+}
+function patchAuthored(upserts,removals){
+  const realms=new Set(), niches=new Set();
+  for(const target of removals||[]){
+    const key=authKey(target), old=AUTHORED.get(key);
+    if(!old)continue;
+    AUTHORED.delete(key); markAuthored(old,realms,niches);
+  }
+  for(const entry of upserts||[]){
+    const rec=authoredRecord(entry); if(!rec)continue;
+    const key=authKey(rec), old=AUTHORED.get(key);
+    if(old&&old.payloadHash===rec.payloadHash)continue;
+    AUTHORED.set(key,rec); markAuthored(rec,realms,niches);
+  }
+  return {ok:true,rebuilt:rebuildAuthored(realms,niches),changes:AUTHORED.size};
+}
+
 /* Jumping anywhere in time: rebuild only what differs from what is standing. */
 function applyDay(t){
   /* Scrubbing the timeline rebuilds everything standing, so whatever the hand
@@ -9131,7 +9490,12 @@ function drawSpark(c){
 
 /* ==================================================================== boot */
 async function boot(model){
-  emit({status:'loading',progress:0.05,message:'Raising the land…'});
+  /* `district` is cleared here and nowhere else in boot: a soft navigation from
+     one world to another reuses this engine, and everything else the overlay
+     reads is rewritten by the first frame of the new world. A selection is not
+     (nothing selects a town on the way in), so without this the next world opens
+     with the last one's district still named over the new reader's upvotes. */
+  emit({status:'loading',progress:0.05,message:'Raising the land…',district:null});
   booting=true; booted=false;
   if(W){ for(const d of W.districts) hideDistrict(d);
          for(const q of W.quarters) hideRealm(q); }
@@ -10708,7 +11072,12 @@ function focus(key){
   if(!W)return;
   if(OPEN){
     const d=OPEN.list.find(x=>x.niche.id===key);
-    if(d){ select(d.i); flyTo(d); }
+    if(d){ select(d.i); flyTo(d); return; }
+    if(OPEN.realm.id===key)return;
+    /* A key for ANOTHER realm walks there instead of dying quietly — it is how
+       "fly to the latest change" works while the reader stands somewhere else. */
+    const elsewhere=W.quarters.find(x=>x.realm.id===key);
+    if(elsewhere){ leaveRealm(); enterRealm(elsewhere); }
     return;
   }
   const q=W.quarters.find(x=>x.realm.id===key);
@@ -10747,6 +11116,10 @@ return {
   toEnd: ()=>{ if(W) seekTo(W.nT-1); },
   setSpeed: s=>{ speed=s; emit({speed:s}); },
   focus,
+  /* Drops the selection without leaving the realm: closing the district's feed
+     has to take the plot's lit border with it, or the world still says a town
+     is open after the panel reading it has gone. */
+  deselect: ()=>{ if(W) select(null); },
   leaveRealm,
   frameWorld: ()=>{ if(W) frameWorld(); },
   attachSpark: c=>drawSpark(c),
@@ -10773,6 +11146,11 @@ return {
     drawFrame(performance.now());
     return url;
   },
+  /* ---------------------------------------------------- authored objects
+     Snapshots and patches are transactions. Installing nine families for a
+     realm mutates the registry first and rebuilds each visible island once. */
+  replaceAuthored,
+  patchAuthored,
   /* The overlay stands on the world, so the camera fit has to know where. */
   setPadding: p=>{ Object.assign(PAD,p); if(W) frameWorld(); },
   /* Look and crest are the owner's, not the viewer's, so every visitor is shown them too. */
@@ -10790,4 +11168,3 @@ return {
   dispose,
 };
 }
-

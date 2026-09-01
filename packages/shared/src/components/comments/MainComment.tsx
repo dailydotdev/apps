@@ -27,11 +27,8 @@ import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import { useLogContext } from '../../contexts/LogContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
-const CommentInputOrModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "commentInputOrModal" */ './CommentInputOrModal'
-    ),
+const CommentInput = dynamic(
+  () => import(/* webpackChunkName: "commentInput" */ './CommentInput'),
 );
 
 type ClassName = {
@@ -49,6 +46,16 @@ export interface MainCommentProps
   logImpression?: boolean;
   logClick?: boolean;
   isModalThread?: boolean;
+  /**
+   * Gates the reply affordance without hiding it (mirrors how `onReplyTo`
+   * already blocks logged-out users). Defaults to true so existing
+   * consumers are unaffected.
+   */
+  canReply?: boolean;
+  onReplyBlocked?: () => void;
+  /** Inline reply/edit composers on small viewports too, so the companion
+   * never covers the host page. */
+  forceInlineComposer?: boolean;
 }
 
 const shouldShowBannerOnComment = (
@@ -71,6 +78,9 @@ export default function MainComment({
   logImpression,
   logClick,
   isModalThread = false,
+  canReply = true,
+  onReplyBlocked,
+  forceInlineComposer = false,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -163,13 +173,18 @@ export default function MainComment({
               ...className?.commentBox,
             }}
             appendTooltipTo={appendTooltipTo}
-            onComment={(selected, parentId) =>
+            onComment={(selected, parentId) => {
+              if (!canReply) {
+                onReplyBlocked?.();
+                return;
+              }
+
               onReplyTo({
                 username: selected.author?.username ?? null,
                 parentCommentId: parentId,
                 commentId: selected.id,
-              })
-            }
+              });
+            }}
             onEdit={({ id, lastUpdatedAt }) =>
               onEdit({ commentId: id, lastUpdatedAt })
             }
@@ -196,29 +211,30 @@ export default function MainComment({
         </div>
       )}
       {editProps && (
-        <CommentInputOrModal
+        <CommentInput
           {...editProps}
           post={props.post}
+          forceInline={forceInlineComposer}
           onCommented={(...params) => {
             onEdit(null);
             onCommented?.(...params);
           }}
           onClose={() => onEdit(null)}
-          className={{ input: className?.commentBox }}
+          className={className?.commentBox}
         />
       )}
       {commentId === comment.id && (
         <div className={classNames(isModalThread && 'mt-2')}>
-          <CommentInputOrModal
+          <CommentInput
             {...replyProps}
             post={props.post}
+            forceInline={forceInlineComposer}
             onCommented={(...params) => {
               onReplyTo(null);
               onCommented?.(...params);
             }}
             onClose={() => onReplyTo(null)}
-            className={{ input: className?.commentBox }}
-            replyToCommentId={commentId}
+            className={className?.commentBox}
           />
         </div>
       )}
@@ -279,6 +295,9 @@ export default function MainComment({
               isFirst={index === 0}
               isLast={index === commentChildren.length - 1}
               extendTopConnector={isModalThread && commentId === comment.id}
+              canReply={canReply}
+              onReplyBlocked={onReplyBlocked}
+              forceInlineComposer={forceInlineComposer}
             />
           ))}
         </div>

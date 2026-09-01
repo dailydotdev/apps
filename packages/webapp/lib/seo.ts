@@ -32,6 +32,12 @@ export const getLlmsTxtUrl = (): string => `${getAppOrigin()}/llms.txt`;
 export const getPostCanonicalUrl = (slug: string): string =>
   `${getAppOrigin()}/posts/${slug}`;
 
+export const getPostMarkdownUrl = ({
+  post,
+}: {
+  post: Pick<Post, 'id' | 'slug'>;
+}): string => `${getPostCanonicalUrl(post.slug ?? post.id)}.md`;
+
 const THIN_NOINDEX_POST_TYPES = [PostType.Brief, PostType.SocialTwitter];
 
 /** Structural subset of {@link Post} so non-page callers can reuse the gate. */

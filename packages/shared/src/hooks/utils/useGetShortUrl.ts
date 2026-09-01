@@ -10,6 +10,8 @@ import { disabledRefetch } from '../../lib/func';
 import { gqlClient } from '../../graphql/common';
 import type { LoggedUser } from '../../lib/user';
 
+const shortUrlDeadline = 1500;
+
 interface LinkAsQuery {
   url: string;
   cid: ReferralCampaignKey;
@@ -64,15 +66,35 @@ export const useGetShortUrl = ({
 
       const { trackedUrl, queryKey } = getProps(url, cid);
 
-      try {
-        return queryClient.fetchQuery({
+      // Caught here, or a rejection after the deadline wins the race below has
+      // no handler left.
+      const shortening = queryClient
+        .fetchQuery({
           queryKey,
           queryFn: () => queryShortUrl(trackedUrl),
           staleTime: Infinity,
-        });
-      } catch (err) {
-        return trackedUrl;
-      }
+          // One attempt: retry with backoff holds the press for seconds when the
+          // shortener is down. Not always honoured, though: if the `useQuery`
+          // branch below is already fetching this key, query-core returns the
+          // in-flight retryer before applying these options, and only the
+          // deadline bounds the wait.
+          retry: false,
+        })
+        .catch(() => null);
+
+      // Every share waits here before anything reaches the clipboard, and a
+      // request that never answers would hold the press indefinitely.
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      const shortened = await Promise.race([
+        shortening,
+        new Promise<null>((settle) => {
+          deadline = setTimeout(() => settle(null), shortUrlDeadline);
+        }),
+      ]);
+
+      clearTimeout(deadline);
+
+      return shortened ?? trackedUrl;
     },
     [isAuthReady, user, getProps, queryClient],
   );
