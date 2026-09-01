@@ -459,7 +459,7 @@ export const Spotlight = ({
     },
     [onCommandRun, pushRecent, clearConfirm, onClose],
   );
-  const search = useSpotlightSearchCommands({ router, query });
+  const search = useSpotlightSearchCommands({ router, query, scope });
   useQuickKeyDispatch({
     query,
     setQuery,
@@ -697,6 +697,25 @@ export const Spotlight = ({
     return out;
   }, [isFiltering, grouped, suggested.length, recentCommands.length]);
 
+  const scopeSearch = useMemo(() => {
+    if (scope === SpotlightScope.Posts) {
+      return { commands: search.posts, isLoading: search.postsLoading };
+    }
+    if (scope === SpotlightScope.Squads) {
+      return { commands: search.sources, isLoading: search.sourcesLoading };
+    }
+    if (scope === SpotlightScope.People) {
+      return { commands: search.users, isLoading: search.usersLoading };
+    }
+    return { commands: search.tags, isLoading: search.tagsLoading };
+  }, [scope, search]);
+
+  const hasSearchResults =
+    search.users.length > 0 ||
+    search.sources.length > 0 ||
+    search.tags.length > 0 ||
+    search.posts.length > 0;
+
   const jumpToGroup = useCallback((group: SpotlightGroup) => {
     const heading = document.querySelector(
       `[cmdk-group][data-spotlight-group="${group}"]`,
@@ -906,7 +925,8 @@ export const Spotlight = ({
           >
             {scope !== SpotlightScope.All &&
               scope !== SpotlightScope.Actions &&
-              search.isLoading && (
+              scopeSearch.isLoading &&
+              scopeSearch.commands.length === 0 && (
                 <Command.Group heading={scopeMeta[scope].label}>
                   <SkeletonRows count={4} />
                 </Command.Group>
@@ -914,7 +934,7 @@ export const Spotlight = ({
 
             {scope !== SpotlightScope.All &&
               scope !== SpotlightScope.Actions &&
-              !search.isLoading && (
+              scopeSearch.commands.length > 0 && (
                 <Command.Group
                   heading={scopeMeta[scope].label}
                   data-spotlight-group={SpotlightGroup.Search}
@@ -922,18 +942,7 @@ export const Spotlight = ({
                 >
                   {renderRows({
                     ...commonRowProps,
-                    commands: (() => {
-                      if (scope === SpotlightScope.Posts) {
-                        return search.posts;
-                      }
-                      if (scope === SpotlightScope.Squads) {
-                        return search.sources;
-                      }
-                      if (scope === SpotlightScope.People) {
-                        return search.users;
-                      }
-                      return search.tags;
-                    })(),
+                    commands: scopeSearch.commands,
                   })}
                 </Command.Group>
               )}
@@ -1026,7 +1035,8 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              search.isLoading && (
+              search.isLoading &&
+              !hasSearchResults && (
                 <Command.Group
                   heading="Searching"
                   className={groupHeadingClass}
@@ -1037,7 +1047,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.users.length > 0 && (
                 <Command.Group
                   heading="People"
@@ -1050,7 +1059,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.sources.length > 0 && (
                 <Command.Group
                   heading="Squads & sources"
@@ -1063,7 +1071,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.tags.length > 0 && (
                 <Command.Group
                   heading="Tags"
@@ -1076,7 +1083,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.posts.length > 0 && (
                 <Command.Group
                   heading="Posts"
@@ -1113,32 +1119,34 @@ export const Spotlight = ({
                 </Command.Group>
               )}
 
-            <Command.Empty className="flex flex-col items-center gap-2 py-12 text-center">
-              <SearchIcon
-                size={IconSize.Medium}
-                className="text-text-tertiary"
-                aria-hidden
-              />
-              <p className="text-text-primary typo-callout">
-                {trimmedQuery
-                  ? `Nothing matches "${trimmedQuery}".`
-                  : 'No commands available.'}
-              </p>
-              <p className="text-text-tertiary typo-footnote">
-                Try a different word, or search posts on the web.
-              </p>
-              {trimmedQuery && (
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Small}
-                  onClick={handleFallthroughEnter}
-                  icon={<ClickIcon />}
-                >
-                  Search posts for &ldquo;{trimmedQuery}&rdquo;
-                </Button>
-              )}
-            </Command.Empty>
+            {!search.isLoading && (
+              <Command.Empty className="flex flex-col items-center gap-2 py-12 text-center">
+                <SearchIcon
+                  size={IconSize.Medium}
+                  className="text-text-tertiary"
+                  aria-hidden
+                />
+                <p className="text-text-primary typo-callout">
+                  {trimmedQuery
+                    ? `Nothing matches "${trimmedQuery}".`
+                    : 'No commands available.'}
+                </p>
+                <p className="text-text-tertiary typo-footnote">
+                  Try a different word, or search posts on the web.
+                </p>
+                {trimmedQuery && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Small}
+                    onClick={handleFallthroughEnter}
+                    icon={<ClickIcon />}
+                  >
+                    Search posts for &ldquo;{trimmedQuery}&rdquo;
+                  </Button>
+                )}
+              </Command.Empty>
+            )}
           </Command.List>
         )}
 

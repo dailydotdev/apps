@@ -112,7 +112,119 @@ describe('useSearchProviderSuggestions hook', () => {
       },
     );
 
-    expect(result.current.isLoading).toBe(true);
+    expect(result.current.isLoading).toBe(false);
     expect(result.current.suggestions).toBeUndefined();
+  });
+
+  it('should not request until the debounced query settles', async () => {
+    let emptyQueryCalled = false;
+    let queryCalled = false;
+
+    mockGraphQL({
+      request: {
+        query: SEARCH_POST_SUGGESTIONS,
+        variables: {
+          query: '',
+          version: 2,
+          limit: defaultSearchSuggestionsLimit,
+        },
+      },
+      result: () => {
+        emptyQueryCalled = true;
+
+        return { data: { searchPostSuggestions: { hits: [] } } };
+      },
+    });
+
+    mockGraphQL({
+      request: {
+        query: SEARCH_POST_SUGGESTIONS,
+        variables: {
+          query: 'apples',
+          version: 2,
+          limit: defaultSearchSuggestionsLimit,
+        },
+      },
+      result: () => {
+        queryCalled = true;
+
+        return {
+          data: { searchPostSuggestions: { hits: [{ title: 'Apples' }] } },
+        };
+      },
+    });
+
+    const { rerender } = renderHook(
+      ({ query }: { query: string }) =>
+        useSearchProviderSuggestions({
+          provider: SearchProviderEnum.Posts,
+          query,
+        }),
+      {
+        initialProps: { query: '' },
+        wrapper: Wrapper,
+      },
+    );
+
+    rerender({ query: 'apples' });
+
+    await waitFor(() => expect(queryCalled).toBe(true), { timeout: 3000 });
+
+    expect(emptyQueryCalled).toBe(false);
+  });
+
+  it('should not request when disabled', async () => {
+    let queryCalled = false;
+
+    mockGraphQL({
+      request: {
+        query: SEARCH_POST_SUGGESTIONS,
+        variables: {
+          query: 'apples',
+          version: 2,
+          limit: defaultSearchSuggestionsLimit,
+        },
+      },
+      result: () => {
+        queryCalled = true;
+
+        return { data: { searchPostSuggestions: { hits: [] } } };
+      },
+    });
+
+    const { result } = renderHook(
+      () =>
+        useSearchProviderSuggestions({
+          provider: SearchProviderEnum.Posts,
+          query: 'apples',
+          enabled: false,
+        }),
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
+
+    expect(queryCalled).toBe(false);
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.suggestions).toBeUndefined();
+  });
+
+  it('should include the search version in the query key', () => {
+    const { result } = renderHook(
+      () =>
+        useSearchProviderSuggestions({
+          provider: SearchProviderEnum.Posts,
+          query: 'apples',
+        }),
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    expect(result.current.queryKey[3]).toMatchObject({ version: 2 });
   });
 });
