@@ -10,6 +10,7 @@ import {
 import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { oneDay } from '../../../lib/dateFormat';
 import { useAgentShellHeight } from '../shell';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
@@ -52,6 +53,7 @@ export const AgentWorkspace = ({
     isHistoryPending,
     isRunView,
     isHistoryLimited,
+    advanceOnboarding,
   } = useAgent();
   const shellHeight = useAgentShellHeight(isStandalone);
   const [storedWidth, setStoredWidth, isWidthLoaded] =
@@ -192,6 +194,37 @@ export const AgentWorkspace = ({
     // The reply landing is the trigger; the length is the other effect's.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTailPending]);
+
+  // "Press Enter" has to hold anywhere on the screen, not just in the composer,
+  // whose own handler only fires while the field is focused. Controls that
+  // activate on Enter are left alone below; a pointer-clicked chip blurs itself
+  // so that its Enter reaches here rather than un-picking the chip.
+  useKeyboardNavigation(
+    globalThis?.window,
+    [
+      [
+        'Enter',
+        (event) => {
+          const target = event.target as HTMLElement | null;
+
+          // A focused control activates on Enter by way of the default action,
+          // so preventing it here would cancel the press instead of helping.
+          // They all run the same actions anyway.
+          if (
+            event.shiftKey ||
+            target?.closest('button, a, select, [role="button"]')
+          ) {
+            return;
+          }
+
+          if (advanceOnboarding()) {
+            event.preventDefault();
+          }
+        },
+      ],
+    ],
+    { disableOnTags: ['input', 'textarea'], disabledModalOpened: true },
+  );
 
   useEffect(() => {
     const measure = () => {

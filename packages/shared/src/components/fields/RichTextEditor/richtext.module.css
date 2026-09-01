@@ -86,7 +86,9 @@
 
   /* Tiptap ProseMirror specific */
   & :global(.ProseMirror) {
-    @apply outline-none min-h-[6rem];
+    /* flex-1, not a min-height (it would stack on `minHeightClassName`) nor
+       `height: 100%` (it resolves to nothing under a min-height-only ancestor). */
+    @apply outline-none flex-1;
   }
 
   & :global(.ProseMirror-focused) {

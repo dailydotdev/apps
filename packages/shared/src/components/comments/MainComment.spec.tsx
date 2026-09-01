@@ -209,6 +209,26 @@ it('should render the comment box', async () => {
   expect(commentBox).toBeInTheDocument();
 });
 
+it('opens the mobile reply composer as a full-screen drawer by default', async () => {
+  mockUseViewSize.mockImplementation(() => false);
+  renderLayout({}, loggedUser);
+  const el = await screen.findByLabelText('Reply');
+  el.click();
+
+  await screen.findAllByRole('textbox');
+  expect(screen.getByRole('dialog')).toBeInTheDocument();
+});
+
+it('keeps the mobile reply composer inline with forceInlineComposer', async () => {
+  mockUseViewSize.mockImplementation(() => false);
+  renderLayout({ forceInlineComposer: true }, loggedUser);
+  const el = await screen.findByLabelText('Reply');
+  el.click();
+
+  await screen.findAllByRole('textbox');
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+});
+
 it('should block the reply composer and call onReplyBlocked when canReply is false', async () => {
   const onReplyBlocked = jest.fn();
   renderLayout({ canReply: false, onReplyBlocked }, loggedUser);

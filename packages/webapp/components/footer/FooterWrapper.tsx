@@ -6,12 +6,7 @@ import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-
-const NewComment = dynamic(() =>
-  import(
-    /* webpackChunkName: "newComment" */ '@dailydotdev/shared/src/components/post/NewComment'
-  ).then((mod) => mod.NewComment),
-);
+import { useActivePostContext } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 
 const MobilePostFloatingBar = dynamic(() =>
   import(
@@ -30,13 +25,6 @@ const MobileFooterNavbar = dynamic(
     import(/* webpackChunkName: "mobileFooterNavbar" */ './MobileFooterNavbar'),
 );
 
-const CommentInputOrModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "commentInputOrModal" */ '@dailydotdev/shared/src/components/comments/CommentInputOrModal'
-    ),
-);
-
 interface FooterNavBarProps {
   showNav?: boolean;
   post?: Post;
@@ -47,6 +35,7 @@ export default function FooterWrapper({
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
+  const { requestOpenComment } = useActivePostContext();
 
   const showPlusButton =
     !router?.pathname?.startsWith('/settings') &&
@@ -66,16 +55,9 @@ export default function FooterWrapper({
       </div>
       {post && post.type !== PostType.Brief && (
         <div className="my-2 w-full px-2 tablet:hidden">
-          <NewComment
+          <MobilePostFloatingBar
             post={post}
-            shouldHandleCommentQuery
-            CommentInputOrModal={CommentInputOrModal}
-            renderTrigger={({ onCommentClick }) => (
-              <MobilePostFloatingBar
-                post={post}
-                onCommentClick={onCommentClick}
-              />
-            )}
+            onCommentClick={(origin) => requestOpenComment?.(origin)}
           />
         </div>
       )}

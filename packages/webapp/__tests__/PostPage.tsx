@@ -42,6 +42,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import type { AllTagCategoriesData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
@@ -578,7 +579,7 @@ it('should send cancel upvote mutation', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should open new comment modal and set the correct props', async () => {
+it('should open the comment composer inline on the page', async () => {
   renderPost();
   // Wait for GraphQL to return
   await screen.findByText('Learn SQL');
@@ -586,6 +587,24 @@ it('should open new comment modal and set the correct props', async () => {
   fireEvent.click(el);
   const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();
+});
+
+it('should open the comment composer when the mobile floating bar requests it', async () => {
+  renderPost();
+  await screen.findByText('Learn SQL');
+
+  const commentButton = await waitFor(() => {
+    const el = document.getElementById('mobile-comment-post-btn');
+    if (!el) {
+      throw new Error('mobile comment button not rendered');
+    }
+    return el;
+  });
+  fireEvent.click(commentButton);
+
+  expect(
+    await screen.findByRole('form', { name: 'Comment' }),
+  ).toBeInTheDocument();
 });
 
 it('should not show stats when they are zero', async () => {
@@ -1206,5 +1225,45 @@ describe('isPostDetailPath (ad navigation boundary)', () => {
     expect(isPostDetailPath('/posts/upvoted')).toBe(false);
     expect(isPostDetailPath('/posts')).toBe(false);
     expect(isPostDetailPath('/my-feed')).toBe(false);
+  });
+});
+
+describe('post query failures', () => {
+  const createPostErrorMock = (
+    code: ApiError,
+  ): MockedGraphQLResponse<PostData> => ({
+    request: {
+      query: POST_BY_ID_QUERY,
+      variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+    },
+    result: {
+      errors: [
+        {
+          message: 'Access denied!',
+          extensions: { code },
+        },
+      ] as never,
+    },
+  });
+
+  it('should render the private discussion screen for a forbidden post', async () => {
+    renderPost({}, [
+      createPostErrorMock(ApiError.Forbidden),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByText('Oops! This link leads to a private discussion'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('notFound')).not.toBeInTheDocument();
+  });
+
+  it('should render 404 when the post is missing', async () => {
+    renderPost({}, [
+      createPostErrorMock(ApiError.NotFound),
+      createCommentsMock(),
+    ]);
+
+    expect(await screen.findByTestId('notFound')).toBeInTheDocument();
   });
 });

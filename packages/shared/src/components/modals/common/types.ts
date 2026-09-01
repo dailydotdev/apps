@@ -31,7 +31,6 @@ export enum LazyModal {
   RepostsPopup = 'repostsPopup',
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
-  CreateSharedPost = 'createSharedPost',
   SmartComposer = 'smartComposer',
   ReasonSelection = 'reasonSelection',
   ReportPost = 'reportPost',
