@@ -29,33 +29,37 @@ export const SearchResultsLayout = (
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const {
-    query: { q: query },
+    query: { q },
     push,
   } = useRouter();
   const { logEvent } = useLogContext();
+  const query = typeof q === 'string' ? q : '';
 
   const { isLoading: isTagsLoading, suggestions: suggestedTags } =
     useSearchProviderSuggestions({
-      query: `${query}`,
+      query,
       provider: SearchProviderEnum.Tags,
       limit: 10,
+      enabled: isSearchPageLaptop,
     });
   const tags = suggestedTags?.hits.flatMap(({ id }) => (id ? [id] : [])) ?? [];
 
   const { isLoading: isSourcesLoading, suggestions: suggestedSources } =
     useSearchProviderSuggestions({
-      query: `${query}`,
+      query,
       provider: SearchProviderEnum.Sources,
       limit: 10,
+      enabled: isSearchPageLaptop,
     });
   const sources = suggestedSources?.hits ?? [];
 
   const { isLoading: isUsersLoading, suggestions: suggestedUsers } =
     useSearchProviderSuggestions({
-      query: `${query}`,
+      query,
       provider: SearchProviderEnum.Users,
       limit: 10,
       includeContentPreference: true,
+      enabled: isSearchPageLaptop,
     });
 
   const users = suggestedUsers?.hits ?? [];

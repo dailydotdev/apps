@@ -19,14 +19,20 @@ import {
 interface SearchCommandsContext {
   router: Pick<NextRouter, 'push'>;
   query: string;
+  scope?: SpotlightScope;
 }
 
 export interface SpotlightSearchCommands {
+  /** True while any provider relevant to the active scope is still loading. */
   isLoading: boolean;
   posts: SpotlightCommand[];
+  postsLoading: boolean;
   tags: SpotlightCommand[];
+  tagsLoading: boolean;
   sources: SpotlightCommand[];
+  sourcesLoading: boolean;
   users: SpotlightCommand[];
+  usersLoading: boolean;
   /** Always-on fallthrough rows, shown even while suggestions are loading. */
   fallthrough: SpotlightCommand[];
 }
@@ -182,31 +188,51 @@ const buildFallthrough = (
   ];
 };
 
+const scopeProviders: Record<SpotlightScope, SearchProviderEnum[]> = {
+  [SpotlightScope.All]: [
+    SearchProviderEnum.Posts,
+    SearchProviderEnum.Tags,
+    SearchProviderEnum.Sources,
+    SearchProviderEnum.Users,
+  ],
+  [SpotlightScope.Actions]: [],
+  [SpotlightScope.Posts]: [SearchProviderEnum.Posts],
+  [SpotlightScope.Squads]: [SearchProviderEnum.Sources],
+  [SpotlightScope.People]: [SearchProviderEnum.Users],
+  [SpotlightScope.Tags]: [SearchProviderEnum.Tags],
+};
+
 export const useSpotlightSearchCommands = ({
   router,
   query,
+  scope = SpotlightScope.All,
 }: SearchCommandsContext): SpotlightSearchCommands => {
   const trimmed = query.trim();
+  const providers = scopeProviders[scope];
 
   const { suggestions: postHits, isLoading: postsLoading } =
     useSearchProviderSuggestions({
       provider: SearchProviderEnum.Posts,
       query: trimmed,
+      enabled: providers.includes(SearchProviderEnum.Posts),
     });
   const { suggestions: tagHits, isLoading: tagsLoading } =
     useSearchProviderSuggestions({
       provider: SearchProviderEnum.Tags,
       query: trimmed,
+      enabled: providers.includes(SearchProviderEnum.Tags),
     });
   const { suggestions: sourceHits, isLoading: sourcesLoading } =
     useSearchProviderSuggestions({
       provider: SearchProviderEnum.Sources,
       query: trimmed,
+      enabled: providers.includes(SearchProviderEnum.Sources),
     });
   const { suggestions: userHits, isLoading: usersLoading } =
     useSearchProviderSuggestions({
       provider: SearchProviderEnum.Users,
       query: trimmed,
+      enabled: providers.includes(SearchProviderEnum.Users),
     });
 
   return useMemo(() => {
@@ -224,26 +250,44 @@ export const useSpotlightSearchCommands = ({
     );
 
     const withSeeAll = (
-      scope: SeeAllScope,
+      seeAllScope: SeeAllScope,
       items: SpotlightCommand[],
     ): SpotlightCommand[] =>
       items.length > 0 && trimmed
-        ? [...items, buildSeeAllCommand(scope, trimmed, router)]
+        ? [...items, buildSeeAllCommand(seeAllScope, trimmed, router)]
         : items;
+
+    const isQueryLongEnough = trimmed.length >= minSearchQueryLength;
+    const loadingFor = (
+      provider: SearchProviderEnum,
+      isProviderLoading: boolean,
+    ) => isQueryLongEnough && providers.includes(provider) && isProviderLoading;
+
+    const isPostsLoading = loadingFor(SearchProviderEnum.Posts, postsLoading);
+    const isTagsLoading = loadingFor(SearchProviderEnum.Tags, tagsLoading);
+    const isSourcesLoading = loadingFor(
+      SearchProviderEnum.Sources,
+      sourcesLoading,
+    );
+    const isUsersLoading = loadingFor(SearchProviderEnum.Users, usersLoading);
 
     return {
       isLoading:
-        trimmed.length >= minSearchQueryLength &&
-        (postsLoading || tagsLoading || sourcesLoading || usersLoading),
+        isPostsLoading || isTagsLoading || isSourcesLoading || isUsersLoading,
       posts: withSeeAll(SpotlightScope.Posts, posts),
+      postsLoading: isPostsLoading,
       tags: withSeeAll(SpotlightScope.Tags, tags),
+      tagsLoading: isTagsLoading,
       sources: withSeeAll(SpotlightScope.Squads, sources),
+      sourcesLoading: isSourcesLoading,
       users: withSeeAll(SpotlightScope.People, users),
+      usersLoading: isUsersLoading,
       fallthrough: buildFallthrough(trimmed, router),
     };
   }, [
     trimmed,
     router,
+    providers,
     postHits,
     postsLoading,
     tagHits,
