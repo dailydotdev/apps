@@ -6,108 +6,166 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons';
+import type { DeviceName } from '../surfaceChrome';
 import {
   AVATAR,
   Category,
   Control,
+  Device,
   OverflowMenu,
-  Screen,
+  Rail,
   SurfacePage,
   Variant,
 } from '../surfaceChrome';
 
-const InviteScreen = ({
-  spot,
+type Spot = 'today' | 'snapshot' | 'lead';
+
+/* ------------------------------------------------------------------ invite */
+
+const TARGETS = [
+  ['X', 'bg-text-primary'],
+  ['WhatsApp', 'bg-accent-avocado-default'],
+  ['Facebook', 'bg-accent-bun-default'],
+  ['Reddit', 'bg-accent-ketchup-default'],
+  ['LinkedIn', 'bg-accent-blueCheese-default'],
+  ['Telegram', 'bg-accent-water-default'],
+  ['Email', 'bg-accent-burger-default'],
+];
+
+const Section = ({
+  title,
+  description,
+  children,
 }: {
-  spot: 'today' | 'labeled' | 'onboarding';
+  title: string;
+  description: string;
+  children?: React.ReactNode;
 }) => (
-  <Screen>
-    <div className="flex flex-col gap-4 p-6">
-      {spot === 'onboarding' && (
-        <span className="font-bold uppercase text-text-quaternary typo-caption2">
-          Step 4 of 5
-        </span>
-      )}
-      <div className="flex flex-col gap-1">
-        <span className="font-bold text-text-primary typo-title3">
-          {spot === 'onboarding'
-            ? 'Invite 3 friends'
-            : 'Come read with me on daily.dev'}
-        </span>
-        <span className="text-text-tertiary typo-footnote">
-          We both get a month of Plus
-        </span>
-      </div>
-
-      {spot === 'onboarding' && (
-        <div className="flex gap-2">
-          {[0, 1, 2].map((slot) => (
-            <span
-              key={slot}
-              className="flex size-10 items-center justify-center rounded-full border border-dashed border-border-subtlest-tertiary text-text-quaternary typo-footnote"
-            >
-              +
-            </span>
-          ))}
-        </div>
-      )}
-
-      <div className="flex items-center gap-2 rounded-10 bg-surface-float p-2">
-        <span className="min-w-0 flex-1 truncate text-text-tertiary typo-caption1">
-          dly.to/tomer
-        </span>
-        {spot === 'today' ? (
-          <Control action="Link" />
-        ) : (
-          <Control action="Link" label variant={ButtonVariant.Primary} />
-        )}
-      </div>
-
-      {spot !== 'today' && (
-        <div className="flex items-center gap-2">
-          <span className="flex-1 text-text-quaternary typo-caption1">
-            Or send the card
-          </span>
-          <Control action="Snapshot" label variant={ButtonVariant.Float} />
-        </div>
-      )}
-    </div>
-  </Screen>
+  <section className="flex flex-col gap-1">
+    <h2 className="font-bold text-text-primary typo-body">{title}</h2>
+    <p className="text-text-tertiary typo-callout">{description}</p>
+    {children}
+  </section>
 );
 
-const FeedExportScreen = ({
+/**
+ * /settings/invite: three AccountContentSections. The link comes as a
+ * TextField labelled "Your unique invite URL" with a Primary Copy link
+ * action button, then "or invite via" and the SocialShareList row.
+ */
+const InviteScreen = ({
+  device,
   spot,
 }: {
-  spot: 'today' | 'header' | 'labeled';
+  device: DeviceName;
+  spot: Spot;
 }) => (
-  <Screen>
-    <div className="flex flex-col gap-3 p-4">
-      <div className="relative flex items-center gap-3">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate font-bold text-text-primary typo-title3">
-            My feed
+  <Device name={device}>
+    <div className="flex flex-col gap-6 p-4">
+      <h1 className="font-bold text-text-primary typo-title2">
+        Invite friends
+      </h1>
+
+      <Section
+        description="Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals list below."
+        title="Grow the community"
+      />
+
+      <Section
+        description="Copy your personal link or share it directly on social platforms."
+        title="Share your invite link"
+      >
+        <div className="mt-4 flex flex-col gap-1">
+          <span className="text-text-tertiary typo-caption1">
+            Your unique invite URL
           </span>
-          <span className="text-text-quaternary typo-caption1">
-            Top 20 posts this week
-          </span>
+          <div className="flex items-center gap-2 rounded-14 border border-border-subtlest-secondary px-3 py-2">
+            <span className="min-w-0 flex-1 truncate text-text-primary typo-body">
+              dly.to/tomer
+            </span>
+            <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
+              Copy link
+            </Button>
+          </div>
         </div>
-        {spot === 'header' && <Control action="Snapshot" />}
-        {spot === 'labeled' && (
+
+        <span className="my-4 block p-0.5 font-bold text-text-tertiary typo-callout">
+          or invite via
+        </span>
+
+        <div className="flex flex-row flex-wrap gap-2 gap-y-4">
+          {TARGETS.slice(0, device === 'Mobile' ? 5 : 7).map(
+            ([label, tone]) => (
+              <div key={label} className="flex w-16 flex-col items-center gap-1">
+                <span className={`size-10 rounded-full ${tone}`} />
+                <span className="text-text-tertiary typo-caption2">
+                  {label}
+                </span>
+              </div>
+            ),
+          )}
+          {spot !== 'today' && (
+            <div className="flex w-16 flex-col items-center gap-1">
+              <Control
+                action="Snapshot"
+                size={ButtonSize.Medium}
+                variant={
+                  spot === 'lead'
+                    ? ButtonVariant.Primary
+                    : ButtonVariant.Secondary
+                }
+              />
+              <span className="text-text-tertiary typo-caption2">Card</span>
+            </div>
+          )}
+        </div>
+      </Section>
+
+      <Section
+        description="Developers who joined through your invite link"
+        title="Your referrals"
+      >
+        <div className="mt-3 flex flex-col gap-2">
+          {['Bobby Iliev', 'Ante Barić'].map((name) => (
+            <div key={name} className="flex items-center gap-3">
+              <img
+                alt=""
+                className="size-8 rounded-full object-cover"
+                src={AVATAR}
+              />
+              <span className="text-text-primary typo-callout">{name}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+    </div>
+  </Device>
+);
+
+/* -------------------------------------------------------------- copy feed */
+
+const FeedScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
+  <Device name={device}>
+    <div className="flex flex-col gap-3 p-4">
+      <div className="relative flex items-center gap-2">
+        <h1 className="flex-1 font-bold text-text-primary typo-title2">
+          My feed
+        </h1>
+        {spot === 'snapshot' && <Control action="Snapshot" />}
+        {spot === 'lead' && (
           <Control action="Snapshot" label variant={ButtonVariant.Primary} />
         )}
+        <Button
+          aria-label="Feed settings"
+          icon={<MenuIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
         {spot === 'today' && (
-          <>
-            <Button
-              aria-label="Options"
-              icon={<MenuIcon />}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-            />
-            <OverflowMenu
-              highlight="Share"
-              items={['Share', 'Add to custom feed']}
-            />
-          </>
+          <OverflowMenu
+            className="right-0 top-9"
+            items={['Feed settings', 'Manage tags']}
+          />
         )}
       </div>
 
@@ -117,75 +175,96 @@ const FeedExportScreen = ({
         'Postgres is all you need, again',
       ].map((title) => (
         <div key={title} className="flex items-center gap-3">
-          <img alt="" className="size-7 rounded-full object-cover" src={AVATAR} />
-          <span className="min-w-0 flex-1 truncate text-text-primary typo-caption1">
-            {title}
-          </span>
+          <div className="size-12 shrink-0 rounded-12 bg-surface-float" />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate text-text-primary typo-callout">
+              {title}
+            </span>
+            <span className="text-text-tertiary typo-footnote">
+              XDA Developers · 4 min read
+            </span>
+          </div>
         </div>
       ))}
     </div>
-  </Screen>
+  </Device>
+);
+
+/* -------------------------------------------------------------------- page */
+
+const Rails = ({
+  Screen,
+  spot,
+}: {
+  Screen: React.ComponentType<{ device: DeviceName; spot: Spot }>;
+  spot: Spot;
+}) => (
+  <Rail>
+    <Screen device="Desktop" spot={spot} />
+    <Screen device="Tablet" spot={spot} />
+    <Screen device="Mobile" spot={spot} />
+  </Rail>
 );
 
 const InviteAndFeed = () => (
   <SurfacePage
-    intro="Two surfaces whose entire purpose is sending something outward, and they sit at opposite ends of the payload question: the invite is worthless without a clickable URL, and the feed export has no URL anyone else can open."
+    intro="Two surfaces whose entire purpose is sending something outward, at opposite ends of the payload question: the invite is worthless without a clickable URL, and the feed export has no URL anyone else can open."
     map="Sharing map: Copy link leads the invite (#6366) — an image of a referral cannot be clicked. Snapshot leads Copy my feed (#6362), because your feed is yours and there is nothing to link to."
     title="Invite & feed export"
   >
     <Category
-      covers="#6366 · invite a friend · blocked on backend"
-      title="Invite a friend"
-      verdict="Link leads and always will. Placement, not styling, is the lever — the reward only means something while the account is new."
+      covers="pages/settings/invite.tsx · InviteLinkInput.tsx · SocialShareList.tsx"
+      title="Invite friends"
+      verdict="Corrected: this page is not a quiet icon. It is three sections, a TextField labelled ‘Your unique invite URL’ with a Primary ‘Copy link’ action button, then ‘or invite via’ and the full seven-target social row. The reward copy I had drawn belongs to #6366's onboarding step, which is blocked on backend and does not exist here."
     >
       <Variant
-        headline="A quiet icon on the invite screen"
-        note="The referral link is the product here, and it looks like a footnote."
+        headline="Copy link, then seven targets"
+        note="Already the most complete share UI in the product. Note SocialShareList runs here without its own copy button — the TextField owns that job — so the row is targets only."
         step="Today"
       >
-        <InviteScreen spot="today" />
+        <Rails Screen={InviteScreen} spot="today" />
       </Variant>
       <Variant
-        headline="Filled copy button, snapshot beside it"
-        note="Recommended. The link leads; the card gives the invite something to look at in a chat window."
+        headline="Snapshot as an eighth target"
+        note="Recommended, and deliberately last: an image of a referral cannot be clicked, so it can only ever accompany the link. Slotting it into the existing row costs no new layout."
         step="Recommended"
       >
-        <InviteScreen spot="labeled" />
+        <Rails Screen={InviteScreen} spot="snapshot" />
       </Variant>
       <Variant
-        headline="An onboarding step, not a settings page"
-        note="The highest-leverage change on this page and the only one that is not a frontend decision — needs the funnel step and a Plus-grant mechanism."
+        headline="Snapshot filled in the target row"
+        note="Makes the card the most prominent thing in a row whose other seven items all carry the link. Hard to justify unless the card itself carries a short URL."
         step="Push"
       >
-        <InviteScreen spot="onboarding" />
+        <Rails Screen={InviteScreen} spot="lead" />
       </Variant>
     </Category>
 
     <Category
-      covers="#6362 · copy my feed"
+      covers="#6362 · copy my feed · not built"
       title="Copy my feed"
-      verdict="A capability nobody is looking for, so it needs a label the first time they meet it."
+      verdict="Nothing exists yet. The feed header carries settings and nothing else, so whatever ships here is the first share control on the surface rather than a promotion of a buried one."
     >
       <Variant
-        headline="Does not exist"
-        note="Your feed is the most personal thing in the product and it has no export at all."
+        headline="A settings menu, and no export"
+        note="Your feed is the most personal thing in the product and it cannot leave in any form."
         step="Today"
       >
-        <FeedExportScreen spot="today" />
+        <Rails Screen={FeedScreen} spot="today" />
       </Variant>
       <Variant
         headline="Snapshot in the feed header"
         note="Consistent with every other header control, and easy to miss on a surface where nobody is looking for it."
         step="Recommended"
       >
-        <FeedExportScreen spot="header" />
+        <Rails Screen={FeedScreen} spot="snapshot" />
       </Variant>
       <Variant
         headline="Labeled and filled"
-        note="A new capability has to announce itself once. Worth shipping labeled, then quietening it after the first weeks of discovery."
+        note="A capability nobody is looking for has to announce itself once. Worth shipping labeled, then quietening it after the first weeks of discovery."
         step="Push"
       >
-        <FeedExportScreen spot="labeled" />
+        <Rails Screen={FeedScreen} spot="lead" />
       </Variant>
     </Category>
   </SurfacePage>

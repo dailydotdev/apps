@@ -135,6 +135,12 @@ const AchievementScreen = ({
   </Screen>
 );
 
+/**
+ * UserTopList rows: a w-14 tabular score, TopRankBadge, an optional level
+ * ring, then UserHighlight (32px avatar, caption1 name, caption2 handle).
+ * The snapshot is `opacity-0 group-hover:opacity-100` at XSmall Float —
+ * shipped, and invisible on touch.
+ */
 const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
   <Screen>
     <div className="flex flex-col gap-3 p-4">
@@ -152,37 +158,56 @@ const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
         </div>
       )}
 
-      <span className="font-bold text-text-primary typo-footnote">
+      <h3 className="mb-2 font-bold text-text-primary typo-title3">
         Highest level
-      </span>
+      </h3>
 
-      {['Bobby Iliev', 'Ante Barić', 'Ido Shamun'].map((name, index) => (
-        <div
-          key={name}
-          className={`flex items-center gap-3 rounded-10 px-2 py-2 ${
-            index === 0 && spot === 'hover' ? 'bg-surface-float' : ''
-          }`}
-        >
-          <span className="w-5 font-bold text-text-tertiary typo-caption1">
-            #{index + 1}
-          </span>
-          <img
-            alt=""
-            className="size-7 rounded-full object-cover"
-            src={AVATAR}
-          />
-          <span className="min-w-0 flex-1 truncate text-text-primary typo-footnote">
-            {name}
-          </span>
-          {index === 0 && spot === 'hover' ? (
-            <Control action="Snapshot" />
-          ) : (
-            <span className="font-bold text-text-tertiary typo-caption1">
-              {103 - index * 4}
+      <ol className="flex flex-col gap-1.5 typo-body">
+        {[
+          ['Bobby Iliev', 'bobbyiliev', 103],
+          ['Ante Barić', 'antebaric', 99],
+          ['Ido Shamun', 'idoshamun', 95],
+        ].map(([name, handle, score], index) => (
+          <li
+            key={handle as string}
+            className={`group flex w-full flex-row items-center rounded-8 px-2 ${
+              index === 0 && spot === 'hover'
+                ? 'bg-accent-pepper-subtler'
+                : ''
+            }`}
+          >
+            <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
+              {score}
             </span>
-          )}
-        </div>
-      ))}
+            <span className="flex size-6 shrink-0 items-center justify-center text-text-tertiary typo-caption1">
+              {index === 0 ? '🥇' : `#${index + 1}`}
+            </span>
+            <div className="flex min-w-0 shrink items-center gap-2 p-2">
+              <img
+                alt=""
+                className="size-8 rounded-full object-cover"
+                src={AVATAR}
+              />
+              <div className="ml-2 flex min-w-0 flex-col">
+                <span className="truncate text-text-primary typo-caption1">
+                  {name}
+                </span>
+                <span className="truncate text-text-tertiary typo-caption2">
+                  @{handle}
+                </span>
+              </div>
+            </div>
+            {index === 0 && spot === 'hover' && (
+              <Control
+                action="Snapshot"
+                className="ml-auto"
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Float}
+              />
+            )}
+          </li>
+        ))}
+      </ol>
     </div>
   </Screen>
 );
@@ -252,7 +277,7 @@ const StatusMoments = () => (
     <Category
       covers="#6359 · leaderboard row"
       title="Your leaderboard rank"
-      verdict="Hover reveal is invisible on touch. Whatever we ship has to work without a mouse."
+      verdict="The shipped control is `opacity-0 group-hover:opacity-100` at XSmall Float, pinned right with ml-auto. It works on desktop and does not exist on touch — the third hover-gated share control in the product, after the achievement card and the squad directory card."
     >
       <Variant
         headline="Nothing on your own row"
@@ -263,7 +288,7 @@ const StatusMoments = () => (
       </Variant>
       <Variant
         headline="Snapshot revealed on your row"
-        note="Built and live. Clean on desktop, and completely absent on mobile — which is most of the audience."
+        note="Built and live. The row is score, rank badge, avatar, name and handle; the snapshot fades in on the right. Clean on desktop, completely absent on mobile — which is most of the audience."
         step="Recommended"
       >
         <RankScreen spot="hover" />
