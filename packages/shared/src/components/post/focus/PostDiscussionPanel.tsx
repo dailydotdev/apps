@@ -212,7 +212,11 @@ export const PostDiscussionPanel = ({
         />
       </div>
       {areSharePromptsEnabled && (
-        <EndOfThreadShare commentsCount={commentsCount} post={post} />
+        <EndOfThreadShare
+          className="mt-2"
+          commentsCount={commentsCount}
+          post={post}
+        />
       )}
       {showMetaBar && (
         <div className="flex shrink-0 flex-col gap-3 pt-3">

@@ -672,8 +672,9 @@ const PostFocusCardRaw = ({
           />
 
           {/* Directly under the upvote that raises it — the classic page gets
-              this from PostEngagements, in the same place. */}
-          <PostContentShare post={post} />
+              this from PostEngagements, in the same place. No margin: this
+              column is gap-4, and one of its own would double the air above. */}
+          <PostContentShare className="" post={post} />
 
           {!onClose && <PostAnsweredQuestions post={article} />}
 

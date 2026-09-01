@@ -16,10 +16,17 @@ import { featurePostSharePrompts } from '../../../lib/featureManagement';
 
 interface PostContentShareProps {
   post: Post;
+  /**
+   * Spacing belongs to the host: PostContainer is a flex column with no gap
+   * and hand-rolls every margin, while the focus card's column already spaces
+   * its children. A margin that reads as even in one is lopsided in the other.
+   */
+  className?: string;
 }
 
 export function PostContentShare({
   post,
+  className = 'my-4',
 }: PostContentShareProps): ReactElement | null {
   const { onInteract, interaction } = usePostActions({ post });
   const { logOpts } = useActiveFeedContext();
@@ -38,16 +45,16 @@ export function PostContentShare({
 
   const onShare = useCallback(
     (provider: ShareProvider) => {
+      // Deliberately not dismissed: a copy is not always the end of it, and a
+      // prompt that vanishes under the cursor takes the second network with it.
       logEvent(
         postLogEvent(LogEvent.SharePost, post, {
           extra: { provider, origin: Origin.PostContent },
           ...(logOpts && logOpts),
         }),
       );
-      // The prompt has done its job; leaving it up nags.
-      onInteract('none');
     },
-    [logEvent, logOpts, onInteract, post],
+    [logEvent, logOpts, post],
   );
 
   if (interaction !== 'upvote' || isLoading) {
@@ -61,7 +68,7 @@ export function PostContentShare({
     // as one pair.
     return (
       <ShareBand
-        className="mt-6"
+        className={className}
         description="Send it to someone who’d have opinions."
         link={shareLink}
         onShare={onShare}
