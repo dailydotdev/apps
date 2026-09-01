@@ -53,13 +53,7 @@ const Section = ({
  * TextField labelled "Your unique invite URL" with a Primary Copy link
  * action button, then "or invite via" and the SocialShareList row.
  */
-const InviteScreen = ({
-  device,
-  spot,
-}: {
-  device: DeviceName;
-  spot: Spot;
-}) => (
+const InviteScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     <div className="flex flex-col gap-6 p-4">
       <h1 className="font-bold text-text-primary typo-title2">
@@ -103,20 +97,6 @@ const InviteScreen = ({
                 </span>
               </div>
             ),
-          )}
-          {spot !== 'today' && (
-            <div className="flex w-16 flex-col items-center gap-1">
-              <Control
-                action="Snapshot"
-                size={ButtonSize.Medium}
-                variant={
-                  spot === 'lead'
-                    ? ButtonVariant.Primary
-                    : ButtonVariant.Secondary
-                }
-              />
-              <span className="text-text-tertiary typo-caption2">Card</span>
-            </div>
           )}
         </div>
       </Section>
@@ -208,35 +188,25 @@ const Rails = ({
 
 const InviteAndFeed = () => (
   <SurfacePage
-    intro="Two surfaces whose entire purpose is sending something outward, at opposite ends of the payload question: the invite is worthless without a clickable URL, and the feed export has no URL anyone else can open."
+    intro="Two surfaces whose entire purpose is sending something outward, at opposite ends of the payload question. The invite is worthless without a clickable URL and already has a complete share UI, so it is here as a reference point. The feed export has no URL anyone else can open, and nothing at all."
     map="Sharing map: Copy link leads the invite (#6366) — an image of a referral cannot be clicked. Snapshot leads Copy my feed (#6362), because your feed is yours and there is nothing to link to."
     title="Invite & feed export"
   >
     <Category
       covers="pages/settings/invite.tsx · InviteLinkInput.tsx · SocialShareList.tsx"
       title="Invite friends"
-      verdict="Corrected: this page is not a quiet icon. It is three sections, a TextField labelled ‘Your unique invite URL’ with a Primary ‘Copy link’ action button, then ‘or invite via’ and the full seven-target social row. The reward copy I had drawn belongs to #6366's onboarding step, which is blocked on backend and does not exist here."
+      verdict="No change proposed. This page is already the most complete share UI in the product: a TextField labelled ‘Your unique invite URL’ with a Primary ‘Copy link’ action button, then ‘or invite via’ and the full seven-target social row. An image of a referral cannot be clicked, so snapshot has nothing to add here."
     >
       <Variant
         headline="Copy link, then seven targets"
-        note="Already the most complete share UI in the product. Note SocialShareList runs here without its own copy button — the TextField owns that job — so the row is targets only."
+        note="Note SocialShareList runs here without its own copy button — the TextField owns that job — so the row is targets only. The reward copy belongs to #6366's onboarding step, which is blocked on backend and does not exist on this page."
         step="Today"
       >
-        <Rails Screen={InviteScreen} spot="today" />
-      </Variant>
-      <Variant
-        headline="Snapshot as an eighth target"
-        note="Recommended, and deliberately last: an image of a referral cannot be clicked, so it can only ever accompany the link. Slotting it into the existing row costs no new layout."
-        step="Recommended"
-      >
-        <Rails Screen={InviteScreen} spot="snapshot" />
-      </Variant>
-      <Variant
-        headline="Snapshot filled in the target row"
-        note="Makes the card the most prominent thing in a row whose other seven items all carry the link. Hard to justify unless the card itself carries a short URL."
-        step="Push"
-      >
-        <Rails Screen={InviteScreen} spot="lead" />
+        <Rail>
+          <InviteScreen device="Desktop" />
+          <InviteScreen device="Tablet" />
+          <InviteScreen device="Mobile" />
+        </Rail>
       </Variant>
     </Category>
 
