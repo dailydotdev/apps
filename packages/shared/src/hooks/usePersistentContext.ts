@@ -3,9 +3,9 @@ import { get as getCache, set as setCache } from 'idb-keyval';
 
 function getAsyncCache<T>(
   key: string,
-  valueWhenCacheEmpty: T,
+  valueWhenCacheEmpty: T | null,
   validValues?: T[],
-): Promise<T> {
+): Promise<T | null> {
   return getCache<T>(key)
     .then((cachedValue) => {
       if (
@@ -57,7 +57,9 @@ export default function usePersistentContext<T>(
     },
   });
 
-  return [data ?? fallbackValue, updateValue, isFetched, isLoading];
+  // An empty cache with no fallback resolves to null, so callers that can hit
+  // that case pass a T which admits it (`usePersistentContext<string | null>`).
+  return [(data ?? fallbackValue) as T, updateValue, isFetched, isLoading];
 }
 
 export enum PersistentContextKeys {
