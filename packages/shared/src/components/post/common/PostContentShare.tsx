@@ -57,7 +57,7 @@ export function PostContentShare({
     [logEvent, logOpts, post],
   );
 
-  if (interaction !== 'upvote' || isLoading) {
+  if (interaction !== 'upvote') {
     return null;
   }
 
@@ -68,14 +68,26 @@ export function PostContentShare({
     // as one pair.
     return (
       <ShareBand
+        cid={ReferralCampaignKey.SharePost}
         className={className}
         description="Send it to someone who’d have opinions."
-        link={shareLink}
+        // The permalink, not the pre-fetched short URL: that query is disabled
+        // for signed-out readers and yields nothing when the shortener fails,
+        // and the undefined reached the share sheet as its title. The control
+        // shortens at press time and falls back to the tracked URL.
+        link={post.commentsPermalink}
         onShare={onShare}
         text={post.title ?? post.sharedPost?.title ?? ''}
         title="Should anyone else see this post?"
       />
     );
+  }
+
+  // Only the widget below waits on the pre-fetched short URL — it puts the
+  // link in an input, so it has nothing to show until the link exists. A
+  // disabled query stays pending forever, so this cannot gate the band.
+  if (isLoading) {
+    return null;
   }
 
   return (
