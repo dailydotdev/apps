@@ -53,8 +53,8 @@ export interface MainCommentProps
    */
   canReply?: boolean;
   onReplyBlocked?: () => void;
-  /** Inline reply/edit composers on small viewports too — the companion must
-   * not cover the host page. */
+  /** Inline reply/edit composers on small viewports too, so the companion
+   * never covers the host page. */
   forceInlineComposer?: boolean;
 }
 

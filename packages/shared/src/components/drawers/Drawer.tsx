@@ -103,14 +103,10 @@ function BaseDrawer({
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
-  // The native iOS shell draws the webview under the status bar and covers
-  // that strip with an opaque `body::before` (safeArea.css), so the overlay
-  // must start below `--safe-area-top` — a plain `top: offsetTop` hides the
-  // drawer header behind the cover, where it cannot be tapped. Feeding the
-  // visual-viewport offset through `--safe-area-top-offset` lets the
-  // safeArea.css rules keep both constraints.
-  // Height is pinned to 100vh (not the safeArea.css calc, which shrinks by
-  // the offset): even mid-pan the opaque cover must reach the keyboard.
+  // safeArea.css owns the top offset (an opaque `body::before` covers the
+  // status bar), so the viewport offset goes through its variable rather
+  // than an inline `top`. Height stays 100vh so the cover reaches the
+  // keyboard even mid-pan.
   const overlayKeyboardStyle =
     isFullScreen && viewportHeight
       ? ({
@@ -118,10 +114,9 @@ function BaseDrawer({
           height: '100vh',
         } as React.CSSProperties)
       : undefined;
-  // Only the wrapper tracks the visual viewport; the overlay keeps its full
-  // layout height so the page never shows through the translucent keyboard.
-  // --keyboard-inset lets content cancel the stale safe-area-inset-bottom
-  // that WKWebView keeps reporting while the keyboard covers it.
+  // Only the wrapper tracks the visual viewport. --keyboard-inset lets
+  // content cancel the safe-area-inset-bottom WKWebView keeps reporting
+  // while the keyboard covers the home indicator.
   const wrapperKeyboardStyle =
     isFullScreen && viewportHeight
       ? ({
@@ -213,10 +208,10 @@ function BaseDrawer({
     };
   }, [isFullScreen]);
 
-  // iOS pans the webview to reveal the focused input when the keyboard
-  // opens — a native scroll the body pin cannot stop (WKWebView extends the
-  // scroll range by the keyboard inset). Undoing it keeps the drawer's
-  // geometry static; the wrapper already keeps the caret above the keyboard.
+  // WKWebView extends the scroll range by the keyboard inset and pans to
+  // reveal the focused input, a native scroll the body pin cannot stop.
+  // Undoing it is safe: the wrapper already keeps the caret above the
+  // keyboard.
   useEffect(() => {
     if (!isFullScreen) {
       return undefined;
