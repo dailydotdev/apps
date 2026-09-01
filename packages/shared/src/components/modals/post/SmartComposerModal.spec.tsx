@@ -148,7 +148,6 @@ describe('SmartComposerModal', () => {
       preview: { url: 'https://daily.dev', title: 'daily.dev' },
       isLoadingPreview: false,
       fetchPreview: jest.fn(),
-      standupErrors: {},
     });
   });
 
@@ -214,7 +213,6 @@ describe('SmartComposerModal', () => {
       preview: undefined,
       isLoadingPreview: true,
       fetchPreview: jest.fn(),
-      standupErrors: {},
     });
 
     renderWithClient(

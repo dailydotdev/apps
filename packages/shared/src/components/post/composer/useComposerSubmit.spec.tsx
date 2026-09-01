@@ -2,12 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import type { FormEvent } from 'react';
 import { usePostToSquad } from '../../../hooks';
 import type { Squad } from '../../../graphql/sources';
-import {
-  DEFAULT_LINK,
-  DEFAULT_POLL,
-  DEFAULT_STANDUP,
-  DEFAULT_TEXT,
-} from './types';
+import { DEFAULT_LINK, DEFAULT_POLL, DEFAULT_TEXT } from './types';
 import { useComposerSubmit } from './useComposerSubmit';
 
 const mockOnUpdateSharePost = jest.fn();
@@ -35,10 +30,6 @@ jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: () => ({ user: { id: 'u1', username: 'me' } }),
 }));
 
-jest.mock('../../../hooks/liveRooms/useSubmitStandup', () => ({
-  useSubmitStandup: () => ({ submit: jest.fn(), isPending: false }),
-}));
-
 jest.mock('../../../features/squads/hooks/useMultipleSourcePost', () => ({
   useMultipleSourcePost: () => ({ onCreate: jest.fn(), isPending: false }),
 }));
@@ -54,7 +45,6 @@ const renderSubmit = (overrides: Partial<ComposerSubmitProps> = {}) =>
       text: DEFAULT_TEXT,
       link: { ...DEFAULT_LINK, commentary: '  updated take  ' },
       poll: DEFAULT_POLL,
-      standup: DEFAULT_STANDUP,
       cover: null,
       primary: squad,
       selectedIds: ['squad-1'],

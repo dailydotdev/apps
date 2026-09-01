@@ -79,7 +79,6 @@ import {
   JoystickIcon,
   LinkIcon,
   MegaphoneIcon,
-  MicrophoneIcon,
   MoveToIcon,
   NewPostIcon,
   PhoneIcon,
@@ -509,13 +508,6 @@ const createMenuOptions: {
     title: 'Poll',
     kind: 'poll',
     icon: (active) => <ListIcon Icon={() => <PollIcon secondary={active} />} />,
-  },
-  {
-    title: 'Live',
-    kind: 'standup',
-    icon: (active) => (
-      <ListIcon Icon={() => <MicrophoneIcon secondary={active} />} />
-    ),
   },
 ];
 
@@ -1288,6 +1280,23 @@ export const SidebarDesktopV2 = ({
     onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/');
   }, [isCustomDefaultFeed, onNavTabClick]);
 
+  // Shared by the brand mark and the Home button, which lead to the same feed.
+  // The extension's `onLogoClick` defaults the event and switches the feed in
+  // place, so running Home's handler afterwards would overwrite that with the
+  // default feed.
+  const onGoHome = useCallback(
+    (event: React.MouseEvent) => {
+      onLogoClick?.(event);
+
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      onHomeClick();
+    },
+    [onHomeClick, onLogoClick],
+  );
+
   // Remember the last non-settings location so "Back to app" returns the user
   // where they were rather than always dumping them on the home feed.
   const lastAppPathRef = useRef(webappUrl);
@@ -1985,7 +1994,7 @@ export const SidebarDesktopV2 = ({
           >
             <Tooltip
               side="right"
-              content="Home"
+              content="daily.dev"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
               {/* mt nudges the logo down so it lines up vertically with the
@@ -1995,66 +2004,45 @@ export const SidebarDesktopV2 = ({
                 <Link href={myFeedPath} passHref>
                   <a
                     href={myFeedPath}
-                    aria-label="Home"
-                    aria-current={isHomeActive ? 'page' : undefined}
-                    // The brand mark doubles as the Home button: the daily.dev
-                    // logo at rest, crossfading into the home glyph while the
-                    // pointer is anywhere on the rail (`group/rail`, set on the
-                    // nav) so the destination is obvious without having to
-                    // hover the mark itself. `group/home` scopes the
-                    // keyboard-focus swap and the direct-hover tint to this
-                    // button alone — an unnamed `group` here would also match
-                    // the sidebar-wide group on SidebarAside, which covers the
-                    // panel too.
-                    className="focus-outline group/home flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
-                    onClick={(event) => {
-                      // Keep the removed logo link's click contract — the
-                      // extension resets its feed/search state there.
-                      onLogoClick?.(event);
-                      // ONE owner for the destination. The extension's
-                      // `onLogoClick` defaults the event and switches the feed
-                      // in place (to My Feed on the new tab); running Home's
-                      // handler afterwards would immediately overwrite that
-                      // with the default feed, so the brand mark would stop
-                      // landing on My Feed. On the webapp `onLogoClick` is
-                      // undefined, so Home still owns the click.
-                      if (event.defaultPrevented) {
-                        return;
-                      }
-                      onHomeClick();
-                    }}
+                    aria-label="daily.dev"
+                    className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
+                    onClick={onGoHome}
                   >
                     <span className={railGlyphBoxClass}>
                       <LogoIcon
-                        className={{
-                          container:
-                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover/rail:scale-75 group-hover/rail:opacity-0 group-focus-visible/home:scale-75 group-focus-visible/home:opacity-0 motion-reduce:transition-none',
-                        }}
+                        className={{ container: 'h-[1.125rem] w-auto' }}
                       />
-                      <span
-                        aria-hidden
-                        className={classNames(
-                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover/rail:scale-100 group-hover/rail:opacity-100 group-focus-visible/home:scale-100 group-focus-visible/home:opacity-100 motion-reduce:transition-none',
-                          // Filled white when the feed IS the current page;
-                          // elsewhere it's an inactive grey outline that goes
-                          // white on direct hover — exactly how the Search icon
-                          // behaves. (The logo keeps its own fill, so this only
-                          // colours the home glyph.)
-                          isHomeActive
-                            ? 'text-text-primary'
-                            : 'text-text-tertiary group-hover/home:text-text-primary',
-                        )}
-                      >
-                        <HomeIcon
-                          secondary={isHomeActive}
-                          size={RAIL_ICON_SIZE}
-                          aria-hidden
-                        />
-                      </span>
                     </span>
                   </a>
                 </Link>
               </div>
+            </Tooltip>
+
+            <Tooltip
+              side="right"
+              content="Home"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <Link href={myFeedPath} passHref>
+                <a
+                  href={myFeedPath}
+                  aria-label="Home"
+                  aria-current={isHomeActive ? 'page' : undefined}
+                  className={classNames(
+                    'focus-outline flex size-10 items-center justify-center rounded-12 transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none',
+                    isHomeActive ? 'text-text-primary' : 'text-text-tertiary',
+                  )}
+                  onClick={onGoHome}
+                >
+                  <span className={railGlyphBoxClass}>
+                    <HomeIcon
+                      secondary={isHomeActive}
+                      size={RAIL_ICON_SIZE}
+                      aria-hidden
+                    />
+                  </span>
+                </a>
+              </Link>
             </Tooltip>
 
             <Tooltip
