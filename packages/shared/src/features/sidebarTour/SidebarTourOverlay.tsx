@@ -41,25 +41,34 @@ export const SidebarTourOverlay = ({
   const wasGroupOpenRef = useRef(false);
   const hasFocusedRef = useRef(false);
 
+  // The dock step's whole sentence is "or add it from the ••• menu", so opening
+  // that menu is the lesson being followed, not the user reaching past the
+  // tour. The tour leaves the rail's popup group for that one step: the tray
+  // then opens beside the card instead of evicting it, and the run survives.
+  const shouldHoldPopupGroup = isRunning && step?.id !== 'dock';
+
   useEffect(() => {
-    onUpdate(isRunning);
-  }, [isRunning, onUpdate]);
+    onUpdate(shouldHoldPopupGroup);
+  }, [onUpdate, shouldHoldPopupGroup]);
 
   // Another rail popup taking the group means the user reached past the tour
   // for something else, rather than leaving a card stranded under the dropdown
   // that just opened. It is not a dismissal, so the tour is owed another run.
+  // Gated on wanting the group rather than on the tour running: stepping onto
+  // the dock step releases it deliberately, and that must not read as an
+  // eviction.
   useEffect(() => {
     if (isOpen) {
       wasGroupOpenRef.current = true;
       return;
     }
 
-    if (wasGroupOpenRef.current && isRunning) {
+    if (wasGroupOpenRef.current && shouldHoldPopupGroup) {
       interrupt('popup');
     }
 
     wasGroupOpenRef.current = false;
-  }, [interrupt, isOpen, isRunning]);
+  }, [interrupt, isOpen, shouldHoldPopupGroup]);
 
   // The rail stays clickable above the scrim, so a tab or shortcut click
   // navigates out from under the tour. Without this the scrim and card ride

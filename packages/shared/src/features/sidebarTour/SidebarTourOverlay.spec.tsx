@@ -388,6 +388,30 @@ describe('sidebar tour wiring', () => {
       );
     });
 
+    it('survives the dock step opening the ••• tray it is teaching', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+      fireEvent.click(screen.getByText('Next'));
+      await screen.findByText(/add it from the/);
+
+      fireEvent.click(screen.getByLabelText('Customize shortcuts'));
+
+      // The tray takes the rail's popup group; the tour must not read that as
+      // the user reaching past it, or the step ends the moment it is followed.
+      await waitFor(() =>
+        expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument(),
+      );
+      expect(logEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.EndSidebarTour }),
+      );
+
+      fireEvent.click(screen.getByText('Next'));
+      expect(await screen.findByText('Got it')).toBeInTheDocument();
+    });
+
     it('offers the tour again from the support menu', async () => {
       renderRail(true);
 
