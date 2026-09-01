@@ -200,7 +200,7 @@ describe('PostFocusCard read CTA', () => {
   it('renders a single read CTA pointing at the source article', () => {
     renderCard(post);
 
-    const cta = screen.getAllByRole('link', { name: /Read the full article/ });
+    const cta = screen.getAllByRole('link', { name: /Read post/ });
     expect(cta).toHaveLength(1);
     expect(cta[0]).toHaveAttribute('href', post.permalink);
     expect(cta[0]).toHaveAttribute('target', '_blank');
@@ -209,9 +209,9 @@ describe('PostFocusCard read CTA', () => {
   it('does not render a read CTA on a native post', () => {
     renderCard(freeformPost);
 
-    expect(
-      screen.queryAllByRole('link', { name: /Read the full article/ }),
-    ).toHaveLength(0);
+    expect(screen.queryAllByRole('link', { name: /Read post/ })).toHaveLength(
+      0,
+    );
   });
 });
 

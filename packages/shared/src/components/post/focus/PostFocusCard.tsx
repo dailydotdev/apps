@@ -7,7 +7,6 @@ import {
   getReadArticleHref,
   getReadPostButtonText,
   isInternalReadType,
-  isPostOrSharedPostTwitter,
   isVideoPost,
   PostType,
 } from '../../../graphql/posts';
@@ -335,10 +334,7 @@ const PostFocusCardRaw = ({
     focusCommentRef.current();
   };
 
-  const readCtaLabel =
-    isVideoType || isPostOrSharedPostTwitter(post)
-      ? getReadPostButtonText(post)
-      : 'Read the full article';
+  const readCtaLabel = getReadPostButtonText(post);
   // The accessible name names the destination, which the visible label doesn't.
   const readCtaAccessibleLabel = article.domain
     ? `${readCtaLabel} on ${article.domain}`
