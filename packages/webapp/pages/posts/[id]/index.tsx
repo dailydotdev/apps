@@ -237,9 +237,9 @@ export const PostPage = ({
     },
   });
   const queryClient = useQueryClient();
-  const postError = (
-    isError ? queryClient.getQueryState(getPostByIdKey(id))?.error : undefined
-  ) as unknown as ApiErrorResult;
+  const postError = (isError
+    ? queryClient.getQueryState(getPostByIdKey(id))?.error
+    : undefined) as unknown as ApiErrorResult;
   const isRedesignEligible = isPostRedesignEligible(post);
   const { value: isRedesignFlagOn } = useConditionalFeature({
     feature: featurePostRedesign,
