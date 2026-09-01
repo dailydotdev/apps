@@ -86,7 +86,6 @@ const SUPPORTED_TYPES = [
   PostType.Collection,
   PostType.Share,
   PostType.Freeform,
-  PostType.LiveRoom,
 ];
 
 export interface TagTopicPageProps {

@@ -283,7 +283,6 @@ export enum RequestKey {
   MarketingCtas = 'marketing_ctas',
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
-  LiveRooms = 'live_rooms',
   LeaderboardPosition = 'leaderboard_position',
   UserWorld = 'user_world',
   UserWorldTimeline = 'user_world_timeline',

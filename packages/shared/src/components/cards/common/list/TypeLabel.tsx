@@ -12,7 +12,6 @@ const typeToClassName: Partial<Record<PostType, string>> = {
 
 const typeToLabel: Partial<Record<PostType, string>> = {
   [PostType.VideoYouTube]: 'Video',
-  [PostType.LiveRoom]: 'Standup',
 };
 
 const excludedTypes = new Set<PostType>([
