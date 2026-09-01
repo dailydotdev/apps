@@ -338,7 +338,7 @@ const PostFocusCardRaw = ({
   const readCtaLabel =
     isVideoType || isPostOrSharedPostTwitter(post)
       ? getReadPostButtonText(post)
-      : 'Read the full article';
+      : 'Read post';
   // The accessible name names the destination, which the visible label doesn't.
   const readCtaAccessibleLabel = article.domain
     ? `${readCtaLabel} on ${article.domain}`
