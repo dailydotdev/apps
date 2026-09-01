@@ -61,6 +61,7 @@ export interface DrawerOnMobileProps {
 // Drawers can stack; the page unlocks only when the last one leaves.
 let scrollLockCount = 0;
 let previousHtmlOverflow = '';
+let lockedScrollY = 0;
 
 // Escape must close only the top-most drawer of a stack.
 const drawerStack: symbol[] = [];
@@ -102,9 +103,29 @@ function BaseDrawer({
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
-  const keyboardSafeStyle =
+  // safeArea.css owns the top offset (an opaque `body::before` covers the
+  // status bar), so the viewport offset goes through its variable rather
+  // than an inline `top`. Height stays 100vh so the cover reaches the
+  // keyboard even mid-pan.
+  const overlayKeyboardStyle =
     isFullScreen && viewportHeight
-      ? { height: viewportHeight, top: offsetTop }
+      ? ({
+          '--safe-area-top-offset': `${offsetTop ?? 0}px`,
+          height: '100vh',
+        } as React.CSSProperties)
+      : undefined;
+  // Only the wrapper tracks the visual viewport. --keyboard-inset lets
+  // content cancel the safe-area-inset-bottom WKWebView keeps reporting
+  // while the keyboard covers the home indicator.
+  const wrapperKeyboardStyle =
+    isFullScreen && viewportHeight
+      ? ({
+          '--drawer-viewport-height': `${viewportHeight}px`,
+          '--keyboard-inset': `${Math.max(
+            0,
+            (globalThis.window?.innerHeight ?? 0) - viewportHeight,
+          )}px`,
+        } as React.CSSProperties)
       : undefined;
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
@@ -154,6 +175,13 @@ function BaseDrawer({
     // alone never reaches the viewport.
     if (scrollLockCount === 0) {
       previousHtmlOverflow = document.documentElement.style.overflow;
+      // WebKit's keyboard reveal scroll ignores `overflow: hidden`; pinning
+      // the body removes the scrollable range so the page cannot move at all.
+      lockedScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${lockedScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
     }
     scrollLockCount += 1;
     document.body.classList.add('hidden-scrollbar');
@@ -165,11 +193,62 @@ function BaseDrawer({
         return;
       }
       document.body.classList.remove('hidden-scrollbar');
+      document.body.style.removeProperty('position');
+      document.body.style.removeProperty('top');
+      document.body.style.removeProperty('left');
+      document.body.style.removeProperty('right');
       if (previousHtmlOverflow) {
         document.documentElement.style.overflow = previousHtmlOverflow;
       } else {
         document.documentElement.style.removeProperty('overflow');
       }
+      if (lockedScrollY) {
+        window.scrollTo(0, lockedScrollY);
+      }
+    };
+  }, [isFullScreen]);
+
+  // WKWebView extends the scroll range by the keyboard inset and pans to
+  // reveal the focused input, a native scroll the body pin cannot stop.
+  // Undoing it is safe: the wrapper already keeps the caret above the
+  // keyboard.
+  useEffect(() => {
+    if (!isFullScreen) {
+      return undefined;
+    }
+
+    const undoPan = () => {
+      if (window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+    // Touch pans reach the native scroller even from unscrollable content;
+    // block them unless an inner scroller (textarea, drawer body) owns them.
+    const onTouchMove = (e: TouchEvent) => {
+      let el = e.target as HTMLElement | null;
+      while (el && el !== e.currentTarget) {
+        if (el.scrollHeight > el.clientHeight) {
+          const { overflowY } = getComputedStyle(el);
+          if (overflowY === 'auto' || overflowY === 'scroll') {
+            return;
+          }
+        }
+        el = el.parentElement;
+      }
+      e.preventDefault();
+    };
+
+    const overlay = container.current?.parentElement;
+    window.addEventListener('scroll', undoPan);
+    window.visualViewport?.addEventListener('scroll', undoPan);
+    window.visualViewport?.addEventListener('resize', undoPan);
+    overlay?.addEventListener('touchmove', onTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('scroll', undoPan);
+      window.visualViewport?.removeEventListener('scroll', undoPan);
+      window.visualViewport?.removeEventListener('resize', undoPan);
+      overlay?.removeEventListener('touchmove', onTouchMove);
     };
   }, [isFullScreen]);
 
@@ -211,15 +290,13 @@ function BaseDrawer({
     <div
       className={classNames(
         'fixed z-modal transition-opacity duration-300 ease-in-out',
-        // Sized to the *visual* viewport: iOS never shrinks the layout
-        // viewport for the keyboard, so `inset-0` alone leaves the bottom
-        // actions underneath it.
-        isFullScreen ? 'inset-x-0 top-0 h-full' : 'inset-0',
-        !isFullScreen && 'bg-overlay-quaternary-onion',
+        isFullScreen
+          ? 'inset-x-0 top-0 h-full bg-background-default'
+          : 'inset-0 bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
-      style={keyboardSafeStyle}
+      style={overlayKeyboardStyle}
       onClick={handleOverlayClick}
     >
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
@@ -232,9 +309,14 @@ function BaseDrawer({
         }
         tabIndex={-1}
         onKeyDown={trapFocus}
+        // The height below beats `inset-0`'s bottom edge only while this
+        // variable is set; without it the calc is invalid and `inset-0` wins.
+        style={wrapperKeyboardStyle}
         className={classNames(
           'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
-          isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
+          isFullScreen
+            ? 'inset-0 h-[calc(var(--drawer-viewport-height)_-_var(--safe-area-top,0px))]'
+            : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
           !title && 'px-4 pt-3',

@@ -528,7 +528,7 @@ export function SmartComposerModal({
       inputId="smart_composer-push_notification-switch"
       name="push_notification"
       labelClassName="flex-1 font-normal"
-      className="py-1"
+      className="min-w-0 flex-1 py-1"
       compact={false}
       checked={isEnabled}
       onToggle={onToggle}

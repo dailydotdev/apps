@@ -53,6 +53,9 @@ export interface MainCommentProps
    */
   canReply?: boolean;
   onReplyBlocked?: () => void;
+  /** Inline reply/edit composers on small viewports too, so the companion
+   * never covers the host page. */
+  forceInlineComposer?: boolean;
 }
 
 const shouldShowBannerOnComment = (
@@ -77,6 +80,7 @@ export default function MainComment({
   isModalThread = false,
   canReply = true,
   onReplyBlocked,
+  forceInlineComposer = false,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -210,6 +214,7 @@ export default function MainComment({
         <CommentInput
           {...editProps}
           post={props.post}
+          forceInline={forceInlineComposer}
           onCommented={(...params) => {
             onEdit(null);
             onCommented?.(...params);
@@ -223,6 +228,7 @@ export default function MainComment({
           <CommentInput
             {...replyProps}
             post={props.post}
+            forceInline={forceInlineComposer}
             onCommented={(...params) => {
               onReplyTo(null);
               onCommented?.(...params);
@@ -291,6 +297,7 @@ export default function MainComment({
               extendTopConnector={isModalThread && commentId === comment.id}
               canReply={canReply}
               onReplyBlocked={onReplyBlocked}
+              forceInlineComposer={forceInlineComposer}
             />
           ))}
         </div>

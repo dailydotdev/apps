@@ -945,9 +945,11 @@ function RichTextInput(
       position={toolbarPosition}
       className={
         // The bar absorbs the device safe area itself; the drawer around it
-        // adds no bottom padding of its own (`!p-0`).
+        // adds no bottom padding of its own (`!p-0`). --keyboard-inset
+        // cancels the home-indicator inset WKWebView still reports while the
+        // keyboard covers it.
         isBottomToolbar
-          ? '!gap-3 !px-5 !pb-[max(1.25rem,env(safe-area-inset-bottom))] !pt-4'
+          ? '!gap-3 !px-5 !pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)_-_var(--keyboard-inset,0px)))] !pt-4'
           : undefined
       }
       leadingActions={toolbarLeading}

@@ -184,8 +184,10 @@ export function CommentMarkdownInputComponent(
           }
         }}
         className={{
+          // `overflow-clip`, not `overflow-hidden`: iOS's caret reveal
+          // scrolls hidden-overflow ancestors programmatically.
           container: classNames(
-            '!min-h-0 flex-1 overflow-hidden',
+            '!min-h-0 flex-1 overflow-clip',
             fills
               ? '!rounded-none !bg-transparent'
               : 'border border-border-subtlest-tertiary',
@@ -219,7 +221,7 @@ export function CommentMarkdownInputComponent(
             <Switch
               inputId="push_notification-switch"
               name="push_notification"
-              className="flex-1"
+              className="min-w-0 flex-1"
               labelClassName="flex-1 font-normal"
               compact={false}
               checked={isEnabled}
