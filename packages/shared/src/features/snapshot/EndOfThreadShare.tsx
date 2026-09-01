@@ -1,12 +1,17 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
 import { LinkIcon } from '../../components/icons';
-import { useCopyPostLink } from '../../hooks/useCopyPostLink';
+import { useCopyText } from '../../hooks/useCopy';
+import {
+  ToastType,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 import type { Post } from '../../graphql/posts';
 
 /**
@@ -21,7 +26,18 @@ export function EndOfThreadShare({
   post: Post;
   commentsCount: number;
 }): ReactElement | null {
-  const [, copyLink] = useCopyPostLink(post.commentsPermalink);
+  const [, copy] = useCopyText(post.commentsPermalink);
+  const { displayToast } = useToastNotification();
+
+  const onCopy = useCallback(async () => {
+    try {
+      await copy({ message: '✅ Copied link' });
+    } catch {
+      displayToast('❌ Your browser blocked the clipboard', {
+        variant: ToastType.Error,
+      });
+    }
+  }, [copy, displayToast]);
 
   // Nothing to be at the end of: an empty thread has no conversation to pass
   // on, and the band would just be a second copy-link button.
@@ -30,22 +46,22 @@ export function EndOfThreadShare({
   }
 
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-3 rounded-12 bg-surface-float p-3">
+    <div className="mt-6 flex flex-wrap items-center gap-3">
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="font-bold text-text-primary typo-footnote">
+        <span className="font-bold text-text-primary typo-callout">
           Enjoyed this discussion?
         </span>
-        <span className="text-text-tertiary typo-caption1">
-          {commentsCount} {commentsCount === 1 ? 'comment' : 'comments'} and
-          counting
+        <span className="text-text-tertiary typo-callout">
+          Send it to someone who&apos;d have opinions.
         </span>
       </div>
       <Button
         icon={<LinkIcon />}
-        onClick={() => copyLink()}
+        iconPosition={ButtonIconPosition.Right}
+        onClick={onCopy}
         size={ButtonSize.Small}
         type="button"
-        variant={ButtonVariant.Secondary}
+        variant={ButtonVariant.Primary}
       >
         Copy link
       </Button>

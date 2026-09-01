@@ -84,6 +84,15 @@ export function SelectionSnapshotBar({
           role="toolbar"
           style={position(selection)}
         >
+          {/* Snapshot leads, labelled and solid: it is the reason the bar
+              exists, and the two copies beside it are the familiar fallbacks. */}
+          <SnapshotButton
+            captureOptions={CAPTURE_OPTIONS}
+            filename={`daily-quote-${post.id}`}
+            link={post.commentsPermalink}
+            target={cardRef}
+            variant={ButtonVariant.Primary}
+          />
           <Tooltip content="Copy link">
             <Button
               aria-label="Copy link"
@@ -104,12 +113,6 @@ export function SelectionSnapshotBar({
               variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
-          <SnapshotButton
-            filename={`daily-quote-${post.id}`}
-            showLabel={false}
-            target={cardRef}
-            captureOptions={CAPTURE_OPTIONS}
-          />
         </div>
       )}
 

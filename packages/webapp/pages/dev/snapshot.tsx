@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -245,38 +246,14 @@ const Inert = ({ icon, label }: { icon: ReactElement; label: string }) => (
   />
 );
 
-const Band = ({
-  title,
-  body,
-  accent,
-  children,
-}: {
-  title: string;
-  body: string;
-  accent?: boolean;
-  children: ReactNode;
-}) => (
-  <div
-    className={`flex flex-wrap items-center gap-3 rounded-12 p-3 ${
-      accent
-        ? 'border border-accent-cabbage-default bg-overlay-float-cabbage'
-        : 'bg-surface-float'
-    }`}
-  >
-    <div className="flex min-w-0 flex-1 flex-col">
-      <span className="font-bold text-text-primary typo-footnote">{title}</span>
-      <span className="text-text-tertiary typo-caption1">{body}</span>
-    </div>
-    {children}
-  </div>
-);
-
 const CopyLink = ({
   label,
+  iconRight,
   variant = ButtonVariant.Tertiary,
   size = ButtonSize.Small,
 }: {
   label?: boolean;
+  iconRight?: boolean;
   variant?: ButtonVariant;
   size?: ButtonSize;
 }) => {
@@ -298,6 +275,9 @@ const CopyLink = ({
     <Button
       aria-label="Copy link"
       icon={<LinkIcon />}
+      iconPosition={
+        iconRight ? ButtonIconPosition.Right : ButtonIconPosition.Left
+      }
       onClick={onCopy}
       size={size}
       type="button"
@@ -567,13 +547,12 @@ const ThePromptedMoments = (): ReactElement => (
       note="PostContentShare renders this the moment you upvote a post, with a copy-link input rather than a button. Nothing was built for it: the Storybook page proposed a placement production already had. Snapshot stays out either way — it would be the payload the post's own OG image already carries."
       step="After upvote · shipping"
     >
-      <Band
-        accent
-        body="You upvoted it — pass it on"
-        title="Should anyone else see this?"
-      >
-        <CopyLink label variant={ButtonVariant.Primary} />
-      </Band>
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="min-w-0 flex-1 font-bold text-text-tertiary typo-callout">
+          Should anyone else see this post?
+        </span>
+        <CopyLink iconRight label variant={ButtonVariant.Secondary} />
+      </div>
     </Placement>
   </Section>
 );

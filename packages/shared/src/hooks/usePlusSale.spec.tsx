@@ -43,7 +43,9 @@ const runningSale: PlusSaleConfig = {
   label: '50% off',
   headline: 'Summer sale: 50% off Plus',
   description: 'Code SUMMER50 is already applied. Offer ends August 31.',
-  endDate: '2026-09-01T00:00:00.000Z',
+  // Relative, not a date: a literal turns the suite red the morning it passes,
+  // and this one did.
+  endDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
 };
 
 // Mirrors the real hook: the committed default (no discount) is returned until

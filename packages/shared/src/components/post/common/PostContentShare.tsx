@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
 import { Origin, LogEvent } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
@@ -9,6 +9,21 @@ import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
 import { PostContentWidget } from './PostContentWidget';
 import { useActiveFeedContext } from '../../../contexts';
 import { postLogEvent } from '../../../lib/feed';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
+import { LinkIcon } from '../../icons';
+import { useCopyText } from '../../../hooks/useCopy';
+import {
+  ToastType,
+  useToastNotification,
+} from '../../../hooks/useToastNotification';
+import { useLogContext } from '../../../contexts/LogContext';
+import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
+import { featurePostSharePrompts } from '../../../lib/featureManagement';
 
 interface PostContentShareProps {
   post: Post;
@@ -27,8 +42,59 @@ export function PostContentShare({
     },
   });
 
+  const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
+  const areSharePromptsEnabled = useSharePlacement({
+    feature: featurePostSharePrompts,
+  });
+  const [, copy] = useCopyText(shareLink);
+
+  const onCopy = useCallback(async () => {
+    logEvent(
+      postLogEvent(LogEvent.SharePost, post, {
+        extra: {
+          provider: ShareProvider.CopyLink,
+          origin: Origin.PostContent,
+        },
+        ...(logOpts && logOpts),
+      }),
+    );
+
+    try {
+      await copy({ message: '✅ Copied link' });
+      // The prompt has done its job; leaving it up nags.
+      onInteract('none');
+    } catch {
+      displayToast('❌ Your browser blocked the clipboard', {
+        variant: ToastType.Error,
+      });
+    }
+  }, [copy, displayToast, logEvent, logOpts, onInteract, post]);
+
   if (interaction !== 'upvote' || isLoading) {
     return null;
+  }
+
+  if (areSharePromptsEnabled) {
+    // A prompt, not a form: the link in an input asks to be read before it can
+    // be used, and there is only one thing to do with it.
+    return (
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <span className="min-w-0 flex-1 font-bold text-text-tertiary typo-callout">
+          Should anyone else see this post?
+        </span>
+        <Button
+          icon={<LinkIcon />}
+          iconPosition={ButtonIconPosition.Right}
+          onClick={onCopy}
+          size={ButtonSize.Small}
+          type="button"
+          variant={ButtonVariant.Secondary}
+        >
+          Copy link
+        </Button>
+      </div>
+    );
   }
 
   return (

@@ -17,13 +17,10 @@ describe('EndOfThreadShare', () => {
     renderBand(24);
 
     expect(screen.getByText('Enjoyed this discussion?')).toBeInTheDocument();
-    expect(screen.getByText('24 comments and counting')).toBeInTheDocument();
-  });
-
-  it('counts one comment in the singular', () => {
-    renderBand(1);
-
-    expect(screen.getByText('1 comment and counting')).toBeInTheDocument();
+    expect(
+      screen.getByText("Send it to someone who'd have opinions."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy link' })).toBeVisible();
   });
 
   it('stays away when there is no conversation to pass on', () => {

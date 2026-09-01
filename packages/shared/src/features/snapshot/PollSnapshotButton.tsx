@@ -46,6 +46,7 @@ export function PollSnapshotButton({
       <SnapshotButton
         captureOptions={CAPTURE_OPTIONS}
         filename={`daily-poll-${post.id}`}
+        link={post.commentsPermalink}
         showLabel={showLabel}
         size={size}
         target={cardRef}

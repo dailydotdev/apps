@@ -24,6 +24,8 @@ const SHUTTER_SWEEP_MS = 380;
 
 export interface SnapshotButtonProps {
   target: CaptureTarget;
+  /** Copied as text beside the image, so a paste carries both halves. */
+  link?: string;
   filename?: string;
   label?: string;
   showLabel?: boolean;
@@ -36,6 +38,7 @@ export interface SnapshotButtonProps {
 
 export function SnapshotButton({
   target,
+  link,
   filename = 'daily-snapshot',
   label = SNAPSHOT_LABEL,
   showLabel = true,
@@ -82,8 +85,10 @@ export function SnapshotButton({
 
         // Pasting beats a file in Downloads for every target we share to, so
         // the clipboard leads and the download is the fallback.
-        if (await copyShareImage(capture)) {
-          displayToast('Image copied', { variant: ToastType.Success });
+        if (await copyShareImage(capture, link)) {
+          displayToast(link ? 'Image and link copied' : 'Image copied', {
+            variant: ToastType.Success,
+          });
           return;
         }
 
@@ -97,7 +102,7 @@ export function SnapshotButton({
         setIsCapturing(false);
       }
     },
-    [captureOptions, displayToast, filename, onCapture, target],
+    [captureOptions, displayToast, filename, link, onCapture, target],
   );
 
   return (
