@@ -7,7 +7,10 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   DownvoteIcon,
+  HotIcon,
   MenuIcon,
+  MiniCloseIcon,
+  ReputationIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import type { DeviceName } from '../surfaceChrome';
@@ -84,6 +87,131 @@ const HotTakeRow = ({
       </Button>
     </div>
   </div>
+);
+
+
+/* --------------------------------------------------------- the swipe modal */
+
+/**
+ * HotAndColdModal: a swipe card on a stack. Emoji tile, Title3 centred, the
+ * Body-tertiary subtitle, an upvote pill, then a bordered author footer. The
+ * snapshot already ships on the top card, beside the pill. Below the card sit
+ * the three reaction buttons (❄️ 😐 🔥, the middle one size-12 and the outer
+ * two size-14) and a full-width "Add your own hot take".
+ */
+const HotTakeModalScreen = ({
+  device,
+  spot,
+}: {
+  device: DeviceName;
+  spot: Spot;
+}) => (
+  <Device name={device}>
+    <div className="flex flex-col bg-background-popover">
+      <div className="flex items-center justify-between px-4 py-4">
+        <span className="font-bold text-text-primary typo-title3">
+          Hot Takes
+        </span>
+        <Button
+          aria-label="Close"
+          icon={<MiniCloseIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
+      </div>
+
+      <div className="px-4">
+        <div className="flex select-none flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2">
+          <div className="flex flex-col items-center justify-center gap-3 break-words p-6">
+            <div className="flex size-16 items-center justify-center rounded-16 bg-overlay-quaternary-cabbage text-[2.5rem]">
+              😐
+            </div>
+            <span className="w-full break-words text-center font-bold text-text-primary typo-title3">
+              Most developers have a talent for turning simple problems into
+              overengineered nightmares.
+            </span>
+            <span className="w-full break-words text-center text-text-tertiary typo-body">
+              &ldquo;Simplicity is prerequisite for reliability&rdquo; - Edsger
+              W. Dijkstra
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1 rounded-10 bg-surface-hover px-3 py-1">
+                <HotIcon className="text-accent-cabbage-default" />
+                <span className="font-bold text-text-secondary typo-footnote">
+                  587
+                </span>
+              </span>
+              {spot !== 'today' && (
+                <Control
+                  action="Snapshot"
+                  label={spot === 'lead'}
+                  variant={
+                    spot === 'lead'
+                      ? ButtonVariant.Primary
+                      : ButtonVariant.Float
+                  }
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 border-t border-border-subtlest-tertiary p-4">
+            <img
+              alt=""
+              className="size-10 rounded-full object-cover"
+              src={AVATAR}
+            />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="flex min-w-0 items-center gap-1">
+                <span className="min-w-0 truncate font-bold text-text-primary typo-callout">
+                  James Davis
+                </span>
+                <span className="min-w-0 truncate text-text-tertiary typo-footnote">
+                  @jamesdavis7
+                </span>
+              </span>
+              <span className="flex items-center gap-1 text-text-tertiary typo-footnote">
+                <ReputationIcon className="text-accent-onion-default" />
+                11.4K
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-4 p-4 pt-3">
+        {[
+          ['❄️', 'size-14', 'Cold take - downvote'],
+          ['😐', 'size-12', 'Skip hot take'],
+          ['🔥', 'size-14', 'Hot take - upvote'],
+        ].map(([glyph, size, label]) => (
+          <Button
+            key={label}
+            aria-label={label}
+            className={`!${size} rounded-full`}
+            icon={
+              <span aria-hidden className="text-[1.375rem] leading-none">
+                {glyph}
+              </span>
+            }
+            size={ButtonSize.Large}
+            variant={ButtonVariant.Float}
+          />
+        ))}
+      </div>
+
+      <div className="px-4 pb-4">
+        <Button
+          className="w-full"
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
+        >
+          Add your own hot take
+        </Button>
+      </div>
+      {device === 'Mobile' && <span className="sr-only">mobile</span>}
+    </div>
+  </Device>
 );
 
 const HotTakesScreen = ({
@@ -231,35 +359,56 @@ const Rails = ({
 
 const FeedAndLists = () => (
   <SurfacePage
-    intro="Two lists that are not feeds. A hot take is a self-contained opinion with nowhere to link to; a reading-history row is a pointer back to a post. Feed cards are covered on the post page and left out here."
+    intro="A hot take is a self-contained opinion with nowhere to link to, and it appears in two very different frames — the swipe modal and the profile list. A reading-history row is the opposite: a pointer back to a post. Feed cards are covered on the post page and left out here."
     map="Sharing map: Snapshot leads on hot takes (#6365) — an opinion is quotable and the row is the whole payload. Copy link leads on reading history (#6361), where each row is just a post."
     title="Hot takes & reading history"
   >
     <Category
+      covers="HotAndColdModal.tsx"
+      title="Hot takes — the swipe modal"
+      verdict="This is where people actually meet a hot take, and the snapshot already ships on it: on the top card only, beside the upvote pill, at Float. Emoji tile, centred Title3, the quote in Body-tertiary, then a bordered author footer — and below the card, the three reaction buttons and a full-width ‘Add your own hot take’."
+    >
+      <Variant
+        headline="The card without it, for comparison"
+        note="A swipe card on a stack: ❄️ dismisses left, 😐 skips, 🔥 upvotes. The upvote pill is the only thing in that row."
+        step="Before"
+      >
+        <Rails Screen={HotTakeModalScreen} spot="today" />
+      </Variant>
+      <Variant
+        headline="Snapshot beside the upvote pill"
+        note="Shipped. Float weight and `isTop` only, so it never renders on the cards stacked behind. The card is already centred and self-contained — it is the closest thing in the product to a share image that exists as UI."
+        step="Shipped"
+      >
+        <Rails Screen={HotTakeModalScreen} spot="row" />
+      </Variant>
+      <Variant
+        headline="Snapshot labeled and filled"
+        note="The card has the width for a label, and nothing else in that row competes. The cost is that a swipe surface gains a button people are meant to press rather than swipe past."
+        step="Push"
+      >
+        <Rails Screen={HotTakeModalScreen} spot="lead" />
+      </Variant>
+    </Category>
+
+    <Category
       covers="HotTakeItem.tsx"
-      title="Hot takes"
-      verdict="Corrected: the row is an emoji tile, a title, a subtitle and an upvote counter. There is no ⋯ menu, no author avatar and no ‘HOT TAKE’ label — which means this is the only list in the product with no share route at all, not even a buried one. Edit and delete exist but are owner-only and hover-revealed."
+      title="Hot takes — the profile list"
+      verdict="The same content in a completely different frame: an emoji tile, title, subtitle and an upvote counter in a surface-float row. No ⋯ menu and no snapshot, so unlike the modal this list has no share route at all. Edit and delete exist but are owner-only and hover-revealed."
     >
       <Variant
         headline="Nothing to share, and no menu to bury it in"
-        note="The most quotable content in the product. The only interactive control on a non-owner's view is the upvote."
+        note="The only interactive control on a visitor's view is the upvote."
         step="Today"
       >
         <Rails Screen={HotTakesScreen} spot="today" />
       </Variant>
       <Variant
         headline="Snapshot beside the upvote"
-        note="Recommended. XSmall to match the upvote counter it sits next to, and placed before it so the count stays at the edge where the eye expects it."
+        note="Recommended, and it produces the same card the modal already produces — so this is a placement, not a new feature. XSmall to match the upvote counter it sits next to."
         step="Recommended"
       >
         <Rails Screen={HotTakesScreen} spot="row" />
-      </Variant>
-      <Variant
-        headline="Snapshot labeled and filled"
-        note="Hot takes are where snapshot has the clearest right to lead, so this is the lowest-risk place to test the loudest treatment. The row has the width for it."
-        step="Push"
-      >
-        <Rails Screen={HotTakesScreen} spot="lead" />
       </Variant>
     </Category>
 
