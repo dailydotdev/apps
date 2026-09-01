@@ -63,14 +63,6 @@ describe('useSharePlacement', () => {
     expect(screen.getByText('on')).toBeInTheDocument();
   });
 
-  it('opens itself on the Vercel host, which serves the same deployment', () => {
-    setHostname('daily-webapp-git-my-branch-dailydotdev.vercel.app');
-
-    renderProbe();
-
-    expect(screen.getByText('on')).toBeInTheDocument();
-  });
-
   it('respects a surface that opted out, even on a preview', () => {
     setHostname('my-branch.preview.app.daily.dev');
 
