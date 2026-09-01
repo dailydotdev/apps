@@ -70,14 +70,6 @@ const HotTakeRow = ({
       {spot === 'row' && (
         <Control action="Snapshot" size={ButtonSize.XSmall} />
       )}
-      {spot === 'lead' && (
-        <Control
-          action="Snapshot"
-          label
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Primary}
-        />
-      )}
       <Button
         icon={<UpvoteIcon />}
         size={ButtonSize.XSmall}
@@ -290,9 +282,6 @@ const HistoryRow = ({
         </>
       )}
       {spot === 'row' && <Control action="Link" />}
-      {spot === 'lead' && (
-        <Control action="Link" label variant={ButtonVariant.Secondary} />
-      )}
       <div className="relative">
         <Button
           aria-label="Options"
@@ -366,26 +355,19 @@ const FeedAndLists = () => (
     <Category
       covers="HotAndColdModal.tsx"
       title="Hot takes — the swipe modal"
-      verdict="This is where people actually meet a hot take, and the snapshot already ships on it: on the top card only, beside the upvote pill, at Float. Emoji tile, centred Title3, the quote in Body-tertiary, then a bordered author footer — and below the card, the three reaction buttons and a full-width ‘Add your own hot take’."
+      verdict="Where people actually meet a hot take, and the snapshot already ships on it: top card only, at Float, beside the upvote pill. Decided: promote it to labeled and filled."
     >
       <Variant
-        headline="The card without it, for comparison"
-        note="A swipe card on a stack: ❄️ dismisses left, 😐 skips, 🔥 upvotes. The upvote pill is the only thing in that row."
-        step="Before"
-      >
-        <Rails Screen={HotTakeModalScreen} spot="today" />
-      </Variant>
-      <Variant
-        headline="Snapshot beside the upvote pill"
-        note="Shipped. Float weight and `isTop` only, so it never renders on the cards stacked behind. The card is already centred and self-contained — it is the closest thing in the product to a share image that exists as UI."
-        step="Shipped"
+        headline="Snapshot at Float, beside the pill"
+        note="What ships. Emoji tile, centred Title3, the quote in Body-tertiary, the upvote pill and a bordered author footer, with ❄️ 😐 🔥 and ‘Add your own hot take’ beneath. `isTop` only, so it never renders on the cards stacked behind."
+        step="Today"
       >
         <Rails Screen={HotTakeModalScreen} spot="row" />
       </Variant>
       <Variant
         headline="Snapshot labeled and filled"
-        note="The card has the width for a label, and nothing else in that row competes. The cost is that a swipe surface gains a button people are meant to press rather than swipe past."
-        step="Push"
+        note="Decided. The card has the width for a label and nothing else in that row competes with it. The trade we accepted: a swipe surface gains a button people are meant to press rather than swipe past."
+        step="Chosen"
       >
         <Rails Screen={HotTakeModalScreen} spot="lead" />
       </Variant>
@@ -394,19 +376,19 @@ const FeedAndLists = () => (
     <Category
       covers="HotTakeItem.tsx"
       title="Hot takes — the profile list"
-      verdict="The same content in a completely different frame: an emoji tile, title, subtitle and an upvote counter in a surface-float row. No ⋯ menu and no snapshot, so unlike the modal this list has no share route at all. Edit and delete exist but are owner-only and hover-revealed."
+      verdict="The same content in a different frame: an emoji tile, title, subtitle and an upvote counter in a surface-float row. No ⋯ menu and no snapshot, so unlike the modal this list has no share route at all."
     >
       <Variant
         headline="Nothing to share, and no menu to bury it in"
-        note="The only interactive control on a visitor's view is the upvote."
+        note="Edit and delete exist but are owner-only and hover-revealed, so the only control a visitor sees is the upvote."
         step="Today"
       >
         <Rails Screen={HotTakesScreen} spot="today" />
       </Variant>
       <Variant
         headline="Snapshot beside the upvote"
-        note="Recommended, and it produces the same card the modal already produces — so this is a placement, not a new feature. XSmall to match the upvote counter it sits next to."
-        step="Recommended"
+        note="Decided. XSmall to match the upvote counter it sits next to, and placed before it so the count stays at the edge. It produces the card the modal already produces, so this is a placement rather than a new feature."
+        step="Chosen"
       >
         <Rails Screen={HotTakesScreen} spot="row" />
       </Variant>
@@ -415,30 +397,24 @@ const FeedAndLists = () => (
     <Category
       covers="PostItemCard.tsx · ReadingHistoryOptionsMenu.tsx"
       title="Reading history"
-      verdict="Each row is just a post, so the payload question never arises — only reach does. The ⋯ leads with ‘Share post via...’, and the vote buttons beside it are `hidden laptop:flex`, so the row is already three different widths."
+      verdict="Each row is just a post, so the payload question never arises — only reach does. Decided: an icon-only copy link, always visible."
     >
       <Variant
         headline="⋯ → Share post via..."
-        note="A 64px thumbnail with the source avatar overlapping it, a two-line title, then votes and the menu. Sharing is two taps and the wording differs from every other menu in the product."
+        note="A 64px thumbnail with the source avatar overlapping it, a two-line title, then votes and the menu. Sharing is two taps, and the wording differs from every other menu in the product."
         step="Today"
       >
         <Rails Screen={HistoryScreen} spot="today" />
       </Variant>
       <Variant
-        headline="Copy link before the menu"
-        note="Recommended, and always visible rather than hover-gated: this row already drops its vote buttons below laptop, so a hover-only control would leave mobile with nothing but the menu."
-        step="Recommended"
+        headline="Copy link icon, before the menu"
+        note="Decided, and no label: the row already drops its vote buttons below laptop, and a label would push the title to a third line on mobile. Always visible rather than hover-gated, so it survives touch."
+        step="Chosen"
       >
         <Rails Screen={HistoryScreen} spot="row" />
       </Variant>
-      <Variant
-        headline="Labeled copy link"
-        note="On a utilitarian list the noise is affordable, but it makes the row wider than the thumbnail needs and pushes the title into a third line on mobile."
-        step="Push"
-      >
-        <Rails Screen={HistoryScreen} spot="lead" />
-      </Variant>
     </Category>
+
   </SurfacePage>
 );
 
