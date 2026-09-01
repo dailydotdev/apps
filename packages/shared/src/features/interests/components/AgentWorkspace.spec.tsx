@@ -69,8 +69,6 @@ const renderWorkspace = ({
       <AgentProvider id="a1" isDemo initialMessages={initialMessages}>
         <AgentWorkspace
           items={[]}
-          onDelete={jest.fn()}
-          isDeleting={false}
           runId={currentRunId}
           isFeedReady={isFeedReady}
         />
@@ -511,12 +509,7 @@ describe('AgentWorkspace history window', () => {
             } as never
           }
         >
-          <AgentWorkspace
-            items={[]}
-            onDelete={jest.fn()}
-            isDeleting={false}
-            runId={currentRunId}
-          />
+          <AgentWorkspace items={[]} runId={currentRunId} />
         </AgentProvider>
       </TestBootProvider>
     );

@@ -53,8 +53,6 @@ import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
 import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
-import { LiveRoomPostGrid } from './cards/liveRoom/LiveRoomPostGrid';
-import { LiveRoomPostList } from './cards/liveRoom/LiveRoomPostList';
 import { SignalList } from './cards/common/list/SignalList';
 import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
@@ -132,7 +130,6 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Poll]: PollGrid,
   [PostType.SocialTwitter]: SocialTwitterGrid,
   [PostType.Digest]: ArticleGrid,
-  [PostType.LiveRoom]: LiveRoomPostGrid,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -147,7 +144,6 @@ const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
   [PostType.Poll]: PollList,
   [PostType.SocialTwitter]: SocialTwitterList,
   [PostType.Digest]: ArticleList,
-  [PostType.LiveRoom]: LiveRoomPostList,
 };
 
 const getPostTypeForCard = (post?: Post): PostType => {

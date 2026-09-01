@@ -657,9 +657,7 @@ export default function Feed<T>({
     const isMiddleClick = event?.type === 'auxclick' || event?.button === 1;
     const isModifierClick = !!(event && (event.ctrlKey || event.metaKey));
     const readerEligible = isReaderEligiblePost(post);
-    const skipsPostModal = post.type === PostType.LiveRoom;
     const shouldOpenModal =
-      !skipsPostModal &&
       !isAuxClick &&
       !isMiddleClick &&
       !isModifierClick &&

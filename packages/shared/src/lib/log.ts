@@ -288,41 +288,6 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
-  // Standups
-  ViewStandup = 'view standup',
-  CreateStandup = 'create standup',
-  LeaveStandup = 'leave standup',
-  StartStandup = 'start standup',
-  EndStandup = 'end standup',
-  JoinStandupQueue = 'join standup queue',
-  RaiseStandupHand = 'raise standup hand',
-  RemoveStandupHand = 'remove standup hand',
-  JoinStandupStage = 'join standup stage',
-  LeaveStandupStage = 'leave standup stage',
-  OpenStandupSettings = 'open standup settings',
-  OpenStandupReactions = 'open standup reactions',
-  SwitchStandupPanelTab = 'switch standup panel tab',
-  SendStandupReaction = 'send standup reaction',
-  SendStandupChatReaction = 'send standup chat reaction',
-  RemoveStandupChatReaction = 'remove standup chat reaction',
-  SendStandupChatMessage = 'send standup chat message',
-  DeleteStandupChatMessage = 'delete standup chat message',
-  UpdateStandupChatAccess = 'update standup chat access',
-  SubscribeStandup = 'subscribe standup',
-  UnsubscribeStandup = 'unsubscribe standup',
-  ShareStandup = 'share standup',
-  AddStandupToCalendar = 'add standup to calendar',
-  GrantStandupCoHost = 'grant standup co-host',
-  RevokeStandupCoHost = 'revoke standup co-host',
-  PromoteStandupSpeaker = 'promote standup speaker',
-  RemoveStandupSpeaker = 'remove standup speaker',
-  KickStandupParticipant = 'kick standup participant',
-  ChangeStandupSettings = 'change standup settings',
-  StandupError = 'standup error',
-  FocusStandupSpeaker = 'focus standup speaker',
-  ImpressionStandupsStrip = 'impression standups strip',
-  ClickStandupsStrip = 'click standups strip',
-  // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
   StartAddingIntegration = 'start adding integration',
@@ -739,7 +704,6 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
-  StandupLobby = 'standup lobby',
 }
 
 export enum ShortcutsSourceType {

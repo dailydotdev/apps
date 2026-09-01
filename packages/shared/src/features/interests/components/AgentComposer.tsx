@@ -89,7 +89,7 @@ export const AgentComposer = (): ReactElement => {
     messages,
     openContent,
     openContentTarget,
-    setSettingsOpen,
+    openSettings,
     isOnboarding,
     activeQuestion,
     answerQuestion,
@@ -299,7 +299,7 @@ export const AgentComposer = (): ReactElement => {
 
     if (sending?.opens) {
       if (sending.opens === 'settings') {
-        setSettingsOpen(true);
+        openSettings();
       } else {
         openContentTarget(
           sending.opens === 'activity'

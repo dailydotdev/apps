@@ -358,13 +358,6 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       numVotes
     }
     endsAt
-    liveRoom {
-      id
-      topic
-      status
-      scheduledStart
-      subscribed
-    }
   }
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;
