@@ -28,8 +28,6 @@ const displayToKind = (
   display: WriteFormTab | null,
 ): ComposerKind | undefined => {
   switch (display) {
-    case WriteFormTab.Standup:
-      return 'standup';
     case WriteFormTab.Poll:
       return 'poll';
     case WriteFormTab.Share:

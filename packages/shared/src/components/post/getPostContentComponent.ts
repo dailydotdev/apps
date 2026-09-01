@@ -27,7 +27,7 @@ const contentTypeByPostType: Partial<Record<PostType, PostContentType>> = {
   [PostType.SocialTwitter]: PostType.SocialTwitter,
 };
 
-export const getPostContentType = (post: Pick<Post, 'type'>): PostContentType =>
+const getPostContentType = (post: Pick<Post, 'type'>): PostContentType =>
   contentTypeByPostType[post.type] ?? PostType.Article;
 
 type PostContentComponent = ComponentType<PostContentProps>;

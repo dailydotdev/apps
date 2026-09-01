@@ -81,7 +81,6 @@ import {
   LinkIcon,
   MagicIcon,
   MegaphoneIcon,
-  MicrophoneIcon,
   MoveToIcon,
   NewPostIcon,
   PhoneIcon,
@@ -535,13 +534,6 @@ const createMenuOptions: {
     title: 'Poll',
     kind: 'poll',
     icon: (active) => <ListIcon Icon={() => <PollIcon secondary={active} />} />,
-  },
-  {
-    title: 'Live',
-    kind: 'standup',
-    icon: (active) => (
-      <ListIcon Icon={() => <MicrophoneIcon secondary={active} />} />
-    ),
   },
 ];
 
