@@ -59,6 +59,7 @@ export function CompanionDiscussion({
         <PostComments
           post={post}
           origin={Origin.Companion}
+          forceInlineComposer
           onShare={(comment) => openShareComment(comment, post)}
           onClickUpvote={onShowUpvoted}
           modalParentSelector={getCompanionWrapper}

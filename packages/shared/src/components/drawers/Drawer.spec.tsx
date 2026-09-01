@@ -15,7 +15,7 @@ describe('Drawer', () => {
       .mockReturnValue({ width: 375, height: 812, offsetTop: 0 });
   });
 
-  it('sizes a full-screen drawer to the visual viewport', () => {
+  it('starts below the iOS status bar and ends above the keyboard', () => {
     jest
       .mocked(useVisualViewport)
       .mockReturnValue({ width: 375, height: 500, offsetTop: 40 });
@@ -26,8 +26,21 @@ describe('Drawer', () => {
       </Drawer>,
     );
 
-    const overlay = screen.getByText('content').closest('.fixed');
-    expect(overlay).toHaveStyle({ height: '500px', top: '40px' });
+    const overlay = screen
+      .getByText('content')
+      .closest('.fixed') as HTMLElement;
+    expect(overlay.style.getPropertyValue('--safe-area-top-offset')).toBe(
+      '40px',
+    );
+    // The overlay stays at full layout height so the page cannot show
+    // through the keyboard; only the wrapper tracks the visual viewport.
+    expect(overlay).toHaveStyle({ height: '100vh' });
+    const wrapper = screen
+      .getByText('content')
+      .closest('.overflow-y-auto') as HTMLElement;
+    expect(wrapper.style.getPropertyValue('--drawer-viewport-height')).toBe(
+      '500px',
+    );
   });
 
   it('leaves non-full-screen drawers sized by CSS', () => {
@@ -37,8 +50,10 @@ describe('Drawer', () => {
       </Drawer>,
     );
 
-    const overlay = screen.getByText('content').closest('.fixed');
-    expect(overlay).not.toHaveStyle({ height: '812px' });
+    const overlay = screen
+      .getByText('content')
+      .closest('.fixed') as HTMLElement;
+    expect(overlay).not.toHaveAttribute('style');
   });
 
   it('locks the page scroll behind it while open', () => {
@@ -50,10 +65,45 @@ describe('Drawer', () => {
 
     expect(document.body).toHaveClass('hidden-scrollbar');
     expect(document.documentElement).toHaveStyle({ overflow: 'hidden' });
+    // iOS's keyboard reveal scroll ignores overflow, so the body is pinned.
+    expect(document.body).toHaveStyle({ position: 'fixed' });
 
     unmount();
     expect(document.body).not.toHaveClass('hidden-scrollbar');
     expect(document.documentElement).not.toHaveStyle({ overflow: 'hidden' });
+    expect(document.body).not.toHaveStyle({ position: 'fixed' });
+  });
+
+  it('undoes the iOS keyboard reveal scroll while full-screen', () => {
+    const scrollTo = jest.fn();
+    Object.defineProperty(window, 'scrollTo', {
+      configurable: true,
+      value: scrollTo,
+    });
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      value: 120,
+      writable: true,
+    });
+
+    const { unmount } = render(
+      <Drawer isOpen isFullScreen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    fireEvent.scroll(window);
+    expect(scrollTo).toHaveBeenCalledWith(0, 0);
+
+    scrollTo.mockClear();
+    unmount();
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      value: 0,
+      writable: true,
+    });
+    fireEvent.scroll(window);
+    expect(scrollTo).not.toHaveBeenCalledWith(0, 0);
   });
 
   it('keeps the page locked until the last stacked drawer closes', () => {
