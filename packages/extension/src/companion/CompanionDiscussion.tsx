@@ -10,7 +10,12 @@ import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import { generateCommentsQueryKey } from '@dailydotdev/shared/src/lib/query';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
-import CommentInputOrModal from '@dailydotdev/shared/src/components/comments/CommentInputOrModal';
+import type { CommentInputProps } from '@dailydotdev/shared/src/components/comments/CommentInput';
+import CommentInput from '@dailydotdev/shared/src/components/comments/CommentInput';
+
+const CompanionCommentInput = (props: CommentInputProps): ReactElement => (
+  <CommentInput {...props} forceInline />
+);
 
 interface CompanionDiscussionProps {
   post: PostBootData;
@@ -24,8 +29,7 @@ export function CompanionDiscussion({
   style,
   className,
   onShowUpvoted,
-}: CompanionDiscussionProps): ReactElement {
-  const commentClasses = { tab: '!min-h-[14.5rem]' };
+}: CompanionDiscussionProps): ReactElement | null {
   const { openShareComment } = useShareComment(Origin.Companion);
   useBackgroundRequest(
     generateCommentsQueryKey({ postId: post?.id, sortBy: undefined }),
@@ -49,19 +53,16 @@ export function CompanionDiscussion({
         <NewComment
           size={ProfileImageSize.Medium}
           post={post}
-          className={{
-            ...commentClasses,
-            container: 'companion-new-comment-button mb-4',
-          }}
-          CommentInputOrModal={CommentInputOrModal}
+          className={{ container: 'companion-new-comment-button mb-4' }}
+          CommentInput={CompanionCommentInput}
         />
         <PostComments
           post={post}
           origin={Origin.Companion}
+          forceInlineComposer
           onShare={(comment) => openShareComment(comment, post)}
           onClickUpvote={onShowUpvoted}
           modalParentSelector={getCompanionWrapper}
-          className={commentClasses}
         />
       </div>
     </div>

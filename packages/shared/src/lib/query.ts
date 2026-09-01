@@ -284,7 +284,6 @@ export enum RequestKey {
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
   LiveRooms = 'live_rooms',
-  ContributionCauseBreakdown = 'contribution_cause_breakdown',
   LeaderboardPosition = 'leaderboard_position',
   UserWorld = 'user_world',
   UserWorldTimeline = 'user_world_timeline',

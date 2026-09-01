@@ -54,10 +54,10 @@ const SquadEntityCard = dynamic(
   },
 );
 
-const CommentInputOrModal = dynamic(
+const CommentInput = dynamic(
   () =>
     import(
-      /* webpackChunkName: "commentInputOrModal" */ '../../comments/CommentInputOrModal'
+      /* webpackChunkName: "commentInput" */ '../../comments/CommentInput'
     ),
 );
 
@@ -317,7 +317,7 @@ export function EngagementRail({
             shouldHandleCommentQuery
             onComposerOpenChange={setIsComposerOpen}
             size={ProfileImageSize.Medium}
-            CommentInputOrModal={CommentInputOrModal}
+            CommentInput={CommentInput}
           />
           <PostComments
             post={post}

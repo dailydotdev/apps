@@ -26,7 +26,7 @@ import {
   CadenceSection,
   FomoSection,
   HistorySection,
-  OutputModesSection,
+  NotificationsSection,
   SettingsSection,
 } from './AgentSettingsFields';
 
@@ -86,10 +86,12 @@ export const AgentSettingsPane = ({
             onChange={(fomoThreshold) => update({ fomoThreshold })}
           />
 
-          <OutputModesSection
-            value={interest?.outputModes}
+          <NotificationsSection
+            value={interest?.outputModes?.notification ?? true}
             disabled={isUpdating}
-            onChange={(outputModes) => update({ outputModes })}
+            onChange={(notification) =>
+              update({ outputModes: { notification } })
+            }
           />
 
           <HistorySection

@@ -17,8 +17,13 @@ jest.mock('../../../hooks/input', () => ({
   ],
 }));
 
+const mockWriteLinkPreview = jest.fn();
+
 jest.mock('../write/WriteLinkPreview', () => ({
-  WriteLinkPreview: () => null,
+  WriteLinkPreview: (props: unknown) => {
+    mockWriteLinkPreview(props);
+    return null;
+  },
 }));
 
 jest.mock('../write/WritePreviewSkeleton', () => ({
@@ -28,9 +33,15 @@ jest.mock('../write/WritePreviewSkeleton', () => ({
 const renderLinkForm = ({
   initialValue = DEFAULT_LINK,
   onSubmit = jest.fn(),
+  isUrlLocked = false,
+  initialUrl,
+  preview,
 }: {
   initialValue?: LinkFormState;
   onSubmit?: jest.Mock;
+  isUrlLocked?: boolean;
+  initialUrl?: string;
+  preview?: { url?: string; title?: string };
 } = {}) => {
   const fetchPreview = jest.fn();
 
@@ -48,6 +59,9 @@ const renderLinkForm = ({
           value={value}
           onChange={setValue}
           fetchPreview={fetchPreview}
+          isUrlLocked={isUrlLocked}
+          initialUrl={initialUrl}
+          preview={preview}
         />
         <button type="submit">Post</button>
       </form>
@@ -56,10 +70,14 @@ const renderLinkForm = ({
 
   render(<FormHarness />);
 
-  return { onSubmit };
+  return { onSubmit, fetchPreview };
 };
 
 describe('LinkForm', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('collapses pasted commentary newlines into spaces', () => {
     renderLinkForm();
 
@@ -135,5 +153,45 @@ describe('LinkForm', () => {
 
     expect(notPrevented).toBe(false);
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  describe('with a locked URL', () => {
+    const lockedProps = {
+      isUrlLocked: true,
+      initialValue: { url: 'https://daily.dev/posts/shared', commentary: 'hi' },
+      initialUrl: 'https://daily.dev/posts/shared',
+      preview: { url: 'https://daily.dev/posts/shared', title: 'Shared' },
+    };
+
+    it('drops the URL field and the preview remove button', () => {
+      renderLinkForm(lockedProps);
+
+      expect(
+        screen.queryByRole('textbox', { name: 'Link URL' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Remove link preview' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('starts in the commentary, the only field left to edit', () => {
+      renderLinkForm(lockedProps);
+
+      expect(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+      ).toHaveFocus();
+    });
+
+    it('never refetches a preview for a link that cannot change', () => {
+      const { fetchPreview } = renderLinkForm(lockedProps);
+
+      expect(fetchPreview).not.toHaveBeenCalled();
+    });
+
+    it('shows no preview card when the shared post is gone', () => {
+      renderLinkForm({ ...lockedProps, preview: {} });
+
+      expect(mockWriteLinkPreview).not.toHaveBeenCalled();
+    });
   });
 });

@@ -25,7 +25,8 @@ export const AgentIntro = ({
   postsCount: number;
 }): ReactElement => {
   const { interest, status } = useAgent();
-  const isPaused = status !== UserInterestStatus.Active;
+  const isOnboarding = status === UserInterestStatus.Onboarding;
+  const isPaused = !isOnboarding && status !== UserInterestStatus.Active;
   const cadence = cadenceCopy[interest?.cadence ?? 'daily'];
 
   return (
@@ -34,8 +35,15 @@ export const AgentIntro = ({
         type={TypographyType.Caption1}
         color={TypographyColor.Tertiary}
       >
-        {isPaused ? 'Paused, no scheduled runs' : `Runs ${cadence}`}
-        {` · ${findingsCount} in feed · ${postsCount} posts written`}
+        {(() => {
+          if (isOnboarding) {
+            return 'Setting up';
+          }
+
+          return isPaused ? 'Paused, no scheduled runs' : `Runs ${cadence}`;
+        })()}
+        {!isOnboarding &&
+          ` · ${findingsCount} in feed · ${postsCount} posts written`}
       </Typography>
       {interest?.lastRunAt && (
         <Typography

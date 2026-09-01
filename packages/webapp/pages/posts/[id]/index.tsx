@@ -52,7 +52,14 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { useQueryClient } from '@tanstack/react-query';
+import { getPostByIdKey } from '@dailydotdev/shared/src/lib/query';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ApiError,
+  getApiError,
+  gqlClient,
+} from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
@@ -229,6 +236,10 @@ export const PostPage = ({
       retry: false,
     },
   });
+  const queryClient = useQueryClient();
+  const postError = (isError
+    ? queryClient.getQueryState(getPostByIdKey(id))?.error
+    : undefined) as unknown as ApiErrorResult;
   const isRedesignEligible = isPostRedesignEligible(post);
   const { value: isRedesignFlagOn } = useConditionalFeature({
     feature: featurePostRedesign,
@@ -239,11 +250,11 @@ export const PostPage = ({
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
   const showRedesign =
     isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
-  // Empty for every logged-in visitor and while post_adsense is off; the slot
-  // components check the same hook, so with it empty neither markup nor script
-  // exists. Gated on a unit id being present, not key presence — the map keeps
-  // placeholder entries with empty ids, and the script must not load for
-  // inventory that cannot fill.
+  // Empty for every logged-in visitor; the slot components check the same
+  // hook, so with it empty neither markup nor script exists. Gated on a unit
+  // id being present, not key presence — the map keeps placeholder entries
+  // with empty ids, and the script must not load for inventory that cannot
+  // fill.
   const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
   const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
   // The same in-content treatment the /articles template ships, reused on
@@ -387,9 +398,15 @@ export const PostPage = ({
   }
 
   const Content = CONTENT_MAP[post?.type];
+  // A post deleted while the page is open still has to disappear, so NOT_FOUND
+  // overrides the cached copy. Any other error leaves the post on screen.
+  const isPostGone = !!getApiError(postError, ApiError.NotFound);
 
-  if (!Content || isError) {
-    if (error === ApiError.Forbidden) {
+  if (!Content || isPostGone) {
+    if (
+      error === ApiError.Forbidden ||
+      getApiError(postError, ApiError.Forbidden)
+    ) {
       return <Unauthorized />;
     }
     return <Custom404 />;

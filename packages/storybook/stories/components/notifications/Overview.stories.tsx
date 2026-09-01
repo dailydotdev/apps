@@ -2,9 +2,8 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import ExtensionProviders from '../../extension/_providers';
 
-// Landing page for the notifications readability audit. Collects every
-// notification surface in one folder and calls out the concrete levers to pull
-// on each one, so improving readability is a guided pass rather than a hunt.
+// Landing page for the notification surfaces: the layout rules the feed row
+// now follows, then a map of every surface and what to check on each.
 
 const meta: Meta = {
   title: 'Components/Notifications/Overview',
@@ -13,7 +12,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          'Start here. A map of every notification surface, where it lives in the codebase, and the specific readability levers to review on each.',
+          'Start here. The layout rules a notification row follows, a map of every notification surface and where it lives, and the known gaps between them.',
       },
     },
   },
@@ -65,8 +64,8 @@ const surfaces: SurfaceRow[] = [
     surface: 'A single feed row (NotificationItem)',
     source: 'shared/components/notifications/NotificationItem.tsx',
     levers: [
-      'Title weight/size (bold typo-callout) vs. 2-line clamp',
-      'Meta line: time + description at typo-footnote text-tertiary — is it readable?',
+      'Which line leads — headline on a post arrival, actor sentence otherwise (see "Row anatomy")',
+      'Where the timestamp lands: it follows the last grey line, or stands alone when there is none',
       'When description AND post title both show — is the hierarchy clear?',
       'Unread state (bg-surface-float) — is it distinct enough?',
       'Avatar + corner badge + attachment alignment down the column',
@@ -88,6 +87,7 @@ const surfaces: SurfaceRow[] = [
     surface: 'Real-time push-style popup',
     source: 'shared/components/notifications/InAppNotificationItem.tsx',
     levers: [
+      'KNOWN GAP: renders the title only — no headline, no post, no time. A post arrival still reads "New post in <source>" here while the feed row leads with the headline.',
       'Title contrast on the accent-pepper-subtler card',
       '3-line clamp — where do long titles get cut?',
       'Icon + avatar lockup spacing',
@@ -113,13 +113,42 @@ const Pill = ({ children }: { children: React.ReactNode }) => (
 
 const NotificationsOverview = (): React.ReactElement => (
   <div className="mx-auto max-w-[56rem] p-8 text-text-primary">
-    <h1 className="font-bold typo-title1">Notifications — readability audit</h1>
+    <h1 className="font-bold typo-title1">Notifications</h1>
     <p className="mt-3 max-w-[44rem] text-text-secondary typo-body">
-      Every notification surface, collected in one folder. The feedback is that
-      notifications aren&apos;t readable enough — so each story below isolates a
-      surface and lists the concrete levers to tune. Toggle the Storybook theme
-      (light / dark) on each to check contrast both ways. Work top to bottom.
+      Every notification surface, collected in one folder. The row rules are
+      below; each story then isolates a surface and lists what to check on it.
+      Toggle the Storybook theme (light / dark) on each to check contrast both
+      ways.
     </p>
+
+    <section className="mt-6 rounded-16 border border-border-subtlest-tertiary p-5">
+      <h2 className="font-bold typo-title3">The row rules</h2>
+      <ol className="mt-3 flex list-decimal flex-col gap-2 pl-5 text-text-secondary typo-callout">
+        <li>
+          <b>Two genres.</b> A <i>content arrival</i> (SourcePostAdded,
+          SquadPostAdded, UserPostAdded) makes the article headline the payload
+          — the sentence announcing it is boilerplate that repeats on every row.
+          A <i>social</i> row makes the person the payload. The row leads with
+          whichever it is.
+        </li>
+        <li>
+          <b>Attribution comes from the avatars, not the copy.</b> A content
+          arrival shows <Pill>The New Stack</Pill> or <Pill>Luffy in AI</Pill>{' '}
+          under the headline — never &quot;New post in …&quot;, which carries no
+          information inside the notifications inbox.
+        </li>
+        <li>
+          <b>The timestamp follows the last grey line</b> —{' '}
+          <Pill>The New Stack · 3h</Pill>,{' '}
+          <Pill>Scaling our cache layer · 5h</Pill>. A row with no grey text at
+          all gets it on a line of its own. It never rides the leading line.
+        </li>
+      </ol>
+      <p className="mt-3 text-text-tertiary typo-footnote">
+        Live examples of all four shapes: Notifications / List item — all types
+        / Row anatomy.
+      </p>
+    </section>
 
     <div className="mt-8 flex flex-col gap-4">
       {surfaces.map((row, index) => (
@@ -153,10 +182,21 @@ const NotificationsOverview = (): React.ReactElement => (
       <h2 className="font-bold typo-title3">Shared readability levers</h2>
       <ul className="mt-3 flex list-disc flex-col gap-1 pl-5 text-text-secondary typo-callout">
         <li>
-          Type scale: titles use <Pill>typo-callout</Pill> bold; meta uses{' '}
-          <Pill>typo-footnote</Pill>. Most &quot;hard to read&quot; reports trace
-          back to the footnote meta line at <Pill>text-tertiary</Pill> /{' '}
-          <Pill>text-quaternary</Pill>.
+          Type scale: the leading line uses <Pill>typo-callout</Pill>; grey
+          lines use <Pill>typo-subhead</Pill> / <Pill>typo-footnote</Pill> at{' '}
+          <Pill>text-tertiary</Pill>. The original &quot;hard to read&quot;
+          report was not about contrast — it was the headline sitting in the
+          grey tier while boilerplate held the primary one.
+        </li>
+        <li>
+          A line the timestamp rides must be a single-line <Pill>truncate</Pill>{' '}
+          flex row with the time as a sibling. <Pill>multi-truncate</Pill> is{' '}
+          <Pill>display: -webkit-box</Pill> and blockifies as a flex item,
+          losing its clamp and width; a global{' '}
+          <Pill>
+            * {'{'} flex-shrink: 0 {'}'}
+          </Pill>{' '}
+          means the text must opt back into shrinking or it overflows the row.
         </li>
         <li>
           Color tokens only (<Pill>text-primary</Pill>,{' '}

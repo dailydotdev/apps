@@ -13,10 +13,12 @@ export const useSendInterestCommand = (id: string) => {
     mutationFn: ({
       text,
       triggerRun,
+      questionId,
     }: {
       text: string;
       triggerRun?: boolean;
-    }) => sendInterestCommand({ id, text, triggerRun }),
+      questionId?: string;
+    }) => sendInterestCommand({ id, text, triggerRun, questionId }),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
