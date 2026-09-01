@@ -179,9 +179,10 @@ it('does not open before anything has been claimed', async () => {
   expect(mockSetLastSeen).not.toHaveBeenCalled();
 });
 
-// A free user can never claim the Plus bucket, so counting it would show them
-// a progress denominator they can never close.
-it('keeps locked quests out of the progress total', async () => {
+// The total is the day's potential and has to match the quest panel, which
+// shows locked Plus quests too — a free user counting the screen must not get
+// a different number from the popup.
+it('counts locked quests toward the progress total', async () => {
   const dashboard = makeDashboard([makeQuest()]);
   dashboard.daily.plus = [
     makeQuest({
@@ -197,7 +198,7 @@ it('keeps locked quests out of the progress total', async () => {
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
       type: LazyModal.QuestOffers,
-      props: { summary: { total: 1, claimed: 1, xpEarned: 50 } },
+      props: { summary: { total: 2, claimed: 1, xpEarned: 50 } },
     }),
   );
 });

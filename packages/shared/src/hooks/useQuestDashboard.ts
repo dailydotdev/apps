@@ -59,16 +59,17 @@ export type DailyQuestSummary = {
   xpEarned: number;
 };
 
-// Progress through today's daily quests. Locked quests are excluded from the
-// total: the Plus bucket is unreachable for free users, so counting it would
-// show them a progress denominator they can never close.
+// Progress through today's daily quests. Locked quests count toward the total
+// on purpose: the number is the day's potential, and it has to match what the
+// quest panel puts on screen — filtering them made a free user's denominator
+// disagree with the quests they can plainly see.
 export const getDailyQuestSummary = (
   dashboard?: QuestDashboard,
 ): DailyQuestSummary => {
   const quests = [
     ...(dashboard?.daily.regular ?? []),
     ...(dashboard?.daily.plus ?? []),
-  ].filter((quest) => !quest.locked);
+  ];
   const claimed = quests.filter(isQuestClaimed);
 
   return {
