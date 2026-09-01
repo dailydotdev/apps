@@ -38,18 +38,10 @@ export const featurePostCopySummary = new Feature('post_copy_summary', false);
 export const featurePostSharePrompts = new Feature('post_share_prompts', false);
 export const featurePollSnapshot = new Feature('poll_snapshot', false);
 export const featurePostNavCopyLink = new Feature('post_nav_copy_link', false);
-// Snapshot on Happening Now. Three levels compete for the control and only one
-// should ship, so each is its own flag rather than a variant string.
-export const featureSnapshotHighlightRow = new Feature(
-  'snapshot_highlight_row',
-  false,
-);
+// Snapshot on Happening Now: the expanded highlight is the only level that
+// carries it — expansion is the intent signal, and there is room for a label.
 export const featureSnapshotHighlightExpanded = new Feature(
   'snapshot_highlight_expanded',
-  false,
-);
-export const featureSnapshotHighlightsPage = new Feature(
-  'snapshot_highlights_page',
   false,
 );
 // Experiment: community takes — an LLM-generated digest of what the developer

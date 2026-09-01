@@ -12,10 +12,6 @@ import {
   postHighlightsFeedQueryOptions,
 } from '../../graphql/highlights';
 import { Tab, TabContainer } from '../tabs/TabContainer';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { HighlightsPageSnapshotButton } from '../../features/snapshot/HighlightsPageSnapshotButton';
-import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
-import { featureSnapshotHighlightsPage } from '../../lib/featureManagement';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
 
@@ -174,25 +170,13 @@ export const HighlightsPage = (): ReactElement => {
   const activeTab = isAllTab
     ? ALL_HIGHLIGHTS_LABEL
     : channelLabel ?? MAJOR_HEADLINES_LABEL;
-  const pageSnapshot = useSharePlacement({
-    feature: featureSnapshotHighlightsPage,
-    shouldEvaluate: majorHeadlines.length > 0,
-  });
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary">
-      <header className="flex items-center gap-3 px-3 py-4 laptop:px-4">
-        <h1 className="feed-highlights-title-gradient flex-1 font-bold typo-large-title">
+      <header className="flex items-center px-3 py-4 laptop:px-4">
+        <h1 className="feed-highlights-title-gradient font-bold typo-large-title">
           Happening Now
         </h1>
-        {pageSnapshot && (
-          <HighlightsPageSnapshotButton
-            headlines={majorHeadlines.map(({ headline }) => headline)}
-            seed="happening-now"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Secondary}
-          />
-        )}
       </header>
       <TabContainer
         controlledActive={activeTab}

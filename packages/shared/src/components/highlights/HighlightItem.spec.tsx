@@ -5,10 +5,7 @@ import { render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import type { PostHighlightFeed } from '../../graphql/highlights';
 import type { Feature } from '../../lib/featureManagement';
-import {
-  featureSnapshotHighlightExpanded,
-  featureSnapshotHighlightRow,
-} from '../../lib/featureManagement';
+import { featureSnapshotHighlightExpanded } from '../../lib/featureManagement';
 import { HighlightItem } from './HighlightItem';
 
 const scrollIntoView = jest.fn();
@@ -65,18 +62,12 @@ describe('HighlightItem', () => {
     expect(scrollIntoView).toHaveBeenCalled();
   });
 
-  it('leaves the row without a snapshot while the flag is off', () => {
-    render(<HighlightItem highlight={highlight} />);
+  it('leaves an expanded highlight without a snapshot while the flag is off', () => {
+    render(<HighlightItem defaultExpanded highlight={highlight} />);
 
     expect(
       screen.queryByRole('button', { name: /snapshot/i }),
     ).not.toBeInTheDocument();
-  });
-
-  it('puts a snapshot on the row when the row flag is on', () => {
-    renderWithFlag(featureSnapshotHighlightRow);
-
-    expect(screen.getByRole('button', { name: /snapshot/i })).toBeVisible();
   });
 
   it('only offers the expanded snapshot once the highlight is open', () => {

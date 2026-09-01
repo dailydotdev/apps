@@ -11,10 +11,7 @@ import { RelativeTime } from '../utilities/RelativeTime';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { HighlightSnapshotButton } from '../../features/snapshot/HighlightSnapshotButton';
 import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
-import {
-  featureSnapshotHighlightExpanded,
-  featureSnapshotHighlightRow,
-} from '../../lib/featureManagement';
+import { featureSnapshotHighlightExpanded } from '../../lib/featureManagement';
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
 
 interface HighlightItemProps {
@@ -28,9 +25,6 @@ export const HighlightItem = ({
 }: HighlightItemProps): ReactElement => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const ref = useRef<HTMLElement>(null);
-  const rowSnapshot = useSharePlacement({
-    feature: featureSnapshotHighlightRow,
-  });
   const expandedSnapshot = useSharePlacement({
     feature: featureSnapshotHighlightExpanded,
     shouldEvaluate: expanded,
@@ -81,40 +75,30 @@ export const HighlightItem = ({
 
   return (
     <article ref={ref}>
-      <div className="flex items-center pr-2 transition-colors hover:bg-surface-hover">
-        <button
-          type="button"
-          className="flex min-w-0 flex-1 items-center gap-2 px-4 py-3 text-left"
-          onClick={() => setExpanded((prev) => !prev)}
-          aria-expanded={expanded}
-        >
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span className="font-bold text-text-primary typo-body">
-              {highlight.headline}
-            </span>
-            <RelativeTime
-              dateTime={highlight.highlightedAt}
-              maxHoursAgo={72}
-              className="mt-0.5 text-text-quaternary typo-footnote"
-            />
-          </div>
-          <ArrowIcon
-            size={IconSize.Small}
-            className={classNames(
-              'shrink-0 text-text-tertiary transition-transform',
-              expanded ? 'rotate-180' : 'rotate-90',
-            )}
+      <button
+        type="button"
+        className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
+        onClick={() => setExpanded((prev) => !prev)}
+        aria-expanded={expanded}
+      >
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="font-bold text-text-primary typo-body">
+            {highlight.headline}
+          </span>
+          <RelativeTime
+            dateTime={highlight.highlightedAt}
+            maxHoursAgo={72}
+            className="mt-0.5 text-text-quaternary typo-footnote"
           />
-        </button>
-        {rowSnapshot && (
-          <HighlightSnapshotButton
-            {...snapshotProps}
-            showLabel={false}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          />
-        )}
-      </div>
+        </div>
+        <ArrowIcon
+          size={IconSize.Small}
+          className={classNames(
+            'shrink-0 text-text-tertiary transition-transform',
+            expanded ? 'rotate-180' : 'rotate-90',
+          )}
+        />
+      </button>
       {expanded && tldr && (
         <div className="flex flex-col gap-3 px-4 pb-3">
           <p className="text-text-secondary typo-markdown">{tldr}</p>
