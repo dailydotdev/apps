@@ -1,23 +1,22 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
-import { ButtonV2 } from '../../components/buttons/ButtonV2';
-import {
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../components/buttons/common';
-import { LinkIcon } from '../../components/icons';
-import { useCopyText } from '../../hooks/useCopy';
-import {
-  ToastType,
-  useToastNotification,
-} from '../../hooks/useToastNotification';
+import { ShareBand } from '../../components/share/ShareBand';
+import { useLogContext } from '../../contexts/LogContext';
+import { postLogEvent } from '../../lib/feed';
+import { LogEvent, Origin } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
+import type { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 
 /**
  * #6349's end-of-conversation band. It sits where reading actually stops, and
- * copy link is the whole offer: a still image of a live thread is stale within
+ * the link is the whole offer: a still image of a live thread is stale within
  * hours, so there is no snapshot here.
+ *
+ * The band and its split copy-link control come from #6369/#6378, which built
+ * this surface and the post-upvote prompt as one pair. Neither landed, so the
+ * components are carried here; if that stack revives, this and PostContentShare
+ * should collapse into its EndOfConversationShare.
  */
 export function EndOfThreadShare({
   post,
@@ -26,18 +25,17 @@ export function EndOfThreadShare({
   post: Post;
   commentsCount: number;
 }): ReactElement | null {
-  const [, copy] = useCopyText(post.commentsPermalink);
-  const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
-  const onCopy = useCallback(async () => {
-    try {
-      await copy({ message: '✅ Copied link' });
-    } catch {
-      displayToast('❌ Your browser blocked the clipboard', {
-        variant: ToastType.Error,
-      });
-    }
-  }, [copy, displayToast]);
+  const onShare = useCallback(
+    (provider: ShareProvider) =>
+      logEvent(
+        postLogEvent(LogEvent.SharePost, post, {
+          extra: { provider, origin: Origin.EndOfConversation },
+        }),
+      ),
+    [logEvent, post],
+  );
 
   // Nothing to be at the end of: an empty thread has no conversation to pass
   // on, and the band would just be a second copy-link button.
@@ -46,25 +44,14 @@ export function EndOfThreadShare({
   }
 
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-3">
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="font-bold text-text-primary typo-callout">
-          Enjoyed this discussion?
-        </span>
-        <span className="text-text-tertiary typo-callout">
-          Send it to someone who&apos;d have opinions.
-        </span>
-      </div>
-      <ButtonV2
-        icon={<LinkIcon />}
-        iconPosition={ButtonIconPosition.Right}
-        onClick={onCopy}
-        size={ButtonSize.Small}
-        type="button"
-        variant={ButtonVariant.Primary}
-      >
-        Copy link
-      </ButtonV2>
-    </div>
+    <ShareBand
+      cid={ReferralCampaignKey.SharePost}
+      className="mt-6"
+      description="Send it to someone who’d have opinions."
+      link={post.commentsPermalink}
+      onShare={onShare}
+      text={post.title ?? post.sharedPost?.title ?? ''}
+      title="Enjoyed this discussion?"
+    />
   );
 }

@@ -45,6 +45,14 @@ const DiscussionShareRow = dynamic(
   { ssr: false },
 );
 
+const ShareBand = dynamic(
+  () =>
+    import('@dailydotdev/shared/src/components/share/ShareBand').then(
+      (mod) => mod.ShareBand,
+    ),
+  { ssr: false },
+);
+
 const EndOfThreadShare = dynamic(
   () =>
     import('@dailydotdev/shared/src/features/snapshot/EndOfThreadShare').then(
@@ -547,17 +555,13 @@ const ThePromptedMoments = (): ReactElement => (
       note="PostContentShare renders this the moment you upvote a post, with a copy-link input rather than a button. Nothing was built for it: the Storybook page proposed a placement production already had. Snapshot stays out either way — it would be the payload the post's own OG image already carries."
       step="After upvote · shipping"
     >
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="font-bold text-text-primary typo-callout">
-            Should anyone else see this post?
-          </span>
-          <span className="text-text-tertiary typo-callout">
-            You upvoted it — pass it on.
-          </span>
-        </div>
-        <CopyLink iconRight label variant={ButtonVariant.Primary} />
-      </div>
+      <ShareBand
+        description="Send it to someone who&rsquo;d have opinions."
+        link={LINK}
+        onShare={() => {}}
+        text={TITLE}
+        title="Should anyone else see this post?"
+      />
     </Placement>
   </Section>
 );

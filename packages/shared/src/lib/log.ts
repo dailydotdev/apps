@@ -51,6 +51,7 @@ export enum Origin {
   HistoryTooltip = 'history tooltip',
   // search - end
   PostContent = 'post content',
+  EndOfConversation = 'end of conversation',
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',

@@ -18,7 +18,7 @@ describe('EndOfThreadShare', () => {
 
     expect(screen.getByText('Enjoyed this discussion?')).toBeInTheDocument();
     expect(
-      screen.getByText("Send it to someone who'd have opinions."),
+      screen.getByText('Send it to someone who\u2019d have opinions.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Copy link' })).toBeVisible();
   });

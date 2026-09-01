@@ -9,18 +9,7 @@ import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
 import { PostContentWidget } from './PostContentWidget';
 import { useActiveFeedContext } from '../../../contexts';
 import { postLogEvent } from '../../../lib/feed';
-import { ButtonV2 } from '../../buttons/ButtonV2';
-import {
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/common';
-import { LinkIcon } from '../../icons';
-import { useCopyText } from '../../../hooks/useCopy';
-import {
-  ToastType,
-  useToastNotification,
-} from '../../../hooks/useToastNotification';
+import { ShareBand } from '../../share/ShareBand';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
 import { featurePostSharePrompts } from '../../../lib/featureManagement';
@@ -43,33 +32,23 @@ export function PostContentShare({
   });
 
   const { logEvent } = useLogContext();
-  const { displayToast } = useToastNotification();
   const areSharePromptsEnabled = useSharePlacement({
     feature: featurePostSharePrompts,
   });
-  const [, copy] = useCopyText(shareLink);
 
-  const onCopy = useCallback(async () => {
-    logEvent(
-      postLogEvent(LogEvent.SharePost, post, {
-        extra: {
-          provider: ShareProvider.CopyLink,
-          origin: Origin.PostContent,
-        },
-        ...(logOpts && logOpts),
-      }),
-    );
-
-    try {
-      await copy({ message: '✅ Copied link' });
+  const onShare = useCallback(
+    (provider: ShareProvider) => {
+      logEvent(
+        postLogEvent(LogEvent.SharePost, post, {
+          extra: { provider, origin: Origin.PostContent },
+          ...(logOpts && logOpts),
+        }),
+      );
       // The prompt has done its job; leaving it up nags.
       onInteract('none');
-    } catch {
-      displayToast('❌ Your browser blocked the clipboard', {
-        variant: ToastType.Error,
-      });
-    }
-  }, [copy, displayToast, logEvent, logOpts, onInteract, post]);
+    },
+    [logEvent, logOpts, onInteract, post],
+  );
 
   if (interaction !== 'upvote' || isLoading) {
     return null;
@@ -77,28 +56,18 @@ export function PostContentShare({
 
   if (areSharePromptsEnabled) {
     // A prompt, not a form: the link in an input asks to be read before it can
-    // be used, and there is only one thing to do with it.
+    // be used, and there is only one thing to do with it. The band and its
+    // split control are #6369/#6378's, so this and the end-of-thread band read
+    // as one pair.
     return (
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="font-bold text-text-primary typo-callout">
-            Should anyone else see this post?
-          </span>
-          <span className="text-text-tertiary typo-callout">
-            You upvoted it — pass it on.
-          </span>
-        </div>
-        <ButtonV2
-          icon={<LinkIcon />}
-          iconPosition={ButtonIconPosition.Right}
-          onClick={onCopy}
-          size={ButtonSize.Small}
-          type="button"
-          variant={ButtonVariant.Primary}
-        >
-          Copy link
-        </ButtonV2>
-      </div>
+      <ShareBand
+        className="mt-6"
+        description="Send it to someone who’d have opinions."
+        link={shareLink}
+        onShare={onShare}
+        text={post.title ?? post.sharedPost?.title ?? ''}
+        title="Should anyone else see this post?"
+      />
     );
   }
 
