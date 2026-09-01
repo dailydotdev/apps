@@ -9,6 +9,7 @@ import {
   AnalyticsIcon,
   LinkIcon,
   SettingsIcon,
+  ShareIcon,
   TimerIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import type { DeviceName } from '../surfaceChrome';
@@ -178,12 +179,178 @@ const AllDevices = ({ spot }: { spot: Spot }) => (
   </Rail>
 );
 
+
+/* ------------------------------------------------------- the /briefing list */
+
+type ListSpot = 'today' | 'tsahi' | 'snapshot';
+
+const BRIEFS = [
+  { title: 'Your Monday briefing', pill: 'Just in', read: false, mins: 5 },
+  { title: 'Your Sunday briefing', read: true, mins: 4 },
+  { title: 'Your Saturday briefing', read: true, mins: 6 },
+];
+
+/**
+ * BriefShareControls from #6353: copy link on the left, then the arrow that
+ * opens the social surface. One glyph per meaning — the arrow is never a
+ * one-tap copy. Rendered after the full-bleed CardLink with an explicit
+ * z-index, or the overlay swallows the clicks.
+ */
+const RowControls = ({ spot }: { spot: ListSpot }) => {
+  if (spot === 'today') {
+    return null;
+  }
+
+  return (
+    <div className="relative z-1 flex shrink-0 items-center gap-1">
+      <Button
+        aria-label="Copy link"
+        icon={<LinkIcon />}
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+      />
+      <Button
+        aria-label="Share briefing"
+        icon={<ShareIcon />}
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+      />
+      {spot === 'snapshot' && <Control action="Snapshot" />}
+    </div>
+  );
+};
+
+const BriefRow = ({
+  brief,
+  device,
+  spot,
+}: {
+  brief: (typeof BRIEFS)[number];
+  device: DeviceName;
+  spot: ListSpot;
+}) => (
+  <article className="relative flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-3">
+    {/* BriefGradientIcon — `hidden mobileXL:flex`. */}
+    {device !== 'Mobile' && (
+      <span className="size-12 shrink-0 rounded-12 bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default" />
+    )}
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <div className="flex min-w-0 items-center gap-2">
+        <span
+          className={`min-w-0 shrink truncate font-bold typo-title3 ${
+            brief.read ? 'text-text-quaternary' : 'text-text-primary'
+          }`}
+        >
+          {brief.title}
+        </span>
+        {brief.pill && (
+          <span className="shrink-0 rounded-10 bg-accent-bacon-default px-2 py-0.5 text-text-primary typo-caption1">
+            {brief.pill}
+          </span>
+        )}
+      </div>
+      <span className="truncate text-text-tertiary typo-subhead">
+        <span className="text-text-primary">{brief.mins}m read time</span>
+        {' • '}
+        Based on 34 posts from 12 sources
+      </span>
+    </div>
+    <RowControls spot={spot} />
+  </article>
+);
+
+const BriefListScreen = ({
+  device,
+  spot,
+}: {
+  device: DeviceName;
+  spot: ListSpot;
+}) => (
+  <Device name={device}>
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex items-center gap-2">
+        <h1
+          className={`flex-1 font-bold text-text-primary ${
+            device === 'Mobile' ? 'typo-title2' : 'typo-title1'
+          }`}
+        >
+          Presidential briefings
+        </h1>
+        <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
+          Generate Brief
+        </Button>
+        <Button
+          aria-label="Notification settings"
+          icon={<SettingsIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
+      </div>
+
+      <div className="rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-tertiary typo-footnote">
+        Upgrade to Plus for a briefing every morning
+      </div>
+
+      <section className="flex w-full flex-col gap-4">
+        {BRIEFS.map((brief) => (
+          <BriefRow
+            key={brief.title}
+            brief={brief}
+            device={device}
+            spot={spot}
+          />
+        ))}
+      </section>
+
+      <span className="px-4 pb-2 pt-6 font-bold text-text-quaternary typo-title3">
+        2025
+      </span>
+    </div>
+  </Device>
+);
+
+const AllLists = ({ spot }: { spot: ListSpot }) => (
+  <Rail>
+    <BriefListScreen device="Desktop" spot={spot} />
+    <BriefListScreen device="Tablet" spot={spot} />
+    <BriefListScreen device="Mobile" spot={spot} />
+  </Rail>
+);
+
 const Briefing = () => (
   <SurfacePage
-    intro="The most personal artifact we produce, and the one surface where a link is actively wrong: send someone the URL and they get their own briefing, or a login wall. The image is the only payload that survives the trip."
+    intro="Two surfaces, not one: the list at /briefing and the briefing itself. The most personal artifact we produce, and the one surface where a link is actively wrong: send someone the URL and they get their own briefing, or a login wall. The image is the only payload that survives the trip."
     map="Sharing map: lead with Snapshot (#6353). Link is not a secondary option here, it is a broken one — which makes this the clearest case in the product for snapshot as the primary control."
     title="Presidential briefing"
   >
+    <Category
+      covers="webapp/pages/briefing · BriefListItem.tsx · #6353 BriefShareControls.tsx"
+      title="The list at /briefing"
+      verdict="Tsahi already built this in #6353: a copy-link button and a share arrow on every row, behind the `share_briefing_digest` gate. The PR is closed and stacked on #6343, so none of it reached main — but the component exists and the decisions in it are settled."
+    >
+      <Variant
+        headline="Rows with nothing on them"
+        note="Gradient icon, title with a ‘Just in’ pill, and ‘5m read time • Based on 34 posts from 12 sources’. A full-bleed CardLink covers the row, so the whole thing is one link and there is nowhere to share from."
+        step="Today"
+      >
+        <AllLists spot="today" />
+      </Variant>
+      <Variant
+        headline="Copy link and share arrow per row"
+        note="#6353's BriefShareControls, unchanged: copy on the left, then the arrow that opens the popover on desktop and the native sheet on mobile. One glyph per meaning — the arrow is never a one-tap copy. Both render after the CardLink with `relative z-1`, or the overlay swallows the clicks."
+        step="Tsahi · #6353"
+      >
+        <AllLists spot="tsahi" />
+      </Variant>
+      <Variant
+        headline="Snapshot as the third control"
+        note="The same card the briefing post produces, reachable without opening the briefing. It is the only one of the three that survives being sent to someone who is not signed in — but three controls on a row whose whole surface is already a link is the cost."
+        step="Push"
+      >
+        <AllLists spot="snapshot" />
+      </Variant>
+    </Category>
+
     <Category
       covers="BriefPostContent.tsx · BriefPostHeader.tsx · BriefPostHeaderActions.tsx"
       title="What actually ships today"
