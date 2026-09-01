@@ -26,9 +26,22 @@ describe('copyShareImage', () => {
 
     const [[[item]]] = write.mock.calls;
     expect(item.types).toEqual(['image/png', 'text/plain']);
-    // jsdom's Blob has no text(); its size is the link's byte length.
-    const text = item.items['text/plain'] as Blob;
+    // A promise, so the write stays inside the gesture while the short link
+    // is still being fetched. jsdom's Blob has no text(); size is its bytes.
+    const text = await (item.items['text/plain'] as Promise<Blob>);
     expect(text.type).toBe('text/plain');
+    expect(text.size).toBe(LINK.length);
+  });
+
+  it('accepts a link that is still resolving', async () => {
+    const pending = new Promise<string>((resolve) => {
+      setTimeout(() => resolve(LINK), 0);
+    });
+
+    await expect(copyShareImage(blob(), pending)).resolves.toBe(true);
+
+    const [[[item]]] = write.mock.calls;
+    const text = await (item.items['text/plain'] as Promise<Blob>);
     expect(text.size).toBe(LINK.length);
   });
 

@@ -9,6 +9,8 @@ import {
 import { CopyIcon } from '../../components/icons';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
+import { useGetShortUrl } from '../../hooks';
+import { ReferralCampaignKey } from '../../lib/referral';
 import {
   ToastType,
   useToastNotification,
@@ -31,20 +33,28 @@ export function CopySummaryButton({
   link: string;
   className?: string;
 }): ReactElement {
-  const [, copy] = useCopyText([title, summary, link].join('\n\n'));
+  const [, copy] = useCopyText();
+  const { getShortUrl } = useGetShortUrl();
   const { displayToast } = useToastNotification();
 
   // The clipboard rejects outright when the document is not focused, and a
   // press that reports nothing at all reads as a dead button.
   const onCopy = useCallback(async () => {
     try {
-      await copy({ message: '✅ Copied summary' });
+      // The tracked short link, like every other copy on the page — a raw
+      // permalink pasted into a thread is attributed to nobody.
+      const shortLink = await getShortUrl(link, ReferralCampaignKey.SharePost);
+
+      await copy({
+        textToCopy: [title, summary, shortLink].join('\n\n'),
+        message: '✅ Copied summary',
+      });
     } catch {
       displayToast('❌ Your browser blocked the clipboard', {
         variant: ToastType.Error,
       });
     }
-  }, [copy, displayToast]);
+  }, [copy, displayToast, getShortUrl, link, summary, title]);
 
   return (
     <Tooltip content="Copy summary">

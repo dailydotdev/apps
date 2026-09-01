@@ -1,5 +1,5 @@
 import type { ReactElement, RefObject } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Button,
@@ -10,6 +10,13 @@ import { CopyIcon, LinkIcon } from '../../components/icons';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
+import { useCopyPostLink } from '../../hooks/useCopyPostLink';
+import { useGetShortUrl } from '../../hooks';
+import { useLogContext } from '../../contexts/LogContext';
+import { postLogEvent } from '../../lib/feed';
+import { LogEvent, Origin } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
+import { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
 import { SNAPSHOT_SIZE } from './snapshotGradient';
@@ -56,10 +63,26 @@ export function SelectionSnapshotBar({
   // The card outlives the bar: pressing Snapshot collapses the selection in
   // some browsers, and the capture still has to find the quote mounted.
   const [quote, setQuote] = useState<TextSelection | null>(null);
-  // useCopyText, not useCopyLink: the link variant reaches for the shortener,
-  // which needs an authenticated user, and the bar has to work signed out.
-  const [, copyLink] = useCopyText(post.commentsPermalink);
+  const [, copyLink] = useCopyPostLink();
   const [, copyText] = useCopyText(quote?.text);
+  const { getShortUrl } = useGetShortUrl();
+  const { logEvent } = useLogContext();
+
+  // The same link every other copy on the page produces: shortened, and
+  // carrying the share campaign so the visit is attributed.
+  const getTrackedLink = useCallback(
+    () => getShortUrl(post.commentsPermalink, ReferralCampaignKey.SharePost),
+    [getShortUrl, post.commentsPermalink],
+  );
+
+  const onCopyLink = useCallback(async () => {
+    logEvent(
+      postLogEvent(LogEvent.SharePost, post, {
+        extra: { provider: ShareProvider.CopyLink, origin: Origin.PostContent },
+      }),
+    );
+    copyLink({ link: await getTrackedLink() });
+  }, [copyLink, getTrackedLink, logEvent, post]);
 
   useEffect(() => {
     if (selection) {
@@ -89,7 +112,7 @@ export function SelectionSnapshotBar({
           <SnapshotButton
             captureOptions={CAPTURE_OPTIONS}
             filename={`daily-quote-${post.id}`}
-            link={post.commentsPermalink}
+            link={getTrackedLink}
             target={cardRef}
             variant={ButtonVariant.Primary}
           />
@@ -97,7 +120,7 @@ export function SelectionSnapshotBar({
             <Button
               aria-label="Copy link"
               icon={<LinkIcon />}
-              onClick={() => copyLink({ message: '✅ Copied link' })}
+              onClick={onCopyLink}
               size={ButtonSize.Small}
               type="button"
               variant={ButtonVariant.Tertiary}

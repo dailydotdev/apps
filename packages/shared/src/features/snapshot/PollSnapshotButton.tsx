@@ -1,10 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import type {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/common';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import { useGetShortUrl } from '../../hooks';
+import { ReferralCampaignKey } from '../../lib/referral';
 import type { Post } from '../../graphql/posts';
 import { PollSnapshotCard } from './PollSnapshotCard';
 import { pollSnapshotFromPost } from './pollSnapshot';
@@ -35,7 +37,13 @@ export function PollSnapshotButton({
   variant?: ButtonVariant;
 }): ReactElement | null {
   const cardRef = useRef<HTMLDivElement>(null);
+  const { getShortUrl } = useGetShortUrl();
   const snapshot = pollSnapshotFromPost(post);
+
+  const getTrackedLink = useCallback(
+    () => getShortUrl(post.commentsPermalink, ReferralCampaignKey.SharePost),
+    [getShortUrl, post.commentsPermalink],
+  );
 
   if (!snapshot) {
     return null;
@@ -46,7 +54,7 @@ export function PollSnapshotButton({
       <SnapshotButton
         captureOptions={CAPTURE_OPTIONS}
         filename={`daily-poll-${post.id}`}
-        link={post.commentsPermalink}
+        link={getTrackedLink}
         showLabel={showLabel}
         size={size}
         target={cardRef}

@@ -31,6 +31,8 @@ describe('CopySummaryButton', () => {
     fireEvent.click(screen.getByLabelText('Copy summary'));
 
     await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    // The link is the tracked short one, resolved at press time; the test
+    // shortener is a passthrough, so it comes back as the link given.
     expect(writeText).toHaveBeenCalledWith(
       [
         'Why iconic tech brands lost their dominance',

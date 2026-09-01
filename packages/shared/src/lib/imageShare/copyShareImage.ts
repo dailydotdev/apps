@@ -10,7 +10,8 @@
  */
 export async function copyShareImage(
   blob: Promise<Blob>,
-  link?: string,
+  /** May still be resolving — the short link is fetched at press time. */
+  link?: string | Promise<string>,
 ): Promise<boolean> {
   if (typeof ClipboardItem === 'undefined' || !navigator.clipboard?.write) {
     return false;
@@ -30,7 +31,11 @@ export async function copyShareImage(
     const copied = await write(
       new ClipboardItem({
         'image/png': blob,
-        'text/plain': new Blob([link], { type: 'text/plain' }),
+        // A promise, not an awaited value: awaiting here would end the task
+        // that handled the gesture, and Safari refuses the write after that.
+        'text/plain': Promise.resolve(link).then(
+          (resolved) => new Blob([resolved], { type: 'text/plain' }),
+        ),
       }),
     );
 
