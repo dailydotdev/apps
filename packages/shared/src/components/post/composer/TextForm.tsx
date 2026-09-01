@@ -217,7 +217,10 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
           }}
           maxInputLength={BODY_MAX_LENGTH}
           allowBlockFormatting
-          minHeightClassName="min-h-[12rem]"
+          // No fixed floor: `editorBody`'s flex-1 already fills the scroll
+          // window, and a px floor larger than the keyboard-shrunk window
+          // gives an empty editor scroll range (the placeholder slides away).
+          minHeightClassName="min-h-0"
           toolbarPosition="bottom"
           toolbarLeading={toolbarLeading}
           toolbarRightActions={toolbarRightActions}
