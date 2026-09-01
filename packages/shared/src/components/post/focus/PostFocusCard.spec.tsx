@@ -209,9 +209,9 @@ describe('PostFocusCard read CTA', () => {
   it('does not render a read CTA on a native post', () => {
     renderCard(freeformPost);
 
-    expect(
-      screen.queryAllByRole('link', { name: /Read post/ }),
-    ).toHaveLength(0);
+    expect(screen.queryAllByRole('link', { name: /Read post/ })).toHaveLength(
+      0,
+    );
   });
 });
 
