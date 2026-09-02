@@ -17,6 +17,7 @@ import type { UserOffer } from '../../../graphql/offers';
 import { USER_OFFERS_QUERY } from '../../../graphql/offers';
 import { LazyModal } from '../common/types';
 import { MODAL_KEY } from '../../../hooks/useLazyModal';
+import { RequestKey } from '../../../lib/query';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { QUEST_CLAIMED_EVENT } from '../../../lib/questClaimed';
 import * as conditionalFeatureHook from '../../../hooks/useConditionalFeature';
@@ -122,6 +123,19 @@ const tree = (
   </TestBootProvider>
 );
 
+// Whether the offers query is live. React Query flips fetchStatus during the
+// mount commit that `render`/`act` flushes, so this is synchronous and
+// deterministic — no elapsed time to guess at.
+const isFetchingOffers = (queryClient: QueryClient) =>
+  queryClient
+    .getQueryCache()
+    .findAll()
+    .some(
+      (query) =>
+        query.queryKey.includes(RequestKey.UserOffers) &&
+        query.state.fetchStatus === 'fetching',
+    );
+
 /** Renders with the dashboard already loaded, and nothing newly claimed. */
 const renderLoaded = (
   dashboard: QuestDashboard | undefined,
@@ -202,30 +216,22 @@ it('opens the offers modal when a claim lands while the app is open', async () =
 // The reported bug: the reward turned up on a later visit, detached from the
 // action that earned it. Having claimed today is no longer the trigger.
 //
-// Asserting the absence needs real elapsed time, not `waitFor`: a negative
-// assertion there resolves at t=0, long before the offers query could have
-// settled, so it would pass against the old state check too. The explicit
-// settle is what makes this discriminating — under that logic the modal opens
-// on entry, which this catches.
-it('stays shut on app entry, and opens only once a claim is dispatched', async () => {
+// Anchored on whether the offers query went live rather than on elapsed time.
+// Under the old state check the entry render enables it during mount, so this
+// reads `true` before any claim — which is what makes the test discriminating
+// without a wall-clock sleep to lose races against on CI.
+it('stays shut on app entry, and opens only once a claim is dispatched', () => {
   const view = renderLoaded(claimed());
 
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-  });
-
+  expect(isFetchingOffers(view.queryClient)).toBe(false);
   expect(view.queryClient.getQueryData(MODAL_KEY)).toBeUndefined();
   expect(mockSetLastSeen).not.toHaveBeenCalled();
 
-  // Positive anchor: the same mounted listener does open on a claim, so the
-  // silence above is the entry gate rather than a slow test.
+  // Positive anchor: the claim does put the query live, so the check above was
+  // the entry gate and not an assertion that can never fail.
   dispatchClaim();
 
-  await waitFor(() =>
-    expect(view.queryClient.getQueryData(MODAL_KEY)).toMatchObject({
-      type: LazyModal.QuestOffers,
-    }),
-  );
+  expect(isFetchingOffers(view.queryClient)).toBe(true);
 });
 
 // Weekly, milestone and intro claims all go through the same mutation.
@@ -234,11 +240,7 @@ it('ignores a claim that is not a daily quest', async () => {
 
   dispatchClaim(QuestType.Weekly);
 
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-  });
-
-  expect(view.queryClient.getQueryData(MODAL_KEY)).toBeUndefined();
+  expect(isFetchingOffers(view.queryClient)).toBe(false);
 
   dispatchClaim(QuestType.Daily);
 
@@ -249,9 +251,71 @@ it('ignores a claim that is not a daily quest', async () => {
   );
 });
 
+// A claim nobody acts on has to expire, or it stops being a moment: a tab
+// open past midnight finds the day stamp cleared and would open on no action.
+it('expires a claim that never got acted on', async () => {
+  jest.useFakeTimers();
+
+  try {
+    const { queryClient } = renderLoaded(claimed());
+
+    // Hold the slot so the claim cannot be spent, then let the window pass.
+    queryClient.setQueryData(MODAL_KEY, {
+      type: LazyModal.NewStreak,
+      props: {},
+    });
+    dispatchClaim();
+
+    act(() => {
+      jest.advanceTimersByTime(30_000);
+    });
+
+    // The sibling closing is no longer enough — the claim is gone. The extra
+    // tick flushes React Query's notify batching, which fake timers stall;
+    // without it the listener never re-renders and this would pass whether the
+    // claim expired or not.
+    act(() => {
+      queryClient.setQueryData(MODAL_KEY, null);
+      jest.advanceTimersByTime(1);
+    });
+
+    expect(isFetchingOffers(queryClient)).toBe(false);
+    expect(queryClient.getQueryData(MODAL_KEY)).toBeNull();
+  } finally {
+    jest.useRealTimers();
+  }
+});
+
+// A treatment that came back empty must not be revived by a later refetch
+// landing inventory long after the claim.
+it('spends the claim even when no offers came back', async () => {
+  mockOffersResponse([]);
+
+  const { queryClient } = renderAndClaim(claimed());
+
+  // Waits for the offers fetch to settle, which is when the claim is spent.
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.QuestOffersEligible }),
+    ),
+  );
+
+  // Inventory turns up later in the same session. With the claim spent the
+  // query is disabled, so invalidating it cannot put it back in flight —
+  // checked synchronously, since a `toBeUndefined` on the modal would pass at
+  // t=0 whether the claim was spent or not.
+  mockOffersResponse(offers);
+  act(() => {
+    queryClient.invalidateQueries();
+  });
+
+  expect(isFetchingOffers(queryClient)).toBe(false);
+  expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined();
+});
+
 // MainLayout mounts three independent MODAL_KEY writers whose effects run in
 // the same commit, and `modal` is only a render snapshot.
-it('yields to a sibling popup that already claimed the modal slot', async () => {
+it('defers to a sibling popup that already claimed the modal slot', async () => {
   const { queryClient } = renderLoaded(claimed());
 
   queryClient.setQueryData(MODAL_KEY, {
