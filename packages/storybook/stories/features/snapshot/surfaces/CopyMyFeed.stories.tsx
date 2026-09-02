@@ -64,13 +64,15 @@ const Block = ({
   children,
 }: {
   title: string;
-  description: string;
+  description?: string;
   children?: React.ReactNode;
 }) => (
   <div className="flex flex-col gap-4">
     <div className="flex flex-col gap-1">
       <span className="font-bold text-text-primary typo-body">{title}</span>
-      <span className="text-text-tertiary typo-callout">{description}</span>
+      {description && (
+        <span className="text-text-tertiary typo-callout">{description}</span>
+      )}
     </div>
     {children}
   </div>
@@ -135,8 +137,12 @@ const FeedSettingsScreen = ({
             <Field counter="39" label="Enter feed name" value="My new feed" />
           </Block>
 
-          <Block description="" title="Choose an icon">
-            <Button size={ButtonSize.Small} variant={ButtonVariant.Secondary}>
+          <Block title="Choose an icon">
+            <Button
+              className="w-fit"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Secondary}
+            >
               Pick emoji
             </Button>
           </Block>
@@ -164,6 +170,7 @@ const FeedSettingsScreen = ({
               >
                 <Control
                   action="Snapshot"
+                  className="w-40"
                   label
                   variant={
                     spot === 'lead'
