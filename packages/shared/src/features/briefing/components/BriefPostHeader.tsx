@@ -26,12 +26,16 @@ export const BriefPostHeader = ({
     <div className="flex flex-col gap-1">
       <div className="flex min-w-full items-center justify-between gap-2">
         <Typography
+          className="min-w-0"
           color={TypographyColor.Secondary}
           type={TypographyType.Callout}
+          truncate
         >
           {kicker}
         </Typography>
-        {children && <div>{children}</div>}
+        {/* The actions used to be desktop-only, so nothing had to survive a
+            narrow row: the kicker gives way to them rather than pushing. */}
+        {children && <div className="shrink-0">{children}</div>}
       </div>
       <Typography type={TypographyType.LargeTitle} bold>
         {heading}
