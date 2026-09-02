@@ -15,10 +15,8 @@ import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 
 /**
  * /dev/status-moments — internal review surface for the Snapshot sharing
- * initiative. Seven win moments that end in a dismiss, drawn today / recommended
- * / push so the placement call can be made against real screens.
- *
- * Gated to non-production builds. Carries `noindex` SEO regardless.
+ * initiative. Every screen below is a redraw of a real one; the reference is
+ * named above each.
  */
 
 const AVATAR =
@@ -120,11 +118,7 @@ const Category = ({
 
 /* -------------------------------------------------------------- surfaces */
 
-/**
- * NewStreakModal: a reminder switch and close at the top, the fire art with
- * the count overlaid in typo-tera, a title, one line of copy, the freeze
- * upsell, and an opt-out checkbox. No share control, and no primary button.
- */
+/** NewStreakModal.tsx — the streak milestone popup. */
 const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
   <Screen>
     <div className="relative flex flex-col items-center gap-2 p-6 text-center">
@@ -172,11 +166,7 @@ const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
   </Screen>
 );
 
-/**
- * AchievementCard: a 48px thumbnail, name and description, then the snapshot
- * button and the points. The snapshot is `opacity-0 group-hover:opacity-100`,
- * so it is invisible until hover — and permanently invisible on touch.
- */
+/** AchievementCard.tsx — the unlock card. */
 const AchievementScreen = ({
   spot,
 }: {
@@ -238,12 +228,7 @@ const AchievementScreen = ({
   </Screen>
 );
 
-/**
- * UserTopList rows: a w-14 tabular score, TopRankBadge, an optional level
- * ring, then UserHighlight (32px avatar, caption1 name, caption2 handle).
- * The snapshot is `opacity-0 group-hover:opacity-100` at XSmall Float —
- * shipped, and invisible on touch.
- */
+/** UserTopList.tsx — the leaderboard rows. */
 const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
   <Screen>
     <div className="flex flex-col gap-3 p-4">
@@ -314,6 +299,7 @@ const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
 
 /* -------------------------------------------------- other win moments */
 
+/** TopReaderBadgeModal.tsx — download only, no share route. */
 const TopReaderScreen = ({ share }: { share: boolean }) => (
   <Screen>
     <div className="flex flex-col items-center gap-4 p-6 text-center">
@@ -358,6 +344,7 @@ const TIER_DAYS: [string, number][] = [
   ['Supernova', 180],
 ];
 
+/** StreakOfferCelebration.tsx, over the tiers in streakTiers.ts. */
 const StreakTierScreen = ({ share }: { share: boolean }) => (
   <Screen>
     <div className="flex flex-col items-center gap-3 p-6 text-center">
@@ -404,10 +391,7 @@ const StreakTierScreen = ({ share }: { share: boolean }) => (
   </Screen>
 );
 
-/**
- * The award moment, from the recipient's side. ListAwardsModal shows who gave
- * what and the cores total; the person who received it gets no way to mark it.
- */
+/** ListAwardsModal.tsx, from the recipient's side. */
 const AwardedScreen = ({ share }: { share: boolean }) => (
   <Screen>
     <div className="flex flex-col gap-3 p-4">
