@@ -67,16 +67,23 @@ const QuestOffersTrigger = (): null => {
   // arbitrary point with no claim behind it. The token rises per claim so a
   // second claim refreshes the window rather than riding the first one's.
   const [claimToken, setClaimToken] = useState(0);
+  const claimedType = useRef<QuestType | null>(null);
 
   useEffect(() => {
     const onQuestClaimed = (event: Event) => {
       const { detail } = event as CustomEvent<QuestClaimedEventDetail>;
 
-      // Weekly, milestone and intro claims go through the same mutation, but
-      // this popup's celebration is about the day's quests.
-      if (detail.questType === QuestType.Daily) {
-        setClaimToken((current) => current + 1);
+      // Any real claim is a reward moment — daily, weekly and milestone all
+      // qualify. Intro quests do not: they are the onboarding flow, they have
+      // their own celebration in IntroQuestModal, and since that is a
+      // LazyModal this trigger would defer behind it and land a sponsored
+      // offer as someone's first-run experience.
+      if (detail.questType === QuestType.Intro) {
+        return;
       }
+
+      claimedType.current = detail.questType;
+      setClaimToken((current) => current + 1);
     };
 
     window.addEventListener(QUEST_CLAIMED_EVENT, onQuestClaimed);
@@ -165,6 +172,9 @@ const QuestOffersTrigger = (): null => {
       extra: JSON.stringify({
         enabled: offersEnabled,
         offers: offers?.length ?? 0,
+        // Daily, weekly and milestone all open this, so the denominator needs
+        // to be segmentable by what was actually claimed.
+        questType: claimedType.current,
         // `retry: false` means a 5xx or a dropped connection settles the query
         // with no offers, which is otherwise indistinguishable from healthy
         // but empty inventory — the third state worth telling apart.

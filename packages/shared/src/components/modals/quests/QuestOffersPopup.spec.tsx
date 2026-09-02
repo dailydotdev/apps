@@ -234,14 +234,33 @@ it('stays shut on app entry, and opens only once a claim is dispatched', () => {
   expect(isFetchingOffers(view.queryClient)).toBe(true);
 });
 
-// Weekly, milestone and intro claims all go through the same mutation.
-it('ignores a claim that is not a daily quest', async () => {
+// Any real claim is a reward moment; the quest's cadence is not the point.
+it.each([QuestType.Daily, QuestType.Weekly, QuestType.Milestone])(
+  'opens on a %s claim',
+  async (questType) => {
+    const view = renderLoaded(claimed());
+
+    dispatchClaim(questType);
+
+    await waitFor(() =>
+      expect(view.queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+        type: LazyModal.QuestOffers,
+      }),
+    );
+  },
+);
+
+// Intro quests are onboarding: they have their own celebration in
+// IntroQuestModal, and since that is a LazyModal this trigger would defer
+// behind it and land a sponsored offer as someone's first-run experience.
+it('ignores an intro quest claim', async () => {
   const view = renderLoaded(claimed());
 
-  dispatchClaim(QuestType.Weekly);
+  dispatchClaim(QuestType.Intro);
 
   expect(isFetchingOffers(view.queryClient)).toBe(false);
 
+  // Positive anchor, so the check above cannot pass vacuously.
   dispatchClaim(QuestType.Daily);
 
   await waitFor(() =>
@@ -454,7 +473,12 @@ describe('eligibility logging', () => {
     renderAndClaim(claimed());
 
     await waitFor(() =>
-      expectEligible({ enabled: true, offers: 1, failed: false }),
+      expectEligible({
+        enabled: true,
+        offers: 1,
+        questType: QuestType.Daily,
+        failed: false,
+      }),
     );
     expect(mockSetEligibleLoggedAt).toHaveBeenCalled();
   });
@@ -469,7 +493,12 @@ describe('eligibility logging', () => {
     const { queryClient } = renderAndClaim(claimed());
 
     await waitFor(() =>
-      expectEligible({ enabled: false, offers: 0, failed: false }),
+      expectEligible({
+        enabled: false,
+        offers: 0,
+        questType: QuestType.Daily,
+        failed: false,
+      }),
     );
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined();
   });
@@ -482,7 +511,12 @@ describe('eligibility logging', () => {
     renderAndClaim(claimed());
 
     await waitFor(() =>
-      expectEligible({ enabled: true, offers: 0, failed: false }),
+      expectEligible({
+        enabled: true,
+        offers: 0,
+        questType: QuestType.Daily,
+        failed: false,
+      }),
     );
   });
 
@@ -500,7 +534,12 @@ describe('eligibility logging', () => {
     renderAndClaim(claimed());
 
     await waitFor(() =>
-      expectEligible({ enabled: true, offers: 0, failed: true }),
+      expectEligible({
+        enabled: true,
+        offers: 0,
+        questType: QuestType.Daily,
+        failed: true,
+      }),
     );
   });
 

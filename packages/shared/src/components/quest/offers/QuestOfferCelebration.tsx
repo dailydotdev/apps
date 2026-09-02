@@ -167,8 +167,11 @@ export const QuestOfferCelebration = ({
         <span className="font-bold tabular-nums typo-tera">
           {summary.claimed}
         </span>
+        {/* Named explicitly: a weekly or milestone claim also opens this, and
+            an unlabelled "0 / 5" next to "Quest complete" would read as a bug
+            rather than as the day's outstanding quests. */}
         <span className="text-text-tertiary typo-title3">
-          {`/ ${summary.total} quests`}
+          {`/ ${summary.total} daily quests`}
         </span>
       </div>
       <h2 className="typo-title3">{completionHeadline(summary)}</h2>

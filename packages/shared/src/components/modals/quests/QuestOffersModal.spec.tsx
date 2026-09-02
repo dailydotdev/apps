@@ -98,7 +98,7 @@ describe('QuestOffersModal', () => {
     expect(screen.getByText('Get 50% off Notes Pro')).toBeInTheDocument();
     expect(screen.getByText('Daily quests complete')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
-    expect(screen.getByText('/ 3 quests')).toBeInTheDocument();
+    expect(screen.getByText('/ 3 daily quests')).toBeInTheDocument();
 
     await waitFor(() =>
       expect(mockConfirmDelivered).toHaveBeenCalledWith(
@@ -131,7 +131,7 @@ describe('QuestOffersModal', () => {
     });
 
     expect(screen.getByText('Quest complete')).toBeInTheDocument();
-    expect(screen.getByText('/ 3 quests')).toBeInTheDocument();
+    expect(screen.getByText('/ 3 daily quests')).toBeInTheDocument();
 
     unmount();
     renderComponent();
