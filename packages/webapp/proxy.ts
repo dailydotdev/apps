@@ -131,12 +131,18 @@ const isMarkdownRequest = (req: NextRequest): boolean => {
 // already bucketed into it, and the rewrite keeps the visible URL.
 // Only the post page is mirrored — every mirrored route doubles its ISR
 // entries and its revalidation traffic.
-const getLayoutVariantResponse = (
+export const getLayoutVariantResponse = (
   req: NextRequest,
 ): NextResponse | undefined => {
   const { pathname } = req.nextUrl;
 
+  // Next normalises `/_next/data/<buildId>/posts/x.json` down to the page
+  // path, so a soft navigation reaches here looking exactly like a document
+  // request. Rewriting it answers with the mirror's route, which moves the
+  // client onto a route it never asked for; the shell is already resolved by
+  // then, so only the initial document needs the mirror.
   if (
+    req.headers.has('x-nextjs-data') ||
     req.cookies.get(LAYOUT_VARIANT_COOKIE)?.value !== 'v2' ||
     !isPostPermalinkPath(pathname)
   ) {

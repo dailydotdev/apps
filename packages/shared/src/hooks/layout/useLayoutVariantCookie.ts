@@ -6,12 +6,9 @@ import { useLayoutVariantFlag } from './useLayoutVariant';
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 180;
 
-// Records the shell for the webapp's proxy to serve on the next hard
-// navigation. Reads the flag rather than `useLayoutVariant` so a session
-// already on a mirrored route records what GrowthBook says now instead of
-// echoing back what the server was told last time. Only v2 is written — the
-// rail owns the header for logged-in laptop sessions alone — and expiring the
-// cookie is what takes a de-bucketed session back off the mirrored route.
+// Reads the flag rather than `useLayoutVariant` so a session already on a
+// mirrored route records what GrowthBook says now, not what the server was
+// told last time.
 export const useLayoutVariantCookie = (): void => {
   const { isV2, isLoading } = useLayoutVariantFlag();
   const { isLoggedIn } = useAuthContext();
