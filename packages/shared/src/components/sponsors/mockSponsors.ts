@@ -64,6 +64,5 @@ export const MOCK_PARTNER_SPONSORS: Sponsor[] = [
   sponsor('Neo4j', 'neo4j', 512 / 170),
   sponsor('Pulumi', 'pulumi', 512 / 128),
   sponsor('LaunchDarkly', 'launchdarkly', 512 / 80),
-  sponsor('Amazon', 'amazon', 512 / 256),
   sponsor('Sonar', 'sonar', 512 / 125),
 ];
