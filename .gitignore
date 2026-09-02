@@ -61,3 +61,7 @@ plans/
 # Claude Code runtime state (hooks/skills/settings remain tracked)
 .claude/scheduled_tasks.lock
 .claude/drafts/
+
+# App Store CPP screenshot tool (local-only, not published with releases)
+app-store-cpp/
+app-store-cpp-preview.html
