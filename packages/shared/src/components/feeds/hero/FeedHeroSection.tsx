@@ -8,6 +8,7 @@ import type { FeaturedWideCardProps } from '../../cards/common/featuredWide';
 import { HighlightCardContent } from '../../cards/highlight/common';
 import { FeedHeroAdCard } from './FeedHeroAdCard';
 import { FeedHeroCarousel } from './FeedHeroCarousel';
+import { useHasFeedHeroAdColumn } from './useFeedHeroAd';
 
 interface FeedHeroSectionProps {
   posts: Post[];
@@ -33,6 +34,11 @@ export const FeedHeroSection = ({
   onReadAllClick,
   className,
 }: FeedHeroSectionProps): ReactElement => {
+  // The ad only gets a column where one fits, so the section never lays out a
+  // fourth track it has nothing to put in.
+  const hasAdColumn = useHasFeedHeroAdColumn();
+  const columnAd = hasAdColumn ? ad : undefined;
+
   return (
     <section
       className={classNames(
@@ -40,7 +46,7 @@ export const FeedHeroSection = ({
         // grid's width, which tracks the reader's column count, so anything
         // fixed here would be too wide at three columns and too narrow at five.
         'flex w-full flex-col gap-6 laptop:grid laptop:h-[30rem]',
-        ad ? 'laptop:grid-cols-4' : 'laptop:grid-cols-3',
+        columnAd ? 'laptop:grid-cols-4' : 'laptop:grid-cols-3',
         className,
       )}
     >
@@ -49,7 +55,7 @@ export const FeedHeroSection = ({
         className="laptop:col-span-2"
         // The third column takes about 200px off the card, enough that the
         // 40/60 split stops leaving the headline a readable column.
-        wideColSpan={ad ? 2 : undefined}
+        wideColSpan={columnAd ? 2 : undefined}
         {...cardProps}
       />
       <aside className="group flex min-h-0 min-w-0 flex-col overflow-hidden">
@@ -61,10 +67,10 @@ export const FeedHeroSection = ({
           compact
         />
       </aside>
-      {!!ad && (
+      {!!columnAd && (
         <aside className="flex min-h-0 min-w-0 flex-col overflow-hidden">
           <FeedHeroAdCard
-            ad={ad}
+            ad={columnAd}
             onLinkClick={onAdLinkClick}
             onViewable={onAdViewable}
           />

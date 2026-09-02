@@ -136,10 +136,12 @@ export const HighlightCardContent = ({
     variant === 'grid' &&
       'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto pt-0',
     variant === 'grid' && (isFlushGrid ? '' : 'px-2.5 pb-1'),
-    // The list scrolls, so let the last visible row fade out instead of being
-    // sliced flat by the pinned footer.
+    // Only from `laptop`, where the column has a fixed height and the list
+    // actually scrolls: the fade is there to stop the pinned footer slicing a
+    // row flat. Below that the section stacks, every row fits, and the fade
+    // would dim the last headline for nothing.
     isFlushGrid &&
-      '[mask-image:linear-gradient(to_bottom,black_calc(100%-1.25rem),transparent)]',
+      'laptop:[mask-image:linear-gradient(to_bottom,black_calc(100%-1.25rem),transparent)]',
   );
   const footerClassName = classNames(
     variant === 'list' && 'pt-1.5',

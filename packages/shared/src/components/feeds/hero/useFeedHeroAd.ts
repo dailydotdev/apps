@@ -8,13 +8,22 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 
 export type FeedHeroAdSlot = {
   ad?: Ad;
-  /**
-   * The placement sits out the laptop range: three columns don't fit under
-   * 1360px, and the ad would come out around 220px, narrow enough to push its
-   * "Remove" control off the end. Below `laptop` the section stacks and it
-   * returns at the end.
-   */
+  /** Whether the section has anywhere to put it. */
   isVisible: boolean;
+};
+
+/**
+ * The placement sits out the laptop range: a fourth column doesn't fit under
+ * 1360px, where it comes out around 220px — too narrow for a headline at the
+ * featured card's size. Below `laptop` the section stacks and it returns at the
+ * end. Shared with the section so the column and the ad behind it can't
+ * disagree about when it exists.
+ */
+export const useHasFeedHeroAdColumn = (): boolean => {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptopL = useViewSize(ViewSize.LaptopL);
+
+  return !isLaptop || isLaptopL;
 };
 
 /**
@@ -26,8 +35,7 @@ export type FeedHeroAdSlot = {
 export const useFeedHeroAd = (enabled: boolean): FeedHeroAdSlot => {
   const { user, tokenRefreshed } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const isLaptopL = useViewSize(ViewSize.LaptopL);
+  const hasColumn = useHasFeedHeroAdColumn();
 
   const { data: ad } = useAdQuery({
     placement: AdPlacement.Feed,
@@ -36,5 +44,5 @@ export const useFeedHeroAd = (enabled: boolean): FeedHeroAdSlot => {
     staleTime: StaleTime.OneHour,
   });
 
-  return { ad: ad ?? undefined, isVisible: !!ad && (!isLaptop || isLaptopL) };
+  return { ad: ad ?? undefined, isVisible: !!ad && hasColumn };
 };
