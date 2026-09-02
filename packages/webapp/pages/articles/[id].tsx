@@ -28,6 +28,11 @@ import {
   hasLiveAdsenseUnits,
 } from '@dailydotdev/shared/src/features/monetization/adsense';
 import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
+import {
+  PREBID_ENABLED,
+  PREBID_PRECONNECT_ORIGINS,
+  PREBID_SCRIPT_SRC,
+} from '@dailydotdev/shared/src/features/monetization/prebid';
 import { AdsenseHeadHints } from '../../components/AdsenseHeadHints';
 import { getLayout } from '../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../components/layouts/FooterNavBarLayout';
@@ -175,6 +180,27 @@ const ArbitragePostPage = ({
               strategy="afterInteractive"
               crossOrigin="anonymous"
             />
+            {/* Same lifetime as adsbygoogle: only this route renders it and the
+                hard-navigation guard above unloads it with the page. */}
+            {PREBID_ENABLED && (
+              <>
+                <Head>
+                  {PREBID_PRECONNECT_ORIGINS.map((origin) => (
+                    <link
+                      key={origin}
+                      rel="preconnect"
+                      href={origin}
+                      crossOrigin=""
+                    />
+                  ))}
+                </Head>
+                <Script
+                  id="prebid-loader"
+                  src={PREBID_SCRIPT_SRC}
+                  strategy="afterInteractive"
+                />
+              </>
+            )}
           </>
         )}
         <ArbitragePostContent

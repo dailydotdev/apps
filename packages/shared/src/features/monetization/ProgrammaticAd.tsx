@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
@@ -9,6 +9,14 @@ import { viewabilityLogExtra } from './viewability';
 import type { AdsenseSlotConfig } from './adsense';
 import { ADSENSE_CLIENT_ID, isAdsenseProductionHost } from './adsense';
 import { useAdsenseUtmChannel } from './useAdsenseUtmChannel';
+import type { BannerSize, PrebidBid } from './prebid';
+import {
+  KUEEZ_BIDDER,
+  PREBID_ENABLED,
+  renderPrebidBid,
+  requestPrebidBid,
+  selectBannerSizes,
+} from './prebid';
 
 // Module-level, not per-slot: one warning per page load says everything.
 let hasLoggedTestMode = false;
@@ -55,6 +63,12 @@ type FormatSpec = {
    * which a fixed pixel size could not do without breaking one of them.
    */
   shape?: 'rectangle' | 'horizontal' | 'vertical';
+  /**
+   * The IAB banner sizes header bidding may request for the format, from
+   * which the slot keeps those that fit its box. Absent on formats Prebid
+   * never bids on (native), which stay AdSense-only.
+   */
+  sizes?: readonly BannerSize[];
 };
 
 export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
@@ -65,6 +79,10 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     minHeight: 'min-h-[136px] tablet:min-h-[126px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
     shape: 'horizontal',
+    sizes: [
+      [728, 90],
+      [320, 100],
+    ],
   },
   // The IAB medium rectangle. Reserves its exact height rather than the
   // shorter guess the in-content unit makes, because it is booked at a fixed
@@ -75,6 +93,7 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     minHeight: 'min-h-[286px]',
     maxWidth: 'max-w-[300px]',
     shape: 'rectangle',
+    sizes: [[300, 250]],
   },
   // 336x280 is a Google size rather than an IAB one, so on a phone this drops
   // to the medium rectangle, which is what the portfolio actually lists.
@@ -84,6 +103,10 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     minHeight: 'min-h-[286px] tablet:min-h-[216px]',
     maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
     shape: 'rectangle',
+    sizes: [
+      [336, 280],
+      [300, 250],
+    ],
   },
   [ProgrammaticAdFormat.HalfPage]: {
     label: 'Sticky rail',
@@ -91,6 +114,7 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     minHeight: 'min-h-[356px]',
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
+    sizes: [[300, 600]],
   },
   [ProgrammaticAdFormat.Native]: {
     label: 'Native',
@@ -189,6 +213,13 @@ export interface ProgrammaticAdProps {
   /** Drops the slot below the tablet breakpoint (and its request with it). */
   hideOnPhone?: boolean;
   /**
+   * Runs a Prebid auction before the AdSense request and renders the winning
+   * bid instead when there is one. Only the /read surface opts in, and only
+   * while PREBID_ENABLED is on; otherwise the slot is exactly the AdSense
+   * unit it always was.
+   */
+  headerBidding?: boolean;
+  /**
    * Requests the ad on mount instead of waiting to near the viewport. For
    * slots visible at first paint the intersection wait only adds latency —
    * and the adsbygoogle array queues pushes before the script has even
@@ -203,11 +234,15 @@ export interface ProgrammaticAdProps {
   logExtra?: Record<string, unknown>;
 }
 
+type Demand = 'auction' | 'prebid' | 'adsense';
+
 /**
- * One AdSense unit, with the full lifecycle in telemetry: request, fill,
- * unfilled, push error, test mode and an IAB viewable impression. Callers own
- * the audience/flag gating and pass a remount `key` when the unit identity
- * changes — an <ins> can only ever be initialised once.
+ * One programmatic slot: a Prebid auction first where header bidding is on,
+ * the AdSense unit otherwise or as the fallback, with the full lifecycle in
+ * telemetry: request, fill, unfilled, push error, test mode and an IAB
+ * viewable impression. Callers own the audience/flag gating and pass a
+ * remount `key` when the unit identity changes — an <ins> can only ever be
+ * initialised once.
  */
 export function ProgrammaticAd({
   slot,
@@ -217,13 +252,30 @@ export function ProgrammaticAd({
   className,
   refreshes,
   hideOnPhone,
+  headerBidding,
   eager,
   logExtra,
 }: ProgrammaticAdProps): ReactElement {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const insRef = useRef<HTMLModElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isRequested, setIsRequested] = useState(eager ?? false);
   const [isFilled, setIsFilled] = useState(false);
+  const bannerSizes = FORMAT_SPEC[format].sizes;
+  const usesHeaderBidding =
+    !!headerBidding && PREBID_ENABLED && !!bannerSizes?.length;
+  const [demand, setDemand] = useState<Demand>(
+    usesHeaderBidding ? 'auction' : 'adsense',
+  );
+  const [prebidBid, setPrebidBid] = useState<PrebidBid | null>(null);
+  const placementCode = `${surface}:${slot}`;
+  // Repeated placements (in-body, comment interleave) share a slot number,
+  // and Prebid needs every live ad unit code to be distinct.
+  const adUnitCode = `${placementCode}:${useId()}`;
+  const provider = demand === 'prebid' ? KUEEZ_BIDDER : 'adsense';
+  const hasStartedAuction = useRef(false);
+  const hasRenderedBid = useRef(false);
+  const isUnmounted = useRef(false);
   const { logEvent } = useLogContext();
   const hasPushed = useRef(false);
   const hasLoggedFill = useRef(false);
@@ -255,8 +307,8 @@ export function ProgrammaticAd({
         // ad on the platform, GROUP BY ad_provider_id splits the demand.
         ...(asAdEvent && {
           target_type: 'ad',
-          target_id: unitId,
-          ad_provider_id: 'adsense',
+          target_id: provider === 'adsense' ? unitId : placementCode,
+          ad_provider_id: provider,
         }),
         extra: JSON.stringify(
           getAdsenseSlotLogExtra({
@@ -282,6 +334,8 @@ export function ProgrammaticAd({
       adChannel,
       format,
       logEvent,
+      placementCode,
+      provider,
       refreshes,
       slot,
       surface,
@@ -360,6 +414,80 @@ export function ProgrammaticAd({
 
     return () => observer.disconnect();
   }, [eager]);
+
+  useEffect(
+    () => () => {
+      isUnmounted.current = true;
+    },
+    [],
+  );
+
+  // Header bidding runs first and the <ins> stays unmounted until the auction
+  // settles without a bid. That keeps the mount-at-eligibility invariant of
+  // the push below intact: no uninitialised ins exists for a slot that may
+  // still render a Prebid creative. Ref-guarded like the push, because the
+  // log callback's identity changes as UTM state resolves and a dependency
+  // re-run must never start a second auction.
+  useEffect(() => {
+    if (
+      !isRequested ||
+      demand !== 'auction' ||
+      !bannerSizes ||
+      hasStartedAuction.current
+    ) {
+      return;
+    }
+    hasStartedAuction.current = true;
+
+    const sizes = selectBannerSizes(
+      bannerSizes,
+      wrapperRef.current?.clientWidth ?? 0,
+    );
+    logSlotEvent(LogEvent.RequestPrebidBid, {
+      bidder: KUEEZ_BIDDER,
+      sizes: sizes.map(([width, height]) => `${width}x${height}`),
+    });
+    requestPrebidBid({ code: adUnitCode, sizes }).then((result) => {
+      if (isUnmounted.current) {
+        return;
+      }
+      if (!result.bid) {
+        logSlotEvent(LogEvent.EmptyPrebidBid, {
+          bidder: KUEEZ_BIDDER,
+          reason: result.reason,
+        });
+        setDemand('adsense');
+        return;
+      }
+      logSlotEvent(LogEvent.FillPrebidBid, {
+        bidder: result.bid.bidder,
+        cpm: result.bid.cpm,
+        currency: result.bid.currency,
+        size: `${result.bid.width}x${result.bid.height}`,
+      });
+      setPrebidBid(result.bid);
+      setDemand('prebid');
+    });
+  }, [adUnitCode, bannerSizes, demand, isRequested, logSlotEvent]);
+
+  // The winning creative lands in the slot's own iframe once it is in the
+  // DOM. Prebid sends Kueez the win notice from inside renderAd, so the
+  // loose impression is logged here, at the same moment AdSense's is.
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (
+      demand !== 'prebid' ||
+      !prebidBid ||
+      !iframe ||
+      hasRenderedBid.current
+    ) {
+      return;
+    }
+    hasRenderedBid.current = true;
+    renderPrebidBid(iframe, prebidBid);
+    setIsFilled(true);
+    logAdInteraction(AdActions.Impression);
+  }, [demand, logAdInteraction, prebidBid]);
 
   // Fires once the ins exists: stamps the test attribute and pushes the
   // request. Nothing here decides the slot is empty on a timer — the wrapper's
@@ -450,7 +578,7 @@ export function ProgrammaticAd({
     }
 
     return () => observer.disconnect();
-  }, [isRequested, logAdInteraction, logSlotEvent]);
+  }, [demand, isRequested, logAdInteraction, logSlotEvent]);
 
   // First-party click signal. The creative is a cross-origin iframe, so no
   // click event ever reaches this document — but engaging it moves focus:
@@ -546,7 +674,7 @@ export function ProgrammaticAd({
           Advertisements
         </span>
       )}
-      {isRequested && (
+      {isRequested && demand === 'adsense' && (
         <ins
           ref={insRef}
           className="adsbygoogle"
@@ -555,6 +683,15 @@ export function ProgrammaticAd({
           data-ad-slot={config.id}
           data-ad-channel={adChannel}
           {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
+        />
+      )}
+      {demand === 'prebid' && (
+        <iframe
+          ref={iframeRef}
+          title="Advertisement"
+          data-testid={`prebid-slot-${slot}`}
+          className="mx-auto block border-0"
+          scrolling="no"
         />
       )}
     </div>

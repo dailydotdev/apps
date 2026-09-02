@@ -89,6 +89,7 @@ function MappedAdSlot({
         className={className}
         refreshes={refreshes}
         hideOnPhone={hideOnPhone}
+        headerBidding={surface === 'read'}
         eager={eager}
         logExtra={logExtra}
       />
