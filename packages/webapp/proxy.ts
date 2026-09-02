@@ -1,12 +1,12 @@
 import type { NextRequest } from 'next/server';
 import { after, NextResponse } from 'next/server';
-import { LAYOUT_VARIANT_ROUTE_PREFIX } from '@dailydotdev/shared/src/lib/layoutVariant';
-import { acceptsMarkdown } from './lib/contentNegotiation';
 import {
-  MARKDOWN_ROUTES,
-  POST_MARKDOWN_PATH,
-  RESERVED_POST_SLUGS,
-} from './lib/markdownRoutes';
+  LAYOUT_VARIANT_COOKIE,
+  LAYOUT_VARIANT_ROUTE_PREFIX,
+} from '@dailydotdev/shared/src/lib/layoutVariant';
+import { acceptsMarkdown } from './lib/contentNegotiation';
+import { MARKDOWN_ROUTES, POST_MARKDOWN_PATH } from './lib/markdownRoutes';
+import { RESERVED_POST_SLUGS, isPostPermalinkPath } from './lib/postRoutes';
 import {
   getAgentSignupRequiredBody,
   hasValidAgentMarkdownToken,
@@ -14,10 +14,6 @@ import {
   trackAgentSignupWallAllocation,
 } from './lib/agentMarkdownAccess';
 import { logServerPageRequest } from './lib/serverPageRequestLog';
-import {
-  LAYOUT_VARIANT_COOKIE,
-  isLayoutVariantEligiblePath,
-} from './lib/layoutVariant';
 
 const POSTS_PREFIX = '/posts/';
 const MARKDOWN_PAGE_PATHS = Object.keys(MARKDOWN_ROUTES).map(
@@ -130,11 +126,11 @@ const isMarkdownRequest = (req: NextRequest): boolean => {
   );
 };
 
-// Layout v2 changes the whole shell (rail-owned header, floating card), so a
-// session bucketed into it paints the v1 chrome and swaps once GrowthBook
-// resolves. The mirrored route renders the resolved shell in the initial HTML
-// instead, and the rewrite keeps the visible URL. Prerendered pages are cached
-// per path, which is why this is a rewrite rather than a header.
+// Prerendered pages are cached per path, so the shell has to be part of the
+// path: the mirror renders the v2 chrome in the initial HTML for sessions
+// already bucketed into it, and the rewrite keeps the visible URL.
+// Only the post page is mirrored — every mirrored route doubles its ISR
+// entries and its revalidation traffic.
 const getLayoutVariantResponse = (
   req: NextRequest,
 ): NextResponse | undefined => {
@@ -142,7 +138,7 @@ const getLayoutVariantResponse = (
 
   if (
     req.cookies.get(LAYOUT_VARIANT_COOKIE)?.value !== 'v2' ||
-    !isLayoutVariantEligiblePath(pathname)
+    !isPostPermalinkPath(pathname)
   ) {
     return undefined;
   }

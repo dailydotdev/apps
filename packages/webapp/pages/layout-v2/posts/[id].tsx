@@ -6,9 +6,8 @@ import { PostPage, getStaticPaths, getStaticProps } from '../../posts/[id]';
 
 export { getStaticPaths, getStaticProps };
 
-// Mirror of `/posts/[id]` that renders the layout v2 shell in the initial
-// HTML. `proxy.ts` rewrites here for sessions already resolved to v2; the
-// route is unreachable directly (next.config.ts redirects it back).
+// Reachable only through the proxy rewrite; next.config.ts redirects direct
+// access back to `/posts/[id]`.
 const LayoutV2PostPage = (props: Props): ReactElement => (
   <PostPage {...props} />
 );

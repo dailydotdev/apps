@@ -13,8 +13,7 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-// Reproduces a server render: `isPageReady` is forced true under jest, which
-// is exactly the condition that can never hold on the server.
+// Reproduces a server render: `isPageReady` is forced true under jest.
 jest.mock('@dailydotdev/shared/src/lib/constants', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/lib/constants'),
   isTesting: false,

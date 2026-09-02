@@ -41,6 +41,7 @@ import { FeedbackWidget } from './feedback/FeedbackWidget';
 import { useFeedbackShortcut } from '../hooks/useFeedbackShortcut';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
 import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../lib/layoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
@@ -78,11 +79,7 @@ export interface MainLayoutProps
   canGoBack?: string;
   hideBackButton?: boolean;
   hideFeedbackWidget?: boolean;
-  /**
-   * Set by the mirrored `/layout-v2` routes only: the shell was picked for
-   * this request before render, so the chrome below skips the client
-   * resolution it would otherwise wait for.
-   */
+  /** Set by the mirrored `/layout-v2` routes only. */
   layoutVariant?: LayoutVariant;
   /**
    * Layout v2 only. Rendered above the floating feed card, alongside the
@@ -140,6 +137,7 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const hasServerShell = useContext(LayoutVariantContext) === 'v2';
+  useLayoutVariantCookie();
   useRecordRecentPages(isV2);
   useNotificationParams();
   useFeedbackShortcut();
@@ -230,10 +228,8 @@ function MainLayoutComponent({
   // floating-card treatment, and the global feedback widget is suppressed
   // because the rail provides its own.
   //
-  // `isLoggedIn` and `sidebarRendered` are both client-only, so on a request
-  // the server already resolved to v2 they would suppress the shell it just
-  // painted and swap the chrome mid-hydration. Until boot lands, the
-  // server's decision stands.
+  // `isLoggedIn` and `sidebarRendered` are client-only, so until boot lands
+  // they would suppress the shell the server just painted.
   const ownsHeaderAudience = isAuthReady
     ? isLoggedIn || isExtension
     : hasServerShell;

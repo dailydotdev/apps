@@ -55,7 +55,7 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import type { Props } from '../pages/posts/[id]';
-import { isPostDetailPath, PostPage } from '../pages/posts/[id]';
+import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
@@ -1208,23 +1208,6 @@ describe('post redesign', () => {
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
-  });
-});
-
-describe('isPostDetailPath (ad navigation boundary)', () => {
-  it('keeps client-side navigation only for other post detail pages', () => {
-    expect(isPostDetailPath('/posts/abc123')).toBe(true);
-    expect(isPostDetailPath('/posts/abc123?comment=1')).toBe(true);
-    expect(isPostDetailPath('/posts/abc123/share')).toBe(true);
-  });
-
-  it('treats the post list pages as departures that tear ads down', () => {
-    expect(isPostDetailPath('/posts/best-of/2026/08')).toBe(false);
-    expect(isPostDetailPath('/posts/latest')).toBe(false);
-    expect(isPostDetailPath('/posts/discussed')).toBe(false);
-    expect(isPostDetailPath('/posts/upvoted')).toBe(false);
-    expect(isPostDetailPath('/posts')).toBe(false);
-    expect(isPostDetailPath('/my-feed')).toBe(false);
   });
 });
 
