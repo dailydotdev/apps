@@ -9,6 +9,7 @@ import {
 } from '../../lib/feed';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
+import type { SearchLogExtra } from '../../lib/searchLog';
 import { useLogContext } from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
 import { isShareLikePost, PostType } from '../../graphql/posts';
@@ -22,17 +23,31 @@ export const generateAdLogEventKey = (index: number): string => `ai-${index}`;
 export const generatePostLogEventKey = (id: string): string => `pi-${id}`;
 export const generateHighlightLogEventKey = (id: string): string => `hi-${id}`;
 
-export default function useLogImpression(
-  item: FeedItem,
-  index: number,
-  columns: number,
-  column: number,
-  row: number,
-  feedName: string,
-  ranking?: string,
-  highlightColSpan?: number,
-  origin?: Origin,
-): (node?: Element | null) => void {
+export interface UseLogImpressionProps {
+  item: FeedItem;
+  index: number;
+  columns: number;
+  column: number;
+  row: number;
+  feedName: string;
+  ranking?: string;
+  highlightColSpan?: number;
+  origin?: Origin;
+  searchLogExtra?: SearchLogExtra;
+}
+
+export default function useLogImpression({
+  item,
+  index,
+  columns,
+  column,
+  row,
+  feedName,
+  ranking,
+  highlightColSpan,
+  origin,
+  searchLogExtra,
+}: UseLogImpressionProps): (node?: Element | null) => void {
   const { logEventStart, logEventEnd } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { ref: inViewRef, inView } = useInView({
@@ -50,11 +65,12 @@ export default function useLogImpression(
             columns,
             column,
             row,
+            index,
             extra: {
               ...feedLogExtra(
                 feedName,
                 ranking,
-                { scroll_y: window.scrollY },
+                { scroll_y: window.scrollY, ...searchLogExtra },
                 origin,
               ).extra,
               clickbait_badge: isShareLikePost(item.post)
@@ -89,7 +105,7 @@ export default function useLogImpression(
             columns,
             column,
             row,
-            ...feedLogExtra(feedName, ranking, undefined, origin),
+            ...feedLogExtra(feedName, ranking, searchLogExtra, origin),
           }),
         );
         // eslint-disable-next-line no-param-reassign

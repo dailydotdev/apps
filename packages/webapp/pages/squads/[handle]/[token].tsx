@@ -301,7 +301,22 @@ export async function getStaticProps({
   GetStaticPropsResult<SquadReferralProps>
 > {
   const { handle, token } = params;
-  const initialData = await getSquadInvitation(token);
+
+  // getSquadInvitation swallows request failures into null, so an invalid
+  // token leaves nothing to destructure and nothing worth serving.
+  const notFoundResponse = { notFound: true as const, revalidate: 60 };
+
+  let initialData: SourceMember | null = null;
+  try {
+    initialData = await getSquadInvitation(token);
+  } catch (error) {
+    return notFoundResponse;
+  }
+
+  if (!initialData) {
+    return notFoundResponse;
+  }
+
   const { user, source } = initialData;
 
   if (!source || !user) {

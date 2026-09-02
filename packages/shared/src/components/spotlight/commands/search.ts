@@ -20,6 +20,8 @@ interface SearchCommandsContext {
   router: Pick<NextRouter, 'push'>;
   query: string;
   scope?: SpotlightScope;
+  /** Correlation id for the current palette query, minted by Spotlight. */
+  searchId?: string;
 }
 
 export interface SpotlightSearchCommands {
@@ -35,6 +37,8 @@ export interface SpotlightSearchCommands {
   usersLoading: boolean;
   /** Always-on fallthrough rows, shown even while suggestions are loading. */
   fallthrough: SpotlightCommand[];
+  /** Backend hit counts per provider, excluding the "see all" rows. */
+  counts: { posts: number; tags: number; sources: number; users: number };
 }
 
 const buildPostCommand = (
@@ -206,6 +210,7 @@ export const useSpotlightSearchCommands = ({
   router,
   query,
   scope = SpotlightScope.All,
+  searchId,
 }: SearchCommandsContext): SpotlightSearchCommands => {
   const trimmed = query.trim();
   const providers = scopeProviders[scope];
@@ -215,24 +220,32 @@ export const useSpotlightSearchCommands = ({
       provider: SearchProviderEnum.Posts,
       query: trimmed,
       enabled: providers.includes(SearchProviderEnum.Posts),
+      searchId,
+      scope,
     });
   const { suggestions: tagHits, isLoading: tagsLoading } =
     useSearchProviderSuggestions({
       provider: SearchProviderEnum.Tags,
       query: trimmed,
       enabled: providers.includes(SearchProviderEnum.Tags),
+      searchId,
+      scope,
     });
   const { suggestions: sourceHits, isLoading: sourcesLoading } =
     useSearchProviderSuggestions({
       provider: SearchProviderEnum.Sources,
       query: trimmed,
       enabled: providers.includes(SearchProviderEnum.Sources),
+      searchId,
+      scope,
     });
   const { suggestions: userHits, isLoading: usersLoading } =
     useSearchProviderSuggestions({
       provider: SearchProviderEnum.Users,
       query: trimmed,
       enabled: providers.includes(SearchProviderEnum.Users),
+      searchId,
+      scope,
     });
 
   return useMemo(() => {
@@ -283,6 +296,12 @@ export const useSpotlightSearchCommands = ({
       users: withSeeAll(SpotlightScope.People, users),
       usersLoading: isUsersLoading,
       fallthrough: buildFallthrough(trimmed, router),
+      counts: {
+        posts: posts.length,
+        tags: tags.length,
+        sources: sources.length,
+        users: users.length,
+      },
     };
   }, [
     trimmed,

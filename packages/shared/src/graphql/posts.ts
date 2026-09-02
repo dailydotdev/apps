@@ -289,6 +289,7 @@ export interface Post {
   type: PostType;
   subType?: string;
   private?: boolean;
+  noindex?: boolean;
   feedMeta?: string;
   downvoted?: boolean;
   flags?: PostFlags;

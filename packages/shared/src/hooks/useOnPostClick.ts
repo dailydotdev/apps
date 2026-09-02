@@ -15,6 +15,7 @@ import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import { getFeedApiItemPost } from '../graphql/feed';
 import type { Origin } from '../lib/log';
+import type { SearchLogExtra } from '../lib/searchLog';
 import { ActiveFeedContext } from '../contexts';
 import {
   findIndexOfPostInData,
@@ -35,11 +36,13 @@ export type FeedPostClick = ({
   post,
   row,
   column,
+  index,
   optional,
 }: {
   post: Post;
   row?: number;
   column?: number;
+  index?: number;
   optional?: PostClickOptionalProps;
 }) => Promise<void>;
 
@@ -89,6 +92,7 @@ interface UseOnPostClickProps {
   feedName?: string;
   ranking?: string;
   origin?: Origin;
+  searchLogExtra?: SearchLogExtra;
 }
 
 export default function useOnPostClick({
@@ -97,6 +101,7 @@ export default function useOnPostClick({
   feedName,
   ranking,
   origin,
+  searchLogExtra,
 }: UseOnPostClickProps): FeedPostClick {
   const client = useQueryClient();
   const { logEvent } = useLogContext();
@@ -109,17 +114,18 @@ export default function useOnPostClick({
 
   return useMemo(
     () =>
-      async ({ post, row, column, optional }): Promise<void> => {
+      async ({ post, row, column, index, optional }): Promise<void> => {
         logEvent(
           postLogEvent(eventName, post, {
             columns,
             column,
             row,
+            index,
             extra: {
               ...feedLogExtra(
                 feedName ?? '',
                 ranking,
-                undefined,
+                searchLogExtra,
                 origin,
                 undefined,
                 optional?.parent_id,
@@ -185,9 +191,13 @@ export default function useOnPostClick({
                 queryKey,
               ) as InfiniteData<FeedData>;
 
-              const { post: foundPost, page, index } = findPost(data, id);
+              const {
+                post: foundPost,
+                page,
+                index: foundIndex,
+              } = findPost(data, id);
               if (foundPost) {
-                updateFeedPost(page, index, {
+                updateFeedPost(page, foundIndex, {
                   ...foundPost,
                   ...mutationHandler(),
                 });
@@ -211,6 +221,7 @@ export default function useOnPostClick({
       items,
       ranking,
       origin,
+      searchLogExtra,
       logEvent,
       postLogEvent,
     ],
