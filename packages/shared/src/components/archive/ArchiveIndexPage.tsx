@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Archive } from '../../graphql/archive';
+import { ArchiveScopeType } from '../../graphql/archive';
 import type { ArchiveScopeInfo, ArchivesByYear } from '../../lib/archive';
 import {
   getArchiveUrlFromArchive,
@@ -13,6 +14,9 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { CopyLinkButton } from '../share/CopyLinkButton';
+import { LogEvent } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 interface ArchiveIndexPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -159,13 +163,31 @@ export function ArchiveIndexPage({
   className,
 }: ArchiveIndexPageProps): ReactElement {
   const groups = groupArchivesByYear(archives);
+  const isTagScope = scopeType === ArchiveScopeType.Tag;
+  const shareCampaign = isTagScope
+    ? ReferralCampaignKey.ShareTag
+    : ReferralCampaignKey.ShareSource;
+  const shareEvent = isTagScope ? LogEvent.ShareTag : LogEvent.ShareSource;
 
   return (
     <div className={classNames('flex flex-col', className)}>
       {/* Header */}
-      <h1 className="mx-4 font-bold typo-title2 tablet:typo-title1">
-        Best of {scopeName} &mdash; Archive
-      </h1>
+      <div className="mx-4 flex items-center gap-2">
+        <h1 className="flex-1 font-bold typo-title2 tablet:typo-title1">
+          Best of {scopeName} &mdash; Archive
+        </h1>
+        <CopyLinkButton
+          shareProps={{
+            text: `Check out the best of ${scopeName} on daily.dev`,
+            link: globalThis?.location?.href,
+            cid: shareCampaign,
+            logObject: () => ({
+              event_name: shareEvent,
+              target_id: scopeId,
+            }),
+          }}
+        />
+      </div>
 
       {/* Archive grid by year */}
       <ArchiveGrid

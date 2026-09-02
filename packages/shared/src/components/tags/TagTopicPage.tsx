@@ -49,6 +49,7 @@ import { cloudinarySourceRoadmap } from '../../lib/image';
 import { anchorDefaultRel, formatKeyword } from '../../lib/strings';
 import Link from '../utilities/Link';
 import CustomFeedOptionsMenu from '../CustomFeedOptionsMenu';
+import { CopyLinkButton } from '../share/CopyLinkButton';
 import { ArchiveEntryCard } from '../archive/ArchiveEntryCard';
 import { ArchiveScopeType } from '../../graphql/archive';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
@@ -356,6 +357,16 @@ export const TagTopicPage = ({
     },
   });
 
+  const shareProps = {
+    text: `Check out the ${tag} tag on daily.dev`,
+    link: globalThis?.location?.href,
+    cid: ReferralCampaignKey.ShareTag,
+    logObject: () => ({
+      event_name: LogEvent.ShareTag,
+      target_id: tag,
+    }),
+  };
+
   const statParts: ReactNode[] = [];
   if (typeof followers === 'number') {
     statParts.push(
@@ -447,6 +458,7 @@ export const TagTopicPage = ({
                   {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
                 </Button>
               )}
+              <CopyLinkButton shareProps={shareProps} />
               <CustomFeedOptionsMenu
                 onCreateNewFeed={() =>
                   push(
@@ -469,15 +481,7 @@ export const TagTopicPage = ({
                     feedId,
                   })
                 }
-                shareProps={{
-                  text: `Check out the ${tag} tag on daily.dev`,
-                  link: globalThis?.location?.href,
-                  cid: ReferralCampaignKey.ShareTag,
-                  logObject: () => ({
-                    event_name: LogEvent.ShareTag,
-                    target_id: tag,
-                  }),
-                }}
+                shareProps={shareProps}
               />
             </div>
             {/* SEO crawl paths preserved from the legacy tag page. */}

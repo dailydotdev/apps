@@ -5,6 +5,10 @@ import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import { UserHighlight, UserType } from '../../widgets/PostUsersHighlights';
+import { CopyLinkButton } from '../../share/CopyLinkButton';
+import { ButtonVariant } from '../../buttons/Button';
+import { ReferralCampaignKey } from '../../../lib/referral';
+import { LogEvent } from '../../../lib/log';
 
 export function SourceTopList({
   items,
@@ -16,7 +20,7 @@ export function SourceTopList({
         <LeaderboardListItem
           key={item.id}
           index={i + 1}
-          className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler"
+          className="group/source flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler"
         >
           <UserHighlight
             {...item}
@@ -29,6 +33,20 @@ export function SourceTopList({
               handle: '!typo-caption2',
             }}
             allowSubscribe={false}
+          />
+          {/* Hover-revealed only where hover exists; always there on touch. */}
+          <CopyLinkButton
+            variant={ButtonVariant.Tertiary}
+            className="ml-auto shrink-0 laptop:opacity-0 laptop:group-focus-within/source:opacity-100 laptop:group-hover/source:opacity-100"
+            shareProps={{
+              text: `Check out ${item.handle} on daily.dev`,
+              link: item.permalink,
+              cid: ReferralCampaignKey.ShareSource,
+              logObject: () => ({
+                event_name: LogEvent.ShareSource,
+                target_id: item.id,
+              }),
+            }}
           />
         </LeaderboardListItem>
       ))}
