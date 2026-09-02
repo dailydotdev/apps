@@ -337,6 +337,7 @@ export default function useFeed<T>(
         throw new Error('useFeed query is required');
       }
 
+      const requestStartedAt = performance.now();
       const rawResult = await gqlClient.request<
         FeedData | FeedItemData | FeedV2Data
       >(query, {
@@ -346,6 +347,7 @@ export default function useFeed<T>(
         loggedIn: !!user,
         columns: virtualizedNumCards,
       });
+      const requestLatencyMs = Math.round(performance.now() - requestStartedAt);
       const res = normalizeFeedPage(rawResult);
 
       const isEmpty =
@@ -385,6 +387,7 @@ export default function useFeed<T>(
             provider: SearchProviderEnum.Posts,
             searchVersion: settings?.searchVersion,
             resultCount: res.page.edges.length,
+            latencyMs: requestLatencyMs,
             filters: {
               time: searchVariables.time,
               content_curation: searchVariables.contentCuration,

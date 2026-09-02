@@ -36,6 +36,8 @@ export interface SearchResultsLogEventProps {
   provider: string;
   searchVersion?: number;
   resultCount: number;
+  /** Wall-clock duration of the search request itself, excluding render. */
+  latencyMs?: number;
   scope?: string;
   filters?: SearchFilterLogExtra;
 }
@@ -46,6 +48,7 @@ export const searchResultsLogEvent = ({
   provider,
   searchVersion,
   resultCount,
+  latencyMs,
   scope,
   filters,
 }: SearchResultsLogEventProps): LogEventPayload => ({
@@ -56,8 +59,36 @@ export const searchResultsLogEvent = ({
     provider,
     search_version: searchVersion,
     result_count: resultCount,
+    latency_ms: latencyMs,
     ...(scope && { scope }),
     ...(filters && { filters }),
     is_zero_result: resultCount === 0,
   }),
+});
+
+export interface SearchRecommendationLogExtraProps {
+  origin: string;
+  provider: string;
+  /** Row index within its rail, so CTR can be read per position. */
+  position: number;
+  searchId?: string;
+  searchVersion?: number;
+}
+
+/**
+ * `extra` for the search results page recommendation rails (tags, sources,
+ * users). Shared so all three rails stay joinable to the same query execution.
+ */
+export const searchRecommendationLogExtra = ({
+  origin,
+  provider,
+  position,
+  searchId,
+  searchVersion,
+}: SearchRecommendationLogExtraProps): Record<string, unknown> => ({
+  origin,
+  provider,
+  position,
+  search_id: searchId,
+  search_version: searchVersion,
 });

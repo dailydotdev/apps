@@ -1,5 +1,9 @@
 import { LogEvent } from './log';
-import { generateSearchId, searchResultsLogEvent } from './searchLog';
+import {
+  generateSearchId,
+  searchRecommendationLogExtra,
+  searchResultsLogEvent,
+} from './searchLog';
 
 describe('generateSearchId', () => {
   it('mints a distinct id per call', () => {
@@ -18,6 +22,7 @@ describe('searchResultsLogEvent', () => {
       provider: 'posts',
       searchVersion: 4,
       resultCount: 3,
+      latencyMs: 128,
       scope: 'all',
       filters: { time: '7d', content_curation: ['article'] },
     });
@@ -29,10 +34,24 @@ describe('searchResultsLogEvent', () => {
       provider: 'posts',
       search_version: 4,
       result_count: 3,
+      latency_ms: 128,
       scope: 'all',
       filters: { time: '7d', content_curation: ['article'] },
       is_zero_result: false,
     });
+  });
+
+  it('reports a zero latency measurement rather than dropping it', () => {
+    const payload = parse(
+      searchResultsLogEvent({
+        query: 'react',
+        provider: 'posts',
+        resultCount: 1,
+        latencyMs: 0,
+      }),
+    );
+
+    expect(payload.latency_ms).toBe(0);
   });
 
   it('flags zero result searches', () => {
@@ -57,5 +76,35 @@ describe('searchResultsLogEvent', () => {
 
     expect(payload).not.toHaveProperty('scope');
     expect(payload).not.toHaveProperty('filters');
+  });
+});
+
+describe('searchRecommendationLogExtra', () => {
+  it('carries the query identity and rail position', () => {
+    expect(
+      searchRecommendationLogExtra({
+        origin: 'search page',
+        provider: 'tags',
+        position: 2,
+        searchId: 'search-1',
+        searchVersion: 4,
+      }),
+    ).toEqual({
+      origin: 'search page',
+      provider: 'tags',
+      position: 2,
+      search_id: 'search-1',
+      search_version: 4,
+    });
+  });
+
+  it('keeps the first position as 0', () => {
+    expect(
+      searchRecommendationLogExtra({
+        origin: 'search page',
+        provider: 'users',
+        position: 0,
+      }).position,
+    ).toBe(0);
   });
 });

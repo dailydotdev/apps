@@ -46,6 +46,9 @@ export type UseSearchProviderSuggestions = {
     | undefined;
 } & {
   queryKey: unknown[];
+  /** Identity of the fetch behind `suggestions`, for joining engagement to it. */
+  searchId: string;
+  searchVersion: number;
 };
 
 export const useSearchProviderSuggestions = ({
@@ -84,6 +87,7 @@ export const useSearchProviderSuggestions = ({
   const { data, isLoading: isQueryLoading } = useQuery({
     queryKey,
     queryFn: async () => {
+      const requestStartedAt = performance.now();
       const result = await getSuggestions({
         provider,
         query: debouncedQuery,
@@ -99,6 +103,7 @@ export const useSearchProviderSuggestions = ({
           provider,
           searchVersion: version,
           resultCount: result?.hits?.length ?? 0,
+          latencyMs: Math.round(performance.now() - requestStartedAt),
           scope,
         }),
       );
@@ -180,5 +185,7 @@ export const useSearchProviderSuggestions = ({
     isLoading: isQueryLoading || isDebouncePending,
     suggestions: data,
     queryKey,
+    searchId: activeSearchId,
+    searchVersion: version,
   };
 };
