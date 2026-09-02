@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
@@ -46,7 +46,10 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { LogEvent, TargetId } from '../../../lib/log';
-import { featurePlusCtaCopy } from '../../../lib/featureManagement';
+import {
+  featureBriefingShareControls,
+  featurePlusCtaCopy,
+} from '../../../lib/featureManagement';
 import { LottieAnimation } from '../../LottieAnimation';
 import { briefFeatureList, PlusList } from '../../plus/PlusList';
 import { HourDropdown } from '../../fields/HourDropdown';
@@ -65,6 +68,10 @@ import { getFirstName } from '../../../lib/user';
 import Link from '../../utilities/Link';
 import { ActionType } from '../../../graphql/actions';
 import { BriefUpgradeAlert } from '../../../features/briefing/components/BriefUpgradeAlert';
+import { BriefShareBand } from '../../../features/briefing/components/BriefShareBand';
+import { BriefBodyShareControls } from '../../../features/briefing/components/BriefBodyShareControls';
+import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
+import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
 import type { BriefPostHeaderProps } from '../../../features/briefing/components/BriefPostHeader';
 import { BriefPostHeader } from '../../../features/briefing/components/BriefPostHeader';
 import type { NotificationChannel } from '../../../hooks/notifications/useNotificationSettings';
@@ -135,6 +142,12 @@ const BriefPostContentRaw = ({
     unsubscribePersonalizedDigest,
   } = usePersonalizedDigest();
   const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
+  const briefBodyRef = useRef<HTMLDivElement>(null);
+  // The post page's highlight bar, on the briefing's own flag: one switch
+  // turns every control on this surface on or off together.
+  const isSelectionShareEnabled = useSharePlacement({
+    feature: featureBriefingShareControls,
+  });
 
   const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
 
@@ -390,7 +403,18 @@ const BriefPostContentRaw = ({
                 </Typography>
               </div>
             </div>
-            <Markdown content={contentHtml} />
+            <div ref={briefBodyRef}>
+              <Markdown content={contentHtml} />
+            </div>
+            {isSelectionShareEnabled && (
+              <SelectionSnapshotBar containerRef={briefBodyRef} post={post} />
+            )}
+            <BriefBodyShareControls
+              bodyRef={briefBodyRef}
+              contentHtml={contentHtml}
+              post={post}
+            />
+            <BriefShareBand origin={origin} post={post} />
             {isNotPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div
