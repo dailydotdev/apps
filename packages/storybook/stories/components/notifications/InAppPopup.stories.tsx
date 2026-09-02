@@ -16,6 +16,13 @@ import { userAvatar, sourceAvatar } from './_mock';
 // InAppNotification.tsx wraps InAppNotificationItem in a pepper-subtler card
 // with a close button. Reproduced statically here so its 3-line clamp and
 // icon+avatar lockup can be reviewed.
+//
+// KNOWN GAP: this component renders the title and nothing else — no post
+// headline, no timestamp. The feed row now leads a post arrival with the
+// article headline, so the same notification reads "New post in <source>" here
+// and as the headline there. The avatar lockup is shared (NotificationItemLead)
+// but the text layout is not. Worth closing deliberately rather than by
+// accident.
 
 const meta: Meta<typeof InAppNotificationItem> = {
   title: 'Components/Notifications/In-app popup',

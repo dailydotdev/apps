@@ -17,3 +17,18 @@ export const getNotificationLeadAvatar = (
 ): NotificationAvatar | undefined =>
   avatars.find((avatar) => avatar.type === NotificationAvatarType.User) ??
   avatars[0];
+
+export const getNotificationAttribution = (
+  avatars: NotificationAvatar[] = [],
+): string | undefined => {
+  const source = avatars.find(
+    (avatar) => avatar.type === NotificationAvatarType.Source,
+  );
+  const user = avatars.find(
+    (avatar) => avatar.type === NotificationAvatarType.User,
+  );
+  if (source?.name && user?.name) {
+    return `${user.name} in ${source.name}`;
+  }
+  return source?.name ?? user?.name;
+};

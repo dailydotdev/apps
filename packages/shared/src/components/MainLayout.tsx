@@ -21,6 +21,7 @@ import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { isOnboardingFeedPathname } from '../lib/onboarding';
 import { useBanner } from '../hooks/useBanner';
+import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
   ActiveFeedNameContextProvider,
@@ -29,6 +30,7 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
+import { QuestOffersPopup } from './modals/quests/QuestOffersPopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
@@ -108,9 +110,9 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { sidebarExpanded, autoDismissNotifications, loadedSettings, flags } =
+  const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
     useContext(SettingsContext);
-  const isSidebarCompact = !!flags?.sidebarCompact;
+  const { value: isSidebarCompact } = useSidebarCompact();
   const v2CollapsedPadding = isSidebarCompact
     ? 'tablet:pl-16 laptop:pl-16'
     : 'tablet:pl-16 laptop:pl-20';
@@ -333,6 +335,7 @@ function MainLayoutComponent({
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
+      <QuestOffersPopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"

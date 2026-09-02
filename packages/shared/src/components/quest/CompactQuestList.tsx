@@ -13,7 +13,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import type { QuestReward, UserQuest } from '../../graphql/quests';
-import { QuestRewardType, QuestStatus } from '../../graphql/quests';
+import { QuestRewardType, isQuestClaimed } from '../../graphql/quests';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import {
@@ -69,8 +69,7 @@ export const CompactQuestRow = ({
   const target = Math.max(quest.quest.targetCount, 1);
   const value = Math.min(Math.max(quest.progress, 0), target);
   const percentage = Math.min(100, Math.round((value / target) * 100));
-  const isClaimed =
-    quest.status === QuestStatus.Claimed || Boolean(quest.claimedAt);
+  const isClaimed = isQuestClaimed(quest);
   const canClaim = quest.claimable && !!quest.userQuestId && !isClaimed;
   // Route each quest to the surface where it can actually be completed (same
   // mapping the quest dashboard uses); quests with no mapped surface — and

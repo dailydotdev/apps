@@ -11,6 +11,7 @@ import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { LogEvent, Origin, TargetType } from '../lib/log';
+import type { SearchLogExtra } from '../lib/searchLog';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
 import { FeedItemType } from './cards/common/common';
@@ -49,7 +50,6 @@ import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
 import PollGrid from './cards/poll/PollGrid';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
-import { LiveRoomPostGrid } from './cards/liveRoom/LiveRoomPostGrid';
 import { SignalList } from './cards/common/list/SignalList';
 import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
@@ -99,6 +99,8 @@ export type FeedItemComponentProps = {
    * types with an active `hero`.
    */
   wideColSpan?: FeaturedWideColSpan;
+  /** Set on search feeds so impressions can be joined to the query. */
+  searchLogExtra?: SearchLogExtra;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -127,7 +129,6 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Poll]: PollGrid,
   [PostType.SocialTwitter]: SocialTwitterGrid,
   [PostType.Digest]: ArticleGrid,
-  [PostType.LiveRoom]: LiveRoomPostGrid,
 };
 
 const getPostTypeForCard = (post?: Post): PostType => {
@@ -262,9 +263,10 @@ function FeedItemComponent({
   onReadArticleClick,
   virtualizedNumCards,
   wideColSpan,
+  searchLogExtra,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
-  const inViewRef = useLogImpression(
+  const inViewRef = useLogImpression({
     item,
     index,
     columns,
@@ -272,8 +274,9 @@ function FeedItemComponent({
     row,
     feedName,
     ranking,
-    wideColSpan,
-  );
+    highlightColSpan: wideColSpan,
+    searchLogExtra,
+  });
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { boostedBy } = useFeedCardContext();

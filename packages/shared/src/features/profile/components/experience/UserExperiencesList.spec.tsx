@@ -6,6 +6,7 @@ import type { UserExperience } from '../../../../graphql/user/profile';
 import { UserExperienceType } from '../../../../graphql/user/profile';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import type { PublicProfile } from '../../../../lib/user';
+import { anchorUgcRel } from '../../../../lib/strings';
 
 // Mock the AuthContext
 jest.mock('../../../../contexts/AuthContext', () => ({
@@ -878,6 +879,26 @@ describe('UserExperiencesList', () => {
       expect(showMoreButton).toHaveAttribute(
         'href',
         'https://app.daily.dev/customuser/work',
+      );
+    });
+  });
+
+  describe('Experience link', () => {
+    it('should mark the experience url as ugc and nofollow', () => {
+      const user = createUser();
+      const experience = createExperience({
+        url: 'https://example.com/my-project',
+      });
+      renderComponent({
+        experiences: [experience],
+        title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
+      });
+
+      expect(screen.getByRole('link', { name: /in new tab/i })).toHaveAttribute(
+        'rel',
+        anchorUgcRel,
       );
     });
   });

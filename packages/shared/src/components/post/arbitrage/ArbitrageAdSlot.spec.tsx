@@ -6,7 +6,6 @@ import {
   screen,
 } from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
@@ -15,16 +14,9 @@ import { LogEvent } from '../../../lib/log';
 import { AdActions } from '../../../lib/ads';
 import type { AdsenseSlots } from '../../../features/monetization/adsense';
 import { ADSENSE_CLIENT_ID } from '../../../features/monetization/adsense';
-import {
-  featurePostAdsense,
-  featureReadAdsense,
-} from '../../../lib/featureManagement';
+import { featureReadAdsense } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
 import { ORGANIC_SLOT } from './slots';
-
-jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
-}));
 
 jest.mock('../../GrowthBookProvider', () => ({
   ...(jest.requireActual('../../GrowthBookProvider') as Record<
@@ -55,10 +47,9 @@ const mockSlotMaps = jest.requireMock('./slots') as {
   ORGANIC_ADSENSE_SLOTS: AdsenseSlots;
 };
 
-const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 const mockUseFeature = jest.mocked(useFeature);
 
-const flags = { organic: false, read: true };
+const flags = { read: true };
 
 // Both surfaces are anonymous-only and wait for boot, so the default render
 // is an anonymous visitor with auth resolved.
@@ -90,26 +81,16 @@ const setSlots = (slots: AdsenseSlots): void => {
 };
 
 const setOrganicSlots = (slots: AdsenseSlots): void => {
-  flags.organic = Object.keys(slots).length > 0;
   mockSlotMaps.ORGANIC_ADSENSE_SLOTS = slots;
 };
 
 beforeEach(() => {
   mockConstants.isDevelopment = false;
-  flags.organic = false;
   flags.read = true;
   mockSlotMaps.READ_ADSENSE_SLOTS = {};
   mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {};
   mockUseFeature.mockImplementation((feature) =>
     feature === featureReadAdsense ? flags.read : feature.defaultValue,
-  );
-  mockUseConditionalFeature.mockImplementation(
-    ({ feature, shouldEvaluate }) => {
-      if (feature === featurePostAdsense && shouldEvaluate) {
-        return { value: flags.organic, isLoading: false };
-      }
-      return { value: feature.defaultValue, isLoading: false };
-    },
   );
 });
 
@@ -251,24 +232,26 @@ describe('ArbitrageAdSlot', () => {
 
   it('renders fixed-size units at exactly the configured size', () => {
     setOrganicSlots({
-      [ORGANIC_SLOT.railHalfPage]: {
+      [ORGANIC_SLOT.railAfterDirectAd]: {
         id: '3333333333',
         type: 'display',
         width: 300,
-        height: 600,
+        height: 250,
       },
     });
     render(
       <ArbitrageAdSlot
         surface="organic"
-        slot={ORGANIC_SLOT.railHalfPage}
-        format={ArbitrageAdFormat.HalfPage}
+        slot={ORGANIC_SLOT.railAfterDirectAd}
+        format={ArbitrageAdFormat.MediumRectangle}
         eager
       />,
     );
 
-    const ins = screen.getByTestId(`adsense-slot-${ORGANIC_SLOT.railHalfPage}`);
-    expect(ins).toHaveStyle({ width: '300px', height: '600px' });
+    const ins = screen.getByTestId(
+      `adsense-slot-${ORGANIC_SLOT.railAfterDirectAd}`,
+    );
+    expect(ins).toHaveStyle({ width: '300px', height: '250px' });
     expect(ins).not.toHaveAttribute('data-ad-format');
   });
 
@@ -325,7 +308,7 @@ describe('ArbitrageAdSlot on the organic surface', () => {
     [ORGANIC_SLOT.topLeaderboard]: { id: '5555555555', type: 'display' },
   };
 
-  it('renders when post_adsense is on for a non-Plus user', () => {
+  it('renders for an anonymous visitor when the unit is configured', () => {
     setOrganicSlots(organicFixture);
     render(
       <ArbitrageAdSlot
@@ -369,13 +352,10 @@ describe('ArbitrageAdSlot on the organic surface', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('never enrolls into post_adsense while no unit has an id', () => {
-    // Enrollment with nothing renderable fills the experiment with users for
-    // whom variant and control are byte-identical.
-    mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {
+  it('collapses to nothing while no organic unit has an id', () => {
+    setOrganicSlots({
       [ORGANIC_SLOT.topLeaderboard]: { id: '', type: 'display' },
-    };
-    flags.organic = true;
+    });
     const { container } = render(
       <ArbitrageAdSlot
         surface="organic"
@@ -386,9 +366,6 @@ describe('ArbitrageAdSlot on the organic surface', () => {
     );
 
     expect(container).toBeEmptyDOMElement();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
   it('shows no development placeholder outside the read template', () => {

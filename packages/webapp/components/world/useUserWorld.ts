@@ -29,6 +29,8 @@ export interface UserWorldResult {
   timeline?: WorldGrowth[];
   /** Null once settled: the owner has never customised anything. */
   settings?: WorldSettings | null;
+  /** Persisted authored families, fetched with the standing world. */
+  objects?: UserWorldData['userWorldObjects'];
   /** The world can be raised: this is the whole of the critical path. */
   isPending: boolean;
   /** The history is still on the wire. The world stands without it, and it is
@@ -49,6 +51,7 @@ export const userWorldQueryKey = (userId?: string): unknown[] =>
 export interface UserWorldEntry {
   districts: WorldDistrict[];
   settings: WorldSettings | null;
+  objects: UserWorldData['userWorldObjects'];
 }
 
 /** Shared with the profile's prefetch, so a warmed cache is the same entry. */
@@ -59,12 +62,17 @@ export const fetchUserWorld = async (
     id: userId,
   });
 
-  return { districts: res.userWorld, settings: res.userWorldSettings ?? null };
+  return {
+    districts: res.userWorld,
+    settings: res.userWorldSettings ?? null,
+    objects: res.userWorldObjects ?? [],
+  };
 };
 
 /**
- * Districts+settings in one blocking round trip; the heavy growth log loads
- * behind the standing world and may fail without taking it down.
+ * Districts, settings and authored objects in one blocking round trip; the
+ * heavy growth log loads behind the standing world and may fail without taking
+ * it down.
  *
  * On a handheld the log is not asked for at all. It is by far the largest
  * response this page takes — one row per day of reading, for years of it — and
@@ -110,11 +118,11 @@ export const useUserWorld = (userId?: string): UserWorldResult => {
     enabled: !!userId && hasDistricts && withHistory,
     staleTime: StaleTime.Default,
   });
-
   return {
     districts,
     timeline: timeline.data,
     settings: world.data?.settings,
+    objects: world.data?.objects,
     isPending: world.isPending,
     /* A disabled query reports itself as pending forever, which would leave the
        scrubber's placeholder holding a place nothing is ever going to fill. */

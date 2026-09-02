@@ -149,6 +149,12 @@ export const cloudinaryOnboardingHeroDesk = {
 export const signupWallCover =
   'https://media.daily.dev/image/upload/s--a8E1hVet--/f_auto,q_auto/v1785059413/public/daily.dev%20-%20signup%20wall';
 
+// No width variants: the signature covers the transformation, so `w_768` 404s
+// rather than resizing. Sized derivatives must be exported and signed upstream
+// before a srcSet can exist.
+export const signupWallHorizon =
+  'https://media.daily.dev/image/upload/s--NCILTqRq--/f_auto,q_auto/v1785661216/public/daily.dev%20-%20main%20image';
+
 export const cloudinaryStreakSplash =
   'https://media.daily.dev/image/upload/v1705386465/Splash_v1lxjk.svg';
 
@@ -479,3 +485,8 @@ export const cloudinaryCharmGiveback =
 // Dedicated Open Graph / social share image for the giveback pages (1280×800).
 export const cloudinaryGivebackOpenGraph =
   'https://media.daily.dev/image/upload/s--lQzU56yU--/f_auto,q_auto/v1783863597/public/daily.dev%20Givevback%20-%201280x800%20(1)';
+
+// The signature covers the transformation string, so a width cap cannot be
+// appended — serving this smaller than its 2072px source needs a re-sign.
+export const cloudinaryHijackingCoverArt =
+  'https://media.daily.dev/image/upload/s--lCzzhJXe--/f_auto,q_auto/v1783981048/public/ChatGPT%20Image%20Jul%2014%2C%202026%2C%2001_17_08%20AM';

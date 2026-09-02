@@ -181,7 +181,7 @@ function SwitchComponent(
       />
       <span
         ref={trackRef}
-        className="relative block h-6 w-11 touch-none select-none"
+        className="relative block h-6 w-11 shrink-0 touch-none select-none"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={endDrag}
@@ -213,7 +213,7 @@ function SwitchComponent(
       {children ? (
         <span
           className={classNames(
-            'ml-3 font-medium antialiased',
+            'ml-3 min-w-0 font-medium antialiased',
             defaultTypo && (compact ? 'typo-footnote' : 'typo-callout'),
             styles.children,
             labelClassName,

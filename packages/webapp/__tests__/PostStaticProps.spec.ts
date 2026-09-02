@@ -28,8 +28,8 @@ type TestPost = {
   language: string;
   tags: string[];
   image?: string;
+  noindex?: boolean;
   author?: {
-    reputation?: number;
     permalink?: string;
   };
 };
@@ -37,11 +37,11 @@ type TestPost = {
 const createPost = ({
   type,
   upvotes,
-  reputation = 11,
+  noindex = false,
 }: {
   type: PostType;
   upvotes: number;
-  reputation?: number;
+  noindex?: boolean;
 }): TestPost => ({
   id: `${type}-${upvotes}`,
   type,
@@ -53,8 +53,8 @@ const createPost = ({
   language: 'en',
   tags: ['seo'],
   image: 'https://example.com/post.png',
+  noindex,
   author: {
-    reputation,
     permalink: 'https://example.com/@author',
   },
 });
@@ -110,7 +110,32 @@ describe('post static props seo', () => {
     });
   });
 
+  it('should noindex a post the API flags as noindex', async () => {
+    mockRequest
+      .mockResolvedValueOnce({
+        post: createPost({
+          type: PostType.Article,
+          upvotes: 10,
+          noindex: true,
+        }),
+      })
+      .mockResolvedValueOnce({ topComments: [] });
+
+    const result = await getStaticProps({
+      params: { id: 'post-id' },
+    } as never);
+
+    expect(result).toMatchObject({
+      props: {
+        seo: {
+          noindex: true,
+        },
+      },
+    });
+  });
+
   it.each([
+    ['the API flags the post as noindex', { noindex: true }],
     ['the post is private', { private: true }],
     ['the source is not public', { source: { public: false } }],
   ])('should noindex when %s', (_, overrides) => {
@@ -143,7 +168,9 @@ describe('post static props seo', () => {
     });
   });
 
-  it('should preserve indexed status when the author reputation is missing', () => {
+  // Author reputation is the API's call now, so a post it did not flag stays
+  // indexable no matter who wrote it.
+  it('should keep a post the API did not flag indexable', () => {
     expect(
       shouldNoindexPost({
         ...createPost({ type: PostType.Article, upvotes: 10 }),

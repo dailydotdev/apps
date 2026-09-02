@@ -1116,6 +1116,15 @@ meter::-webkit-meter-bar {
       );
   }
 
+  .cover-hero-dome {
+    background: radial-gradient(
+      72% 130% at 50% 0%,
+      color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 12%) 0%,
+      color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 50%) 46%,
+      transparent 76%
+    );
+  }
+
   .top-hero-stage {
     background:
       linear-gradient(

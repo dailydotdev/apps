@@ -22,7 +22,6 @@ import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
-import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
 import FeedContext from '../contexts/FeedContext';
@@ -47,7 +46,7 @@ import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
-import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
+import { useFeature } from './GrowthBookProvider';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
@@ -92,6 +91,7 @@ import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { FeedExploreTabs } from './header/FeedExploreTabs';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
+import { useSearchId } from '../hooks/search/useSearchId';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
@@ -245,7 +245,6 @@ export default function MainFeedLayout({
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
-  const { getFeatureValue } = useFeaturesReadyContext();
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
@@ -326,6 +325,22 @@ export default function MainFeedLayout({
     feature: customFeedVersion,
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
+
+  const isPostSearch = isSearchOn && !!searchQuery;
+  const { value: searchVersion } = useConditionalFeature({
+    feature: feature.searchVersion,
+    shouldEvaluate: isPostSearch,
+  });
+  const searchId = useSearchId(
+    isPostSearch
+      ? [
+          searchQuery,
+          searchVersion,
+          contentCurationFilter.join(','),
+          time,
+        ].join('|')
+      : '',
+  );
 
   const isChipStripPage =
     router.pathname === '/' ||
@@ -571,7 +586,6 @@ export default function MainFeedLayout({
     }
 
     if (isSearchOn && searchQuery) {
-      const searchVersion = getFeatureValue(feature.searchVersion);
       return {
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(
@@ -588,6 +602,8 @@ export default function MainFeedLayout({
           contentCuration: contentCurationFilter,
           time,
         },
+        searchId,
+        searchVersion,
         emptyScreen: <SearchEmptyScreen />,
       };
     }
@@ -667,7 +683,8 @@ export default function MainFeedLayout({
     selectedAlgo,
     handleSelectedAlgoChange,
     defaultFeedId,
-    getFeatureValue,
+    searchId,
+    searchVersion,
     contentCurationFilter,
     time,
     tab,
@@ -847,9 +864,6 @@ export default function MainFeedLayout({
         >
           <FeedEngagementBanner className="mb-3" />
         </div>
-        {isHomePage && (
-          <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
-        )}
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
         )}

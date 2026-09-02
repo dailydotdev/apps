@@ -27,6 +27,7 @@ import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
 import type { FeaturedWideColSpan } from './cards/common/featuredWide';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
+import type { SearchLogExtra } from '../lib/searchLog';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
 import { LogEvent, Origin, TargetId } from '../lib/log';
@@ -123,6 +124,13 @@ export interface FeedProps<T>
    */
   hideTags?: boolean;
   topContent?: ReactNode;
+  /**
+   * Search feeds only: correlation id for the query execution and the backend
+   * search version behind it. Both ride along on every engagement event so the
+   * search experiment can be measured per query.
+   */
+  searchId?: string;
+  searchVersion?: number;
 }
 
 interface RankVariables {
@@ -220,6 +228,8 @@ export default function Feed<T>({
   hideSource = false,
   hideTags = false,
   topContent: topContentProp,
+  searchId,
+  searchVersion,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -377,6 +387,8 @@ export default function Feed<T>({
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         feedName,
+        searchId,
+        searchVersion,
       },
     },
   );
@@ -544,6 +556,14 @@ export default function Feed<T>({
 
   const { ranking } = (variables as RankVariables) || {};
 
+  const searchLogExtra = useMemo<SearchLogExtra | undefined>(() => {
+    if (!searchId && searchVersion === undefined) {
+      return undefined;
+    }
+
+    return { search_id: searchId, search_version: searchVersion };
+  }, [searchId, searchVersion]);
+
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
     canFetchMore: canFetchMore && feedQueryKey?.[0] !== RequestKey.FeedPreview,
@@ -567,32 +587,36 @@ export default function Feed<T>({
 
   useFeedContentPreferenceMutationSubscription({ feedQueryKey });
 
-  const onPostClick = useFeedOnPostClick(
+  const onPostClick = useFeedOnPostClick({
     items,
     updatePost,
-    virtualizedNumCards,
+    columns: virtualizedNumCards,
     feedName,
     ranking,
-  );
+    searchLogExtra,
+  });
 
-  const onReadArticleClick = useFeedOnPostClick(
+  const onReadArticleClick = useFeedOnPostClick({
     items,
     updatePost,
-    virtualizedNumCards,
+    columns: virtualizedNumCards,
     feedName,
     ranking,
-    'go to link',
-  );
+    eventName: 'go to link',
+    searchLogExtra,
+  });
 
   const trackFinishFeed = useCallback(() => {
     if (!canFetchMore) {
       logEvent({
         event_name: LogEvent.FinishFeed,
-        extra: JSON.stringify(feedLogExtra(feedName, ranking).extra),
+        extra: JSON.stringify(
+          feedLogExtra(feedName, ranking, searchLogExtra).extra,
+        ),
         ...logOpts,
       });
     }
-  }, [canFetchMore, feedName, logEvent, logOpts, ranking]);
+  }, [canFetchMore, feedName, logEvent, logOpts, ranking, searchLogExtra]);
 
   const { openSharePost, copyLink } = useSharePost(origin);
 
@@ -665,9 +689,7 @@ export default function Feed<T>({
     const isMiddleClick = event?.type === 'auxclick' || event?.button === 1;
     const isModifierClick = !!(event && (event.ctrlKey || event.metaKey));
     const readerEligible = isReaderEligiblePost(post);
-    const skipsPostModal = post.type === PostType.LiveRoom;
     const shouldOpenModal =
-      !skipsPostModal &&
       !isAuxClick &&
       !isMiddleClick &&
       !isModifierClick &&
@@ -705,7 +727,8 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        ...feedLogExtra(feedName, ranking),
+        index,
+        ...feedLogExtra(feedName, ranking, searchLogExtra),
         is_ad: isAd,
       }),
     );
@@ -795,6 +818,7 @@ export default function Feed<T>({
                   virtualizedNumCards={virtualizedNumCards}
                   disableAdRefresh={disableAdRefresh}
                   wideColSpan={wideColSpan}
+                  searchLogExtra={searchLogExtra}
                 />
               );
 

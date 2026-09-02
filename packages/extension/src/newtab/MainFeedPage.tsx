@@ -16,6 +16,8 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
@@ -71,6 +73,7 @@ const MainFeedPageInner = ({
   shortcuts,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const { getFeatureValue } = useFeaturesReadyContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>(() =>
@@ -188,6 +191,7 @@ const MainFeedPageInner = ({
                       extra: JSON.stringify({
                         query,
                         provider: SearchProviderEnum.Posts,
+                        search_version: getFeatureValue(feature.searchVersion),
                         ...extraFlags,
                       }),
                     });

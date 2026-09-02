@@ -5,9 +5,11 @@ import type { MutableRefObject } from 'react';
 import type {
   UploadUserWorldPlateData,
   WorldDistrict,
+  WorldObject,
   WorldSettings,
 } from '../../graphql/world';
 import { UPLOAD_USER_WORLD_PLATE_MUTATION } from '../../graphql/world';
+import type { UserWorldEntry } from './useUserWorld';
 import { userWorldQueryKey } from './useUserWorld';
 import type { WorldEngine } from './worldState';
 
@@ -30,6 +32,7 @@ const MIN_PLATE_ASPECT = 1.4;
 export const worldPlateVersion = (
   districts: WorldDistrict[] | undefined,
   settings: WorldSettings | null | undefined,
+  objects: WorldObject[] | undefined,
 ): string => {
   const shape = {
     // Level drives the monuments, so district sizes matter, but only coarsely:
@@ -58,6 +61,17 @@ export const worldPlateVersion = (
           settings.look.vig,
         ].join('/')
       : '',
+    ...(objects?.length
+      ? {
+          objects: objects
+            .map(
+              ({ scope, realm, niche, family, updatedAt }) =>
+                `${scope}:${realm}:${niche ?? ''}:${family}:${updatedAt}`,
+            )
+            .sort()
+            .join(','),
+        }
+      : {}),
   };
 
   const serialised = JSON.stringify(shape);
@@ -78,6 +92,7 @@ interface UseWorldPlateProps {
   engineRef: MutableRefObject<WorldEngine | null>;
   districts: WorldDistrict[] | undefined;
   settings: WorldSettings | null | undefined;
+  objects: WorldObject[] | undefined;
 }
 
 /**
@@ -97,6 +112,7 @@ export const useWorldPlate = ({
   engineRef,
   districts,
   settings,
+  objects,
 }: UseWorldPlateProps): void => {
   const client = useQueryClient();
   // One attempt per mount. A failed upload should not retry on every re-render,
@@ -112,11 +128,10 @@ export const useWorldPlate = ({
       return res.uploadUserWorldPlate;
     },
     onSuccess: (updated) =>
-      client.setQueryData<{
-        districts: WorldDistrict[];
-        settings: WorldSettings | null;
-      }>(userWorldQueryKey(userId), (previous) =>
-        previous ? { ...previous, settings: updated ?? null } : previous,
+      client.setQueryData<UserWorldEntry>(
+        userWorldQueryKey(userId),
+        (previous) =>
+          previous ? { ...previous, settings: updated ?? null } : previous,
       ),
   });
 
@@ -134,7 +149,7 @@ export const useWorldPlate = ({
       return;
     }
 
-    const version = worldPlateVersion(districts, settings);
+    const version = worldPlateVersion(districts, settings, objects);
     if (
       attemptedRef.current === version ||
       settings?.plateVersion === version
@@ -157,5 +172,14 @@ export const useWorldPlate = ({
         // A missing plate is a card that falls back to the profile image, not a
         // broken world. Nothing on screen should change because this failed.
       });
-  }, [engineRef, isOwn, isPrivate, isReady, districts, settings, mutate]);
+  }, [
+    engineRef,
+    isOwn,
+    isPrivate,
+    isReady,
+    districts,
+    settings,
+    objects,
+    mutate,
+  ]);
 };

@@ -46,7 +46,9 @@ export const AgentDebugPanel = ({
             className="gap-1 rounded-12 border border-border-subtlest-tertiary p-3"
           >
             <Link href={item.post.commentsPermalink ?? item.post.permalink}>
-              <a className="typo-callout">{item.post.title}</a>
+              <a className="typo-callout">
+                {item.post.title ?? item.post.sharedPost?.title}
+              </a>
             </Link>
             <Typography
               type={TypographyType.Caption1}

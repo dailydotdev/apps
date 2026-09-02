@@ -1,4 +1,5 @@
 import { gqlClient } from './common';
+import type { Connection } from './common';
 import type { Post } from './posts';
 import { FEED_POST_FRAGMENT } from './fragments';
 import { USER_POST_FRAGMENT } from './feed';
@@ -7,6 +8,13 @@ export enum UserInterestStatus {
   Active = 'active',
   Paused = 'paused',
   Stopped = 'stopped',
+  Onboarding = 'onboarding',
+}
+
+export enum UserInterestOnboardingStep {
+  Questions = 'questions',
+  Brief = 'brief',
+  Settings = 'settings',
 }
 
 export enum UserInterestCadence {
@@ -40,17 +48,21 @@ export enum InterestRunTrigger {
   Spawn = 'spawn',
   Command = 'command',
   Scheduled = 'scheduled',
+  Onboarding = 'onboarding',
 }
 
 export type UserInterest = {
   id: string;
   query: string;
   title?: string | null;
+  brief?: string | null;
+  onboardingStep?: UserInterestOnboardingStep | null;
   status: UserInterestStatus;
   cadence: UserInterestCadence;
   fomoThreshold: number;
   sources: InterestSources;
   outputModes: InterestOutputModes;
+  showHistory: boolean;
   feedId?: string | null;
   sourceId?: string | null;
   lastRunAt?: string | null;
@@ -72,6 +84,7 @@ export type UpdateInterestInput = {
   fomoThreshold?: number;
   sources?: Partial<InterestSources>;
   outputModes?: Partial<InterestOutputModes>;
+  showHistory?: boolean;
 };
 
 export type CreateInterestSettings = Omit<UpdateInterestInput, 'status'>;
@@ -80,6 +93,7 @@ export const defaultCreateInterestSettings: CreateInterestSettings = {
   cadence: UserInterestCadence.Auto,
   fomoThreshold: 0.5,
   outputModes: { feed: true, post: true, digest: false, notification: true },
+  showHistory: true,
 };
 
 export type InterestFinding = {
@@ -90,10 +104,23 @@ export type InterestFinding = {
   post?: Post | null;
 };
 
+export type InterestQuestionChoice = { value: string; label: string };
+
 export type InterestRunBlock =
   | { type: 'text'; html: string }
   | { type: 'picks'; caption?: string; postIds: string[] }
-  | { type: 'feedLink'; label: string; count: number; postIds?: string[] };
+  | { type: 'feedLink'; label: string; count: number; postIds?: string[] }
+  | {
+      type: 'question';
+      questionId: string;
+      html: string;
+      input: 'chips' | 'text';
+      multi?: boolean;
+      choices?: InterestQuestionChoice[];
+      selected?: string[];
+    }
+  | { type: 'brief'; html: string; brief: string }
+  | { type: 'review' };
 
 export type InterestTurnRelationship = {
   id: string;
@@ -104,6 +131,13 @@ export type InterestTurnRelationship = {
   summary: string | null;
 };
 
+export enum InterestReplyStatus {
+  Queued = 'queued',
+  Running = 'running',
+  Completed = 'completed',
+  Failed = 'failed',
+}
+
 export type InterestTurn = {
   id: string;
   role: 'user' | 'agent';
@@ -113,6 +147,8 @@ export type InterestTurn = {
   status?: InterestRunStatus | null;
   trigger?: InterestRunTrigger | null;
   feedbackId?: string | null;
+  replyStatus?: InterestReplyStatus | null;
+  replyBlocks?: InterestRunBlock[] | null;
   blocks?: InterestRunBlock[] | null;
   findingsAdded?: number | null;
   summaryPostId?: string | null;
@@ -125,11 +161,14 @@ const USER_INTEREST_FRAGMENT = `
     id
     query
     title
+    brief
+    onboardingStep
     status
     cadence
     fomoThreshold
     sources
     outputModes
+    showHistory
     feedId
     sourceId
     lastRunAt
@@ -177,8 +216,8 @@ export const INTEREST_FINDINGS_QUERY = `
 `;
 
 export const CREATE_INTEREST_MUTATION = `
-  mutation CreateInterest($query: String!, $settings: CreateInterestSettingsInput) {
-    createInterest(query: $query, settings: $settings) {
+  mutation CreateInterest($query: String!, $settings: CreateInterestSettingsInput, $onboarding: Boolean) {
+    createInterest(query: $query, settings: $settings, onboarding: $onboarding) {
       ...UserInterestFragment
     }
   }
@@ -186,29 +225,72 @@ export const CREATE_INTEREST_MUTATION = `
 `;
 
 export const SEND_INTEREST_COMMAND_MUTATION = `
-  mutation SendInterestCommand($id: ID!, $text: String!, $triggerRun: Boolean) {
-    sendInterestCommand(id: $id, text: $text, triggerRun: $triggerRun) {
+  mutation SendInterestCommand($id: ID!, $text: String!, $runId: String, $reply: Boolean, $questionId: String) {
+    sendInterestCommand(id: $id, text: $text, runId: $runId, reply: $reply, questionId: $questionId) {
       id
     }
   }
 `;
 
+export const CONFIRM_INTEREST_BRIEF_MUTATION = `
+  mutation ConfirmInterestBrief($id: ID!, $brief: String) {
+    confirmInterestBrief(id: $id, brief: $brief) {
+      ...UserInterestFragment
+    }
+  }
+  ${USER_INTEREST_FRAGMENT}
+`;
+
+export const COMPLETE_INTEREST_ONBOARDING_MUTATION = `
+  mutation CompleteInterestOnboarding($id: ID!) {
+    completeInterestOnboarding(id: $id) {
+      ...UserInterestFragment
+    }
+  }
+  ${USER_INTEREST_FRAGMENT}
+`;
+
 export const INTEREST_HISTORY_QUERY = `
-  query InterestHistory($id: ID!) {
-    interestHistory(id: $id) {
-      id
-      role
-      createdAt
-      text
-      relationships
-      status
-      trigger
-      feedbackId
-      blocks
-      findingsAdded
-      summaryPostId
-      startedAt
-      finishedAt
+  query InterestHistory(
+    $id: ID!
+    $first: Int
+    $after: String
+    $last: Int
+    $before: String
+  ) {
+    interestHistory(
+      id: $id
+      first: $first
+      after: $after
+      last: $last
+      before: $before
+    ) {
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          id
+          role
+          createdAt
+          text
+          relationships
+          status
+          trigger
+          feedbackId
+          replyStatus
+          replyBlocks
+          blocks
+          findingsAdded
+          summaryPostId
+          startedAt
+          finishedAt
+        }
+      }
     }
   }
 `;
@@ -283,40 +365,112 @@ export const getInterestFindings = async (
 export const createInterest = async ({
   query,
   settings,
+  onboarding,
 }: {
   query: string;
   settings?: CreateInterestSettings;
+  onboarding?: boolean;
 }): Promise<UserInterest> => {
   const res = await gqlClient.request<{ createInterest: UserInterest }>(
     CREATE_INTEREST_MUTATION,
-    { query, settings },
+    { query, settings, onboarding },
   );
   return res.createInterest;
+};
+
+export const confirmInterestBrief = async ({
+  id,
+  brief,
+}: {
+  id: string;
+  brief?: string;
+}): Promise<UserInterest> => {
+  const res = await gqlClient.request<{ confirmInterestBrief: UserInterest }>(
+    CONFIRM_INTEREST_BRIEF_MUTATION,
+    { id, brief },
+  );
+  return res.confirmInterestBrief;
+};
+
+export const completeInterestOnboarding = async (
+  id: string,
+): Promise<UserInterest> => {
+  const res = await gqlClient.request<{
+    completeInterestOnboarding: UserInterest;
+  }>(COMPLETE_INTEREST_ONBOARDING_MUTATION, { id });
+  return res.completeInterestOnboarding;
 };
 
 export const sendInterestCommand = async ({
   id,
   text,
-  triggerRun,
+  runId,
+  reply,
+  questionId,
 }: {
   id: string;
   text: string;
-  triggerRun?: boolean;
+  runId?: string;
+  reply?: boolean;
+  questionId?: string;
 }): Promise<Pick<UserInterest, 'id'>> => {
   const res = await gqlClient.request<{
     sendInterestCommand: Pick<UserInterest, 'id'>;
-  }>(SEND_INTEREST_COMMAND_MUTATION, { id, text, triggerRun });
+  }>(SEND_INTEREST_COMMAND_MUTATION, { id, text, runId, reply, questionId });
   return res.sendInterestCommand;
 };
 
+export type InterestHistoryArgs = {
+  id: string;
+  first?: number;
+  after?: string;
+  last?: number;
+  before?: string;
+};
+
 export const getInterestHistory = async (
-  id: string,
-): Promise<InterestTurn[]> => {
-  const res = await gqlClient.request<{ interestHistory: InterestTurn[] }>(
-    INTEREST_HISTORY_QUERY,
-    { id },
-  );
+  args: InterestHistoryArgs,
+): Promise<Connection<InterestTurn>> => {
+  const res = await gqlClient.request<{
+    interestHistory: Connection<InterestTurn>;
+  }>(INTEREST_HISTORY_QUERY, args);
   return res.interestHistory;
+};
+
+export const INTEREST_RUN_QUERY = `
+  query InterestRun($id: ID!, $runId: ID!) {
+    interestRun(id: $id, runId: $runId) {
+      id
+      role
+      createdAt
+      text
+      relationships
+      status
+      trigger
+      feedbackId
+      replyStatus
+      replyBlocks
+      blocks
+      findingsAdded
+      summaryPostId
+      startedAt
+      finishedAt
+    }
+  }
+`;
+
+export const getInterestRun = async ({
+  id,
+  runId,
+}: {
+  id: string;
+  runId: string;
+}): Promise<InterestTurn> => {
+  const res = await gqlClient.request<{ interestRun: InterestTurn }>(
+    INTEREST_RUN_QUERY,
+    { id, runId },
+  );
+  return res.interestRun;
 };
 
 export const updateInterest = async ({

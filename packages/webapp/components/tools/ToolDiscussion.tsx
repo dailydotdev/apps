@@ -25,11 +25,14 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { CharmEmptyState } from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
+import { cloudinaryCharmNoComments } from '@dailydotdev/shared/src/lib/image';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 
-const CommentInputOrModal = dynamic(
+const CommentInput = dynamic(
   () =>
     import(
-      /* webpackChunkName: "commentInputOrModal" */ '@dailydotdev/shared/src/components/comments/CommentInputOrModal'
+      /* webpackChunkName: "commentInput" */ '@dailydotdev/shared/src/components/comments/CommentInput'
     ),
 );
 
@@ -66,7 +69,7 @@ export const ToolDiscussion = ({
   toolTitle,
   discussionPostId,
 }: ToolDiscussionProps): ReactElement => {
-  const { user, showLogin } = useAuthContext();
+  const { isLoggedIn, showLogin } = useAuthContext();
   const { isVerified, isLoading: isCompaniesLoading } = useUserCompaniesQuery();
   const { displayToast } = useToastNotification();
   const commentRef = useRef<NewCommentRef>(null);
@@ -106,16 +109,20 @@ export const ToolDiscussion = ({
   // anyway, so the composer is replaced before the user ever gets there.
   // While the companies query is still resolving, treat replies as blocked
   // too rather than briefly allowing a composer that then gets pulled away.
-  const isCheckingVerification = !!user && isCompaniesLoading;
-  const isGated = !!user && !isCompaniesLoading && !isVerified;
-  const canReply = !user || (!isCompaniesLoading && isVerified);
+  const isCheckingVerification = isLoggedIn && isCompaniesLoading;
+  const isGated = isLoggedIn && !isCompaniesLoading && !isVerified;
+  const canReply = !isLoggedIn || (!isCompaniesLoading && isVerified);
 
   const handleReplyBlocked = useCallback(() => {
     displayToast(VERIFIED_GATE_MESSAGE);
   }, [displayToast]);
 
   const handleStart = (): void => {
-    if (!user) {
+    if (isStarting) {
+      return;
+    }
+
+    if (!isLoggedIn) {
       showLogin({ trigger: AuthTriggers.Comment });
       return;
     }
@@ -143,11 +150,7 @@ export const ToolDiscussion = ({
       }
 
       return (
-        <NewComment
-          post={post}
-          ref={commentRef}
-          CommentInputOrModal={CommentInputOrModal}
-        />
+        <NewComment post={post} ref={commentRef} CommentInput={CommentInput} />
       );
     };
 
@@ -168,18 +171,34 @@ export const ToolDiscussion = ({
     return <PlaceholderCommentList placeholderAmount={1} />;
   }
 
+  const emptyState = (
+    <CharmEmptyState
+      className="my-4"
+      image={cloudinaryCharmNoComments}
+      imageAlt="daily.dev charm peeking over a glowing speech bubble"
+      title="No comments yet"
+      description={`Nobody has weighed in on ${toolTitle} yet. Share what it is actually like to work with and get the discussion started.`}
+      action={
+        isGated
+          ? undefined
+          : {
+              label: 'Start the discussion',
+              icon: <PlusIcon aria-hidden />,
+              loading: isStarting,
+              onClick: handleStart,
+            }
+      }
+    />
+  );
+
   if (isGated) {
-    return <VerifiedGateNotice />;
+    return (
+      <div className="flex flex-col gap-4">
+        {emptyState}
+        <VerifiedGateNotice />
+      </div>
+    );
   }
 
-  return (
-    <button
-      type="button"
-      disabled={isStarting}
-      onClick={handleStart}
-      className="disabled:opacity-70 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 text-left text-text-quaternary typo-callout"
-    >
-      Share your experience with {toolTitle}…
-    </button>
-  );
+  return emptyState;
 };

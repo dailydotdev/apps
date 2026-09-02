@@ -313,16 +313,36 @@ describe('the live path', () => {
     turns = [] as InterestTurn[],
     findings = [] as AgentFeedItem[],
     posts = [] as { id: string; title: string; createdAt: string }[],
+    runId = undefined as string | undefined,
+    run = undefined as InterestTurn | undefined,
+    interest = {} as Record<string, unknown>,
+    onLeaveRunView = jest.fn(),
   } = {}) => {
     jest
       .spyOn(command, 'useSendInterestCommand')
       .mockReturnValue({ isSending: false, sendCommand: send } as never);
     jest.spyOn(queries, 'interestHistoryQueryOptions').mockReturnValue({
       queryKey: ['history', 'a1'],
-      queryFn: async () => turns,
+      queryFn: async () => ({
+        edges: turns.map((node) => ({ node, cursor: node.id })),
+        pageInfo: { hasNextPage: false, hasPreviousPage: false },
+      }),
+    } as never);
+    jest.spyOn(queries, 'interestRunQueryOptions').mockReturnValue({
+      queryKey: ['run', 'a1', runId],
+      queryFn: async () => {
+        if (!run) {
+          throw new Error('run not found');
+        }
+        return run;
+      },
+      retry: false,
     } as never);
 
-    const seen: { current: Agent } = { current: undefined as never };
+    const seen: { current: Agent; onLeaveRunView: jest.Mock } = {
+      current: undefined as never,
+      onLeaveRunView,
+    };
 
     const Probe = () => {
       seen.current = useAgent();
@@ -334,8 +354,10 @@ describe('the live path', () => {
       <TestBootProvider client={new QueryClient()} auth={{ user: defaultUser }}>
         <AgentProvider
           id="a1"
-          interest={{ id: 'a1', query: 'zig' } as never}
+          interest={{ id: 'a1', query: 'zig', ...interest } as never}
           isDemo={false}
+          runId={runId}
+          onLeaveRunView={onLeaveRunView}
           findings={findings}
           posts={posts as never}
         >
@@ -623,6 +645,219 @@ describe('the live path', () => {
       'post',
       'run',
     ]);
+  });
+  const completedRun = (id: string, at: string): InterestTurn =>
+    ({
+      id,
+      role: 'agent',
+      createdAt: at,
+      status: 'completed',
+      trigger: 'scheduled',
+      findingsAdded: 1,
+      blocks: [{ type: 'text', html: `<p>${id}</p>` }],
+    } as InterestTurn);
+
+  it('shows only the deep-linked run and offers the latest one when it is older', async () => {
+    const agent = mountLive({
+      runId: 'run-1',
+      run: completedRun('run-1', '2026-01-01T00:00:00Z'),
+      turns: [
+        completedRun('run-1', '2026-01-01T00:00:00Z'),
+        completedRun('run-2', '2026-01-02T00:00:00Z'),
+      ],
+    });
+
+    await waitForHistory(agent, (current) => current.isOldRunView);
+    expect(agent.current.messages.map(({ id }) => id)).toEqual(['run-1']);
+
+    act(() => agent.current.leaveRunView());
+
+    expect(agent.onLeaveRunView).toHaveBeenCalled();
+  });
+
+  it('does not offer the latest run when the deep-linked run is the latest', async () => {
+    const agent = mountLive({
+      runId: 'run-2',
+      run: completedRun('run-2', '2026-01-02T00:00:00Z'),
+      turns: [
+        completedRun('run-1', '2026-01-01T00:00:00Z'),
+        completedRun('run-2', '2026-01-02T00:00:00Z'),
+      ],
+    });
+
+    await waitForHistory(agent, (current) => current.messages.length === 1);
+    expect(agent.current.isRunView).toBe(true);
+    expect(agent.current.isOldRunView).toBe(false);
+  });
+
+  it('falls back to the history when the deep-linked run cannot be loaded', async () => {
+    const agent = mountLive({
+      runId: 'run-gone',
+      turns: [completedRun('run-1', '2026-01-01T00:00:00Z')],
+    });
+
+    await waitForHistory(agent, (current) => current.messages.length === 1);
+    expect(agent.current.isRunView).toBe(false);
+  });
+
+  it('loads only the latest turn while history is switched off', async () => {
+    const agent = mountLive({ interest: { showHistory: false } });
+
+    await flushQueries();
+    expect(queries.interestHistoryQueryOptions).toHaveBeenLastCalledWith(
+      'a1',
+      expect.anything(),
+      1,
+    );
+    expect(agent.current.isHistoryLimited).toBe(true);
+
+    act(() => agent.current.showEarlier());
+
+    await waitFor(() =>
+      expect(queries.interestHistoryQueryOptions).toHaveBeenLastCalledWith(
+        'a1',
+        expect.anything(),
+        40,
+      ),
+    );
+    expect(agent.current.isHistoryLimited).toBe(false);
+  });
+
+  it('renders a reply as the agent answering the turn it belongs to', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'what single pick do you recommend?',
+          replyStatus: 'completed' as never,
+          replyBlocks: [
+            { type: 'text', html: '<p>Read the teardown first.</p>' },
+          ] as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(
+      agent.current.messages.map(({ id, role, isPending }) => [
+        id,
+        role,
+        !!isPending,
+      ]),
+    ).toEqual([
+      ['fb-1', 'user', false],
+      ['fb-1-reply', 'agent', false],
+    ]);
+  });
+
+  it('never asks for a reply to a vote', async () => {
+    const send = jest.fn().mockResolvedValue(undefined);
+    const agent = mountLive({ send, runId: 'run-1' });
+
+    await flushQueries();
+    await act(async () => {
+      await agent.current.sendFeedback('Fewer replies like this one: "..."');
+    });
+
+    expect(send).toHaveBeenCalledWith({
+      text: 'Fewer replies like this one: "..."',
+      reply: false,
+    });
+  });
+
+  it('falls back to a plain answer when a completed reply carries no blocks', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'noted, thanks',
+          replyStatus: 'completed' as never,
+          replyBlocks: [] as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(agent.current.messages[1]).toMatchObject({
+      id: 'fb-1-reply',
+      role: 'agent',
+      isPending: false,
+      isError: false,
+      blocks: [{ type: 'text', html: '<p>Done.</p>' }],
+    });
+  });
+
+  it('counts a pending reply as the agent working', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'too shallow',
+          replyStatus: 'running' as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ isWorking }) => isWorking === true);
+
+    expect(agent.current.isWorking).toBe(true);
+  });
+
+  it('shows a queued reply as pending', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'too shallow',
+          replyStatus: 'queued' as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(agent.current.messages[1]).toMatchObject({
+      id: 'fb-1-reply',
+      role: 'agent',
+      isPending: true,
+    });
+  });
+
+  it('sends the run the reader has open, then leaves the run view', async () => {
+    const send = jest.fn().mockResolvedValue(undefined);
+    const agent = mountLive({
+      send,
+      runId: 'run-1',
+      run: {
+        id: 'run-1',
+        role: 'agent',
+        createdAt: '2026-01-01T00:01:00Z',
+        blocks: [],
+      } as never,
+    });
+
+    await flushQueries();
+    await act(async () => {
+      agent.current.runCommand({ text: 'what single pick do you recommend?' });
+    });
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'what single pick do you recommend?',
+        runId: 'run-1',
+      }),
+    );
+    expect(agent.onLeaveRunView).toHaveBeenCalled();
   });
 });
 

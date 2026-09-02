@@ -13,7 +13,11 @@ import {
   mockMatchMedia,
 } from '../../../../__tests__/helpers/media';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import defaultUser from '../../../../__tests__/fixture/loggedUser';
 import type { AgentMessage } from '../chat';
+import type { InterestTurn } from '../../../graphql/interests';
+import * as queries from '../queries';
+import * as updateHook from '../hooks/useUpdateInterest';
 import { AgentProvider, useAgent } from '../AgentContext';
 import { AgentWorkspace } from './AgentWorkspace';
 
@@ -65,8 +69,6 @@ const renderWorkspace = ({
       <AgentProvider id="a1" isDemo initialMessages={initialMessages}>
         <AgentWorkspace
           items={[]}
-          onDelete={jest.fn()}
-          isDeleting={false}
           runId={currentRunId}
           isFeedReady={isFeedReady}
         />
@@ -442,5 +444,159 @@ describe('AgentWorkspace panel on a phone', () => {
       'style',
       expect.stringContaining('width'),
     );
+  });
+});
+
+describe('AgentWorkspace history window', () => {
+  beforeEach(() => {
+    jest.useRealTimers();
+    HTMLElement.prototype.scrollIntoView = jest.fn();
+  });
+
+  afterEach(() => {
+    delete (HTMLElement.prototype as { scrollIntoView?: unknown })
+      .scrollIntoView;
+  });
+
+  const turnAt = (id: string, at: string): InterestTurn =>
+    ({
+      id,
+      role: 'agent',
+      createdAt: at,
+      finishedAt: at,
+      status: 'completed',
+      trigger: 'scheduled',
+      findingsAdded: 1,
+      blocks: [{ type: 'text', html: `<p>Findings from ${id}.</p>` }],
+    } as InterestTurn);
+
+  const renderLive = ({
+    turns = [] as InterestTurn[],
+    runId = undefined as string | undefined,
+    run = undefined as InterestTurn | undefined,
+    interest = {} as Record<string, unknown>,
+    onLeaveRunView = jest.fn(),
+  } = {}) => {
+    stubStore(600);
+    jest.spyOn(queries, 'interestHistoryQueryOptions').mockReturnValue({
+      queryKey: ['history', 'a1'],
+      queryFn: async () => ({
+        edges: turns.map((node) => ({ node, cursor: node.id })),
+        pageInfo: { hasNextPage: false, hasPreviousPage: false },
+      }),
+    } as never);
+    jest.spyOn(queries, 'interestRunQueryOptions').mockReturnValue({
+      queryKey: ['run', 'a1', runId],
+      queryFn: async () => run,
+    } as never);
+
+    const client = new QueryClient();
+    const tree = (currentRunId?: string) => (
+      <TestBootProvider client={client} auth={{ user: defaultUser }}>
+        <AgentProvider
+          id="a1"
+          isDemo={false}
+          runId={currentRunId}
+          onLeaveRunView={onLeaveRunView}
+          interest={
+            {
+              id: 'a1',
+              query: 'zig',
+              status: 'active',
+              cadence: 'auto',
+              outputModes: { notification: true },
+              ...interest,
+            } as never
+          }
+        >
+          <AgentWorkspace items={[]} runId={currentRunId} />
+        </AgentProvider>
+      </TestBootProvider>
+    );
+    const view = render(tree(runId));
+
+    return {
+      onLeaveRunView,
+      leaveRunView: () => view.rerender(tree(undefined)),
+    };
+  };
+
+  it('shows only the deep-linked run with a way to the latest one', async () => {
+    const { onLeaveRunView } = renderLive({
+      runId: 'run-1',
+      run: turnAt('run-1', '2026-01-01T00:00:00Z'),
+      turns: [
+        turnAt('run-1', '2026-01-01T00:00:00Z'),
+        turnAt('run-2', '2026-01-02T00:00:00Z'),
+      ],
+    });
+
+    expect(await screen.findByText('Findings from run-1.')).toBeInTheDocument();
+    expect(screen.queryByText('Findings from run-2.')).not.toBeInTheDocument();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Load latest run' }),
+    );
+
+    expect(onLeaveRunView).toHaveBeenCalled();
+  });
+
+  it('hides the scroll-to-latest arrow on the run view and pins the tail after leaving it', async () => {
+    const { leaveRunView } = renderLive({
+      runId: 'run-1',
+      run: turnAt('run-1', '2026-01-01T00:00:00Z'),
+      turns: [
+        turnAt('run-1', '2026-01-01T00:00:00Z'),
+        turnAt('run-2', '2026-01-02T00:00:00Z'),
+      ],
+    });
+
+    await screen.findByText('Findings from run-1.');
+    expect(screen.queryByLabelText('Scroll to latest')).not.toBeInTheDocument();
+
+    const transcript = document.querySelector('.agent-scroll') as HTMLElement;
+    Object.defineProperty(transcript, 'scrollHeight', {
+      configurable: true,
+      value: 2000,
+    });
+    leaveRunView();
+
+    await screen.findByText('Findings from run-2.');
+    await waitFor(() => expect(transcript.scrollTop).toBe(2000));
+  });
+
+  it('shows the latest turn with a way back into history when history is off', async () => {
+    renderLive({
+      turns: [turnAt('run-1', new Date().toISOString())],
+      interest: { showHistory: false },
+    });
+
+    expect(await screen.findByText('Findings from run-1.')).toBeInTheDocument();
+    expect(screen.getByText('Show earlier activity')).toBeInTheDocument();
+    expect(screen.queryByText('Your agent is working')).not.toBeInTheDocument();
+  });
+
+  it('shows the working state instead of a stale turn when history is off', async () => {
+    const update = jest.fn().mockResolvedValue(undefined);
+    jest
+      .spyOn(updateHook, 'useUpdateInterest')
+      .mockReturnValue({ isUpdating: false, updateInterest: update } as never);
+    renderLive({
+      turns: [turnAt('run-1', '2026-01-01T00:00:00Z')],
+      interest: { showHistory: false, outputModes: { notification: false } },
+    });
+
+    expect(
+      await screen.findByText('Your agent is working'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Findings from run-1.')).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Turn on notifications' }),
+    );
+
+    expect(update).toHaveBeenCalledWith({
+      outputModes: { notification: true },
+    });
   });
 });

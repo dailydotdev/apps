@@ -9,7 +9,6 @@ import { FlexCol, FlexRow } from '../../../components/utilities';
 import { Switch } from '../../../components/fields/Switch';
 import { Slider } from '../../../components/fields/Slider';
 import { Radio } from '../../../components/fields/Radio';
-import type { InterestOutputModes } from '../../../graphql/interests';
 import { UserInterestCadence } from '../../../graphql/interests';
 
 export const cadenceOptions = [
@@ -18,33 +17,6 @@ export const cadenceOptions = [
   { value: UserInterestCadence.Daily, label: 'Every day' },
   { value: UserInterestCadence.Weekly, label: 'Every week' },
 ];
-
-export const outputOptions = [
-  {
-    key: 'feed',
-    label: 'Add findings to my feed',
-    short: 'feed',
-    hint: 'Curated cards you can browse here',
-  },
-  {
-    key: 'post',
-    label: 'Write summary posts',
-    short: 'posts',
-    hint: 'A markdown recap of what it found',
-  },
-  {
-    key: 'notification',
-    label: 'Notify me about new content',
-    short: 'notifications',
-    hint: 'In-app and push ping when something lands',
-  },
-  {
-    key: 'digest',
-    label: 'Send a digest email',
-    short: 'email digest',
-    hint: 'Up to 5 picks, delivered at your chosen time',
-  },
-] as const;
 
 export const SettingsSection = ({
   title,
@@ -96,6 +68,24 @@ export const CadenceSection = ({
   </SettingsSection>
 );
 
+// Bands line up with the onboarding presets, so the slider never describes a
+// value differently from the chip that set it.
+const fomoHint = (threshold: number): string => {
+  if (threshold >= 0.9) {
+    return 'Only perfect matches. Everything else is ignored.';
+  }
+
+  if (threshold >= 0.7) {
+    return 'Quality over quantity. You will miss some.';
+  }
+
+  if (threshold < 0.3) {
+    return 'You will see more, including the borderline stuff.';
+  }
+
+  return 'A fair balance of quality and volume.';
+};
+
 export const FomoSection = ({
   value,
   onChange,
@@ -107,19 +97,12 @@ export const FomoSection = ({
   const threshold = draft ?? value;
 
   return (
-    <SettingsSection
-      title="FOMO vs quality"
-      hint={
-        threshold > 0.7
-          ? 'Only the very best makes it through.'
-          : 'You will see more, including the borderline stuff.'
-      }
-    >
+    <SettingsSection title="FOMO vs quality" hint={fomoHint(threshold)}>
       <Slider
         min={0}
-        max={1}
+        max={0.95}
         step={0.05}
-        value={[threshold]}
+        value={[Math.min(threshold, 0.95)]}
         onValueChange={([next]) => setDraft(next)}
         onValueCommit={([next]) => onChange(next)}
       />
@@ -134,42 +117,59 @@ export const FomoSection = ({
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
         >
-          Only the best
+          Only perfect matches
         </Typography>
       </FlexRow>
     </SettingsSection>
   );
 };
 
-export const OutputModesSection = ({
+export const HistorySection = ({
   value,
   disabled,
   onChange,
 }: {
-  value: Partial<InterestOutputModes> | undefined;
+  value: boolean;
   disabled?: boolean;
-  onChange: (outputModes: Partial<InterestOutputModes>) => void;
+  onChange: (showHistory: boolean) => void;
 }): ReactElement => (
-  <SettingsSection title="What it delivers">
-    {outputOptions.map(({ key, label, hint }) => (
-      <FlexCol key={key} className="gap-0.5">
-        <Switch
-          inputId={`agent-output-${key}`}
-          name={`agent-output-${key}`}
-          checked={!!value?.[key]}
-          disabled={disabled}
-          onToggle={() => onChange({ [key]: !value?.[key] })}
-        >
-          {label}
-        </Switch>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="pl-14"
-        >
-          {hint}
-        </Typography>
-      </FlexCol>
-    ))}
+  <SettingsSection
+    title="History"
+    hint="Off shows only the latest update when you open this agent."
+  >
+    <Switch
+      inputId="agent-show-history"
+      name="agent-show-history"
+      checked={value}
+      disabled={disabled}
+      onToggle={() => onChange(!value)}
+    >
+      Show history
+    </Switch>
+  </SettingsSection>
+);
+
+export const NotificationsSection = ({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: boolean;
+  disabled?: boolean;
+  onChange: (notification: boolean) => void;
+}): ReactElement => (
+  <SettingsSection
+    title="Notifications"
+    hint="A ping when something clears your bar. Nothing else."
+  >
+    <Switch
+      inputId="agent-notifications"
+      name="agent-notifications"
+      checked={value}
+      disabled={disabled}
+      onToggle={() => onChange(!value)}
+    >
+      Notify me
+    </Switch>
   </SettingsSection>
 );
