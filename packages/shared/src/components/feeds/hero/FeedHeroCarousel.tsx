@@ -102,7 +102,11 @@ export const FeedHeroCarousel = ({
       aria-label="Featured posts"
       aria-roledescription="carousel"
       className={classNames(
-        'group/hero flex min-w-0 flex-col gap-3',
+        // The bottom inset the other two columns already carry — the rail on
+        // its "Read all" footer, the ad through its card padding. Without it
+        // this column's controls run to the section's edge and sit 12px below
+        // theirs. Only from `laptop`, where the three share a row.
+        'group/hero flex min-w-0 flex-col gap-3 laptop:pb-3',
         className,
       )}
     >
