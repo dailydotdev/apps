@@ -141,6 +141,7 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback/FeedbackWidget';
+import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import {
   Typography,
   TypographyColor,
@@ -1053,7 +1054,8 @@ export const SidebarDesktopV2 = ({
   // — the panel behind the post page keeps whatever you came from (History,
   // a Squad, etc.). Remember the last non-post category (committed renders
   // only, so it's concurrent-safe) and reuse it on posts.
-  const isPostPage = router.pathname === '/posts/[id]';
+  const isPostPage =
+    withoutLayoutVariantPrefix(router.pathname) === '/posts/[id]';
   const lastNonPostCategoryRef = useRef<SidebarCategoryId>(
     SidebarCategory.Main,
   );

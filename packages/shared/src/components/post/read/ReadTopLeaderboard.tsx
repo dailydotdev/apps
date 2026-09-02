@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
-import { ARBITRAGE_SLOT, TOP_LEADERBOARD_STICKY_MS } from './slots';
+import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
+import { READ_SLOT, TOP_LEADERBOARD_STICKY_MS } from './slots';
 import { useTimedRelease } from './useTimedRelease';
 
-export interface ArbitrageTopLeaderboardProps {
+export interface ReadTopLeaderboardProps {
   /**
    * False while the unit is still inside its sticky window. Owned internally
    * when omitted — /read passes it because the mobile header block shares the
@@ -33,13 +33,13 @@ export interface ArbitrageTopLeaderboardProps {
  * scrolls away with the page. Sticky rather than fixed so it only pins within
  * the article column and can never overlap the rail.
  */
-export function ArbitrageTopLeaderboard({
+export function ReadTopLeaderboard({
   released,
-  slot = ARBITRAGE_SLOT.topLeaderboard,
-  phoneSlot = ARBITRAGE_SLOT.topLeaderboardPhone,
+  slot = READ_SLOT.topLeaderboard,
+  phoneSlot = READ_SLOT.topLeaderboardPhone,
   surface = 'read',
   className,
-}: ArbitrageTopLeaderboardProps): ReactElement {
+}: ReadTopLeaderboardProps): ReactElement {
   const ownReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
   const isReleased = released ?? ownReleased;
 
@@ -75,17 +75,17 @@ export function ArbitrageTopLeaderboard({
           initialise the visible one out of order, and both sit at the top of
           the page where the intersection observer fires on first paint
           anyway. A hidden ins never intersects, so exactly one requests. */}
-      <ArbitrageAdSlot
+      <ReadAdSlot
         slot={phoneSlot}
         surface={surface}
-        format={ArbitrageAdFormat.Leaderboard}
+        format={ReadAdFormat.Leaderboard}
         className="tablet:hidden"
         refreshes
       />
-      <ArbitrageAdSlot
+      <ReadAdSlot
         slot={slot}
         surface={surface}
-        format={ArbitrageAdFormat.Leaderboard}
+        format={ReadAdFormat.Leaderboard}
         hideOnPhone
         refreshes
       />

@@ -17,12 +17,12 @@ import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { TruncateText } from '../../utilities';
 import Markdown from '../../Markdown';
-import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
-import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
+import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
+import { ReadTopLeaderboard } from './ReadTopLeaderboard';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { splitContentForAds, splitTextForAds } from './splitContentForAds';
 import {
-  ARBITRAGE_SLOT,
+  READ_SLOT,
   COMMENTS_PER_INTERLEAVED_AD,
   CONTENT_CHARS_PER_AD,
   MAX_CONTENT_ADS_PER_SECTION,
@@ -49,28 +49,28 @@ const RAIL_AD: Partial<
     PostWidgetPosition,
     {
       slot: number;
-      format: ArbitrageAdFormat;
+      format: ReadAdFormat;
       className?: string;
       hideOnPhone?: boolean;
     }
   >
 > = {
   [PostWidgetPosition.Source]: {
-    slot: ARBITRAGE_SLOT.railAfterSource,
-    format: ArbitrageAdFormat.MediumRectangle,
+    slot: READ_SLOT.railAfterSource,
+    format: ReadAdFormat.MediumRectangle,
     hideOnPhone: true,
   },
   // In flow, not sticky: a sticky unit mid-rail slides over the widgets
   // below it, and the rail's one sticky lives at its very end (slot 19),
   // where nothing follows for it to cover.
   [PostWidgetPosition.SimilarPosts]: {
-    slot: ARBITRAGE_SLOT.railBetweenFurtherReading,
-    format: ArbitrageAdFormat.MediumRectangle,
+    slot: READ_SLOT.railBetweenFurtherReading,
+    format: ReadAdFormat.MediumRectangle,
     hideOnPhone: true,
   },
 };
 
-export interface ArbitragePostContentProps {
+export interface ReadPostContentProps {
   post: Post;
   className?: string;
 }
@@ -92,10 +92,10 @@ export interface ArbitragePostContentProps {
  * accepted, not free — fixes to PostContent's column structure must be
  * mirrored here, and if /read wins, folding this back is the follow-up debt.
  */
-export function ArbitragePostContent({
+export function ReadPostContent({
   post,
   className,
-}: ArbitragePostContentProps): ReactElement {
+}: ReadPostContentProps): ReactElement {
   const isVideoType = isVideoPost(post);
   const { onReadArticle, onCopyPostLink } = usePostContent({
     origin: Origin.ArticlePage,
@@ -161,7 +161,7 @@ export function ArbitragePostContent({
               : 'sticky top-0 z-postNavigation bg-background-default laptop:contents',
           )}
         >
-          <ArbitrageTopLeaderboard released={leaderboardReleased} />
+          <ReadTopLeaderboard released={leaderboardReleased} />
 
           <GoBackHeaderMobile
             className={classNames(
@@ -172,7 +172,7 @@ export function ArbitragePostContent({
             <PostHeaderActions
               post={post}
               className="ml-auto"
-              contextMenuId="arbitrage-post-header-actions"
+              contextMenuId="read-post-header-actions"
               onReadArticle={onReadArticle}
               buttonSize={ButtonSize.Small}
             />
@@ -220,9 +220,9 @@ export function ArbitragePostContent({
               // Phone density policy: only the page's first in-content unit
               // keeps a phone placement — the 250-char cadence would stack
               // the rest into a wall on a small screen.
-              <ArbitrageAdSlot
-                slot={ARBITRAGE_SLOT.inBodyMpu}
-                format={ArbitrageAdFormat.MediumRectangle}
+              <ReadAdSlot
+                slot={READ_SLOT.inBodyMpu}
+                format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={index > 0}
                 logExtra={{ section: 'summary', occurrence: index + 1 }}
@@ -293,9 +293,9 @@ export function ArbitragePostContent({
               appendTooltipTo={() => globalThis?.document?.body}
             />
             {index < chunks.length - 1 && (
-              <ArbitrageAdSlot
-                slot={ARBITRAGE_SLOT.inBodyMpu}
-                format={ArbitrageAdFormat.MediumRectangle}
+              <ReadAdSlot
+                slot={READ_SLOT.inBodyMpu}
+                format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={summaryParts.length > 1 || index > 0}
                 logExtra={{ section: 'body', occurrence: index + 1 }}
@@ -309,9 +309,9 @@ export function ArbitragePostContent({
             users and question-less posts). */}
         <PostAnsweredQuestions post={post} />
 
-        <ArbitrageAdSlot
-          slot={ARBITRAGE_SLOT.aboveCommentsMpu}
-          format={ArbitrageAdFormat.MediumRectangle}
+        <ReadAdSlot
+          slot={READ_SLOT.aboveCommentsMpu}
+          format={ReadAdFormat.MediumRectangle}
           className="my-6"
         />
 
@@ -329,9 +329,9 @@ export function ArbitragePostContent({
             // Phone-hidden until the density precondition in slots.ts is
             // satisfied: a repeating unit, and the phone figure was measured
             // without it.
-            <ArbitrageAdSlot
-              slot={ARBITRAGE_SLOT.commentMpu}
-              format={ArbitrageAdFormat.MediumRectangle}
+            <ReadAdSlot
+              slot={READ_SLOT.commentMpu}
+              format={ReadAdFormat.MediumRectangle}
               hideOnPhone
               logExtra={{ occurrence }}
             />
@@ -357,7 +357,7 @@ export function ArbitragePostContent({
           }
 
           return (
-            <ArbitrageAdSlot
+            <ReadAdSlot
               slot={spec.slot}
               format={spec.format}
               className={spec.className}
@@ -370,9 +370,9 @@ export function ArbitragePostContent({
         // the overlap the mid-rail sticky produced. Compliant as a publisher
         // sticky at exactly 300px wide, desktop only, one per viewport.
         trailing={
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.railBottomSticky}
-            format={ArbitrageAdFormat.HalfPage}
+          <ReadAdSlot
+            slot={READ_SLOT.railBottomSticky}
+            format={ReadAdFormat.HalfPage}
             className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1"
             hideOnPhone
           />

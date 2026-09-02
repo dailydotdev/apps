@@ -5,7 +5,7 @@ import {
   render as rtlRender,
   screen,
 } from '@testing-library/react';
-import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
+import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
@@ -94,11 +94,11 @@ beforeEach(() => {
   );
 });
 
-describe('ArbitrageAdSlot', () => {
+describe('ReadAdSlot', () => {
   it('renders nothing while the slot map is empty', () => {
     setSlots({});
     const { container } = render(
-      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />,
+      <ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -107,21 +107,15 @@ describe('ArbitrageAdSlot', () => {
   it('renders the density-review placeholder only in development', () => {
     mockConstants.isDevelopment = true;
     setSlots({});
-    render(<ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />);
+    render(<ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} />);
 
-    expect(screen.getByTestId('arbitrage-ad-slot-3')).toBeInTheDocument();
+    expect(screen.getByTestId('read-ad-slot-3')).toBeInTheDocument();
     expect(screen.queryByTestId('adsense-slot-3')).not.toBeInTheDocument();
   });
 
   it('restricts a responsive unit to its format shape', () => {
     setSlots({ '3': { id: '1234567890', type: 'display' } });
-    render(
-      <ArbitrageAdSlot
-        slot={3}
-        format={ArbitrageAdFormat.MediumRectangle}
-        eager
-      />,
-    );
+    render(<ReadAdSlot slot={3} format={ReadAdFormat.MediumRectangle} eager />);
 
     // Left on `auto`, a 300px-wide slot is free to answer with a 300x600.
     const ins = screen.getByTestId('adsense-slot-3');
@@ -131,9 +125,7 @@ describe('ArbitrageAdSlot', () => {
 
   it('keeps banners horizontal so a rectangle cannot fill them', () => {
     setSlots({ '2': { id: '1234567890', type: 'display' } });
-    render(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
-    );
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
 
     expect(screen.getByTestId('adsense-slot-2')).toHaveAttribute(
       'data-ad-format',
@@ -144,12 +136,7 @@ describe('ArbitrageAdSlot', () => {
   it('drops phone-hidden slots below the tablet breakpoint', () => {
     setSlots({ '5': { id: '1234567890', type: 'inArticle' } });
     render(
-      <ArbitrageAdSlot
-        slot={5}
-        format={ArbitrageAdFormat.Rectangle}
-        hideOnPhone
-        eager
-      />,
+      <ReadAdSlot slot={5} format={ReadAdFormat.Rectangle} hideOnPhone eager />,
     );
 
     expect(screen.getByTestId('adsense-slot-5').parentElement).toHaveClass(
@@ -160,9 +147,7 @@ describe('ArbitrageAdSlot', () => {
 
   it('renders a live in-article unit when the slot is configured', () => {
     setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
-    render(
-      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} eager />,
-    );
+    render(<ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} eager />);
 
     const ins = screen.getByTestId('adsense-slot-3');
     expect(ins).toHaveClass('adsbygoogle');
@@ -170,7 +155,7 @@ describe('ArbitrageAdSlot', () => {
     expect(ins).toHaveAttribute('data-ad-slot', '1234567890');
     expect(ins).toHaveAttribute('data-ad-layout', 'in-article');
     expect(ins).toHaveAttribute('data-ad-format', 'fluid');
-    expect(screen.queryByTestId('arbitrage-ad-slot-3')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('read-ad-slot-3')).not.toBeInTheDocument();
   });
 
   it('never hides a slot AdSense has not declined', async () => {
@@ -181,9 +166,7 @@ describe('ArbitrageAdSlot', () => {
     // handles that one.
     jest.useFakeTimers();
     setSlots({ '2': { id: '2222222222', type: 'display' } });
-    render(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
-    );
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
 
     await act(async () => {
       jest.advanceTimersByTime(60_000);
@@ -201,7 +184,7 @@ describe('ArbitrageAdSlot', () => {
     // requested yet must not exist at all. The suite-wide IntersectionObserver
     // mock never fires, which models exactly that state.
     setSlots({ '3': { id: '1234567890', type: 'display' } });
-    render(<ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />);
+    render(<ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} />);
 
     expect(screen.queryByTestId('adsense-slot-3')).not.toBeInTheDocument();
   });
@@ -211,18 +194,14 @@ describe('ArbitrageAdSlot', () => {
     // push proves the eager path skipped the observer entirely.
     window.adsbygoogle = [];
     setSlots({ '2': { id: '2222222222', type: 'display' } });
-    render(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
-    );
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
 
     expect(window.adsbygoogle).toHaveLength(1);
   });
 
   it('serves test creatives on any host but production', () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
-    render(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
-    );
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
 
     expect(screen.getByTestId('adsense-slot-2')).toHaveAttribute(
       'data-adtest',
@@ -240,10 +219,10 @@ describe('ArbitrageAdSlot', () => {
       },
     });
     render(
-      <ArbitrageAdSlot
+      <ReadAdSlot
         surface="organic"
         slot={ORGANIC_SLOT.railAfterDirectAd}
-        format={ArbitrageAdFormat.MediumRectangle}
+        format={ReadAdFormat.MediumRectangle}
         eager
       />,
     );
@@ -258,7 +237,7 @@ describe('ArbitrageAdSlot', () => {
   it('never renders for logged-in users', () => {
     setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
     const { container } = renderLoggedIn(
-      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} eager />,
+      <ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} eager />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -270,7 +249,7 @@ describe('ArbitrageAdSlot', () => {
       <AuthContext.Provider
         value={{ isAuthReady: false } as unknown as AuthContextData}
       >
-        <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} eager />
+        <ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} eager />
       </AuthContext.Provider>,
     );
 
@@ -281,7 +260,7 @@ describe('ArbitrageAdSlot', () => {
     flags.read = false;
     setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
     const { container } = render(
-      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} eager />,
+      <ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} eager />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -294,8 +273,8 @@ describe('ArbitrageAdSlot', () => {
     });
     const { container } = render(
       <>
-        <ArbitrageAdSlot slot={4} format={ArbitrageAdFormat.MediumRectangle} />
-        <ArbitrageAdSlot slot={12} format={ArbitrageAdFormat.MediumRectangle} />
+        <ReadAdSlot slot={4} format={ReadAdFormat.MediumRectangle} />
+        <ReadAdSlot slot={12} format={ReadAdFormat.MediumRectangle} />
       </>,
     );
 
@@ -303,7 +282,7 @@ describe('ArbitrageAdSlot', () => {
   });
 });
 
-describe('ArbitrageAdSlot on the organic surface', () => {
+describe('ReadAdSlot on the organic surface', () => {
   const organicFixture: AdsenseSlots = {
     [ORGANIC_SLOT.topLeaderboard]: { id: '5555555555', type: 'display' },
   };
@@ -311,10 +290,10 @@ describe('ArbitrageAdSlot on the organic surface', () => {
   it('renders for an anonymous visitor when the unit is configured', () => {
     setOrganicSlots(organicFixture);
     render(
-      <ArbitrageAdSlot
+      <ReadAdSlot
         surface="organic"
         slot={ORGANIC_SLOT.topLeaderboard}
-        format={ArbitrageAdFormat.Leaderboard}
+        format={ReadAdFormat.Leaderboard}
         eager
       />,
     );
@@ -327,10 +306,10 @@ describe('ArbitrageAdSlot on the organic surface', () => {
   it('never renders for logged-in users', () => {
     setOrganicSlots(organicFixture);
     const { container } = renderLoggedIn(
-      <ArbitrageAdSlot
+      <ReadAdSlot
         surface="organic"
         slot={ORGANIC_SLOT.topLeaderboard}
-        format={ArbitrageAdFormat.Leaderboard}
+        format={ReadAdFormat.Leaderboard}
       />,
     );
 
@@ -342,10 +321,10 @@ describe('ArbitrageAdSlot on the organic surface', () => {
       [ORGANIC_SLOT.topLeaderboard]: { id: '9999999999', type: 'display' },
     });
     const { container } = render(
-      <ArbitrageAdSlot
+      <ReadAdSlot
         surface="organic"
         slot={ORGANIC_SLOT.topLeaderboard}
-        format={ArbitrageAdFormat.Leaderboard}
+        format={ReadAdFormat.Leaderboard}
       />,
     );
 
@@ -357,10 +336,10 @@ describe('ArbitrageAdSlot on the organic surface', () => {
       [ORGANIC_SLOT.topLeaderboard]: { id: '', type: 'display' },
     });
     const { container } = render(
-      <ArbitrageAdSlot
+      <ReadAdSlot
         surface="organic"
         slot={ORGANIC_SLOT.topLeaderboard}
-        format={ArbitrageAdFormat.Leaderboard}
+        format={ReadAdFormat.Leaderboard}
         eager
       />,
     );
@@ -372,10 +351,10 @@ describe('ArbitrageAdSlot on the organic surface', () => {
     mockConstants.isDevelopment = true;
     setOrganicSlots({});
     const { container } = render(
-      <ArbitrageAdSlot
+      <ReadAdSlot
         surface="organic"
         slot={ORGANIC_SLOT.topLeaderboard}
-        format={ArbitrageAdFormat.Leaderboard}
+        format={ReadAdFormat.Leaderboard}
       />,
     );
 
@@ -408,11 +387,9 @@ describe('ProgrammaticAd telemetry', () => {
   it('logs the request exactly once with the standardized extras', () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     const { rerender } = renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
-    rerender(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
-    );
+    rerender(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
 
     const requests = logEvent.mock.calls.filter(
       ([event]) => event.event_name === LogEvent.RequestAdsenseSlot,
@@ -430,7 +407,7 @@ describe('ProgrammaticAd telemetry', () => {
   it('logs an empty slot when AdSense answers unfilled', async () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
 
     screen
@@ -447,7 +424,7 @@ describe('ProgrammaticAd telemetry', () => {
   it('logs a fill when the creative iframe lands', async () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
 
     screen
@@ -463,7 +440,7 @@ describe('ProgrammaticAd telemetry', () => {
   it('logs a click once when focus moves into the filled creative', async () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
 
     const iframe = document.createElement('iframe');
@@ -498,7 +475,7 @@ describe('ProgrammaticAd telemetry', () => {
   it('logs the loose impression at fill, in the internal ads shape', async () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
 
     screen
@@ -524,7 +501,7 @@ describe('ProgrammaticAd telemetry', () => {
   it('logs a same-tab click-through on pagehide', async () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
 
     const iframe = document.createElement('iframe');
@@ -548,7 +525,7 @@ describe('ProgrammaticAd telemetry', () => {
   it('disarms a focused creative when the visitor returns without leaving', async () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
 
     const iframe = document.createElement('iframe');
@@ -569,7 +546,7 @@ describe('ProgrammaticAd telemetry', () => {
   it('ignores window blur while focus is outside the creative', async () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
 
     screen
@@ -593,7 +570,7 @@ describe('ProgrammaticAd telemetry', () => {
     } as unknown as typeof window.adsbygoogle;
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     renderWithLog(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
     );
     window.adsbygoogle = [];
 

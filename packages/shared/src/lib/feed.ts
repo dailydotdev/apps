@@ -32,7 +32,6 @@ interface FeedItemLogEvent extends LogEvent {
   feed_grid_columns?: number;
   feed_item_grid_column?: number;
   feed_item_grid_row?: number;
-  feed_item_index?: number;
   feed_item_meta?: string;
   feed_item_image?: string;
   feed_item_target_url?: string;
@@ -112,9 +111,12 @@ export function postLogEvent(
   post: Post | ReadHistoryPost | PostBootData,
   opts?: PostLogEventFnOptions,
 ): PostItemLogEvent {
+  // Lives in `extra` rather than top-level: unmapped top-level event fields are
+  // dropped at analytics ingest, while the `extra` blob is stored intact.
   const extra: Record<string, unknown> = {
     ...opts?.extra,
     ...(opts?.is_ad && { is_ad: true }),
+    ...(typeof opts?.index === 'number' && { feed_item_index: opts.index }),
   };
 
   if (typeof window !== 'undefined') {
@@ -132,7 +134,6 @@ export function postLogEvent(
     feed_grid_columns: opts?.columns,
     feed_item_grid_column: opts?.column,
     feed_item_grid_row: opts?.row,
-    feed_item_index: opts?.index,
     feed_item_image: post.image,
     feed_item_target_url: post.permalink,
     feed_item_title: post.title,

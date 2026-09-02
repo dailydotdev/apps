@@ -132,6 +132,10 @@ export const getReadArticleHref = (
 ): string | undefined =>
   getPostReadTarget(post).target?.permalink ?? post.permalink;
 
+export const getPostTitle = (
+  post: Pick<Post, 'title' | 'sharedPost'> | undefined | null,
+): string | undefined => post?.title || post?.sharedPost?.title || undefined;
+
 export const getReadPostButtonText = (post: Post): string => {
   if (isVideoPost(post)) {
     return 'Watch video';

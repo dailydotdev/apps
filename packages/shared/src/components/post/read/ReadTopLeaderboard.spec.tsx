@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, render, renderHook } from '@testing-library/react';
-import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
+import { ReadTopLeaderboard } from './ReadTopLeaderboard';
 import { useTimedRelease } from './useTimedRelease';
 import { useFeature } from '../../GrowthBookProvider';
 import { TOP_LEADERBOARD_STICKY_MS } from './slots';
@@ -41,21 +41,21 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-describe('ArbitrageTopLeaderboard', () => {
+describe('ReadTopLeaderboard', () => {
   it('pins from laptop up until it is released', () => {
-    const { container } = render(<ArbitrageTopLeaderboard released={false} />);
+    const { container } = render(<ReadTopLeaderboard released={false} />);
 
     expect(isPinned(container)).toBe(true);
   });
 
   it('scrolls away with the page once released', () => {
-    const { container } = render(<ArbitrageTopLeaderboard released />);
+    const { container } = render(<ReadTopLeaderboard released />);
 
     expect(isPinned(container)).toBe(false);
   });
 
   it('owns its release window when no released prop is passed', () => {
-    const { container } = render(<ArbitrageTopLeaderboard />);
+    const { container } = render(<ReadTopLeaderboard />);
     expect(isPinned(container)).toBe(true);
 
     scroll();
