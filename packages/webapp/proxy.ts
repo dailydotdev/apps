@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { after, NextResponse } from 'next/server';
+import { LAYOUT_VARIANT_ROUTE_PREFIX } from '@dailydotdev/shared/src/lib/layoutVariant';
 import { acceptsMarkdown } from './lib/contentNegotiation';
 import {
   MARKDOWN_ROUTES,
@@ -13,6 +14,10 @@ import {
   trackAgentSignupWallAllocation,
 } from './lib/agentMarkdownAccess';
 import { logServerPageRequest } from './lib/serverPageRequestLog';
+import {
+  LAYOUT_VARIANT_COOKIE,
+  isLayoutVariantEligiblePath,
+} from './lib/layoutVariant';
 
 const POSTS_PREFIX = '/posts/';
 const MARKDOWN_PAGE_PATHS = Object.keys(MARKDOWN_ROUTES).map(
@@ -125,6 +130,33 @@ const isMarkdownRequest = (req: NextRequest): boolean => {
   );
 };
 
+// Layout v2 changes the whole shell (rail-owned header, floating card), so a
+// session bucketed into it paints the v1 chrome and swaps once GrowthBook
+// resolves. The mirrored route renders the resolved shell in the initial HTML
+// instead, and the rewrite keeps the visible URL. Prerendered pages are cached
+// per path, which is why this is a rewrite rather than a header.
+const getLayoutVariantResponse = (
+  req: NextRequest,
+): NextResponse | undefined => {
+  const { pathname } = req.nextUrl;
+
+  if (
+    req.cookies.get(LAYOUT_VARIANT_COOKIE)?.value !== 'v2' ||
+    !isLayoutVariantEligiblePath(pathname)
+  ) {
+    return undefined;
+  }
+
+  const url = req.nextUrl.clone();
+  url.pathname = `${LAYOUT_VARIANT_ROUTE_PREFIX}${pathname}`;
+
+  // Names the shell the response was built with, so a variant can be told
+  // apart from the control in logs and when debugging a cached page.
+  return NextResponse.rewrite(url, {
+    headers: { 'x-layout-variant': 'v2' },
+  });
+};
+
 export async function proxy(req: NextRequest): Promise<NextResponse> {
   const isMarkdown = isMarkdownRequest(req);
 
@@ -136,5 +168,5 @@ export async function proxy(req: NextRequest): Promise<NextResponse> {
     return handleMarkdownRequest(req);
   }
 
-  return NextResponse.next();
+  return getLayoutVariantResponse(req) ?? NextResponse.next();
 }

@@ -56,6 +56,7 @@ import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
 import { Iubenda } from '../components/Iubenda';
+import { useLayoutVariantCookie } from '../hooks/useLayoutVariantCookie';
 
 structuredCloneJsonPolyfill();
 
@@ -161,6 +162,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useCheckCoresRole();
   useCheckLocation();
+  useLayoutVariantCookie();
 
   const activeModalType = modal?.type;
   const hotAndColdModalQuery = router.query[hotAndColdModalQueryKey];
