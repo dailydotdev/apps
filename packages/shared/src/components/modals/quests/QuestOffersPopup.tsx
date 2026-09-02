@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MODAL_KEY, useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../common/types';
@@ -27,13 +27,15 @@ import { featureQuestOffers } from '../../../lib/featureManagement';
  * Standalone daily quest reward modal trigger.
  *
  * Like `StreakMilestonePopup`, this sits outside BootPopups so it is NOT
- * subject to the one-per-day boot popup queue. It rides the day's first
- * claimed daily quest: waiting for the whole set is a moment too rare to be
- * worth measuring, and Plus users would have had to clear their unlocked Plus
- * quests too. Eligibility is a plain state check rather than a transition
- * watch, so the moment survives a reload — someone who claimed hours ago
- * still gets it on their next visit — and the persisted day stamp keeps it to
- * one showing.
+ * subject to the one-per-day boot popup queue.
+ *
+ * It fires on a claim that happens while the app is open, not on the standing
+ * fact of having claimed today. A state check read as a bug: the reward
+ * arrived on a later visit, detached from the action that earned it. Claiming
+ * always routes through `useClaimQuestReward`, which writes the dashboard
+ * cache this listener reads, and the listener is mounted for the whole
+ * session — so the increase is always observed. The persisted day stamp still
+ * caps it at one showing, which is what keeps a three-quest run to one popup.
  */
 const QuestOffersTrigger = (): null => {
   const { openModal, modal } = useLazyModal();
@@ -54,6 +56,27 @@ const QuestOffersTrigger = (): null => {
 
   const summary = useMemo(() => getDailyQuestSummary(dashboard), [dashboard]);
 
+  // Whatever was already claimed when the dashboard first loaded is history,
+  // not a moment — only a rise above it is a claim the user just made. Null
+  // until the first load, so an app entry can never be mistaken for a claim.
+  const claimedOnLoad = useRef<number | null>(null);
+  const [hasClaimedThisSession, setHasClaimedThisSession] = useState(false);
+
+  useEffect(() => {
+    if (!dashboard) {
+      return;
+    }
+
+    const previous = claimedOnLoad.current;
+    // A quest rotation resets the count, so the baseline tracks downwards too
+    // rather than leaving a stale high-water mark that swallows the next claim.
+    claimedOnLoad.current = summary.claimed;
+
+    if (previous !== null && summary.claimed > previous) {
+      setHasClaimedThisSession(true);
+    }
+  }, [dashboard, summary.claimed]);
+
   // Both day stamps are independent idb reads. Gating on both means the
   // eligibility effect below can never be short-circuited on an unresolved
   // stamp while this one has already opened the modal and flipped `shouldShow`
@@ -65,7 +88,7 @@ const QuestOffersTrigger = (): null => {
     !isLastSeenFetched,
     !isEligibleLogFetched,
     isTodayStamp(lastSeen),
-    !summary.claimed,
+    !hasClaimedThisSession,
     !!modal,
   ].some(Boolean);
 

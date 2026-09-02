@@ -1,8 +1,10 @@
+import type { ReactElement } from 'react';
 import React from 'react';
 import nock from 'nock';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { subDays } from 'date-fns';
+import type { SettingsContextData } from '../../../contexts/SettingsContext';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import type { QuestDashboard, UserQuest } from '../../../graphql/quests';
@@ -64,15 +66,27 @@ const makeQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
   ...overrides,
 });
 
-const makeDashboard = (daily: UserQuest[]): QuestDashboard => ({
+const makeDashboard = (
+  daily: UserQuest[],
+  plus: UserQuest[] = [],
+): QuestDashboard => ({
   level: { level: 12, totalXp: 1240, xpInLevel: 40, xpToNextLevel: 60 },
   currentStreak: 4,
   longestStreak: 9,
-  daily: { regular: daily, plus: [] },
+  daily: { regular: daily, plus },
   weekly: { regular: [], plus: [] },
   milestone: [],
   intro: [],
 });
+
+/** One daily quest, complete and waiting to be claimed. */
+const unclaimed = () =>
+  makeDashboard([
+    makeQuest({ status: QuestStatus.Completed, claimable: true }),
+  ]);
+
+/** The same quest, now claimed. */
+const claimed = () => makeDashboard([makeQuest()]);
 
 const offers: UserOffer[] = [
   {
@@ -86,6 +100,7 @@ const offers: UserOffer[] = [
 ];
 
 const logEvent = jest.fn();
+let mockDashboard: QuestDashboard | undefined;
 
 const mockOffersResponse = (userOffers: UserOffer[]) => {
   nock.cleanAll();
@@ -103,21 +118,40 @@ const mockOffersResponse = (userOffers: UserOffer[]) => {
     .reply(200, { data: {} });
 };
 
-const renderComponent = (dashboard: QuestDashboard | undefined) => {
+const tree = (
+  queryClient: QueryClient,
+  settings?: Partial<SettingsContextData>,
+): ReactElement => (
+  <TestBootProvider client={queryClient} log={{ logEvent }} settings={settings}>
+    <QuestOffersPopup />
+  </TestBootProvider>
+);
+
+/** Renders with the dashboard already loaded, and nothing newly claimed. */
+const renderLoaded = (
+  dashboard: QuestDashboard | undefined,
+  settings?: Partial<SettingsContextData>,
+) => {
   const queryClient = new QueryClient();
 
-  jest.spyOn(questDashboardHook, 'useQuestDashboard').mockReturnValue({
-    data: dashboard,
-  } as ReturnType<typeof questDashboardHook.useQuestDashboard>);
+  mockDashboard = dashboard;
 
-  return {
-    queryClient,
-    ...render(
-      <TestBootProvider client={queryClient} log={{ logEvent }}>
-        <QuestOffersPopup />
-      </TestBootProvider>,
-    ),
-  };
+  return { queryClient, ...render(tree(queryClient, settings)) };
+};
+
+// Stands in for `useClaimQuestReward` landing a claim in the dashboard cache
+// while the app is open: the listener sees the claimed count rise.
+const renderAndClaim = (
+  before: QuestDashboard,
+  after: QuestDashboard,
+  settings?: Partial<SettingsContextData>,
+) => {
+  const view = renderLoaded(before, settings);
+
+  mockDashboard = after;
+  view.rerender(tree(view.queryClient, settings));
+
+  return view;
 };
 
 beforeEach(() => {
@@ -127,31 +161,28 @@ beforeEach(() => {
   mockIsEligibleLogFetched = true;
   window.scrollTo = jest.fn();
   jest
+    .spyOn(questDashboardHook, 'useQuestDashboard')
+    .mockImplementation(
+      () =>
+        ({ data: mockDashboard } as ReturnType<
+          typeof questDashboardHook.useQuestDashboard
+        >),
+    );
+  jest
     .spyOn(conditionalFeatureHook, 'useConditionalFeature')
     .mockReturnValue({ value: true, isLoading: false });
   mockOffersResponse(offers);
 });
 
-// The day's first claim is the moment; waiting for the whole set is too rare.
-it('opens the offers modal on the first claimed daily quest of the day', async () => {
-  const { queryClient } = renderComponent(
-    makeDashboard([
-      makeQuest(),
-      makeQuest({
-        rotationId: 'rot-2',
-        userQuestId: 'uq-2',
-        status: QuestStatus.Completed,
-        claimable: true,
-      }),
-    ]),
-  );
+it('opens the offers modal when a claim lands while the app is open', async () => {
+  const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
       type: LazyModal.QuestOffers,
       props: {
         level: 12,
-        summary: { total: 2, claimed: 1, xpEarned: 50 },
+        summary: { total: 1, claimed: 1, xpEarned: 50 },
         offers,
         // The stamp is delegated to the modal so it can only be written for a
         // popup that reached the screen; the collision case below is what
@@ -165,26 +196,71 @@ it('opens the offers modal on the first claimed daily quest of the day', async (
   await waitFor(() => expect(mockSetLastSeen).toHaveBeenCalled());
 });
 
+// The reported bug: the reward turned up on a later visit, detached from the
+// action that earned it. Whatever was claimed before the dashboard loaded is
+// history, not a moment.
+//
+// Asserting the absence needs real elapsed time, not `waitFor`: a negative
+// assertion there resolves at t=0, long before the offers query could have
+// settled, so it passes against the old state check too. The explicit settle
+// is what makes this discriminating — under the old logic the modal opens on
+// entry with `claimed: 1`, which this catches.
+it('stays shut on app entry, and opens only when the next claim lands', async () => {
+  const view = renderLoaded(claimed());
+
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  });
+
+  expect(view.queryClient.getQueryData(MODAL_KEY)).toBeUndefined();
+  expect(mockSetLastSeen).not.toHaveBeenCalled();
+
+  // Positive anchor: the same mounted listener does open once a claim lands,
+  // so the silence above is the entry gate rather than a slow test.
+  mockDashboard = makeDashboard([
+    makeQuest(),
+    makeQuest({ rotationId: 'rot-2', userQuestId: 'uq-2' }),
+  ]);
+  view.rerender(tree(view.queryClient));
+
+  await waitFor(() =>
+    expect(view.queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+      type: LazyModal.QuestOffers,
+      props: { summary: { total: 2, claimed: 2 } },
+    }),
+  );
+});
+
+// A rotation resets the count, so the baseline has to track downwards or the
+// stale high-water mark swallows the next claim.
+it('opens after a rotation reset drops the count and a new claim lands', async () => {
+  const view = renderLoaded(claimed());
+
+  mockDashboard = unclaimed();
+  view.rerender(tree(view.queryClient));
+
+  mockDashboard = claimed();
+  view.rerender(tree(view.queryClient));
+
+  await waitFor(() =>
+    expect(view.queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+      type: LazyModal.QuestOffers,
+    }),
+  );
+});
+
 // MainLayout mounts three independent MODAL_KEY writers whose effects run in
 // the same commit, and `modal` is only a render snapshot.
 it('yields to a sibling popup that already claimed the modal slot', async () => {
-  const queryClient = new QueryClient();
+  const { queryClient } = renderLoaded(unclaimed());
 
-  jest.spyOn(questDashboardHook, 'useQuestDashboard').mockReturnValue({
-    data: makeDashboard([makeQuest()]),
-  } as ReturnType<typeof questDashboardHook.useQuestDashboard>);
-
-  render(
-    <TestBootProvider client={queryClient} log={{ logEvent }}>
-      <QuestOffersPopup />
-    </TestBootProvider>,
-  );
-
-  // Land a sibling's write before our effect can read the live value.
   queryClient.setQueryData(MODAL_KEY, {
     type: LazyModal.NewStreak,
     props: {},
   });
+
+  mockDashboard = claimed();
+  render(tree(queryClient));
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -201,7 +277,7 @@ it('yields to a sibling popup that already claimed the modal slot', async () => 
 it('waits for both day stamps before doing anything', async () => {
   mockIsEligibleLogFetched = false;
 
-  const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+  const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -214,12 +290,10 @@ it('waits for both day stamps before doing anything', async () => {
 // The API stamps claimedAt without always flipping status, so keying off
 // status alone counted zero claims and the popup never fired.
 it('counts a quest claimed by timestamp even when its status lags', async () => {
-  const { queryClient } = renderComponent(
+  const { queryClient } = renderAndClaim(
+    unclaimed(),
     makeDashboard([
-      makeQuest({
-        status: QuestStatus.Completed,
-        claimedAt: new Date(),
-      }),
+      makeQuest({ status: QuestStatus.Completed, claimedAt: new Date() }),
     ]),
   );
 
@@ -231,18 +305,8 @@ it('counts a quest claimed by timestamp even when its status lags', async () => 
   );
 });
 
-it('does not open before anything has been claimed', async () => {
-  const { queryClient } = renderComponent(
-    makeDashboard([
-      makeQuest({ status: QuestStatus.InProgress }),
-      makeQuest({
-        rotationId: 'rot-2',
-        userQuestId: 'uq-2',
-        status: QuestStatus.Completed,
-        claimable: true,
-      }),
-    ]),
-  );
+it('does not open while the claim is still unclaimed', async () => {
+  const { queryClient } = renderAndClaim(unclaimed(), unclaimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -254,8 +318,7 @@ it('does not open before anything has been claimed', async () => {
 // shows locked Plus quests too — a free user counting the screen must not get
 // a different number from the popup.
 it('counts locked quests toward the progress total', async () => {
-  const dashboard = makeDashboard([makeQuest()]);
-  dashboard.daily.plus = [
+  const lockedPlus = [
     makeQuest({
       rotationId: 'rot-plus',
       userQuestId: null,
@@ -264,7 +327,13 @@ it('counts locked quests toward the progress total', async () => {
     }),
   ];
 
-  const { queryClient } = renderComponent(dashboard);
+  const { queryClient } = renderAndClaim(
+    makeDashboard(
+      [makeQuest({ status: QuestStatus.Completed, claimable: true })],
+      lockedPlus,
+    ),
+    makeDashboard([makeQuest()], lockedPlus),
+  );
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -274,10 +343,11 @@ it('counts locked quests toward the progress total', async () => {
   );
 });
 
+// Claiming a second quest in the same session must not bring it back.
 it('does not open twice on the same day', async () => {
   mockLastSeen = new Date().toISOString();
 
-  const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+  const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -287,7 +357,7 @@ it('does not open twice on the same day', async () => {
 it('opens again once the stamped day has passed', async () => {
   mockLastSeen = subDays(new Date(), 1).toISOString();
 
-  const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+  const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -301,7 +371,7 @@ it('shows nothing to the control group', async () => {
     .spyOn(conditionalFeatureHook, 'useConditionalFeature')
     .mockReturnValue({ value: false, isLoading: false });
 
-  const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+  const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -314,7 +384,7 @@ it('shows nothing to the control group', async () => {
 it('shows nothing, and keeps the day unstamped, when no offers return', async () => {
   mockOffersResponse([]);
 
-  const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+  const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -332,7 +402,7 @@ describe('eligibility logging', () => {
     });
 
   it('logs the treatment arm with the offers it found', async () => {
-    renderComponent(makeDashboard([makeQuest()]));
+    renderAndClaim(unclaimed(), claimed());
 
     await waitFor(() =>
       expectEligible({ enabled: true, offers: 1, failed: false }),
@@ -347,7 +417,7 @@ describe('eligibility logging', () => {
       .spyOn(conditionalFeatureHook, 'useConditionalFeature')
       .mockReturnValue({ value: false, isLoading: false });
 
-    const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+    const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
     await waitFor(() =>
       expectEligible({ enabled: false, offers: 0, failed: false }),
@@ -355,13 +425,12 @@ describe('eligibility logging', () => {
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined();
   });
 
-  // This is the case that cost us four rounds of debugging: treatment reached
-  // the moment but Encore had no stock, which looks identical to a dud
-  // experiment unless it is logged.
+  // Treatment reached the moment but Encore had no stock, which looks
+  // identical to a dud experiment unless it is logged.
   it('logs treatment separately when no offers came back', async () => {
     mockOffersResponse([]);
 
-    renderComponent(makeDashboard([makeQuest()]));
+    renderAndClaim(unclaimed(), claimed());
 
     await waitFor(() =>
       expectEligible({ enabled: true, offers: 0, failed: false }),
@@ -379,7 +448,7 @@ describe('eligibility logging', () => {
       .times(10)
       .reply(200, { data: {} });
 
-    renderComponent(makeDashboard([makeQuest()]));
+    renderAndClaim(unclaimed(), claimed());
 
     await waitFor(() =>
       expectEligible({ enabled: true, offers: 0, failed: true }),
@@ -389,7 +458,7 @@ describe('eligibility logging', () => {
   it('logs once per day, on its own stamp', async () => {
     mockEligibleLoggedAt = new Date().toISOString();
 
-    const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+    const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
     // Anchor on the modal opening: it proves the effects ran, so the absent
     // eligibility event is a real suppression rather than a race won early.
@@ -412,7 +481,7 @@ describe('eligibility logging', () => {
   it('still opens the modal when eligibility was already logged today', async () => {
     mockEligibleLoggedAt = new Date().toISOString();
 
-    const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+    const { queryClient } = renderAndClaim(unclaimed(), claimed());
 
     await waitFor(() =>
       expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -423,20 +492,10 @@ describe('eligibility logging', () => {
 });
 
 it('does not open for a user who opted out of the quest system', async () => {
-  const queryClient = new QueryClient();
-
-  jest.spyOn(questDashboardHook, 'useQuestDashboard').mockReturnValue({
-    data: makeDashboard([makeQuest()]),
-  } as ReturnType<typeof questDashboardHook.useQuestDashboard>);
-
-  render(
-    <TestBootProvider
-      client={queryClient}
-      settings={{ loadedSettings: true, optOutQuestSystem: true }}
-    >
-      <QuestOffersPopup />
-    </TestBootProvider>,
-  );
+  const { queryClient } = renderAndClaim(unclaimed(), claimed(), {
+    loadedSettings: true,
+    optOutQuestSystem: true,
+  });
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
