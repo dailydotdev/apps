@@ -13,7 +13,7 @@ const feature = {
   showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
   feedAdSpot: new Feature('feed_ad_spot', 2),
-  searchVersion: new Feature('search_version2', 3),
+  searchVersion: new Feature('search_version', 2),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
