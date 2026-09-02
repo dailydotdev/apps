@@ -48,7 +48,7 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
 // The lead and partner fixtures are imported, not redeclared: the feed
 // wiring renders these exact objects, so what is reviewed here is what
 // ships to the preview. Provenance and the two-tone rationale live in
-// mockSponsors.ts and GoogleLockup.tsx.
+// mockSponsors.ts and GoogleCloudLockup.tsx.
 const PRIMARY = MOCK_LEAD_SPONSOR;
 const PARTNERS = MOCK_PARTNER_SPONSORS;
 
@@ -77,7 +77,7 @@ const ASSET_PROBLEMS: (Sponsor & { reason: string })[] = [
 const PRIMARY_CANDIDATES: (Sponsor & { verdict: string })[] = [
   {
     ...PRIMARY,
-    verdict: 'four inks, 0.40–0.74 luminance — clears both grounds',
+    verdict: 'two-tone: coloured cloud, wordmark on currentColor',
   },
   {
     name: 'NVIDIA',
@@ -348,13 +348,14 @@ export const LogoTreatment: Story = {
             </figcaption>
             <Note>
               Keeping brand colour means the asset gets no help from the theme,
-              so any ink near black or near white dies on one side. Google
-              passes on its own: four inks between 0.40 and 0.74 luminance, none
-              of them close to either ground. The two-tone marks below it pass a
-              different way — rendered inline rather than as a file, so NVIDIA
-              holds #76B900 on its symbol while the wordmark rides
-              `currentColor` and flips with the background, which is what the
-              brand&apos;s own black and white wordmarks do, from one source
+              so any ink near black or near white dies on one side. Every lead
+              here passes the same way — rendered inline rather than as a file,
+              so the coloured half holds its inks while the wordmark rides
+              `currentColor` and flips with the background. Google Cloud keeps
+              its four-ink cloud and drops the shipped #5F6368 wordmark, which
+              is dark grey and would sink into the dark feed; NVIDIA holds
+              #76B900 on its symbol the same way. That is what these
+              brands&apos; own light and dark lockups do, from one source
               instead of two. Both columns are the same asset on both grounds at
               once — the right one uses the app&apos;s own <code>.invert</code>
               class, so it is the real theme, not a mock-up of it, and the pair

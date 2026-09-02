@@ -1,6 +1,6 @@
 import type { Sponsor } from './SponsoredStrip';
 import { CodeRabbitLockup } from './CodeRabbitLockup';
-import { GoogleLockup } from './GoogleLockup';
+import { GoogleCloudLockup } from './GoogleCloudLockup';
 import { NvidiaLockup } from './NvidiaLockup';
 
 // ===========================================================
@@ -8,8 +8,8 @@ import { NvidiaLockup } from './NvidiaLockup';
 //
 // Hard-coded stand-ins so the strip can be reviewed on a real
 // feed. Nothing here has been sold: the marks are advertiser
-// logos already published on business.daily.dev, and Google is
-// a mock lead sponsor. Real inventory would come from the ad
+// logos already published on business.daily.dev, and Google Cloud
+// is a mock lead sponsor. Real inventory would come from the ad
 // service, behind a flag, before any of this ships.
 // ===========================================================
 
@@ -24,15 +24,16 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
 /**
  * The paid slot: brand colour, larger, and the only link in the strip.
  *
- * Google's wordmark is six letters in four colours, so there is no
- * flat asset that survives the swap between themes — rendered inline
- * the letters keep their fills on both.
+ * Google Cloud is two-tone rather than four: the cloud keeps its inks,
+ * but the shipped wordmark is #5F6368 — dark grey, which sinks into
+ * the dark feed — so it rides `currentColor` and flips with the
+ * ground. One source instead of Google's two lockup files.
  */
 export const MOCK_LEAD_SPONSOR: Sponsor = {
-  name: 'Google',
-  ratio: 272 / 92,
-  Artwork: GoogleLockup,
-  href: 'https://www.google.com',
+  name: 'Google Cloud',
+  ratio: 181 / 28,
+  Artwork: GoogleCloudLockup,
+  href: 'https://cloud.google.com',
 };
 
 /** The wall: silhouetted, even-weighted, inert. */
