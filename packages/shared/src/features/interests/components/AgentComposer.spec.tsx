@@ -9,7 +9,11 @@ import { AgentComposer } from './AgentComposer';
 type Agent = ReturnType<typeof useAgent>;
 
 const mountComposer = () => {
-  const seen: { current: Agent } = { current: undefined as never };
+  const onOpenSettings = jest.fn();
+  const seen: { current: Agent; onOpenSettings: jest.Mock } = {
+    current: undefined as never,
+    onOpenSettings,
+  };
 
   const Probe = () => {
     seen.current = useAgent();
@@ -19,7 +23,12 @@ const mountComposer = () => {
 
   render(
     <TestBootProvider client={new QueryClient()}>
-      <AgentProvider id="a1" isDemo initialMessages={[]}>
+      <AgentProvider
+        id="a1"
+        isDemo
+        initialMessages={[]}
+        onOpenSettings={onOpenSettings}
+      >
         <AgentComposer />
         <Probe />
       </AgentProvider>
@@ -101,25 +110,15 @@ describe('AgentComposer', () => {
   });
 
   describe('commands', () => {
-    it('turns a command typed out in full into its prompt', () => {
+    it('opens the pane for a command typed out in full', () => {
       const agent = mountComposer();
 
-      type('/explore comptime');
-      fireEvent.keyDown(field(), { key: 'Enter' });
-
-      expect(lastPrompt(agent)).toBe('Explore more around comptime');
-    });
-
-    it('sends a bare command as its no-argument prompt', () => {
-      const agent = mountComposer();
-
-      type('/recap');
+      type('/settings');
       fireEvent.keyDown(field(), { key: 'Enter' });
       fireEvent.keyDown(field(), { key: 'Enter' });
 
-      expect(lastPrompt(agent)).toBe(
-        'Recap everything you have found since the last summary',
-      );
+      expect(agent.current.messages).toHaveLength(0);
+      expect(agent.onOpenSettings).toHaveBeenCalled();
     });
 
     it('opens the list on a bare slash and arms the one you pick', () => {
@@ -132,7 +131,7 @@ describe('AgentComposer', () => {
       fireEvent.keyDown(field(), { key: 'Enter' });
 
       expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-      expect(screen.getByText('/explore')).toBeInTheDocument();
+      expect(screen.getByText('/settings')).toBeInTheDocument();
       expect(field().value).toBe('');
     });
 
@@ -142,19 +141,16 @@ describe('AgentComposer', () => {
       type('/');
       fireEvent.keyDown(field(), { key: 'Enter' });
 
-      const label = screen.getByText('/explore');
+      const label = screen.getByText('/settings');
 
       expect(label).toHaveClass('absolute');
       // jsdom measures every element at zero width, so only the presence of an
       // indent can be asserted, never its size.
       expect(indent()).toBeGreaterThan(0);
-      expect(
-        screen.queryByLabelText('Remove the explore command'),
-      ).not.toBeInTheDocument();
 
       fireEvent.keyDown(field(), { key: 'Backspace' });
 
-      expect(screen.queryByText('/explore')).not.toBeInTheDocument();
+      expect(screen.queryByText('/settings')).not.toBeInTheDocument();
       expect(indent()).toBe(0);
     });
 
@@ -190,20 +186,20 @@ describe('AgentComposer', () => {
       fireEvent.keyDown(field(), { key: 'ArrowDown' });
       fireEvent.keyDown(field(), { key: 'Enter' });
 
-      expect(screen.getByText('/write')).toBeInTheDocument();
+      expect(screen.getByText('/activity')).toBeInTheDocument();
     });
 
     it('closes the list on Escape without dropping what was typed', () => {
       mountComposer();
 
-      type('/exp');
+      type('/set');
 
       expect(screen.getByRole('listbox')).toBeInTheDocument();
 
       fireEvent.keyDown(field(), { key: 'Escape' });
 
       expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-      expect(field().value).toBe('/exp');
+      expect(field().value).toBe('/set');
     });
 
     it('spends no run on a command that only opens part of the workspace', () => {
@@ -219,17 +215,6 @@ describe('AgentComposer', () => {
       ]);
     });
 
-    it('sends the armed command with whatever is typed after it', () => {
-      const agent = mountComposer();
-
-      type('/');
-      fireEvent.keyDown(field(), { key: 'Enter' });
-      type('allocators');
-      fireEvent.keyDown(field(), { key: 'Enter' });
-
-      expect(lastPrompt(agent)).toBe('Explore more around allocators');
-    });
-
     it('takes the armed command back on backspace in an empty field', () => {
       mountComposer();
 
@@ -237,15 +222,7 @@ describe('AgentComposer', () => {
       fireEvent.keyDown(field(), { key: 'Enter' });
       fireEvent.keyDown(field(), { key: 'Backspace' });
 
-      expect(screen.queryByText('/explore')).not.toBeInTheDocument();
-    });
-
-    it('drops a command straight in from the quick buttons', () => {
-      mountComposer();
-
-      fireEvent.click(screen.getByText('Write a post'));
-
-      expect(screen.getByText('/write')).toBeInTheDocument();
+      expect(screen.queryByText('/settings')).not.toBeInTheDocument();
     });
   });
 
