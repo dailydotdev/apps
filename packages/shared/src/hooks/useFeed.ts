@@ -209,6 +209,13 @@ type UseFeedSettingParams = {
    * hero), so the grid doesn't repeat them in a card.
    */
   disableHighlightCards?: boolean;
+  /**
+   * Set when the surface shows an ad of its own above the feed (the feed hero),
+   * so the reader doesn't meet two of them before the first post. The queue is
+   * still consumed in order: the slot is dropped, not the creative that would
+   * have filled it.
+   */
+  skipFirstAd?: boolean;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
 };
@@ -535,7 +542,7 @@ export default function useFeed<T>(
       const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
       const adJitter = adTemplate?.adJitter ?? 0;
 
-      const adPage = getAdSlotIndex({
+      const slot = getAdSlotIndex({
         index,
         adStart,
         adRepeat,
@@ -543,7 +550,16 @@ export default function useFeed<T>(
         seed: adJitterSeedRef.current ?? '',
       });
 
-      if (adPage === undefined) {
+      if (slot === undefined) {
+        return undefined;
+      }
+
+      // Shifted rather than offset, so the creative the first slot would have
+      // shown moves down to the second one instead of being fetched and thrown
+      // away.
+      const adPage = settings?.skipFirstAd ? slot - 1 : slot;
+
+      if (adPage < 0) {
         return undefined;
       }
 
@@ -582,6 +598,7 @@ export default function useFeed<T>(
       adTemplate?.adJitter,
       adsUpdatedAt,
       pageSize,
+      settings?.skipFirstAd,
     ],
   );
 

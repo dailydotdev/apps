@@ -103,6 +103,8 @@ export interface FeedProps<T>
   disableAds?: boolean;
   /** The surface shows the highlights itself, so keep them out of the grid. */
   disableHighlightCards?: boolean;
+  /** The surface shows an ad above the feed, so drop the grid's first one. */
+  skipFirstAd?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
@@ -206,6 +208,7 @@ export default function Feed<T>({
   actionButtons,
   disableAds,
   disableHighlightCards,
+  skipFirstAd,
   staticAd,
   disableAdRefresh = false,
   allowFetchMore,
@@ -370,6 +373,7 @@ export default function Feed<T>({
       settings: {
         disableAds,
         disableHighlightCards,
+        skipFirstAd,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         feedName,

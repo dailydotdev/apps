@@ -62,7 +62,7 @@ export const Card = classed('article', styles.card, cardClassess);
 export const FlatCard = classed(
   'article',
   styles.card,
-  'relative flex h-full max-h-cardLarge flex-col rounded-16 py-3 transition-colors hover:bg-surface-hover',
+  'relative flex flex-col',
 );
 
 export const ClickableCard = classed('article', cardClassess);

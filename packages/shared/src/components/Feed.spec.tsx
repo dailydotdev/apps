@@ -1947,6 +1947,7 @@ interface HighlightLayoutRenderParams {
   briefBannerPage?: number;
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
+  skipFirstAd?: boolean;
   user?: LoggedUser;
   isHorizontal?: boolean;
   feedName?: AllFeedPages;
@@ -1964,6 +1965,7 @@ const renderWithHighlightLayout = ({
   briefBannerPage,
   staticAd,
   disableAds,
+  skipFirstAd,
   user = defaultUser,
   isHorizontal,
   feedName = SharedFeedPage.MyFeed,
@@ -2070,6 +2072,7 @@ const renderWithHighlightLayout = ({
                   variables={variables}
                   staticAd={staticAd}
                   disableAds={disableAds}
+                  skipFirstAd={skipFirstAd}
                   isHorizontal={isHorizontal}
                 />
               </FeedContext.Provider>
@@ -2152,6 +2155,40 @@ describe('Feed ad cadence with highlight cards', () => {
     expect(order[0]).toBe('postItem');
     expect(order[1]).toBe('adItem');
     expect(order.slice(2).every((t) => t === 'postItem')).toBe(true);
+  });
+
+  // The hero above the feed is already showing an ad, so the grid stands its
+  // first one down: two placements become one. The survivor keeps its index
+  // because the dropped ad no longer occupies a cell against the cadence, so
+  // the next slot comes due one post later and lands back where it was.
+  it('drops the first ad slot when the surface shows one above the feed', async () => {
+    const posts = Array.from({ length: 20 }, (_, i) => buildPost(`p${i}`));
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      skipFirstAd: true,
+    });
+
+    const order = await getFeedItemTestIds();
+    const adIndices = order
+      .map((type, index) => (type === 'adItem' ? index : -1))
+      .filter((index) => index >= 0);
+
+    expect(adIndices).toEqual([12]);
+  });
+
+  it('keeps both ad slots when nothing is shown above the feed', async () => {
+    const posts = Array.from({ length: 20 }, (_, i) => buildPost(`p${i}`));
+
+    renderWithHighlightLayout({ posts, highlightEnabled: false });
+
+    const order = await getFeedItemTestIds(2);
+    const adIndices = order
+      .map((type, index) => (type === 'adItem' ? index : -1))
+      .filter((index) => index >= 0);
+
+    expect(adIndices).toEqual([4, 12]);
   });
 
   // Same fixture, flag off: layout disabled → wide card collapses to 1 cell

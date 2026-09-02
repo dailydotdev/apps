@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { Ad, Post } from '../../../graphql/posts';
+import type { Post } from '../../../graphql/posts';
 import type { Connection } from '../../../graphql/common';
 import { gqlClient } from '../../../graphql/common';
 import {
@@ -9,71 +9,23 @@ import {
   supportedTypesForPrivateSources,
 } from '../../../graphql/feed';
 import { majorHeadlinesQueryOptions } from '../../../graphql/highlights';
-import { useAdQuery } from '../../../features/monetization/useAdQuery';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../../features/monetization/viewability';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { useVotePost } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { ImpressionStatus } from '../../../hooks/feed/useLogImpression';
 import { adLogEvent, usePostLogEvent } from '../../../lib/feed';
-import { AdActions, AdPlacement } from '../../../lib/ads';
+import { AdActions } from '../../../lib/ads';
 import { LogEvent, Origin } from '../../../lib/log';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { FeedHeroSection } from './FeedHeroSection';
+import { useFeedHeroAd } from './useFeedHeroAd';
 
 const HIGHLIGHT_COUNT = 6;
 const FEATURED_POST_COUNT = 4;
-
-type AdSlot = {
-  ad?: Ad;
-  onAction: (action: AdActions, extra?: Record<string, unknown>) => void;
-};
-
-/**
- * One rail placement. Each slot keeps its own query key so the two ask the ad
- * server separately and can come back with different creatives.
- */
-const useHeroAdSlot = (slot: string, enabled: boolean): AdSlot => {
-  const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
-
-  const { data: ad } = useAdQuery({
-    placement: AdPlacement.Feed,
-    queryKey: generateQueryKey(RequestKey.Ads, user, `feed-hero-${slot}`),
-    enabled,
-    staleTime: StaleTime.OneHour,
-  });
-
-  const onAction = useCallback(
-    (action: AdActions, extra?: Record<string, unknown>) => {
-      if (!ad) {
-        return;
-      }
-
-      logEvent(
-        adLogEvent(action, ad, {
-          extra: { origin: 'feed hero', slot, ...extra },
-        }),
-      );
-    },
-    [ad, logEvent, slot],
-  );
-
-  useEffect(() => {
-    if (!ad || ad.impressionStatus === ImpressionStatus.LOGGED) {
-      return;
-    }
-
-    onAction(AdActions.Impression);
-    ad.impressionStatus = ImpressionStatus.LOGGED;
-  }, [ad, onAction]);
-
-  return { ad: ad ?? undefined, onAction };
-};
 
 /**
  * The carousel and the Happening Now list are the same headlines: the top few
@@ -85,7 +37,6 @@ export const FeedHero = ({
   className?: string;
 }): ReactElement | null => {
   const { user, tokenRefreshed } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { toggleUpvote, toggleDownvote } = useVotePost();
@@ -129,9 +80,33 @@ export const FeedHero = ({
     return postIds.map((id) => byId.get(id)).filter(Boolean) as Post[];
   }, [featured, postIds]);
 
-  const adsEnabled = !isPlus && tokenRefreshed;
-  const rowAd = useHeroAdSlot('row', adsEnabled);
-  const cardAd = useHeroAdSlot('card', adsEnabled);
+  const { ad, isVisible: isAdVisible } = useFeedHeroAd(true);
+
+  const onAdAction = useCallback(
+    (action: AdActions, extra?: Record<string, unknown>) => {
+      if (!ad) {
+        return;
+      }
+
+      logEvent(
+        adLogEvent(action, ad, { extra: { origin: 'feed hero', ...extra } }),
+      );
+    },
+    [ad, logEvent],
+  );
+
+  useEffect(() => {
+    if (
+      !ad ||
+      !isAdVisible ||
+      ad.impressionStatus === ImpressionStatus.LOGGED
+    ) {
+      return;
+    }
+
+    onAdAction(AdActions.Impression);
+    ad.impressionStatus = ImpressionStatus.LOGGED;
+  }, [ad, isAdVisible, onAdAction]);
 
   const cardProps = useMemo(
     () => ({
@@ -169,16 +144,11 @@ export const FeedHero = ({
       className={className}
       posts={posts}
       highlights={highlights}
-      ad={rowAd.ad}
-      cardAd={cardAd.ad}
+      ad={isAdVisible ? ad : undefined}
       cardProps={cardProps}
-      onAdLinkClick={() => rowAd.onAction(AdActions.Click)}
+      onAdLinkClick={() => onAdAction(AdActions.Click)}
       onAdViewable={(_, data: ViewabilityData) =>
-        rowAd.onAction(AdActions.Viewable, viewabilityLogExtra(data))
-      }
-      onCardAdLinkClick={() => cardAd.onAction(AdActions.Click)}
-      onCardAdViewable={(_, data: ViewabilityData) =>
-        cardAd.onAction(AdActions.Viewable, viewabilityLogExtra(data))
+        onAdAction(AdActions.Viewable, viewabilityLogExtra(data))
       }
     />
   );

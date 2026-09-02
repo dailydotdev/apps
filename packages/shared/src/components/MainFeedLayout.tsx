@@ -80,6 +80,7 @@ import {
 } from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
+import { useFeedHeroAd } from './feeds/hero/useFeedHeroAd';
 import { useFeedHeroPreview } from './feeds/hero/useFeedHeroPreview';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
@@ -369,6 +370,9 @@ export default function MainFeedLayout({
   const isFeedHeroPreview = useFeedHeroPreview();
   const isFeedHeroEnabled =
     isMainFeedPage && (isFeedHeroFlagOn || isFeedHeroPreview);
+  // Read here as well as in the hero so the grid below can stand its own first
+  // ad down while the hero is showing one. Same query key, so one request.
+  const { isVisible: isHeroAdVisible } = useFeedHeroAd(isFeedHeroEnabled);
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -857,6 +861,7 @@ export default function MainFeedLayout({
               shortcuts={shortcuts}
               topContent={topContent}
               disableHighlightCards={isFeedHeroEnabled}
+              skipFirstAd={isHeroAdVisible}
               className={classNames(
                 shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
               )}

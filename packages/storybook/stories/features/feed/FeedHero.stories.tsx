@@ -4,7 +4,7 @@ import React from 'react';
 import { fn } from 'storybook/test';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import { ExploreChipsBar } from '@dailydotdev/shared/src/components/feeds/ExploreChipsBar';
-import { FeedHeroAd } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroAd';
+import { FeedHeroAdCard } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroAdCard';
 import { FeedHeroCarousel } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroCarousel';
 import { FeedHeroSection } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroSection';
 import { FeedSectionToolbar } from '@dailydotdev/shared/src/components/feeds/hero/FeedSectionToolbar';
@@ -83,7 +83,6 @@ export const FullLayout: Story = {
         posts={heroPosts}
         highlights={highlights}
         ad={heroAd}
-        cardAd={heroAd}
         cardProps={cardHandlers}
         onAdLinkClick={fn()}
         onHighlightClick={fn()}
@@ -111,7 +110,6 @@ export const HeroOnly: Story = {
         posts={heroPosts}
         highlights={highlights}
         ad={heroAd}
-        cardAd={heroAd}
         cardProps={cardHandlers}
       />
     </Page>
@@ -162,20 +160,19 @@ export const HeroStates: Story = {
   render: () => (
     <Page>
       <Case
-        title="Both ad placements"
-        note="The compact row in the headline list, and the full-size flat card under the rail."
+        title="With the ad column"
+        note="The placement takes a third column beside the headline list."
       >
         <FeedHeroSection
           posts={heroPosts}
           highlights={highlights}
           ad={heroAd}
-          cardAd={heroAd}
           cardProps={cardHandlers}
         />
       </Case>
       <Case
         title="No ad to serve"
-        note="The rail drops both placements and ends at the headline list."
+        note="The section drops to three columns and ends at the headline list."
       >
         <FeedHeroSection
           posts={heroPosts}
@@ -267,41 +264,41 @@ export const AdPlacement: Story = {
   render: () => (
     <Page>
       <Case
-        title="As a Happening Now row"
-        note="Rail width (20rem). Same elements as the feed ad card — advertiser, title, tags — with the cover on the right at the card's ratio."
-        width="20rem"
+        title="In its own column"
+        note="Column width (19rem). Copy, then the disclosure in the headline rows' timestamp colour, then tags, the cover, and the action row. Takes its own height rather than the column's."
+        width="19rem"
       >
-        <FeedHeroAd ad={heroAd} onLinkClick={fn()} />
+        <FeedHeroAdCard ad={heroAd} onLinkClick={fn()} />
       </Case>
-      <Case title="No matching tags" width="20rem">
-        <FeedHeroAd ad={adWithoutTags} onLinkClick={fn()} />
+      <Case title="No matching tags" width="19rem">
+        <FeedHeroAdCard ad={adWithoutTags} onLinkClick={fn()} />
       </Case>
       <Case
         title="No cover image"
-        note="The copy takes the full row width."
-        width="20rem"
+        note="The card is just the copy and its action row."
+        width="19rem"
       >
-        <FeedHeroAd ad={adWithoutImage} onLinkClick={fn()} />
+        <FeedHeroAdCard ad={adWithoutImage} onLinkClick={fn()} />
       </Case>
       <Case
         title="Advertiser hidden"
         note="No referral link, so the disclosure is a bare “Promoted”."
-        width="20rem"
+        width="19rem"
       >
-        <FeedHeroAd ad={adWithoutAdvertiser} onLinkClick={fn()} />
+        <FeedHeroAdCard ad={adWithoutAdvertiser} onLinkClick={fn()} />
       </Case>
       <Case
         title="Long copy"
-        note="Title clamps at two lines; the tag row keeps what fits."
-        width="20rem"
+        note="Title clamps at three lines; the tag row keeps what fits."
+        width="19rem"
       >
-        <FeedHeroAd ad={adWithLongCopy} onLinkClick={fn()} />
+        <FeedHeroAdCard ad={adWithLongCopy} onLinkClick={fn()} />
       </Case>
       <Case
-        title="Full-width (mobile rail)"
-        note="How the row looks once the rail stacks under the carousel."
+        title="Full-width (stacked rail)"
+        note="How the card looks once the section stacks under the carousel."
       >
-        <FeedHeroAd ad={heroAd} onLinkClick={fn()} />
+        <FeedHeroAdCard ad={heroAd} onLinkClick={fn()} />
       </Case>
     </Page>
   ),
