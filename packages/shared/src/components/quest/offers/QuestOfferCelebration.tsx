@@ -134,6 +134,27 @@ const QuestStrip = ({
 const completionHeadline = ({ total, claimed }: DailyQuestSummary): string =>
   claimed >= total ? 'Daily quests complete' : 'Quest complete';
 
+// Shared by both variants so the noun cannot go missing on one of them. It has
+// to be named: a weekly or milestone claim also opens this popup, and an
+// unlabelled "0 / 5" above "Quest complete" reads as a bug rather than as the
+// day's outstanding quests.
+const ProgressCount = ({
+  summary,
+  claimedClassName,
+}: {
+  summary: DailyQuestSummary;
+  claimedClassName: string;
+}): ReactElement => (
+  <div className="flex items-baseline justify-center gap-2">
+    <span className={classNames('font-bold tabular-nums', claimedClassName)}>
+      {summary.claimed}
+    </span>
+    <span className="text-text-tertiary typo-title3">
+      {`/ ${summary.total} daily quests`}
+    </span>
+  </div>
+);
+
 export type QuestOfferCelebrationProps = {
   level: number;
   levelProgress: number;
@@ -163,17 +184,7 @@ export const QuestOfferCelebration = ({
     />
     {summary.xpEarned > 0 && <XpEarnedChip xpEarned={summary.xpEarned} />}
     <div className="flex flex-col gap-1">
-      <div className="flex items-baseline justify-center gap-2">
-        <span className="font-bold tabular-nums typo-tera">
-          {summary.claimed}
-        </span>
-        {/* Named explicitly: a weekly or milestone claim also opens this, and
-            an unlabelled "0 / 5" next to "Quest complete" would read as a bug
-            rather than as the day's outstanding quests. */}
-        <span className="text-text-tertiary typo-title3">
-          {`/ ${summary.total} daily quests`}
-        </span>
-      </div>
+      <ProgressCount summary={summary} claimedClassName="typo-tera" />
       <h2 className="typo-title3">{completionHeadline(summary)}</h2>
     </div>
     <QuestStrip total={summary.total} claimed={summary.claimed} />
@@ -203,9 +214,7 @@ export const QuestOfferCelebrationCompact = ({
         levelClassName="typo-title2"
       />
       <span className="flex flex-col items-start text-text-primary">
-        <span className="font-bold tabular-nums typo-mega2">
-          {`${summary.claimed}/${summary.total}`}
-        </span>
+        <ProgressCount summary={summary} claimedClassName="typo-mega2" />
         <span className="typo-callout">{completionHeadline(summary)}</span>
       </span>
     </div>

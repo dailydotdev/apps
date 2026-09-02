@@ -85,7 +85,15 @@ const QuestOffersTrigger = (): null => {
   // arbitrary point with no claim behind it. Keyed on the claim itself, so a
   // second claim refreshes the window rather than riding the first one's.
   useEffect(() => {
+    if (!claim) {
+      return undefined;
+    }
+
+    // Clear an ignored claim rather than leaving it parked, so the cache entry
+    // always means "the pending moment" and not merely "the last claim".
     if (!pendingClaim) {
+      queryClient.setQueryData(claimKey, null);
+
       return undefined;
     }
 
@@ -95,7 +103,7 @@ const QuestOffersTrigger = (): null => {
     );
 
     return () => window.clearTimeout(timer);
-  }, [claimKey, pendingClaim, queryClient]);
+  }, [claim, claimKey, pendingClaim, queryClient]);
 
   // Both day stamps are independent idb reads. Gating on both means the
   // eligibility effect below can never be short-circuited on an unresolved
