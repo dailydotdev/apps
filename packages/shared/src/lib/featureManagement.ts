@@ -30,6 +30,12 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
+// Snapshot on Happening Now: the expanded highlight is the only level that
+// carries it — expansion is the intent signal, and there is room for a label.
+export const featureSnapshotHighlightExpanded = new Feature(
+  'snapshot_highlight_expanded',
+  false,
+);
 // Experiment: community takes — an LLM-generated digest of what the developer
 // community on HN/Lobsters thinks about a post. Control hides the surface,
 // treatment shows it. Enrollment is conditional on the post actually having a
