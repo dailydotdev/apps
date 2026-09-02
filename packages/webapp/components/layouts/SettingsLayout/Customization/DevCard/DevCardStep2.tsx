@@ -15,6 +15,7 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { DevCardQueryData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { useDevCard } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
+import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import {
   generateQueryKey,
@@ -32,8 +33,10 @@ import {
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
+  DownloadIcon,
   GitHubIcon,
   OpenLinkIcon,
+  ShareIcon,
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { DevCardFetchWrapper } from '@dailydotdev/shared/src/components/profile/devcard/DevCardFetchWrapper';
@@ -90,6 +93,14 @@ export const DevCardStep2 = ({
     [user?.name, user?.username, devCardSrc, type],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
+  const [sharing, onShareDevCard] = useShareOrCopyLink({
+    link: user?.permalink ?? '',
+    text: 'Check out my #DevCard on daily.dev',
+    logObject: (provider) => ({
+      event_name: LogEvent.ShareDevcard,
+      extra: JSON.stringify({ provider }),
+    }),
+  });
   const [selectedTab, setSelectedTab] = useState(0);
   const { mutateAsync: onDownloadUrl, isPending: downloading } = useMutation({
     mutationFn: downloadUrl,
@@ -230,18 +241,29 @@ export const DevCardStep2 = ({
         </div>
 
         {!isNullOrUndefined(devcard) && (
-          <Button
-            className="mx-auto mt-4 grow-0 self-start"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            onClick={() => generateThenDownload({})}
-            disabled={downloading || isLoading}
-            tag={isMobile ? 'a' : 'button'}
-            href={devCardSrc}
-            target={isMobile ? '_blank' : undefined}
-          >
-            Download DevCard
-          </Button>
+          <div className="mx-auto mt-4 flex grow-0 items-center gap-2">
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Medium}
+              icon={<DownloadIcon />}
+              onClick={() => generateThenDownload({})}
+              disabled={downloading || isLoading}
+              tag={isMobile ? 'a' : 'button'}
+              href={devCardSrc}
+              target={isMobile ? '_blank' : undefined}
+            >
+              Download
+            </Button>
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              icon={<ShareIcon />}
+              onClick={onShareDevCard}
+              disabled={sharing || isLoading}
+            >
+              Share
+            </Button>
+          </div>
         )}
       </section>
 

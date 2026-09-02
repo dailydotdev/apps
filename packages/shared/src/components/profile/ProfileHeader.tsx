@@ -8,7 +8,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { DevPlusIcon, EditIcon } from '../icons';
+import { DevPlusIcon, EditIcon, LinkIcon } from '../icons';
 import type { PublicProfile } from '../../lib/user';
 import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
@@ -25,6 +25,11 @@ import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
 import { SnapshotButton } from '../imageShare/SnapshotButton';
+import { Tooltip } from '../tooltip/Tooltip';
+import { useCopyLink } from '../../hooks/useCopy';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
+import { ShareProvider } from '../../lib/share';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -69,6 +74,18 @@ const ProfileHeader = ({
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
   const headerRef = useRef<HTMLDivElement>(null);
+  const { logEvent } = useLogContext();
+  const [isCopying, copyLink] = useCopyLink(() => user.permalink);
+
+  const onCopyLink = () => {
+    copyLink();
+    logEvent({
+      event_name: LogEvent.ShareProfile,
+      target_type: TargetType.ProfilePage,
+      target_id: user.id,
+      extra: JSON.stringify({ provider: ShareProvider.CopyLink }),
+    });
+  };
 
   return (
     <div
@@ -113,6 +130,15 @@ const ProfileHeader = ({
             target={headerRef}
             variant={ButtonVariant.Float}
           />
+          <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
+            <Button
+              aria-label="Copy link"
+              icon={<LinkIcon />}
+              onClick={onCopyLink}
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Float}
+            />
+          </Tooltip>
           {actions}
         </div>
         <div className="flex items-center gap-1">
