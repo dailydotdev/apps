@@ -30,6 +30,7 @@ import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
+import { anchorSponsoredRel } from '../../../lib/strings';
 
 export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   { ad, onLinkClick, onViewable, domProps, index, feedIndex },
@@ -73,7 +74,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
               tag="a"
               href={clickUrl}
               target="_blank"
-              rel="noopener"
+              rel={anchorSponsoredRel}
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
               className="z-1"

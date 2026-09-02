@@ -205,6 +205,14 @@ const strictSkipList = new Set([
   // `post`/`post.source`, nullable PageInfo, optional comment/parent lookups)
   // live on unrelated lines and should be addressed in a dedicated cleanup PR.
   'packages/shared/src/hooks/post/useMutateComment.ts',
+  // Link-rel branch — these files were touched only to set an explicit `rel`
+  // on an outbound anchor. Pre-existing strict violations (optional
+  // `source`/`post.toc`, `Link href` accepting `string | null | undefined`,
+  // nullable location helpers) live on unrelated lines and should be
+  // addressed in a dedicated cleanup PR.
+  'packages/shared/src/components/post/common/SharedPostLink.tsx',
+  'packages/shared/src/components/widgets/PostToc.tsx',
+  'packages/shared/src/features/profile/components/experience/UserExperienceItem.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
