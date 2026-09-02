@@ -81,8 +81,14 @@ const HighlightRow = ({
     <Link href={getHighlightUrl(highlight)}>
       <a
         className={classNames(
-          'flex w-full flex-col gap-0 border-b border-border-subtlest-tertiary text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
-          compact ? 'rounded-12 px-4 py-3' : 'rounded-8 px-3 py-2',
+          // The rule is drawn rather than bordered: a `border-b` follows the
+          // row's corner radius and curves up at both ends, which reads as a
+          // half-open box around every headline instead of a list. Inset to the
+          // text edge so it lines up with the copy above it.
+          'relative flex w-full flex-col gap-0 text-left transition-colors after:absolute after:bottom-0 after:h-px after:bg-border-subtlest-tertiary last:after:hidden hover:bg-surface-hover focus-visible:bg-surface-hover',
+          compact
+            ? 'rounded-12 px-4 py-3 after:inset-x-4'
+            : 'rounded-8 px-3 py-2 after:inset-x-3',
         )}
         href={getHighlightUrl(highlight)}
         onClick={() => onHighlightClick?.(highlight, index + 1)}
@@ -137,7 +143,9 @@ export const HighlightCardContent = ({
   );
   const footerClassName = classNames(
     variant === 'list' && 'pt-1.5',
-    variant === 'grid' && (isFlushGrid ? 'px-4 pt-2' : 'px-1 pb-1'),
+    // The bottom inset matches the ad card's padding, so the two columns finish
+    // on one line rather than 12px apart.
+    variant === 'grid' && (isFlushGrid ? 'px-4 pb-3 pt-2' : 'px-1 pb-1'),
   );
   const firstHighlight = highlights[0];
 

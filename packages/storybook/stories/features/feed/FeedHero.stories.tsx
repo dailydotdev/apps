@@ -11,6 +11,7 @@ import { FeedSectionToolbar } from '@dailydotdev/shared/src/components/feeds/her
 import {
   adWithLongCopy,
   adWithoutAdvertiser,
+  adWithoutCta,
   adWithoutImage,
   adWithoutTags,
   cardHandlers,
@@ -113,6 +114,27 @@ export const HeroOnly: Story = {
         cardProps={cardHandlers}
       />
     </Page>
+  ),
+};
+
+export const WideFeed: Story = {
+  name: 'Hero at a five-card feed',
+  render: () => (
+    <FeedHeroProviders>
+      <div className="min-h-screen bg-background-default p-8">
+        {/* The feed grid caps the hero at 21.25rem per card plus the gaps, so
+            five cards is the widest it ever runs and the widest its columns
+            get — about 440px each. */}
+        <div className="w-[114.25rem] max-w-full">
+          <FeedHeroSection
+            posts={heroPosts}
+            highlights={highlights}
+            ad={adWithoutCta}
+            cardProps={cardHandlers}
+          />
+        </div>
+      </div>
+    </FeedHeroProviders>
   ),
 };
 
@@ -265,40 +287,61 @@ export const AdPlacement: Story = {
     <Page>
       <Case
         title="In its own column"
-        note="Column width (19rem). Copy, then the disclosure in the headline rows' timestamp colour, then tags, the cover, and the action row. Takes its own height rather than the column's."
+        note="Column width (19rem) on the section's height. Copy, then the disclosure in the headline rows' timestamp colour, then tags, then a cover that takes whatever height the copy leaves."
         width="19rem"
       >
-        <FeedHeroAdCard ad={heroAd} onLinkClick={fn()} />
+        <div className="h-[30rem]">
+          <FeedHeroAdCard ad={heroAd} onLinkClick={fn()} />
+        </div>
       </Case>
       <Case title="No matching tags" width="19rem">
-        <FeedHeroAdCard ad={adWithoutTags} onLinkClick={fn()} />
+        <div className="h-[30rem]">
+          <FeedHeroAdCard ad={adWithoutTags} onLinkClick={fn()} />
+        </div>
       </Case>
       <Case
         title="No cover image"
-        note="The card is just the copy and its action row."
+        note="Nothing left to absorb the column's height, so the action row falls to the bottom on its own."
         width="19rem"
       >
-        <FeedHeroAdCard ad={adWithoutImage} onLinkClick={fn()} />
+        <div className="h-[30rem]">
+          <FeedHeroAdCard ad={adWithoutImage} onLinkClick={fn()} />
+        </div>
       </Case>
       <Case
         title="Advertiser hidden"
         note="No referral link, so the disclosure is a bare “Promoted”."
         width="19rem"
       >
-        <FeedHeroAdCard ad={adWithoutAdvertiser} onLinkClick={fn()} />
+        <div className="h-[30rem]">
+          <FeedHeroAdCard ad={adWithoutAdvertiser} onLinkClick={fn()} />
+        </div>
       </Case>
       <Case
         title="Long copy"
         note="Title clamps at three lines; the tag row keeps what fits."
         width="19rem"
       >
-        <FeedHeroAdCard ad={adWithLongCopy} onLinkClick={fn()} />
+        <div className="h-[30rem]">
+          <FeedHeroAdCard ad={adWithLongCopy} onLinkClick={fn()} />
+        </div>
+      </Case>
+      <Case
+        title="No call to action"
+        note="Only “Remove” is left in the action row."
+        width="19rem"
+      >
+        <div className="h-[30rem]">
+          <FeedHeroAdCard ad={adWithoutCta} onLinkClick={fn()} />
+        </div>
       </Case>
       <Case
         title="Full-width (stacked rail)"
         note="How the card looks once the section stacks under the carousel."
       >
-        <FeedHeroAdCard ad={heroAd} onLinkClick={fn()} />
+        <div className="h-[30rem]">
+          <FeedHeroAdCard ad={heroAd} onLinkClick={fn()} />
+        </div>
       </Case>
     </Page>
   ),

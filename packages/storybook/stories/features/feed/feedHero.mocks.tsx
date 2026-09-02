@@ -306,6 +306,15 @@ export const heroAd: Ad = {
 
 export const adWithoutTags: Ad = { ...heroAd, matchingTags: undefined };
 
+/** Plenty of live creatives ship no call to action, leaving only "Remove". */
+export const adWithoutCta: Ad = {
+  ...heroAd,
+  company: 'Fastmail',
+  source: 'Fastmail',
+  description: "A Calendar That's Yours. Not Google's.",
+  callToAction: undefined,
+};
+
 export const adWithoutImage: Ad = { ...heroAd, image: undefined as never };
 
 export const adWithoutAdvertiser: Ad = {
