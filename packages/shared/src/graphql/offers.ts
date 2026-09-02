@@ -4,7 +4,7 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 import { gqlClient } from './common';
 
 export enum OfferPlacement {
-  StreakMilestone = 'STREAK_MILESTONE',
+  QuestCompletion = 'QUEST_COMPLETION',
 }
 
 export type UserOffer = {
