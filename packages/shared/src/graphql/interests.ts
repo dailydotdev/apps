@@ -147,10 +147,8 @@ export type InterestTurn = {
   status?: InterestRunStatus | null;
   trigger?: InterestRunTrigger | null;
   feedbackId?: string | null;
-  runId?: string | null;
   replyStatus?: InterestReplyStatus | null;
   replyBlocks?: InterestRunBlock[] | null;
-  replyPostId?: string | null;
   blocks?: InterestRunBlock[] | null;
   findingsAdded?: number | null;
   summaryPostId?: string | null;
@@ -227,8 +225,8 @@ export const CREATE_INTEREST_MUTATION = `
 `;
 
 export const SEND_INTEREST_COMMAND_MUTATION = `
-  mutation SendInterestCommand($id: ID!, $text: String!, $runId: String, $questionId: String) {
-    sendInterestCommand(id: $id, text: $text, runId: $runId, questionId: $questionId) {
+  mutation SendInterestCommand($id: ID!, $text: String!, $runId: String, $reply: Boolean, $questionId: String) {
+    sendInterestCommand(id: $id, text: $text, runId: $runId, reply: $reply, questionId: $questionId) {
       id
     }
   }
@@ -284,10 +282,8 @@ export const INTEREST_HISTORY_QUERY = `
           status
           trigger
           feedbackId
-          runId
           replyStatus
           replyBlocks
-          replyPostId
           blocks
           findingsAdded
           summaryPostId
@@ -409,16 +405,18 @@ export const sendInterestCommand = async ({
   id,
   text,
   runId,
+  reply,
   questionId,
 }: {
   id: string;
   text: string;
   runId?: string;
+  reply?: boolean;
   questionId?: string;
 }): Promise<Pick<UserInterest, 'id'>> => {
   const res = await gqlClient.request<{
     sendInterestCommand: Pick<UserInterest, 'id'>;
-  }>(SEND_INTEREST_COMMAND_MUTATION, { id, text, runId, questionId });
+  }>(SEND_INTEREST_COMMAND_MUTATION, { id, text, runId, reply, questionId });
   return res.sendInterestCommand;
 };
 
@@ -450,10 +448,8 @@ export const INTEREST_RUN_QUERY = `
       status
       trigger
       feedbackId
-      runId
       replyStatus
       replyBlocks
-      replyPostId
       blocks
       findingsAdded
       summaryPostId

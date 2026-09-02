@@ -753,6 +753,64 @@ describe('the live path', () => {
     ]);
   });
 
+  it('never asks for a reply to a vote', async () => {
+    const send = jest.fn().mockResolvedValue(undefined);
+    const agent = mountLive({ send, runId: 'run-1' });
+
+    await flushQueries();
+    await act(async () => {
+      await agent.current.sendFeedback('Fewer replies like this one: "..."');
+    });
+
+    expect(send).toHaveBeenCalledWith({
+      text: 'Fewer replies like this one: "..."',
+      reply: false,
+    });
+  });
+
+  it('falls back to a plain answer when a completed reply carries no blocks', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'noted, thanks',
+          replyStatus: 'completed' as never,
+          replyBlocks: [] as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(agent.current.messages[1]).toMatchObject({
+      id: 'fb-1-reply',
+      role: 'agent',
+      isPending: false,
+      isError: false,
+      blocks: [{ type: 'text', html: '<p>Done.</p>' }],
+    });
+  });
+
+  it('counts a pending reply as the agent working', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'too shallow',
+          replyStatus: 'running' as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ isWorking }) => isWorking === true);
+
+    expect(agent.current.isWorking).toBe(true);
+  });
+
   it('shows a queued reply as pending', async () => {
     const agent = mountLive({
       turns: [

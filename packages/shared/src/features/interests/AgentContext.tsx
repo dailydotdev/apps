@@ -289,12 +289,19 @@ const turnsToMessages = ({
           postsById,
           allPosts,
         );
+        const isReplyError = turn.replyStatus === InterestReplyStatus.Failed;
+        const isPendingReply = isReplyPending(turn);
+
+        if (!isPendingReply && !isReplyError && !replyBlocks.length) {
+          replyBlocks.push({ type: 'text', html: '<p>Done.</p>' });
+        }
+
         acc.push({
           id: `${turn.id}-reply`,
           role: 'agent',
           at: turn.createdAt,
-          isPending: isReplyPending(turn),
-          isError: turn.replyStatus === InterestReplyStatus.Failed,
+          isPending: isPendingReply,
+          isError: isReplyError,
           retryText: turn.text ?? undefined,
           blocks: replyBlocks,
         });
@@ -610,14 +617,14 @@ export const AgentProvider = ({
     !!isOnboarding &&
     interest?.onboardingStep === UserInterestOnboardingStep.Brief;
 
-  const serverPending = historyTurns.some(isRunPending);
+  const serverPending = historyTurns.some(isTurnPending);
   const echoPending = unresolvedEchoes.some((echo) => echo.state !== 'error');
   const isWorking = isDemo
     ? !!workingMeta && workingRef.current
     : serverPending || echoPending;
   workingRef.current = isWorking;
 
-  const pendingTurn = turns.find(isRunPending);
+  const pendingTurn = turns.find(isTurnPending);
   const pendingEcho = unresolvedEchoes.find((echo) => echo.state !== 'error');
   const workingSince = (() => {
     if (pendingTurn) {
@@ -772,9 +779,9 @@ export const AgentProvider = ({
         return;
       }
 
-      await sendCommand({ text, runId });
+      await sendCommand({ text, reply: false });
     },
-    [interest, isDemo, runId, sendCommand],
+    [interest, isDemo, sendCommand],
   );
 
   // Seeded from the question's own preselection and reset when the question
