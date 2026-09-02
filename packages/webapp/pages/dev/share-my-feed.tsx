@@ -22,7 +22,6 @@ import {
   StarIcon,
   TrashIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 
 /**
  * /dev/share-my-feed — the Share my feed placement review, on the app rather
@@ -522,12 +521,31 @@ const Rails = ({ spot }: { spot: Spot }) => (
   </Rail>
 );
 
-const ProductionGate = ({ children }: { children: ReactNode }) => {
-  if (!isDevelopment) {
+const useIsAllowedHost = () => {
+  const [allowed, setAllowed] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const { hostname } = window.location;
+    // Block the canonical production hosts only; allow localhost and the
+    // *.preview.app.daily.dev preview deployments so reviewers can open it.
+    setAllowed(hostname !== 'app.daily.dev' && hostname !== 'www.daily.dev');
+  }, []);
+
+  return allowed;
+};
+
+const HostGate = ({ children }: { children: ReactNode }) => {
+  const allowed = useIsAllowedHost();
+
+  if (!allowed) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background-default p-12">
         <p className="text-text-secondary typo-callout">
-          The Share my feed review page is only available in development.
+          The Share my feed review page is not available on production.
         </p>
       </div>
     );
@@ -539,7 +557,7 @@ const ShareMyFeedDevPage = (): ReactElement => {
   const [theme, setTheme] = useTheme('dark');
 
   return (
-    <ProductionGate>
+    <HostGate>
       <NextSeo nofollow noindex title="Share my feed · daily.dev dev" />
       <div className="min-h-screen bg-background-default text-text-primary">
         <div className="sticky top-0 z-header flex flex-wrap items-center gap-4 border-b border-border-subtlest-tertiary bg-background-default px-8 py-3">
@@ -673,7 +691,7 @@ const ShareMyFeedDevPage = (): ReactElement => {
           </Category>
         </div>
       </div>
-    </ProductionGate>
+    </HostGate>
   );
 };
 
