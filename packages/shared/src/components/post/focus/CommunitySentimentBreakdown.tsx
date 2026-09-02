@@ -8,7 +8,7 @@ import {
 } from '../../typography/Typography';
 import { OpenLinkIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { anchorDefaultRel, capitalize } from '../../../lib/strings';
+import { anchorNofollowRel, capitalize } from '../../../lib/strings';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import type {
   CommunitySentimentData,
@@ -219,7 +219,7 @@ const SourceRow = ({
       <a
         href={linkUrl}
         target="_blank"
-        rel={anchorDefaultRel}
+        rel={anchorNofollowRel}
         title={`View the discussion on ${label}`}
         className={classNames(
           rowClassName,

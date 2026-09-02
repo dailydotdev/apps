@@ -32,6 +32,7 @@ import { useTimedRelease } from './useTimedRelease';
 import { GoBackHeaderMobile } from '../GoBackHeaderMobile';
 import { PostWidgets, PostWidgetPosition } from '../PostWidgets';
 import PostEngagements from '../PostEngagements';
+import { anchorNofollowRel } from '../../../lib/strings';
 
 /**
  * The rail carries two in-flow units between its widgets, and the closing
@@ -194,7 +195,7 @@ export function ArbitragePostContent({
               href={post.permalink}
               title="Go to post"
               target="_blank"
-              rel="noopener"
+              rel={anchorNofollowRel}
             >
               {post.title}
             </a>
@@ -248,7 +249,7 @@ export function ArbitragePostContent({
                       href={post.permalink}
                       title={post.domain}
                       target="_blank"
-                      rel="noopener"
+                      rel={anchorNofollowRel}
                       className="hover:underline"
                     >
                       {post.domain}
@@ -262,7 +263,7 @@ export function ArbitragePostContent({
               <a
                 href={post.permalink}
                 target="_blank"
-                rel="noopener"
+                rel={anchorNofollowRel}
                 className="block cursor-pointer overflow-hidden rounded-16"
                 style={{ maxWidth: '25.625rem' }}
               >
