@@ -80,6 +80,25 @@ describe('BriefContext', () => {
       expect(result.current.brief).toEqual(mockBrief);
     });
 
+    it('should treat a stale persisted brief as empty so the card resets', () => {
+      const staleBrief = {
+        id: 'brief-stale',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
+      };
+
+      mockUsePersistentState.mockReturnValueOnce([
+        staleBrief,
+        mockSetBrief,
+        true,
+      ]);
+
+      const { result } = renderHook(() => useBriefContext(), {
+        wrapper: TestWrapper,
+      });
+
+      expect(result.current.brief).toBeUndefined();
+    });
+
     it('should use user ID in persistent state key', () => {
       mockUsePersistentState.mockReturnValueOnce([
         undefined,
@@ -92,7 +111,7 @@ describe('BriefContext', () => {
       });
 
       expect(mockUsePersistentState).toHaveBeenCalledWith(
-        `brief_card_${defaultUser.id}_v4`,
+        `brief_card_${defaultUser.id}_v6`,
         undefined,
       );
     });

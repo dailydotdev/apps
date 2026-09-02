@@ -27,12 +27,12 @@ AllHighlightsPage.layoutProps = {
   seo: {
     title: HIGHLIGHTS_TITLE,
     description: HIGHLIGHTS_DESCRIPTION,
-    canonical: 'https://app.daily.dev/highlights/all',
+    canonical: 'https://daily.dev/highlights/all',
     openGraph: {
       ...defaultOpenGraph,
       title: HIGHLIGHTS_TITLE,
       description: HIGHLIGHTS_DESCRIPTION,
-      url: 'https://app.daily.dev/highlights/all',
+      url: 'https://daily.dev/highlights/all',
       type: 'website',
     },
     ...defaultSeo,

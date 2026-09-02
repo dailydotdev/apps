@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { cloneElement, useEffect } from 'react';
 import classNames from 'classnames';
-import type { AuthFormProps } from './common';
+import type { AuthFormProps, SignupStyle } from './common';
 import { providerMap } from './common';
 import OrDivider from './OrDivider';
 import { useLogContext } from '../../contexts/LogContext';
@@ -10,6 +10,7 @@ import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { isIOSNative } from '../../lib/func';
+import { IconSize } from '../Icon';
 
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
@@ -36,9 +37,11 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   className?: ClassName;
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
+  hideSignupDisclaimer?: boolean;
   compact?: boolean;
-  splitSignupStyle?: boolean;
+  signupStyle?: SignupStyle;
   preferGithub?: boolean;
+  onAuthOpenLogged?: () => void;
 }
 
 export const isWebView = (): boolean => {
@@ -113,15 +116,40 @@ export const OnboardingRegistrationForm = ({
   trigger,
   onboardingSignupButton,
   hideLoginLink,
+  hideSignupDisclaimer,
   compact,
-  splitSignupStyle = false,
+  signupStyle,
   preferGithub,
+  onAuthOpenLogged,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const isOnboardingTrigger = trigger === AuthTriggers.Onboarding;
   const signupProviders = getSignupProviders(
     preferGithub ?? isOnboardingTrigger,
   );
+  const isSplitLayout = !!signupStyle;
+  const isCreateAccountCopy = signupStyle === 'splitCreateAccount';
+  const isSinglePrimary = signupStyle === 'singlePrimary';
+
+  // `secondary` is GitHub's filled octocat, so it reads at Google's weight.
+  const getProviderIcon = (icon: ReactElement): ReactElement => {
+    if (isSinglePrimary) {
+      return cloneElement(icon, { size: IconSize.XSmall, secondary: true });
+    }
+    if (isSplitLayout) {
+      return cloneElement(icon, { size: IconSize.Medium });
+    }
+    return icon;
+  };
+
+  // The rest step down to a fill rather than an outline, which would read as
+  // disabled beside a solid primary.
+  const getProviderVariant = (index: number): ButtonVariant => {
+    if (!isSinglePrimary) {
+      return onboardingSignupButton?.variant ?? ButtonVariant.Primary;
+    }
+    return index === 0 ? ButtonVariant.Primary : ButtonVariant.Float;
+  };
 
   const trackOpenSignup = () => {
     logEvent({
@@ -138,44 +166,78 @@ export const OnboardingRegistrationForm = ({
       extra: JSON.stringify({ trigger }),
       target_id: targetId,
     });
+
+    onAuthOpenLogged?.();
     // Need to run only once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // text-primary, not white: this button sits on the page background, which is
+  // light in light mode — white label on it is invisible
   const tertiarySignupButtonClass =
-    '!w-full !border !border-border-subtlest-tertiary !text-white';
+    '!w-full !border !border-border-subtlest-tertiary !text-text-primary';
 
   const getEmailButtonClass = (): string => {
     if (compact) {
       return 'mb-4';
     }
-    if (isOnboardingTrigger && !splitSignupStyle) {
+    // This margin, not the login link's own, is most of the gap between the CTA
+    // and "Already have an account". onb-split-cta lets the signup hero close
+    // it further on compact phones.
+    if (isSplitLayout) {
+      return isSinglePrimary ? 'onb-split-cta' : 'onb-split-cta mb-4';
+    }
+    if (isOnboardingTrigger) {
       return 'mb-3';
     }
     return 'mb-8';
   };
 
-  const emailButtonLabel = splitSignupStyle
+  const emailButtonLabel = isCreateAccountCopy
     ? 'Create account'
     : 'Continue with email';
+  const emailButtonAriaLabel = isCreateAccountCopy
+    ? 'Create account'
+    : 'Signup using email';
+  const onEmailClick = () => {
+    trackOpenSignup();
+    onContinueWithEmail?.();
+  };
 
-  const emailButton = (
-    <Button
-      aria-label={splitSignupStyle ? 'Create account' : 'Signup using email'}
+  // A plain button, not `Button`: the variant's box, shadow and hover
+  // `--button-background` would each need overriding to look like a link.
+  // `min-h-12` keeps the tap target at 48px under a 20px label.
+  const emailLink = (
+    <button
       className={classNames(
         getEmailButtonClass(),
-        (isOnboardingTrigger || splitSignupStyle) && tertiarySignupButtonClass,
+        'mx-auto flex min-h-12 items-center justify-center px-3 text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-text-tertiary motion-reduce:transition-none',
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
-      onClick={() => {
-        trackOpenSignup();
-        onContinueWithEmail?.();
-      }}
+      onClick={onEmailClick}
+      type="button"
+    >
+      {emailButtonLabel}
+    </button>
+  );
+
+  const emailButton = isSinglePrimary ? (
+    emailLink
+  ) : (
+    <Button
+      aria-label={emailButtonAriaLabel}
+      className={classNames(
+        getEmailButtonClass(),
+        (isOnboardingTrigger || isSplitLayout) && tertiarySignupButtonClass,
+      )}
+      data-funnel-track={FunnelTargetId.SignupProvider}
+      disabled={isSocialAuthLoading}
+      onClick={onEmailClick}
       size={onboardingSignupButton?.size ?? ButtonSize.Large}
       type="button"
       variant={
-        isOnboardingTrigger || splitSignupStyle
+        isOnboardingTrigger || isSplitLayout
           ? ButtonVariant.Tertiary
           : ButtonVariant.Float
       }
@@ -185,86 +247,92 @@ export const OnboardingRegistrationForm = ({
   );
 
   const getMemberAlreadyContainerClass = (): string => {
+    // Stacked, the split layouts have no footer/disclaimer strip under them, so
+    // this centres like the cards/desk walls. The form is bottom-anchored
+    // there, so the tight gap is what pushes the buttons down the screen.
+    // Once the columns appear it follows the left-aligned column edge again.
+    // onb-split-login is a styling hook for the signup hero: it tightens this
+    // row on compact phones. Inert anywhere the hero's CSS is not present.
+    // Centred on the buttons, not the left edge of the copy. mt-1 because the
+    // email link's padded row already supplies most of the gap.
+    if (isSinglePrimary) {
+      return 'onb-split-login mx-auto mt-1 justify-center text-center text-text-tertiary typo-callout laptop:mt-2';
+    }
+    if (isSplitLayout) {
+      return 'onb-split-login mx-auto mt-4 text-center text-text-secondary typo-callout laptop:mx-0 laptop:mt-5 laptop:text-left';
+    }
     if (isOnboardingTrigger) {
       return 'mx-auto mt-5 text-center text-text-secondary typo-callout';
     }
     return 'mx-auto mt-6 text-center text-text-secondary typo-callout';
   };
 
-  const memberAlready = !hideLoginLink && !splitSignupStyle && (
+  const memberAlready = !hideLoginLink && (
     <MemberAlready
       onLogin={() => onExistingEmail?.('')}
       className={{
         container: getMemberAlreadyContainerClass(),
-        login: '!text-inherit',
+        login: isSinglePrimary ? '!text-text-primary' : '!text-inherit',
       }}
     />
   );
 
-  const splitSignInSection = splitSignupStyle && !hideLoginLink && (
-    <div className="mt-2 flex w-full flex-col items-start gap-3">
-      <p className="text-left text-text-secondary typo-callout">
-        Already have an account?
-      </p>
-      <Button
-        aria-label="Sign in"
-        className={tertiarySignupButtonClass}
-        onClick={() => onExistingEmail?.('')}
-        size={onboardingSignupButton?.size ?? ButtonSize.Large}
-        type="button"
-        variant={ButtonVariant.Tertiary}
-      >
-        Sign in
-      </Button>
-    </div>
-  );
-  const disclaimer = (
+  const disclaimer = hideSignupDisclaimer ? null : (
     <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
   );
 
   return (
     <div aria-label="Login/Register options" className="flex flex-col gap-4">
       <ul aria-label="Social login buttons" className="flex flex-col gap-4">
-        {signupProviders.map((provider) => (
+        {signupProviders.map((provider, index) => (
           <li key={provider.value}>
             <Button
               aria-label={
-                splitSignupStyle
+                isCreateAccountCopy
                   ? `Sign up with ${provider.label}`
                   : `Continue with ${provider.label}`
               }
-              className="w-full"
+              className={classNames(
+                'w-full',
+                // Float's label is text-secondary and the brand mark follows
+                // it through currentColor; the fill is the hierarchy, not the
+                // label.
+                isSinglePrimary && index > 0 && '!text-text-primary',
+              )}
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}
-              icon={provider.icon}
+              icon={getProviderIcon(provider.icon)}
               loading={!isReady || isSocialAuthLoading}
               onClick={() => onProviderClick?.(provider.value, false)}
               size={onboardingSignupButton?.size ?? ButtonSize.Large}
               type="button"
-              variant={onboardingSignupButton?.variant ?? ButtonVariant.Primary}
+              variant={getProviderVariant(index)}
             >
-              {splitSignupStyle
+              {isCreateAccountCopy
                 ? `Sign up with ${provider.label}`
                 : `Continue with ${provider.label}`}
             </Button>
           </li>
         ))}
       </ul>
-      <OrDivider
-        className={{
-          text: 'text-text-tertiary typo-footnote',
-        }}
-        label={isOnboardingTrigger ? 'or' : 'OR'}
-      />
+      {!isSinglePrimary && (
+        <OrDivider
+          className={{
+            text: 'text-text-tertiary typo-footnote',
+          }}
+          label={isOnboardingTrigger ? 'or' : 'OR'}
+        />
+      )}
       {isOnboardingTrigger ? (
         <div
           className={classNames(
             'flex flex-col',
-            splitSignupStyle ? 'items-start text-left' : 'text-center',
+            isSplitLayout && !isSinglePrimary
+              ? 'items-start text-left'
+              : 'text-center',
           )}
         >
           {emailButton}
-          {splitSignInSection}
           {memberAlready}
         </div>
       ) : (

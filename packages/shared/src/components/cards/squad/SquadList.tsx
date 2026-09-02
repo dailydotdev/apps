@@ -16,6 +16,7 @@ import { Image, ImageType } from '../../image/Image';
 import { ButtonVariant } from '../../buttons/common';
 import type { Ad } from '../../../graphql/posts';
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
+import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
 
 interface SquadListProps extends ComponentProps<'div'> {
@@ -34,7 +35,7 @@ export const SquadList = ({
 }: SquadListProps): ReactElement => {
   const { image, name, permalink } = squad;
   const campaignId = ad?.data?.source?.flags?.campaignId;
-  const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
+  const { ref, onClickAd, onViewableAd } = useSquadsDirectoryLogging(ad);
   const promotedText = useScrambler('Promoted');
 
   return (
@@ -88,6 +89,7 @@ export const SquadList = ({
         buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
       />
       {children}
+      {!!ad && <AdViewability ad={ad} onViewable={onViewableAd} />}
     </div>
   );
 };

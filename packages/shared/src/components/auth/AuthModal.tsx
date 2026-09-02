@@ -100,6 +100,7 @@ export default function AuthModal({
     >
       <AuthOptions
         className={{ container: 'h-full' }}
+        hideRegistrationHeadline
         onClose={onClose}
         formRef={formRef!}
         onSuccessfulLogin={onSuccessfulLogin}

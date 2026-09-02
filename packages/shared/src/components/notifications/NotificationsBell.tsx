@@ -13,17 +13,25 @@ import { webappUrl } from '../../lib/constants';
 import { useViewSize, ViewSize } from '../../hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
-import { IconSize } from '../Icon';
+import {
+  RAIL_ICON_SIZE,
+  railCountBubbleClass,
+  railTabClass,
+  railTabLabelClass,
+} from '../sidebar/common';
 
 function NotificationsBell({
   compact,
   rail,
   noTooltip,
+  railHideLabel,
   active,
 }: {
   compact?: boolean;
   rail?: boolean;
   noTooltip?: boolean;
+  // v2 rail compact mode: hide the "Alerts" label under the bell.
+  railHideLabel?: boolean;
   // Optional override — the v2 sidebar wants the bell highlighted on
   // any page that owns the Notifications category (incl. its settings
   // sub-page), which extends past the bell's own internal check.
@@ -60,24 +68,40 @@ function NotificationsBell({
           <a
             href={`${webappUrl}notifications`}
             aria-label="Notifications"
+            // It's a tab in the rail tablist; the role makes `aria-selected`
+            // valid and lets the v2 rail's shared sliding pill track this tab
+            // like the others (the pill renders the selected background, so here
+            // we only own the active text color).
+            role="tab"
+            aria-selected={atNotificationsPage}
+            // Every other rail tab is a <button>; this one is an anchor, which
+            // browsers drag natively. That native link-drag ran alongside the
+            // rail's dnd-kit reorder and navigated on drop — reloading
+            // /notifications. Only dnd-kit should drive this drag.
+            draggable={false}
             className={classNames(
-              'focus-outline relative flex h-10 w-10 items-center justify-center rounded-12 transition-colors hover:bg-surface-hover hover:text-text-primary',
-              atNotificationsPage
-                ? 'bg-background-default text-text-primary'
-                : 'text-text-tertiary',
+              railTabClass,
+              atNotificationsPage && '!text-text-primary',
             )}
             onClick={onNavigateNotifications}
           >
-            <BellIcon
-              secondary={atNotificationsPage}
-              size={IconSize.Small}
-              aria-hidden
-              className="pointer-events-none"
-            />
-            {hasNotification && (
-              <Bubble className="-right-1 top-0 cursor-pointer px-1">
-                {getUnreadText(unreadCount)}
-              </Bubble>
+            <span className="relative flex items-center justify-center">
+              <BellIcon
+                secondary={atNotificationsPage}
+                size={RAIL_ICON_SIZE}
+                aria-hidden
+                className="pointer-events-none"
+              />
+              {hasNotification && (
+                // Shared with the gamification tab's count so every rail badge
+                // sits in exactly the same place (see railCountBubbleClass).
+                <Bubble className={railCountBubbleClass}>
+                  {getUnreadText(unreadCount)}
+                </Bubble>
+              )}
+            </span>
+            {!railHideLabel && (
+              <span className={railTabLabelClass}>Activity</span>
             )}
           </a>
         </Link>

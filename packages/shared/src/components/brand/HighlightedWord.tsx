@@ -103,7 +103,6 @@ export const HighlightedWord = ({
   return (
     <Tooltip
       content={tooltipContent}
-      noArrow
       className="!max-w-none !rounded-16 !bg-transparent !p-0"
       delayDuration={100}
     >

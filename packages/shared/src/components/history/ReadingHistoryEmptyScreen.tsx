@@ -2,13 +2,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import Link from '../utilities/Link';
 import {
-  EmptyScreenButton,
   EmptyScreenDescription,
   EmptyScreenIcon,
   EmptyScreenTitle,
 } from '../EmptyScreen';
 import { EyeIcon } from '../icons';
-import { ButtonSize } from '../buttons/common';
+import { Button, ButtonSize } from '../buttons/Button';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
   return (
@@ -22,10 +21,10 @@ function ReadingHistoryEmptyScreen(): ReactElement {
         Go back to your feed and read posts that spark your interest. Each post
         you read will be listed here.
       </EmptyScreenDescription>
-      <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL ?? '/'}>
-        <EmptyScreenButton size={ButtonSize.Large}>
+      <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL ?? '/'} passHref>
+        <Button tag="a" className="mt-10" size={ButtonSize.Large}>
           Back to feed
-        </EmptyScreenButton>
+        </Button>
       </Link>
     </div>
   );

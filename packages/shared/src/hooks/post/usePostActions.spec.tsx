@@ -101,7 +101,7 @@ describe('usePostActions', () => {
   it('should show share overlay when post is upvoted', async () => {
     renderComponent();
 
-    const el = screen.getByLabelText('More like this');
+    const el = screen.getByLabelText('Upvote');
     el.click();
 
     expect(
@@ -123,7 +123,7 @@ describe('usePostActions', () => {
   it('should show bookmark overlay instead of share overlay when post is bookmarked after upvote click', async () => {
     renderComponent();
 
-    const upvoteBtn = screen.getByLabelText('More like this');
+    const upvoteBtn = screen.getByLabelText('Upvote');
     upvoteBtn.click();
 
     const bookmarkBtn = screen.getByLabelText('Bookmark');
@@ -140,7 +140,7 @@ describe('usePostActions', () => {
     const bookmarkBtn = screen.getByLabelText('Bookmark');
     bookmarkBtn.click();
 
-    const upvoteBtn = screen.getByLabelText('More like this');
+    const upvoteBtn = screen.getByLabelText('Upvote');
     upvoteBtn.click();
 
     expect(

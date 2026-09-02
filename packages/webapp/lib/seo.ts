@@ -1,8 +1,15 @@
-const DEFAULT_APP_ORIGIN = 'https://app.daily.dev';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+
+const DEFAULT_APP_ORIGIN = 'https://daily.dev';
 const DEFAULT_SITE_ORIGIN = 'https://daily.dev';
 
 const normalizeOrigin = (value?: string): string | undefined => {
   if (!value) {
+    return undefined;
+  }
+
+  if (value.startsWith('/')) {
     return undefined;
   }
 
@@ -21,3 +28,40 @@ export const getSiteOrigin = (): string =>
   normalizeOrigin(process.env.NEXT_PUBLIC_SITE_ORIGIN) || DEFAULT_SITE_ORIGIN;
 
 export const getLlmsTxtUrl = (): string => `${getAppOrigin()}/llms.txt`;
+
+export const getPostCanonicalUrl = (slug: string): string =>
+  `${getAppOrigin()}/posts/${slug}`;
+
+export const getPostMarkdownUrl = ({
+  post,
+}: {
+  post: Pick<Post, 'id' | 'slug'>;
+}): string => `${getPostCanonicalUrl(post.slug ?? post.id)}.md`;
+
+const THIN_NOINDEX_POST_TYPES = [PostType.Brief, PostType.SocialTwitter];
+
+/** Structural subset of {@link Post} so non-page callers can reuse the gate. */
+export interface NoindexPostFields {
+  type: Post['type'];
+  private?: boolean;
+  source?: { public?: boolean };
+  author?: { reputation?: number };
+}
+
+export const shouldNoindexPost = (post: NoindexPostFields): boolean => {
+  // Posts in private squads normally fail the unauthenticated ISR fetch, but a
+  // cached page can outlive a squad turning private, so fail closed here too.
+  if (post?.private || post?.source?.public === false) {
+    return true;
+  }
+
+  const hasLowReputationAuthor =
+    typeof post?.author?.reputation === 'number' &&
+    post.author.reputation <= 10;
+
+  if (hasLowReputationAuthor) {
+    return true;
+  }
+
+  return THIN_NOINDEX_POST_TYPES.includes(post.type);
+};

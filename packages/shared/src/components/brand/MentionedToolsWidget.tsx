@@ -264,7 +264,6 @@ export const MentionedToolsWidget = ({
                     />
                   }
                   side="left"
-                  noArrow
                   className="!max-w-none !rounded-16 !bg-transparent !p-0"
                 >
                   {toolItem}

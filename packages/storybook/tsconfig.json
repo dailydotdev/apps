@@ -12,7 +12,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      // See packages/shared/tsconfig.json — this package compiles shared's
+      // sources under `moduleResolution: node`, which cannot follow the
+      // package `exports` subpath the bundler resolves at build time.
+      "edge-aura/react": ["../shared/node_modules/edge-aura/dist/react.d.ts"]
+    }
   },
   "include": ["."],
   "exclude": ["dist", "build", "node_modules"]

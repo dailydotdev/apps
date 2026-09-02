@@ -30,8 +30,17 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
   const { data: autocompleteKeywords, isFetching } = useQuery(
     getKeywordAutocompleteOptions(query),
   );
+  const hasAutocompleteKeywords = (autocompleteKeywords?.length ?? 0) > 0;
 
-  const [debouncedQuery] = useDebounceFn<string>((data) => setQuery(data), 300);
+  const [debouncedQuery, cancelDebouncedQuery] = useDebounceFn<string>(
+    (data) => setQuery(data ?? ''),
+    300,
+  );
+
+  const clearQuery = () => {
+    cancelDebouncedQuery();
+    setQuery('');
+  };
 
   const handlePopoverClose: PopoverContentProps['onInteractOutside'] = (e) => {
     if (e.target === inputRef.current) {
@@ -66,7 +75,7 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
               Skills
             </Typography>
 
-            <Popover open={open && autocompleteKeywords?.length > 0}>
+            <Popover open={open && hasAutocompleteKeywords}>
               <PopoverAnchor asChild>
                 <TextField
                   inputRef={(ref) => {
@@ -76,14 +85,16 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                   label="Search skills"
                   leftIcon={<SearchIcon size={IconSize.Small} />}
                   rightIcon={
-                    isFetching && <GenericLoaderSpinner size={IconSize.Small} />
+                    isFetching ? (
+                      <GenericLoaderSpinner size={IconSize.Small} />
+                    ) : undefined
                   }
                   hint="Add commas (,) to add multiple skills. Press Enter to submit them."
                   hintIcon={<FeedbackIcon />}
                   value={query}
                   onChange={({ target }) => {
                     if (target.value === '') {
-                      return setQuery('');
+                      return clearQuery();
                     }
 
                     return debouncedQuery(target.value);
@@ -105,13 +116,13 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
 
                       if (newSkills.length === 0) {
                         if (query) {
-                          setQuery('');
+                          clearQuery();
                         }
                         return;
                       }
 
                       field.onChange([...skills, ...newSkills]);
-                      setQuery('');
+                      clearQuery();
                       return;
                     }
 
@@ -141,11 +152,11 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                         key={keyword}
                         tag={{ name: keyword }}
                         isSelected={isSelected}
-                        onClick={({ tag }) => {
+                        onClick={() => {
                           if (isSelected) {
-                            removeSkill(tag.name);
+                            removeSkill(keyword);
                           } else {
-                            addSkill(tag.name);
+                            addSkill(keyword);
                           }
                         }}
                       />
@@ -162,8 +173,8 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                     key={skill}
                     tag={{ name: skill }}
                     isSelected
-                    onClick={({ tag }) => {
-                      removeSkill(tag.name);
+                    onClick={() => {
+                      removeSkill(skill);
                     }}
                   />
                 ))}

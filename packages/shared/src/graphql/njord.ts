@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 import type { Connection, Edge } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
-import type { LoggedUser } from '../lib/user';
+import type { LoggedUser, UserShortProfile } from '../lib/user';
 import {
   FEATURED_AWARD_FRAGMENT,
   PRODUCT_FRAGMENT,
@@ -76,8 +76,25 @@ export const award = async ({
   return result.award;
 };
 
+export const SAY_THANKS_FOR_AWARD_MUTATION = gql`
+  mutation SayThanksForAward($transactionId: ID!) {
+    sayThanksForAward(transactionId: $transactionId) {
+      _
+    }
+  }
+`;
+
+export const sayThanksForAward = async ({
+  transactionId,
+}: {
+  transactionId: string;
+}): Promise<void> => {
+  await gqlClient.request(SAY_THANKS_FOR_AWARD_MUTATION, { transactionId });
+};
+
 export enum ProductType {
   Award = 'award',
+  StreakFreeze = 'streak_freeze',
 }
 
 export type Product = {
@@ -129,6 +146,7 @@ export const getProductsQueryOptions = () => {
 
 export enum UserTransactionType {
   PostBoost = 'post_boost',
+  User = 'user',
 }
 
 export enum UserTransactionStatus {
@@ -145,13 +163,14 @@ export type UserTransaction = {
   id: string;
   product?: Product;
   status: number;
-  receiver: Author;
-  sender?: Author;
+  receiver: UserShortProfile;
+  sender?: UserShortProfile;
   value: number;
   valueIncFees: number;
   flags: Partial<{
     note: string;
     error: string;
+    thanksAt: string;
   }>;
   balance: LoggedUser['balance'];
   createdAt: Date;

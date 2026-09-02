@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
@@ -14,10 +14,9 @@ import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
-import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
-import { useViewPost } from '../../hooks/post';
+import { useTrackPostView } from '../../hooks/post/useTrackPostView';
 import { withPostById } from './withPostById';
 import PostSourceInfo from './PostSourceInfo';
 import { isSourceUserSource } from '../../graphql/sources';
@@ -67,7 +66,6 @@ function SquadPostContentRaw({
   isPostPage,
 }: SquadPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
-  const { user } = useAuthContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const hasClosedBanner = checkHasCompleted(
     ActionType.ClosedNewPostBoostBanner,
@@ -79,7 +77,6 @@ function SquadPostContentRaw({
     isBoostButtonVisible &&
     !post?.flags?.campaignId;
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isCompactModalSpacing = !isPostPage;
   const engagementActions = usePostContent({ origin, post });
@@ -106,13 +103,7 @@ function SquadPostContentRaw({
     }
   }
 
-  useEffect(() => {
-    if (!post?.id || !user?.id) {
-      return;
-    }
-
-    onSendViewPost(post.id);
-  }, [post.id, onSendViewPost, user?.id]);
+  useTrackPostView({ post });
 
   const socialTwitterType = getSocialTwitterPostType(post);
   const finalType = isVideoPost(post)

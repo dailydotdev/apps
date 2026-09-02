@@ -96,6 +96,7 @@ export const SearchControlHeader = ({
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isTablet = useViewSize(ViewSize.Tablet);
   const { isV2 } = useLayoutVariant();
   const isV2Strip = isV2;
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
@@ -183,21 +184,19 @@ export const SearchControlHeader = ({
   );
 
   const dropdownIconSize = isV2Strip ? IconSize.XSmall : IconSize.Medium;
-  // When chips are present in the v2 strip the actions cluster moves to
-  // the right and rendered icon-only so the chips have horizontal room
-  // to scroll on the left.
   const hasV2Chips = isV2Strip && !!chips;
+  const shouldUseCompactV2Actions = isV2Strip && (!!chips || !isTablet);
   const primaryActions = [
     hasFeedActions && (
       <MyFeedHeading
         key="my-feed"
-        iconOnly={hasV2Chips}
+        iconOnly={shouldUseCompactV2Actions}
         feedSettingsButtonProps={
           isV2Strip
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
-                className: hasV2Chips
+                className: shouldUseCompactV2Actions
                   ? compactIconButtonClassName
                   : compactTextButtonClassName,
                 iconSize: IconSize.XSmall,
@@ -209,9 +208,11 @@ export const SearchControlHeader = ({
     hasFeedActions && isV2Strip && (
       <BriefShortcutButton
         key="brief-shortcut"
-        iconOnly={hasV2Chips}
+        iconOnly={shouldUseCompactV2Actions}
         className={
-          hasV2Chips ? compactIconButtonClassName : compactTextButtonClassName
+          shouldUseCompactV2Actions
+            ? compactIconButtonClassName
+            : compactTextButtonClassName
         }
       />
     ),

@@ -14,6 +14,9 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
+import type { FeedOrigin } from '../../graphql/feed';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedChips } from '../../lib/featureManagement';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -25,6 +28,7 @@ interface ChipItem {
   group: ChipGroup;
   isIconOnly?: boolean;
   tag?: string;
+  origin?: FeedOrigin;
 }
 
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
@@ -47,7 +51,12 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
-
+  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
+    {
+      feature: featureFeedChips,
+      shouldEvaluate: isLoggedIn,
+    },
+  );
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
 
@@ -57,8 +66,8 @@ function UnifiedMobileFeedNav(): ReactElement {
       label: isLoggedIn ? 'For you' : 'Home',
       href: myFeedHref,
       // When a custom feed is the default, `/` shows that feed (not "For you"
-      // content) — so restrict matching to `/my-feed`. Without a custom default
-      // `/` is MyFeed, so include both.
+      // content) — so restrict matching to `/my-feed`. Without a custom
+      // default `/` is MyFeed, so include both.
       matchPaths: isCustomDefaultFeed
         ? [`${webappUrl}my-feed`]
         : [myFeedHref, webappUrl, `${webappUrl}my-feed`],
@@ -82,6 +91,8 @@ function UnifiedMobileFeedNav(): ReactElement {
         href: isDefault ? webappUrl : idPath,
         matchPaths,
         group: 'categories',
+        tag: feed.id,
+        origin: feed.flags?.origin,
       });
     });
     if (isLoggedIn) {
@@ -200,7 +211,16 @@ function UnifiedMobileFeedNav(): ReactElement {
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastCenteredIdRef = useRef<string | null>(null);
   useEffect(() => {
+    if (!activeId) {
+      lastCenteredIdRef.current = null;
+      return;
+    }
+    if (lastCenteredIdRef.current === activeId) {
+      return;
+    }
+
     const active = scrollRef.current?.querySelector<HTMLElement>(
       '[data-active="true"]',
     );
@@ -208,12 +228,13 @@ function UnifiedMobileFeedNav(): ReactElement {
       return;
     }
     active.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }, [activeId, items]);
+    lastCenteredIdRef.current = activeId;
+  }, [activeId]);
 
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
+      className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default px-3 py-4"
     >
       <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
@@ -246,6 +267,10 @@ function UnifiedMobileFeedNav(): ReactElement {
                       logEvent({
                         event_name: LogEvent.ClickFeedTagChip,
                         target_id: item.tag,
+                        extra: JSON.stringify({
+                          variant: isVariantLoading ? undefined : variant,
+                          origin: item.origin,
+                        }),
                       });
                     }}
                     aria-current={isActive ? 'page' : undefined}

@@ -20,6 +20,8 @@ export enum Origin {
   BlockedFilter = 'blocked filter',
   SourcePage = 'source page',
   TagPage = 'tag page',
+  ToolPage = 'tool page',
+  ToolsDirectory = 'tools directory',
   Profile = 'profile',
   PostTags = 'post tags',
   // squads - start
@@ -30,6 +32,7 @@ export enum Origin {
   Auto = 'auto',
   Sidebar = 'sidebar',
   Share = 'share',
+  Agent = 'agent',
   Notification = 'notification',
   NotificationsPage = 'notifications page',
   Boot = 'boot',
@@ -79,6 +82,7 @@ export enum Origin {
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  StreakFreeze = 'streak freeze',
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
@@ -98,9 +102,19 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
+  EngagementBanner = 'engagement banner',
+  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {
+  // AdSense slots on the /read template and the organic post page. First-party
+  // per-placement lifecycle — the shared unit ids blend AdSense's own
+  // reporting, and Google reports nothing about requests it never answered.
+  RequestAdsenseSlot = 'request adsense slot',
+  FillAdsenseSlot = 'fill adsense slot',
+  EmptyAdsenseSlot = 'empty adsense slot',
+  AdsenseSlotError = 'adsense slot error',
+  AdsenseTestMode = 'adsense test mode',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -124,11 +138,13 @@ export enum LogEvent {
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
+  SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
   GlobalError = 'global error',
+  GoogleOneTapPrompt = 'google one tap prompt',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
@@ -241,6 +257,9 @@ export enum LogEvent {
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
   StreakTimezoneMismatch = 'streak timezone mismatch',
+  ClickStreakFreezePurchase = 'click streak freeze purchase',
+  PurchaseStreakFreeze = 'purchase streak freeze',
+  DismissStreakFreezePurchase = 'dismiss streak freeze purchase',
   // 404 page
   View404Page = '404 page',
   // Follow Actions - start
@@ -269,41 +288,6 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
-  // Standups
-  ViewStandup = 'view standup',
-  CreateStandup = 'create standup',
-  LeaveStandup = 'leave standup',
-  StartStandup = 'start standup',
-  EndStandup = 'end standup',
-  JoinStandupQueue = 'join standup queue',
-  RaiseStandupHand = 'raise standup hand',
-  RemoveStandupHand = 'remove standup hand',
-  JoinStandupStage = 'join standup stage',
-  LeaveStandupStage = 'leave standup stage',
-  OpenStandupSettings = 'open standup settings',
-  OpenStandupReactions = 'open standup reactions',
-  SwitchStandupPanelTab = 'switch standup panel tab',
-  SendStandupReaction = 'send standup reaction',
-  SendStandupChatReaction = 'send standup chat reaction',
-  RemoveStandupChatReaction = 'remove standup chat reaction',
-  SendStandupChatMessage = 'send standup chat message',
-  DeleteStandupChatMessage = 'delete standup chat message',
-  UpdateStandupChatAccess = 'update standup chat access',
-  SubscribeStandup = 'subscribe standup',
-  UnsubscribeStandup = 'unsubscribe standup',
-  ShareStandup = 'share standup',
-  AddStandupToCalendar = 'add standup to calendar',
-  GrantStandupCoHost = 'grant standup co-host',
-  RevokeStandupCoHost = 'revoke standup co-host',
-  PromoteStandupSpeaker = 'promote standup speaker',
-  RemoveStandupSpeaker = 'remove standup speaker',
-  KickStandupParticipant = 'kick standup participant',
-  ChangeStandupSettings = 'change standup settings',
-  StandupError = 'standup error',
-  FocusStandupSpeaker = 'focus standup speaker',
-  ImpressionStandupsStrip = 'impression standups strip',
-  ClickStandupsStrip = 'click standups strip',
-  // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
   StartAddingIntegration = 'start adding integration',
@@ -362,7 +346,31 @@ export enum LogEvent {
   SharePost = 'share post',
   ShareComment = 'share comment',
   ShareLog = 'share log',
+  ShareWorld = 'share world',
+  ShareTool = 'share tool',
   // End Share
+  /* Start World
+     `world view` is the denominator and fires whatever happens next, so the
+     boot it precedes can be measured as a rate against it: every open resolves
+     to exactly one `world ready` or one `world boot failed`. */
+  WorldView = 'world view',
+  WorldReady = 'world ready',
+  WorldBootFailed = 'world boot failed',
+  WorldCustomize = 'world customize',
+  /* What a reader did once the world was standing, against `world ready` as the
+     denominator. Walking into a realm is the first step of every path through
+     the place, so a visit that never fires one is a visit that only ever looked
+     at the map. */
+  WorldRealmOpen = 'world realm open',
+  WorldDistrictOpen = 'world district open',
+  WorldRide = 'world ride',
+  WorldReplay = 'world replay',
+  WorldGuideOpen = 'world guide open',
+  /* The first-visit sequence, once per visit with how it ended: `completed`
+     means the reader walked into a realm and opened a district, which is the
+     whole of what it teaches. */
+  WorldIntro = 'world intro',
+  // End World
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -432,6 +440,14 @@ export enum LogEvent {
   UpdateUserStack = 'update user stack',
   RemoveUserStack = 'remove user stack',
   ReorderUserStack = 'reorder user stack',
+  ShareUserStack = 'share user stack',
+  // Tool pages
+  UpvoteTool = 'upvote tool',
+  RemoveToolUpvote = 'remove tool upvote',
+  DownvoteTool = 'downvote tool',
+  RemoveToolDownvote = 'remove tool downvote',
+  ClickClaimTool = 'click claim tool',
+  ClaimTool = 'claim tool',
   // Hot Takes
   StartAddHotTake = 'start add hot take',
   AddHotTake = 'add hot take',
@@ -473,6 +489,8 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
+  QuestOffersEligible = 'quest offers eligible',
+  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -503,6 +521,7 @@ export enum TargetType {
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
   SignupButton = 'signup button',
+  GetAppButton = 'get app button',
   SquadJoinButton = 'squad join button',
   SearchRecommendation = 'search rec',
   SearchHistory = 'search history',
@@ -518,6 +537,7 @@ export enum TargetType {
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
+  StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
@@ -533,7 +553,10 @@ export enum TargetType {
   ReadingReminder = 'reading reminder',
   Source = 'source',
   Tag = 'tag',
+  Tool = 'tool',
   Quest = 'quest',
+  QuestOffer = 'quest offer',
+  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
@@ -563,13 +586,14 @@ export enum TargetType {
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
-  CustomizeNewTab = 'customize new tab',
+  ProfileWorldToggle = 'profile world toggle',
 }
 
 export enum TargetId {
   On = 'on',
   Off = 'off',
   SpotlightOpen = 'spotlight open',
+  FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',
@@ -654,7 +678,6 @@ export enum NotificationTarget {
 
 export enum NotificationCtaPlacement {
   TopHero = 'top-hero',
-  InFeedHero = 'in-feed-hero',
   CommentInline = 'comment-inline',
   UserCard = 'user-card',
   SourceCard = 'source-card',
@@ -682,7 +705,6 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
-  StandupLobby = 'standup lobby',
 }
 
 export enum ShortcutsSourceType {

@@ -19,6 +19,12 @@
   }
 }
 
+/* Icon-only triggers have no label, so the icon's label-spacing margin would
+   push it off-center inside the square button. */
+.dropdown.iconOnly button :global(.icon) {
+  margin-right: 0;
+}
+
 .item:global(.h-auto) > * {
   height: auto !important;
 }

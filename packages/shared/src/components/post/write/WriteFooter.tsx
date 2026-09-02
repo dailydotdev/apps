@@ -6,6 +6,8 @@ import { useNotificationToggle } from '../../../hooks/notifications';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import PollDurationDropdown from '../poll/PollDurationDropdown';
+import { useWritePostContext } from '../../../contexts';
+import { SchedulePostControl } from '../schedule/SchedulePostControl';
 
 interface WriteFooterProps {
   isLoading?: boolean;
@@ -19,6 +21,7 @@ export function WriteFooter({
   isPoll,
 }: WriteFooterProps): ReactElement {
   const { sidebarRendered } = useSidebarRendered();
+  const { schedule } = useWritePostContext();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
 
@@ -46,20 +49,27 @@ export function WriteFooter({
           Receive updates whenever your Squad members engage with your post
         </Switch>
       )}
-      <Button
-        type="submit"
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.Cabbage}
+      <div
         className={classNames(
-          'ml-auto hidden w-full tablet:mt-0 tablet:w-32 laptop:flex',
+          'ml-auto hidden w-full items-center gap-2 tablet:w-auto laptop:flex',
           shouldShowCta && 'mt-6',
         )}
-        disabled={isLoading}
-        loading={isLoading}
-        onClick={onSubmitted}
       >
-        Post
-      </Button>
+        {schedule && (
+          <SchedulePostControl schedule={schedule} disabled={isLoading} />
+        )}
+        <Button
+          type="submit"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          className="w-full tablet:mt-0 tablet:w-32"
+          disabled={isLoading}
+          loading={isLoading}
+          onClick={onSubmitted}
+        >
+          {schedule?.isScheduled ? 'Schedule' : 'Post'}
+        </Button>
+      </div>
     </span>
   );
 }

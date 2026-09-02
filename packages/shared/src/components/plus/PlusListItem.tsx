@@ -13,6 +13,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Tooltip } from '../tooltip/Tooltip';
+import { anchorDefaultRel } from '../../lib/strings';
 
 export enum PlusItemStatus {
   Ready = 'done',
@@ -28,6 +29,7 @@ export interface PlusItem {
   icon?: ReactElement;
   iconClasses?: string;
   highlight?: boolean;
+  href?: string;
   modalProps?: {
     title: string;
     description: string;
@@ -40,10 +42,12 @@ export interface PlusItem {
 export interface PlusListItemProps {
   item: PlusItem;
   typographyProps?: TypographyProps<TypographyTag.P>;
-  icon?: FC<IconProps>;
+  /** `null` renders no icon at all; omitting it falls back to the check mark. */
+  icon?: FC<IconProps> | null;
   iconProps?: IconProps;
   badgeProps?: TypographyProps<TypographyTag.Span>;
   onHover?: () => void;
+  onClick?: () => void;
 }
 
 export const PlusListItem = ({
@@ -53,13 +57,43 @@ export const PlusListItem = ({
   item,
   typographyProps,
   onHover,
+  onClick,
 }: PlusListItemProps): ReactElement => {
+  if (item.href) {
+    return (
+      <li
+        className="-mx-1 flex gap-1 rounded-6 p-1 hover:bg-surface-float"
+        onMouseEnter={onHover}
+      >
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Tertiary}
+          {...typographyProps}
+          tag={TypographyTag.Link}
+          href={item.href}
+          target="_blank"
+          rel={anchorDefaultRel}
+          onClick={onClick}
+          className={classNames(
+            '-mt-px flex flex-1 flex-wrap items-baseline underline',
+            typographyProps?.className,
+          )}
+        >
+          {item.label}
+        </Typography>
+      </li>
+    );
+  }
+
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
+      // Global on purpose: the old `!tablet:max-w-72` was dead (Tailwind's
+      // important prefix goes after the variant), leaving `!max-w-full` to
+      // un-cap the tooltip to the viewport on every Plus surface.
       wrapper={(component: ReactNode) => (
         <Tooltip
-          className="!tablet:max-w-72 !max-w-full text-center"
+          className="text-center"
           content={item.tooltip}
           delayDuration={0}
           enableMobileClick

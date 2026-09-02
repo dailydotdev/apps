@@ -19,7 +19,7 @@ import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isExtension, isSpecialKeyPressed } from '../../lib/func';
+import { isExtension, isInExtensionIframe } from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import {
   groupLabels,
@@ -41,6 +41,10 @@ import {
   spotlightCommandFilter,
   SPOTLIGHT_PASSTHROUGH_KEYWORD,
 } from './spotlightFilter';
+import {
+  isSpotlightShortcutDisabled,
+  shouldHandleSpotlightShortcut,
+} from './shortcuts';
 
 const groupHeadingClass =
   '[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-background-default [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pl-4 [&_[cmdk-group-heading]]:pr-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-[0.6875rem] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-text-quaternary';
@@ -400,20 +404,6 @@ const Hint = ({ label, combo }: { label: string; combo: string }) => (
   </span>
 );
 
-const isInExtensionIframe = (target: EventTarget | null): boolean => {
-  if (!isExtension || typeof window === 'undefined') {
-    return false;
-  }
-  const node = target instanceof HTMLElement ? target : null;
-  if (!node) {
-    return false;
-  }
-  // If focus is in any iframe owned by the host page rather than the
-  // extension's own surface, bail out so we don't steal native browser
-  // bindings (Linear-style scoping).
-  return node.tagName === 'IFRAME';
-};
-
 export const Spotlight = ({
   isOpen,
   onClose,
@@ -469,7 +459,7 @@ export const Spotlight = ({
     },
     [onCommandRun, pushRecent, clearConfirm, onClose],
   );
-  const search = useSpotlightSearchCommands({ router, query });
+  const search = useSpotlightSearchCommands({ router, query, scope });
   useQuickKeyDispatch({
     query,
     setQuery,
@@ -483,7 +473,12 @@ export const Spotlight = ({
       return undefined;
     }
     const handleKeydown = (event: KeyboardEvent) => {
-      if (!isSpecialKeyPressed({ event }) || event.key.toLowerCase() !== 'k') {
+      if (
+        !shouldHandleSpotlightShortcut({
+          event,
+          isShortcutDisabled: isSpotlightShortcutDisabled(),
+        })
+      ) {
         return;
       }
       if (isInExtensionIframe(document.activeElement)) {
@@ -610,6 +605,10 @@ export const Spotlight = ({
     SpotlightGroup.Help,
   ];
 
+  const hasActionCommands = actionScopeGroups.some(
+    (group) => grouped[group].length > 0,
+  );
+
   /**
    * Which scope chips to surface below the input. Apple Spotlight pattern:
    * tabs only appear when there's something to filter through (i.e. a
@@ -698,6 +697,25 @@ export const Spotlight = ({
     return out;
   }, [isFiltering, grouped, suggested.length, recentCommands.length]);
 
+  const scopeSearch = useMemo(() => {
+    if (scope === SpotlightScope.Posts) {
+      return { commands: search.posts, isLoading: search.postsLoading };
+    }
+    if (scope === SpotlightScope.Squads) {
+      return { commands: search.sources, isLoading: search.sourcesLoading };
+    }
+    if (scope === SpotlightScope.People) {
+      return { commands: search.users, isLoading: search.usersLoading };
+    }
+    return { commands: search.tags, isLoading: search.tagsLoading };
+  }, [scope, search]);
+
+  const hasSearchResults =
+    search.users.length > 0 ||
+    search.sources.length > 0 ||
+    search.tags.length > 0 ||
+    search.posts.length > 0;
+
   const jumpToGroup = useCallback((group: SpotlightGroup) => {
     const heading = document.querySelector(
       `[cmdk-group][data-spotlight-group="${group}"]`,
@@ -748,12 +766,16 @@ export const Spotlight = ({
         )}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            // First Escape backs out of a pending destructive confirm;
+            // otherwise it closes the palette (the "esc Close" hint).
             if (pendingConfirmId) {
-              event.preventDefault();
-              event.stopPropagation();
               clearConfirm();
               return;
             }
+            onClose();
+            return;
           }
           if (
             event.altKey &&
@@ -855,6 +877,19 @@ export const Spotlight = ({
                   <ClearIcon size={IconSize.XSmall} />
                 </button>
               )}
+              {/* Mobile has no physical keyboard, so the "esc Close" footer
+                  hint is useless — give a tappable Close instead. */}
+              {isMobile && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  className="border border-border-subtlest-tertiary"
+                  onClick={onClose}
+                >
+                  Close
+                </Button>
+              )}
             </div>
             {scope === SpotlightScope.All && (
               <ScopeBreadcrumbs scope={scope} onSelect={pushScope} />
@@ -890,7 +925,8 @@ export const Spotlight = ({
           >
             {scope !== SpotlightScope.All &&
               scope !== SpotlightScope.Actions &&
-              search.isLoading && (
+              scopeSearch.isLoading &&
+              scopeSearch.commands.length === 0 && (
                 <Command.Group heading={scopeMeta[scope].label}>
                   <SkeletonRows count={4} />
                 </Command.Group>
@@ -898,7 +934,7 @@ export const Spotlight = ({
 
             {scope !== SpotlightScope.All &&
               scope !== SpotlightScope.Actions &&
-              !search.isLoading && (
+              scopeSearch.commands.length > 0 && (
                 <Command.Group
                   heading={scopeMeta[scope].label}
                   data-spotlight-group={SpotlightGroup.Search}
@@ -906,18 +942,7 @@ export const Spotlight = ({
                 >
                   {renderRows({
                     ...commonRowProps,
-                    commands: (() => {
-                      if (scope === SpotlightScope.Posts) {
-                        return search.posts;
-                      }
-                      if (scope === SpotlightScope.Squads) {
-                        return search.sources;
-                      }
-                      if (scope === SpotlightScope.People) {
-                        return search.users;
-                      }
-                      return search.tags;
-                    })(),
+                    commands: scopeSearch.commands,
                   })}
                 </Command.Group>
               )}
@@ -965,10 +990,38 @@ export const Spotlight = ({
                 </Command.Group>
               )}
 
+            {/*
+              No recent or suggested commands to lead with — fall back to the
+              full actions catalog so the idle palette shows something to do
+              instead of an empty surface. Only render groups that actually
+              have commands to avoid bare headings.
+            */}
             {scope === SpotlightScope.All &&
               !isFiltering &&
               suggested.length === 0 &&
-              recentCommands.length === 0 && (
+              recentCommands.length === 0 &&
+              hasActionCommands &&
+              actionScopeGroups.map((group) =>
+                grouped[group].length > 0 ? (
+                  <Command.Group
+                    key={group}
+                    heading={groupLabels[group]}
+                    data-spotlight-group={group}
+                    className={groupHeadingClass}
+                  >
+                    {renderRows({
+                      ...commonRowProps,
+                      commands: grouped[group],
+                    })}
+                  </Command.Group>
+                ) : null,
+              )}
+
+            {scope === SpotlightScope.All &&
+              !isFiltering &&
+              suggested.length === 0 &&
+              recentCommands.length === 0 &&
+              !hasActionCommands && (
                 <div
                   className="px-4 py-8 text-center text-text-tertiary typo-footnote"
                   aria-hidden
@@ -982,7 +1035,8 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              search.isLoading && (
+              search.isLoading &&
+              !hasSearchResults && (
                 <Command.Group
                   heading="Searching"
                   className={groupHeadingClass}
@@ -993,7 +1047,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.users.length > 0 && (
                 <Command.Group
                   heading="People"
@@ -1006,7 +1059,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.sources.length > 0 && (
                 <Command.Group
                   heading="Squads & sources"
@@ -1019,7 +1071,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.tags.length > 0 && (
                 <Command.Group
                   heading="Tags"
@@ -1032,7 +1083,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.posts.length > 0 && (
                 <Command.Group
                   heading="Posts"
@@ -1069,41 +1119,45 @@ export const Spotlight = ({
                 </Command.Group>
               )}
 
-            <Command.Empty className="flex flex-col items-center gap-2 py-12 text-center">
-              <SearchIcon
-                size={IconSize.Medium}
-                className="text-text-tertiary"
-                aria-hidden
-              />
-              <p className="text-text-primary typo-callout">
-                {trimmedQuery
-                  ? `Nothing matches "${trimmedQuery}".`
-                  : 'No commands available.'}
-              </p>
-              <p className="text-text-tertiary typo-footnote">
-                Try a different word, or search posts on the web.
-              </p>
-              {trimmedQuery && (
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Small}
-                  onClick={handleFallthroughEnter}
-                  icon={<ClickIcon />}
-                >
-                  Search posts for &ldquo;{trimmedQuery}&rdquo;
-                </Button>
-              )}
-            </Command.Empty>
+            {!search.isLoading && (
+              <Command.Empty className="flex flex-col items-center gap-2 py-12 text-center">
+                <SearchIcon
+                  size={IconSize.Medium}
+                  className="text-text-tertiary"
+                  aria-hidden
+                />
+                <p className="text-text-primary typo-callout">
+                  {trimmedQuery
+                    ? `Nothing matches "${trimmedQuery}".`
+                    : 'No commands available.'}
+                </p>
+                <p className="text-text-tertiary typo-footnote">
+                  Try a different word, or search posts on the web.
+                </p>
+                {trimmedQuery && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Small}
+                    onClick={handleFallthroughEnter}
+                    icon={<ClickIcon />}
+                  >
+                    Search posts for &ldquo;{trimmedQuery}&rdquo;
+                  </Button>
+                )}
+              </Command.Empty>
+            )}
           </Command.List>
         )}
 
-        <div className="flex h-8 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-4 text-text-quaternary typo-caption2">
-          <span className="flex items-center gap-4">
-            <Hint label="Open" combo="↵" />
-            <Hint label="Close" combo="esc" />
-          </span>
-        </div>
+        {!isMobile && (
+          <div className="flex h-8 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-4 text-text-quaternary typo-caption2">
+            <span className="flex items-center gap-4">
+              <Hint label="Open" combo="↵" />
+              <Hint label="Close" combo="esc" />
+            </span>
+          </div>
+        )}
       </Command>
     </>
   );
@@ -1117,8 +1171,11 @@ export const Spotlight = ({
         appendOnRoot
         className={{
           drawer: 'p-0',
+          // !p-0 overrides BaseDrawer's default `px-4 pt-3` (added when the
+          // drawer has no title); the palette supplies its own insets, so the
+          // extra horizontal padding was clipping the search field.
           wrapper:
-            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default p-0',
+            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default !p-0',
         }}
       >
         {paletteBody}

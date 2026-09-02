@@ -65,7 +65,7 @@ import {
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import type { MenuItemProps } from '@dailydotdev/shared/src/components/dropdown/common';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
-import { defaultSeo } from '../../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
 
@@ -478,6 +478,7 @@ const Page = (): ReactElement | null => {
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Members'),
+  ...noindexSeoProps,
 };
 
 Page.getLayout = getOrganizationLayout;

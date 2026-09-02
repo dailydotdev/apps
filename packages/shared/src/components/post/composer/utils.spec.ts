@@ -1,4 +1,8 @@
-import { isPreviewForComposerUrl, normalizeComposerUrl } from './utils';
+import {
+  isPreviewForComposerUrl,
+  normalizeComposerUrl,
+  normalizeSingleLineComposerText,
+} from './utils';
 
 describe('composer utils', () => {
   it('normalizes URLs without a protocol', () => {
@@ -19,5 +23,11 @@ describe('composer utils', () => {
 
     expect(isPreviewForComposerUrl(preview, 'daily.dev')).toBe(true);
     expect(isPreviewForComposerUrl(preview, 'https://example.com')).toBe(false);
+  });
+
+  it('collapses newlines in single-line composer text into spaces', () => {
+    expect(
+      normalizeSingleLineComposerText('First line\n  second line\r\n\nthird'),
+    ).toBe('First line second line third');
   });
 });

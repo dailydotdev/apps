@@ -4,6 +4,18 @@ html, #daily-companion-wrapper {
   height: stretch;
 }
 
+/* Match the tinted v2 page background at laptop+ so overscrolling past the
+   feed doesn't reveal the darker default document background. */
+@screen laptop {
+  html.layout-v2 {
+    background: color-mix(
+      in srgb,
+      var(--theme-surface-secondary) 3%,
+      var(--theme-background-default)
+    );
+  }
+}
+
 body {
   min-width: 20rem;
   overflow-y: scroll;
@@ -653,14 +665,18 @@ body {
 html,
 html.light .invert,
 html .invert .invert,
-#daily-companion-wrapper {
+#daily-companion-wrapper,
+#daily-companion-wrapper.light .invert,
+#daily-companion-wrapper .invert .invert {
   @mixin dark-mode;
 }
 
 html.light,
 html .invert,
 html.light .invert .invert,
-#daily-companion-wrapper.light {
+#daily-companion-wrapper.light,
+#daily-companion-wrapper .invert,
+#daily-companion-wrapper.light .invert .invert {
   @mixin light-mode;
 }
 
@@ -810,7 +826,7 @@ details.right-icon {
 }
 
 .squad-background-fade {
-  background: radial-gradient(ellipse, #c029f088 0%, #c029f000 400px);
+  background: radial-gradient(ellipse, #B14BD788 0%, #B14BD700 400px);
   background-size: 1200px 500px;
   background-position: center -250px;
   background-repeat: no-repeat;
@@ -907,7 +923,7 @@ meter::-webkit-meter-bar {
   }
 
   &-best-price {
-    background: linear-gradient(135deg, #E769FB 0%, #9E70F8 44.71%, #68A6FD 100%);
+    background: linear-gradient(135deg, #D97EFE 0%, #887BF8 44.71%, #7BA7FF 100%);
   }
 }
 
@@ -1098,6 +1114,15 @@ meter::-webkit-meter-bar {
         color-mix(in srgb, var(--theme-accent-onion-default), transparent 32%) 0%,
         transparent 58%
       );
+  }
+
+  .cover-hero-dome {
+    background: radial-gradient(
+      72% 130% at 50% 0%,
+      color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 12%) 0%,
+      color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 50%) 46%,
+      transparent 76%
+    );
   }
 
   .top-hero-stage {

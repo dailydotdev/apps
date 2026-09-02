@@ -1,19 +1,19 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React from 'react';
 import type { SidebarMenuItem } from '../common';
-import { ListIcon } from '../common';
+import {
+  createSidebarAddItem,
+  createSidebarSeparatorItem,
+  ListIcon,
+} from '../common';
 import { ArrowIcon, BookmarkIcon, BriefIcon } from '../../icons';
 import { Section } from '../Section';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
-import {
-  useBookmarkFolderList,
-  useCreateBookmarkFolder,
-} from '../../../hooks/bookmark';
+import { useBookmarkFolderList } from '../../../hooks/bookmark';
+import { useAddBookmarkFolder } from '../../../hooks/bookmark/useAddBookmarkFolder';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { FolderIcon } from '../../icons/Folder';
 import { briefUIFeature } from '../../../lib/featureManagement';
@@ -24,26 +24,15 @@ export const BookmarkSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const briefUIFeatureValue = useFeature(briefUIFeature);
-  const { openModal, closeModal } = useLazyModal();
   const { folders } = useBookmarkFolderList();
-  const { createFolder } = useCreateBookmarkFolder();
+  const handleAddFolder = useAddBookmarkFolder();
+  // The v2 panels also expose the add action as a bottom row.
+  const { isV2Panel } = defaultRenderSectionProps;
 
   const isLaptop = useViewSize(ViewSize.Laptop);
   const rightIcon = !isLaptop
     ? () => <ArrowIcon className="rotate-90" />
     : undefined;
-
-  const handleAddFolder = useCallback(() => {
-    openModal({
-      type: LazyModal.BookmarkFolder,
-      props: {
-        onSubmit: async (folder) => {
-          await createFolder(folder);
-          closeModal();
-        },
-      },
-    });
-  }, [openModal, closeModal, createFolder]);
 
   const allMenuItems = [
     {
@@ -56,16 +45,18 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     },
-    briefUIFeatureValue && {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <BriefIcon secondary={active} />} />
-      ),
-      title: 'Presidential briefings',
-      path: briefingUrl,
-      isForcedLink: true,
-      requiresLogin: true,
-      rightIcon,
-    },
+    // v2 lists Presidential briefings in the Explore panel instead.
+    !isV2Panel &&
+      briefUIFeatureValue && {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <BriefIcon secondary={active} />} />
+        ),
+        title: 'Presidential briefings',
+        path: briefingUrl,
+        isForcedLink: true,
+        requiresLogin: true,
+        rightIcon,
+      },
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkReminderIcon secondary={active} />} />
@@ -76,6 +67,13 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     },
+    // New folder sits below the fixed entries; the user's folders list builds
+    // up beneath it, separated by a border (mirrors the Squads panel).
+    isV2Panel &&
+      createSidebarAddItem('New folder', { onClick: handleAddFolder }),
+    (folders?.length ?? 0) > 0 &&
+      isV2Panel &&
+      createSidebarSeparatorItem('folders-divider'),
     ...(folders ?? []).map((folder) => ({
       icon:
         folder.icon ||
@@ -100,7 +98,9 @@ export const BookmarkSection = ({
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.BookmarksExpanded}
       isAlwaysOpenOnMobile
-      onAdd={handleAddFolder}
+      // The v2 panel leads with a "New folder" row instead; v1 keeps its
+      // header add button.
+      onAdd={isV2Panel ? undefined : handleAddFolder}
     />
   );
 };

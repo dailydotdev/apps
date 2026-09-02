@@ -4,29 +4,42 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import type { LoggedUser, AnonymousUser } from '../lib/user';
-import { deleteAccount, LogoutReason } from '../lib/user';
+import {
+  deleteAccount,
+  logout as dispatchLogout,
+  LogoutReason,
+} from '../lib/user';
 import SettingsContext, {
   remoteThemes,
   ThemeMode,
   themeModes,
 } from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { dailyClientHeader, gqlClient } from '../graphql/common';
+import { getDailyClientPlatform } from '../lib/func';
 import AlertContext from './AlertContext';
+import NotificationsContext from './NotificationsContext';
 import type { Alerts } from '../graphql/alerts';
 import { UPDATE_ALERTS } from '../graphql/alerts';
-import type { RemoteSettings, Spaciness } from '../graphql/settings';
+import type {
+  RemoteSettings,
+  SettingsFlags,
+  Spaciness,
+} from '../graphql/settings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
+import { BOOT_LOCAL_KEY } from './common';
 import type { Boot, BootCacheData } from '../lib/boot';
 import { BootApp, getBootData } from '../lib/boot';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
+import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { SortCommentsBy } from '../graphql/comments';
 
 jest.mock('../lib/boot', () => {
@@ -44,6 +57,7 @@ jest.mock('../lib/user', () => {
   return {
     ...actual,
     deleteAccount: jest.fn(),
+    logout: jest.fn(),
   };
 });
 
@@ -76,6 +90,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutStreakFreeze: false,
   optOutAchievements: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
@@ -284,6 +299,129 @@ it('should toggle the sidebar callback', async () => {
   await expectToHaveTestValue(sidebar, expected.toString());
 });
 
+const clientOnlyFlagsKey = `dailydev:settings:clientOnlyFlags:${defaultUser.id}`;
+
+const SidebarCompactMock = () => {
+  const { value, toggle } = useSidebarCompact();
+
+  return (
+    <button onClick={toggle} type="button" data-test-value={value}>
+      Compact sidebar
+    </button>
+  );
+};
+
+const renderWithSidebarCompactFlag = () =>
+  renderComponent(
+    <>
+      <SettingsMock />
+      <SidebarCompactMock />
+    </>,
+  );
+
+it('should store a sidebar flag through the settings API', async () => {
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderWithSidebarCompactFlag();
+  await waitForRemoteBoot();
+  const compact = await screen.findByText('Compact sidebar');
+  await expectToHaveTestValue(compact, 'true');
+  fireEvent.click(compact);
+  await expectToHaveTestValue(compact, 'false');
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull();
+});
+
+it('should migrate stored sidebar flags into settings', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({
+      sidebarCompact: false,
+      sidebarShortcuts: ['tags'],
+      sidebarPinnedExpanded: false,
+      sidebarRecentExpanded: true,
+      removedFlag: true,
+    }),
+  );
+  mockSettingsMutation({
+    flags: {
+      sidebarCompact: false,
+      sidebarShortcuts: ['tags'],
+      sidebarPinnedExpanded: false,
+      sidebarRecentExpanded: true,
+    } as SettingsFlags,
+  });
+  renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
+});
+
+it('should keep stored sidebar flags when the migration write fails', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({ sidebarCompact: false }),
+  );
+  nock('http://localhost:3000')
+    .post('/graphql', {
+      query: UPDATE_USER_SETTINGS_MUTATION,
+      variables: {
+        data: {
+          ...defaultSettings,
+          flags: { sidebarCompact: false },
+        },
+      },
+    })
+    .reply(500, {});
+  renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toEqual(
+      JSON.stringify({ sidebarCompact: false }),
+    ),
+  );
+});
+
+it('should let remote settings win over the legacy local sidebar store', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({ sidebarCompact: false }),
+  );
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderComponent(<SettingsMock />, {
+    ...defaultBootData,
+    settings: {
+      ...defaultSettings,
+      flags: { sidebarCompact: true } as SettingsFlags,
+    },
+  });
+  await waitForRemoteBoot();
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
+  expect(nock.isDone()).toBe(false);
+});
+
+it('should hand the pre-per-account flag store to the first account that loads', async () => {
+  localStorage.setItem(
+    'dailydev:settings:clientOnlyFlags:global',
+    JSON.stringify({ sidebarCompact: false }),
+  );
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderWithSidebarCompactFlag();
+  await waitForRemoteBoot();
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  // Removed, so the next account on this device doesn't inherit it too.
+  expect(
+    localStorage.getItem('dailydev:settings:clientOnlyFlags:global'),
+  ).toBeNull();
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
+});
+
 it('should trigger set theme callback', async () => {
   const expected = ThemeMode.Dark;
   mockSettingsMutation({ theme: remoteThemes[expected] });
@@ -413,6 +551,51 @@ it('should trigger update alerts callback', async () => {
   await expectToHaveTestValue(alertsEl, JSON.stringify(alerts));
 });
 
+interface NotificationsMockProps {
+  incrementBy?: number;
+}
+
+const NotificationsMock = ({ incrementBy = 1 }: NotificationsMockProps) => {
+  const { unreadCount, clearUnreadCount, incrementUnreadCount } =
+    useContext(NotificationsContext);
+
+  return (
+    <>
+      <button
+        onClick={clearUnreadCount}
+        type="button"
+        data-test-value={unreadCount}
+      >
+        Clear notifications
+      </button>
+      <button onClick={() => incrementUnreadCount(incrementBy)} type="button">
+        Increment notifications
+      </button>
+    </>
+  );
+};
+
+const getStoredBootData = (): BootCacheData =>
+  JSON.parse(localStorage.getItem(BOOT_LOCAL_KEY) as string);
+
+it('should persist notification count updates to local boot data', async () => {
+  renderComponent(<NotificationsMock incrementBy={2} />, {
+    ...defaultBootData,
+    notifications: { unreadNotificationsCount: 4 },
+  });
+
+  const clearNotifications = await screen.findByText('Clear notifications');
+  await expectToHaveTestValue(clearNotifications, '4');
+
+  fireEvent.click(clearNotifications);
+  await expectToHaveTestValue(clearNotifications, '0');
+  expect(getStoredBootData().notifications.unreadNotificationsCount).toEqual(0);
+
+  fireEvent.click(screen.getByText('Increment notifications'));
+  await expectToHaveTestValue(clearNotifications, '2');
+  expect(getStoredBootData().notifications.unreadNotificationsCount).toEqual(2);
+});
+
 interface AuthMockProps {
   updatedUser?: LoggedUser;
   loginTrigger?: AuthTriggersType;
@@ -494,6 +677,39 @@ it('should trigger delete account callback', async () => {
   const deleteUser = await screen.findByText('Delete');
   fireEvent.click(deleteUser);
   expect(deleteAccount).toHaveBeenCalled();
+});
+
+it('should redirect to onboarding after logout', async () => {
+  const originalLocation = window.location;
+  const replace = jest.fn();
+
+  Object.defineProperty(window, 'location', {
+    value: {
+      pathname: '/settings',
+      search: '',
+      replace,
+      reload: jest.fn(),
+    },
+    configurable: true,
+  });
+
+  jest.mocked(dispatchLogout).mockResolvedValue(undefined);
+
+  try {
+    renderComponent(<AuthMock />);
+    const logout = await screen.findByText('Logout');
+    fireEvent.click(logout);
+
+    await waitFor(() =>
+      expect(dispatchLogout).toHaveBeenCalledWith(LogoutReason.ManualLogout),
+    );
+    expect(replace).toHaveBeenCalledWith('/onboarding');
+  } finally {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      configurable: true,
+    });
+  }
 });
 
 const defaultAnonymousUser: AnonymousUser = {
@@ -587,4 +803,34 @@ it('should display accurate information of anonymous user', async () => {
   );
   const user = await screen.findByText('User');
   await expectToHaveTestValue(user, 'anonymous');
+});
+
+it('should set the calling platform header on the gql client', async () => {
+  const setHeaderSpy = jest.spyOn(gqlClient, 'setHeader');
+  renderComponent(<AuthMock />);
+  await waitFor(() =>
+    expect(setHeaderSpy).toHaveBeenCalledWith(
+      dailyClientHeader,
+      getDailyClientPlatform('test-version'),
+    ),
+  );
+  setHeaderSpy.mockRestore();
+});
+
+it('should unset the content language header when user language is cleared', async () => {
+  gqlClient.setHeader('content-language', 'de');
+  const unsetHeaderSpy = jest.spyOn(gqlClient, 'unsetHeader');
+
+  renderComponent(<AuthMock />, {
+    ...defaultBootData,
+    user: { ...defaultUser, isPlus: true, language: null },
+  });
+
+  await waitFor(() =>
+    expect(unsetHeaderSpy).toHaveBeenCalledWith('content-language'),
+  );
+  expect(
+    Reflect.get(Reflect.get(gqlClient, 'options'), 'headers'),
+  ).not.toHaveProperty('content-language');
+  unsetHeaderSpy.mockRestore();
 });

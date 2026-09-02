@@ -10,7 +10,10 @@ import {
 } from '@dailydotdev/shared/src/graphql/contentPreference';
 import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/common';
 import {
   ProfileImageSize,
   ProfilePicture,
@@ -89,8 +92,9 @@ const useSharedByToast = (): void => {
                   entityName: `@${user.username}`,
                 });
               }}
-              className="bg-background-default text-text-primary"
+              variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
+              className="shrink-0"
             >
               Follow
             </Button>

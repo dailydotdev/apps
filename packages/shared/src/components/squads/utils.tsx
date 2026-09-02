@@ -60,7 +60,7 @@ export const createModerationPromptProps: PromptOptions = {
     title: 'Got it',
     className: 'tablet:w-full',
   },
-  cancelButton: undefined,
+  cancelButton: null,
   promptSize: ModalSize.XSmall,
   icon: <TimerIcon size={IconSize.XXXLarge} />,
 };

@@ -17,6 +17,7 @@ import FeedItemContainer from '../common/list/FeedItemContainer';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import { CardCoverList } from '../common/list/CardCover';
+import PostTags from '../common/PostTags';
 import ActionButtons from '../common/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
@@ -167,6 +168,8 @@ export const FreeformList = forwardRef(function SharePostCard(
             </CardTitle>
 
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
+            <div className="flex flex-1 tablet:hidden" />
+            <PostTags post={post} />
             <div className="hidden flex-1 tablet:flex" />
             {!isMobile && actionButtons}
           </div>

@@ -52,10 +52,7 @@ import {
   useToastNotification,
   invalidatePostCacheById,
   usePostById,
-  useViewSize,
-  ViewSize,
 } from '../../hooks';
-import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 import { useActiveFeedContext } from '../../contexts';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useLogContext } from '../../contexts/LogContext';
@@ -198,8 +195,6 @@ const PostOptionButtonContent = ({
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
-  const { evaluateSmartComposer } = useSmartComposer();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { canBoost } = useCanBoostPost(post);
 
@@ -806,10 +801,13 @@ const PostOptionButtonContent = ({
         icon: <MenuIcon Icon={EditIcon} />,
         label: 'Edit post',
         action: () => {
+          // Moderation items keep the dedicated page: it edits a pending
+          // submission rather than a post, which the composer cannot do.
           const canUseSmartComposer =
-            isLaptop &&
-            (post.type === PostType.Freeform || post.type === PostType.Welcome);
-          if (canUseSmartComposer && evaluateSmartComposer()) {
+            post.type === PostType.Freeform ||
+            post.type === PostType.Welcome ||
+            post.type === PostType.Share;
+          if (canUseSmartComposer) {
             openModal({
               type: LazyModal.SmartComposer,
               props: { editPost: post },

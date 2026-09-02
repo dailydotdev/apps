@@ -21,7 +21,8 @@ import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
-import type { LiveRoomPost } from './liveRooms';
+import type { PostHero } from './types';
+import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -179,6 +180,7 @@ type PostFlags = {
   sources?: number;
   savedTime?: number;
   generatedAt?: Date;
+  scheduledAt?: string | null;
   digestPostIds?: string[];
   ad?: DigestPostAd | null;
 };
@@ -236,16 +238,16 @@ export interface PostUserState {
   pollOption?: { id: string };
 }
 
-export type PostHighlightSignificance =
-  | 'breaking'
-  | 'major'
-  | 'notable'
-  | 'routine';
-
-export type PostHeroSignificance =
-  | PostHighlightSignificance
-  | 'breakout'
-  | 'evergreen';
+/**
+ * A question this post answers, with a standalone answer and a short pointer
+ * back to daily.dev. Surfaced as FAQPage structured data and in the markdown
+ * twin, so answer engines can attribute an extracted answer.
+ */
+export interface AnsweredQuestion {
+  question: string;
+  answer: string;
+  cta: string;
+}
 
 export interface Post {
   __typename?: string;
@@ -278,6 +280,7 @@ export interface Post {
   trending?: number;
   description?: string;
   summary?: string;
+  answeredQuestions?: AnsweredQuestion[] | null;
   toc?: Toc;
   impressionStatus?: number;
   isAuthor?: number;
@@ -309,16 +312,12 @@ export interface Post {
   pollOptions?: PollOption[];
   numPollVotes?: number;
   endsAt?: string;
-  liveRoom?: LiveRoomPost | null;
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
   hero?: PostHero | null;
-}
-
-export interface PostHero {
-  id: string;
-  headline: string;
-  significance: PostHeroSignificance;
-  highlightedAt: string;
+  /** LLM-generated digest of what the developer community outside daily.dev
+   * (HN, Lobsters) thinks about this post. `null` when no take exists yet —
+   * gated by the `community_sentiment` experiment (see PostFocusCard). */
+  communitySentiment?: CommunitySentimentPost | null;
 }
 
 export type RelatedPost = Pick<
@@ -348,6 +347,12 @@ export interface Ad {
   adDomain?: string;
   companyLogo?: string;
   callToAction?: string;
+  tags?: AdMeasurementTag[];
+}
+
+export interface AdMeasurementTag {
+  markup: string;
+  overlay?: boolean;
 }
 
 export type ReadHistoryPost = Pick<
@@ -411,6 +416,11 @@ export const POST_BY_ID_QUERY = gql`
       }
       description
       summary
+      answeredQuestions {
+        question
+        answer
+        cta
+      }
       toc {
         text
         id
@@ -420,6 +430,8 @@ export const POST_BY_ID_QUERY = gql`
       collectionSources {
         handle
         image
+        name
+        permalink
       }
     }
     relatedCollectionPosts: relatedPosts(
@@ -498,6 +510,11 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       ...SharedPostInfo
       contentHtml
       description
+      answeredQuestions {
+        question
+        answer
+        cta
+      }
       toc {
         text
         id
@@ -507,6 +524,8 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       collectionSources {
         handle
         image
+        name
+        permalink
       }
       sharedPost {
         ...SharedPostInfo
@@ -716,6 +735,7 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
     $title: String
     $image: String
     $commentary: String
+    $scheduledAt: DateTime
   ) {
     submitExternalLink(
       url: $url
@@ -723,6 +743,7 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
       image: $image
       sourceId: $sourceId
       commentary: $commentary
+      scheduledAt: $scheduledAt
     ) {
       _
     }
@@ -781,6 +802,7 @@ export interface SubmitExternalLink
   extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
   sourceId: string;
   commentary: string;
+  scheduledAt?: string | null;
 }
 
 export const submitExternalLink = (
@@ -795,8 +817,15 @@ export const EDIT_POST_MUTATION = gql`
     $title: String
     $content: String
     $image: Upload
+    $scheduledAt: DateTime
   ) {
-    editPost(id: $id, title: $title, content: $content, image: $image) {
+    editPost(
+      id: $id
+      title: $title
+      content: $content
+      image: $image
+      scheduledAt: $scheduledAt
+    ) {
       ...SharedPostInfo
       trending
       content
@@ -806,6 +835,9 @@ export const EDIT_POST_MUTATION = gql`
       }
       description
       summary
+      flags {
+        scheduledAt
+      }
       toc {
         text
         id
@@ -820,11 +852,12 @@ export type EditPostProps = {
   title: string;
   content: string;
   image?: File;
+  scheduledAt?: string | null;
 };
 
 export type CreatePostProps = Pick<
   EditPostProps,
-  'title' | 'content' | 'image'
+  'title' | 'content' | 'image' | 'scheduledAt'
 >;
 
 export interface CreatePostPollProps
@@ -844,6 +877,7 @@ type CreatePollOption = Pick<PollOption, 'text' | 'order'>;
 export interface CreatePollPostForm extends Pick<EditPostProps, 'title'> {
   options: string[];
   duration?: number;
+  scheduledAt?: string | null;
 }
 
 export interface CreatePostModerationProps {
@@ -956,12 +990,14 @@ export const CREATE_POST_MUTATION = gql`
     $title: String!
     $content: String
     $image: Upload
+    $scheduledAt: DateTime
   ) {
     createFreeformPost(
       sourceId: $sourceId
       title: $title
       content: $content
       image: $image
+      scheduledAt: $scheduledAt
     ) {
       ...SharedPostInfo
       content
@@ -971,6 +1007,9 @@ export const CREATE_POST_MUTATION = gql`
       }
       description
       summary
+      flags {
+        scheduledAt
+      }
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -1018,7 +1057,7 @@ export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
 `;
 
 export interface CreatePostInMultipleSourcesArgs
-  extends Partial<CreatePostProps>,
+  extends Partial<Omit<CreatePostProps, 'scheduledAt'>>,
     Partial<Pick<CreatePollPostProps, 'options' | 'duration'>> {
   commentary?: string;
   externalLink?: string;
@@ -1085,14 +1124,19 @@ export const CREATE_POLL_POST_MUTATION = gql`
     $title: String!
     $options: [PollOptionInput!]!
     $duration: Int
+    $scheduledAt: DateTime
   ) {
     createPollPost(
       sourceId: $sourceId
       title: $title
       options: $options
       duration: $duration
+      scheduledAt: $scheduledAt
     ) {
       ...SharedPostInfo
+      flags {
+        scheduledAt
+      }
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -1209,6 +1253,45 @@ export const RELATED_POSTS_QUERY = gql`
     }
   }
   ${RELATED_POST_FRAGMENT}
+`;
+
+export const SCHEDULED_POSTS_PER_PAGE_DEFAULT = 20;
+
+export type ScheduledPost = Pick<
+  Post,
+  'id' | 'title' | 'image' | 'type' | 'createdAt' | 'flags'
+> & {
+  source: Pick<Source, 'id' | 'handle' | 'name' | 'image' | 'type'>;
+};
+
+export const SCHEDULED_POSTS_QUERY = gql`
+  query ScheduledPosts($after: String, $first: Int) {
+    scheduledPosts(after: $after, first: $first) {
+      edges {
+        node {
+          id
+          title
+          image
+          type
+          createdAt
+          flags {
+            scheduledAt
+          }
+          source {
+            id
+            handle
+            name
+            image
+            type
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
 `;
 
 export const POST_CODE_SNIPPETS_PER_PAGE_DEFAULT = 5;

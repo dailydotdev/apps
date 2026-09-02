@@ -14,7 +14,7 @@ import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -23,6 +23,7 @@ import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/card
 import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import type { PopularHotTakes } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
 import { PopularHotTakesList } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -91,7 +92,7 @@ const LeaderboardPage = ({
 
   return (
     <>
-      {isV2Laptop && <PageHeader title="Leaderboard" />}
+      {isV2Laptop && <ExploreHubHeader />}
       <PageWrapperLayout>
         {!isV2Laptop && (
           <div className="mb-6 hidden justify-between laptop:flex">
@@ -119,6 +120,7 @@ const LeaderboardPage = ({
             }}
             items={highestReputation}
             isLoading={isLoading}
+            leaderboardType={LeaderboardType.HighestReputation}
           />
           <UserTopList
             containerProps={{
@@ -128,6 +130,7 @@ const LeaderboardPage = ({
             items={longestStreak}
             isLoading={isLoading}
             concatScore={false}
+            leaderboardType={LeaderboardType.LongestStreak}
           />
           <UserTopList
             containerProps={{
@@ -160,6 +163,7 @@ const LeaderboardPage = ({
             }}
             items={mostReadingDays}
             isLoading={isLoading}
+            leaderboardType={LeaderboardType.MostReadingDays}
           />
           <UserTopList
             containerProps={{
@@ -186,6 +190,7 @@ const LeaderboardPage = ({
           />
         </div>
       </PageWrapperLayout>
+      <PublicPageSignupBanner />
     </>
   );
 };

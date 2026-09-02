@@ -96,6 +96,32 @@ export const leaderboardTypeToTitle: Record<LeaderboardType, string> = {
 export const isCompanyLeaderboard = (type: LeaderboardType): boolean =>
   type === LeaderboardType.MostVerifiedUsers;
 
+export type LeaderboardPosition = {
+  rank: number | null;
+  score: number;
+  cappedAt: number;
+};
+
+const positionSupportedTypes = new Set<LeaderboardType>([
+  LeaderboardType.HighestReputation,
+  LeaderboardType.LongestStreak,
+  LeaderboardType.MostReadingDays,
+]);
+
+export const isLeaderboardPositionSupported = (
+  type: LeaderboardType,
+): boolean => positionSupportedTypes.has(type);
+
+export const LEADERBOARD_POSITION_QUERY = gql`
+  query LeaderboardPosition($type: LeaderboardType!) {
+    leaderboardPosition(type: $type) {
+      rank
+      score
+      cappedAt
+    }
+  }
+`;
+
 export const HIGHEST_REPUTATION_QUERY = gql`
   query HighestReputation($limit: Int = 100) {
     highestReputation(limit: $limit) {

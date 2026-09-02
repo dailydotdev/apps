@@ -1,48 +1,31 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import type { PublicProfile } from '../../../lib/user';
 import type {
   AddGearInput,
   ReorderGearInput,
 } from '../../../graphql/user/gear';
-import {
-  getGear,
-  addGear,
-  deleteGear,
-  reorderGear,
-} from '../../../graphql/user/gear';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import { addGear, deleteGear, reorderGear } from '../../../graphql/user/gear';
+import { useProfileShowcase } from './useProfileShowcase';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
 export function useGear(user: PublicProfile | null) {
-  const queryClient = useQueryClient();
   const { user: loggedUser } = useAuthContext();
   const { logEvent } = useLogContext();
   const isOwner = loggedUser?.id === user?.id;
 
-  const queryKey = generateQueryKey(
-    RequestKey.Gear,
-    user ?? undefined,
-    'profile',
-  );
-
-  const query = useQuery({
+  const {
     queryKey,
-    queryFn: () => getGear(user?.id as string),
-    staleTime: StaleTime.Default,
-    enabled: !!user?.id,
-  });
+    invalidate: invalidateQuery,
+    ...query
+  } = useProfileShowcase(user, 'gear');
 
   const gearItems = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],
     [query.data],
   );
-
-  const invalidateQuery = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey });
-  }, [queryClient, queryKey]);
 
   const addMutation = useMutation({
     mutationFn: (input: AddGearInput) => addGear(input),

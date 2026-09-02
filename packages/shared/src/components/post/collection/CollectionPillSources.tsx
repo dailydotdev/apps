@@ -2,8 +2,8 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Pill } from '../../Pill';
-import type { SourceAvatarProps } from '../../profile/source';
-import { SourceAvatar } from '../../profile/source';
+import type { LinkableSource } from '../../profile/source/SourceAvatarLink';
+import { SourceAvatarLink } from '../../profile/source/SourceAvatarLink';
 import { ProfilePictureGroup } from '../../ProfilePictureGroup';
 import { ProfileImageSize } from '../../ProfilePicture';
 
@@ -12,7 +12,7 @@ interface CollectionPillSourcesProps {
     main?: string;
     avatar?: string;
   };
-  sources: SourceAvatarProps['source'][];
+  sources: LinkableSource[];
   alwaysShowSources?: boolean;
   totalSources: number;
   size?: ProfileImageSize;
@@ -49,8 +49,8 @@ export const CollectionPillSources = ({
           limit={limit}
         >
           {sources.map((source) => (
-            <SourceAvatar
-              className={classNames(
+            <SourceAvatarLink
+              avatarClassName={classNames(
                 '-my-0.5 !mr-0 box-content border-2 border-background-default',
                 className?.avatar,
               )}

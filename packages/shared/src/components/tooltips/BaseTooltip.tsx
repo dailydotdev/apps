@@ -39,6 +39,7 @@ export interface TooltipProps
     | 'plugins'
     | 'zIndex'
     | 'onClickOutside'
+    | 'popperOptions'
   > {
   container?: Omit<
     BaseTooltipContainerProps,

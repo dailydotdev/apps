@@ -1,5 +1,4 @@
 import { gql } from 'graphql-request';
-import type { Connection } from '../common';
 import { gqlClient } from '../common';
 import { USER_SHORT_INFO_FRAGMENT } from '../fragments';
 import type { UserShortProfile } from '../../lib/user';
@@ -33,7 +32,7 @@ export interface ReorderHotTakeInput {
   position: number;
 }
 
-const HOT_TAKE_FRAGMENT = gql`
+export const HOT_TAKE_FRAGMENT = gql`
   fragment HotTakeFragment on HotTake {
     id
     emoji
@@ -44,23 +43,6 @@ const HOT_TAKE_FRAGMENT = gql`
     upvotes
     upvoted
   }
-`;
-
-const HOT_TAKES_QUERY = gql`
-  query HotTakes($userId: ID!, $first: Int, $after: String) {
-    hotTakes(userId: $userId, first: $first, after: $after) {
-      edges {
-        node {
-          ...HotTakeFragment
-        }
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-    }
-  }
-  ${HOT_TAKE_FRAGMENT}
 `;
 
 const ADD_HOT_TAKE_MUTATION = gql`
@@ -97,16 +79,6 @@ const REORDER_HOT_TAKES_MUTATION = gql`
   }
   ${HOT_TAKE_FRAGMENT}
 `;
-
-export const getHotTakes = async (
-  userId: string,
-  first = 50,
-): Promise<Connection<HotTake>> => {
-  const result = await gqlClient.request<{
-    hotTakes: Connection<HotTake>;
-  }>(HOT_TAKES_QUERY, { userId, first });
-  return result.hotTakes;
-};
 
 export const addHotTake = async (input: AddHotTakeInput): Promise<HotTake> => {
   const result = await gqlClient.request<{

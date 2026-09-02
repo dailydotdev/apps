@@ -1,20 +1,22 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
-import { addDays, subDays } from 'date-fns';
-import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
-import { DayStreak, Streak } from './DayStreak';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import type { ReadingDay, UserStreak } from '../../../graphql/users';
-import { getReadingStreak30Days } from '../../../graphql/users';
+import { DayStreak } from './DayStreak';
+import { StreakFreezeRow } from './StreakFreezeRow';
+import {
+  getStreak,
+  getStreakDays,
+  useReadingStreak30Days,
+  useStreakFreezeDates,
+} from '../../../hooks/streaks/useStreakDays';
+import type { UserStreak } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon, VIcon, WarningIcon } from '../../icons';
-import { isWeekend, DayOfWeek } from '../../../lib/date';
 import {
   DEFAULT_TIMEZONE,
   getTimezoneOffsetLabel,
@@ -48,60 +50,6 @@ import { usePushNotificationContext } from '../../../contexts/PushNotificationCo
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 
-const getStreak = ({
-  value,
-  today,
-  history,
-  startOfWeek = DayOfWeek.Monday,
-  timezone,
-}: {
-  value: Date;
-  today: Date;
-  history?: ReadingDay[];
-  startOfWeek?: number;
-  timezone?: string;
-}): Streak => {
-  const isFreezeDay = isWeekend(value, startOfWeek, timezone);
-  const isToday = isSameDayInTimezone(value, today, timezone);
-  const isFuture = value > today;
-  const isCompleted =
-    !isFuture &&
-    history?.some(({ date: historyDate, reads }) => {
-      const dateToCompare = new Date(historyDate);
-      const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
-
-      return sameDate && reads > 0;
-    });
-
-  if (isCompleted) {
-    return Streak.Completed;
-  }
-
-  if (isFreezeDay) {
-    return Streak.Freeze;
-  }
-
-  if (isToday) {
-    return Streak.Pending;
-  }
-
-  return Streak.Upcoming;
-};
-
-const getStreakDays = (today: Date) => {
-  return [
-    subDays(today, 4),
-    subDays(today, 3),
-    subDays(today, 2),
-    subDays(today, 1),
-    today,
-    addDays(today, 1),
-    addDays(today, 2),
-    addDays(today, 3),
-    addDays(today, 4),
-  ]; // these dates will then be compared to the user's post views
-};
-
 interface ReadingStreakPopupProps {
   streak: UserStreak;
   fullWidth?: boolean;
@@ -116,14 +64,9 @@ export function ReadingStreakPopup({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
-  const userId = user?.id;
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const { data: history } = useQuery<ReadingDay[]>({
-    queryKey: generateQueryKey(RequestKey.ReadingStreak30Days, user),
-    queryFn: () => getReadingStreak30Days(userId ?? ''),
-    staleTime: StaleTime.Default,
-    enabled: !!userId,
-  });
+  const history = useReadingStreak30Days();
+  const freezeDates = useStreakFreezeDates();
   const isTimezoneOk = useStreakTimezoneOk();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
@@ -155,6 +98,7 @@ export function ReadingStreakPopup({
         history,
         startOfWeek: streak.weekStart,
         timezone,
+        freezeDates,
       });
 
       return (
@@ -166,7 +110,7 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [history, streak.weekStart, timezone]);
+  }, [history, streak.weekStart, timezone, freezeDates]);
 
   const onTogglePush = async () => {
     logEvent({
@@ -218,7 +162,7 @@ export function ReadingStreakPopup({
             <Tooltip
               side="bottom"
               content={
-                <div className="flex text-center">
+                <div className="min-w-0 text-center">
                   {isTimezoneOk ? (
                     <>
                       We are showing your reading streak in your selected
@@ -232,11 +176,11 @@ export function ReadingStreakPopup({
                 </div>
               }
             >
-              <div className="m-auto flex items-center tablet:m-0">
+              <div className="m-auto flex min-w-0 items-center tablet:m-0">
                 {!isTimezoneOk && (
                   <WarningIcon className="text-raw-cheese-40" secondary />
                 )}
-                <div className="flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
+                <div className="flex min-w-0 justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
                   <Link
                     onClick={async (event) => {
                       const deviceTimezone =
@@ -297,7 +241,9 @@ export function ReadingStreakPopup({
                     }}
                     href={timezoneSettingsUrl}
                   >
-                    {isTimezoneOk ? timezone : 'Timezone mismatch'}
+                    <a className="min-w-0 truncate">
+                      {isTimezoneOk ? timezone : 'Timezone mismatch'}
+                    </a>
                   </Link>
                 </div>
               </div>
@@ -315,6 +261,7 @@ export function ReadingStreakPopup({
           </Link>
         </div>
       </div>
+      <StreakFreezeRow />
       {showAlert && (
         <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
           {!isSubscribed && (

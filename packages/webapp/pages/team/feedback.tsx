@@ -33,11 +33,12 @@ import {
 } from '@dailydotdev/shared/src/lib/feedback';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   title: getTemplatedTitle('Open Feedback'),
+  ...noindexSeoProps,
 };
 
 const OPEN_FEEDBACK_STATUSES = [
@@ -121,7 +122,12 @@ const TeamFeedbackUser = ({
     <Link href={`/team/users/${item.user.id}/feedback`}>
       <a className="mb-3 flex items-center gap-3 rounded-12 px-1 transition-colors hover:bg-surface-hover">
         <ProfilePicture
-          user={{ ...item.user, image: item.user.image ?? '' }}
+          user={{
+            ...item.user,
+            image: item.user.image ?? '',
+            name: item.user.name ?? undefined,
+            username: item.user.username ?? undefined,
+          }}
           size={ProfileImageSize.Small}
         />
         <div className="flex min-w-0 flex-col">

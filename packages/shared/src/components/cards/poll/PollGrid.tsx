@@ -44,14 +44,18 @@ const PollGrid = forwardRef(function PollCard(
       ref={ref}
       domProps={{
         ...domProps,
-        className: getPostClassNames(post, domProps?.className, 'min-h-card'),
+        className: getPostClassNames(
+          post,
+          domProps?.className ?? '',
+          'min-h-card',
+        ),
       }}
       flagProps={{ pinnedAt, trending }}
     >
       <CardOverlay
         post={post}
-        onPostCardAuxClick={() => onPostAuxClick(post)}
-        onPostCardClick={() => onPostClick(post)}
+        onPostCardAuxClick={() => onPostAuxClick?.(post)}
+        onPostCardClick={() => onPostClick?.(post)}
       />
       <CardTextContainer>
         <SquadPostCardHeader
@@ -74,7 +78,7 @@ const PollGrid = forwardRef(function PollCard(
           className={{
             container: 'px-2',
           }}
-          options={pollOptions}
+          options={pollOptions ?? []}
           onClick={handleVote}
           userVote={post?.userState?.pollOption?.id}
           numPollVotes={numPollVotes || 0}

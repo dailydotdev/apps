@@ -74,6 +74,25 @@ export const ExperienceLevelOptions = Object.entries(UserExperienceLevel).map(
   ([value, label]) => ({ label, value }),
 );
 
+// Keys are the stored values (kept in sync with daily-api's
+// `allowedCloudProviders`); values are the display labels.
+export enum CloudProvider {
+  aws = 'Amazon Web Services (AWS)',
+  gcp = 'Google Cloud (GCP)',
+  azure = 'Microsoft Azure',
+  other = 'Other',
+  none = 'None',
+}
+
+export const CloudProviderOptions = Object.entries(CloudProvider).map(
+  ([value, label]) => ({ label, value }),
+);
+
+// Optional profile fields a campaign onboarding funnel can request on the
+// complete-profile step (mirrors Freyja's profileForm `extraFields`). 'jobTitle'
+// maps to the `title` profile field.
+export type ProfileExtraField = 'company' | 'jobTitle' | 'cloudProvider';
+
 export enum RecruiterUserExperienceLevel {
   LESS_THAN_1_YEAR = '<1 year',
   MORE_THAN_1_YEAR = '1 year',
@@ -108,7 +127,7 @@ export interface UserProfile {
   cover?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   hideExperience?: boolean;
-  language?: string;
+  language?: string | null;
   defaultFeedId?: string;
   readme?: string;
   image?: string;

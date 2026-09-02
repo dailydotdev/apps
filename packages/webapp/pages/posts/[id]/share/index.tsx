@@ -8,22 +8,23 @@ import type { TopCommentsData } from '@dailydotdev/shared/src/graphql/comments';
 import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { ClientError } from 'graphql-request';
 import type { NextSeoProps } from 'next-seo';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
 import { USER_SHORT_BY_ID } from '@dailydotdev/shared/src/graphql/users';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import { getShareImageUrl } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { PostPage, seoTitle } from '../index';
 import { getLayout } from '../../../../components/layouts/MainLayout';
+import { getPostCanonicalUrl } from '../../../../lib/seo';
 
 export type SharePostPageProps = Props & {
-  shareUserId?: string;
-  shareUser?: PublicProfile;
+  shareUserId?: string | null;
+  shareUser?: PublicProfile | null;
 };
 
 const SharePostPage = ({
@@ -31,15 +32,18 @@ const SharePostPage = ({
   shareUser,
   ...props
 }: SharePostPageProps): ReactElement => {
-  useUserShortByIdQuery({ id: shareUserId, initialData: shareUser });
+  useUserShortByIdQuery({
+    id: shareUserId ?? '',
+    initialData: shareUser ?? undefined,
+  });
 
   return <PostPage {...props} />;
 };
 
 export const getServerSideProps: GetServerSideProps<
-  SharePostPageProps | { redirect: { destination: string } }
+  SharePostPageProps
 > = async ({ params, res, query }) => {
-  const { id } = params;
+  const id = params?.id as string;
   try {
     const promises: [
       Promise<PostData>,
@@ -72,22 +76,24 @@ export const getServerSideProps: GetServerSideProps<
             `/posts/${id}`,
             new URLSearchParams(restQuery as Record<string, string>),
           ),
+          permanent: false,
         },
-        props: { id: initialData.post.id },
       };
     }
 
     const post = initialData.post as Post;
-    const pageSeoTitles = getPageSeoTitles(seoTitle(post));
+    const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
     const seo: NextSeoProps = {
-      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [
           {
-            url: `https://og.daily.dev/api/posts/${post?.id}?userid=${shareUser.id}`,
+            url: getShareImageUrl('posts', post?.id ?? '', {
+              userid: shareUser?.id,
+            }),
             width: 1200,
             height: 630,
             alt: post?.title || 'Post cover image',
@@ -136,7 +142,9 @@ export const getServerSideProps: GetServerSideProps<
         };
       }
 
-      const { postId } = clientError.response.errors[0].extensions;
+      const postId = clientError.response.errors?.[0]?.extensions?.postId as
+        | string
+        | undefined;
 
       return {
         props: { id: postId || id },

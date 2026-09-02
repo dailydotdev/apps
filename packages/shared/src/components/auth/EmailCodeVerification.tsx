@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import ConditionalWrapper from '../ConditionalWrapper';
+import {
+  FunnelGlassBar,
+  funnelGlassBarCta,
+} from '../../features/onboarding/shared/FunnelGlassBar';
 import type { AuthFormProps } from './common';
 import AuthForm from './AuthForm';
 import { AuthEventNames } from '../../lib/auth';
@@ -22,9 +27,12 @@ interface EmailCodeVerificationProps extends AuthFormProps {
   className?: string;
   onVerifyCode?: (code: string) => Promise<void>;
   onResendCode?: () => Promise<void>;
+  isOnboardingFunnel?: boolean;
 }
 
 const noop = (): void => undefined;
+
+const CODE_LENGTH = 6;
 
 function EmailCodeVerification({
   code: codeProp,
@@ -32,11 +40,13 @@ function EmailCodeVerification({
   className,
   onVerifyCode,
   onResendCode,
+  isOnboardingFunnel,
 }: EmailCodeVerificationProps): ReactElement {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
-  const [code, setCode] = useState(codeProp ?? '');
+  const linkedCode = (codeProp ?? '').replace(/\D/g, '').slice(0, CODE_LENGTH);
+  const [code, setCode] = useState(linkedCode);
   const [isVerifying, setIsVerifying] = useState(false);
   const verifyingRef = useRef(false);
   const { timer, setTimer, runTimer } = useTimer(noop, 60);
@@ -67,6 +77,71 @@ function EmailCodeVerification({
     }
   };
 
+  useEffect(() => {
+    if (linkedCode.length !== CODE_LENGTH) {
+      return;
+    }
+
+    handleVerify(linkedCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedCode]);
+
+  // Opening the keyboard makes WebKit scroll the focused code row toward the
+  // centre of the shrunken viewport, dragging the heading off the top - and
+  // `position: sticky` cannot counter it, because the global body overflow
+  // guard detaches body from the document scroller. When the row already fits
+  // above the keyboard the reveal scroll adds nothing, so undo it - but only
+  // in the moments after focus or a keyboard resize, so a reader scrolling by
+  // hand is never fought.
+  useEffect(() => {
+    let resetUntil = 0;
+    const isCodeInput = (el: Element | null) =>
+      el?.getAttribute('autocomplete') === 'one-time-code';
+    const arm = () => {
+      resetUntil = Date.now() + 900;
+    };
+
+    const onFocusIn = (e: FocusEvent) => {
+      if (isCodeInput(e.target as Element)) {
+        arm();
+      }
+    };
+    const onViewportResize = () => {
+      if (isCodeInput(document.activeElement)) {
+        arm();
+      }
+    };
+    const onScroll = () => {
+      if (Date.now() > resetUntil || window.scrollY <= 0) {
+        return;
+      }
+
+      const input = document.activeElement as HTMLElement | null;
+
+      if (!input || !isCodeInput(input)) {
+        return;
+      }
+
+      const viewportHeight =
+        window.visualViewport?.height ?? window.innerHeight;
+      const { bottom } = input.getBoundingClientRect();
+
+      if (bottom + window.scrollY <= viewportHeight) {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    document.addEventListener('focusin', onFocusIn);
+    window.visualViewport?.addEventListener('resize', onViewportResize);
+    window.addEventListener('scroll', onScroll);
+
+    return () => {
+      document.removeEventListener('focusin', onFocusIn);
+      window.visualViewport?.removeEventListener('resize', onViewportResize);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
   const onCodeVerification = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     logEvent({
@@ -74,7 +149,7 @@ function EmailCodeVerification({
       target_type: TargetType.VerifyEmail,
     });
     setHint('');
-    if (!code) {
+    if (code.length !== CODE_LENGTH) {
       setHint('Enter the 6-digit code');
       return;
     }
@@ -94,13 +169,15 @@ function EmailCodeVerification({
   };
 
   const onCodeSubmit = async (newCode: string) => {
-    if (newCode.length === 6) {
+    if (newCode.length === CODE_LENGTH) {
       setCode(newCode);
       await handleVerify(newCode);
     }
   };
 
-  const onCodeChange = async () => {
+  const onCodeChange = (newCode: string) => {
+    setCode(newCode);
+
     if (hint?.length > 0) {
       setHint('');
     }
@@ -124,6 +201,13 @@ function EmailCodeVerification({
           A verification code has been sent to:
         </Typography>
         <Typography type={TypographyType.Body}>{email}</Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          center
+        >
+          Don&apos;t see it? Also check your spam or junk folder.
+        </Typography>
       </div>
       <div className="my-10 flex w-full flex-col items-center gap-4">
         <input
@@ -135,6 +219,7 @@ function EmailCodeVerification({
           readOnly
         />
         <CodeField
+          defaultValue={linkedCode}
           onSubmit={onCodeSubmit}
           onChange={onCodeChange}
           disabled={isVerifying}
@@ -163,14 +248,22 @@ function EmailCodeVerification({
           </button>
         </span>
       </div>
-      <Button
-        className="w-full"
-        type="submit"
-        variant={ButtonVariant.Primary}
-        loading={isVerifying}
+      {/* Same glass bar as the funnel steps and account details, so the last
+          screen before the funnel opens is not the one bare button in the flow. */}
+      <ConditionalWrapper
+        condition={!!isOnboardingFunnel}
+        wrapper={(component) => <FunnelGlassBar>{component}</FunnelGlassBar>}
       >
-        Verify
-      </Button>
+        <Button
+          className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+          type="submit"
+          size={isOnboardingFunnel ? ButtonSize.Medium : undefined}
+          variant={ButtonVariant.Primary}
+          loading={isVerifying}
+        >
+          Verify
+        </Button>
+      </ConditionalWrapper>
     </AuthForm>
   );
 }

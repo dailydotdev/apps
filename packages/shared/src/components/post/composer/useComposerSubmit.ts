@@ -1,33 +1,24 @@
 import type { FormEvent } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { usePostToSquad } from '../../../hooks';
 import { useMultipleSourcePost } from '../../../features/squads/hooks/useMultipleSourcePost';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import { useSubmitStandup } from '../../../hooks/liveRooms/useSubmitStandup';
-import type {
-  CreatePostInMultipleSourcesArgs,
-  ExternalLinkPreview,
-} from '../../../graphql/posts';
+import type { ExternalLinkPreview } from '../../../graphql/posts';
 import type { Squad } from '../../../graphql/sources';
 import { moderationRequired } from '../../squads/utils';
+import { webappUrl } from '../../../lib/constants';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   POLL_OPTIONS_MIN,
-  STANDUP_TOPIC_MAX_LENGTH,
   type ComposerKind,
   type LinkFormState,
   type PollFormState,
-  type StandupFormState,
   type TextFormState,
 } from './types';
 import type { TextFormCover } from './TextForm';
 import { isPreviewForComposerUrl } from './utils';
-
-export interface StandupFieldErrors {
-  topic?: string;
-  scheduledStart?: string;
-  description?: string;
-}
+import type { ResolvedScheduledAt } from '../schedule/useSchedulePost';
 
 const trimmedOptions = (state: PollFormState): string[] =>
   state.options.map((option) => option.trim()).filter(Boolean);
@@ -46,23 +37,11 @@ const isLinkValid = (
 const isPollValid = (state: PollFormState): boolean =>
   !!state.question.trim() && trimmedOptions(state).length >= POLL_OPTIONS_MIN;
 
-const isStandupValid = (state: StandupFormState): boolean => {
-  const topic = state.topic.trim();
-  if (!topic || topic.length > STANDUP_TOPIC_MAX_LENGTH) {
-    return false;
-  }
-  if (state.scheduleChoice === 'later' && !state.scheduledStart) {
-    return false;
-  }
-  return true;
-};
-
 interface UseComposerSubmitProps {
   kind: ComposerKind;
   text: TextFormState;
   link: LinkFormState;
   poll: PollFormState;
-  standup: StandupFormState;
   cover: TextFormCover | null;
   primary: Squad | undefined;
   selectedIds: string[];
@@ -70,6 +49,7 @@ interface UseComposerSubmitProps {
   initialPreview?: ExternalLinkPreview;
   onComplete: () => void;
   editPostId?: string;
+  resolveScheduledAt?: () => ResolvedScheduledAt;
 }
 
 interface UseComposerSubmit {
@@ -79,7 +59,6 @@ interface UseComposerSubmit {
   preview: ExternalLinkPreview | undefined;
   isLoadingPreview: boolean;
   fetchPreview: (url?: string) => void;
-  standupErrors: StandupFieldErrors;
 }
 
 export const useComposerSubmit = ({
@@ -87,7 +66,6 @@ export const useComposerSubmit = ({
   text,
   link,
   poll,
-  standup,
   cover,
   primary,
   selectedIds,
@@ -95,12 +73,11 @@ export const useComposerSubmit = ({
   initialPreview,
   onComplete,
   editPostId,
+  resolveScheduledAt,
 }: UseComposerSubmitProps): UseComposerSubmit => {
   const { displayToast } = useToastNotification();
   const router = useRouter();
-  const { submit: submitStandupMutation, isPending: isCreatingStandup } =
-    useSubmitStandup();
-  const [standupErrors, setStandupErrors] = useState<StandupFieldErrors>({});
+  const { user } = useAuthContext();
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -110,14 +87,38 @@ export const useComposerSubmit = ({
     onSubmitFreeformPost,
     onEditFreeformPost,
     onSubmitPollPost,
+    onUpdateSharePost,
   } = usePostToSquad({
     initialPreview,
     onComplete,
     displayMutationErrors: true,
+    onPostSuccess: (post) => {
+      if (editPostId) {
+        return;
+      }
+      // Scheduled posts aren't visible yet, so don't navigate to the post
+      // page — just confirm and let onComplete close the composer.
+      if (post.flags?.scheduledAt) {
+        displayToast('✅ Your post has been scheduled!');
+        return;
+      }
+      router.push(
+        post.commentsPermalink ?? `${webappUrl}posts/${post.slug ?? post.id}`,
+      );
+    },
   });
   const { onCreate: createMulti, isPending: isMultiPending } =
     useMultipleSourcePost({
-      onSuccess: onComplete,
+      onSuccess: (result) => {
+        onComplete();
+        const isEveryItemPending = result.every(
+          (item) => item.type === 'moderationItem',
+        );
+        if (isEveryItemPending || !user?.username) {
+          return;
+        }
+        router.push(`${webappUrl}${user.username}/posts/`);
+      },
       onError: (error) =>
         displayToast(error.response?.errors?.[0]?.message ?? 'Failed to post'),
     });
@@ -133,70 +134,76 @@ export const useComposerSubmit = ({
     [getLinkPreview],
   );
 
-  const isInFlight = isPosting || isMultiPending || isCreatingStandup;
+  const isInFlight = isPosting || isMultiPending;
 
   const getIsSubmitDisabled = (): boolean => {
     if (isInFlight) {
       return true;
     }
-    if (kind === 'standup') {
-      return !isStandupValid(standup);
-    }
     if (!primary) {
       return true;
     }
     if (kind === 'text') {
-      return !isTextValid(text);
+      // Freeform posts can legitimately have no body (title + cover only),
+      // so an edit only requires the title.
+      return editPostId ? !text.title.trim() : !isTextValid(text);
     }
     if (kind === 'link') {
-      return !isLinkValid(link, preview);
+      // Editing keeps the original link — there is no URL/preview to validate.
+      return editPostId ? false : !isLinkValid(link, preview);
     }
     return !isPollValid(poll);
   };
 
-  const submitText = async () => {
+  // Scheduling is single-source and non-moderated only. The `scheduledAt` here
+  // is already gated by the caller (undefined unless the post is schedulable),
+  // and it routes through the dedicated single-source mutation for each type.
+  const submitText = async (squad: Squad, scheduledAt?: string) => {
     const payload = {
       title: text.title.trim(),
       content: text.body,
       ...(cover?.file ? { image: cover.file } : {}),
     };
     if (editPostId) {
-      await onEditFreeformPost(
-        { ...payload, id: editPostId },
-        primary as Squad,
-      );
+      await onEditFreeformPost({ ...payload, id: editPostId }, squad);
       displayToast(
-        moderationRequired(primary as Squad)
+        moderationRequired(squad)
           ? '✅ Your edit has been submitted for moderation'
           : '✅ Your post has been updated!',
       );
       return;
     }
+
+    if (scheduledAt) {
+      await onSubmitFreeformPost({ ...payload, scheduledAt }, squad);
+      return;
+    }
+
     if (isMulti) {
       await createMulti({
         sourceIds: selectedIds,
         ...payload,
-      } as unknown as CreatePostInMultipleSourcesArgs);
+      });
     } else {
-      await onSubmitFreeformPost(payload, primary as Squad);
+      await onSubmitFreeformPost(payload, squad);
     }
     displayToast(
-      !isMulti && moderationRequired(primary as Squad)
+      !isMulti && moderationRequired(squad)
         ? '✅ Your post has been submitted for moderation'
         : '✅ Your post has been created!',
     );
   };
 
-  const submitPoll = async () => {
+  const submitPoll = async (squad: Squad, scheduledAt?: string) => {
     const options = trimmedOptions(poll);
     const duration = poll.durationDays;
-    if (isMulti) {
+    if (!scheduledAt && isMulti) {
       await createMulti({
         sourceIds: selectedIds,
         title: poll.question.trim(),
         options: options.map((value, order) => ({ text: value, order })),
         ...(duration != null ? { duration } : {}),
-      } as unknown as CreatePostInMultipleSourcesArgs);
+      });
       return;
     }
     await onSubmitPollPost(
@@ -204,19 +211,37 @@ export const useComposerSubmit = ({
         title: poll.question.trim(),
         options,
         ...(duration != null ? { duration } : {}),
+        ...(scheduledAt ? { scheduledAt } : {}),
       },
-      primary as Squad,
+      squad,
     );
   };
 
-  const submitLink = async (event: FormEvent<HTMLFormElement>) => {
+  const submitLink = async (
+    event: FormEvent<HTMLFormElement>,
+    squad: Squad,
+    scheduledAt?: string,
+  ) => {
+    if (editPostId) {
+      await onUpdateSharePost(event, editPostId, link.commentary.trim(), squad);
+      // The plain update path toasts from usePostToSquad; the moderation one
+      // completes silently, so it is the only case that needs confirming here.
+      if (moderationRequired(squad)) {
+        displayToast('✅ Your edit has been submitted for moderation');
+      }
+      return;
+    }
     if (!isPreviewForComposerUrl(preview, link.url)) {
       displayToast('Invalid link');
       return;
     }
     const commentary = link.commentary.trim();
     if (!isMulti) {
-      await onSubmitPost(event, primary as Squad, commentary);
+      await onSubmitPost(event, squad, commentary, scheduledAt);
+      // submitExternalLink returns no post, so onPostSuccess can't confirm it.
+      if (scheduledAt && !preview?.id) {
+        displayToast('✅ Your post has been scheduled!');
+      }
       return;
     }
     const url = preview?.finalUrl ?? preview?.url;
@@ -230,21 +255,7 @@ export const useComposerSubmit = ({
       sourceIds: selectedIds,
       commentary,
       ...sharedArgs,
-    } as unknown as CreatePostInMultipleSourcesArgs);
-  };
-
-  const submitStandup = async () => {
-    setStandupErrors({});
-    const result = await submitStandupMutation(standup);
-    if (result.type === 'error') {
-      setStandupErrors({ [result.error.field]: result.error.message });
-      return;
-    }
-    if (result.type === 'failed') {
-      return;
-    }
-    onComplete();
-    router.push(`/standups/${result.joinToken.room.id}`);
+    });
   };
 
   const handleSubmit = useCallback(
@@ -253,19 +264,29 @@ export const useComposerSubmit = ({
       if (getIsSubmitDisabled()) {
         return;
       }
+      if (!primary) {
+        return;
+      }
+
+      let scheduledAt: string | undefined;
+      if (!editPostId) {
+        const schedule = resolveScheduledAt?.() ?? {};
+        if (schedule.error) {
+          displayToast(schedule.error);
+          return;
+        }
+        scheduledAt = schedule.iso;
+      }
+
       if (kind === 'text') {
-        await submitText();
+        await submitText(primary, scheduledAt);
         return;
       }
       if (kind === 'poll') {
-        await submitPoll();
+        await submitPoll(primary, scheduledAt);
         return;
       }
-      if (kind === 'standup') {
-        await submitStandup();
-        return;
-      }
-      await submitLink(event);
+      await submitLink(event, primary, scheduledAt);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -276,11 +297,11 @@ export const useComposerSubmit = ({
       text,
       link,
       poll,
-      standup,
       cover,
       selectedIds,
       isInFlight,
       editPostId,
+      resolveScheduledAt,
     ],
   );
 
@@ -291,6 +312,5 @@ export const useComposerSubmit = ({
     preview,
     isLoadingPreview,
     fetchPreview,
-    standupErrors,
   };
 };

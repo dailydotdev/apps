@@ -4,16 +4,14 @@ import type { NextSeoProps } from 'next-seo';
 import dynamic from 'next/dynamic';
 
 import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ThemeSection';
+import { SidebarDensitySection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/SidebarDensitySection';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import {
-  useConditionalFeature,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
-import { featurePostHighlightCards } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
+import { useEnableReaderInside } from '@dailydotdev/shared/src/components/post/reader/hooks/useEnableReaderInside';
 import {
   Typography,
   TypographyType,
@@ -29,7 +27,7 @@ import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
 
@@ -58,28 +56,33 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
+    flags,
   } = useSettingsContext();
-  const { isEligible: isReaderEligible, isReaderModalEnabled } =
+  const { isEligible: isReaderEligible, isReaderEnabled } =
     useReaderModalEligibility();
-  const {
-    isOptedOut: isLegacyLayoutOptedOut,
-    optIn,
-    optOut,
-  } = useLegacyPostLayoutOptOut();
-  const showReaderToggle = isReaderEligible && isReaderModalEnabled;
-  const { value: showHighlightCardsToggle } = useConditionalFeature({
-    feature: featurePostHighlightCards,
-    shouldEvaluate: true,
-  });
+  const { optIn, optOut } = useLegacyPostLayoutOptOut();
+  const { enable: enableReaderInside } = useEnableReaderInside();
+  // The reader settings toggle is now available to every eligible user (the
+  // reader_modal_v2 experiment that used to gate it has graduated).
+  const showReaderToggle = isReaderEligible;
   const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
     useSettingsBooleanFlag('highlightCardsOptOut');
-  const isReadInsideEnabled = !isLegacyLayoutOptedOut;
+  const isReadInsideEnabled = isReaderEnabled;
+  const isReaderPermissionGranted =
+    flags?.readerInstallPromptAcknowledged ?? false;
+  const { isV2: isLayoutV2 } = useLayoutVariant();
   const onToggleReadInside = () => {
     if (isReadInsideEnabled) {
       optOut();
       return;
     }
-    optIn();
+    // Already granted permission before (just opted out) → flip back on.
+    // Otherwise drive the install/permission flow so the reader actually works.
+    if (isReaderPermissionGranted) {
+      optIn();
+      return;
+    }
+    enableReaderInside();
   };
 
   const onLayoutToggle = useCallback(
@@ -118,6 +121,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               offLabel="Cards"
               onLabel="List"
             />
+
+            {isLayoutV2 && <SidebarDensitySection />}
           </FlexCol>
         )}
 
@@ -162,15 +167,13 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             </SettingsSwitch>
           )}
 
-          {showHighlightCardsToggle && (
-            <SettingsSwitch
-              name="highlight-cards"
-              checked={!isHighlightCardsOptedOut}
-              onToggle={toggleHighlightCards}
-            >
-              Show featured cards for highlighted news
-            </SettingsSwitch>
-          )}
+          <SettingsSwitch
+            name="highlight-cards"
+            checked={!isHighlightCardsOptedOut}
+            onToggle={toggleHighlightCards}
+          >
+            Show hero cards for highlighted news
+          </SettingsSwitch>
         </FlexCol>
 
         <FlexCol className="gap-5">
@@ -194,6 +197,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Appearance'),
+  ...noindexSeoProps,
 };
 
 AccountManageSubscriptionPage.getLayout = getSettingsLayout;

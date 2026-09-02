@@ -35,6 +35,7 @@ type BaseSquadForm = Pick<
   | 'memberInviteRole'
   | 'memberPostingRole'
   | 'moderationRequired'
+  | 'postingMinReputation'
 > & {
   categoryId?: string;
 };
@@ -59,6 +60,7 @@ interface PostToSquadProps {
   id: string;
   sourceId?: string;
   commentary: string;
+  scheduledAt?: string | null;
 }
 
 export const UPDATE_MEMBER_ROLE_MUTATION = gql`
@@ -175,6 +177,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $memberPostingRole: String
     $memberInviteRole: String
     $moderationRequired: Boolean
+    $postingMinReputation: Int
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -186,6 +189,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
       moderationRequired: $moderationRequired
+      postingMinReputation: $postingMinReputation
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -213,6 +217,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $memberPostingRole: String
     $memberInviteRole: String
     $moderationRequired: Boolean
+    $postingMinReputation: Int
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -226,6 +231,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
       moderationRequired: $moderationRequired
+      postingMinReputation: $postingMinReputation
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -236,9 +242,22 @@ export const EDIT_SQUAD_MUTATION = gql`
 `;
 
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
-  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String) {
-    sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
+  mutation AddPostToSquad(
+    $id: ID!
+    $sourceId: ID!
+    $commentary: String
+    $scheduledAt: DateTime
+  ) {
+    sharePost(
+      id: $id
+      sourceId: $sourceId
+      commentary: $commentary
+      scheduledAt: $scheduledAt
+    ) {
       id
+      flags {
+        scheduledAt
+      }
     }
   }
 `;
@@ -341,6 +360,7 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       type
       permalink
       moderationRequired
+      postingMinReputation
       membersCount
       createdAt
     }
@@ -357,6 +377,7 @@ export type SquadStaticData = Pick<
   | 'image'
   | 'type'
   | 'moderationRequired'
+  | 'postingMinReputation'
   | 'permalink'
   | 'membersCount'
   | 'createdAt'
@@ -663,13 +684,19 @@ export const checkExistingHandle = async (handle: string): Promise<boolean> => {
 
 export const addPostToSquad =
   (requestMethod: typeof gqlClient.request) =>
-  (data: PostToSquadProps): Promise<Post> =>
-    requestMethod(ADD_POST_TO_SQUAD_MUTATION, data);
+  async (data: PostToSquadProps): Promise<Post> => {
+    const res = await requestMethod(ADD_POST_TO_SQUAD_MUTATION, data);
+
+    return res.sharePost;
+  };
 
 export const updateSquadPost =
   (requestMethod: typeof gqlClient.request) =>
-  (data: PostToSquadProps): Promise<Post> =>
-    requestMethod(UPDATE_SQUAD_POST_MUTATION, data);
+  async (data: PostToSquadProps): Promise<Post> => {
+    const res = await requestMethod(UPDATE_SQUAD_POST_MUTATION, data);
+
+    return res.editSharePost;
+  };
 
 const formToInput = (form: SquadForm): SharedSquadInput => ({
   description: form.description,
@@ -681,6 +708,7 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
   memberInviteRole: form.memberInviteRole,
   categoryId: form.categoryId,
   moderationRequired: form.moderationRequired,
+  postingMinReputation: form.postingMinReputation ?? null,
   isPrivate: form.status === PrivacyOption.Private,
 });
 
@@ -756,7 +784,7 @@ export const isPrivilegedRole = (
   ].includes(role);
 };
 
-export const isSourcePublicSquad = (source: Source): boolean =>
+export const isSourcePublicSquad = (source?: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);
 
 export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(

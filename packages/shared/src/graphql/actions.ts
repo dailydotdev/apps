@@ -52,7 +52,6 @@ export enum ActionType {
   DisableBriefCardCta = 'disable_brief_card_cta',
   SeenPostPollTooltip = 'seen_post_poll_tooltip',
   SeenPostPollTab = 'seen_post_poll_tab',
-  SeenStandupTab = 'seen_standup_tab',
   OpportunityWelcomePage = 'opportunity_welcome_page',
   OpportunityInitialView = 'opportunity_initial_view',
   UserCandidatePreferencesSaved = 'user_candidate_preferences_saved',
@@ -66,10 +65,9 @@ export enum ActionType {
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
-  DismissedNewTabCustomizer = 'dismissed_new_tab_customizer',
-  SeenKeepItOverlay = 'seen_keep_it_overlay',
   DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
   ClickedNewStripCta = 'click_new_strip_cta',
+  ClosedShortcutsBanner = 'closed_shortcuts_banner',
 }
 
 export const cvActions = [

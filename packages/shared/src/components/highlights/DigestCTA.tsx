@@ -47,7 +47,7 @@ const DigestCTAContent = ({
 
   const onToggleSubscription = useCallback(async () => {
     if (!isFollowing) {
-      toggleFollow();
+      await toggleFollow();
     }
 
     await onNotify();

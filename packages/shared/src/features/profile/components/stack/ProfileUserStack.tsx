@@ -29,7 +29,9 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { PlusIcon } from '../../../../components/icons';
+import { PlusIcon, ShareIcon } from '../../../../components/icons';
+import { useShareOrCopyLink } from '../../../../hooks/useShareOrCopyLink';
+import { apiUrl } from '../../../../lib/config';
 import { UserStackSection } from './UserStackSection';
 import { UserStackModal } from './UserStackModal';
 import type {
@@ -238,6 +240,16 @@ export function ProfileUserStack({
     activeItemId && stackItems.find((item) => item.id === activeItemId);
 
   const hasItems = stackItems.length > 0;
+
+  const [, onShareStack] = useShareOrCopyLink({
+    link: `${apiUrl}/og/stack/${user.id}.png`,
+    text: 'Check out my developer stack on daily.dev!',
+    logObject: (provider) => ({
+      event_name: LogEvent.ShareUserStack,
+      target_id: user.id,
+      extra: JSON.stringify({ provider }),
+    }),
+  });
   const visibleSections = getVisibleSections(sections);
 
   if (!hasItems && !isOwner) {
@@ -254,16 +266,28 @@ export function ProfileUserStack({
         >
           Stack & Tools
         </Typography>
-        {isOwner && canAddMore && (
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            onClick={handleOpenModal}
-          >
-            Add
-          </Button>
-        )}
+        <div className="flex items-center gap-1">
+          {isOwner && hasItems && (
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<ShareIcon />}
+              onClick={() => onShareStack()}
+            >
+              Share
+            </Button>
+          )}
+          {isOwner && canAddMore && (
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+              onClick={handleOpenModal}
+            >
+              Add
+            </Button>
+          )}
+        </div>
       </div>
 
       {hasItems ? (

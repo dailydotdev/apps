@@ -17,11 +17,29 @@ export enum ToastSubject {
   OpportunityScreeningQuestions = 'opportunity-screening-questions',
 }
 
+// Semantic variant — drives the leading status icon + colour. Defaults to
+// `Default` (neutral, no icon) so existing callers are unaffected.
+export enum ToastType {
+  Default = 'default',
+  Success = 'success',
+  Error = 'error',
+  Warning = 'warning',
+  Info = 'info',
+  Loading = 'loading',
+}
+
 export interface ToastNotification {
   message: ReactNode;
   timer: number;
+  // Named `variant` (not `type`) on purpose: a bare `type` field collides with
+  // `MouseEvent.type` (string) and breaks callers that pass a copy/share
+  // handler — which extends NotifyOptionalProps — directly as an onClick.
+  variant?: ToastType;
   subject?: ToastSubject;
   persistent?: boolean;
+  // Force the auto-dismiss countdown on for this toast even when the global
+  // `autoDismissNotifications` setting is off. Ignored when `persistent`.
+  forceAutoDismiss?: boolean;
   onClose?: AnyFunction;
   action?: {
     onClick: AnyFunction;
@@ -35,7 +53,13 @@ export const TOAST_NOTIF_KEY = ['toast_notif'];
 export type NotifyOptionalProps = Partial<
   Pick<
     ToastNotification,
-    'timer' | 'subject' | 'persistent' | 'onClose' | 'action'
+    | 'timer'
+    | 'variant'
+    | 'subject'
+    | 'persistent'
+    | 'forceAutoDismiss'
+    | 'onClose'
+    | 'action'
   >
 >;
 

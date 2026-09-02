@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useContext } from 'react';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { UpgradeToPlus } from '../../UpgradeToPlus';
 import { DevPlusIcon } from '../../icons';
@@ -10,6 +10,8 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { TargetId } from '../../../lib/log';
+import { FeedSettingsEditContext } from './FeedSettingsEditContext';
+import { FeedType } from '../../../graphql/feed';
 
 type FeedSettingsPlusGateProps = {
   children: ReactNode;
@@ -23,8 +25,9 @@ export const FeedSettingsPlusGate = ({
   description = 'Upgrade to daily.dev Plus to fine-tune this feed with sources, content preferences, filters, and blocking.',
 }: FeedSettingsPlusGateProps): ReactElement => {
   const { isPlus } = usePlusSubscription();
+  const { feed } = useContext(FeedSettingsEditContext);
 
-  if (isPlus) {
+  if (isPlus || feed?.type === FeedType.Main) {
     return <>{children}</>;
   }
 

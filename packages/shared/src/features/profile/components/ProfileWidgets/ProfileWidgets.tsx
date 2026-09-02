@@ -23,6 +23,7 @@ import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchievements';
 import { shouldShowAchievementTracker } from '../../../../lib/achievements';
+import { profileStripBleed } from '../../common';
 
 const BadgesAndAwards = dynamic(() =>
   import('./BadgesAndAwards').then((mod) => mod.BadgesAndAwards),
@@ -44,7 +45,16 @@ const AchievementTrackingWidget = dynamic(() =>
   ),
 );
 
-export interface ProfileWidgetsProps extends ProfileV2 {
+/**
+ * Both of the extras are optional because this reads neither as a requirement:
+ * `userStats` is not touched at all, and `sources` is already handled empty. A
+ * profile's static props carry them as optional (the not-found path has no user
+ * to fetch them for), so demanding them here only moved that fact to the caller.
+ */
+export interface ProfileWidgetsProps
+  extends Omit<ProfileV2, 'userStats' | 'sources'> {
+  userStats?: ProfileV2['userStats'];
+  sources?: ProfileV2['sources'];
   className?: string;
   enableSticky?: boolean;
 }
@@ -110,7 +120,12 @@ export function ProfileWidgets({
   return (
     <div
       className={classNames(
+        // Below laptop this is the profile page's scrolling "Highlights" strip,
+        // so it bleeds past the page's p-6 to clip at the card edge. At laptop
+        // it becomes the sidebar column and sits inside the padding again.
         'my-4 flex gap-2 laptop:my-0 laptop:flex-col',
+        profileStripBleed,
+        'laptop:mx-0 laptop:px-0',
         className,
       )}
     >

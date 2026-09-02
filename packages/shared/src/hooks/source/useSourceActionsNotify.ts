@@ -13,6 +13,7 @@ import { useToastNotification } from '../useToastNotification';
 
 export type UseSourceSubscriptionProps = {
   source?: Pick<Source, 'id'> | Source | null;
+  optimistic?: boolean;
 };
 
 export type UseSourceSubscription = {
@@ -23,6 +24,7 @@ export type UseSourceSubscription = {
 
 export const useSourceActionsNotify = ({
   source,
+  optimistic,
 }: UseSourceSubscriptionProps): UseSourceSubscription => {
   const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
@@ -35,6 +37,7 @@ export const useSourceActionsNotify = ({
             referenceId: source?.id,
           }
         : undefined,
+      optimistic,
     });
 
   const { onEnable: enablePushNotifications } = useEnableNotification({

@@ -1,0 +1,195 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import type { Post } from '../../../graphql/posts';
+import { UserVote } from '../../../graphql/posts';
+import { useVotePost } from '../../../hooks';
+import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
+import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useCanAwardUser } from '../../../hooks/useCoresFeature';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import type { PostOrigin } from '../../../hooks/log/useLogContextData';
+import { Origin } from '../../../lib/log';
+import { AuthTriggers } from '../../../lib/auth';
+import { ButtonSize } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/ButtonV2';
+import { CardAction } from '../../buttons/CardAction';
+import { BookmarkButton } from '../../buttons/BookmarkButton';
+import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
+import { IconSize } from '../../Icon';
+import {
+  DiscussIcon as CommentIcon,
+  DownvoteIcon,
+  LinkIcon,
+  MedalBadgeIcon,
+} from '../../icons';
+import { Tooltip } from '../../tooltip/Tooltip';
+import type { LoggedUser } from '../../../lib/user';
+import { PostClickbaitShield } from '../common/PostClickbaitShield';
+
+interface FocusCardActionBarProps {
+  post: Post;
+  origin?: PostOrigin;
+  onComment?: () => void;
+  onCopyLinkClick?: (post?: Post) => void;
+  className?: string;
+}
+
+/**
+ * Engagement bar for the redesign focus card. Floats pinned to the bottom of
+ * the scroll area from tablet up — never the top.
+ */
+export const FocusCardActionBar = ({
+  post,
+  origin = Origin.ArticlePage,
+  onComment,
+  onCopyLinkClick,
+  className,
+}: FocusCardActionBarProps): ReactElement => {
+  const { user, showLogin } = useAuthContext();
+  const { toggleUpvote, toggleDownvote } = useVotePost();
+  const { toggleBookmark } = useBookmarkPost();
+  const { onShowPanel, onClose: onCloseBlockPanel } = useBlockPostPanel(post);
+  const { openModal } = useLazyModal();
+  const canAward = useCanAwardUser({
+    sendingUser: user,
+    receivingUser: post.author as LoggedUser | undefined,
+  });
+
+  const isUpvoteActive = post?.userState?.vote === UserVote.Up;
+  const isDownvoteActive = post?.userState?.vote === UserVote.Down;
+  const isAwarded = !!post?.userState?.awarded;
+
+  const onToggleUpvote = async () => {
+    if (post?.userState?.vote === UserVote.None) {
+      onCloseBlockPanel(true);
+    }
+    await toggleUpvote({ payload: post, origin });
+  };
+
+  const onToggleDownvote = async () => {
+    if (post.userState?.vote !== UserVote.Down) {
+      onShowPanel();
+    } else {
+      onCloseBlockPanel(true);
+    }
+    await toggleDownvote({ payload: post, origin });
+  };
+
+  const onToggleBookmark = async () => {
+    await toggleBookmark({ post, origin });
+  };
+
+  const onGiveAward = () => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.GiveAward });
+      return;
+    }
+    if (!post.author || isAwarded) {
+      return;
+    }
+    openModal({
+      type: LazyModal.GiveAward,
+      props: {
+        type: 'POST',
+        entity: {
+          id: post.id,
+          receiver: post.author,
+          numAwards: post.numAwards,
+        },
+        post,
+      },
+    });
+  };
+
+  return (
+    <div
+      className={classNames(
+        'relative z-3 flex w-full items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky tablet:bottom-4',
+        className,
+      )}
+    >
+      <div className="flex items-center gap-1">
+        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+          <CardAction
+            id="upvote-post-btn"
+            label="Upvote"
+            color={ButtonColor.Avocado}
+            icon={<UpvoteButtonIcon />}
+            iconPressed={<UpvoteButtonIcon secondary />}
+            pressed={isUpvoteActive}
+            onClick={onToggleUpvote}
+          />
+        </Tooltip>
+        <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
+          <CardAction
+            id="downvote-post-btn"
+            label="Downvote"
+            color={ButtonColor.Ketchup}
+            icon={<DownvoteIcon />}
+            iconPressed={<DownvoteIcon secondary />}
+            pressed={isDownvoteActive}
+            onClick={onToggleDownvote}
+          />
+        </Tooltip>
+        <Tooltip content="Comment">
+          <CardAction
+            id="comment-post-btn"
+            label="Comment"
+            color={ButtonColor.BlueCheese}
+            icon={<CommentIcon />}
+            iconPressed={<CommentIcon secondary />}
+            pressed={post.commented}
+            onClick={onComment}
+          />
+        </Tooltip>
+        {canAward && (
+          <Tooltip
+            content={isAwarded ? 'You already awarded this post!' : 'Award'}
+          >
+            <CardAction
+              id="award-post-btn"
+              label="Award"
+              color={ButtonColor.Cabbage}
+              icon={<MedalBadgeIcon secondary />}
+              iconPressed={<MedalBadgeIcon />}
+              pressed={isAwarded}
+              onClick={onGiveAward}
+            />
+          </Tooltip>
+        )}
+      </div>
+
+      <div className="flex items-center gap-1">
+        <BookmarkButton
+          post={post}
+          iconSize={IconSize.Small}
+          buttonProps={{
+            id: 'bookmark-post-btn',
+            pressed: post.bookmarked,
+            onClick: onToggleBookmark,
+            size: ButtonSize.Medium,
+          }}
+        />
+        {/* Hidden below tablet: the row is fixed-width icon targets that
+            cannot compress, and copy link is the one action with an easy
+            alternative (the "…" menu in the card header). */}
+        <div className="hidden tablet:flex">
+          <Tooltip content="Copy link">
+            <CardAction
+              label="Copy link"
+              color={ButtonColor.Cabbage}
+              icon={<LinkIcon />}
+              onClick={() => onCopyLinkClick?.(post)}
+            />
+          </Tooltip>
+        </div>
+        {post.clickbaitTitleDetected && (
+          <PostClickbaitShield post={post} iconOnly />
+        )}
+      </div>
+    </div>
+  );
+};

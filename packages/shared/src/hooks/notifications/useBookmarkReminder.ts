@@ -1,7 +1,7 @@
 import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { addDays, addHours, nextMonday, set } from 'date-fns';
+import { addDays, addHours, format, nextMonday, set } from 'date-fns';
 import type {
   Bookmark,
   SetBookmarkReminderProps,
@@ -29,7 +29,10 @@ export enum ReminderPreference {
   Tomorrow = 'Tomorrow',
   TwoDays = 'In 2 days',
   NextWeek = 'Next week',
+  Custom = 'Custom',
 }
+
+export const MAX_CUSTOM_REMINDER_DAYS = 14;
 
 interface MutateBookmarkProps extends SetBookmarkReminderProps {
   existingReminder?: Date;
@@ -40,6 +43,8 @@ interface BookmarkReminderProps {
   postId: string;
   preference: ReminderPreference;
   existingReminder?: Date;
+  // Required when preference is ReminderPreference.Custom
+  remindAt?: Date;
 }
 
 interface UseBookmarkReminder {
@@ -142,7 +147,12 @@ export const useBookmarkReminder = ({
     onSuccess: (_, { postId, existingReminder, preference, remindAt }) => {
       onUpdateCache(postId, remindAt ?? undefined);
 
-      displayToast(`Reminder set for ${preference.toLowerCase()}`, {
+      const reminderLabel =
+        preference === ReminderPreference.Custom && remindAt
+          ? format(remindAt, 'eee, MMM d, h:mm a')
+          : preference.toLowerCase();
+
+      displayToast(`Reminder set for ${reminderLabel}`, {
         action: {
           copy: 'Undo',
           onClick: () =>
@@ -172,6 +182,19 @@ export const useBookmarkReminder = ({
         throw new Error('Invalid preference');
       }
 
+      const isCustom = preference === ReminderPreference.Custom;
+      const maxRemindAt = addDays(now, MAX_CUSTOM_REMINDER_DAYS);
+      if (
+        isCustom &&
+        (!props.remindAt ||
+          props.remindAt <= now ||
+          props.remindAt > maxRemindAt)
+      ) {
+        throw new Error('Invalid custom reminder time');
+      }
+
+      const remindAt = isCustom ? props.remindAt : getRemindAt(now, preference);
+
       logEvent(
         postLogEvent(LogEvent.SetBookmarkReminder, post, {
           extra: { remind_in: preference },
@@ -180,7 +203,7 @@ export const useBookmarkReminder = ({
 
       return onSetBookmarkReminder({
         ...props,
-        remindAt: getRemindAt(now, preference),
+        remindAt,
       });
     },
     [logEvent, onSetBookmarkReminder, post],

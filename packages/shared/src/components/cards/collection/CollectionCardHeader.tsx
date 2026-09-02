@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { CollectionPillSources } from '../../post/collection/CollectionPillSources';
-import { getCollectionPillLabel } from '../../post/collection/common';
+import { CollectionSourceStack } from '../../post/collection/CollectionSourceStack';
 import {
   BookmakProviderHeader,
   headerHiddenClassName,
@@ -31,23 +30,24 @@ export const CollectionCardHeader = ({
   return (
     <>
       {highlightBookmarkedPost && <BookmakProviderHeader />}
-      <CollectionPillSources
-        className={{
-          main: classNames(
-            'mb-1 mt-3',
-            highlightBookmarkedPost && headerHiddenClassName,
-          ),
-        }}
-        sources={sources ?? []}
-        totalSources={totalSources ?? 0}
-        label={getCollectionPillLabel(post)}
+      <div
+        className={classNames(
+          // mt-4 matches the article card's CardHeader top margin so the title
+          // (and the tags/date below it) start on the same row.
+          'mb-1 mt-4 flex flex-row items-center',
+          highlightBookmarkedPost && headerHiddenClassName,
+        )}
       >
+        <CollectionSourceStack
+          sources={sources ?? []}
+          totalSources={totalSources ?? 0}
+        />
         <div className="flex-1" />
         <PostOptionButton
           post={post}
           triggerClassName="laptop:mouse:invisible laptop:mouse:group-hover:visible"
         />
-      </CollectionPillSources>
+      </div>
     </>
   );
 };

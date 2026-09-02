@@ -1,6 +1,18 @@
-declare module 'graphql-request/dist/types' {
-  interface GraphQLError {
-    extensions?: Record<string, unknown>;
-    message?: string;
-  }
+export type PostHighlightSignificance =
+  | 'breaking'
+  | 'major'
+  | 'notable'
+  | 'routine';
+
+export type PostHeroSignificance =
+  | PostHighlightSignificance
+  | 'breakout'
+  | 'evergreen';
+
+export interface PostHero {
+  id: string;
+  headline: string;
+  significance: PostHeroSignificance;
+  size: number;
+  highlightedAt: string;
 }

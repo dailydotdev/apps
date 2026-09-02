@@ -1,0 +1,6 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="World">
+<path id="Ring" fill-rule="evenodd" clip-rule="evenodd" transform="rotate(-22 12 12)" d="M0.6 12a11.4 3.7 0 1 0 22.8 0a11.4 3.7 0 1 0 -22.8 0ZM2.2 12a9.8 2.1 0 1 0 19.6 0a9.8 2.1 0 1 0 -19.6 0Z" fill="#FFFFFF"/>
+<circle id="Orb" cx="12" cy="12" r="6.6" fill="#FFFFFF"/>
+</g>
+</svg>

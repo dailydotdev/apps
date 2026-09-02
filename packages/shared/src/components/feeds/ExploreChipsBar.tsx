@@ -9,10 +9,13 @@ import { webappUrl } from '../../lib/constants';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import type { ExploreCategory } from './exploreCategories';
 import { findActiveChipId } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
 import { NewStripCta } from './NewStripCta';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedChips } from '../../lib/featureManagement';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
@@ -37,7 +40,13 @@ export function ExploreChipsBar({
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
-
+  const { isLoggedIn } = useAuthContext();
+  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
+    {
+      feature: featureFeedChips,
+      shouldEvaluate: isLoggedIn,
+    },
+  );
   const forYouCategory: ExploreCategory = useMemo(() => {
     const path = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
     return {
@@ -67,7 +76,16 @@ export function ExploreChipsBar({
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastCenteredIdRef = useRef<string | null>(null);
   useEffect(() => {
+    if (!activeId) {
+      lastCenteredIdRef.current = null;
+      return;
+    }
+    if (lastCenteredIdRef.current === activeId) {
+      return;
+    }
+
     const active = scrollRef.current?.querySelector<HTMLElement>(
       '[data-active="true"]',
     );
@@ -75,7 +93,8 @@ export function ExploreChipsBar({
       return;
     }
     active.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }, [activeId, allCategories]);
+    lastCenteredIdRef.current = activeId;
+  }, [activeId]);
 
   return (
     <div className={classNames('relative', className)}>
@@ -96,6 +115,10 @@ export function ExploreChipsBar({
             logEvent({
               event_name: LogEvent.ClickFeedTagChip,
               target_id: category.tag,
+              extra: JSON.stringify({
+                variant: isVariantLoading ? undefined : variant,
+                origin: category.origin,
+              }),
             });
           };
 

@@ -41,13 +41,6 @@ const ReadingHistoryModal = dynamic(
     ),
 );
 
-const CreateSharedPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "createSharedPostModal" */ './post/CreateSharedPostModal'
-    ),
-);
-
 const SmartComposerModal = dynamic(
   () =>
     import(
@@ -91,6 +84,10 @@ const VideoModal = dynamic(
   () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
 );
 
+const ImageModal = dynamic(
+  () => import(/* webpackChunkName: "imageModal" */ './ImageModal'),
+);
+
 const GenericReferralModal = dynamic(
   () =>
     import(
@@ -101,6 +98,13 @@ const GenericReferralModal = dynamic(
 const NewStreakModal = dynamic(
   () =>
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
+);
+
+const QuestOffersModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "questOffersModal" */ './quests/QuestOffersModal'
+    ),
 );
 
 const ReputationPrivilegesModal = dynamic(
@@ -145,6 +149,13 @@ const StreakRecoverModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "streakRecoverModal" */ './streaks/StreakRecoverModal'
+    ),
+);
+
+const StreakFreezePurchaseModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakFreezePurchaseModal" */ './streaks/StreakFreezePurchaseModal'
     ),
 );
 
@@ -494,10 +505,24 @@ const ReaderInstallPromptModal = dynamic(
     ),
 );
 
+const ReaderExtensionInstallModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerExtensionInstallModal" */ './ReaderExtensionInstallModal'
+    ),
+);
+
 const ReaderPreviewLazyModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "readerPreviewLazyModal" */ './ReaderPreviewLazyModal'
+    ),
+);
+
+const PostImpressionsModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "postImpressionsModal" */ './post/PostImpressionsModal'
     ),
 );
 
@@ -508,7 +533,6 @@ export const modals = {
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
-  [LazyModal.CreateSharedPost]: CreateSharedPostModal,
   [LazyModal.SmartComposer]: SmartComposerModal,
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,
@@ -517,7 +541,9 @@ export const modals = {
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
+  [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
+  [LazyModal.QuestOffers]: QuestOffersModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
@@ -525,6 +551,7 @@ export const modals = {
   [LazyModal.TopMembers]: TopMembersModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
+  [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
@@ -581,7 +608,9 @@ export const modals = {
   [LazyModal.AchievementShowcase]: AchievementShowcaseModal,
   [LazyModal.IntroQuests]: IntroQuestModal,
   [LazyModal.ReaderInstallPrompt]: ReaderInstallPromptModal,
+  [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
+  [LazyModal.PostImpressions]: PostImpressionsModal,
 };
 
 type GetComponentProps<T> = T extends

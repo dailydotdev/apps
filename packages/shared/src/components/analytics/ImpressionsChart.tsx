@@ -127,7 +127,7 @@ export const ImpressionsChart = ({
           >
             <CartesianGrid
               strokeDasharray="0"
-              stroke="#A8B3CF"
+              stroke="#A8B3CE"
               strokeOpacity={0.2}
               vertical={false}
             />

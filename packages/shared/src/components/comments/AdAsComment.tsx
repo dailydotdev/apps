@@ -10,6 +10,9 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { AdPixel } from '../cards/ad/common/AdPixel';
+import { AdViewability } from '../cards/ad/common/AdViewability';
+import type { ViewabilityData } from '../../features/monetization/viewability';
+import { viewabilityLogExtra } from '../../features/monetization/viewability';
 import { AdActions, AdPlacement } from '../../lib/ads';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { RemoveAd } from '../cards/ad/common/RemoveAd';
@@ -42,7 +45,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   });
 
   const onAdAction = useCallback(
-    (action: AdActions) => {
+    (action: AdActions, extra?: Record<string, unknown>) => {
       if (!ad) {
         return;
       }
@@ -50,11 +53,18 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         adLogEvent(action, ad, {
           extra: {
             origin: 'post page',
+            ...extra,
           },
         }),
       );
     },
     [logEvent, ad],
+  );
+
+  const onViewable = useCallback(
+    (data: ViewabilityData) =>
+      onAdAction(AdActions.Viewable, viewabilityLogExtra(data)),
+    [onAdAction],
   );
 
   const promotedText = useScrambler(
@@ -129,6 +139,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         className="mt-2 w-fit whitespace-nowrap typo-caption2"
       />
       <AdPixel pixel={pixel} />
+      <AdViewability ad={ad} onViewable={onViewable} />
     </div>
   );
 };

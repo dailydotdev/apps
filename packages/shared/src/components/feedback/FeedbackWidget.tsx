@@ -10,7 +10,6 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
 import { IconSize } from '../Icon';
 import { MiniCloseIcon } from '../icons';
 import { LogEvent, TargetType } from '../../lib/log';
@@ -94,7 +93,6 @@ export function FeedbackWidget({
   const dailyTrio = useMemo(getDailyTrio, []);
   const [isCompact, setIsCompact] = useState(false);
 
-  const { panelWidth } = useCustomizeNewTab();
   // Only show for authenticated users on desktop. The fixed/sidebar
   // variants are additionally gated by the `showFeedbackButton` setting;
   // the support variant lives inside the rail support popover and is
@@ -142,6 +140,7 @@ export function FeedbackWidget({
           className="group !h-auto w-full justify-between !gap-0 border border-border-subtlest-tertiary !bg-transparent !px-3 py-2 !text-text-secondary shadow-none hover:!bg-surface-hover hover:!text-text-primary"
           onClick={() => openModal({ type: LazyModal.Feedback })}
           aria-label="Send feedback. Real people reply."
+          aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
         >
           <span className="flex min-w-0 flex-col items-start overflow-hidden whitespace-nowrap leading-tight">
             <span>Feedback</span>
@@ -183,16 +182,10 @@ export function FeedbackWidget({
     <Button
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
-      className="group fixed bottom-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
-      style={{
-        // Slide left of the customize sidebar while it's open so the pill
-        // stays clear of the panel; transition matches the panel + header
-        // 200ms ease-in-out so all the right-anchored chrome moves in sync.
-        right: `calc(1rem + ${panelWidth}px)`,
-        transition: 'right 200ms ease-in-out',
-      }}
+      className="group fixed bottom-4 right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback. Real people reply."
+      aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
     >
       <span
         aria-hidden={isCompact}

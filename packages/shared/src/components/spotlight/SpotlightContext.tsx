@@ -3,6 +3,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -16,6 +17,7 @@ import {
   type SpotlightAction,
 } from '../../graphql/spotlight';
 import { SpotlightScope } from './types';
+import { registerSpotlightShortcutBlocker } from './shortcuts';
 
 type SpotlightActionsResponse = { spotlightActions: SpotlightAction[] };
 
@@ -224,4 +226,14 @@ export const useSpotlight = (): SpotlightContextValue => {
     throw new Error('useSpotlight must be used within SpotlightProvider');
   }
   return ctx;
+};
+
+export const useDisableSpotlightShortcut = (enabled = true): void => {
+  useEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
+    return registerSpotlightShortcutBlocker();
+  }, [enabled]);
 };

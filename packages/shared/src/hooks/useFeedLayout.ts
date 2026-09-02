@@ -71,6 +71,14 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
   OtherFeedPage.AgentsVibes,
+  OtherFeedPage.Watercooler,
+]);
+
+// Feeds that render as a list regardless of the user's `insaneMode` card
+// setting. Members must also be in `FeedLayoutMobileFeedPages`, which is what
+// makes `shouldUseListMode` resolve on laptop.
+export const ListModeOnlyFeedPages = new Set<AllFeedPages>([
+  OtherFeedPage.Watercooler,
 ]);
 
 export const UserProfileFeedPages = new Set([
@@ -124,7 +132,10 @@ export const useFeedLayout = ({
 
   const isPostFeedPage = PostFeedPages.has(feedName as OtherFeedPage);
 
-  const isListMode = isSearchPageLaptop || insaneMode;
+  const isListMode =
+    isSearchPageLaptop ||
+    insaneMode ||
+    ListModeOnlyFeedPages.has(feedName as OtherFeedPage);
 
   const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
     feedName as UserProfileFeedType,

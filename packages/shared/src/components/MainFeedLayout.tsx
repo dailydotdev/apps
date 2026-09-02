@@ -1,4 +1,9 @@
-import type { ReactElement, ReactNode, SetStateAction } from 'react';
+import type {
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  SetStateAction,
+} from 'react';
 import React, {
   cloneElement,
   useCallback,
@@ -16,10 +21,11 @@ import { FeedPageLayoutMobile } from './utilities/common';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
-import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
-import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
+import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
+import FeedContext from '../contexts/FeedContext';
+import feedStyles from './Feed.module.css';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -78,15 +84,14 @@ import { ClientQuestEventType } from '../graphql/quests';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
+import { FeedExploreTabs } from './header/FeedExploreTabs';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
-import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
-import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 
 const FeedExploreHeader = dynamic(
@@ -232,6 +237,7 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -244,20 +250,8 @@ export default function MainFeedLayout({
   const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
-  const {
-    shouldShow: shouldShowReadingReminder,
-    title: readingReminderTitle,
-    subtitle: readingReminderSubtitle,
-    onEnable,
-    onDismiss,
-  } = useReadingReminderHero();
   const isExtension = checkIsExtension();
   const isHomePage = router.pathname === webappUrl;
-  const shouldEvaluateReminderPlacement =
-    isHomePage && shouldShowReadingReminder;
-  const { isControl: isControlVariation } = useReadingReminderVariation({
-    shouldEvaluate: shouldEvaluateReminderPlacement,
-  });
   const {
     isUpvoted,
     isPopular,
@@ -338,7 +332,7 @@ export default function MainFeedLayout({
     feature: featureFeedChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const showExploreChips =
     !!user && isLaptop && isChipStripPage && isFeedChipsEnabled;
   const { feeds } = useFeeds();
@@ -677,9 +671,6 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
-  const shouldShowReadingReminderOnHomepage =
-    shouldEvaluateReminderPlacement && isControlVariation;
-
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
       if (clickedTab === ExploreTabs.BestOf && isExtension) {
@@ -722,10 +713,10 @@ export default function MainFeedLayout({
     );
   }, [isLaptop, onTabChange, tab]);
 
-  // v2 hoists the explore section tabs into the floating card's
-  // page-header strip (matching the SquadDirectoryLayout pattern). The
-  // inline FeedExploreComponent is suppressed below to avoid showing
-  // the same tabs twice.
+  // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
+  // Discussions) from the sidebar's Explore panel, so the page header no longer
+  // carries a section-tab strip. The header now only hosts the Explore sort
+  // dropdown, so it's gated on isAnyExplore.
   const showExploreV2PageHeader = isAnyExplore && isV2;
 
   // v2 also hoists the regular page-header strip up here, OUTSIDE
@@ -765,13 +756,9 @@ export default function MainFeedLayout({
     <>
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
-          <FeedExploreHeader
-            directoryTabs
-            tab={tab}
-            setTab={onTabChange}
-            showBreadcrumbs={false}
-            className={{ container: 'min-w-0 flex-1' }}
-          />
+          {/* Sort options as pill tabs — same navbar as the Tags / Squad
+              directory pages, not the underlined TabContainer. */}
+          <FeedExploreTabs />
         </header>
       )}
       {showFeedV2PageHeader && (
@@ -791,18 +778,25 @@ export default function MainFeedLayout({
         {isSearchOn && isFinder && !isSearchPageLaptop && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
-        {shouldShowReadingReminderOnHomepage && (
-          <ReadingReminderHero
-            className="px-4 pb-2"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            onEnable={onEnable}
-            onDismiss={onDismiss}
-          />
-        )}
-        {isHomePage && (
-          <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
-        )}
+        {/* Share the feed's own width container so the banner lines up with
+            the feed: full width normally, and clamped + centered to the same
+            card-based max-width as the grid on wide screens (desktopL). The
+            CSS vars feed that `styles.container` max-width calc (grid gap is
+            2rem). */}
+        <div
+          className={classNames(
+            'relative flex w-full flex-col laptopL:mx-auto',
+            feedStyles.container,
+          )}
+          style={
+            {
+              '--num-cards': feedSpacinessCards.eco,
+              '--feed-gap': '2rem',
+            } as CSSProperties
+          }
+        >
+          <FeedEngagementBanner className="mb-3" />
+        </div>
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
         )}

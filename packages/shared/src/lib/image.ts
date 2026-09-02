@@ -1,5 +1,3 @@
-import { BrowserName } from './func';
-
 const DAILY_MEDIA_HOST = 'media.daily.dev';
 const PLACEHOLDER_IMAGE_PATTERN = /placeholder/i;
 
@@ -92,12 +90,6 @@ export const cloudinarySquadsPromotionInvite =
 export const cloudinarySquadsPromotionPromote =
   'https://media.daily.dev/image/upload/s--iMFoS7Pd--/f_auto/v1686119165/Manage_roles_and_permissions_om64cu';
 
-export const cloudinarySquadsEmptySquad =
-  'https://media.daily.dev/image/upload/f_auto/public/empty-squad';
-
-export const cloudinarySquadsEmptySquadLight =
-  'https://media.daily.dev/image/upload/f_auto/public/empty_squad_light';
-
 export const cloudinaryReferralCampaignGenericSad =
   'https://media.daily.dev/image/upload/s--rMfJxJbl--/f_auto/v1697024846/ido_sad_xbe6p5';
 
@@ -151,17 +143,17 @@ export const cloudinaryOnboardingHeroDesk = {
     'https://media.daily.dev/image/upload/s--opbsGDUn--/f_auto,q_auto/v1780929680/webapp/onboarding-hero-desk-2560',
 };
 
-export const cloudinaryGenericNotFoundLight =
-  'https://media.daily.dev/image/upload/s--t81_4qLS--/f_auto/v1708330060/404-lightmode_eweviu';
+// The hero cover for the signup wall — the dev and their dog at their tent,
+// looking out over a glowing valley. Square (1254x1254) with the pair low and
+// left in the frame, so wide crops have to bias downwards to keep them.
+export const signupWallCover =
+  'https://media.daily.dev/image/upload/s--a8E1hVet--/f_auto,q_auto/v1785059413/public/daily.dev%20-%20signup%20wall';
 
-export const cloudinaryGenericNotFoundDark =
-  'https://media.daily.dev/image/upload/s--Rxdm7vdJ--/f_auto/v1708328512/404_z4xiwg';
-
-export const cloudinaryGenericErrorLight =
-  'https://media.daily.dev/image/upload/v1725365692/lightversion_dmnj1s.gif';
-
-export const cloudinaryGenericErrorDark =
-  'https://media.daily.dev/image/upload/v1725365692/darkversion_bfrze7.gif';
+// No width variants: the signature covers the transformation, so `w_768` 404s
+// rather than resizing. Sized derivatives must be exported and signed upstream
+// before a srcSet can exist.
+export const signupWallHorizon =
+  'https://media.daily.dev/image/upload/s--NCILTqRq--/f_auto,q_auto/v1785661216/public/daily.dev%20-%20main%20image';
 
 export const cloudinaryStreakSplash =
   'https://media.daily.dev/image/upload/v1705386465/Splash_v1lxjk.svg';
@@ -267,20 +259,12 @@ export const cloudinaryAppIconV10 = cloudinaryAppIcons[9].url;
 export const cloudinaryAppIconV11 = cloudinaryAppIcons[10].url;
 export const cloudinaryAppIconV12 = cloudinaryAppIcons[11].url;
 
-export const cloudinaryOnboardingExtension = {
-  [BrowserName.Chrome]: {
-    default:
-      'https://media.daily.dev/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
-    retina:
-      'https://media.daily.dev/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
-  },
-  [BrowserName.Edge]: {
-    default:
-      'https://media.daily.dev/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
-    retina:
-      'https://media.daily.dev/image/upload/s--kvj5ZB_s--/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
-  },
-};
+// 1920×1080 VP9/WebM. Only the original derivative is available on the CDN
+// (strict transformations), so there is no mp4 fallback or generated poster.
+// The extension step only renders on desktop Chrome/Brave/Edge, which all
+// play VP9.
+export const cloudinaryOnboardingExtensionVideo =
+  'https://media.daily.dev/video/upload/v1783942037/1_3_nljcyu.webm';
 
 export const cloudinaryOnboardingActivationDemo =
   'https://media.daily.dev/video/upload/v1780303637/daily.dev_-_Keep_it_acphx8.mp4';
@@ -444,8 +428,6 @@ export const recruiterSpamCampaignSEO =
 export const locationProfileImage =
   'https://media.daily.dev/image/upload/s--RYwMw9py--/f_auto/v1726486879/company_bdage_xwzrnh';
 
-export const autofillProfileCover =
-  'https://media.daily.dev/image/upload/s--0pMFz3kQ--/f_auto/v1757577987/public/Autofill%20your%20profile!';
 export const adFaviconPlaceholder =
   'https://media.daily.dev/image/upload/s--SOLIE7Bc--/f_auto/v1761801782/webapp/daily.dev_-_Boost_Icon';
 export const jobOfferDarkDesktop =
@@ -460,3 +442,51 @@ export const opportunityBriefcase =
   'https://media.daily.dev/image/upload/s--6n-4BFXP--/f_auto/v1763884475/public/dailydev.hire';
 export const opportunityBriefcaseDone =
   'https://media.daily.dev/image/upload/s--rWk2SCPQ--/f_auto/v1763884475/public/dailydev.hire.allset';
+
+// Charm mascot illustrations for emotional product moments (empty states, milestones, etc.)
+export const cloudinaryCharmNoComments =
+  'https://media.daily.dev/image/upload/s--9T4IIRt7--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20comment';
+
+export const cloudinaryCharmBookmarks =
+  'https://media.daily.dev/image/upload/s--LnFPuTT7--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20bookmark';
+
+export const cloudinaryCharmSearchNoResults =
+  'https://media.daily.dev/image/upload/s--HZdPG0L1--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20seach%20result';
+
+export const cloudinaryCharmReadLater =
+  'https://media.daily.dev/image/upload/s--RGUXYEF---/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Read%20later';
+
+export const cloudinaryCharmSomethingWentWrong =
+  'https://media.daily.dev/image/upload/s--NThDL7xq--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Something%20went%20wrong';
+
+export const cloudinaryCharm404 =
+  'https://media.daily.dev/image/upload/s--7RbaM_Ro--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20404';
+
+export const cloudinaryCharmEmptyProfile =
+  'https://media.daily.dev/image/upload/s--ulSOVWbq--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20empty%20profile';
+
+export const cloudinaryCharmEmptySquads =
+  'https://media.daily.dev/image/upload/s--J9OZk_3w--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20empty%20squads';
+
+export const cloudinaryCharmInviteFriends =
+  'https://media.daily.dev/image/upload/s--RaAyR83N--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20Invite%20friends';
+
+export const cloudinaryCharmNoPosts =
+  'https://media.daily.dev/image/upload/s--JbsZvCUt--/f_auto,q_auto/v1781528637/public/daily.dev%20Charm%20-%20no%20post';
+
+export const cloudinaryCharmNotEnoughTags =
+  'https://media.daily.dev/image/upload/s--0PIPx07_--/f_auto,q_auto/v1781529338/public/daily.dev%20Charm%20-%20no%20enoght%20tags%20(1)';
+
+// The Giveback charm (genie-themed). Artwork sits on solid black — render with
+// `mix-blend-screen` on a dark surface so the black drops out.
+export const cloudinaryCharmGiveback =
+  'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)';
+
+// Dedicated Open Graph / social share image for the giveback pages (1280×800).
+export const cloudinaryGivebackOpenGraph =
+  'https://media.daily.dev/image/upload/s--lQzU56yU--/f_auto,q_auto/v1783863597/public/daily.dev%20Givevback%20-%201280x800%20(1)';
+
+// The signature covers the transformation string, so a width cap cannot be
+// appended — serving this smaller than its 2072px source needs a re-sign.
+export const cloudinaryHijackingCoverArt =
+  'https://media.daily.dev/image/upload/s--lCzzhJXe--/f_auto,q_auto/v1783981048/public/ChatGPT%20Image%20Jul%2014%2C%202026%2C%2001_17_08%20AM';

@@ -2,7 +2,11 @@ import type { ComponentProps } from 'react';
 import type { Review, StepHeadlineAlign } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 import type { ThemeMode } from '../../../contexts/SettingsContext';
-import type { AnonymousUser, LoggedUser } from '../../../lib/user';
+import type {
+  AnonymousUser,
+  LoggedUser,
+  ProfileExtraField,
+} from '../../../lib/user';
 import type { BrowserName } from '../../../lib/func';
 import type {
   FunnelStepPricingParameters,
@@ -274,6 +278,9 @@ export interface FunnelStepProfileForm
     headline: string;
     image: string;
     imageMobile: string;
+    // Extra profile fields to collect, set per funnel in Freyja (e.g. for an
+    // Instagram/Facebook campaign). Omitted = default fields only.
+    extraFields?: ProfileExtraField[];
   }> {
   type: FunnelStepType.ProfileForm;
   onTransition: FunnelStepTransitionCallback;
@@ -282,7 +289,11 @@ export interface FunnelStepProfileForm
 export interface FunnelStepEditTags
   extends FunnelStepCommon<{
     headline: string;
+    cta?: string;
     minimumRequirement: number;
+    // Tag names to surface first on the selection grid, set per funnel in
+    // Freyja (e.g. cloud-related tags for the campaign cohort).
+    featuredTags?: string[];
   }> {
   type: FunnelStepType.EditTags;
   onTransition: FunnelStepTransitionCallback<{
@@ -308,6 +319,9 @@ export interface FunnelStepOrganicSignup
     explainer: string;
     image: string;
     imageMobile: string;
+    // Extra profile fields to collect on the email registration form, set per
+    // funnel in Freyja (e.g. Instagram/Facebook campaign). Omitted = none.
+    extraFields?: ProfileExtraField[];
   }> {
   type: FunnelStepType.OrganicSignup;
   onTransition: FunnelStepTransitionCallback<{
@@ -322,7 +336,15 @@ export interface FunnelStepOrganicCheckout extends FunnelStepCommon {
 // Redesigned signup landing — the "hero". Its own step type so its
 // individually toggleable building blocks don't collide with the original
 // organic signup. Each parameter is optional; the renderer applies defaults.
-export type FunnelSignupHeroBackground = 'cards' | 'split' | 'desk';
+export type FunnelSignupHeroBackground =
+  | 'cards'
+  | 'split'
+  | 'desk'
+  // Marketing-site parity: the form in a left column with the long landing
+  // page's hero cover artwork framed in the right one.
+  | 'panel'
+  // The homepage's hero artwork full-bleed as the right half.
+  | 'horizon';
 export type FunnelSignupHeroImageMode = 'image' | 'colors';
 export type FunnelSignupOauthOrder = 'githubFirst' | 'googleFirst';
 
@@ -362,8 +384,6 @@ export interface FunnelStepPlusCards
   }>;
 }
 
-export type FunnelExtensionImage = { default: string; retina: string };
-
 export interface FunnelStepBrowserExtension
   extends FunnelStepCommon<{
     headline?: string;
@@ -371,10 +391,7 @@ export interface FunnelStepBrowserExtension
     cta?: string;
     skip?: string;
     showReviews?: boolean;
-    image?: {
-      chrome?: FunnelExtensionImage;
-      edge?: FunnelExtensionImage;
-    };
+    video?: string;
   }> {
   type: FunnelStepType.BrowserExtension;
   onTransition: FunnelStepTransitionCallback<{
@@ -472,4 +489,9 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
+];
+// These size themselves from `funnelStepRail`, which the stepper's narrower
+// column would clamp.
+export const stepsFullWidthOnboarding: Array<FunnelStepType> = [
+  FunnelStepType.ProfileForm,
 ];

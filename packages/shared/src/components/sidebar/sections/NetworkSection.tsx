@@ -1,25 +1,34 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
-import { ListIcon } from '../common';
-import { DefaultSquadIcon, SourceIcon, TimerIcon } from '../../icons';
+import {
+  createSidebarAddItem,
+  createSidebarSeparatorItem,
+  ListIcon,
+} from '../common';
+import { SourceIcon, TimerIcon } from '../../icons';
 import { Section } from '../Section';
 import { Origin } from '../../../lib/log';
 import { useSquadNavigation } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { SquadImage } from '../../squads/SquadImage';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { squadCategoriesPaths, webappUrl } from '../../../lib/constants';
 import type { SidebarSectionProps } from './common';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
-import { SquadFavoriteButton } from '../../squads/SquadFavoriteButton';
+import { createSquadMenuItem } from './squadMenuItem';
 
 export const NetworkSection = ({
   isItemsButton,
+  // v2 reframes squad "favorite" as "pin"; passed only by the v2 sidebar so
+  // this shared section keeps the v1 star when the flag is absent.
+  asPin = false,
   ...defaultRenderSectionProps
-}: SidebarSectionProps): ReactElement => {
+}: SidebarSectionProps & { asPin?: boolean }): ReactElement => {
+  // The v2 panels also expose the add action as a dedicated bottom row
+  // (Slack-style). v1 keeps only its header "+".
+  const { isV2Panel } = defaultRenderSectionProps;
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
@@ -32,31 +41,18 @@ export const NetworkSection = ({
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const squadItems =
-      squads?.map((squad) => {
-        const { name, image, handle } = squad;
-        return {
-          icon: () =>
-            image ? (
-              <SquadImage className="h-5 w-5" {...squad} />
-            ) : (
-              <DefaultSquadIcon />
-            ),
-          title: name,
-          path: `${webappUrl}squads/${handle}`,
-          itemClassName: 'group/squad-row',
-          rightIcon: () => <SquadFavoriteButton squad={squad} />,
-        };
-      }) ?? [];
+      squads?.map((squad) => createSquadMenuItem(squad, asPin)) ?? [];
     return [
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <SourceIcon secondary={active} />} />
         ),
         title: 'Find Squads',
-        // Point at the actual landing page (`/squads` redirects here)
-        // so the active-state highlight matches the URL the user
-        // actually navigates to.
-        path: squadCategoriesPaths.discover,
+        // Absolute webapp URL so the extension's new tab links out to
+        // daily.dev instead of resolving against the chrome-extension://
+        // origin. Active-state matching strips the origin, so the webapp
+        // highlight still works.
+        path: `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`,
         isForcedLink: true,
       },
       isModeratorInAnySquad && {
@@ -75,9 +71,17 @@ export const NetworkSection = ({
           ),
         }),
       },
+      isV2Panel &&
+        createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
+      // Border between the discovery/moderation actions and the squad list,
+      // matching the settings-dropdown grouping. Skip it when there are no
+      // squads so the list never ends on a dangling divider.
+      squadItems.length > 0 &&
+        isV2Panel &&
+        createSidebarSeparatorItem('squads-divider'),
       ...squadItems,
     ].filter(Boolean) as SidebarMenuItem[];
-  }, [squads, isModeratorInAnySquad, count]);
+  }, [squads, isModeratorInAnySquad, count, asPin, isV2Panel, handleAddSquad]);
 
   return (
     <Section

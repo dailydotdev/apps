@@ -2,7 +2,7 @@
 
 A Next.js + React web application of daily.dev.
 It utilizes the brand new incremental static generation feature of Next.js to deliver pages fast.
-Available at: [app.daily.dev](https://app.daily.dev)
+Available at: [daily.dev](https://daily.dev)
 
 ## Stack
 
@@ -19,13 +19,6 @@ Available at: [app.daily.dev](https://app.daily.dev)
 * `components` - React and styled-components components that are used across the app.
 * `pages` - Contains the pages of the app. This is required by Next.js
 * `public` - Files that should be publicly available and not processed by any way.
-
-## Local environment
-
-daily.dev web app requires a running environment of daily.dev.
-[Check out this guide](https://github.com/dailydotdev/daily#-running-dailydev-locally) of how to run daily.dev locally.
-
-Finally run `npm run dev:notls` to run the service and listen to port `5002`.
 
 ## Want to Help?
 

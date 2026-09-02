@@ -17,12 +17,13 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
-import { defaultSeo } from '../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Integrations'),
+  ...noindexSeoProps,
 };
 
 const AccountIntegrationsPage = (): ReactElement => {

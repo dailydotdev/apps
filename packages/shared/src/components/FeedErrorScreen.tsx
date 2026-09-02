@@ -15,7 +15,7 @@ function FeedErrorScreen({ error }: { error?: ClientError }): ReactElement {
         {isNetworkError ? (
           <ConnectionError onRetry={() => window.location.reload()} />
         ) : (
-          <ServerError themedImage />
+          <ServerError />
         )}
       </PageContainer>
     </div>

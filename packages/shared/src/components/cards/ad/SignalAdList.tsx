@@ -17,19 +17,24 @@ import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { RemoveAd } from './common/RemoveAd';
 import { AdPixel } from './common/AdPixel';
+import { AdMeasurement } from './common/AdMeasurement';
+import { AdViewability } from './common/AdViewability';
+import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import { SourceAvatar } from '../../profile/source/SourceAvatar';
 import { MiniCloseIcon } from '../../icons';
 import { getAdFaviconImageLink } from './common/getAdFaviconImageLink';
 
 const getLinkProps = ({
   ad,
+  href,
   onLinkClick,
 }: {
   ad: Ad;
+  href: string;
   onLinkClick: (ad: Ad) => unknown;
 }): AnchorHTMLAttributes<HTMLAnchorElement> => {
   return {
-    href: ad.link,
+    href,
     target: '_blank',
     rel: 'noopener',
     title: ad.description,
@@ -38,7 +43,7 @@ const getLinkProps = ({
 };
 
 export const SignalAdList = forwardRef(function SignalAdList(
-  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
+  { ad, onLinkClick, onViewable, domProps, index, feedIndex }: AdCardProps,
   inViewRef: Ref<HTMLElement>,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
@@ -57,6 +62,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
     size: 20,
   });
   const sourceHandle = ad.company?.trim() || ad.source?.trim() || 'promoted';
+  const clickUrl = useAdClickUrl(ad);
 
   return (
     <FeedItemContainer
@@ -71,6 +77,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
       data-testid="adItem"
       linkProps={getLinkProps({
         ad,
+        href: clickUrl,
         onLinkClick: onLinkClick ?? (() => undefined),
       })}
     >
@@ -86,6 +93,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
           </span>
           <span>&middot;</span>
           <AdAttribution
+            ad={ad}
             className={{
               typo: 'typo-callout',
               main: 'inline',
@@ -111,7 +119,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
           <div className="relative z-1 mt-2 flex items-center">
             <Button
               tag="a"
-              href={ad.link}
+              href={clickUrl}
               target="_blank"
               rel="noopener"
               variant={ButtonVariant.Primary}
@@ -124,6 +132,8 @@ export const SignalAdList = forwardRef(function SignalAdList(
         )}
       </div>
       <AdPixel pixel={ad.pixel} />
+      <AdMeasurement ad={ad} />
+      <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />
     </FeedItemContainer>
   );
 });

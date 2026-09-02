@@ -1,7 +1,11 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import type { UserTransaction } from '../graphql/njord';
-import { UserTransactionStatus, UserTransactionType } from '../graphql/njord';
+import {
+  ProductType,
+  UserTransactionStatus,
+  UserTransactionType,
+} from '../graphql/njord';
 import type { LoggedUser } from './user';
 import { Image } from '../components/image/Image';
 
@@ -83,7 +87,9 @@ export const getTransactionLabel = ({
             alt={transaction.product.name}
             className="size-5"
           />
-          Award{' '}
+          {transaction.product.type === ProductType.StreakFreeze
+            ? transaction.product.name
+            : 'Award'}{' '}
         </div>
       );
     }
@@ -95,5 +101,14 @@ export const getTransactionLabel = ({
 
   return type.toUpperCase();
 };
+
+export const getTransactionNote = ({
+  transaction,
+}: {
+  transaction: UserTransaction;
+}): string | undefined =>
+  transaction.referenceType === UserTransactionType.User
+    ? transaction.flags.note
+    : undefined;
 
 export const coreApproxValueUSD = 100;

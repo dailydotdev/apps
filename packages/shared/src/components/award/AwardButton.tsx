@@ -69,7 +69,10 @@ export const AwardButton = ({
           : `Award this ${type.toLowerCase()}`
       }
     >
-      <div>
+      {/* flex, not the default block: the wrapper the tooltip needs otherwise
+          picks up a line box under the button and stands 3px taller than it,
+          which knocks it out of line with any button beside it. */}
+      <div className="flex">
         <Button
           pressed={pressed}
           size={ButtonSize.Small}

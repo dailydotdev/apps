@@ -80,6 +80,7 @@ let activateOnboardingPending = false;
 const excludedCompanionOrigins = [
   'http://127.0.0.1:5002',
   'http://localhost',
+  'https://daily.dev',
   'https://app.daily.dev',
   'https://twitter.com',
   'https://www.google.com',

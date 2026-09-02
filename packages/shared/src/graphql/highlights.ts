@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { Connection } from './common';
+import type { PostHighlightSignificance } from './types';
 import { ONE_MINUTE } from '../lib/time';
 
 export interface PostHighlight {
@@ -143,12 +144,6 @@ export const POST_HIGHLIGHTS_FEED_QUERY = gql`
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
 
-export type PostHighlightSignificance =
-  | 'breaking'
-  | 'major'
-  | 'notable'
-  | 'routine';
-
 interface PostHighlightsFeedPageData {
   postHighlightsFeed: Connection<PostHighlightFeed>;
 }
@@ -225,6 +220,7 @@ export interface ChannelDigestConfiguration {
 export interface ChannelConfiguration {
   channel: string;
   displayName: string;
+  color: string;
   digest?: ChannelDigestConfiguration | null;
 }
 
@@ -263,6 +259,39 @@ export const HIGHLIGHTS_PAGE_QUERY = gql`
   }
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
+
+export interface ChannelConfigurationsData {
+  channelConfigurations: ChannelConfiguration[];
+}
+
+export const CHANNEL_CONFIGURATIONS_QUERY_KEY = ['channel-configurations'];
+
+export const CHANNEL_CONFIGURATIONS_QUERY = gql`
+  query ChannelConfigurations {
+    channelConfigurations {
+      channel
+      displayName
+      color
+      digest {
+        frequency
+        source {
+          id
+          name
+          image
+          handle
+          permalink
+        }
+      }
+    }
+  }
+`;
+
+export const channelConfigurationsQueryOptions = () => ({
+  queryKey: CHANNEL_CONFIGURATIONS_QUERY_KEY,
+  queryFn: () =>
+    gqlClient.request<ChannelConfigurationsData>(CHANNEL_CONFIGURATIONS_QUERY),
+  staleTime: ONE_MINUTE,
+});
 
 export const highlightsPageQueryOptions = ({
   first = MAJOR_HEADLINES_MAX_FIRST,

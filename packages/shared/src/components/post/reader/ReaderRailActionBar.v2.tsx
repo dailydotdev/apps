@@ -59,7 +59,7 @@ export function ReaderRailActionBar({
       role="toolbar"
       aria-label="Post actions"
     >
-      <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'More like this'}>
+      <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
         <CardAction
           id="reader-upvote-btn"
           pressed={isUpvoteActive}
@@ -74,9 +74,7 @@ export function ReaderRailActionBar({
           color={ButtonColor.Avocado}
         />
       </Tooltip>
-      <Tooltip
-        content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-      >
+      <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
         <CardAction
           id="reader-downvote-btn"
           pressed={isDownvoteActive}

@@ -36,7 +36,10 @@ export function SharedCardCover({
   renderOverlay,
   CardImageComponent,
 }: SharedCardCoverProps): ReactElement {
-  const { overlay } = useCardCover({ post, onShare });
+  const { overlay } = useCardCover({
+    post,
+    onShare,
+  });
   const imageClasses = classNames(
     imageProps?.className,
     !!overlay && 'opacity-16',

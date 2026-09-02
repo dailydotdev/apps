@@ -25,6 +25,9 @@ import overlay from './tailwind/overlay';
 
 export default {
   content: [],
+  // Channel highlight colors are stored as full classes in the DB, so Tailwind
+  // can't see them as literals — safelist the accent text utilities.
+  safelist: [{ pattern: /^text-accent-.+-default$/ }],
   theme: {
     colors: {
       raw: {
@@ -234,6 +237,10 @@ export default {
         20: '1.25rem',
       },
       keyframes: {
+        'image-zoom-in': {
+          from: { opacity: '0', transform: 'scale(0.85)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
         'scale-down-pulse': {
           '0%, 100%': { transform: 'scale(1)', opacity: '1' },
           '50%': { transform: 'scale(0.7)', opacity: '0.5' },
@@ -297,11 +304,70 @@ export default {
           '60%': { transform: 'translateX(3px) rotate(2deg)' },
           '75%': { transform: 'translateX(-2px) rotate(-1deg)' },
         },
+        'meter-shine': {
+          '0%': { transform: 'translateX(-120%)' },
+          '60%, 100%': { transform: 'translateX(320%)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { opacity: '0.35', transform: 'scale(1)' },
+          '50%': { opacity: '0.7', transform: 'scale(1.08)' },
+        },
+        'mascot-bob': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+        'streak-fade': {
+          '0%, 100%': { opacity: '0.24' },
+          '50%': { opacity: '0.08' },
+        },
+        'streak-pulse': {
+          '0%, 100%': { opacity: '0.45' },
+          '50%': { opacity: '0.12' },
+        },
+        'streak-border-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
+        },
+        // Earn pop ("gong"): a punchy strike — the border snaps bigger and
+        // gray -> pink fast (overshoot), rebounds slightly past its rest size
+        // (the vibration), then settles. Short and snappy, not a slow breathe.
+        'streak-earn-border': {
+          '0%': {
+            transform: 'scale(1)',
+            borderColor: 'var(--theme-border-subtlest-tertiary)',
+          },
+          '25%': {
+            transform: 'scale(1.25)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+          '55%': {
+            transform: 'scale(0.97)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+          '100%': {
+            transform: 'scale(1)',
+            borderColor: 'var(--theme-accent-bacon-default)',
+          },
+        },
+        // Earn pop: the fill stays clear while the border strikes up to its
+        // peak (0 -> 25%, matching streak-earn-border's max-scale keyframe),
+        // then the pink washes in from that point to the end as the border
+        // rebounds and settles.
+        'streak-earn-fill': {
+          '0%': { backgroundColor: 'transparent' },
+          '25%': { backgroundColor: 'transparent' },
+          '100%': {
+            backgroundColor:
+              'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
+          },
+        },
       },
       animation: {
+        'image-zoom-in': 'image-zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
+        'composer-in': 'fade-slide-up 0.2s ease-out both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
         'reaction-burst':
           'reaction-burst 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards',
@@ -313,6 +379,14 @@ export default {
         'queue-attention-wave':
           'queue-attention-wave 1.6s ease-in-out infinite',
         'nudge-shake': 'nudge-shake 600ms ease-in-out',
+        'meter-shine': 'meter-shine 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+        'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
+        'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
+        'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
+        'streak-earn-border': 'streak-earn-border 0.6s ease-out both',
+        'streak-earn-fill': 'streak-earn-fill 0.6s ease-out both',
+        'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },
     lineClamp: {

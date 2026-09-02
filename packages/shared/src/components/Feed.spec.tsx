@@ -13,7 +13,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 
-import type { FeedData, Post, PostData, PostsEngaged } from '../graphql/posts';
+import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
+import type {
+  Ad,
+  FeedData,
+  Post,
+  PostData,
+  PostsEngaged,
+} from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
   HIDE_POST_MUTATION,
@@ -37,6 +44,7 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import type { LoggedUser } from '../lib/user';
+import { webappUrl } from '../lib/constants';
 import {
   AcquisitionChannel,
   USER_ACQUISITION_MUTATION,
@@ -63,11 +71,25 @@ import { SourceType } from '../graphql/sources';
 import { removeQueryParam } from '../lib/links';
 import { SharedFeedPage } from './utilities';
 import type { AllFeedPages } from '../lib/query';
+import { OtherFeedPage } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
 import { ActionType } from '../graphql/actions';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
+import FeedContext from '../contexts/FeedContext';
+import type { FeedContextData } from '../contexts/FeedContext';
+import { FeaturesReadyContext } from './GrowthBookProvider';
+import {
+  briefFeedEntrypointPage,
+  featureHeroCards,
+} from '../lib/featureManagement';
+import type { Connection } from '../graphql/common';
+import type { PostHero, PostHeroSignificance } from '../graphql/types';
+import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { useBoot } from '../hooks/useBoot';
+import { MarketingCtaVariant } from './marketing/cta/common';
+import type { MarketingCta } from './marketing/cta/common';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -125,11 +147,36 @@ jest.mock('../hooks/useSubscription', () => ({
     ),
 }));
 
+// Default implementation returns the "hero hidden" state so existing tests
+// are unaffected. Individual tests override it when they need to exercise
+// the top hero render path.
+jest.mock('../hooks/notifications/useReadingReminderFeedHero', () => ({
+  useReadingReminderFeedHero: jest.fn().mockReturnValue({
+    shouldShowTopHero: false,
+    title: '',
+    subtitle: '',
+    onEnableHero: jest.fn(),
+    onDismissHero: jest.fn(),
+  }),
+}));
+
+jest.mock('../hooks/useBoot', () => ({
+  useBoot: jest.fn().mockReturnValue({
+    addSquad: jest.fn(),
+    deleteSquad: jest.fn(),
+    updateSquad: jest.fn(),
+    getMarketingCta: jest.fn().mockReturnValue(null),
+    clearMarketingCta: jest.fn(),
+    getPlusEntryData: jest.fn().mockReturnValue(null),
+  }),
+}));
+
 let variables: Record<string, unknown>;
 const defaultVariables = {
   first: 7,
   loggedIn: true,
   after: '',
+  columns: 1,
 };
 
 const queryClient = new QueryClient(defaultQueryClientTestingConfig);
@@ -191,11 +238,14 @@ function renderComponent(
   user?: LoggedUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
   query = ANONYMOUS_FEED_QUERY,
+  feedProps: Partial<React.ComponentProps<typeof Feed>> = {},
 ): RenderResult {
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=false&gdpr=0')
+    .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     ...baseSettingsContext,
     setTheme: jest.fn(),
@@ -235,6 +285,7 @@ function renderComponent(
             feedName={feedName}
             query={query}
             variables={variables}
+            {...feedProps}
           />
         </SettingsContext.Provider>
       </AuthContext.Provider>
@@ -528,7 +579,7 @@ describe('Feed logged in', () => {
       },
       completeActionMock({ action: ActionType.VotePost }),
     ]);
-    const [el] = await screen.findAllByLabelText('More like this');
+    const [el] = await screen.findAllByLabelText('Upvote');
     el.click();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
@@ -643,7 +694,7 @@ describe('Feed logged in', () => {
       }),
     ]);
     await waitFor(async () => {
-      const [el] = await screen.findAllByLabelText('More like this');
+      const [el] = await screen.findAllByLabelText('Upvote');
       const parent = getRequiredValue(
         el.parentElement,
         'Expected upvote button parent element',
@@ -662,7 +713,7 @@ describe('Feed logged in', () => {
       },
     });
     await waitFor(async () => {
-      const [el] = await screen.findAllByLabelText('More like this');
+      const [el] = await screen.findAllByLabelText('Upvote');
       const parent = getRequiredValue(
         el.parentElement,
         'Expected upvote button parent element after subscription',
@@ -1265,11 +1316,67 @@ describe('Feed logged in', () => {
       },
     }));
 
+    // Opening the post modal now logs a view for every post type (previously
+    // only some types tracked here); the `pmid` query param above opens the
+    // modal on mount, so this must be registered before render.
+    nock('http://localhost:3000')
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
     renderComponent();
     await waitForNock();
     const [first] = await screen.findAllByLabelText('Comments');
     fireEvent.click(first);
     await screen.findByRole('dialog');
+  });
+
+  it('should open the post modal with a shallow push', async () => {
+    const push = jest.fn().mockResolvedValue(true);
+    jest.mocked(useRouter).mockImplementation(() => ({
+      route: '/',
+      pathname: '/',
+      query: {},
+      asPath: '/',
+      push,
+      replace: jest.fn(),
+      basePath: '',
+      isLocaleDomain: true,
+      prefetch: jest.fn(),
+      beforePopState: jest.fn(),
+      reload: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      isFallback: false,
+      isReady: true,
+      isPreview: false,
+      events: {
+        on: jest.fn(),
+        off: jest.fn(),
+        emit: jest.fn(),
+      },
+    }));
+
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
+
+    renderComponent();
+    const [first] = await screen.findAllByLabelText(
+      'Eminem Quotes Generator - Simple PHP RESTful API',
+    );
+    fireEvent.click(first);
+
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith(
+        expect.stringContaining('pmid=4f354bb73009e4adfa5dbcbf9b3c4ebf'),
+        `${webappUrl}posts/4f354bb73009e4adfa5dbcbf9b3c4ebf`,
+        { scroll: false, shallow: true },
+      ),
+    );
   });
 
   const createPostMock = (
@@ -1369,6 +1476,23 @@ describe('Feed logged in', () => {
     });
 
     const [firstPost, secondPost] = defaultFeedPage.edges;
+    // Opening the post modal now logs a view for every post type; the
+    // `pmid` query param above opens the modal on mount, and this test then
+    // navigates through three different post/id combinations, so mock
+    // persistently (registered before render) rather than one-off per post.
+    // Counts calls so the test can wait for the final navigation's view to
+    // actually fire before finishing — otherwise the request can resolve
+    // after this test ends and spuriously fail an unrelated later test.
+    let viewPostCallCount = 0;
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, () => {
+        viewPostCallCount += 1;
+        return { data: { viewPost: { _: true } } };
+      });
     renderComponent();
     await waitForNock();
 
@@ -1396,9 +1520,24 @@ describe('Feed logged in', () => {
     fireEvent.click(previous);
     const firstTitle = await screen.findByTestId('post-modal-title');
     expect(firstTitle).toHaveTextContent(getPostTitle(firstPost.node, 'first'));
+
+    await waitFor(() => expect(viewPostCallCount).toBe(3));
   });
 
   it('should report irrelevant tags', async () => {
+    // The two preceding tests set a `pmid` router query to drive their own
+    // post-modal navigation, and `jest.clearAllMocks()` in `beforeEach` does
+    // not reset a `mockImplementation`. Reset it here so this test doesn't
+    // inherit that `pmid` and inadvertently auto-open the post modal (which,
+    // now that opening a post logs a view for every type, would otherwise
+    // fire an unmocked `viewPost` mutation).
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {},
+        } as unknown as NextRouter),
+    );
     let mutationCalled = false;
     renderComponent([
       createFeedMock({
@@ -1456,6 +1595,15 @@ describe('Feed logged in', () => {
   });
 
   it('should keep selected irrelevant tags when reason changes', async () => {
+    // See comment in the preceding test: reset the router mock so this test
+    // doesn't inherit a leftover `pmid` query and auto-open the post modal.
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {},
+        } as unknown as NextRouter),
+    );
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,
@@ -1625,6 +1773,7 @@ describe('Feed annonymous', () => {
       first: 7,
       loggedIn: false,
       after: '',
+      columns: 1,
     };
 
     renderComponent(
@@ -1639,12 +1788,13 @@ describe('Feed annonymous', () => {
             first: 7,
             loggedIn: false,
             after: '',
+            columns: 1,
           },
         ),
       ],
       undefined,
     );
-    const [el] = await screen.findAllByLabelText('More like this');
+    const [el] = await screen.findAllByLabelText('Upvote');
     el.click();
     expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Upvote });
   });
@@ -1654,6 +1804,7 @@ describe('Feed annonymous', () => {
       first: 7,
       loggedIn: false,
       after: '',
+      columns: 1,
     };
 
     renderComponent(
@@ -1668,6 +1819,7 @@ describe('Feed annonymous', () => {
             first: 7,
             loggedIn: false,
             after: '',
+            columns: 1,
           },
         ),
       ],
@@ -1678,5 +1830,730 @@ describe('Feed annonymous', () => {
     await waitFor(() =>
       expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark }),
     );
+  });
+});
+
+const sourceFixture = defaultFeedPage.edges[0].node.source;
+
+const buildPost = (id: string, hero?: PostHero | null): Post =>
+  ({
+    id,
+    title: `Post ${id}`,
+    createdAt: '2026-05-25T00:00:00.000Z',
+    image: 'https://daily.dev/img.png',
+    readTime: 1,
+    source: sourceFixture,
+    tags: [],
+    permalink: `http://localhost:4000/r/${id}`,
+    numComments: 0,
+    numUpvotes: 0,
+    commentsPermalink: `http://localhost:5002/posts/${id}`,
+    read: false,
+    upvoted: false,
+    commented: false,
+    type: PostType.Article,
+    domain: 'example.com',
+    hero: hero ?? null,
+  } as Post);
+
+const SIGNIFICANCE_BY_SIZE: Record<number, PostHeroSignificance> = {
+  4: 'breaking',
+  3: 'major',
+  2: 'notable',
+  1: 'routine',
+};
+
+const buildWidePost = (id: string, size: number): Post =>
+  buildPost(id, {
+    id: `hero-${id}`,
+    headline: 'wide',
+    significance: SIGNIFICANCE_BY_SIZE[size] ?? 'notable',
+    size,
+    highlightedAt: '2026-05-25T00:00:00.000Z',
+  });
+
+const buildFeedPage = (posts: Post[]): Connection<Post> => ({
+  pageInfo: { hasNextPage: false, endCursor: '' },
+  edges: posts.map((node) => ({ node })),
+});
+
+interface HighlightLayoutRenderParams {
+  posts: Post[];
+  highlightEnabled: boolean;
+  numCards?: number;
+  pageSize?: number;
+  adStart?: number;
+  adRepeat?: number;
+  minSpacing?: number;
+  startIndex?: number;
+  briefBannerPage?: number;
+  staticAd?: { ad: Ad; index: number };
+  disableAds?: boolean;
+  user?: LoggedUser;
+  isHorizontal?: boolean;
+  feedName?: AllFeedPages;
+}
+
+const renderWithHighlightLayout = ({
+  posts,
+  highlightEnabled,
+  numCards = 4,
+  pageSize = 25,
+  adStart = 4,
+  adRepeat = 8,
+  minSpacing = 5,
+  startIndex = 0,
+  briefBannerPage,
+  staticAd,
+  disableAds,
+  user = defaultUser,
+  isHorizontal,
+  feedName = SharedFeedPage.MyFeed,
+}: HighlightLayoutRenderParams): RenderResult => {
+  variables = { ...defaultVariables, first: pageSize, columns: numCards };
+  mockGraphQL(createFeedMock(buildFeedPage(posts)));
+  // First ad page uses active=false, subsequent pages use active=true. Mock
+  // both up to a handful of refills so multi-ad scenarios don't run dry.
+  nock('http://localhost:3000')
+    .get('/v1/a?active=false&gdpr=0')
+    .reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=true&gdpr=0')
+    .times(10)
+    .reply(200, [ad]);
+
+  const feedContextValue: FeedContextData = {
+    pageSize,
+    numCards: {
+      eco: numCards,
+      roomy: numCards,
+      cozy: numCards,
+    } as FeedContextData['numCards'],
+    adTemplate: { adStart, adRepeat },
+  };
+
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featureHeroCards.id]: {
+      defaultValue: {
+        enabled: highlightEnabled,
+        minSpacing,
+        startIndex,
+        chipLabels: {},
+        allowedPostTypes: {
+          [PostType.Article]: true,
+          [PostType.VideoYouTube]: true,
+          [PostType.Share]: true,
+          [PostType.Freeform]: true,
+          [PostType.Collection]: true,
+        },
+      },
+    },
+    ...(briefBannerPage
+      ? {
+          [briefFeedEntrypointPage.id]: {
+            defaultValue: briefBannerPage,
+          },
+        }
+      : {}),
+  });
+
+  const settingsContext: SettingsContextData = {
+    ...baseSettingsContext,
+    setTheme: jest.fn(),
+    setSpaciness: jest.fn(),
+    toggleOpenNewTab: jest.fn(),
+    toggleInsaneMode: jest.fn(),
+    toggleShowTopSites: jest.fn(),
+    toggleSortingEnabled: jest.fn(),
+    toggleOptOutReadingStreak: jest.fn(),
+    toggleAutoDismissNotifications: jest.fn(),
+    updateCustomLinks: jest.fn(),
+    toggleSidebarExpanded: jest.fn(),
+  };
+
+  // Use a fresh QueryClient per render — the suite-level singleton can
+  // carry over errored ad-query state from earlier tests (retry: false
+  // means failures stick), which causes ads to never re-fetch here.
+  const isolatedClient = new QueryClient(defaultQueryClientTestingConfig);
+
+  return render(
+    <QueryClientProvider client={isolatedClient}>
+      <AuthContext.Provider
+        value={{
+          user,
+          isLoggedIn: true,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: user.id,
+          loginState: undefined,
+          isAuthReady: true,
+        }}
+      >
+        <GrowthBookProvider growthbook={gb}>
+          <FeaturesReadyContext.Provider
+            value={{
+              ready: true,
+              getFeatureValue: (feature) =>
+                gb.getFeatureValue(feature.id, feature.defaultValue),
+            }}
+          >
+            <SettingsContext.Provider value={settingsContext}>
+              <FeedContext.Provider value={feedContextValue}>
+                <Feed
+                  feedQueryKey={['feed']}
+                  feedName={feedName}
+                  query={ANONYMOUS_FEED_QUERY}
+                  variables={variables}
+                  staticAd={staticAd}
+                  disableAds={disableAds}
+                  isHorizontal={isHorizontal}
+                />
+              </FeedContext.Provider>
+            </SettingsContext.Provider>
+          </FeaturesReadyContext.Provider>
+        </GrowthBookProvider>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
+  );
+};
+
+const getFeedItemTestIds = async (expectedAdCount = 1): Promise<string[]> => {
+  await waitFor(
+    () => {
+      const ads = screen.queryAllByTestId('adItem');
+      expect(ads.length).toBeGreaterThanOrEqual(expectedAdCount);
+    },
+    { timeout: 5000 },
+  );
+  const nodes = document.querySelectorAll(
+    '[data-testid="postItem"], [data-testid="adItem"]',
+  );
+  return Array.from(nodes).map(
+    (node) => node.getAttribute('data-testid') ?? '',
+  );
+};
+
+describe('Feed ad cadence with highlight cards', () => {
+  // beforeEach in the outer describe calls jest.restoreAllMocks(), which
+  // wipes the desktop viewport spy from the suite's beforeAll. Re-apply it
+  // here so canRenderHighlightCards isn't gated off by a mobile viewport.
+  // Also reset useRouter: earlier describes (e.g. acquisition form card)
+  // call mockImplementation on it, and that impl survives clearAllMocks /
+  // restoreAllMocks — leaving us with a polluted query/pathname.
+  beforeEach(() => {
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {},
+        } as unknown as NextRouter),
+    );
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn().mockReturnValue(null),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+    jest.mocked(useReadingReminderFeedHero).mockReturnValue({
+      shouldShowTopHero: false,
+      title: '',
+      subtitle: '',
+      onEnableHero: jest.fn(),
+      onDismissHero: jest.fn(),
+    });
+  });
+
+  // Setup: numCards=4, adStart=4, adRepeat=8. With 1 normal post per cell,
+  // first ad lands at visual cell 4 (after 4 normal posts). With a 4-cell
+  // wide post at index 0, vcs jumps to 4 after one item — so the ad lands
+  // at array index 1 instead of index 4.
+  it('places ad on correct spot when a wide card precedes it', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: true });
+
+    const order = await getFeedItemTestIds();
+    expect(order[0]).toBe('postItem');
+    expect(order[1]).toBe('adItem');
+    expect(order.slice(2).every((t) => t === 'postItem')).toBe(true);
+  });
+
+  // Same fixture, flag off: layout disabled → wide card collapses to 1 cell
+  // (every item contributes 1 to visualCellsSoFar). Ad falls at the original
+  // 4th position.
+  it('places ad on correct spot when feature flag is disabled', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: false });
+
+    const order = await getFeedItemTestIds();
+    expect(order.slice(0, 4).every((t) => t === 'postItem')).toBe(true);
+    expect(order[4]).toBe('adItem');
+  });
+
+  // Two wide cards spaced beyond minSpacing each push the cadence forward,
+  // so two ads land in a single page that would only contain one without
+  // the layout enabled.
+  it('places ad on correct spot across multiple wide cards', async () => {
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildPost('p8'),
+      buildWidePost('w9', 4),
+    ];
+
+    renderWithHighlightLayout({ posts, highlightEnabled: true });
+
+    const order = await getFeedItemTestIds(2);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    expect(adIndices).toEqual([1, 9]);
+  });
+
+  // Straddle scenario: a wide card placed where its full requested span
+  // would jump past a scheduled ad slot. The fit-to-ad-slot clamp shrinks
+  // the wide card so vcs lands exactly on the slot and the ad fires —
+  // preserving the impression that the old "mod === 0" check dropped.
+  it('does not drop an ad when a wide card straddles the next slot', async () => {
+    // adStart=3, adRepeat=8. First slot at vcs=3, second at vcs=11.
+    // First post is a size-4 wide. Without the clamp it'd jump vcs 0→4,
+    // skipping vcs=3 entirely; the clamp shrinks it to span 3 so vcs=3
+    // lands on the slot and the ad fires next iteration.
+    const posts = [
+      buildWidePost('w0', 4),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      numCards: 4,
+      adStart: 3,
+      adRepeat: 8,
+    });
+
+    const order = await getFeedItemTestIds(1);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    // Exactly one ad rendered (no drop), and it lands after the wide
+    // card (which landed at index 0).
+    expect(adIndices.length).toBe(1);
+    expect(adIndices[0]).toBe(1);
+  });
+
+  // Verifies the brief-banner integration end-to-end: useFeed exposes the
+  // banner via `bannerInsertions` (computed from the feature flag), Feed
+  // renders the banner element, and the placement builder accounts for
+  // the banner-induced col reset so ad cadence stays aligned with what
+  // is actually rendered.
+  it('renders brief banner from useFeed and keeps ads flowing', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      // pageSize=8, numCards=4 → banner at index 8 (end of page 1).
+      pageSize: 8,
+      briefBannerPage: 1,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('brief-banner-feed')).toBeInTheDocument();
+    });
+    // Ads still render alongside the banner (no regression in cadence).
+    expect(await screen.findByTestId('adItem')).toBeInTheDocument();
+  });
+
+  it('inserts staticAd at the requested index via the cadence walk', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+    ];
+    const staticAdFixture: Ad = {
+      ...ad,
+      link: 'https://daily.dev/static-ad-marker',
+    };
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      staticAd: { ad: staticAdFixture, index: 2 },
+    });
+
+    const order = await getFeedItemTestIds(1);
+    expect(order[2]).toBe('adItem');
+    expect(order[0]).toBe('postItem');
+    expect(order[1]).toBe('postItem');
+  });
+
+  it('renders a marketing CTA above the feed grid without displacing ads', async () => {
+    const marketingCtaTitle = 'Marketing CTA title';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-test',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildPost('p8'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      adStart: 2,
+      adRepeat: 4,
+    });
+
+    expect(
+      await screen.findByText(marketingCtaTitle, undefined, { timeout: 5000 }),
+    ).toBeInTheDocument();
+
+    const order = await getFeedItemTestIds(2);
+    const adIndices = order
+      .map((t, i) => (t === 'adItem' ? i : -1))
+      .filter((i) => i >= 0);
+    expect(adIndices).toEqual([2, 6]);
+    expect(order.filter((t) => t === 'postItem').length).toBe(posts.length);
+  });
+
+  it('does not render marketing CTA on ads-disabled feeds', async () => {
+    const marketingCtaTitle = 'Should not appear';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-off',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    const posts = [buildPost('p0'), buildPost('p1'), buildPost('p2')];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      disableAds: true,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    expect(screen.queryByText(marketingCtaTitle)).not.toBeInTheDocument();
+  });
+
+  it('holds the marketing CTA on squad feeds until enough posts load', async () => {
+    const marketingCtaTitle = 'Squad CTA';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-squad',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    renderWithHighlightLayout({
+      posts: [buildPost('p0')],
+      highlightEnabled: false,
+      feedName: OtherFeedPage.Squad,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(1);
+    });
+    expect(screen.queryByText(marketingCtaTitle)).not.toBeInTheDocument();
+  });
+
+  it('renders marketing CTA over acquisition form when both eligible', async () => {
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: { ua: 'true' },
+        } as unknown as NextRouter),
+    );
+    const marketingCtaTitle = 'Priority CTA';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-priority',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    renderWithHighlightLayout({
+      posts: [buildPost('p0'), buildPost('p1'), buildPost('p2')],
+      highlightEnabled: false,
+    });
+
+    expect(
+      await screen.findByText(marketingCtaTitle, undefined, { timeout: 5000 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/How did you hear about us/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the marketing CTA on squad feeds once the post threshold is exceeded', async () => {
+    const marketingCtaTitle = 'Squad CTA';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-squad-ok',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    renderWithHighlightLayout({
+      posts: [
+        buildPost('p0'),
+        buildPost('p1'),
+        buildPost('p2'),
+        buildPost('p3'),
+      ],
+      highlightEnabled: false,
+      feedName: OtherFeedPage.Squad,
+    });
+
+    expect(
+      await screen.findByText(marketingCtaTitle, undefined, { timeout: 5000 }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders highlight cards for Plus users without rendering ads', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildWidePost('w4', 3),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      adStart: 4,
+      adRepeat: 8,
+      user: { ...defaultUser, isPlus: true },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    expect(screen.queryAllByTestId('adItem').length).toBe(0);
+  });
+
+  it('skips the ad-cadence clamp on wide cards for Plus users', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+      buildPost('p5'),
+      buildPost('p6'),
+      buildPost('p7'),
+      buildWidePost('w8', 4),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      adStart: 2,
+      adRepeat: 8,
+      user: { ...defaultUser, isPlus: true },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    const wrappers = await screen.findAllByTestId('feedItemColSpanWrapper');
+    const styles = wrappers.map((el) => el.getAttribute('style') ?? '');
+    expect(styles.some((s) => s.includes('span 4'))).toBe(true);
+    expect(screen.queryAllByTestId('adItem').length).toBe(0);
+  });
+
+  // In a horizontal carousel `gridColumn: span N` stretches the card to N
+  // slots wide instead of highlighting a row, so hero placement must stay
+  // off even when the flag is on and posts carry hero data.
+  it('never widens hero cards in horizontal feeds', async () => {
+    const posts = [
+      buildWidePost('w0', 2),
+      buildWidePost('w1', 3),
+      buildPost('p2'),
+      buildWidePost('w3', 2),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      isHorizontal: true,
+      disableAds: true,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    expect(screen.queryAllByTestId('feedItemColSpanWrapper').length).toBe(0);
+  });
+});
+
+describe('Feed excludePinnedPosts', () => {
+  const [firstEdge, secondEdge, ...restEdges] = defaultFeedPage.edges;
+  const pinnedTitle = getPostTitle(firstEdge.node, 'pinned');
+  const unpinnedTitle = getPostTitle(secondEdge.node, 'unpinned');
+  const pageWithPinned: Connection<Post> = {
+    ...defaultFeedPage,
+    edges: [
+      { ...firstEdge, node: { ...firstEdge.node, pinnedAt: new Date() } },
+      secondEdge,
+      ...restEdges,
+    ],
+  };
+
+  it('drops pinned posts when asked', async () => {
+    renderComponent(
+      [createFeedMock(pageWithPinned)],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { excludePinnedPosts: true },
+    );
+    await waitForNock();
+
+    expect(await screen.findByText(unpinnedTitle)).toBeInTheDocument();
+    expect(screen.queryByText(pinnedTitle)).not.toBeInTheDocument();
+  });
+
+  it('keeps pinned posts by default', async () => {
+    renderComponent([createFeedMock(pageWithPinned)]);
+    await waitForNock();
+
+    expect(await screen.findByText(pinnedTitle)).toBeInTheDocument();
   });
 });

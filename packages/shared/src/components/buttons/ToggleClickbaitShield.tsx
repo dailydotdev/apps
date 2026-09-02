@@ -24,6 +24,8 @@ import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureClickbaitShieldIntroQuests } from '../../lib/featureManagement';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 export const ToggleClickbaitShield = ({
@@ -48,6 +50,10 @@ export const ToggleClickbaitShield = ({
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
   const hasIntroQuests = useHasIntroQuests({ shouldEvaluate: !isPlus });
+  const { value: showDuringIntroQuests } = useConditionalFeature({
+    feature: featureClickbaitShieldIntroQuests,
+    shouldEvaluate: !isPlus && hasIntroQuests,
+  });
   // v2 dual-sidebar laptop renders this button inside the page-header
   // strip alongside MyFeedHeading; use the consistent Medium + Tertiary
   // sizing so the whole strip reads as one button family.
@@ -65,7 +71,7 @@ export const ToggleClickbaitShield = ({
       : React.cloneElement(icon, { className });
 
   if (!isPlus) {
-    if (hasIntroQuests) {
+    if (hasIntroQuests && !showDuringIntroQuests) {
       return null;
     }
     return (

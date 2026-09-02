@@ -3,9 +3,8 @@ import { useCallback } from 'react';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import type { Post } from '../graphql/posts';
-import { PostType } from '../graphql/posts';
+import { getPostReadTarget, PostType } from '../graphql/posts';
 import { useReaderModalEligibility } from '../components/post/reader/hooks/useReaderModalEligibility';
-import { useLegacyPostLayoutOptOut } from '../components/post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useSettingsContext } from '../contexts/SettingsContext';
 
 const READER_GATE_ELIGIBLE_TYPES = new Set<PostType>([
@@ -40,22 +39,19 @@ export function useReaderInstallPromptGate(
   { onCloseParent }: UseReaderInstallPromptGateOptions = {},
 ): UseReaderInstallPromptGateResult {
   const { openModal } = useLazyModal();
-  const { isEligible, isReaderModalEnabled } = useReaderModalEligibility();
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const { flags } = useSettingsContext();
-  const isInstallPromptAcknowledged =
-    flags?.readerInstallPromptAcknowledged ?? false;
+  const { isReaderEnabled, canShowReaderInstallPrompt } =
+    useReaderModalEligibility();
+  const { updateFlag } = useSettingsContext();
+  const readerPost = post ? getPostReadTarget(post).target : undefined;
 
   const isGated =
-    !!post &&
-    isEligible &&
-    isReaderModalEnabled &&
-    !isLegacyLayoutOptedOut &&
-    READER_GATE_ELIGIBLE_TYPES.has(post.type);
+    !!readerPost &&
+    READER_GATE_ELIGIBLE_TYPES.has(readerPost.type) &&
+    (isReaderEnabled || canShowReaderInstallPrompt);
 
   const onReadClick = useCallback(
     (event: MouseEvent): boolean => {
-      if (!isGated || !post) {
+      if (!isGated || !post || !readerPost) {
         return false;
       }
       // Preserve cmd/ctrl/shift/middle-click escape hatches so power users
@@ -70,18 +66,31 @@ export function useReaderInstallPromptGate(
       }
       event.preventDefault();
       event.stopPropagation();
-      // Once the user has accepted the install prompt, skip it on future reads
-      // and route straight to the reader modal. The prompt only reappears if
-      // the user dismissed it without picking an option.
-      openModal({
-        type: isInstallPromptAcknowledged
-          ? LazyModal.ReaderPreview
-          : LazyModal.ReaderInstallPrompt,
-        props: { post, onCloseParent },
-      });
+      // Users who already enabled the reader go straight to it. Everyone else
+      // is here for the one-time install prompt, so persist that it was seen.
+      if (isReaderEnabled) {
+        openModal({
+          type: LazyModal.ReaderPreview,
+          props: { post, targetPost: readerPost, onCloseParent },
+        });
+      } else {
+        updateFlag('readerInstallPromptSeen', true);
+        openModal({
+          type: LazyModal.ReaderInstallPrompt,
+          props: { post, targetPost: readerPost, onCloseParent },
+        });
+      }
       return true;
     },
-    [isGated, isInstallPromptAcknowledged, onCloseParent, openModal, post],
+    [
+      isGated,
+      isReaderEnabled,
+      onCloseParent,
+      openModal,
+      post,
+      readerPost,
+      updateFlag,
+    ],
   );
 
   return { isGated, onReadClick };

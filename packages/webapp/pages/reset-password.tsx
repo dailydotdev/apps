@@ -1,3 +1,4 @@
+import type { NextSeoProps } from 'next-seo';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
@@ -8,6 +9,9 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { noindexSeoProps } from '../next-seo';
+
+const seo: NextSeoProps = { ...noindexSeoProps };
 
 const ResetPassword = (): ReactElement | null => {
   const router = useRouter();
@@ -54,5 +58,7 @@ const ResetPassword = (): ReactElement | null => {
     </div>
   );
 };
+
+ResetPassword.layoutProps = { seo };
 
 export default ResetPassword;

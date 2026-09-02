@@ -67,6 +67,9 @@ const useRegistration = ({
       turnstileToken?: string;
       username?: string;
       experienceLevel?: string;
+      company?: string;
+      title?: string;
+      cloudProvider?: string;
       referral?: string;
       referralOrigin?: string;
       timezone?: string;
@@ -131,6 +134,9 @@ const useRegistration = ({
       turnstileToken,
       username: values['traits.username'] as string,
       experienceLevel: values['traits.experienceLevel'] as string,
+      company: (values['traits.company'] as string) || undefined,
+      title: (values['traits.title'] as string) || undefined,
+      cloudProvider: (values['traits.cloudProvider'] as string) || undefined,
       acceptedMarketing: values['traits.acceptedMarketing'] as boolean,
       referral: referral ?? undefined,
       referralOrigin: referralOrigin ?? undefined,

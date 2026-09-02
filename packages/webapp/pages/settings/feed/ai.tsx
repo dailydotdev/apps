@@ -4,7 +4,11 @@ import type { NextSeoProps } from 'next-seo';
 
 import { FeedSettingsAISection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsAISection';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import {
+  defaultOpenGraph,
+  defaultSeo,
+  noindexSeoProps,
+} from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getFeedSettingsLayout } from '../../../components/layouts/SettingsLayout/FeedSettingsLayout';
 
@@ -23,6 +27,7 @@ const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   ...defaultSeo,
+  ...noindexSeoProps,
 };
 
 AccountManageSubscriptionPage.getLayout = getFeedSettingsLayout;

@@ -81,7 +81,7 @@ function ReaderRailActionBarV1({
       aria-label="Post actions"
     >
       {isCommentFirst && commentButton}
-      <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'More like this'}>
+      <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
         <Button
           id="reader-upvote-btn"
           type="button"
@@ -97,9 +97,7 @@ function ReaderRailActionBarV1({
           color={ButtonColor.Avocado}
         />
       </Tooltip>
-      <Tooltip
-        content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-      >
+      <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
         <Button
           id="reader-downvote-btn"
           type="button"

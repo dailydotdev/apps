@@ -37,8 +37,8 @@ const briefingCopy = `Your AI agent scans the entire dev landscape (posts,
 const PresidentialBriefingNotification = () => {
   const {
     notificationSettings: ns,
-    toggleSetting,
     setNotificationStatus,
+    setNotificationStatusBulk,
   } = useNotificationSettings();
   const router = useRouter();
   const { isPlus } = usePlusSubscription();
@@ -107,28 +107,45 @@ const PresidentialBriefingNotification = () => {
     ns?.[NotificationType.BriefingReady]?.inApp === 'subscribed';
 
   const onToggleBriefing = () => {
-    toggleSetting(NotificationType.BriefingReady, 'inApp');
+    const enabling = !isChecked;
+    const newStatus = enabling
+      ? NotificationPreferenceStatus.Subscribed
+      : NotificationPreferenceStatus.Muted;
 
     const shouldUnsubscribe = isMutingDigestCompletely(ns, 'inApp');
 
     if (shouldUnsubscribe) {
+      setNotificationStatus(NotificationType.BriefingReady, 'inApp', newStatus);
       unsubscribePersonalizedDigest({
         type: briefDigest?.type,
       });
-    } else if (!briefDigest) {
+      return;
+    }
+
+    if (!briefDigest) {
       unsubscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Digest,
       });
-      setNotificationStatus(
-        NotificationType.DigestReady,
-        'inApp',
-        NotificationPreferenceStatus.Muted,
-      );
+      setNotificationStatusBulk([
+        {
+          type: NotificationType.BriefingReady,
+          channel: 'inApp',
+          status: NotificationPreferenceStatus.Subscribed,
+        },
+        {
+          type: NotificationType.DigestReady,
+          channel: 'inApp',
+          status: NotificationPreferenceStatus.Muted,
+        },
+      ]);
       subscribePersonalizedDigest({
         type: UserPersonalizedDigestType.Brief,
         sendType: SendType.Daily,
       });
+      return;
     }
+
+    setNotificationStatus(NotificationType.BriefingReady, 'inApp', newStatus);
   };
 
   const onSubscribeDigest = async ({

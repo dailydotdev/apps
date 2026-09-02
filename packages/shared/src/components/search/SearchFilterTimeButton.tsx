@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { VIcon } from '../icons';
 import { useSearchContextProvider } from '../../contexts/search/SearchContext';
+import type { SearchTimeKey } from '../../graphql/search';
 import { SearchTime } from '../../graphql/search';
 import {
   DropdownMenu,
@@ -23,14 +24,14 @@ const SearchFilterTimeButton = () => {
             size={ButtonSize.Small}
             aria-label="Open time filter menu"
           >
-            {SearchTime[time as keyof typeof SearchTime]}
+            {SearchTime[time]}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {Object.entries(SearchTime).map(([value, label]) => (
             <DropdownMenuItem
               key={label}
-              onClick={() => setTime(value as keyof SearchTime)}
+              onClick={() => setTime(value as SearchTimeKey)}
               className={classNames(
                 'flex',
                 time === value

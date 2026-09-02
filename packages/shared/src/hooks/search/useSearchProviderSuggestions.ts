@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
@@ -20,9 +20,12 @@ import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from '../contentPreference/types';
+import { feature } from '../../lib/featureManagement';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;
+  enabled?: boolean;
 } & UseSearchProviderProps;
 
 export type UseSearchProviderSuggestions = {
@@ -40,9 +43,12 @@ export const useSearchProviderSuggestions = ({
   limit = defaultSearchSuggestionsLimit,
   includeContentPreference,
   feedId,
+  enabled = true,
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
+  const { getFeatureValue } = useFeaturesReadyContext();
+  const version = getFeatureValue(feature.searchVersion);
   const debouncedQuery = useDebounce(query, defaultSearchDebounceMs);
   const queryKey = generateQueryKey(RequestKey.Search, user, 'suggestions', {
     provider,
@@ -50,9 +56,10 @@ export const useSearchProviderSuggestions = ({
     limit,
     includeContentPreference,
     feedId,
+    version,
   });
 
-  const { data, isPending } = useQuery({
+  const { data, isLoading: isQueryLoading } = useQuery({
     queryKey,
     queryFn: async () => {
       return getSuggestions({
@@ -63,7 +70,8 @@ export const useSearchProviderSuggestions = ({
         feedId,
       });
     },
-    enabled: query?.length >= minSearchQueryLength,
+    enabled: enabled && debouncedQuery?.length >= minSearchQueryLength,
+    placeholderData: keepPreviousData,
     staleTime: StaleTime.Default,
     select: useCallback(
       (currentData: SearchSuggestionResult) => {
@@ -126,8 +134,15 @@ export const useSearchProviderSuggestions = ({
     },
   });
 
+  // The debounce window is part of the wait from the user's point of view, so
+  // report it as loading to avoid an empty-state flash before the fetch starts.
+  const isDebouncePending =
+    enabled &&
+    query !== debouncedQuery &&
+    query?.length >= minSearchQueryLength;
+
   return {
-    isLoading: isPending,
+    isLoading: isQueryLoading || isDebouncePending,
     suggestions: data,
     queryKey,
   };

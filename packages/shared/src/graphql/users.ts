@@ -135,7 +135,7 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
 export const PROFILE_V2_EXTRA_QUERY = gql`
   query ProfileV2($id: ID!) {
     userStats(id: $id) {
-      upvotes: numPostUpvotes
+      upvotes: numTotalUpvotes
       views: numPostViews
       numFollowers
       numFollowing
@@ -339,6 +339,8 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       infoConfirmed
       timezone
       experienceLevel
+      company
+      title
       language
       socialLinks {
         platform
@@ -611,6 +613,7 @@ export interface UserStreak {
   current: number;
   weekStart: DayOfWeek;
   lastViewAt: Date;
+  freezesAvailable: number;
 }
 
 export interface UserProfileAnalytics {

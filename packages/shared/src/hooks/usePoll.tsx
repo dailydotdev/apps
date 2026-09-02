@@ -118,7 +118,6 @@ const usePoll = ({ post }: { post: Post }) => {
             onClick: () => toggleGroup('pollResult', true, 'inApp'),
             copy: 'Enable',
             buttonProps: {
-              className: 'bg-background-default text-text-primary',
               size: ButtonSize.Small,
               icon: <BellIcon />,
             },

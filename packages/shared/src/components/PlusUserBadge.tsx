@@ -15,8 +15,6 @@ import { DateFormat } from './utilities';
 import { TimeFormatType } from '../lib/dateFormat';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../lib/log';
-import { featurePlusApiLanding } from '../lib/featureManagement';
-import { useConditionalFeature } from '../hooks';
 import { IconSize } from './Icon';
 
 export type Props = {
@@ -31,11 +29,7 @@ export const PlusUserBadge = ({
   size = IconSize.Size16,
 }: Props): ReactElement | null => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { value: isApiLanding } = useConditionalFeature({
-    feature: featurePlusApiLanding,
-    shouldEvaluate: !isPlus,
-  });
-  const plusCta = isApiLanding ? 'Get API Access' : 'Level Up with Plus';
+  const plusCta = 'Get API Access';
 
   if (!user.isPlus) {
     return null;

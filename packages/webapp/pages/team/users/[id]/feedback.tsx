@@ -13,12 +13,13 @@ import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/Inf
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { FeedbackCard } from '@dailydotdev/shared/src/components/feedback/FeedbackCard';
 import { getLayout } from '../../../../components/layouts/MainLayout';
-import { defaultSeo } from '../../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   title: getTemplatedTitle('User Feedback'),
+  ...noindexSeoProps,
 };
 
 const TeamUserFeedbackPage = (): ReactElement | null => {

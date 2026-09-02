@@ -48,6 +48,22 @@ export const isExtension = !!process.env.TARGET_BROWSER;
 export const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 export const isChromeExtension = process.env.TARGET_BROWSER === 'chrome';
 
+// Derives the calling platform for the `X-Daily-Client` header. The extension
+// build (new tab and companion) always reports `extension`; otherwise the
+// native wrappers surface themselves through the app version (`ios`/`android`),
+// and everything else is the webapp.
+export const getDailyClientPlatform = (version?: string): string => {
+  if (isExtension) {
+    return 'extension';
+  }
+
+  if (version === 'android' || version === 'ios') {
+    return version;
+  }
+
+  return 'webapp';
+};
+
 export const isPWA = (): boolean =>
   // @ts-expect-error - Safari only, not web standard.
   globalThis?.navigator?.standalone ||
@@ -67,6 +83,20 @@ export const isSpecialKeyPressed = ({
   event: MouseEvent | KeyboardEvent;
 }): boolean => {
   return event.ctrlKey || event.metaKey;
+};
+
+// If focus is in any iframe owned by the host page rather than the
+// extension's own surface, global shortcuts should bail out so we don't
+// steal native browser bindings (Linear-style scoping).
+export const isInExtensionIframe = (target: EventTarget | null): boolean => {
+  if (!isExtension || typeof window === 'undefined') {
+    return false;
+  }
+  const node = target instanceof HTMLElement ? target : null;
+  if (!node) {
+    return false;
+  }
+  return node.tagName === 'IFRAME';
 };
 
 const appleDeviceMatch = /(Mac|iPhone|iPod|iPad)/i;
@@ -289,14 +319,25 @@ export type BooleanPromise = Promise<{ successful: boolean }>;
 
 type SafeContextHook<T> = T | undefined;
 
-export const safeContextHookExport = <Args extends unknown[], R>(
+// With a defaultReturn the hook can never yield undefined, so callers may
+// destructure the result directly.
+export function safeContextHookExport<Args extends unknown[], R>(
+  hook: (...props: Args) => R,
+  errorMessage: string,
+  defaultReturn: R,
+): (...props: Args) => R;
+export function safeContextHookExport<Args extends unknown[], R>(
+  hook: (...props: Args) => R,
+  errorMessage: string,
+): (...props: Args) => SafeContextHook<R>;
+export function safeContextHookExport<Args extends unknown[], R>(
   hook: (...props: Args) => R,
   errorMessage: string,
   defaultReturn?: SafeContextHook<R>,
-): ((...props: Args) => SafeContextHook<R>) => {
+): (...props: Args) => SafeContextHook<R> {
   return function useSafeContextHook(...props: Args): SafeContextHook<R> {
     try {
-      return hook(...props) as SafeContextHook<R>;
+      return hook(...props);
     } catch (error) {
       if (error instanceof Error && errorMessage === error.message) {
         return defaultReturn;
@@ -305,7 +346,7 @@ export const safeContextHookExport = <Args extends unknown[], R>(
       throw error;
     }
   };
-};
+}
 
 export const mergeContextExtra = <TData>({
   event,

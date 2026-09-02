@@ -11,6 +11,7 @@ import { TargetId } from '../../../lib/log';
 type ArticleReaderFrameProps = {
   post: Post;
   targetUrl: string | null;
+  previewHost?: string;
   isEmbeddable: boolean;
   className?: string;
   onClose?: () => void;
@@ -38,6 +39,7 @@ type ArticleReaderFrameProps = {
 export function ArticleReaderFrame({
   post,
   targetUrl,
+  previewHost,
   isEmbeddable,
   className,
   onClose,
@@ -91,7 +93,7 @@ export function ArticleReaderFrame({
     >
       <PostArticlePreviewEmbed
         targetUrl={targetUrl}
-        previewHost={post.domain ?? undefined}
+        previewHost={previewHost}
         leftHeaderActions={leftHeaderActions ?? undefined}
         rightHeaderActions={
           <ReaderHeaderActionGroup

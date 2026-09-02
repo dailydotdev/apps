@@ -5,7 +5,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { autofillProfileCover } from '../../../lib/image';
+import { cloudinaryCharmEmptyProfile } from '../../../lib/image';
+import { Image } from '../../../components/image/Image';
 
 import { CustomPromptIcon } from '../../../components/icons';
 import { cvUploadBannerBg } from '../../../styles/custom';
@@ -39,9 +40,12 @@ export function AutofillProfileBanner({
 }: ProfileUploadBannerProps): ReactElement {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const inputRef = React.useRef<HTMLInputElement>(null);
   const { validateFiles } = useFileValidation();
   const handleFiles = (files: FileList | null) => {
+    if (!files) {
+      return;
+    }
+
     const { validFiles, errors } = validateFiles(files);
 
     if (errors.length > 0) {
@@ -59,7 +63,6 @@ export function AutofillProfileBanner({
   };
 
   const { input, openFileInput } = useFileInput({
-    inputRef,
     onFiles: handleFiles,
     multiple: false,
     disabled: isLoading,
@@ -119,10 +122,11 @@ export function AutofillProfileBanner({
         />
       </div>
       <div className="w-60 laptop:w-40">
-        <img
-          className="w-full object-cover"
-          src={autofillProfileCover}
-          alt="Illustration that demonstrates converting document to account profile"
+        <Image
+          className="mx-auto h-40 w-40 object-contain"
+          src={cloudinaryCharmEmptyProfile}
+          alt="daily.dev charm encouraging you to complete your profile"
+          loading="lazy"
         />
       </div>
     </div>

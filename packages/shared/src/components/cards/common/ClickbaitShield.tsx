@@ -18,6 +18,8 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useHasIntroQuests } from '../../../hooks/useHasIntroQuests';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureClickbaitShieldIntroQuests } from '../../../lib/featureManagement';
 
 export const ClickbaitShield = ({
   post,
@@ -33,9 +35,13 @@ export const ClickbaitShield = ({
   const { user } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const hasIntroQuests = useHasIntroQuests({ shouldEvaluate: !isPlus });
+  const { value: showDuringIntroQuests } = useConditionalFeature({
+    feature: featureClickbaitShieldIntroQuests,
+    shouldEvaluate: !isPlus && hasIntroQuests,
+  });
 
   if (!isPlus) {
-    if (hasIntroQuests) {
+    if (hasIntroQuests && !showDuringIntroQuests) {
       return null;
     }
     return (

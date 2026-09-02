@@ -6,7 +6,11 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  MutationCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import type {
   LoggedUser,
   UserShortProfile,
@@ -23,6 +27,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import { mutationSuccessSubscribers } from '@dailydotdev/shared/src/lib/query';
 import SettingsContext, {
   ThemeMode,
   type SettingsContextData,
@@ -36,6 +41,12 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { ARCHIVE_INDEX_QUERY } from '@dailydotdev/shared/src/graphql/archive';
+import {
+  CONTENT_PREFERENCE_FOLLOW_MUTATION,
+  CONTENT_PREFERENCE_STATUS_QUERY,
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '@dailydotdev/shared/src/graphql/contentPreference';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -76,7 +87,6 @@ const tagFeedSupportedTypes = [
   PostType.Collection,
   PostType.Share,
   PostType.Freeform,
-  PostType.LiveRoom,
 ];
 
 const createFeedMock = (
@@ -89,6 +99,7 @@ const createFeedMock = (
     tag: 'react',
     ranking: 'TIME',
     supportedTypes: tagFeedSupportedTypes,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -131,6 +142,25 @@ const topContributor: UserShortProfile = {
   reputation: 10,
 };
 
+const createContentPreferenceMock = (
+  status: ContentPreferenceStatus,
+): MockedGraphQLResponse => ({
+  request: {
+    query: CONTENT_PREFERENCE_STATUS_QUERY,
+    variables: { id: 'react', entity: ContentPreferenceType.Keyword },
+  },
+  result: {
+    data: {
+      contentPreferenceStatus: {
+        referenceId: 'react',
+        type: ContentPreferenceType.Keyword,
+        status,
+        createdAt: new Date().toISOString(),
+      },
+    },
+  },
+});
+
 const createArchiveIndexMock = (): MockedGraphQLResponse => ({
   request: {
     query: ARCHIVE_INDEX_QUERY,
@@ -150,11 +180,24 @@ const renderComponent = (
   initialData: Keyword = initialDataObj,
   topContributors: UserShortProfile[] = [],
 ): RenderResult => {
-  client = new QueryClient();
+  // Reproduce the app's mutation-cache wiring so `useMutationSubscription`
+  // consumers (e.g. the tag's content-preference status) react to mutations
+  // like they do in the real client — with a cache per render, so nothing
+  // leaks between tests.
+  client = new QueryClient({
+    mutationCache: new MutationCache({
+      onSuccess: (...args) =>
+        mutationSuccessSubscribers.forEach((subscriber) =>
+          subscriber?.(...args),
+        ),
+    }),
+  });
 
   (mocks ?? [createFeedMock(), createTagsSettingsMock()]).forEach(mockGraphQL);
   mockGraphQL(createArchiveIndexMock());
-  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=false&gdpr=0')
+    .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
     openNewTab: true,
@@ -164,6 +207,7 @@ const renderComponent = (
     toggleOpenNewTab: jest.fn().mockResolvedValue(undefined),
     insaneMode: false,
     loadedSettings: true,
+    isRemoteSettingsLoaded: true,
     toggleInsaneMode: jest.fn().mockResolvedValue(undefined),
     showTopSites: true,
     toggleShowTopSites: jest.fn().mockResolvedValue(undefined),
@@ -171,8 +215,16 @@ const renderComponent = (
     companionExpanded: false,
     sortingEnabled: false,
     optOutReadingStreak: false,
+    optOutStreakFreeze: false,
+    toggleOptOutStreakFreeze: jest.fn().mockResolvedValue(undefined),
     optOutLevelSystem: false,
     optOutQuestSystem: false,
+    optOutAchievements: false,
+    isGamificationEnabled: true,
+    isQuestExperienceEnabled: true,
+    toggleQuestExperience: jest.fn().mockResolvedValue(undefined),
+    toggleOptOutAchievements: jest.fn().mockResolvedValue(undefined),
+    toggleAllGamification: jest.fn().mockResolvedValue(undefined),
     optOutCompanion: false,
     autoDismissNotifications: true,
     sortCommentsBy: SortCommentsBy.OldestFirst,
@@ -266,6 +318,136 @@ it('should show only unfollow button', async () => {
   expect(blockButton).not.toBeInTheDocument();
 });
 
+it('should not show the notify button when not following the tag', async () => {
+  renderComponent();
+  await waitForNock();
+  await screen.findByLabelText('Follow');
+  expect(
+    screen.queryByLabelText('Enable notifications'),
+  ).not.toBeInTheDocument();
+});
+
+it('should show the notify button when following the tag', async () => {
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Follow),
+  ]);
+  await waitForNock();
+  const notifyButton = await screen.findByLabelText('Enable notifications');
+  expect(notifyButton).toBeInTheDocument();
+});
+
+it('should show the notify button as on when subscribed to the tag', async () => {
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Subscribed),
+  ]);
+  await waitForNock();
+  const notifyButton = await screen.findByLabelText('Disable notifications');
+  expect(notifyButton).toBeInTheDocument();
+});
+
+it('should subscribe to the tag on notify click', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Follow),
+  ]);
+  await waitForNock();
+  mockGraphQL({
+    request: {
+      query: CONTENT_PREFERENCE_FOLLOW_MUTATION,
+      variables: {
+        id: 'react',
+        entity: ContentPreferenceType.Keyword,
+        status: ContentPreferenceStatus.Subscribed,
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
+  const notifyButton = await screen.findByLabelText('Enable notifications');
+  notifyButton.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await screen.findByLabelText('Disable notifications');
+});
+
+it('should unsubscribe from the tag on notify click when subscribed', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Subscribed),
+  ]);
+  await waitForNock();
+  mockGraphQL({
+    request: {
+      query: CONTENT_PREFERENCE_FOLLOW_MUTATION,
+      variables: {
+        id: 'react',
+        entity: ContentPreferenceType.Keyword,
+        status: ContentPreferenceStatus.Follow,
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
+  const notifyButton = await screen.findByLabelText('Disable notifications');
+  notifyButton.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await screen.findByLabelText('Enable notifications');
+});
+
+it('should not resurrect a stale subscribed state after unfollow and re-follow', async () => {
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Subscribed),
+  ]);
+  await screen.findByLabelText('Disable notifications');
+
+  // Unfollowing drops the keyword preference server-side, so the toggle has to
+  // invalidate the status query — this refetch only happens if it does.
+  mockGraphQL({
+    request: {
+      query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+      variables: { filters: { includeTags: ['react'] } },
+    },
+    result: { data: { feedSettings: { id: defaultUser.id } } },
+  });
+  mockGraphQL({
+    request: {
+      query: CONTENT_PREFERENCE_STATUS_QUERY,
+      variables: { id: 'react', entity: ContentPreferenceType.Keyword },
+    },
+    result: { data: { contentPreferenceStatus: null } },
+  });
+  (await screen.findByLabelText('Unfollow')).click();
+  await screen.findByLabelText('Follow');
+
+  mockGraphQL({
+    request: {
+      query: ADD_FILTERS_TO_FEED_MUTATION,
+      variables: { filters: { includeTags: ['react'] } },
+    },
+    result: { data: { feedSettings: { id: defaultUser.id } } },
+  });
+  (await screen.findByLabelText('Follow')).click();
+
+  const notifyButton = await screen.findByLabelText('Enable notifications');
+  expect(notifyButton).toBeInTheDocument();
+  expect(
+    screen.queryByLabelText('Disable notifications'),
+  ).not.toBeInTheDocument();
+});
+
 it('should show follow and block buttons when logged-out', async () => {
   renderComponent(
     [
@@ -276,6 +458,7 @@ it('should show follow and block buttons when logged-out', async () => {
         tag: 'react',
         ranking: 'TIME',
         supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,
@@ -297,6 +480,7 @@ it('should show login popup when logged-out on follow click', async () => {
         tag: 'react',
         ranking: 'TIME',
         supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,
@@ -307,10 +491,24 @@ it('should show login popup when logged-out on follow click', async () => {
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should render top contributors section from static props', async () => {
+it('should render who to follow section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
-  expect(await screen.findByText('👥 Top contributors')).toBeInTheDocument();
+  expect(
+    await screen.findByRole('heading', {
+      level: 2,
+      name: 'Who to follow for React',
+    }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', {
+      level: 2,
+      name: 'Recommended React stories',
+    }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', { level: 2, name: 'All posts about React' }),
+  ).toBeInTheDocument();
   expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
     'href',
     '/idoshamun',
@@ -327,6 +525,7 @@ it('should show login popup when logged-out on block click', async () => {
         tag: 'react',
         ranking: 'TIME',
         supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,
@@ -457,20 +656,37 @@ it('should unblock tag', async () => {
 });
 
 it('should load title and description for tag', async () => {
-  renderComponent([createFeedMock(), createTagsSettingsMock()], defaultUser, {
-    ...initialDataObj,
-    flags: {
-      title: 'React custom title',
-      description: 'React is an amazing framework',
+  renderComponent(
+    [createFeedMock(), createTagsSettingsMock()],
+    defaultUser,
+    {
+      ...initialDataObj,
+      flags: {
+        title: 'React custom title',
+        description: 'React is an amazing framework',
+      },
     },
-  });
+    [topContributor],
+  );
 
   await waitFor(() => {
     expect(
-      screen.getByRole('heading', { name: 'React custom title' }),
+      screen.getByRole('heading', { level: 1, name: 'React custom title' }),
     ).toBeInTheDocument();
     expect(
       screen.getByText('React is an amazing framework'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Who to follow for React custom title',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'All posts about React custom title',
+      }),
     ).toBeInTheDocument();
   });
 });

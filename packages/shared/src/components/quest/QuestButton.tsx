@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import { useQueryClient } from '@tanstack/react-query';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import {
   Button,
@@ -19,17 +18,8 @@ import {
 import { Bubble } from '../tooltips/utils';
 import { IconSize } from '../Icon';
 import { DevPlusIcon, TourIcon } from '../icons';
-import type {
-  QuestDashboard,
-  QuestLevel,
-  QuestType,
-  UserQuest,
-} from '../../graphql/quests';
-import {
-  QuestRewardType,
-  QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-  QUEST_UPDATE_SUBSCRIPTION,
-} from '../../graphql/quests';
+import type { QuestLevel, QuestType, UserQuest } from '../../graphql/quests';
+import { QuestRewardType } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import {
   getClaimableQuestCount,
@@ -39,10 +29,11 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { plusUrl, webappUrl } from '../../lib/constants';
-import { agentsHighlightsPath } from '../../lib/links';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import useSubscription from '../../hooks/useSubscription';
+import { plusUrl } from '../../lib/constants';
+import {
+  getQuestDestination,
+  getQuestDestinationUrl,
+} from './questDestinations';
 import Link from '../utilities/Link';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
@@ -51,6 +42,7 @@ import { QUEST_REWARD_COUNTER_EVENT } from '../../lib/questRewardAnimation';
 import type { QuestRewardCounterEventDetail } from '../../lib/questRewardAnimation';
 import { PopoverContent } from '../popover/Popover';
 import { Tooltip } from '../tooltip/Tooltip';
+import { WeeklyQuestResetTimer } from './WeeklyQuestResetTimer';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import {
   QuestCard,
@@ -77,44 +69,6 @@ const getLevelProgress = (level: QuestLevel) => {
   }
 
   return Math.min(100, (level.xpInLevel / totalForLevel) * 100);
-};
-
-type ClaimableQuestSnapshot = {
-  rotationId: string;
-  questId: string;
-  questType: QuestType;
-  userQuestId: string | null;
-  locked: boolean;
-  claimable: boolean;
-};
-
-const getQuestClaimableSnapshots = (
-  dashboard?: QuestDashboard,
-): Map<string, ClaimableQuestSnapshot> => {
-  const snapshots = new Map<string, ClaimableQuestSnapshot>();
-
-  if (!dashboard) {
-    return snapshots;
-  }
-
-  [
-    ...dashboard.daily.regular,
-    ...dashboard.daily.plus,
-    ...dashboard.weekly.regular,
-    ...dashboard.weekly.plus,
-    ...dashboard.milestone,
-  ].forEach((quest) => {
-    snapshots.set(quest.rotationId, {
-      rotationId: quest.rotationId,
-      questId: quest.quest.id,
-      questType: quest.quest.type,
-      userQuestId: quest.userQuestId ?? null,
-      locked: quest.locked,
-      claimable: quest.claimable,
-    });
-  });
-
-  return snapshots;
 };
 
 const QUEST_LEVEL_PROGRESS_SIZE = 40;
@@ -145,54 +99,6 @@ type QuestLevelFireworkParticle = {
   hue: number;
 };
 
-const HOT_TAKES_MODAL_PATH = '/?openModal=hottakes';
-
-const getQuestDestination = (
-  quest: UserQuest['quest'],
-): QuestDestination | null => {
-  if (quest.eventType === 'post_share') {
-    if (quest.description === 'Create a shared link post') {
-      return { label: 'Create post', path: '/squads/create' };
-    }
-
-    return { label: 'Feed', path: '/' };
-  }
-
-  switch (quest.eventType) {
-    case 'read_post':
-    case 'post_upvote':
-    case 'award_given':
-    case 'share_post_click':
-    case 'comment_upvote':
-    case 'comment_create':
-    case 'bookmark_post':
-      return { label: 'Feed', path: '/' };
-    case 'brief_read':
-      return { label: 'Briefs', path: '/briefing' };
-    case 'hot_take_vote':
-    case 'hot_take_create':
-      return { label: 'Hot takes', path: HOT_TAKES_MODAL_PATH };
-    case 'user_follow':
-      return { label: 'Leaderboards', path: '/users' };
-    case 'view_user_profile':
-      return { label: 'Profiles', path: '/users' };
-    case 'visit_arena':
-      return { label: 'Happening Now', path: agentsHighlightsPath };
-    case 'visit_explore_page':
-      return { label: 'Explore', path: '/posts' };
-    case 'visit_discussions_page':
-      return { label: 'Discuss', path: '/discussed' };
-    case 'visit_read_it_later_page':
-      return { label: 'Later', path: '/bookmarks/later' };
-    case 'feedback_submit':
-      return { label: 'Feedback', path: '/settings/feedback' };
-    case 'squad_join':
-      return { label: 'Squads', path: '/squads/discover' };
-    default:
-      return null;
-  }
-};
-
 export const QuestSection = ({
   title,
   quests,
@@ -209,6 +115,7 @@ export const QuestSection = ({
   initialVisibleCount,
   showMoreLabel = 'Show more',
   showLessLabel = 'Show less',
+  headerAddon,
 }: {
   title: string;
   quests: UserQuest[];
@@ -231,6 +138,7 @@ export const QuestSection = ({
   initialVisibleCount?: number;
   showMoreLabel?: string;
   showLessLabel?: string;
+  headerAddon?: ReactElement;
 }): ReactElement => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canToggleExpanded =
@@ -241,10 +149,24 @@ export const QuestSection = ({
       ? quests.slice(0, initialVisibleCount)
       : quests;
 
+  const titleHeading = (
+    <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+  );
+  // Only wrap the title when there is an addon to place beside it, so sections
+  // without one keep their original DOM (consumers query the heading's sibling).
+  const header = headerAddon ? (
+    <div className="flex items-center justify-between gap-2">
+      {titleHeading}
+      {headerAddon}
+    </div>
+  ) : (
+    titleHeading
+  );
+
   if (!quests.length) {
     return (
       <section className="flex flex-col gap-2">
-        <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+        {header}
         <p className="text-text-tertiary typo-caption1">{emptyLabel}</p>
       </section>
     );
@@ -252,7 +174,7 @@ export const QuestSection = ({
 
   return (
     <section className="flex flex-col gap-2">
-      <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+      {header}
 
       <div
         className={classNames(
@@ -613,6 +535,7 @@ const QuestDropdownPanel = ({
               }
               deferredClaimedStampRotationIds={deferredClaimedStampRotationIds}
               onClaim={onClaim}
+              headerAddon={<WeeklyQuestResetTimer />}
             />
             {(data.daily.plus.length > 0 || data.weekly.plus.length > 0) && (
               <section className="flex flex-col gap-4">
@@ -650,6 +573,7 @@ const QuestDropdownPanel = ({
                   }
                   onClaim={onClaim}
                   emptyLabel="No active plus quests yet."
+                  headerAddon={<WeeklyQuestResetTimer />}
                 />
               </section>
             )}
@@ -666,98 +590,13 @@ export const QuestButton = ({
 }: QuestButtonProps): ReactElement => {
   const router = useRouter();
   const { optOutLevelSystem } = useSettingsContext();
-  const queryClient = useQueryClient();
   const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
-  const { data, isPending, isError, dataUpdatedAt } = useQuestDashboard();
+  const { data, isPending, isError } = useQuestDashboard();
   const {
     mutate: claimQuestReward,
     isPending: isClaimPending,
     variables,
   } = useClaimQuestReward();
-  const questDashboardQueryKey = generateQueryKey(
-    RequestKey.QuestDashboard,
-    user,
-  );
-  const invalidateQuestDashboard = useCallback(() => {
-    queryClient.invalidateQueries({
-      queryKey: questDashboardQueryKey,
-      exact: true,
-    });
-  }, [queryClient, questDashboardQueryKey]);
-  const shouldLogClaimableQuestRef = useRef(false);
-  const previousClaimableQuestSnapshotsRef = useRef<Map<
-    string,
-    ClaimableQuestSnapshot
-  > | null>(null);
-  const previousQuestDashboardUpdatedAtRef = useRef<number | null>(null);
-  const handleQuestDashboardRefresh = useCallback(() => {
-    shouldLogClaimableQuestRef.current = true;
-    invalidateQuestDashboard();
-  }, [invalidateQuestDashboard]);
-
-  useSubscription(
-    () => ({
-      query: QUEST_UPDATE_SUBSCRIPTION,
-    }),
-    {
-      next: handleQuestDashboardRefresh,
-    },
-    [user?.id],
-  );
-
-  useSubscription(
-    () => ({
-      query: QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-    }),
-    {
-      next: handleQuestDashboardRefresh,
-    },
-    [user?.id],
-  );
-
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    const currentClaimableQuestSnapshots = getQuestClaimableSnapshots(data);
-    const currentQuestDashboardUpdatedAt = dataUpdatedAt;
-    const didReceiveFreshQuestDashboard =
-      previousQuestDashboardUpdatedAtRef.current !==
-      currentQuestDashboardUpdatedAt;
-
-    if (
-      shouldLogClaimableQuestRef.current &&
-      didReceiveFreshQuestDashboard &&
-      previousClaimableQuestSnapshotsRef.current
-    ) {
-      currentClaimableQuestSnapshots.forEach((quest) => {
-        const previousQuest = previousClaimableQuestSnapshotsRef.current?.get(
-          quest.rotationId,
-        );
-
-        if (!quest.locked && !previousQuest?.claimable && quest.claimable) {
-          logEvent({
-            event_name: LogEvent.QuestClaimable,
-            target_id: quest.questId,
-            target_type: TargetType.Quest,
-            extra: JSON.stringify({
-              questType: quest.questType,
-              userQuestId: quest.userQuestId,
-              userId: user?.id,
-              rotationId: quest.rotationId,
-            }),
-          });
-        }
-      });
-
-      shouldLogClaimableQuestRef.current = false;
-    }
-
-    previousClaimableQuestSnapshotsRef.current = currentClaimableQuestSnapshots;
-    previousQuestDashboardUpdatedAtRef.current = currentQuestDashboardUpdatedAt;
-  }, [data, dataUpdatedAt, logEvent, user?.id]);
 
   const level = data?.level?.level ?? 1;
   const levelProgress = data?.level ? getLevelProgress(data.level) : 0;
@@ -1177,7 +1016,7 @@ export const QuestButton = ({
         return;
       }
 
-      await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
+      await router.push(getQuestDestinationUrl(destination));
     },
     [router],
   );

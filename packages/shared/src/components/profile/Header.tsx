@@ -17,8 +17,6 @@ import {
 } from '../../lib';
 import { ProfileSettingsMenuMobile } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
-import { GoBackButton } from '../post/GoBackHeaderMobile';
-import { useViewSize, ViewSize } from '../../hooks';
 import { FollowButton } from '../contentPreference/FollowButton';
 import {
   ContentPreferenceStatus,
@@ -46,6 +44,8 @@ import {
 } from '../../hooks/useCoresFeature';
 import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
+import { ProfileMobileBackButton } from './ProfileBackButton';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -69,7 +69,6 @@ export function Header({
     TargetId.ProfilePage,
   );
   const { openModal } = useLazyModal();
-  const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { follow, unfollow } = useContentPreference();
   const router = useRouter();
@@ -85,6 +84,7 @@ export function Header({
   });
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
+  const { isJobsEnabled } = useJobsFeature();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -152,12 +152,7 @@ export function Header({
       style={style}
     >
       <>
-        {isMobile && (
-          <GoBackButton
-            showLogo={false}
-            className={!sticky ? 'mr-3' : undefined}
-          />
-        )}
+        <ProfileMobileBackButton className={!sticky ? 'mr-3' : undefined} />
         {sticky ? (
           <>
             <ProfilePicture
@@ -263,33 +258,35 @@ export function Header({
       </div>
       {isSameUser && (
         <>
-          <Link
-            href={
-              alerts?.opportunityId
-                ? `${webappUrl}jobs/${alerts.opportunityId}`
-                : `${webappUrl}jobs`
-            }
-            passHref
-          >
-            <Button
-              tag="a"
-              className="ml-2 tablet:hidden"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={
-                <span className="relative">
-                  <JobIcon />
-                  {!!alerts?.opportunityId && (
-                    <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
-                      1
-                    </Bubble>
-                  )}
-                </span>
+          {isJobsEnabled && (
+            <Link
+              href={
+                alerts?.opportunityId
+                  ? `${webappUrl}jobs/${alerts.opportunityId}`
+                  : `${webappUrl}jobs`
               }
-              onClick={logOpportunityNudgeClick}
-              aria-label="Jobs"
-            />
-          </Link>
+              passHref
+            >
+              <Button
+                tag="a"
+                className="ml-2 tablet:hidden"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={
+                  <span className="relative">
+                    <JobIcon />
+                    {!!alerts?.opportunityId && (
+                      <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
+                        1
+                      </Bubble>
+                    )}
+                  </span>
+                }
+                onClick={logOpportunityNudgeClick}
+                aria-label="Jobs"
+              />
+            </Link>
+          )}
           <Button
             className="ml-2 laptop:hidden"
             variant={ButtonVariant.Float}

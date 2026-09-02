@@ -1,0 +1,1140 @@
+import type { ReactElement, ReactNode } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import type {
+  InterestTurn,
+  UpdateInterestInput,
+  UserInterest,
+} from '../../graphql/interests';
+import {
+  InterestReplyStatus,
+  InterestRunStatus,
+  InterestRunTrigger,
+  UserInterestOnboardingStep,
+  UserInterestStatus,
+} from '../../graphql/interests';
+import { useSendInterestCommand } from './hooks/useSendInterestCommand';
+import { useUpdateInterest } from './hooks/useUpdateInterest';
+import { useCompleteInterestOnboarding } from './hooks/useCompleteInterestOnboarding';
+import { useConfirmInterestBrief } from './hooks/useConfirmInterestBrief';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { useAuthContext } from '../../contexts/AuthContext';
+import {
+  historyPageSize,
+  interestHistoryQueryOptions,
+  interestRunQueryOptions,
+} from './queries';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import type { Post } from '../../graphql/posts';
+import type {
+  AgentAttachment,
+  AgentBlock,
+  AgentMessage,
+  AgentQuestionBlock,
+} from './chat';
+import { promptWithContext, restoreCommandText } from './chat';
+import type { AgentFeedItem } from './hooks/useAgentFeed';
+
+export type AgentSummaryPost = Pick<
+  Post,
+  'id' | 'title' | 'createdAt' | 'contentHtml'
+>;
+
+export type AgentContentTarget =
+  /** `post` is only a first-paint seed; the pane always fetches by `postId`. */
+  | { type: 'post'; postId: string; post?: Post }
+  | { type: 'feed'; label: string; posts: Post[] }
+  | { type: 'posts'; postId?: string }
+  | { type: 'activity' }
+  | { type: 'debug' };
+
+export const contentTargetId = (target: AgentContentTarget): string => {
+  if (target.type === 'post') {
+    return `post:${target.postId}`;
+  }
+
+  if (target.type === 'feed') {
+    return `feed:${target.label}`;
+  }
+
+  if (target.type === 'posts' && target.postId) {
+    return `posts:${target.postId}`;
+  }
+
+  return target.type;
+};
+
+export type AgentActivityKind =
+  | 'run'
+  | 'command'
+  | 'finding'
+  | 'post'
+  | 'notification';
+
+export type AgentActivityItem = {
+  id: string;
+  at: string;
+  kind: AgentActivityKind;
+  text: string;
+};
+
+type RunCommandArgs = {
+  text: string;
+  label?: string;
+  targetId?: string;
+  attachments?: AgentAttachment[];
+  questionId?: string;
+  onComplete?: () => void;
+};
+
+type AgentContextValue = {
+  id: string;
+  interest?: UserInterest;
+  /** Held here rather than read off `interest`: the demo surface has no API. */
+  status: UserInterestStatus;
+  isDemo: boolean;
+  isWorking: boolean;
+  workingLabel?: string;
+  /** Epoch ms the current run started. */
+  workingSince?: number;
+  isTargetWorking: (targetId: string) => boolean;
+  runCommand: (args: RunCommandArgs) => void;
+  /** Standing feedback that never spends a run (reply votes). */
+  sendFeedback: (text: string) => Promise<void>;
+  queuedCommands: { id: string; text: string }[];
+  removeQueuedCommand: (id: string) => void;
+  attachments: AgentAttachment[];
+  attachContext: (attachment: AgentAttachment) => void;
+  detachContext: (id: string) => void;
+  composerRef: React.RefObject<HTMLTextAreaElement>;
+  /** Consumed once: the composer clears it, so the same text can be rewritten. */
+  draft?: string;
+  writeDraft: (text: string) => void;
+  clearDraft: () => void;
+  update: (data: UpdateInterestInput) => void;
+  isUpdating: boolean;
+  isOnboarding: boolean;
+  onboardingStep?: UserInterestOnboardingStep | null;
+  /** The question at the tail of the transcript, still waiting on an answer. */
+  activeQuestion?: AgentQuestionBlock;
+  answerQuestion: (args: { text: string; questionId: string }) => void;
+  /** Selection for the open question, shared so Enter and the chips agree. */
+  pendingAnswer: string[];
+  togglePendingAnswer: (value: string) => void;
+  /** The review card is open and waiting to be confirmed. */
+  isReviewOpen: boolean;
+  completeOnboarding: () => void;
+  isCompleting: boolean;
+  /** The brief is on screen and can still be rewritten. */
+  isBriefOpen: boolean;
+  confirmBrief: (brief?: string) => void;
+  isConfirmingBrief: boolean;
+  /**
+   * The rewrite in progress, held here rather than in the block: Enter can be
+   * pressed with focus outside the editor, and a draft nobody can see would be
+   * silently discarded.
+   */
+  briefDraft: string | null;
+  setBriefDraft: (draft: string | null) => void;
+  /**
+   * Accepts whichever onboarding step is open. Shared by the composer and the
+   * workspace-wide Enter, so both do exactly the same thing.
+   */
+  advanceOnboarding: () => boolean;
+  activity: AgentActivityItem[];
+  messages: AgentMessage[];
+  isHistoryPending: boolean;
+  isRunView: boolean;
+  isOldRunView: boolean;
+  leaveRunView: () => void;
+  isHistoryLimited: boolean;
+  showEarlier: () => void;
+  findingsPosts: Post[];
+  summaryPosts: AgentSummaryPost[];
+  openSettings: () => void;
+  openContent: AgentContentTarget[];
+  activeContentId?: string;
+  activeContent?: AgentContentTarget;
+  openContentTarget: (target: AgentContentTarget) => void;
+  /**
+   * A tab can be opened by slug (a transcript link), so once the post loads its
+   * tab is renamed to the canonical id — or merged into a tab that already has
+   * it — and the loaded post is kept for the tab chrome.
+   */
+  reconcilePostTarget: (targetId: string, post: Post) => void;
+  focusContent: (targetId: string) => void;
+  closeContent: (targetId: string) => void;
+  closeAllContent: () => void;
+};
+
+const AgentContext = createContext<AgentContextValue>({} as AgentContextValue);
+
+export const useAgent = (): AgentContextValue => useContext(AgentContext);
+
+const demoWorkDurationMs = 2600;
+const pendingPollMs = 5000;
+const echoMatchWindowMs = 60000;
+
+// A timestamp alone is not unique: entries written in the same millisecond would
+// share an id, which React reads as duplicate keys.
+let idSequence = 0;
+const nextId = (): string => {
+  idSequence += 1;
+
+  return `${Date.now()}-${idSequence}`;
+};
+
+const isRunPending = (turn: InterestTurn): boolean =>
+  turn.role === 'agent' &&
+  (turn.status === InterestRunStatus.Queued ||
+    turn.status === InterestRunStatus.Running);
+
+const isReplyPending = (turn: InterestTurn): boolean =>
+  turn.role === 'user' &&
+  (turn.replyStatus === InterestReplyStatus.Queued ||
+    turn.replyStatus === InterestReplyStatus.Running);
+
+const isTurnPending = (turn: InterestTurn): boolean =>
+  isRunPending(turn) || isReplyPending(turn);
+
+const resolvePosts = (
+  postIds: string[],
+  postsById: Map<string, Post>,
+): Post[] =>
+  postIds.reduce<Post[]>((found, postId) => {
+    const post = postsById.get(postId);
+    if (post) {
+      found.push(post);
+    }
+    return found;
+  }, []);
+
+const mapServerBlocks = (
+  turn: InterestTurn,
+  postsById: Map<string, Post>,
+  allPosts: Post[],
+): AgentBlock[] =>
+  (turn.blocks ?? []).reduce<AgentBlock[]>((acc, block) => {
+    if (block.type === 'text') {
+      acc.push(block);
+      return acc;
+    }
+
+    if (
+      block.type === 'question' ||
+      block.type === 'brief' ||
+      block.type === 'review'
+    ) {
+      acc.push(block);
+      return acc;
+    }
+
+    if (block.type === 'picks') {
+      const posts = resolvePosts(block.postIds, postsById);
+
+      if (posts.length) {
+        acc.push({ type: 'picks', caption: block.caption, posts });
+      }
+      return acc;
+    }
+
+    const posts = block.postIds?.length
+      ? resolvePosts(block.postIds, postsById)
+      : allPosts;
+    if (posts.length) {
+      acc.push({ type: 'feedLink', label: block.label, posts });
+    }
+    return acc;
+  }, []);
+
+const turnsToMessages = ({
+  turns,
+  postsById,
+  allPosts,
+  interest,
+}: {
+  turns: InterestTurn[];
+  postsById: Map<string, Post>;
+  allPosts: Post[];
+  interest?: UserInterest;
+}): AgentMessage[] => {
+  const feedbackTextById = new Map(
+    turns
+      .filter((turn) => turn.role === 'user')
+      .map((turn) => [turn.id, turn.text ?? '']),
+  );
+
+  return turns.reduce<AgentMessage[]>((acc, turn) => {
+    if (turn.role === 'user') {
+      acc.push({
+        id: turn.id,
+        role: 'user',
+        at: turn.createdAt,
+        text: turn.text ?? '',
+        relationships: turn.relationships,
+      });
+
+      if (turn.replyStatus) {
+        const replyBlocks = mapServerBlocks(
+          { ...turn, blocks: turn.replyBlocks },
+          postsById,
+          allPosts,
+        );
+        const isReplyError = turn.replyStatus === InterestReplyStatus.Failed;
+        const isPendingReply = isReplyPending(turn);
+
+        if (!isPendingReply && !isReplyError && !replyBlocks.length) {
+          replyBlocks.push({ type: 'text', html: '<p>Done.</p>' });
+        }
+
+        acc.push({
+          id: `${turn.id}-reply`,
+          role: 'agent',
+          at: turn.createdAt,
+          isPending: isPendingReply,
+          isError: isReplyError,
+          retryText: turn.text ?? undefined,
+          blocks: replyBlocks,
+        });
+      }
+      return acc;
+    }
+
+    const isPending = isRunPending(turn);
+    const isError = turn.status === InterestRunStatus.Failed;
+    const retryText = turn.feedbackId
+      ? feedbackTextById.get(turn.feedbackId)
+      : (turn.trigger === InterestRunTrigger.Spawn && interest?.query) ||
+        undefined;
+    const blocks = mapServerBlocks(turn, postsById, allPosts);
+
+    if (!isPending && !isError && !blocks.length && !turn.summaryPostId) {
+      // A quiet run delivered nothing; a command still deserves an answer.
+      if (turn.trigger !== InterestRunTrigger.Command) {
+        return acc;
+      }
+      blocks.push({
+        type: 'text',
+        html: '<p>Done. Nothing new cleared your bar this run.</p>',
+      });
+    }
+
+    acc.push({
+      id: turn.id,
+      role: 'agent',
+      at: turn.finishedAt ?? turn.createdAt,
+      isPending,
+      isScheduled: turn.trigger === InterestRunTrigger.Scheduled,
+      isError,
+      retryText,
+      blocks: isPending || isError ? undefined : blocks,
+    });
+    return acc;
+  }, []);
+};
+
+type CommandEcho = {
+  id: string;
+  text: string;
+  prompt: string;
+  attachments?: AgentAttachment[];
+  sentAt: number;
+  state: 'sending' | 'sent' | 'error';
+};
+
+const echoResolved = (echo: CommandEcho, turns: InterestTurn[]): boolean =>
+  turns.some(
+    (turn) =>
+      turn.role === 'user' &&
+      restoreCommandText(turn) === echo.prompt &&
+      new Date(turn.createdAt).getTime() >= echo.sentAt - echoMatchWindowMs,
+  );
+
+export const AgentProvider = ({
+  id,
+  interest,
+  isDemo,
+  runId,
+  onLeaveRunView,
+  onOpenSettings,
+  initialMessages = [],
+  findings = [],
+  posts = [],
+  children,
+}: {
+  id: string;
+  interest?: UserInterest;
+  isDemo: boolean;
+  runId?: string;
+  onLeaveRunView?: () => void;
+  onOpenSettings?: () => void;
+  initialMessages?: AgentMessage[];
+  findings?: AgentFeedItem[];
+  posts?: AgentSummaryPost[];
+  children: ReactNode;
+}): ReactElement => {
+  const { user } = useAuthContext();
+  const { displayToast } = useToastNotification();
+  const { sendCommand } = useSendInterestCommand(id);
+  const { isUpdating, updateInterest } = useUpdateInterest(id);
+  const { isCompleting, completeOnboarding: runCompleteOnboarding } =
+    useCompleteInterestOnboarding(id);
+  const { isConfirmingBrief, confirmBrief: runConfirmBrief } =
+    useConfirmInterestBrief(id);
+  const queryClient = useQueryClient();
+  const [demoMessages, setDemoMessages] =
+    useState<AgentMessage[]>(initialMessages);
+  const [echoes, setEchoes] = useState<CommandEcho[]>([]);
+  const [workingMeta, setWorkingMeta] = useState<{
+    label: string;
+    targetId?: string;
+  }>();
+  const openSettings = useCallback(() => onOpenSettings?.(), [onOpenSettings]);
+  const [statusOverride, setStatusOverride] = useState<UserInterestStatus>();
+  const status =
+    statusOverride ?? interest?.status ?? UserInterestStatus.Active;
+  const [content, setContent] = useState<{
+    items: AgentContentTarget[];
+    activeId?: string;
+  }>({ items: [] });
+  const [queuedCommands, setQueuedCommands] = useState<
+    { id: string; args: RunCommandArgs }[]
+  >([]);
+  const [attachments, setAttachments] = useState<AgentAttachment[]>([]);
+  const [draft, setDraft] = useState<string>();
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  // `runCommand` decides queue-or-start during an event, before a re-render has
+  // delivered the new working state, so it reads the ref rather than the state.
+  const workingRef = useRef(false);
+
+  useEffect(() => {
+    return () => clearTimeout(timeoutRef.current);
+  }, []);
+
+  // `useState` reads its argument once, and the demo transcript can be handed in
+  // after mount. Adopt it late, never over existing turns.
+  useEffect(() => {
+    if (!initialMessages.length) {
+      return;
+    }
+
+    setDemoMessages((current) => (current.length ? current : initialMessages));
+  }, [initialMessages]);
+
+  // A sent echo also keeps the poll alive: its queued run may not be visible on
+  // the replica yet, and without polling it would stay pending forever.
+  const hasSentEcho = echoes.some((echo) => echo.state === 'sent');
+  const [historyLastOverride, setHistoryLastOverride] = useState<number>();
+  const historyLast =
+    historyLastOverride ??
+    (interest?.showHistory === false ? 1 : historyPageSize);
+  const isHistoryEnabled = !isDemo && !!user?.id && !!id && !!interest;
+  const historyQuery = useQuery({
+    ...interestHistoryQueryOptions(id, user, historyLast),
+    enabled: isHistoryEnabled,
+    refetchInterval: (query) =>
+      query.state.data?.edges.some(({ node }) => isTurnPending(node)) ||
+      hasSentEcho
+        ? pendingPollMs
+        : false,
+  });
+  const runQuery = useQuery({
+    ...interestRunQueryOptions(id, runId ?? '', user),
+    enabled: isHistoryEnabled && !!runId,
+  });
+  const historyTurns = useMemo(
+    () =>
+      isDemo ? [] : (historyQuery.data?.edges ?? []).map(({ node }) => node),
+    [historyQuery.data, isDemo],
+  );
+  const isRunView = !!runId && !runQuery.isError;
+  const turns = useMemo(() => {
+    if (!isRunView) {
+      return historyTurns;
+    }
+
+    return runQuery.data ? [runQuery.data] : [];
+  }, [historyTurns, isRunView, runQuery.data]);
+  const latestRunId = historyTurns
+    .filter(({ role }) => role === 'agent')
+    .map(({ id: turnId }) => turnId)
+    .pop();
+  const isOldRunView = isRunView && !!latestRunId && latestRunId !== runId;
+  const isHistoryLimited = !isRunView && historyLast === 1;
+  const leaveRunView = useCallback(() => {
+    onLeaveRunView?.();
+  }, [onLeaveRunView]);
+  const showEarlier = useCallback(
+    () => setHistoryLastOverride(historyPageSize),
+    [],
+  );
+
+  const { postsById, allPosts } = useMemo(() => {
+    const byId = new Map<string, Post>();
+    findings.forEach(({ post }) => byId.set(post.id, post));
+    return { postsById: byId, allPosts: findings.map(({ post }) => post) };
+  }, [findings]);
+
+  const unresolvedEchoes = useMemo(
+    () => echoes.filter((echo) => !echoResolved(echo, historyTurns)),
+    [echoes, historyTurns],
+  );
+
+  // Resolved echoes exist in the server history now; holding them longer would
+  // render the same turn twice.
+  useEffect(() => {
+    if (unresolvedEchoes.length !== echoes.length) {
+      setEchoes(unresolvedEchoes);
+    }
+  }, [echoes.length, unresolvedEchoes]);
+
+  const messages = useMemo<AgentMessage[]>(() => {
+    if (isDemo) {
+      return demoMessages;
+    }
+
+    const echoed = unresolvedEchoes.flatMap<AgentMessage>((echo) => [
+      {
+        id: `${echo.id}-user`,
+        role: 'user',
+        at: new Date(echo.sentAt).toISOString(),
+        text: echo.text,
+        attachments: echo.attachments,
+      },
+      {
+        id: `${echo.id}-agent`,
+        role: 'agent',
+        at: new Date(echo.sentAt).toISOString(),
+        isPending: echo.state !== 'error',
+        isError: echo.state === 'error',
+        retryText: echo.state === 'error' ? echo.text : undefined,
+      },
+    ]);
+
+    return [
+      ...turnsToMessages({
+        turns,
+        postsById,
+        allPosts,
+        interest,
+      }),
+      ...echoed,
+    ];
+  }, [
+    allPosts,
+    demoMessages,
+    interest,
+    isDemo,
+    postsById,
+    turns,
+    unresolvedEchoes,
+  ]);
+
+  const activity = useMemo<AgentActivityItem[]>(() => {
+    if (isDemo) {
+      return [];
+    }
+
+    const fromTurns = turns.reduce<AgentActivityItem[]>((acc, turn) => {
+      if (turn.role === 'user') {
+        acc.push({
+          id: turn.id,
+          at: turn.createdAt,
+          kind: 'command',
+          text: turn.text ?? '',
+        });
+        return acc;
+      }
+
+      if (turn.status === InterestRunStatus.Completed) {
+        acc.push({
+          id: turn.id,
+          at: turn.finishedAt ?? turn.createdAt,
+          kind: 'run',
+          text: turn.findingsAdded
+            ? `Run finished — added ${turn.findingsAdded} to your feed`
+            : 'Run finished — nothing cleared your quality bar',
+        });
+        if (turn.summaryPostId) {
+          acc.push({
+            id: `${turn.id}-post`,
+            at: turn.finishedAt ?? turn.createdAt,
+            kind: 'post',
+            text: 'Wrote a summary post',
+          });
+        }
+      } else if (turn.status === InterestRunStatus.Failed) {
+        acc.push({
+          id: turn.id,
+          at: turn.finishedAt ?? turn.createdAt,
+          kind: 'run',
+          text: 'A run failed before finishing',
+        });
+      }
+      return acc;
+    }, []);
+
+    const fromFindings = findings.map<AgentActivityItem>((finding) => ({
+      id: finding.id,
+      at: finding.createdAt,
+      kind: 'finding',
+      text: finding.post.title
+        ? `Added "${finding.post.title}"`
+        : 'Added a finding',
+    }));
+
+    return [...fromTurns, ...fromFindings].sort(
+      (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime(),
+    );
+  }, [findings, isDemo, turns]);
+
+  const isOnboarding = interest?.status === UserInterestStatus.Onboarding;
+  // Live only at the tail: every earlier question already has its answer sitting
+  // under it, so the flow never has two open at once.
+  const lastMessage = messages[messages.length - 1];
+  const activeQuestion =
+    isOnboarding && lastMessage?.role === 'agent' && !lastMessage.isPending
+      ? (lastMessage.blocks?.find((block) => block.type === 'question') as
+          | AgentQuestionBlock
+          | undefined)
+      : undefined;
+
+  const isReviewOpen =
+    !!isOnboarding &&
+    lastMessage?.role === 'agent' &&
+    !lastMessage.isPending &&
+    !!lastMessage.blocks?.some((block) => block.type === 'review');
+
+  const isBriefOpen =
+    !!isOnboarding &&
+    interest?.onboardingStep === UserInterestOnboardingStep.Brief;
+
+  const serverPending = historyTurns.some(isTurnPending);
+  const echoPending = unresolvedEchoes.some((echo) => echo.state !== 'error');
+  const isWorking = isDemo
+    ? !!workingMeta && workingRef.current
+    : serverPending || echoPending;
+  workingRef.current = isWorking;
+
+  const pendingTurn = turns.find(isTurnPending);
+  const pendingEcho = unresolvedEchoes.find((echo) => echo.state !== 'error');
+  const workingSince = (() => {
+    if (pendingTurn) {
+      return new Date(pendingTurn.startedAt ?? pendingTurn.createdAt).getTime();
+    }
+    return pendingEcho?.sentAt;
+  })();
+
+  // A finished run means fresh findings, posts, and lastRun fields.
+  const prevPendingRef = useRef(false);
+  useEffect(() => {
+    if (prevPendingRef.current && !serverPending) {
+      queryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.InterestFindings, user, id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.Interests, user),
+      });
+    }
+    prevPendingRef.current = serverPending;
+  }, [id, queryClient, serverPending, user]);
+
+  const startRun = useCallback(
+    ({
+      text,
+      label,
+      targetId,
+      attachments: pointedAt,
+      questionId,
+      onComplete,
+    }: RunCommandArgs) => {
+      workingRef.current = true;
+      setWorkingMeta({ label: label ?? text, targetId });
+
+      if (isDemo || !interest) {
+        const stamp = nextId();
+        setDemoMessages((current) => [
+          ...current,
+          {
+            id: `${stamp}-user`,
+            role: 'user',
+            at: new Date().toISOString(),
+            text,
+            attachments: pointedAt,
+          },
+          {
+            id: `${stamp}-agent`,
+            role: 'agent',
+            at: new Date().toISOString(),
+            isPending: true,
+          },
+        ]);
+        displayToast('Sent to the agent. It will update in the background.');
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+          workingRef.current = false;
+          setWorkingMeta(undefined);
+          setDemoMessages((current) =>
+            current.map((message) =>
+              message.id === `${stamp}-agent`
+                ? {
+                    ...message,
+                    isPending: false,
+                    at: new Date().toISOString(),
+                    blocks: [
+                      {
+                        type: 'text',
+                        html: '<p>Sent. This surface is a demo, so nothing actually ran.</p>',
+                      },
+                    ],
+                  }
+                : message,
+            ),
+          );
+          onComplete?.();
+        }, demoWorkDurationMs);
+
+        return;
+      }
+
+      const echoId = nextId();
+      const prompt = promptWithContext(text, pointedAt ?? []);
+      leaveRunView();
+      setEchoes((current) => [
+        ...current,
+        {
+          id: echoId,
+          text,
+          prompt,
+          attachments: pointedAt,
+          sentAt: Date.now(),
+          state: 'sending',
+        },
+      ]);
+
+      sendCommand({ text: prompt, questionId, runId })
+        .then(() => {
+          setEchoes((current) =>
+            current.map((echo) =>
+              echo.id === echoId ? { ...echo, state: 'sent' } : echo,
+            ),
+          );
+          onComplete?.();
+        })
+        .catch(() => {
+          workingRef.current = false;
+          setEchoes((current) =>
+            current.map((echo) =>
+              echo.id === echoId ? { ...echo, state: 'error' } : echo,
+            ),
+          );
+        });
+    },
+    [displayToast, interest, isDemo, leaveRunView, runId, sendCommand],
+  );
+
+  // Draining in an effect, not inside the updater that removes the entry:
+  // StrictMode re-runs updaters, which sent every queued prompt twice.
+  useEffect(() => {
+    if (isWorking || !queuedCommands.length) {
+      return;
+    }
+
+    const [next] = queuedCommands;
+
+    setQueuedCommands((current) => current.slice(1));
+    startRun(next.args);
+  }, [isWorking, queuedCommands, startRun]);
+
+  const runCommand = useCallback(
+    (args: RunCommandArgs) => {
+      if (args.attachments?.length) {
+        setAttachments([]);
+      }
+
+      if (workingRef.current) {
+        setQueuedCommands((current) => [
+          ...current,
+          { id: `${Date.now()}-${current.length}`, args },
+        ]);
+        return;
+      }
+
+      startRun(args);
+    },
+    [startRun],
+  );
+
+  const sendFeedback = useCallback(
+    async (text: string) => {
+      if (isDemo || !interest) {
+        return;
+      }
+
+      await sendCommand({ text, reply: false });
+    },
+    [interest, isDemo, sendCommand],
+  );
+
+  // Seeded from the question's own preselection and reset when the question
+  // changes, so the chips and the composer's Enter always submit the same set.
+  const [pendingAnswer, setPendingAnswer] = useState<string[]>([]);
+  const openQuestionId = activeQuestion?.questionId;
+
+  useEffect(() => {
+    setPendingAnswer(activeQuestion?.selected ?? []);
+    // Keyed on the question, not the block: re-renders must not wipe a choice.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openQuestionId]);
+
+  const togglePendingAnswer = useCallback(
+    (value: string) =>
+      setPendingAnswer((current) => {
+        if (!activeQuestion?.multi) {
+          return [value];
+        }
+
+        return current.includes(value)
+          ? current.filter((item) => item !== value)
+          : [...current, value];
+      }),
+    [activeQuestion?.multi],
+  );
+
+  const [briefDraft, setBriefDraft] = useState<string | null>(null);
+
+  const confirmBrief = useCallback(
+    (brief?: string) => {
+      runConfirmBrief(brief)
+        // Cleared only on success: a failed save keeps the rewrite so it can be
+        // retried rather than silently losing what was typed.
+        .then(() => setBriefDraft(null))
+        .catch(() => undefined);
+    },
+    [runConfirmBrief],
+  );
+
+  const completeOnboarding = useCallback(() => {
+    runCompleteOnboarding().catch(() => undefined);
+  }, [runCompleteOnboarding]);
+
+  const answerQuestion = useCallback(
+    ({ text, questionId }: { text: string; questionId: string }) =>
+      runCommand({ text, questionId, label: text }),
+    [runCommand],
+  );
+
+  const advanceOnboarding = useCallback((): boolean => {
+    if (activeQuestion) {
+      const picked = (activeQuestion.choices ?? [])
+        .filter(({ value }) => pendingAnswer.includes(value))
+        .map(({ label }) => label)
+        .join(', ');
+
+      if (!picked) {
+        return false;
+      }
+
+      answerQuestion({
+        text: picked,
+        questionId: activeQuestion.questionId,
+      });
+
+      return true;
+    }
+
+    if (isBriefOpen) {
+      // An open editor wins: accepting the original would throw the rewrite
+      // away without saying so.
+      if (briefDraft !== null) {
+        const edited = briefDraft.trim();
+
+        if (!edited) {
+          return false;
+        }
+
+        confirmBrief(edited);
+
+        return true;
+      }
+
+      confirmBrief();
+
+      return true;
+    }
+
+    if (isReviewOpen) {
+      completeOnboarding();
+
+      return true;
+    }
+
+    return false;
+  }, [
+    activeQuestion,
+    answerQuestion,
+    briefDraft,
+    completeOnboarding,
+    confirmBrief,
+    isBriefOpen,
+    isReviewOpen,
+    pendingAnswer,
+  ]);
+
+  const attachContext = useCallback((attachment: AgentAttachment) => {
+    setAttachments((current) =>
+      current.some(({ id: existing }) => existing === attachment.id)
+        ? current
+        : [...current, attachment],
+    );
+    composerRef.current?.focus();
+  }, []);
+
+  const detachContext = useCallback(
+    (attachmentId: string) =>
+      setAttachments((current) =>
+        current.filter(({ id: existing }) => existing !== attachmentId),
+      ),
+    [],
+  );
+
+  const removeQueuedCommand = useCallback(
+    (queuedId: string) =>
+      setQueuedCommands((current) =>
+        current.filter((command) => command.id !== queuedId),
+      ),
+    [],
+  );
+
+  const openContentTarget = useCallback((target: AgentContentTarget) => {
+    const targetId = contentTargetId(target);
+
+    setContent(({ items }) => ({
+      items: items.some((item) => contentTargetId(item) === targetId)
+        ? items
+        : [...items, target],
+      activeId: targetId,
+    }));
+  }, []);
+
+  const reconcilePostTarget = useCallback((targetId: string, post: Post) => {
+    setContent(({ items, activeId }) => {
+      const index = items.findIndex(
+        (item) => contentTargetId(item) === targetId,
+      );
+      const target = items[index];
+
+      if (!target || target.type !== 'post') {
+        return { items, activeId };
+      }
+
+      if (target.postId === post.id && target.post) {
+        return { items, activeId };
+      }
+
+      const canonicalId = `post:${post.id}`;
+      const isDuplicate = items.some(
+        (item, position) =>
+          position !== index && contentTargetId(item) === canonicalId,
+      );
+      const next = isDuplicate
+        ? items.filter((_, position) => position !== index)
+        : items.map((item, position) =>
+            position === index
+              ? { type: 'post' as const, postId: post.id, post }
+              : item,
+          );
+
+      return {
+        items: next,
+        activeId: activeId === targetId ? canonicalId : activeId,
+      };
+    });
+  }, []);
+
+  const focusContent = useCallback(
+    (targetId: string) =>
+      setContent(({ items }) => ({ items, activeId: targetId })),
+    [],
+  );
+
+  const closeContent = useCallback((targetId: string) => {
+    setContent(({ items, activeId }) => {
+      const index = items.findIndex(
+        (item) => contentTargetId(item) === targetId,
+      );
+
+      if (index < 0) {
+        return { items, activeId };
+      }
+
+      const next = items.filter((_, position) => position !== index);
+      const successor = next[index] ?? next[next.length - 1];
+
+      return {
+        items: next,
+        activeId:
+          activeId === targetId && successor
+            ? contentTargetId(successor)
+            : activeId,
+      };
+    });
+  }, []);
+
+  const closeAllContent = useCallback(() => setContent({ items: [] }), []);
+
+  const update = useCallback(
+    (data: UpdateInterestInput) => {
+      if (data.status) {
+        setStatusOverride(data.status);
+      }
+
+      if (isDemo || !interest) {
+        return;
+      }
+
+      updateInterest(data).catch(() => {
+        if (data.status) {
+          setStatusOverride(undefined);
+        }
+      });
+    },
+    [interest, isDemo, updateInterest],
+  );
+
+  // The override only bridges the gap until the refetched interest confirms
+  // it; holding it longer would pin the UI to a stale optimistic value.
+  useEffect(() => {
+    if (statusOverride && interest?.status === statusOverride) {
+      setStatusOverride(undefined);
+    }
+  }, [interest?.status, statusOverride]);
+
+  const value = useMemo<AgentContextValue>(
+    () => ({
+      id,
+      interest,
+      status,
+      isDemo,
+      isWorking,
+      workingLabel: isWorking ? workingMeta?.label : undefined,
+      workingSince,
+      isTargetWorking: (targetId) =>
+        isWorking && workingMeta?.targetId === targetId,
+      runCommand,
+      sendFeedback,
+      queuedCommands: queuedCommands.map(({ id: queuedId, args }) => ({
+        id: queuedId,
+        text: args.text,
+      })),
+      removeQueuedCommand,
+      attachments,
+      attachContext,
+      detachContext,
+      composerRef,
+      draft,
+      writeDraft: setDraft,
+      clearDraft: () => setDraft(undefined),
+      update,
+      isUpdating,
+      isOnboarding: !!isOnboarding,
+      onboardingStep: interest?.onboardingStep,
+      activeQuestion,
+      answerQuestion,
+      pendingAnswer,
+      togglePendingAnswer,
+      isReviewOpen,
+      completeOnboarding,
+      isCompleting,
+      isBriefOpen,
+      confirmBrief,
+      isConfirmingBrief,
+      briefDraft,
+      setBriefDraft,
+      advanceOnboarding,
+      activity,
+      messages,
+      isHistoryPending: historyQuery.isPending,
+      isRunView,
+      isOldRunView,
+      leaveRunView,
+      isHistoryLimited,
+      showEarlier,
+      findingsPosts: allPosts,
+      summaryPosts: posts,
+      openSettings,
+      openContent: content.items,
+      activeContentId: content.activeId,
+      activeContent: content.items.find(
+        (item) => contentTargetId(item) === content.activeId,
+      ),
+      openContentTarget,
+      reconcilePostTarget,
+      focusContent,
+      closeContent,
+      closeAllContent,
+    }),
+    [
+      attachContext,
+      attachments,
+      draft,
+      closeAllContent,
+      closeContent,
+      content,
+      detachContext,
+      focusContent,
+      openContentTarget,
+      reconcilePostTarget,
+      activity,
+      messages,
+      historyQuery.isPending,
+      isRunView,
+      isOldRunView,
+      leaveRunView,
+      isHistoryLimited,
+      showEarlier,
+      allPosts,
+      posts,
+      id,
+      interest,
+      isDemo,
+      isOnboarding,
+      activeQuestion,
+      answerQuestion,
+      pendingAnswer,
+      togglePendingAnswer,
+      isReviewOpen,
+      completeOnboarding,
+      isCompleting,
+      isBriefOpen,
+      confirmBrief,
+      isConfirmingBrief,
+      briefDraft,
+      advanceOnboarding,
+      openSettings,
+      isUpdating,
+      isWorking,
+      queuedCommands,
+      removeQueuedCommand,
+      runCommand,
+      sendFeedback,
+      status,
+      update,
+      workingMeta,
+      workingSince,
+    ],
+  );
+
+  return (
+    <AgentContext.Provider value={value}>{children}</AgentContext.Provider>
+  );
+};

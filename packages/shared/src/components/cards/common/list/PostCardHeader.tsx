@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { CardHeader } from './ListCard';
 import { ReadArticleButton } from '../ReadArticleButton';
 import { getGroupedHoverContainer } from '../common';
@@ -14,20 +13,9 @@ import PostMetadata from './PostMetadata';
 import { OpenLinkIcon } from '../../../icons';
 import { useReadPostButtonText } from './hooks';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
-import { ProfileImageSize } from '../../../ProfilePicture';
-import { ProfileImageLink } from '../../../profile/ProfileImageLink';
-import type { UserShortProfile } from '../../../../lib/user';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
-import { isSourceUserSource } from '../../../../graphql/sources';
-
-const HoverCard = dynamic(
-  /* webpackChunkName: "hoverCard" */ () => import('../HoverCard'),
-);
-
-const UserEntityCard = dynamic(
-  /* webpackChunkName: "userEntityCard" */ () =>
-    import('../../entity/UserEntityCard'),
-);
+import { AuthorSourceStack } from '../AuthorSourceStack';
+import { useFeedCardContext } from '../../../../features/posts/FeedCardContext';
 
 interface CardHeaderProps {
   post: Post;
@@ -70,8 +58,23 @@ export const PostCardHeader = ({
     bookmarked: post.bookmarked ?? false,
   });
 
+  const { hideSource } = useFeedCardContext();
+  // Every card labels its source, which is pure repetition on a single-source
+  // feed. Swap in the author, who is what actually varies — but only when there
+  // is one, otherwise the card loses its only attribution.
+  const resolvedMetadata = useMemo(() => {
+    if (!hideSource || !post.author) {
+      return metadata;
+    }
+
+    return {
+      ...metadata,
+      topLabel: post.author.name,
+      bottomLabel: `@${post.author.username}`,
+    };
+  }, [hideSource, metadata, post.author]);
+
   const isCollectionType = post.type === 'collection';
-  const isUserSource = isSourceUserSource(post.source);
   const showCTA =
     !isFeedPreview &&
     ([PostType.Article, PostType.VideoYouTube].includes(post.type) ||
@@ -82,26 +85,16 @@ export const PostCardHeader = ({
     <>
       {highlightBookmarkedPost && <BookmakProviderHeader className="mb-4" />}
       <CardHeader className={className}>
-        {children}
-        {!!post?.author && (
-          <HoverCard
-            align="start"
-            side="bottom"
-            sideOffset={10}
-            trigger={
-              <ProfileImageLink
-                className={classNames('z-1', !!children && 'ml-2')}
-                picture={{
-                  size: isUserSource
-                    ? ProfileImageSize.Large
-                    : ProfileImageSize.Medium,
-                }}
-                user={post.author}
-              />
-            }
-          >
-            <UserEntityCard user={post.author as UserShortProfile} />
-          </HoverCard>
+        {post?.author && !isCollectionType ? (
+          // Author present (freeform/share/squad): show the author + source as
+          // an overlapping stack — author in front on the left, source behind
+          // on the right — expanded on mobile, matching the collection source
+          // stack. Collection cards keep their own source-stack children (even
+          // if a collection ever has an author), and article cards keep their
+          // single source.
+          <AuthorSourceStack author={post.author} source={post.source} />
+        ) : (
+          children
         )}
         <PostMetadata
           className={classNames(
@@ -110,7 +103,7 @@ export const PostCardHeader = ({
             isCollectionType && 'ml-2',
           )}
           createdAt={post.createdAt}
-          {...metadata}
+          {...resolvedMetadata}
         />
         <Container
           className="relative ml-auto flex flex-row"

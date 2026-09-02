@@ -31,6 +31,7 @@ interface UseNotificationPreference {
 export interface UseNotificationPreferenceProps {
   params: Parameters<typeof getNotificationPreferences>[0];
   squad?: Squad;
+  optimistic?: boolean;
 }
 
 export const checkHasStatusPreference = (
@@ -46,6 +47,7 @@ export const checkHasStatusPreference = (
 export const useNotificationPreference = ({
   params,
   squad,
+  optimistic = false,
 }: UseNotificationPreferenceProps): UseNotificationPreference => {
   const { user, isLoggedIn } = useAuthContext();
   const client = useQueryClient();
@@ -60,6 +62,65 @@ export const useNotificationPreference = ({
     enabled: isLoggedIn && params?.length > 0,
     staleTime: StaleTime.Default,
   });
+
+  const applySubscribe = (
+    oldData: NotificationPreference[] = [],
+    referenceId: string,
+    type: NotificationType,
+  ): NotificationPreference[] => {
+    if (!user) {
+      return oldData;
+    }
+
+    const notificationType = notificationPreferenceMap[type];
+    if (!notificationType) {
+      return oldData;
+    }
+
+    const preference: NotificationPreference = {
+      referenceId,
+      notificationType: type,
+      type: notificationType,
+      userId: user.id,
+      status: NotificationPreferenceStatus.Subscribed,
+    };
+
+    return [
+      ...oldData.filter(
+        (pref) =>
+          !(pref.notificationType === type && pref.referenceId === referenceId),
+      ),
+      preference,
+    ];
+  };
+
+  const applyClear = (
+    oldData: NotificationPreference[] | undefined,
+    referenceId: string,
+    type: NotificationType,
+  ): NotificationPreference[] => {
+    if (!oldData) {
+      return [];
+    }
+
+    return oldData.filter(
+      (preference) =>
+        !checkHasStatusPreference(preference, type, referenceId, [
+          NotificationPreferenceStatus.Muted,
+          NotificationPreferenceStatus.Subscribed,
+        ]),
+    );
+  };
+
+  const rollback = (
+    _: unknown,
+    __: unknown,
+    previous: NotificationPreference[] | undefined,
+  ) => {
+    if (typeof previous !== 'undefined') {
+      client.setQueryData(key, previous);
+    }
+  };
   const { mutateAsync: muteNotificationAsync } = useMutation({
     mutationFn: muteNotification,
     onSuccess: (_, { referenceId, type }) => {
@@ -95,55 +156,54 @@ export const useNotificationPreference = ({
 
   const { mutateAsync: clearNotificationPreferenceAsync } = useMutation({
     mutationFn: clearNotificationPreference,
-    onSuccess: (_, { referenceId, type }) => {
-      client.setQueryData<NotificationPreference[]>(key, (oldData) => {
-        if (!oldData) {
-          return [];
-        }
+    onMutate: ({ referenceId, type }) => {
+      if (!optimistic) {
+        return undefined;
+      }
 
-        return oldData.filter(
-          (preference) =>
-            !checkHasStatusPreference(preference, type, referenceId, [
-              NotificationPreferenceStatus.Muted,
-              NotificationPreferenceStatus.Subscribed,
-            ]),
-        );
-      });
+      const previous = client.getQueryData<NotificationPreference[]>(key);
+      client.setQueryData<NotificationPreference[]>(key, (oldData) =>
+        applyClear(oldData, referenceId, type),
+      );
+
+      return previous;
     },
+    onSuccess: (_, { referenceId, type }) => {
+      if (optimistic) {
+        return;
+      }
+
+      client.setQueryData<NotificationPreference[]>(key, (oldData) =>
+        applyClear(oldData, referenceId, type),
+      );
+    },
+    onError: rollback,
   });
 
   const { mutateAsync: subscribeNotificationAsync } = useMutation({
     mutationFn: subscribeNotification,
-    onSuccess: (_, { referenceId, type }) => {
-      client.setQueryData<NotificationPreference[]>(key, (oldData = []) => {
-        if (!user) {
-          return oldData;
-        }
+    onMutate: ({ referenceId, type }) => {
+      if (!optimistic) {
+        return undefined;
+      }
 
-        const notificationType = notificationPreferenceMap[type];
-        if (!notificationType) {
-          return oldData;
-        }
+      const previous = client.getQueryData<NotificationPreference[]>(key);
+      client.setQueryData<NotificationPreference[]>(key, (oldData = []) =>
+        applySubscribe(oldData, referenceId, type),
+      );
 
-        const preference: NotificationPreference = {
-          referenceId,
-          notificationType: type,
-          type: notificationType,
-          userId: user.id,
-          status: NotificationPreferenceStatus.Subscribed,
-        };
-
-        // Remove any existing preference for this notification type and reference ID
-        const filteredData = oldData.filter(
-          (pref) =>
-            !(
-              pref.notificationType === type && pref.referenceId === referenceId
-            ),
-        );
-
-        return [...filteredData, preference];
-      });
+      return previous;
     },
+    onSuccess: (_, { referenceId, type }) => {
+      if (optimistic) {
+        return;
+      }
+
+      client.setQueryData<NotificationPreference[]>(key, (oldData = []) =>
+        applySubscribe(oldData, referenceId, type),
+      );
+    },
+    onError: rollback,
   });
 
   const { mutateAsync: hideSourceFeedPostsAsync } = useMutation({

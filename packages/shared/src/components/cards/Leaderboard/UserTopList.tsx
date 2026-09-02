@@ -4,9 +4,11 @@ import classNames from 'classnames';
 import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
+import { CurrentUserPositionRow } from './CurrentUserPositionRow';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import type { LoggedUser } from '../../../lib/user';
 import type { QuestLevel } from '../../../graphql/quests';
+import type { LeaderboardType } from '../../../graphql/leaderboard';
 import {
   runIconPopAnimation,
   runSparkAnimation,
@@ -28,9 +30,11 @@ export function UserTopList({
   items,
   concatScore = true,
   showLevel = false,
+  leaderboardType,
   ...props
 }: CommonLeaderboardProps<UserLeaderboard[]> & {
   showLevel?: boolean;
+  leaderboardType?: LeaderboardType;
 }): ReactElement {
   const createRowMouseEnter = useCallback(
     (rankIndex: number) => (e: React.MouseEvent<HTMLLIElement>) => {
@@ -86,6 +90,12 @@ export function UserTopList({
           />
         </LeaderboardListItem>
       ))}
+      {leaderboardType && (
+        <CurrentUserPositionRow
+          type={leaderboardType}
+          visibleUserIds={new Set(items?.map((item) => item.user.id))}
+        />
+      )}
     </LeaderboardList>
   );
 }

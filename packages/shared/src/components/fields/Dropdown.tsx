@@ -143,12 +143,15 @@ export function Dropdown({
       size={buttonSize}
       disabled={disabled}
       className={classNames(
+        'group flex items-center font-normal text-text-secondary typo-body hover:bg-surface-hover hover:text-text-primary',
         // `!pl-4 !pr-2.5` overrides the Button's built-in Large padding (px-6)
         // so the value lines up with the other fields' 16px text inset and the
         // chevron sits tight to the right edge instead of floating 24px in.
-        'group flex w-full items-center !pl-4 !pr-2.5 font-normal text-text-secondary typo-body hover:bg-surface-hover hover:text-text-primary',
+        // Icon-only triggers have no label/chevron, so this value-field padding
+        // would only push the icon off-center — skip it and let the consumer
+        // size the square button.
+        iconOnly ? 'justify-center' : 'w-full !pl-4 !pr-2.5',
         className?.button,
-        iconOnly && 'items-center justify-center',
       )}
       onClick={fullScreen ? handleMenuTrigger : undefined}
       onKeyDown={handleKeyboard}
@@ -198,6 +201,7 @@ export function Dropdown({
     <div
       className={classNames(
         styles.dropdown,
+        iconOnly && styles.iconOnly,
         className.container,
         disabled && 'cursor-not-allowed',
       )}

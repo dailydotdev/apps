@@ -6,12 +6,15 @@ import ReadingReminderCatLaptop from './ReadingReminderCatLaptop';
 import { useReadingReminderHero } from '../../../hooks/notifications/useReadingReminderHero';
 import {
   fileValidation,
+  uploadCvOpportunitySuccessContent,
+  uploadCvProfileSuccessContent,
   useUploadCv,
 } from '../../../features/profile/hooks/useUploadCv';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { uploadCvBgMobile } from '../../../lib/image';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 const illustrationFrameClass =
   '!m-0 flex h-24 w-32 shrink-0 items-center justify-center self-center tablet:h-28 tablet:w-36';
@@ -59,7 +62,12 @@ export const HomepageTopBanners = ({
 }: HomepageTopBannersProps): ReactElement | null => {
   const reminder = useReadingReminderHero({ requireMobile: false });
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { onUpload, shouldShow: shouldShowCv } = useUploadCv();
+  const { isJobsEnabled } = useJobsFeature();
+  const { onUpload, shouldShow: shouldShowCv } = useUploadCv({
+    modalContent: isJobsEnabled
+      ? uploadCvOpportunitySuccessContent
+      : uploadCvProfileSuccessContent,
+  });
   const { completeAction } = useActions();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,7 +81,8 @@ export const HomepageTopBanners = ({
     cards.push(
       <TopHero
         key="reminder"
-        subtitle="Turn on your daily reading reminder and never miss a learning day."
+        title={reminder.title}
+        subtitle={reminder.subtitle}
         illustration={<CompactReminderCat />}
         onCtaClick={() => {
           reminder.onEnable();
@@ -89,7 +98,11 @@ export const HomepageTopBanners = ({
     cards.push(
       <TopHero
         key="cv"
-        subtitle="Upload your CV and let your next job quietly come to you."
+        subtitle={
+          isJobsEnabled
+            ? 'Upload your CV and let your next job quietly come to you.'
+            : 'Upload your CV to autofill your profile in seconds.'
+        }
         ctaLabel="Upload CV"
         illustration={<CvIllustration />}
         onCtaClick={() => fileInputRef.current?.click()}

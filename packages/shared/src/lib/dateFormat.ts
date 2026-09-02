@@ -4,6 +4,7 @@ import {
   isEqual,
   isSameDay,
   isSameYear,
+  isToday,
   subDays,
 } from 'date-fns';
 import { pluralize } from './strings';
@@ -16,6 +17,19 @@ const oneMonth = 30 * oneDay;
 export const oneYear = oneDay * 365;
 export const isValidDate = (date: Date): boolean =>
   !Number.isNaN(date.getTime());
+
+// Reads an ISO day stamp persisted through `usePersistentContext`, the
+// once-per-day guard idiom shared by the quest offers popup and the reading
+// reminder hero. A missing or unparseable stamp counts as not seen.
+export const isTodayStamp = (stamp?: string | null): boolean => {
+  if (!stamp) {
+    return false;
+  }
+
+  const parsed = new Date(stamp);
+
+  return isValidDate(parsed) && isToday(parsed);
+};
 
 export const publishTimeRelativeShort = (
   value: Date | number | string,
@@ -54,6 +68,12 @@ export const publishTimeRelativeShort = (
   return `${numYears}y`;
 };
 
+// Full, readable date for the notification timestamp tooltip — e.g.
+// "15 April 2024 at 14:30".
+export const getFullNotificationDate = (
+  value: Date | number | string,
+): string => format(new Date(value), "d MMMM yyyy 'at' HH:mm");
+
 export const publishTimeLiveTimer: typeof publishTimeRelativeShort = (
   value,
   now = new Date(),
@@ -82,6 +102,7 @@ export enum TimeFormatType {
   LastActivity = 'lastActivity',
   LiveTimer = 'liveTimer',
   Experience = 'experience',
+  Elapsed = 'elapsed',
 }
 
 export function postDateFormat(
@@ -296,6 +317,10 @@ export const formatDate = ({ value, type, now }: FormatDateProps): string => {
   const nowDate = now ? new Date(now) : undefined;
   if (nowDate && !isValidDate(nowDate)) {
     return '';
+  }
+
+  if (type === TimeFormatType.Elapsed) {
+    return publishTimeRelativeShort(date, nowDate);
   }
 
   if (type === TimeFormatType.Post) {

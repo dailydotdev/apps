@@ -9,6 +9,7 @@ import {
 
 export type UseNotificationPreferenceToggleProps = {
   params: UseNotificationPreferenceProps['params'][0] | undefined;
+  optimistic?: boolean;
 };
 
 export type UseNotificationPreferenceToggle = {
@@ -19,6 +20,7 @@ export type UseNotificationPreferenceToggle = {
 
 export const useNotificationPreferenceToggle = ({
   params,
+  optimistic = false,
 }: UseNotificationPreferenceToggleProps): UseNotificationPreferenceToggle => {
   const {
     preferences,
@@ -28,6 +30,7 @@ export const useNotificationPreferenceToggle = ({
     isPreferencesReady,
   } = useNotificationPreference({
     params: params ? [params] : [],
+    optimistic,
   });
 
   const isSubscribed = useMemo(() => {

@@ -80,7 +80,9 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
           htmlFor={id}
           {...labelProps}
           className={classNames(
-            'flex cursor-pointer items-center pl-1 font-bold typo-callout',
+            // Medium weight to match the button typography guideline (the
+            // Button base and CardAction both use font-medium).
+            'flex cursor-pointer items-center pl-1 font-medium typo-callout',
             { readOnly: props.disabled },
             labelClassName,
           )}

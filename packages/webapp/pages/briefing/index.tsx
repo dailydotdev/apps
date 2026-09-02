@@ -192,17 +192,23 @@ const Page = (): ReactElement => {
                   variant={ButtonVariant.Tertiary}
                 />
               </Link>
-              <Typography type={TypographyType.Title3} bold>
+              <Typography
+                className="min-w-0 flex-1 truncate"
+                type={TypographyType.Title3}
+                bold
+              >
                 Presidential briefings
               </Typography>
-              <div className="ml-auto flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 {isNotPlus && !emptyFeed && !hasTodayBrief && (
                   <Button
+                    aria-label="Generate Brief"
                     icon={<MagicIcon aria-hidden />}
                     onClick={() => router.push('/briefing/generate')}
+                    size={isMobile ? ButtonSize.Small : ButtonSize.Medium}
                     variant={ButtonVariant.Primary}
                   >
-                    Generate Brief
+                    {isMobile ? null : 'Generate Brief'}
                   </Button>
                 )}
                 <Button
@@ -210,6 +216,7 @@ const Page = (): ReactElement => {
                   onClick={() => {
                     router?.push(`${settingsUrl}/notifications`);
                   }}
+                  size={isMobile ? ButtonSize.Small : ButtonSize.Medium}
                 />
               </div>
             </header>

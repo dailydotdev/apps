@@ -26,6 +26,10 @@ jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
 }));
 
+jest.mock('../../../hooks/useRequestProtocol', () => ({
+  useRequestProtocol: () => ({ isCompanion: false }),
+}));
+
 const mockedUseDiscoverHotTakes = useDiscoverHotTakes as jest.Mock;
 const mockedUseVoteHotTake = useVoteHotTake as jest.Mock;
 const mockedUseLogContext = useLogContext as jest.Mock;
@@ -281,6 +285,48 @@ describe('HotAndColdModal', () => {
     expect(screen.getByText(currentTake.subtitle)).not.toHaveClass(
       'line-clamp-3',
     );
+  });
+
+  it('should keep long author names and handles shrinkable in the attribution row', () => {
+    const longName = 'Confident Coding With A Very Long Display Name';
+    const longUsername = 'confidentcodingwithaverylonghandle';
+    const currentTake = {
+      ...createHotTake('long-author'),
+      user: {
+        id: 'user-1',
+        name: longName,
+        username: longUsername,
+        image: 'https://daily.dev/avatar.png',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        reputation: 42,
+        permalink: '/confidentcodingwithaverylonghandle',
+        companies: [],
+        isPlus: false,
+      },
+    };
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    const authorName = screen.getByText(longName);
+    const authorHandle = screen.getByText(`@${longUsername}`);
+
+    expect(authorName.parentElement).toHaveClass(
+      'flex',
+      'min-w-0',
+      'items-center',
+      'gap-1',
+    );
+    expect(authorName).toHaveClass('min-w-0', 'truncate');
+    expect(authorHandle).toHaveClass('min-w-0', 'truncate');
   });
 
   it('should keep onboarding mode clipped and scrollable inside the modal shell', () => {

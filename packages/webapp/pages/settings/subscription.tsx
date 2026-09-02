@@ -8,6 +8,8 @@ import { SubscriptionProvider } from '@dailydotdev/shared/src/lib/plus';
 
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { GiftIcon } from '@dailydotdev/shared/src/components/icons';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Typography,
   TypographyColor,
@@ -15,6 +17,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -30,9 +33,10 @@ import {
   defaultPlusInfoCopyControl,
   PlusType,
 } from '@dailydotdev/shared/src/components/plus/PlusInfo';
+import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const UpgradeToPlus = dynamic(() =>
@@ -50,10 +54,10 @@ const PlusList = dynamic(() =>
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Subscriptions'),
+  ...noindexSeoProps,
 };
 
 const PlusInfo = (): ReactElement => {
-  const { openModal } = useLazyModal();
   const { isPlus, plusProvider, logSubscriptionEvent, plusHref } =
     usePlusSubscription();
 
@@ -69,8 +73,7 @@ const PlusInfo = (): ReactElement => {
         >
           {`Thank you for supporting daily.dev and unlocking the best experience
           we offer. Manage your subscription to update your plan, payment
-          details, or preferences anytime. Know a friend or colleague who might
-          love daily.dev? Gift them daily.dev Plus!`}
+          details, or preferences anytime.`}
         </Typography>
 
         {!isIOSNative() &&
@@ -120,23 +123,38 @@ const PlusInfo = (): ReactElement => {
         >
           Manage subscription
         </Button>
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Secondary}
-          onClick={() => {
-            logSubscriptionEvent({
-              event_name: LogEvent.GiftSubscription,
-              target_id: TargetId.Account,
-            });
-            openModal({
-              type: LazyModal.GiftPlus,
-            });
-          }}
-        >
-          Gift Plus
-        </Button>
       </div>
     </>
+  );
+};
+
+const GiftPlusSection = (): ReactElement => {
+  const { openModal } = useLazyModal();
+  const { logSubscriptionEvent } = usePlusSubscription();
+
+  return (
+    <AccountContentSection
+      title="Gift daily.dev Plus"
+      description={defaultPlusInfoCopyControl[PlusType.Gift].description}
+    >
+      <Button
+        className="mt-4 max-w-fit border-action-plus-default text-action-plus-default"
+        icon={<GiftIcon size={IconSize.Small} secondary />}
+        variant={ButtonVariant.Secondary}
+        color={ButtonColor.Bacon}
+        onClick={() => {
+          logSubscriptionEvent({
+            event_name: LogEvent.GiftSubscription,
+            target_id: TargetId.Account,
+          });
+          openModal({
+            type: LazyModal.GiftPlus,
+          });
+        }}
+      >
+        Buy as gift
+      </Button>
+    </AccountContentSection>
   );
 };
 
@@ -168,6 +186,7 @@ const UpgradeToPlusInfo = (): ReactElement => {
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   const { isPlus } = usePlusSubscription();
+  const { isValidRegion: isPlusAvailable } = useAuthContext();
 
   return (
     <AccountPageContainer title="Payment & Subscription">
@@ -179,6 +198,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 
         {isPlus ? <PlusInfo /> : <UpgradeToPlusInfo />}
       </div>
+      {isPlusAvailable && <GiftPlusSection />}
     </AccountPageContainer>
   );
 };

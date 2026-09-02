@@ -1,5 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+
+const queryClient = new QueryClient();
 
 const meta: Meta<typeof Tooltip> = {
   title: 'Components/Tooltip',
@@ -7,6 +11,13 @@ const meta: Meta<typeof Tooltip> = {
   parameters: {
     layout: 'centered',
   },
+  decorators: [
+    (Story) => (
+      <QueryClientProvider client={queryClient}>
+        <Story />
+      </QueryClientProvider>
+    ),
+  ],
   tags: ['autodocs'],
   argTypes: {
     content: {
@@ -17,13 +28,9 @@ const meta: Meta<typeof Tooltip> = {
       control: 'boolean',
       description: 'Controls the open state of the tooltip',
     },
-    defaultOpen: {
+    showArrow: {
       control: 'boolean',
-      description: 'The default open state of the tooltip',
-    },
-    onOpenChange: {
-      action: 'onOpenChange',
-      description: 'Callback when the tooltip open state changes',
+      description: 'Show the pointer arrow (off by default)',
     },
   },
 };
@@ -47,6 +54,20 @@ export const WithCustomContent: Story = {
       </div>
     ),
     children: <button>Hover for custom content</button>,
+  },
+};
+
+export const LongMultiLineContent: Story = {
+  args: {
+    content: (
+      <div className="text-center">
+        We are showing your reading streak in your selected timezone.
+        <br />
+        Click to adjust your timezone if needed or traveling.
+      </div>
+    ),
+    open: true,
+    children: <button>Long tooltip content</button>,
   },
 };
 

@@ -312,6 +312,82 @@ describe('useBookmarkReminder hook', () => {
     });
   });
 
+  it('should set a custom remindAt when preference is Custom', async () => {
+    const { result } = renderHook(() => useBookmarkReminder({ post }), {
+      wrapper: Wrapper,
+    });
+
+    const customRemindAt = addDays(mockedNow, 5);
+    await result.current.onBookmarkReminder({
+      postId: 'p1',
+      preference: ReminderPreference.Custom,
+      remindAt: customRemindAt,
+    });
+
+    jest.useRealTimers();
+    await waitFor(() => {
+      expect(setBookmarkReminder).toHaveBeenCalledWith({
+        postId: 'p1',
+        remindAt: customRemindAt,
+      });
+    });
+
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'set bookmark reminder',
+        extra: '{"remind_in":"Custom"}',
+      }),
+    );
+  });
+
+  it('should throw when custom remindAt is missing', async () => {
+    const { result } = renderHook(() => useBookmarkReminder({ post }), {
+      wrapper: Wrapper,
+    });
+
+    expect(() =>
+      result.current.onBookmarkReminder({
+        postId: 'p1',
+        preference: ReminderPreference.Custom,
+      }),
+    ).toThrow('Invalid custom reminder time');
+
+    expect(logEvent).not.toHaveBeenCalled();
+    expect(setBookmarkReminder).not.toHaveBeenCalled();
+  });
+
+  it('should throw when custom remindAt is more than 14 days ahead', async () => {
+    const { result } = renderHook(() => useBookmarkReminder({ post }), {
+      wrapper: Wrapper,
+    });
+
+    expect(() =>
+      result.current.onBookmarkReminder({
+        postId: 'p1',
+        preference: ReminderPreference.Custom,
+        remindAt: addDays(mockedNow, 15),
+      }),
+    ).toThrow('Invalid custom reminder time');
+
+    expect(setBookmarkReminder).not.toHaveBeenCalled();
+  });
+
+  it('should throw when custom remindAt is in the past', async () => {
+    const { result } = renderHook(() => useBookmarkReminder({ post }), {
+      wrapper: Wrapper,
+    });
+
+    expect(() =>
+      result.current.onBookmarkReminder({
+        postId: 'p1',
+        preference: ReminderPreference.Custom,
+        remindAt: addHours(mockedNow, -1),
+      }),
+    ).toThrow('Invalid custom reminder time');
+
+    expect(setBookmarkReminder).not.toHaveBeenCalled();
+  });
+
   it('should properly remove bookmark reminder', async () => {
     const { result } = renderHook(() => useBookmarkReminder({ post }), {
       wrapper: Wrapper,

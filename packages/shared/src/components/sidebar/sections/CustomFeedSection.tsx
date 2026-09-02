@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
+import { createSidebarAddItem } from '../common';
 import { HashtagIcon, StarIcon } from '../../icons';
 import { Section } from '../Section';
 import { webappUrl } from '../../../lib/constants';
@@ -73,13 +74,21 @@ export const CustomFeedSection = ({
     onNavTabClick,
   ]);
 
+  // The v2 panels lead with a "New feed" row instead of a header "+"; v1
+  // keeps its header add button.
+  const { isV2Panel } = defaultRenderSectionProps;
+  const addHref = `${webappUrl}feeds/new`;
+  const items = isV2Panel
+    ? [createSidebarAddItem('New feed', { href: addHref }), ...menuItems]
+    : menuItems;
+
   return (
     <Section
       {...defaultRenderSectionProps}
-      items={menuItems}
+      items={items}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.CustomFeedsExpanded}
-      addHref={`${webappUrl}feeds/new`}
+      addHref={isV2Panel ? undefined : addHref}
     />
   );
 };

@@ -12,6 +12,8 @@ import {
 } from '../../graphql/notifications';
 import { NotificationType, NotificationIconType } from './utils';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import * as njord from '../../graphql/njord';
+import { TOAST_NOTIF_KEY, ToastType } from '../../hooks/useToastNotification';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -76,9 +78,25 @@ jest.mock(
       mockReact.cloneElement(children, { ...rest }),
 );
 
-const renderComponent = (component: ReactNode) => {
-  const client = new QueryClient();
+const renderComponent = (component: ReactNode, client = new QueryClient()) => {
   render(<TestBootProvider client={client}>{component}</TestBootProvider>);
+};
+
+const seedNotificationQuery = (
+  client: QueryClient,
+  notification: NotificationItemProps,
+) => {
+  client.setQueryData(['notifications'], {
+    pages: [
+      {
+        notifications: {
+          pageInfo: { endCursor: null, hasNextPage: false },
+          edges: [{ cursor: '', node: notification }],
+        },
+      },
+    ],
+    pageParams: [''],
+  });
 };
 
 describe('notification attachment', () => {
@@ -91,42 +109,158 @@ describe('notification attachment', () => {
     expect(img).toHaveAttribute('src', attachment.image);
   });
 
-  it('should have a title', async () => {
+  it('should show the post title as the subtitle (and cover image) when there is no comment', async () => {
     const [attachment] = sampleNotificationAttachments;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    renderComponent(
+      <NotificationItem {...sampleNotification} description={undefined} />,
+    );
     await screen.findByText(attachment.title);
+    await screen.findByAltText(`Cover preview of: ${attachment.title}`);
+  });
+
+  it('should not repeat the post title when it matches the notification title', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        description={undefined}
+        title="<p>Same post title</p>"
+        attachments={[
+          { ...sampleNotificationAttachments[0], title: 'Same post title' },
+        ]}
+      />,
+    );
+    const matches = await screen.findAllByText('Same post title');
+    expect(matches).toHaveLength(1);
+  });
+});
+
+describe('content-arrival rows', () => {
+  const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000);
+  const sourcePost: NotificationItemProps = {
+    icon: NotificationIconType.Bell,
+    type: NotificationType.SourcePostAdded,
+    title: '<p>New post in <b>The New Stack</b></p>',
+    referenceId: 'source-post',
+    targetUrl: 'post url',
+    createdAt: hoursAgo(3),
+    avatars: [sampleNotificationAvatars[0]],
+    attachments: [
+      {
+        title: "Anthropic's Claude now has a browser of its own",
+        image: 'cover',
+        type: NotificationAttachmentType.Post,
+      },
+    ],
+  };
+
+  it('should lead with the post headline, not the announcing sentence', async () => {
+    renderComponent(<NotificationItem {...sourcePost} />);
+    const headline = await screen.findByText(
+      "Anthropic's Claude now has a browser of its own",
+    );
+    expect(headline).toHaveClass('font-bold');
+    expect(screen.queryAllByText(/New post in/)).toHaveLength(0);
+    await screen.findByText('source');
+  });
+
+  it('should credit the person and the squad when both are present', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sourcePost}
+        type={NotificationType.SquadPostAdded}
+        avatars={sampleNotificationAvatars}
+      />,
+    );
+    await screen.findByText('user in source');
+  });
+
+  it('should keep the actor-first layout when there is no post to promote', async () => {
+    renderComponent(<NotificationItem {...sourcePost} attachments={[]} />);
+    // The source sits in a <b>, so the sentence spans several text nodes.
+    const matches = await screen.findAllByText(/New post in/);
+    expect(matches.length).toBeGreaterThan(0);
+  });
+});
+
+describe('notification timestamp', () => {
+  const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000);
+
+  it('should follow the last grey line rather than the title', async () => {
+    renderComponent(
+      <NotificationItem {...sampleNotification} createdAt={hoursAgo(5)} />,
+    );
+    const time = await screen.findByText('5h');
+    expect(time.closest('div')).toHaveTextContent(/Sample attachment\s*·\s*5h/);
+  });
+
+  it('should never sit inside a clamped line, so a long title cannot hide it', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        description={undefined}
+        createdAt={hoursAgo(5)}
+      />,
+    );
+    const time = await screen.findByText('5h');
+    expect(time.closest('.line-clamp-1, .line-clamp-2')).toBeNull();
+    expect(time.closest('.truncate')).toBeNull();
+  });
+
+  it('should take a line of its own when the row has no grey text', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        description={undefined}
+        attachments={[]}
+        createdAt={hoursAgo(9)}
+      />,
+    );
+    const time = await screen.findByText('9h');
+    expect(time.closest('div')).toHaveTextContent('9h');
+    expect(time.closest('div')).not.toHaveTextContent('·');
   });
 });
 
 describe('notification avatars', () => {
   it('should display the avatar of the source', async () => {
     const [source] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    // A single avatar renders the rich source/user avatar (multiple actors
+    // render as an overlapping stack instead).
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[source]} />,
+    );
     const img = await screen.findByAltText(`${source.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', source.image);
   });
 
   it('should display the avatar of the user', async () => {
     const [, user] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    // Only the primary (first) avatar is shown, so render the user as the
+    // single avatar to verify user avatars render.
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[user]} />,
+    );
     const img = await screen.findByAltText(`${user.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', user.image);
   });
 
   it('should not display anything if the type is unknown', async () => {
+    const [source] = sampleNotificationAvatars;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const notif = { ...sampleNotification } as any;
-    notif.avatars[1].type = 'Test';
-    const [, user] = sampleNotificationAvatars;
-    renderComponent(<NotificationItem {...notif} />);
-    const img = screen.queryByAltText(`${user.referenceId}'s profile`);
+    const unknownAvatar = { ...source, type: 'Test' } as any;
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={[unknownAvatar]} />,
+    );
+    const img = screen.queryByAltText(`${source.referenceId}'s profile`);
     expect(img).not.toBeInTheDocument();
   });
 });
 
 describe('notification item', () => {
   it('should display the icon of the notification', async () => {
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    renderComponent(
+      <NotificationItem {...sampleNotification} avatars={undefined} />,
+    );
     const testid = `notification-${sampleNotification.icon}`;
     const img = await screen.findByTestId(testid);
     expect(img).toBeInTheDocument();
@@ -134,7 +268,7 @@ describe('notification item', () => {
 
   it('should display the default icon if the passed icon is unknown', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const notification = { ...sampleNotification } as any; // using any to validate unknown icon
+    const notification = { ...sampleNotification, avatars: undefined } as any; // using any to validate unknown icon
     notification.icon = 'new notif';
     renderComponent(<NotificationItem {...notification} />);
     const testid = `notification-${notification.icon}`;
@@ -153,6 +287,18 @@ describe('notification item', () => {
   it('should have a description that supports html', async () => {
     renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(sampleNotificationDescription);
+  });
+
+  it('should not render the description when it duplicates the title', async () => {
+    renderComponent(
+      <NotificationItem
+        {...sampleNotification}
+        title="<p>Exactly the same</p>"
+        description="<p>Exactly the same</p>"
+      />,
+    );
+    const matches = await screen.findAllByText('Exactly the same');
+    expect(matches).toHaveLength(1);
   });
 });
 
@@ -176,6 +322,108 @@ describe('notification click if onClick prop is NOT provided', () => {
     renderComponent(<NotificationItem {...sampleNotification} />);
 
     expect(screen.queryByTestId('openNotification')).not.toBeInTheDocument();
+  });
+});
+
+describe('UserReceivedAward say thanks action', () => {
+  const receivedAwardNotification: NotificationItemProps = {
+    isUnread: true,
+    icon: NotificationIconType.Core,
+    title: '<p><b>user</b> awarded you +10 Cores for being awesome!</p>',
+    type: NotificationType.UserReceivedAward,
+    referenceId: '5a2c2b3a-4d6e-4f70-8a91-b2c3d4e5f607',
+    targetUrl: '/user',
+    avatars: [sampleNotificationAvatars[1]],
+  };
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should render the "Say thanks" action on the recipient notification', async () => {
+    renderComponent(<NotificationItem {...receivedAwardNotification} />);
+    await screen.findByText('Say thanks');
+  });
+
+  it('should not render the action on other notification types', async () => {
+    renderComponent(<NotificationItem {...sampleNotification} />);
+    await screen.findByText(sampleNotificationTitle);
+    expect(screen.queryByText('Say thanks')).not.toBeInTheDocument();
+  });
+
+  it('should update the notification cache on success', async () => {
+    const spy = jest
+      .spyOn(njord, 'sayThanksForAward')
+      .mockResolvedValue(undefined);
+    const queryClient = new QueryClient();
+    seedNotificationQuery(queryClient, receivedAwardNotification);
+
+    renderComponent(
+      <NotificationItem {...receivedAwardNotification} />,
+      queryClient,
+    );
+
+    const button = await screen.findByText('Say thanks');
+    fireEvent.click(button);
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(['notifications'])).toMatchObject({
+        pages: [
+          {
+            notifications: {
+              edges: [{ node: { hasThanks: true } }],
+            },
+          },
+        ],
+      }),
+    );
+    expect(spy).toHaveBeenCalledWith({
+      transactionId: receivedAwardNotification.referenceId,
+    });
+  });
+
+  it('should render "Thanks sent" when notification data has thanks', async () => {
+    renderComponent(
+      <NotificationItem {...receivedAwardNotification} hasThanks />,
+    );
+
+    await screen.findByText('Thanks sent');
+    expect(screen.queryByText('Say thanks')).not.toBeInTheDocument();
+  });
+
+  it('should show a toast and update the state when thanks were already sent', async () => {
+    jest.spyOn(njord, 'sayThanksForAward').mockRejectedValue({
+      response: {
+        errors: [{ extensions: { code: 'CONFLICT' } }],
+      },
+    });
+    const queryClient = new QueryClient();
+    seedNotificationQuery(queryClient, receivedAwardNotification);
+    renderComponent(
+      <NotificationItem {...receivedAwardNotification} />,
+      queryClient,
+    );
+
+    fireEvent.click(await screen.findByText('Say thanks'));
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
+        message: 'You already sent thanks',
+        variant: ToastType.Info,
+      }),
+    );
+  });
+
+  it('should render the sender UserAwardThanks notification without a say thanks action', async () => {
+    renderComponent(
+      <NotificationItem
+        {...receivedAwardNotification}
+        type={NotificationType.UserAwardThanks}
+        title="<p><b>user</b> said thanks for your Award</p>"
+      />,
+    );
+    await screen.findByText(/said thanks for your Award/);
+    expect(screen.queryByText('Say thanks')).not.toBeInTheDocument();
   });
 });
 

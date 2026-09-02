@@ -126,9 +126,10 @@ const DigestPostContentRaw = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, digestPostIds, post?.id, staticAd]);
 
-  const formattedDate = post?.createdAt
+  const postDate = post?.updatedAt || post?.createdAt;
+  const formattedDate = postDate
     ? formatDate({
-        value: post.createdAt,
+        value: postDate,
         type: TimeFormatType.Post,
       })
     : '';

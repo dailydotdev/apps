@@ -15,7 +15,7 @@ import { isNullOrUndefined } from '../../../lib/func';
  * boot popup queue. The modal opens as soon as all conditions are met
  * (alerts loaded, streak data loaded, user eligible).
  */
-export const StreakMilestonePopup = (): ReactElement => {
+export const StreakMilestonePopup = (): ReactElement | null => {
   const { openModal, modal } = useLazyModal();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
@@ -42,7 +42,7 @@ export const StreakMilestonePopup = (): ReactElement => {
       !!modal,
     ].some(Boolean);
 
-    if (shouldHide) {
+    if (shouldHide || !streak?.current) {
       return;
     }
 
@@ -51,10 +51,10 @@ export const StreakMilestonePopup = (): ReactElement => {
     openModal({
       type: LazyModal.NewStreak,
       props: {
-        currentStreak: streak?.current,
-        maxStreak: streak?.max,
+        currentStreak: streak.current,
+        maxStreak: streak.max,
         onAfterClose: () => {
-          updateAlerts({ showStreakMilestone: false });
+          updateAlerts?.({ showStreakMilestone: false });
         },
       },
     });

@@ -25,7 +25,7 @@ The decision was made to allow faster iterations and to keep features parity in 
 
 ## Technologies
 
-- Node v24.14 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
+- Node v24.18 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
 - [pnpm](https://pnpm.io/workspaces) 10.33.4 for managing the monorepo and dependencies.
 
 ## Projects
@@ -61,17 +61,6 @@ contains a collection of smaller projects or libraries that are used across the 
 - ### [webapp](https://github.com/dailydotdev/apps/tree/master/packages/webapp)
 
   The web app project. This is a Next.js project and has more pages than the extension, such as a registration page, post page, profile page, etc. For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
-
-## Local Environment
-
-To spin up a local environment, you will need Docker. Do the steps below and you should be able to start trying to center a div:
-
-- Fork this repo
-- Pull it locally
-- Run `docker compose up`
-- Once done, seed your local data by running `docker compose exec daily-api node ./bin/import`
-- Then lastly, run npm run dev:oss
-- The app should run at `http://localhost:5002/`
 
 ## Want to Help?
 

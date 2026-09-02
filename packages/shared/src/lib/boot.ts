@@ -13,13 +13,10 @@ import type {
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
 import type { EngagementCreative } from './engagementAds';
+import { getStoredTcString } from './tcf';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
-}
-
-interface LiveRoomsBootData {
-  hasLive: boolean;
 }
 
 export type PostBootData = Pick<
@@ -79,7 +76,7 @@ export type Boot = {
    */
   marketingCtaVariants?: MarketingCtaVariant[];
   feeds: Feed[];
-  language?: string;
+  language?: string | null;
   geo: {
     ip?: string;
     region?: string;
@@ -87,7 +84,6 @@ export type Boot = {
   };
   isAndroidApp?: boolean;
   engagementCreatives?: EngagementCreative[];
-  liveRooms?: LiveRoomsBootData;
 };
 
 export type BootCacheData = Pick<
@@ -160,12 +156,17 @@ export async function getBootData({
   pathname,
 }: GetBootDataParams): Promise<Boot> {
   const bootURL = getBootURL(app, url, pathname);
+  // Persisted by the CMP in the euconsent-v2 cookie on a previous page view —
+  // the CMP script loads after boot fires, so the live __tcfapi is never
+  // available here.
+  const tcString = getStoredTcString();
   const res = await fetch(bootURL, {
     method: 'GET',
     credentials: 'include',
     headers: {
       app,
       'Content-Type': 'application/json',
+      ...(tcString && { 'x-gdpr-consent': tcString }),
       ...(cookies && { Cookie: cookies }),
     },
   });

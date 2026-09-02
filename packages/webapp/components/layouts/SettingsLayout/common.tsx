@@ -26,13 +26,19 @@ export enum AccountSecurityDisplay {
   ConnectEmail = 'connect_email',
 }
 
+// Without `min-w-0` the section's `overflow-x-clip` below is inert: a `flex-1`
+// item defaults to `min-width: auto`, so wide content grows this column past the
+// viewport and scrolls the page sideways instead of being clipped.
 export const AccountPageContent = classed(
   'main',
-  'flex flex-col tablet:border border-border-subtlest-tertiary flex-1 rounded-16 h-fit',
+  'flex min-w-0 flex-col tablet:border border-border-subtlest-tertiary flex-1 rounded-16 h-fit',
 );
+// `overflow-x-clip` rather than `-hidden`: a hidden box stays programmatically
+// scrollable, and iOS scrolls every such ancestor of a focused field on caret
+// reveal, which pushed the heading and its Save button out of view.
 export const AccountPageSection = classed(
   'section',
-  'flex flex-col p-6 w-full overflow-x-hidden',
+  'flex flex-col p-6 w-full overflow-x-clip',
 );
 export const AccountPageHeading = classed(
   'h1',

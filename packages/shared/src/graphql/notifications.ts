@@ -14,6 +14,7 @@ export enum NotificationAvatarType {
   Brief = 'brief',
   Digest = 'digest',
   Achievement = 'achievement',
+  World = 'world',
 }
 
 export interface NotificationAvatar extends WithClassNameProps {
@@ -49,6 +50,7 @@ export interface Notification {
   attachments?: NotificationAttachment[];
   targetUrl: string;
   numTotalAvatars?: number;
+  hasThanks?: boolean;
 }
 
 export interface NotificationsData {
@@ -86,6 +88,7 @@ export const NOTIFICATIONS_QUERY = gql`
           }
           targetUrl
           numTotalAvatars
+          hasThanks
         }
       }
     }
@@ -99,6 +102,34 @@ export const READ_NOTIFICATIONS_MUTATION = gql`
     }
   }
 `;
+
+export const SYNC_WEB_PUSH_SUBSCRIPTION_MUTATION = gql`
+  mutation SyncWebPushSubscription($input: SyncWebPushSubscriptionInput) {
+    syncWebPushSubscription(input: $input) {
+      cleanedUpSubscriptions
+    }
+  }
+`;
+
+export type SyncWebPushSubscriptionInput = {
+  subscriptionId?: string;
+  origin?: string;
+  optedIn?: boolean;
+};
+
+export type SyncWebPushSubscriptionResult = {
+  cleanedUpSubscriptions: number;
+};
+
+export const syncWebPushSubscription = async (
+  input: SyncWebPushSubscriptionInput,
+): Promise<SyncWebPushSubscriptionResult> => {
+  const res = await gqlClient.request<{
+    syncWebPushSubscription: SyncWebPushSubscriptionResult;
+  }>(SYNC_WEB_PUSH_SUBSCRIPTION_MUTATION, { input });
+
+  return res.syncWebPushSubscription;
+};
 
 export type NewNotification = Pick<
   Notification,
@@ -193,7 +224,6 @@ enum NotificationPreferenceType {
   Post = 'post',
   Comment = 'comment',
   Source = 'source',
-  LiveRoom = 'live_room',
 }
 
 export interface NotificationPreference {
@@ -234,7 +264,6 @@ export const notificationPreferenceMap: Partial<
   [NotificationType.SquadPostAdded]: NotificationPreferenceType.Source,
   [NotificationType.SquadMemberJoined]: NotificationPreferenceType.Source,
   [NotificationType.SourcePostAdded]: NotificationPreferenceType.Source,
-  [NotificationType.LiveRoomStarted]: NotificationPreferenceType.LiveRoom,
 };
 
 export const muteNotification = async (

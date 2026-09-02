@@ -1,14 +1,15 @@
 import type { ReactElement, PropsWithChildren } from 'react';
 import React, { useMemo, useState, useEffect } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
-import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import { useCustomizeNewTab } from '../features/customizeNewTab/CustomizeNewTabContext';
 
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import type { FeedAdTemplate } from '../lib/feed';
+import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { useConditionalFeature } from '../hooks/useConditionalFeature';
+import { useMedia } from '../hooks/useMedia';
 
 // Sidebar animation duration in ms (matches CSS transition in MainLayout)
 const SIDEBAR_TRANSITION_DURATION = 300;
@@ -112,16 +113,22 @@ const FeedContext = React.createContext<FeedContextData>(
   baseFeedSettings.default,
 );
 
+interface FeedLayoutProviderProps {
+  /**
+   * Upper bound on the column count, for a feed in a narrower box than its
+   * page. Without it the count comes purely from the viewport, so an embedded
+   * feed divides its own width by a full page's worth of columns.
+   */
+  maxNumCards?: number;
+}
+
 export function FeedLayoutProvider({
   children,
-}: PropsWithChildren): ReactElement {
+  maxNumCards,
+}: PropsWithChildren<FeedLayoutProviderProps>): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
-  // Customize sidebar (right side) — when open we need to push the
-  // breakpoint up by the same width so a laptop-width feed doesn't try
-  // to keep its 3-column grid in the now-narrower content area.
-  const { panelWidth: customizerPanelWidth } = useCustomizeNewTab();
   const feedAdTemplateFeature = useConditionalFeature({
     feature: featureFeedAdTemplate,
     shouldEvaluate: !isPlus,
@@ -180,21 +187,15 @@ export function FeedLayoutProvider({
         ? sidebarOpenWidth
         : sidebarRenderedWidth;
     }
-    const totalOffset = leftSidebarOffset + customizerPanelWidth;
 
-    if (totalOffset === 0) {
+    if (leftSidebarOffset === 0) {
       return breakpoints;
     }
 
     return breakpoints.map((breakpoint) =>
-      replaceDigitsWithIncrement(breakpoint, totalOffset),
+      replaceDigitsWithIncrement(breakpoint, leftSidebarOffset),
     );
-  }, [
-    feedSettings,
-    debouncedSidebarExpanded,
-    sidebarRendered,
-    customizerPanelWidth,
-  ]);
+  }, [feedSettings, debouncedSidebarExpanded, sidebarRendered]);
 
   const currentSettings = useMedia(
     feedBreakpoints,
@@ -202,8 +203,27 @@ export function FeedLayoutProvider({
     defaultFeedSettings,
   );
 
+  const cappedSettings = useMemo(() => {
+    if (!maxNumCards) {
+      return currentSettings;
+    }
+
+    const { numCards } = currentSettings;
+
+    return {
+      ...currentSettings,
+      numCards: Object.entries(numCards).reduce(
+        (acc, [spaciness, count]) => ({
+          ...acc,
+          [spaciness]: Math.min(count, maxNumCards),
+        }),
+        {} as FeedContextData['numCards'],
+      ),
+    };
+  }, [currentSettings, maxNumCards]);
+
   return (
-    <FeedContext.Provider value={currentSettings}>
+    <FeedContext.Provider value={cappedSettings}>
       {children}
     </FeedContext.Provider>
   );

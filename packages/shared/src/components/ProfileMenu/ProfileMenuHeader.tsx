@@ -21,15 +21,22 @@ import { IconSize } from '../Icon';
 type Props = WithClassNameProps & {
   shouldOpenProfile?: boolean;
   profileImageSize?: ProfileImageSize;
+  // v2 sidebar dropdown tightens the name/handle gap; defaults to the v1 value.
+  compact?: boolean;
 };
 
 export const ProfileMenuHeader = ({
   className,
   shouldOpenProfile = false,
   profileImageSize = ProfileImageSize.Large,
-}: Props): ReactElement => {
+  compact = false,
+}: Props): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <ConditionalWrapper
@@ -51,7 +58,12 @@ export const ProfileMenuHeader = ({
           className="!rounded-10 border-background-default"
         />
 
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div
+          className={classNames(
+            'flex min-w-0 flex-1 flex-col',
+            compact ? 'gap-0.5' : 'gap-1',
+          )}
+        >
           <div className="flex items-center gap-1">
             <Typography
               type={TypographyType.Subhead}

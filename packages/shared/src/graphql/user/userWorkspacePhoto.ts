@@ -1,5 +1,4 @@
 import { gql } from 'graphql-request';
-import type { Connection } from '../common';
 import { gqlClient } from '../common';
 
 export interface UserWorkspacePhoto {
@@ -18,30 +17,13 @@ export interface ReorderUserWorkspacePhotoInput {
   position: number;
 }
 
-const USER_WORKSPACE_PHOTO_FRAGMENT = gql`
+export const USER_WORKSPACE_PHOTO_FRAGMENT = gql`
   fragment UserWorkspacePhotoFragment on UserWorkspacePhoto {
     id
     image
     position
     createdAt
   }
-`;
-
-const USER_WORKSPACE_PHOTOS_QUERY = gql`
-  query UserWorkspacePhotos($userId: ID!, $first: Int, $after: String) {
-    userWorkspacePhotos(userId: $userId, first: $first, after: $after) {
-      edges {
-        node {
-          ...UserWorkspacePhotoFragment
-        }
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-    }
-  }
-  ${USER_WORKSPACE_PHOTO_FRAGMENT}
 `;
 
 const ADD_USER_WORKSPACE_PHOTO_MUTATION = gql`
@@ -71,16 +53,6 @@ const REORDER_USER_WORKSPACE_PHOTOS_MUTATION = gql`
   }
   ${USER_WORKSPACE_PHOTO_FRAGMENT}
 `;
-
-export const getUserWorkspacePhotos = async (
-  userId: string,
-  first = 50,
-): Promise<Connection<UserWorkspacePhoto>> => {
-  const result = await gqlClient.request<{
-    userWorkspacePhotos: Connection<UserWorkspacePhoto>;
-  }>(USER_WORKSPACE_PHOTOS_QUERY, { userId, first });
-  return result.userWorkspacePhotos;
-};
 
 export const addUserWorkspacePhoto = async (
   input: AddUserWorkspacePhotoInput,

@@ -30,7 +30,7 @@ export enum OnboardingPlans {
 }
 
 interface PlusCardProps {
-  currency: string;
+  currency?: string;
   onClickNext: () => void;
   onClickPlus: () => void;
   productOption?: ProductPricingPreview;
@@ -96,7 +96,9 @@ const PlusCard = ({
     <li
       aria-labelledby={`${id}-heading`}
       className={classNames(
-        'mx-auto w-[21rem] rounded-16 border border-border-subtlest-tertiary p-4',
+        // Capped, not fixed: a flat 21rem outgrew the step's gutters on a
+        // 360px phone and spilled off the right edge.
+        'mx-auto w-full max-w-[21rem] rounded-16 border border-border-subtlest-tertiary p-4',
         isPaidPlan && 'bg-surface-float',
       )}
     >
@@ -223,10 +225,10 @@ export const PlusComparingCards = ({
   free,
   plus,
 }: PlusComparingCardsProps): ReactElement => {
-  const currency = productOption.currency?.symbol;
+  const currency = productOption?.currency?.symbol;
 
   const productOptions = Object.values(OnboardingPlans).map((plan) => ({
-    key: plan,
+    plan,
     currency,
     productOption: plan === OnboardingPlans.Plus ? productOption : undefined,
     onClickNext,
@@ -237,10 +239,10 @@ export const PlusComparingCards = ({
   return (
     <ul
       aria-label="Pricing plans"
-      className="mx-auto flex grid-cols-1 flex-col-reverse place-content-center items-start gap-6 tablet:grid-cols-2 laptop:grid"
+      className="mx-auto flex w-full grid-cols-1 flex-col-reverse place-content-center items-start gap-6 tablet:grid-cols-2 laptop:grid"
     >
-      {productOptions.map((option) => (
-        <PlusCard key={option.key} {...option} />
+      {productOptions.map(({ plan, ...option }) => (
+        <PlusCard key={plan} {...option} />
       ))}
     </ul>
   );

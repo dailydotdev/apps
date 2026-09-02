@@ -5,6 +5,7 @@ import type {
   ShortcutMeta,
   ShortcutsAppearance,
   ShortcutsMode,
+  SidebarShortcut,
 } from '../features/shortcuts/types';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
@@ -21,28 +22,6 @@ export enum HighlightsPlacement {
   Disabled = 'disabled',
 }
 
-export type NewTabMode = 'discover' | 'focus';
-
-export type FocusScheduleWindow = {
-  start: number;
-  end: number;
-  enabled: boolean;
-};
-
-export type FocusScheduleWeekday =
-  | 'mon'
-  | 'tue'
-  | 'wed'
-  | 'thu'
-  | 'fri'
-  | 'sat'
-  | 'sun';
-
-export type FocusSchedule = {
-  pauseUntil?: number | null;
-  windows?: Partial<Record<FocusScheduleWeekday, FocusScheduleWindow | null>>;
-};
-
 export type SettingsFlags = {
   sidebarSquadExpanded: boolean;
   sidebarCustomFeedsExpanded: boolean;
@@ -56,23 +35,42 @@ export type SettingsFlags = {
   defaultWriteTab?: WriteFormTab;
   legacyPostLayoutOptOut?: boolean;
   highlightCardsOptOut?: boolean;
-  // Persists that the user already chose to engage with the reader install
-  // prompt (clicked "Enable permissions & read inside"). Future read clicks
-  // skip the prompt and open the reader modal directly. Dismissing the prompt
-  // without choosing an option leaves this unset so the prompt reappears.
+  // Persists that the user chose to enable reader permissions from an install
+  // prompt. Future read clicks skip the prompt and open the reader modal
+  // directly unless the user later opts out.
   readerInstallPromptAcknowledged?: boolean;
+  // Persists that the intermediate install prompt has been surfaced to this
+  // user. Once set, the prompt never auto-opens again regardless of whether the
+  // user accepted or dismissed it.
+  readerInstallPromptSeen?: boolean;
   shortcutMeta?: Record<string, ShortcutMeta>;
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;
   showShortcutsOnWebapp?: boolean;
-  newTabMode?: NewTabMode;
-  focusSchedule?: FocusSchedule;
+  sidebarCompact?: boolean;
+  // In dock order.
+  sidebarShortcuts?: SidebarShortcut[];
+  sidebarPinnedExpanded?: boolean;
+  sidebarRecentExpanded?: boolean;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 
+// Keep only flags the API does not know yet. Sending an unknown flag fails
+// GraphQL validation, and since every write ships the whole `flags` object,
+// that breaks the persistence of all settings in the same payload.
+export const clientOnlySettingsFlags = [] as const satisfies ReadonlyArray<
+  keyof SettingsFlags
+>;
+
+export type ClientOnlyFlagKey = (typeof clientOnlySettingsFlags)[number];
+
+export type ClientOnlySettingsFlags = Pick<SettingsFlags, ClientOnlyFlagKey>;
+
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',
+  PinnedExpanded = 'sidebarPinnedExpanded',
+  RecentExpanded = 'sidebarRecentExpanded',
   CustomFeedsExpanded = 'sidebarCustomFeedsExpanded',
   OtherExpanded = 'sidebarOtherExpanded',
   ResourcesExpanded = 'sidebarResourcesExpanded',
@@ -92,6 +90,7 @@ export type RemoteSettings = {
   companionExpanded: boolean;
   sortingEnabled: boolean;
   optOutReadingStreak: boolean;
+  optOutStreakFreeze: boolean;
   optOutLevelSystem: boolean;
   optOutQuestSystem: boolean;
   optOutAchievements: boolean;

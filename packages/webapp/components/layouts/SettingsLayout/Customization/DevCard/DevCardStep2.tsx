@@ -61,33 +61,32 @@ export const DevCardStep2 = ({
 }: Step2Props): ReactElement => {
   const [type, setType] = useState(DevCardType.Vertical);
   const { user } = useAuthContext();
-  const { devcard } = useDevCard(user?.id);
-  const { theme, showBorder, isProfileCover } = devcard ?? {
-    theme: DevCardTheme.Default,
-    showBorder: true,
-    isProfileCover: false,
-  };
+  const userId = user?.id ?? '';
+  const { devcard } = useDevCard(userId);
+  const theme = devcard?.theme ?? DevCardTheme.Default;
+  const showBorder = devcard?.showBorder ?? true;
+  const isProfileCover = devcard?.isProfileCover ?? false;
   const isMobile = useViewSize(ViewSize.MobileL);
   const randomStr = Math.random().toString(36).substring(2, 5);
 
   const [devCardSrc, setDevCardSrc] = useState<string>(
     initialDevCardSrc ??
-      `${process.env.NEXT_PUBLIC_API_URL}/devcards/v2/${user.id}.png?type=default&r=${randomStr}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/devcards/v2/${userId}.png?type=default&r=${randomStr}`,
   );
 
   const client = useQueryClient();
   const { logEvent } = useLogContext();
   const key = useMemo(
-    () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
-    [user],
+    () => generateQueryKey(RequestKey.DevCard, { id: userId }),
+    [userId],
   );
   const embedCode = useMemo(
     () =>
-      `<a href="https://app.daily.dev/${
-        user?.username
+      `<a href="https://daily.dev/${
+        user?.username ?? ''
       }"><img src="${devCardSrc}" width="${
         type === DevCardType.Horizontal ? 652 : 356
-      }" alt="${user?.name}'s Dev Card"/></a>`,
+      }" alt="${user?.name ?? 'Developer'}'s Dev Card"/></a>`,
     [user?.name, user?.username, devCardSrc, type],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
@@ -98,7 +97,10 @@ export const DevCardStep2 = ({
 
   const downloadImage = async (url?: string): Promise<void> => {
     const finalUrl = url ?? devCardSrc;
-    await onDownloadUrl({ url: finalUrl, filename: `${user.username}.png` });
+    await onDownloadUrl({
+      url: finalUrl,
+      filename: `${user?.username ?? 'devcard'}.png`,
+    });
   };
 
   const { mutateAsync: onGenerate, isPending: isLoading } = useMutation({
@@ -111,7 +113,7 @@ export const DevCardStep2 = ({
     },
 
     onSuccess: (data, vars) => {
-      if (!data?.devCard?.imageUrl || vars.type === DevCardType.Twitter) {
+      if (!data?.devCard?.imageUrl || vars?.type === DevCardType.Twitter) {
         return;
       }
 
@@ -158,11 +160,18 @@ export const DevCardStep2 = ({
       logEvent({
         event_name: LogEvent.DownloadDevcard,
         extra: JSON.stringify({
-          format: devcardTypeToEventFormat[type],
+          format:
+            devcardTypeToEventFormat[
+              type as keyof typeof devcardTypeToEventFormat
+            ] ?? type.toLocaleLowerCase(),
         }),
       });
     }
   };
+
+  if (!user) {
+    throw new Error('DevCard customization requires a logged-in user');
+  }
 
   return (
     <>
@@ -213,7 +222,7 @@ export const DevCardStep2 = ({
             style={{ transformStyle: 'preserve-3d' }}
           >
             <DevCardFetchWrapper
-              userId={user.id}
+              userId={userId}
               type={type}
               isInteractive={false}
             />
@@ -375,8 +384,9 @@ export const DevCardStep2 = ({
                 </Typography>
 
                 <div className="flex flex-row flex-wrap">
-                  {Object.keys(themeToLinearGradient).map((value) => {
-                    const isLocked = user?.reputation < requiredPoints[value];
+                  {Object.values(DevCardTheme).map((value) => {
+                    const isLocked =
+                      (user.reputation ?? 0) < requiredPoints[value];
                     return (
                       <Tooltip
                         key={value}
