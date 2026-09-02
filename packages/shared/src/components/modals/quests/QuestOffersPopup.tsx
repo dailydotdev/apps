@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { isToday } from 'date-fns';
-import { useQuery } from '@tanstack/react-query';
-import { useLazyModal } from '../../../hooks/useLazyModal';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { MODAL_KEY, useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import { isTodayStamp } from '../../../lib/dateFormat';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import usePersistentContext, {
@@ -23,16 +23,6 @@ import {
 } from '../../../graphql/offers';
 import { featureQuestOffers } from '../../../lib/featureManagement';
 
-const hasSeenToday = (lastSeen: string | null): boolean => {
-  if (!lastSeen) {
-    return false;
-  }
-
-  const parsed = new Date(lastSeen);
-
-  return !Number.isNaN(parsed.getTime()) && isToday(parsed);
-};
-
 /**
  * Standalone daily quest reward modal trigger.
  *
@@ -47,6 +37,7 @@ const hasSeenToday = (lastSeen: string | null): boolean => {
  */
 const QuestOffersTrigger = (): null => {
   const { openModal, modal } = useLazyModal();
+  const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { data: dashboard } = useQuestDashboard();
   const { logEvent } = useLogContext();
@@ -63,10 +54,17 @@ const QuestOffersTrigger = (): null => {
 
   const summary = useMemo(() => getDailyQuestSummary(dashboard), [dashboard]);
 
+  // Both day stamps are independent idb reads. Gating on both means the
+  // eligibility effect below can never be short-circuited on an unresolved
+  // stamp while this one has already opened the modal and flipped `shouldShow`
+  // false for the rest of the day — which would drop the event only for
+  // treatment-with-inventory, under-counting the denominator exactly where the
+  // numerator lives.
   const shouldShow = ![
     !dashboard,
     !isLastSeenFetched,
-    hasSeenToday(lastSeen),
+    !isEligibleLogFetched,
+    isTodayStamp(lastSeen),
     !summary.claimed,
     !!modal,
   ].some(Boolean);
@@ -79,7 +77,11 @@ const QuestOffersTrigger = (): null => {
       shouldEvaluate: shouldShow,
     });
 
-  const { data: offers, isPending: areOffersPending } = useQuery({
+  const {
+    data: offers,
+    isPending: areOffersPending,
+    isError: didOffersFail,
+  } = useQuery({
     ...userOffersQueryOptions({
       user,
       placement: OfferPlacement.QuestCompletion,
@@ -98,7 +100,7 @@ const QuestOffersTrigger = (): null => {
       !shouldShow ||
       isOffersFeatureLoading ||
       !isEligibleLogFetched ||
-      hasSeenToday(eligibleLoggedAt)
+      isTodayStamp(eligibleLoggedAt)
     ) {
       return;
     }
@@ -119,10 +121,15 @@ const QuestOffersTrigger = (): null => {
       extra: JSON.stringify({
         enabled: offersEnabled,
         offers: offers?.length ?? 0,
+        // `retry: false` means a 5xx or a dropped connection settles the query
+        // with no offers, which is otherwise indistinguishable from healthy
+        // but empty inventory — the third state worth telling apart.
+        failed: didOffersFail,
       }),
     });
   }, [
     areOffersPending,
+    didOffersFail,
     eligibleLoggedAt,
     isEligibleLogFetched,
     isOffersFeatureLoading,
@@ -146,8 +153,15 @@ const QuestOffersTrigger = (): null => {
       return;
     }
 
+    // `modal` is a react-query snapshot from render, and MainLayout mounts
+    // three independent writers to this key (BootPopups, StreakMilestonePopup,
+    // this) whose effects all run in the same commit. Read the live value so
+    // we don't overwrite a sibling's popup that landed microseconds earlier.
+    if (queryClient.getQueryData(MODAL_KEY)) {
+      return;
+    }
+
     hasOpened.current = true;
-    setLastSeen(new Date().toISOString());
 
     openModal({
       type: LazyModal.QuestOffers,
@@ -156,6 +170,11 @@ const QuestOffersTrigger = (): null => {
         levelProgress: getQuestLevelProgress(dashboard.level),
         summary,
         offers,
+        // The day is stamped by the modal on mount, not here: a write that
+        // loses a same-commit race is dropped silently, and stamping up front
+        // would burn the day for offers that were never shown, never logged an
+        // impression, and never confirmed back to Encore.
+        onShown: () => setLastSeen(new Date().toISOString()),
       },
     });
   }, [
@@ -165,6 +184,7 @@ const QuestOffersTrigger = (): null => {
     offers,
     offersEnabled,
     openModal,
+    queryClient,
     setLastSeen,
     shouldShow,
     summary,

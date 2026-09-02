@@ -24,6 +24,8 @@ const mockSetLastSeen = jest.fn();
 const mockSetEligibleLoggedAt = jest.fn();
 let mockLastSeen: string | null = null;
 let mockEligibleLoggedAt: string | null = null;
+// The two stamps are independent idb reads that can resolve in either order.
+let mockIsEligibleLogFetched = true;
 
 // The modal stamp and the eligibility-event stamp are deliberately separate,
 // so the mock has to keep them apart too.
@@ -33,7 +35,12 @@ jest.mock('../../../hooks/usePersistentContext', () => ({
   default: (key: string) =>
     key === 'quest_offers_last_seen'
       ? [mockLastSeen, mockSetLastSeen, true, false]
-      : [mockEligibleLoggedAt, mockSetEligibleLoggedAt, true, false],
+      : [
+          mockEligibleLoggedAt,
+          mockSetEligibleLoggedAt,
+          mockIsEligibleLogFetched,
+          false,
+        ],
 }));
 
 const makeQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
@@ -117,6 +124,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockLastSeen = null;
   mockEligibleLoggedAt = null;
+  mockIsEligibleLogFetched = true;
   window.scrollTo = jest.fn();
   jest
     .spyOn(conditionalFeatureHook, 'useConditionalFeature')
@@ -145,10 +153,62 @@ it('opens the offers modal on the first claimed daily quest of the day', async (
         level: 12,
         summary: { total: 2, claimed: 1, xpEarned: 50 },
         offers,
+        // The stamp is delegated to the modal so it can only be written for a
+        // popup that reached the screen; the collision case below is what
+        // pins the trigger not writing it itself.
+        onShown: expect.any(Function),
       },
     }),
   );
-  expect(mockSetLastSeen).toHaveBeenCalled();
+  // LazyModalElement is in the test tree, so the modal really mounts and runs
+  // the delegated stamp — end-to-end, not just the prop handover.
+  await waitFor(() => expect(mockSetLastSeen).toHaveBeenCalled());
+});
+
+// MainLayout mounts three independent MODAL_KEY writers whose effects run in
+// the same commit, and `modal` is only a render snapshot.
+it('yields to a sibling popup that already claimed the modal slot', async () => {
+  const queryClient = new QueryClient();
+
+  jest.spyOn(questDashboardHook, 'useQuestDashboard').mockReturnValue({
+    data: makeDashboard([makeQuest()]),
+  } as ReturnType<typeof questDashboardHook.useQuestDashboard>);
+
+  render(
+    <TestBootProvider client={queryClient} log={{ logEvent }}>
+      <QuestOffersPopup />
+    </TestBootProvider>,
+  );
+
+  // Land a sibling's write before our effect can read the live value.
+  queryClient.setQueryData(MODAL_KEY, {
+    type: LazyModal.NewStreak,
+    props: {},
+  });
+
+  await waitFor(() =>
+    expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+      type: LazyModal.NewStreak,
+    }),
+  );
+  expect(mockSetLastSeen).not.toHaveBeenCalled();
+});
+
+// The stamps are separate idb reads. If the modal could open while the
+// eligibility stamp was still resolving, opening would flip `shouldShow` false
+// for the day and the event would be lost — only for treatment-with-inventory,
+// which is precisely where the numerator lives.
+it('waits for both day stamps before doing anything', async () => {
+  mockIsEligibleLogFetched = false;
+
+  const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+
+  await waitFor(() =>
+    expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
+  );
+  expect(logEvent).not.toHaveBeenCalledWith(
+    expect.objectContaining({ event_name: LogEvent.QuestOffersEligible }),
+  );
 });
 
 // The API stamps claimedAt without always flipping status, so keying off
@@ -274,7 +334,9 @@ describe('eligibility logging', () => {
   it('logs the treatment arm with the offers it found', async () => {
     renderComponent(makeDashboard([makeQuest()]));
 
-    await waitFor(() => expectEligible({ enabled: true, offers: 1 }));
+    await waitFor(() =>
+      expectEligible({ enabled: true, offers: 1, failed: false }),
+    );
     expect(mockSetEligibleLoggedAt).toHaveBeenCalled();
   });
 
@@ -287,7 +349,9 @@ describe('eligibility logging', () => {
 
     const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
 
-    await waitFor(() => expectEligible({ enabled: false, offers: 0 }));
+    await waitFor(() =>
+      expectEligible({ enabled: false, offers: 0, failed: false }),
+    );
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined();
   });
 
@@ -299,7 +363,27 @@ describe('eligibility logging', () => {
 
     renderComponent(makeDashboard([makeQuest()]));
 
-    await waitFor(() => expectEligible({ enabled: true, offers: 0 }));
+    await waitFor(() =>
+      expectEligible({ enabled: true, offers: 0, failed: false }),
+    );
+  });
+
+  // `retry: false` means a failed fetch also settles with no offers, so
+  // without this flag a broken query reads as healthy-but-empty inventory.
+  it('separates a failed offers fetch from empty inventory', async () => {
+    nock.cleanAll();
+    nock('http://localhost:3000').post('/graphql').reply(500, {});
+    nock('http://localhost:3000')
+      .post('/graphql')
+      .optionally()
+      .times(10)
+      .reply(200, { data: {} });
+
+    renderComponent(makeDashboard([makeQuest()]));
+
+    await waitFor(() =>
+      expectEligible({ enabled: true, offers: 0, failed: true }),
+    );
   });
 
   it('logs once per day, on its own stamp', async () => {
@@ -335,7 +419,6 @@ describe('eligibility logging', () => {
         type: LazyModal.QuestOffers,
       }),
     );
-    expect(mockSetLastSeen).toHaveBeenCalled();
   });
 });
 

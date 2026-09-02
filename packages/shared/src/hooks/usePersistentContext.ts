@@ -28,12 +28,24 @@ export type UserPersistentContextType<T> = [
   boolean,
 ];
 
+// Supplying an empty-cache value means the hook can always hand back a T.
+// Omitting it means an empty cache resolves to null, and the overloads say so
+// rather than leaving the caller to read the body for the rule.
+export default function usePersistentContext<T>(
+  key: string,
+  valueWhenCacheEmpty: T,
+  validValues?: T[],
+  fallbackValue?: T,
+): UserPersistentContextType<T>;
+export default function usePersistentContext<T>(
+  key: string,
+): UserPersistentContextType<T | null>;
 export default function usePersistentContext<T>(
   key: string,
   valueWhenCacheEmpty?: T,
   validValues?: T[],
   fallbackValue?: T,
-): UserPersistentContextType<T> {
+): UserPersistentContextType<T | null> {
   const queryKey = [key, valueWhenCacheEmpty];
   const queryClient = useQueryClient();
 
@@ -44,7 +56,7 @@ export default function usePersistentContext<T>(
   });
 
   const { mutateAsync: updateValue, isPending: isLoading } = useMutation({
-    mutationFn: (value: T) => setCache(key, value),
+    mutationFn: (value: T | null) => setCache(key, value),
 
     onMutate: (mutatedData) => {
       const current = data;
@@ -57,9 +69,7 @@ export default function usePersistentContext<T>(
     },
   });
 
-  // An empty cache with no fallback resolves to null, so callers that can hit
-  // that case pass a T which admits it (`usePersistentContext<string | null>`).
-  return [(data ?? fallbackValue) as T, updateValue, isFetched, isLoading];
+  return [data ?? fallbackValue ?? null, updateValue, isFetched, isLoading];
 }
 
 export enum PersistentContextKeys {

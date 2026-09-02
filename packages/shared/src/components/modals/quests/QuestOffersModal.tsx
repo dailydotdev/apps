@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type { UserOffer } from '../../../graphql/offers';
 import { confirmOffersDelivered } from '../../../graphql/offers';
@@ -20,6 +20,9 @@ export type QuestOffersModalProps = LazyModalCommonProps &
     levelProgress: number;
     summary: DailyQuestSummary;
     offers: UserOffer[];
+    /** Stamps the once-per-day guard. Called on mount, so it can only be
+     * written for a popup that actually reached the screen. */
+    onShown?: () => void;
   };
 
 export default function QuestOffersModal({
@@ -27,6 +30,7 @@ export default function QuestOffersModal({
   levelProgress,
   summary,
   offers,
+  onShown,
   onRequestClose,
   ...props
 }: QuestOffersModalProps): ReactElement {
@@ -48,6 +52,17 @@ export default function QuestOffersModal({
     target_id: summary.claimed.toString(),
     extra: JSON.stringify({ variant, offers: offers.length }),
   }));
+
+  const stamped = useRef(false);
+
+  useEffect(() => {
+    if (stamped.current) {
+      return;
+    }
+
+    stamped.current = true;
+    onShown?.();
+  }, [onShown]);
 
   // Render-then-confirm: each offer is confirmed once, at the moment it
   // becomes visible. Encore does not dedupe, so the set guards replays.

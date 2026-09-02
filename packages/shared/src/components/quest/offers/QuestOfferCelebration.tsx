@@ -102,7 +102,14 @@ const QuestStrip = ({
   claimed: number;
   className?: string;
 }): ReactElement => (
-  <div className={classNames('flex items-center gap-1.5', className)}>
+  // The count is API-driven and now includes locked Plus quests, so the row
+  // has to wrap — the split panel is 19rem and fits about seven steps.
+  <div
+    className={classNames(
+      'flex flex-wrap items-center justify-center gap-1.5',
+      className,
+    )}
+  >
     {Array.from({ length: total }, (_, index) => {
       const isClaimed = index < claimed;
 

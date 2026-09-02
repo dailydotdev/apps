@@ -28,6 +28,7 @@ if (typeof window.PointerEvent === 'undefined') {
 const mockUseViewSize = useViewSize as jest.Mock;
 const logEvent = jest.fn();
 const onRequestClose = jest.fn();
+const onShown = jest.fn();
 
 const offers: UserOffer[] = [
   {
@@ -74,6 +75,7 @@ const renderComponent = ({
         levelProgress={40}
         summary={summary}
         offers={offers}
+        onShown={onShown}
         onRequestClose={onRequestClose}
         ariaHideApp={false}
       />
@@ -135,6 +137,19 @@ describe('QuestOffersModal', () => {
     renderComponent();
 
     expect(screen.getByText('Daily quests complete')).toBeInTheDocument();
+  });
+
+  // The trigger delegates the once-per-day stamp here so it can only be
+  // written for a popup that actually reached the screen.
+  it('stamps the day exactly once, on mount', () => {
+    const { rerender } = renderComponent();
+
+    expect(onShown).toHaveBeenCalledTimes(1);
+
+    rerender(<div />);
+    renderComponent();
+
+    expect(onShown).toHaveBeenCalledTimes(2);
   });
 
   it('shows the XP earned from the day, and hides the chip when there is none', () => {
