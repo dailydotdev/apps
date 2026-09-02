@@ -9,9 +9,18 @@ import type {
 import { CLAIM_QUEST_REWARD_MUTATION } from '../graphql/quests';
 import { LogEvent, TargetType } from '../lib/log';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import type { QuestClaimedEventDetail } from '../lib/questClaimed';
-import { QUEST_CLAIMED_EVENT } from '../lib/questClaimed';
+import type { LoggedUser } from '../lib/user';
 import { useRequestProtocol } from './useRequestProtocol';
+
+/** The last successful claim, published through the query cache. */
+export type QuestClaim = {
+  questId: string;
+  questType: QuestType;
+};
+
+export const questClaimQueryKey = (
+  user: Pick<LoggedUser, 'id'> | undefined | null,
+): unknown[] => generateQueryKey(RequestKey.QuestClaim, user ?? undefined);
 
 type ClaimQuestRewardArgs = {
   userQuestId: string;
@@ -25,6 +34,7 @@ export const useClaimQuestReward = () => {
   const { logEvent } = useLogContext();
   const { requestMethod } = useRequestProtocol();
   const questDashboardKey = generateQueryKey(RequestKey.QuestDashboard, user);
+  const questClaimKey = questClaimQueryKey(user);
 
   return useMutation({
     mutationFn: async ({ userQuestId }: ClaimQuestRewardArgs) => {
@@ -78,13 +88,13 @@ export const useClaimQuestReward = () => {
         });
       }
 
-      // Dispatched after the dashboard cache is current, so a listener that
-      // reads it on this event sees the claim already applied.
-      window.dispatchEvent(
-        new CustomEvent<QuestClaimedEventDetail>(QUEST_CLAIMED_EVENT, {
-          detail: { questId, questType },
-        }),
-      );
+      // Published after the dashboard cache is current, so a listener reading
+      // it sees the claim already applied. A fresh object every time, so a
+      // second claim is distinguishable from the first.
+      queryClient.setQueryData<QuestClaim>(questClaimKey, {
+        questId,
+        questType,
+      });
 
       await refetchBoot?.();
     },

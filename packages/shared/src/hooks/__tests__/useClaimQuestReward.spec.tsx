@@ -3,9 +3,11 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QuestType } from '../../graphql/quests';
-import type { QuestClaimedEventDetail } from '../../lib/questClaimed';
-import { QUEST_CLAIMED_EVENT } from '../../lib/questClaimed';
-import { useClaimQuestReward } from '../useClaimQuestReward';
+import type { QuestClaim } from '../useClaimQuestReward';
+import {
+  questClaimQueryKey,
+  useClaimQuestReward,
+} from '../useClaimQuestReward';
 
 const mockRequestMethod = jest.fn();
 const mockLogEvent = jest.fn();
@@ -30,15 +32,21 @@ const claimResult = {
   intro: [],
 };
 
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider
-    client={
-      new QueryClient({ defaultOptions: { mutations: { retry: false } } })
-    }
-  >
-    {children}
-  </QueryClientProvider>
-);
+const claimKey = questClaimQueryKey({ id: '1' });
+
+const renderClaim = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: { mutations: { retry: false } },
+  });
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+
+  return {
+    queryClient,
+    ...renderHook(() => useClaimQuestReward(), { wrapper }),
+  };
+};
 
 describe('useClaimQuestReward', () => {
   beforeEach(() => {
@@ -47,12 +55,9 @@ describe('useClaimQuestReward', () => {
   });
 
   // The offers popup lives in MainLayout, far from every claim surface, and
-  // listens for this event instead of inferring a claim from the dashboard.
-  it('announces a successful claim on window', async () => {
-    const listener = jest.fn();
-    window.addEventListener(QUEST_CLAIMED_EVENT, listener);
-
-    const { result } = renderHook(() => useClaimQuestReward(), { wrapper });
+  // observes this cache entry rather than inferring a claim from the dashboard.
+  it('publishes a successful claim to the query cache', async () => {
+    const { result, queryClient } = renderClaim();
 
     result.current.mutate({
       userQuestId: 'uq-1',
@@ -60,23 +65,18 @@ describe('useClaimQuestReward', () => {
       questType: QuestType.Daily,
     });
 
-    await waitFor(() => expect(listener).toHaveBeenCalledTimes(1));
-
-    const { detail } = listener.mock
-      .calls[0][0] as CustomEvent<QuestClaimedEventDetail>;
-
-    expect(detail).toEqual({ questId: 'q-1', questType: QuestType.Daily });
-
-    window.removeEventListener(QUEST_CLAIMED_EVENT, listener);
+    await waitFor(() =>
+      expect(queryClient.getQueryData<QuestClaim>(claimKey)).toEqual({
+        questId: 'q-1',
+        questType: QuestType.Daily,
+      }),
+    );
   });
 
-  it('stays quiet when the claim fails', async () => {
+  it('publishes nothing when the claim fails', async () => {
     mockRequestMethod.mockRejectedValue(new Error('nope'));
 
-    const listener = jest.fn();
-    window.addEventListener(QUEST_CLAIMED_EVENT, listener);
-
-    const { result } = renderHook(() => useClaimQuestReward(), { wrapper });
+    const { result, queryClient } = renderClaim();
 
     result.current.mutate({
       userQuestId: 'uq-1',
@@ -85,8 +85,6 @@ describe('useClaimQuestReward', () => {
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(listener).not.toHaveBeenCalled();
-
-    window.removeEventListener(QUEST_CLAIMED_EVENT, listener);
+    expect(queryClient.getQueryData(claimKey)).toBeUndefined();
   });
 });

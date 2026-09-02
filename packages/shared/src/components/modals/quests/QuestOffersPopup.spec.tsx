@@ -19,7 +19,7 @@ import { LazyModal } from '../common/types';
 import { MODAL_KEY } from '../../../hooks/useLazyModal';
 import { RequestKey } from '../../../lib/query';
 import { LogEvent, TargetType } from '../../../lib/log';
-import { QUEST_CLAIMED_EVENT } from '../../../lib/questClaimed';
+import { questClaimQueryKey } from '../../../hooks/useClaimQuestReward';
 import * as conditionalFeatureHook from '../../../hooks/useConditionalFeature';
 import * as questDashboardHook from '../../../hooks/useQuestDashboard';
 import { QuestOffersPopup } from './QuestOffersPopup';
@@ -148,25 +148,30 @@ const renderLoaded = (
   return { queryClient, ...render(tree(queryClient, settings)) };
 };
 
-// What `useClaimQuestReward` dispatches once a claim succeeds.
-const dispatchClaim = (questType = QuestType.Daily) =>
-  act(() => {
-    window.dispatchEvent(
-      new CustomEvent(QUEST_CLAIMED_EVENT, {
-        detail: { questId: 'q-1', questType },
-      }),
-    );
+// What `useClaimQuestReward` publishes once a claim succeeds.
+// Async because the cache write reaches the listener through React Query's
+// notify queue, a microtask later — unlike a direct setState.
+const dispatchClaim = async (
+  queryClient: QueryClient,
+  questType = QuestType.Daily,
+) => {
+  await act(async () => {
+    queryClient.setQueryData(questClaimQueryKey(undefined), {
+      questId: 'q-1',
+      questType,
+    });
   });
+};
 
 // The dashboard is already current by the time the event fires — the mutation
 // writes the cache before dispatching.
-const renderAndClaim = (
+const renderAndClaim = async (
   dashboard: QuestDashboard,
   settings?: Partial<SettingsContextData>,
 ) => {
   const view = renderLoaded(dashboard, settings);
 
-  dispatchClaim();
+  await dispatchClaim(view.queryClient);
 
   return view;
 };
@@ -192,7 +197,7 @@ beforeEach(() => {
 });
 
 it('opens the offers modal when a claim lands while the app is open', async () => {
-  const { queryClient } = renderAndClaim(claimed());
+  const { queryClient } = await renderAndClaim(claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -220,7 +225,7 @@ it('opens the offers modal when a claim lands while the app is open', async () =
 // Under the old state check the entry render enables it during mount, so this
 // reads `true` before any claim — which is what makes the test discriminating
 // without a wall-clock sleep to lose races against on CI.
-it('stays shut on app entry, and opens only once a claim is dispatched', () => {
+it('stays shut on app entry, and opens only once a claim is dispatched', async () => {
   const view = renderLoaded(claimed());
 
   expect(isFetchingOffers(view.queryClient)).toBe(false);
@@ -229,9 +234,16 @@ it('stays shut on app entry, and opens only once a claim is dispatched', () => {
 
   // Positive anchor: the claim does put the query live, so the check above was
   // the entry gate and not an assertion that can never fail.
-  dispatchClaim();
+  await dispatchClaim(view.queryClient);
 
-  expect(isFetchingOffers(view.queryClient)).toBe(true);
+  // Anchored on the modal, not on fetchStatus: the fetch can settle before
+  // `waitFor` next polls, so "is fetching" is only dependable as the negative
+  // assertion above.
+  await waitFor(() =>
+    expect(view.queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+      type: LazyModal.QuestOffers,
+    }),
+  );
 });
 
 // Any real claim is a reward moment; the quest's cadence is not the point.
@@ -240,7 +252,7 @@ it.each([QuestType.Daily, QuestType.Weekly, QuestType.Milestone])(
   async (questType) => {
     const view = renderLoaded(claimed());
 
-    dispatchClaim(questType);
+    await dispatchClaim(view.queryClient, questType);
 
     await waitFor(() =>
       expect(view.queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -256,12 +268,12 @@ it.each([QuestType.Daily, QuestType.Weekly, QuestType.Milestone])(
 it('ignores an intro quest claim', async () => {
   const view = renderLoaded(claimed());
 
-  dispatchClaim(QuestType.Intro);
+  await dispatchClaim(view.queryClient, QuestType.Intro);
 
   expect(isFetchingOffers(view.queryClient)).toBe(false);
 
   // Positive anchor, so the check above cannot pass vacuously.
-  dispatchClaim(QuestType.Daily);
+  await dispatchClaim(view.queryClient, QuestType.Daily);
 
   await waitFor(() =>
     expect(view.queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -283,19 +295,19 @@ it('expires a claim that never got acted on', async () => {
       type: LazyModal.NewStreak,
       props: {},
     });
-    dispatchClaim();
+    await dispatchClaim(queryClient);
 
-    act(() => {
+    // Async acts throughout: the expiry clears the claim through the query
+    // cache, and fake timers stall React Query's notify queue, so without a
+    // microtask flush the listener never sees it and this would pass whether
+    // the claim expired or not.
+    await act(async () => {
       jest.advanceTimersByTime(30_000);
     });
 
-    // The sibling closing is no longer enough — the claim is gone. The extra
-    // tick flushes React Query's notify batching, which fake timers stall;
-    // without it the listener never re-renders and this would pass whether the
-    // claim expired or not.
-    act(() => {
+    // The sibling closing is no longer enough — the claim is gone.
+    await act(async () => {
       queryClient.setQueryData(MODAL_KEY, null);
-      jest.advanceTimersByTime(1);
     });
 
     expect(isFetchingOffers(queryClient)).toBe(false);
@@ -310,7 +322,7 @@ it('expires a claim that never got acted on', async () => {
 it('spends the claim even when no offers came back', async () => {
   mockOffersResponse([]);
 
-  const { queryClient } = renderAndClaim(claimed());
+  const { queryClient } = await renderAndClaim(claimed());
 
   // Waits for the offers fetch to settle, which is when the claim is spent.
   await waitFor(() =>
@@ -342,7 +354,7 @@ it('defers to a sibling popup that already claimed the modal slot', async () => 
     props: {},
   });
 
-  dispatchClaim();
+  await dispatchClaim(queryClient);
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -359,7 +371,7 @@ it('defers to a sibling popup that already claimed the modal slot', async () => 
 it('waits for both day stamps before doing anything', async () => {
   mockIsEligibleLogFetched = false;
 
-  const { queryClient } = renderAndClaim(claimed());
+  const { queryClient } = await renderAndClaim(claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -372,7 +384,7 @@ it('waits for both day stamps before doing anything', async () => {
 // The API stamps claimedAt without always flipping status, so keying off
 // status alone counted zero claims and the popup never fired.
 it('counts a quest claimed by timestamp even when its status lags', async () => {
-  const { queryClient } = renderAndClaim(
+  const { queryClient } = await renderAndClaim(
     makeDashboard([
       makeQuest({ status: QuestStatus.Completed, claimedAt: new Date() }),
     ]),
@@ -399,7 +411,7 @@ it('counts locked quests toward the progress total', async () => {
     }),
   ];
 
-  const { queryClient } = renderAndClaim(
+  const { queryClient } = await renderAndClaim(
     makeDashboard([makeQuest()], lockedPlus),
   );
 
@@ -415,7 +427,7 @@ it('counts locked quests toward the progress total', async () => {
 it('does not open twice on the same day', async () => {
   mockLastSeen = new Date().toISOString();
 
-  const { queryClient } = renderAndClaim(claimed());
+  const { queryClient } = await renderAndClaim(claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -425,7 +437,7 @@ it('does not open twice on the same day', async () => {
 it('opens again once the stamped day has passed', async () => {
   mockLastSeen = subDays(new Date(), 1).toISOString();
 
-  const { queryClient } = renderAndClaim(claimed());
+  const { queryClient } = await renderAndClaim(claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -439,7 +451,7 @@ it('shows nothing to the control group', async () => {
     .spyOn(conditionalFeatureHook, 'useConditionalFeature')
     .mockReturnValue({ value: false, isLoading: false });
 
-  const { queryClient } = renderAndClaim(claimed());
+  const { queryClient } = await renderAndClaim(claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -452,7 +464,7 @@ it('shows nothing to the control group', async () => {
 it('shows nothing, and keeps the day unstamped, when no offers return', async () => {
   mockOffersResponse([]);
 
-  const { queryClient } = renderAndClaim(claimed());
+  const { queryClient } = await renderAndClaim(claimed());
 
   await waitFor(() =>
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
@@ -470,7 +482,7 @@ describe('eligibility logging', () => {
     });
 
   it('logs the treatment arm with the offers it found', async () => {
-    renderAndClaim(claimed());
+    await renderAndClaim(claimed());
 
     await waitFor(() =>
       expectEligible({
@@ -490,7 +502,7 @@ describe('eligibility logging', () => {
       .spyOn(conditionalFeatureHook, 'useConditionalFeature')
       .mockReturnValue({ value: false, isLoading: false });
 
-    const { queryClient } = renderAndClaim(claimed());
+    const { queryClient } = await renderAndClaim(claimed());
 
     await waitFor(() =>
       expectEligible({
@@ -508,7 +520,7 @@ describe('eligibility logging', () => {
   it('logs treatment separately when no offers came back', async () => {
     mockOffersResponse([]);
 
-    renderAndClaim(claimed());
+    await renderAndClaim(claimed());
 
     await waitFor(() =>
       expectEligible({
@@ -531,7 +543,7 @@ describe('eligibility logging', () => {
       .times(10)
       .reply(200, { data: {} });
 
-    renderAndClaim(claimed());
+    await renderAndClaim(claimed());
 
     await waitFor(() =>
       expectEligible({
@@ -546,7 +558,7 @@ describe('eligibility logging', () => {
   it('logs once per day, on its own stamp', async () => {
     mockEligibleLoggedAt = new Date().toISOString();
 
-    const { queryClient } = renderAndClaim(claimed());
+    const { queryClient } = await renderAndClaim(claimed());
 
     // Anchor on the modal opening: it proves the effects ran, so the absent
     // eligibility event is a real suppression rather than a race won early.
@@ -569,7 +581,7 @@ describe('eligibility logging', () => {
   it('still opens the modal when eligibility was already logged today', async () => {
     mockEligibleLoggedAt = new Date().toISOString();
 
-    const { queryClient } = renderAndClaim(claimed());
+    const { queryClient } = await renderAndClaim(claimed());
 
     await waitFor(() =>
       expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
@@ -580,7 +592,7 @@ describe('eligibility logging', () => {
 });
 
 it('does not open for a user who opted out of the quest system', async () => {
-  const { queryClient } = renderAndClaim(claimed(), {
+  const { queryClient } = await renderAndClaim(claimed(), {
     loadedSettings: true,
     optOutQuestSystem: true,
   });
