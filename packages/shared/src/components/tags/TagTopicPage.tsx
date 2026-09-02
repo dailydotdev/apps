@@ -90,11 +90,11 @@ const SUPPORTED_TYPES = [
 
 export interface TagTopicPageProps {
   tag: string;
-  initialData: Keyword | null;
+  initialData: Keyword;
   topPosts: TopPost[];
   recommendedTags: TagsData['tags'];
   topContributors: UserShortProfile[];
-  jsonLd?: string | null;
+  jsonLd?: string;
 }
 
 // Render the user/source cards in the same grid the post feed uses (same
@@ -249,9 +249,9 @@ export const TagTopicPage = ({
     showToastOnSuccess: false,
   });
 
-  const title = initialData?.flags?.title || formatKeyword(tag);
-  const followers = initialData?.followers;
-  const occurrences = initialData?.occurrences ?? 0;
+  const title = initialData.flags?.title || formatKeyword(tag);
+  const { followers } = initialData;
+  const occurrences = initialData.occurrences ?? 0;
 
   const topPostsQueryVariables = useMemo(
     () => ({ tag, ranking: 'POPULARITY', supportedTypes: SUPPORTED_TYPES }),
@@ -411,7 +411,7 @@ export const TagTopicPage = ({
                 </React.Fragment>
               ))}
             </Typography>
-            {initialData?.flags?.description && (
+            {initialData.flags?.description && (
               <Typography
                 type={TypographyType.Body}
                 color={TypographyColor.Secondary}
@@ -518,7 +518,7 @@ export const TagTopicPage = ({
             />
           )}
 
-          {showRoadmap && initialData?.flags?.roadmap && (
+          {showRoadmap && initialData.flags?.roadmap && (
             <section className="mb-10">
               <EntitySectionHeading>Roadmaps</EntitySectionHeading>
               <Link href={initialData.flags.roadmap} passHref prefetch={false}>
