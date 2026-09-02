@@ -49,6 +49,21 @@ export const isTesting =
   process.env.NODE_ENV === 'test' || (!isDevelopment && !isProduction);
 export const isGBDevMode = process.env.NEXT_PUBLIC_GB_DEV_MODE === 'true';
 
+/**
+ * Branch preview deployments, e.g. my-branch.preview.app.daily.dev. They run
+ * NODE_ENV=production against the production API, so neither `isDevelopment`
+ * nor GrowthBook's dev tools are available to open a flag for review — the
+ * host is the only thing that distinguishes them from app.daily.dev.
+ *
+ * Only this domain: the same deployment is also served from vercel.app, but
+ * the API rejects that origin on CORS, so the app never boots there.
+ */
+export const PREVIEW_HOST_SUFFIX = '.preview.app.daily.dev';
+
+export const isPreviewHost = (): boolean =>
+  typeof window !== 'undefined' &&
+  window.location.hostname.endsWith(PREVIEW_HOST_SUFFIX);
+
 export const isBrave = (): boolean => {
   if (typeof window === 'undefined' || !window.Promise) {
     return false;
