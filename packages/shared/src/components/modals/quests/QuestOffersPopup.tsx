@@ -8,6 +8,9 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { isTodayStamp } from '../../../lib/dateFormat';
 import { LogEvent, TargetType } from '../../../lib/log';
+import type { QuestClaimedEventDetail } from '../../../lib/questClaimed';
+import { QUEST_CLAIMED_EVENT } from '../../../lib/questClaimed';
+import { QuestType } from '../../../graphql/quests';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import usePersistentContext, {
   PersistentContextKeys,
@@ -29,13 +32,12 @@ import { featureQuestOffers } from '../../../lib/featureManagement';
  * Like `StreakMilestonePopup`, this sits outside BootPopups so it is NOT
  * subject to the one-per-day boot popup queue.
  *
- * It fires on a claim that happens while the app is open, not on the standing
- * fact of having claimed today. A state check read as a bug: the reward
- * arrived on a later visit, detached from the action that earned it. Claiming
- * always routes through `useClaimQuestReward`, which writes the dashboard
- * cache this listener reads, and the listener is mounted for the whole
- * session — so the increase is always observed. The persisted day stamp still
- * caps it at one showing, which is what keeps a three-quest run to one popup.
+ * It reacts to the claim itself, over `QUEST_CLAIMED_EVENT` from
+ * `useClaimQuestReward` — the one mutation every claim surface goes through.
+ * Eligibility used to be the standing fact of having claimed today, which
+ * stayed true on a later visit and delivered the reward detached from the
+ * action that earned it. The persisted day stamp still caps it at one
+ * showing, which is what holds a three-quest run to a single popup.
  */
 const QuestOffersTrigger = (): null => {
   const { openModal, modal } = useLazyModal();
@@ -56,26 +58,24 @@ const QuestOffersTrigger = (): null => {
 
   const summary = useMemo(() => getDailyQuestSummary(dashboard), [dashboard]);
 
-  // Whatever was already claimed when the dashboard first loaded is history,
-  // not a moment — only a rise above it is a claim the user just made. Null
-  // until the first load, so an app entry can never be mistaken for a claim.
-  const claimedOnLoad = useRef<number | null>(null);
   const [hasClaimedThisSession, setHasClaimedThisSession] = useState(false);
 
   useEffect(() => {
-    if (!dashboard) {
-      return;
-    }
+    const onQuestClaimed = (event: Event) => {
+      const { detail } = event as CustomEvent<QuestClaimedEventDetail>;
 
-    const previous = claimedOnLoad.current;
-    // A quest rotation resets the count, so the baseline tracks downwards too
-    // rather than leaving a stale high-water mark that swallows the next claim.
-    claimedOnLoad.current = summary.claimed;
+      // Weekly, milestone and intro claims go through the same mutation, but
+      // this popup's celebration is about the day's quests.
+      if (detail.questType === QuestType.Daily) {
+        setHasClaimedThisSession(true);
+      }
+    };
 
-    if (previous !== null && summary.claimed > previous) {
-      setHasClaimedThisSession(true);
-    }
-  }, [dashboard, summary.claimed]);
+    window.addEventListener(QUEST_CLAIMED_EVENT, onQuestClaimed);
+
+    return () =>
+      window.removeEventListener(QUEST_CLAIMED_EVENT, onQuestClaimed);
+  }, []);
 
   // Both day stamps are independent idb reads. Gating on both means the
   // eligibility effect below can never be short-circuited on an unresolved

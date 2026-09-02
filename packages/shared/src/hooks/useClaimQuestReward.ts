@@ -9,6 +9,8 @@ import type {
 import { CLAIM_QUEST_REWARD_MUTATION } from '../graphql/quests';
 import { LogEvent, TargetType } from '../lib/log';
 import { generateQueryKey, RequestKey } from '../lib/query';
+import type { QuestClaimedEventDetail } from '../lib/questClaimed';
+import { QUEST_CLAIMED_EVENT } from '../lib/questClaimed';
 import { useRequestProtocol } from './useRequestProtocol';
 
 type ClaimQuestRewardArgs = {
@@ -75,6 +77,14 @@ export const useClaimQuestReward = () => {
           exact: true,
         });
       }
+
+      // Dispatched after the dashboard cache is current, so a listener that
+      // reads it on this event sees the claim already applied.
+      window.dispatchEvent(
+        new CustomEvent<QuestClaimedEventDetail>(QUEST_CLAIMED_EVENT, {
+          detail: { questId, questType },
+        }),
+      );
 
       await refetchBoot?.();
     },
