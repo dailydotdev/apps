@@ -422,6 +422,7 @@ describe('computePlacements', () => {
     minSpacing: 10,
     startIndex: 0,
     widenableTypes: ALL_WIDENABLE,
+    minWideCardRow: 0,
   };
 
   const colSpans = (items: FeedItem[], o = opts) =>
@@ -512,6 +513,39 @@ describe('computePlacements', () => {
     expect(colSpans(items, { ...opts, startIndex: 4 })).toEqual([
       1, 1, 1, 1, 4,
     ]);
+  });
+
+  describe('minWideCardRow', () => {
+    // `startIndex` counts items, so at four columns item 0 is still in the
+    // opening row. A surface that leads with its own featured card needs the
+    // floor stated in rows.
+    it('keeps wide cards out of the rows below the floor', () => {
+      const items = Array.from({ length: 6 }, () =>
+        makePostItem(makePost({ significance: 'breaking' })),
+      );
+
+      expect(colSpans(items, { ...opts, minSpacing: 0 })).toEqual([
+        4, 4, 4, 4, 4, 4,
+      ]);
+      expect(
+        colSpans(items, { ...opts, minSpacing: 0, minWideCardRow: 1 }),
+      ).toEqual([1, 1, 1, 1, 4, 4]);
+    });
+
+    it('measures the floor in rows, not items', () => {
+      const items = Array.from({ length: 6 }, (_, index) =>
+        makePostItem(makePost(index === 5 ? { significance: 'breaking' } : {})),
+      );
+      // Five single-column cards fill row 0 and spill into row 1, so the sixth
+      // is past the floor and widens — to the 3 columns left in its row, since
+      // the fit-to-row clamp still applies.
+      const placements = computePlacements(items, {
+        ...opts,
+        minWideCardRow: 1,
+      });
+
+      expect(placements[5]).toEqual({ colSpan: 3, row: 1, column: 1 });
+    });
   });
 
   it('caps wide cards to one per ten items', () => {

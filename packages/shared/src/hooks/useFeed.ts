@@ -218,6 +218,12 @@ type UseFeedSettingParams = {
    * have filled it.
    */
   skipFirstAd?: boolean;
+  /**
+   * Set when the surface already leads with a full-size featured card (the feed
+   * hero), so the grid doesn't open with a second one directly beneath it. The
+   * first row stays all single-column cards; wide ones resume below it.
+   */
+  deferWideCards?: boolean;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
   /** Set on search feeds so every fetch can be logged as a search execution. */
@@ -684,6 +690,7 @@ export default function useFeed<T>(
         startIndex: heroCardsConfig.startIndex,
         widenableTypes,
         firstSlotOffset: effectiveFirstSlotOffset,
+        minWideCardRow: settings?.deferWideCards ? 1 : 0,
       });
 
       const staticAd = settings?.staticAd;
@@ -793,6 +800,7 @@ export default function useFeed<T>(
     widenableTypes,
     excludePinnedPosts,
     effectiveFirstSlotOffset,
+    settings?.deferWideCards,
   ]);
 
   const placements = useMemo(
@@ -808,6 +816,7 @@ export default function useFeed<T>(
         fullRowInsertionBeforeIndex,
         cadence,
         firstSlotOffset: effectiveFirstSlotOffset,
+        minWideCardRow: settings?.deferWideCards ? 1 : 0,
       }),
     [
       items,
@@ -819,6 +828,7 @@ export default function useFeed<T>(
       cadence,
       widenableTypes,
       effectiveFirstSlotOffset,
+      settings?.deferWideCards,
     ],
   );
 

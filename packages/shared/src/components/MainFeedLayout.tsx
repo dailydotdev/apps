@@ -889,6 +889,7 @@ export default function MainFeedLayout({
               topContent={topContent}
               disableHighlightCards={isFeedHeroEnabled}
               skipFirstAd={isHeroAdVisible}
+              deferWideCards={isFeedHeroEnabled}
               className={classNames(
                 shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
               )}
