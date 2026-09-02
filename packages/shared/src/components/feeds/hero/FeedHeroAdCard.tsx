@@ -40,7 +40,7 @@ interface FeedHeroAdCardProps {
  * above the controls.
  *
  * What it keeps from the rail is the spacing: one 16px text edge shared with
- * the headline rows, and their row radius on the hover surface.
+ * the headline rows beside it.
  */
 export const FeedHeroAdCard = ({
   ad,
@@ -56,7 +56,9 @@ export const FeedHeroAdCard = ({
     <FlatCard
       data-testid="feedHeroAdCard"
       className={classNames(
-        'h-full rounded-12 px-4 py-3 transition-colors hover:bg-surface-hover',
+        // The card radius the feed and the highlights card use, not the rail
+        // rows' smaller one: this is a card, and it sits beside them.
+        'h-full rounded-16 px-4 py-3 transition-colors hover:bg-surface-hover',
         className,
       )}
     >
