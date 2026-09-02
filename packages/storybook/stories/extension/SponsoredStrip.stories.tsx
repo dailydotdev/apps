@@ -15,6 +15,7 @@ import {
 import ExtensionProviders from './_providers';
 import { MockFeedGrid, MockFeedHeader } from './_mockPostFeed';
 import { CodeRabbitLockup } from '@dailydotdev/shared/src/components/sponsors/CodeRabbitLockup';
+import { NvidiaLockup } from '@dailydotdev/shared/src/components/sponsors/NvidiaLockup';
 import {
   MOCK_LEAD_SPONSOR,
   MOCK_PARTNER_SPONSORS,
@@ -47,7 +48,7 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
 // The lead and partner fixtures are imported, not redeclared: the feed
 // wiring renders these exact objects, so what is reviewed here is what
 // ships to the preview. Provenance and the two-tone rationale live in
-// mockSponsors.ts and NvidiaLockup.tsx.
+// mockSponsors.ts and GoogleLockup.tsx.
 const PRIMARY = MOCK_LEAD_SPONSOR;
 const PARTNERS = MOCK_PARTNER_SPONSORS;
 
@@ -76,6 +77,12 @@ const ASSET_PROBLEMS: (Sponsor & { reason: string })[] = [
 const PRIMARY_CANDIDATES: (Sponsor & { verdict: string })[] = [
   {
     ...PRIMARY,
+    verdict: 'four inks, 0.40–0.74 luminance — clears both grounds',
+  },
+  {
+    name: 'NVIDIA',
+    ratio: 164 / 30,
+    Artwork: NvidiaLockup,
     verdict: 'two-tone: green symbol, wordmark on currentColor',
   },
   {
@@ -83,10 +90,6 @@ const PRIMARY_CANDIDATES: (Sponsor & { verdict: string })[] = [
     ratio: 2152 / 314,
     Artwork: CodeRabbitLockup,
     verdict: 'two-tone as well — now a regular mark in the wall',
-  },
-  {
-    ...sponsor('Google', 'google', 75 / 24),
-    verdict: 'four inks, 0.40–0.74 luminance — the alternative',
   },
   {
     ...sponsor('Appwrite', 'appwrite', 512 / 91),
@@ -344,18 +347,20 @@ export const LogoTreatment: Story = {
               The lead slot has to clear both grounds
             </figcaption>
             <Note>
-              Keeping brand colour means a flat asset gets no help from the
-              theme, so any ink near black or near white dies on one side.
-              NVIDIA is the exception that proves the rule: its lockup is
-              rendered inline rather than as a file, so the symbol holds #76B900
-              while the wordmark rides `currentColor` and flips with the
-              background — which is what the brand&apos;s own black and white
-              wordmarks do, from one source instead of two. Both columns are the
-              same asset on both grounds at once — the right one uses the
-              app&apos;s own <code>.invert</code> class, so it is the real
-              theme, not a mock-up of it, and the pair swaps when you flip the
-              toolbar. Of the library&apos;s vector wordmarks only a handful
-              pass; the bottom two are why Sentry was dropped as the primary.
+              Keeping brand colour means the asset gets no help from the theme,
+              so any ink near black or near white dies on one side. Google
+              passes on its own: four inks between 0.40 and 0.74 luminance, none
+              of them close to either ground. The two-tone marks below it pass a
+              different way — rendered inline rather than as a file, so NVIDIA
+              holds #76B900 on its symbol while the wordmark rides
+              `currentColor` and flips with the background, which is what the
+              brand&apos;s own black and white wordmarks do, from one source
+              instead of two. Both columns are the same asset on both grounds at
+              once — the right one uses the app&apos;s own <code>.invert</code>
+              class, so it is the real theme, not a mock-up of it, and the pair
+              swaps when you flip the toolbar. Of the library&apos;s vector
+              wordmarks only a handful pass; the bottom two are why Sentry was
+              dropped as the primary.
             </Note>
             <div className="flex flex-col gap-3">
               {PRIMARY_CANDIDATES.map((candidate) => (
