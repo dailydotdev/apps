@@ -14,7 +14,7 @@ type ActivityProps = {
 
 export const Activity = ({ user }: ActivityProps): ReactElement | null => {
   const [selectedTab, setSelectedTab] = useState<string>(activityTabs[0].title);
-  const { isOwner } = useProfilePreview(user);
+  const { isOwner, isPreviewMode } = useProfilePreview(user);
   const userId = user?.id;
 
   const selectedTabIndex = useMemo(
@@ -44,6 +44,7 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
           <ActivityRepliesTab
             userId={userId}
             isSameUser={isOwner}
+            isPreviewMode={isPreviewMode}
             userName={user?.name ?? 'User'}
             user={user}
             selectedTab={selectedTab}

@@ -68,6 +68,7 @@ export interface CommentActionProps {
   onDelete: (comment: Comment, parentId: string | null) => void;
   onEdit: (comment: Comment, parentComment?: Comment) => void;
   onShowUpvotes: (commentId: string, upvotes: number) => void;
+  hideOptionsMenu?: boolean;
 }
 
 export interface Props extends CommentActionProps {
@@ -92,6 +93,7 @@ export default function CommentActionButtons({
   onDelete,
   onEdit,
   onShowUpvotes,
+  hideOptionsMenu,
 }: Props): ReactElement {
   const isMobileSmall = useViewSize(ViewSize.MobileXL);
   const { isLoggedIn, user, showLogin } = useAuthContext();
@@ -394,7 +396,7 @@ export default function CommentActionButtons({
           />
         </Tooltip>
       </CardActionBar>
-      {commentOptions.length > 0 && (
+      {!hideOptionsMenu && commentOptions.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
             <ButtonV2

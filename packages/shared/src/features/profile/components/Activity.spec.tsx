@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useRouter } from 'next/router';
 import { Activity } from './Activity';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -9,11 +9,26 @@ jest.mock('next/router');
 jest.mock('../../../contexts/AuthContext');
 
 jest.mock('./ActivityPostsTab', () => ({
-  ActivityPostsTab: ({ isSameUser }: { isSameUser: boolean }) => (
-    <div data-testid="posts-tab">{isSameUser ? 'owner' : 'visitor'}</div>
+  ActivityPostsTab: ({
+    isSameUser,
+    onTabClick,
+  }: {
+    isSameUser: boolean;
+    onTabClick: (label: string) => void;
+  }) => (
+    <div data-testid="posts-tab">
+      {isSameUser ? 'owner' : 'visitor'}
+      <button type="button" onClick={() => onTabClick('Replies')}>
+        Replies
+      </button>
+    </div>
   ),
 }));
-jest.mock('./ActivityRepliesTab', () => ({ ActivityRepliesTab: () => null }));
+jest.mock('./ActivityRepliesTab', () => ({
+  ActivityRepliesTab: ({ isPreviewMode }: { isPreviewMode: boolean }) => (
+    <div data-testid="replies-tab">{isPreviewMode ? 'preview' : 'live'}</div>
+  ),
+}));
 jest.mock('./ActivityUpvotedTab', () => ({ ActivityUpvotedTab: () => null }));
 
 const mockUseRouter = jest.mocked(useRouter);
@@ -60,5 +75,19 @@ describe('Activity', () => {
     renderActivity({ preview: 'true' });
 
     expect(screen.getByTestId('posts-tab')).toHaveTextContent('visitor');
+  });
+
+  it('tells the replies tab when the profile is being previewed', () => {
+    renderActivity({ preview: 'true' });
+    fireEvent.click(screen.getByRole('button', { name: 'Replies' }));
+
+    expect(screen.getByTestId('replies-tab')).toHaveTextContent('preview');
+  });
+
+  it('leaves the replies tab live outside preview mode', () => {
+    renderActivity({});
+    fireEvent.click(screen.getByRole('button', { name: 'Replies' }));
+
+    expect(screen.getByTestId('replies-tab')).toHaveTextContent('live');
   });
 });
