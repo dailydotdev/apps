@@ -80,6 +80,7 @@ import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManageme
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
+import { isPostDetailPath } from '../../../lib/postRoutes';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -152,25 +153,6 @@ const DigestPostContent = dynamic(() =>
     /* webpackChunkName: "lazyDigestPostContent" */ '@dailydotdev/shared/src/components/post/digest/DigestPostContent'
   ).then((module) => module.DigestPostContent),
 );
-
-/**
- * Whether a URL is another post detail page — the only destinations that keep
- * client-side navigation while ads are live, because they re-enter this same
- * ad-carrying route. A bare `/posts/` prefix is NOT that: /posts/best-of/*,
- * /posts/latest, /posts/discussed and /posts/upvoted are list pages with no
- * slots, linked from this page's own rail, and navigating to them must tear
- * the ad globals down like any other departure.
- */
-const POST_LIST_SEGMENTS = new Set([
-  'best-of',
-  'latest',
-  'discussed',
-  'upvoted',
-]);
-export const isPostDetailPath = (url: string): boolean => {
-  const match = /^\/posts\/([^/?#]+)(?:[/?#]|$)/.exec(url);
-  return !!match && !POST_LIST_SEGMENTS.has(match[1]);
-};
 
 export interface Props extends DynamicSeoProps {
   id: string;
