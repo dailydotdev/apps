@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import Link from '../../../../components/utilities/Link';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
@@ -21,6 +21,7 @@ import {
 import { RaritySparkles } from '../achievements/RaritySparkles';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { AchievementCard } from '../achievements/AchievementCard';
+import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -134,9 +135,10 @@ export function AchievementsWidget({
   user,
 }: AchievementsWidgetProps): ReactElement {
   const { unlockedCount, totalCount } = useProfileAchievements(user);
+  const widgetRef = useRef<HTMLElement>(null);
 
   return (
-    <ActivityContainer>
+    <ActivityContainer ref={widgetRef}>
       <div className="flex items-center justify-between">
         <Typography
           tag={TypographyTag.H2}
@@ -148,11 +150,18 @@ export function AchievementsWidget({
           <MedalBadgeIcon className="size-4" />
           Achievements
         </Typography>
-        <Link href={`/${user.username || user.id}/achievements`} passHref>
-          <ClickableText tag="a">
-            {unlockedCount}/{totalCount}
-          </ClickableText>
-        </Link>
+        <div className="flex items-center gap-1">
+          <Link href={`/${user.username || user.id}/achievements`} passHref>
+            <ClickableText tag="a">
+              {unlockedCount}/{totalCount}
+            </ClickableText>
+          </Link>
+          <SnapshotButton
+            filename={`daily-achievements-${user.username ?? user.id}`}
+            showLabel={false}
+            target={widgetRef}
+          />
+        </div>
       </div>
       <RecentAchievements user={user} />
     </ActivityContainer>
