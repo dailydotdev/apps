@@ -201,55 +201,54 @@ const ActionButtonsV1 = ({
     </Tooltip>
   );
 
-  const voteButtons = (
-    <>
-      <Tooltip
-        content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
-        side={variant === 'grid' ? 'bottom' : undefined}
-      >
-        <QuaternaryButton
-          labelClassName={counterLabelClassName}
-          className="btn-tertiary-avocado pointer-events-auto"
-          id={`post-${post.id}-upvote-btn`}
-          color={ButtonColor.Avocado}
-          pressed={isUpvoteActive}
-          onClick={onToggleUpvote}
-          variant={ButtonVariant.Tertiary}
-          size={buttonSize}
-          icon={
-            <UpvoteButtonIcon
-              secondary={isUpvoteActive}
-              size={iconSize}
-              brandAnimation={brandAnimation}
-            />
-          }
-        >
-          {upvoteCount > 0 && (
-            <InteractionCounter
-              className={counterClassName}
-              value={upvoteCount}
-            />
-          )}
-        </QuaternaryButton>
-      </Tooltip>
-      {showDownvoteAction && (
-        <Tooltip
-          content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
-          side={variant === 'grid' ? 'bottom' : undefined}
-        >
-          <QuaternaryButton
-            className="pointer-events-auto"
-            id={`post-${post.id}-downvote-btn`}
-            color={ButtonColor.Ketchup}
-            icon={<DownvoteIcon secondary={isDownvoteActive} size={iconSize} />}
-            pressed={isDownvoteActive}
-            onClick={onToggleDownvote}
-            variant={ButtonVariant.Tertiary}
-            size={buttonSize}
+  const upvoteButton = (
+    <Tooltip
+      content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
+      side={variant === 'grid' ? 'bottom' : undefined}
+    >
+      <QuaternaryButton
+        labelClassName={counterLabelClassName}
+        className="btn-tertiary-avocado pointer-events-auto"
+        id={`post-${post.id}-upvote-btn`}
+        color={ButtonColor.Avocado}
+        pressed={isUpvoteActive}
+        onClick={onToggleUpvote}
+        variant={ButtonVariant.Tertiary}
+        size={buttonSize}
+        icon={
+          <UpvoteButtonIcon
+            secondary={isUpvoteActive}
+            size={iconSize}
+            brandAnimation={brandAnimation}
           />
-        </Tooltip>
-      )}
-    </>
+        }
+      >
+        {upvoteCount > 0 && (
+          <InteractionCounter
+            className={counterClassName}
+            value={upvoteCount}
+          />
+        )}
+      </QuaternaryButton>
+    </Tooltip>
+  );
+
+  const downvoteButton = showDownvoteAction && (
+    <Tooltip
+      content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
+      side={variant === 'grid' ? 'bottom' : undefined}
+    >
+      <QuaternaryButton
+        className="pointer-events-auto"
+        id={`post-${post.id}-downvote-btn`}
+        color={ButtonColor.Ketchup}
+        icon={<DownvoteIcon secondary={isDownvoteActive} size={iconSize} />}
+        pressed={isDownvoteActive}
+        onClick={onToggleDownvote}
+        variant={ButtonVariant.Tertiary}
+        size={buttonSize}
+      />
+    </Tooltip>
   );
 
   const buttons = (
@@ -264,14 +263,15 @@ const ActionButtonsV1 = ({
         {isCommentFirst ? (
           <>
             {commentButton}
-            {voteButtons}
+            {upvoteButton}
           </>
         ) : (
           <>
-            {voteButtons}
+            {upvoteButton}
             {commentButton}
           </>
         )}
+        {downvoteButton}
         {showAwardAction && !impressionsEnabled && (
           <PostAwardAction
             post={post}
