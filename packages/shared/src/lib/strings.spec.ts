@@ -13,10 +13,9 @@ describe('getPlainTextFromRichContent', () => {
   it('converts markdown links into plain text labels', () => {
     expect(
       getPlainTextFromRichContent({
-        markdown:
-          'Bring questions about [standups](https://daily.dev/standups) today.',
+        markdown: 'Read the [docs](https://docs.daily.dev) today.',
       }),
-    ).toBe('Bring questions about standups today.');
+    ).toBe('Read the docs today.');
   });
 
   it('keeps plain text markdown fallbacks intact', () => {

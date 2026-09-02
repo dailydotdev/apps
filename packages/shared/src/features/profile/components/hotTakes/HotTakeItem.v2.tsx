@@ -66,9 +66,10 @@ export function HotTakeItem({
       </div>
       <div className="flex items-center gap-1">
         {isOwner && (
-          <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="flex gap-1">
             {onEdit && (
               <ButtonV2
+                type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<EditIcon />}
@@ -78,6 +79,7 @@ export function HotTakeItem({
             )}
             {onDelete && (
               <ButtonV2
+                type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<TrashIcon />}

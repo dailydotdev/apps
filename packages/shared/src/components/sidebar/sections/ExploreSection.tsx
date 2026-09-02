@@ -4,30 +4,42 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { DiscoverSection } from './DiscoverSection';
 import { RecentSection } from './RecentSection';
-import { MegaphoneIcon } from '../../icons';
+import { BriefIcon, MegaphoneIcon } from '../../icons';
 import type { SidebarSectionProps } from './common';
-import { webappUrl } from '../../../lib/constants';
+import { briefingUrl, webappUrl } from '../../../lib/constants';
+import { briefUIFeature } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 
-// Explore tab panel: the discovery hub sections (reused from DiscoverSection)
-// with Happening Now slotted between Explore and Tags, then the pages you
-// visited recently at the bottom.
+// Explore tab panel: the discovery hub sections (reused from DiscoverSection),
+// then the pages you visited recently at the bottom.
 export const ExploreSection = ({
   isItemsButton,
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
+  const briefUIFeatureValue = useFeature(briefUIFeature);
   const itemsAfterExplore: SidebarMenuItem[] = useMemo(
-    () => [
-      {
-        title: 'Happening Now',
-        path: `${webappUrl}highlights`,
-        isForcedLink: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
-        ),
-      },
-    ],
-    [],
+    () =>
+      [
+        {
+          title: 'Happening Now',
+          path: `${webappUrl}highlights`,
+          isForcedLink: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
+          ),
+        },
+        briefUIFeatureValue && {
+          title: 'Presidential briefings',
+          path: briefingUrl,
+          isForcedLink: true,
+          requiresLogin: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <BriefIcon secondary={active} />} />
+          ),
+        },
+      ].filter(Boolean) as SidebarMenuItem[],
+    [briefUIFeatureValue],
   );
 
   return (

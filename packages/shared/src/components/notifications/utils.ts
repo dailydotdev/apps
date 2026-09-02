@@ -101,7 +101,6 @@ export enum NotificationType {
   NewOpportunityMatch = 'new_opportunity_match',
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
-  LiveRoomStarted = 'live_room_started',
   WorldDistrictLevelUp = 'world_district_level_up',
 }
 
@@ -454,7 +453,6 @@ export const notificationCategoryToTypes: Record<
     NotificationType.NewOpportunityMatch,
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
-    NotificationType.LiveRoomStarted,
     NotificationType.WorldDistrictLevelUp,
   ],
 };

@@ -159,8 +159,7 @@ type AgentContextValue = {
   showEarlier: () => void;
   findingsPosts: Post[];
   summaryPosts: AgentSummaryPost[];
-  isSettingsOpen: boolean;
-  setSettingsOpen: (open: boolean) => void;
+  openSettings: () => void;
   openContent: AgentContentTarget[];
   activeContentId?: string;
   activeContent?: AgentContentTarget;
@@ -365,6 +364,7 @@ export const AgentProvider = ({
   isDemo,
   runId,
   onLeaveRunView,
+  onOpenSettings,
   initialMessages = [],
   findings = [],
   posts = [],
@@ -375,6 +375,7 @@ export const AgentProvider = ({
   isDemo: boolean;
   runId?: string;
   onLeaveRunView?: () => void;
+  onOpenSettings?: () => void;
   initialMessages?: AgentMessage[];
   findings?: AgentFeedItem[];
   posts?: AgentSummaryPost[];
@@ -396,7 +397,7 @@ export const AgentProvider = ({
     label: string;
     targetId?: string;
   }>();
-  const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const openSettings = useCallback(() => onOpenSettings?.(), [onOpenSettings]);
   const [statusOverride, setStatusOverride] = useState<UserInterestStatus>();
   const status =
     statusOverride ?? interest?.status ?? UserInterestStatus.Active;
@@ -1070,8 +1071,7 @@ export const AgentProvider = ({
       showEarlier,
       findingsPosts: allPosts,
       summaryPosts: posts,
-      isSettingsOpen,
-      setSettingsOpen,
+      openSettings,
       openContent: content.items,
       activeContentId: content.activeId,
       activeContent: content.items.find(
@@ -1120,7 +1120,7 @@ export const AgentProvider = ({
       isConfirmingBrief,
       briefDraft,
       advanceOnboarding,
-      isSettingsOpen,
+      openSettings,
       isUpdating,
       isWorking,
       queuedCommands,

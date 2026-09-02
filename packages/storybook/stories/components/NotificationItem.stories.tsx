@@ -440,13 +440,6 @@ const allDefs: Array<Partial<NotificationItemProps>> = [
     title: 'Your work experience has been linked to Acme Corp',
     createdAt: hoursAgo(200),
   },
-  {
-    type: NotificationType.LiveRoomStarted,
-    icon: NotificationIconType.Bell,
-    title: 'A live room just started in <b>AI</b>',
-    avatars: [sourceAvatar('ai', 'AI')],
-    createdAt: hoursAgo(400),
-  },
 ];
 
 const allNotifications: NotificationItemProps[] = allDefs.map((def, index) => ({

@@ -26,7 +26,11 @@ import AlertContext from './AlertContext';
 import NotificationsContext from './NotificationsContext';
 import type { Alerts } from '../graphql/alerts';
 import { UPDATE_ALERTS } from '../graphql/alerts';
-import type { RemoteSettings, Spaciness } from '../graphql/settings';
+import type {
+  RemoteSettings,
+  SettingsFlags,
+  Spaciness,
+} from '../graphql/settings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
 import { BOOT_LOCAL_KEY } from './common';
@@ -35,6 +39,7 @@ import { BootApp, getBootData } from '../lib/boot';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
+import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { SortCommentsBy } from '../graphql/comments';
 
 jest.mock('../lib/boot', () => {
@@ -292,6 +297,129 @@ it('should toggle the sidebar callback', async () => {
   );
   fireEvent.click(sidebar);
   await expectToHaveTestValue(sidebar, expected.toString());
+});
+
+const clientOnlyFlagsKey = `dailydev:settings:clientOnlyFlags:${defaultUser.id}`;
+
+const SidebarCompactMock = () => {
+  const { value, toggle } = useSidebarCompact();
+
+  return (
+    <button onClick={toggle} type="button" data-test-value={value}>
+      Compact sidebar
+    </button>
+  );
+};
+
+const renderWithSidebarCompactFlag = () =>
+  renderComponent(
+    <>
+      <SettingsMock />
+      <SidebarCompactMock />
+    </>,
+  );
+
+it('should store a sidebar flag through the settings API', async () => {
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderWithSidebarCompactFlag();
+  await waitForRemoteBoot();
+  const compact = await screen.findByText('Compact sidebar');
+  await expectToHaveTestValue(compact, 'true');
+  fireEvent.click(compact);
+  await expectToHaveTestValue(compact, 'false');
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull();
+});
+
+it('should migrate stored sidebar flags into settings', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({
+      sidebarCompact: false,
+      sidebarShortcuts: ['tags'],
+      sidebarPinnedExpanded: false,
+      sidebarRecentExpanded: true,
+      removedFlag: true,
+    }),
+  );
+  mockSettingsMutation({
+    flags: {
+      sidebarCompact: false,
+      sidebarShortcuts: ['tags'],
+      sidebarPinnedExpanded: false,
+      sidebarRecentExpanded: true,
+    } as SettingsFlags,
+  });
+  renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
+});
+
+it('should keep stored sidebar flags when the migration write fails', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({ sidebarCompact: false }),
+  );
+  nock('http://localhost:3000')
+    .post('/graphql', {
+      query: UPDATE_USER_SETTINGS_MUTATION,
+      variables: {
+        data: {
+          ...defaultSettings,
+          flags: { sidebarCompact: false },
+        },
+      },
+    })
+    .reply(500, {});
+  renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toEqual(
+      JSON.stringify({ sidebarCompact: false }),
+    ),
+  );
+});
+
+it('should let remote settings win over the legacy local sidebar store', async () => {
+  localStorage.setItem(
+    clientOnlyFlagsKey,
+    JSON.stringify({ sidebarCompact: false }),
+  );
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderComponent(<SettingsMock />, {
+    ...defaultBootData,
+    settings: {
+      ...defaultSettings,
+      flags: { sidebarCompact: true } as SettingsFlags,
+    },
+  });
+  await waitForRemoteBoot();
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
+  expect(nock.isDone()).toBe(false);
+});
+
+it('should hand the pre-per-account flag store to the first account that loads', async () => {
+  localStorage.setItem(
+    'dailydev:settings:clientOnlyFlags:global',
+    JSON.stringify({ sidebarCompact: false }),
+  );
+  mockSettingsMutation({ flags: { sidebarCompact: false } as SettingsFlags });
+  renderWithSidebarCompactFlag();
+  await waitForRemoteBoot();
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  // Removed, so the next account on this device doesn't inherit it too.
+  expect(
+    localStorage.getItem('dailydev:settings:clientOnlyFlags:global'),
+  ).toBeNull();
+  await waitFor(() =>
+    expect(localStorage.getItem(clientOnlyFlagsKey)).toBeNull(),
+  );
 });
 
 it('should trigger set theme callback', async () => {
