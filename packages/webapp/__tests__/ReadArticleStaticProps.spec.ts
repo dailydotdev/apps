@@ -43,7 +43,7 @@ const createPost = (overrides: Partial<Post> = {}): Post =>
     ...overrides,
   } as Post);
 
-describe('arbitrage article static props', () => {
+describe('read article static props', () => {
   beforeEach(() => {
     mockRequest.mockReset();
   });

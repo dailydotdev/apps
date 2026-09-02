@@ -14,14 +14,14 @@ import {
   ProgrammaticAd,
 } from '../../../features/monetization/ProgrammaticAd';
 
-export type ArbitrageAdSurface = 'read' | 'organic';
+export type ReadAdSurface = 'read' | 'organic';
 
 export {
   getAdsenseSlotLogExtra,
-  ProgrammaticAdFormat as ArbitrageAdFormat,
+  ProgrammaticAdFormat as ReadAdFormat,
 } from '../../../features/monetization/ProgrammaticAd';
 
-export interface ArbitrageAdSlotProps {
+export interface ReadAdSlotProps {
   slot: number;
   format: ProgrammaticAdFormat;
   className?: string;
@@ -36,11 +36,11 @@ export interface ArbitrageAdSlotProps {
    */
   hideOnPhone?: boolean;
   /**
-   * Which slot map gates the unit: the /read arbitrage template (default) or
+   * Which slot map gates the unit: the /read template (default) or
    * the organic post page. The dashed density-review placeholder is a
    * /read-template tool and never renders for the organic surface.
    */
-  surface?: ArbitrageAdSurface;
+  surface?: ReadAdSurface;
   /**
    * Requests the ad on mount instead of waiting to near the viewport. For
    * slots visible at first paint the intersection wait only adds latency —
@@ -63,9 +63,9 @@ function MappedAdSlot({
   slots,
   surface,
   allowPlaceholder = false,
-}: ArbitrageAdSlotProps & {
+}: ReadAdSlotProps & {
   slots: AdsenseSlots;
-  surface: ArbitrageAdSurface;
+  surface: ReadAdSurface;
   allowPlaceholder?: boolean;
 }): ReactElement | null {
   const isLive = hasLiveAdsenseUnits(slots);
@@ -109,7 +109,7 @@ function MappedAdSlot({
         spec.minHeight,
         className,
       )}
-      data-testid={`arbitrage-ad-slot-${slot}`}
+      data-testid={`read-ad-slot-${slot}`}
     >
       <span className="absolute left-3 top-2 rounded-6 bg-accent-cheese-default px-2 py-0.5 font-bold text-surface-invert typo-caption2">
         {slot}
@@ -128,16 +128,14 @@ function MappedAdSlot({
   );
 }
 
-function ReadArbitrageAdSlot(props: ArbitrageAdSlotProps): ReactElement | null {
+function ReadSurfaceAdSlot(props: ReadAdSlotProps): ReactElement | null {
   const slots = useReadAdsenseSlots();
   return (
     <MappedAdSlot {...props} slots={slots} surface="read" allowPlaceholder />
   );
 }
 
-function OrganicArbitrageAdSlot(
-  props: ArbitrageAdSlotProps,
-): ReactElement | null {
+function OrganicSurfaceAdSlot(props: ReadAdSlotProps): ReactElement | null {
   const slots = useOrganicAdsenseSlots();
   return <MappedAdSlot {...props} slots={slots} surface="organic" />;
 }
@@ -150,12 +148,12 @@ function OrganicArbitrageAdSlot(
  * clean page. The dashed density-review placeholder only ever appears in
  * local development builds of the /read template.
  */
-export function ArbitrageAdSlot({
+export function ReadAdSlot({
   surface = 'read',
   ...props
-}: ArbitrageAdSlotProps): ReactElement | null {
+}: ReadAdSlotProps): ReactElement | null {
   if (surface === 'organic') {
-    return <OrganicArbitrageAdSlot {...props} />;
+    return <OrganicSurfaceAdSlot {...props} />;
   }
-  return <ReadArbitrageAdSlot {...props} />;
+  return <ReadSurfaceAdSlot {...props} />;
 }
