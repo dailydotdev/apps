@@ -1,5 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
-import { RAIL_ANCHOR_ATTRIBUTE, useCoachAnchor } from './useCoachAnchor';
+import {
+  RAIL_ANCHOR_ATTRIBUTE,
+  RAIL_POPUP_ANCHOR_ATTRIBUTE,
+  useCoachAnchor,
+} from './useCoachAnchor';
 
 const TARGET_SELECTOR = '#coach-target';
 const COACH_GAP_PX = 8;
@@ -43,6 +47,14 @@ const mountRail = (rect: RectInput): HTMLElement => {
   stubRect(rail, rect);
   document.body.appendChild(rail);
   return rail;
+};
+
+const mountRailPopup = (rect: RectInput): HTMLElement => {
+  const popup = document.createElement('div');
+  popup.setAttribute(RAIL_POPUP_ANCHOR_ATTRIBUTE, '');
+  stubRect(popup, rect);
+  document.body.appendChild(popup);
+  return popup;
 };
 
 const RAIL_RECT: RectInput = { left: 0, top: 0, width: 64, height: 900 };
@@ -116,6 +128,42 @@ describe('useCoachAnchor', () => {
 
     expect(result.current.left).toBe(304 + COACH_GAP_PX);
     expect(result.current.rect?.top).toBe(TARGET_RECT.top);
+  });
+
+  it('clears a rail dropdown that opened into the card\u2019s slot', () => {
+    mountRail(RAIL_RECT);
+    // The shortcuts tray: same left edge the card wants, and wider than it, so
+    // covering it either way round is the thing to avoid.
+    mountRailPopup({ left: 72, top: 200, width: 288, height: 320 });
+    mount('coach-target', TARGET_RECT);
+
+    const { result } = renderHook(() =>
+      useCoachAnchor(TARGET_SELECTOR, true, true),
+    );
+
+    expect(result.current.left).toBe(360 + COACH_GAP_PX);
+  });
+
+  it('returns to the rail once that dropdown closes', () => {
+    mountRail(RAIL_RECT);
+    const popup = mountRailPopup({
+      left: 72,
+      top: 200,
+      width: 288,
+      height: 320,
+    });
+    mount('coach-target', TARGET_RECT);
+
+    const { result, rerender } = renderHook(
+      ({ isPopupOpen }) => useCoachAnchor(TARGET_SELECTOR, true, isPopupOpen),
+      { initialProps: { isPopupOpen: true } },
+    );
+    expect(result.current.left).toBe(360 + COACH_GAP_PX);
+
+    popup.remove();
+    rerender({ isPopupOpen: false });
+
+    expect(result.current.left).toBe(RAIL_RECT.width + COACH_GAP_PX);
   });
 
   it('clears the rail alone when the panel is collapsed', () => {

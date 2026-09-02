@@ -84,6 +84,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import { briefingUrl, walletUrl, webappUrl } from '../../lib/constants';
 import { toWebappHref } from '../../lib/links';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { RAIL_POPUP_ANCHOR_ATTRIBUTE } from '../../features/sidebarTour/useCoachAnchor';
 
 type ShortcutIcon = (active: boolean) => ReactElement;
 
@@ -610,15 +611,18 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 // by dragging, and remove by dragging an icon off the rail — all with an Undo
 // toast. Persisted per-user.
 export interface SidebarShortcutsDockProps {
-  // Sidebar-tour hooks. Both are inert unless the tour feature passes them, so
-  // the dock's own markup is unchanged for everyone else.
+  // Sidebar-tour hooks. All three are inert unless the tour feature passes
+  // them, so the dock's own markup is unchanged for everyone else.
   onCustomizeInteraction?: (interaction: 'hover' | 'open') => void;
   forceCustomizeVisible?: boolean;
+  // The tour card sits where the tray opens, so it has to know to move.
+  onTrayOpenChange?: (isTrayOpen: boolean) => void;
 }
 
 export const SidebarShortcutsDock = ({
   onCustomizeInteraction,
   forceCustomizeVisible = false,
+  onTrayOpenChange,
 }: SidebarShortcutsDockProps = {}): ReactElement | null => {
   const router = useRouter();
   const { items, persist, addCatalog, removeShortcut, pinPage } =
@@ -655,6 +659,10 @@ export const SidebarShortcutsDock = ({
     onUpdate: setTrayOpen,
     wrapHandler,
   } = useInteractivePopup(RAIL_POPUP_GROUP);
+  useEffect(() => {
+    onTrayOpenChange?.(trayOpen);
+  }, [onTrayOpenChange, trayOpen]);
+
   const trayRef = useRef<HTMLDivElement>(null);
   const customizeBtnRef = useRef<HTMLButtonElement>(null);
   useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
@@ -1092,6 +1100,7 @@ export const SidebarShortcutsDock = ({
               // (z-popup, shadow-2, pepper-subtlest card). Vertically anchored
               // to the • • • button and flips up when there's no room below.
               // Capped + scrolls so it's never cut off.
+              {...{ [RAIL_POPUP_ANCHOR_ATTRIBUTE]: '' }}
               className="animate-rail-popup-in no-scrollbar fixed left-20 z-popup ml-2 flex w-72 flex-col gap-2 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3 shadow-2"
             >
               <Typography

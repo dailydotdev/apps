@@ -8,6 +8,12 @@ import { useLayoutEffect, useState } from 'react';
 // the whole panel width. Set by the rail in SidebarDesktopV2.
 export const RAIL_ANCHOR_ATTRIBUTE = 'data-rail-anchor';
 
+// A rail dropdown that opens into the same slot the card wants. Both are fixed
+// at the rail's right edge, so whichever wins z-order simply hides the other;
+// the card clears it instead. Set by the shortcuts tray, the one dropdown a
+// step invites you to open.
+export const RAIL_POPUP_ANCHOR_ATTRIBUTE = 'data-rail-popup-anchor';
+
 // Gap between the sidebar's visible right edge and the card, matching the
 // `ml-2` every other rail dropdown uses.
 const COACH_GAP_PX = 8;
@@ -30,12 +36,14 @@ export interface CoachAnchor {
 const measureLeft = (): number => {
   const rail = document.querySelector(`[${RAIL_ANCHOR_ATTRIBUTE}]`);
   const panel = document.getElementById('sidebar-context-panel');
+  const popup = document.querySelector(`[${RAIL_POPUP_ANCHOR_ATTRIBUTE}]`);
   const railRight = rail?.getBoundingClientRect().right ?? 0;
   const panelRect = panel?.getBoundingClientRect();
   const panelRight =
     panelRect && panelRect.width > 8 ? panelRect.right : railRight;
+  const popupRight = popup?.getBoundingClientRect().right ?? railRight;
 
-  return Math.max(railRight, panelRight) + COACH_GAP_PX;
+  return Math.max(railRight, panelRight, popupRight) + COACH_GAP_PX;
 };
 
 const isSameGeometry = (
@@ -60,6 +68,7 @@ const isSameGeometry = (
 export const useCoachAnchor = (
   selector: string | undefined,
   isOpen: boolean,
+  isRailPopupOpen = false,
 ): CoachAnchor => {
   const [anchor, setAnchor] = useState<CoachAnchor>({
     targetRef: { current: null },
@@ -116,6 +125,7 @@ export const useCoachAnchor = (
     [
       document.querySelector(`[${RAIL_ANCHOR_ATTRIBUTE}]`),
       document.getElementById('sidebar-context-panel'),
+      document.querySelector(`[${RAIL_POPUP_ANCHOR_ATTRIBUTE}]`),
       document.querySelector(selector),
     ].forEach((element) => {
       if (element) {
@@ -129,7 +139,7 @@ export const useCoachAnchor = (
       window.removeEventListener('resize', update);
       observer?.disconnect();
     };
-  }, [isOpen, selector]);
+  }, [isOpen, isRailPopupOpen, selector]);
 
   return anchor;
 };

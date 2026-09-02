@@ -944,6 +944,9 @@ export const SidebarDesktopV2 = ({
   // An empty dock paints its ••• on hover only, and during the tour the pointer
   // is on the card, so the step would point at an invisible button.
   const isTourOnDockStep = tour.step?.id === 'dock';
+  // The dock step invites the tray open, and it opens into the slot the coach
+  // card occupies, so the card has to know to step aside.
+  const [isDockTrayOpen, setIsDockTrayOpen] = useState(false);
   const isTourRunningRef = useRef(false);
   useEffect(() => {
     isTourRunningRef.current = isTourRunning;
@@ -2320,6 +2323,7 @@ export const SidebarDesktopV2 = ({
                     forceCustomizeVisible={
                       dotsCoach.isCustomizeForcedVisible || isTourOnDockStep
                     }
+                    onTrayOpenChange={setIsDockTrayOpen}
                   />
                 </div>
               )}
@@ -2525,7 +2529,7 @@ export const SidebarDesktopV2 = ({
         portals still bubble their events up the React tree, which would feed
         the rail's own mousemove/mouseleave prediction machinery. Each is null
         unless the `sidebar_tour` flag put it there. */}
-      <SidebarTourOverlay tour={tour} />
+      <SidebarTourOverlay tour={tour} isRailPopupOpen={isDockTrayOpen} />
       <PinCoach
         coach={tour.pinCoach}
         isPanelOpen={isExpanded && !showCreatePanel && !!hoveredCategory}

@@ -19,8 +19,12 @@ const LOST_TARGET_MS = 600;
 
 export const SidebarTourOverlay = ({
   tour,
+  isRailPopupOpen = false,
 }: {
   tour: SidebarTourState;
+  // A rail dropdown the tour deliberately allowed open (the dock step's tray).
+  // The card measures around it rather than covering the thing just opened.
+  isRailPopupOpen?: boolean;
 }): ReactElement | null => {
   const {
     isRunning,
@@ -35,7 +39,7 @@ export const SidebarTourOverlay = ({
   } = tour;
   const { value: isCompact, set: setCompact } =
     useSettingsBooleanFlag('sidebarCompact');
-  const anchor = useCoachAnchor(step?.target, isRunning);
+  const anchor = useCoachAnchor(step?.target, isRunning, isRailPopupOpen);
   const { isOpen, onUpdate } = useInteractivePopup(RAIL_POPUP_GROUP);
   const { events } = useRouter();
   const wasGroupOpenRef = useRef(false);
