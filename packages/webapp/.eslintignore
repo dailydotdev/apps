@@ -4,6 +4,7 @@ next.config.js
 public/push/onesignal/OneSignalSDKWorker.js
 public/scripts/*.js
 public/sw.js
+public/prebid/*.js
 
 # The DEVCRAFT world renderer, ported near-verbatim from devcraft
 # `world-lab.html`. Reformatting or restyling it would make every future diff
