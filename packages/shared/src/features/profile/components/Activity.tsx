@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import classNames from 'classnames';
 import type { PublicProfile } from '../../../lib/user';
-import AuthContext from '../../../contexts/AuthContext';
+import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { ActivityTabIndex, activityTabs } from './Activity.helpers';
 import { ActivityPostsTab } from './ActivityPostsTab';
 import { ActivityUpvotedTab } from './ActivityUpvotedTab';
@@ -14,8 +14,7 @@ type ActivityProps = {
 
 export const Activity = ({ user }: ActivityProps): ReactElement | null => {
   const [selectedTab, setSelectedTab] = useState<string>(activityTabs[0].title);
-  const { user: loggedUser } = useContext(AuthContext);
-  const isSameUser = user && loggedUser?.id === user.id;
+  const { isOwner } = useProfilePreview(user);
   const userId = user?.id;
 
   const selectedTabIndex = useMemo(
@@ -33,7 +32,7 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
         return (
           <ActivityPostsTab
             userId={userId}
-            isSameUser={isSameUser}
+            isSameUser={isOwner}
             userName={user?.name ?? 'User'}
             user={user}
             selectedTab={selectedTab}
@@ -44,7 +43,7 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
         return (
           <ActivityRepliesTab
             userId={userId}
-            isSameUser={isSameUser}
+            isSameUser={isOwner}
             userName={user?.name ?? 'User'}
             user={user}
             selectedTab={selectedTab}
@@ -55,7 +54,7 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
         return (
           <ActivityUpvotedTab
             userId={userId}
-            isSameUser={isSameUser}
+            isSameUser={isOwner}
             userName={user?.name ?? 'User'}
             user={user}
             selectedTab={selectedTab}
