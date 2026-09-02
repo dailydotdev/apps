@@ -339,3 +339,9 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAdsense = new Feature('read_adsense', true);
+
+// Sharing a custom feed: a link in the feed settings General tab that adds the
+// feed to whoever opens it. Experiment default is the off state — the rollout
+// is a GrowthBook decision. Branch previews force it on (see `isPreviewHost`),
+// because a preview runs as production and has no way to open a flag.
+export const featureShareMyFeed = new Feature('share_my_feed', false);

@@ -1,17 +1,20 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import Link from '../../../utilities/Link';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { Button } from '../../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../buttons/common';
-import { LockIcon, StarIcon, TrashIcon, VIcon } from '../../../icons';
+import { LinkIcon, LockIcon, StarIcon, TrashIcon, VIcon } from '../../../icons';
 import {
   Typography,
   TypographyType,
   TypographyColor,
 } from '../../../typography/Typography';
-import { webappUrl } from '../../../../lib/constants';
+import { isPreviewHost, webappUrl } from '../../../../lib/constants';
+import { featureShareMyFeed } from '../../../../lib/featureManagement';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { useCopyLink } from '../../../../hooks/useCopy';
 import { TextField } from '../../../fields/TextField';
 import { EmojiPicker } from '../../../fields/EmojiPicker';
 import { Divider } from '../../../utilities';
@@ -53,6 +56,25 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const isDefaultFeed = isMainFeed
     ? user.defaultFeedId === null
     : user.defaultFeedId === feed.id;
+
+  const { value: shareMyFeedFlag } = useConditionalFeature({
+    feature: featureShareMyFeed,
+    shouldEvaluate: isCustomFeed,
+  });
+  // After mount, not during render: the server cannot know the host the page
+  // will be served from, and disagreeing with it would break hydration.
+  const [isPreview, setIsPreview] = useState(false);
+  useEffect(() => {
+    setIsPreview(isPreviewHost());
+  }, []);
+  const canShareFeed = isCustomFeed && (shareMyFeedFlag || isPreview);
+
+  // Feeds are user-scoped, so nothing resolves this route for a non-owner yet:
+  // the shareable token is backend work the flag is waiting on.
+  const shareFeedLink = feed?.id
+    ? `${webappUrl}feeds/shared/${feed.id}`
+    : undefined;
+  const [, copyShareFeedLink] = useCopyLink(() => shareFeedLink);
 
   return (
     <>
@@ -186,6 +208,42 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             </Tooltip>
           )}
         </div>
+      )}
+      {canShareFeed && (
+        <>
+          <Divider className="my-1 bg-border-subtlest-tertiary" />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <Typography bold type={TypographyType.Body}>
+                Share this feed
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Anyone who opens your link gets this feed added to their own,
+                tags and sources included.
+              </Typography>
+            </div>
+            <div className="flex w-full items-center gap-2 rounded-14 border border-border-subtlest-secondary px-3 py-2 tablet:max-w-70">
+              <Typography
+                className="min-w-0 flex-1 truncate"
+                type={TypographyType.Body}
+              >
+                {shareFeedLink}
+              </Typography>
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                icon={<LinkIcon />}
+                onClick={() => copyShareFeedLink()}
+              >
+                Copy link
+              </Button>
+            </div>
+          </div>
+        </>
       )}
       <Divider className="my-1 bg-border-subtlest-tertiary" />
       <div className="flex flex-col gap-4">
