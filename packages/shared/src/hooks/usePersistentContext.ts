@@ -3,9 +3,9 @@ import { get as getCache, set as setCache } from 'idb-keyval';
 
 function getAsyncCache<T>(
   key: string,
-  valueWhenCacheEmpty: T,
+  valueWhenCacheEmpty: T | null,
   validValues?: T[],
-): Promise<T> {
+): Promise<T | null> {
   return getCache<T>(key)
     .then((cachedValue) => {
       if (
@@ -28,12 +28,24 @@ export type UserPersistentContextType<T> = [
   boolean,
 ];
 
+// Supplying an empty-cache value means the hook can always hand back a T.
+// Omitting it means an empty cache resolves to null, and the overloads say so
+// rather than leaving the caller to read the body for the rule.
+export default function usePersistentContext<T>(
+  key: string,
+  valueWhenCacheEmpty: T,
+  validValues?: T[],
+  fallbackValue?: T,
+): UserPersistentContextType<T>;
+export default function usePersistentContext<T>(
+  key: string,
+): UserPersistentContextType<T | null>;
 export default function usePersistentContext<T>(
   key: string,
   valueWhenCacheEmpty?: T,
   validValues?: T[],
   fallbackValue?: T,
-): UserPersistentContextType<T> {
+): UserPersistentContextType<T | null> {
   const queryKey = [key, valueWhenCacheEmpty];
   const queryClient = useQueryClient();
 
@@ -44,7 +56,7 @@ export default function usePersistentContext<T>(
   });
 
   const { mutateAsync: updateValue, isPending: isLoading } = useMutation({
-    mutationFn: (value: T) => setCache(key, value),
+    mutationFn: (value: T | null) => setCache(key, value),
 
     onMutate: (mutatedData) => {
       const current = data;
@@ -57,7 +69,7 @@ export default function usePersistentContext<T>(
     },
   });
 
-  return [data ?? fallbackValue, updateValue, isFetched, isLoading];
+  return [data ?? fallbackValue ?? null, updateValue, isFetched, isLoading];
 }
 
 export enum PersistentContextKeys {
@@ -65,4 +77,6 @@ export enum PersistentContextKeys {
   StreakAlertPushKey = 'streak_alert_push_key',
   PendingOpportunityId = 'pending_opportunity_id',
   ReadingReminderLastSeen = 'reading_reminder_last_seen',
+  QuestOffersLastSeen = 'quest_offers_last_seen',
+  QuestOffersEligibleLogged = 'quest_offers_eligible_logged',
 }

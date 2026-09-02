@@ -108,13 +108,11 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
-// Experiment: sponsored partner offers (via Encore) replacing the classic
-// streak milestone popup. Enrollment is conditional on the popup actually
-// showing; treatment falls back to the classic popup when no offers return.
-export const featureStreakMilestoneOffers = new Feature(
-  'streak_milestone_offers',
-  isDevelopment,
-);
+// Experiment: sponsored partner offers (via Encore) presented as the reward
+// moment once the day's daily quests are all claimed. Enrollment is
+// conditional on the popup actually being eligible, so users who never finish
+// their quests don't dilute the split.
+export const featureQuestOffers = new Feature('quest_offers', isDevelopment);
 
 // whether the user will see post boost ads
 // does not necessarily mean they can't boost a post if they have access to cores
