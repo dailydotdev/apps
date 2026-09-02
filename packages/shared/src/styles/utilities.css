@@ -1079,8 +1079,7 @@
     var(--theme-background-subtle) 46%
   );
   box-shadow:
-    /* The top edge catching the light. */
-    inset 0 1px 0
+    /* The top edge catching the light. */ inset 0 1px 0
       color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 82%),
     /* Two shadows, near and far: one gives it an edge, the other gives it
        somewhere to be. Through the theme's own shadow colours, because a black

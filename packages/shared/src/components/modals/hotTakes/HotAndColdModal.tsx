@@ -1343,6 +1343,7 @@ const HotTakeCard = ({
           {isTop && (
             <SnapshotButton
               filename={`daily-hot-take-${hotTake.id}`}
+              link={hotTake.user?.permalink}
               showLabel={false}
               size={ButtonSize.Small}
               target={cardRef}

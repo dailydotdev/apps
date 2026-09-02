@@ -56,7 +56,6 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { SnapshotButton } from '../../imageShare/SnapshotButton';
 import { PostSnapshotCard } from '../../../features/snapshot/PostSnapshotCard';
-import { SNAPSHOT_SIZE } from '../../../features/snapshot/snapshotGradient';
 import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
@@ -281,7 +280,6 @@ const PostFocusCardRaw = ({
   // instead we detect the click landing inside the cross-origin iframe via the
   // window losing focus to it, then animate the container open.
   const videoWrapperRef = useRef<HTMLDivElement>(null);
-  const snapshotRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
   const canReadArticle = !!readHref && !isInternalReadType(article);
@@ -598,23 +596,11 @@ const PostFocusCardRaw = ({
             )}
           </div>
 
-          <div
-            aria-hidden
-            className="pointer-events-none fixed left-[-200vw] top-0"
-          >
-            <PostSnapshotCard ref={snapshotRef} post={article} />
-          </div>
-
           <SnapshotButton
-            captureOptions={{
-              width: SNAPSHOT_SIZE,
-              height: SNAPSHOT_SIZE,
-              padding: 0,
-              branded: false,
-            }}
+            card={<PostSnapshotCard post={article} />}
             className="self-start"
             filename={`daily-${article.id}`}
-            target={snapshotRef}
+            link={article.commentsPermalink}
           />
 
           <PostTagList post={article} />

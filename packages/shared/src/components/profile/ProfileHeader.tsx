@@ -107,6 +107,7 @@ const ProfileHeader = ({
           </Link>
           <SnapshotButton
             filename={`daily-profile-${username ?? user.id}`}
+            link={user.permalink}
             showLabel={false}
             // Matches the edit button beside it, which takes Button's default.
             size={ButtonSize.Medium}

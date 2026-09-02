@@ -69,6 +69,7 @@ export function UserTopList({
           snapshotFilename={`daily-leaderboard-${
             item.user.username ?? item.user.id
           }`}
+          snapshotLink={item.user.permalink}
         >
           <TopRankBadge rankIndex={i} />
           {showLevel && item.level && (

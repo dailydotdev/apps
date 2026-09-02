@@ -14,6 +14,8 @@ interface LeaderboardListItemProps {
   concatScore?: boolean;
   onMouseEnter?: React.MouseEventHandler<HTMLLIElement>;
   snapshotFilename?: string;
+  snapshotLink?: string;
+  snapshotCard?: ReactNode;
 }
 
 export function LeaderboardListItem({
@@ -24,6 +26,8 @@ export function LeaderboardListItem({
   concatScore = true,
   onMouseEnter,
   snapshotFilename,
+  snapshotLink,
+  snapshotCard,
 }: LeaderboardListItemProps): ReactElement {
   const rowRef = useRef<HTMLLIElement>(null);
   const formattedNumber = concatScore ? largeNumberFormat(index) : index;
@@ -40,11 +44,13 @@ export function LeaderboardListItem({
       {children}
       {snapshotFilename && (
         <SnapshotButton
+          card={snapshotCard}
           className="ml-auto opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
           filename={snapshotFilename}
+          link={snapshotLink}
           showLabel={false}
           size={ButtonSize.XSmall}
-          target={rowRef}
+          target={snapshotCard ? undefined : rowRef}
           variant={ButtonVariant.Float}
         />
       )}

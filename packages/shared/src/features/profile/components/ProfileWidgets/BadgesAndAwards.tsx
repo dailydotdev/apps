@@ -77,6 +77,7 @@ export const BadgesAndAwards = ({
         </Typography>
         <SnapshotButton
           filename={`daily-badges-${user.username ?? user.id}`}
+          link={user.permalink}
           showLabel={false}
           target={widgetRef}
         />
