@@ -5,12 +5,17 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  DownloadIcon,
+  MiniCloseIcon,
+  ReputationIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   ART,
   AVATAR,
   Category,
   Control,
+  Rail,
   Screen,
   SurfacePage,
   Variant,
@@ -212,9 +217,126 @@ const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
   </Screen>
 );
 
+
+/* -------------------------------------------------- other win moments */
+
+const TopReaderScreen = ({ share }: { share: boolean }) => (
+  <Screen>
+    <div className="flex flex-col items-center gap-4 p-6 text-center">
+      <div className="flex size-32 items-center justify-center rounded-16 bg-gradient-to-br from-accent-bacon-default to-accent-cabbage-default">
+        <span className="text-[2.5rem]">🥇</span>
+      </div>
+      <h1 className="font-bold text-text-primary typo-title1">
+        You&apos;ve earned the top reader badge!
+      </h1>
+      <p className="text-text-tertiary typo-callout">
+        Top 1% of readers in #typescript this week
+      </p>
+      <div className="mt-2 flex items-center gap-2">
+        <Button
+          icon={<DownloadIcon secondary />}
+          size={ButtonSize.Small}
+          variant={share ? ButtonVariant.Float : ButtonVariant.Primary}
+        >
+          Download badge
+        </Button>
+        {share && (
+          <Control action="Snapshot" label variant={ButtonVariant.Primary} />
+        )}
+      </div>
+    </div>
+  </Screen>
+);
+
+const TIER_DAYS = [
+  ['Spark', 3],
+  ['Flame', 7],
+  ['Inferno', 30],
+  ['Supernova', 180],
+];
+
+const StreakTierScreen = ({ share }: { share: boolean }) => (
+  <Screen>
+    <div className="flex flex-col items-center gap-3 p-6 text-center">
+      <div className="flex size-24 items-center justify-center rounded-full bg-overlay-quaternary-bacon">
+        <span className="text-[2.5rem]">🔥</span>
+      </div>
+      <span className="font-bold uppercase text-accent-bacon-default typo-caption2">
+        Inferno
+      </span>
+      <strong className="text-text-primary typo-tera">30</strong>
+      <h2 className="text-text-primary typo-title3">A full month, unbroken</h2>
+      <div className="my-2 flex gap-1">
+        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+          <span
+            key={`${day}-${index}`}
+            className={`flex size-7 items-center justify-center rounded-full typo-caption1 ${
+              index < 5
+                ? 'bg-accent-bacon-default text-white'
+                : 'bg-surface-float text-text-quaternary'
+            }`}
+          >
+            {day}
+          </span>
+        ))}
+      </div>
+      <div className="flex flex-wrap justify-center gap-1">
+        {TIER_DAYS.map(([label, day]) => (
+          <span
+            key={label as string}
+            className={`rounded-8 px-2 py-1 typo-caption2 ${
+              label === 'Inferno'
+                ? 'bg-accent-bacon-default text-white'
+                : 'bg-surface-float text-text-tertiary'
+            }`}
+          >
+            {label} · {day}d
+          </span>
+        ))}
+      </div>
+      {share && (
+        <Control
+          action="Snapshot"
+          className="mt-3"
+          label
+          variant={ButtonVariant.Primary}
+        />
+      )}
+    </div>
+  </Screen>
+);
+
+const PrivilegesScreen = ({ share }: { share: boolean }) => (
+  <Screen>
+    <div className="flex flex-col items-center gap-3 p-6 text-center">
+      <div className="flex size-20 items-center justify-center rounded-16 bg-overlay-quaternary-onion">
+        <ReputationIcon className="text-accent-onion-default" />
+      </div>
+      <h3 className="font-bold text-text-primary typo-title1">
+        Privileges unlocked!
+      </h3>
+      <p className="text-text-tertiary typo-callout">
+        Congratulations on your 250 reputation points achievement! Your account
+        now has new privileges.
+      </p>
+      <div className="mt-2 flex items-center gap-2">
+        <Button
+          size={ButtonSize.Small}
+          variant={share ? ButtonVariant.Float : ButtonVariant.Primary}
+        >
+          Got it
+        </Button>
+        {share && (
+          <Control action="Snapshot" label variant={ButtonVariant.Primary} />
+        )}
+      </div>
+    </div>
+  </Screen>
+);
+
 const StatusMoments = () => (
   <SurfacePage
-    intro="Three surfaces that share one property: there is no page to send anyone to. A link to your streak, your rank or your unlocked achievement means nothing to the person receiving it. Snapshot is not the louder option here — it is the only one."
+    intro="Six surfaces that share one property: there is no page to send anyone to. A link to your streak, your rank or your unlocked achievement means nothing to the person receiving it. Snapshot is not the louder option here — it is the only one."
     map="Sharing map: lead with Snapshot on all three (#6358 streak, #6360 achievements, #6359 rank). Copy link is not a secondary option, it is absent, because there is nothing to link to."
     title="Status moments"
   >
@@ -301,6 +423,92 @@ const StatusMoments = () => (
         <RankScreen spot="band" />
       </Variant>
     </Category>
+    <Category
+      covers="TopReaderBadgeModal.tsx · StreakOfferCelebration.tsx · ReputationPrivilegesModal.tsx"
+      title="Win moments with no share route"
+      verdict="Three more celebrations already ship, each one a status moment that ends in a dismiss. All three are pure status with no destination, so snapshot is the only action that fits — the same argument as the streak and the achievement above."
+    >
+      <Variant
+        headline="Top reader badge — download only"
+        note="The clearest gap on this page. ‘You've earned the top reader badge!’ already generates an image server-side for the Download button, so the payload exists and nothing shares it. Same failure as the DevCard: generated, saved to a downloads folder, never posted."
+        step="1 · Today"
+      >
+        <Rail>
+          <TopReaderScreen share={false} />
+          <TopReaderScreen share />
+        </Rail>
+      </Variant>
+      <Variant
+        headline="Streak tier milestones — ten of them, none shareable"
+        note="streakTiers.ts defines Spark, Kindle, Flame, Blaze, Firestorm, Inferno, Scorcher, Eternal Flame, Supernova and Legendary, each with its own art, name and headline. Far richer than the plain day count we draw at the top of this page — and a named tier is more quotable than a number."
+        step="2 · Today"
+      >
+        <Rail>
+          <StreakTierScreen share={false} />
+          <StreakTierScreen share />
+        </Rail>
+      </Variant>
+      <Variant
+        headline="Reputation privileges — a dismiss and nothing else"
+        note="‘Privileges unlocked!’ at 250 reputation. Weakest of the three as a share: privileges are a permission, not an achievement anyone outside the product recognises. Included because it is a celebration modal we already show, so the cost of adding a control is near zero."
+        step="3 · Today"
+      >
+        <Rail>
+          <PrivilegesScreen share={false} />
+          <PrivilegesScreen share />
+        </Rail>
+      </Variant>
+    </Category>
+
+    <Category
+      covers="found in code, not drawn"
+      title="Six more worth a look"
+      verdict="Every one of these exists and ends without a share. Listed rather than drawn, because they need a product call on whether the moment is worth interrupting before it is worth designing."
+    >
+      <Variant
+        headline="The achievement unlock modal"
+        note="AchievementCompletionModal shows the artwork, name, description and ‘+N points’, then offers ‘pick next’. It is the peak of the moment and the only way out is forward. Also worth catching: ‘You unlocked every achievement’ — a genuine flex with nothing attached to it."
+        step="Unlock"
+      >
+        <div />
+      </Variant>
+      <Variant
+        headline="Levelling up"
+        note="Level is already the leaderboard's headline metric and QuestRewardAnimations fires a full reward animation, but crossing a level has no moment of its own. The leaderboard rank card we built is the closest thing, and it only exists if you happen to be on the board."
+        step="Level"
+      >
+        <div />
+      </Variant>
+      <Variant
+        headline="Curating the profile showcase"
+        note="AchievementShowcaseModal lets you pick which achievements to feature. Choosing what to show off is a share trigger by definition — someone has just told us exactly which three things they are proudest of."
+        step="Showcase"
+      >
+        <div />
+      </Variant>
+      <Variant
+        headline="Being awarded"
+        note="Someone spent cores on your post. ListAwardsModal shows who, and the recipient gets no way to mark it. This is the only moment on the list where the win came from another person, which usually makes it more shareable, not less."
+        step="Awards"
+      >
+        <div />
+      </Variant>
+      <Variant
+        headline="A post that did well"
+        note="posts/[id]/analytics exists behind canViewPostAnalytics, and BoostedViewModal reports impressions and reach for a boosted post. ‘My post reached 40k developers’ is the single most shareable sentence an author can say, and neither surface offers it."
+        step="Analytics"
+      >
+        <div />
+      </Variant>
+      <Variant
+        headline="Going Plus"
+        note="FunnelPaymentSuccessful is the end of the paid funnel. Deliberately last on this list: a subscription is a purchase, not an achievement, and asking someone to broadcast it immediately after taking their money reads badly."
+        step="Plus"
+      >
+        <div />
+      </Variant>
+    </Category>
+
   </SurfacePage>
 );
 
