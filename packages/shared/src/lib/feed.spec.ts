@@ -1,4 +1,5 @@
-import { getAdSlotIndex } from './feed';
+import type { Post } from '../graphql/posts';
+import { getAdSlotIndex, postLogEvent } from './feed';
 
 describe('getAdSlotIndex', () => {
   const seed = '["feed","my-feed"]';
@@ -130,5 +131,51 @@ describe('getAdSlotIndex', () => {
         expect(hits[i] - hits[i - 1]).toBeGreaterThanOrEqual(2);
       }
     });
+  });
+});
+
+describe('postLogEvent', () => {
+  const post = { id: 'p1', title: 'A post' } as Post;
+
+  it('reports feed_item_index inside extra so ingest keeps it', () => {
+    const event = postLogEvent('impression', post, {
+      columns: 3,
+      column: 1,
+      row: 2,
+      index: 7,
+      extra: { search_id: 's1', search_version: 4 },
+    });
+
+    expect(event).not.toHaveProperty('feed_item_index');
+    expect(JSON.parse(event.extra as string)).toEqual({
+      search_id: 's1',
+      search_version: 4,
+      feed_item_index: 7,
+    });
+  });
+
+  it('keeps the grid coordinates top-level', () => {
+    const event = postLogEvent('impression', post, {
+      columns: 3,
+      column: 1,
+      row: 2,
+      index: 7,
+    });
+
+    expect(event.feed_grid_columns).toEqual(3);
+    expect(event.feed_item_grid_column).toEqual(1);
+    expect(event.feed_item_grid_row).toEqual(2);
+  });
+
+  it('reports the first item as index 0 rather than dropping it', () => {
+    const event = postLogEvent('click', post, { index: 0 });
+
+    expect(JSON.parse(event.extra as string).feed_item_index).toEqual(0);
+  });
+
+  it('omits feed_item_index when the caller has no index', () => {
+    const event = postLogEvent('go to link', post, { columns: 3 });
+
+    expect(event.extra).toBeUndefined();
   });
 });
