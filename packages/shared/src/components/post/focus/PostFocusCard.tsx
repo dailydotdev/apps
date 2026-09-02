@@ -366,12 +366,12 @@ const PostFocusCardRaw = ({
       rel="noopener"
       {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
       aria-label={readCtaAccessibleLabel}
-      className="group flex w-fit items-center gap-2 rounded-12 bg-text-primary py-2 pl-4 pr-3 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
+      className="flex h-8 w-fit items-center gap-1 rounded-10 bg-text-primary pl-3 pr-1.5 text-surface-invert"
     >
-      <span className="font-bold typo-callout">{readCtaLabel}</span>
-      <span className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none">
+      <span className="font-bold typo-footnote">{readCtaLabel}</span>
+      <span className="shrink-0">
         {isReaderVariant ? (
-          <EarthIcon size={IconSize.Medium} />
+          <EarthIcon size={IconSize.Small} />
         ) : (
           getReadPostButtonIcon(post)
         )}
@@ -652,16 +652,6 @@ const PostFocusCardRaw = ({
             <CommunitySentiment data={communitySentimentData} />
           )}
 
-          <PostUpvotesCommentsCount
-            post={post}
-            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
-            onCommentsClick={scrollToComment}
-            // Spacing in this column is governed by its `gap-4`; drop the stats
-            // row's own bottom margin so the gap above the action bar matches
-            // the gap below it.
-            className="!mb-0"
-          />
-
           {isCollection && <CollectionSources post={article} />}
 
           {showCodeSnippets && (
@@ -671,6 +661,16 @@ const PostFocusCardRaw = ({
           )}
 
           <PostSidebarAdWidget postId={post.id} variant="inline" />
+
+          <PostUpvotesCommentsCount
+            post={post}
+            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
+            onCommentsClick={scrollToComment}
+            // Spacing in this column is governed by its `gap-4`; drop the stats
+            // row's own bottom margin so the gap above the action bar matches
+            // the gap below it.
+            className="!mb-0"
+          />
 
           <FocusCardActionBar
             post={post}
