@@ -11,6 +11,14 @@ import {
   MiniCloseIcon,
   SnapshotIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
+import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
+import { TopRankBadge } from '@dailydotdev/shared/src/components/cards/Leaderboard/TopRankBadge';
 import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 
 /**
@@ -123,10 +131,9 @@ const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
   <Screen>
     <div className="relative flex flex-col items-center gap-2 p-6 text-center">
       <div className="flex h-10 w-full items-center justify-between">
-        <span className="flex items-center gap-2 text-text-tertiary typo-footnote">
-          <span className="h-4 w-7 rounded-8 bg-accent-cabbage-default" />
+        <Switch defaultChecked inputId="streak-reminder" name="streak-reminder">
           Remind me
-        </span>
+        </Switch>
         <Button
           aria-label="Close"
           icon={<MiniCloseIcon />}
@@ -158,10 +165,9 @@ const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
         <Control className="mt-6" label variant={ButtonVariant.Primary} />
       )}
 
-      <span className="mt-6 flex items-center gap-2 text-text-tertiary typo-footnote">
-        <span className="size-4 rounded-4 border border-border-subtlest-tertiary" />
+      <Checkbox className="mt-6" name="streak-never-show">
         Never show this again
-      </span>
+      </Checkbox>
     </div>
   </Screen>
 );
@@ -218,9 +224,14 @@ const AchievementScreen = ({
               <span>Progress</span>
               <span>8/10</span>
             </span>
-            <span className="h-1.5 overflow-hidden rounded-14 bg-surface-invert">
-              <span className="block h-full w-4/5 rounded-14 bg-accent-cabbage-default" />
-            </span>
+            <ProgressBar
+              className={{
+                wrapper: 'h-1.5 rounded-14 bg-surface-invert',
+                bar: 'h-full rounded-14',
+              }}
+              percentage={80}
+              shouldShowBg
+            />
           </div>
         )}
       </div>
@@ -265,14 +276,12 @@ const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
             <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
               {score}
             </span>
-            <span className="flex size-6 shrink-0 items-center justify-center text-text-tertiary typo-caption1">
-              {index === 0 ? '🥇' : `#${index + 1}`}
-            </span>
+            <TopRankBadge rankIndex={index} />
             <div className="flex min-w-0 shrink items-center gap-2 p-2">
-              <img
-                alt=""
-                className="size-8 rounded-full object-cover"
-                src={AVATAR}
+              <ProfilePicture
+                rounded="full"
+                size={ProfileImageSize.Medium}
+                user={{ image: AVATAR, username: handle as string }}
               />
               <div className="ml-2 flex min-w-0 flex-col">
                 <span className="truncate text-text-primary typo-caption1">
@@ -423,10 +432,10 @@ const AwardedScreen = ({ share }: { share: boolean }) => (
 
       {['Bobby Iliev', 'Ante Barić', 'Ido Shamun'].map((name) => (
         <div key={name} className="flex items-center gap-3">
-          <img
-            alt=""
-            className="size-8 rounded-full object-cover"
-            src={AVATAR}
+          <ProfilePicture
+            rounded="full"
+            size={ProfileImageSize.Medium}
+            user={{ image: AVATAR, username: name }}
           />
           <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
             {name}
