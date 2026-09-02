@@ -7,7 +7,7 @@
  */
 import type { AdsenseSlots } from '../../../features/monetization/adsense';
 
-export const ARBITRAGE_SLOT = {
+export const READ_SLOT = {
   /** Leaderboard above the article. Sticks while scrolling, then releases. */
   topLeaderboard: 2,
   /** MPU repeated through a long comment thread. */
@@ -99,8 +99,8 @@ export const MAX_CONTENT_ADS_PER_SECTION = 4;
  * tall creative. Where the two disagree the TODO says which unit to recreate.
  */
 export const READ_ADSENSE_SLOTS: AdsenseSlots = {
-  [ARBITRAGE_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
-  [ARBITRAGE_SLOT.topLeaderboardPhone]: {
+  [READ_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
+  [READ_SLOT.topLeaderboardPhone]: {
     id: '9942870945',
     type: 'display',
     width: 320,
@@ -119,18 +119,18 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   // - The in-content MPUs are phone-visible but capped: at the 250-char
   //   cadence the interval no longer bounds density, so
   //   MAX_CONTENT_ADS_PER_SECTION does — see its comment for the math.
-  [ARBITRAGE_SLOT.commentMpu]: { id: '6921226982', type: 'display' },
-  [ARBITRAGE_SLOT.railAfterSource]: { id: '5249052667', type: 'display' },
-  [ARBITRAGE_SLOT.railBetweenFurtherReading]: {
+  [READ_SLOT.commentMpu]: { id: '6921226982', type: 'display' },
+  [READ_SLOT.railAfterSource]: { id: '5249052667', type: 'display' },
+  [READ_SLOT.railBetweenFurtherReading]: {
     id: '6921226982',
     type: 'display',
   },
-  [ARBITRAGE_SLOT.inBodyMpu]: { id: '6921226982', type: 'display' },
-  [ARBITRAGE_SLOT.aboveCommentsMpu]: { id: '5249052667', type: 'display' },
+  [READ_SLOT.inBodyMpu]: { id: '6921226982', type: 'display' },
+  [READ_SLOT.aboveCommentsMpu]: { id: '5249052667', type: 'display' },
   // read_s10's fixed 300x600, back as the rail's closing unit. Compliant as a
   // publisher sticky: 300px wide, desktop only, and the page's ONLY sticky —
   // AdSense allows exactly one per viewport.
-  [ARBITRAGE_SLOT.railBottomSticky]: {
+  [READ_SLOT.railBottomSticky]: {
     id: '4307400883',
     type: 'display',
     width: 300,
