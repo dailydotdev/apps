@@ -1,4 +1,5 @@
 import type { Post } from '../../graphql/posts';
+import { getPostTitle } from '../../graphql/posts';
 import type { AgentActivityItem, AgentContentTarget } from './AgentContext';
 import type { AgentAttachment, AgentMessage } from './chat';
 import { isPostsBlock } from './chat';
@@ -8,7 +9,7 @@ import { isPostsBlock } from './chat';
 export const postAttachment = (post: Post): AgentAttachment => ({
   id: `post:${post.id}`,
   kind: 'post',
-  label: post.title ?? 'Untitled post',
+  label: getPostTitle(post) ?? 'Untitled post',
   detail: post.source?.name,
 });
 

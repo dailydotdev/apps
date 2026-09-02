@@ -32,6 +32,27 @@ describe('postAttachment', () => {
     expect(postAttachment({ id: 'a' } as Post).label).toBe('Untitled post');
   });
 
+  it('labels a share pick after the shared article', () => {
+    const share = {
+      id: 'a',
+      title: null,
+      source: { name: 'daily.dev' },
+      sharedPost: { id: 'a-shared', title: 'GitHub Advisory Database' },
+    } as unknown as Post;
+
+    expect(postAttachment(share).label).toBe('GitHub Advisory Database');
+  });
+
+  it('treats an empty title as no title at all', () => {
+    const share = {
+      id: 'a',
+      title: '',
+      sharedPost: { id: 'a-shared', title: '' },
+    } as unknown as Post;
+
+    expect(postAttachment(share).label).toBe('Untitled post');
+  });
+
   it('keys on the post id, not the title', () => {
     const first = postAttachment(makePost('a', 'One title'));
     const second = postAttachment(makePost('a', 'A different title'));
