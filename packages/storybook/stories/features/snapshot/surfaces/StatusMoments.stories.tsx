@@ -8,7 +8,6 @@ import {
 import {
   DownloadIcon,
   MiniCloseIcon,
-  ReputationIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   ART,
@@ -306,37 +305,107 @@ const StreakTierScreen = ({ share }: { share: boolean }) => (
   </Screen>
 );
 
-const PrivilegesScreen = ({ share }: { share: boolean }) => (
+/**
+ * The award moment, from the recipient's side. ListAwardsModal shows who gave
+ * what and the cores total; the person who received it gets no way to mark it.
+ */
+const AwardedScreen = ({ share }: { share: boolean }) => (
   <Screen>
-    <div className="flex flex-col items-center gap-3 p-6 text-center">
-      <div className="flex size-20 items-center justify-center rounded-16 bg-overlay-quaternary-onion">
-        <ReputationIcon className="text-accent-onion-default" />
-      </div>
-      <h3 className="font-bold text-text-primary typo-title1">
-        Privileges unlocked!
-      </h3>
-      <p className="text-text-tertiary typo-callout">
-        Congratulations on your 250 reputation points achievement! Your account
-        now has new privileges.
-      </p>
-      <div className="mt-2 flex items-center gap-2">
+    <div className="flex flex-col gap-3 p-4">
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-text-primary typo-title3">
+          Awards given
+        </span>
         <Button
+          aria-label="Close"
+          icon={<MiniCloseIcon />}
           size={ButtonSize.Small}
-          variant={share ? ButtonVariant.Float : ButtonVariant.Primary}
-        >
-          Got it
-        </Button>
+          variant={ButtonVariant.Tertiary}
+        />
+      </div>
+
+      <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary py-4">
+        <span className="flex size-14 items-center justify-center rounded-full bg-overlay-quaternary-bun text-[1.75rem]">
+          🪙
+        </span>
+        <div className="flex flex-col">
+          <span className="text-text-tertiary typo-body">Cores given</span>
+          <span className="font-bold text-text-primary typo-title2">1,250</span>
+        </div>
         {share && (
-          <Control action="Snapshot" label variant={ButtonVariant.Primary} />
+          <Control
+            action="Snapshot"
+            className="ml-auto"
+            label
+            variant={ButtonVariant.Primary}
+          />
         )}
       </div>
+
+      {['Bobby Iliev', 'Ante Barić', 'Ido Shamun'].map((name) => (
+        <div key={name} className="flex items-center gap-3">
+          <img alt="" className="size-8 rounded-full object-cover" src={AVATAR} />
+          <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
+            {name}
+          </span>
+          <span className="text-xl">🏅</span>
+        </div>
+      ))}
+    </div>
+  </Screen>
+);
+
+const POST_STATS: [string, string][] = [
+  ['Impressions', '41.2K'],
+  ['Upvotes', '862'],
+  ['Comments', '134'],
+  ['Clicks', '3.8K'],
+  ['Followers gained', '96'],
+  ['Cores earned', '1,250'],
+];
+
+/** posts/[id]/analytics, behind canViewPostAnalytics. */
+const AnalyticsScreen = ({ share }: { share: boolean }) => (
+  <Screen>
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex items-start gap-3">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="font-bold uppercase text-text-quaternary typo-caption2">
+            Post analytics
+          </span>
+          <span className="truncate font-bold text-text-primary typo-callout">
+            Why iconic tech brands lost their dominance
+          </span>
+        </div>
+        {share && <Control action="Snapshot" />}
+      </div>
+
+      <div className="h-20 rounded-12 bg-surface-float" />
+
+      <div className="grid grid-cols-2 gap-2">
+        {POST_STATS.map(([label, value]) => (
+          <div
+            key={label}
+            className="flex flex-col rounded-12 bg-surface-float p-3"
+          >
+            <span className="font-bold text-text-primary typo-title3">
+              {value}
+            </span>
+            <span className="text-text-tertiary typo-footnote">{label}</span>
+          </div>
+        ))}
+      </div>
+
+      {share && (
+        <Control action="Snapshot" label variant={ButtonVariant.Primary} />
+      )}
     </div>
   </Screen>
 );
 
 const StatusMoments = () => (
   <SurfacePage
-    intro="Six surfaces that share one property: there is no page to send anyone to. A link to your streak, your rank or your unlocked achievement means nothing to the person receiving it. Snapshot is not the louder option here — it is the only one."
+    intro="Seven surfaces that share one property: there is no page to send anyone to. A link to your streak, your rank or your unlocked achievement means nothing to the person receiving it. Snapshot is not the louder option here — it is the only one."
     map="Sharing map: lead with Snapshot on all three (#6358 streak, #6360 achievements, #6359 rank). Copy link is not a secondary option, it is absent, because there is nothing to link to."
     title="Status moments"
   >
@@ -424,9 +493,9 @@ const StatusMoments = () => (
       </Variant>
     </Category>
     <Category
-      covers="TopReaderBadgeModal.tsx · StreakOfferCelebration.tsx · ReputationPrivilegesModal.tsx"
+      covers="TopReaderBadgeModal.tsx · StreakOfferCelebration.tsx · ListAwardsModal.tsx · posts/[id]/analytics"
       title="Win moments with no share route"
-      verdict="Three more celebrations already ship, each one a status moment that ends in a dismiss. All three are pure status with no destination, so snapshot is the only action that fits — the same argument as the streak and the achievement above."
+      verdict="Four more moments already ship, each one ending in a dismiss. All four are status with no destination, so snapshot is the only action that fits — the same argument as the streak and the achievement above."
     >
       <Variant
         headline="Top reader badge — download only"
@@ -449,21 +518,31 @@ const StatusMoments = () => (
         </Rail>
       </Variant>
       <Variant
-        headline="Reputation privileges — a dismiss and nothing else"
-        note="‘Privileges unlocked!’ at 250 reputation. Weakest of the three as a share: privileges are a permission, not an achievement anyone outside the product recognises. Included because it is a celebration modal we already show, so the cost of adding a control is near zero."
+        headline="Being awarded — the only win that came from someone else"
+        note="Someone spent cores on your post. ListAwardsModal shows who gave what and the cores total, and the recipient gets no way to mark it. A win handed over by another person is usually more shareable, not less — and it names them, which gives the card a second reason to travel."
         step="3 · Today"
       >
         <Rail>
-          <PrivilegesScreen share={false} />
-          <PrivilegesScreen share />
+          <AwardedScreen share={false} />
+          <AwardedScreen share />
+        </Rail>
+      </Variant>
+      <Variant
+        headline="A post that did well"
+        note="posts/[id]/analytics already reports impressions, upvotes, clicks, comments, followers gained and cores earned, behind canViewPostAnalytics. ‘My post reached 41k developers’ is the most shareable sentence an author can say, and there is nowhere to say it. Two placements drawn: an icon in the header, and a labeled control under the stats where the numbers have just made the case."
+        step="4 · Today"
+      >
+        <Rail>
+          <AnalyticsScreen share={false} />
+          <AnalyticsScreen share />
         </Rail>
       </Variant>
     </Category>
 
     <Category
       covers="found in code, not drawn"
-      title="Six more worth a look"
-      verdict="Every one of these exists and ends without a share. Listed rather than drawn, because they need a product call on whether the moment is worth interrupting before it is worth designing."
+      title="Three more worth a look"
+      verdict="All three exist and end without a share. Listed rather than drawn, because each needs a call on whether the moment is worth interrupting before it is worth designing."
     >
       <Variant
         headline="The achievement unlock modal"
@@ -483,27 +562,6 @@ const StatusMoments = () => (
         headline="Curating the profile showcase"
         note="AchievementShowcaseModal lets you pick which achievements to feature. Choosing what to show off is a share trigger by definition — someone has just told us exactly which three things they are proudest of."
         step="Showcase"
-      >
-        <div />
-      </Variant>
-      <Variant
-        headline="Being awarded"
-        note="Someone spent cores on your post. ListAwardsModal shows who, and the recipient gets no way to mark it. This is the only moment on the list where the win came from another person, which usually makes it more shareable, not less."
-        step="Awards"
-      >
-        <div />
-      </Variant>
-      <Variant
-        headline="A post that did well"
-        note="posts/[id]/analytics exists behind canViewPostAnalytics, and BoostedViewModal reports impressions and reach for a boosted post. ‘My post reached 40k developers’ is the single most shareable sentence an author can say, and neither surface offers it."
-        step="Analytics"
-      >
-        <div />
-      </Variant>
-      <Variant
-        headline="Going Plus"
-        note="FunnelPaymentSuccessful is the end of the paid funnel. Deliberately last on this list: a subscription is a purchase, not an achievement, and asking someone to broadcast it immediately after taking their money reads badly."
-        step="Plus"
       >
         <div />
       </Variant>
