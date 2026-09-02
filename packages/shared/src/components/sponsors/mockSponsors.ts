@@ -24,14 +24,13 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
 /**
  * The paid slot: brand colour, larger, and the only link in the strip.
  *
- * Google Cloud is two-tone rather than four: the cloud keeps its inks,
- * but the shipped wordmark is #5F6368 — dark grey, which sinks into
- * the dark feed — so it rides `currentColor` and flips with the
- * ground. One source instead of Google's two lockup files.
+ * The lockup their own site serves — four-ink Google wordmark plus
+ * "Cloud", no cloud symbol. "Cloud" ships near-black, so it rides
+ * `currentColor` and flips with the ground; see GoogleCloudLockup.
  */
 export const MOCK_LEAD_SPONSOR: Sponsor = {
   name: 'Google Cloud',
-  ratio: 181 / 28,
+  ratio: 123 / 20,
   Artwork: GoogleCloudLockup,
   href: 'https://cloud.google.com',
 };

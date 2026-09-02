@@ -77,7 +77,7 @@ const ASSET_PROBLEMS: (Sponsor & { reason: string })[] = [
 const PRIMARY_CANDIDATES: (Sponsor & { verdict: string })[] = [
   {
     ...PRIMARY,
-    verdict: 'two-tone: coloured cloud, wordmark on currentColor',
+    verdict: 'four-ink Google wordmark, "Cloud" on currentColor',
   },
   {
     name: 'NVIDIA',
@@ -352,12 +352,13 @@ export const LogoTreatment: Story = {
               here passes the same way — rendered inline rather than as a file,
               so the coloured half holds its inks while the wordmark rides
               `currentColor` and flips with the background. Google Cloud keeps
-              its four-ink cloud and drops the shipped #5F6368 wordmark, which
-              is dark grey and would sink into the dark feed; NVIDIA holds
-              #76B900 on its symbol the same way. That is what these
-              brands&apos; own light and dark lockups do, from one source
-              instead of two. Both columns are the same asset on both grounds at
-              once — the right one uses the app&apos;s own <code>.invert</code>
+              its four-ink Google wordmark and drops the shipped #212226 on
+              &ldquo;Cloud&rdquo;, which is near-black and would vanish into the
+              dark feed; NVIDIA holds #76B900 on its symbol the same way. That
+              is what these brands&apos; own light and dark lockups do, from one
+              source instead of two. Both columns are the same asset on both
+              grounds at once — the right one uses the app&apos;s own{' '}
+              <code>.invert</code>
               class, so it is the real theme, not a mock-up of it, and the pair
               swaps when you flip the toolbar. Of the library&apos;s vector
               wordmarks only a handful pass; the bottom two are why Sentry was
