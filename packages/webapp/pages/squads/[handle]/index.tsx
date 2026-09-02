@@ -697,8 +697,10 @@ export async function getServerSideProps({
     ]);
 
     // Fail closed: anything we can't positively confirm as a public squad stays
-    // out of the index.
+    // out of the index. The API's own gate covers inactive, vordr and tiny
+    // squads on top of that.
     const isPublicSquad = squad?.public === true;
+    const noindex = !isPublicSquad || squad?.noindex === true;
 
     const seoUsers = isPublicSquad
       ? await getSquad(handle)
@@ -720,8 +722,8 @@ export async function getServerSideProps({
         ...squadSeoTitles.openGraph,
         ...getSquadOpenGraph({ squad }),
       },
-      nofollow: !isPublicSquad,
-      noindex: !isPublicSquad,
+      nofollow: noindex,
+      noindex,
     };
 
     return {
