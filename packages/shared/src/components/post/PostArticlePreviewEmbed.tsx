@@ -27,6 +27,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TextPlaceholder } from '../widgets/common';
+import { anchorNofollowRel } from '../../lib/strings';
 
 const FRAME_LOAD_TIMEOUT_MS = 7000;
 const PERMISSION_FRAME_CONNECT_TIMEOUT_MS = 7000;
@@ -551,7 +552,7 @@ export function PostArticlePreviewEmbed({
                 <a
                   href={targetHref}
                   target={targetLinkInNewTab ? '_blank' : '_self'}
-                  rel="noopener noreferrer"
+                  rel={anchorNofollowRel}
                   onClick={onTargetLinkClick}
                   className="block w-full truncate text-left underline-offset-2 hover:underline"
                   title={`Open ${previewDomain}`}
