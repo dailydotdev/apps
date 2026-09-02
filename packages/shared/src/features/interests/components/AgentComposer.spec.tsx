@@ -9,7 +9,11 @@ import { AgentComposer } from './AgentComposer';
 type Agent = ReturnType<typeof useAgent>;
 
 const mountComposer = () => {
-  const seen: { current: Agent } = { current: undefined as never };
+  const onOpenSettings = jest.fn();
+  const seen: { current: Agent; onOpenSettings: jest.Mock } = {
+    current: undefined as never,
+    onOpenSettings,
+  };
 
   const Probe = () => {
     seen.current = useAgent();
@@ -19,7 +23,12 @@ const mountComposer = () => {
 
   render(
     <TestBootProvider client={new QueryClient()}>
-      <AgentProvider id="a1" isDemo initialMessages={[]}>
+      <AgentProvider
+        id="a1"
+        isDemo
+        initialMessages={[]}
+        onOpenSettings={onOpenSettings}
+      >
         <AgentComposer />
         <Probe />
       </AgentProvider>
@@ -109,7 +118,7 @@ describe('AgentComposer', () => {
       fireEvent.keyDown(field(), { key: 'Enter' });
 
       expect(agent.current.messages).toHaveLength(0);
-      expect(agent.current.isSettingsOpen).toBe(true);
+      expect(agent.onOpenSettings).toHaveBeenCalled();
     });
 
     it('opens the list on a bare slash and arms the one you pick', () => {
