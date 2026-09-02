@@ -8,6 +8,7 @@ import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
 import { widgetClasses, WidgetContainer } from './common';
 import { LogEvent } from '../../lib/log';
+import { anchorNofollowRel } from '../../lib/strings';
 
 export type PostTocProps = {
   post: Post;
@@ -46,7 +47,7 @@ export default function PostToc({
           key={item.text}
           href={generateTocLink(post, item)}
           target="_blank"
-          rel="noopener"
+          rel={anchorNofollowRel}
           title={item.text}
           onClick={onLinkClick}
           className="-mx-4 flex flex-1 truncate px-4 py-2 typo-callout hover:bg-surface-hover"

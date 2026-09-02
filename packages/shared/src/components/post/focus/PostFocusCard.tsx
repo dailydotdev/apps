@@ -64,6 +64,7 @@ import {
   CommunitySentiment,
   mapCommunitySentimentPost,
 } from './CommunitySentiment';
+import { anchorNofollowRel } from '../../../lib/strings';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -101,7 +102,7 @@ const ArticleLink = ({
       href={href}
       title="Go to post"
       target="_blank"
-      rel="noopener"
+      rel={anchorNofollowRel}
       {...clickHandlers}
       {...props}
     >
@@ -363,7 +364,7 @@ const PostFocusCardRaw = ({
     <a
       href={readHref}
       target="_blank"
-      rel="noopener"
+      rel={anchorNofollowRel}
       {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
       aria-label={readCtaAccessibleLabel}
       className="flex h-8 w-fit items-center gap-1 rounded-10 bg-text-primary pl-3 pr-1.5 text-surface-invert"
@@ -524,7 +525,7 @@ const PostFocusCardRaw = ({
                     <a
                       href={readHref}
                       target="_blank"
-                      rel="noopener"
+                      rel={anchorNofollowRel}
                       {...combinedClicks<HTMLAnchorElement>(
                         withSelectionGuard(handleReadClick),
                       )}
@@ -568,7 +569,7 @@ const PostFocusCardRaw = ({
                   <a
                     href={readHref}
                     target="_blank"
-                    rel="noopener"
+                    rel={anchorNofollowRel}
                     {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
                     aria-hidden
                     tabIndex={-1}
