@@ -10,7 +10,9 @@ import {
 import type { PillProps } from '../Pill';
 import { Pill } from '../Pill';
 import { IconSize } from '../Icon';
-import { BriefGradientIcon, LockIcon } from '../icons';
+import { BriefGradientIcon, LinkIcon, LockIcon, ShareIcon } from '../icons';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Tooltip } from '../tooltip/Tooltip';
 import type { Origin, TargetId } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import useOnPostClick from '../../hooks/useOnPostClick';
@@ -22,6 +24,9 @@ import { anchorDefaultRel } from '../../lib/strings';
 import Link from '../utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useSharePost } from '../../hooks/useSharePost';
+import { featureBriefingShareControls } from '../../lib/featureManagement';
+import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 
 export type BriefListItemProps = {
   className?: string;
@@ -55,6 +60,10 @@ export const BriefListItem = ({
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
+  const { copyLink, openSharePost } = useSharePost(origin);
+  const withShareControls = useSharePlacement({
+    feature: featureBriefingShareControls,
+  });
 
   const trackBriefClick = () => {
     onPostClick({ post });
@@ -86,14 +95,23 @@ export const BriefListItem = ({
       <div className="hidden items-center mobileXL:flex">
         <BriefGradientIcon secondary={!isRead} size={IconSize.Size48} />
       </div>
-      <div className="flex w-full flex-col gap-1">
-        <div className="flex items-center gap-2">
+      <div
+        className={classNames(
+          'flex flex-col gap-1',
+          // `w-full` overflows the card once a control shares the row: the
+          // column claims 100% of the article and pushes the button past the
+          // border. Shrinkable + greedy is the same width without the overflow.
+          withShareControls ? 'min-w-0 flex-1' : 'w-full',
+        )}
+      >
+        <div className="flex min-w-0 items-center gap-2">
           <Typography
             type={TypographyType.Title3}
             bold
             color={
               isRead ? TypographyColor.Quaternary : TypographyColor.Primary
             }
+            truncate={withShareControls}
           >
             {title}
           </Typography>
@@ -150,6 +168,30 @@ export const BriefListItem = ({
           onAuxClick={(event) => event.button === 1 && trackBriefClick()}
         />
       </Link>
+      {withShareControls && (
+        // After the CardLink and above it: the overlay covers the whole row,
+        // so anything rendered before it never receives the click.
+        <div className="relative z-1 flex shrink-0 items-center gap-1">
+          <Tooltip content="Copy link">
+            <Button
+              aria-label="Copy link"
+              icon={<LinkIcon />}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              onClick={() => copyLink({ post })}
+            />
+          </Tooltip>
+          <Tooltip content="Share">
+            <Button
+              aria-label="Share briefing"
+              icon={<ShareIcon />}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              onClick={() => openSharePost({ post })}
+            />
+          </Tooltip>
+        </div>
+      )}
     </article>
   );
 };
