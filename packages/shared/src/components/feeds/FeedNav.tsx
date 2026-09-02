@@ -38,6 +38,7 @@ import { SharedFeedPage } from '../utilities';
 import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
+import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -173,7 +174,10 @@ function FeedNav(): ReactElement | null {
   ]);
 
   const shouldRenderNav = home || (isMobile && bookmarks);
-  if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
+  if (
+    !shouldRenderNav ||
+    withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')
+  ) {
     return null;
   }
 

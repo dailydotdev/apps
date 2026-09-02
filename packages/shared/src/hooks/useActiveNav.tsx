@@ -4,6 +4,7 @@ import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
 import { useViewSize, ViewSize } from './useViewSize';
+import { withoutLayoutVariantPrefix } from '../lib/layoutVariant';
 
 export interface UseActiveNav {
   home: boolean;
@@ -46,7 +47,8 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       return true;
     }
 
-    return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
+    // if post page the [id] was expected
+    return withoutLayoutVariantPrefix(router?.route).startsWith('/posts/[id]');
   }, [activeFeed, isMobile, router?.route]);
 
   const explorePages: AllFeedPages[] = [

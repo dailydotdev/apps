@@ -8,6 +8,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { isTodayStamp } from '../../../lib/dateFormat';
 import { LogEvent, TargetType } from '../../../lib/log';
+import { QuestType } from '../../../graphql/quests';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import usePersistentContext, {
   PersistentContextKeys,
@@ -16,6 +17,8 @@ import {
   getDailyQuestSummary,
   useQuestDashboard,
 } from '../../../hooks/useQuestDashboard';
+import type { QuestClaim } from '../../../hooks/useClaimQuestReward';
+import { questClaimQueryKey } from '../../../hooks/useClaimQuestReward';
 import { getQuestLevelProgress } from '../../quest/QuestLevelProgressCircle';
 import {
   OfferPlacement,
@@ -23,17 +26,20 @@ import {
 } from '../../../graphql/offers';
 import { featureQuestOffers } from '../../../lib/featureManagement';
 
+const CLAIM_WINDOW_MS = 30_000;
+
 /**
  * Standalone daily quest reward modal trigger.
  *
  * Like `StreakMilestonePopup`, this sits outside BootPopups so it is NOT
- * subject to the one-per-day boot popup queue. It rides the day's first
- * claimed daily quest: waiting for the whole set is a moment too rare to be
- * worth measuring, and Plus users would have had to clear their unlocked Plus
- * quests too. Eligibility is a plain state check rather than a transition
- * watch, so the moment survives a reload — someone who claimed hours ago
- * still gets it on their next visit — and the persisted day stamp keeps it to
- * one showing.
+ * subject to the one-per-day boot popup queue.
+ *
+ * It reacts to the claim itself, which `useClaimQuestReward` publishes to the
+ * query cache — that being the one mutation every claim surface goes through.
+ * Eligibility used to be the standing fact of having claimed today, which
+ * stayed true on a later visit and delivered the reward detached from the
+ * action that earned it. The persisted day stamp still caps it at one
+ * showing, which is what holds a three-quest run to a single popup.
  */
 const QuestOffersTrigger = (): null => {
   const { openModal, modal } = useLazyModal();
@@ -54,6 +60,51 @@ const QuestOffersTrigger = (): null => {
 
   const summary = useMemo(() => getDailyQuestSummary(dashboard), [dashboard]);
 
+  // The last claim, published by `useClaimQuestReward` — the one mutation
+  // every claim surface goes through. Read the way `useLazyModal` reads the
+  // open modal: the query never fetches, it just observes the cache.
+  const claimKey = useMemo(() => questClaimQueryKey(user), [user]);
+  const { data: claim } = useQuery<QuestClaim | null>({
+    queryKey: claimKey,
+    queryFn: () => queryClient.getQueryData<QuestClaim>(claimKey) ?? null,
+    enabled: false,
+  });
+
+  // Any real claim is a reward moment — daily, weekly and milestone all
+  // qualify. Intro quests do not: they are the onboarding flow, they have
+  // their own celebration in IntroQuestModal, and since that is a LazyModal
+  // this trigger would defer behind it and land a sponsored offer as
+  // someone's first-run experience.
+  const pendingClaim =
+    claim && claim.questType !== QuestType.Intro ? claim : null;
+
+  // A claim is a one-shot, not a flag. One never acted on has to expire, or it
+  // stops being a moment and becomes a standing fact again: a tab left open
+  // past midnight would find the day stamp cleared and open on no action, and
+  // an offers query that later refetched into inventory would open at an
+  // arbitrary point with no claim behind it. Keyed on the claim itself, so a
+  // second claim refreshes the window rather than riding the first one's.
+  useEffect(() => {
+    if (!claim) {
+      return undefined;
+    }
+
+    // Clear an ignored claim rather than leaving it parked, so the cache entry
+    // always means "the pending moment" and not merely "the last claim".
+    if (!pendingClaim) {
+      queryClient.setQueryData(claimKey, null);
+
+      return undefined;
+    }
+
+    const timer = window.setTimeout(
+      () => queryClient.setQueryData(claimKey, null),
+      CLAIM_WINDOW_MS,
+    );
+
+    return () => window.clearTimeout(timer);
+  }, [claim, claimKey, pendingClaim, queryClient]);
+
   // Both day stamps are independent idb reads. Gating on both means the
   // eligibility effect below can never be short-circuited on an unresolved
   // stamp while this one has already opened the modal and flipped `shouldShow`
@@ -65,7 +116,7 @@ const QuestOffersTrigger = (): null => {
     !isLastSeenFetched,
     !isEligibleLogFetched,
     isTodayStamp(lastSeen),
-    !summary.claimed,
+    !pendingClaim,
     !!modal,
   ].some(Boolean);
 
@@ -121,6 +172,9 @@ const QuestOffersTrigger = (): null => {
       extra: JSON.stringify({
         enabled: offersEnabled,
         offers: offers?.length ?? 0,
+        // Daily, weekly and milestone all open this, so the denominator needs
+        // to be segmentable by what was actually claimed.
+        questType: pendingClaim?.questType ?? null,
         // `retry: false` means a 5xx or a dropped connection settles the query
         // with no offers, which is otherwise indistinguishable from healthy
         // but empty inventory — the third state worth telling apart.
@@ -139,6 +193,7 @@ const QuestOffersTrigger = (): null => {
     setEligibleLoggedAt,
     shouldShow,
     summary.claimed,
+    pendingClaim,
   ]);
 
   useEffect(() => {
@@ -146,10 +201,8 @@ const QuestOffersTrigger = (): null => {
       return;
     }
 
-    // Control has no popup of its own to fall back to, and treatment with no
-    // inventory shows nothing — neither stamps the day, so a later visit can
-    // still catch offers once they exist.
-    if (!offersEnabled || areOffersPending || !offers?.length || !dashboard) {
+    // Still waiting on the fetch, so the claim is not spent yet.
+    if (offersEnabled && areOffersPending) {
       return;
     }
 
@@ -157,7 +210,19 @@ const QuestOffersTrigger = (): null => {
     // three independent writers to this key (BootPopups, StreakMilestonePopup,
     // this) whose effects all run in the same commit. Read the live value so
     // we don't overwrite a sibling's popup that landed microseconds earlier.
+    // The claim stays unspent so this can still land when that popup closes,
+    // bounded by CLAIM_WINDOW_MS rather than waiting indefinitely.
     if (queryClient.getQueryData(MODAL_KEY)) {
+      return;
+    }
+
+    // Decision time. Spend the claim whichever way this goes: control has no
+    // popup of its own, and a treatment that came back empty must not be
+    // revived by a later refetch landing inventory long after the claim.
+    // Neither stamps the day, so a genuine later claim can still show.
+    queryClient.setQueryData(claimKey, null);
+
+    if (!offersEnabled || !offers?.length || !dashboard) {
       return;
     }
 
@@ -179,6 +244,7 @@ const QuestOffersTrigger = (): null => {
     });
   }, [
     areOffersPending,
+    claimKey,
     dashboard,
     isOffersFeatureLoading,
     offers,

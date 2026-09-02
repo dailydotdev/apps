@@ -1,5 +1,8 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { LayoutVariantContext } from '../../contexts/LayoutVariantContext';
+import type { LayoutVariant } from '../../lib/layoutVariant';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { useViewSize } from '../useViewSize';
 import { useLayoutVariant } from './useLayoutVariant';
@@ -87,5 +90,92 @@ describe('useLayoutVariant', () => {
     expect(mockedUseConditionalFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: true }),
     );
+  });
+});
+
+describe('useLayoutVariant with a server-resolved shell', () => {
+  const wrapper = (variant: LayoutVariant) => {
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
+      <LayoutVariantContext.Provider value={variant}>
+        {children}
+      </LayoutVariantContext.Provider>
+    );
+    Wrapper.displayName = 'LayoutVariantWrapper';
+
+    return Wrapper;
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockedUseAuthContext.mockReturnValue({ isAuthReady: true });
+    mockedUseViewSize.mockReturnValue(true);
+  });
+
+  it('keeps the painted shell while the flag is still resolving', () => {
+    mockedUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: true,
+    });
+
+    const { result } = renderHook(() => useLayoutVariant(), {
+      wrapper: wrapper('v2'),
+    });
+
+    expect(result.current).toEqual({ isV2: true, isLoading: false });
+  });
+
+  it('holds the shell through the first client render', () => {
+    mockedUseAuthContext.mockReturnValue({ isAuthReady: false });
+    mockedUseViewSize.mockReturnValue(false);
+    mockedUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: true,
+    });
+
+    const { result } = renderHook(() => useLayoutVariant(), {
+      wrapper: wrapper('v2'),
+    });
+
+    expect(result.current.isV2).toBe(true);
+  });
+
+  it('drops the shell once the flag resolves against it', () => {
+    mockedUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useLayoutVariant(), {
+      wrapper: wrapper('v2'),
+    });
+
+    expect(result.current.isV2).toBe(false);
+  });
+
+  it('keeps the shell when the flag agrees', () => {
+    mockedUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useLayoutVariant(), {
+      wrapper: wrapper('v2'),
+    });
+
+    expect(result.current.isV2).toBe(true);
+  });
+
+  it('drops the shell below laptop once auth has resolved', () => {
+    mockedUseViewSize.mockReturnValue(false);
+    mockedUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: true,
+    });
+
+    const { result } = renderHook(() => useLayoutVariant(), {
+      wrapper: wrapper('v2'),
+    });
+
+    expect(result.current.isV2).toBe(false);
   });
 });
