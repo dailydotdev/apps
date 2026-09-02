@@ -62,12 +62,12 @@ export const GiftHeadline = ({
   >
     <h3 className="font-bold typo-title2">
       Here&apos;s a little{' '}
-      <span className="text-accent-bacon-default">gift</span> from us
+      <span className="text-accent-cabbage-default">gift</span> from us
     </h3>
     <p className="text-text-tertiary typo-callout">
       {count > 1
         ? 'Choose one of our partner offers below'
-        : 'A partner offer, on your streak'}
+        : 'A partner offer, on your quests'}
     </p>
   </div>
 );

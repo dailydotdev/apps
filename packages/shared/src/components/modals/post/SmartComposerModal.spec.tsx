@@ -53,7 +53,11 @@ jest.mock('../../post/composer/useComposerSubmit', () => ({
 }));
 
 jest.mock('../../post/composer/AudienceChip', () => ({
-  AudienceChip: () => null,
+  AudienceChip: () => (
+    <button type="button" aria-label="Posting to Squad. Open audience menu.">
+      Squad
+    </button>
+  ),
 }));
 
 jest.mock('../../post/composer/KindModePicker', () => ({
@@ -64,9 +68,13 @@ jest.mock('../../post/composer/PollForm', () => ({
   PollForm: () => null,
 }));
 
-jest.mock('../../post/composer/TextForm', () => ({
-  TextForm: () => null,
-}));
+jest.mock('../../post/composer/TextForm', () => {
+  const ReactActual = jest.requireActual('react') as typeof React;
+  const TextForm = ReactActual.forwardRef(() => null);
+  TextForm.displayName = 'TextForm';
+
+  return { TextForm };
+});
 
 jest.mock('../../tooltip/Tooltip', () => ({
   Tooltip: ({ children }: React.PropsWithChildren) => children,
@@ -98,6 +106,11 @@ describe('SmartComposerModal', () => {
   const showPrompt = jest.fn();
   const onSubmitted = jest.fn();
   const onRequestClose = jest.fn();
+  const squadAudience = {
+    id: 'squad-1',
+    name: 'Squad',
+    handle: 'squad',
+  };
   let handleSubmit: jest.Mock;
 
   beforeEach(() => {
@@ -129,15 +142,12 @@ describe('SmartComposerModal', () => {
       onSubmitted,
     } as unknown as ReturnType<typeof useNotificationToggle>);
     jest.mocked(useComposerAudience).mockReturnValue({
-      audiences: [],
-      selectedIds: ['squad-1'],
-      selected: [
-        {
-          id: 'squad-1',
-          name: 'Squad',
-          handle: 'squad',
-        },
+      audiences: [
+        { id: 'user-1', name: 'Everyone', handle: 'user' },
+        squadAudience,
       ],
+      selectedIds: ['squad-1'],
+      selected: [squadAudience],
       setSelectedIds: jest.fn(),
       userAudienceId: 'user-1',
     } as unknown as ReturnType<typeof useComposerAudience>);
@@ -258,6 +268,27 @@ describe('SmartComposerModal', () => {
     expect(
       screen.queryByRole('button', { name: 'Expand composer' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('keeps the audience selector in the mobile full-screen drawer header', () => {
+    jest.mocked(useViewSize).mockReturnValue(false);
+
+    renderWithClient(
+      <SmartComposerModal
+        isOpen
+        initialKind="link"
+        onRequestClose={onRequestClose}
+      />,
+    );
+
+    const audience = screen.getByRole('button', {
+      name: 'Posting to Squad. Open audience menu.',
+    });
+    const form = document.getElementById('smart_composer');
+
+    expect(form).toBeInTheDocument();
+    expect(form).toContainElement(audience);
+    expect(audience.closest('.fixed')).toHaveClass('top-0');
   });
 
   it('keeps the expand control on desktop', () => {

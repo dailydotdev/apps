@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { UserOffer } from '../../../graphql/offers';
+import type { DailyQuestSummary } from '../../../hooks/useQuestDashboard';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   ClaimedChip,
@@ -10,7 +11,7 @@ import {
   OfferLogo,
   offerBadgeLabels,
 } from './common';
-import { StreakOfferCelebrationCompact } from './StreakOfferCelebration';
+import { QuestOfferCelebrationCompact } from './QuestOfferCelebration';
 
 const CARD_STEP = 13; // rem: card width plus gap, used to slide the track.
 const SWIPE_THRESHOLD = 48; // px of travel before a swipe counts as a move.
@@ -33,7 +34,7 @@ const CarouselCard = ({
     )}
   >
     {offer.badgeLabel && (
-      <span className="rounded-max bg-overlay-float-bacon px-2.5 py-0.5 font-bold typo-caption2">
+      <span className="rounded-max bg-overlay-float-cabbage px-2.5 py-0.5 font-bold typo-caption2">
         {offerBadgeLabels[offer.badgeLabel]}
       </span>
     )}
@@ -49,15 +50,19 @@ const CarouselCard = ({
   </button>
 );
 
-export const StreakOfferCarousel = ({
-  currentStreak,
+export const QuestOfferCarousel = ({
+  level,
+  levelProgress,
+  summary,
   offers,
   claimedUids,
   onClaim,
   onDecline,
   onVisible,
 }: {
-  currentStreak: number;
+  level: number;
+  levelProgress: number;
+  summary: DailyQuestSummary;
   offers: UserOffer[];
   claimedUids: Set<string>;
   onClaim: (offer: UserOffer) => void;
@@ -122,9 +127,13 @@ export const StreakOfferCarousel = ({
 
   return (
     <div className="flex w-full flex-col">
-      <StreakOfferCelebrationCompact currentStreak={currentStreak}>
+      <QuestOfferCelebrationCompact
+        level={level}
+        levelProgress={levelProgress}
+        summary={summary}
+      >
         <GiftHeadline count={offers.length} centered className="pt-1" />
-      </StreakOfferCelebrationCompact>
+      </QuestOfferCelebrationCompact>
 
       <div className="flex flex-col items-center gap-4 py-5">
         {/* The track slides rather than scrolls, so the centred card is always
@@ -176,7 +185,7 @@ export const StreakOfferCarousel = ({
                 className={classNames(
                   'h-2 rounded-max transition-[width,background-color] duration-200',
                   dotIndex === index
-                    ? 'w-5 bg-accent-bacon-default'
+                    ? 'w-5 bg-accent-cabbage-default'
                     : 'w-2 bg-surface-hover',
                 )}
               />
