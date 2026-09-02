@@ -237,7 +237,7 @@ const FeedSettingsScreen = ({
 
 /* ------------------------------------------------------- the recipient side */
 
-type LandingSpot = 'preview' | 'added' | 'limit';
+type LandingSpot = 'preview' | 'added' | 'signin' | 'limit';
 
 const TAGS = [
   '#typescript',
@@ -264,7 +264,7 @@ const LandingScreen = ({
     <div className="flex flex-col items-center gap-4 p-6 text-center">
       <img alt="" className="size-14 rounded-full object-cover" src={AVATAR} />
 
-      {spot === 'added' ? (
+      {spot === 'added' && (
         <>
           <h1 className="font-bold text-text-primary typo-title2">
             Tomer&apos;s feed is yours now
@@ -274,7 +274,19 @@ const LandingScreen = ({
             it — from here it is your feed, not a copy of theirs.
           </p>
         </>
-      ) : (
+      )}
+      {spot === 'signin' && (
+        <>
+          <h1 className="font-bold text-text-primary typo-title2">
+            Sign in to add Tomer&apos;s feed
+          </h1>
+          <p className="text-text-tertiary typo-callout">
+            A feed lives in an account, so there is nowhere to put this one
+            yet. Sign in or sign up, then open the link again.
+          </p>
+        </>
+      )}
+      {(spot === 'preview' || spot === 'limit') && (
         <>
           <h1 className="font-bold text-text-primary typo-title2">
             Tomer shared a feed with you
@@ -299,34 +311,40 @@ const LandingScreen = ({
 
       {spot === 'limit' && (
         <p className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3 text-text-tertiary typo-footnote">
-          You have reached the maximum number of feeds. Free up a slot, or open
-          it once without keeping it.
+          You have reached the maximum number of feeds. Delete one, or upgrade
+          to Plus, and open this link again.
         </p>
       )}
 
       <div className="mt-2 flex flex-col items-center gap-2">
-        {spot === 'added' ? (
+        {spot === 'added' && (
           <Button size={ButtonSize.Medium} variant={ButtonVariant.Primary}>
             Open the feed
           </Button>
-        ) : (
-          <>
-            <Button
-              disabled={spot === 'limit'}
-              icon={<PlusIcon />}
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Primary}
-            >
-              Add to my feeds
-            </Button>
-            <Button size={ButtonSize.Small} variant={ButtonVariant.Tertiary}>
-              Just show me the posts
-            </Button>
-          </>
+        )}
+        {spot === 'signin' && (
+          <Button size={ButtonSize.Medium} variant={ButtonVariant.Primary}>
+            Sign in
+          </Button>
+        )}
+        {(spot === 'preview' || spot === 'limit') && (
+          <Button
+            disabled={spot === 'limit'}
+            icon={<PlusIcon />}
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Primary}
+          >
+            Add to my feeds
+          </Button>
         )}
       </div>
 
-      <div className="mt-2 w-full flex flex-col gap-2 text-left">
+      {/* A sample of what the feed holds, not a reading surface: nothing here
+          is a link, so the only way in is to add the feed. */}
+      <div
+        aria-hidden
+        className="mt-2 flex w-full flex-col gap-2 text-left opacity-60 pointer-events-none"
+      >
         {[
           'Why iconic tech brands lost their dominance',
           'The case against microservices',
@@ -401,7 +419,7 @@ const CopyMyFeed = () => (
     >
       <Variant
         headline="Tomer shared a feed with you"
-        note="Names what will happen before it happens: a new feed called ‘Tomer's feed’, with 6 tags and 4 sources. ‘Just show me the posts’ is the escape hatch for anyone who wants to look without keeping it."
+        note="Names what will happen before it happens: a new feed called ‘Tomer's feed’, with 6 tags and 4 sources. One action only — the posts underneath are a sample of what the feed holds, dimmed and not pressable, so adding the feed is the only way in."
         step="Preview"
       >
         <LandingRails spot="preview" />
@@ -414,8 +432,15 @@ const CopyMyFeed = () => (
         <LandingRails spot="added" />
       </Variant>
       <Variant
+        headline="Not signed in"
+        note="Decided: a feed lives in an account, so there is nowhere to put a shared one without a session. Sign in or sign up, then open the link again. No read-only preview — which is also why the sample posts below are not links."
+        step="No session"
+      >
+        <LandingRails spot="signin" />
+      </Variant>
+      <Variant
         headline="Out of feed slots"
-        note="A real failure state, not an edge case: custom feeds are capped and FeedSettingsCreate already handles the limit error. A shared link that dead-ends here wastes the share, so it still offers the read-only view."
+        note="A real failure state, not an edge case: custom feeds are capped and FeedSettingsCreate already handles the limit error. The only ways out are deleting a feed or upgrading, so the copy has to name both."
         step="Feed limit"
       >
         <LandingRails spot="limit" />
@@ -423,44 +448,45 @@ const CopyMyFeed = () => (
     </Category>
 
     <Category
-      covers="open questions"
-      title="What this needs before it can ship"
-      verdict="Four things, and only the first is frontend work. Worth naming now because the recipient flow is what makes the share worth anything, and three of the four are not ours to build."
+      covers="decisions and what is still open"
+      title="Settled, and what is left"
+      verdict="Three of the four are answered. Only the first is frontend work, and only the last still needs a call."
     >
       <Variant
         headline="A shareable representation of a private feed"
-        note="Feeds are user-scoped today. Sharing one needs a token or slug that resolves to its tags and sources for someone who does not own it — read-only, revocable, and not leaking the feed's name or the owner's other feeds. That is the whole feature, and it is backend."
+        note="Still the whole feature, and it is backend. Feeds are user-scoped today, so sharing one needs a token or slug that resolves to its tags and sources for someone who does not own it — read-only, revocable, and not leaking the owner's other feeds."
         step="1 · Backend"
       >
         <div />
       </Variant>
       <Variant
-        headline="A clone mutation, not a live subscription"
-        note="Decide once: is the recipient's feed a copy taken at that moment, or does it track the original? A copy is simpler, matches ‘from here it is your feed’, and avoids someone's edits silently changing other people's feeds. Recommended: copy."
-        step="2 · Product"
+        headline="A copy, taken at the moment it is added"
+        note="Decided. Not a live subscription: the recipient's feed is theirs to rename and edit from the moment they add it, and the sharer's later edits never reach into other people's accounts. It also means the sharer can delete their feed without breaking anyone else's."
+        step="2 · Decided"
       >
         <div />
       </Variant>
       <Variant
-        headline="What a logged-out visitor sees"
-        note="A feed link will land on people without accounts — that is the point of sharing it. They need the read-only post list and a signup path that keeps the feed waiting for them, or the best shares in the flow are the ones that convert worst."
-        step="3 · Product"
+        headline="Sign-in required, no logged-out preview"
+        note="Decided. Anyone without a session gets the sign-in state above and opens the link again afterwards. Worth building the redirect back to the link into the auth flow anyway — asking someone to find the message again is where most of them will drop."
+        step="3 · Decided"
       >
         <div />
       </Variant>
       <Variant
-        headline="Plus gating and the feed cap"
-        note="Custom feeds are limited. If a shared feed consumes a slot, heavy sharers hit the cap first — the people the feature depends on. Worth deciding whether an added feed counts against the limit before the link exists."
-        step="4 · Product"
+        headline="Open: does an added feed use up a feed slot?"
+        note="Custom feeds are capped per account. If a shared feed counts against that cap like any other, then the people who receive the most feeds run out first — and they are the same people the feature spreads through. Two options: it counts, and heavy recipients hit ‘delete one or upgrade’ quickly; or added feeds are exempt up to some number, which costs a rule to explain but keeps the loop open. Recommended: it counts, because an exemption is a second kind of feed to maintain — but this is a growth call, not a frontend one."
+        step="4 · Needs a call"
       >
         <div />
       </Variant>
     </Category>
+
   </SurfacePage>
 );
 
 const meta: Meta<typeof CopyMyFeed> = {
-  title: 'Features/Snapshot/Surfaces/Copy my feed',
+  title: 'Features/Snapshot/Surfaces/Share my feed',
   component: CopyMyFeed,
   parameters: { layout: 'fullscreen' },
 };
