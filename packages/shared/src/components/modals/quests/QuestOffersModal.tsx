@@ -1,35 +1,44 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import type { UserOffer } from '../../../graphql/offers';
 import { confirmOffersDelivered } from '../../../graphql/offers';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
+import type { DailyQuestSummary } from '../../../hooks/useQuestDashboard';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
-import { StreakOfferCarousel } from '../../streak/offers/StreakOfferCarousel';
-import { StreakOfferSplit } from '../../streak/offers/StreakOfferSplit';
+import { QuestOfferCarousel } from '../../quest/offers/QuestOfferCarousel';
+import { QuestOfferSplit } from '../../quest/offers/QuestOfferSplit';
 import { Modal } from '../common/Modal';
 import { ModalClose } from '../common/ModalClose';
 import type { LazyModalCommonProps, ModalProps } from '../common/Modal';
 
-export type StreakOffersModalProps = LazyModalCommonProps &
+export type QuestOffersModalProps = LazyModalCommonProps &
   Pick<ModalProps, 'ariaHideApp'> & {
-    currentStreak: number;
+    level: number;
+    levelProgress: number;
+    summary: DailyQuestSummary;
     offers: UserOffer[];
+    /** Stamps the once-per-day guard. Called on mount, so it can only be
+     * written for a popup that actually reached the screen. */
+    onShown?: () => void;
   };
 
-export default function StreakOffersModal({
-  currentStreak,
+export default function QuestOffersModal({
+  level,
+  levelProgress,
+  summary,
   offers,
+  onShown,
   onRequestClose,
   ...props
-}: StreakOffersModalProps): ReactElement {
+}: QuestOffersModalProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const queryClient = useQueryClient();
-  const { user } = useAuthContext();
+  // The two layouts deliver offers differently — the split renders all of them
+  // at once, the carousel one card at a time — so impressions are only
+  // comparable when segmented by which one the user saw.
+  const variant = isMobile ? 'carousel' : 'split';
   const { logEvent } = useLogContext();
   const [claimedUids, setClaimedUids] = useState<Set<string>>(new Set());
   const [deliveredUids] = useState<Set<string>>(new Set());
@@ -39,24 +48,21 @@ export default function StreakOffersModal({
 
   useLogEventOnce(() => ({
     event_name: LogEvent.Impression,
-    target_type: TargetType.StreaksMilestone,
-    target_id: currentStreak?.toString(),
+    target_type: TargetType.QuestsCompleted,
+    target_id: summary.claimed.toString(),
+    extra: JSON.stringify({ variant, offers: offers.length }),
   }));
 
-  const invalidatedStreak = useRef(false);
+  const stamped = useRef(false);
 
   useEffect(() => {
-    if (invalidatedStreak.current) {
+    if (stamped.current) {
       return;
     }
 
-    invalidatedStreak.current = true;
-    // the streaks query is cached with a staleTime; the popup moment is when
-    // it must refresh (mirrors NewStreakModal)
-    queryClient.invalidateQueries({
-      queryKey: generateQueryKey(RequestKey.UserStreak, user),
-    });
-  }, [queryClient, user]);
+    stamped.current = true;
+    onShown?.();
+  }, [onShown]);
 
   // Render-then-confirm: each offer is confirmed once, at the moment it
   // becomes visible. Encore does not dedupe, so the set guards replays.
@@ -75,33 +81,35 @@ export default function StreakOffersModal({
       fresh.forEach((offer) =>
         logEvent({
           event_name: LogEvent.Impression,
-          target_type: TargetType.StreakOffer,
+          target_type: TargetType.QuestOffer,
           target_id: offer.impressionUid,
           extra: JSON.stringify({
             brand: offer.advertiserName,
-            streak: currentStreak,
+            questsCompleted: summary.claimed,
+            variant,
           }),
         }),
       );
     },
-    [confirmDelivered, currentStreak, deliveredUids, logEvent],
+    [confirmDelivered, deliveredUids, logEvent, summary.claimed, variant],
   );
 
   const onClaim = useCallback(
     (offer: UserOffer) => {
       logEvent({
         event_name: LogEvent.Click,
-        target_type: TargetType.StreakOffer,
+        target_type: TargetType.QuestOffer,
         target_id: offer.impressionUid,
         extra: JSON.stringify({
           brand: offer.advertiserName,
-          streak: currentStreak,
+          questsCompleted: summary.claimed,
+          variant,
         }),
       });
       window.open(offer.clickUrl, '_blank', 'noopener,noreferrer');
       setClaimedUids((current) => new Set(current).add(offer.impressionUid));
     },
-    [currentStreak, logEvent],
+    [logEvent, summary.claimed, variant],
   );
 
   // Every dismissal path (X, backdrop, escape, "No thanks") funnels through
@@ -116,13 +124,17 @@ export default function StreakOffersModal({
 
       dismissLogged.current = true;
       logEvent({
-        event_name: LogEvent.DismissStreakOffers,
-        target_type: TargetType.StreakOffer,
-        target_id: currentStreak?.toString(),
-        extra: JSON.stringify({ method, claimed: claimedUids.size }),
+        event_name: LogEvent.DismissQuestOffers,
+        target_type: TargetType.QuestOffer,
+        target_id: summary.claimed.toString(),
+        extra: JSON.stringify({
+          method,
+          claimed: claimedUids.size,
+          variant,
+        }),
       });
     },
-    [claimedUids.size, currentStreak, logEvent],
+    [claimedUids.size, logEvent, summary.claimed, variant],
   );
 
   const onClose = useCallback(
@@ -152,8 +164,10 @@ export default function StreakOffersModal({
       <Modal.Body className="relative overflow-hidden rounded-t-16 !p-0 tablet:rounded-16">
         <ModalClose onClick={onClose} className="right-4 top-4 z-2" />
         {isMobile ? (
-          <StreakOfferCarousel
-            currentStreak={currentStreak}
+          <QuestOfferCarousel
+            level={level}
+            levelProgress={levelProgress}
+            summary={summary}
             offers={offers}
             claimedUids={claimedUids}
             onClaim={onClaim}
@@ -161,8 +175,10 @@ export default function StreakOffersModal({
             onVisible={onVisible}
           />
         ) : (
-          <StreakOfferSplit
-            currentStreak={currentStreak}
+          <QuestOfferSplit
+            level={level}
+            levelProgress={levelProgress}
+            summary={summary}
             offers={offers}
             claimedUids={claimedUids}
             onClaim={onClaim}

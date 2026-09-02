@@ -1,17 +1,6 @@
 import type { ComponentType } from 'react';
 import type { IconProps } from '../../components/Icon';
-import {
-  AiIcon,
-  BulletListIcon,
-  FeatherIcon,
-  FilterIcon,
-  HotIcon,
-  MagicIcon,
-  SettingsIcon,
-  SourceIcon,
-  TerminalIcon,
-  TimerIcon,
-} from '../../components/icons';
+import { SettingsIcon, TerminalIcon, TimerIcon } from '../../components/icons';
 
 export type AgentCommand = {
   name: string;
@@ -27,93 +16,6 @@ export type AgentCommand = {
 };
 
 export const agentCommands: AgentCommand[] = [
-  {
-    name: 'explore',
-    label: 'Explore more',
-    description: 'Widen the hunt past what it has already found.',
-    icon: MagicIcon,
-    hint: '[angle]',
-    ask: 'What angle? Or send it as it is…',
-    prompt: (args) =>
-      args
-        ? `Explore more around ${args}`
-        : 'Explore more. Widen the hunt past what you have already found',
-  },
-  {
-    name: 'write',
-    label: 'Write a post',
-    description: "Draft something publishable out of this run's findings.",
-    icon: FeatherIcon,
-    hint: '[format]',
-    ask: 'What format? Or send it as it is…',
-    prompt: (args) =>
-      args
-        ? `Write me ${args} from what you found`
-        : 'Write me a post summarising what you found',
-  },
-  {
-    name: 'raise-bar',
-    label: 'Raise the bar',
-    description: 'Tighten what counts as worth sending from now on.',
-    icon: AiIcon,
-    hint: '[what counts]',
-    ask: 'What should count from now on? Or send it as it is…',
-    prompt: (args) =>
-      args
-        ? `Raise the bar. From now on only surface ${args}`
-        : 'Raise the bar. Only surface top-tier content from now on',
-  },
-  {
-    name: 'sources',
-    label: 'Tune sources',
-    description: 'Add or drop the places it looks.',
-    icon: SourceIcon,
-    hint: '[add or drop]',
-    ask: 'What to add or drop? Or send it as it is…',
-    prompt: (args) =>
-      args
-        ? `Change where you look: ${args}`
-        : 'Show me where you are looking and what you would add or drop',
-  },
-  {
-    name: 'schedule',
-    label: 'Change cadence',
-    description: 'How often it reports, or let it decide.',
-    icon: TimerIcon,
-    hint: '[how often]',
-    ask: 'How often? Or send it as it is…',
-    prompt: (args) =>
-      args
-        ? `Report ${args} from now on`
-        : 'How often are you reporting right now?',
-  },
-  {
-    name: 'why',
-    label: 'Explain a pick',
-    description: 'What made something clear the bar, in its own words.',
-    icon: FilterIcon,
-    hint: '[which pick]',
-    ask: 'Which pick? Or send it as it is…',
-    prompt: (args) =>
-      args
-        ? `Explain why ${args} cleared the bar`
-        : 'Explain why your latest pick cleared the bar',
-  },
-  {
-    name: 'recap',
-    label: 'Recap',
-    description: 'A written summary of everything since the last one.',
-    icon: BulletListIcon,
-    prompt: () => 'Recap everything you have found since the last summary',
-  },
-  {
-    name: 'trending',
-    label: 'What is moving',
-    description: 'What the rest of daily.dev is reading on this topic.',
-    icon: HotIcon,
-    prompt: () =>
-      'What is moving on this topic across daily.dev right now, whether or not it cleared my bar?',
-  },
   {
     name: 'settings',
     label: 'Open settings',
@@ -136,8 +38,6 @@ export const agentCommands: AgentCommand[] = [
     opens: 'debug',
   },
 ];
-
-export const quickCommandNames = ['explore', 'write', 'raise-bar'];
 
 export const findCommand = (name: string): AgentCommand | undefined =>
   agentCommands.find((command) => command.name === name);
