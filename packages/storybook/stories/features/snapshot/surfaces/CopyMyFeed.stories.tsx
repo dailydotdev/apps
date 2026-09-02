@@ -7,6 +7,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   AiIcon,
+  AlertIcon,
   ArrowIcon,
   BlockIcon,
   CopyIcon,
@@ -14,6 +15,7 @@ import {
   FilterIcon,
   HashtagIcon,
   LinkIcon,
+  MiniCloseIcon,
   PlusIcon,
   PlusUserIcon,
   StarIcon,
@@ -309,12 +311,7 @@ const LandingScreen = ({
         ))}
       </div>
 
-      {spot === 'limit' && (
-        <p className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3 text-text-tertiary typo-footnote">
-          You have reached the maximum number of feeds. Delete one, or upgrade
-          to Plus, and open this link again.
-        </p>
-      )}
+
 
       <div className="mt-2 flex flex-col items-center gap-2">
         {spot === 'added' && (
@@ -329,7 +326,6 @@ const LandingScreen = ({
         )}
         {(spot === 'preview' || spot === 'limit') && (
           <Button
-            disabled={spot === 'limit'}
             icon={<PlusIcon />}
             size={ButtonSize.Medium}
             variant={ButtonVariant.Primary}
@@ -338,6 +334,22 @@ const LandingScreen = ({
           </Button>
         )}
       </div>
+
+      {spot === 'limit' && (
+        <div className="invert mt-2 flex w-full flex-row items-center gap-2.5 rounded-12 border border-border-subtlest-tertiary bg-background-default py-2 pl-3 pr-2 shadow-3">
+          <AlertIcon className="shrink-0 text-status-error" />
+          <span className="min-w-0 flex-1 text-left font-medium text-text-primary typo-subhead">
+            You&apos;ve reached the maximum number of feeds. Delete one or
+            upgrade to Plus to add this feed.
+          </span>
+          <Button
+            aria-label="Close"
+            icon={<MiniCloseIcon />}
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+          />
+        </div>
+      )}
 
       {/* A sample of what the feed holds, not a reading surface: nothing here
           is a link, so the only way in is to add the feed. */}
@@ -439,8 +451,8 @@ const CopyMyFeed = () => (
         <LandingRails spot="signin" />
       </Variant>
       <Variant
-        headline="Out of feed slots"
-        note="A real failure state, not an edge case: custom feeds are capped and FeedSettingsCreate already handles the limit error. The only ways out are deleting a feed or upgrading, so the copy has to name both."
+        headline="Out of feed slots — an error toast"
+        note="Decided: the button stays live and the failure comes back as an error toast that says why, naming both ways out. Nothing is disabled up front — we cannot know the recipient is at their cap until they press, and a dead button explains nothing. FeedSettingsCreate already turns this API error into a toast today."
         step="Feed limit"
       >
         <LandingRails spot="limit" />
@@ -449,8 +461,8 @@ const CopyMyFeed = () => (
 
     <Category
       covers="decisions and what is still open"
-      title="Settled, and what is left"
-      verdict="Three of the four are answered. Only the first is frontend work, and only the last still needs a call."
+      title="Decisions"
+      verdict="All four answered. Only the first is work we do not own — the rest are product calls, now made."
     >
       <Variant
         headline="A shareable representation of a private feed"
@@ -474,9 +486,9 @@ const CopyMyFeed = () => (
         <div />
       </Variant>
       <Variant
-        headline="Open: does an added feed use up a feed slot?"
-        note="Custom feeds are capped per account. If a shared feed counts against that cap like any other, then the people who receive the most feeds run out first — and they are the same people the feature spreads through. Two options: it counts, and heavy recipients hit ‘delete one or upgrade’ quickly; or added feeds are exempt up to some number, which costs a rule to explain but keeps the loop open. Recommended: it counts, because an exemption is a second kind of feed to maintain — but this is a growth call, not a frontend one."
-        step="4 · Needs a call"
+        headline="An added feed uses a feed slot"
+        note="Decided: it counts, like any feed you made yourself, and hitting the cap surfaces as the error toast above rather than a special case. One kind of feed, one limit, one message. Worth watching once it ships: heavy recipients are the same people the feature spreads through, so if the cap starts biting them we will see it in add-rate before anyone reports it."
+        step="4 · Decided"
       >
         <div />
       </Variant>
