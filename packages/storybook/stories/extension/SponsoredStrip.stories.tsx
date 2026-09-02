@@ -467,9 +467,9 @@ const ROWS: Row[] = [
     cost: '40px of the feed column for the whole session; 72px once a value rail is docked under it',
     exposure: 'Every session, continuously',
     legibility:
-      'All twelve from ~1250px, then the wall trims to fit: 11 at 1200, 9 at 1000, 7 at 800, 1 at 375 — always whole marks',
+      'All twelve from ~1340px, then the wall trims to fit: 11 at 1250, 10 at 1200, 7 at 1000, 6 at 900, 5 at 800, 1 at 375 — always whole marks',
     mobile:
-      'Thin — the 196px lockup leaves room for one partner at 375px, and it lands on the browser’s own bottom chrome',
+      'Thin — the Google Cloud lockup leaves room for one partner at 375px, and it lands on the browser’s own bottom chrome',
   },
   {
     id: 'B',
