@@ -131,6 +131,13 @@ export type InterestTurnRelationship = {
   summary: string | null;
 };
 
+export enum InterestReplyStatus {
+  Queued = 'queued',
+  Running = 'running',
+  Completed = 'completed',
+  Failed = 'failed',
+}
+
 export type InterestTurn = {
   id: string;
   role: 'user' | 'agent';
@@ -140,6 +147,8 @@ export type InterestTurn = {
   status?: InterestRunStatus | null;
   trigger?: InterestRunTrigger | null;
   feedbackId?: string | null;
+  replyStatus?: InterestReplyStatus | null;
+  replyBlocks?: InterestRunBlock[] | null;
   blocks?: InterestRunBlock[] | null;
   findingsAdded?: number | null;
   summaryPostId?: string | null;
@@ -216,8 +225,8 @@ export const CREATE_INTEREST_MUTATION = `
 `;
 
 export const SEND_INTEREST_COMMAND_MUTATION = `
-  mutation SendInterestCommand($id: ID!, $text: String!, $triggerRun: Boolean, $questionId: String) {
-    sendInterestCommand(id: $id, text: $text, triggerRun: $triggerRun, questionId: $questionId) {
+  mutation SendInterestCommand($id: ID!, $text: String!, $runId: String, $reply: Boolean, $questionId: String) {
+    sendInterestCommand(id: $id, text: $text, runId: $runId, reply: $reply, questionId: $questionId) {
       id
     }
   }
@@ -273,6 +282,8 @@ export const INTEREST_HISTORY_QUERY = `
           status
           trigger
           feedbackId
+          replyStatus
+          replyBlocks
           blocks
           findingsAdded
           summaryPostId
@@ -393,17 +404,19 @@ export const completeInterestOnboarding = async (
 export const sendInterestCommand = async ({
   id,
   text,
-  triggerRun,
+  runId,
+  reply,
   questionId,
 }: {
   id: string;
   text: string;
-  triggerRun?: boolean;
+  runId?: string;
+  reply?: boolean;
   questionId?: string;
 }): Promise<Pick<UserInterest, 'id'>> => {
   const res = await gqlClient.request<{
     sendInterestCommand: Pick<UserInterest, 'id'>;
-  }>(SEND_INTEREST_COMMAND_MUTATION, { id, text, triggerRun, questionId });
+  }>(SEND_INTEREST_COMMAND_MUTATION, { id, text, runId, reply, questionId });
   return res.sendInterestCommand;
 };
 
@@ -435,6 +448,8 @@ export const INTEREST_RUN_QUERY = `
       status
       trigger
       feedbackId
+      replyStatus
+      replyBlocks
       blocks
       findingsAdded
       summaryPostId

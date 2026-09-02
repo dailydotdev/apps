@@ -1,10 +1,8 @@
 import {
   agentCommands,
   commandQuery,
-  findCommand,
   matchCommands,
   parseCommand,
-  quickCommandNames,
 } from './commands';
 
 describe('commandQuery', () => {
@@ -15,43 +13,24 @@ describe('commandQuery', () => {
   });
 
   it('returns the partial name while it is being typed', () => {
-    expect(commandQuery('/expl')).toBe('expl');
-    expect(commandQuery('/raise-bar')).toBe('raise-bar');
+    expect(commandQuery('/sett')).toBe('sett');
+    expect(commandQuery('/activity')).toBe('activity');
   });
 
   it('returns undefined once the field holds anything else', () => {
-    expect(commandQuery('/explore zig')).toBeUndefined();
+    expect(commandQuery('/settings now')).toBeUndefined();
     expect(commandQuery('hello')).toBeUndefined();
     expect(commandQuery('')).toBeUndefined();
-    expect(commandQuery('  /explore')).toBeUndefined();
+    expect(commandQuery('  /settings')).toBeUndefined();
   });
 });
 
 describe('parseCommand', () => {
   it('resolves a bare command with no arguments', () => {
-    const parsed = parseCommand('/recap');
+    const parsed = parseCommand('/settings');
 
-    expect(parsed?.command.name).toBe('recap');
+    expect(parsed?.command.name).toBe('settings');
     expect(parsed?.args).toBe('');
-  });
-
-  it('passes everything after the name through as arguments', () => {
-    const parsed = parseCommand('/explore  comptime and allocators ');
-
-    expect(parsed?.command.name).toBe('explore');
-    expect(parsed?.args).toBe('comptime and allocators');
-  });
-
-  it('handles a hyphenated name', () => {
-    expect(parseCommand('/raise-bar only benchmarks')?.command.name).toBe(
-      'raise-bar',
-    );
-  });
-
-  it('keeps newlines inside the arguments', () => {
-    expect(parseCommand('/write a post\nwith two paragraphs')?.args).toBe(
-      'a post\nwith two paragraphs',
-    );
   });
 
   it('is undefined for an unknown command or plain prose', () => {
@@ -61,17 +40,17 @@ describe('parseCommand', () => {
   });
 
   it('tolerates surrounding whitespace', () => {
-    expect(parseCommand('  /recap  ')?.command.name).toBe('recap');
+    expect(parseCommand('  /activity  ')?.command.name).toBe('activity');
   });
 });
 
 describe('matchCommands', () => {
   it('matches on the label as well as the name', () => {
-    expect(matchCommands('post').map(({ name }) => name)).toContain('write');
+    expect(matchCommands('open').map(({ name }) => name)).toContain('settings');
   });
 
   it('is case insensitive', () => {
-    expect(matchCommands('RECAP').map(({ name }) => name)).toEqual(['recap']);
+    expect(matchCommands('DEBUG').map(({ name }) => name)).toEqual(['debug']);
   });
 
   it('returns everything for an empty query, so a bare slash lists them all', () => {
@@ -96,34 +75,9 @@ describe('the command table', () => {
     });
   });
 
-  it('gives every command exactly one job: a prompt to send or a pane to open', () => {
+  it('never sends a prompt: feedback is what talks to the agent', () => {
     agentCommands.forEach(({ name, prompt, opens }) => {
-      expect([name, !!prompt !== !!opens]).toEqual([name, true]);
+      expect([name, prompt, !!opens]).toEqual([name, undefined, true]);
     });
-  });
-
-  it('writes a non-empty prompt with and without arguments', () => {
-    agentCommands.forEach(({ name, prompt }) => {
-      if (!prompt) {
-        return;
-      }
-
-      expect([name, prompt('').length > 0]).toEqual([name, true]);
-      expect([name, prompt('zig').length > 0]).toEqual([name, true]);
-    });
-  });
-
-  it('offers only real commands as quick buttons', () => {
-    quickCommandNames.forEach((name) => {
-      expect(findCommand(name)?.name).toBe(name);
-    });
-  });
-
-  it('gives every argument-taking command something to say about it', () => {
-    agentCommands
-      .filter(({ hint }) => hint)
-      .forEach(({ name, ask }) => {
-        expect([name, !!ask]).toEqual([name, true]);
-      });
   });
 });
