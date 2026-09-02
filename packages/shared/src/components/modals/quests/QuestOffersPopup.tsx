@@ -5,7 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import { LogEvent, TargetType } from '../../../lib/log';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import usePersistentContext, {
   PersistentContextKeys,
@@ -47,10 +49,17 @@ const QuestOffersTrigger = (): null => {
   const { openModal, modal } = useLazyModal();
   const { user } = useAuthContext();
   const { data: dashboard } = useQuestDashboard();
+  const { logEvent } = useLogContext();
   const [lastSeen, setLastSeen, isLastSeenFetched] = usePersistentContext<
     string | null
   >(PersistentContextKeys.QuestOffersLastSeen, null);
+  const [eligibleLoggedAt, setEligibleLoggedAt, isEligibleLogFetched] =
+    usePersistentContext<string | null>(
+      PersistentContextKeys.QuestOffersEligibleLogged,
+      null,
+    );
   const hasOpened = useRef(false);
+  const hasLoggedEligible = useRef(false);
 
   const summary = useMemo(() => getDailyQuestSummary(dashboard), [dashboard]);
 
@@ -77,6 +86,53 @@ const QuestOffersTrigger = (): null => {
     }),
     enabled: shouldShow && !isOffersFeatureLoading && offersEnabled,
   });
+
+  // The experiment's denominator. Control renders nothing, and so does a
+  // treatment that found no inventory — without this both arms are invisible
+  // in analytics and a dud experiment can't be told apart from missing Encore
+  // stock. Its own day stamp keeps it to one event per user per day in every
+  // arm, so the arms stay comparable by event count and not just by user.
+  useEffect(() => {
+    if (
+      hasLoggedEligible.current ||
+      !shouldShow ||
+      isOffersFeatureLoading ||
+      !isEligibleLogFetched ||
+      hasSeenToday(eligibleLoggedAt)
+    ) {
+      return;
+    }
+
+    // Control never enables the query, and a disabled query stays pending
+    // forever, so only the treatment arm has a fetch to wait on.
+    if (offersEnabled && areOffersPending) {
+      return;
+    }
+
+    hasLoggedEligible.current = true;
+    setEligibleLoggedAt(new Date().toISOString());
+
+    logEvent({
+      event_name: LogEvent.QuestOffersEligible,
+      target_type: TargetType.QuestOffer,
+      target_id: summary.claimed.toString(),
+      extra: JSON.stringify({
+        enabled: offersEnabled,
+        offers: offers?.length ?? 0,
+      }),
+    });
+  }, [
+    areOffersPending,
+    eligibleLoggedAt,
+    isEligibleLogFetched,
+    isOffersFeatureLoading,
+    logEvent,
+    offers,
+    offersEnabled,
+    setEligibleLoggedAt,
+    shouldShow,
+    summary.claimed,
+  ]);
 
   useEffect(() => {
     if (hasOpened.current || !shouldShow || isOffersFeatureLoading) {

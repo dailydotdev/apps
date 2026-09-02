@@ -15,17 +15,25 @@ import type { UserOffer } from '../../../graphql/offers';
 import { USER_OFFERS_QUERY } from '../../../graphql/offers';
 import { LazyModal } from '../common/types';
 import { MODAL_KEY } from '../../../hooks/useLazyModal';
+import { LogEvent, TargetType } from '../../../lib/log';
 import * as conditionalFeatureHook from '../../../hooks/useConditionalFeature';
 import * as questDashboardHook from '../../../hooks/useQuestDashboard';
 import { QuestOffersPopup } from './QuestOffersPopup';
 
 const mockSetLastSeen = jest.fn();
+const mockSetEligibleLoggedAt = jest.fn();
 let mockLastSeen: string | null = null;
+let mockEligibleLoggedAt: string | null = null;
 
+// The modal stamp and the eligibility-event stamp are deliberately separate,
+// so the mock has to keep them apart too.
 jest.mock('../../../hooks/usePersistentContext', () => ({
   ...jest.requireActual('../../../hooks/usePersistentContext'),
   __esModule: true,
-  default: () => [mockLastSeen, mockSetLastSeen, true, false],
+  default: (key: string) =>
+    key === 'quest_offers_last_seen'
+      ? [mockLastSeen, mockSetLastSeen, true, false]
+      : [mockEligibleLoggedAt, mockSetEligibleLoggedAt, true, false],
 }));
 
 const makeQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
@@ -70,6 +78,8 @@ const offers: UserOffer[] = [
   },
 ];
 
+const logEvent = jest.fn();
+
 const mockOffersResponse = (userOffers: UserOffer[]) => {
   nock.cleanAll();
   mockGraphQL({
@@ -96,7 +106,7 @@ const renderComponent = (dashboard: QuestDashboard | undefined) => {
   return {
     queryClient,
     ...render(
-      <TestBootProvider client={queryClient}>
+      <TestBootProvider client={queryClient} log={{ logEvent }}>
         <QuestOffersPopup />
       </TestBootProvider>,
     ),
@@ -106,6 +116,7 @@ const renderComponent = (dashboard: QuestDashboard | undefined) => {
 beforeEach(() => {
   jest.clearAllMocks();
   mockLastSeen = null;
+  mockEligibleLoggedAt = null;
   window.scrollTo = jest.fn();
   jest
     .spyOn(conditionalFeatureHook, 'useConditionalFeature')
@@ -249,6 +260,83 @@ it('shows nothing, and keeps the day unstamped, when no offers return', async ()
     expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined(),
   );
   expect(mockSetLastSeen).not.toHaveBeenCalled();
+});
+
+describe('eligibility logging', () => {
+  const expectEligible = (extra: Record<string, unknown>) =>
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.QuestOffersEligible,
+      target_type: TargetType.QuestOffer,
+      target_id: '1',
+      extra: JSON.stringify(extra),
+    });
+
+  it('logs the treatment arm with the offers it found', async () => {
+    renderComponent(makeDashboard([makeQuest()]));
+
+    await waitFor(() => expectEligible({ enabled: true, offers: 1 }));
+    expect(mockSetEligibleLoggedAt).toHaveBeenCalled();
+  });
+
+  // Without this the control arm is invisible and the experiment has no
+  // denominator to compare the treatment against.
+  it('logs the control arm, which renders nothing', async () => {
+    jest
+      .spyOn(conditionalFeatureHook, 'useConditionalFeature')
+      .mockReturnValue({ value: false, isLoading: false });
+
+    const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+
+    await waitFor(() => expectEligible({ enabled: false, offers: 0 }));
+    expect(queryClient.getQueryData(MODAL_KEY)).toBeUndefined();
+  });
+
+  // This is the case that cost us four rounds of debugging: treatment reached
+  // the moment but Encore had no stock, which looks identical to a dud
+  // experiment unless it is logged.
+  it('logs treatment separately when no offers came back', async () => {
+    mockOffersResponse([]);
+
+    renderComponent(makeDashboard([makeQuest()]));
+
+    await waitFor(() => expectEligible({ enabled: true, offers: 0 }));
+  });
+
+  it('logs once per day, on its own stamp', async () => {
+    mockEligibleLoggedAt = new Date().toISOString();
+
+    const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+
+    // Anchor on the modal opening: it proves the effects ran, so the absent
+    // eligibility event is a real suppression rather than a race won early.
+    await waitFor(() =>
+      expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+        type: LazyModal.QuestOffers,
+      }),
+    );
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.QuestOffersEligible,
+      }),
+    );
+    expect(mockSetEligibleLoggedAt).not.toHaveBeenCalled();
+  });
+
+  // The stamps are independent in the direction that matters: an earlier
+  // eligibility event — logged by control, or by a treatment that found no
+  // stock — must not stop the modal showing once offers do turn up.
+  it('still opens the modal when eligibility was already logged today', async () => {
+    mockEligibleLoggedAt = new Date().toISOString();
+
+    const { queryClient } = renderComponent(makeDashboard([makeQuest()]));
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(MODAL_KEY)).toMatchObject({
+        type: LazyModal.QuestOffers,
+      }),
+    );
+    expect(mockSetLastSeen).toHaveBeenCalled();
+  });
 });
 
 it('does not open for a user who opted out of the quest system', async () => {

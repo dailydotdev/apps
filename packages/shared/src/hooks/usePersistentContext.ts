@@ -68,4 +68,5 @@ export enum PersistentContextKeys {
   PendingOpportunityId = 'pending_opportunity_id',
   ReadingReminderLastSeen = 'reading_reminder_last_seen',
   QuestOffersLastSeen = 'quest_offers_last_seen',
+  QuestOffersEligibleLogged = 'quest_offers_eligible_logged',
 }

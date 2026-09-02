@@ -104,11 +104,19 @@ describe('QuestOffersModal', () => {
       ),
     );
     expect(mockConfirmDelivered).toHaveBeenCalledTimes(1);
+    // The variant has to ride every offer event: the split renders all offers
+    // at once and the carousel one at a time, so impression counts are only
+    // comparable when segmented by it.
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.Impression,
         target_type: TargetType.QuestOffer,
         target_id: offers[0].impressionUid,
+        extra: JSON.stringify({
+          brand: offers[0].advertiserName,
+          questsCompleted: 3,
+          variant: 'split',
+        }),
       }),
     );
   });
@@ -173,7 +181,11 @@ describe('QuestOffersModal', () => {
       expect.objectContaining({
         event_name: LogEvent.DismissQuestOffers,
         target_type: TargetType.QuestOffer,
-        extra: JSON.stringify({ method: 'close', claimed: 0 }),
+        extra: JSON.stringify({
+          method: 'close',
+          claimed: 0,
+          variant: 'split',
+        }),
       }),
     );
     expect(onRequestClose).toHaveBeenCalled();
@@ -231,7 +243,11 @@ describe('QuestOffersModal', () => {
       expect.objectContaining({
         event_name: LogEvent.DismissQuestOffers,
         target_type: TargetType.QuestOffer,
-        extra: JSON.stringify({ method: 'decline', claimed: 0 }),
+        extra: JSON.stringify({
+          method: 'decline',
+          claimed: 0,
+          variant: 'carousel',
+        }),
       }),
     );
     expect(onRequestClose).toHaveBeenCalled();

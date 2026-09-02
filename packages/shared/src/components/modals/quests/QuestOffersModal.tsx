@@ -31,6 +31,10 @@ export default function QuestOffersModal({
   ...props
 }: QuestOffersModalProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
+  // The two layouts deliver offers differently — the split renders all of them
+  // at once, the carousel one card at a time — so impressions are only
+  // comparable when segmented by which one the user saw.
+  const variant = isMobile ? 'carousel' : 'split';
   const { logEvent } = useLogContext();
   const [claimedUids, setClaimedUids] = useState<Set<string>>(new Set());
   const [deliveredUids] = useState<Set<string>>(new Set());
@@ -42,6 +46,7 @@ export default function QuestOffersModal({
     event_name: LogEvent.Impression,
     target_type: TargetType.QuestsCompleted,
     target_id: summary.claimed.toString(),
+    extra: JSON.stringify({ variant, offers: offers.length }),
   }));
 
   // Render-then-confirm: each offer is confirmed once, at the moment it
@@ -66,11 +71,12 @@ export default function QuestOffersModal({
           extra: JSON.stringify({
             brand: offer.advertiserName,
             questsCompleted: summary.claimed,
+            variant,
           }),
         }),
       );
     },
-    [confirmDelivered, deliveredUids, logEvent, summary.claimed],
+    [confirmDelivered, deliveredUids, logEvent, summary.claimed, variant],
   );
 
   const onClaim = useCallback(
@@ -82,12 +88,13 @@ export default function QuestOffersModal({
         extra: JSON.stringify({
           brand: offer.advertiserName,
           questsCompleted: summary.claimed,
+          variant,
         }),
       });
       window.open(offer.clickUrl, '_blank', 'noopener,noreferrer');
       setClaimedUids((current) => new Set(current).add(offer.impressionUid));
     },
-    [logEvent, summary.claimed],
+    [logEvent, summary.claimed, variant],
   );
 
   // Every dismissal path (X, backdrop, escape, "No thanks") funnels through
@@ -105,10 +112,14 @@ export default function QuestOffersModal({
         event_name: LogEvent.DismissQuestOffers,
         target_type: TargetType.QuestOffer,
         target_id: summary.claimed.toString(),
-        extra: JSON.stringify({ method, claimed: claimedUids.size }),
+        extra: JSON.stringify({
+          method,
+          claimed: claimedUids.size,
+          variant,
+        }),
       });
     },
-    [claimedUids.size, logEvent, summary.claimed],
+    [claimedUids.size, logEvent, summary.claimed, variant],
   );
 
   const onClose = useCallback(
