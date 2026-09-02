@@ -5,6 +5,7 @@ import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import type { PostBootData } from './boot';
 import { Origin, TargetType } from './log';
+import type { SearchLogExtra } from './searchLog';
 import { SharedFeedPage } from '../components/utilities';
 import type { AllFeedPages } from './query';
 import { OtherFeedPage } from './query';
@@ -31,6 +32,7 @@ interface FeedItemLogEvent extends LogEvent {
   feed_grid_columns?: number;
   feed_item_grid_column?: number;
   feed_item_grid_row?: number;
+  feed_item_index?: number;
   feed_item_meta?: string;
   feed_item_image?: string;
   feed_item_target_url?: string;
@@ -62,6 +64,8 @@ interface FeedLogExtra {
     ranking?: string;
     variant?: string;
     parent_id?: string;
+    search_id?: string;
+    search_version?: number;
   };
 }
 
@@ -71,7 +75,7 @@ export function feedLogExtra(
   extra?: {
     scroll_y?: number;
     gen_id?: string;
-  },
+  } & SearchLogExtra,
   origin?: Origin,
   variant?: string,
   parent_id?: string,
@@ -97,6 +101,8 @@ export interface FeedItemPosition {
 export type PostLogEventFnOptions = FeedItemPosition & {
   extra?: Record<string, unknown>;
   is_ad?: boolean;
+  /** Absolute position of the item in the feed, ads and placeholders included. */
+  index?: number;
 };
 
 const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
@@ -126,6 +132,7 @@ export function postLogEvent(
     feed_grid_columns: opts?.columns,
     feed_item_grid_column: opts?.column,
     feed_item_grid_row: opts?.row,
+    feed_item_index: opts?.index,
     feed_item_image: post.image,
     feed_item_target_url: post.permalink,
     feed_item_title: post.title,

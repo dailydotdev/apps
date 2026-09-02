@@ -21,11 +21,22 @@ import {
   mutationKeyToContentPreferenceStatusMap,
 } from '../contentPreference/types';
 import { feature } from '../../lib/featureManagement';
-import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
+import { useConditionalFeature } from '../useConditionalFeature';
+import { useLogContext } from '../../contexts/LogContext';
+import { searchResultsLogEvent } from '../../lib/searchLog';
+import { useSearchId } from './useSearchId';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;
   enabled?: boolean;
+  /**
+   * Correlation id shared with the surface that renders these suggestions, so
+   * its impressions and clicks join back to this fetch. Minted internally when
+   * the caller has no surface-level id of its own.
+   */
+  searchId?: string;
+  /** Surface-level scope (e.g. the Spotlight scope) reported with results. */
+  scope?: string;
 } & UseSearchProviderProps;
 
 export type UseSearchProviderSuggestions = {
@@ -35,6 +46,9 @@ export type UseSearchProviderSuggestions = {
     | undefined;
 } & {
   queryKey: unknown[];
+  /** Identity of the fetch behind `suggestions`, for joining engagement to it. */
+  searchId: string;
+  searchVersion: number;
 };
 
 export const useSearchProviderSuggestions = ({
@@ -44,12 +58,23 @@ export const useSearchProviderSuggestions = ({
   includeContentPreference,
   feedId,
   enabled = true,
+  searchId,
+  scope,
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const { getSuggestions } = useSearchProvider();
-  const { getFeatureValue } = useFeaturesReadyContext();
-  const version = getFeatureValue(feature.searchVersion);
   const debouncedQuery = useDebounce(query, defaultSearchDebounceMs);
+  const isQueryable = enabled && debouncedQuery?.length >= minSearchQueryLength;
+  // Spotlight mounts this hook on every page, so the flag must only be
+  // evaluated once a real suggestion request is about to run. Evaluating it
+  // unconditionally enrolls every pageview in the search experiment.
+  const { value: version } = useConditionalFeature({
+    feature: feature.searchVersion,
+    shouldEvaluate: isQueryable,
+  });
+  const ownSearchId = useSearchId(`${provider}:${version}:${debouncedQuery}`);
+  const activeSearchId = searchId ?? ownSearchId;
   const queryKey = generateQueryKey(RequestKey.Search, user, 'suggestions', {
     provider,
     debouncedQuery,
@@ -62,15 +87,30 @@ export const useSearchProviderSuggestions = ({
   const { data, isLoading: isQueryLoading } = useQuery({
     queryKey,
     queryFn: async () => {
-      return getSuggestions({
+      const requestStartedAt = performance.now();
+      const result = await getSuggestions({
         provider,
         query: debouncedQuery,
         limit,
         includeContentPreference,
         feedId,
       });
+
+      logEvent(
+        searchResultsLogEvent({
+          searchId: activeSearchId,
+          query: debouncedQuery,
+          provider,
+          searchVersion: version,
+          resultCount: result?.hits?.length ?? 0,
+          latencyMs: Math.round(performance.now() - requestStartedAt),
+          scope,
+        }),
+      );
+
+      return result;
     },
-    enabled: enabled && debouncedQuery?.length >= minSearchQueryLength,
+    enabled: isQueryable,
     placeholderData: keepPreviousData,
     staleTime: StaleTime.Default,
     select: useCallback(
@@ -145,5 +185,7 @@ export const useSearchProviderSuggestions = ({
     isLoading: isQueryLoading || isDebouncePending,
     suggestions: data,
     queryKey,
+    searchId: activeSearchId,
+    searchVersion: version,
   };
 };
