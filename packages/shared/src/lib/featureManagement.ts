@@ -37,7 +37,7 @@ export const featureSnapshotSelectionShare = new Feature(
 export const featurePostCopySummary = new Feature('post_copy_summary', false);
 export const featurePostSharePrompts = new Feature('post_share_prompts', false);
 export const featurePollSnapshot = new Feature('poll_snapshot', false);
-export const featurePostNavCopyLink = new Feature('post_nav_copy_link', false);
+export const featurePostCopyLink = new Feature('post_copy_link', false);
 // Experiment: community takes — an LLM-generated digest of what the developer
 // community on HN/Lobsters thinks about a post. Control hides the surface,
 // treatment shows it. Enrollment is conditional on the post actually having a

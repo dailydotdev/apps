@@ -14,15 +14,23 @@ import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
-import { Origin } from '../../lib/log';
+import { Origin, LogEvent } from '../../lib/log';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
-import { useViewSizeClient, ViewSize } from '../../hooks';
+import { useViewSizeClient, ViewSize, useGetShortUrl } from '../../hooks';
 import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import { useReaderModalEligibility } from './reader/hooks/useReaderModalEligibility';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
-import { EarthIcon } from '../icons';
+import { EarthIcon, LinkIcon } from '../icons';
+import { CopyStateIcon } from '../share/CopyStateIcon';
+import { useCopyPostLink } from '../../hooks/useCopyPostLink';
+import { useLogContext } from '../../contexts/LogContext';
+import { postLogEvent } from '../../lib/feed';
+import { ReferralCampaignKey } from '../../lib/referral';
+import { ShareProvider } from '../../lib/share';
+import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
+import { featurePostCopyLink } from '../../lib/featureManagement';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -76,6 +84,30 @@ export function PostHeaderActions({
     },
   );
 
+  // Every post type renders this cluster, on the page and in the sticky nav,
+  // so the link lives here rather than per surface.
+  const isCopyLinkEnabled = useSharePlacement({
+    feature: featurePostCopyLink,
+    shouldEvaluate: !!post,
+  });
+  const [linkCopied, copyLink] = useCopyPostLink();
+  const { getShortUrl } = useGetShortUrl();
+  const { logEvent } = useLogContext();
+
+  const onCopyLink = async () => {
+    logEvent(
+      postLogEvent(LogEvent.SharePost, post, {
+        extra: { provider: ShareProvider.CopyLink, origin: Origin.PostContent },
+      }),
+    );
+    copyLink({
+      link: await getShortUrl(
+        post.commentsPermalink,
+        ReferralCampaignKey.SharePost,
+      ),
+    });
+  };
+
   const handleReadArticle = (event: React.MouseEvent) => {
     if (onReaderInstallGateClick(event)) {
       return;
@@ -126,6 +158,18 @@ export function PostHeaderActions({
       )}
       {isCollection && !hideSubscribeAction && (
         <CollectionSubscribeButton post={post} />
+      )}
+      {isCopyLinkEnabled && post && (
+        <Tooltip side="bottom" content="Copy link">
+          <Button
+            aria-label="Copy link"
+            icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
+            onClick={onCopyLink}
+            size={buttonSize}
+            type="button"
+            variant={ButtonVariant.Tertiary}
+          />
+        </Tooltip>
       )}
       {!hideOptions && (
         <PostMenuOptions
