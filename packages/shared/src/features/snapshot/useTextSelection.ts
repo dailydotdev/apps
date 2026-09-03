@@ -100,18 +100,35 @@ export function useTextSelection(
     document.addEventListener('selectionchange', onSelectionChange);
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('pointerup', onPointerUp);
-    globalThis.addEventListener('scroll', sync, { passive: true });
+    // Capture, on the document: a scroll event does not bubble, and the post
+    // page scrolls an inner container rather than the window — listening on
+    // the window alone left the toolbar at the coordinates the quote had when
+    // it was made, hundreds of pixels from the text.
+    document.addEventListener('scroll', sync, {
+      capture: true,
+      passive: true,
+    });
     globalThis.addEventListener('resize', sync);
+
+    // The quote can also move without anything scrolling: expanding a
+    // truncated summary reflows everything under it.
+    const observer =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(sync);
+
+    if (containerRef.current) {
+      observer?.observe(containerRef.current);
+    }
 
     return () => {
       clearTimeout(settle);
+      observer?.disconnect();
       document.removeEventListener('selectionchange', onSelectionChange);
       document.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('pointerup', onPointerUp);
-      globalThis.removeEventListener('scroll', sync);
+      document.removeEventListener('scroll', sync, { capture: true });
       globalThis.removeEventListener('resize', sync);
     };
-  }, [enabled, ignoreRef, sync]);
+  }, [containerRef, enabled, ignoreRef, sync]);
 
   return selection;
 }
