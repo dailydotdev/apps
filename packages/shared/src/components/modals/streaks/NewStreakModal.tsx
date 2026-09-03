@@ -5,7 +5,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
 import { Checkbox } from '../../fields/Checkbox';
+import { ButtonVariant } from '../../buttons/Button';
 import { ModalClose } from '../common/ModalClose';
+import { SnapshotButton } from '../../../features/snapshot/SnapshotButton';
+import { useSnapshotShare } from '../../../features/snapshot/useSnapshotShare';
 import {
   cloudinaryStreakSplash,
   cloudinaryStreakFire,
@@ -68,6 +71,8 @@ export default function NewStreakModal({
     }
   };
 
+  const isSnapshotEnabled = useSnapshotShare();
+
   return (
     <Modal
       {...props}
@@ -124,6 +129,13 @@ export default function NewStreakModal({
         <StreakFreezeUpsell className="mt-6">
           Protect your streak with streak freezes
         </StreakFreezeUpsell>
+        {isSnapshotEnabled && (
+          <SnapshotButton
+            className="mt-6"
+            label
+            variant={ButtonVariant.Primary}
+          />
+        )}
         <Checkbox
           name="show_streaks"
           className="mt-10"

@@ -4,6 +4,9 @@ import classNames from 'classnames';
 import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
+import { SnapshotButton } from '../../../features/snapshot/SnapshotButton';
+import { useSnapshotShare } from '../../../features/snapshot/useSnapshotShare';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { CurrentUserPositionRow } from './CurrentUserPositionRow';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import type { LoggedUser } from '../../../lib/user';
@@ -54,6 +57,8 @@ export function UserTopList({
     [],
   );
 
+  const isSnapshotEnabled = useSnapshotShare();
+
   return (
     <LeaderboardList {...props}>
       {items?.map((item, i) => (
@@ -88,6 +93,13 @@ export function UserTopList({
             }}
             allowSubscribe={false}
           />
+          {isSnapshotEnabled && (
+            <SnapshotButton
+              className="ml-auto opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Float}
+            />
+          )}
         </LeaderboardListItem>
       ))}
       {leaderboardType && (

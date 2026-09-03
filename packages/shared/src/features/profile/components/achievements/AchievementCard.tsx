@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { SnapshotButton } from '../../../snapshot/SnapshotButton';
+import { useSnapshotShare } from '../../../snapshot/useSnapshotShare';
 import type { UserAchievement } from '../../../../graphql/user/achievements';
 import {
   AchievementType,
@@ -62,6 +64,8 @@ export function AchievementCard({
     rarityTier === AchievementRarityTier.Emerald
       ? '<1%'
       : `${Math.round(achievement.rarity ?? 0)}%`;
+  const isSnapshotEnabled = useSnapshotShare(isUnlocked);
+
   return (
     <div
       className={classNames(
@@ -121,7 +125,10 @@ export function AchievementCard({
             {achievement.description}
           </Typography>
         </div>
-        <div className="flex shrink-0 items-center self-center">
+        <div className="flex shrink-0 items-center gap-1 self-center">
+          {isSnapshotEnabled && isUnlocked && (
+            <SnapshotButton size={ButtonSize.XSmall} />
+          )}
           <Typography
             type={TypographyType.Callout}
             color={

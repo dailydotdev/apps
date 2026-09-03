@@ -58,6 +58,10 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 });
 
 export const featureLuckyButton = new Feature('lucky_button', false);
+// Experiment: a Snapshot control on the status moments that have no page to
+// link to — the streak popup, an unlocked achievement, a leaderboard row, an
+// award received, and a post's analytics. Control hides it entirely.
+export const featureSnapshotShare = new Feature('snapshot_share', false);
 
 export const featureJobsUI = new Feature('jobs_ui', false);
 
