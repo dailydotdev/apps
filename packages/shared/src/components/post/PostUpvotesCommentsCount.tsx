@@ -71,8 +71,9 @@ const PostUpvotesCommentsCountContent = ({
   const getText = ({ count, label }: { count: number; label: string }) =>
     `${largeNumberFormat(count)} ${label}${count > 1 ? 's' : ''}`;
   // Flag on: a single impressions stat next to the other counts (links to the
-  // analytics page). Flag off: keep main's behaviour — the author/team-only
-  // `analytics.impressions` line plus the "Post analytics" button.
+  // analytics page), visible to everyone. Flag off (control): the count stays
+  // author/team-only, so it is gated on `showPostAnalytics` — the API returns
+  // `analytics.impressions` to every viewer, including anonymous ones.
   const impressions = post.analytics?.impressions ?? 0;
   const impressionsLabel =
     impressionsEnabled && !compact && !!post.id && impressions > 0
@@ -110,11 +111,16 @@ const PostUpvotesCommentsCountContent = ({
       )}
       data-testid="statsBar"
     >
-      {!impressionsEnabled && !!post.analytics?.impressions && (
-        <span>
-          {getText({ count: post.analytics.impressions, label: 'Impression' })}
-        </span>
-      )}
+      {!impressionsEnabled &&
+        showPostAnalytics &&
+        !!post.analytics?.impressions && (
+          <span>
+            {getText({
+              count: post.analytics.impressions,
+              label: 'Impression',
+            })}
+          </span>
+        )}
       {upvotes > 0 &&
         renderText({
           key: 'upvotes',

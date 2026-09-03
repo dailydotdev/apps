@@ -43,7 +43,9 @@ it('should render post metadata and engagement stats as passive metadata', () =>
 
   expect(screen.getByText('Now')).toBeInTheDocument();
   expect(screen.getByText('4m read time')).toBeInTheDocument();
-  expect(screen.getByText('10 Impressions')).toBeInTheDocument();
+  // Impressions stay author/team-only, and an embed carries no author to
+  // compare the viewer against.
+  expect(screen.queryByText('10 Impressions')).not.toBeInTheDocument();
   expect(screen.getByText('1.2K Upvotes')).toBeInTheDocument();
   expect(screen.getByText('3 Comments')).toBeInTheDocument();
   expect(screen.getByText('5 Reposts')).toBeInTheDocument();
