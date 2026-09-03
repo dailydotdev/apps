@@ -13,6 +13,7 @@ const GA_TRACKING_ID = 'G-VTGLXD7QSN';
 const TWITTER_TRACKING_ID = 'o6izs';
 const REDDIT_TRACKING_ID = 't2_j1li1n7e';
 const TIKTOK_TRACKING_ID = 'CO2RCPBC77U37LT1TAIG';
+const QUORA_TRACKING_ID = '72971829a9ca45dcbfbb5921213cbb56';
 
 export type PixelProps = {
   instanceId?: string;
@@ -325,6 +326,55 @@ const TiktokTracking = (): ReactElement => {
   );
 };
 
+const QuoraTracking = (): ReactElement => {
+  return (
+    <>
+      <Script
+        id="quora-pixel"
+        strategy="afterInteractive"
+        data-quora-id={QUORA_TRACKING_ID}
+      >
+        {`(function() {
+  const QUORA_PIXEL_ID = document.currentScript.getAttribute('data-quora-id');
+
+  function initializeQuoraPixel(q, e, v, n, t, s) {
+    if (q.qp) return;
+    n = q.qp = function() {
+      n.qp ? n.qp.apply(n, arguments) : n.queue.push(arguments);
+    };
+    n.queue = [];
+    t = document.createElement(e);
+    t.async = !0;
+    t.src = v;
+    s = document.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t, s);
+  }
+
+  initializeQuoraPixel(
+    window,
+    'script',
+    'https://a.quora.com/qevents.js',
+  );
+
+  window.qp('init', QUORA_PIXEL_ID);
+
+  window.qp('track', 'ViewContent');
+})();
+      `}
+      </Script>
+      <noscript>
+        <img
+          alt="Quora Pixel"
+          height="1"
+          width="1"
+          style={{ display: 'none' }}
+          src={`https://q.quora.com/_/ad/${QUORA_TRACKING_ID}/pixel?tag=ViewContent&noscript=1`}
+        />
+      </noscript>
+    </>
+  );
+};
+
 export const EXPERIENCE_TO_SENIORITY: Record<
   keyof typeof UserExperienceLevel,
   string
@@ -364,6 +414,7 @@ export const Pixels = (): ReactElement => {
           <TiktokTracking />
           <TwitterTracking />
           <RedditTracking />
+          <QuoraTracking />
         </>
       )}
     </>

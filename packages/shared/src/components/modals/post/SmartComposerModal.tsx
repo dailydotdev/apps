@@ -36,6 +36,7 @@ import { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePrompt } from '../../../hooks/usePrompt';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
+import { PostType } from '../../../graphql/posts';
 import type { Squad } from '../../../graphql/sources';
 import { getPostByIdKey } from '../../../lib/query';
 import { moderationRequired } from '../../squads/utils';
@@ -48,26 +49,22 @@ import {
 } from '../../post/composer/TextForm';
 import { LinkForm } from '../../post/composer/LinkForm';
 import { PollForm } from '../../post/composer/PollForm';
-import { StandupForm } from '../../post/composer/StandupForm';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import {
   isUserAudience,
   useComposerAudience,
 } from '../../post/composer/useComposerAudience';
 import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
-import { useStandupCreation } from '../../../hooks/liveRooms/useStandupCreation';
 import { useSchedulePost } from '../../post/schedule/useSchedulePost';
 import { SchedulePostButton } from '../../post/schedule/SchedulePostButton';
 import { ScheduledPostsNavButton } from '../../post/schedule/ScheduledPostsNavButton';
 import {
   DEFAULT_LINK,
   DEFAULT_POLL,
-  DEFAULT_STANDUP,
   DEFAULT_TEXT,
   type ComposerKind,
   type LinkFormState,
   type PollFormState,
-  type StandupFormState,
   type TextFormState,
 } from '../../post/composer/types';
 import { useDisableSpotlightShortcut } from '../../spotlight/SpotlightContext';
@@ -79,20 +76,17 @@ const writeFormTabKeyToKind: Record<keyof typeof WriteFormTab, ComposerKind> = {
   NewPost: 'text',
   Share: 'link',
   Poll: 'poll',
-  Standup: 'standup',
 };
 
+const isWriteFormTabKey = (value: string): value is keyof typeof WriteFormTab =>
+  value in writeFormTabKeyToKind;
+
 const resolveDefaultKind = (
-  defaultWriteTab: WriteFormTab | undefined,
-  isStandupEnabled: boolean,
-): ComposerKind => {
-  const key = defaultWriteTab as unknown as keyof typeof WriteFormTab;
-  const defaultKind = key ? writeFormTabKeyToKind[key] : 'text';
-  if (defaultKind === 'standup' && !isStandupEnabled) {
-    return 'text';
-  }
-  return defaultKind ?? 'text';
-};
+  defaultWriteTab: string | undefined,
+): ComposerKind =>
+  defaultWriteTab && isWriteFormTabKey(defaultWriteTab)
+    ? writeFormTabKeyToKind[defaultWriteTab]
+    : 'text';
 
 export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
@@ -104,6 +98,7 @@ export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialCommentary?: string;
   preview?: ExternalLinkPreview;
   editPost?: Post;
+  onPosted?: () => void;
 }
 
 export function SmartComposerModal({
@@ -117,6 +112,7 @@ export function SmartComposerModal({
   initialCommentary,
   preview: initialPreview,
   editPost,
+  onPosted,
   ...props
 }: SmartComposerModalProps): ReactElement {
   const { user } = useAuthContext();
@@ -127,23 +123,19 @@ export function SmartComposerModal({
   const { showPrompt } = usePrompt();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const isStandupEnabled = useStandupCreation();
   const { flags, loadedSettings } = useSettingsContext();
   const isEditing = !!editPost;
   const [kind, setKind] = useState<ComposerKind>(() => {
     if (isEditing) {
-      return 'text';
+      return editPost.type === PostType.Share ? 'link' : 'text';
     }
     if (initialUrl) {
       return 'link';
     }
     if (initialKind) {
-      if (initialKind === 'standup' && !isStandupEnabled) {
-        return 'text';
-      }
       return initialKind;
     }
-    return resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled);
+    return resolveDefaultKind(flags?.defaultWriteTab);
   });
   // Settings load async; if the modal opens before they're ready, apply the
   // user's default post type once they arrive — unless the user already picked.
@@ -157,14 +149,13 @@ export function SmartComposerModal({
     if (isEditing || initialUrl || initialKind || hasUserChangedKind.current) {
       return;
     }
-    setKind(resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled));
+    setKind(resolveDefaultKind(flags?.defaultWriteTab));
   }, [
     loadedSettings,
     isEditing,
     initialUrl,
     initialKind,
     flags?.defaultWriteTab,
-    isStandupEnabled,
   ]);
   const [text, setText] = useState<TextFormState>(() => {
     if (editPost) {
@@ -175,13 +166,36 @@ export function SmartComposerModal({
       body: initialContent ?? DEFAULT_TEXT.body,
     };
   });
-  const [link, setLink] = useState<LinkFormState>({
-    ...DEFAULT_LINK,
-    url: initialUrl ?? '',
-    commentary: initialCommentary ?? DEFAULT_LINK.commentary,
+  const editShare = editPost?.type === PostType.Share ? editPost : undefined;
+  // A share posted without commentary carries the shared post's own title,
+  // which is not the author's text and must not be offered back to them as if
+  // it were.
+  const editShareCommentary = ((): string => {
+    if (!editShare) {
+      return '';
+    }
+    if (!editShare.sharedPost) {
+      return editShare.content ?? '';
+    }
+    return editShare.title === editShare.sharedPost.title
+      ? ''
+      : editShare.title ?? '';
+  })();
+  const [link, setLink] = useState<LinkFormState>(() => {
+    if (editShare) {
+      return {
+        ...DEFAULT_LINK,
+        url: editShare.sharedPost?.permalink ?? '',
+        commentary: editShareCommentary,
+      };
+    }
+    return {
+      ...DEFAULT_LINK,
+      url: initialUrl ?? '',
+      commentary: initialCommentary ?? DEFAULT_LINK.commentary,
+    };
   });
   const [poll, setPoll] = useState<PollFormState>(DEFAULT_POLL);
-  const [standup, setStandup] = useState<StandupFormState>(DEFAULT_STANDUP);
   const [cover, setCover] = useState<TextFormCover | null>(() =>
     editPost?.image ? { preview: editPost.image } : null,
   );
@@ -191,6 +205,9 @@ export function SmartComposerModal({
   useDisableSpotlightShortcut();
 
   const isDirty = useMemo(() => {
+    if (editShare) {
+      return link.commentary.trim() !== editShareCommentary.trim();
+    }
     if (editPost) {
       if (text.title !== (editPost.title ?? '')) {
         return true;
@@ -209,20 +226,37 @@ export function SmartComposerModal({
     if (cover) {
       return true;
     }
-    if (text.title.trim() || text.body.trim()) {
+    const isChanged = (value: string, initial: string | undefined) =>
+      value.trim() !== (initial ?? '').trim();
+    if (
+      isChanged(text.title, initialTitle) ||
+      isChanged(text.body, initialContent)
+    ) {
       return true;
     }
-    if (link.url.trim() || link.commentary.trim()) {
+    if (
+      isChanged(link.url, initialUrl) ||
+      isChanged(link.commentary, initialCommentary)
+    ) {
       return true;
     }
     if (poll.question.trim() || poll.options.some((option) => option.trim())) {
       return true;
     }
-    if (standup.topic.trim() || standup.description.trim()) {
-      return true;
-    }
     return false;
-  }, [cover, text, link, poll, standup, editPost]);
+  }, [
+    cover,
+    text,
+    link,
+    poll,
+    editPost,
+    editShare,
+    editShareCommentary,
+    initialTitle,
+    initialContent,
+    initialUrl,
+    initialCommentary,
+  ]);
 
   const confirmDiscardIfDirty = useCallback(async () => {
     if (!isDirty) {
@@ -334,18 +368,21 @@ export function SmartComposerModal({
       initialSquadHandle,
       initialSquadId ?? editPost?.source?.id,
     );
-  const primary = selected[0];
-  const isMulti = selected.length > 1;
+  // An edit must target the post's own source — the audience list only holds
+  // currently postable squads, and its fallback would silently retarget. The
+  // cast mirrors generateUserSourceAsSquad: non-squad sources are deliberately
+  // handled as squads here.
+  const editSource = editPost
+    ? audiences.find((audience) => audience.id === editPost.source?.id) ??
+      (editPost.source as Squad | undefined)
+    : undefined;
+  const primary = editSource ?? selected[0];
+  const isMulti = !editPost && selected.length > 1;
 
   const schedule = useSchedulePost();
-  // Scheduling: single-source, non-moderated create only (any post type
-  // except standups, which schedule themselves).
+  // Scheduling: single-source, non-moderated create only.
   const canSchedule =
-    kind !== 'standup' &&
-    !isEditing &&
-    !isMulti &&
-    !!primary &&
-    !moderationRequired(primary as Squad);
+    !isEditing && !isMulti && !!primary && !moderationRequired(primary);
 
   const {
     handleSubmit,
@@ -354,18 +391,16 @@ export function SmartComposerModal({
     preview,
     isLoadingPreview,
     fetchPreview,
-    standupErrors,
   } = useComposerSubmit({
     kind,
     text,
     link,
     poll,
-    standup,
     cover,
     primary,
     selectedIds,
     isMulti,
-    initialPreview,
+    initialPreview: editShare?.sharedPost ?? initialPreview,
     editPostId: editPost?.id,
     resolveScheduledAt: canSchedule ? schedule.resolveScheduledAt : undefined,
     onComplete: () => {
@@ -374,21 +409,17 @@ export function SmartComposerModal({
           queryKey: getPostByIdKey(editPost.id),
         });
       }
+      onPosted?.();
       onSubmitted();
       onRequestClose?.();
     },
   });
 
-  const isStandup = kind === 'standup';
   const showSpamWarning =
-    !isStandup &&
     selected.filter((audience) => !isUserAudience(audience)).length > 1;
-  const isStandupScheduled = standup.scheduleChoice === 'later';
   let submitLabel: string;
   if (isEditing) {
     submitLabel = 'Save changes';
-  } else if (isStandup) {
-    submitLabel = isStandupScheduled ? 'Schedule standup' : 'Create standup';
   } else if (canSchedule && schedule.isScheduled) {
     submitLabel = 'Schedule post';
   } else {
@@ -400,7 +431,6 @@ export function SmartComposerModal({
       value={kind}
       onChange={onKindChange}
       disabled={isInFlight}
-      isStandupEnabled={isStandupEnabled}
     />
   );
 
@@ -450,11 +480,10 @@ export function SmartComposerModal({
       {submitLabel}
     </Button>
   );
-  // Self-contained flex with its own gap so the button pair keeps identical
-  // spacing regardless of the parent (rich-text toolbar vs. bottom action bar).
+  const scheduleInHeader = !isLaptop;
   const primaryActionsNode = (
     <div className="flex items-center gap-2">
-      {scheduleButtonNode}
+      {!scheduleInHeader && scheduleButtonNode}
       {postButtonNode}
     </div>
   );
@@ -464,7 +493,7 @@ export function SmartComposerModal({
       inputId="smart_composer-push_notification-switch"
       name="push_notification"
       labelClassName="flex-1 font-normal"
-      className="py-1"
+      className="min-w-0 flex-1 py-1"
       compact={false}
       checked={isEnabled}
       onToggle={onToggle}
@@ -491,21 +520,20 @@ export function SmartComposerModal({
               nativeLazyLoading
             />
           )}
-          {!isStandup && (
-            <AudienceChip
-              audiences={audiences}
-              selectedIds={selectedIds}
-              onChange={setSelectedIds}
-              userAudienceId={userAudienceId}
-              disabled={isInFlight || isEditing}
-            />
-          )}
+          <AudienceChip
+            audiences={audiences}
+            selectedIds={selectedIds}
+            onChange={setSelectedIds}
+            userAudienceId={userAudienceId}
+            disabled={isInFlight || isEditing}
+          />
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <ScheduledPostsNavButton
             onClick={handleViewScheduled}
             disabled={isInFlight}
           />
+          {scheduleInHeader && scheduleButtonNode}
           {kind === 'text' && (
             <Tooltip
               content={
@@ -526,25 +554,29 @@ export function SmartComposerModal({
               />
             </Tooltip>
           )}
-          <Tooltip
-            content={isExpanded ? 'Collapse composer' : 'Expand composer'}
-          >
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              icon={
-                isExpanded ? (
-                  <MinimizeIcon size={IconSize.Size16} />
-                ) : (
-                  <MaximizeIcon size={IconSize.Size16} />
-                )
-              }
-              onClick={onToggleExpand}
-              aria-label={isExpanded ? 'Collapse composer' : 'Expand composer'}
-              aria-pressed={isExpanded}
-            />
-          </Tooltip>
+          {isLaptop && (
+            <Tooltip
+              content={isExpanded ? 'Collapse composer' : 'Expand composer'}
+            >
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                icon={
+                  isExpanded ? (
+                    <MinimizeIcon size={IconSize.Size16} />
+                  ) : (
+                    <MaximizeIcon size={IconSize.Size16} />
+                  )
+                }
+                onClick={onToggleExpand}
+                aria-label={
+                  isExpanded ? 'Collapse composer' : 'Expand composer'
+                }
+                aria-pressed={isExpanded}
+              />
+            </Tooltip>
+          )}
           <CloseButton
             type="button"
             size={ButtonSize.Small}
@@ -575,26 +607,16 @@ export function SmartComposerModal({
             cover={cover}
             onCoverChange={onCoverChange}
             toolbarLeading={kindPickerNode}
+            stackToolbarLeading={!isLaptop}
             toolbarRightActions={primaryActionsNode}
             onMarkdownModeChange={onMarkdownModeChange}
           />
-          {!isMarkdownMode && notificationToggleNode && (
-            <div className="-mt-2 flex shrink-0 px-5 pb-5">
+          {notificationToggleNode && (
+            <div className="-mt-2 flex min-w-0 shrink-0 px-5 pb-5">
               {notificationToggleNode}
             </div>
           )}
         </>
-      )}
-      {kind === 'standup' && (
-        <StandupForm
-          value={standup}
-          onChange={setStandup}
-          topicError={standupErrors.topic}
-          scheduledStartError={standupErrors.scheduledStart}
-          descriptionError={standupErrors.description}
-          toolbarLeading={kindPickerNode}
-          toolbarRightActions={postButtonNode}
-        />
       )}
       {(kind === 'link' || kind === 'poll') && (
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 pb-3 pt-2">
@@ -609,12 +631,13 @@ export function SmartComposerModal({
                 logEvent({ event_name: LogEvent.DismissComposerPreview })
               }
               initialUrl={initialUrl ? link.url : undefined}
+              isUrlLocked={!!editShare}
             />
           )}
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
         </div>
       )}
-      {((kind !== 'text' && kind !== 'standup') || isMarkdownMode) && (
+      {kind !== 'text' && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">
             {kindPickerNode}
@@ -633,12 +656,14 @@ export function SmartComposerModal({
       <Drawer
         isOpen
         isFullScreen
+        // Transformed ancestors (the Share modal's drawer) trap position: fixed
+        appendOnRoot
         position={DrawerPosition.Bottom}
         onClose={() => {
           handleClose();
         }}
         onAfterClose={props.onAfterClose}
-        className={{ wrapper: 'flex flex-col p-0' }}
+        className={{ wrapper: 'flex flex-col !p-0' }}
       >
         {formContent}
       </Drawer>

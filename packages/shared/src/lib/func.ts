@@ -319,14 +319,25 @@ export type BooleanPromise = Promise<{ successful: boolean }>;
 
 type SafeContextHook<T> = T | undefined;
 
-export const safeContextHookExport = <Args extends unknown[], R>(
+// With a defaultReturn the hook can never yield undefined, so callers may
+// destructure the result directly.
+export function safeContextHookExport<Args extends unknown[], R>(
+  hook: (...props: Args) => R,
+  errorMessage: string,
+  defaultReturn: R,
+): (...props: Args) => R;
+export function safeContextHookExport<Args extends unknown[], R>(
+  hook: (...props: Args) => R,
+  errorMessage: string,
+): (...props: Args) => SafeContextHook<R>;
+export function safeContextHookExport<Args extends unknown[], R>(
   hook: (...props: Args) => R,
   errorMessage: string,
   defaultReturn?: SafeContextHook<R>,
-): ((...props: Args) => SafeContextHook<R>) => {
+): (...props: Args) => SafeContextHook<R> {
   return function useSafeContextHook(...props: Args): SafeContextHook<R> {
     try {
-      return hook(...props) as SafeContextHook<R>;
+      return hook(...props);
     } catch (error) {
       if (error instanceof Error && errorMessage === error.message) {
         return defaultReturn;
@@ -335,7 +346,7 @@ export const safeContextHookExport = <Args extends unknown[], R>(
       throw error;
     }
   };
-};
+}
 
 export const mergeContextExtra = <TData>({
   event,

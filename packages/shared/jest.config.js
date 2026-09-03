@@ -18,6 +18,7 @@ module.exports = {
     '^node-emoji$': '<rootDir>/node_modules/node-emoji/lib/index.cjs',
     '\\.svg$': '<rootDir>/__mocks__/svgrMock.ts',
     '\\.css$': 'identity-obj-proxy',
+    'border-beam': '<rootDir>/__mocks__/borderBeamMock.tsx',
     'react-markdown': '<rootDir>/__mocks__/reactMarkdownMock.tsx',
     'react-turnstile': 'identity-obj-proxy',
     '^edge-aura/react$': '<rootDir>/__mocks__/edgeAuraMock.tsx',

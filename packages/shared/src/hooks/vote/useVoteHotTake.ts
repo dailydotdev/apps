@@ -1,10 +1,11 @@
 import { useContext, useCallback } from 'react';
+import type { QueryClient } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import type { HotTake } from '../../graphql/user/userHotTake';
-import type { Connection } from '../../graphql/common';
+import type { ProfileShowcase } from '../../graphql/user/profileShowcase';
 import type {
   UseVoteProps,
   ToggleVoteProps,
@@ -14,6 +15,7 @@ import { UserVoteEntity } from './types';
 import { useVote } from './useVote';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
+import { RequestKey } from '../../lib/query';
 
 const hotTakeMutationHandlers: Record<
   UserVote,
@@ -31,6 +33,49 @@ const hotTakeMutationHandlers: Record<
     upvotes: hotTake.upvoted ? hotTake.upvotes - 1 : hotTake.upvotes,
     upvoted: false,
   }),
+};
+
+// The profile's hot takes live in the shared ProfileShowcase cache, one entry
+// per viewed profile — apply the vote to every entry that holds this hot take.
+const updateShowcaseHotTake = (
+  client: QueryClient,
+  id: string,
+  handler: (hotTake: HotTake) => Partial<HotTake>,
+): UserVote | undefined => {
+  let previousVote: UserVote | undefined;
+
+  client
+    .getQueryCache()
+    .findAll({ queryKey: [RequestKey.ProfileShowcase] })
+    .forEach((query) => {
+      const data = query.state.data as ProfileShowcase | undefined;
+
+      if (!data) {
+        return;
+      }
+
+      const edge = data.hotTakes?.edges?.find((item) => item.node.id === id);
+
+      if (!edge) {
+        return;
+      }
+
+      previousVote = edge.node.upvoted ? UserVote.Up : UserVote.None;
+
+      client.setQueryData<ProfileShowcase>(query.queryKey, {
+        ...data,
+        hotTakes: {
+          ...data.hotTakes,
+          edges: data.hotTakes.edges.map((item) =>
+            item.node.id === id
+              ? { ...item, node: { ...item.node, ...handler(item.node) } }
+              : item,
+          ),
+        },
+      });
+    });
+
+  return previousVote;
 };
 
 export interface UseVoteHotTakeProps extends Pick<UseVoteProps, 'onMutate'> {
@@ -67,40 +112,7 @@ const useVoteHotTake = ({
       return undefined;
     }
 
-    // Find and update the hot take in cache
-    const queryKeys = client
-      .getQueryCache()
-      .findAll({ queryKey: ['user_hot_takes'] });
-
-    let previousVote: UserVote | undefined;
-
-    queryKeys.forEach((query) => {
-      const data = query.state.data as Connection<HotTake>;
-      if (!data?.edges) {
-        return;
-      }
-
-      const hotTakeEdge = data.edges.find((edge) => edge.node.id === id);
-
-      if (hotTakeEdge) {
-        previousVote = hotTakeEdge.node.upvoted ? UserVote.Up : UserVote.None;
-
-        client.setQueryData(query.queryKey, {
-          ...data,
-          edges: data.edges.map((edge) =>
-            edge.node.id === id
-              ? {
-                  ...edge,
-                  node: {
-                    ...edge.node,
-                    ...mutationHandler(edge.node),
-                  },
-                }
-              : edge,
-          ),
-        });
-      }
-    });
+    const previousVote = updateShowcaseHotTake(client, id, mutationHandler);
 
     return () => {
       if (typeof previousVote === 'undefined') {
@@ -113,27 +125,7 @@ const useVoteHotTake = ({
         return;
       }
 
-      queryKeys.forEach((query) => {
-        const data = query.state.data as Connection<HotTake>;
-        if (!data?.edges) {
-          return;
-        }
-
-        client.setQueryData(query.queryKey, {
-          ...data,
-          edges: data.edges.map((edge) =>
-            edge.node.id === id
-              ? {
-                  ...edge,
-                  node: {
-                    ...edge.node,
-                    ...rollbackMutationHandler(edge.node),
-                  },
-                }
-              : edge,
-          ),
-        });
-      });
+      updateShowcaseHotTake(client, id, rollbackMutationHandler);
     };
   };
 

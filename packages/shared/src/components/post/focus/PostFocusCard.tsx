@@ -20,6 +20,7 @@ import { useTrackPostView } from '../../../hooks/post/useTrackPostView';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
 import { EarthIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { getImageOriginRect } from '../../modals/ImageModal';
@@ -29,12 +30,11 @@ import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
-import { TruncateText } from '../../utilities';
-import { combinedClicks } from '../../../lib/click';
+import { combinedClicks, withSelectionGuard } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import {
@@ -53,7 +53,10 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostMenuOptions } from '../PostMenuOptions';
+import { BoostPostButton } from '../../../features/boost/BoostButton';
+import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
+import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
@@ -61,6 +64,7 @@ import {
   CommunitySentiment,
   mapCommunitySentimentPost,
 } from './CommunitySentiment';
+import { anchorNofollowRel } from '../../../lib/strings';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -74,7 +78,10 @@ interface PostFocusCardProps {
   post: Post;
   origin: PostOrigin;
   leftVariant?: FocusCardLeftVariant;
-  /** When opened in the post modal, lets the sticky action bar close it. */
+  /**
+   * Never invoked — nothing in the card calls it. Read only as an "am I in the
+   * modal?" flag (clamped title, no answered-questions block).
+   */
   onClose?: () => void;
 }
 
@@ -95,7 +102,7 @@ const ArticleLink = ({
       href={href}
       title="Go to post"
       target="_blank"
-      rel="noopener"
+      rel={anchorNofollowRel}
       {...clickHandlers}
       {...props}
     >
@@ -216,7 +223,7 @@ const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
   );
 };
 
-export const PostFocusCard = ({
+const PostFocusCardRaw = ({
   post,
   origin,
   leftVariant,
@@ -227,12 +234,6 @@ export const PostFocusCard = ({
   // treatment — auto-written articles/freeform posts render their own source.
   const isShared = post.type === PostType.Share && !!post.sharedPost;
   const article = (isShared ? post.sharedPost : post) as Post;
-  // Shared into a squad → "Shared via {squad}"; shared to a profile → just
-  // "Shared post" (we don't repeat the author's name).
-  const sharedVia =
-    isShared && post.source?.type === SourceType.Squad
-      ? post.source
-      : undefined;
   const isCollection = article.type === PostType.Collection;
   // Posts authored by a user (shared, freeform, welcome) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
@@ -243,15 +244,28 @@ export const PostFocusCard = ({
     post.type === PostType.Welcome
       ? post.author
       : undefined;
+  // Author-led posts show the author in the header, so the squad needs naming
+  // separately; publication-sourced posts already show their source strip.
+  const squadAttribution =
+    post.source?.type === SourceType.Squad && (isShared || author)
+      ? { label: isShared ? 'Shared via' : 'Posted in', source: post.source }
+      : undefined;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
+  // A share post's own `title` is the sharer's commentary, not the article's
+  // title — but it mirrors the article title when they wrote nothing.
+  const commentary =
+    isShared && post.title && post.title !== article.title ? post.title : null;
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
+  // Post page only: in the modal, the top strip renders PostHeaderActions,
+  // which carries its own boost button off this same hook.
+  const showBoostButton = useShowBoostButton({ post }) && !onClose;
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const { isReaderEnabled } = useReaderModalEligibility();
-  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
+  const isReaderVariant = isReaderEnabled && article.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const communitySentimentData = article.communitySentiment
     ? mapCommunitySentimentPost(article.communitySentiment)
@@ -264,14 +278,11 @@ export const PostFocusCard = ({
     feature: featureCommunitySentiment,
     shouldEvaluate: !!communitySentimentData,
   });
-  // Only on the full post page, not the preview modal (which passes
-  // `onClose`), and only when the post actually has a take. `isDevelopment`
-  // lets the surface be previewed locally without flipping the committed
-  // (always-`false`) flag default.
+  // Only when the post actually has a take. `isDevelopment` lets the surface be
+  // previewed locally without flipping the committed (always-`false`) flag
+  // default.
   const showCommunitySentiment =
-    !onClose &&
-    !!communitySentimentData &&
-    (communitySentimentEnabled || isDevelopment);
+    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
@@ -282,6 +293,7 @@ export const PostFocusCard = ({
   const videoWrapperRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
+  const canReadArticle = !!readHref && !isInternalReadType(article);
 
   useTrackPostView({ post });
 
@@ -323,24 +335,65 @@ export const PostFocusCard = ({
     focusCommentRef.current();
   };
 
-  // Rendered in the title column, directly under the title, so it stays close
-  // to the title regardless of the cover image height. The engagement bar lives
-  // further down by the comment composer where the reader's cursor rests.
-  const renderReadButton = (className: string): ReactElement | null =>
-    readHref && !isInternalReadType(post) ? (
-      <Button
-        tag="a"
-        href={readHref}
-        target="_blank"
-        rel="noopener"
-        icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
-        onClick={handleReadClick}
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Small}
-        className={className}
+  const readCtaLabel = getReadPostButtonText(post);
+  // The accessible name names the destination, which the visible label doesn't.
+  const readCtaAccessibleLabel = article.domain
+    ? `${readCtaLabel} on ${article.domain}`
+    : readCtaLabel;
+
+  const postBody = article.contentHtml ? (
+    <>
+      <Markdown content={article.contentHtml} className="break-words" />
+      <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
+    </>
+  ) : (
+    article.summary &&
+    (isVideoType ? (
+      <VideoSummary summary={article.summary} />
+    ) : (
+      <p
+        className="select-text break-words text-text-secondary typo-markdown"
+        data-testid="tldr-container"
       >
-        {getReadPostButtonText(post)}
-      </Button>
+        {article.summary}
+      </p>
+    ))
+  );
+
+  const readCta = canReadArticle ? (
+    <a
+      href={readHref}
+      target="_blank"
+      rel={anchorNofollowRel}
+      {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
+      aria-label={readCtaAccessibleLabel}
+      className="flex h-8 w-fit items-center gap-1 rounded-10 bg-text-primary pl-3 pr-1.5 text-surface-invert"
+    >
+      <span className="font-bold typo-footnote">{readCtaLabel}</span>
+      <span className="shrink-0">
+        {isReaderVariant ? (
+          <EarthIcon size={IconSize.Small} />
+        ) : (
+          getReadPostButtonIcon(post)
+        )}
+      </span>
+    </a>
+  ) : null;
+
+  const coverClassName =
+    'block w-28 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-48';
+  const coverImage =
+    !isVideoType && article.image ? (
+      <LazyImage
+        eager
+        // Small square thumbnail below tablet; from tablet (656px) up it uses
+        // the original wide cover ratio (52% => 25/13).
+        className="aspect-square w-full tablet:aspect-[25/13]"
+        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+        fetchPriority="high"
+        imgAlt="Post cover image"
+        imgSrc={article.image}
+      />
     ) : null;
 
   return (
@@ -353,16 +406,21 @@ export const PostFocusCard = ({
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
               <div className="flex min-w-0 items-center gap-3">
-                <UserShortInfo
-                  user={author as unknown as UserShortProfile}
-                  imageSize={ProfileImageSize.Large}
-                  showDescription={false}
-                  transformUsername={() => null}
-                  className={{
-                    container: 'min-w-0 !p-0 hover:bg-transparent',
-                    textWrapper: 'min-w-0',
-                  }}
-                />
+                <Link href={author.permalink} passHref prefetch={false}>
+                  <UserShortInfo
+                    tag="a"
+                    href={author.permalink}
+                    user={author as unknown as UserShortProfile}
+                    imageSize={ProfileImageSize.Large}
+                    showDescription={false}
+                    transformUsername={() => null}
+                    className={{
+                      container:
+                        'min-w-0 cursor-pointer !p-0 hover:bg-transparent',
+                      textWrapper: 'min-w-0',
+                    }}
+                  />
+                </Link>
                 <FollowButton
                   className="shrink-0"
                   entityId={author.id}
@@ -384,19 +442,27 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            <div className="ml-auto shrink-0">
-              <PostMenuOptions
-                post={post}
-                origin={origin}
-                buttonSize={ButtonSize.Medium}
-              />
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              {showBoostButton && (
+                <BoostPostButton
+                  post={post}
+                  buttonProps={{ size: ButtonSize.Small }}
+                />
+              )}
+              <div className="[&_svg]:rotate-90">
+                <PostMenuOptions
+                  post={post}
+                  origin={origin}
+                  buttonSize={ButtonSize.Medium}
+                />
+              </div>
             </div>
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
-            {sharedVia && (
+            {squadAttribution && (
               <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                <span>Shared via</span>
+                <span>{squadAttribution.label}</span>
                 <HoverCard
                   appendTo={globalThis?.document?.body}
                   side="top"
@@ -405,41 +471,44 @@ export const PostFocusCard = ({
                   trigger={
                     <span className="inline-flex items-center">
                       <Link
-                        href={sharedVia.permalink}
+                        href={squadAttribution.source.permalink}
                         passHref
                         prefetch={false}
                       >
                         <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
-                          {sharedVia.image && (
+                          {squadAttribution.source.image && (
                             <img
-                              src={sharedVia.image}
+                              src={squadAttribution.source.image}
                               alt=""
                               aria-hidden
                               className="size-4 rounded-full object-cover"
                               loading="lazy"
                             />
                           )}
-                          {sharedVia.name}
+                          {squadAttribution.source.name}
                         </a>
                       </Link>
                     </span>
                   }
                 >
-                  <SourceEntityCard source={sharedVia as SourceTooltip} />
+                  <SourceEntityCard
+                    source={squadAttribution.source as SourceTooltip}
+                  />
                 </HoverCard>
               </p>
             )}
-            {isShared && !sharedVia && (
+            {isShared && !squadAttribution && (
               <p className="text-text-tertiary typo-footnote">Shared post</p>
             )}
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* Title and image are top-aligned columns. The cover image opens a
-                lightbox rather than navigating away. The read button lives in
-                the title column (right under the title) so it hugs the title
-                regardless of the image height — a short title next to a tall
-                image keeps the button close instead of dragging it down. */}
+            {commentary && (
+              <p className="whitespace-pre-line break-words font-bold text-text-primary typo-title3">
+                {commentary}
+              </p>
+            )}
+            {/* The cover keeps a fixed ratio so a short title can't squash it. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <h1
@@ -452,64 +521,87 @@ export const PostFocusCard = ({
                   )}
                   data-testid="post-modal-title"
                 >
-                  {title}
+                  {canReadArticle ? (
+                    <a
+                      href={readHref}
+                      target="_blank"
+                      rel={anchorNofollowRel}
+                      {...combinedClicks<HTMLAnchorElement>(
+                        withSelectionGuard(handleReadClick),
+                      )}
+                      className="transition-colors hover:text-text-link"
+                    >
+                      {title}
+                    </a>
+                  ) : (
+                    title
+                  )}
                 </h1>
-                {renderReadButton('w-fit')}
+                <PostMetadata
+                  // Wraps on mobile so a long domain stays whole (no ellipsis).
+                  className="flex-wrap !typo-callout tablet:flex-nowrap"
+                  createdAt={article.createdAt}
+                  domain={
+                    !isVideoType &&
+                    article.domain &&
+                    article.domain.length > 0 && (
+                      <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
+                        From{' '}
+                        <ArticleLink
+                          className="hover:text-text-link hover:underline"
+                          href={article.permalink}
+                          onClick={onReadArticle}
+                          title={article.domain}
+                        >
+                          {article.domain}
+                        </ArticleLink>
+                      </span>
+                    )
+                  }
+                  isVideoType={isVideoType}
+                  readTime={article.readTime}
+                />
               </div>
-              {!isVideoType && article.image && (
-                <button
-                  type="button"
-                  aria-label="View cover image"
-                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  onClick={(event) => {
-                    openModal({
-                      type: LazyModal.ImageView,
-                      props: {
-                        src: article.image as string,
-                        alt: 'Post cover image',
-                        originRect: getImageOriginRect(event.currentTarget),
-                      },
-                    });
-                  }}
-                >
-                  <LazyImage
-                    eager
-                    // Small square thumbnail below tablet; from tablet (656px)
-                    // up it uses the original wide cover ratio (52% => 25/13).
-                    className="aspect-square w-full tablet:aspect-[25/13]"
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    fetchPriority="high"
-                    imgAlt="Post cover image"
-                    imgSrc={article.image}
-                  />
-                </button>
-              )}
+              {/* Duplicates the title link, so it stays out of the tab order and
+                  the accessibility tree rather than adding an identical stop. */}
+              {coverImage &&
+                (canReadArticle ? (
+                  <a
+                    href={readHref}
+                    target="_blank"
+                    rel={anchorNofollowRel}
+                    {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
+                    aria-hidden
+                    tabIndex={-1}
+                    data-testid="post-cover-link"
+                    className={classNames(
+                      coverClassName,
+                      'cursor-pointer transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none',
+                    )}
+                  >
+                    {coverImage}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    aria-label="View cover image"
+                    className={classNames(coverClassName, 'cursor-zoom-in')}
+                    onClick={(event) => {
+                      openModal({
+                        type: LazyModal.ImageView,
+                        props: {
+                          src: article.image as string,
+                          alt: 'Post cover image',
+                          originRect: getImageOriginRect(event.currentTarget),
+                        },
+                      });
+                    }}
+                  >
+                    {coverImage}
+                  </button>
+                ))}
             </div>
           </div>
-
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={article.createdAt}
-            domain={
-              !isVideoType &&
-              article.domain &&
-              article.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={article.permalink}
-                    onClick={onReadArticle}
-                    title={article.domain}
-                  >
-                    {article.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={article.readTime}
-          />
 
           {isVideoType && (
             <div
@@ -537,40 +629,29 @@ export const PostFocusCard = ({
             </div>
           )}
 
-          {article.contentHtml ? (
-            <>
-              <Markdown content={article.contentHtml} className="break-words" />
-              <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
-            </>
-          ) : (
-            article.summary &&
-            (isVideoType ? (
-              <VideoSummary summary={article.summary} />
-            ) : (
-              <p
-                className="select-text break-words text-text-secondary typo-markdown"
-                data-testid="tldr-container"
-              >
-                {article.summary}
-              </p>
-            ))
-          )}
+          {/* `flex-col-reverse` puts the CTA above the body on mobile without
+              rendering it twice behind `hidden` wrappers — one link, one stop in
+              the accessibility tree. It reverses paint order only, so it is
+              skipped for videos: VideoSummary's "Show more" is focusable, and
+              reversing there would hand keyboard users the body before the CTA
+              they see first. Article bodies are a plain <p>, so ordering the
+              two is purely visual. */}
+          <div
+            className={classNames(
+              'flex flex-col gap-4',
+              !isVideoType && 'flex-col-reverse tablet:flex-col',
+            )}
+          >
+            {/* Must stay two children, or the reversal reorders the body too. */}
+            {postBody && <div className="flex flex-col gap-4">{postBody}</div>}
+            {readCta}
+          </div>
 
           <PostTagList post={article} />
 
           {showCommunitySentiment && (
             <CommunitySentiment data={communitySentimentData} />
           )}
-
-          <PostUpvotesCommentsCount
-            post={post}
-            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
-            onCommentsClick={scrollToComment}
-            // Spacing in this column is governed by its `gap-4`; drop the stats
-            // row's own bottom margin so the gap above the action bar matches
-            // the gap below it.
-            className="!mb-0"
-          />
 
           {isCollection && <CollectionSources post={article} />}
 
@@ -582,15 +663,22 @@ export const PostFocusCard = ({
 
           <PostSidebarAdWidget postId={post.id} variant="inline" />
 
+          <PostUpvotesCommentsCount
+            post={post}
+            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
+            onCommentsClick={scrollToComment}
+            // Spacing in this column is governed by its `gap-4`; drop the stats
+            // row's own bottom margin so the gap above the action bar matches
+            // the gap below it.
+            className="!mb-0"
+          />
+
           <FocusCardActionBar
             post={post}
             origin={origin}
             onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
-            onClose={onClose}
-            // Tighten the gap to the stats row above (the column's gap-4 alone
-            // read as too large here).
-            className="-mt-2"
+            className="my-2"
           />
 
           {!onClose && <PostAnsweredQuestions post={article} />}
@@ -611,3 +699,8 @@ export const PostFocusCard = ({
     </article>
   );
 };
+
+// Feed-opened modals hand over the feed's lighter post payload, which omits
+// fields like `communitySentiment`. Hydrating from the post-by-id cache keeps
+// the modal and the standalone post page rendering the same surfaces.
+export const PostFocusCard = withPostById(PostFocusCardRaw);

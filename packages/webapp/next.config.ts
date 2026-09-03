@@ -41,6 +41,13 @@ const securityHeaders = [
   },
 ];
 
+const noindexHeaders = [
+  {
+    key: 'X-Robots-Tag',
+    value: 'noindex, nofollow',
+  },
+];
+
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
   allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
@@ -268,6 +275,17 @@ const nextConfig: NextConfig = {
           destination: '/posts/:id',
           permanent: false,
         },
+        {
+          source: '/posts/:id/read',
+          destination: '/articles/:id',
+          permanent: false,
+        },
+        // the layout v2 mirror is reachable through the proxy rewrite only
+        {
+          source: '/layout-v2/:path*',
+          destination: '/:path*',
+          permanent: false,
+        },
         // so we can't access /plus/gift route directly
         {
           source: '/plus/gift',
@@ -359,6 +377,14 @@ const nextConfig: NextConfig = {
             { key: 'Content-Type', value: 'application/json' },
             { key: 'Cache-Control', value: 'no-cache' },
           ],
+        },
+        {
+          source: '/articles/:path*',
+          headers: noindexHeaders,
+        },
+        {
+          source: '/posts/:id/read',
+          headers: noindexHeaders,
         },
         {
           // Static page (headers can't come from the page itself); framing is

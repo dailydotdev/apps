@@ -18,7 +18,12 @@ import YoutubeVideo from '../video/YoutubeVideo';
 import { useTrackPostView } from '../../hooks/post/useTrackPostView';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import {
+  feature,
+  featureCommunitySentiment,
+} from '../../lib/featureManagement';
+import { isDevelopment } from '../../lib/constants';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
@@ -27,6 +32,11 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
+import {
+  CommunitySentiment,
+  mapCommunitySentimentPost,
+} from './focus/CommunitySentiment';
+import { anchorNofollowRel } from '../../lib/strings';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -55,7 +65,7 @@ const ArticleLink = ({
       href={href}
       title="Go to post"
       target="_blank"
-      rel="noopener"
+      rel={anchorNofollowRel}
       {...clickHandlers}
       {...props}
     >
@@ -81,6 +91,11 @@ export function PostContentRaw({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  getWidgetRailAd,
+  contentLeading,
+  renderSummarySegments,
+  aboveComments,
+  commentAds,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -104,6 +119,18 @@ export function PostContentRaw({
   };
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const { title } = useSmartTitle(post);
+  const communitySentimentData = post.communitySentiment
+    ? mapCommunitySentimentPost(post.communitySentiment)
+    : undefined;
+  // Conditional enrollment: only evaluate (and log exposure for) the
+  // community_sentiment experiment on posts that actually have a take, so
+  // take-less posts don't dilute the treatment/control split.
+  const { value: communitySentimentEnabled } = useConditionalFeature({
+    feature: featureCommunitySentiment,
+    shouldEvaluate: !!communitySentimentData,
+  });
+  const showCommunitySentiment =
+    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const hasToc = (post.toc?.length ?? 0) > 0;
@@ -138,10 +165,17 @@ export function PostContentRaw({
 
   const postMainColumn = (
     <PostContainer
-      className={classNames('relative', className?.content)}
+      className={classNames(
+        'relative',
+        !!contentLeading && '!overflow-x-clip !overflow-y-visible',
+        className?.content,
+      )}
       data-testid="postContainer"
     >
+      {contentLeading}
       <BasePostContent
+        aboveComments={aboveComments}
+        commentAds={commentAds}
         className={{
           ...className,
           onboarding: classNames(className?.onboarding, backToSquad && 'mb-6'),
@@ -186,21 +220,24 @@ export function PostContentRaw({
             className="mb-7"
           />
         )}
-        {post.summary && (
-          <div
-            className={classNames(
-              'mb-6 overflow-hidden text-text-secondary',
-              isCompactModalSpacing && 'mb-4',
-            )}
-          >
-            <p
-              className="select-text break-words typo-markdown"
-              data-testid="tldr-container"
+        {post.summary &&
+          (renderSummarySegments ? (
+            renderSummarySegments(post.summary)
+          ) : (
+            <div
+              className={classNames(
+                'mb-6 overflow-hidden text-text-secondary',
+                isCompactModalSpacing && 'mb-4',
+              )}
             >
-              {post.summary}
-            </p>
-          </div>
-        )}
+              <p
+                className="select-text break-words typo-markdown"
+                data-testid="tldr-container"
+              >
+                {post.summary}
+              </p>
+            </div>
+          ))}
         <PostTagList post={post} />
         <PostMetadata
           createdAt={post.createdAt}
@@ -258,6 +295,12 @@ export function PostContentRaw({
             post={post}
           />
         )}
+        {showCommunitySentiment && (
+          <CommunitySentiment
+            data={communitySentimentData}
+            className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+          />
+        )}
       </BasePostContent>
     </PostContainer>
   );
@@ -270,6 +313,7 @@ export function PostContentRaw({
       onClose={onClose}
       origin={origin}
       onCopyPostLink={onCopyPostLink}
+      getRailAd={getWidgetRailAd}
     />
   );
 

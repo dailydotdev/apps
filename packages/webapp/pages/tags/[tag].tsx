@@ -25,7 +25,7 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { getAppOrigin } from '../../lib/seo';
 import { getTagSeoTitle } from '../../lib/tagSeoTitle';
 
@@ -33,7 +33,7 @@ const appOrigin = getAppOrigin();
 
 interface TagPageProps extends DynamicSeoProps {
   tag: string;
-  initialData: Keyword | null;
+  initialData: Keyword;
   topPosts: TopPost[];
   recommendedTags: TagsData['tags'];
   topContributors: UserShortProfile[];
@@ -113,22 +113,16 @@ const TagPage = ({
   topPosts,
   recommendedTags,
   topContributors,
-}: TagPageProps): ReactElement => {
-  const jsonLd = initialData
-    ? getTagPageJsonLd({ tag, initialData, topPosts })
-    : null;
-
-  return (
-    <TagTopicPage
-      tag={tag}
-      initialData={initialData}
-      topPosts={topPosts}
-      recommendedTags={recommendedTags}
-      topContributors={topContributors}
-      jsonLd={jsonLd}
-    />
-  );
-};
+}: TagPageProps): ReactElement => (
+  <TagTopicPage
+    tag={tag}
+    initialData={initialData}
+    topPosts={topPosts}
+    recommendedTags={recommendedTags}
+    topContributors={topContributors}
+    jsonLd={getTagPageJsonLd({ tag, initialData, topPosts })}
+  />
+);
 
 TagPage.getLayout = getLayout;
 TagPage.layoutProps = mainFeedLayoutProps;
@@ -147,6 +141,7 @@ const getSeoData = (
   tag: string,
   title: string,
   description = `Find all the recent posts, videos, updates and discussions about ${title}`,
+  tagSlug = title,
 ): NextSeoProps => {
   const seoTitles = getPageSeoTitles(getTagSeoTitle(tag, title));
 
@@ -156,6 +151,13 @@ const getSeoData = (
     openGraph: {
       ...defaultOpenGraph,
       ...seoTitles.openGraph,
+      images: [
+        {
+          url: getShareImageUrl('tags', tagSlug),
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
     description,
   };
@@ -166,22 +168,14 @@ export async function getStaticProps({
 }: GetStaticPropsContext<TagPageParams>): Promise<
   GetStaticPropsResult<TagPageProps>
 > {
+  // An unknown tag has no content to rank: a 404 that revalidates in an hour
+  // beats an indexable empty page.
+  const notFoundResponse = { notFound: true as const, revalidate: 3600 };
+
   const tag = params?.tag;
   if (!tag) {
-    return { notFound: true, revalidate: 3600 };
+    return notFoundResponse;
   }
-
-  const notFoundResponse = {
-    revalidate: 3600,
-    props: {
-      tag,
-      initialData: null,
-      topPosts: [],
-      recommendedTags: [],
-      topContributors: [],
-      seo: getSeoData(tag, formatKeyword(tag)),
-    },
-  };
 
   try {
     const [
@@ -231,6 +225,7 @@ export async function getStaticProps({
       tag,
       initialData.flags?.title || formatKeyword(tag),
       initialData.flags?.description,
+      tag,
     );
 
     return {
@@ -245,7 +240,6 @@ export async function getStaticProps({
       revalidate: 3600,
     };
   } catch (error) {
-    // Return fallback props for any request failure in getStaticProps.
     return notFoundResponse;
   }
 }

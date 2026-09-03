@@ -42,6 +42,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import type { AllTagCategoriesData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
@@ -105,10 +106,11 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   },
 }));
 
-beforeEach(() => {
-  nock.cleanAll();
-  jest.clearAllMocks();
-  mockRedesignOn = false;
+// The ad-teardown effect subscribes to router events on anonymous renders,
+// so the mock has to carry the emitter surface.
+const routerEvents = { on: jest.fn(), off: jest.fn(), emit: jest.fn() };
+
+const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -116,8 +118,18 @@ beforeEach(() => {
         pathname: '/posts',
         isReady: true,
         query: {},
+        events: routerEvents,
+        beforePopState: jest.fn(),
+        ...overrides,
       } as unknown as NextRouter),
   );
+};
+
+beforeEach(() => {
+  nock.cleanAll();
+  jest.clearAllMocks();
+  mockRedesignOn = false;
+  mockRouter();
 });
 
 const defaultPost = {
@@ -567,7 +579,7 @@ it('should send cancel upvote mutation', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should open new comment modal and set the correct props', async () => {
+it('should open the comment composer inline on the page', async () => {
   renderPost();
   // Wait for GraphQL to return
   await screen.findByText('Learn SQL');
@@ -575,6 +587,24 @@ it('should open new comment modal and set the correct props', async () => {
   fireEvent.click(el);
   const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();
+});
+
+it('should open the comment composer when the mobile floating bar requests it', async () => {
+  renderPost();
+  await screen.findByText('Learn SQL');
+
+  const commentButton = await waitFor(() => {
+    const el = document.getElementById('mobile-comment-post-btn');
+    if (!el) {
+      throw new Error('mobile comment button not rendered');
+    }
+    return el;
+  });
+  fireEvent.click(commentButton);
+
+  expect(
+    await screen.findByRole('form', { name: 'Comment' }),
+  ).toBeInTheDocument();
 });
 
 it('should not show stats when they are zero', async () => {
@@ -604,13 +634,25 @@ it('should show both stats when they are greater than zero', async () => {
   expect(el).toHaveTextContent('7 Upvotes15 Comments');
 });
 
-it('should show impressions when it is greater than zero', async () => {
+it('should show impressions to the author', async () => {
   renderPost({}, [
-    createPostMock({ analytics: { impressions: 15 } }),
+    createPostMock({
+      analytics: { impressions: 15 },
+      author: { id: defaultUser.id } as Post['author'],
+    }),
     createCommentsMock(),
   ]);
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('15 Impressions');
+});
+
+it('should hide impressions from a reader who is not the author', async () => {
+  renderPost({}, [
+    createPostMock({ analytics: { impressions: 15 }, numUpvotes: 15 }),
+    createCommentsMock(),
+  ]);
+  const el = await screen.findByTestId('statsBar');
+  expect(el).not.toHaveTextContent('15 Impressions');
 });
 
 it('should hide the comments sort toggle when the comments empty state shows', async () => {
@@ -643,13 +685,7 @@ it('should not show author onboarding by default', () => {
 });
 
 it('should show author onboarding when the query param is set', async () => {
-  jest.mocked(useRouter).mockImplementation(
-    () =>
-      ({
-        isFallback: false,
-        query: { author: 'true' },
-      } as unknown as NextRouter),
-  );
+  mockRouter({ query: { author: 'true' } });
   renderPost();
   const el = await screen.findByTestId('authorOnboarding');
   expect(el).toBeInTheDocument();
@@ -1125,15 +1161,7 @@ describe('article', () => {
 
 describe('post redesign', () => {
   const mockRouterQuery = (query: Record<string, string>) => {
-    jest.mocked(useRouter).mockImplementation(
-      () =>
-        ({
-          isFallback: false,
-          pathname: '/posts',
-          isReady: true,
-          query,
-        } as unknown as NextRouter),
-    );
+    mockRouter({ query });
   };
 
   it('should render the focus card redesign when the flag is on', async () => {
@@ -1192,5 +1220,45 @@ describe('post redesign', () => {
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+  });
+});
+
+describe('post query failures', () => {
+  const createPostErrorMock = (
+    code: ApiError,
+  ): MockedGraphQLResponse<PostData> => ({
+    request: {
+      query: POST_BY_ID_QUERY,
+      variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+    },
+    result: {
+      errors: [
+        {
+          message: 'Access denied!',
+          extensions: { code },
+        },
+      ] as never,
+    },
+  });
+
+  it('should render the private discussion screen for a forbidden post', async () => {
+    renderPost({}, [
+      createPostErrorMock(ApiError.Forbidden),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByText('Oops! This link leads to a private discussion'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('notFound')).not.toBeInTheDocument();
+  });
+
+  it('should render 404 when the post is missing', async () => {
+    renderPost({}, [
+      createPostErrorMock(ApiError.NotFound),
+      createCommentsMock(),
+    ]);
+
+    expect(await screen.findByTestId('notFound')).toBeInTheDocument();
   });
 });

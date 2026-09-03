@@ -355,6 +355,7 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       name
       handle
       public
+      noindex
       description
       image
       type
@@ -373,6 +374,7 @@ export type SquadStaticData = Pick<
   | 'name'
   | 'handle'
   | 'public'
+  | 'noindex'
   | 'description'
   | 'image'
   | 'type'
@@ -784,7 +786,7 @@ export const isPrivilegedRole = (
   ].includes(role);
 };
 
-export const isSourcePublicSquad = (source: Source): boolean =>
+export const isSourcePublicSquad = (source?: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);
 
 export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(

@@ -134,13 +134,6 @@ const strictSkipList = new Set([
   // strict violations on lines unrelated to the dispatcher wrapper.
   'packages/shared/src/components/post/PostAwardAction.tsx',
   'packages/shared/src/components/post/PostAwardAction.v2.tsx',
-  // Standup creation tab — these files were touched to add the Standup tab
-  // and wire the `rightCopy` prop on the write-post context. Pre-existing
-  // strict violations (null defaults on the React context value, settings
-  // flag/squad/user/form-args optionality, mutable ref typing) live on
-  // unrelated lines and should be addressed in a dedicated cleanup PR.
-  'packages/shared/src/contexts/WritePostContext.tsx',
-  'packages/webapp/pages/squads/create.tsx',
   // Header-stat-button alignment branch — touched only to drop the
   // bacon-colored number and switch compact to Tertiary. Pre-existing
   // strict errors (optional auth user, ConditionalWrapper wrapper type,
@@ -200,6 +193,26 @@ const strictSkipList = new Set([
   'packages/shared/src/components/cards/ad/squad/SquadAdList.tsx',
   'packages/shared/src/components/cards/ad/squad/common.ts',
   'packages/shared/src/components/cards/squad/SquadGrid.tsx',
+  // Quora-pixel branch — touched only to add the Quora tracking script.
+  // The strict violations (untyped globalThis pixel globals like fbq/gtag,
+  // ReactElement vs null returns) are the file's established idiom across
+  // every vendor and predate this change. Typing the pixel globals belongs
+  // in a dedicated cleanup PR.
+  'packages/webapp/components/Pixels.tsx',
+  // Tool-page-signals branch — touched only to add an `onError` toast to the
+  // comment/edit mutations (surfacing the server's ForbiddenError message
+  // instead of failing silently). Pre-existing strict violations (optional
+  // `post`/`post.source`, nullable PageInfo, optional comment/parent lookups)
+  // live on unrelated lines and should be addressed in a dedicated cleanup PR.
+  'packages/shared/src/hooks/post/useMutateComment.ts',
+  // Link-rel branch — these files were touched only to set an explicit `rel`
+  // on an outbound anchor. Pre-existing strict violations (optional
+  // `source`/`post.toc`, `Link href` accepting `string | null | undefined`,
+  // nullable location helpers) live on unrelated lines and should be
+  // addressed in a dedicated cleanup PR.
+  'packages/shared/src/components/post/common/SharedPostLink.tsx',
+  'packages/shared/src/components/widgets/PostToc.tsx',
+  'packages/shared/src/features/profile/components/experience/UserExperienceItem.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

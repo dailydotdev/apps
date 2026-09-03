@@ -101,7 +101,6 @@ export enum NotificationType {
   NewOpportunityMatch = 'new_opportunity_match',
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
-  LiveRoomStarted = 'live_room_started',
   WorldDistrictLevelUp = 'world_district_level_up',
 }
 
@@ -219,8 +218,15 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserAwardThanks]: 'text-brand-default',
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.DigestReady]: 'text-brand-default',
+    [NotificationType.InterestContentBatch]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
   };
+
+export const contentArrivalNotificationTypes = new Set<NotificationType>([
+  NotificationType.SourcePostAdded,
+  NotificationType.SquadPostAdded,
+  NotificationType.UserPostAdded,
+]);
 
 export const notificationTypeNotClickable: Partial<
   Record<NotificationType, boolean>
@@ -447,7 +453,6 @@ export const notificationCategoryToTypes: Record<
     NotificationType.NewOpportunityMatch,
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
-    NotificationType.LiveRoomStarted,
     NotificationType.WorldDistrictLevelUp,
   ],
 };

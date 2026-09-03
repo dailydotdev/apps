@@ -23,6 +23,7 @@ import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import { SourceAvatar } from '../../profile/source/SourceAvatar';
 import { MiniCloseIcon } from '../../icons';
 import { getAdFaviconImageLink } from './common/getAdFaviconImageLink';
+import { anchorSponsoredRel } from '../../../lib/strings';
 
 const getLinkProps = ({
   ad,
@@ -36,7 +37,7 @@ const getLinkProps = ({
   return {
     href,
     target: '_blank',
-    rel: 'noopener',
+    rel: anchorSponsoredRel,
     title: ad.description,
     ...combinedClicks(() => onLinkClick?.(ad)),
   };
@@ -121,7 +122,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
               tag="a"
               href={clickUrl}
               target="_blank"
-              rel="noopener"
+              rel={anchorSponsoredRel}
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
               {...combinedClicks(() => onLinkClick?.(ad))}

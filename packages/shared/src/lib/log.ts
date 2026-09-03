@@ -20,6 +20,8 @@ export enum Origin {
   BlockedFilter = 'blocked filter',
   SourcePage = 'source page',
   TagPage = 'tag page',
+  ToolPage = 'tool page',
+  ToolsDirectory = 'tools directory',
   Profile = 'profile',
   PostTags = 'post tags',
   // squads - start
@@ -30,6 +32,7 @@ export enum Origin {
   Auto = 'auto',
   Sidebar = 'sidebar',
   Share = 'share',
+  Agent = 'agent',
   Notification = 'notification',
   NotificationsPage = 'notifications page',
   Boot = 'boot',
@@ -104,6 +107,14 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  // AdSense slots on the /read template and the organic post page. First-party
+  // per-placement lifecycle — the shared unit ids blend AdSense's own
+  // reporting, and Google reports nothing about requests it never answered.
+  RequestAdsenseSlot = 'request adsense slot',
+  FillAdsenseSlot = 'fill adsense slot',
+  EmptyAdsenseSlot = 'empty adsense slot',
+  AdsenseSlotError = 'adsense slot error',
+  AdsenseTestMode = 'adsense test mode',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -127,6 +138,7 @@ export enum LogEvent {
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
+  SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
@@ -198,6 +210,8 @@ export enum LogEvent {
   // search start
   FocusSearch = 'focus search',
   SubmitSearch = 'submit search',
+  SearchResults = 'search results',
+  CloseSearch = 'close search',
   OpenSearchHistory = 'open search history',
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',
@@ -241,7 +255,6 @@ export enum LogEvent {
   // Reading Streaks
   OpenStreaks = 'open streaks',
   DismissStreaksMilestone = 'dismiss streaks milestone',
-  DismissStreakOffers = 'dismiss streak offers',
   ScheduleStreakReminder = 'schedule streak reminder',
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
@@ -277,41 +290,6 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
-  // Standups
-  ViewStandup = 'view standup',
-  CreateStandup = 'create standup',
-  LeaveStandup = 'leave standup',
-  StartStandup = 'start standup',
-  EndStandup = 'end standup',
-  JoinStandupQueue = 'join standup queue',
-  RaiseStandupHand = 'raise standup hand',
-  RemoveStandupHand = 'remove standup hand',
-  JoinStandupStage = 'join standup stage',
-  LeaveStandupStage = 'leave standup stage',
-  OpenStandupSettings = 'open standup settings',
-  OpenStandupReactions = 'open standup reactions',
-  SwitchStandupPanelTab = 'switch standup panel tab',
-  SendStandupReaction = 'send standup reaction',
-  SendStandupChatReaction = 'send standup chat reaction',
-  RemoveStandupChatReaction = 'remove standup chat reaction',
-  SendStandupChatMessage = 'send standup chat message',
-  DeleteStandupChatMessage = 'delete standup chat message',
-  UpdateStandupChatAccess = 'update standup chat access',
-  SubscribeStandup = 'subscribe standup',
-  UnsubscribeStandup = 'unsubscribe standup',
-  ShareStandup = 'share standup',
-  AddStandupToCalendar = 'add standup to calendar',
-  GrantStandupCoHost = 'grant standup co-host',
-  RevokeStandupCoHost = 'revoke standup co-host',
-  PromoteStandupSpeaker = 'promote standup speaker',
-  RemoveStandupSpeaker = 'remove standup speaker',
-  KickStandupParticipant = 'kick standup participant',
-  ChangeStandupSettings = 'change standup settings',
-  StandupError = 'standup error',
-  FocusStandupSpeaker = 'focus standup speaker',
-  ImpressionStandupsStrip = 'impression standups strip',
-  ClickStandupsStrip = 'click standups strip',
-  // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
   StartAddingIntegration = 'start adding integration',
@@ -371,6 +349,7 @@ export enum LogEvent {
   ShareComment = 'share comment',
   ShareLog = 'share log',
   ShareWorld = 'share world',
+  ShareTool = 'share tool',
   // End Share
   /* Start World
      `world view` is the denominator and fires whatever happens next, so the
@@ -464,6 +443,13 @@ export enum LogEvent {
   RemoveUserStack = 'remove user stack',
   ReorderUserStack = 'reorder user stack',
   ShareUserStack = 'share user stack',
+  // Tool pages
+  UpvoteTool = 'upvote tool',
+  RemoveToolUpvote = 'remove tool upvote',
+  DownvoteTool = 'downvote tool',
+  RemoveToolDownvote = 'remove tool downvote',
+  ClickClaimTool = 'click claim tool',
+  ClaimTool = 'claim tool',
   // Hot Takes
   StartAddHotTake = 'start add hot take',
   AddHotTake = 'add hot take',
@@ -505,6 +491,8 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
+  QuestOffersEligible = 'quest offers eligible',
+  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -550,7 +538,6 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
-  StreakOffer = 'streak offer',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',
@@ -568,7 +555,10 @@ export enum TargetType {
   ReadingReminder = 'reading reminder',
   Source = 'source',
   Tag = 'tag',
+  Tool = 'tool',
   Quest = 'quest',
+  QuestOffer = 'quest offer',
+  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
@@ -717,7 +707,6 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
-  StandupLobby = 'standup lobby',
 }
 
 export enum ShortcutsSourceType {

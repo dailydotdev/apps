@@ -1,0 +1,29 @@
+{
+  "name": "@dailydotdev/world-cli",
+  "version": "0.1.1",
+  "description": "Author objects for your daily.dev world: validate locally, preview live.",
+  "type": "module",
+  "bin": {
+    "world": "./bin/world.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates"
+  ],
+  "dependencies": {
+    "@dailydotdev/world-kit": "0.1.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dailydotdev/apps.git",
+    "directory": "packages/world-cli"
+  },
+  "license": "AGPL-3.0-or-later"
+}

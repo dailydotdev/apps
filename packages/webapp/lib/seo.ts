@@ -32,28 +32,32 @@ export const getLlmsTxtUrl = (): string => `${getAppOrigin()}/llms.txt`;
 export const getPostCanonicalUrl = (slug: string): string =>
   `${getAppOrigin()}/posts/${slug}`;
 
+export const getPostMarkdownUrl = ({
+  post,
+}: {
+  post: Pick<Post, 'id' | 'slug'>;
+}): string => `${getPostCanonicalUrl(post.slug ?? post.id)}.md`;
+
 const THIN_NOINDEX_POST_TYPES = [PostType.Brief, PostType.SocialTwitter];
 
 /** Structural subset of {@link Post} so non-page callers can reuse the gate. */
 export interface NoindexPostFields {
   type: Post['type'];
+  noindex?: boolean;
   private?: boolean;
   source?: { public?: boolean };
-  author?: { reputation?: number };
 }
 
 export const shouldNoindexPost = (post: NoindexPostFields): boolean => {
-  // Posts in private squads normally fail the unauthenticated ISR fetch, but a
-  // cached page can outlive a squad turning private, so fail closed here too.
-  if (post?.private || post?.source?.public === false) {
+  // The API owns the full gate: banned, deleted, private, vordr and
+  // low-reputation or shadow-banned authors and scouts.
+  if (post?.noindex) {
     return true;
   }
 
-  const hasLowReputationAuthor =
-    typeof post?.author?.reputation === 'number' &&
-    post.author.reputation <= 10;
-
-  if (hasLowReputationAuthor) {
+  // Posts in private squads normally fail the unauthenticated ISR fetch, but a
+  // cached page can outlive a squad turning private, so fail closed here too.
+  if (post?.private || post?.source?.public === false) {
     return true;
   }
 

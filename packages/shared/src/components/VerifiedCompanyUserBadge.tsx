@@ -37,15 +37,18 @@ export const VerifiedCompanyUserBadge = ({
 
   return (
     <Tooltip
-      content={[
-        `Verified as a ${companies[0].name} employee.`,
-        ...(isVerified
-          ? []
-          : // eslint-disable-next-line react/jsx-key
-            [<br />, 'Get your company badge via account settings.']),
-      ]}
+      content={
+        <div className="min-w-0 text-center">
+          Verified as a {companies[0].name} employee.
+          {!isVerified && (
+            <>
+              <br />
+              Get your company badge via account settings.
+            </>
+          )}
+        </div>
+      }
       side="bottom"
-      className="text-center"
     >
       <div className="flex min-w-0 items-center justify-center gap-1">
         <ProfilePicture
