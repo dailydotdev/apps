@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { LinkIcon } from '../icons';
+import { LinkIcon, UpvoteIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { UseShareOrCopyLinkProps } from '../../hooks/useShareOrCopyLink';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
@@ -14,6 +14,7 @@ interface CopyLinkButtonProps {
 }
 
 const LABEL = 'Copy link';
+const COPIED_LABEL = 'Copied!';
 
 export const CopyLinkButton = ({
   shareProps,
@@ -21,14 +22,24 @@ export const CopyLinkButton = ({
   size = ButtonSize.Small,
   variant = ButtonVariant.Float,
 }: CopyLinkButtonProps): ReactElement => {
-  const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
+  // Stays false on the native-share path, where the OS sheet is the feedback.
+  const [copied, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
 
   return (
-    <Tooltip content={LABEL}>
+    <Tooltip content={copied ? COPIED_LABEL : LABEL}>
       <Button
         aria-label={LABEL}
         className={className}
-        icon={<LinkIcon />}
+        icon={
+          copied ? (
+            <UpvoteIcon
+              className="animate-copy-confirm text-accent-avocado-default"
+              secondary
+            />
+          ) : (
+            <LinkIcon />
+          )
+        }
         onClick={() => onShareOrCopyLink()}
         size={size}
         variant={variant}
