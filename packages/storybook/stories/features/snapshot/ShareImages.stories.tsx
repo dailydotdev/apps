@@ -23,7 +23,6 @@ import { ListSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/List
 import { CelebrationSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/CelebrationSnapshotCard';
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
 import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
-import { FeedSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/FeedSnapshotCard';
 import { AwardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AwardSnapshotCard';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
 import {
@@ -253,21 +252,6 @@ const PLACEMENTS: Placement[] = [
         name="Tomer Redlich"
         perk="We both get a month of Plus"
         seed="invite"
-      />
-    ),
-  },
-  {
-    id: 'feed',
-    surface: '9a · Share my feed (#6579)',
-    render: (ref) => (
-      <FeedSnapshotCard
-        ref={ref}
-        name="Frontend, but opinionated"
-        seed="feed"
-        sources={4}
-        tagCount={6}
-        tags={['typescript', 'react', 'webdev', 'css']}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
       />
     ),
   },

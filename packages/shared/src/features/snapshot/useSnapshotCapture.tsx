@@ -10,7 +10,11 @@ import {
   SHARE_IMAGE_WIDTH,
 } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { copyShareImage } from '../../lib/imageShare/copyShareImage';
+import {
+  ToastType,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 import { SNAPSHOT_SIZE } from './snapshotGradient';
 
 export type SnapshotStatus = 'loading' | 'ready' | 'error';
@@ -24,7 +28,8 @@ const CARD_CAPTURE_OPTIONS: CaptureShareImageOptions = {
 };
 
 // Writing an image needs both the async clipboard and ClipboardItem; Firefox
-// has the former without the latter.
+// has the former without the latter. copyShareImage makes the same check before
+// it writes, but the label has to be decided before the press.
 const supportsImageCopy = (): boolean =>
   typeof ClipboardItem !== 'undefined' &&
   typeof navigator !== 'undefined' &&
@@ -183,14 +188,15 @@ export function useSnapshotCapture({
     }
 
     if (canCopyImage) {
-      try {
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob.current }),
-        ]);
-        displayToast('✅ Image copied, paste it anywhere');
+      // Promise, not the resolved blob: the util relies on ClipboardItem
+      // resolving it so Safari does not lose the gesture.
+      const copied = await copyShareImage(Promise.resolve(blob.current));
+
+      if (copied) {
+        displayToast('Image copied, paste it anywhere', {
+          variant: ToastType.Success,
+        });
         return;
-      } catch {
-        // Permission denied or the gesture expired — fall through to a file.
       }
     }
 
