@@ -8,9 +8,10 @@ import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
+import { HighlightSelectionBar } from '../../features/snapshot/HighlightSelectionBar';
 import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
 import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
-import { featureSnapshotHighlightExpanded } from '../../lib/featureManagement';
+import { featureHappeningNowShare } from '../../lib/featureManagement';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
 
 const MAX_HOURS_AGO = 72;
@@ -26,8 +27,9 @@ export const HighlightItem = ({
 }: HighlightItemProps): ReactElement => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const ref = useRef<HTMLElement>(null);
+  const tldrRef = useRef<HTMLParagraphElement>(null);
   const canSnapshot = useSharePlacement({
-    feature: featureSnapshotHighlightExpanded,
+    feature: featureHappeningNowShare,
     shouldEvaluate: expanded,
   });
 
@@ -90,7 +92,20 @@ export const HighlightItem = ({
       </button>
       {expanded && tldr && (
         <div className="flex flex-col gap-3 px-4 pb-3">
-          <p className="text-text-secondary typo-markdown">{tldr}</p>
+          <p
+            ref={tldrRef}
+            className="select-text text-text-secondary typo-markdown"
+          >
+            {tldr}
+          </p>
+          {canSnapshot && (
+            <HighlightSelectionBar
+              containerRef={tldrRef}
+              headline={highlight.headline}
+              id={highlight.id}
+              link={highlight.post.commentsPermalink}
+            />
+          )}
           <div className="flex items-center gap-3">
             <Link href={highlight.post.commentsPermalink}>
               <a className="flex flex-1 items-center gap-1 font-bold text-text-link typo-footnote hover:underline">

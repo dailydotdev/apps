@@ -3,12 +3,12 @@ import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import { render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { featureSnapshotHighlightExpanded } from '../../lib/featureManagement';
+import { featureHappeningNowShare } from '../../lib/featureManagement';
 import { useSharePlacement } from './useSharePlacement';
 
 const Probe = ({ shouldEvaluate }: { shouldEvaluate?: boolean }) => {
   const enabled = useSharePlacement({
-    feature: featureSnapshotHighlightExpanded,
+    feature: featureHappeningNowShare,
     shouldEvaluate,
   });
 
@@ -32,7 +32,7 @@ const setHostname = (hostname: string) => {
 const flagOn = () => {
   const gb = new GrowthBook();
   gb.setFeatures({
-    [featureSnapshotHighlightExpanded.id]: { defaultValue: true },
+    [featureHappeningNowShare.id]: { defaultValue: true },
   });
 
   return gb;

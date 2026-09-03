@@ -9,7 +9,7 @@ import {
 import { HighlightItem } from '@dailydotdev/shared/src/components/highlights/HighlightItem';
 import { HighlightSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightSnapshotCard';
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
-import { featureSnapshotHighlightExpanded } from '@dailydotdev/shared/src/lib/featureManagement';
+import { featureHappeningNowShare } from '@dailydotdev/shared/src/lib/featureManagement';
 import type { PostHighlightFeed } from '@dailydotdev/shared/src/graphql/highlights';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -110,7 +110,7 @@ const LOG_STUB = {
 } as unknown as LogContextData;
 
 const FORCED: Record<string, unknown> = {
-  [featureSnapshotHighlightExpanded.id]: true,
+  [featureHappeningNowShare.id]: true,
 };
 
 /* GrowthBookContext is re-exported for harnesses exactly like this one, so the

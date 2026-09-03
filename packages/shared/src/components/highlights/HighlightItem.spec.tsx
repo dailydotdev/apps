@@ -4,7 +4,7 @@ import { GrowthBook } from '@growthbook/growthbook-react';
 import { render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import type { PostHighlightFeed } from '../../graphql/highlights';
-import { featureSnapshotHighlightExpanded } from '../../lib/featureManagement';
+import { featureHappeningNowShare } from '../../lib/featureManagement';
 import { HighlightItem } from './HighlightItem';
 
 const scrollIntoView = jest.fn();
@@ -37,7 +37,7 @@ beforeEach(() => {
 const renderWithSnapshot = (defaultExpanded = false) => {
   const gb = new GrowthBook();
   gb.setFeatures({
-    [featureSnapshotHighlightExpanded.id]: { defaultValue: true },
+    [featureHappeningNowShare.id]: { defaultValue: true },
   });
 
   return render(

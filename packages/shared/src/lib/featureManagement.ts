@@ -30,10 +30,10 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
-// Snapshot on Happening Now: the expanded highlight is the only level that
-// carries it — expansion is the intent signal, and there is room for a label.
-export const featureSnapshotHighlightExpanded = new Feature(
-  'snapshot_highlight_expanded',
+// Every share affordance on Happening Now: snapshot on an expanded highlight,
+// the selection bar inside its TLDR, and the copy-link controls.
+export const featureHappeningNowShare = new Feature(
+  'happening_now_share',
   false,
 );
 // Experiment: community takes — an LLM-generated digest of what the developer
