@@ -17,12 +17,28 @@ const LOGO_TEXT_RATIO = 77 / 20;
 export type CaptureTarget = HTMLElement | RefObject<HTMLElement>;
 
 export interface CaptureShareImageOptions extends SnapdomOptions {
+  width?: number;
+  height?: number;
   padding?: number;
   frameBackgroundColor?: string;
   branded?: boolean;
 }
 
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
+const CAPTURE_TIMEOUT_MS = 15000;
+
+// A cross-origin image without CORS headers leaves snapdom's inliner pending
+// forever, which would otherwise spin the trigger button indefinitely.
+const withTimeout = <T>(promise: Promise<T>): Promise<T> =>
+  Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(
+        () => reject(new Error('captureShareImage: capture timed out')),
+        CAPTURE_TIMEOUT_MS,
+      );
+    }),
+  ]);
 
 const resolveFrameBackground = (): string => {
   const rootStyle = getComputedStyle(document.documentElement);
@@ -53,6 +69,8 @@ const svgToImage = async (markup: string): Promise<HTMLImageElement> => {
 
 const drawLogoBar = async (
   context: CanvasRenderingContext2D,
+  canvasWidth: number,
+  canvasHeight: number,
 ): Promise<void> => {
   const { renderToStaticMarkup } = await import('react-dom/server');
   const rootStyle = getComputedStyle(document.documentElement);
@@ -65,16 +83,16 @@ const drawLogoBar = async (
     .getPropertyValue('--theme-border-subtlest-tertiary')
     .trim();
 
-  const barTop = SHARE_IMAGE_HEIGHT - LOGO_BAR_HEIGHT;
+  const barTop = canvasHeight - LOGO_BAR_HEIGHT;
 
   if (barBackground) {
     context.fillStyle = barBackground;
-    context.fillRect(0, barTop, SHARE_IMAGE_WIDTH, LOGO_BAR_HEIGHT);
+    context.fillRect(0, barTop, canvasWidth, LOGO_BAR_HEIGHT);
   }
 
   if (barBorder) {
     context.fillStyle = barBorder;
-    context.fillRect(0, barTop, SHARE_IMAGE_WIDTH, LOGO_BAR_BORDER);
+    context.fillRect(0, barTop, canvasWidth, LOGO_BAR_BORDER);
   }
 
   const toSizedMarkup = (markup: string, width: number): string =>
@@ -94,7 +112,7 @@ const drawLogoBar = async (
   ]);
 
   const totalWidth = iconWidth + LOGO_GAP + textWidth;
-  const x = (SHARE_IMAGE_WIDTH - totalWidth) / 2;
+  const x = (canvasWidth - totalWidth) / 2;
   const y = barTop + (LOGO_BAR_HEIGHT - LOGO_HEIGHT) / 2;
 
   context.drawImage(icon, x, y, iconWidth, LOGO_HEIGHT);
@@ -112,14 +130,16 @@ export async function captureShareImage(
   }
 
   const {
+    width = SHARE_IMAGE_WIDTH,
+    height = SHARE_IMAGE_HEIGHT,
     padding = 48,
     frameBackgroundColor,
     branded = true,
     ...snapOptions
   } = options;
   const barHeight = branded ? LOGO_BAR_HEIGHT : 0;
-  const contentWidth = SHARE_IMAGE_WIDTH - padding * 2;
-  const contentHeight = SHARE_IMAGE_HEIGHT - padding * 2 - barHeight;
+  const contentWidth = width - padding * 2;
+  const contentHeight = height - padding * 2 - barHeight;
 
   const rect = element.getBoundingClientRect();
 
@@ -134,16 +154,18 @@ export async function captureShareImage(
   const captureScale = Math.max(1, fitScale);
 
   const { snapdom } = await import('@zumer/snapdom');
-  const result = await snapdom(element, {
-    embedFonts: true,
-    scale: captureScale,
-    ...snapOptions,
-  });
+  const result = await withTimeout(
+    snapdom(element, {
+      embedFonts: true,
+      scale: captureScale,
+      ...snapOptions,
+    }),
+  );
   const source = await result.toCanvas();
 
   const canvas = document.createElement('canvas');
-  canvas.width = SHARE_IMAGE_WIDTH;
-  canvas.height = SHARE_IMAGE_HEIGHT;
+  canvas.width = width;
+  canvas.height = height;
   const context = canvas.getContext('2d');
 
   if (!context) {
@@ -170,7 +192,7 @@ export async function captureShareImage(
   );
 
   if (branded) {
-    await drawLogoBar(context);
+    await drawLogoBar(context, width, height);
   }
 
   return new Promise<Blob>((resolve, reject) => {

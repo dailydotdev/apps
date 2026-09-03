@@ -4,6 +4,7 @@ import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import {
   getBreadcrumbJsonLd,
   getCommentsJsonLd,
+  getFaqJsonLd,
   getSEOJsonLd,
   getSeoDescription,
 } from './PostSEOSchema';
@@ -118,5 +119,58 @@ describe('PostSEOSchema JSON-LD helpers', () => {
 
     expect(description.length).toBeLessThanOrEqual(163);
     expect(description.endsWith('...')).toBe(true);
+  });
+});
+
+describe('getFaqJsonLd', () => {
+  const questions = [
+    {
+      question: 'What session security defaults change in PHP 8.6?',
+      answer: 'PHP 8.6 flips three session ini defaults to safer values.',
+      cta: 'Teams shipping PHP upgrades track breaking changes like these on daily.dev.',
+    },
+  ];
+
+  it('returns null when the post has no questions', () => {
+    expect(getFaqJsonLd(buildPost())).toBeNull();
+    expect(getFaqJsonLd(buildPost({ answeredQuestions: [] }))).toBeNull();
+    expect(getFaqJsonLd(buildPost({ answeredQuestions: null }))).toBeNull();
+  });
+
+  it('emits a FAQPage entry per question', () => {
+    const jsonLd = getFaqJsonLd(buildPost({ answeredQuestions: questions }));
+
+    expect(jsonLd).not.toBeNull();
+    const parsed = JSON.parse(jsonLd as string);
+    expect(parsed['@type']).toEqual('FAQPage');
+    expect(parsed.mainEntity).toHaveLength(1);
+    expect(parsed.mainEntity[0]).toEqual(
+      expect.objectContaining({
+        '@type': 'Question',
+        name: questions[0].question,
+      }),
+    );
+  });
+
+  it('appends the cta to the answer so attribution travels with an extracted quote', () => {
+    const jsonLd = getFaqJsonLd(buildPost({ answeredQuestions: questions }));
+    const parsed = JSON.parse(jsonLd as string);
+
+    expect(parsed.mainEntity[0].acceptedAnswer.text).toEqual(
+      `${questions[0].answer} ${questions[0].cta}`,
+    );
+  });
+
+  it('omits a missing cta rather than emitting a trailing space', () => {
+    const jsonLd = getFaqJsonLd(
+      buildPost({
+        answeredQuestions: [{ ...questions[0], cta: '' }],
+      }),
+    );
+    const parsed = JSON.parse(jsonLd as string);
+
+    expect(parsed.mainEntity[0].acceptedAnswer.text).toEqual(
+      questions[0].answer,
+    );
   });
 });

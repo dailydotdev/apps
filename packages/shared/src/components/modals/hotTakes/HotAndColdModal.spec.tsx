@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { HotTake } from '../../../graphql/user/userHotTake';
 import { useDiscoverHotTakes } from '../../../hooks/useDiscoverHotTakes';
 import { useVoteHotTake } from '../../../hooks/vote/useVoteHotTake';
@@ -48,11 +49,13 @@ const createHotTake = (id = 'take-1'): HotTake => ({
 
 const renderComponent = (onRequestClose = jest.fn()) => {
   render(
-    <HotAndColdModal
-      isOpen
-      onRequestClose={onRequestClose}
-      ariaHideApp={false}
-    />,
+    <QueryClientProvider client={new QueryClient()}>
+      <HotAndColdModal
+        isOpen
+        onRequestClose={onRequestClose}
+        ariaHideApp={false}
+      />
+    </QueryClientProvider>,
   );
 
   return { onRequestClose };
@@ -331,23 +334,26 @@ describe('HotAndColdModal', () => {
 
   it('should keep onboarding mode clipped and scrollable inside the modal shell', () => {
     render(
-      <HotAndColdModal
-        isOpen
-        onRequestClose={jest.fn()}
-        ariaHideApp={false}
-        onboardingCards={[
-          {
-            id: 'onboarding-card-1',
-            title: 'Figma launches MCP tool for AI agents to design on canvas',
-            summary:
-              'A generated TLDR keeps the onboarding card readable while the modal stays within its shell.',
-            tags: ['ai-agents', 'figma', 'mcp'],
-            source: { name: 'daily.dev' },
-          },
-        ]}
-        topSlot={<div>Progress header</div>}
-        bottomSlot={<div>Starter feed ready</div>}
-      />,
+      <QueryClientProvider client={new QueryClient()}>
+        <HotAndColdModal
+          isOpen
+          onRequestClose={jest.fn()}
+          ariaHideApp={false}
+          onboardingCards={[
+            {
+              id: 'onboarding-card-1',
+              title:
+                'Figma launches MCP tool for AI agents to design on canvas',
+              summary:
+                'A generated TLDR keeps the onboarding card readable while the modal stays within its shell.',
+              tags: ['ai-agents', 'figma', 'mcp'],
+              source: { name: 'daily.dev' },
+            },
+          ]}
+          topSlot={<div>Progress header</div>}
+          bottomSlot={<div>Starter feed ready</div>}
+        />
+      </QueryClientProvider>,
     );
 
     const modalBody = document.querySelector('section');

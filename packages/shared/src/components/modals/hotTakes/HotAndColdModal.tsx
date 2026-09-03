@@ -33,6 +33,7 @@ import { Loader } from '../../Loader';
 import LogoIcon from '../../../svg/LogoIcon';
 import type { HotTake } from '../../../graphql/user/userHotTake';
 import { getAddHotTakeProfileUrl } from '../../../features/profile/components/hotTakes/common';
+import { SnapshotButton } from '../../imageShare/SnapshotButton';
 
 const SWIPE_THRESHOLD = 80;
 const ONBOARDING_INTRO_INTERESTING_OFFSET = 56;
@@ -899,6 +900,7 @@ const HotTakeCard = ({
     }
   }
   const isSkipVisualActive = isTop && skipEffectIntensity > 0.02;
+  const cardRef = useRef<HTMLDivElement>(null);
   const getSwipeDirection = (): 'right' | 'left' | null => {
     if (!isTop || Math.abs(swipeDelta) <= 20) {
       return null;
@@ -960,6 +962,7 @@ const HotTakeCard = ({
 
   return (
     <div
+      ref={cardRef}
       className={classNames(
         'absolute inset-0 flex select-none flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2',
         !isTop && 'pointer-events-none',
@@ -1324,18 +1327,30 @@ const HotTakeCard = ({
           </Typography>
         )}
 
-        {hotTake.upvotes > 0 && (
-          <div className="flex items-center gap-1 rounded-10 bg-surface-hover px-3 py-1">
-            <HotIcon className="text-accent-cabbage-default" />
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-              bold
-            >
-              {hotTake.upvotes}
-            </Typography>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {hotTake.upvotes > 0 && (
+            <div className="flex items-center gap-1 rounded-10 bg-surface-hover px-3 py-1">
+              <HotIcon className="text-accent-cabbage-default" />
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Secondary}
+                bold
+              >
+                {hotTake.upvotes}
+              </Typography>
+            </div>
+          )}
+          {isTop && (
+            <SnapshotButton
+              filename={`daily-hot-take-${hotTake.id}`}
+              link={hotTake.user?.permalink}
+              showLabel={false}
+              size={ButtonSize.Small}
+              target={cardRef}
+              variant={ButtonVariant.Float}
+            />
+          )}
+        </div>
       </div>
 
       {hotTake.user && (

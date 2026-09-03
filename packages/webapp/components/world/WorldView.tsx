@@ -4,9 +4,14 @@ import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { WorldBack } from './WorldBack';
 import { WorldBoot } from './WorldBoot';
+import { WorldDistrictFeed } from './WorldDistrictFeed';
+import { WorldGuideSheet } from './WorldGuide';
+import { WorldIntro } from './WorldIntro';
 import { useIsOwnWorld, WorldInvite } from './WorldInvite';
+import { useWorldIntro } from './useWorldIntro';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
 import { WorldPrivate } from './WorldPrivate';
@@ -16,6 +21,8 @@ import { WorldTimeline } from './WorldTimeline';
 import type { WorldEngine, WorldState } from './worldState';
 import type { UserWorldResult } from './useUserWorld';
 import { useWorldDraft } from './useWorldDraft';
+import { useWorldLog } from './useWorldLog';
+import { RIDE_MUTED_KEY, useWorldMusic } from './useWorldMusic';
 import { useWorldPlate } from './useWorldPlate';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
@@ -238,6 +245,13 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     engineRef.current?.setSky(resolveSky(applied));
   }, [applied]);
 
+  /* Unlike the look and the crest, this one is the VIEWER's: how far a plot is
+     through its level is the owner's own business, and on a stranger's world it
+     is a number about somebody else's reading on a plate the size of a stamp. */
+  useEffect(() => {
+    engineRef.current?.setLevelProgress(isOwn);
+  }, [isOwn]);
+
   /* The share card is composed server-side around a render only this machine
      can cheaply make. Reads the STORED settings, not the draft: a plate is what
      the world looks like to everyone, not what the owner is trying on. */
@@ -285,6 +299,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
   const onLeaveRealm = useCallback(() => engineRef.current?.leaveRealm(), []);
+  /* Closing the feed drops the engine's selection rather than hiding the panel
+     in React: the lit plot border and the highlighted rail row are the same
+     fact, and a panel dismissed on its own would leave the world claiming a
+     town is open. Dropping the selection is also what lets clicking the same
+     town again reopen it. */
+  const onCloseDistrict = useCallback(() => engineRef.current?.deselect(), []);
   const attachSpark = useCallback(
     (canvas: HTMLCanvasElement | null) =>
       engineRef.current?.attachSpark(canvas),
@@ -314,6 +334,31 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
 
+  const [isMuted, setIsMuted] = usePersistentContext<boolean>(
+    RIDE_MUTED_KEY,
+    false,
+    [true, false],
+    false,
+  );
+  const onToggleMute = useCallback(
+    () => setIsMuted(!isMuted),
+    [isMuted, setIsMuted],
+  );
+  useWorldMusic({ isRiding, isMuted });
+
+  useWorldLog({
+    userId: user.id,
+    isOwn,
+    isLite,
+    isSettled: !isPending,
+    isPrivate,
+    isUnbuilt,
+    isReady: isStanding,
+    failure,
+    state,
+    districts,
+  });
+
   /* The bench is the owner's only, and the rail's only: below laptop there is
      no room to dress a world and look at it at the same time, so a phone shows
      the place and a laptop is where it is made yours. */
@@ -328,6 +373,37 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   /* Never on an unbuilt world: WorldInvite already makes the one ask there,
      and it makes it nowhere else. */
   const showNudge = isOwn && !isUnbuilt && !isWorldCustomised(applied);
+  /* A district is only ever selected inside a realm, so this is also what says
+     the reader has walked in and clicked a town. Not while the bench is open:
+     dressing a world means clicking towns to see chips land on them, and a feed
+     opening over every one of those clicks is noise on top of the one job the
+     owner is there to do. */
+  const openDistrict =
+    isChromeVisible && !ownerDraft?.isOpen ? state.district : null;
+
+  /* Below laptop only: on a laptop the same guide replaces the rail, and the
+     rail is where it is asked for. */
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  /* The scrubber is the one piece of chrome the bar has to stand clear of, and
+     the conditions are the same ones that put it on screen below. */
+  const hasTimeline =
+    isChromeVisible &&
+    !isLite &&
+    !isUnbuilt &&
+    (state.replayable || !hasNoReplay) &&
+    (isLaptop || !openDistrict);
+
+  const { step: introStep, dismiss: dismissIntro } = useWorldIntro({
+    userId: user.id,
+    isOwn,
+    /* Never over bare ground, where `WorldInvite` already makes the one ask and
+       there is nothing to walk into anyway. Never while the bench is open, or
+       riding, or immersive: each of those is a reader who has found something
+       to do, and this is for one who has not. */
+    isEligible: isChromeVisible && !isUnbuilt && !ownerDraft?.isOpen,
+    isInRealm: !!state.open,
+    hasDistrict: !!state.district,
+  });
 
   /* A hidden world draws nothing — no map, timeline or crest — so this returns
      before the boot screen too. */
@@ -347,64 +423,126 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     <div className="fixed inset-0 overflow-hidden bg-background-default">
       <div ref={mountRef} className="absolute inset-0" />
 
-      {isChromeVisible && (
-        <>
-          {isLaptop ? (
-            <WorldPanel
-              user={user}
-              state={state}
-              unbuilt={isUnbuilt}
-              isImmersive={isImmersive}
-              worldName={worldName}
-              isOwn={isOwn}
-              canShare={canShare}
-              draft={ownerDraft}
-              districts={districts}
-              showNudge={showNudge}
-              onToggleImmersive={onToggleImmersive}
-              onFocus={onFocus}
-              onLeaveRealm={onLeaveRealm}
-            />
-          ) : (
-            <WorldBack
-              user={user}
-              isInRealm={!!state.open}
-              worldName={worldName}
-              isOwn={isOwn}
-              canShare={canShare}
-              onLeaveRealm={onLeaveRealm}
-            />
-          )}
-          {/* On screen while the growth log is still on the wire, inert, in the
-              place it will be live in. It is the last thing to arrive and the
-              only one that changes the layout, so it reserves its own room.
-
-              Never on a handheld. The bar is a transport, a scrubber, three
-              speeds and a sparkline, and a phone has room for one of those
-              five; the log it drives is not fetched there either. What is left
-              is a world, which is the thing worth the screen anyway. */}
-          {!isLite && !isUnbuilt && (state.replayable || !hasNoReplay) && (
-            <WorldTimeline
-              state={state}
-              pending={!state.replayable}
-              sparkRef={attachSpark}
-              onToggle={onToggle}
-              onSeek={onSeek}
-              onStart={onStart}
-              onEnd={onEnd}
-              onSpeed={onSpeed}
-            />
-          )}
-        </>
+      {/* Hidden rather than dropped: the rail carries the signup card, which
+          logs `open signup` from its mount, so dropping it reports another
+          signup open every time the panels come back. Standing is what it is
+          mounted on, because that is the visit worth counting. */}
+      {isStanding && isLaptop && (
+        <div hidden={!isChromeVisible}>
+          <WorldPanel
+            user={user}
+            state={state}
+            unbuilt={isUnbuilt}
+            isHidden={!isChromeVisible}
+            isImmersive={isImmersive}
+            worldName={worldName}
+            isOwn={isOwn}
+            canShare={canShare}
+            draft={ownerDraft}
+            districts={districts}
+            showNudge={showNudge}
+            onToggleImmersive={onToggleImmersive}
+            onFocus={onFocus}
+            onLeaveRealm={onLeaveRealm}
+          />
+        </div>
       )}
 
-      {isRiding && <WorldRiding state={state} />}
+      {/* Whatever the last click selected, read out. Deliberately does NOT
+          repad the camera: `setPadding` refits the whole realm, which would
+          throw away the reader's zoom and pan every time they clicked a town,
+          a steep price for a panel that opens and closes on single clicks. So
+          it overlays the world's edge and the reader pans if they need to. */}
+      {!!openDistrict && (
+        <WorldDistrictFeed
+          userId={user.id}
+          userName={user.name}
+          isOwn={isOwn}
+          district={openDistrict}
+          onClose={onCloseDistrict}
+        />
+      )}
+
+      {isChromeVisible && !isLaptop && (
+        <WorldBack
+          user={user}
+          isInRealm={!!state.open}
+          worldName={worldName}
+          isOwn={isOwn}
+          canShare={canShare}
+          onLeaveRealm={onLeaveRealm}
+          onOpenGuide={() => setIsGuideOpen(true)}
+        />
+      )}
+
+      {isStanding && !isLaptop && isGuideOpen && (
+        <WorldGuideSheet
+          state={state}
+          userName={user.name}
+          isOwn={isOwn}
+          districts={districts}
+          /* Both of these are laptop-only surfaces, so neither is promised to a
+             reader who has no way to reach them: the scrubber is not rendered
+             on a handheld, and the bench is rail-only on every screen. */
+          hasReplay={hasTimeline}
+          canCustomize={false}
+          isTouch={isLite}
+          onClose={() => setIsGuideOpen(false)}
+        />
+      )}
+
+      {/* On screen while the growth log is still on the wire, inert, in the
+          place it will be live in. It is the last thing to arrive and the
+          only one that changes the layout, so it reserves its own room.
+
+          Never on a handheld. The bar is a transport, a scrubber, three
+          speeds and a sparkline, and a phone has room for one of those
+          five; the log it drives is not fetched there either. What is left
+          is a world, which is the thing worth the screen anyway. */}
+      {/* Below laptop the district feed is a sheet across the bottom, sitting
+          exactly where this bar does. Nothing is gained by leaving a scrubber
+          under it that cannot be reached, so the bar comes down for as long as
+          the feed is up. On laptop it stops short of the panel instead. */}
+      {hasTimeline && (
+        <WorldTimeline
+          state={state}
+          pending={!state.replayable}
+          sparkRef={attachSpark}
+          insetRight={!!openDistrict}
+          onToggle={onToggle}
+          onSeek={onSeek}
+          onStart={onStart}
+          onEnd={onEnd}
+          onSpeed={onSpeed}
+        />
+      )}
+
+      {isRiding && (
+        <WorldRiding
+          state={state}
+          isMuted={isMuted}
+          onToggleMute={onToggleMute}
+        />
+      )}
 
       {isUnbuilt && !isRiding && <WorldInvite user={user} />}
 
+      {/* Under the guide sheet on purpose: the sheet is the same explanation
+          asked for deliberately, and a hint bar poking out from under it is two
+          answers to one question. */}
+      {!!introStep && !isGuideOpen && (
+        <WorldIntro
+          step={introStep}
+          hasTimeline={hasTimeline}
+          isTouch={isLite}
+          isOwn={isOwn}
+          onDismiss={dismissIntro}
+        />
+      )}
+
       {/* No bar anywhere holds it any more, so it always stands on the world:
           top right, opposite whatever is in the other corner. */}
-      {isStanding && <WorldMark floating />}
+      {isStanding && <WorldMark floating insetRight={!!openDistrict} />}
 
       {/* The toggle lives in whatever chrome is on screen. Once none is, it
           stands on the world too, opposite the mark, because it is then the

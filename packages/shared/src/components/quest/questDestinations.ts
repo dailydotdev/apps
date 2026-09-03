@@ -62,6 +62,8 @@ export const getQuestDestination = (
       return { label: 'Later', path: '/bookmarks/later' };
     case 'visit_watercooler_feed':
       return { label: 'Watercooler', path: '/watercooler' };
+    case 'visit_user_world':
+      return { label: 'Worlds', path: '/world' };
     case 'feedback_submit':
       return { label: 'Feedback', path: '/settings/feedback' };
     case 'squad_join':

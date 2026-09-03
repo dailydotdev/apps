@@ -28,6 +28,10 @@ import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
+import { OtherFeedPage } from '../../../lib/query';
+import { SnapshotButton } from '../../imageShare/SnapshotButton';
+import { ButtonVariant } from '../../buttons/Button';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -52,6 +56,9 @@ export const FreeformList = forwardRef(function SharePostCard(
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const containerRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { feedName } = useActiveFeedContext();
+  const isWatercooler = feedName === OtherFeedPage.Watercooler;
   const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
@@ -78,6 +85,18 @@ export const FreeformList = forwardRef(function SharePostCard(
           !!image && 'laptop:mt-auto',
         )}
         variant="list"
+        trailing={
+          isWatercooler ? (
+            <SnapshotButton
+              className="pointer-events-auto"
+              filename={`daily-watercooler-${post.id}`}
+              link={post.commentsPermalink}
+              showLabel={false}
+              target={cardRef}
+              variant={ButtonVariant.Tertiary}
+            />
+          ) : undefined
+        }
       />
     </Container>
   );
@@ -143,7 +162,7 @@ export const FreeformList = forwardRef(function SharePostCard(
       }
       bookmarked={post.bookmarked}
     >
-      <CardContainer>
+      <CardContainer ref={cardRef}>
         <PostCardHeader post={post} metadata={metadata}>
           {!isUserSource && post.source && (
             <SquadHeaderPicture

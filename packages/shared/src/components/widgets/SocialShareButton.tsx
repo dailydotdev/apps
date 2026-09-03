@@ -12,9 +12,15 @@ type SocialShareButtonProps = ButtonProps<'a'> & {
 
 export const ShareText = classed('span', 'text-text-tertiary cursor-pointer');
 
-const sizeToText = {
+const sizeToText: Partial<Record<ButtonSize, string>> = {
   [ButtonSize.Large]: 'typo-caption2',
   [ButtonSize.Medium]: 'typo-caption1',
+};
+
+/** Narrower at Medium so a grid of these can close up. */
+const sizeToWidth: Partial<Record<ButtonSize, string>> = {
+  [ButtonSize.Large]: 'w-16',
+  [ButtonSize.Medium]: 'w-14',
 };
 
 export const SocialShareButton = ({
@@ -24,7 +30,7 @@ export const SocialShareButton = ({
   size = ButtonSize.Large,
   ...props
 }: SocialShareButtonProps): ReactElement => {
-  const button = useRef<HTMLButtonElement>();
+  const button = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const buttonProps =
     href &&
     ({
@@ -35,7 +41,12 @@ export const SocialShareButton = ({
     } as ButtonProps<'a'>);
 
   return (
-    <div className="group flex w-16 flex-col items-center">
+    <div
+      className={classNames(
+        'group flex flex-col items-center',
+        sizeToWidth[size] ?? 'w-16',
+      )}
+    >
       <Button
         {...buttonProps}
         {...props}
@@ -46,7 +57,7 @@ export const SocialShareButton = ({
       />
       <ShareText
         className={classNames(
-          'mt-1.5 max-w-16 overflow-hidden overflow-ellipsis text-center transition-colors hover:text-text-primary group-hover:text-text-primary',
+          'mt-1.5 max-w-full overflow-hidden overflow-ellipsis text-center transition-colors hover:text-text-primary group-hover:text-text-primary',
           sizeToText[size],
         )}
         onClick={() => button?.current?.click()}

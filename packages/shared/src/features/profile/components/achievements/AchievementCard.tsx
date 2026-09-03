@@ -29,6 +29,8 @@ import {
   rarityGlowClasses,
 } from './achievementRarity';
 import { RaritySparkles } from './RaritySparkles';
+import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { AchievementSnapshotCard } from '../../../snapshot/AchievementSnapshotCard';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
@@ -65,7 +67,7 @@ export function AchievementCard({
   return (
     <div
       className={classNames(
-        'relative flex flex-col rounded-16 border p-4 transition-colors',
+        'group relative flex flex-col rounded-16 border p-4 transition-colors',
         isUnlocked ? 'bg-surface-float' : 'bg-surface-subtle',
         rarityTier
           ? ['overflow-visible', rarityGlowClasses[rarityTier]]
@@ -121,7 +123,32 @@ export function AchievementCard({
             {achievement.description}
           </Typography>
         </div>
-        <div className="flex shrink-0 items-center self-center">
+        <div className="flex shrink-0 items-center gap-1 self-center">
+          <SnapshotButton
+            card={
+              <AchievementSnapshotCard
+                completedAt={
+                  unlockedAt
+                    ? formatDate({
+                        value: unlockedAt,
+                        type: TimeFormatType.Post,
+                      })
+                    : ''
+                }
+                description={achievement.description}
+                image={achievement.image}
+                name={achievement.name}
+                rarity={achievement.rarity}
+                seed={achievement.id}
+                tier={rarityTier}
+              />
+            }
+            className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+            filename={`daily-achievement-${achievement.id}`}
+            showLabel={false}
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Float}
+          />
           <Typography
             type={TypographyType.Callout}
             color={

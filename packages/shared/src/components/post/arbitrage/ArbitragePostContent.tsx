@@ -1,0 +1,329 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import type { Post } from '../../../graphql/posts';
+import { isVideoPost } from '../../../graphql/posts';
+import { Origin } from '../../../lib/log';
+import usePostContent from '../../../hooks/usePostContent';
+import PostMetadata from '../../cards/common/PostMetadata';
+import PostSourceInfo from '../PostSourceInfo';
+import { PostHeaderActions } from '../PostHeaderActions';
+import { ButtonSize } from '../../buttons/common';
+import { PostTagList } from '../tags/PostTagList';
+import { PostContainer } from '../common';
+import { PostContentContainerRaw } from './common';
+import YoutubeVideo from '../../video/YoutubeVideo';
+import { LazyImage } from '../../LazyImage';
+import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
+import { TruncateText } from '../../utilities';
+import Markdown from '../../Markdown';
+import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
+import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
+import {
+  ARBITRAGE_SLOT,
+  COMMENTS_PER_INTERLEAVED_AD,
+  TOP_LEADERBOARD_STICKY_MS,
+} from './slots';
+import { useTimedRelease } from './useTimedRelease';
+import { GoBackHeaderMobile } from '../GoBackHeaderMobile';
+import { PostWidgets, PostWidgetPosition } from '../PostWidgets';
+import PostEngagements from '../PostEngagements';
+
+/**
+ * One slot per real rail widget, in render order. The rail is the page's only
+ * column with no article in it, so every widget there earns a unit; the two
+ * that are already commercial (the house ad widget and the sponsored tools
+ * card) have no position and so get none.
+ *
+ * Below laptop the rail stacks under the article rather than beside it, so
+ * an unfiltered run lands every unit on a phone too — measured at roughly 40%
+ * of page height against the Better Ads Standards' 30% mobile cap, and
+ * Chrome's ad filter for a violation applies to the whole domain, direct-sold
+ * inventory included. Only the first rail unit keeps its phone placement; the
+ * rest are desktop-only, which brings the phone run well under the cap.
+ */
+const RAIL_AD: Record<
+  PostWidgetPosition,
+  {
+    slot: number;
+    format: ArbitrageAdFormat;
+    className?: string;
+    hideOnPhone?: boolean;
+  }
+> = {
+  [PostWidgetPosition.Source]: {
+    slot: ARBITRAGE_SLOT.railAfterSource,
+    format: ArbitrageAdFormat.MediumRectangle,
+  },
+  [PostWidgetPosition.Creator]: {
+    slot: ARBITRAGE_SLOT.railAfterCreator,
+    format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
+  },
+  [PostWidgetPosition.Share]: {
+    slot: ARBITRAGE_SLOT.railAfterShare,
+    format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
+  },
+  [PostWidgetPosition.Highlights]: {
+    slot: ARBITRAGE_SLOT.railAfterHighlights,
+    format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
+  },
+  // Between "You might like" and the discussions, and the only unit that
+  // stays with the visitor: it pins under the fixed chrome and rides the rest
+  // of the scroll. Sticky is bounded by the containing block, which must be
+  // the rail itself — stretched to the article column's height — for the unit
+  // to have the whole page to travel; FurtherReading flattens to `contents`
+  // around it for exactly that reason, and any wrapper that generates a box
+  // here would cut the travel to that box. z-1 puts it over the widgets that
+  // scroll underneath, and the background keeps them from showing through the
+  // space the creative does not fill.
+  [PostWidgetPosition.SimilarPosts]: {
+    slot: ARBITRAGE_SLOT.railBetweenFurtherReading,
+    format: ArbitrageAdFormat.MediumRectangle,
+    className:
+      'laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1 laptop:bg-background-default',
+    hideOnPhone: true,
+  },
+};
+
+export interface ArbitragePostContentProps {
+  post: Post;
+  className?: string;
+}
+
+/**
+ * Ad-monetised post template for paid and organic landing traffic.
+ *
+ * Forked from the classic PostContent layout rather than the focus card: for
+ * scraped articles neither template has a body to render, so the focus card's
+ * only real advantage does not apply, while the widget column it lacks carries
+ * three always-viewable slots. Signup surfaces (PostAuthBanner,
+ * CustomAuthBanner, PostSignupWidget) are deliberately absent — the header
+ * login/signup buttons remain the only account entry point.
+ *
+ * A fork rather than variant props on PostContent: threading a dozen slot
+ * positions and removed surfaces through the production component would put
+ * ad concerns in every consumer's render path (modals and the extension
+ * included) for a template that may not survive its experiment. The cost is
+ * accepted, not free — fixes to PostContent's column structure must be
+ * mirrored here, and if /read wins, folding this back is the follow-up debt.
+ */
+export function ArbitragePostContent({
+  post,
+  className,
+}: ArbitragePostContentProps): ReactElement {
+  const isVideoType = isVideoPost(post);
+  const { onReadArticle, onCopyPostLink } = usePostContent({
+    origin: Origin.ArticlePage,
+    post,
+  });
+  const leaderboardReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
+
+  return (
+    <PostContentContainerRaw className={className}>
+      {/* PostContainer is overflow-hidden, which would make it the scroll
+          container for the leaderboard's sticky position and stop it pinning.
+          overflow-x: clip alongside overflow-y: visible clips the column the
+          same way without creating a scroll container. */}
+      <PostContainer
+        className="relative !overflow-x-clip !overflow-y-visible"
+        data-testid="postContainer"
+      >
+        {/* Below laptop the leaderboard and the production mobile header pin
+            as one block, so the header cannot ride up over the ad the way it
+            did when each was sticky on its own. The header's own sticky is off
+            while the block is pinned, or it would climb to the top of it and
+            land on the leaderboard anyway.
+
+            Once the ten second window closes the block releases: the ad
+            scrolls away with the page and the header, back on its own sticky,
+            takes the top over. `contents` rather than a class swap because the
+            header's sticky is bounded by its containing block, and a wrapper
+            that still generated a box would let it pin only as far as the
+            wrapper's own few pixels of height.
+
+            Transparent from laptop up, where the header does not render and
+            the leaderboard pins itself against the fixed chrome instead. */}
+        <div
+          className={classNames(
+            leaderboardReleased
+              ? 'contents'
+              : 'sticky top-0 z-postNavigation bg-background-default laptop:contents',
+          )}
+        >
+          <ArbitrageTopLeaderboard released={leaderboardReleased} />
+
+          <GoBackHeaderMobile
+            className={classNames(
+              '-mx-4 bg-background-subtle',
+              !leaderboardReleased && '!static',
+            )}
+          >
+            <PostHeaderActions
+              post={post}
+              className="ml-auto"
+              contextMenuId="arbitrage-post-header-actions"
+              onReadArticle={onReadArticle}
+              buttonSize={ButtonSize.Small}
+            />
+          </GoBackHeaderMobile>
+        </div>
+
+        <div className="my-6">
+          <div className="mb-3 flex items-center gap-2">
+            <PostSourceInfo
+              className="min-w-0 flex-1"
+              post={post}
+              onReadArticle={onReadArticle}
+            />
+          </div>
+          <h1
+            className="break-words font-bold typo-large-title"
+            data-testid="post-modal-title"
+          >
+            <a
+              href={post.permalink}
+              title="Go to post"
+              target="_blank"
+              rel="noopener"
+            >
+              {post.title}
+            </a>
+          </h1>
+        </div>
+
+        {isVideoType && (
+          <YoutubeVideo
+            placeholderProps={{ post, onWatchVideo: () => undefined }}
+            videoId={post.videoId ?? ''}
+            className="mb-7"
+          />
+        )}
+
+        {!!post.summary && (
+          <div className="mb-6 overflow-hidden text-text-secondary">
+            <p className="select-text break-words typo-markdown">
+              {post.summary}
+            </p>
+          </div>
+        )}
+
+        {/* MPU 1 beside the tags, date and cover rather than above them, so the
+            first ad shares the fold with real page furniture instead of
+            standing alone. The slot is first in the DOM because a phone stacks
+            the column and the brief puts the unit above the article, not below
+            it; from laptop `order-last` moves it to the right of the group.
+
+            The two halves are deliberately near equal — 336 for the unit
+            against 385 for the article's, out of the column's 745 — so the ad
+            reads as the cover's counterpart rather than as a tower beside it.
+            items-end puts their bottom edges on the same line. */}
+        <div className="mb-6 flex flex-col gap-6 laptop:flex-row laptop:items-end">
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.inlineMpu1}
+            format={ArbitrageAdFormat.Rectangle}
+            refreshes
+            className="laptop:order-last"
+          />
+
+          <div className="min-w-0 flex-1">
+            <PostTagList post={post} />
+            <PostMetadata
+              createdAt={post.createdAt}
+              readTime={post.readTime}
+              isVideoType={isVideoType}
+              // The production post page's own spacing, verbatim.
+              className="mb-8 mt-4 !typo-callout"
+              domain={
+                !isVideoType &&
+                !!post.domain?.length && (
+                  <TruncateText>
+                    From{' '}
+                    <a
+                      href={post.permalink}
+                      title={post.domain}
+                      target="_blank"
+                      rel="noopener"
+                      className="hover:underline"
+                    >
+                      {post.domain}
+                    </a>
+                  </TruncateText>
+                )
+              }
+            />
+
+            {!isVideoType && (
+              <a
+                href={post.permalink}
+                target="_blank"
+                rel="noopener"
+                className="block cursor-pointer overflow-hidden rounded-16"
+                style={{ maxWidth: '25.625rem' }}
+              >
+                <LazyImage
+                  imgSrc={post.image}
+                  imgAlt="Post cover image"
+                  ratio="49%"
+                  eager
+                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                  fetchPriority="high"
+                />
+              </a>
+            )}
+          </div>
+        </div>
+
+        {!!post.contentHtml && (
+          <Markdown
+            className="my-6"
+            content={post.contentHtml}
+            appendTooltipTo={() => globalThis?.document?.body}
+          />
+        )}
+
+        {/* The production engagement block verbatim — counts, actions, share,
+            sort control, composer and thread — so everything from here to the
+            end of the discussion matches the live post page exactly. The only
+            addition is a native unit every few comments in a long thread. */}
+        <PostEngagements
+          post={post}
+          onCopyLinkClick={onCopyPostLink}
+          logOrigin={Origin.ArticlePage}
+          interleaveEvery={COMMENTS_PER_INTERLEAVED_AD}
+          renderInterleaved={() => (
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.commentNative}
+              format={ArbitrageAdFormat.Native}
+            />
+          )}
+        />
+      </PostContainer>
+
+      {/* The production widget column, minus the signup card and the table of
+          contents, with a slot after every widget that actually renders. */}
+      <PostWidgets
+        post={post}
+        origin={Origin.ArticlePage}
+        onCopyPostLink={onCopyPostLink}
+        className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
+        hideSignupWidget
+        hideToc
+        getRailAd={(position) => {
+          const spec = RAIL_AD[position];
+
+          return (
+            <ArbitrageAdSlot
+              slot={spec.slot}
+              format={spec.format}
+              className={spec.className}
+              hideOnPhone={spec.hideOnPhone}
+            />
+          );
+        }}
+      />
+    </PostContentContainerRaw>
+  );
+}

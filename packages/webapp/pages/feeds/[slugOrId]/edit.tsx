@@ -44,7 +44,7 @@ const EditFeedPage = (): ReactElement | null => {
     feature: featureFeedChips,
     shouldEvaluate: !isPlus,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const { feeds } = useFeeds();
   const feed = feeds?.edges.find(
     (item) => item.node.id === feedSlugOrId || item.node.slug === feedSlugOrId,

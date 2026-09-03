@@ -14,7 +14,7 @@ import {
   TwitterIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useGetShortUrl } from '../../hooks';
 
 interface SocialShareListProps {
@@ -27,6 +27,8 @@ interface SocialShareListProps {
   onNativeShare(): void;
   onClickSocial(provider: ShareProvider): void;
   shortenUrl?: boolean;
+  /** Passed to every tile; Large keeps the existing look. */
+  size?: ButtonSize;
 }
 
 export function SocialShareList({
@@ -39,6 +41,7 @@ export function SocialShareList({
   onNativeShare,
   onClickSocial,
   shortenUrl = true,
+  size = ButtonSize.Large,
 }: SocialShareListProps): ReactElement {
   const { getShortUrl } = useGetShortUrl();
 
@@ -60,6 +63,7 @@ export function SocialShareList({
     <>
       {onCopy && (
         <SocialShareButton
+          size={size}
           onClick={onCopy}
           icon={<CopyIcon secondary={isCopying} />}
           variant={ButtonVariant.Primary}
@@ -67,6 +71,7 @@ export function SocialShareList({
         />
       )}
       <SocialShareButton
+        size={size}
         icon={<TwitterIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Twitter}
@@ -74,6 +79,7 @@ export function SocialShareList({
         label="X"
       />
       <SocialShareButton
+        size={size}
         icon={<WhatsappIcon />}
         onClick={() => openShareLink(ShareProvider.WhatsApp)}
         variant={ButtonVariant.Primary}
@@ -81,6 +87,7 @@ export function SocialShareList({
         label="WhatsApp"
       />
       <SocialShareButton
+        size={size}
         icon={<FacebookIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Facebook}
@@ -88,6 +95,7 @@ export function SocialShareList({
         label="Facebook"
       />
       <SocialShareButton
+        size={size}
         icon={<RedditIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Reddit}
@@ -95,6 +103,7 @@ export function SocialShareList({
         label="Reddit"
       />
       <SocialShareButton
+        size={size}
         icon={<LinkedInIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.LinkedIn}
@@ -102,6 +111,7 @@ export function SocialShareList({
         label="LinkedIn"
       />
       <SocialShareButton
+        size={size}
         icon={<TelegramIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Telegram}
@@ -109,6 +119,7 @@ export function SocialShareList({
         label="Telegram"
       />
       <SocialShareButton
+        size={size}
         icon={<MailIcon />}
         variant={ButtonVariant.Primary}
         onClick={() => openShareLink(ShareProvider.Email)}
@@ -116,6 +127,7 @@ export function SocialShareList({
       />
       {typeof globalThis?.navigator?.share === 'function' && (
         <SocialShareButton
+          size={size}
           icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
           variant={ButtonVariant.Primary}
           onClick={onNativeShare}

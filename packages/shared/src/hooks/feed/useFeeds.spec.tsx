@@ -9,11 +9,13 @@ import {
   CREATE_FEED_MUTATION,
   DELETE_FEED_MUTATION,
   FEED_LIST_QUERY,
+  TagChipSeedStrategy,
   UPDATE_FEED_MUTATION,
 } from '../../graphql/feed';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { BootApp } from '../../lib/boot';
 import { GrowthBookProvider } from '../../components/GrowthBookProvider';
+import { FeedChipsVariant } from '../../lib/featureManagement';
 import { useOnboardingActions } from '../auth/useOnboardingActions';
 
 jest.mock('../auth/useOnboardingActions', () => ({
@@ -26,32 +28,42 @@ const client = new QueryClient();
 const noop = jest.fn();
 let queryCalled = false;
 
-const Wrapper = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <QueryClientProvider client={client}>
-      <AuthContextProvider
-        user={defaultUser}
-        squads={[]}
-        getRedirectUri={noop}
-        updateUser={noop}
-        tokenRefreshed={false}
-      >
-        <GrowthBookProvider
-          app={BootApp.Test}
+const createWrapper = (variant?: FeedChipsVariant) => {
+  const wrapper = ({ children }: { children: React.ReactNode }) => {
+    return (
+      <QueryClientProvider client={client}>
+        <AuthContextProvider
           user={defaultUser}
-          deviceId="123"
-          experimentation={{
-            f: '{}',
-            e: [],
-            a: [],
-          }}
+          squads={[]}
+          getRedirectUri={noop}
+          updateUser={noop}
+          tokenRefreshed={false}
         >
-          {children}
-        </GrowthBookProvider>
-      </AuthContextProvider>
-    </QueryClientProvider>
-  );
+          <GrowthBookProvider
+            app={BootApp.Test}
+            user={defaultUser}
+            deviceId="123"
+            experimentation={{
+              f: '{}',
+              e: [],
+              a: [],
+              ...(variant && {
+                features: { feed_chips: { defaultValue: variant } },
+              }),
+            }}
+          >
+            {children}
+          </GrowthBookProvider>
+        </AuthContextProvider>
+      </QueryClientProvider>
+    );
+  };
+  wrapper.displayName = 'Wrapper';
+
+  return wrapper;
 };
+
+const Wrapper = createWrapper();
 
 const feeds = [
   {
@@ -286,6 +298,67 @@ describe('useFeeds hook', () => {
     });
 
     renderHook(() => useFeeds(), { wrapper: Wrapper });
+
+    await waitFor(() => expect(withoutChipsCalled).toBe(true));
+  });
+
+  it('should request the clustered seed strategy on the V3 variant', async () => {
+    let clusteredCalled = false;
+    mockGraphQL({
+      request: {
+        query: FEED_LIST_QUERY,
+        variables: {
+          includeTagChipFeeds: true,
+          tagChipSeedStrategy: TagChipSeedStrategy.V3,
+        },
+      },
+      result: () => {
+        clusteredCalled = true;
+
+        return {
+          data: {
+            feedList: {
+              pageInfo: { endCursor: expect.any(String), hasNextPage: false },
+              edges: feeds,
+            },
+          },
+        };
+      },
+    });
+
+    renderHook(() => useFeeds(), {
+      wrapper: createWrapper(FeedChipsVariant.V3),
+    });
+
+    await waitFor(() => expect(clusteredCalled).toBe(true));
+  });
+
+  it('should not request tag chip feeds on the control variant', async () => {
+    let withoutChipsCalled = false;
+    mockGraphQL({
+      request: {
+        query: FEED_LIST_QUERY,
+        variables: {
+          includeTagChipFeeds: false,
+        },
+      },
+      result: () => {
+        withoutChipsCalled = true;
+
+        return {
+          data: {
+            feedList: {
+              pageInfo: { endCursor: expect.any(String), hasNextPage: false },
+              edges: feeds,
+            },
+          },
+        };
+      },
+    });
+
+    renderHook(() => useFeeds(), {
+      wrapper: createWrapper(FeedChipsVariant.None),
+    });
 
     await waitFor(() => expect(withoutChipsCalled).toBe(true));
   });

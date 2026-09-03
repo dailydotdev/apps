@@ -1,5 +1,5 @@
 import type { Edge } from '../../graphql/common';
-import type { Feed } from '../../graphql/feed';
+import type { Feed, FeedOrigin } from '../../graphql/feed';
 import { webappUrl } from '../../lib/constants';
 
 export type ExploreCategory = {
@@ -8,6 +8,7 @@ export type ExploreCategory = {
   path: string;
   tag?: string;
   matchPaths?: string[];
+  origin?: FeedOrigin;
 };
 
 type BuildPersonalizedCategoriesOptions = {
@@ -99,5 +100,6 @@ export const buildPersonalizedCategories = (
       path: isDefault ? webappUrl : slugPath,
       tag: feed.id,
       matchPaths,
+      origin: feed.flags?.origin,
     };
   });

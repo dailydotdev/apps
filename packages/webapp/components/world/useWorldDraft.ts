@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import type { WorldSettings } from '../../graphql/world';
+import { isWorldCustomised } from './worldCustomization';
 import type { WorldSettingsPatch } from './useWorldSettings';
 import { useUpdateWorldSettings } from './useWorldSettings';
 
@@ -88,6 +91,7 @@ export const useWorldDraft = (
 ): WorldDraft => {
   const [settings, setSettings] = useState<WorldDraftSettings | null>(null);
   const { save: persist, isSaving, error } = useUpdateWorldSettings(userId);
+  const { logEvent } = useLogContext();
 
   const open = useCallback(() => setSettings(toDraft(saved)), [saved]);
   const cancel = useCallback(() => setSettings(null), []);
@@ -106,9 +110,22 @@ export const useWorldDraft = (
         // open so nothing typed is lost.
         return;
       }
+      /* The patch rather than the draft, so this says what was CHANGED and not
+         what happens to be set. `is_first` is the one that matters: whether
+         somebody who has now put something of their own into a world comes back
+         to it is the whole question, and it can only be asked of the save that
+         turned an undressed world into a dressed one. */
+      logEvent({
+        event_name: LogEvent.WorldCustomize,
+        target_id: userId,
+        extra: JSON.stringify({
+          fields: Object.keys(patch),
+          is_first: !isWorldCustomised(saved),
+        }),
+      });
     }
     setSettings(null);
-  }, [persist, saved, settings]);
+  }, [logEvent, persist, saved, settings, userId]);
 
   /* The draft while the bench is open, stored settings the moment it closes —
      what makes Cancel put the place back the way it was found. */

@@ -46,10 +46,16 @@ export enum Continent {
 
 export const outsideGdpr = ['US', 'IL'];
 
-// IAB TCF scope: EU-27 + EEA (IS/LI/NO) + UK + CH. Gates the iubenda CMP
-// (TCF banner) only — broader GDPR-style gating (pixels, homegrown banner)
-// stays on `outsideGdpr`.
-export const tcfRegions = [
+/**
+ * Where Google requires a certified CMP (TCF): the EEA, the UK and
+ * Switzerland. Country codes rather than a continent, because the EU's
+ * outermost regions carry their own ISO codes on other continents (Réunion
+ * and Mayotte resolve to Africa, the Caribbean territories to the Americas)
+ * while continental Europe includes plenty of countries the mandate does not
+ * cover.
+ */
+const CERTIFIED_CMP_COUNTRIES = new Set([
+  // EU
   'AT',
   'BE',
   'BG',
@@ -77,9 +83,25 @@ export const tcfRegions = [
   'SI',
   'ES',
   'SE',
+  // EEA outside the EU
   'IS',
   'LI',
   'NO',
+  // UK and Switzerland
   'GB',
   'CH',
-];
+  // EU member-state territories with their own ISO codes
+  'AX',
+  'GF',
+  'GP',
+  'MQ',
+  'RE',
+  'YT',
+  'BL',
+  'MF',
+  'PM',
+]);
+
+/** Unknown geo counts as covered: erring safe means asking, not serving. */
+export const requiresCertifiedCmp = (region?: string): boolean =>
+  !region || CERTIFIED_CMP_COUNTRIES.has(region.toUpperCase());
