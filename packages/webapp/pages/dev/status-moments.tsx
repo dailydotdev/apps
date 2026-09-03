@@ -494,7 +494,6 @@ const AnalyticsScreen = () => (
             Why iconic tech brands lost their dominance
           </span>
         </div>
-        <Control />
       </div>
 
       <div className="h-20 rounded-12 bg-surface-float" />
@@ -625,7 +624,7 @@ const StatusMomentsDevPage = (): ReactElement => (
           </Variant>
           <Variant
             headline="A post that did well"
-            note="posts/[id]/analytics already reports impressions, upvotes, clicks, comments, followers gained and cores earned, behind canViewPostAnalytics. ‘My post reached 41k developers’ is the most shareable sentence an author can say, and there is nowhere to say it. Two placements: an icon in the header, and a labeled control under the stats where the numbers have just made the case."
+            note="posts/[id]/analytics already reports impressions, upvotes, clicks, comments, followers gained and cores earned, behind canViewPostAnalytics. ‘My post reached 41k developers’ is the most shareable sentence an author can say, and there is nowhere to say it. The control sits under the stats, where the numbers have just made the case — not in the header, where it would ask before the case is made."
             step="Proposed"
           >
             <AnalyticsScreen />
