@@ -7,16 +7,13 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { Origin } from '../../../lib/log';
-import { LogEvent } from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { SourceIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useSquad } from '../../../hooks';
-import { ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonSize } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
-import { CopyLinkButton } from '../../share/CopyLinkButton';
-import { ReferralCampaignKey } from '../../../lib/referral';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
@@ -62,18 +59,6 @@ const SquadEntityCard = ({
       actionButtons={
         !isLoading && (
           <>
-            <CopyLinkButton
-              variant={ButtonVariant.Tertiary}
-              shareProps={{
-                text: `Check out the ${name} squad on daily.dev`,
-                link: permalink,
-                cid: ReferralCampaignKey.ShareSource,
-                logObject: () => ({
-                  event_name: LogEvent.ShareSource,
-                  target_id: squad.id,
-                }),
-              }}
-            />
             <SquadActionButton
               className={{
                 button: 'order-6',
