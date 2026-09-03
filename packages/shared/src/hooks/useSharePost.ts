@@ -17,12 +17,14 @@ type FuncProps = Omit<ShareProps, 'origin'>;
 interface UseSharePost {
   openSharePost: (props: FuncProps) => void;
   copyLink: (props: FuncProps) => void;
+  /** True for the second after a copy, so a control can confirm on itself. */
+  isCopying: boolean;
   openNativeSharePost?: (post: Post) => void;
 }
 
 export function useSharePost(origin: Origin): UseSharePost {
   const { logEvent } = useLogContext();
-  const [, copyLink] = useCopyPostLink();
+  const [isCopying, copyLink] = useCopyPostLink();
   const { getShortUrl, getTrackedUrl } = useGetShortUrl();
   const { openModal } = useLazyModal();
   const postLogEvent = usePostLogEvent();
@@ -81,6 +83,7 @@ export function useSharePost(origin: Origin): UseSharePost {
   return {
     openSharePost,
     copyLink: copyLinkShare,
+    isCopying,
     openNativeSharePost,
   };
 }

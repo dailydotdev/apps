@@ -5,8 +5,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { CopyIcon } from '../../../components/icons';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
+import { CopyStateIcon } from '../../../components/share/CopyStateIcon';
 import { useCopyText } from '../../../hooks/useCopy';
 import { truncateAtWordBoundary } from '../../../lib/strings';
 import {
@@ -28,7 +28,7 @@ export function BriefBlockCopyButton({
   text: string;
   link: string;
 }): ReactElement {
-  const [, copy] = useCopyText([text, link].join('\n\n'));
+  const [copied, copy] = useCopyText([text, link].join('\n\n'));
   const { displayToast } = useToastNotification();
   // Every bullet carries one of these, so a label that only said "Copy" would
   // read as a wall of identical buttons on a screen reader.
@@ -47,13 +47,13 @@ export function BriefBlockCopyButton({
   }, [copy, displayToast]);
 
   return (
-    <Tooltip content="Copy">
+    <Tooltip content={copied ? 'Copied!' : 'Copy'}>
       <Button
         aria-label={label}
         // Quieter than the body it trails: it runs in at the end of the last
         // line and must not break the paragraph's colour.
         className="ml-1 align-middle !text-text-quaternary"
-        icon={<CopyIcon />}
+        icon={<CopyStateIcon copied={copied} />}
         onClick={onCopy}
         size={ButtonSize.XSmall}
         type="button"
