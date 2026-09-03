@@ -21,7 +21,6 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
-import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
@@ -110,11 +109,11 @@ const ActionButtons = ({
     };
   }, [getUpvoteAnimation, post.tags]);
 
-  const onImpressionsClick = usePostImpressionsModal(post);
   const {
     enabled: impressionsEnabled,
     showImpressions,
     impressions,
+    onImpressionsClick,
   } = usePostImpressions(post);
 
   if (isFeedPreview) {

@@ -22,10 +22,6 @@ jest.mock('../../../hooks/useViewSize', () => ({
   useViewSize: jest.fn(),
 }));
 
-jest.mock('../../../hooks/post/usePostImpressionsModal', () => ({
-  usePostImpressionsModal: () => jest.fn(),
-}));
-
 jest.mock('../../../hooks/useEngagementBarV2', () => ({
   useEngagementBarV2: jest.fn(),
 }));
@@ -40,6 +36,8 @@ const mockImpressions = (enabled: boolean) =>
     enabled,
     showImpressions: enabled,
     impressions: enabled ? 1000 : 0,
+    canViewAnalytics: false,
+    onImpressionsClick: jest.fn(),
   });
 
 const renderComponent = (variant: ActionButtonsVariant) =>
