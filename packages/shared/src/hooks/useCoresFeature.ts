@@ -46,7 +46,7 @@ export const useCanAwardUser = (props: UseCanAwardUserProps): boolean => {
 };
 
 interface UseGetSquadAwardAdminProps {
-  sendingUser: LoggedUser;
+  sendingUser?: LoggedUser;
   squad: Squad;
 }
 
@@ -57,10 +57,13 @@ export const useGetSquadAwardAdmin = (
 
   if (
     props.squad.currentMember?.role === SourceMemberRole.Admin ||
-    !hasAccess
+    !hasAccess ||
+    !props.sendingUser
   ) {
     return null;
   }
+
+  const { sendingUser } = props;
 
   // Return the first user that's eligible for cores
   return props.squad?.privilegedMembers?.find((receivingUser: SourceMember) => {
@@ -68,7 +71,7 @@ export const useGetSquadAwardAdmin = (
       return false;
     }
     return canAwardUser({
-      sendingUser: props.sendingUser,
+      sendingUser,
       receivingUser: receivingUser.user as unknown as LoggedUser,
     });
   })?.user;

@@ -9,7 +9,7 @@ import { Image, ImageType } from '../../image/Image';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import type { UnFeaturedSquadCardProps } from './common/types';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { Origin } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 import { ButtonVariant } from '../../buttons/common';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { useCampaignById } from '../../../graphql/campaigns';
@@ -27,6 +27,8 @@ import {
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
+import { CopyLinkButton } from '../../share/CopyLinkButton';
+import { ReferralCampaignKey } from '../../../lib/referral';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -87,6 +89,15 @@ export const SquadGrid = ({
   });
   const borderColor = border || color || SourceCardBorderColor.Avocado;
   const { ref, onClickAd, onViewableAd } = useSquadsDirectoryLogging(ad);
+  const shareProps = {
+    text: `Check out the ${name} squad on daily.dev`,
+    link: permalink,
+    cid: ReferralCampaignKey.ShareSource,
+    logObject: () => ({
+      event_name: LogEvent.ShareSource,
+      target_id: source.id,
+    }),
+  };
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
     campaign ? `Promoted by @${campaign.user.username}` : null,
@@ -95,7 +106,7 @@ export const SquadGrid = ({
   return (
     <Card
       className={classNames(
-        'relative overflow-hidden !p-0',
+        'group/squad relative overflow-hidden !p-0',
         borderColorToClassName[borderColor],
         className,
       )}
@@ -167,6 +178,11 @@ export const SquadGrid = ({
           />
         </div>
       </div>
+      <CopyLinkButton
+        className="absolute right-3 top-3 z-1 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
+        shareProps={shareProps}
+        variant={ButtonVariant.Float}
+      />
       {children}
       {!!ad && <AdViewability ad={ad} onViewable={onViewableAd} />}
     </Card>

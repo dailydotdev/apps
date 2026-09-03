@@ -12,7 +12,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 
 export type UseSourceIntegrationQueryProps = {
   userIntegrationType: UserIntegrationType;
-  sourceId: string;
+  sourceId?: string;
   queryOptions?: UseQueryOptions<UserSourceIntegration>;
 };
 
