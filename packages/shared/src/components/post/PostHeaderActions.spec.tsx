@@ -19,7 +19,11 @@ const withFlag = () => {
 const renderActions = (postToRender: Post, gb?: GrowthBook) =>
   render(
     <TestBootProvider client={new QueryClient()} gb={gb}>
-      <PostHeaderActions post={postToRender} onReadArticle={jest.fn()} />
+      <PostHeaderActions
+        contextMenuId="post-header-actions-spec"
+        onReadArticle={jest.fn()}
+        post={postToRender}
+      />
     </TestBootProvider>,
   );
 
