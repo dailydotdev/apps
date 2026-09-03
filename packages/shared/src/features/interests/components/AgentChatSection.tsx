@@ -337,7 +337,7 @@ const ErrorTurn = ({ message }: { message: AgentMessage }): ReactElement => {
         color={TypographyColor.Tertiary}
         className="min-w-0 flex-1"
       >
-        Something went wrong and this run didn&apos;t finish.
+        Something went wrong and this didn&apos;t finish.
       </Typography>
       {retryText && (
         <Button

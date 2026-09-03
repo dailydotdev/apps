@@ -55,7 +55,7 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import type { Props } from '../pages/posts/[id]';
-import { isPostDetailPath, PostPage } from '../pages/posts/[id]';
+import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
@@ -634,13 +634,25 @@ it('should show both stats when they are greater than zero', async () => {
   expect(el).toHaveTextContent('7 Upvotes15 Comments');
 });
 
-it('should show impressions when it is greater than zero', async () => {
+it('should show impressions to the author', async () => {
   renderPost({}, [
-    createPostMock({ analytics: { impressions: 15 } }),
+    createPostMock({
+      analytics: { impressions: 15 },
+      author: { id: defaultUser.id } as Post['author'],
+    }),
     createCommentsMock(),
   ]);
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('15 Impressions');
+});
+
+it('should hide impressions from a reader who is not the author', async () => {
+  renderPost({}, [
+    createPostMock({ analytics: { impressions: 15 }, numUpvotes: 15 }),
+    createCommentsMock(),
+  ]);
+  const el = await screen.findByTestId('statsBar');
+  expect(el).not.toHaveTextContent('15 Impressions');
 });
 
 it('should hide the comments sort toggle when the comments empty state shows', async () => {
@@ -1208,23 +1220,6 @@ describe('post redesign', () => {
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
-  });
-});
-
-describe('isPostDetailPath (ad navigation boundary)', () => {
-  it('keeps client-side navigation only for other post detail pages', () => {
-    expect(isPostDetailPath('/posts/abc123')).toBe(true);
-    expect(isPostDetailPath('/posts/abc123?comment=1')).toBe(true);
-    expect(isPostDetailPath('/posts/abc123/share')).toBe(true);
-  });
-
-  it('treats the post list pages as departures that tear ads down', () => {
-    expect(isPostDetailPath('/posts/best-of/2026/08')).toBe(false);
-    expect(isPostDetailPath('/posts/latest')).toBe(false);
-    expect(isPostDetailPath('/posts/discussed')).toBe(false);
-    expect(isPostDetailPath('/posts/upvoted')).toBe(false);
-    expect(isPostDetailPath('/posts')).toBe(false);
-    expect(isPostDetailPath('/my-feed')).toBe(false);
   });
 });
 

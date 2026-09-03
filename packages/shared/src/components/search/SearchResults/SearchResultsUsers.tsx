@@ -10,25 +10,40 @@ import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import type { LoggedUser } from '../../../lib/user';
+import { searchRecommendationLogExtra } from '../../../lib/searchLog';
+import { fallbackImages } from '../../../lib/config';
 
 interface SearchResultsUsersProps {
   items: SearchSuggestion[];
   isLoading: boolean;
+  /** Identity of the suggestion fetch that produced `items`. */
+  searchId?: string;
+  searchVersion?: number;
 }
 
 export const SearchResultsUsers = ({
   items,
   isLoading,
-}: SearchResultsUsersProps): ReactElement => {
+  searchId,
+  searchVersion,
+}: SearchResultsUsersProps): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const users = items.map(({ id, subtitle, image, title, ...rest }) => ({
-    id,
-    name: title,
-    image,
-    username: subtitle,
-    permalink: `/${subtitle}`,
-    ...rest,
-  }));
+  // A hit without an id cannot be followed or linked to, so it never makes a
+  // usable row.
+  const users = items.flatMap(({ id, subtitle, image, title, ...rest }) =>
+    id
+      ? [
+          {
+            id,
+            name: title,
+            image: image ?? fallbackImages.avatar,
+            username: subtitle ?? '',
+            permalink: `/${subtitle}`,
+            ...rest,
+          },
+        ]
+      : [],
+  );
 
   if (!isLoading && !items.length) {
     return null;
@@ -38,7 +53,7 @@ export const SearchResultsUsers = ({
     <WidgetCard heading="Related users">
       {!!users?.length && (
         <ul className="flex flex-col gap-4">
-          {users.map((user) => (
+          {users.map((user, position) => (
             <li
               key={user.id}
               className="flex gap-2"
@@ -48,10 +63,15 @@ export const SearchResultsUsers = ({
                   target_type: TargetType.SearchRecommendation,
                   target_id: user.id,
                   feed_item_title: user.id,
-                  extra: JSON.stringify({
-                    origin: Origin.SearchPage,
-                    provider: SearchProviderEnum.Users,
-                  }),
+                  extra: JSON.stringify(
+                    searchRecommendationLogExtra({
+                      origin: Origin.SearchPage,
+                      provider: SearchProviderEnum.Users,
+                      position,
+                      searchId,
+                      searchVersion,
+                    }),
+                  ),
                 });
               }}
             >

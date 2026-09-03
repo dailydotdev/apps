@@ -69,7 +69,7 @@ const renderStep = (
         interest={{ ...interest, onboardingStep: step }}
         initialMessages={messages}
       >
-        <AgentWorkspace items={[]} onDelete={jest.fn()} isDeleting={false} />
+        <AgentWorkspace items={[]} />
       </AgentProvider>
     </TestBootProvider>,
   );

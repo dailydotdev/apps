@@ -49,26 +49,22 @@ import {
 } from '../../post/composer/TextForm';
 import { LinkForm } from '../../post/composer/LinkForm';
 import { PollForm } from '../../post/composer/PollForm';
-import { StandupForm } from '../../post/composer/StandupForm';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import {
   isUserAudience,
   useComposerAudience,
 } from '../../post/composer/useComposerAudience';
 import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
-import { useStandupCreation } from '../../../hooks/liveRooms/useStandupCreation';
 import { useSchedulePost } from '../../post/schedule/useSchedulePost';
 import { SchedulePostButton } from '../../post/schedule/SchedulePostButton';
 import { ScheduledPostsNavButton } from '../../post/schedule/ScheduledPostsNavButton';
 import {
   DEFAULT_LINK,
   DEFAULT_POLL,
-  DEFAULT_STANDUP,
   DEFAULT_TEXT,
   type ComposerKind,
   type LinkFormState,
   type PollFormState,
-  type StandupFormState,
   type TextFormState,
 } from '../../post/composer/types';
 import { useDisableSpotlightShortcut } from '../../spotlight/SpotlightContext';
@@ -80,7 +76,6 @@ const writeFormTabKeyToKind: Record<keyof typeof WriteFormTab, ComposerKind> = {
   NewPost: 'text',
   Share: 'link',
   Poll: 'poll',
-  Standup: 'standup',
 };
 
 const isWriteFormTabKey = (value: string): value is keyof typeof WriteFormTab =>
@@ -88,17 +83,10 @@ const isWriteFormTabKey = (value: string): value is keyof typeof WriteFormTab =>
 
 const resolveDefaultKind = (
   defaultWriteTab: string | undefined,
-  isStandupEnabled: boolean,
-): ComposerKind => {
-  const defaultKind =
-    defaultWriteTab && isWriteFormTabKey(defaultWriteTab)
-      ? writeFormTabKeyToKind[defaultWriteTab]
-      : 'text';
-  if (defaultKind === 'standup' && !isStandupEnabled) {
-    return 'text';
-  }
-  return defaultKind;
-};
+): ComposerKind =>
+  defaultWriteTab && isWriteFormTabKey(defaultWriteTab)
+    ? writeFormTabKeyToKind[defaultWriteTab]
+    : 'text';
 
 export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
@@ -135,7 +123,6 @@ export function SmartComposerModal({
   const { showPrompt } = usePrompt();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const isStandupEnabled = useStandupCreation();
   const { flags, loadedSettings } = useSettingsContext();
   const isEditing = !!editPost;
   const [kind, setKind] = useState<ComposerKind>(() => {
@@ -146,12 +133,9 @@ export function SmartComposerModal({
       return 'link';
     }
     if (initialKind) {
-      if (initialKind === 'standup' && !isStandupEnabled) {
-        return 'text';
-      }
       return initialKind;
     }
-    return resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled);
+    return resolveDefaultKind(flags?.defaultWriteTab);
   });
   // Settings load async; if the modal opens before they're ready, apply the
   // user's default post type once they arrive — unless the user already picked.
@@ -165,14 +149,13 @@ export function SmartComposerModal({
     if (isEditing || initialUrl || initialKind || hasUserChangedKind.current) {
       return;
     }
-    setKind(resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled));
+    setKind(resolveDefaultKind(flags?.defaultWriteTab));
   }, [
     loadedSettings,
     isEditing,
     initialUrl,
     initialKind,
     flags?.defaultWriteTab,
-    isStandupEnabled,
   ]);
   const [text, setText] = useState<TextFormState>(() => {
     if (editPost) {
@@ -213,7 +196,6 @@ export function SmartComposerModal({
     };
   });
   const [poll, setPoll] = useState<PollFormState>(DEFAULT_POLL);
-  const [standup, setStandup] = useState<StandupFormState>(DEFAULT_STANDUP);
   const [cover, setCover] = useState<TextFormCover | null>(() =>
     editPost?.image ? { preview: editPost.image } : null,
   );
@@ -261,16 +243,12 @@ export function SmartComposerModal({
     if (poll.question.trim() || poll.options.some((option) => option.trim())) {
       return true;
     }
-    if (standup.topic.trim() || standup.description.trim()) {
-      return true;
-    }
     return false;
   }, [
     cover,
     text,
     link,
     poll,
-    standup,
     editPost,
     editShare,
     editShareCommentary,
@@ -402,14 +380,9 @@ export function SmartComposerModal({
   const isMulti = !editPost && selected.length > 1;
 
   const schedule = useSchedulePost();
-  // Scheduling: single-source, non-moderated create only (any post type
-  // except standups, which schedule themselves).
+  // Scheduling: single-source, non-moderated create only.
   const canSchedule =
-    kind !== 'standup' &&
-    !isEditing &&
-    !isMulti &&
-    !!primary &&
-    !moderationRequired(primary);
+    !isEditing && !isMulti && !!primary && !moderationRequired(primary);
 
   const {
     handleSubmit,
@@ -418,13 +391,11 @@ export function SmartComposerModal({
     preview,
     isLoadingPreview,
     fetchPreview,
-    standupErrors,
   } = useComposerSubmit({
     kind,
     text,
     link,
     poll,
-    standup,
     cover,
     primary,
     selectedIds,
@@ -444,16 +415,11 @@ export function SmartComposerModal({
     },
   });
 
-  const isStandup = kind === 'standup';
   const showSpamWarning =
-    !isStandup &&
     selected.filter((audience) => !isUserAudience(audience)).length > 1;
-  const isStandupScheduled = standup.scheduleChoice === 'later';
   let submitLabel: string;
   if (isEditing) {
     submitLabel = 'Save changes';
-  } else if (isStandup) {
-    submitLabel = isStandupScheduled ? 'Schedule standup' : 'Create standup';
   } else if (canSchedule && schedule.isScheduled) {
     submitLabel = 'Schedule post';
   } else {
@@ -465,7 +431,6 @@ export function SmartComposerModal({
       value={kind}
       onChange={onKindChange}
       disabled={isInFlight}
-      isStandupEnabled={isStandupEnabled}
     />
   );
 
@@ -555,15 +520,13 @@ export function SmartComposerModal({
               nativeLazyLoading
             />
           )}
-          {!isStandup && (
-            <AudienceChip
-              audiences={audiences}
-              selectedIds={selectedIds}
-              onChange={setSelectedIds}
-              userAudienceId={userAudienceId}
-              disabled={isInFlight || isEditing}
-            />
-          )}
+          <AudienceChip
+            audiences={audiences}
+            selectedIds={selectedIds}
+            onChange={setSelectedIds}
+            userAudienceId={userAudienceId}
+            disabled={isInFlight || isEditing}
+          />
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <ScheduledPostsNavButton
@@ -655,17 +618,6 @@ export function SmartComposerModal({
           )}
         </>
       )}
-      {kind === 'standup' && (
-        <StandupForm
-          value={standup}
-          onChange={setStandup}
-          topicError={standupErrors.topic}
-          scheduledStartError={standupErrors.scheduledStart}
-          descriptionError={standupErrors.description}
-          toolbarLeading={kindPickerNode}
-          toolbarRightActions={postButtonNode}
-        />
-      )}
       {(kind === 'link' || kind === 'poll') && (
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 pb-3 pt-2">
           {kind === 'link' && (
@@ -685,7 +637,7 @@ export function SmartComposerModal({
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
         </div>
       )}
-      {kind !== 'text' && kind !== 'standup' && (
+      {kind !== 'text' && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">
             {kindPickerNode}

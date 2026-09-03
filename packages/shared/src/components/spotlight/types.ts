@@ -187,6 +187,35 @@ export const scopeMeta: Record<
   },
 };
 
+/** Query-level identity shared by every Spotlight telemetry payload. */
+export interface SpotlightSearchLogContext {
+  searchId?: string;
+  query?: string;
+  scope?: SpotlightScope;
+  searchVersion?: number;
+}
+
+export interface SpotlightResultsImpressionDetails
+  extends SpotlightSearchLogContext {
+  resultCount: number;
+  counts: { posts: number; tags: number; sources: number; users: number };
+}
+
+export interface SpotlightCommandRunDetails extends SpotlightSearchLogContext {
+  /** Zero-based position among the rendered rows, when the row was in the list. */
+  position?: number;
+  /** Set on the "Search posts for …" escape hatch (enter key or empty-state CTA). */
+  fallthrough?: boolean;
+  hadResults?: boolean;
+}
+
+export interface SpotlightCloseDetails extends SpotlightSearchLogContext {
+  resultCount?: number;
+  hadResults: boolean;
+  ranCommand: boolean;
+  timeOpenMs: number;
+}
+
 export interface RecentCommandEntry {
   commandId: string;
   lastUsedAt: number;

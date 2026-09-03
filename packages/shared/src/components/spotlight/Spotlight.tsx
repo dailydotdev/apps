@@ -21,13 +21,20 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { isExtension, isInExtensionIframe } from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
+import { minSearchQueryLength } from '../../graphql/search';
+import { feature } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useSearchId } from '../../hooks/search/useSearchId';
 import {
   groupLabels,
   groupOrder,
   scopeMeta,
   scopeOrder,
+  type SpotlightCloseDetails,
   type SpotlightCommand,
+  type SpotlightCommandRunDetails,
   SpotlightGroup,
+  type SpotlightResultsImpressionDetails,
   SpotlightScope,
 } from './types';
 import { useSpotlight } from './SpotlightContext';
@@ -390,9 +397,16 @@ interface SpotlightDialogProps {
   isOpen: boolean;
   onClose: () => void;
   /** Optional analytics callback. Injected by Phase 1's wiring. */
-  onCommandRun?: (command: SpotlightCommand) => void;
+  onCommandRun?: (
+    command: SpotlightCommand,
+    details: SpotlightCommandRunDetails,
+  ) => void;
   /** Fires when the user opens via Cmd+K. */
   onOpenViaShortcut?: () => void;
+  /** Fires once per settled result set so suggestions get an impression. */
+  onResultsImpression?: (details: SpotlightResultsImpressionDetails) => void;
+  /** Fires right before the palette closes, with the session's outcome. */
+  onCloseLog?: (details: SpotlightCloseDetails) => void;
 }
 
 const Hint = ({ label, combo }: { label: string; combo: string }) => (
@@ -409,6 +423,8 @@ export const Spotlight = ({
   onClose,
   onCommandRun,
   onOpenViaShortcut,
+  onResultsImpression,
+  onCloseLog,
 }: SpotlightDialogProps): ReactElement | null => {
   const router = useRouter();
   const { isLoggedIn, showLogin } = useAuthContext();
@@ -437,9 +453,90 @@ export const Spotlight = ({
     popScope,
     clearScope,
   } = spotlight;
+  const trimmedQuery = query.trim();
+  const isFiltering = trimmedQuery.length > 0;
+  const isSearching = isOpen && trimmedQuery.length >= minSearchQueryLength;
+  const { value: searchVersion } = useConditionalFeature({
+    feature: feature.searchVersion,
+    shouldEvaluate: isSearching,
+  });
+  const searchId = useSearchId(
+    isSearching ? [trimmedQuery, searchVersion, scope].join('|') : '',
+  );
+  const search = useSpotlightSearchCommands({
+    router,
+    query,
+    scope,
+    searchId,
+  });
+  const hasSearchResults =
+    search.users.length > 0 ||
+    search.sources.length > 0 ||
+    search.tags.length > 0 ||
+    search.posts.length > 0;
+
+  const openedAtRef = useRef(0);
+  const ranCommandRef = useRef(false);
+  const closeLoggedRef = useRef(false);
+  const loggedImpressionRef = useRef<string | null>(null);
+
+  const handleClose = useCallback(() => {
+    if (!closeLoggedRef.current) {
+      closeLoggedRef.current = true;
+      onCloseLog?.({
+        searchId,
+        query: trimmedQuery,
+        scope,
+        searchVersion,
+        resultCount: resultCount ?? undefined,
+        hadResults: hasSearchResults,
+        ranCommand: ranCommandRef.current,
+        timeOpenMs: openedAtRef.current ? Date.now() - openedAtRef.current : 0,
+      });
+    }
+    onClose();
+  }, [
+    onClose,
+    onCloseLog,
+    searchId,
+    trimmedQuery,
+    scope,
+    searchVersion,
+    resultCount,
+    hasSearchResults,
+  ]);
+
+  // Positions come from the DOM rather than the render tree: cmdk hides rows
+  // that fail its filter, so only the list itself knows the visible order.
+  const getRenderedPosition = useCallback(
+    (commandId: string): number | undefined => {
+      const nodes = listRef.current?.querySelectorAll('[data-command-id]');
+
+      if (!nodes) {
+        return undefined;
+      }
+
+      const position = Array.from(nodes).findIndex(
+        (node) => node.getAttribute('data-command-id') === commandId,
+      );
+
+      return position === -1 ? undefined : position;
+    },
+    [],
+  );
+
   const runCommand = useCallback(
-    (command: SpotlightCommand) => {
-      onCommandRun?.(command);
+    (command: SpotlightCommand, details?: { fallthrough?: boolean }) => {
+      ranCommandRef.current = true;
+      onCommandRun?.(command, {
+        searchId,
+        query: trimmedQuery,
+        scope,
+        searchVersion,
+        position: getRenderedPosition(command.id),
+        hadResults: hasSearchResults,
+        ...details,
+      });
       pushRecent(command.id);
       Promise.resolve(command.perform()).then(
         (result) => {
@@ -447,19 +544,29 @@ export const Spotlight = ({
           const keepOpen =
             !!result && typeof result === 'object' && result.keepOpen === true;
           if (!keepOpen) {
-            onClose();
+            handleClose();
           }
         },
         (error) => {
           clearConfirm();
-          onClose();
+          handleClose();
           throw error;
         },
       );
     },
-    [onCommandRun, pushRecent, clearConfirm, onClose],
+    [
+      onCommandRun,
+      pushRecent,
+      clearConfirm,
+      handleClose,
+      searchId,
+      trimmedQuery,
+      scope,
+      searchVersion,
+      getRenderedPosition,
+      hasSearchResults,
+    ],
   );
-  const search = useSpotlightSearchCommands({ router, query });
   useQuickKeyDispatch({
     query,
     setQuery,
@@ -486,7 +593,7 @@ export const Spotlight = ({
       }
       event.preventDefault();
       if (isOpen) {
-        onClose();
+        handleClose();
         return;
       }
       spotlight.open();
@@ -496,13 +603,65 @@ export const Spotlight = ({
     return () => {
       window.removeEventListener('keydown', handleKeydown);
     };
-  }, [isOpen, onClose, spotlight, onOpenViaShortcut]);
+  }, [isOpen, handleClose, spotlight, onOpenViaShortcut]);
 
   useEffect(() => {
     if (isOpen) {
       refreshRecent();
     }
   }, [isOpen, refreshRecent]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    openedAtRef.current = Date.now();
+    ranCommandRef.current = false;
+    closeLoggedRef.current = false;
+    loggedImpressionRef.current = null;
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !isFiltering || search.isLoading || resultCount === null) {
+      return;
+    }
+
+    const { counts } = search;
+    const impressionKey = [
+      searchId,
+      scope,
+      resultCount,
+      counts.posts,
+      counts.tags,
+      counts.sources,
+      counts.users,
+    ].join('|');
+
+    if (loggedImpressionRef.current === impressionKey) {
+      return;
+    }
+
+    loggedImpressionRef.current = impressionKey;
+    onResultsImpression?.({
+      searchId,
+      query: trimmedQuery,
+      scope,
+      searchVersion,
+      resultCount,
+      counts,
+    });
+  }, [
+    isOpen,
+    isFiltering,
+    search,
+    resultCount,
+    searchId,
+    scope,
+    searchVersion,
+    trimmedQuery,
+    onResultsImpression,
+  ]);
 
   // When the query changes or async search results land, anchor the list
   // back to the top AND move cmdk's selection onto the new first item.
@@ -552,9 +711,6 @@ export const Spotlight = ({
     });
     return out;
   }, [commands]);
-
-  const trimmedQuery = query.trim();
-  const isFiltering = trimmedQuery.length > 0;
 
   const suggested = useMemo(
     () =>
@@ -615,28 +771,28 @@ export const Spotlight = ({
    * query with multi-type results). Idle modal renders nothing here.
    */
   const handleSelect = useCallback(
-    (command: SpotlightCommand) => {
+    (command: SpotlightCommand, details?: { fallthrough?: boolean }) => {
       if (command.requiresAuth && !isLoggedIn) {
         showLogin({ trigger: AuthTriggers.SearchInput });
-        onClose();
+        handleClose();
         return;
       }
       if (command.plusBadge && !env.isPlus) {
         // Same friendly behavior — bounce to upgrade flow on the Plus page.
         router.push('/plus');
-        onClose();
+        handleClose();
         return;
       }
       if (command.destructive && pendingConfirmId !== command.id) {
         requestConfirm(command.id);
         return;
       }
-      runCommand(command);
+      runCommand(command, details);
     },
     [
       isLoggedIn,
       showLogin,
-      onClose,
+      handleClose,
       env.isPlus,
       router,
       pendingConfirmId,
@@ -651,7 +807,7 @@ export const Spotlight = ({
     }
     const fallthrough = search.fallthrough[0];
     if (fallthrough) {
-      handleSelect(fallthrough);
+      handleSelect(fallthrough, { fallthrough: true });
     }
   }, [trimmedQuery, search.fallthrough, handleSelect]);
 
@@ -696,6 +852,19 @@ export const Spotlight = ({
     });
     return out;
   }, [isFiltering, grouped, suggested.length, recentCommands.length]);
+
+  const scopeSearch = useMemo(() => {
+    if (scope === SpotlightScope.Posts) {
+      return { commands: search.posts, isLoading: search.postsLoading };
+    }
+    if (scope === SpotlightScope.Squads) {
+      return { commands: search.sources, isLoading: search.sourcesLoading };
+    }
+    if (scope === SpotlightScope.People) {
+      return { commands: search.users, isLoading: search.usersLoading };
+    }
+    return { commands: search.tags, isLoading: search.tagsLoading };
+  }, [scope, search]);
 
   const jumpToGroup = useCallback((group: SpotlightGroup) => {
     const heading = document.querySelector(
@@ -755,7 +924,7 @@ export const Spotlight = ({
               clearConfirm();
               return;
             }
-            onClose();
+            handleClose();
             return;
           }
           if (
@@ -866,7 +1035,7 @@ export const Spotlight = ({
                   variant={ButtonVariant.Subtle}
                   size={ButtonSize.Small}
                   className="border border-border-subtlest-tertiary"
-                  onClick={onClose}
+                  onClick={handleClose}
                 >
                   Close
                 </Button>
@@ -906,7 +1075,8 @@ export const Spotlight = ({
           >
             {scope !== SpotlightScope.All &&
               scope !== SpotlightScope.Actions &&
-              search.isLoading && (
+              scopeSearch.isLoading &&
+              scopeSearch.commands.length === 0 && (
                 <Command.Group heading={scopeMeta[scope].label}>
                   <SkeletonRows count={4} />
                 </Command.Group>
@@ -914,7 +1084,7 @@ export const Spotlight = ({
 
             {scope !== SpotlightScope.All &&
               scope !== SpotlightScope.Actions &&
-              !search.isLoading && (
+              scopeSearch.commands.length > 0 && (
                 <Command.Group
                   heading={scopeMeta[scope].label}
                   data-spotlight-group={SpotlightGroup.Search}
@@ -922,18 +1092,7 @@ export const Spotlight = ({
                 >
                   {renderRows({
                     ...commonRowProps,
-                    commands: (() => {
-                      if (scope === SpotlightScope.Posts) {
-                        return search.posts;
-                      }
-                      if (scope === SpotlightScope.Squads) {
-                        return search.sources;
-                      }
-                      if (scope === SpotlightScope.People) {
-                        return search.users;
-                      }
-                      return search.tags;
-                    })(),
+                    commands: scopeSearch.commands,
                   })}
                 </Command.Group>
               )}
@@ -1026,7 +1185,8 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              search.isLoading && (
+              search.isLoading &&
+              !hasSearchResults && (
                 <Command.Group
                   heading="Searching"
                   className={groupHeadingClass}
@@ -1037,7 +1197,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.users.length > 0 && (
                 <Command.Group
                   heading="People"
@@ -1050,7 +1209,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.sources.length > 0 && (
                 <Command.Group
                   heading="Squads & sources"
@@ -1063,7 +1221,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.tags.length > 0 && (
                 <Command.Group
                   heading="Tags"
@@ -1076,7 +1233,6 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              !search.isLoading &&
               search.posts.length > 0 && (
                 <Command.Group
                   heading="Posts"
@@ -1113,32 +1269,34 @@ export const Spotlight = ({
                 </Command.Group>
               )}
 
-            <Command.Empty className="flex flex-col items-center gap-2 py-12 text-center">
-              <SearchIcon
-                size={IconSize.Medium}
-                className="text-text-tertiary"
-                aria-hidden
-              />
-              <p className="text-text-primary typo-callout">
-                {trimmedQuery
-                  ? `Nothing matches "${trimmedQuery}".`
-                  : 'No commands available.'}
-              </p>
-              <p className="text-text-tertiary typo-footnote">
-                Try a different word, or search posts on the web.
-              </p>
-              {trimmedQuery && (
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Small}
-                  onClick={handleFallthroughEnter}
-                  icon={<ClickIcon />}
-                >
-                  Search posts for &ldquo;{trimmedQuery}&rdquo;
-                </Button>
-              )}
-            </Command.Empty>
+            {!search.isLoading && (
+              <Command.Empty className="flex flex-col items-center gap-2 py-12 text-center">
+                <SearchIcon
+                  size={IconSize.Medium}
+                  className="text-text-tertiary"
+                  aria-hidden
+                />
+                <p className="text-text-primary typo-callout">
+                  {trimmedQuery
+                    ? `Nothing matches "${trimmedQuery}".`
+                    : 'No commands available.'}
+                </p>
+                <p className="text-text-tertiary typo-footnote">
+                  Try a different word, or search posts on the web.
+                </p>
+                {trimmedQuery && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Small}
+                    onClick={handleFallthroughEnter}
+                    icon={<ClickIcon />}
+                  >
+                    Search posts for &ldquo;{trimmedQuery}&rdquo;
+                  </Button>
+                )}
+              </Command.Empty>
+            )}
           </Command.List>
         )}
 
@@ -1159,7 +1317,7 @@ export const Spotlight = ({
       <Drawer
         isOpen
         position={DrawerPosition.Bottom}
-        onClose={onClose}
+        onClose={handleClose}
         appendOnRoot
         className={{
           drawer: 'p-0',
@@ -1178,7 +1336,7 @@ export const Spotlight = ({
   return (
     <ReactModal
       isOpen
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
       shouldCloseOnOverlayClick
       shouldCloseOnEsc
       shouldReturnFocusAfterClose

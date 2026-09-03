@@ -31,7 +31,7 @@ const mockRequest = gqlClient.request as jest.Mock;
 const mockStaticFields = getSquadStaticFields as jest.Mock;
 const mockGetSquad = getSquad as jest.Mock;
 
-const createSquad = (isPublic: boolean) => ({
+const createSquad = (isPublic: boolean, noindex = false) => ({
   id: 'squad-id',
   handle: 'my-squad',
   name: 'My Squad',
@@ -40,6 +40,7 @@ const createSquad = (isPublic: boolean) => ({
   image: 'https://media.daily.dev/squad.png',
   membersCount: 3,
   public: isPublic,
+  noindex,
 });
 
 const runGssp = () =>
@@ -85,6 +86,22 @@ describe('squad page getServerSideProps seo', () => {
         seo: {
           noindex: false,
           nofollow: false,
+        },
+      },
+    });
+  });
+
+  it('marks a public squad the API flags as noindex', async () => {
+    mockStaticFields.mockResolvedValue(createSquad(true, true));
+    mockGetSquad.mockResolvedValue(createSquad(true, true));
+
+    const result = await runGssp();
+
+    expect(result).toMatchObject({
+      props: {
+        seo: {
+          noindex: true,
+          nofollow: true,
         },
       },
     });

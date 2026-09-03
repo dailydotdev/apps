@@ -30,12 +30,14 @@ import { IconSize } from '../../../components/Icon';
 import type { DrawerRef } from '../../../components/drawers/Drawer';
 import { Drawer, DrawerPosition } from '../../../components/drawers/Drawer';
 import { PostContent } from '../../../components/post/PostContent';
+import { getPostContentComponent } from '../../../components/post/getPostContentComponent';
 import { PostLoadingPlaceholder } from '../../../components/post/PostLoadingPlaceholder';
 import { usePostById } from '../../../hooks/usePostById';
 import { ArticleList } from '../../../components/cards/article/ArticleList';
 import { Origin } from '../../../lib/log';
 import { useSharePost } from '../../../hooks/useSharePost';
 import type { Post } from '../../../graphql/posts';
+import { getPostTitle, getReadArticleHref } from '../../../graphql/posts';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { AgentContentTarget, AgentSummaryPost } from '../AgentContext';
@@ -69,7 +71,7 @@ const tabLabels: Partial<Record<AgentContentTarget['type'], string>> = {
 
 const tabLabel = (target: AgentContentTarget): string => {
   if (target.type === 'post') {
-    return target.post?.title ?? 'Post';
+    return getPostTitle(target.post) ?? 'Post';
   }
 
   if (target.type === 'feed') {
@@ -236,6 +238,9 @@ export const AgentContentPane = ({
     id: isDemo ? '' : activePostTarget?.postId ?? '',
   });
   const activePost = fetchedPost ?? activePostTarget?.post;
+  const ActivePostContent = activePost
+    ? getPostContentComponent(activePost)
+    : PostContent;
 
   useEffect(() => {
     if (!activePostTarget || !fetchedPost) {
@@ -410,7 +415,7 @@ export const AgentContentPane = ({
             <Tooltip content="Open original">
               <Button
                 tag="a"
-                href={activePost.commentsPermalink ?? activePost.permalink}
+                href={getReadArticleHref(activePost)}
                 target="_blank"
                 rel="noopener"
                 size={ButtonSize.Small}
@@ -440,7 +445,7 @@ export const AgentContentPane = ({
         >
           {activeContent?.type === 'post' &&
             (activePost ? (
-              <PostContent
+              <ActivePostContent
                 key={activePost.id}
                 post={activePost}
                 origin={Origin.ArticleModal}

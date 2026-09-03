@@ -9,7 +9,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {
@@ -41,7 +40,6 @@ export const AccountPageContainer = ({
   className = {},
   onBack,
 }: AccountPageContainerProps): ReactElement => {
-  const isMobile = useViewSize(ViewSize.MobileL);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const [, setIsOpen] = useQueryState({
@@ -90,7 +88,12 @@ export const AccountPageContainer = ({
     >
       {isV2Laptop && portalTarget && createPortal(pageHeader, portalTarget)}
       {!isV2Laptop && (
-        <AccountPageHeading className={classNames('sticky', className.heading)}>
+        <AccountPageHeading
+          className={classNames(
+            'sticky top-[var(--sticky-header-offset)] z-1 bg-background-default',
+            className.heading,
+          )}
+        >
           <Button
             type="button"
             className={classNames('mr-2 flex tablet:hidden', {
@@ -115,12 +118,7 @@ export const AccountPageContainer = ({
           {actions && <span className="ml-auto flex flex-row">{actions}</span>}
         </AccountPageHeading>
       )}
-      <AccountPageSection
-        className={classNames(
-          isMobile && `h-[calc(100dvh-7.75rem)] overflow-y-scroll`,
-          className.section,
-        )}
-      >
+      <AccountPageSection className={className.section}>
         {children}
       </AccountPageSection>
     </AccountPageContent>

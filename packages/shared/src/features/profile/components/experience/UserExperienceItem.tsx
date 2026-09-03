@@ -20,6 +20,7 @@ import ShowMoreContent from '../../../../components/cards/common/ShowMoreContent
 import { LocationType } from '../../../opportunity/protobuf/util';
 import { formatDateRange } from '../../../../lib/dateFormat';
 import { locationToString } from '../../../../lib/utils';
+import { anchorUgcRel } from '../../../../lib/strings';
 import { currentPill } from './common';
 import {
   Button,
@@ -215,6 +216,7 @@ export function UserExperienceItem({
               <Link href={repository?.url || url} passHref>
                 <a
                   target="_blank"
+                  rel={anchorUgcRel}
                   aria-label={`Open ${primaryCopy || 'link'} in new tab`}
                 >
                   <OpenLinkIcon className="size-4 text-text-secondary" />

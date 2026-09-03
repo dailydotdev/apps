@@ -4,10 +4,10 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
 import {
-  ArbitrageAdFormat,
-  ArbitrageAdSlot,
-} from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAdSlot';
-import { ArbitrageTopLeaderboard } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageTopLeaderboard';
+  ReadAdFormat,
+  ReadAdSlot,
+} from '@dailydotdev/shared/src/components/post/read/ReadAdSlot';
+import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read/ReadTopLeaderboard';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   ADSENSE_SCRIPT_SRC,
@@ -18,9 +18,9 @@ import {
   CONTENT_CHARS_PER_AD,
   MAX_CONTENT_ADS_PER_SECTION,
   ORGANIC_SLOT,
-} from '@dailydotdev/shared/src/components/post/arbitrage/slots';
-import { splitTextForAds } from '@dailydotdev/shared/src/components/post/arbitrage/splitContentForAds';
-import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
+} from '@dailydotdev/shared/src/components/post/read/slots';
+import { splitTextForAds } from '@dailydotdev/shared/src/components/post/read/splitContentForAds';
+import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdsenseSlots';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -80,6 +80,7 @@ import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManageme
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
+import { isPostDetailPath } from '../../../lib/postRoutes';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -153,25 +154,6 @@ const DigestPostContent = dynamic(() =>
   ).then((module) => module.DigestPostContent),
 );
 
-/**
- * Whether a URL is another post detail page — the only destinations that keep
- * client-side navigation while ads are live, because they re-enter this same
- * ad-carrying route. A bare `/posts/` prefix is NOT that: /posts/best-of/*,
- * /posts/latest, /posts/discussed and /posts/upvoted are list pages with no
- * slots, linked from this page's own rail, and navigating to them must tear
- * the ad globals down like any other departure.
- */
-const POST_LIST_SEGMENTS = new Set([
-  'best-of',
-  'latest',
-  'discussed',
-  'upvoted',
-]);
-export const isPostDetailPath = (url: string): boolean => {
-  const match = /^\/posts\/([^/?#]+)(?:[/?#]|$)/.exec(url);
-  return !!match && !POST_LIST_SEGMENTS.has(match[1]);
-};
-
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -192,7 +174,6 @@ const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   [PostType.Poll]: PollPostContent as PostContentComponent,
   [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
   [PostType.Digest]: DigestPostContent,
-  [PostType.LiveRoom]: PostContent as PostContentComponent,
 };
 
 export interface PostParams extends ParsedUrlQuery {
@@ -294,10 +275,10 @@ export const PostPage = ({
               </p>
             </div>
             {index < segments.length - 1 && (
-              <ArbitrageAdSlot
+              <ReadAdSlot
                 surface="organic"
                 slot={ORGANIC_SLOT.inContentMpu}
-                format={ArbitrageAdFormat.MediumRectangle}
+                format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={index > 0}
                 logExtra={{ section: 'summary', occurrence: index + 1 }}
@@ -456,7 +437,7 @@ export const PostPage = ({
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
               contentLeading={
                 adsenseActive ? (
-                  <ArbitrageTopLeaderboard
+                  <ReadTopLeaderboard
                     surface="organic"
                     slot={ORGANIC_SLOT.topLeaderboard}
                     phoneSlot={ORGANIC_SLOT.topLeaderboardPhone}
@@ -469,10 +450,10 @@ export const PostPage = ({
               renderSummarySegments={renderSummarySegments}
               aboveComments={
                 adsenseActive ? (
-                  <ArbitrageAdSlot
+                  <ReadAdSlot
                     surface="organic"
                     slot={ORGANIC_SLOT.aboveCommentsMpu}
-                    format={ArbitrageAdFormat.MediumRectangle}
+                    format={ReadAdFormat.MediumRectangle}
                     className="my-6"
                   />
                 ) : undefined
@@ -482,10 +463,10 @@ export const PostPage = ({
                   ? {
                       interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
                       renderInterleaved: (occurrence) => (
-                        <ArbitrageAdSlot
+                        <ReadAdSlot
                           surface="organic"
                           slot={ORGANIC_SLOT.commentMpu}
-                          format={ArbitrageAdFormat.MediumRectangle}
+                          format={ReadAdFormat.MediumRectangle}
                           hideOnPhone
                           logExtra={{ occurrence }}
                         />
@@ -497,10 +478,10 @@ export const PostPage = ({
                 adsenseActive
                   ? (widgetPosition) =>
                       widgetPosition === PostWidgetPosition.DirectAd ? (
-                        <ArbitrageAdSlot
+                        <ReadAdSlot
                           surface="organic"
                           slot={ORGANIC_SLOT.railAfterDirectAd}
-                          format={ArbitrageAdFormat.MediumRectangle}
+                          format={ReadAdFormat.MediumRectangle}
                         />
                       ) : null
                   : undefined

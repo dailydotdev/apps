@@ -82,6 +82,7 @@ The "calling platform" is not just extension vs webapp. Native iOS/Android wrapp
 - Keep scope tight: no unrelated behavioral/SEO changes in a design-iteration commit.
 - Add new content inside existing page sections/components. Don't create parallel wrapper components or duplicate section headers.
 - Reuse existing feed/list card primitives (`FeedItemContainer`, `PostCardHeader`, etc.) before inventing modal-specific list items. Activity list modals (reposts/upvotes/history) are metadata-first: compact rows, no dominating content images.
+- For user-facing limits, prefer explicit helper copy over terse ratio counters (`3/5`) unless product explicitly asks for progress-style UI.
 - Don't hide accessible data with presentation heuristics (e.g. masking on `source.public`); rely on backend access control and render what the query returns.
 - Wrong value in truncated/collapsed UI: fix only the computation (derive from the full dataset) while rendering the exact same subset and keeping "Show More" gating identical. Don't change the collapse unit as a side effect. Assert collapsed↔expanded parity in a test.
 - When adding an optional feature to a shared component, gate any new wrapper/DOM on the new prop so existing consumers keep their original DOM.

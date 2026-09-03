@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { PublicProfile } from '../../../lib/user';
 import { AboutMe } from './AboutMe';
 import { getLogContextStatic } from '../../../contexts/LogContext';
+import { anchorUgcRel } from '../../../lib/strings';
 
 const LogContext = getLogContextStatic();
 
@@ -112,6 +113,14 @@ describe('AboutMe', () => {
       renderComponent(userWithSocialLinks);
       const allLinks = screen.getAllByTestId(/^social-link-/);
       expect(allLinks.length).toBe(12);
+    });
+
+    it('should mark social links as ugc and nofollow', () => {
+      renderComponent(userWithSocialLinks);
+      expect(screen.getByTestId('social-link-portfolio')).toHaveAttribute(
+        'rel',
+        anchorUgcRel,
+      );
     });
 
     it('should render all social link types', () => {

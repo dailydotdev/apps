@@ -4,11 +4,7 @@ import classNames from 'classnames';
 // Type-only, so it is erased at compile time and pulls none of the module's 74KB
 // into this chunk, which is the point of fetching the component below.
 import type { BorderBeamProps } from 'border-beam';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
+
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
@@ -25,11 +21,9 @@ import { useAgent } from '../AgentContext';
 import type { AgentCommand } from '../commands';
 import {
   commandQuery,
-  findCommand,
   isCommandAvailable,
   matchCommands,
   parseCommand,
-  quickCommandNames,
 } from '../commands';
 import type { AgentAttachment } from '../chat';
 import { mentionCandidates } from '../attachments';
@@ -58,10 +52,6 @@ const fieldLine = 'min-h-8 py-1.5';
 const mentionQuery = (value: string): string | undefined =>
   /(?:^|\s)@([^\s@]*)$/.exec(value)?.[1];
 
-const quickCommands = quickCommandNames.flatMap(
-  (name) => findCommand(name) ?? [],
-);
-
 const commandItem = ({
   name,
   hint,
@@ -89,7 +79,7 @@ export const AgentComposer = (): ReactElement => {
     messages,
     openContent,
     openContentTarget,
-    setSettingsOpen,
+    openSettings,
     isOnboarding,
     activeQuestion,
     answerQuestion,
@@ -299,7 +289,7 @@ export const AgentComposer = (): ReactElement => {
 
     if (sending?.opens) {
       if (sending.opens === 'settings') {
-        setSettingsOpen(true);
+        openSettings();
       } else {
         openContentTarget(
           sending.opens === 'activity'
@@ -511,45 +501,6 @@ export const AgentComposer = (): ReactElement => {
             </FlexRow>
           </FlexCol>
         </ConditionalWrapper>
-
-        <FlexRow className="items-center gap-2 px-0.5">
-          {/* `pr-6` matches the fade's width, so the last chip clears the mask
-              when the row is scrolled to its end. */}
-          <FlexRow className="agent-fade-right no-scrollbar min-w-0 flex-1 items-center gap-1.5 overflow-x-auto pr-6">
-            {quickCommands.map((quick) => (
-              <Tooltip
-                key={quick.name}
-                // Undoes the app-wide `flex-shrink: 0`, without which a two-line
-                // block runs out past the surface's rounding.
-                className="[&>*]:shrink"
-                content={
-                  <FlexCol className="gap-0.5">
-                    <Typography type={TypographyType.Caption1} bold>
-                      /{quick.name} {quick.hint}
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Caption2}
-                      color={TypographyColor.Tertiary}
-                    >
-                      {quick.description} Press enter to run it as it is, or
-                      keep typing to steer it.
-                    </Typography>
-                  </FlexCol>
-                }
-              >
-                <Button
-                  icon={<quick.icon size={IconSize.Size16} />}
-                  size={ButtonSize.XSmall}
-                  variant={ButtonVariant.Subtle}
-                  className="shrink-0"
-                  onClick={() => pickCommand(quick)}
-                >
-                  {quick.label}
-                </Button>
-              </Tooltip>
-            ))}
-          </FlexRow>
-        </FlexRow>
       </FlexCol>
     </div>
   );
