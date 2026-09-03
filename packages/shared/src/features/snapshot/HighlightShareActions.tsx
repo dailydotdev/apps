@@ -38,8 +38,9 @@ export function HighlightShareActions({
       <HighlightSnapshotButton
         {...card}
         link={link}
+        showLabel={false}
         size={ButtonSize.Small}
-        variant={ButtonVariant.Primary}
+        variant={ButtonVariant.Tertiary}
       />
     </>
   );

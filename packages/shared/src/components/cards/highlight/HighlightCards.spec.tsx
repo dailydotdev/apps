@@ -1,4 +1,6 @@
+import type { ReactElement } from 'react';
 import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HighlightGrid } from './HighlightGrid';
@@ -6,6 +8,7 @@ import { HighlightList } from './HighlightList';
 
 jest.mock('../../../lib/constants', () => ({
   webappUrl: '/',
+  isPreviewHost: () => false,
 }));
 
 const highlights = [
@@ -31,9 +34,15 @@ const highlights = [
   },
 ];
 
+// The copy-link control reaches for the toast, which reads the query client.
+const renderCard = (ui: ReactElement) =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
+  );
+
 describe('Highlight cards', () => {
   it('should render the grid card with highlight links', () => {
-    render(<HighlightGrid highlights={highlights} />);
+    renderCard(<HighlightGrid highlights={highlights} />);
 
     expect(screen.getByText('Happening Now')).toBeInTheDocument();
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
@@ -55,7 +64,7 @@ describe('Highlight cards', () => {
   });
 
   it('should render the list card with highlight links', () => {
-    render(<HighlightList highlights={highlights} />);
+    renderCard(<HighlightList highlights={highlights} />);
 
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
@@ -66,7 +75,7 @@ describe('Highlight cards', () => {
     const onHighlightClick = jest.fn();
     const onReadAllClick = jest.fn();
 
-    render(
+    renderCard(
       <HighlightGrid
         highlights={highlights}
         onHighlightClick={onHighlightClick}

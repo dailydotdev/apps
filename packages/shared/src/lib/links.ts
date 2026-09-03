@@ -186,3 +186,11 @@ export const getRedirectNextPath = (params: URLSearchParams): string => {
 
   return checkIsExtension() ? `${webappUrl}${nextPath}` : nextPath;
 };
+
+/* A function, not a constant: `webappUrl` comes from the environment, and a
+   module-level template literal captures it before a test can set it. */
+export const getHighlightsUrl = (highlightId?: string): string => {
+  const base = `${webappUrl}highlights`;
+
+  return highlightId ? `${base}?highlight=${highlightId}` : base;
+};
