@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import type { PublicProfile } from '../../../../lib/user';
 import type { HotTake } from '../../../../graphql/user/userHotTake';
 import {
+  HOT_TAKE_LIMIT_HINT,
   HOT_TAKE_LIMIT_REACHED_MESSAGE,
   MAX_HOT_TAKES,
   useHotTakes,
@@ -20,6 +21,7 @@ import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
 import { ProfileUserHotTakes } from './ProfileUserHotTakes';
 
 jest.mock('../../hooks/useHotTakes', () => ({
+  HOT_TAKE_LIMIT_HINT: 'You can add up to 5 hot takes',
   HOT_TAKE_LIMIT_REACHED_MESSAGE:
     'You already have all 5 hot takes. Remove one to add a new one.',
   MAX_HOT_TAKES: 5,
@@ -204,7 +206,10 @@ describe('ProfileUserHotTakes', () => {
 
     renderProfileUserHotTakes();
 
-    expect(screen.getByText(`${MAX_HOT_TAKES}/${MAX_HOT_TAKES}`)).toBeVisible();
+    expect(screen.getByText(HOT_TAKE_LIMIT_HINT)).toBeVisible();
+    expect(
+      screen.queryByText(`${MAX_HOT_TAKES}/${MAX_HOT_TAKES}`),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
     expect(screen.getByLabelText(HOT_TAKE_LIMIT_REACHED_MESSAGE)).toBeVisible();
   });
@@ -235,6 +240,9 @@ describe('ProfileUserHotTakes', () => {
 
     renderProfileUserHotTakes();
 
+    expect(screen.getByText(HOT_TAKE_LIMIT_HINT)).toBeVisible();
+    expect(screen.queryByText(`3/${MAX_HOT_TAKES}`)).not.toBeInTheDocument();
+
     await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
     expect(screen.getByTestId('hot-take-modal')).toBeVisible();
@@ -255,6 +263,7 @@ describe('ProfileUserHotTakes', () => {
       screen.queryByRole('button', { name: 'Add' }),
     ).not.toBeInTheDocument();
     expect(screen.queryByText(`1/${MAX_HOT_TAKES}`)).not.toBeInTheDocument();
+    expect(screen.queryByText(HOT_TAKE_LIMIT_HINT)).not.toBeInTheDocument();
     expect(screen.getByText('Hot take 1')).toBeVisible();
   });
 
