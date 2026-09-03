@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { CopyIcon, UpvoteIcon } from '../icons';
@@ -17,12 +17,19 @@ export const EASE_OUT_EXPO = 'ease-[cubic-bezier(0.16,1,0.3,1)]';
  * same spin — because that is the gesture the product already uses for "this
  * worked". Both glyphs share one grid cell so the label never shifts mid-swap,
  * and the motion collapses to an instant swap under `prefers-reduced-motion`.
+ *
+ * `idle` is the glyph it rests on: a control that copies a link rests on the
+ * link, so the row it sits in stays readable at a glance.
  */
 export const CopyStateIcon = ({
   copied,
+  idle: Idle = CopyIcon,
   className,
   ...props
-}: IconProps & { copied: boolean }): ReactElement => {
+}: IconProps & {
+  copied: boolean;
+  idle?: ComponentType<IconProps>;
+}): ReactElement => {
   const layer = classNames(
     className,
     'col-start-1 row-start-1 transition-[opacity,transform,filter] duration-200 motion-reduce:transition-none',
@@ -31,7 +38,7 @@ export const CopyStateIcon = ({
 
   return (
     <span className="inline-grid">
-      <CopyIcon
+      <Idle
         {...props}
         className={classNames(layer, copied && 'scale-50 opacity-0 blur-[2px]')}
       />

@@ -7,6 +7,7 @@ import {
   ButtonVariant,
 } from '../../components/buttons/Button';
 import { CopyIcon, LinkIcon } from '../../components/icons';
+import { CopyStateIcon } from '../../components/share/CopyStateIcon';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
@@ -63,8 +64,8 @@ export function SelectionSnapshotBar({
   // The card outlives the bar: pressing Snapshot collapses the selection in
   // some browsers, and the capture still has to find the quote mounted.
   const [quote, setQuote] = useState<TextSelection | null>(null);
-  const [, copyLink] = useCopyPostLink();
-  const [, copyText] = useCopyText(quote?.text);
+  const [linkCopied, copyLink] = useCopyPostLink();
+  const [textCopied, copyText] = useCopyText(quote?.text);
   const { getShortUrl } = useGetShortUrl();
   const { logEvent } = useLogContext();
 
@@ -119,7 +120,7 @@ export function SelectionSnapshotBar({
           <Tooltip content="Copy link">
             <Button
               aria-label="Copy link"
-              icon={<LinkIcon />}
+              icon={<CopyStateIcon copied={linkCopied} idle={LinkIcon} />}
               onClick={onCopyLink}
               size={ButtonSize.Small}
               type="button"
@@ -129,7 +130,7 @@ export function SelectionSnapshotBar({
           <Tooltip content="Copy text">
             <Button
               aria-label="Copy text"
-              icon={<CopyIcon />}
+              icon={<CopyStateIcon copied={textCopied} idle={CopyIcon} />}
               onClick={() => copyText({ message: '✅ Copied text' })}
               size={ButtonSize.Small}
               type="button"

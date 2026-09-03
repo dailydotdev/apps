@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { CopyIcon } from '../../components/icons';
+import { CopyStateIcon } from '../../components/share/CopyStateIcon';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { useGetShortUrl } from '../../hooks';
@@ -33,7 +33,7 @@ export function CopySummaryButton({
   link: string;
   className?: string;
 }): ReactElement {
-  const [, copy] = useCopyText();
+  const [copied, copy] = useCopyText();
   const { getShortUrl } = useGetShortUrl();
   const { displayToast } = useToastNotification();
 
@@ -66,7 +66,7 @@ export function CopySummaryButton({
           'ml-1 align-middle !text-text-quaternary',
           className,
         )}
-        icon={<CopyIcon />}
+        icon={<CopyStateIcon copied={copied} />}
         onClick={onCopy}
         size={ButtonSize.XSmall}
         type="button"

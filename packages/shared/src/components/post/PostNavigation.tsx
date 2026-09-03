@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon, MiniCloseIcon as CloseIcon, LinkIcon } from '../icons';
+import { CopyStateIcon } from '../share/CopyStateIcon';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import type { PostNavigationProps } from './common';
@@ -36,7 +37,7 @@ function PostNavigation({
     feature: featurePostNavCopyLink,
     shouldEvaluate: isFixedNavigation,
   });
-  const [, copyLink] = useCopyPostLink(post?.commentsPermalink);
+  const [linkCopied, copyLink] = useCopyPostLink(post?.commentsPermalink);
 
   return (
     <div
@@ -83,7 +84,7 @@ function PostNavigation({
         {isNavCopyLinkEnabled && post && (
           <Tooltip side="bottom" content="Copy link">
             <Button
-              icon={<LinkIcon />}
+              icon={<CopyStateIcon copied={linkCopied} idle={LinkIcon} />}
               onClick={() => copyLink()}
               size={ButtonSize.Small}
               type="button"
