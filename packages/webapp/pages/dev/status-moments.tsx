@@ -7,12 +7,13 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  CoreIcon,
   DownloadIcon,
   MiniCloseIcon,
+  ShieldPlusIcon,
   SnapshotIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import {
   ProfileImageSize,
@@ -124,50 +125,180 @@ const Category = ({
   </section>
 );
 
+/* --------------------------------------------------- streak celebration */
+
+/** Day 30 on the streak ladder: milestone-rewards `data.ts`. */
+const INFERNO = {
+  art: '/streak-tiers/inferno.png',
+  day: 30,
+  headline: 'A full month, unbroken',
+  label: 'Inferno',
+  reward: '50 Cores',
+};
+
+const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+/** The ember wash behind the flame, from `moment.tsx` PanelTone.Fire. */
+const FIRE =
+  'radial-gradient(120% 100% at 20% 0%, rgba(236,82,122,0.38) 0%, rgba(236,82,122,0.22) 42%, rgba(15,18,24,0) 78%), linear-gradient(160deg, rgba(177,75,215,0.18) 0%, rgba(15,18,24,0) 60%)';
+
+/**
+ * The celebration half: tier art over a warm glow, the tier name, the count.
+ * The embers and the staged entrance are dropped — this page compares control
+ * placement, and a particle system on eleven screens is noise.
+ */
+const Celebration = () => (
+  <div
+    className="relative flex flex-col items-center gap-4 p-6 text-center"
+    style={{ background: FIRE }}
+  >
+    <span className="relative flex size-32 items-center justify-center">
+      <span
+        aria-hidden
+        className="opacity-70 absolute inset-0 rounded-full blur-2xl"
+        style={{
+          background:
+            'radial-gradient(circle, rgba(236,82,122,0.55) 0%, rgba(177,75,215,0.25) 45%, transparent 70%)',
+        }}
+      />
+      <img
+        alt=""
+        className="relative size-32 object-contain"
+        src={INFERNO.art}
+        style={{ filter: 'drop-shadow(0 8px 34px rgba(236, 82, 122, 0.5))' }}
+      />
+    </span>
+
+    <span className="w-fit rounded-8 bg-accent-bacon-default px-2 py-1 font-bold uppercase tracking-[0.16em] text-white typo-caption1">
+      {INFERNO.label}
+    </span>
+
+    <div className="flex flex-col gap-1">
+      <span className="flex items-baseline justify-center gap-2 text-text-primary">
+        <strong className="font-bold tabular-nums typo-mega2">
+          {INFERNO.day}
+        </strong>
+        <span className="font-normal typo-title3">day streak</span>
+      </span>
+      <h2 className="text-text-primary typo-title3">{INFERNO.headline}</h2>
+    </div>
+
+    <div className="flex items-center gap-1.5">
+      {WEEK.map((day, index) => (
+        <span
+          key={`${day}-${WEEK.length - index}`}
+          className="flex size-7 items-center justify-center rounded-full border border-accent-bacon-default text-text-primary typo-caption2"
+          style={{ background: 'rgba(255, 131, 61, 0.18)' }}
+        >
+          {day}
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
+/** The list primitive the decision column is built from. */
+const OptionRow = ({
+  action,
+  icon,
+  meta,
+  primary,
+  title,
+}: {
+  action: string;
+  icon: ReactNode;
+  meta: string;
+  primary?: boolean;
+  title: string;
+}) => (
+  <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-2 pr-3">
+    <span className="flex size-9 shrink-0 items-center justify-center rounded-10 bg-surface-hover text-text-tertiary">
+      {icon}
+    </span>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <span className="truncate font-bold text-text-primary typo-footnote">
+        {title}
+      </span>
+      <span className="truncate text-text-quaternary typo-caption1">
+        {meta}
+      </span>
+    </div>
+    <Button
+      className="shrink-0"
+      size={ButtonSize.Small}
+      type="button"
+      variant={primary ? ButtonVariant.Primary : ButtonVariant.Secondary}
+    >
+      {action}
+    </Button>
+  </div>
+);
+
 /* -------------------------------------------------------------- surfaces */
 
-/** NewStreakModal.tsx — the streak milestone popup. */
+/**
+ * The streak milestone popup, redrawn from the milestone-rewards review
+ * (Milestone Rewards/Final review, phone width): celebration panel above, one
+ * decision column below.
+ */
 const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
   <Screen>
-    <div className="relative flex flex-col items-center gap-2 p-6 text-center">
-      <div className="flex h-10 w-full items-center justify-between">
-        <Switch defaultChecked inputId="streak-reminder" name="streak-reminder">
-          Remind me
-        </Switch>
+    <div className="relative flex flex-col">
+      <Button
+        aria-label="Close"
+        className="absolute right-4 top-4 z-2"
+        icon={<MiniCloseIcon />}
+        size={ButtonSize.Small}
+        type="button"
+        variant={ButtonVariant.Tertiary}
+      />
+
+      <Celebration />
+
+      <div className="flex flex-col gap-4 p-6">
+        <div className="flex flex-col gap-1">
+          <h3 className="font-bold text-text-primary typo-title2">
+            {spot === 'milestone'
+              ? 'Your longest streak yet'
+              : `Day ${INFERNO.day} unlocked`}
+          </h3>
+          <p className="text-text-tertiary typo-callout">
+            Nothing sponsored today. This one is ours.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <OptionRow
+            action="Claim"
+            icon={<CoreIcon size={IconSize.Small} />}
+            meta="Spend them on awards"
+            primary
+            title={INFERNO.reward}
+          />
+          <OptionRow
+            action="Get"
+            icon={<ShieldPlusIcon secondary size={IconSize.Small} />}
+            meta="Covers a day you miss"
+            title="Two streak freezes"
+          />
+        </div>
+
+        {spot !== 'today' && (
+          <Control
+            label
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Float}
+          />
+        )}
+
         <Button
-          aria-label="Close"
-          icon={<MiniCloseIcon />}
-          size={ButtonSize.Small}
+          size={ButtonSize.Medium}
           type="button"
-          variant={ButtonVariant.Tertiary}
-        />
+          variant={ButtonVariant.Float}
+        >
+          No thanks
+        </Button>
       </div>
-
-      <span className="relative flex items-center justify-center">
-        <span className="text-[6rem] leading-none">🔥</span>
-        <strong className="absolute text-text-primary typo-tera">100</strong>
-      </span>
-
-      <strong className="mt-6 text-text-primary typo-title1">
-        {spot === 'milestone' ? 'New streak record!' : '100 days streak'}
-      </strong>
-      <p className="mt-3 text-text-secondary typo-body">
-        {spot === 'milestone'
-          ? 'Epic win! You are in a league of your own'
-          : 'New milestone reached! You are unstoppable.'}
-      </p>
-
-      <span className="mt-6 text-text-link typo-footnote">
-        Protect your streak with streak freezes
-      </span>
-
-      {spot !== 'today' && (
-        <Control className="mt-6" label variant={ButtonVariant.Primary} />
-      )}
-
-      <Checkbox className="mt-6" name="streak-never-show">
-        Never show this again
-      </Checkbox>
     </div>
   </Screen>
 );
@@ -336,67 +467,15 @@ const TopReaderScreen = ({ share }: { share: boolean }) => (
   </Screen>
 );
 
-const WEEK: [string, string][] = [
-  ['Monday', 'M'],
-  ['Tuesday', 'T'],
-  ['Wednesday', 'W'],
-  ['Thursday', 'T'],
-  ['Friday', 'F'],
-  ['Saturday', 'S'],
-  ['Sunday', 'S'],
-];
-
-const TIER_DAYS: [string, number][] = [
-  ['Spark', 3],
-  ['Flame', 7],
-  ['Inferno', 30],
-  ['Supernova', 180],
-];
-
-/** StreakOfferCelebration.tsx, over the tiers in streakTiers.ts. */
+/** The tier moment on its own: the celebration panel with no decision under it. */
 const StreakTierScreen = ({ share }: { share: boolean }) => (
   <Screen>
-    <div className="flex flex-col items-center gap-3 p-6 text-center">
-      <div className="flex size-24 items-center justify-center rounded-full bg-overlay-quaternary-bacon">
-        <span className="text-[2.5rem]">🔥</span>
+    <Celebration />
+    {share && (
+      <div className="p-6 pt-0">
+        <Control label variant={ButtonVariant.Primary} />
       </div>
-      <span className="font-bold uppercase text-accent-bacon-default typo-caption2">
-        Inferno
-      </span>
-      <strong className="text-text-primary typo-tera">30</strong>
-      <h2 className="text-text-primary typo-title3">A full month, unbroken</h2>
-      <div className="my-2 flex gap-1">
-        {WEEK.map(([name, initial], index) => (
-          <span
-            key={name}
-            className={`flex size-7 items-center justify-center rounded-full typo-caption1 ${
-              index < 5
-                ? 'bg-accent-bacon-default text-text-primary'
-                : 'bg-surface-float text-text-quaternary'
-            }`}
-          >
-            {initial}
-          </span>
-        ))}
-      </div>
-      <div className="flex flex-wrap justify-center gap-1">
-        {TIER_DAYS.map(([label, day]) => (
-          <span
-            key={label}
-            className={`rounded-8 px-2 py-1 typo-caption2 ${
-              label === 'Inferno'
-                ? 'bg-accent-bacon-default text-text-primary'
-                : 'bg-surface-float text-text-tertiary'
-            }`}
-          >
-            {label} · {day}d
-          </span>
-        ))}
-      </div>
-      {share && (
-        <Control className="mt-3" label variant={ButtonVariant.Primary} />
-      )}
-    </div>
+    )}
   </Screen>
 );
 
@@ -543,8 +622,8 @@ const StatusMomentsDevPage = (): ReactElement => (
             <StreakScreen spot="today" />
           </Variant>
           <Variant
-            headline="Snapshot beside Keep reading"
-            note="Recommended. The number is the entire message, and the card is built to carry it at 168px."
+            headline="Snapshot under the reward rows"
+            note="Recommended. The number is the entire message, and the card is built to carry it at 168px. It sits under the decision rows, above No thanks, so it never competes with Claim."
             step="Recommended"
           >
             <StreakScreen spot="share" />
@@ -615,7 +694,7 @@ const StatusMomentsDevPage = (): ReactElement => (
         </Category>
 
         <Category
-          covers="TopReaderBadgeModal.tsx · StreakOfferCelebration.tsx · ListAwardsModal.tsx · posts/[id]/analytics"
+          covers="TopReaderBadgeModal.tsx · milestone-rewards tier ladder · ListAwardsModal.tsx · posts/[id]/analytics"
           title="Win moments with no share route"
           verdict="Four more moments already ship, each one ending in a dismiss. All four are status with no destination, so snapshot is the only action that fits — the same argument as the streak and the achievement above."
         >
@@ -631,7 +710,7 @@ const StatusMomentsDevPage = (): ReactElement => (
           </Variant>
           <Variant
             headline="Streak tier milestones — ten of them, none shareable"
-            note="streakTiers.ts defines Spark, Kindle, Flame, Blaze, Firestorm, Inferno, Scorcher, Eternal Flame, Supernova and Legendary, each with its own art, name and headline. Far richer than the plain day count we draw at the top of this page — and a named tier is more quotable than a number."
+            note="The milestone-rewards ladder gives every tier its own 3D flame, name and headline. The celebration panel is the whole card already — a named tier is more quotable than a number, and nothing currently shares it."
             step="2 · Today"
           >
             <Rail>
