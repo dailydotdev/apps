@@ -106,7 +106,7 @@ export const SquadGrid = ({
   return (
     <Card
       className={classNames(
-        'group/squad relative overflow-hidden !p-0',
+        'relative overflow-hidden !p-0',
         borderColorToClassName[borderColor],
         className,
       )}
@@ -180,7 +180,7 @@ export const SquadGrid = ({
               />
             </div>
             <CopyLinkButton
-              className="relative z-0 shrink-0 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
+              className="relative z-0 shrink-0"
               shareProps={shareProps}
               size={ButtonSize.Medium}
               variant={ButtonVariant.Tertiary}
