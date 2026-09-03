@@ -19,24 +19,34 @@ const post: Post = {
 const renderComponent = ({
   impressionsEnabled = false,
   loggedUser,
+  postProps,
+  compact,
 }: {
   impressionsEnabled?: boolean;
   loggedUser?: LoggedUser;
+  postProps?: Partial<Post>;
+  compact?: boolean;
 } = {}) => {
   const gb = new GrowthBook();
   gb.setFeatures({
     [featureCardImpressions.id]: { defaultValue: impressionsEnabled },
   });
+  const evaluate = jest.spyOn(gb, 'getFeatureValue');
 
-  return render(
+  render(
     <TestBootProvider
       client={new QueryClient()}
       gb={gb}
       auth={{ user: loggedUser, isLoggedIn: !!loggedUser }}
     >
-      <PostUpvotesCommentsCount post={post} />
+      <PostUpvotesCommentsCount
+        post={{ ...post, ...postProps }}
+        compact={compact}
+      />
     </TestBootProvider>,
   );
+
+  return evaluate;
 };
 
 const impressions = () => screen.queryByText('1.2K Impressions');
@@ -74,5 +84,30 @@ describe('PostUpvotesCommentsCount impressions variant', () => {
     renderComponent({ impressionsEnabled: true });
 
     expect(impressions()).toBeInTheDocument();
+  });
+
+  it('keeps the stat off a compact strip', () => {
+    renderComponent({ impressionsEnabled: true, compact: true });
+
+    expect(impressions()).not.toBeInTheDocument();
+  });
+});
+
+describe('PostUpvotesCommentsCount impressions enrolment', () => {
+  const wasEvaluated = (evaluate: jest.SpyInstance) =>
+    evaluate.mock.calls.some(([id]) => id === featureCardImpressions.id);
+
+  it('enrols a viewer who can see the difference', () => {
+    expect(wasEvaluated(renderComponent())).toBe(true);
+  });
+
+  it('skips a post without impressions', () => {
+    expect(
+      wasEvaluated(renderComponent({ postProps: { analytics: {} } })),
+    ).toBe(false);
+  });
+
+  it('skips a compact strip', () => {
+    expect(wasEvaluated(renderComponent({ compact: true }))).toBe(false);
   });
 });
