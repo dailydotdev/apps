@@ -1,7 +1,7 @@
 import type { ComponentType, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { CopyIcon, UpvoteIcon } from '../icons';
+import { CopyIcon, VIcon } from '../icons';
 import type { IconProps } from '../Icon';
 
 /**
@@ -13,22 +13,18 @@ export const EASE_OUT_EXPO = 'ease-[cubic-bezier(0.16,1,0.3,1)]';
 
 /**
  * A copy is a rare, deliberate moment, so the confirmation earns real motion.
- * The landed state is the upvote button's arrow — same glyph, same avocado,
- * same spin — because that is the gesture the product already uses for "this
- * worked". Both glyphs share one grid cell so the label never shifts mid-swap,
- * and the motion collapses to an instant swap under `prefers-reduced-motion`.
- *
- * `idle` is the glyph it rests on: a control that copies a link rests on the
- * link, so the row it sits in stays readable at a glance.
+ * Both glyphs share one grid cell so the button never resizes mid-swap, and
+ * the transition collapses to an instant swap under `prefers-reduced-motion`.
  */
 export const CopyStateIcon = ({
   copied,
-  idle: Idle = CopyIcon,
+  icon: Icon = CopyIcon,
   className,
   ...props
 }: IconProps & {
   copied: boolean;
-  idle?: ComponentType<IconProps>;
+  /** What the button rests on — a link glyph where the payload is a URL. */
+  icon?: ComponentType<IconProps>;
 }): ReactElement => {
   const layer = classNames(
     className,
@@ -38,19 +34,17 @@ export const CopyStateIcon = ({
 
   return (
     <span className="inline-grid">
-      <Idle
+      <Icon
         {...props}
         className={classNames(layer, copied && 'scale-50 opacity-0 blur-[2px]')}
       />
-      <UpvoteIcon
+      <VIcon
         {...props}
         secondary
         className={classNames(
           layer,
-          'text-accent-avocado-default',
-          copied
-            ? 'animate-copy-confirm motion-reduce:animate-none'
-            : 'scale-50 opacity-0 blur-[2px]',
+          'text-status-success',
+          !copied && 'scale-50 opacity-0 blur-[2px]',
         )}
       />
     </span>

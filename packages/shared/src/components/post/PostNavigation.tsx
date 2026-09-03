@@ -84,7 +84,7 @@ function PostNavigation({
         {isNavCopyLinkEnabled && post && (
           <Tooltip side="bottom" content="Copy link">
             <Button
-              icon={<CopyStateIcon copied={linkCopied} idle={LinkIcon} />}
+              icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
               onClick={() => copyLink()}
               size={ButtonSize.Small}
               type="button"

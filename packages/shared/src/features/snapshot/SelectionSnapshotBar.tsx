@@ -120,7 +120,7 @@ export function SelectionSnapshotBar({
           <Tooltip content="Copy link">
             <Button
               aria-label="Copy link"
-              icon={<CopyStateIcon copied={linkCopied} idle={LinkIcon} />}
+              icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
               onClick={onCopyLink}
               size={ButtonSize.Small}
               type="button"
@@ -130,7 +130,7 @@ export function SelectionSnapshotBar({
           <Tooltip content="Copy text">
             <Button
               aria-label="Copy text"
-              icon={<CopyStateIcon copied={textCopied} idle={CopyIcon} />}
+              icon={<CopyStateIcon copied={textCopied} icon={CopyIcon} />}
               onClick={() => copyText({ message: '✅ Copied text' })}
               size={ButtonSize.Small}
               type="button"

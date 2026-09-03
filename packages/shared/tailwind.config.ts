@@ -363,11 +363,6 @@ export default {
         },
         // Matches spinAndScale in UpvoteButtonIcon.module.css, so a copy
         // confirmation reads as the same gesture as an upvote.
-        'copy-confirm': {
-          '0%': { transform: 'rotate(0deg) scale(1)' },
-          '50%': { transform: 'rotate(180deg) scale(1.2)' },
-          '100%': { transform: 'rotate(360deg) scale(1)' },
-        },
       },
       animation: {
         'image-zoom-in': 'image-zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -394,8 +389,6 @@ export default {
         'streak-earn-border': 'streak-earn-border 0.6s ease-out both',
         'streak-earn-fill': 'streak-earn-fill 0.6s ease-out both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
-        'copy-confirm':
-          'copy-confirm 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
       },
     },
     lineClamp: {
