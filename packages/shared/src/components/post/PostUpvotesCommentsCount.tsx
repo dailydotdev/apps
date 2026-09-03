@@ -8,6 +8,8 @@ import { Image } from '../image/Image';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import { canViewPostAnalytics } from '../../lib/user';
+import { useAuthContext } from '../../contexts/AuthContext';
 import Link from '../utilities/Link';
 import { Button, ButtonSize } from '../buttons/Button';
 import { AnalyticsIcon } from '../icons';
@@ -154,8 +156,9 @@ const PostUpvotesCommentsCountContent = ({
       {/* With the flag on, the impressions stat doubles as the analytics link,
           but it only renders when the post has impression data — keep the
           button as the fallback entry point so authors/team never lose the
-          direct link to analytics. */}
-      {showPostAnalytics && !showImpressionsStat && (
+          direct link to analytics. Passive rows render spans only: an embed
+          wraps the whole row in an anchor, so a link here would nest one. */}
+      {showPostAnalytics && !showImpressionsStat && !passive && (
         <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
           <Button
             tag="a"
@@ -247,12 +250,32 @@ const InteractivePostUpvotesCommentsCount = ({
   );
 };
 
+const PassivePostUpvotesCommentsCount = ({
+  post,
+  ...props
+}: PostUpvotesCommentsCountProps): ReactElement => {
+  // `passive` means no click handlers, not "no author gate": an author still
+  // sees their own impressions in an embed. Read from auth directly so the row
+  // needs no query client or router, and guarded because embedded content can
+  // render outside the auth provider.
+  const user = useAuthContext()?.user;
+
+  return (
+    <PostUpvotesCommentsCountContent
+      post={post}
+      passive
+      showPostAnalytics={canViewPostAnalytics({ user, post })}
+      {...props}
+    />
+  );
+};
+
 export function PostUpvotesCommentsCount({
   passive,
   ...props
 }: PostUpvotesCommentsCountProps): ReactElement {
   if (passive) {
-    return <PostUpvotesCommentsCountContent passive={passive} {...props} />;
+    return <PassivePostUpvotesCommentsCount {...props} />;
   }
 
   return <InteractivePostUpvotesCommentsCount {...props} />;
