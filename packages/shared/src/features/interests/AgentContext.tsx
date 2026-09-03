@@ -34,6 +34,7 @@ import {
 } from './queries';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import type { Post } from '../../graphql/posts';
+import { getPostTitle } from '../../graphql/posts';
 import type {
   AgentAttachment,
   AgentBlock,
@@ -317,14 +318,7 @@ const turnsToMessages = ({
     const blocks = mapServerBlocks(turn, postsById, allPosts);
 
     if (!isPending && !isError && !blocks.length && !turn.summaryPostId) {
-      // A quiet run delivered nothing; a command still deserves an answer.
-      if (turn.trigger !== InterestRunTrigger.Command) {
-        return acc;
-      }
-      blocks.push({
-        type: 'text',
-        html: '<p>Done. Nothing new cleared your bar this run.</p>',
-      });
+      return acc;
     }
 
     acc.push({
@@ -583,14 +577,16 @@ export const AgentProvider = ({
       return acc;
     }, []);
 
-    const fromFindings = findings.map<AgentActivityItem>((finding) => ({
-      id: finding.id,
-      at: finding.createdAt,
-      kind: 'finding',
-      text: finding.post.title
-        ? `Added "${finding.post.title}"`
-        : 'Added a finding',
-    }));
+    const fromFindings = findings.map<AgentActivityItem>((finding) => {
+      const title = getPostTitle(finding.post);
+
+      return {
+        id: finding.id,
+        at: finding.createdAt,
+        kind: 'finding',
+        text: title ? `Added "${title}"` : 'Added a finding',
+      };
+    });
 
     return [...fromTurns, ...fromFindings].sort(
       (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime(),
