@@ -10,6 +10,7 @@ import {
 import { ArrowIcon, DiscussIcon, UpvoteIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Post } from '../../../graphql/posts';
+import { getPostTitle } from '../../../graphql/posts';
 import { useNarrowContainer } from '../hooks/useNarrowContainer';
 import { AgentRowActions } from './AgentRowActions';
 
@@ -72,7 +73,7 @@ const PickRow = ({
           onClick={() => onOpen(post)}
           className="w-full text-left after:absolute after:inset-0"
         >
-          {post.title ?? post.sharedPost?.title}
+          {getPostTitle(post)}
         </button>
       </Typography>
       <AgentRowActions post={post} reveal />

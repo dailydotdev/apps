@@ -210,6 +210,8 @@ export enum LogEvent {
   // search start
   FocusSearch = 'focus search',
   SubmitSearch = 'submit search',
+  SearchResults = 'search results',
+  CloseSearch = 'close search',
   OpenSearchHistory = 'open search history',
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',

@@ -98,7 +98,7 @@ describe('QuestOffersModal', () => {
     expect(screen.getByText('Get 50% off Notes Pro')).toBeInTheDocument();
     expect(screen.getByText('Daily quests complete')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
-    expect(screen.getByText('/ 3 quests')).toBeInTheDocument();
+    expect(screen.getByText('/ 3 daily quests')).toBeInTheDocument();
 
     await waitFor(() =>
       expect(mockConfirmDelivered).toHaveBeenCalledWith(
@@ -131,7 +131,7 @@ describe('QuestOffersModal', () => {
     });
 
     expect(screen.getByText('Quest complete')).toBeInTheDocument();
-    expect(screen.getByText('/ 3 quests')).toBeInTheDocument();
+    expect(screen.getByText('/ 3 daily quests')).toBeInTheDocument();
 
     unmount();
     renderComponent();
@@ -150,6 +150,21 @@ describe('QuestOffersModal', () => {
     renderComponent();
 
     expect(onShown).toHaveBeenCalledTimes(2);
+  });
+
+  // A weekly or milestone claim opens this too, so an unlabelled "0 / 3" above
+  // "Quest complete" would read as a bug. Both layouts need the noun — the
+  // compact one was missed the first time.
+  it.each([
+    ['split', false],
+    ['carousel', true],
+  ])('names the progress count on the %s layout', (_, isMobile) => {
+    mockUseViewSize.mockReturnValue(isMobile);
+
+    renderComponent({ summary: { total: 3, claimed: 0, xpEarned: 0 } });
+
+    expect(screen.getByText('/ 3 daily quests')).toBeInTheDocument();
+    expect(screen.getByText('Quest complete')).toBeInTheDocument();
   });
 
   it('shows the XP earned from the day, and hides the chip when there is none', () => {

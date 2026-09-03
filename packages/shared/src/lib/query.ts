@@ -277,6 +277,10 @@ export enum RequestKey {
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   QuestDashboard = 'quest_dashboard',
+  // Not fetched. `useClaimQuestReward` writes the last successful claim here
+  // so listeners elsewhere in the tree can react to it, the same way
+  // `useLazyModal` carries the open modal.
+  QuestClaim = 'quest_claim',
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',

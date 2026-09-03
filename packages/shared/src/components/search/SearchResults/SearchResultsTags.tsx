@@ -8,7 +8,7 @@ import type { SearchSuggestion } from '../../../graphql/search';
 interface SearchResultsTagsProps {
   items: string[];
   isLoading: boolean;
-  onTagClick: (suggestion: SearchSuggestion) => void;
+  onTagClick: (suggestion: SearchSuggestion, position: number) => void;
 }
 
 export const SearchResultsTags = (
@@ -24,14 +24,14 @@ export const SearchResultsTags = (
     <WidgetCard heading="Related tags" data-testid="related-tags">
       {!!items?.length && (
         <div className="flex flex-wrap gap-3" role="list">
-          {items.map((tag) => (
+          {items.map((tag, position) => (
             <TagLink
               key={tag}
               tag={tag}
               buttonProps={{
                 onClick: (e) => {
                   e.preventDefault();
-                  onTagClick({ title: tag });
+                  onTagClick({ title: tag }, position);
                 },
               }}
             />

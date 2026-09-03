@@ -13,7 +13,7 @@ const feature = {
   showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
   feedAdSpot: new Feature('feed_ad_spot', 2),
-  searchVersion: new Feature('search_version', 2),
+  searchVersion: new Feature('search_version2', 3),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
@@ -337,6 +337,11 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAdsense = new Feature('read_adsense', true);
+
+export const featureCommentFirstAction = new Feature(
+  'comment_first_action',
+  false,
+);
 
 // Sidebar v2 onboarding: a three-step spotlight tour for users whose muscle
 // memory the rail broke, plus the ambient pin/••• coaching for everyone else.

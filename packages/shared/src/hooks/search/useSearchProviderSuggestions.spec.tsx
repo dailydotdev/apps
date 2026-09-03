@@ -10,6 +10,7 @@ import {
   defaultSearchSuggestionsLimit,
 } from '../../graphql/search';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { feature } from '../../lib/featureManagement';
 import { useSearchProviderSuggestions } from './useSearchProviderSuggestions';
 
 const client = new QueryClient();
@@ -39,6 +40,10 @@ const Wrapper = ({ children }: React.PropsWithChildren) => {
   );
 };
 
+// Derived from the flag rather than hardcoded: the committed default is the
+// control arm and moves when the experiment does.
+const searchVersion = feature.searchVersion.defaultValue;
+
 describe('useSearchProviderSuggestions hook', () => {
   beforeEach(() => {
     client.clear();
@@ -62,7 +67,7 @@ describe('useSearchProviderSuggestions hook', () => {
         query: SEARCH_POST_SUGGESTIONS,
         variables: {
           query: 'apples',
-          version: 2,
+          version: searchVersion,
           limit: defaultSearchSuggestionsLimit,
         },
       },
@@ -125,7 +130,7 @@ describe('useSearchProviderSuggestions hook', () => {
         query: SEARCH_POST_SUGGESTIONS,
         variables: {
           query: '',
-          version: 2,
+          version: searchVersion,
           limit: defaultSearchSuggestionsLimit,
         },
       },
@@ -141,7 +146,7 @@ describe('useSearchProviderSuggestions hook', () => {
         query: SEARCH_POST_SUGGESTIONS,
         variables: {
           query: 'apples',
-          version: 2,
+          version: searchVersion,
           limit: defaultSearchSuggestionsLimit,
         },
       },
@@ -181,7 +186,7 @@ describe('useSearchProviderSuggestions hook', () => {
         query: SEARCH_POST_SUGGESTIONS,
         variables: {
           query: 'apples',
-          version: 2,
+          version: searchVersion,
           limit: defaultSearchSuggestionsLimit,
         },
       },
@@ -225,6 +230,8 @@ describe('useSearchProviderSuggestions hook', () => {
       },
     );
 
-    expect(result.current.queryKey[3]).toMatchObject({ version: 2 });
+    expect(result.current.queryKey[3]).toMatchObject({
+      version: searchVersion,
+    });
   });
 });

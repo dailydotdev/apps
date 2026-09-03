@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import type { Alerts } from '../../graphql/alerts';
+import { feature } from '../../lib/featureManagement';
 import { useSearchProvider } from './useSearchProvider';
 import {
   SEARCH_POST_SUGGESTIONS,
@@ -42,6 +43,10 @@ const Wrapper = ({ children }: React.PropsWithChildren) => {
 };
 
 const routerPush = jest.fn();
+
+// Derived from the flag rather than hardcoded: the committed default is the
+// control arm and moves when the experiment does.
+const searchVersion = feature.searchVersion.defaultValue;
 
 describe('useSearchProvider hook', () => {
   beforeEach(() => {
@@ -104,7 +109,7 @@ describe('useSearchProvider hook', () => {
         query: SEARCH_POST_SUGGESTIONS,
         variables: {
           query: 'apples',
-          version: 2,
+          version: searchVersion,
           limit: defaultSearchSuggestionsLimit,
         },
       },
