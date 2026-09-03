@@ -110,21 +110,24 @@ export const BaseFeedPage = classed(
  * Chrome outside the container — the breadcrumbs and the tab strip —
  * uses the same constant to line up with the cards.
  *
- * Inside the v2 floating card (`LAYOUT_FRAME_CLASS`) the inset drops to
- * the 24px the list layout has always used. The card is already a frame —
- * rounded, bordered, and held off the window by its own margins — so the
- * legacy 40px is a second frame inside the first, and it costs the grid
- * 80px of width that the column count never hears about: `numCards` comes
- * from viewport media queries in `FeedLayoutProvider`, so the feed keeps
+ * Inside the v2 floating card (`LAYOUT_FRAME_CLASS`) there is no inset at
+ * all, which is what v2 has always shipped. The card is already the frame:
+ * rounded, bordered, and held off the window by its own margins. A gutter
+ * in there is a second frame drawn inside the first, and it costs the grid
+ * 80px of width that the column count never hears about — `numCards` comes
+ * from viewport media queries in `FeedLayoutProvider`, so the feed goes on
  * asking for the same number of columns in a narrower space.
+ *
+ * Below laptop the card does not exist and neither does this class, so the
+ * small-width gutter this constant exists for applies in both layouts.
  *
  * Keyed to the frame's own class rather than to `isV2` on purpose. The flag
  * resolves after mount, so a React-side gate let the gutter and the frame
- * settle independently; a descendant selector cannot — the narrower inset
- * exists exactly when the frame it belongs to is on screen.
+ * settle independently; a descendant selector cannot — the inset is absent
+ * exactly when the frame that replaces it is on screen.
  */
 export const feedGutter =
-  'px-4 tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-6';
+  'px-4 tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-0';
 
 // Vertical padding only. The horizontal inset moved to FeedContainer
 // (see `feedGutter`) because this component is not in the tree on
@@ -132,7 +135,7 @@ export const feedGutter =
 // an inset here would both miss those routes and stack with the one
 // that covers them.
 const feedPageVerticalPadding =
-  'tablet:py-4 laptop:py-10 laptop:[.layout-frame_&]:py-4';
+  'tablet:py-4 laptop:py-10 laptop:[.layout-frame_&]:py-0';
 
 export const FeedPage = ({
   className,
