@@ -113,7 +113,7 @@ const WidgetHeader = ({
     </h2>
     <div className="flex items-center gap-1">
       {trailing}
-      <Control action="Snapshot" />
+      <Control action="Snapshot" size={ButtonSize.XSmall} />
     </div>
   </div>
 );
@@ -287,7 +287,7 @@ const Profile = () => (
     >
       <Variant
         headline="Snapshot per widget"
-        note="Shipped. Icon-only at the default Small, right-aligned in the header — and on Achievements it sits after the 12/40 link rather than replacing it."
+        note="Shipped. Icon-only at XSmall, right-aligned in the header — and on Achievements it sits after the 12/40 link rather than replacing it."
         step="Shipped"
       >
         <Rail>

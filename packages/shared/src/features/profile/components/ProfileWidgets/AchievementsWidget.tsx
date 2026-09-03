@@ -22,6 +22,7 @@ import { RaritySparkles } from '../achievements/RaritySparkles';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { AchievementCard } from '../achievements/AchievementCard';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { ButtonSize } from '../../../../components/buttons/common';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -159,6 +160,7 @@ export function AchievementsWidget({
           <SnapshotButton
             filename={`daily-achievements-${user.username ?? user.id}`}
             showLabel={false}
+            size={ButtonSize.XSmall}
             target={widgetRef}
           />
         </div>

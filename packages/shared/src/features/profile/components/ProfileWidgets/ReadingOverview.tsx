@@ -24,6 +24,7 @@ import {
 import { anchorDefaultRel, pluralize } from '../../../../lib/strings';
 import { largeNumberFormat } from '../../../../lib';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { ButtonSize } from '../../../../components/buttons/common';
 
 // Utility functions
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
@@ -97,6 +98,7 @@ export function ReadingOverview({
         <SnapshotButton
           filename="daily-reading-overview"
           showLabel={false}
+          size={ButtonSize.XSmall}
           target={widgetRef}
         />
       </div>

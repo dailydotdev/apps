@@ -25,6 +25,7 @@ import {
 } from './BadgesAndAwardsComponents';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { ButtonSize } from '../../../../components/buttons/common';
 
 export const BadgesAndAwards = ({
   user,
@@ -78,6 +79,7 @@ export const BadgesAndAwards = ({
         <SnapshotButton
           filename={`daily-badges-${user.username ?? user.id}`}
           showLabel={false}
+          size={ButtonSize.XSmall}
           target={widgetRef}
         />
       </div>
