@@ -30,7 +30,6 @@ import {
   FEED_ACTION_ICON_SIZE,
 } from './actionCounter';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
-import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
@@ -130,11 +129,11 @@ const ActionButtonsV1 = ({
     };
   }, [getUpvoteAnimation, post.tags]);
 
-  const onImpressionsClick = usePostImpressionsModal(post);
   const {
     enabled: impressionsEnabled,
     showImpressions,
     impressions,
+    onImpressionsClick,
   } = usePostImpressions(post);
 
   if (isFeedPreview) {
