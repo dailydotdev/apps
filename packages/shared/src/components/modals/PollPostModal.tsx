@@ -40,6 +40,7 @@ export default function PollPostModal({
       size={Modal.Size.XLarge}
       onRequestClose={onRequestClose}
       postType={PostType.Poll}
+      navigationContentOwnsActions
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
       postPosition={postPosition}
