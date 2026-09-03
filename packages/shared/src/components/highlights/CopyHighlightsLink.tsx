@@ -2,6 +2,7 @@ import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { LinkIcon } from '../icons';
+import { CopyStateIcon } from '../share/CopyStateIcon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { getHighlightsUrl } from '../../lib/links';
@@ -20,7 +21,7 @@ export function CopyHighlightsLink({
   const isEnabled = useSharePlacement({ feature: featureHappeningNowShare });
   // useCopyText, not useCopyLink: the link variant reaches for the shortener,
   // which needs an authenticated user, and the page has to work signed out.
-  const [, copyLink] = useCopyText(link ?? getHighlightsUrl());
+  const [copied, copyLink] = useCopyText(link ?? getHighlightsUrl());
 
   if (!isEnabled) {
     return null;
@@ -31,7 +32,7 @@ export function CopyHighlightsLink({
       <Button
         aria-label="Copy link"
         className={className}
-        icon={<LinkIcon />}
+        icon={<CopyStateIcon copied={copied} icon={LinkIcon} />}
         onClick={(event: MouseEvent) => {
           // The feed card is a link, and the page header sits above a tab bar.
           event.preventDefault();

@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { LinkIcon } from '../../components/icons';
+import { CopyStateIcon } from '../../components/share/CopyStateIcon';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import type { HighlightSnapshotButtonProps } from './HighlightSnapshotButton';
@@ -21,14 +22,14 @@ export function HighlightShareActions({
 }: HighlightShareActionsProps): ReactElement {
   // useCopyText, not useCopyLink: the link variant reaches for the shortener,
   // which needs an authenticated user, and the page has to work signed out.
-  const [, copyLink] = useCopyText(link);
+  const [copied, copyLink] = useCopyText(link);
 
   return (
     <>
       <Tooltip content="Copy link">
         <Button
           aria-label="Copy link"
-          icon={<LinkIcon />}
+          icon={<CopyStateIcon copied={copied} icon={LinkIcon} />}
           onClick={() => copyLink({ message: '✅ Copied link' })}
           size={ButtonSize.Small}
           type="button"
