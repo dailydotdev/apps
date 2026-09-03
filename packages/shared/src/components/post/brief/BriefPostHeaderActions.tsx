@@ -9,6 +9,7 @@ import { settingsUrl } from '../../../lib/constants';
 import { LinkIcon, SettingsIcon, ShareIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useSharePost } from '../../../hooks/useSharePost';
+import { CopyStateIcon } from '../../share/CopyStateIcon';
 import type { Origin } from '../../../lib/log';
 import { featureBriefingShareControls } from '../../../lib/featureManagement';
 import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
@@ -29,7 +30,7 @@ export const BriefPostHeaderActions = ({
   origin: Origin;
   showShareButton?: boolean;
 }): ReactElement => {
-  const { copyLink, openSharePost } = useSharePost(origin);
+  const { copyLink, isCopying, openSharePost } = useSharePost(origin);
   const atEveryWidth = useSharePlacement({
     feature: featureBriefingShareControls,
     shouldEvaluate: showShareButton,
@@ -45,10 +46,10 @@ export const BriefPostHeaderActions = ({
       >
         {showShareButton && (
           <>
-            <Tooltip content="Copy link">
+            <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
               <Button
                 aria-label="Copy link"
-                icon={<LinkIcon />}
+                icon={<CopyStateIcon copied={isCopying} idle={LinkIcon} />}
                 size={ButtonSize.Medium}
                 variant={ButtonVariant.Tertiary}
                 onClick={() => copyLink({ post })}

@@ -25,6 +25,7 @@ import Link from '../utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSharePost } from '../../hooks/useSharePost';
+import { CopyStateIcon } from '../share/CopyStateIcon';
 import { featureBriefingShareControls } from '../../lib/featureManagement';
 import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 
@@ -60,7 +61,7 @@ export const BriefListItem = ({
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
-  const { copyLink, openSharePost } = useSharePost(origin);
+  const { copyLink, isCopying, openSharePost } = useSharePost(origin);
   const withShareControls = useSharePlacement({
     feature: featureBriefingShareControls,
   });
@@ -172,10 +173,10 @@ export const BriefListItem = ({
         // After the CardLink and above it: the overlay covers the whole row,
         // so anything rendered before it never receives the click.
         <div className="relative z-1 flex shrink-0 items-center gap-1">
-          <Tooltip content="Copy link">
+          <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
             <Button
               aria-label="Copy link"
-              icon={<LinkIcon />}
+              icon={<CopyStateIcon copied={isCopying} idle={LinkIcon} />}
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
               onClick={() => copyLink({ post })}
