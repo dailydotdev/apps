@@ -113,6 +113,8 @@ export const SEARCH_POST_SUGGESTIONS = gql`
       hits {
         id
         title
+        subtitle
+        image
       }
     }
   }
