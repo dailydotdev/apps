@@ -169,21 +169,25 @@ export const SquadGrid = ({
             )}
           </div>
 
-          <SquadActionButton
-            className={{ button: 'z-0 w-full' }}
-            squad={source}
-            origin={Origin.SquadDirectory}
-            data-testid="squad-action"
-            buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
-          />
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <SquadActionButton
+                className={{ button: 'z-0 w-full' }}
+                squad={source}
+                origin={Origin.SquadDirectory}
+                data-testid="squad-action"
+                buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
+              />
+            </div>
+            <CopyLinkButton
+              className="relative z-0 shrink-0 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
+              shareProps={shareProps}
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Tertiary}
+            />
+          </div>
         </div>
       </div>
-      <CopyLinkButton
-        className="absolute right-3 top-3 z-1 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
-        shareProps={shareProps}
-        size={ButtonSize.Medium}
-        variant={ButtonVariant.Tertiary}
-      />
       {children}
       {!!ad && <AdViewability ad={ad} onViewable={onViewableAd} />}
     </Card>
