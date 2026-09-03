@@ -207,12 +207,9 @@ describe('ProfileUserHotTakes', () => {
     renderProfileUserHotTakes();
 
     expect(screen.getByText(HOT_TAKE_LIMIT_HINT)).toBeVisible();
-    expect(screen.getByText(`${MAX_HOT_TAKES}/${MAX_HOT_TAKES}`)).toBeVisible();
     expect(
-      screen.getByLabelText(
-        `${MAX_HOT_TAKES} of ${MAX_HOT_TAKES} hot takes used`,
-      ),
-    ).toBeVisible();
+      screen.queryByText(`${MAX_HOT_TAKES}/${MAX_HOT_TAKES}`),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
     expect(screen.getByLabelText(HOT_TAKE_LIMIT_REACHED_MESSAGE)).toBeVisible();
   });
@@ -244,7 +241,7 @@ describe('ProfileUserHotTakes', () => {
     renderProfileUserHotTakes();
 
     expect(screen.getByText(HOT_TAKE_LIMIT_HINT)).toBeVisible();
-    expect(screen.getByText(`3/${MAX_HOT_TAKES}`)).toBeVisible();
+    expect(screen.queryByText(`3/${MAX_HOT_TAKES}`)).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
