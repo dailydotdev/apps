@@ -8,7 +8,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { DevPlusIcon, EditIcon, LinkIcon } from '../icons';
+import { DevPlusIcon, EditIcon, LinkIcon, UpvoteIcon } from '../icons';
 import type { PublicProfile } from '../../lib/user';
 import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
@@ -133,7 +133,16 @@ const ProfileHeader = ({
           <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
             <Button
               aria-label="Copy link"
-              icon={<LinkIcon />}
+              icon={
+                isCopying ? (
+                  <UpvoteIcon
+                    className="animate-copy-confirm text-accent-avocado-default motion-reduce:animate-none"
+                    secondary
+                  />
+                ) : (
+                  <LinkIcon />
+                )
+              }
               onClick={onCopyLink}
               size={ButtonSize.Medium}
               variant={ButtonVariant.Float}

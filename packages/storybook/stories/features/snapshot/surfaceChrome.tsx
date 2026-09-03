@@ -75,47 +75,6 @@ export const Control = ({
 
 /* ---------------------------------------------------------- page furniture */
 
-/**
- * A real context menu. Every production menu in the product leads with a
- * share item — "Share via" on posts and squads, "Share" on profiles and
- * tags — and none of them offers "Copy link" directly, so the items are
- * passed in rather than invented.
- */
-export const OverflowMenu = ({
-  items,
-  highlight,
-  className,
-}: {
-  items: string[];
-  /** The share item, whatever this surface actually calls it. */
-  highlight?: string;
-  className?: string;
-}) => (
-  <div
-    className={`absolute z-20 flex w-56 flex-col rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 ${
-      className ?? 'right-3 top-10'
-    }`}
-  >
-    {items.map((item) => {
-      const isShare = item === highlight;
-
-      return (
-        <span
-          key={item}
-          className={`flex items-center gap-3 rounded-8 px-3 py-2 typo-callout ${
-            isShare
-              ? 'bg-surface-float font-bold text-text-primary'
-              : 'text-text-tertiary'
-          }`}
-        >
-          {isShare && <ShareIcon />}
-          {item}
-        </span>
-      );
-    })}
-  </div>
-);
-
 export type DeviceName = 'Desktop' | 'Tablet' | 'Mobile';
 
 const DEVICES: Record<
