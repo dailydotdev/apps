@@ -15,7 +15,15 @@ import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { stripHtmlTags } from '../../../lib/strings';
 import { HighlightChip } from '../common/HighlightChip';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
-import { INNER_GRID_COLS } from '../common/featuredWide';
+import {
+  DESCRIPTION_CLASS_NAME,
+  HERO_DESCRIPTION_CLASS_NAME,
+  HERO_TEXT_FIT_CLASS_NAME,
+  HERO_TITLE_CLASS_NAME,
+  INNER_GRID_COLS,
+  TEXT_COL_SPAN,
+  TITLE_CLASS_NAME,
+} from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
@@ -39,6 +47,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       domProps = {},
       eagerLoadImage = false,
       wideColSpan = 2,
+      hero,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -97,7 +106,9 @@ export const ArticleFeaturedWideGridCard = forwardRef(
 
     const standardContent = (
       <>
-        <FeaturedWideTextContainer>
+        <FeaturedWideTextContainer
+          className={hero ? HERO_TEXT_FIT_CLASS_NAME : undefined}
+        >
           <PostCardHeader
             post={post}
             className="flex"
@@ -107,7 +118,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             onReadArticleClick={onReadArticleClick}
             showFeedback={false}
           />
-          <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
+          <h3
+            className={classNames(
+              'mt-2 break-words font-bold text-text-primary',
+              hero ? HERO_TITLE_CLASS_NAME : TITLE_CLASS_NAME,
+            )}
+          >
             {title}
           </h3>
           <div className="mt-2 flex min-w-0 items-center gap-2">
@@ -122,7 +138,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             className="mt-1"
           />
           {!!description && (
-            <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+            <p
+              className={classNames(
+                'mt-2 text-text-secondary typo-callout',
+                hero ? HERO_DESCRIPTION_CLASS_NAME : DESCRIPTION_CLASS_NAME,
+              )}
+            >
               {description}
             </p>
           )}
@@ -155,7 +176,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             image || overlay ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
           )}
         >
-          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
+          <div
+            className={classNames(
+              'relative flex min-h-0 min-w-0 flex-col overflow-hidden',
+              image || overlay ? TEXT_COL_SPAN[wideColSpan] : undefined,
+            )}
+          >
             {showFeedback ? feedbackContent : standardContent}
           </div>
           {(!!image || !!overlay) && (
@@ -163,6 +189,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
               image={image}
               alt={post.title ?? ''}
               wideColSpan={wideColSpan}
+              coverImage={hero}
               overlay={overlay}
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}

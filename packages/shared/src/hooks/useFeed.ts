@@ -206,6 +206,24 @@ export type FeedReturnType = {
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
+  /**
+   * Set when the surface already shows the highlights somewhere else (the feed
+   * hero), so the grid doesn't repeat them in a card.
+   */
+  disableHighlightCards?: boolean;
+  /**
+   * Set when the surface shows an ad of its own above the feed (the feed hero),
+   * so the reader doesn't meet two of them before the first post. The queue is
+   * still consumed in order: the slot is dropped, not the creative that would
+   * have filled it.
+   */
+  skipFirstAd?: boolean;
+  /**
+   * Set when the surface already leads with a full-size featured card (the feed
+   * hero), so the grid doesn't open with a second one directly beneath it. The
+   * first row stays all single-column cards; wide ones resume below it.
+   */
+  deferWideCards?: boolean;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
   /** Set on search feeds so every fetch can be logged as a search execution. */
@@ -571,7 +589,7 @@ export default function useFeed<T>(
       const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
       const adJitter = adTemplate?.adJitter ?? 0;
 
-      const adPage = getAdSlotIndex({
+      const slot = getAdSlotIndex({
         index,
         adStart,
         adRepeat,
@@ -579,7 +597,16 @@ export default function useFeed<T>(
         seed: adJitterSeedRef.current ?? '',
       });
 
-      if (adPage === undefined) {
+      if (slot === undefined) {
+        return undefined;
+      }
+
+      // Shifted rather than offset, so the creative the first slot would have
+      // shown moves down to the second one instead of being fetched and thrown
+      // away.
+      const adPage = settings?.skipFirstAd ? slot - 1 : slot;
+
+      if (adPage < 0) {
         return undefined;
       }
 
@@ -618,6 +645,7 @@ export default function useFeed<T>(
       adTemplate?.adJitter,
       adsUpdatedAt,
       pageSize,
+      settings?.skipFirstAd,
     ],
   );
 
@@ -662,6 +690,7 @@ export default function useFeed<T>(
         startIndex: heroCardsConfig.startIndex,
         widenableTypes,
         firstSlotOffset: effectiveFirstSlotOffset,
+        minWideCardRow: settings?.deferWideCards ? 1 : 0,
       });
 
       const staticAd = settings?.staticAd;
@@ -707,7 +736,7 @@ export default function useFeed<T>(
           }
 
           if (node.itemType === 'highlight') {
-            if (!node.highlights.length) {
+            if (!node.highlights.length || settings?.disableHighlightCards) {
               return;
             }
             pushAndAdvance({
@@ -760,6 +789,7 @@ export default function useFeed<T>(
     feedQuery.dataUpdatedAt,
     placeholdersPerPage,
     getAd,
+    settings?.disableHighlightCards,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
@@ -770,6 +800,7 @@ export default function useFeed<T>(
     widenableTypes,
     excludePinnedPosts,
     effectiveFirstSlotOffset,
+    settings?.deferWideCards,
   ]);
 
   const placements = useMemo(
@@ -785,6 +816,7 @@ export default function useFeed<T>(
         fullRowInsertionBeforeIndex,
         cadence,
         firstSlotOffset: effectiveFirstSlotOffset,
+        minWideCardRow: settings?.deferWideCards ? 1 : 0,
       }),
     [
       items,
@@ -796,6 +828,7 @@ export default function useFeed<T>(
       cadence,
       widenableTypes,
       effectiveFirstSlotOffset,
+      settings?.deferWideCards,
     ],
   );
 

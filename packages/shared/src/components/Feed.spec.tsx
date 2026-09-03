@@ -556,6 +556,64 @@ describe('Feed logged in', () => {
     ).toEqual(['postItem', 'postItem', 'highlightItem', 'postItem']);
   });
 
+  it('should drop feedV2 highlights when the surface shows them itself', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[0].node,
+                      feedMeta: defaultFeedPage.edges[0].node.feedMeta ?? null,
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedHighlightsItem',
+                      feedMeta: null,
+                      highlights: [
+                        {
+                          id: 'highlight-1',
+                          channel: 'agents',
+                          headline: 'The first highlight',
+                          highlightedAt: '2026-04-05T09:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[0].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[0].node.commentsPermalink,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+      { disableHighlightCards: true },
+    );
+
+    await waitForNock();
+
+    expect(await screen.findByTestId('postItem')).toBeInTheDocument();
+    expect(screen.queryByTestId('highlightItem')).not.toBeInTheDocument();
+    expect(screen.queryByText('Happening Now')).not.toBeInTheDocument();
+  });
+
   it('should send upvote mutation', async () => {
     let mutationCalled = false;
     renderComponent([
@@ -1889,6 +1947,7 @@ interface HighlightLayoutRenderParams {
   briefBannerPage?: number;
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
+  skipFirstAd?: boolean;
   user?: LoggedUser;
   isHorizontal?: boolean;
   feedName?: AllFeedPages;
@@ -1906,6 +1965,7 @@ const renderWithHighlightLayout = ({
   briefBannerPage,
   staticAd,
   disableAds,
+  skipFirstAd,
   user = defaultUser,
   isHorizontal,
   feedName = SharedFeedPage.MyFeed,
@@ -2012,6 +2072,7 @@ const renderWithHighlightLayout = ({
                   variables={variables}
                   staticAd={staticAd}
                   disableAds={disableAds}
+                  skipFirstAd={skipFirstAd}
                   isHorizontal={isHorizontal}
                 />
               </FeedContext.Provider>
@@ -2094,6 +2155,40 @@ describe('Feed ad cadence with highlight cards', () => {
     expect(order[0]).toBe('postItem');
     expect(order[1]).toBe('adItem');
     expect(order.slice(2).every((t) => t === 'postItem')).toBe(true);
+  });
+
+  // The hero above the feed is already showing an ad, so the grid stands its
+  // first one down: two placements become one. The survivor keeps its index
+  // because the dropped ad no longer occupies a cell against the cadence, so
+  // the next slot comes due one post later and lands back where it was.
+  it('drops the first ad slot when the surface shows one above the feed', async () => {
+    const posts = Array.from({ length: 20 }, (_, i) => buildPost(`p${i}`));
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      skipFirstAd: true,
+    });
+
+    const order = await getFeedItemTestIds();
+    const adIndices = order
+      .map((type, index) => (type === 'adItem' ? index : -1))
+      .filter((index) => index >= 0);
+
+    expect(adIndices).toEqual([12]);
+  });
+
+  it('keeps both ad slots when nothing is shown above the feed', async () => {
+    const posts = Array.from({ length: 20 }, (_, i) => buildPost(`p${i}`));
+
+    renderWithHighlightLayout({ posts, highlightEnabled: false });
+
+    const order = await getFeedItemTestIds(2);
+    const adIndices = order
+      .map((type, index) => (type === 'adItem' ? index : -1))
+      .filter((index) => index >= 0);
+
+    expect(adIndices).toEqual([4, 12]);
   });
 
   // Same fixture, flag off: layout disabled → wide card collapses to 1 cell

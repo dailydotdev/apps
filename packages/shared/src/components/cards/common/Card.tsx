@@ -54,6 +54,17 @@ const cardClassess =
 
 export const Card = classed('article', styles.card, cardClassess);
 
+/**
+ * A card without its chrome, for surfaces that sit on the page background
+ * rather than in the feed grid. Keeps the module class, which is what routes
+ * pointer events past the card body to the links inside it.
+ */
+export const FlatCard = classed(
+  'article',
+  styles.card,
+  'relative flex flex-col',
+);
+
 export const ClickableCard = classed('article', cardClassess);
 
 export const ChecklistCardComponent = classed(
