@@ -69,13 +69,6 @@ const Screen = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-/** Screens sit in a scroller rather than wrapping, so widths stay honest. */
-const Rail = ({ children }: { children: ReactNode }) => (
-  <div className="flex w-full items-start gap-6 overflow-x-auto pb-3">
-    {children}
-  </div>
-);
-
 const Variant = ({
   step,
   headline,
@@ -241,7 +234,7 @@ const OptionRow = ({
  * (Milestone Rewards/Final review, phone width): celebration panel above, one
  * decision column below.
  */
-const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
+const StreakScreen = () => (
   <Screen>
     <div className="relative flex flex-col">
       <Button
@@ -258,9 +251,7 @@ const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
       <div className="flex flex-col gap-4 p-6">
         <div className="flex flex-col gap-1">
           <h3 className="font-bold text-text-primary typo-title2">
-            {spot === 'milestone'
-              ? 'Your longest streak yet'
-              : `Day ${INFERNO.day} unlocked`}
+            Day {INFERNO.day} unlocked
           </h3>
           <p className="text-text-tertiary typo-callout">
             Nothing sponsored today. This one is ours.
@@ -283,13 +274,7 @@ const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
           />
         </div>
 
-        {spot !== 'today' && (
-          <Control
-            label
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Float}
-          />
-        )}
+        <Control label size={ButtonSize.Medium} variant={ButtonVariant.Float} />
 
         <Button
           size={ButtonSize.Medium}
@@ -304,19 +289,9 @@ const StreakScreen = ({ spot }: { spot: 'today' | 'share' | 'milestone' }) => (
 );
 
 /** AchievementCard.tsx — the unlock card. */
-const AchievementScreen = ({
-  spot,
-}: {
-  spot: 'today' | 'card' | 'celebration';
-}) => (
+const AchievementScreen = () => (
   <Screen>
     <div className="flex flex-col gap-3 p-4">
-      {spot === 'celebration' && (
-        <span className="font-bold uppercase text-accent-cabbage-default typo-caption2">
-          Just unlocked
-        </span>
-      )}
-
       <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
         <div className="flex items-start gap-3">
           <img
@@ -333,61 +308,36 @@ const AchievementScreen = ({
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1 self-center">
-            {spot !== 'today' && (
-              <Control
-                size={ButtonSize.XSmall}
-                variant={
-                  spot === 'celebration'
-                    ? ButtonVariant.Primary
-                    : ButtonVariant.Float
-                }
-              />
-            )}
+            <Control size={ButtonSize.XSmall} variant={ButtonVariant.Float} />
             <span className="font-bold text-text-primary typo-callout">
               120
             </span>
           </div>
         </div>
 
-        {spot !== 'celebration' && (
-          <div className="flex flex-col gap-1">
-            <span className="flex justify-between text-text-tertiary typo-footnote">
-              <span>Progress</span>
-              <span>8/10</span>
-            </span>
-            <ProgressBar
-              className={{
-                wrapper: 'h-1.5 rounded-14 bg-surface-invert',
-                bar: 'h-full rounded-14',
-              }}
-              percentage={80}
-              shouldShowBg
-            />
-          </div>
-        )}
+        <div className="flex flex-col gap-1">
+          <span className="flex justify-between text-text-tertiary typo-footnote">
+            <span>Progress</span>
+            <span>8/10</span>
+          </span>
+          <ProgressBar
+            className={{
+              wrapper: 'h-1.5 rounded-14 bg-surface-invert',
+              bar: 'h-full rounded-14',
+            }}
+            percentage={80}
+            shouldShowBg
+          />
+        </div>
       </div>
     </div>
   </Screen>
 );
 
 /** UserTopList.tsx — the leaderboard rows. */
-const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
+const RankScreen = () => (
   <Screen>
     <div className="flex flex-col gap-3 p-4">
-      {spot === 'band' && (
-        <div className="flex items-center gap-3 rounded-12 border border-accent-cabbage-default bg-overlay-float-cabbage p-3">
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="font-bold text-text-primary typo-footnote">
-              You&apos;re #1 this week
-            </span>
-            <span className="text-text-tertiary typo-caption1">
-              Highest level · 103
-            </span>
-          </div>
-          <Control label variant={ButtonVariant.Primary} />
-        </div>
-      )}
-
       <h3 className="mb-2 font-bold text-text-primary typo-title3">
         Highest level
       </h3>
@@ -401,7 +351,7 @@ const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
           <li
             key={handle as string}
             className={`group flex w-full flex-row items-center rounded-8 px-2 ${
-              index === 0 && spot === 'hover' ? 'bg-accent-pepper-subtler' : ''
+              index === 0 ? 'bg-accent-pepper-subtler' : ''
             }`}
           >
             <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
@@ -423,7 +373,7 @@ const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
                 </span>
               </div>
             </div>
-            {index === 0 && spot === 'hover' && (
+            {index === 0 && (
               <Control
                 className="ml-auto"
                 size={ButtonSize.XSmall}
@@ -440,7 +390,7 @@ const RankScreen = ({ spot }: { spot: 'today' | 'hover' | 'band' }) => (
 /* -------------------------------------------------- other win moments */
 
 /** TopReaderBadgeModal.tsx — download only, no share route. */
-const TopReaderScreen = ({ share }: { share: boolean }) => (
+const TopReaderScreen = () => (
   <Screen>
     <div className="flex flex-col items-center gap-4 p-6 text-center">
       <div className="flex size-32 items-center justify-center rounded-16 bg-gradient-to-br from-accent-bacon-default to-accent-cabbage-default">
@@ -457,30 +407,28 @@ const TopReaderScreen = ({ share }: { share: boolean }) => (
           icon={<DownloadIcon secondary />}
           size={ButtonSize.Small}
           type="button"
-          variant={share ? ButtonVariant.Float : ButtonVariant.Primary}
+          variant={ButtonVariant.Float}
         >
           Download badge
         </Button>
-        {share && <Control label variant={ButtonVariant.Primary} />}
+        <Control label variant={ButtonVariant.Primary} />
       </div>
     </div>
   </Screen>
 );
 
 /** The tier moment on its own: the celebration panel with no decision under it. */
-const StreakTierScreen = ({ share }: { share: boolean }) => (
+const StreakTierScreen = () => (
   <Screen>
     <Celebration />
-    {share && (
-      <div className="p-6 pt-0">
-        <Control label variant={ButtonVariant.Primary} />
-      </div>
-    )}
+    <div className="p-6 pt-0">
+      <Control label variant={ButtonVariant.Primary} />
+    </div>
   </Screen>
 );
 
 /** ListAwardsModal.tsx, from the recipient's side. */
-const AwardedScreen = ({ share }: { share: boolean }) => (
+const AwardedScreen = () => (
   <Screen>
     <div className="flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between">
@@ -504,9 +452,7 @@ const AwardedScreen = ({ share }: { share: boolean }) => (
           <span className="text-text-tertiary typo-body">Cores given</span>
           <span className="font-bold text-text-primary typo-title2">1,250</span>
         </div>
-        {share && (
-          <Control className="ml-auto" label variant={ButtonVariant.Primary} />
-        )}
+        <Control className="ml-auto" label variant={ButtonVariant.Primary} />
       </div>
 
       {['Bobby Iliev', 'Ante Barić', 'Ido Shamun'].map((name) => (
@@ -536,7 +482,7 @@ const POST_STATS: [string, string][] = [
 ];
 
 /** posts/[id]/analytics, behind canViewPostAnalytics. */
-const AnalyticsScreen = ({ share }: { share: boolean }) => (
+const AnalyticsScreen = () => (
   <Screen>
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-start gap-3">
@@ -548,7 +494,7 @@ const AnalyticsScreen = ({ share }: { share: boolean }) => (
             Why iconic tech brands lost their dominance
           </span>
         </div>
-        {share && <Control />}
+        <Control />
       </div>
 
       <div className="h-20 rounded-12 bg-surface-float" />
@@ -567,7 +513,7 @@ const AnalyticsScreen = ({ share }: { share: boolean }) => (
         ))}
       </div>
 
-      {share && <Control label variant={ButtonVariant.Primary} />}
+      <Control label variant={ButtonVariant.Primary} />
     </div>
   </Screen>
 );
@@ -615,25 +561,11 @@ const StatusMomentsDevPage = (): ReactElement => (
           verdict="Placement is settled; frequency is the real lever. Every day dulls it — 10 / 50 / 100 keeps it an event."
         >
           <Variant
-            headline="A popup you dismiss"
-            note="The milestone is announced and then thrown away."
-            step="Today"
-          >
-            <StreakScreen spot="today" />
-          </Variant>
-          <Variant
             headline="Snapshot under the reward rows"
             note="Recommended. The number is the entire message, and the card is built to carry it at 168px. It sits under the decision rows, above No thanks, so it never competes with Claim."
-            step="Recommended"
+            step="Proposed"
           >
-            <StreakScreen spot="share" />
-          </Variant>
-          <Variant
-            headline="Milestones only, with the framing to match"
-            note="Same control, rarer trigger, better copy. ‘Your longest yet’ is a reason to share; ‘keep it going’ is a reason to close."
-            step="Push"
-          >
-            <StreakScreen spot="milestone" />
+            <StreakScreen />
           </Variant>
         </Category>
 
@@ -643,25 +575,11 @@ const StatusMomentsDevPage = (): ReactElement => (
           verdict="The artwork is already designed to be looked at. The only question is whether we wait to be asked."
         >
           <Variant
-            headline="Unlock, then nothing"
-            note="The achievement lands in a grid and the moment passes unshared."
-            step="Today"
-          >
-            <AchievementScreen spot="today" />
-          </Variant>
-          <Variant
             headline="Snapshot on the card"
             note="Built and live. Overlaid on the artwork in Primary weight — Float disappears over a full-bleed image."
-            step="Recommended"
+            step="Proposed"
           >
-            <AchievementScreen spot="card" />
-          </Variant>
-          <Variant
-            headline="The celebration opens itself"
-            note="Highest-visibility option in the whole set: the offer arrives without being sought. Also the most interruptive, so gate it to rare unlocks."
-            step="Push"
-          >
-            <AchievementScreen spot="celebration" />
+            <AchievementScreen />
           </Variant>
         </Category>
 
@@ -671,25 +589,11 @@ const StatusMomentsDevPage = (): ReactElement => (
           verdict="The shipped control is `opacity-0 group-hover:opacity-100` at XSmall Float, pinned right with ml-auto. It works on desktop and does not exist on touch — the third hover-gated share control in the product, after the achievement card and the squad directory card."
         >
           <Variant
-            headline="Nothing on your own row"
-            note="Placing on a leaderboard is a status moment that currently ends in silence."
-            step="Today"
-          >
-            <RankScreen spot="today" />
-          </Variant>
-          <Variant
             headline="Snapshot revealed on your row"
             note="Built and live. The row is score, rank badge, avatar, name and handle; the snapshot fades in on the right. Clean on desktop, completely absent on mobile — which is most of the audience."
-            step="Recommended"
+            step="Proposed"
           >
-            <RankScreen spot="hover" />
-          </Variant>
-          <Variant
-            headline="A rank band above the board"
-            note="Works everywhere, states the offer outright, and names the achievement instead of making people infer it from a highlighted row."
-            step="Push"
-          >
-            <RankScreen spot="band" />
+            <RankScreen />
           </Variant>
         </Category>
 
@@ -701,70 +605,30 @@ const StatusMomentsDevPage = (): ReactElement => (
           <Variant
             headline="Top reader badge — download only"
             note="The clearest gap on this page. ‘You've earned the top reader badge!’ already generates an image server-side for the Download button, so the payload exists and nothing shares it. Same failure as the DevCard: generated, saved to a downloads folder, never posted."
-            step="1 · Today"
+            step="Proposed"
           >
-            <Rail>
-              <TopReaderScreen share={false} />
-              <TopReaderScreen share />
-            </Rail>
+            <TopReaderScreen />
           </Variant>
           <Variant
             headline="Streak tier milestones — ten of them, none shareable"
             note="The milestone-rewards ladder gives every tier its own 3D flame, name and headline. The celebration panel is the whole card already — a named tier is more quotable than a number, and nothing currently shares it."
-            step="2 · Today"
+            step="Proposed"
           >
-            <Rail>
-              <StreakTierScreen share={false} />
-              <StreakTierScreen share />
-            </Rail>
+            <StreakTierScreen />
           </Variant>
           <Variant
             headline="Being awarded — the only win that came from someone else"
             note="Someone spent cores on your post. ListAwardsModal shows who gave what and the cores total, and the recipient gets no way to mark it. A win handed over by another person is usually more shareable, not less — and it names them, which gives the card a second reason to travel."
-            step="3 · Today"
+            step="Proposed"
           >
-            <Rail>
-              <AwardedScreen share={false} />
-              <AwardedScreen share />
-            </Rail>
+            <AwardedScreen />
           </Variant>
           <Variant
             headline="A post that did well"
-            note="posts/[id]/analytics already reports impressions, upvotes, clicks, comments, followers gained and cores earned, behind canViewPostAnalytics. ‘My post reached 41k developers’ is the most shareable sentence an author can say, and there is nowhere to say it. Two placements drawn: an icon in the header, and a labeled control under the stats where the numbers have just made the case."
-            step="4 · Today"
+            note="posts/[id]/analytics already reports impressions, upvotes, clicks, comments, followers gained and cores earned, behind canViewPostAnalytics. ‘My post reached 41k developers’ is the most shareable sentence an author can say, and there is nowhere to say it. Two placements: an icon in the header, and a labeled control under the stats where the numbers have just made the case."
+            step="Proposed"
           >
-            <Rail>
-              <AnalyticsScreen share={false} />
-              <AnalyticsScreen share />
-            </Rail>
-          </Variant>
-        </Category>
-
-        <Category
-          covers="found in code, not drawn"
-          title="Three more worth a look"
-          verdict="All three exist and end without a share. Listed rather than drawn, because each needs a call on whether the moment is worth interrupting before it is worth designing."
-        >
-          <Variant
-            headline="The achievement unlock modal"
-            note="AchievementCompletionModal shows the artwork, name, description and ‘+N points’, then offers ‘pick next’. It is the peak of the moment and the only way out is forward. Also worth catching: ‘You unlocked every achievement’ — a genuine flex with nothing attached to it."
-            step="Unlock"
-          >
-            <div />
-          </Variant>
-          <Variant
-            headline="Levelling up"
-            note="Level is already the leaderboard's headline metric and QuestRewardAnimations fires a full reward animation, but crossing a level has no moment of its own. The leaderboard rank card we built is the closest thing, and it only exists if you happen to be on the board."
-            step="Level"
-          >
-            <div />
-          </Variant>
-          <Variant
-            headline="Curating the profile showcase"
-            note="AchievementShowcaseModal lets you pick which achievements to feature. Choosing what to show off is a share trigger by definition — someone has just told us exactly which three things they are proudest of."
-            step="Showcase"
-          >
-            <div />
+            <AnalyticsScreen />
           </Variant>
         </Category>
       </div>
