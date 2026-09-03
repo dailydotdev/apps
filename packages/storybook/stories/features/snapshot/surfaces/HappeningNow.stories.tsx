@@ -13,8 +13,6 @@ import {
   Variant,
 } from '../surfaceChrome';
 
-type Spot = 'today' | 'collapsed' | 'header' | 'lead';
-
 const TABS = ['Major headlines', 'All highlights', 'AI', 'Web'];
 
 const HIGHLIGHTS = [
@@ -28,13 +26,7 @@ const HIGHLIGHTS = [
   { headline: 'Cloudflare open-sources its edge router', time: '9h ago' },
 ];
 
-const HappeningScreen = ({
-  device,
-  spot,
-}: {
-  device: DeviceName;
-  spot: Spot;
-}) => (
+const HappeningScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     <div className="flex flex-col">
       <header className="flex items-center gap-3 px-4 py-4">
@@ -46,7 +38,7 @@ const HappeningScreen = ({
         >
           Happening Now
         </h1>
-        {spot === 'header' && <Control action="Snapshot" />}
+        <Control action="Snapshot" />
       </header>
 
       <div className="no-scrollbar flex gap-4 overflow-x-auto border-b border-border-subtlest-tertiary px-4">
@@ -65,7 +57,7 @@ const HappeningScreen = ({
       </div>
 
       {HIGHLIGHTS.map((item, index) => {
-        const open = index === 0 && spot !== 'today';
+        const open = index === 0;
 
         return (
           <article key={item.headline}>
@@ -78,7 +70,6 @@ const HappeningScreen = ({
                   {item.time}
                 </span>
               </div>
-              {spot === 'collapsed' && <Control action="Snapshot" />}
               <ArrowIcon
                 className={`shrink-0 text-text-tertiary ${
                   open ? 'rotate-180' : 'rotate-90'
@@ -97,11 +88,7 @@ const HappeningScreen = ({
                   <Control
                     action="Snapshot"
                     label
-                    variant={
-                      spot === 'lead'
-                        ? ButtonVariant.Primary
-                        : ButtonVariant.Secondary
-                    }
+                    variant={ButtonVariant.Secondary}
                   />
                 </div>
               </div>
@@ -113,11 +100,11 @@ const HappeningScreen = ({
   </Device>
 );
 
-const AllDevices = ({ spot }: { spot: Spot }) => (
+const AllDevices = () => (
   <Rail>
-    <HappeningScreen device="Desktop" spot={spot} />
-    <HappeningScreen device="Tablet" spot={spot} />
-    <HappeningScreen device="Mobile" spot={spot} />
+    <HappeningScreen device="Desktop" />
+    <HappeningScreen device="Tablet" />
+    <HappeningScreen device="Mobile" />
   </Rail>
 );
 
@@ -133,46 +120,11 @@ const HappeningNow = () => (
       verdict="Corrected: a highlight is a collapsed row — headline, relative time, chevron — that expands to a TLDR with a Read more link. There is no live pill, no source count on the row, and no share control until it is expanded."
     >
       <Variant
-        headline="Collapsed rows, nothing shareable"
-        note="Four headlines, a tab strip, and a gradient H1. Sharing requires expanding a row first, so nothing on the default view offers it."
-        step="Today"
-      >
-        <AllDevices spot="today" />
-      </Variant>
-      <Variant
         headline="Expanded: Read more, then snapshot"
         note="Built and live. Expansion is the intent signal and the TLDR is the payload, so the control appears exactly where the content it captures does."
-        step="Shipped"
+        step="Shipping · the expanded row"
       >
-        <AllDevices spot="header" />
-      </Variant>
-    </Category>
-
-    <Category
-      covers="#6355 · page, tab and highlight level"
-      title="Making it visible before the expand"
-      verdict="The shipped control is correct but conditional: it only exists after a tap. Everything below is about whether sharing should be offered before someone has committed to reading."
-    >
-      <Variant
-        headline="Snapshot on the collapsed row"
-        note="Recommended. Puts the offer in the list itself, at the cost of an icon on every row — and the row is already a button, so the control has to stop the click from toggling it."
-        step="Recommended"
-      >
-        <AllDevices spot="collapsed" />
-      </Variant>
-      <Variant
-        headline="Snapshot filled in the expanded row"
-        note="Keeps the control conditional but makes it the loudest thing in the expansion, ahead of Read more. Cheap to try, and it competes with the one link that sends people to the actual article."
-        step="Push"
-      >
-        <AllDevices spot="lead" />
-      </Variant>
-      <Variant
-        headline="One control on the page header"
-        note="Cheapest to build and the weakest offer: a snapshot of the whole page is a wall of headlines nobody reads at thumbnail size, and the tab strip means the page has no single canonical state to capture."
-        step="Alternative"
-      >
-        <AllDevices spot="header" />
+        <AllDevices />
       </Variant>
     </Category>
   </SurfacePage>

@@ -23,7 +23,7 @@ import {
   Variant,
 } from '../surfaceChrome';
 
-type Spot = 'today' | 'allSizes' | 'snapshot' | 'closing';
+type Spot = 'allSizes' | 'closing';
 
 /**
  * BriefPostContent renders the body through `<Markdown content={contentHtml} />`
@@ -45,21 +45,7 @@ const BODY = [
   ],
 ];
 
-const HeaderActions = ({
-  device,
-  spot,
-}: {
-  device: DeviceName;
-  spot: Spot;
-}) => {
-  // `hidden laptop:block` in BriefPostHeaderActions — the whole cluster,
-  // copy link included, is absent below 1020px today.
-  const hiddenToday = device !== 'Desktop' && spot === 'today';
-
-  if (hiddenToday) {
-    return null;
-  }
-
+const HeaderActions = ({ spot }: { spot: Spot }) => {
   return (
     <div className="flex items-center gap-1">
       {spot !== 'closing' && (
@@ -69,9 +55,6 @@ const HeaderActions = ({
           size={ButtonSize.Medium}
           variant={ButtonVariant.Tertiary}
         />
-      )}
-      {spot === 'snapshot' && (
-        <Control action="Snapshot" size={ButtonSize.Medium} />
       )}
       <Button
         aria-label="Notification settings"
@@ -102,7 +85,7 @@ const BriefingScreen = ({
           <span className="text-text-secondary typo-callout">
             Your Monday briefing
           </span>
-          <HeaderActions device={device} spot={spot} />
+          <HeaderActions spot={spot} />
         </div>
         <h1
           className={`font-bold text-text-primary ${
@@ -179,10 +162,7 @@ const AllDevices = ({ spot }: { spot: Spot }) => (
   </Rail>
 );
 
-
 /* ------------------------------------------------------- the /briefing list */
-
-type ListSpot = 'today' | 'tsahi' | 'snapshot';
 
 const BRIEFS = [
   { title: 'Your Monday briefing', pill: 'Just in', read: false, mins: 5 },
@@ -196,38 +176,29 @@ const BRIEFS = [
  * one-tap copy. Rendered after the full-bleed CardLink with an explicit
  * z-index, or the overlay swallows the clicks.
  */
-const RowControls = ({ spot }: { spot: ListSpot }) => {
-  if (spot === 'today') {
-    return null;
-  }
-
-  return (
-    <div className="relative z-1 flex shrink-0 items-center gap-1">
-      <Button
-        aria-label="Copy link"
-        icon={<LinkIcon />}
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-      />
-      <Button
-        aria-label="Share briefing"
-        icon={<ShareIcon />}
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-      />
-      {spot === 'snapshot' && <Control action="Snapshot" />}
-    </div>
-  );
-};
+const RowControls = () => (
+  <div className="relative z-1 flex shrink-0 items-center gap-1">
+    <Button
+      aria-label="Copy link"
+      icon={<LinkIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    />
+    <Button
+      aria-label="Share briefing"
+      icon={<ShareIcon />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+    />
+  </div>
+);
 
 const BriefRow = ({
   brief,
   device,
-  spot,
 }: {
   brief: (typeof BRIEFS)[number];
   device: DeviceName;
-  spot: ListSpot;
 }) => (
   <article className="relative flex w-full items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-3">
     {/* BriefGradientIcon — `hidden mobileXL:flex`. */}
@@ -255,17 +226,11 @@ const BriefRow = ({
         Based on 34 posts from 12 sources
       </span>
     </div>
-    <RowControls spot={spot} />
+    <RowControls />
   </article>
 );
 
-const BriefListScreen = ({
-  device,
-  spot,
-}: {
-  device: DeviceName;
-  spot: ListSpot;
-}) => (
+const BriefListScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
@@ -293,12 +258,7 @@ const BriefListScreen = ({
 
       <section className="flex w-full flex-col gap-4">
         {BRIEFS.map((brief) => (
-          <BriefRow
-            key={brief.title}
-            brief={brief}
-            device={device}
-            spot={spot}
-          />
+          <BriefRow key={brief.title} brief={brief} device={device} />
         ))}
       </section>
 
@@ -309,11 +269,11 @@ const BriefListScreen = ({
   </Device>
 );
 
-const AllLists = ({ spot }: { spot: ListSpot }) => (
+const AllLists = () => (
   <Rail>
-    <BriefListScreen device="Desktop" spot={spot} />
-    <BriefListScreen device="Tablet" spot={spot} />
-    <BriefListScreen device="Mobile" spot={spot} />
+    <BriefListScreen device="Desktop" />
+    <BriefListScreen device="Tablet" />
+    <BriefListScreen device="Mobile" />
   </Rail>
 );
 
@@ -329,25 +289,11 @@ const Briefing = () => (
       verdict="Tsahi already built this in #6353: a copy-link button and a share arrow on every row, behind the `share_briefing_digest` gate. The PR is closed and stacked on #6343, so none of it reached main — but the component exists and the decisions in it are settled."
     >
       <Variant
-        headline="Rows with nothing on them"
-        note="Gradient icon, title with a ‘Just in’ pill, and ‘5m read time • Based on 34 posts from 12 sources’. A full-bleed CardLink covers the row, so the whole thing is one link and there is nowhere to share from."
-        step="Today"
-      >
-        <AllLists spot="today" />
-      </Variant>
-      <Variant
         headline="Copy link and share arrow per row"
         note="#6353's BriefShareControls, unchanged: copy on the left, then the arrow that opens the popover on desktop and the native sheet on mobile. One glyph per meaning — the arrow is never a one-tap copy. Both render after the CardLink with `relative z-1`, or the overlay swallows the clicks."
-        step="Tsahi · #6353"
+        step="Shipping · #6353"
       >
-        <AllLists spot="tsahi" />
-      </Variant>
-      <Variant
-        headline="Snapshot as the third control"
-        note="The same card the briefing post produces, reachable without opening the briefing. It is the only one of the three that survives being sent to someone who is not signed in — but three controls on a row whose whole surface is already a link is the cost."
-        step="Push"
-      >
-        <AllLists spot="snapshot" />
+        <AllLists />
       </Variant>
     </Category>
 
@@ -357,16 +303,9 @@ const Briefing = () => (
       verdict="Corrected: the briefing is not missing a share control. BriefPostHeaderActions already renders a copy-link button beside the settings gear — but the whole cluster is wrapped in `hidden laptop:block`, so it exists on desktop and nowhere else. The gap is a breakpoint, not a missing feature."
     >
       <Variant
-        headline="Copy link on desktop, nothing below 1020px"
-        note="Kicker, heading, the two stats, then the read-time pill and source avatars. The copy and settings buttons sit to the right of the kicker on desktop and vanish entirely on tablet and mobile — where most briefings are read."
-        step="Today"
-      >
-        <AllDevices spot="today" />
-      </Variant>
-      <Variant
         headline="The same control, at every width"
         note="The cheapest fix on this page and the one that needs no new design: drop `hidden laptop:block`. Everything else here is an argument about payload; this is an argument about a class name."
-        step="Recommended · first"
+        step="Shipping"
       >
         <AllDevices spot="allSizes" />
       </Variant>
@@ -378,16 +317,9 @@ const Briefing = () => (
       verdict="One caveat first: the body is a single `<Markdown content={contentHtml} />` blob, so there are no per-item nodes to hang a control on. Per-item sharing is not a placement decision here, it is a renderer change — which rules out the obvious option and leaves two."
     >
       <Variant
-        headline="Snapshot beside copy link in the header"
-        note="Recommended. One control, one card, titled ‘Short briefing by @tomer’. Sits with the copy button it complements, matched to it at Medium."
-        step="Recommended"
-      >
-        <AllDevices spot="snapshot" />
-      </Variant>
-      <Variant
         headline="A closing band after the last section"
         note="Finishing the briefing is itself the trigger, and this is the only variant that catches people at the end rather than asking them to scroll back to a header they passed minutes ago."
-        step="Push"
+        step="Shipping"
       >
         <AllDevices spot="closing" />
       </Variant>

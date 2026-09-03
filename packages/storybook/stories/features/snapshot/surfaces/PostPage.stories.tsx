@@ -14,7 +14,6 @@ import {
   LinkIcon,
   MedalBadgeIcon,
   MenuIcon,
-  MiniCloseIcon,
   OpenLinkIcon,
   ShareIcon,
   TwitterIcon,
@@ -25,25 +24,14 @@ import type { DeviceName } from '../surfaceChrome';
 import {
   AVATAR,
   Category,
-  OverflowMenu,
-  POST_MENU,
   Control,
   Device,
   Rail,
-  ShareSheet,
   SurfacePage,
   Variant,
 } from '../surfaceChrome';
 
-type Spot =
-  | 'plain'
-  | 'today'
-  | 'today-sheet'
-  | 'summary'
-  | 'selection'
-  | 'strip'
-  | 'endband'
-  | 'upvote';
+type Spot = 'summary' | 'selection' | 'strip' | 'endband' | 'upvote';
 
 const TITLE = 'Why iconic tech brands lost their dominance';
 
@@ -58,7 +46,7 @@ const isCompact = (device: DeviceName) => device !== 'Desktop';
 /* ------------------------------------------------------------ the real page */
 
 /** Desktop only: the header cluster is `hidden laptop:flex` in production. */
-const HeaderActions = ({ menu }: { menu?: boolean }) => (
+const HeaderActions = () => (
   <div className="relative ml-auto flex items-center gap-2">
     <Button
       icon={<OpenLinkIcon />}
@@ -73,16 +61,11 @@ const HeaderActions = ({ menu }: { menu?: boolean }) => (
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
     />
-    {menu && <OverflowMenu
-        className="right-0 top-9"
-        highlight="Share via"
-        items={POST_MENU}
-      />}
   </div>
 );
 
 /** Below laptop the same cluster lives in a sticky bar with the back arrow. */
-const MobileTopBar = ({ menu }: { menu?: boolean }) => (
+const MobileTopBar = () => (
   <div className="relative flex items-center gap-2 border-b border-border-subtlest-tertiary bg-background-subtle px-4 py-2">
     <Button
       aria-label="Back"
@@ -90,22 +73,16 @@ const MobileTopBar = ({ menu }: { menu?: boolean }) => (
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
     />
-    <HeaderActions menu={menu} />
+    <HeaderActions />
   </div>
 );
 
-const SourceRow = ({
-  device,
-  menu,
-}: {
-  device: DeviceName;
-  menu?: boolean;
-}) => (
+const SourceRow = ({ device }: { device: DeviceName }) => (
   <div className="flex items-center text-text-tertiary typo-footnote">
     <span className="text-text-secondary typo-callout">XDA Developers</span>
     <span className="mx-1 text-text-quaternary">·</span>
     <span className="font-bold text-text-link">Follow</span>
-    {!isCompact(device) && <HeaderActions menu={menu} />}
+    {!isCompact(device) && <HeaderActions />}
   </div>
 );
 
@@ -302,7 +279,11 @@ const ShareStrip = ({ device }: { device: DeviceName }) => (
           key={squad}
           aria-label="Share to squad"
           icon={
-            <img alt="" className="size-6 rounded-full object-cover" src={AVATAR} />
+            <img
+              alt=""
+              className="size-6 rounded-full object-cover"
+              src={AVATAR}
+            />
           }
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
@@ -315,7 +296,9 @@ const ShareStrip = ({ device }: { device: DeviceName }) => (
 
 const Comments = ({ device }: { device: DeviceName }) => (
   <div className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-4">
-    <span className="font-bold text-text-primary typo-callout">24 comments</span>
+    <span className="font-bold text-text-primary typo-callout">
+      24 comments
+    </span>
     <div className="flex gap-3">
       <img alt="" className="size-8 rounded-full object-cover" src={AVATAR} />
       <div className="flex min-w-0 flex-col gap-1">
@@ -360,25 +343,18 @@ const Band = ({
   </div>
 );
 
-const PostView = ({
-  device,
-  spot,
-}: {
-  device: DeviceName;
-  spot: Spot;
-}) => {
+const PostView = ({ device, spot }: { device: DeviceName; spot: Spot }) => {
   const compact = isCompact(device);
-  const showsMenu = spot === 'today';
 
   return (
     <Device height={compact ? 620 : undefined} name={device}>
-      {compact && <MobileTopBar menu={showsMenu} />}
+      {compact && <MobileTopBar />}
 
       <div
         className={`flex flex-col gap-4 p-4 ${compact ? 'pb-20' : ''}`}
         style={compact ? { height: 620 - 44, overflow: 'hidden' } : undefined}
       >
-        <SourceRow device={device} menu={showsMenu} />
+        <SourceRow device={device} />
 
         <h1
           className={`break-words font-bold text-text-primary ${
@@ -398,9 +374,7 @@ const PostView = ({
         <Tags />
         <Metadata />
 
-        {!compact && (
-          <InlineActionBar device={device} />
-        )}
+        {!compact && <InlineActionBar device={device} />}
 
         {spot === 'upvote' && (
           <Band
@@ -422,14 +396,16 @@ const PostView = ({
         <Comments device={device} />
 
         {spot === 'endband' && (
-          <Band body="24 comments and counting" title="Enjoyed this discussion?">
+          <Band
+            body="24 comments and counting"
+            title="Enjoyed this discussion?"
+          >
             <Control action="Link" label variant={ButtonVariant.Secondary} />
           </Band>
         )}
       </div>
 
       {compact && <FloatingBar />}
-      {spot === 'today-sheet' && <ShareSheet />}
     </Device>
   );
 };
@@ -442,241 +418,9 @@ const AllDevices = ({ spot }: { spot: Spot }) => (
   </Rail>
 );
 
-
-/* -------------------------------------------------------------- post types */
-
-type PostKind =
-  | 'article'
-  | 'video'
-  | 'freeform'
-  | 'poll'
-  | 'collection'
-  | 'shared'
-  | 'twitter';
-
-const TYPE_TITLE: Record<PostKind, string> = {
-  article: 'Why iconic tech brands lost their dominance',
-  video: 'I rebuilt my homelab around one mini PC',
-  freeform: 'What we learned shipping a design system in six weeks',
-  poll: 'Which do you reach for first in a new service?',
-  collection: 'Everything announced at the Postgres 19 launch',
-  shared: 'Worth reading if you touch CI at all',
-  twitter: 'The org chart is the product roadmap',
-};
-
-/** Article and video carry a summary. Nothing else does. */
-const HAS_SUMMARY: PostKind[] = ['article', 'video', 'collection'];
-
-const PollBody = () => (
-  <div className="flex flex-col gap-2">
-    {[
-      ['Postgres', 62],
-      ['Redis', 21],
-      ['SQLite', 11],
-      ['Something else', 6],
-    ].map(([label, share]) => (
-      <div
-        key={label}
-        className="relative overflow-hidden rounded-10 border border-border-subtlest-tertiary px-3 py-2"
-      >
-        <span
-          className="absolute inset-y-0 left-0 bg-overlay-float-cabbage"
-          style={{ width: `${share as number}%` }}
-        />
-        <span className="relative flex justify-between text-text-primary typo-footnote">
-          <span>{label}</span>
-          <span className="font-bold">{share}%</span>
-        </span>
-      </div>
-    ))}
-    <span className="text-text-quaternary typo-caption1">
-      1,284 votes · 2 days left
-    </span>
-    <div className="flex items-center justify-between rounded-16 bg-action-comment-float p-3">
-      <span className="flex items-center gap-1 font-bold text-text-primary typo-footnote">
-        <DiscussIcon className="text-action-comment-default" secondary />
-        Why did you vote this way?
-      </span>
-      <Button size={ButtonSize.XSmall} variant={ButtonVariant.Subtle}>
-        Comment
-      </Button>
-    </div>
-  </div>
-);
-
-const TypeBody = ({
-  kind,
-  trailing,
-}: {
-  kind: PostKind;
-  trailing?: React.ReactNode;
-}) => {
-  if (kind === 'poll') {
-    return <PollBody />;
-  }
-
-  if (kind === 'video') {
-    return (
-      <div className="flex h-32 items-center justify-center rounded-12 bg-surface-float text-text-quaternary typo-footnote">
-        YouTube player
-      </div>
-    );
-  }
-
-  if (kind === 'twitter') {
-    return (
-      <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3">
-        <div className="flex items-center gap-2">
-          <img alt="" className="size-6 rounded-full object-cover" src={AVATAR} />
-          <span className="text-text-tertiary typo-caption1">
-            @bobbyiliev · on X
-          </span>
-        </div>
-        <span className="text-text-primary typo-footnote">
-          Every reorg is a bet about what the product will need in a year.
-        </span>
-      </div>
-    );
-  }
-
-  if (kind === 'shared') {
-    return (
-      <div className="flex flex-col gap-2">
-        <span className="text-text-secondary typo-footnote">
-          Worth reading if you touch CI at all.
-        </span>
-        <div className="flex gap-3 rounded-12 border border-border-subtlest-tertiary p-3">
-          <div className="size-12 shrink-0 rounded-8 bg-surface-float" />
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate font-bold text-text-primary typo-footnote">
-              Why iconic tech brands lost their dominance
-            </span>
-            <span className="text-text-quaternary typo-caption1">
-              xda-developers.com
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (kind === 'collection') {
-    return (
-      <div className="flex flex-col gap-2">
-        <p className="text-text-secondary typo-footnote">
-          {SUMMARY_LEAD}
-          {trailing}
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="flex">
-            {[0, 1, 2, 3].map((i) => (
-              <img
-                key={i}
-                alt=""
-                className="-ml-2 size-6 rounded-full border-2 border-background-default object-cover first:ml-0"
-                src={AVATAR}
-              />
-            ))}
-          </div>
-          <span className="text-text-tertiary typo-caption1">
-            12 sources · updated 2h ago
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  if (kind === 'freeform') {
-    return (
-      <div className="flex flex-col gap-2 text-text-secondary typo-footnote">
-        <p>
-          We gave ourselves six weeks and one rule: no component ships without a
-          consumer. Here is what broke.
-        </p>
-        <p className="font-bold text-text-primary">1. Tokens before components</p>
-        <p>
-          Naming the colours took longer than building anything that used them.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <p className="text-text-secondary typo-body">
-      {SUMMARY_LEAD}
-      {trailing}
-    </p>
-  );
-};
-
-const TypeView = ({
-  kind,
-  gap,
-}: {
-  kind: PostKind;
-  /** What sharing gets wrong on this type. */
-  gap: string;
-}) => (
-  <div className="flex w-[420px] shrink-0 flex-col gap-2">
-    <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
-      <div className="flex flex-col gap-3 p-4">
-        <div className="flex items-center gap-2 text-text-tertiary typo-footnote">
-          <span className="text-text-secondary typo-callout">
-            {kind === 'freeform' || kind === 'poll' || kind === 'shared'
-              ? 'Frontend Fans'
-              : 'XDA Developers'}
-          </span>
-          {kind !== 'shared' && (
-            <>
-              <span className="text-text-quaternary">·</span>
-              <span className="font-bold text-text-link">Follow</span>
-            </>
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            {kind !== 'shared' && kind !== 'poll' && kind !== 'freeform' && (
-              <Button
-                icon={<OpenLinkIcon />}
-                size={ButtonSize.XSmall}
-                variant={ButtonVariant.Secondary}
-              >
-                Read post
-              </Button>
-            )}
-            <Button
-              aria-label="Options"
-              icon={<MenuIcon />}
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Tertiary}
-            />
-          </div>
-        </div>
-
-        <h3 className="font-bold text-text-primary typo-title3">
-          {TYPE_TITLE[kind]}
-        </h3>
-
-        <TypeBody
-          kind={kind}
-          trailing={HAS_SUMMARY.includes(kind) ? <CopySummary /> : undefined}
-        />
-
-        <div className="flex items-center justify-between gap-1 rounded-16 border border-border-subtlest-tertiary p-2">
-          <BarAction icon={<UpvoteIcon />} label="Upvote" />
-          <BarAction icon={<DownvoteIcon />} label="Downvote" />
-          <BarAction icon={<DiscussIcon />} label="Comment" labelVisible />
-          <BarAction icon={<BookmarkIcon />} label="Bookmark" labelVisible />
-          <BarAction icon={<LinkIcon />} label="Copy" labelVisible />
-        </div>
-      </div>
-    </div>
-    <span className="text-text-tertiary typo-caption1">{gap}</span>
-  </div>
-);
-
-
 /* --------------------------------------------------------- the poll variant */
 
-type PollSpot = 'today' | 'result' | 'postvote';
+type PollSpot = 'result' | 'postvote';
 
 const PollResults = () => (
   <div className="flex flex-col gap-2">
@@ -703,13 +447,7 @@ const PollResults = () => (
   </div>
 );
 
-const PollView = ({
-  device,
-  spot,
-}: {
-  device: DeviceName;
-  spot: PollSpot;
-}) => (
+const PollView = ({ device, spot }: { device: DeviceName; spot: PollSpot }) => (
   <Device name={device}>
     <div className="flex flex-col gap-3 p-4">
       <div className="flex items-center gap-2 text-text-tertiary typo-footnote">
@@ -793,10 +531,10 @@ const AllPolls = ({ spot }: { spot: PollSpot }) => (
   </Rail>
 );
 
-/* ---------------------------------------------- the modal and the sticky nav */
+/* --------------------------------------------------------- the sticky nav */
 
 /** PostNavigation with `inlineActions`: Read post loses its label. */
-const NavActions = ({ close }: { close?: boolean }) => (
+const NavActions = () => (
   <div className="ml-auto flex items-center gap-1">
     <Button
       aria-label="Read post"
@@ -810,24 +548,10 @@ const NavActions = ({ close }: { close?: boolean }) => (
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
     />
-    {close && (
-      <Button
-        aria-label="Close"
-        icon={<MiniCloseIcon />}
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-      />
-    )}
   </div>
 );
 
-const NavBar = ({
-  close,
-  share,
-}: {
-  close?: boolean;
-  share?: boolean;
-}) => (
+const NavBar = () => (
   <div className="flex items-center gap-1 border-b border-border-subtlest-tertiary bg-background-subtle px-4 py-1">
     <Button
       aria-label="Previous"
@@ -843,32 +567,19 @@ const NavBar = ({
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
     />
-    {share && (
-      <div className="ml-auto flex items-center gap-1">
-        <BarAction icon={<LinkIcon />} label="Copy link" />
-        <NavActions close={close} />
-      </div>
-    )}
-    {!share && <NavActions close={close} />}
+    <div className="ml-auto flex items-center gap-1">
+      <BarAction icon={<LinkIcon />} label="Copy link" />
+      <NavActions />
+    </div>
   </div>
 );
 
-const ModalOrNavView = ({
-  device,
-  kind,
-  share,
-}: {
-  device: DeviceName;
-  kind: 'modal' | 'nav';
-  share?: boolean;
-}) => (
+const StickyNavView = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
-    {kind === 'nav' && (
-      <div className="p-4 pb-0 text-text-quaternary typo-caption1">
-        scrolled past the header
-      </div>
-    )}
-    <NavBar close={kind === 'modal'} share={share} />
+    <div className="p-4 pb-0 text-text-quaternary typo-caption1">
+      scrolled past the header
+    </div>
+    <NavBar />
 
     <div className="flex flex-col gap-3 p-4">
       <div className="flex items-center gap-2 text-text-tertiary typo-footnote">
@@ -890,13 +601,6 @@ const ModalOrNavView = ({
         {SUMMARY_LEAD}
         <CopySummary />
       </p>
-
-      {kind === 'modal' && (
-        <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary pt-3">
-          <CommentBar />
-          <ShareStrip device={device} />
-        </div>
-      )}
     </div>
   </Device>
 );
@@ -910,37 +614,6 @@ const PostPage = () => (
     title="Post page & modal"
   >
     <Category
-      covers="PostOptionButton.tsx · PostActions.v2.tsx · MobilePostFloatingBar.v2.tsx"
-      title="What actually ships today"
-      verdict="Corrected: there is no “Copy link” item in the ⋯ menu anywhere in the product. The menu leads with “Share via”, which opens the share sheet — copy link is one level deeper. Meanwhile the desktop action bar already carries a labeled Copy, and mobile carries it as an icon in the floating bar. So the post page is not a visibility problem; it is a snapshot-has-nowhere-to-go problem."
-    >
-      <Variant
-        headline="⋯ → Share via, then the sheet"
-        note="Two levels to reach a URL. Note the header cluster is `hidden laptop:flex` — on tablet and mobile the ⋯ is not in the article header at all, it moves to the sticky back-bar."
-        step="Today · the menu"
-      >
-        <AllDevices spot="today" />
-      </Variant>
-      <Variant
-        headline="The share sheet the menu opens"
-        note="Copy link is the first and only Primary-weighted item, then the eight named targets. This is where a snapshot option would slot in without adding any new chrome to the page."
-        step="Today · the sheet"
-      >
-        <Rail>
-          <PostView device="Desktop" spot="today-sheet" />
-          <PostView device="Mobile" spot="today-sheet" />
-        </Rail>
-      </Variant>
-      <Variant
-        headline="Copy is already labeled in the action bar"
-        note="PostActions.v2 renders Comment, Award, Bookmark and Copy with `labelVisible`. Below laptop the labels drop and the bar becomes the pinned floating bar, icons only. Nothing is added here."
-        step="Today · the action bar"
-      >
-        <AllDevices spot="plain" />
-      </Variant>
-    </Category>
-
-    <Category
       covers="#6350 · copy summary · #6352 · text selection"
       title="The two additions"
       verdict="Two payloads on this page stand alone without the article: the summary we generated and a line the reader chose. The summary goes out as text, because the whole point is that it can be pasted into a thread; the selection goes out as an image, because a quote is worth looking at."
@@ -948,14 +621,14 @@ const PostPage = () => (
       <Variant
         headline="Copy summary — a tiny icon under the TLDR"
         note="One tap copies the headline, the TLDR and the article link together, so pasting into Slack gives a usable message rather than a bare URL. Icon only and XSmall: it sits directly under body copy, and anything larger reads as part of the article."
-        step="Recommended"
+        step="Shipping"
       >
         <AllDevices spot="summary" />
       </Variant>
       <Variant
         headline="Floating bar on selected text"
         note="The only snapshot on the post page. The bar appears exactly when intent exists, so it is also the one control here that costs no permanent chrome."
-        step="Recommended"
+        step="Shipping"
       >
         <AllDevices spot="selection" />
       </Variant>
@@ -969,134 +642,62 @@ const PostPage = () => (
       <Variant
         headline="Share strip under the comment bar"
         note="DiscussionShareRow, already shipping in the discussion panel but not on the post page itself. It is the densest share affordance we have — named targets and squads, no menu, no modal — and it sits directly under the composer, where someone has already decided to engage. Two squads below tablet, four above."
-        step="Share strip"
+        step="Shipping · post_share_prompts"
       >
         <AllDevices spot="strip" />
       </Variant>
       <Variant
         headline="Band under the last comment"
         note="Peak-end: it sits where reading actually stops, and copy link is the whole offer — a still image of a live thread goes stale within hours. On mobile the band and the pinned floating bar both want the bottom of the screen, which is the real design problem here."
-        step="End of thread"
+        step="Shipping · post_share_prompts"
       >
         <AllDevices spot="endband" />
       </Variant>
       <Variant
         headline="Prompt after an upvote"
         note="The strongest intent signal we get. Snapshot stays out — it would be the same payload twice."
-        step="After upvote"
+        step="Shipping · post_share_prompts"
       >
         <AllDevices spot="upvote" />
       </Variant>
     </Category>
     <Category
-      covers="types.ts · PostType has eleven members"
-      title="The gap: not every post is an article"
-      verdict="Everything above assumes an article with a summary and an external link. Eleven post types route through the same BasePostContent and the same action bar, and the share affordances break differently on each. None of the sharing PRs mentions a post type."
+      covers="PollPostContent.tsx · PollSnapshotButton.tsx · poll_snapshot"
+      title="Snapshot on the poll"
+      verdict="The one post type where snapshot beats a link outright. The result is a bar chart with percentages — self-contained, visual, and worthless as a URL once voting closes. It is also the only type that already renders a peak-intent prompt to attach to."
     >
-      <Variant
-        headline="Seven types, seven different problems"
-        note="Each frame notes what sharing gets wrong on that type. The action bar is identical on all of them — it is everything above the bar that differs."
-        step="Audit"
-      >
-        <Rail>
-          <TypeView
-            gap="Baseline. Summary and external link both exist, so Copy summary and Copy link both mean something."
-            kind="article"
-          />
-          <TypeView
-            gap="Has a summary, so Copy summary works — but a video share almost always wants a timestamp, and nothing carries one."
-            kind="video"
-          />
-          <TypeView
-            gap="No summary field at all. Copy summary cannot exist here, and the markdown body has no obvious excerpt — the first paragraph is a guess."
-            kind="freeform"
-          />
-          <TypeView
-            gap="The strongest unclaimed snapshot payload in the product — drawn out as the recommendation above."
-            kind="poll"
-          />
-          <TypeView
-            gap="Summary plus a source stack. Uses its own CollectionPostHeaderActions, so any header-level control has to be added twice."
-            kind="collection"
-          />
-          <TypeView
-            gap="Two links exist — the squad post and the original article — and nothing says which one Copy copies. No Read post button either (hideShareReadButton)."
-            kind="shared"
-          />
-          <TypeView
-            gap="An embedded tweet we did not write. A snapshot here reproduces someone else's post inside our frame, which is an attribution question before it is a design one."
-            kind="twitter"
-          />
-        </Rail>
-      </Variant>
-    </Category>
-
-    <Category
-      covers="PollPostContent.tsx · no PR covers this"
-      title="The recommendation: put snapshot on the poll"
-      verdict="Of the eleven post types this is the one where snapshot beats a link outright. The result is a bar chart with percentages — self-contained, visual, and worthless as a URL once voting closes. It is also the only type that already renders a peak-intent prompt we can attach to, and no PR in the tracker touches it."
-    >
-      <Variant
-        headline="A result nobody can take with them"
-        note="1,284 votes, a clear winner, and the only way out is the same copy link every other post gets. In two days the page shows a closed poll."
-        step="Today"
-      >
-        <AllPolls spot="today" />
-      </Variant>
       <Variant
         headline="Snapshot beside the vote count"
         note="Recommended. Sits with the result rather than in the action bar, because it is the result being shared, not the post. Icon only — the numbers above it are the message."
-        step="Recommended"
+        step="Shipping"
       >
         <AllPolls spot="result" />
       </Variant>
       <Variant
         headline="Snapshot on the post-vote prompt"
         note="PollPostContent already renders “Why did you vote this way?” the moment someone votes — the one prompt in the product that fires on a completed action rather than a scroll position. Snapshot leads and Comment stays; the prompt keeps its original job."
-        step="Push"
+        step="Shipping"
       >
         <AllPolls spot="postvote" />
       </Variant>
     </Category>
 
     <Category
-      covers="ArticlePostModal.tsx · BasePostModal.tsx · FixedPostNavigation.tsx"
-      title="The two surfaces the page audit missed"
-      verdict="Both are the post page in a different frame, and in both the article header loses its controls to a nav bar. Anything placed in the source row is absent here."
+      covers="FixedPostNavigation.tsx · PostNavigation.tsx · post_nav_copy_link"
+      title="The sticky nav"
+      verdict="Once the header scrolls away the nav bar carries the page's only controls, so anything placed in the source row is out of reach for the rest of the read."
     >
-      <Variant
-        headline="The modal already has the share strip"
-        note="ArticlePostModal passes `navigation.actions: 'ml-auto tablet:hidden'`, so from tablet up the source-row cluster is gone and the modal nav carries it, plus a close button. Under the redesign the modal renders PostFocusCard — which is where DiscussionShareRow already ships. The strip is not a proposal in the modal; it is live."
-        step="Post modal"
-      >
-        <Rail>
-          <ModalOrNavView device="Desktop" kind="modal" />
-          <ModalOrNavView device="Tablet" kind="modal" />
-          <ModalOrNavView device="Mobile" kind="modal" />
-        </Rail>
-      </Variant>
-      <Variant
-        headline="The sticky nav is a share slot nobody uses"
-        note="FixedPostNavigation pins itself to the top for the whole read, and PostHeaderActions runs with `inlineActions`, so Read post drops its label and the ⋯ is the only way out. It is the one control on the page that is on screen at every scroll position — and the only share route through it is a menu."
-        step="Sticky nav · today"
-      >
-        <Rail>
-          <ModalOrNavView device="Desktop" kind="nav" />
-          <ModalOrNavView device="Mobile" kind="nav" />
-        </Rail>
-      </Variant>
       <Variant
         headline="One copy-link icon in the sticky nav"
         note="Cheapest visibility win on the whole page: a single icon in a bar that is already rendered, already right-aligned, and already on screen for the entire read. No new chrome and nothing moves."
-        step="Sticky nav · recommended"
+        step="Shipping · post_nav_copy_link"
       >
         <Rail>
-          <ModalOrNavView device="Desktop" kind="nav" share />
-          <ModalOrNavView device="Mobile" kind="nav" share />
+          <StickyNavView device="Desktop" />
+          <StickyNavView device="Mobile" />
         </Rail>
       </Variant>
     </Category>
-
   </SurfacePage>
 );
 

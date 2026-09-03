@@ -21,7 +21,7 @@ import {
   Variant,
 } from '../surfaceChrome';
 
-type Spot = 'settings' | 'step' | 'progress';
+type Spot = 'step' | 'progress';
 
 const TARGETS = [
   ['X', 'bg-text-primary'],
@@ -34,68 +34,6 @@ const TARGETS = [
 ];
 
 /* ---------------------------------------------------------- today: settings */
-
-/**
- * /settings/invite as it ships: three AccountContentSections, a TextField
- * labelled "Your unique invite URL" with a Primary Copy link action button,
- * then "or invite via" and the SocialShareList row.
- */
-const SettingsScreen = ({ device }: { device: DeviceName }) => (
-  <Device name={device}>
-    <div className="flex flex-col gap-6 p-4">
-      <h1 className="font-bold text-text-primary typo-title2">
-        Invite friends
-      </h1>
-
-      <section className="flex flex-col gap-1">
-        <h2 className="font-bold text-text-primary typo-body">
-          Grow the community
-        </h2>
-        <p className="text-text-tertiary typo-callout">
-          Share daily.dev with developers you know. When they join through your
-          link, they&apos;ll show up in your referrals list below.
-        </p>
-      </section>
-
-      <section className="flex flex-col gap-1">
-        <h2 className="font-bold text-text-primary typo-body">
-          Share your invite link
-        </h2>
-        <p className="text-text-tertiary typo-callout">
-          Copy your personal link or share it directly on social platforms.
-        </p>
-        <div className="mt-4 flex flex-col gap-1">
-          <span className="text-text-tertiary typo-caption1">
-            Your unique invite URL
-          </span>
-          <div className="flex items-center gap-2 rounded-14 border border-border-subtlest-secondary px-3 py-2">
-            <span className="min-w-0 flex-1 truncate text-text-primary typo-body">
-              dly.to/tomer
-            </span>
-            <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
-              Copy link
-            </Button>
-          </div>
-        </div>
-        <span className="my-4 block p-0.5 font-bold text-text-tertiary typo-callout">
-          or invite via
-        </span>
-        <div className="flex flex-row flex-wrap gap-2 gap-y-4">
-          {TARGETS.slice(0, device === 'Mobile' ? 5 : 7).map(
-            ([label, tone]) => (
-              <div key={label} className="flex w-16 flex-col items-center gap-1">
-                <span className={`size-10 rounded-full ${tone}`} />
-                <span className="text-text-tertiary typo-caption2">
-                  {label}
-                </span>
-              </div>
-            ),
-          )}
-        </div>
-      </section>
-    </div>
-  </Device>
-);
 
 /* ------------------------------------------------------- proposed: the step */
 
@@ -118,13 +56,7 @@ const Slot = ({ filled }: { filled?: boolean }) =>
  * Skip, the step content on the 32rem rail, then a scrim, the glass bar with
  * a Medium Primary CTA, and the step dots.
  */
-const StepScreen = ({
-  device,
-  spot,
-}: {
-  device: DeviceName;
-  spot: Spot;
-}) => (
+const StepScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
   <Device name={device}>
     <div className="flex flex-col">
       <div className="flex w-full items-center px-6 pt-6">
@@ -174,7 +106,10 @@ const StepScreen = ({
         <div className="flex flex-row flex-wrap justify-center gap-2 gap-y-4">
           {TARGETS.slice(0, device === 'Mobile' ? 5 : 7).map(
             ([label, tone]) => (
-              <div key={label} className="flex w-16 flex-col items-center gap-1">
+              <div
+                key={label}
+                className="flex w-16 flex-col items-center gap-1"
+              >
                 <span className={`size-10 rounded-full ${tone}`} />
                 <span className="text-text-tertiary typo-caption2">
                   {label}
@@ -220,24 +155,6 @@ const InviteOnboarding = () => (
     map="Sharing map: Copy link leads (#6366). An image of a referral cannot be clicked, so snapshot has nothing to add here and is deliberately absent from every variation below."
     title="Invite friends — onboarding step"
   >
-    <Category
-      covers="pages/settings/invite.tsx · InviteLinkInput.tsx · SocialShareList.tsx"
-      title="Where it lives today"
-      verdict="Complete, and unreachable. A labelled TextField with a Primary Copy link button, then the full seven-target row — buried three levels into settings, long after the moment when a new user is most willing to bring someone with them."
-    >
-      <Variant
-        headline="/settings/invite"
-        note="Nothing about this page is wrong. The problem is that reaching it requires already wanting to invite someone, which is the thing the page is supposed to cause."
-        step="Today"
-      >
-        <Rail>
-          <SettingsScreen device="Desktop" />
-          <SettingsScreen device="Tablet" />
-          <SettingsScreen device="Mobile" />
-        </Rail>
-      </Variant>
-    </Category>
-
     <Category
       covers="#6366 · blocked on backend · FunnelStepCtaWrapper.tsx · StepHeadline.tsx"
       title="The proposed onboarding step"

@@ -19,13 +19,12 @@ import {
   Category,
   Control,
   Device,
-  OverflowMenu,
   Rail,
   SurfacePage,
   Variant,
 } from '../surfaceChrome';
 
-type Spot = 'today' | 'row' | 'lead';
+type Spot = 'row' | 'lead';
 
 /* -------------------------------------------------------------- hot takes */
 
@@ -67,9 +66,7 @@ const HotTakeRow = ({
       <span className="text-text-tertiary typo-footnote">{take.subtitle}</span>
     </div>
     <div className="flex items-center gap-1">
-      {spot === 'row' && (
-        <Control action="Snapshot" size={ButtonSize.XSmall} />
-      )}
+      {spot === 'row' && <Control action="Snapshot" size={ButtonSize.XSmall} />}
       <Button
         icon={<UpvoteIcon />}
         size={ButtonSize.XSmall}
@@ -80,7 +77,6 @@ const HotTakeRow = ({
     </div>
   </div>
 );
-
 
 /* --------------------------------------------------------- the swipe modal */
 
@@ -133,17 +129,13 @@ const HotTakeModalScreen = ({
                   587
                 </span>
               </span>
-              {spot !== 'today' && (
-                <Control
-                  action="Snapshot"
-                  label={spot === 'lead'}
-                  variant={
-                    spot === 'lead'
-                      ? ButtonVariant.Primary
-                      : ButtonVariant.Float
-                  }
-                />
-              )}
+              <Control
+                action="Snapshot"
+                label={spot === 'lead'}
+                variant={
+                  spot === 'lead' ? ButtonVariant.Primary : ButtonVariant.Float
+                }
+              />
             </div>
           </div>
 
@@ -240,12 +232,10 @@ const HistoryRow = ({
   title,
   device,
   spot,
-  menu,
 }: {
   title: string;
   device: DeviceName;
   spot: Spot;
-  menu?: boolean;
 }) => (
   <div className="relative flex items-center rounded-16 px-2 py-3">
     <div className="relative">
@@ -282,25 +272,12 @@ const HistoryRow = ({
         </>
       )}
       {spot === 'row' && <Control action="Link" />}
-      <div className="relative">
-        <Button
-          aria-label="Options"
-          icon={<MenuIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-        />
-        {menu && (
-          <OverflowMenu
-            className="right-0 top-9"
-            highlight="Share post via..."
-            items={[
-              'Share post via...',
-              'Save to bookmarks',
-              'Remove post',
-            ]}
-          />
-        )}
-      </div>
+      <Button
+        aria-label="Options"
+        icon={<MenuIcon />}
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+      />
     </div>
   </div>
 );
@@ -317,14 +294,8 @@ const HistoryScreen = ({
       <span className="mb-2 font-bold text-text-primary typo-title3">
         Reading history
       </span>
-      {HISTORY.map((title, index) => (
-        <HistoryRow
-          key={title}
-          device={device}
-          menu={spot === 'today' && index === 0}
-          spot={spot}
-          title={title}
-        />
+      {HISTORY.map((title) => (
+        <HistoryRow key={title} device={device} spot={spot} title={title} />
       ))}
     </div>
   </Device>
@@ -358,16 +329,9 @@ const FeedAndLists = () => (
       verdict="Where people actually meet a hot take, and the snapshot already ships on it: top card only, at Float, beside the upvote pill. Decided: promote it to labeled and filled."
     >
       <Variant
-        headline="Snapshot at Float, beside the pill"
-        note="What ships. Emoji tile, centred Title3, the quote in Body-tertiary, the upvote pill and a bordered author footer, with ❄️ 😐 🔥 and ‘Add your own hot take’ beneath. `isTop` only, so it never renders on the cards stacked behind."
-        step="Today"
-      >
-        <Rails Screen={HotTakeModalScreen} spot="row" />
-      </Variant>
-      <Variant
         headline="Snapshot labeled and filled"
         note="Decided. The card has the width for a label and nothing else in that row competes with it. The trade we accepted: a swipe surface gains a button people are meant to press rather than swipe past."
-        step="Chosen"
+        step="Shipping"
       >
         <Rails Screen={HotTakeModalScreen} spot="lead" />
       </Variant>
@@ -376,19 +340,12 @@ const FeedAndLists = () => (
     <Category
       covers="HotTakeItem.tsx"
       title="Hot takes — the profile list"
-      verdict="The same content in a different frame: an emoji tile, title, subtitle and an upvote counter in a surface-float row. No ⋯ menu and no snapshot, so unlike the modal this list has no share route at all."
+      verdict="The same content in a different frame: an emoji tile, title, subtitle and an upvote counter in a surface-float row. It has no ⋯ menu, so unlike the modal this list had no share route at all."
     >
-      <Variant
-        headline="Nothing to share, and no menu to bury it in"
-        note="Edit and delete exist but are owner-only and hover-revealed, so the only control a visitor sees is the upvote."
-        step="Today"
-      >
-        <Rails Screen={HotTakesScreen} spot="today" />
-      </Variant>
       <Variant
         headline="Snapshot beside the upvote"
         note="Decided. XSmall to match the upvote counter it sits next to, and placed before it so the count stays at the edge. It produces the card the modal already produces, so this is a placement rather than a new feature."
-        step="Chosen"
+        step="Shipping"
       >
         <Rails Screen={HotTakesScreen} spot="row" />
       </Variant>
@@ -400,21 +357,13 @@ const FeedAndLists = () => (
       verdict="Each row is just a post, so the payload question never arises — only reach does. Decided: an icon-only copy link, always visible."
     >
       <Variant
-        headline="⋯ → Share post via..."
-        note="A 64px thumbnail with the source avatar overlapping it, a two-line title, then votes and the menu. Sharing is two taps, and the wording differs from every other menu in the product."
-        step="Today"
-      >
-        <Rails Screen={HistoryScreen} spot="today" />
-      </Variant>
-      <Variant
         headline="Copy link icon, before the menu"
         note="Decided, and no label: the row already drops its vote buttons below laptop, and a label would push the title to a third line on mobile. Always visible rather than hover-gated, so it survives touch."
-        step="Chosen"
+        step="Shipping"
       >
         <Rails Screen={HistoryScreen} spot="row" />
       </Variant>
     </Category>
-
   </SurfacePage>
 );
 

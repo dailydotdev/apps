@@ -111,83 +111,6 @@ export const Screen = ({
  * tags, "Share post via..." in reading history — and none of them offers
  * "Copy link" directly, so the items are passed in rather than invented.
  */
-/**
- * The real post menu, in the real order — PostOptionButton.tsx. There is no
- * "Copy link" item here or on any other surface; the menu leads with "Share
- * via", which opens the share sheet.
- */
-export const POST_MENU = [
-  'Share via',
-  'Hide',
-  'Report',
-  'Read it later',
-  'Translate',
-  'Follow XDA Developers',
-];
-
-export const OverflowMenu = ({
-  items,
-  highlight,
-  className,
-}: {
-  items: string[];
-  /** The share item, whatever this surface actually calls it. */
-  highlight?: string;
-  className?: string;
-}) => (
-  <div
-    className={`absolute z-20 flex w-56 flex-col rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 ${
-      className ?? 'right-3 top-10'
-    }`}
-  >
-    {items.map((item) => {
-      const isShare = item === highlight;
-
-      return (
-        <span
-          key={item}
-          className={`flex items-center gap-3 rounded-8 px-3 py-2 typo-callout ${
-            isShare
-              ? 'bg-surface-float font-bold text-text-primary'
-              : 'text-text-tertiary'
-          }`}
-        >
-          {isShare && <ShareIcon />}
-          {item}
-        </span>
-      );
-    })}
-  </div>
-);
-
-/** The production share modal: copy link, then the named targets. */
-export const ShareSheet = () => (
-  <div className="absolute inset-0 z-30 flex items-end justify-center bg-overlay-quaternary-onion p-4">
-    <div className="w-full rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4">
-      <span className="font-bold text-text-primary typo-title3">Share</span>
-      <div className="mt-3 flex flex-wrap gap-3">
-        {[
-          ['Copy link', 'bg-accent-cabbage-default'],
-          ['X', 'bg-text-primary'],
-          ['WhatsApp', 'bg-accent-avocado-default'],
-          ['Facebook', 'bg-accent-bun-default'],
-          ['Reddit', 'bg-accent-ketchup-default'],
-          ['LinkedIn', 'bg-accent-blueCheese-default'],
-          ['Telegram', 'bg-accent-water-default'],
-          ['Email', 'bg-accent-burger-default'],
-        ].map(([label, tone]) => (
-          <div key={label} className="flex w-16 flex-col items-center gap-1">
-            <span className={`size-10 rounded-full ${tone}`} />
-            <span className="text-center text-text-tertiary typo-caption2">
-              {label}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
 export type DeviceName = 'Desktop' | 'Tablet' | 'Mobile';
 
 /**
@@ -197,14 +120,12 @@ export type DeviceName = 'Desktop' | 'Tablet' | 'Mobile';
  * sticky back-bar, and a floating action bar appears at the bottom. A
  * recommendation that only works on one of the three is not a recommendation.
  */
-export const DEVICES: Record<
-  DeviceName,
-  { width: number; viewport: string }
-> = {
-  Desktop: { width: 680, viewport: '1020px and up' },
-  Tablet: { width: 560, viewport: '768px' },
-  Mobile: { width: 375, viewport: '375px' },
-};
+export const DEVICES: Record<DeviceName, { width: number; viewport: string }> =
+  {
+    Desktop: { width: 680, viewport: '1020px and up' },
+    Tablet: { width: 560, viewport: '768px' },
+    Mobile: { width: 375, viewport: '375px' },
+  };
 
 /** A surface drawn at one real viewport width, so density is comparable. */
 export const Device = ({

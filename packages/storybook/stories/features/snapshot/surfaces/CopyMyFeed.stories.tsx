@@ -31,7 +31,7 @@ import {
   Variant,
 } from '../surfaceChrome';
 
-type Spot = 'today' | 'section' | 'list';
+type Spot = 'section' | 'list';
 
 const MENU: [string, React.ReactElement][] = [
   ['General', <EditIcon key="general" />],
@@ -109,7 +109,11 @@ const FeedSettingsScreen = ({
         <Button size={ButtonSize.Small} variant={ButtonVariant.Tertiary}>
           Cancel
         </Button>
-        <Button disabled size={ButtonSize.Small} variant={ButtonVariant.Primary}>
+        <Button
+          disabled
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+        >
           Save
         </Button>
       </div>
@@ -166,40 +170,36 @@ const FeedSettingsScreen = ({
             </Button>
           </Block>
 
-          {spot !== 'today' && (
-            <>
-              <Divider />
-              <Block
-                description="Anyone who opens your link gets this feed added to their own, tags and sources included."
-                title="Share this feed"
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2 rounded-14 border border-border-subtlest-secondary px-3 py-2 tablet:max-w-70">
-                    <span className="min-w-0 flex-1 truncate text-text-primary typo-body">
-                      dly.to/f/tomer-frontend
-                    </span>
-                    <Button
-                      icon={<LinkIcon />}
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Primary}
-                    >
-                      Copy link
-                    </Button>
-                  </div>
-                  {spot === 'list' && (
-                    <Button
-                      className="w-fit"
-                      icon={<CopyIcon />}
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Float}
-                    >
-                      Copy top 20 as a list
-                    </Button>
-                  )}
-                </div>
-              </Block>
-            </>
-          )}
+          <Divider />
+          <Block
+            description="Anyone who opens your link gets this feed added to their own, tags and sources included."
+            title="Share this feed"
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 rounded-14 border border-border-subtlest-secondary px-3 py-2 tablet:max-w-70">
+                <span className="min-w-0 flex-1 truncate text-text-primary typo-body">
+                  dly.to/f/tomer-frontend
+                </span>
+                <Button
+                  icon={<LinkIcon />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Primary}
+                >
+                  Copy link
+                </Button>
+              </div>
+              {spot === 'list' && (
+                <Button
+                  className="w-fit"
+                  icon={<CopyIcon />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Float}
+                >
+                  Copy top 20 as a list
+                </Button>
+              )}
+            </div>
+          </Block>
 
           <Divider />
 
@@ -235,7 +235,6 @@ const FeedSettingsScreen = ({
     </div>
   </Device>
 );
-
 
 /* ------------------------------------------------------- the recipient side */
 
@@ -283,8 +282,8 @@ const LandingScreen = ({
             Sign in to add Tomer&apos;s feed
           </h1>
           <p className="text-text-tertiary typo-callout">
-            A feed lives in an account, so there is nowhere to put this one
-            yet. Sign in or sign up, then open the link again.
+            A feed lives in an account, so there is nowhere to put this one yet.
+            Sign in or sign up, then open the link again.
           </p>
         </>
       )}
@@ -310,8 +309,6 @@ const LandingScreen = ({
           </span>
         ))}
       </div>
-
-
 
       <div className="mt-2 flex flex-col items-center gap-2">
         {spot === 'added' && (
@@ -402,13 +399,6 @@ const CopyMyFeed = () => (
       verdict="The General tab already gates feed name, the emoji picker, the default-feed toggle and delete behind `isCustomFeed`. Sharing belongs in exactly that set — it is a property of a feed you built, configured where everything else about it is configured."
     >
       <Variant
-        headline="Name, icon, default, placement, delete"
-        note="Seven tabs down the left, General open. Every custom-feed-only block already lives here, and none of them offers a way to get the feed out."
-        step="Today"
-      >
-        <Rails spot="today" />
-      </Variant>
-      <Variant
         headline="A share link, with what it does stated"
         note="Recommended. The description does the work: ‘anyone who opens your link gets this feed added to their own’. Without that sentence a feed link reads as a link to your private feed, which is the one thing it cannot be."
         step="Recommended"
@@ -493,7 +483,6 @@ const CopyMyFeed = () => (
         <div />
       </Variant>
     </Category>
-
   </SurfacePage>
 );
 

@@ -16,39 +16,26 @@ import {
   Category,
   Control,
   Device,
-  OverflowMenu,
   Rail,
   SurfacePage,
   Variant,
 } from '../surfaceChrome';
 
 /** CustomFeedOptionsMenu — the same two items on tags, sources and profiles. */
-const FEED_MENU = ['Share', 'Add to custom feed'];
 
-type Spot = 'today' | 'menu' | 'inline' | 'labeled';
-
-const Options = ({ spot }: { spot: Spot }) => (
-  <div className="relative">
-    <Button
-      aria-label="Options"
-      icon={<MenuIcon />}
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Tertiary}
-    />
-    {spot === 'menu' && (
-      <OverflowMenu
-        className="right-0 top-9"
-        highlight="Share"
-        items={FEED_MENU}
-      />
-    )}
-  </div>
+const Options = () => (
+  <Button
+    aria-label="Options"
+    icon={<MenuIcon />}
+    size={ButtonSize.Small}
+    variant={ButtonVariant.Tertiary}
+  />
 );
 
 /* ------------------------------------------------------------------- tags */
 
 /** TagTopicPage: a centred hero, not a row. No logo, no avatar. */
-const TagScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
+const TagScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     {/* TagPageNavbar — full-bleed strip of related tags. */}
     <div className="no-scrollbar flex gap-2 overflow-x-auto border-b border-border-subtlest-tertiary px-4 py-2">
@@ -97,11 +84,8 @@ const TagScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
         >
           Block
         </Button>
-        {spot === 'inline' && <Control action="Link" />}
-        {spot === 'labeled' && (
-          <Control action="Link" label variant={ButtonVariant.Secondary} />
-        )}
-        <Options spot={spot} />
+        <Control action="Link" />
+        <Options />
       </div>
     </header>
   </Device>
@@ -110,7 +94,7 @@ const TagScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
 /* ---------------------------------------------------------------- sources */
 
 /** The source page is left-aligned, and its actions sit below the title. */
-const SourceScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
+const SourceScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     <div className="flex flex-col gap-3 p-4">
       <span className="text-text-tertiary typo-footnote">
@@ -118,7 +102,11 @@ const SourceScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
       </span>
 
       <div className="flex items-center font-bold">
-        <img alt="" className="size-10 rounded-full object-cover" src={AVATAR} />
+        <img
+          alt=""
+          className="size-10 rounded-full object-cover"
+          src={AVATAR}
+        />
         <h1 className="ml-2 w-fit text-text-primary typo-title2">
           XDA Developers
         </h1>
@@ -134,11 +122,8 @@ const SourceScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
           size={ButtonSize.Small}
           variant={ButtonVariant.Float}
         />
-        {spot === 'inline' && <Control action="Link" />}
-        {spot === 'labeled' && (
-          <Control action="Link" label variant={ButtonVariant.Secondary} />
-        )}
-        <Options spot={spot} />
+        <Control action="Link" />
+        <Options />
       </div>
 
       <p className="text-text-primary typo-body">
@@ -162,15 +147,12 @@ const SourceScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
 /* ----------------------------------------------------------------- squads */
 
 /** SquadEntityCard: w-80, image and actions on one row, body under it. */
-const SquadCard = ({ spot }: { spot: Spot }) => (
+const SquadCard = () => (
   <div className="flex w-80 shrink-0 flex-col items-center rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4">
     <div className="flex w-full items-start justify-between gap-2">
       <img alt="" className="size-10 rounded-full object-cover" src={AVATAR} />
       <div className="relative flex items-center gap-2">
-        {spot === 'inline' && <Control action="Link" />}
-        {spot === 'labeled' && (
-          <Control action="Link" label variant={ButtonVariant.Secondary} />
-        )}
+        <Control action="Link" />
         <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
           Join
         </Button>
@@ -181,13 +163,6 @@ const SquadCard = ({ spot }: { spot: Spot }) => (
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
         />
-        {spot === 'menu' && (
-          <OverflowMenu
-            className="right-0 top-9"
-            highlight="Share via"
-            items={['Share via', 'Hide', 'Block frontend-fans', 'Report']}
-          />
-        )}
       </div>
     </div>
     <div className="mt-3 flex w-full flex-col gap-2">
@@ -206,13 +181,12 @@ const SquadCard = ({ spot }: { spot: Spot }) => (
   </div>
 );
 
-const SquadScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
+const SquadScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     <div className="flex flex-col gap-4 p-4">
       <h1 className="font-bold text-text-primary typo-title2">Squads</h1>
       <div className="flex gap-4 overflow-hidden">
-        <SquadCard spot={spot} />
-        {device === 'Desktop' && <SquadCard spot="today" />}
+        <SquadCard />
       </div>
     </div>
   </Device>
@@ -221,13 +195,7 @@ const SquadScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
 /* ---------------------------------------------------------------- archive */
 
 /** ArchiveIndexPage: a month grid, no posts and no controls. */
-const ArchiveScreen = ({
-  device,
-  spot,
-}: {
-  device: DeviceName;
-  spot: Spot;
-}) => (
+const ArchiveScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     <div className="flex flex-col gap-4 py-4">
       <span className="px-4 text-text-tertiary typo-footnote">
@@ -241,13 +209,7 @@ const ArchiveScreen = ({
         >
           Best of XDA Developers &mdash; Archive
         </h1>
-        {spot === 'inline' && <Control action="Link" />}
-        {spot === 'labeled' && (
-          <>
-            <Control action="Snapshot" />
-            <Control action="Link" label variant={ButtonVariant.Secondary} />
-          </>
-        )}
+        <Control action="Link" />
       </div>
 
       <div className="flex flex-col gap-4 px-4">
@@ -286,15 +248,13 @@ const ArchiveScreen = ({
 
 const Rails = ({
   Screen,
-  spot,
 }: {
-  Screen: React.ComponentType<{ device: DeviceName; spot: Spot }>;
-  spot: Spot;
+  Screen: React.ComponentType<{ device: DeviceName }>;
 }) => (
   <Rail>
-    <Screen device="Desktop" spot={spot} />
-    <Screen device="Tablet" spot={spot} />
-    <Screen device="Mobile" spot={spot} />
+    <Screen device="Desktop" />
+    <Screen device="Tablet" />
+    <Screen device="Mobile" />
   </Rail>
 );
 
@@ -310,25 +270,11 @@ const Directories = () => (
       verdict="A centred hero: H1, a ‘Tag · 48.2K followers · 12.4K stories’ line, the description, then Follow / Block / ⋯ centred beneath. No logo and no avatar — the type is the whole identity."
     >
       <Variant
-        headline="⋯ → Share, beside Follow and Block"
-        note="CustomFeedOptionsMenu carries two items: Share, then Add to custom feed. Share resolves through useShareOrCopyLink — the native sheet on mobile, a clipboard copy on desktop."
-        step="Today"
-      >
-        <Rails Screen={TagScreen} spot="menu" />
-      </Variant>
-      <Variant
         headline="Copy link in the button row"
         note="Recommended. Sits between Block and the ⋯, matched to them at Small. The row is centred, so an extra control shifts everything — worth checking against the Sponsored hero above it."
-        step="Recommended"
+        step="Shipping"
       >
-        <Rails Screen={TagScreen} spot="inline" />
-      </Variant>
-      <Variant
-        headline="Labeled, in the same row"
-        note="Three labeled buttons on a centred row is the point where the hero stops reading as a hierarchy. Included as the ceiling, not a recommendation."
-        step="Push"
-      >
-        <Rails Screen={TagScreen} spot="labeled" />
+        <Rails Screen={TagScreen} />
       </Variant>
     </Category>
 
@@ -338,18 +284,11 @@ const Directories = () => (
       verdict="Same menu, completely different frame: breadcrumbs, a 40px round logo beside a typo-title2 H1, and the action row on its own line below rather than beside the title."
     >
       <Variant
-        headline="⋯ → Share, under the title"
-        note="SourceActions renders Follow, then either the bell or Block, then the same CustomFeedOptionsMenu. Left-aligned, so an added control does not move anything."
-        step="Today"
-      >
-        <Rails Screen={SourceScreen} spot="menu" />
-      </Variant>
-      <Variant
         headline="Copy link beside the bell"
         note="Recommended, and cheaper here than on the tag page: the row is left-aligned and already mixes labeled and icon buttons, so one more icon costs nothing."
-        step="Recommended"
+        step="Shipping"
       >
-        <Rails Screen={SourceScreen} spot="inline" />
+        <Rails Screen={SourceScreen} />
       </Variant>
     </Category>
 
@@ -359,18 +298,11 @@ const Directories = () => (
       verdict="A w-80 card: logo top-left, Join and ⋯ top-right, then name, description and ‘2.4K Members · 12K Upvotes’. The ⋯ is `invisible group-hover/menu:visible` — so on touch there is no share route at all."
     >
       <Variant
-        headline="⋯ → Share via, hidden until hover"
-        note="The menu button only becomes visible on hover, which means the entire share path on this card does not exist on a phone."
-        step="Today"
-      >
-        <Rails Screen={SquadScreen} spot="menu" />
-      </Variant>
-      <Variant
         headline="A persistent copy-link icon"
         note="Recommended. Always visible, so it works on touch, and placed before Join so it never competes with the conversion button."
-        step="Recommended"
+        step="Shipping"
       >
-        <Rails Screen={SquadScreen} spot="inline" />
+        <Rails Screen={SquadScreen} />
       </Variant>
     </Category>
 
@@ -380,25 +312,11 @@ const Directories = () => (
       verdict="Corrected: this page has no post list and no controls of any kind. It is breadcrumbs, an H1, and a grid of month tiles — the most linkable thing we publish, with nothing on it."
     >
       <Variant
-        headline="Breadcrumbs, a heading, month tiles"
-        note="Every tile is a link to a month. There is no menu here to bury sharing in, which makes it the only surface in this set where a control would be the first one on the page."
-        step="Today"
-      >
-        <Rails Screen={ArchiveScreen} spot="today" />
-      </Variant>
-      <Variant
         headline="Copy link beside the heading"
         note="Recommended. Evergreen pages are worth landing on, so the link is the gift, and the heading row is empty."
-        step="Recommended"
+        step="Shipping"
       >
-        <Rails Screen={ArchiveScreen} spot="inline" />
-      </Variant>
-      <Variant
-        headline="Labeled, with a snapshot of the archive"
-        note="The snapshot would have to be generated from data rather than captured — the page is a month grid, not content — which makes it a different piece of work from every other snapshot on the board."
-        step="Push"
-      >
-        <Rails Screen={ArchiveScreen} spot="labeled" />
+        <Rails Screen={ArchiveScreen} />
       </Variant>
     </Category>
   </SurfacePage>
