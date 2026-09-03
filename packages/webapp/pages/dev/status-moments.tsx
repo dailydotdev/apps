@@ -435,13 +435,16 @@ const AwardedScreen = () => (
         <span className="font-bold text-text-primary typo-title3">
           Awards given
         </span>
-        <Button
-          aria-label="Close"
-          icon={<MiniCloseIcon />}
-          size={ButtonSize.Small}
-          type="button"
-          variant={ButtonVariant.Tertiary}
-        />
+        <div className="flex items-center gap-1">
+          <Control />
+          <Button
+            aria-label="Close"
+            icon={<MiniCloseIcon />}
+            size={ButtonSize.Small}
+            type="button"
+            variant={ButtonVariant.Tertiary}
+          />
+        </div>
       </div>
 
       <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary py-4">
