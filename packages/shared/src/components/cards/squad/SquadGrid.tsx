@@ -10,7 +10,7 @@ import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import type { UnFeaturedSquadCardProps } from './common/types';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { LogEvent, Origin } from '../../../lib/log';
-import { ButtonVariant } from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { useCampaignById } from '../../../graphql/campaigns';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -181,7 +181,8 @@ export const SquadGrid = ({
       <CopyLinkButton
         className="absolute right-3 top-3 z-1 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
         shareProps={shareProps}
-        variant={ButtonVariant.Float}
+        size={ButtonSize.Medium}
+        variant={ButtonVariant.Tertiary}
       />
       {children}
       {!!ad && <AdViewability ad={ad} onViewable={onViewableAd} />}

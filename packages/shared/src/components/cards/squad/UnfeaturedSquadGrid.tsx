@@ -13,7 +13,7 @@ import { Separator } from '../common/common';
 import type { UnFeaturedSquadCardProps } from './common/types';
 import { LogEvent, Origin } from '../../../lib/log';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { ButtonVariant } from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Image, ImageType } from '../../image/Image';
 import { CopyLinkButton } from '../../share/CopyLinkButton';
 import { ReferralCampaignKey } from '../../../lib/referral';
@@ -56,7 +56,8 @@ export const UnfeaturedSquadGrid = ({
           <CopyLinkButton
             className="relative z-0 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
             shareProps={shareProps}
-            variant={ButtonVariant.Float}
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Tertiary}
           />
           <SquadActionButton
             className={{ button: 'z-0' }}

@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { LinkIcon, UpvoteIcon } from '../icons';
+import { LinkIcon } from '../icons';
+import { CopyStateIcon } from './CopyStateIcon';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { UseShareOrCopyLinkProps } from '../../hooks/useShareOrCopyLink';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
@@ -30,18 +31,10 @@ export const CopyLinkButton = ({
       <Button
         aria-label={LABEL}
         className={className}
-        icon={
-          copied ? (
-            <UpvoteIcon
-              className="animate-copy-confirm text-accent-avocado-default"
-              secondary
-            />
-          ) : (
-            <LinkIcon />
-          )
-        }
+        icon={<CopyStateIcon copied={copied} icon={LinkIcon} />}
         onClick={() => onShareOrCopyLink()}
         size={size}
+        type="button"
         variant={variant}
       />
     </Tooltip>
