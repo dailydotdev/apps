@@ -8,7 +8,6 @@ import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import type { PostHighlight } from '../../../graphql/highlights';
 import { AdActions } from '../../../lib/ads';
 import { LogEvent } from '../../../lib/log';
-import type { SponsorStripConfig } from '../../../types';
 import { SponsorStrip } from './SponsorStrip';
 import { fetchSponsorStripAds } from './mockSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
@@ -23,12 +22,6 @@ jest.mock('../../../hooks/utils/useThemedAsset', () => ({
 
 const mockFetch = jest.mocked(fetchSponsorStripAds);
 let headlines: PostHighlight[] = [];
-
-const config: SponsorStripConfig = {
-  enabled: true,
-  premiumRotationMs: 40_000,
-  communityRotationMs: 8_000,
-};
 
 const creative = (
   company: string,
@@ -98,7 +91,7 @@ const renderStrip = () => {
             } as unknown as LogContextData
           }
         >
-          <SponsorStrip config={config} headlines={headlines} />
+          <SponsorStrip headlines={headlines} />
         </LogContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -166,50 +159,6 @@ it('should render the gold sponsor, four premium slots and the community row', a
   );
 });
 
-it('should never rotate the gold sponsor', async () => {
-  renderStrip();
-  await settle();
-
-  await act(async () => {
-    jest.advanceTimersByTime(config.premiumRotationMs * 4);
-  });
-
-  expect(shownLogos()[0]).toEqual('gold');
-});
-
-it('should rotate a community slot without repeating a logo already on the row', async () => {
-  renderStrip();
-  await settle();
-
-  const before = shownLogos();
-
-  await act(async () => {
-    jest.advanceTimersByTime(config.communityRotationMs);
-  });
-
-  const after = shownLogos();
-
-  expect(after).not.toEqual(before);
-  expect(new Set(after).size).toEqual(after.length);
-});
-
-it('should hold the premium row while the community row turns over', async () => {
-  renderStrip();
-  await settle();
-
-  const premiumBefore = shownLogos().filter((company) =>
-    PREMIUM.includes(company),
-  );
-
-  await act(async () => {
-    jest.advanceTimersByTime(config.communityRotationMs);
-  });
-
-  expect(shownLogos().filter((company) => PREMIUM.includes(company))).toEqual(
-    premiumBefore,
-  );
-});
-
 it('should log an impression per logo with its tier and slot', async () => {
   renderStrip();
   await settle();
@@ -230,7 +179,7 @@ it('should log an impression per logo with its tier and slot', async () => {
   );
 });
 
-it('should open air time for every logo and close it when one rotates out', async () => {
+it('should open air time for every logo on the row', async () => {
   renderStrip();
   await settle();
 
@@ -238,15 +187,23 @@ it('should open air time for every logo and close it when one rotates out', asyn
   expect(logEventStart.mock.calls[0][1]).toEqual(
     expect.objectContaining({ event_name: AdActions.AirTime }),
   );
+  expect(logEventStart.mock.calls[0][0]).toMatch(/^ss-0-gen-gold$/);
+});
 
-  logEventEnd.mockClear();
+it('should hold the same row for the life of the page', async () => {
+  renderStrip();
+  await settle();
 
+  const before = shownLogos();
+
+  // Turnover is per page load now, so nothing may swap under the reader —
+  // and nothing may log a second impression for a slot that never changed.
   await act(async () => {
-    jest.advanceTimersByTime(config.communityRotationMs);
+    jest.advanceTimersByTime(5 * 60_000);
   });
 
-  expect(logEventEnd).toHaveBeenCalled();
-  expect(logEventEnd.mock.calls[0][0]).toMatch(/^ss-\d+-gen-c\d$/);
+  expect(shownLogos()).toEqual(before);
+  expect(callsFor(AdActions.Impression)).toHaveLength(before.length);
 });
 
 it('should log a click with the logo that was clicked', async () => {

@@ -24,12 +24,6 @@ jest.mock('../../../hooks/useViewSize', () => ({
 const mockFeature = jest.mocked(useConditionalFeature);
 const mockViewSize = jest.mocked(useViewSizeClient);
 
-const config = {
-  enabled: true,
-  premiumRotationMs: 30_000,
-  communityRotationMs: 10_000,
-};
-
 const LogContext = getLogContextStatic();
 
 const render = ({
@@ -58,42 +52,39 @@ const render = ({
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockFeature.mockReturnValue({ value: config, isLoading: false });
+  mockFeature.mockReturnValue({ value: true, isLoading: false });
   mockViewSize.mockReturnValue(true);
 });
 
 it('should be on for a feed that can show the Happening Now card', () => {
-  expect(render().result.current.isEnabled).toBe(true);
+  expect(render().result.current).toBe(true);
 });
 
 it('should be off when the experiment is off', () => {
-  mockFeature.mockReturnValue({
-    value: { ...config, enabled: false },
-    isLoading: false,
-  });
+  mockFeature.mockReturnValue({ value: false, isLoading: false });
 
-  expect(render().result.current.isEnabled).toBe(false);
+  expect(render().result.current).toBe(false);
 });
 
 it('should be off for a Plus subscriber, who paid for no ads', () => {
-  expect(render({ isPlus: true }).result.current.isEnabled).toBe(false);
+  expect(render({ isPlus: true }).result.current).toBe(false);
 });
 
 it('should be off on a feed with ads switched off', () => {
-  expect(render({ disableAds: true }).result.current.isEnabled).toBe(false);
+  expect(render({ disableAds: true }).result.current).toBe(false);
 });
 
 it('should be off below tablet, where a logo wall costs more feed than it holds logos', () => {
   mockViewSize.mockReturnValue(false);
 
-  expect(render().result.current.isEnabled).toBe(false);
+  expect(render().result.current).toBe(false);
 });
 
 it('should be off on a feed that never shows the card', () => {
-  expect(
-    render({ feedName: SharedFeedPage.Search }).result.current.isEnabled,
-  ).toBe(false);
-  expect(render({ feedName: 'squad' }).result.current.isEnabled).toBe(false);
+  expect(render({ feedName: SharedFeedPage.Search }).result.current).toBe(
+    false,
+  );
+  expect(render({ feedName: 'squad' }).result.current).toBe(false);
 });
 it('should not evaluate the experiment for anyone who could not see it', () => {
   render({ isPlus: true });

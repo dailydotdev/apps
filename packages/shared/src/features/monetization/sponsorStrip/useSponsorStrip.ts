@@ -4,17 +4,11 @@ import { HERO_ELIGIBLE_FEEDS } from '../../../hooks/useFeed';
 import { ViewSize, useViewSizeClient } from '../../../hooks/useViewSize';
 import { featureSponsorStrip } from '../../../lib/featureManagement';
 import type { AllFeedPages } from '../../../lib/query';
-import type { SponsorStripConfig } from '../../../types';
 
 interface UseSponsorStripProps {
   feedName?: string;
   /** The feed's own ads switch (feed previews, squads) — never inventory. */
   disableAds?: boolean;
-}
-
-interface UseSponsorStrip {
-  isEnabled: boolean;
-  config: SponsorStripConfig;
 }
 
 /**
@@ -35,7 +29,7 @@ const isSponsorStripFeed = (feedName?: string): boolean =>
 export const useSponsorStrip = ({
   feedName,
   disableAds,
-}: UseSponsorStripProps = {}): UseSponsorStrip => {
+}: UseSponsorStripProps = {}): boolean => {
   const { isPlus } = usePlusSubscription();
   // `useViewSizeClient`, not `useViewSize`: the latter reads matchMedia in its
   // first client render while the server renders `false`, so the dock would
@@ -45,10 +39,10 @@ export const useSponsorStrip = ({
   // A logo wall on a phone costs more feed than it can hold logos.
   const isEligible =
     !isPlus && !disableAds && isTablet && isSponsorStripFeed(feedName);
-  const { value: config } = useConditionalFeature({
+  const { value: isOn } = useConditionalFeature({
     feature: featureSponsorStrip,
     shouldEvaluate: isEligible,
   });
 
-  return { isEnabled: isEligible && config.enabled, config };
+  return isEligible && isOn;
 };

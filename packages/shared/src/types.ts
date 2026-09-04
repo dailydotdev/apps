@@ -61,11 +61,3 @@ export type HeroCardsConfig = {
   chipLabels: Partial<Record<PostHeroSignificance, string>>;
   allowedPostTypes: Partial<Record<PostType, boolean>>;
 };
-
-export type SponsorStripConfig = {
-  enabled: boolean;
-  /** Milliseconds a single premium slot holds a logo before it rotates. */
-  premiumRotationMs: number;
-  /** Same, for a community slot. Community turns over faster by design. */
-  communityRotationMs: number;
-};

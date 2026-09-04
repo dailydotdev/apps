@@ -1,35 +1,18 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 import { AdPlacement } from '../../../lib/ads';
-import { disabledRefetch } from '../../../lib/func';
+import { disabledRefetch, shuffleArray } from '../../../lib/func';
 import { RequestKey } from '../../../lib/query';
 import { ONE_HOUR } from '../../../lib/time';
-import type { SponsorStripConfig } from '../../../types';
 import { fetchSponsorStripAds } from './mockSponsorStripAds';
 import { fittedSlotCount } from './sponsorLogoSizing';
-import type { ResolvedSponsor } from './sponsorStripCreative';
+import type {
+  ResolvedSponsor,
+  SponsorStripCreative,
+} from './sponsorStripCreative';
 import { parseSponsors, resolveSponsor } from './sponsorStripCreative';
-import type { Rotation } from './sponsorStripRotation';
-import {
-  PREMIUM_SLOT_COUNT,
-  createRotation,
-  partitionByTier,
-  resizeRotation,
-  rotateNextSlot,
-  rotationSponsors,
-} from './sponsorStripRotation';
-
-interface UseSponsorStripAdsProps {
-  enabled: boolean;
-  config: SponsorStripConfig;
-}
+import { PREMIUM_SLOT_COUNT, partitionByTier } from './sponsorStripSlots';
 
 interface UseSponsorStripAds {
   gold: ResolvedSponsor | null;
@@ -38,27 +21,6 @@ interface UseSponsorStripAds {
   /** Attach to the wall; its width decides how many marks the row holds. */
   wallRef: (node: HTMLElement | null) => void;
 }
-
-// A hidden tab must not burn through the decks: rotating there would spend
-// every advertiser's turn on a screen nobody is looking at, and inflate the
-// impression count while it did. Visibility rather than focus, so this and
-// air time (which the log lifecycle ends on hide) pause on the same signal.
-const usePageVisible = (): boolean => {
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const onChange = () =>
-      setIsVisible(globalThis.document.visibilityState === 'visible');
-
-    onChange();
-    globalThis.document.addEventListener('visibilitychange', onChange);
-
-    return () =>
-      globalThis.document.removeEventListener('visibilitychange', onChange);
-  }, []);
-
-  return isVisible;
-};
 
 /**
  * How many fixed-width slots the wall holds.
@@ -107,69 +69,32 @@ const useFittedSlots = (
   return { ref, count: fitted === null ? 0 : Math.min(maxSlots, fitted) };
 };
 
-interface UseRotatingSlotsProps {
-  pool: Rotation['deck'];
-  slotCount: number;
-  intervalMs: number;
-  enabled: boolean;
-}
-
-const useRotatingSlots = ({
-  pool,
-  slotCount,
-  intervalMs,
-  enabled,
-}: UseRotatingSlotsProps): Rotation['deck'] => {
-  const isVisible = usePageVisible();
-  const [rotation, setRotation] = useState<Rotation>(() =>
-    createRotation(pool, slotCount),
-  );
-  // Identity, not the array: the pool is rebuilt on every query render, and
-  // reshuffling then would reset the row's order under the reader.
+/**
+ * The pool in a stable random order, dealt once per page load.
+ *
+ * That is the whole turnover story: the row a reader sees holds for as long as
+ * the page does, and the next load deals a different set, so no advertiser is
+ * permanently first — or permanently the one a narrow window drops. Shuffling
+ * on mount rather than during render also keeps the server markup and the
+ * first client render in agreement.
+ */
+const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
+  // Identity, not the array: the pool is rebuilt on every render of the query,
+  // and reshuffling then would deal a new row under the reader.
   const poolKey = pool.map(({ gen_id: genId }) => genId).join(',');
 
-  useEffect(() => {
-    setRotation(createRotation(pool, slotCount));
-    // The pool's contents are what should reseed the deck; `slotCount` is
-    // handled by the resize below, and including it here would reshuffle
-    // every advertiser's position on a window drag.
+  return useMemo(
+    () => shuffleArray(pool),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [poolKey]);
-
-  useEffect(() => {
-    setRotation((current) => resizeRotation(current, slotCount));
-  }, [slotCount]);
-
-  const slots = rotation.cursors.length;
-  const deckSize = rotation.deck.length;
-
-  useEffect(() => {
-    if (!enabled || !isVisible || intervalMs <= 0 || !slots) {
-      return undefined;
-    }
-
-    if (deckSize <= slots) {
-      return undefined;
-    }
-
-    // One slot per tick, oldest first, so each slot turns over once per
-    // interval and the row never swaps every logo at the same instant.
-    const period = Math.max(1, Math.round(intervalMs / slots));
-    const timer = globalThis.setInterval(
-      () => setRotation(rotateNextSlot),
-      period,
-    );
-
-    return () => globalThis.clearInterval(timer);
-  }, [enabled, isVisible, intervalMs, slots, deckSize]);
-
-  return rotationSponsors(rotation);
+    [poolKey],
+  );
 };
 
 export const useSponsorStripAds = ({
   enabled,
-  config,
-}: UseSponsorStripAdsProps): UseSponsorStripAds => {
+}: {
+  enabled: boolean;
+}): UseSponsorStripAds => {
   const isLight = useIsLightTheme();
   const { data } = useQuery({
     queryKey: [RequestKey.Ads, AdPlacement.SponsorStrip],
@@ -180,12 +105,16 @@ export const useSponsorStripAds = ({
   });
 
   const pools = useMemo(() => partitionByTier(parseSponsors(data)), [data]);
-  // One gold, four premium, and community takes whatever the row has left:
-  // premium and community share one measured run, so the tiers cannot argue
-  // over the same pixels. The upper bound is the pool itself — a wider window
-  // shows more advertisers rather than the same few further apart.
+  const premiumDeck = useDeck(pools.premium);
+  const communityDeck = useDeck(pools.community);
+
+  // One gold, four premium, and community takes whatever the row has left —
+  // fewer premium slots than community by design. The two tiers share one
+  // measured run so they cannot argue over the same pixels, and the upper
+  // bound is the pool itself: a wider window shows more advertisers rather
+  // than the same few further apart.
   const { ref: wallRef, count: wallSlots } = useFittedSlots(
-    PREMIUM_SLOT_COUNT + pools.community.length,
+    PREMIUM_SLOT_COUNT + communityDeck.length,
   );
 
   // Reserved from the pool rather than read off the rendered row: the row
@@ -193,30 +122,29 @@ export const useSponsorStripAds = ({
   // subtracted an as-yet-empty premium row would open slots it is about to
   // take back — each one logging an impression and firing a pixel on its way
   // through.
-  const premiumSlots = Math.min(PREMIUM_SLOT_COUNT, pools.premium.length);
-  const premium = useRotatingSlots({
-    pool: pools.premium,
-    slotCount: premiumSlots,
-    intervalMs: config.premiumRotationMs,
-    enabled,
-  });
-  const community = useRotatingSlots({
-    pool: pools.community,
-    slotCount: Math.max(0, wallSlots - premiumSlots),
-    intervalMs: config.communityRotationMs,
-    enabled,
-  });
+  const premiumSlots = Math.min(PREMIUM_SLOT_COUNT, premiumDeck.length);
 
   // Themed logos resolve here rather than in the decks, so switching theme
-  // repaints the row without disturbing anybody's turn in the rotation.
-  const resolved = useMemo(
+  // repaints the row without dealing anybody a different slot.
+  return useMemo(
     () => ({
       gold: pools.gold ? resolveSponsor(pools.gold, isLight) : null,
-      premium: premium.map((creative) => resolveSponsor(creative, isLight)),
-      community: community.map((creative) => resolveSponsor(creative, isLight)),
+      premium: premiumDeck
+        .slice(0, premiumSlots)
+        .map((creative) => resolveSponsor(creative, isLight)),
+      community: communityDeck
+        .slice(0, Math.max(0, wallSlots - premiumSlots))
+        .map((creative) => resolveSponsor(creative, isLight)),
+      wallRef,
     }),
-    [pools.gold, premium, community, isLight],
+    [
+      pools.gold,
+      premiumDeck,
+      communityDeck,
+      premiumSlots,
+      wallSlots,
+      isLight,
+      wallRef,
+    ],
   );
-
-  return { ...resolved, wallRef };
 };

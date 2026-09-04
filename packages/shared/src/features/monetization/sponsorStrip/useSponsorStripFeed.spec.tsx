@@ -10,12 +10,6 @@ jest.mock('./useStripHeadlines', () => ({ useStripHeadlines: jest.fn() }));
 const mockStrip = jest.mocked(useSponsorStrip);
 const mockHeadlines = jest.mocked(useStripHeadlines);
 
-const config = {
-  enabled: true,
-  premiumRotationMs: 30_000,
-  communityRotationMs: 10_000,
-};
-
 const headline = { id: 'h1' } as PostHighlight;
 
 const render = () =>
@@ -23,7 +17,7 @@ const render = () =>
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockStrip.mockReturnValue({ isEnabled: true, config });
+  mockStrip.mockReturnValue(true);
   mockHeadlines.mockReturnValue([headline]);
 });
 
@@ -40,13 +34,13 @@ it('should keep the feed card when the strip has no headlines to carry', () => {
 });
 
 it('should keep the feed card when the strip is off', () => {
-  mockStrip.mockReturnValue({ isEnabled: false, config });
+  mockStrip.mockReturnValue(false);
 
   expect(render().result.current.disableHighlightItems).toBe(false);
 });
 
 it('should not query headlines when the strip is off', () => {
-  mockStrip.mockReturnValue({ isEnabled: false, config });
+  mockStrip.mockReturnValue(false);
   render();
 
   expect(mockHeadlines).toHaveBeenCalledWith(false);
@@ -57,5 +51,4 @@ it('should hand the strip the same headlines it decided with', () => {
 
   expect(result.current.headlines).toEqual([headline]);
   expect(result.current.isEnabled).toBe(true);
-  expect(result.current.config).toEqual(config);
 });

@@ -3,7 +3,7 @@ import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
-import type { HeroCardsConfig, SponsorStripConfig } from '../types';
+import type { HeroCardsConfig } from '../types';
 import { PostType } from '../types';
 import { Feature } from './feature';
 
@@ -259,25 +259,16 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 );
 
 /**
- * Experiment: the sponsor strip — a logo wall docked under the main feeds.
- * While it shows, the Happening Now card is dropped from the feed: the strip
- * is where breaking news goes instead, so running both would show it twice.
- * Suppression follows the strip and not the flag, so a user who cannot see
- * the strip (Plus, ads disabled, below tablet) keeps the card.
+ * Experiment: the sponsor strip — a logo wall docked under the main feeds with
+ * the breaking-news ticker under it. While the strip carries those headlines,
+ * the feed drops its Happening Now card, so the two never show it twice.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
  * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
  * this cannot ship the experiment to anyone — GrowthBook ramps it — while a
  * local session still gets the strip without anybody forcing a flag.
  */
-export const featureSponsorStrip = new Feature<SponsorStripConfig>(
-  'sponsor_strip',
-  {
-    enabled: isDevelopment,
-    premiumRotationMs: 30_000,
-    communityRotationMs: 10_000,
-  },
-);
+export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureLayoutV2 = new Feature('layout_v2', false);
 

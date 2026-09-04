@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { feedGutter } from '../../../components/utilities/common';
-import type { SponsorStripConfig } from '../../../types';
 import {
   COMMUNITY_CAP,
   GOLD_CAP,
@@ -20,11 +19,10 @@ import {
   SPONSOR_ROW_HEIGHT,
   usePublishStripHeight,
 } from './sponsorStripOffset';
-import { PREMIUM_SLOT_COUNT } from './sponsorStripRotation';
+import { PREMIUM_SLOT_COUNT } from './sponsorStripSlots';
 import { useSponsorStripAds } from './useSponsorStripAds';
 
 interface SponsorStripProps {
-  config: SponsorStripConfig;
   /**
    * Passed in rather than queried here: the feed layout needs the same list to
    * decide whether it can give up its Happening Now card, and one query
@@ -135,12 +133,10 @@ const SponsorRow = ({
  * and the suppression is keyed to the same gate.
  */
 export const SponsorStrip = ({
-  config,
   headlines,
 }: SponsorStripProps): ReactElement | null => {
   const { gold, premium, community, wallRef } = useSponsorStripAds({
     enabled: true,
-    config,
   });
   const hasSponsors = !!gold || !!premium.length || !!community.length;
   // Published before the early return so the controls that lift for the dock

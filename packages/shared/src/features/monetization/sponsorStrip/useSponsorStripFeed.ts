@@ -1,5 +1,4 @@
 import type { PostHighlight } from '../../../graphql/highlights';
-import type { SponsorStripConfig } from '../../../types';
 import { useSponsorStrip } from './useSponsorStrip';
 import { useStripHeadlines } from './useStripHeadlines';
 
@@ -10,7 +9,6 @@ interface UseSponsorStripFeedProps {
 
 interface UseSponsorStripFeed {
   isEnabled: boolean;
-  config: SponsorStripConfig;
   headlines: PostHighlight[];
   /**
    * Drop the feed's Happening Now card — true only when the strip is actually
@@ -24,20 +22,20 @@ interface UseSponsorStripFeed {
 
 /**
  * Everything a feed layout needs from the sponsor strip, in one place: whether
- * to mount it, what to mount it with, and whether the feed underneath should
- * give up its Happening Now card. One evaluation of the flag and one headlines
- * query, so the strip and the feed can never be told different things.
+ * to mount it, the headlines it carries, and whether the feed underneath
+ * should give up its Happening Now card. One evaluation of the flag and one
+ * headlines query, so the strip and the feed can never be told different
+ * things.
  */
 export const useSponsorStripFeed = ({
   feedName,
   disableAds,
 }: UseSponsorStripFeedProps): UseSponsorStripFeed => {
-  const { isEnabled, config } = useSponsorStrip({ feedName, disableAds });
+  const isEnabled = useSponsorStrip({ feedName, disableAds });
   const headlines = useStripHeadlines(isEnabled);
 
   return {
     isEnabled,
-    config,
     headlines,
     disableHighlightItems: isEnabled && !!headlines.length,
   };

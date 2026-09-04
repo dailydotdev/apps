@@ -886,10 +886,7 @@ export default function MainFeedLayout({
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
       {sponsorStrip.isEnabled && (
-        <SponsorStrip
-          config={sponsorStrip.config}
-          headlines={sponsorStrip.headlines}
-        />
+        <SponsorStrip headlines={sponsorStrip.headlines} />
       )}
     </>
   );
