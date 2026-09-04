@@ -10,6 +10,8 @@ import {
   SearchProviderEnum,
 } from '@dailydotdev/shared/src/graphql/search';
 import { useSearchContextProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
+import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 
 export default function RouterPostsSearch(
   props: Omit<PostsSearchProps, 'onSubmitQuery'>,
@@ -17,6 +19,7 @@ export default function RouterPostsSearch(
   const router = useRouter();
   const { time, contentCurationFilter } = useSearchContextProvider();
   const { logEvent } = useLogContext();
+  const { getFeatureValue } = useFeaturesReadyContext();
 
   const onSubmitQuery = (query: string): Promise<boolean> => {
     logEvent({
@@ -24,6 +27,7 @@ export default function RouterPostsSearch(
       extra: JSON.stringify({
         query,
         provider: SearchProviderEnum.Posts,
+        search_version: getFeatureValue(feature.searchVersion),
         filters: { time, contentCuration: contentCurationFilter },
       }),
     });

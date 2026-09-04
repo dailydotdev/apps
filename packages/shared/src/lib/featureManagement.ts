@@ -13,7 +13,7 @@ const feature = {
   showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
   feedAdSpot: new Feature('feed_ad_spot', 2),
-  searchVersion: new Feature('search_version', 2),
+  searchVersion: new Feature('search_version2', 3),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
@@ -108,13 +108,11 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
-// Experiment: sponsored partner offers (via Encore) replacing the classic
-// streak milestone popup. Enrollment is conditional on the popup actually
-// showing; treatment falls back to the classic popup when no offers return.
-export const featureStreakMilestoneOffers = new Feature(
-  'streak_milestone_offers',
-  isDevelopment,
-);
+// Experiment: sponsored partner offers (via Encore) presented as the reward
+// moment once the day's daily quests are all claimed. Enrollment is
+// conditional on the popup actually being eligible, so users who never finish
+// their quests don't dilute the split.
+export const featureQuestOffers = new Feature('quest_offers', isDevelopment);
 
 // whether the user will see post boost ads
 // does not necessarily mean they can't boost a post if they have access to cores
@@ -339,3 +337,8 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAdsense = new Feature('read_adsense', true);
+
+export const featureCommentFirstAction = new Feature(
+  'comment_first_action',
+  false,
+);

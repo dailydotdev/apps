@@ -30,6 +30,7 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
+import { QuestOffersPopup } from './modals/quests/QuestOffersPopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
@@ -41,6 +42,10 @@ import { FeedbackWidget } from './feedback/FeedbackWidget';
 import { useFeedbackShortcut } from '../hooks/useFeedbackShortcut';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
+import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
+import type { LayoutVariant } from '../lib/layoutVariant';
+import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
@@ -76,6 +81,8 @@ export interface MainLayoutProps
   canGoBack?: string;
   hideBackButton?: boolean;
   hideFeedbackWidget?: boolean;
+  /** Set by the mirrored `/layout-v2` routes only. */
+  layoutVariant?: LayoutVariant;
   /**
    * Layout v2 only. Rendered above the floating feed card, alongside the
    * built-in reading-reminder TopHero. Pages can pass dynamic banners
@@ -131,6 +138,8 @@ function MainLayoutComponent({
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  const hasServerShell = useContext(LayoutVariantContext) === 'v2';
+  useLayoutVariantCookie();
   useRecordRecentPages(isV2);
   useNotificationParams();
   useFeedbackShortcut();
@@ -220,8 +229,17 @@ function MainLayoutComponent({
   // the case the global header is hidden, the main content gets the
   // floating-card treatment, and the global feedback widget is suppressed
   // because the rail provides its own.
+  //
+  // `isLoggedIn` and `sidebarRendered` are client-only, so until boot lands
+  // they would suppress the shell the server just painted.
+  const ownsHeaderAudience = isAuthReady
+    ? isLoggedIn || isExtension
+    : hasServerShell;
   const sidebarOwnsHeader =
-    isV2 && (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
+    isV2 &&
+    ownsHeaderAudience &&
+    showSidebar &&
+    (isAuthReady ? sidebarRendered : hasServerShell);
 
   let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
   if (sidebarOwnsHeader) {
@@ -334,6 +352,7 @@ function MainLayoutComponent({
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
+      <QuestOffersPopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"
@@ -410,6 +429,7 @@ function MainLayoutComponent({
                 // No drop shadow — the subtle border defines the floating card
                 // in both themes; shadow-2 cast a heavy bottom shadow.
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+                LAYOUT_FRAME_CLASS,
                 !hasTopBanners &&
                   !topBanner &&
                   (isBannerAvailable
@@ -430,14 +450,19 @@ function MainLayoutComponent({
   );
 }
 
-const MainLayout = (props: MainLayoutProps): ReactElement => (
-  <ActiveFeedNameContextProvider>
-    <SearchProvider>
-      <SpotlightProvider>
-        <MainLayoutComponent {...props} />
-      </SpotlightProvider>
-    </SearchProvider>
-  </ActiveFeedNameContextProvider>
+const MainLayout = ({
+  layoutVariant,
+  ...props
+}: MainLayoutProps): ReactElement => (
+  <LayoutVariantContext.Provider value={layoutVariant}>
+    <ActiveFeedNameContextProvider>
+      <SearchProvider>
+        <SpotlightProvider>
+          <MainLayoutComponent {...props} />
+        </SpotlightProvider>
+      </SearchProvider>
+    </ActiveFeedNameContextProvider>
+  </LayoutVariantContext.Provider>
 );
 
 export default MainLayout;

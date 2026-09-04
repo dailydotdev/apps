@@ -3,9 +3,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { UserOffer } from '../../../graphql/offers';
+import type { DailyQuestSummary } from '../../../hooks/useQuestDashboard';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useViewSize } from '../../../hooks/useViewSize';
-import StreakOffersModal from './StreakOffersModal';
+import QuestOffersModal from './QuestOffersModal';
 
 const mockConfirmDelivered = jest.fn();
 
@@ -27,6 +28,7 @@ if (typeof window.PointerEvent === 'undefined') {
 const mockUseViewSize = useViewSize as jest.Mock;
 const logEvent = jest.fn();
 const onRequestClose = jest.fn();
+const onShown = jest.fn();
 
 const offers: UserOffer[] = [
   {
@@ -49,9 +51,15 @@ const offers: UserOffer[] = [
   },
 ];
 
+const defaultSummary: DailyQuestSummary = {
+  total: 3,
+  claimed: 3,
+  xpEarned: 150,
+};
+
 const renderComponent = ({
-  currentStreak = 7,
-}: { currentStreak?: number } = {}) => {
+  summary = defaultSummary,
+}: { summary?: DailyQuestSummary } = {}) => {
   const client = new QueryClient({
     defaultOptions: {
       mutations: { retry: false },
@@ -61,10 +69,13 @@ const renderComponent = ({
 
   return render(
     <TestBootProvider client={client} log={{ logEvent }}>
-      <StreakOffersModal
+      <QuestOffersModal
         isOpen
-        currentStreak={currentStreak}
+        level={12}
+        levelProgress={40}
+        summary={summary}
         offers={offers}
+        onShown={onShown}
         onRequestClose={onRequestClose}
         ariaHideApp={false}
       />
@@ -72,7 +83,7 @@ const renderComponent = ({
   );
 };
 
-describe('StreakOffersModal', () => {
+describe('QuestOffersModal', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockConfirmDelivered.mockResolvedValue({ _: true });
@@ -85,10 +96,9 @@ describe('StreakOffersModal', () => {
 
     expect(screen.getByText('3 Months of Music, Free')).toBeInTheDocument();
     expect(screen.getByText('Get 50% off Notes Pro')).toBeInTheDocument();
-    // 7-day streak resolves to the Flame tier from the design ladder
-    expect(screen.getByText('day streak')).toBeInTheDocument();
-    expect(screen.getByText('Flame')).toBeInTheDocument();
-    expect(screen.getByText('A full week, unbroken')).toBeInTheDocument();
+    expect(screen.getByText('Daily quests complete')).toBeInTheDocument();
+    expect(screen.getByText('12')).toBeInTheDocument();
+    expect(screen.getByText('/ 3 daily quests')).toBeInTheDocument();
 
     await waitFor(() =>
       expect(mockConfirmDelivered).toHaveBeenCalledWith(
@@ -96,13 +106,76 @@ describe('StreakOffersModal', () => {
       ),
     );
     expect(mockConfirmDelivered).toHaveBeenCalledTimes(1);
+    // The variant has to ride every offer event: the split renders all offers
+    // at once and the carousel one at a time, so impression counts are only
+    // comparable when segmented by it.
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.Impression,
-        target_type: TargetType.StreakOffer,
+        target_type: TargetType.QuestOffer,
         target_id: offers[0].impressionUid,
+        extra: JSON.stringify({
+          brand: offers[0].advertiserName,
+          questsCompleted: 3,
+          variant: 'split',
+        }),
       }),
     );
+  });
+
+  // The popup now rides the first claim, so the headline must not promise the
+  // whole set is done until it actually is.
+  it('only claims the day is complete once every quest is claimed', () => {
+    const { unmount } = renderComponent({
+      summary: { total: 3, claimed: 1, xpEarned: 50 },
+    });
+
+    expect(screen.getByText('Quest complete')).toBeInTheDocument();
+    expect(screen.getByText('/ 3 daily quests')).toBeInTheDocument();
+
+    unmount();
+    renderComponent();
+
+    expect(screen.getByText('Daily quests complete')).toBeInTheDocument();
+  });
+
+  // The trigger delegates the once-per-day stamp here so it can only be
+  // written for a popup that actually reached the screen.
+  it('stamps the day exactly once, on mount', () => {
+    const { rerender } = renderComponent();
+
+    expect(onShown).toHaveBeenCalledTimes(1);
+
+    rerender(<div />);
+    renderComponent();
+
+    expect(onShown).toHaveBeenCalledTimes(2);
+  });
+
+  // A weekly or milestone claim opens this too, so an unlabelled "0 / 3" above
+  // "Quest complete" would read as a bug. Both layouts need the noun — the
+  // compact one was missed the first time.
+  it.each([
+    ['split', false],
+    ['carousel', true],
+  ])('names the progress count on the %s layout', (_, isMobile) => {
+    mockUseViewSize.mockReturnValue(isMobile);
+
+    renderComponent({ summary: { total: 3, claimed: 0, xpEarned: 0 } });
+
+    expect(screen.getByText('/ 3 daily quests')).toBeInTheDocument();
+    expect(screen.getByText('Quest complete')).toBeInTheDocument();
+  });
+
+  it('shows the XP earned from the day, and hides the chip when there is none', () => {
+    const { unmount } = renderComponent();
+
+    expect(screen.getByText('+150 XP today')).toBeInTheDocument();
+
+    unmount();
+    renderComponent({ summary: { ...defaultSummary, xpEarned: 0 } });
+
+    expect(screen.queryByText(/XP today/)).not.toBeInTheDocument();
   });
 
   it('opens the tokenized click url and marks the offer claimed', async () => {
@@ -120,30 +193,13 @@ describe('StreakOffersModal', () => {
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.Click,
-        target_type: TargetType.StreakOffer,
+        target_type: TargetType.QuestOffer,
         target_id: offers[0].impressionUid,
       }),
     );
     await waitFor(() =>
       expect(screen.getByText('Claimed')).toBeInTheDocument(),
     );
-  });
-
-  it('derives copy from the streak for days off the design ladder', () => {
-    // the milestone alert fires on Fibonacci days (2, 8, ...) that the
-    // design ladder doesn't contain — copy must never contradict the count
-    renderComponent({ currentStreak: 8 });
-
-    expect(screen.getByText('Flame')).toBeInTheDocument();
-    expect(screen.getByText('8 days in a row')).toBeInTheDocument();
-    expect(screen.queryByText('A full week, unbroken')).not.toBeInTheDocument();
-  });
-
-  it('falls back to the first tier below the ladder start', () => {
-    renderComponent({ currentStreak: 2 });
-
-    expect(screen.getByText('Spark')).toBeInTheDocument();
-    expect(screen.getByText('2 days in a row')).toBeInTheDocument();
   });
 
   it('logs a dismissal when closed via the X on desktop', () => {
@@ -153,9 +209,13 @@ describe('StreakOffersModal', () => {
 
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        event_name: LogEvent.DismissStreakOffers,
-        target_type: TargetType.StreakOffer,
-        extra: JSON.stringify({ method: 'close', claimed: 0 }),
+        event_name: LogEvent.DismissQuestOffers,
+        target_type: TargetType.QuestOffer,
+        extra: JSON.stringify({
+          method: 'close',
+          claimed: 0,
+          variant: 'split',
+        }),
       }),
     );
     expect(onRequestClose).toHaveBeenCalled();
@@ -211,9 +271,13 @@ describe('StreakOffersModal', () => {
 
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        event_name: LogEvent.DismissStreakOffers,
-        target_type: TargetType.StreakOffer,
-        extra: JSON.stringify({ method: 'decline', claimed: 0 }),
+        event_name: LogEvent.DismissQuestOffers,
+        target_type: TargetType.QuestOffer,
+        extra: JSON.stringify({
+          method: 'decline',
+          claimed: 0,
+          variant: 'carousel',
+        }),
       }),
     );
     expect(onRequestClose).toHaveBeenCalled();

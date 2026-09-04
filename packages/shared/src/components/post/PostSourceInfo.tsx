@@ -75,67 +75,70 @@ function PostSourceInfo({
       )}
     >
       {!isUnknown && (
-        <>
-          <div className="flex flex-row items-center">
-            {!isUserSource && (
-              <Link href={sourcePermalink}>
-                <a className="text-text-secondary typo-callout">
-                  {sourceName || sourceHandle}
-                </a>
-              </Link>
-            )}
-            {showActionBtn && (
-              <>
-                {!isUserSource && <Separator className="flex tablet:hidden" />}
-                {source?.type !== SourceType.Squad && !isUserSource && (
-                  <FollowButton
-                    variant={ButtonVariant.Tertiary}
-                    followedVariant={ButtonVariant.Tertiary}
-                    buttonClassName={classNames(
-                      'flex min-w-min !px-0 tablet:hidden',
-                      !isFollowing && 'text-text-link',
-                    )}
-                    entityId={sourceId}
-                    status={contentPreferenceStatus}
-                    type={ContentPreferenceType.Source}
-                    entityName={sourceName}
-                    showSubscribe={false}
+        <div className="flex flex-row items-center">
+          {!isUserSource && (
+            <Link href={sourcePermalink}>
+              <a className="text-text-secondary typo-callout">
+                {sourceName || sourceHandle}
+              </a>
+            </Link>
+          )}
+          {showActionBtn && (
+            <>
+              {!isUserSource && <Separator className="flex tablet:hidden" />}
+              {source?.type !== SourceType.Squad && !isUserSource && (
+                <FollowButton
+                  variant={ButtonVariant.Tertiary}
+                  followedVariant={ButtonVariant.Tertiary}
+                  buttonClassName={classNames(
+                    'flex min-w-min !px-0 tablet:hidden',
+                    !isFollowing && 'text-text-link',
+                  )}
+                  entityId={sourceId}
+                  status={contentPreferenceStatus}
+                  type={ContentPreferenceType.Source}
+                  entityName={sourceName}
+                  showSubscribe={false}
+                />
+              )}
+              {source?.type === SourceType.Squad &&
+                !isLoadingSquad &&
+                squad && (
+                  <SquadActionButton
+                    buttonVariants={[ButtonVariant.Tertiary]}
+                    size={ButtonSize.XSmall}
+                    className={{
+                      button: classNames(
+                        'flex min-w-min !px-0 tablet:hidden',
+                        !squad?.currentMember && 'text-text-link',
+                      ),
+                    }}
+                    squad={squad}
+                    copy={{
+                      join: 'Join',
+                    }}
+                    origin={Origin.PostContent}
                   />
                 )}
-                {source?.type === SourceType.Squad &&
-                  !isLoadingSquad &&
-                  squad && (
-                    <SquadActionButton
-                      buttonVariants={[ButtonVariant.Tertiary]}
-                      size={ButtonSize.XSmall}
-                      className={{
-                        button: classNames(
-                          'flex min-w-min !px-0 tablet:hidden',
-                          !squad?.currentMember && 'text-text-link',
-                        ),
-                      }}
-                      squad={squad}
-                      copy={{
-                        join: 'Join',
-                      }}
-                      origin={Origin.PostContent}
-                    />
-                  )}
-              </>
-            )}
-          </div>
-          {showActions && (
-            <PostHeaderActions
-              post={post}
-              onClose={onClose}
-              onReadArticle={onReadArticle}
-              hideSubscribeAction={hideSubscribeAction}
-              className="ml-auto hidden laptop:flex"
-              contextMenuId="post-widgets-context"
-              buttonSize={ButtonSize.Small}
-            />
+            </>
           )}
-        </>
+        </div>
+      )}
+      {/* Outside the `isUnknown` branch on purpose: a post whose source is the
+          "unknown" placeholder still needs its menu. The post modal's top strip
+          hides its own copy of these actions from laptop up and defers to this
+          one, so nesting them here would leave such a post with no menu at
+          all. */}
+      {showActions && (
+        <PostHeaderActions
+          post={post}
+          onClose={onClose}
+          onReadArticle={onReadArticle}
+          hideSubscribeAction={hideSubscribeAction}
+          className="ml-auto hidden laptop:flex"
+          contextMenuId="post-widgets-context"
+          buttonSize={ButtonSize.Small}
+        />
       )}
       {!!date && (
         <>

@@ -36,6 +36,7 @@ export default function SocialTwitterPostModal({
       post={post}
       onAfterOpen={onLoad}
       size={Modal.Size.XLarge}
+      navigationContentOwnsActions
       onRequestClose={onRequestClose}
       postType={PostType.SocialTwitter}
       source={post.source}

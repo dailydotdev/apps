@@ -37,7 +37,7 @@ import { ArticleList } from '../../../components/cards/article/ArticleList';
 import { Origin } from '../../../lib/log';
 import { useSharePost } from '../../../hooks/useSharePost';
 import type { Post } from '../../../graphql/posts';
-import { getReadArticleHref } from '../../../graphql/posts';
+import { getPostTitle, getReadArticleHref } from '../../../graphql/posts';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { AgentContentTarget, AgentSummaryPost } from '../AgentContext';
@@ -71,7 +71,7 @@ const tabLabels: Partial<Record<AgentContentTarget['type'], string>> = {
 
 const tabLabel = (target: AgentContentTarget): string => {
   if (target.type === 'post') {
-    return target.post?.title ?? target.post?.sharedPost?.title ?? 'Post';
+    return getPostTitle(target.post) ?? 'Post';
   }
 
   if (target.type === 'feed') {

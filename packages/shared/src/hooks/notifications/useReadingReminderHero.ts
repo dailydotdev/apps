@@ -1,5 +1,6 @@
 import { isToday } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
+import { isTodayStamp } from '../../lib/dateFormat';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { UserPersonalizedDigestType } from '../../graphql/users';
@@ -31,18 +32,8 @@ const READING_REMINDER_DISMISSED = 'dismissed';
 const isDismissedValue = (lastSeen: string | null): boolean =>
   lastSeen === READING_REMINDER_DISMISSED;
 
-const getHasSeenToday = (lastSeen: string | null): boolean => {
-  if (!lastSeen || isDismissedValue(lastSeen)) {
-    return false;
-  }
-
-  const parsedDate = new Date(lastSeen);
-  if (Number.isNaN(parsedDate.getTime())) {
-    return false;
-  }
-
-  return isToday(parsedDate);
-};
+const getHasSeenToday = (lastSeen: string | null): boolean =>
+  !isDismissedValue(lastSeen) && isTodayStamp(lastSeen);
 
 const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
   if (!createdAt) {

@@ -38,6 +38,7 @@ export default function PollPostModal({
       post={post}
       onAfterOpen={onLoad}
       size={Modal.Size.XLarge}
+      navigationContentOwnsActions
       onRequestClose={onRequestClose}
       postType={PostType.Poll}
       source={post.source}

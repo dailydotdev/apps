@@ -35,6 +35,8 @@ import type { ResolvedCreative } from '../lib/engagementAds';
 import { EngagementPlacement } from '../lib/engagementAds';
 import type { FeedAdTemplate } from '../lib/feed';
 import { getAdSlotIndex } from '../lib/feed';
+import { searchResultsLogEvent } from '../lib/searchLog';
+import { SearchProviderEnum } from '../graphql/search';
 import {
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
@@ -206,7 +208,15 @@ type UseFeedSettingParams = {
   disableAds?: boolean;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
+  /** Set on search feeds so every fetch can be logged as a search execution. */
+  searchId?: string;
+  searchVersion?: number;
 };
+
+const searchFeedNames = new Set<string>([
+  SharedFeedPage.Search,
+  OtherFeedPage.SearchSquad,
+]);
 
 // 0-based grid row where the campaign-specific engagement strip breaks the
 // feed. Picking a whole row (not an item index) keeps the row above it full.
@@ -327,6 +337,7 @@ export default function useFeed<T>(
         throw new Error('useFeed query is required');
       }
 
+      const requestStartedAt = performance.now();
       const rawResult = await gqlClient.request<
         FeedData | FeedItemData | FeedV2Data
       >(query, {
@@ -336,6 +347,7 @@ export default function useFeed<T>(
         loggedIn: !!user,
         columns: virtualizedNumCards,
       });
+      const requestLatencyMs = Math.round(performance.now() - requestStartedAt);
       const res = normalizeFeedPage(rawResult);
 
       const isEmpty =
@@ -353,6 +365,35 @@ export default function useFeed<T>(
         if (onEmptyFeed) {
           onEmptyFeed();
         }
+      }
+
+      // Only the first page counts as a search execution; pagination reuses the
+      // same `search_id` through the feed engagement events instead.
+      if (
+        !pageParam &&
+        settings?.feedName &&
+        searchFeedNames.has(settings.feedName)
+      ) {
+        const searchVariables = (variables ?? {}) as {
+          query?: string;
+          time?: string;
+          contentCuration?: string[];
+        };
+
+        logEvent(
+          searchResultsLogEvent({
+            searchId: settings?.searchId,
+            query: searchVariables.query ?? '',
+            provider: SearchProviderEnum.Posts,
+            searchVersion: settings?.searchVersion,
+            resultCount: res.page.edges.length,
+            latencyMs: requestLatencyMs,
+            filters: {
+              time: searchVariables.time,
+              content_curation: searchVariables.contentCuration,
+            },
+          }),
+        );
       }
 
       fetchTranslations(

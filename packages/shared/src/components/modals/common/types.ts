@@ -42,7 +42,7 @@ export enum LazyModal {
   Video = 'video',
   ImageView = 'imageView',
   NewStreak = 'newStreak',
-  StreakOffers = 'streakOffers',
+  QuestOffers = 'questOffers',
   RecoverStreak = 'recoverStreak',
   StreakFreezePurchase = 'streakFreezePurchase',
   ReputationPrivileges = 'reputationPrivileges',
