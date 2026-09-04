@@ -265,12 +265,15 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
  * Suppression follows the strip and not the flag, so a user who cannot see
  * the strip (Plus, ads disabled, below tablet) keeps the card.
  *
- * Default MUST stay `enabled: false` — see the rule at the top of this file.
+ * On in development and off everywhere else, the way `cores`, `quest_offers`
+ * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
+ * this cannot ship the experiment to anyone — GrowthBook ramps it — while a
+ * local session still gets the strip without anybody forcing a flag.
  */
 export const featureSponsorStrip = new Feature<SponsorStripConfig>(
   'sponsor_strip',
   {
-    enabled: true,
+    enabled: isDevelopment,
     premiumRotationMs: 30_000,
     communityRotationMs: 10_000,
   },
