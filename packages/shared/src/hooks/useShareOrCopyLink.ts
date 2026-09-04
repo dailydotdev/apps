@@ -22,10 +22,9 @@ export function useShareOrCopyLink({
 }: UseShareOrCopyLinkProps): ReturnType<typeof useCopyLink> {
   const { logEvent } = useLogContext();
   const [copying, copyLink] = useCopyLink();
-  const { getShortUrl } = useGetShortUrl();
+  const { getShortUrl, getTrackedUrl } = useGetShortUrl();
 
   const onShareOrCopy: CopyNotifyFunction = async () => {
-    const shortLink = cid ? await getShortUrl(link, cid) : link;
     const logShareEvent = (provider: ShareProvider): void => {
       if (!logObject) {
         return;
@@ -36,17 +35,24 @@ export function useShareOrCopyLink({
 
     if (shouldUseNativeShare()) {
       try {
+        // No await before this call: navigator.share needs the user activation
+        // the press carried, and shortening spends it — the sheet then never
+        // opens. getTrackedUrl carries the same campaign without a request.
         await navigator.share({
-          text: `${text}\n${shortLink}`,
+          text,
+          url: cid ? getTrackedUrl(link, cid) : link,
         });
         logShareEvent(ShareProvider.Native);
       } catch (err) {
-        // Do nothing
+        // Dismissing the sheet rejects; nothing to recover from.
       }
-    } else {
-      logShareEvent(ShareProvider.CopyLink);
-      copyLink({ link: shortLink });
+
+      return;
     }
+
+    // Copying can afford the round trip, so it keeps the short link.
+    logShareEvent(ShareProvider.CopyLink);
+    copyLink({ link: cid ? await getShortUrl(link, cid) : link });
   };
 
   return [copying, onShareOrCopy];
