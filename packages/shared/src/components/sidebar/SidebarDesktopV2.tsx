@@ -1079,8 +1079,18 @@ export const SidebarDesktopV2 = ({
   // nothing on the tab strip is selected and the Home button carries the state
   // instead. Explore is the fallback category (`getSidebarCategoryForPath`
   // returns Main for `/`), so without this it would light up on the home feed.
+  //
+  // Home is the default selection, so the tablist correctly has no
+  // `aria-selected` tab there: the selected affordance is Home, which announces
+  // itself with `aria-current="page"` from outside the tablist.
+  // Custom feeds are tabs in the feed's own top nav beside For You, never rows
+  // in a rail panel (CustomFeedSection is v1's sidebar only), so the rail reads
+  // them the way it reads the home feed: Home keeps the selected state and no
+  // tab claims it. Without this they fall through to Explore, which is the
+  // fallback category rather than where they live.
+  const isHomeSelectedPage = isHomeActive || isFeedPage;
   const selectedRailItem: RailSelection =
-    pendingSelection ?? (isHomeActive ? RAIL_HOME : resolvedCategory);
+    pendingSelection ?? (isHomeSelectedPage ? RAIL_HOME : resolvedCategory);
   const isHomeSelected = selectedRailItem === RAIL_HOME;
   // Which panel the rail shows. Home has no panel of its own, so it borrows
   // Explore's, which is what the home feed resolved to before Home was split
@@ -1215,7 +1225,9 @@ export const SidebarDesktopV2 = ({
       if (!sidebarRef.current?.contains(document.activeElement)) {
         return;
       }
-      setPendingSelection(isHomeActive ? RAIL_HOME : SidebarCategory.Main);
+      setPendingSelection(
+        isHomeSelectedPage ? RAIL_HOME : SidebarCategory.Main,
+      );
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -1638,7 +1650,7 @@ export const SidebarDesktopV2 = ({
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
               setPendingSelection(
-                isHomeActive ? RAIL_HOME : SidebarCategory.Main,
+                isHomeSelectedPage ? RAIL_HOME : SidebarCategory.Main,
               );
             }
           }}
@@ -1738,7 +1750,7 @@ export const SidebarDesktopV2 = ({
   const isNotificationsActive =
     activeCategory === SidebarCategory.Notifications;
   const isNotificationsSelected =
-    selectedCategory === SidebarCategory.Notifications;
+    selectedRailItem === SidebarCategory.Notifications;
 
   // New post is reorderable with the tabs but is an action, not a panel tab, so
   // it carries no `aria-selected` and the sliding pill (which tracks
@@ -2050,7 +2062,7 @@ export const SidebarDesktopV2 = ({
                 <a
                   href={myFeedPath}
                   aria-label="Home"
-                  aria-current={isHomeSelected ? 'page' : undefined}
+                  aria-current={isHomeActive ? 'page' : undefined}
                   className={classNames(
                     'focus-outline flex size-10 items-center justify-center rounded-12 transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none',
                     isHomeSelected ? 'text-text-primary' : 'text-text-tertiary',
