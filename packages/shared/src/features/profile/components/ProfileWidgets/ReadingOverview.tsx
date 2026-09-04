@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import type {
   UserReadHistory,
   UserStreak,
@@ -23,6 +23,8 @@ import {
 } from './ReadingOverviewComponents';
 import { anchorDefaultRel, pluralize } from '../../../../lib/strings';
 import { largeNumberFormat } from '../../../../lib';
+import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { ButtonSize } from '../../../../components/buttons/common';
 
 // Utility functions
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
@@ -66,6 +68,7 @@ export function ReadingOverview({
   mostReadTags,
   isLoading = false,
 }: ReadingOverviewProps): ReactElement {
+  const widgetRef = useRef<HTMLElement>(null);
   const totalReads = useMemo(() => {
     if (!readHistory?.length) {
       return 0;
@@ -81,16 +84,24 @@ export function ReadingOverview({
   }
 
   return (
-    <ActivityContainer>
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.Callout}
-        color={TypographyColor.Primary}
-        bold
-        className="flex items-center"
-      >
-        Reading Overview
-      </Typography>
+    <ActivityContainer ref={widgetRef}>
+      <div className="flex items-center justify-between gap-2">
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+          bold
+          className="flex items-center"
+        >
+          Reading Overview
+        </Typography>
+        <SnapshotButton
+          filename="daily-reading-overview"
+          showLabel={false}
+          size={ButtonSize.XSmall}
+          target={widgetRef}
+        />
+      </div>
       <ClickableText
         tag="a"
         target="_blank"

@@ -34,6 +34,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
+import { CopyConfirmIcon } from '../../../../components/buttons/CopyConfirmIcon';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { Divider } from '../../../../components/utilities/Divider';
 import { anchorDefaultRel } from '../../../../lib/strings';
@@ -139,7 +140,7 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}
-            icon={<CopyIcon secondary={copying} />}
+            icon={copying ? <CopyConfirmIcon /> : <CopyIcon />}
             onClick={onShareOrCopy}
             aria-label={copying ? 'Copied!' : 'Copy link'}
           />

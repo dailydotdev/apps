@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { topReaderBadgeDocs } from '../../../../lib/constants';
@@ -24,12 +24,15 @@ import {
   BadgesAndAwardsSkeleton,
 } from './BadgesAndAwardsComponents';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { ButtonSize } from '../../../../components/buttons/common';
 
 export const BadgesAndAwards = ({
   user,
 }: {
   user: PublicProfile;
 }): ReactElement | null => {
+  const widgetRef = useRef<HTMLElement>(null);
   const { data: topReaders, isPending: isTopReaderLoading } = useTopReader({
     user,
     limit: 5,
@@ -62,16 +65,24 @@ export const BadgesAndAwards = ({
     awards?.reduce((sum, award) => sum + (award?.count || 0), 0) ?? 0;
 
   return (
-    <ActivityContainer>
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.Callout}
-        color={TypographyColor.Primary}
-        bold
-        className="flex items-center"
-      >
-        Badges &amp; Awards
-      </Typography>
+    <ActivityContainer ref={widgetRef}>
+      <div className="flex items-center justify-between gap-2">
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+          bold
+          className="flex items-center"
+        >
+          Badges &amp; Awards
+        </Typography>
+        <SnapshotButton
+          filename={`daily-badges-${user.username ?? user.id}`}
+          showLabel={false}
+          size={ButtonSize.XSmall}
+          target={widgetRef}
+        />
+      </div>
       <ClickableText
         tag="a"
         target="_blank"
