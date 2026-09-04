@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { feedGutter } from '../../../components/utilities/common';
 import {
   COMMUNITY_CAP,
   GOLD_CAP,
@@ -15,6 +14,7 @@ import { SponsorStripHeadlines } from './SponsorStripHeadlines';
 import type { PostHighlight } from '../../../graphql/highlights';
 import type { ResolvedSponsor } from './sponsorStripCreative';
 import {
+  DOCK_GUTTER,
   HEADLINES_ROW_HEIGHT,
   SPONSOR_ROW_HEIGHT,
   usePublishStripHeight,
@@ -48,7 +48,7 @@ const SponsorRow = ({
     data-testid="sponsorStripRow"
     className={classNames(
       'flex h-10 w-full items-center gap-5 border-t border-border-subtlest-tertiary',
-      feedGutter,
+      DOCK_GUTTER,
     )}
   >
     {gold && (

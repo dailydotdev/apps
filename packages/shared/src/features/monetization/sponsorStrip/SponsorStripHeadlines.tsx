@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import { getHighlightsUrl } from '../../../components/cards/highlight/common';
 import Link from '../../../components/utilities/Link';
 import { RelativeTime } from '../../../components/utilities/RelativeTime';
-import { feedGutter } from '../../../components/utilities/common';
 import { useLogContext } from '../../../contexts/LogContext';
 import type { PostHighlight } from '../../../graphql/highlights';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { feedHighlightsLogEvent } from '../../../lib/feed';
+import { DOCK_GUTTER } from './sponsorStripOffset';
 import { LogEvent, Origin } from '../../../lib/log';
 
 const HEADLINES_FEED_NAME = 'sponsor-strip-headlines';
@@ -61,7 +61,7 @@ export const SponsorStripHeadlines = ({
       data-testid="sponsorStripHeadlines"
       className={classNames(
         'flex h-8 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default',
-        feedGutter,
+        DOCK_GUTTER,
       )}
     >
       {/* The sacrificial left zone, and the reason the strip has two rows at

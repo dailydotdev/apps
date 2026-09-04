@@ -14,6 +14,18 @@ import { useEffect } from 'react';
 const SPONSOR_STRIP_HEIGHT_VAR = '--sponsor-strip-height';
 
 /**
+ * The dock's own horizontal inset.
+ *
+ * Not `feedGutter`: that one collapses to zero inside the v2 floating card,
+ * because the feed's inset there comes from the grid being narrower than the
+ * frame rather than from padding. The dock spans the frame edge to edge, so a
+ * zeroed gutter leaves its first logo smudged against the sidebar. These are
+ * `feedGutter`'s own values, which is what lines the row up with the cards in
+ * both layouts.
+ */
+export const DOCK_GUTTER = 'px-4 tablet:px-6 laptop:px-10';
+
+/**
  * Row heights, derived rather than measured: both rows are a fixed height by
  * design, and a number is testable where a ResizeObserver in a headless DOM is
  * not. Keep these in step with the `h-10` and `h-8` on the rows themselves.
