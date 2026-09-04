@@ -9,8 +9,8 @@ import { Image, ImageType } from '../../image/Image';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import type { UnFeaturedSquadCardProps } from './common/types';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { Origin } from '../../../lib/log';
-import { ButtonVariant } from '../../buttons/common';
+import { LogEvent, Origin } from '../../../lib/log';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { useCampaignById } from '../../../graphql/campaigns';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -27,6 +27,8 @@ import {
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
+import { CopyLinkButton } from '../../share/CopyLinkButton';
+import { ReferralCampaignKey } from '../../../lib/referral';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -87,6 +89,15 @@ export const SquadGrid = ({
   });
   const borderColor = border || color || SourceCardBorderColor.Avocado;
   const { ref, onClickAd, onViewableAd } = useSquadsDirectoryLogging(ad);
+  const shareProps = {
+    text: `Check out the ${name} squad on daily.dev`,
+    link: permalink,
+    cid: ReferralCampaignKey.ShareSource,
+    logObject: () => ({
+      event_name: LogEvent.ShareSource,
+      target_id: source.id,
+    }),
+  };
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
     campaign ? `Promoted by @${campaign.user.username}` : null,
@@ -158,13 +169,23 @@ export const SquadGrid = ({
             )}
           </div>
 
-          <SquadActionButton
-            className={{ button: 'z-0 w-full' }}
-            squad={source}
-            origin={Origin.SquadDirectory}
-            data-testid="squad-action"
-            buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
-          />
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <SquadActionButton
+                className={{ button: 'z-0 w-full' }}
+                squad={source}
+                origin={Origin.SquadDirectory}
+                data-testid="squad-action"
+                buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
+              />
+            </div>
+            <CopyLinkButton
+              className="relative z-0 shrink-0"
+              shareProps={shareProps}
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Tertiary}
+            />
+          </div>
         </div>
       </div>
       {children}

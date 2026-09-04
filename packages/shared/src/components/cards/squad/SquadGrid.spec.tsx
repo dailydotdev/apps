@@ -201,3 +201,11 @@ it('should render the component with a join squad button', async () => {
     await waitFor(() => expect(queryCalled).toBeTruthy());
   });
 });
+
+it('should render a copy link control alongside the join button', async () => {
+  renderComponent();
+
+  expect(
+    await screen.findByRole('button', { name: 'Copy link' }),
+  ).toBeInTheDocument();
+});

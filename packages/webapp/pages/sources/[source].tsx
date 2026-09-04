@@ -301,7 +301,7 @@ const SourcePage = ({
             <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
           </div>
           <div className="flex flex-row gap-3">
-            <SourceActions source={source} />
+            <SourceActions showCopyLink source={source} />
           </div>
           {source?.description && (
             <p className="typo-body">{source?.description}</p>

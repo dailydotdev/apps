@@ -11,19 +11,35 @@ import {
 import { largeNumberFormat } from '../../../lib';
 import { Separator } from '../common/common';
 import type { UnFeaturedSquadCardProps } from './common/types';
-import { Origin } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { ButtonVariant } from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Image, ImageType } from '../../image/Image';
+import { CopyLinkButton } from '../../share/CopyLinkButton';
+import { ReferralCampaignKey } from '../../../lib/referral';
 
 export const UnfeaturedSquadGrid = ({
   source,
   className,
 }: UnFeaturedSquadCardProps): ReactElement => {
   const title = source.name;
+  const shareProps = {
+    text: `Check out the ${title} squad on daily.dev`,
+    link: source.permalink,
+    cid: ReferralCampaignKey.ShareSource,
+    logObject: () => ({
+      event_name: LogEvent.ShareSource,
+      target_id: source.id,
+    }),
+  };
 
   return (
-    <Card className={classNames('overflow-hidden border-0 p-4', className)}>
+    <Card
+      className={classNames(
+        'group/squad overflow-hidden border-0 p-4',
+        className,
+      )}
+    >
       <CardLink
         href={source.permalink}
         rel="noopener"
@@ -36,13 +52,21 @@ export const UnfeaturedSquadGrid = ({
           className="size-16 rounded-full"
           type={ImageType.Squad}
         />
-        <SquadActionButton
-          className={{ button: 'z-0' }}
-          squad={source}
-          origin={Origin.SquadDirectory}
-          data-testid="squad-action"
-          buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
-        />
+        <div className="flex items-center gap-2">
+          <CopyLinkButton
+            className="relative z-0 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
+            shareProps={shareProps}
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Tertiary}
+          />
+          <SquadActionButton
+            className={{ button: 'z-0' }}
+            squad={source}
+            origin={Origin.SquadDirectory}
+            data-testid="squad-action"
+            buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
+          />
+        </div>
       </div>
       <Typography
         tag={TypographyTag.H1}
