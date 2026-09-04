@@ -3,7 +3,7 @@ import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
-import type { HeroCardsConfig } from '../types';
+import type { HeroCardsConfig, SponsorStripConfig } from '../types';
 import { PostType } from '../types';
 import { Feature } from './feature';
 
@@ -256,6 +256,24 @@ export enum OnboardingChromeVariant {
 export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
   'onboarding_chrome',
   OnboardingChromeVariant.Control,
+);
+
+/**
+ * Experiment: the sponsor strip — a logo wall docked under the main feeds.
+ * While it shows, the Happening Now card is dropped from the feed: the strip
+ * is where breaking news goes instead, so running both would show it twice.
+ * Suppression follows the strip and not the flag, so a user who cannot see
+ * the strip (Plus, ads disabled, below tablet) keeps the card.
+ *
+ * Default MUST stay `enabled: false` — see the rule at the top of this file.
+ */
+export const featureSponsorStrip = new Feature<SponsorStripConfig>(
+  'sponsor_strip',
+  {
+    enabled: true,
+    premiumRotationMs: 30_000,
+    communityRotationMs: 10_000,
+  },
 );
 
 export const featureLayoutV2 = new Feature('layout_v2', false);

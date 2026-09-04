@@ -63,6 +63,7 @@ import { AdPlacement } from '../lib/ads';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
+import { withMockFeedHighlights } from './feed/mockFeedHighlights';
 import type { Squad } from '../graphql/sources';
 
 interface FeedItemBase<T extends FeedItemType> {
@@ -268,6 +269,13 @@ export interface UseFeedOptionalParams<T> {
    */
   isHorizontal?: boolean;
   /**
+   * Drop the Happening Now card from the feed. Set while the sponsor strip is
+   * showing, which is where breaking news goes instead; the user's own
+   * `highlightsPlacement` setting is left alone so the card comes back when
+   * the experiment ends.
+   */
+  disableHighlightItems?: boolean;
+  /**
    * Drop pinned posts from the feed. `sourceFeed` always orders pinned posts
    * (welcome post, squad pins) first and offers no way to opt out server-side,
    * so single-squad feeds that don't want them filter here.
@@ -296,6 +304,7 @@ export default function useFeed<T>(
     disableTopHero = false,
     isHorizontal = false,
     excludePinnedPosts = false,
+    disableHighlightItems = false,
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
@@ -321,6 +330,10 @@ export default function useFeed<T>(
     queryKey: feedQueryKey,
     queryType: 'feed',
   });
+  // TEMPORARY: `?mockHighlights=1` puts a Happening Now card in the feed so
+  // the sponsor-strip experiment can be checked locally, where the API returns
+  // no highlights. Development only — see `mockFeedHighlights`.
+  const shouldMockHighlights = !!router.query?.mockHighlights;
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
@@ -692,7 +705,12 @@ export default function useFeed<T>(
         visualCellsSoFar += placement.colSpan;
       };
 
-      feedQuery.data.pages.forEach(({ page }, pageIndex) => {
+      const feedPages = withMockFeedHighlights(
+        feedQuery.data.pages,
+        shouldMockHighlights,
+      );
+
+      feedPages.forEach(({ page }, pageIndex) => {
         page.edges.forEach(({ node }, index: number) => {
           // Bail before the ad slot is claimed, otherwise dropping the post
           // would leave an ad stranded in a slot with nothing after it.
@@ -707,7 +725,7 @@ export default function useFeed<T>(
           }
 
           if (node.itemType === 'highlight') {
-            if (!node.highlights.length) {
+            if (disableHighlightItems || !node.highlights.length) {
               return;
             }
             pushAndAdvance({
@@ -769,6 +787,8 @@ export default function useFeed<T>(
     cadence,
     widenableTypes,
     excludePinnedPosts,
+    disableHighlightItems,
+    shouldMockHighlights,
     effectiveFirstSlotOffset,
   ]);
 
