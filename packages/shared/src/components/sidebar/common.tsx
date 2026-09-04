@@ -82,6 +82,10 @@ export const navBtnClass =
 export const railTabClass =
   'focus-outline group relative flex w-full flex-col items-center gap-0.5 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
+// Shared `useInteractivePopup` group so the rail's click popups (support,
+// settings, the shortcuts tray, the More menu and the sidebar tour) are
+// mutually exclusive: opening one closes the others.
+export const RAIL_POPUP_GROUP = 'sidebar-rail';
 // Shared by every stacked group on the rail so their spacing can't drift.
 // RAIL_ROW_GAP_PX is the same value for the overflow math. Keep them in sync.
 export const railColumnGapClass = 'gap-0.5';

@@ -342,3 +342,8 @@ export const featureCommentFirstAction = new Feature(
   'comment_first_action',
   false,
 );
+
+// Sidebar v2 onboarding: a three-step spotlight tour for users whose muscle
+// memory the rail broke, plus the ambient pin/••• coaching for everyone else.
+// Control shows nothing at all. Keep the default false so GrowthBook ramps it.
+export const featureSidebarTour = new Feature('sidebar_tour', false);
