@@ -1264,7 +1264,7 @@ export const SidebarDesktopV2 = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isHomeActive]);
+  }, [isHomeSelectedPage]);
 
   const defaultRenderSectionProps = useMemo(
     () => ({
