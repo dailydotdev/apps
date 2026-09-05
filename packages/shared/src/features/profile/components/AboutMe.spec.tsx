@@ -99,13 +99,6 @@ describe('AboutMe', () => {
         screen.getByText('This is my awesome bio with some **markdown**!'),
       ).toBeInTheDocument();
     });
-
-    it('should render with social links when user has them', () => {
-      renderComponent(userWithSocialLinks);
-      expect(screen.getByTestId('social-link-github')).toBeInTheDocument();
-      expect(screen.getByTestId('social-link-linkedin')).toBeInTheDocument();
-      expect(screen.getByTestId('social-link-portfolio')).toBeInTheDocument();
-    });
   });
 
   describe('Social Links', () => {

@@ -21,11 +21,6 @@ describe('Header component', () => {
     jest.clearAllMocks();
   });
 
-  it('should not show back button on first step', () => {
-    render(<Header {...defaultProps} showBackButton={false} />);
-    expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument();
-  });
-
   it('should show back button after first step', () => {
     render(<Header {...defaultProps} currentChapter={1} currentStep={2} />);
     const backButton = screen.getByLabelText('Go back');

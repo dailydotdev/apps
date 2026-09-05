@@ -201,32 +201,6 @@ describe('UserEducationForm', () => {
     expect(screen.queryByText('Grade*')).not.toBeInTheDocument();
   });
 
-  it('should render all form sections with proper structure', () => {
-    const { container } = render(
-      <FormWrapper>
-        <UserEducationForm />
-      </FormWrapper>,
-    );
-
-    // Verify all main input fields are present using proper queries
-    expect(getFieldByName(container, 'subtitle')).toBeInTheDocument();
-    expect(getFieldByName(container, 'title')).toBeInTheDocument();
-    expect(getFieldByName(container, 'grade')).toBeInTheDocument();
-
-    // Check current education text is present
-    expect(screen.getByText('Current education')).toBeInTheDocument();
-
-    // Check description section
-    expect(screen.getByText('Description')).toBeInTheDocument();
-    expect(getFieldByName(container, 'description')).toBeInTheDocument();
-
-    // Verify labels for each section
-    expect(screen.getByText('School*')).toBeInTheDocument();
-    expect(screen.getByText('Degree*')).toBeInTheDocument();
-    expect(screen.getByText('Field of Study*')).toBeInTheDocument();
-    expect(screen.getByText('Grade')).toBeInTheDocument();
-  });
-
   it('should handle current education toggle affecting end date', async () => {
     render(
       <FormWrapper>

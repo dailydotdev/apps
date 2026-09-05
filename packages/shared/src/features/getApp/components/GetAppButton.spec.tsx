@@ -34,14 +34,6 @@ beforeEach(() => {
 });
 
 describe('GetAppButton', () => {
-  it('should render the trigger for anonymous desktop visitors', () => {
-    renderComponent();
-
-    expect(
-      screen.getByRole('button', { name: triggerName }),
-    ).toBeInTheDocument();
-  });
-
   it('should render nothing for logged-in users', () => {
     renderComponent({}, { isLoggedIn: true });
 

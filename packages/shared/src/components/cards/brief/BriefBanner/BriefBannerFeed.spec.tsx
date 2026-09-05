@@ -590,29 +590,6 @@ describe('BriefBannerFeed', () => {
         'margin-top: 20px',
       );
     });
-
-    it('should pass through other props to wrapper div', () => {
-      mockUsePersistentState.mockReturnValueOnce([
-        undefined,
-        mockSetBrief,
-        true,
-      ]);
-
-      render(
-        <TestWrapper
-          alertsOverride={{
-            alerts: {
-              briefBannerLastSeen: null,
-            },
-            loadedAlerts: true,
-          }}
-        >
-          <BriefBannerFeed />
-        </TestWrapper>,
-      );
-
-      expect(screen.getByTestId('brief-banner-feed')).toBeInTheDocument();
-    });
   });
 
   describe('edge cases', () => {

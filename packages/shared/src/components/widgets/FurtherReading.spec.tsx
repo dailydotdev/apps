@@ -113,14 +113,6 @@ describe('further reading', () => {
     expect(await screen.findAllByRole('article')).toHaveLength(5);
   });
 
-  it('should show articles even when there are no trending articles', async () => {
-    renderComponent();
-    await waitForNock();
-    const [el] = await screen.findAllByRole('article');
-    await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
-    expect(await screen.findAllByRole('article')).toHaveLength(5);
-  });
-
   it('should show trending info for trending posts', async () => {
     renderComponent();
     expect(await screen.findByText('Hot')).toBeInTheDocument();

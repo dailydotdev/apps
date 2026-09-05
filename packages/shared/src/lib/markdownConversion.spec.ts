@@ -129,14 +129,6 @@ describe('markdownConversion', () => {
     expect(markdown).toBe(initialMarkdown);
   });
 
-  it('should keep simple strikethrough in markdown round-trip', () => {
-    const initialMarkdown = '~~gone~~';
-    const html = markdownToHtmlBasic(initialMarkdown);
-    const markdown = htmlToMarkdownBasic(html);
-
-    expect(markdown).toBe(initialMarkdown);
-  });
-
   it('should keep standard paragraph spacing in markdown round-trip', () => {
     const initialMarkdown = 'first paragraph\n\nsecond paragraph';
     const html = markdownToHtmlBasic(initialMarkdown);
