@@ -18,6 +18,8 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import { FeedPageLayoutMobile, feedGutter } from './utilities/common';
+import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
+import { useSponsorStripFeed } from '../features/monetization/sponsorStrip/useSponsorStripFeed';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
@@ -778,6 +780,13 @@ export default function MainFeedLayout({
     }
     return '';
   }, [customFeedsData, feedName, router.query.slugOrId]);
+  // Read here rather than inside the feed or the strip: this is the one place
+  // that owns both, so the card can only ever go missing on a surface that is
+  // mounting the strip — with headlines in it — in the card's place.
+  const sponsorStrip = useSponsorStripFeed({
+    feedName,
+    disableAds: feedProps?.disableAds,
+  });
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
     isV2 &&
@@ -851,6 +860,7 @@ export default function MainFeedLayout({
           feedProps && (
             <Feed
               {...feedProps}
+              disableHighlightItems={sponsorStrip.disableHighlightItems}
               shortcuts={shortcuts}
               topContent={
                 (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
@@ -870,6 +880,14 @@ export default function MainFeedLayout({
         )}
         {children}
       </FeedPageLayoutComponent>
+      {/* Docked outside the page container so it spans the feed column and
+          pins to the window, and mounted here rather than in each app's
+          MainFeedPage because this is the one component both the webapp and
+          the extension new tab render — and the only place the feed name is
+          already resolved from `default` to the reader's own feed. */}
+      {sponsorStrip.isEnabled && (
+        <SponsorStrip headlines={sponsorStrip.headlines} />
+      )}
     </>
   );
 }

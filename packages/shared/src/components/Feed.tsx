@@ -102,6 +102,12 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  /**
+   * Drop the Happening Now card. Owned by the layout that renders the sponsor
+   * strip, which is where breaking news goes while the strip is up — a feed
+   * with no strip above it must never lose the card.
+   */
+  disableHighlightItems?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
@@ -211,6 +217,7 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  disableHighlightItems,
   staticAd,
   disableAdRefresh = false,
   allowFetchMore,
@@ -374,6 +381,7 @@ export default function Feed<T>({
       disableTopHero: isV2,
       isHorizontal,
       excludePinnedPosts,
+      disableHighlightItems,
       settings: {
         disableAds,
         staticAd,

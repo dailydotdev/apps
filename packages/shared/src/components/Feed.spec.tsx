@@ -556,6 +556,68 @@ describe('Feed logged in', () => {
     ).toEqual(['postItem', 'postItem', 'highlightItem', 'postItem']);
   });
 
+  // `disableHighlightItems` is set by MainFeedLayout when it mounts the sponsor
+  // strip, which is what carries breaking news in the card's place.
+  it('should drop the Happening Now card when the layout says the strip carries it', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedHighlightsItem',
+                      feedMeta: null,
+                      highlights: [
+                        {
+                          id: 'highlight-1',
+                          channel: 'agents',
+                          headline: 'The first highlight',
+                          highlightedAt: '2026-04-05T09:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[0].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[0].node.commentsPermalink,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[0].node,
+                      feedMeta: defaultFeedPage.edges[0].node.feedMeta ?? null,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+      { disableHighlightItems: true },
+    );
+
+    await waitForNock();
+
+    // The posts around it still render, so the card is dropped rather than the
+    // whole response being discarded.
+    expect(await screen.findAllByTestId('postItem')).not.toHaveLength(0);
+    expect(screen.queryByTestId('highlightItem')).not.toBeInTheDocument();
+    expect(screen.queryByText('Happening Now')).not.toBeInTheDocument();
+  });
+
   it('should send upvote mutation', async () => {
     let mutationCalled = false;
     renderComponent([
