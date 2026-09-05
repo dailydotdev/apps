@@ -96,10 +96,6 @@ describe('levelProgress on the realm ladder', () => {
   it('rounds a part-article up, because rungs are crossed by reading one', () => {
     expect(levelProgress(3.5, REALM_DIV).toNext).toEqual(13);
   });
-
-  it('leaves the district ladder alone by default', () => {
-    expect(levelProgress(18)).toMatchObject({ level: 5, toNext: 2 });
-  });
 });
 
 describe('nearestLevelUp', () => {

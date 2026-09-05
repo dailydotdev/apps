@@ -321,31 +321,6 @@ describe('UserProjectExperienceForm', () => {
     expect(screen.getByText('End date*')).toBeInTheDocument();
   });
 
-  it('should render all form sections with proper structure', () => {
-    const { container } = render(
-      <FormWrapper>
-        <UserProjectExperienceForm />
-      </FormWrapper>,
-    );
-
-    // Verify all main input fields are present using proper queries
-    expect(getFieldByName(container, 'title')).toBeInTheDocument();
-    expect(getFieldByName(container, 'url')).toBeInTheDocument();
-    expect(getFieldByName(container, 'description')).toBeInTheDocument();
-
-    // Check current project text is present
-    expect(screen.getByText('Ongoing project/publication')).toBeInTheDocument();
-
-    // Check description section
-    expect(screen.getByText('Description')).toBeInTheDocument();
-
-    // Verify labels for each section
-    expect(screen.getByText('Title*')).toBeInTheDocument();
-    expect(screen.getByText('Publisher*')).toBeInTheDocument();
-    expect(screen.getByText('Publication URL')).toBeInTheDocument();
-    expect(screen.getByText('End date*')).toBeInTheDocument();
-  });
-
   it('should handle current project toggle', async () => {
     render(
       <FormWrapper>

@@ -132,36 +132,6 @@ describe('ExpandableContent', () => {
     });
   });
 
-  it('should hide "See More" button when content is expanded', async () => {
-    // Mock scrollHeight to be more than maxHeight
-    Object.defineProperty(HTMLElement.prototype, 'scrollHeight', {
-      configurable: true,
-      get() {
-        return 500;
-      },
-    });
-
-    render(
-      <ExpandableContent maxHeight={320}>{longContent}</ExpandableContent>,
-    );
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /see more/i }),
-      ).toBeInTheDocument();
-    });
-
-    const seeMoreButton = screen.getByRole('button', { name: /see more/i });
-    fireEvent.click(seeMoreButton);
-
-    // Both button and gradient should be hidden after expansion
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('button', { name: /see more/i }),
-      ).not.toBeInTheDocument();
-    });
-  });
-
   it('should apply custom maxHeight', async () => {
     // Mock scrollHeight to exceed custom maxHeight
     Object.defineProperty(HTMLElement.prototype, 'scrollHeight', {

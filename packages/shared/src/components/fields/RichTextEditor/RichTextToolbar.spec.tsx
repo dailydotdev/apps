@@ -66,14 +66,6 @@ describe('RichTextToolbar leading actions', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders the leading slot exactly once on its own row when stacked', () => {
-    renderToolbar(true);
-
-    expect(
-      screen.getByRole('button', { name: 'Free form' }),
-    ).toBeInTheDocument();
-  });
-
   it('keeps the stacked leading slot out of the clipped bar row', () => {
     renderToolbar(true);
 

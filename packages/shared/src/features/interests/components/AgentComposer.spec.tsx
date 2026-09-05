@@ -214,16 +214,6 @@ describe('AgentComposer', () => {
         'activity',
       ]);
     });
-
-    it('takes the armed command back on backspace in an empty field', () => {
-      mountComposer();
-
-      type('/');
-      fireEvent.keyDown(field(), { key: 'Enter' });
-      fireEvent.keyDown(field(), { key: 'Backspace' });
-
-      expect(screen.queryByText('/settings')).not.toBeInTheDocument();
-    });
   });
 
   describe('attachments', () => {

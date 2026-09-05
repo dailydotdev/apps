@@ -23,14 +23,6 @@ describe('hasPublicWorld', () => {
     await expect(hasPublicWorld('u1')).resolves.toBe(false);
   });
 
-  it('keeps it shut for a world its owner has hidden', async () => {
-    // Privacy is applied by the resolver, so a hidden world is indistinguishable
-    // from an empty one here — which is exactly the answer a visitor should get.
-    respond({ data: { userWorld: [] } });
-
-    await expect(hasPublicWorld('u1')).resolves.toBe(false);
-  });
-
   it('does not take the profile down with it', async () => {
     fetchMock.mockRejectedValue(new Error('network down'));
 

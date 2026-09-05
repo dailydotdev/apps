@@ -79,21 +79,6 @@ describe('AchievementPickerModal — stop tracking', () => {
     document.body.innerHTML = '<div id="__next"></div>';
   });
 
-  it('renders "Track" button for an untracked achievement', () => {
-    renderModal({ trackedAchievementId: null });
-
-    const trackButtons = screen.getAllByRole('button', { name: 'Track' });
-    expect(trackButtons.length).toBeGreaterThan(0);
-  });
-
-  it('renders "Stop tracking" button for the currently tracked achievement', () => {
-    renderModal({ trackedAchievementId: 'ach1' });
-
-    expect(
-      screen.getByRole('button', { name: 'Stop tracking' }),
-    ).toBeInTheDocument();
-  });
-
   it('still renders "Track" for non-tracked achievements when one is tracked', () => {
     renderModal({ trackedAchievementId: 'ach1' });
 

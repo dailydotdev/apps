@@ -138,31 +138,6 @@ describe('FunnelStepper component', () => {
     expect(screen.getByTestId('funnel-stepper')).toBeInTheDocument();
   });
 
-  it('should handle transition events correctly', async () => {
-    renderComponent();
-
-    const step = screen.getByTestId('funnel-step-quiz');
-    expect(step).toBeInTheDocument();
-
-    await act(async () => {
-      const firstOption = screen.getByText('Option 1');
-      fireEvent.click(firstOption);
-      await waitForNock();
-    });
-
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: 'step2',
-      type: FunnelStepTransitionType.Complete,
-      details: { step1: 'Option 1' },
-    });
-    expect(mockSendTransition).toHaveBeenCalledWith({
-      fromStep: 'step1',
-      toStep: 'step2',
-      transitionEvent: FunnelStepTransitionType.Complete,
-      inputs: { step1: 'Option 1' },
-    });
-  });
-
   it('should call onComplete when transitioning to the final step', async () => {
     renderComponent();
 

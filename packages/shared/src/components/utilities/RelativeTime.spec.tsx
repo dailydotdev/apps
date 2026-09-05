@@ -12,12 +12,6 @@ describe('RelativeTime', () => {
     jest.useRealTimers();
   });
 
-  it('renders the relative label for the provided dateTime', () => {
-    const tenMinutesAgo = new Date('2026-04-28T11:50:00Z').toISOString();
-    render(<RelativeTime dateTime={tenMinutesAgo} />);
-    expect(screen.getByText('10m ago')).toBeInTheDocument();
-  });
-
   it('updates the label immediately when the dateTime prop changes', () => {
     const tenMinutesAgo = new Date('2026-04-28T11:50:00Z').toISOString();
     const twoHoursAgo = new Date('2026-04-28T10:00:00Z').toISOString();

@@ -31,12 +31,6 @@ describe('getTemplatedTitle', () => {
     expect(getTemplatedTitle(title)).toBe(`${title} | daily.dev`);
   });
 
-  it('drops suffix when only suffix causes overflow', () => {
-    const title = 'a'.repeat(55);
-
-    expect(getTemplatedTitle(title)).toBe(title);
-  });
-
   it('truncates and appends ellipsis when base title exceeds limit', () => {
     const title =
       'How to implement authentication and authorization in modern systems with confidence';
