@@ -22,6 +22,7 @@ pnpm monorepo for the daily.dev app suite:
 ## Conventions
 
 - Write code that reads like the surrounding code: match its comment density, naming, and idioms. The reasoning behind a fix goes in the commit message, not a comment above the code.
+- Tests exist to catch real regressions, not to raise coverage. Skip tests that duplicate an existing one or assert implementation details that break on harmless refactors.
 - Import from source files, never through barrel `index.ts` files, and don't add new barrels.
 - Queries are options-creator functions spread into `useQuery` (see `packages/shared/src/hooks/AGENTS.md`). Page or feature scoped state uses `createContextProvider` from `@kickass-coderz/react` (see `contexts/ActivePostContext.tsx`).
 - GraphQL has no codegen. Types in `packages/shared/src/graphql/types.ts` and the domain files are hand-written; update them with the query you edit.
