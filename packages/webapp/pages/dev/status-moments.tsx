@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import {
   Button,
@@ -20,7 +20,6 @@ import {
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { TopRankBadge } from '@dailydotdev/shared/src/components/cards/Leaderboard/TopRankBadge';
-import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 
 /**
  * /dev/status-moments — internal review surface for the Snapshot sharing
@@ -522,12 +521,25 @@ const AnalyticsScreen = () => (
 
 /* ------------------------------------------------------------------ page */
 
+const useIsAllowedHost = () => {
+  const [allowed, setAllowed] = useState(true);
+
+  useEffect(() => {
+    const { hostname } = window.location;
+    setAllowed(hostname !== 'app.daily.dev' && hostname !== 'www.daily.dev');
+  }, []);
+
+  return allowed;
+};
+
 const ProductionGate = ({ children }: { children: ReactNode }) => {
-  if (!isDevelopment) {
+  const allowed = useIsAllowedHost();
+
+  if (!allowed) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background-default p-12">
         <p className="text-text-secondary typo-callout">
-          The status moments review page is only available in development.
+          The status moments review page is not available on this host.
         </p>
       </div>
     );
