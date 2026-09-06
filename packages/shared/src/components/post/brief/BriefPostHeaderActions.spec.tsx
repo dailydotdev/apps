@@ -76,8 +76,6 @@ describe('BriefPostHeaderActions', () => {
       screen.getByRole('link'),
     ];
 
-    // The settings gear shipped variant-less, so it read brighter than the
-    // share controls that now sit beside it.
     controls.forEach((control) => expect(control).toHaveClass('btn-tertiary'));
   });
 

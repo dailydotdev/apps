@@ -23,7 +23,7 @@ const HEADING_SELECTOR = 'h1, h2, h3';
 const text = (node: HTMLElement) =>
   (node.textContent ?? '').replace(/\s+/g, ' ').trim();
 
-/** Every copyable block, skipping paragraphs that only wrap a list item. */
+/** Skips paragraphs that only wrap a list item, which would copy twice. */
 export function getBriefBlocks(container: HTMLElement): BriefBlock[] {
   return Array.from(container.querySelectorAll<HTMLElement>(BLOCK_SELECTOR))
     .filter((node) => !(node.tagName === 'P' && node.closest('li')))

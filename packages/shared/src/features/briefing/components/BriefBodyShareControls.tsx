@@ -16,7 +16,6 @@ import {
 } from '../briefBodyBlocks';
 import { BriefBlockCopyButton } from './BriefBlockCopyButton';
 
-/** The section whose bullets are worth a card of their own. */
 const SNAPSHOT_SECTION = 'Must know';
 
 /** Marks the nodes this component owns inside Markdown's rendered output. */

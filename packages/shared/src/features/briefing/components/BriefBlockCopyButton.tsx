@@ -17,10 +17,7 @@ import {
 /** Enough of the block to tell two buttons apart, not the whole paragraph. */
 const LABEL_LENGTH = 60;
 
-/**
- * #6350's copy-summary icon, per bullet: the text plus the brief link, so a
- * paste carries the claim and where it came from.
- */
+/** Copies the block and the brief link, so a paste carries both. */
 export function BriefBlockCopyButton({
   text,
   link,

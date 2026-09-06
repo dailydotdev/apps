@@ -33,8 +33,6 @@ export const BriefPostHeader = ({
         >
           {kicker}
         </Typography>
-        {/* The actions used to be desktop-only, so nothing had to survive a
-            narrow row: the kicker gives way to them rather than pushing. */}
         {children && <div className="shrink-0">{children}</div>}
       </div>
       <Typography type={TypographyType.LargeTitle} bold>

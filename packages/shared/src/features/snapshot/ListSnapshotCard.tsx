@@ -4,7 +4,6 @@ import colors from '../../styles/colors';
 import { SnapshotFrame } from './SnapshotFrame';
 
 const MUTED = colors.salt['90'];
-const DIVIDER = colors.pepper['10'];
 
 export interface SnapshotListItem {
   title: string;
@@ -14,9 +13,7 @@ export interface SnapshotListItem {
 export interface ListSnapshotCardProps {
   eyebrow: string;
   title: string;
-  subtitle?: string;
   items: SnapshotListItem[];
-  footer?: string;
   seed?: string;
 }
 
@@ -25,7 +22,7 @@ export interface ListSnapshotCardProps {
  * archive, a feed digest — which are the same object with a different label.
  */
 function ListSnapshotCardComponent(
-  { eyebrow, title, subtitle, items, footer, seed }: ListSnapshotCardProps,
+  { eyebrow, title, items, seed }: ListSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   const visible = items.slice(0, 5);
@@ -58,14 +55,6 @@ function ListSnapshotCardComponent(
         >
           {title}
         </h1>
-        {subtitle && (
-          <span
-            className="mt-2 truncate"
-            style={{ color: MUTED, fontSize: 26 }}
-          >
-            {subtitle}
-          </span>
-        )}
 
         <ol className="mt-7 flex w-full flex-col gap-5">
           {visible.map((item, index) => (
@@ -104,20 +93,6 @@ function ListSnapshotCardComponent(
             </li>
           ))}
         </ol>
-
-        {footer && (
-          <span
-            className="mt-auto"
-            style={{
-              paddingTop: 26,
-              borderTop: `1px solid ${DIVIDER}`,
-              color: MUTED,
-              fontSize: 26,
-            }}
-          >
-            {footer}
-          </span>
-        )}
       </div>
     </SnapshotFrame>
   );

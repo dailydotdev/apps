@@ -99,9 +99,8 @@ export const BriefListItem = ({
       <div
         className={classNames(
           'flex flex-col gap-1',
-          // `w-full` overflows the card once a control shares the row: the
-          // column claims 100% of the article and pushes the button past the
-          // border. Shrinkable + greedy is the same width without the overflow.
+          // `w-full` would claim the whole card and push the controls past
+          // its border.
           withShareControls ? 'min-w-0 flex-1' : 'w-full',
         )}
       >
