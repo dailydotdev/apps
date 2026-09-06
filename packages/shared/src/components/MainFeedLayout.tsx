@@ -835,7 +835,11 @@ export default function MainFeedLayout({
           }
         >
           {isExploreFeed && (
-            <ExploreSignupStrip className={classNames('mb-4', feedGutter)} />
+            // Phones drop the feed gutter because cards run full-bleed there;
+            // a rounded, bordered card cannot, so it keeps its own inset.
+            <ExploreSignupStrip
+              className={classNames('mb-4 px-4', feedGutter)}
+            />
           )}
           <FeedEngagementBanner className="mb-3" />
         </div>
