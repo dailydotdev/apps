@@ -13,6 +13,7 @@ import {
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import { gqlBatchRequest } from '../graphql/batch';
 import type { ApiErrorResult } from '../graphql/common';
 
 export enum SendType {
@@ -51,7 +52,13 @@ type UnsubscribePersonalizedDigestParams =
     }
   | undefined;
 
-export const usePersonalizedDigest = (): UsePersonalizedDigest => {
+interface UsePersonalizedDigestProps {
+  enabled?: boolean;
+}
+
+export const usePersonalizedDigest = ({
+  enabled = true,
+}: UsePersonalizedDigestProps = {}): UsePersonalizedDigest => {
   const { isLoggedIn, user } = useAuthContext();
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.PersonalizedDigest, user);
@@ -60,7 +67,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
     queryKey,
     queryFn: async () => {
       try {
-        const result = await gqlClient.request<{
+        const result = await gqlBatchRequest<{
           personalizedDigest: UserPersonalizedDigest[];
         }>(GET_PERSONALIZED_DIGEST_SETTINGS, {});
 
@@ -80,7 +87,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         throw error;
       }
     },
-    enabled: isLoggedIn,
+    enabled: isLoggedIn && enabled,
     staleTime: StaleTime.Default,
   });
 

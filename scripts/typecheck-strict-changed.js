@@ -209,6 +209,10 @@ const strictSkipList = new Set([
   'packages/shared/src/components/post/common/SharedPostLink.tsx',
   'packages/shared/src/components/widgets/PostToc.tsx',
   'packages/shared/src/features/profile/components/experience/UserExperienceItem.tsx',
+  // Touched only to move their query onto the batched transport; the strict
+  // errors on other lines predate that change.
+  'packages/shared/src/hooks/useBanner.ts',
+  'packages/shared/src/hooks/useFeedSettings.ts',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

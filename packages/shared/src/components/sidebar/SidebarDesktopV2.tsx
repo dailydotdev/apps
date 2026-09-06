@@ -746,7 +746,7 @@ export const SidebarDesktopV2 = ({
     : 'Daily Quests';
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { open: openSpotlight } = useSpotlight();
+  const { open: openSpotlight, prefetch: prefetchSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -2160,6 +2160,8 @@ export const SidebarDesktopV2 = ({
                 type="button"
                 aria-label="Search"
                 onClick={openSpotlight}
+                onMouseEnter={prefetchSpotlight}
+                onFocus={prefetchSpotlight}
                 className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none"
               >
                 <SearchIcon size={RAIL_ICON_SIZE} aria-hidden />
