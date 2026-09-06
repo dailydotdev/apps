@@ -22,8 +22,12 @@ function PostSnapshotCardComponent(
   ].filter(Boolean) as string[];
 
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? post.id}>
+    // The summary is the reason to share a post, so the frame grows to carry
+    // all of it rather than clamping it to the square.
+    <SnapshotFrame grow ref={ref} seed={seed ?? post.id}>
       <SnapshotContent
+        bodyLines={0}
+        titleLines={0}
         avatar={
           post.source?.name
             ? { src: post.source.image, name: post.source.name }

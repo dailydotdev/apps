@@ -2,16 +2,24 @@ import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
 import { SnapshotFrame } from './SnapshotFrame';
-import { truncateAtWord } from './snapshotText';
+import { windowPassage } from './snapshotText';
 
 const MUTED = colors.salt['90'];
 const DIVIDER = colors.pepper['10'];
 
 /**
- * The quote is the whole image, so it takes as much size as it can carry:
- * short highlights get set large, longer ones step down rather than clip.
+ * The reader's own selection, set apart the way the page sets it apart. Kept
+ * lighter than a solid fill: the marked run has to read as part of the passage,
+ * not as a separate block.
  */
-const quoteFontSize = (length: number): number => {
+const MARK_BACKGROUND = 'rgba(177, 75, 215, 0.32)';
+const MARK_EDGE = 'rgba(214, 196, 255, 0.42)';
+
+/**
+ * The passage is the whole image, so it takes as much size as it can carry:
+ * short ones get set large, longer ones step down rather than clip.
+ */
+const passageFontSize = (length: number): number => {
   if (length <= 70) {
     return 72;
   }
@@ -24,11 +32,22 @@ const quoteFontSize = (length: number): number => {
     return 48;
   }
 
-  return 40;
+  if (length <= 480) {
+    return 40;
+  }
+
+  return 34;
 };
 
 export interface HighlightTextSnapshotCardProps {
+  /**
+   * The passage around the selection — a paragraph, or the whole body. Sharing
+   * only what was marked loses the point the reader was making, so the image
+   * carries the context and marks the selection inside it.
+   */
   text: string;
+  /** The marked run, as it appears in `text`. Without it the passage stands alone. */
+  highlight?: string;
   source?: { name: string; image?: string };
   postTitle?: string;
   domain?: string;
@@ -36,37 +55,69 @@ export interface HighlightTextSnapshotCardProps {
 }
 
 function HighlightTextSnapshotCardComponent(
-  { text, source, postTitle, domain, seed }: HighlightTextSnapshotCardProps,
+  {
+    text,
+    highlight,
+    source,
+    postTitle,
+    domain,
+    seed,
+  }: HighlightTextSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
-  const quote = truncateAtWord(text);
+  const { before, marked, after } = windowPassage(text, highlight);
   const attribution = [postTitle, domain].filter(Boolean).join(' · ');
+  const hasContext = !!(before || after);
 
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? text}>
+    <SnapshotFrame grow ref={ref} seed={seed ?? text}>
       <div className="flex flex-1 flex-col">
         <div className="flex flex-1 flex-col justify-center">
-          <span
-            aria-hidden
-            className="font-bold"
-            style={{
-              color: colors.cabbage['10'],
-              fontSize: 96,
-              lineHeight: 0.6,
-              height: 58,
-            }}
-          >
-            &ldquo;
-          </span>
+          {/* An opening quote over a windowed passage would claim the context
+              as the quote too, so it only leads a bare selection. */}
+          {!hasContext && (
+            <span
+              aria-hidden
+              className="font-bold"
+              style={{
+                color: colors.cabbage['10'],
+                fontSize: 96,
+                lineHeight: 0.6,
+                height: 58,
+              }}
+            >
+              &ldquo;
+            </span>
+          )}
           <p
-            className="snapshot-copy font-bold text-white"
+            className="snapshot-copy font-bold"
             style={{
-              fontSize: quoteFontSize(quote.length),
-              lineHeight: 1.2,
+              // Context sits back so the marked run carries the image.
+              color: hasContext ? MUTED : '#FFFFFF',
+              fontSize: passageFontSize(
+                before.length + marked.length + after.length,
+              ),
+              lineHeight: 1.35,
               letterSpacing: '-0.01em',
             }}
           >
-            {quote}
+            {before}
+            <span
+              className="text-white"
+              style={{
+                background: MARK_BACKGROUND,
+                boxShadow: `inset 0 0 0 1px ${MARK_EDGE}`,
+                borderRadius: 8,
+                padding: '0.08em 0.12em',
+                // Each wrapped line gets its own box, so a multi-line mark
+                // reads as marked text rather than one tall block.
+                boxDecorationBreak: 'clone',
+                WebkitBoxDecorationBreak: 'clone',
+              }}
+            >
+              {marked}
+            </span>
+            {after}
           </p>
         </div>
 

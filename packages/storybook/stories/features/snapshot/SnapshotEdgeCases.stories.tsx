@@ -4,7 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnapshotFrame } from '@dailydotdev/shared/src/features/snapshot/SnapshotFrame';
 import { SnapshotContent } from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
-import { SNAPSHOT_TEXT_LIMIT } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
+import { getSnapshotCaptureOptions } from '@dailydotdev/shared/src/features/snapshot/snapshotCapture';
+import { SNAPSHOT_PASSAGE_LIMIT } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
 import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
 import { ProfileSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ProfileSnapshotCard';
@@ -52,8 +53,50 @@ const CARDS: CardSpec[] = [
   {
     id: 'highlight',
     title: 'Highlighted text',
-    note: `Scales 72 → 40px by length, then truncates at the last word at ${SNAPSHOT_TEXT_LIMIT} characters.`,
+    note: `Scales 72 → 34px by length. With a selection the passage is windowed around it to ${SNAPSHOT_PASSAGE_LIMIT} characters and the marked run is set apart; without one the passage stands alone.`,
     cases: [
+      {
+        label: 'Selection inside its passage',
+        node: (ref) => (
+          <HighlightTextSnapshotCard
+            ref={ref}
+            domain="xda-developers.com"
+            highlight="the actual bottleneck was always the four hundred kilobytes of analytics we shipped on every single page load"
+            postTitle="Why the bundler war ended"
+            seed="a0"
+            source={{ name: 'XDA Developers', image: AVATAR }}
+            text={LOREM}
+          />
+        ),
+      },
+      {
+        label: 'Selection longer than the window',
+        node: (ref) => (
+          <HighlightTextSnapshotCard
+            ref={ref}
+            domain="xda-developers.com"
+            highlight={LOREM}
+            postTitle="Why the bundler war ended"
+            seed="a1"
+            source={{ name: 'XDA Developers', image: AVATAR }}
+            text={LOREM}
+          />
+        ),
+      },
+      {
+        label: 'Selection not found in the passage',
+        node: (ref) => (
+          <HighlightTextSnapshotCard
+            ref={ref}
+            domain="xda-developers.com"
+            highlight="a run that was never in this text"
+            postTitle="Why the bundler war ended"
+            seed="a2"
+            source={{ name: 'XDA Developers', image: AVATAR }}
+            text="Tabs won. Prettier just hid the bodies."
+          />
+        ),
+      },
       {
         label: 'Typical (59 chars)',
         node: (ref) => (
@@ -143,7 +186,11 @@ const CARDS: CardSpec[] = [
             <SnapshotContent
               avatar={{ name: 'XDA Developers', src: AVATAR }}
               body={LOREM}
-              meta={['Aug 24, 2026', '18m read time', 'a-very-long-domain-name.example.com']}
+              meta={[
+                'Aug 24, 2026',
+                '18m read time',
+                'a-very-long-domain-name.example.com',
+              ]}
               title={LOREM}
             />
           </SnapshotFrame>
@@ -366,11 +413,26 @@ const CARDS: CardSpec[] = [
             ref={ref}
             eyebrow="Your briefing"
             items={[
-              { title: 'Alibaba open-sources Qwen3.8-Max weights', meta: 'AI · 4m read' },
-              { title: 'TypeScript 6.2 ships project-wide inference', meta: 'TypeScript · 6m read' },
-              { title: 'The bundler war is over and nobody noticed', meta: 'Frontend · 3m read' },
-              { title: 'Postgres 19 makes logical replication boring', meta: 'Databases · 8m read' },
-              { title: 'What a decade of Rust taught us about ownership', meta: 'Rust · 11m read' },
+              {
+                title: 'Alibaba open-sources Qwen3.8-Max weights',
+                meta: 'AI · 4m read',
+              },
+              {
+                title: 'TypeScript 6.2 ships project-wide inference',
+                meta: 'TypeScript · 6m read',
+              },
+              {
+                title: 'The bundler war is over and nobody noticed',
+                meta: 'Frontend · 3m read',
+              },
+              {
+                title: 'Postgres 19 makes logical replication boring',
+                meta: 'Databases · 8m read',
+              },
+              {
+                title: 'What a decade of Rust taught us about ownership',
+                meta: 'Rust · 11m read',
+              },
             ]}
             seed="li-a"
             subtitle="Short briefing by @tomer"
@@ -542,12 +604,10 @@ const Case = ({ spec }: { spec: CaseSpec }) => {
 
     setIsBusy(true);
     try {
-      const blob = await captureShareImage(ref.current, {
-        width: SNAPSHOT_SIZE,
-        height: SNAPSHOT_SIZE,
-        padding: 0,
-        branded: false,
-      });
+      const blob = await captureShareImage(
+        ref.current,
+        getSnapshotCaptureOptions(ref.current),
+      );
       setPng(URL.createObjectURL(blob));
     } finally {
       setIsBusy(false);
@@ -560,12 +620,13 @@ const Case = ({ spec }: { spec: CaseSpec }) => {
         {spec.label}
       </figcaption>
       {/* Live DOM at scale: 40-odd states as real captures would take minutes,
-          and the layout is identical either way. */}
+          and the layout is identical either way. zoom, not transform: a growing
+          frame has to push the preview box taller instead of being clipped. */}
       <div
         className="overflow-hidden rounded-12 border border-border-subtlest-tertiary"
-        style={{ width: SNAPSHOT_SIZE * SCALE, height: SNAPSHOT_SIZE * SCALE }}
+        style={{ width: SNAPSHOT_SIZE * SCALE }}
       >
-        <div style={{ transform: `scale(${SCALE})`, transformOrigin: 'top left' }}>
+        <div style={{ zoom: SCALE }}>
           {spec.node((node) => {
             ref.current = node;
           })}

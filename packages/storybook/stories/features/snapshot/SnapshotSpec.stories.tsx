@@ -1,6 +1,9 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
+import {
+  SNAPSHOT_MAX_HEIGHT,
+  SNAPSHOT_SIZE,
+} from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
 import { SNAPSHOT_CARD_SIZE } from '@dailydotdev/shared/src/features/snapshot/SnapshotFrame';
 import { SNAPSHOT_TEXT_LIMIT } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
 
@@ -63,8 +66,16 @@ const Code = ({ children }: { children: React.ReactNode }) => (
 );
 
 const CANVAS = [
-  ['Export', `${SNAPSHOT_SIZE} × ${SNAPSHOT_SIZE} PNG`, 'Square, one aspect for every surface'],
-  ['Card', `${SNAPSHOT_CARD_SIZE} × ${SNAPSHOT_CARD_SIZE} min`, 'Grows with content; 48px radius, 2px lit edge'],
+  [
+    'Export',
+    `${SNAPSHOT_SIZE} wide PNG`,
+    `Square by default; text surfaces grow to ${SNAPSHOT_MAX_HEIGHT} tall`,
+  ],
+  [
+    'Card',
+    `${SNAPSHOT_CARD_SIZE} × ${SNAPSHOT_CARD_SIZE} min`,
+    'Grows with content; 48px radius, 2px lit edge',
+  ],
   ['Card padding', '58px', 'Cover art escapes it with negative margins'],
   ['Body', '#0B0812', 'Darker than the ground so the edge reads'],
   ['Logo', '36px tall, centred below the card', 'Always white, never themed'],
@@ -73,29 +84,112 @@ const CANVAS = [
 const TYPE = [
   ['Hero headline', '56–72px bold', 'Post title, quote, entity name'],
   ['Card title', '46–54px bold', 'Collectible name, streak label, list title'],
-  ['Stat value', '52px bold (40px compact)', 'Compact for word-shaped values like a date'],
+  [
+    'Stat value',
+    '52px bold (40px compact)',
+    'Compact for word-shaped values like a date',
+  ],
   ['Body', '28px, 1.55 line height', 'TLDR, description, comment context'],
   ['Meta', '26px', 'Date, read time, domain, counts'],
-  ['Eyebrow / stat label', '22px bold uppercase, 2px tracking', 'Section labels'],
+  [
+    'Eyebrow / stat label',
+    '22px bold uppercase, 2px tracking',
+    'Section labels',
+  ],
 ];
 
 const CARDS = [
-  ['Post', '#6350', 'Source, title, date, read time, domain, TLDR', 'Title, source'],
+  [
+    'Post',
+    '#6350',
+    'Source, title, date, read time, domain, TLDR',
+    'Title, source',
+  ],
   ['Highlighted text', '#6352', 'Quote, source, post title, domain', 'Quote'],
-  ['Happening now', '#6355', 'Gradient eyebrow, headline, age, TLDR', 'Headline'],
-  ['Leaderboard rank', '#6359', 'Rank pill, avatar, name, XP, level ring, reputation', 'Rank, name, all three stats'],
-  ['Watercooler post', '—', 'Author, title, body, age, comments', 'Author, title'],
-  ['Hot take', '#6365', 'Fire eyebrow, take, subtitle, upvotes, flame watermark', 'Take'],
-  ['Profile', '#6354', 'Cover, avatar, name, handle, bio, posts read, joined, reputation', 'Name, handle'],
-  ['Reading overview', '#6358', 'Identity, streak + total days tiles, top tags, heatmap', 'Identity, both tiles'],
-  ['Badges & awards', '#6360', 'Identity, badge + award tiles, keyword list, award tally', 'Identity, both tiles'],
-  ['Achievements', '#6360', 'Identity, unlocked/total, points, rarest grid', 'Identity, counts'],
-  ['Single achievement', '#6360', 'Full-bleed art, rarity pill, name, description, date', 'Art, name'],
-  ['Invite', '#6366', 'Avatar, name, handle, headline, perk, link', 'Headline, link'],
-  ['Reading streak', '#6358', 'Identity, day count, milestone, longest, total', 'Day count'],
-  ['Tag / source / squad', '#6357, #6363', 'Kind label, image or hash, name, handle, description, 3 stats', 'Name, at least one stat'],
-  ['Discussion', '#6349', 'Comment, post title, author, upvotes, replies', 'Comment, author'],
-  ['Briefing / best-of', '#6353, #6364', 'Eyebrow, title, subtitle, up to 5 ranked rows', 'Title, ≥1 row'],
+  [
+    'Happening now',
+    '#6355',
+    'Gradient eyebrow, headline, age, TLDR',
+    'Headline',
+  ],
+  [
+    'Leaderboard rank',
+    '#6359',
+    'Rank pill, avatar, name, XP, level ring, reputation',
+    'Rank, name, all three stats',
+  ],
+  [
+    'Watercooler post',
+    '—',
+    'Author, title, body, age, comments',
+    'Author, title',
+  ],
+  [
+    'Hot take',
+    '#6365',
+    'Fire eyebrow, take, subtitle, upvotes, flame watermark',
+    'Take',
+  ],
+  [
+    'Profile',
+    '#6354',
+    'Cover, avatar, name, handle, bio, posts read, joined, reputation',
+    'Name, handle',
+  ],
+  [
+    'Reading overview',
+    '#6358',
+    'Identity, streak + total days tiles, top tags, heatmap',
+    'Identity, both tiles',
+  ],
+  [
+    'Badges & awards',
+    '#6360',
+    'Identity, badge + award tiles, keyword list, award tally',
+    'Identity, both tiles',
+  ],
+  [
+    'Achievements',
+    '#6360',
+    'Identity, unlocked/total, points, rarest grid',
+    'Identity, counts',
+  ],
+  [
+    'Single achievement',
+    '#6360',
+    'Full-bleed art, rarity pill, name, description, date',
+    'Art, name',
+  ],
+  [
+    'Invite',
+    '#6366',
+    'Avatar, name, handle, headline, perk, link',
+    'Headline, link',
+  ],
+  [
+    'Reading streak',
+    '#6358',
+    'Identity, day count, milestone, longest, total',
+    'Day count',
+  ],
+  [
+    'Tag / source / squad',
+    '#6357, #6363',
+    'Kind label, image or hash, name, handle, description, 3 stats',
+    'Name, at least one stat',
+  ],
+  [
+    'Discussion',
+    '#6349',
+    'Comment, post title, author, upvotes, replies',
+    'Comment, author',
+  ],
+  [
+    'Briefing / best-of',
+    '#6353, #6364',
+    'Eyebrow, title, subtitle, up to 5 ranked rows',
+    'Title, ≥1 row',
+  ],
   ['Level up', '#6360', 'Identity, level ring, headline, XP, quests', 'Level'],
 ];
 
@@ -156,9 +250,9 @@ const Spec = () => (
     <P>
       A Snapshot turns a surface into a square image built for sharing. Every
       card is a real React component rasterized by snapdom and composed onto one
-      canvas, so what renders in Storybook is what ships. The gradient is
-      seeded from the subject&apos;s id, so a given post or profile always
-      produces the same background.
+      canvas, so what renders in Storybook is what ships. The gradient is seeded
+      from the subject&apos;s id, so a given post or profile always produces the
+      same background.
     </P>
 
     <H2>Canvas</H2>

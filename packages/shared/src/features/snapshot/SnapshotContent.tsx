@@ -32,9 +32,11 @@ export interface SnapshotContentProps {
   avatar?: SnapshotAvatar;
   emoji?: string;
   title: string;
+  /** 0 lets the title run in full, for frames that grow to fit. */
   titleLines?: number;
   meta?: string[];
   body?: string;
+  /** 0 lets the body run in full, for frames that grow to fit. */
   bodyLines?: number;
   stat?: SnapshotStat;
   /**
@@ -44,12 +46,16 @@ export interface SnapshotContentProps {
   statVariant?: 'display' | 'inline';
 }
 
-const clamp = (lines: number) => ({
-  display: '-webkit-box' as const,
-  WebkitBoxOrient: 'vertical' as const,
-  WebkitLineClamp: lines,
-  overflow: 'hidden' as const,
-});
+// 0 means no clamp: a growing frame carries the copy instead of cutting it.
+const clamp = (lines: number) =>
+  lines
+    ? {
+        display: '-webkit-box' as const,
+        WebkitBoxOrient: 'vertical' as const,
+        WebkitLineClamp: lines,
+        overflow: 'hidden' as const,
+      }
+    : {};
 
 export function SnapshotContent({
   eyebrow,

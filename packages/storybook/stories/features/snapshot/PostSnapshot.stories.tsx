@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PostSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/PostSnapshotCard';
@@ -27,30 +27,23 @@ const POST = {
 
 const SEEDS = ['post-1', 'ripgrep-rules', 'qwen-3-8-max', 'tabs-won'];
 
-/** The card renders at 1080×1080; scale it down so it fits the review page. */
-const Scaled = ({
-  seed,
-  scale = 0.42,
-}: {
-  seed: string;
-  scale?: number;
-}) => (
+/** The card renders 1080 wide and as tall as its copy needs; scale it to fit. */
+const Scaled = ({ seed, scale = 0.42 }: { seed: string; scale?: number }) => (
   <div
     style={{
       width: SNAPSHOT_SIZE * scale,
-      height: SNAPSHOT_SIZE * scale,
       overflow: 'hidden',
       borderRadius: 16,
     }}
   >
-    <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+    {/* zoom, not transform: the box has to take the grown height. */}
+    <div style={{ zoom: scale }}>
       <PostSnapshotCard post={POST} seed={seed} />
     </div>
   </div>
 );
 
 const Example = () => {
-  const ref = useRef<HTMLDivElement>(null);
   const [capture, setCapture] = useState<string | null>(null);
   const [seed, setSeed] = useState(SEEDS[0]);
 
@@ -58,12 +51,12 @@ const Example = () => {
     <div className="flex flex-col gap-10 p-6">
       <header className="flex flex-col gap-2">
         <h1 className="font-bold text-text-primary typo-mega3">
-          Post snapshot — square share image
+          Post snapshot — share image
         </h1>
         <p className="max-w-[46rem] text-text-tertiary typo-body">
-          1080×1080. A branded purple gradient seeded from the post id, a black
-          card carrying the source, headline, date, read time, domain and TLDR,
-          and the logo stamped underneath.
+          1080 wide, as tall as the copy needs. A branded purple gradient seeded
+          from the post id, a black card carrying the source, headline, date,
+          read time, domain and TLDR, and the logo stamped underneath.
         </p>
       </header>
 
@@ -71,24 +64,14 @@ const Example = () => {
         <h3 className="font-bold text-text-primary typo-title3">
           Generate the real PNG
         </h3>
-        <div
-          aria-hidden
-          className="pointer-events-none fixed left-[-200vw] top-0"
-        >
-          <PostSnapshotCard ref={ref} post={POST} seed={seed} />
-        </div>
         <div className="flex flex-wrap items-center gap-3">
+          {/* card, not target: the button mounts and measures the frame
+              itself, so a grown height reaches the capture. */}
           <SnapshotButton
-            captureOptions={{
-              width: SNAPSHOT_SIZE,
-              height: SNAPSHOT_SIZE,
-              padding: 0,
-              branded: false,
-            }}
+            card={<PostSnapshotCard post={POST} seed={seed} />}
             filename="daily-post-snapshot"
             label="Snapshot"
             onCapture={(blob) => setCapture(URL.createObjectURL(blob))}
-            target={ref}
           />
           {SEEDS.map((value) => (
             <button

@@ -2,9 +2,15 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { forwardRef } from 'react';
 import LogoIcon from '../../svg/LogoIcon';
 import LogoText from '../../svg/LogoText';
-import { getSnapshotGradient, SNAPSHOT_SIZE } from './snapshotGradient';
+import {
+  getSnapshotGradient,
+  SNAPSHOT_MAX_HEIGHT,
+  SNAPSHOT_SIZE,
+} from './snapshotGradient';
 
 export const SNAPSHOT_CARD_SIZE = 780;
+/** The gutter the square leaves around the card, kept when the frame grows. */
+export const SNAPSHOT_FRAME_GUTTER = (SNAPSHOT_SIZE - SNAPSHOT_CARD_SIZE) / 2;
 /** Canvas minus the logo row and the gaps either side of the card. */
 export const SNAPSHOT_CARD_MAX = SNAPSHOT_SIZE - 150;
 
@@ -35,6 +41,12 @@ interface SnapshotFrameProps {
   watermark?: string;
   /** Drop the card shell and stand the children straight on the gradient. */
   bare?: boolean;
+  /**
+   * Let the height follow the content instead of holding 1:1. Text surfaces
+   * use it so the image can carry more than a screenshot would; it still
+   * starts at the square and stops at SNAPSHOT_MAX_HEIGHT.
+   */
+  grow?: boolean;
   children: ReactNode;
 }
 
@@ -43,6 +55,7 @@ function SnapshotFrameComponent(
     seed,
     watermark,
     bare,
+    grow,
     logoPlacement = 'inline',
     children,
   }: SnapshotFrameProps,
@@ -71,8 +84,16 @@ function SnapshotFrameComponent(
       className="flex flex-col items-center justify-center gap-9"
       style={{
         width: SNAPSHOT_SIZE,
-        height: SNAPSHOT_SIZE,
         background: getSnapshotGradient(seed),
+        ...(grow
+          ? {
+              minHeight: SNAPSHOT_SIZE,
+              maxHeight: SNAPSHOT_MAX_HEIGHT,
+              // justify-center has nothing to distribute once the height
+              // follows the card, so the gutter has to be explicit.
+              paddingBlock: SNAPSHOT_FRAME_GUTTER,
+            }
+          : { height: SNAPSHOT_SIZE }),
       }}
     >
       {/* Standing alone on the gradient, the collectible has no card to sit
@@ -89,6 +110,9 @@ function SnapshotFrameComponent(
           style={{
             width: SNAPSHOT_CARD_SIZE,
             minHeight: SNAPSHOT_CARD_SIZE,
+            ...(grow && {
+              maxHeight: SNAPSHOT_MAX_HEIGHT - SNAPSHOT_FRAME_GUTTER * 2,
+            }),
             padding: CARD_EDGE,
             borderRadius: CARD_RADIUS,
             background: CARD_EDGE_GRADIENT,

@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
 import { SnapshotFrame } from './SnapshotFrame';
 import { SnapshotIdentity } from './SnapshotIdentity';
-import { truncateAtWord } from './snapshotText';
+import { SNAPSHOT_PASSAGE_LIMIT, truncateAtWord } from './snapshotText';
 
 const MUTED = colors.salt['90'];
 const DIVIDER = colors.pepper['10'];
@@ -29,7 +29,7 @@ function DiscussionSnapshotCardComponent(
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? postTitle}>
+    <SnapshotFrame grow ref={ref} seed={seed ?? postTitle}>
       <div className="flex flex-1 flex-col">
         <span
           className="font-bold uppercase"
@@ -45,16 +45,9 @@ function DiscussionSnapshotCardComponent(
         <div className="mt-6 flex flex-1 flex-col justify-center">
           <p
             className="snapshot-copy font-bold text-white"
-            style={{
-              fontSize: 46,
-              lineHeight: 1.25,
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 7,
-              overflow: 'hidden',
-            }}
+            style={{ fontSize: 46, lineHeight: 1.25 }}
           >
-            {truncateAtWord(comment)}
+            {truncateAtWord(comment, SNAPSHOT_PASSAGE_LIMIT)}
           </p>
         </div>
 
