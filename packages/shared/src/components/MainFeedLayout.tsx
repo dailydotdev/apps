@@ -831,7 +831,7 @@ export default function MainFeedLayout({
           }
         >
           {!isExtension && isExploreHub && (
-            <ExploreSignupStrip className={`mb-4 px-4 ${feedGutter}`} />
+            <ExploreSignupStrip className={`mb-4 ${feedGutter}`} />
           )}
           <FeedEngagementBanner className="mb-3" />
         </div>

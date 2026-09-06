@@ -45,13 +45,20 @@ export function ExploreSignupStrip({
     });
   }, [isAnonymous, logEvent]);
 
+  // Phones already carry the header's Log in / Sign up pair.
+  const visibility = 'hidden tablet:block';
+
   // The server cannot know the visitor, so it paints the page without the
   // strip; holding its slot until boot answers keeps the H1 from jumping.
   if (!isAuthReady) {
     return (
       <div
         aria-hidden
-        className={classNames(hijackingCoverStripMinHeight, className)}
+        className={classNames(
+          visibility,
+          hijackingCoverStripMinHeight,
+          className,
+        )}
       />
     );
   }
@@ -73,7 +80,7 @@ export function ExploreSignupStrip({
   return (
     <HijackingCoverStrip
       copy={copy}
-      className={className}
+      className={classNames(visibility, className)}
       onSignupClick={onAuthClick(false)}
       onLoginClick={onAuthClick(true)}
     />
