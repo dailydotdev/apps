@@ -107,4 +107,15 @@ describe('BriefBodyShareControls', () => {
       screen.getAllByText('A paragraph under the second heading.'),
     ).toHaveLength(1);
   });
+
+  it('puts the claim on the card without the sentence behind it', () => {
+    mockIsEnabled = true;
+    renderComponent();
+
+    // In the body it trails a <strong>, so it is not an element of its own.
+    // On the card it would be one — and the card's line is unclamped and sized
+    // for a short label, so a whole sentence there overflows it.
+    expect(screen.queryAllByText('The shift is accelerating.')).toHaveLength(0);
+    expect(screen.getAllByText('Agents are eating dev tools')).toHaveLength(2);
+  });
 });

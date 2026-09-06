@@ -49,6 +49,10 @@ export function BriefBodyShareControls({
   contentHtml?: string;
 }): ReactElement | null {
   const cardRef = useRef<HTMLDivElement>(null);
+  const posts = post.flags?.posts;
+  const sources = post.flags?.sources;
+  const subtitle =
+    posts && sources ? `${posts} posts from ${sources} sources` : undefined;
   const [mounts, setMounts] = useState<Mounts>({ copy: [] });
   const isEnabled = useSharePlacement({
     feature: featureBriefingShareControls,
@@ -87,11 +91,11 @@ export function BriefBodyShareControls({
     }));
 
     const section = getBriefSection(container, SNAPSHOT_SECTION);
-    const items = section?.blocks.slice(0, 5).map((block) => {
-      const { lead, rest } = splitBriefBullet(block.text);
-
-      return { title: lead, meta: rest };
-    });
+    // The claim alone. `meta` renders unclamped, and it is sized for a label
+    // like "Frontend · 3m read", which a brief's bullets do not carry.
+    const items = section?.blocks
+      .slice(0, 5)
+      .map((block) => ({ title: splitBriefBullet(block.text) }));
 
     setMounts({
       copy,
@@ -148,6 +152,7 @@ export function BriefBodyShareControls({
             eyebrow={SNAPSHOT_SECTION}
             items={mounts.snapshot.items}
             seed={post.id}
+            subtitle={subtitle}
             title={post.title ?? SNAPSHOT_SECTION}
           />
         </div>

@@ -73,21 +73,15 @@ export function getBriefSection(
 }
 
 /**
- * Bullets read `<strong>the claim</strong>: the evidence`. The claim alone is
- * what fits a card, so the lead is split off and the rest becomes its subtitle.
+ * Bullets read `<strong>the claim</strong>: the evidence`. Only the claim fits
+ * a card line, so the evidence is dropped.
  */
-export function splitBriefBullet(value: string): {
-  lead: string;
-  rest?: string;
-} {
+export function splitBriefBullet(value: string): string {
   const separator = value.indexOf(':');
 
   if (separator < 1 || separator > 120) {
-    return { lead: value };
+    return value;
   }
 
-  return {
-    lead: value.slice(0, separator).trim(),
-    rest: value.slice(separator + 1).trim() || undefined,
-  };
+  return value.slice(0, separator).trim();
 }

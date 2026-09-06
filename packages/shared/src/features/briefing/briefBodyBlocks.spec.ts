@@ -80,22 +80,19 @@ describe('getBriefSection', () => {
 });
 
 describe('splitBriefBullet', () => {
-  it('splits the claim from the evidence', () => {
-    expect(splitBriefBullet('The claim: the evidence')).toEqual({
-      lead: 'The claim',
-      rest: 'the evidence',
-    });
+  it('keeps the claim and drops the evidence', () => {
+    expect(splitBriefBullet('The claim: the evidence')).toBe('The claim');
   });
 
   it('keeps a bullet with no lead whole', () => {
-    expect(splitBriefBullet('One sentence with no colon')).toEqual({
-      lead: 'One sentence with no colon',
-    });
+    expect(splitBriefBullet('One sentence with no colon')).toBe(
+      'One sentence with no colon',
+    );
   });
 
   it('keeps a bullet whole when the colon is far too late to be a lead', () => {
     const value = `${'a'.repeat(130)}: trailing`;
 
-    expect(splitBriefBullet(value)).toEqual({ lead: value });
+    expect(splitBriefBullet(value)).toBe(value);
   });
 });
