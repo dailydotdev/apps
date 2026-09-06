@@ -1,12 +1,17 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type {
   UserReadHistory,
   UserStreak,
   MostReadTag,
 } from '../../../../graphql/users';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
-import { CalendarHeatmap } from '../../../../components/CalendarHeatmap';
+import {
+  CalendarHeatmap,
+  getBin,
+  getBins,
+} from '../../../../components/CalendarHeatmap';
 import { migrateUserToStreaks } from '../../../../lib/constants';
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import {
@@ -24,6 +29,9 @@ import {
 import { anchorDefaultRel, pluralize } from '../../../../lib/strings';
 import { largeNumberFormat } from '../../../../lib';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { ReadingOverviewSnapshotCard } from '../../../snapshot/ReadingOverviewSnapshotCard';
+import { tagTitlesQueryOptions } from '../../../../graphql/keywords';
+import type { PublicProfile } from '../../../../lib/user';
 import { ButtonSize } from '../../../../components/buttons/common';
 
 // Utility functions
@@ -52,6 +60,7 @@ const readHistoryToTooltip = (
 };
 
 export interface ReadingOverviewProps {
+  user: PublicProfile;
   readHistory?: UserReadHistory[];
   before: Date;
   after: Date;
@@ -61,6 +70,7 @@ export interface ReadingOverviewProps {
 }
 
 export function ReadingOverview({
+  user,
   readHistory,
   before,
   after,
@@ -68,7 +78,6 @@ export function ReadingOverview({
   mostReadTags,
   isLoading = false,
 }: ReadingOverviewProps): ReactElement {
-  const widgetRef = useRef<HTMLElement>(null);
   const totalReads = useMemo(() => {
     if (!readHistory?.length) {
       return 0;
@@ -79,12 +88,22 @@ export function ReadingOverview({
     }, 0);
   }, [readHistory]);
 
+  const { data: tagTitles = {} } = useQuery<Record<string, string>>(
+    tagTitlesQueryOptions(),
+  );
+  const heatmap = useMemo(() => {
+    const counts = readHistory?.map(readHistoryToValue) ?? [];
+    const bins = getBins(counts);
+
+    return counts.map((count) => getBin(count, bins));
+  }, [readHistory]);
+
   if (isLoading) {
     return <ReadingOverviewSkeleton />;
   }
 
   return (
-    <ActivityContainer ref={widgetRef}>
+    <ActivityContainer>
       <div className="flex items-center justify-between gap-2">
         <Typography
           tag={TypographyTag.H2}
@@ -96,10 +115,30 @@ export function ReadingOverview({
           Reading Overview
         </Typography>
         <SnapshotButton
+          card={
+            <ReadingOverviewSnapshotCard
+              heatmap={heatmap}
+              longestStreak={streak?.max ?? 0}
+              monthsLabel="in the last months"
+              postsRead={totalReads}
+              seed={user.username ?? user.id}
+              topTags={
+                mostReadTags?.map((tag) => ({
+                  name: tagTitles[tag.value] || tag.value,
+                  percentage: Math.round((tag.percentage ?? 0) * 100),
+                })) ?? []
+              }
+              totalReadingDays={streak?.total ?? 0}
+              user={{
+                handle: `@${user.username ?? user.id}`,
+                image: user.image,
+                name: user.name,
+              }}
+            />
+          }
           filename="daily-reading-overview"
           showLabel={false}
           size={ButtonSize.XSmall}
-          target={widgetRef}
         />
       </div>
       <ClickableText

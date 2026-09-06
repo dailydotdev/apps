@@ -7,6 +7,7 @@ import type {
   MostReadTag,
 } from '../../../../graphql/users';
 import { ReadingOverview } from './ReadingOverview';
+import type { PublicProfile } from '../../../../lib/user';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
 import { TAG_TITLES_QUERY } from '../../../../graphql/keywords';
@@ -58,7 +59,19 @@ const mockMostReadTags: MostReadTag[] = [
   },
 ];
 
+const mockUser = {
+  id: 'u1',
+  name: 'Tomer Redlich',
+  username: 'tomer',
+  image: 'https://daily.dev/tomer.jpg',
+  createdAt: '2021-01-04T00:00:00.000Z',
+  permalink: 'https://app.daily.dev/tomer',
+  reputation: 1200,
+  premium: false,
+} as PublicProfile;
+
 const defaultProps = {
+  user: mockUser,
   readHistory: mockReadHistory,
   before: new Date('2024-01-31'),
   after: new Date('2024-01-01'),

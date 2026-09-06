@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { topReaderBadgeDocs } from '../../../../lib/constants';
@@ -25,6 +25,8 @@ import {
 } from './BadgesAndAwardsComponents';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { BadgesSnapshotCard } from '../../../snapshot/BadgesSnapshotCard';
+import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { ButtonSize } from '../../../../components/buttons/common';
 
 export const BadgesAndAwards = ({
@@ -32,7 +34,6 @@ export const BadgesAndAwards = ({
 }: {
   user: PublicProfile;
 }): ReactElement | null => {
-  const widgetRef = useRef<HTMLElement>(null);
   const { data: topReaders, isPending: isTopReaderLoading } = useTopReader({
     user,
     limit: 5,
@@ -65,7 +66,7 @@ export const BadgesAndAwards = ({
     awards?.reduce((sum, award) => sum + (award?.count || 0), 0) ?? 0;
 
   return (
-    <ActivityContainer ref={widgetRef}>
+    <ActivityContainer>
       <div className="flex items-center justify-between gap-2">
         <Typography
           tag={TypographyTag.H2}
@@ -77,10 +78,37 @@ export const BadgesAndAwards = ({
           Badges &amp; Awards
         </Typography>
         <SnapshotButton
+          card={
+            <BadgesSnapshotCard
+              awards={
+                awards?.map((award) => ({
+                  count: award.count,
+                  image: award.image,
+                  name: award.name,
+                })) ?? []
+              }
+              badges={
+                topReaders?.map((badge) => ({
+                  earnedAt: formatDate({
+                    value: badge.issuedAt,
+                    type: TimeFormatType.TopReaderBadge,
+                  }),
+                  keyword: badge.keyword.flags?.title || badge.keyword.value,
+                })) ?? []
+              }
+              seed={user.username ?? user.id}
+              topReaderBadges={topReaders?.[0]?.total ?? 0}
+              totalAwards={totalAwards}
+              user={{
+                handle: `@${user.username ?? user.id}`,
+                image: user.image,
+                name: user.name,
+              }}
+            />
+          }
           filename={`daily-badges-${user.username ?? user.id}`}
           showLabel={false}
           size={ButtonSize.XSmall}
-          target={widgetRef}
         />
       </div>
       <ClickableText
