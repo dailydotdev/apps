@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../graphql/common';
 import { isExtension } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -22,6 +22,20 @@ import { registerSpotlightShortcutBlocker } from './shortcuts';
 type SpotlightActionsResponse = { spotlightActions: SpotlightAction[] };
 
 export const SPOTLIGHT_ACTIONS_QUERY_KEY = ['spotlight', 'actions'];
+
+const getSpotlightActions = async (): Promise<SpotlightAction[]> => {
+  const result = await gqlClient.request<SpotlightActionsResponse>(
+    SPOTLIGHT_ACTIONS_QUERY,
+  );
+
+  return result.spotlightActions;
+};
+
+const spotlightActionsQueryOptions = {
+  queryKey: SPOTLIGHT_ACTIONS_QUERY_KEY,
+  queryFn: getSpotlightActions,
+  staleTime: Infinity,
+};
 
 const platformId = isExtension ? 'extension' : 'webapp';
 
@@ -72,22 +86,36 @@ export const SpotlightProvider = ({
   const [pendingConfirmId, setPendingConfirmId] = useState<string | null>(null);
   const [pages, setPages] = useState<SpotlightScope[]>([]);
 
-  const { isLoggedIn } = useAuthContext();
+  const queryClient = useQueryClient();
+  const { isLoggedIn, isFetched: isBootFetched } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { data: rawActions, isPending: isActionsLoading } = useQuery({
-    queryKey: SPOTLIGHT_ACTIONS_QUERY_KEY,
-    queryFn: async () => {
-      const result = await gqlClient.request<SpotlightActionsResponse>(
-        SPOTLIGHT_ACTIONS_QUERY,
-      );
-      return result.spotlightActions;
-    },
-    staleTime: Infinity,
+    ...spotlightActionsQueryOptions,
+    enabled: isOpen,
     gcTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
+
+  useEffect(() => {
+    if (!isBootFetched) {
+      return undefined;
+    }
+
+    const prefetch = () =>
+      queryClient.prefetchQuery(spotlightActionsQueryOptions);
+
+    if (!globalThis.requestIdleCallback) {
+      const timeout = globalThis.setTimeout(prefetch, 0);
+
+      return () => globalThis.clearTimeout(timeout);
+    }
+
+    const handle = globalThis.requestIdleCallback(prefetch);
+
+    return () => globalThis.cancelIdleCallback(handle);
+  }, [isBootFetched, queryClient]);
 
   const actions = useMemo<SpotlightAction[]>(() => {
     return (rawActions ?? []).filter((action) => {

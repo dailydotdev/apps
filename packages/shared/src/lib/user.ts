@@ -159,6 +159,9 @@ export type UserFlagsPublic = Partial<{
   showPlusGift: boolean;
   cvUploadedAt: Date;
   lastExtensionUse: string | null;
+  // Set once the API has seeded the user's tag chip feeds, so asking for them
+  // is side-effect free even before the onboarding actions land.
+  tagChipFeedsSeededAt: string | null;
 }>;
 
 export type UserSubscriptionFlags = Partial<{

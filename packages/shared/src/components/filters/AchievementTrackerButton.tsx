@@ -10,6 +10,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
+import { useAchievementTracker } from '../../hooks/profile/useAchievementTracker';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
@@ -84,22 +85,27 @@ export function AchievementTrackerButton(): ReactElement | null {
     feature: achievementTrackingWidgetFeature,
     shouldEvaluate: !!user,
   });
+  const isExperimentEnabled = isAchievementTrackingWidgetEnabled === true;
+  const { isSettled } = useAchievementTracker(
+    isExperimentEnabled && !isAchievementTrackingWidgetLoading,
+  );
   const {
     achievements,
     unlockedCount,
     totalCount,
     isPending: isAchievementsPending,
-  } = useProfileAchievements(user, isAchievementTrackingWidgetEnabled === true);
+  } = useProfileAchievements(user, isExperimentEnabled && isSettled);
 
   const shouldRender = shouldShowAchievementTracker({
-    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
+    isExperimentEnabled,
     unlockedCount,
     totalCount,
   });
   const shouldQueryTrackedAchievement =
     !!user &&
+    isSettled &&
     !isAchievementTrackingWidgetLoading &&
-    (isAchievementTrackingWidgetEnabled !== true || !isAchievementsPending) &&
+    (!isExperimentEnabled || !isAchievementsPending) &&
     shouldRender;
   const {
     trackedAchievement,
@@ -165,7 +171,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     return null;
   }
 
-  if (isAchievementTrackingWidgetEnabled !== true) {
+  if (!isExperimentEnabled) {
     return null;
   }
 

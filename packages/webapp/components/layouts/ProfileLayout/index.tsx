@@ -28,6 +28,7 @@ import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getPageSeoTitles } from '../utils';
@@ -117,6 +118,7 @@ export default function ProfileLayout({
 
   // Auto-collapse sidebar on small screens
   useProfileSidebarCollapse();
+  useRecentPageMeta({ image: user?.image });
 
   useEffect(() => {
     if (trackedView || !user) {

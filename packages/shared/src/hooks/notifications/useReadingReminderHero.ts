@@ -24,6 +24,7 @@ interface UseReadingReminderHero {
 
 interface UseReadingReminderHeroProps {
   requireMobile?: boolean;
+  enabled?: boolean;
 }
 
 const DEFAULT_READING_REMINDER_HOUR = 9;
@@ -50,6 +51,7 @@ const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
 
 export const useReadingReminderHero = ({
   requireMobile = true,
+  enabled = true,
 }: UseReadingReminderHeroProps = {}): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -58,7 +60,7 @@ export const useReadingReminderHero = ({
     getPersonalizedDigest,
     isLoading: isDigestLoading,
     subscribePersonalizedDigest,
-  } = usePersonalizedDigest();
+  } = usePersonalizedDigest({ enabled });
   const [lastSeen, setLastSeen, isFetched] = usePersistentContext<
     string | null
   >(PersistentContextKeys.ReadingReminderLastSeen, null);
@@ -74,6 +76,7 @@ export const useReadingReminderHero = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const isEligibleViewSize = !requireMobile || isMobile;
   const shouldEvaluate =
+    enabled &&
     isEligibleViewSize &&
     isLoggedIn &&
     !isDigestLoading &&
