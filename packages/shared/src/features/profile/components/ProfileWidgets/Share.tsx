@@ -8,7 +8,6 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import {
-  CopyIcon,
   TwitterIcon,
   WhatsappIcon,
   FacebookIcon,
@@ -34,7 +33,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { CopyConfirmIcon } from '../../../../components/buttons/CopyConfirmIcon';
+import { CopyStateIcon } from '../../../../components/share/CopyStateIcon';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { Divider } from '../../../../components/utilities/Divider';
 import { anchorDefaultRel } from '../../../../lib/strings';
@@ -140,7 +139,7 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}
-            icon={copying ? <CopyConfirmIcon /> : <CopyIcon />}
+            icon={<CopyStateIcon copied={copying} />}
             onClick={onShareOrCopy}
             aria-label={copying ? 'Copied!' : 'Copy link'}
           />

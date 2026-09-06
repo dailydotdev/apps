@@ -15,7 +15,7 @@ import { UserStats } from './UserStats';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { CopyConfirmIcon } from '../buttons/CopyConfirmIcon';
+import { CopyStateIcon } from '../share/CopyStateIcon';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -134,7 +134,7 @@ const ProfileHeader = ({
           <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
             <Button
               aria-label="Copy link"
-              icon={isCopying ? <CopyConfirmIcon /> : <LinkIcon />}
+              icon={<CopyStateIcon copied={isCopying} icon={LinkIcon} />}
               onClick={onCopyLink}
               size={ButtonSize.Medium}
               variant={ButtonVariant.Float}
