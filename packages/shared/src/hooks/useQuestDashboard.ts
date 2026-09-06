@@ -26,7 +26,7 @@ export const useQuestDashboard = ({
       return result.questDashboard;
     },
     enabled: isLoggedIn && enabled,
-    staleTime: StaleTime.OneMinute,
+    staleTime: StaleTime.Default,
     retry: false,
   });
 };

@@ -65,6 +65,12 @@ export interface SpotlightContextValue {
   popScope: () => void;
   /** Reset the stack to `All`. */
   clearScope: () => void;
+  /**
+   * Warm the action catalog before the modal opens. Call it from hover/focus
+   * on anything that opens Spotlight so the list is there on click; the query
+   * never goes stale, so repeat calls are free.
+   */
+  prefetch: () => void;
   /** Action catalog from the API, filtered by current user's auth/plus/platform. */
   actions: SpotlightAction[];
   isActionsLoading: boolean;
@@ -87,7 +93,7 @@ export const SpotlightProvider = ({
   const [pages, setPages] = useState<SpotlightScope[]>([]);
 
   const queryClient = useQueryClient();
-  const { isLoggedIn, isFetched: isBootFetched } = useAuthContext();
+  const { isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { data: rawActions, isPending: isActionsLoading } = useQuery({
     ...spotlightActionsQueryOptions,
@@ -98,24 +104,9 @@ export const SpotlightProvider = ({
     refetchOnReconnect: false,
   });
 
-  useEffect(() => {
-    if (!isBootFetched) {
-      return undefined;
-    }
-
-    const prefetch = () =>
-      queryClient.prefetchQuery(spotlightActionsQueryOptions);
-
-    if (!globalThis.requestIdleCallback) {
-      const timeout = globalThis.setTimeout(prefetch, 0);
-
-      return () => globalThis.clearTimeout(timeout);
-    }
-
-    const handle = globalThis.requestIdleCallback(prefetch);
-
-    return () => globalThis.cancelIdleCallback(handle);
-  }, [isBootFetched, queryClient]);
+  const prefetch = useCallback(() => {
+    queryClient.prefetchQuery(spotlightActionsQueryOptions);
+  }, [queryClient]);
 
   const actions = useMemo<SpotlightAction[]>(() => {
     return (rawActions ?? []).filter((action) => {
@@ -217,6 +208,7 @@ export const SpotlightProvider = ({
       pushScope,
       popScope,
       clearScope,
+      prefetch,
       actions,
       isActionsLoading,
     }),
@@ -236,6 +228,7 @@ export const SpotlightProvider = ({
       pushScope,
       popScope,
       clearScope,
+      prefetch,
       actions,
       isActionsLoading,
     ],
