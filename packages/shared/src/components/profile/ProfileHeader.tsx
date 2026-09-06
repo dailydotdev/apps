@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
+import { format } from 'date-fns';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
 import {
@@ -26,6 +27,11 @@ import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
 import { SnapshotButton } from '../imageShare/SnapshotButton';
+import { ProfileSnapshotCard } from '../../features/snapshot/ProfileSnapshotCard';
+import {
+  sumReads,
+  useProfileReadingHistory,
+} from '../../hooks/profile/useProfileReadingHistory';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useLogContext } from '../../contexts/LogContext';
@@ -74,8 +80,8 @@ const ProfileHeader = ({
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
-  const headerRef = useRef<HTMLDivElement>(null);
   const { logEvent } = useLogContext();
+  const { readingHistory } = useProfileReadingHistory(user);
   const [isCopying, copyLink] = useCopyLink(() => user.permalink);
 
   const onCopyLink = () => {
@@ -89,10 +95,7 @@ const ProfileHeader = ({
   };
 
   return (
-    <div
-      ref={headerRef}
-      className="relative w-full overflow-hidden laptop:rounded-t-16"
-    >
+    <div className="relative w-full overflow-hidden laptop:rounded-t-16">
       <ProfileDesktopPwaBackButton className="absolute left-4 top-4 z-1" />
       <div className="h-36">
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
@@ -124,11 +127,23 @@ const ProfileHeader = ({
             />
           </Link>
           <SnapshotButton
+            card={
+              <ProfileSnapshotCard
+                bio={bio}
+                cover={cover}
+                handle={`@${username ?? user.id}`}
+                image={image}
+                joined={format(new Date(user.createdAt), 'MMMM y')}
+                name={name}
+                postsRead={sumReads(readingHistory?.userReadHistory)}
+                reputation={user.reputation}
+                seed={username ?? user.id}
+              />
+            }
             filename={`daily-profile-${username ?? user.id}`}
             showLabel={false}
             // Matches the edit button beside it, which takes Button's default.
             size={ButtonSize.Medium}
-            target={headerRef}
             variant={ButtonVariant.Float}
           />
           <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>

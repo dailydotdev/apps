@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import Link from '../../../../components/utilities/Link';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
@@ -21,6 +21,8 @@ import {
 import { RaritySparkles } from '../achievements/RaritySparkles';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { AchievementCard } from '../achievements/AchievementCard';
+import { AchievementsSnapshotCard } from '../../../snapshot/AchievementsSnapshotCard';
+import { sortRarestUnlockedAchievements } from '../../../../components/modals/achievement/sortAchievements';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
 import { ButtonSize } from '../../../../components/buttons/common';
 
@@ -49,28 +51,8 @@ function RecentAchievements({
   const { achievements, isPending } = useProfileAchievements(user);
 
   const rarestUnlocked = achievements
-    ?.filter((a) => a.unlockedAt !== null)
-    .sort((a, b) => {
-      const rarityA = a.achievement.rarity ?? Infinity;
-      const rarityB = b.achievement.rarity ?? Infinity;
-      if (rarityA !== rarityB) {
-        return rarityA - rarityB;
-      }
-
-      const pointsDelta = b.achievement.points - a.achievement.points;
-      if (pointsDelta !== 0) {
-        return pointsDelta;
-      }
-
-      const unlockedDateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;
-      const unlockedDateB = b.unlockedAt ? new Date(b.unlockedAt).getTime() : 0;
-      if (unlockedDateA !== unlockedDateB) {
-        return unlockedDateB - unlockedDateA;
-      }
-
-      return a.achievement.id.localeCompare(b.achievement.id);
-    })
-    .slice(0, 5);
+    ? sortRarestUnlockedAchievements(achievements).slice(0, 5)
+    : undefined;
 
   if (isPending) {
     return <AchievementsSkeleton />;
@@ -135,11 +117,15 @@ function RecentAchievements({
 export function AchievementsWidget({
   user,
 }: AchievementsWidgetProps): ReactElement {
-  const { unlockedCount, totalCount } = useProfileAchievements(user);
-  const widgetRef = useRef<HTMLElement>(null);
+  const { achievements, unlockedCount, totalCount, totalPoints } =
+    useProfileAchievements(user);
+
+  const rarest = achievements
+    ? sortRarestUnlockedAchievements(achievements).slice(0, 10)
+    : [];
 
   return (
-    <ActivityContainer ref={widgetRef}>
+    <ActivityContainer>
       <div className="flex items-center justify-between">
         <Typography
           tag={TypographyTag.H2}
@@ -158,10 +144,26 @@ export function AchievementsWidget({
             </ClickableText>
           </Link>
           <SnapshotButton
+            card={
+              <AchievementsSnapshotCard
+                achievements={rarest.map(({ achievement }) => ({
+                  image: achievement.image,
+                  name: achievement.name,
+                }))}
+                points={totalPoints}
+                seed={user.username ?? user.id}
+                total={totalCount}
+                unlocked={unlockedCount}
+                user={{
+                  handle: `@${user.username ?? user.id}`,
+                  image: user.image,
+                  name: user.name,
+                }}
+              />
+            }
             filename={`daily-achievements-${user.username ?? user.id}`}
             showLabel={false}
             size={ButtonSize.XSmall}
-            target={widgetRef}
           />
         </div>
       </div>

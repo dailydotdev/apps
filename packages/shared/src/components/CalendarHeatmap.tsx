@@ -51,7 +51,7 @@ function getRange(count: number): number[] {
   return Array.from(new Array(Math.max(0, count)), (_, i) => i);
 }
 
-function getBins(values: number[]): number[] {
+export function getBins(values: number[]): number[] {
   const uniques = Array.from(new Set(values)).sort((a, b) => a - b);
   if (uniques.length <= BINS) {
     return [
@@ -66,7 +66,7 @@ function getBins(values: number[]): number[] {
   );
 }
 
-function getBin(value: number, bins: number[]): number {
+export function getBin(value: number, bins: number[]): number {
   if (!value) {
     return 0;
   }

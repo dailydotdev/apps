@@ -1,16 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
-import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
-import type { ProfileReadingData, ProfileV2 } from '../../../../graphql/users';
-import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
-import { generateQueryKey, RequestKey } from '../../../../lib/query';
-import { gqlClient } from '../../../../graphql/common';
+import type { ProfileV2 } from '../../../../graphql/users';
+import { useProfileReadingHistory } from '../../../../hooks/profile/useProfileReadingHistory';
 import { canViewUserProfileAnalytics } from '../../../../lib/user';
 import { ReadingOverview } from './ReadingOverview';
 import { ProfileCompletion } from './ProfileCompletion';
@@ -64,7 +60,7 @@ export function ProfileWidgets({
   sources,
   className,
 }: ProfileWidgetsProps): ReactElement {
-  const { user: loggedUser, tokenRefreshed } = useAuthContext();
+  const { user: loggedUser } = useAuthContext();
   const { optOutAchievements } = useSettingsContext();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
@@ -96,25 +92,12 @@ export function ProfileWidgets({
     !isAchievementsPending &&
     shouldRenderTrackingWidget;
 
-  const before = startOfTomorrow();
-  const after = subMonths(subDays(before, 2), 5);
-
-  const { data: readingHistory, isLoading: isReadingHistoryLoading } =
-    useQuery<ProfileReadingData>({
-      queryKey: generateQueryKey(RequestKey.ReadingStats, user),
-      queryFn: () =>
-        gqlClient.request(USER_READING_HISTORY_QUERY, {
-          id: user?.id,
-          before,
-          after,
-          version: 2,
-          limit: 6,
-        }),
-      enabled: !!user && tokenRefreshed && !!before && !!after,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-    });
+  const {
+    readingHistory,
+    isLoading: isReadingHistoryLoading,
+    before,
+    after,
+  } = useProfileReadingHistory(user);
   const squads = sources?.edges?.map((s) => s.node.source) ?? [];
 
   return (
@@ -147,6 +130,7 @@ export function ProfileWidgets({
           profileUserId: user.id,
         }) && <ProfileViewsWidget userId={user.id} />}
       <ReadingOverview
+        user={user}
         readHistory={readingHistory?.userReadHistory}
         before={before}
         after={after}
