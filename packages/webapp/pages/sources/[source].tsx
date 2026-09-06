@@ -70,6 +70,7 @@ import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayout
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
 import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
+import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -284,6 +285,9 @@ const SourcePage = ({
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
+        <ExploreSignupStrip
+          className={`${pageSectionClassName} mb-4 !w-auto`}
+        />
         <ArchiveBreadcrumbs
           items={[
             { label: 'Sources', href: '/sources' },

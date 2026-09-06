@@ -16,6 +16,7 @@ import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
+import { ExploreSignupStrip } from '../../auth/ExploreSignupStrip';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -138,11 +139,12 @@ export const SquadDirectoryLayout = (
         <section
           {...attrs}
           className={classNames(
-            'flex w-full flex-col pt-5',
+            'flex w-full flex-col gap-6 pt-5',
             isV2Laptop && 'laptop:!pt-0',
             className,
           )}
         >
+          <ExploreSignupStrip />
           {children}
         </section>
       </BaseFeedPage>
