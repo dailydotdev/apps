@@ -230,6 +230,11 @@ type RailItemId = SidebarCategoryId | typeof RAIL_CREATE_ID;
 // thing to disappear on a short viewport (overflow peels from the end).
 const PINNED_RAIL_IDS: RailItemId[] = [RAIL_CREATE_ID, SidebarCategory.Profile];
 
+// Home sits above the tab strip rather than in it, so the rail's selection is
+// "Home, or one of the tabs" rather than a category on its own.
+const RAIL_HOME = 'home' as const;
+type RailSelection = SidebarCategoryId | typeof RAIL_HOME;
+
 const railButtonClass =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none focus-outline';
 // Shared group so the rail's click popups (support, profile menu, streak) are
@@ -1098,9 +1103,31 @@ export const SidebarDesktopV2 = ({
 
   // Optimistic override so a rail click feels instant even when
   // router.push is async. Cleared once the URL catches up.
-  const [pendingCategory, setPendingCategory] =
-    useState<SidebarCategoryId | null>(null);
-  const selectedCategory = pendingCategory ?? resolvedCategory;
+  const [pendingSelection, setPendingSelection] =
+    useState<RailSelection | null>(null);
+  // What the rail paints as selected. Home is not a tab, so on the home feed
+  // nothing on the tab strip is selected and the Home button carries the state
+  // instead. Explore is the fallback category (`getSidebarCategoryForPath`
+  // returns Main for `/`), so without this it would light up on the home feed.
+  //
+  // Home is the default selection, so the tablist correctly has no
+  // `aria-selected` tab there: the selected affordance is Home, which announces
+  // itself with `aria-current="page"` from outside the tablist.
+  // Custom feeds are tabs in the feed's own top nav beside For You, never rows
+  // in a rail panel (CustomFeedSection is v1's sidebar only), so the rail reads
+  // them the way it reads the home feed: Home keeps the selected state and no
+  // tab claims it. Without this they fall through to Explore, which is the
+  // fallback category rather than where they live.
+  const isHomeSelectedPage = isHomeActive || isFeedPage;
+  const selectedRailItem: RailSelection =
+    pendingSelection ?? (isHomeSelectedPage ? RAIL_HOME : resolvedCategory);
+  const isHomeSelected = selectedRailItem === RAIL_HOME;
+  // Which panel the rail shows. Home has no panel of its own, so it borrows
+  // Explore's, which is what the home feed resolved to before Home was split
+  // out of the tab strip.
+  const selectedCategory: SidebarCategoryId = isHomeSelected
+    ? SidebarCategory.Main
+    : selectedRailItem;
   // On settings pages the sidebar collapses to a single full-width settings
   // panel (no rail), so hover-preview is irrelevant — pin the panel to Settings.
   const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
@@ -1127,7 +1154,7 @@ export const SidebarDesktopV2 = ({
   // refresh (e.g. after the avatar navigates and you then open Settings). The
   // pending value still bridges the click→route-change gap for instant feedback.
   useEffect(() => {
-    setPendingCategory(null);
+    setPendingSelection(null);
   }, [activePage]);
 
   // Settings load client-side, so on a hard refresh `sidebarExpanded`
@@ -1208,7 +1235,7 @@ export const SidebarDesktopV2 = ({
       cancelAnimationFrame(raf);
       clearTimeout(settle);
     };
-  }, [selectedCategory, visibleTabKey, isCompact, isAnyDragging]);
+  }, [selectedRailItem, visibleTabKey, isCompact, isAnyDragging]);
   // Enable the slide transition only after the first placement so the pill
   // doesn't animate in from the top on mount (it just appears in place).
   useEffect(() => {
@@ -1231,11 +1258,13 @@ export const SidebarDesktopV2 = ({
       if (!sidebarRef.current?.contains(document.activeElement)) {
         return;
       }
-      setPendingCategory(SidebarCategory.Main);
+      setPendingSelection(
+        isHomeSelectedPage ? RAIL_HOME : SidebarCategory.Main,
+      );
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isHomeSelectedPage]);
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -1262,7 +1291,7 @@ export const SidebarDesktopV2 = ({
 
   const onSelectCategory = useCallback(
     (category: SidebarCategoryId) => {
-      setPendingCategory(category);
+      setPendingSelection(category);
 
       // Click navigates to the category's first sub-page (its
       // `defaultPath`) — it no longer auto-expands the sidebar. The
@@ -1297,7 +1326,7 @@ export const SidebarDesktopV2 = ({
   // Avatar click opens the Profile panel and navigates to the user's profile
   // page. Like a rail tab, it sets the pending category for instant feedback.
   const onSelectProfile = useCallback(() => {
-    setPendingCategory(SidebarCategory.Profile);
+    setPendingSelection(SidebarCategory.Profile);
     if (!user) {
       return;
     }
@@ -1309,7 +1338,7 @@ export const SidebarDesktopV2 = ({
   // optimistic panel switch (home resolves to the Explore panel) while the
   // route resolves.
   const onHomeClick = useCallback(() => {
-    setPendingCategory(SidebarCategory.Main);
+    setPendingSelection(RAIL_HOME);
     onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/');
   }, [isCustomDefaultFeed, onNavTabClick]);
 
@@ -1340,9 +1369,13 @@ export const SidebarDesktopV2 = ({
   }, [activePage]);
 
   const onBackToApp = useCallback(() => {
-    setPendingCategory(SidebarCategory.Main);
+    setPendingSelection(
+      isSidebarItemActive(lastAppPathRef.current, myFeedPath)
+        ? RAIL_HOME
+        : SidebarCategory.Main,
+    );
     Promise.resolve(router.push(lastAppPathRef.current)).catch(() => undefined);
-  }, [router]);
+  }, [myFeedPath, router]);
 
   // Entering settings collapses the rail, so any stale hover/create preview
   // would otherwise leak into the settings panel — clear it.
@@ -1612,8 +1645,8 @@ export const SidebarDesktopV2 = ({
     // never moves while you hover/preview other tabs — you always know where
     // you are. Hovering only previews the panel and shows the row's hover
     // background; it doesn't claim the selected state.
-    const isSelected = selectedCategory === category.id;
-    const isPreviewing = !isSelected && activeCategory === category.id;
+    const isSelected = selectedRailItem === category.id;
+    const isPreviewing = !isSelected && hoveredCategory === category.id;
     // The gamification tab. With reading streaks on it's the "Streak" tab: the
     // state-driven StreakBadge stands in for the glyph and the day count is the
     // label. With streaks off (but other gamification on) it reads as the
@@ -1671,7 +1704,9 @@ export const SidebarDesktopV2 = ({
           onFocus={() => onPrefetchCategory(category.id)}
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
-              setPendingCategory(SidebarCategory.Main);
+              setPendingSelection(
+                isHomeSelectedPage ? RAIL_HOME : SidebarCategory.Main,
+              );
             }
           }}
           className={classNames(
@@ -1770,7 +1805,7 @@ export const SidebarDesktopV2 = ({
   const isNotificationsActive =
     activeCategory === SidebarCategory.Notifications;
   const isNotificationsSelected =
-    selectedCategory === SidebarCategory.Notifications;
+    selectedRailItem === SidebarCategory.Notifications;
 
   // New post is reorderable with the tabs but is an action, not a panel tab, so
   // it carries no `aria-selected` and the sliding pill (which tracks
@@ -1841,10 +1876,10 @@ export const SidebarDesktopV2 = ({
     if (id === SidebarCategory.Profile) {
       return (
         <SidebarProfileButton
-          isSelected={selectedCategory === SidebarCategory.Profile}
+          isSelected={selectedRailItem === SidebarCategory.Profile}
           isPreviewing={
-            selectedCategory !== SidebarCategory.Profile &&
-            activeCategory === SidebarCategory.Profile
+            selectedRailItem !== SidebarCategory.Profile &&
+            hoveredCategory === SidebarCategory.Profile
           }
           isCompact={isCompact}
           isExpanded={isExpanded}
@@ -2085,13 +2120,13 @@ export const SidebarDesktopV2 = ({
                   aria-current={isHomeActive ? 'page' : undefined}
                   className={classNames(
                     'focus-outline flex size-10 items-center justify-center rounded-12 transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none',
-                    isHomeActive ? 'text-text-primary' : 'text-text-tertiary',
+                    isHomeSelected ? 'text-text-primary' : 'text-text-tertiary',
                   )}
                   onClick={onGoHome}
                 >
                   <span className={railGlyphBoxClass}>
                     <HomeIcon
-                      secondary={isHomeActive}
+                      secondary={isHomeSelected}
                       size={RAIL_ICON_SIZE}
                       aria-hidden
                     />
