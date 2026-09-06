@@ -261,11 +261,14 @@ export const FeedContainer = ({
           // From tablet up the container above carries `feedGutter`, so
           // any horizontal padding here stacks on top of it and leaves
           // the banner narrower than the cards underneath. Below tablet
-          // there is no gutter and the banner — unlike a post card — has
-          // no inset of its own, so it keeps the one it always had.
+          // there is no gutter, and the banner needs one of its own: a
+          // post card runs full-bleed on purpose, but this is a rounded,
+          // bordered box, and without the inset it paints its border and
+          // clipped corners on the screen edge. Not the card's `px-4` —
+          // the banner has that already for its text; this is the box.
           className={classNames(
-            'laptop:pt-0',
-            hasFirstSlotCard ? 'px-4 tablet:px-0' : 'tablet:pt-1',
+            'px-4 tablet:px-0 laptop:pt-0',
+            !hasFirstSlotCard && 'tablet:pt-1',
           )}
         >
           <ProfileUploadBanner
