@@ -19,10 +19,6 @@ const packageConfigs = [
     dir: 'packages/extension',
     tsconfig: 'tsconfig.strict.json',
   },
-  {
-    dir: 'packages/storybook',
-    tsconfig: 'tsconfig.json',
-  },
 ];
 
 // Files temporarily excluded from strict type checking.

@@ -487,7 +487,7 @@ describe('the live path', () => {
           role: 'agent',
           createdAt: '2026-01-01T00:00:01Z',
           status: 'failed',
-          trigger: 'command',
+          trigger: 'spawn',
           feedbackId: 'fb-1',
         } as InterestTurn,
       ],
@@ -500,7 +500,7 @@ describe('the live path', () => {
     expect(reply?.retryText).toBe('raise the bar');
   });
 
-  it('drops a quiet scheduled run but still answers a quiet command', async () => {
+  it('drops quiet runs whatever triggered them, keeping only turns with content', async () => {
     const agent = mountLive({
       turns: [
         {
@@ -512,12 +512,20 @@ describe('the live path', () => {
           blocks: [],
         } as InterestTurn,
         {
-          id: 'run-answer',
+          id: 'run-legacy-command',
           role: 'agent',
           createdAt: '2026-01-01T00:01:00Z',
           status: 'completed',
           trigger: 'command',
           blocks: [],
+        } as unknown as InterestTurn,
+        {
+          id: 'run-answer',
+          role: 'agent',
+          createdAt: '2026-01-01T00:02:00Z',
+          status: 'completed',
+          trigger: 'scheduled',
+          blocks: [{ type: 'text', html: '<p>One sharp read.</p>' }],
         } as InterestTurn,
       ],
     });
@@ -627,7 +635,7 @@ describe('the live path', () => {
           createdAt: '2026-01-01T00:01:00Z',
           finishedAt: '2026-01-01T00:02:00Z',
           status: 'completed',
-          trigger: 'command',
+          trigger: 'spawn',
           feedbackId: 'fb-1',
           findingsAdded: 2,
           summaryPostId: 'sp-1',

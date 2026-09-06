@@ -45,6 +45,7 @@ import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
 import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../lib/layoutVariant';
+import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
@@ -428,6 +429,7 @@ function MainLayoutComponent({
                 // No drop shadow — the subtle border defines the floating card
                 // in both themes; shadow-2 cast a heavy bottom shadow.
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+                LAYOUT_FRAME_CLASS,
                 !hasTopBanners &&
                   !topBanner &&
                   (isBannerAvailable
