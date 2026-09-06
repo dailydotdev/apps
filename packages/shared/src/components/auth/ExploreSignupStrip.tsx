@@ -13,9 +13,10 @@ import { LogEvent, TargetType } from '../../lib/log';
 
 const targetId = 'explore strip';
 
+// The new tab's copy, with the headline pointed at the feed rather than the tab.
 const copy: HijackingCoverCopy = {
-  heading: 'Make this your feed.',
-  body: 'Sign up and daily.dev keeps the topics, sources, and discussions you care about in one place.',
+  heading: 'Own your feed. Make it your dev briefing.',
+  body: 'Sign in and daily.dev remembers the topics, saves, and discussions that matter to you.',
   signup: 'Sign up',
   login: 'Log in',
 };
