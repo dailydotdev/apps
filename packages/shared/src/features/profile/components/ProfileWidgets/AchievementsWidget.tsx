@@ -158,7 +158,6 @@ export function AchievementsWidget({
           </Link>
           <SnapshotButton
             filename={`daily-achievements-${user.username ?? user.id}`}
-            link={user.permalink}
             showLabel={false}
             target={widgetRef}
           />

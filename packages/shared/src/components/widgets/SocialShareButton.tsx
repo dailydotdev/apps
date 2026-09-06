@@ -17,12 +17,6 @@ const sizeToText: Partial<Record<ButtonSize, string>> = {
   [ButtonSize.Medium]: 'typo-caption1',
 };
 
-/** Narrower at Medium so a grid of these can close up. */
-const sizeToWidth: Partial<Record<ButtonSize, string>> = {
-  [ButtonSize.Large]: 'w-16',
-  [ButtonSize.Medium]: 'w-14',
-};
-
 export const SocialShareButton = ({
   href,
   icon,
@@ -41,12 +35,7 @@ export const SocialShareButton = ({
     } as ButtonProps<'a'>);
 
   return (
-    <div
-      className={classNames(
-        'group flex flex-col items-center',
-        sizeToWidth[size] ?? 'w-16',
-      )}
-    >
+    <div className="group flex w-16 flex-col items-center">
       <Button
         {...buttonProps}
         {...props}
@@ -57,7 +46,7 @@ export const SocialShareButton = ({
       />
       <ShareText
         className={classNames(
-          'mt-1.5 max-w-full overflow-hidden overflow-ellipsis text-center transition-colors hover:text-text-primary group-hover:text-text-primary',
+          'mt-1.5 max-w-16 overflow-hidden overflow-ellipsis text-center transition-colors hover:text-text-primary group-hover:text-text-primary',
           sizeToText[size],
         )}
         onClick={() => button?.current?.click()}

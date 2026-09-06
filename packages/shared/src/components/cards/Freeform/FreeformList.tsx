@@ -90,7 +90,6 @@ export const FreeformList = forwardRef(function SharePostCard(
             <SnapshotButton
               className="pointer-events-auto"
               filename={`daily-watercooler-${post.id}`}
-              link={post.commentsPermalink}
               showLabel={false}
               target={cardRef}
               variant={ButtonVariant.Tertiary}

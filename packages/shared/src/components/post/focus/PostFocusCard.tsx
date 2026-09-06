@@ -600,7 +600,6 @@ const PostFocusCardRaw = ({
             card={<PostSnapshotCard post={article} />}
             className="self-start"
             filename={`daily-${article.id}`}
-            link={article.commentsPermalink}
           />
 
           <PostTagList post={article} />

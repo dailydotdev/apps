@@ -90,7 +90,6 @@ export const HighlightItem = ({
             </Link>
             <SnapshotButton
               filename={`daily-highlight-${highlight.id}`}
-              link={highlight.post.commentsPermalink}
               target={ref}
             />
           </div>
