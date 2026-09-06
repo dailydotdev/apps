@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -16,14 +16,30 @@ import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { playShutterSound } from '../../features/snapshot/shutterSound';
+import { SNAPSHOT_SIZE } from '../../features/snapshot/snapshotGradient';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
 
 /** Matches the snapshot-shutter-sweep animation in utilities.css. */
 const SHUTTER_SWEEP_MS = 380;
 
+/** A designed card is already square and carries its own logo. */
+const CARD_CAPTURE_OPTIONS: CaptureShareImageOptions = {
+  width: SNAPSHOT_SIZE,
+  height: SNAPSHOT_SIZE,
+  padding: 0,
+  branded: false,
+};
+
 export interface SnapshotButtonProps {
-  target: CaptureTarget;
+  /**
+   * The designed square card to rasterize. It is mounted off-screen for as
+   * long as the button is, so the capture can start inside the press: Safari
+   * only honours a clipboard write in the task that handled the gesture.
+   */
+  card?: ReactNode;
+  /** Captured instead of `card`, for surfaces with no designed card yet. */
+  target?: CaptureTarget;
   /**
    * Copied as text beside the image, so a paste carries both halves. A getter
    * rather than a string: the tracked short link is fetched when pressed, the
@@ -41,6 +57,7 @@ export interface SnapshotButtonProps {
 }
 
 export function SnapshotButton({
+  card,
   target,
   link,
   filename = 'daily-snapshot',
@@ -53,6 +70,7 @@ export function SnapshotButton({
   className,
 }: SnapshotButtonProps): ReactElement {
   const { displayToast } = useToastNotification();
+  const cardRef = useRef<HTMLDivElement>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
   const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
@@ -80,7 +98,16 @@ export function SnapshotButton({
       setIsCapturing(true);
 
       try {
-        const capture = captureShareImage(target, captureOptions);
+        const subject = card ? cardRef : target;
+
+        if (!subject) {
+          throw new Error('SnapshotButton: nothing to capture');
+        }
+
+        const capture = captureShareImage(
+          subject,
+          captureOptions ?? (card ? CARD_CAPTURE_OPTIONS : undefined),
+        );
 
         if (onCapture) {
           onCapture(await capture);
@@ -110,30 +137,41 @@ export function SnapshotButton({
         setIsCapturing(false);
       }
     },
-    [captureOptions, displayToast, filename, link, onCapture, target],
+    [card, captureOptions, displayToast, filename, link, onCapture, target],
   );
 
   return (
-    <Tooltip content={label} visible={!showLabel}>
-      <Button
-        type="button"
-        aria-label={label}
-        className={classNames(
-          'relative shrink-0 overflow-hidden',
-          // A pseudo-element rather than a child: Button reads its children to
-          // decide whether it is icon-only, and an overlay node would widen it.
-          isFlashing && 'snapshot-shutter-sweep',
-          className,
-        )}
-        size={size}
-        variant={variant}
-        loading={isCapturing}
-        disabled={isCapturing}
-        icon={<SnapshotIcon />}
-        onClick={onSnapshot}
-      >
-        {showLabel ? label : undefined}
-      </Button>
-    </Tooltip>
+    <>
+      {card && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed left-[-200vw] top-0"
+          ref={cardRef}
+        >
+          {card}
+        </div>
+      )}
+      <Tooltip content={label} visible={!showLabel}>
+        <Button
+          type="button"
+          aria-label={label}
+          className={classNames(
+            'relative shrink-0 overflow-hidden',
+            // A pseudo-element rather than a child: Button reads its children to
+            // decide whether it is icon-only, and an overlay node would widen it.
+            isFlashing && 'snapshot-shutter-sweep',
+            className,
+          )}
+          size={size}
+          variant={variant}
+          loading={isCapturing}
+          disabled={isCapturing}
+          icon={<SnapshotIcon />}
+          onClick={onSnapshot}
+        >
+          {showLabel ? label : undefined}
+        </Button>
+      </Tooltip>
+    </>
   );
 }

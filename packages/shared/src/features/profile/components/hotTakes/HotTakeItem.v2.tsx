@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { HotTake } from '../../../../graphql/user/userHotTake';
 import {
@@ -17,6 +17,7 @@ import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
 import { CardAction } from '../../../../components/buttons/CardAction';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { HotTakeSnapshotCard } from '../../../snapshot/HotTakeSnapshotCard';
 
 interface HotTakeItemProps {
   item: HotTake;
@@ -35,11 +36,9 @@ export function HotTakeItem({
 }: HotTakeItemProps): ReactElement {
   const { emoji, title, subtitle } = item;
   const isUpvoteActive = item.upvoted;
-  const rowRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
-      ref={rowRef}
       className={classNames(
         'group relative flex items-center gap-4 rounded-16 p-4',
         'bg-surface-float',
@@ -93,7 +92,7 @@ export function HotTakeItem({
           </div>
         )}
         <SnapshotButton
-          target={rowRef}
+          card={<HotTakeSnapshotCard take={item} />}
           filename={`hot-take-${item.id}`}
           showLabel={false}
           size={ButtonSize.XSmall}

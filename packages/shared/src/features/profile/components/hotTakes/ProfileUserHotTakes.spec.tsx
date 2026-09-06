@@ -264,7 +264,11 @@ describe('ProfileUserHotTakes', () => {
     ).not.toBeInTheDocument();
     expect(screen.queryByText(`1/${MAX_HOT_TAKES}`)).not.toBeInTheDocument();
     expect(screen.queryByText(HOT_TAKE_LIMIT_HINT)).not.toBeInTheDocument();
-    expect(screen.getByText('Hot take 1')).toBeVisible();
+    expect(
+      screen.getByText('Hot take 1', {
+        ignore: '[aria-hidden="true"], [aria-hidden="true"] *',
+      }),
+    ).toBeVisible();
   });
 
   it('offers a snapshot on every hot take, visitors included', () => {

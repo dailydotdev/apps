@@ -27,6 +27,7 @@ import {
 } from '../../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../../ProfilePicture';
 import { SnapshotButton } from '../../imageShare/SnapshotButton';
+import { HotTakeSnapshotCard } from '../../../features/snapshot/HotTakeSnapshotCard';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../../PlusUserBadge';
@@ -863,7 +864,6 @@ const HotTakeCard = ({
   isDragging: boolean;
   dismissDurationMs: number;
 }): ReactElement => {
-  const cardRef = useRef<HTMLDivElement>(null);
   const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
   const isSkipDragging = isTop && !isDismissAnimating && skipDeltaY < 0;
   const rotation = isTop ? Math.max(Math.min(swipeDelta * 0.08, 18), -18) : 0;
@@ -962,7 +962,6 @@ const HotTakeCard = ({
 
   return (
     <div
-      ref={cardRef}
       className={classNames(
         'absolute inset-0 flex select-none flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2',
         !isTop && 'pointer-events-none',
@@ -1342,7 +1341,7 @@ const HotTakeCard = ({
           )}
           {isTop && (
             <SnapshotButton
-              target={cardRef}
+              card={<HotTakeSnapshotCard take={hotTake} />}
               filename={`hot-take-${hotTake.id}`}
               variant={ButtonVariant.Primary}
             />

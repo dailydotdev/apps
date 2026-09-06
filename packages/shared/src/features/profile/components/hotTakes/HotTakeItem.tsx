@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { HotTake } from '../../../../graphql/user/userHotTake';
 import {
@@ -20,6 +20,7 @@ import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButto
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { HotTakeSnapshotCard } from '../../../snapshot/HotTakeSnapshotCard';
 import { HotTakeItem as HotTakeItemV2 } from './HotTakeItem.v2';
 
 interface HotTakeItemProps {
@@ -39,11 +40,9 @@ function HotTakeItemV1({
 }: HotTakeItemProps): ReactElement {
   const { emoji, title, subtitle } = item;
   const isUpvoteActive = item.upvoted;
-  const rowRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
-      ref={rowRef}
       className={classNames(
         'group relative flex items-center gap-4 rounded-16 p-4',
         'bg-surface-float',
@@ -97,7 +96,7 @@ function HotTakeItemV1({
           </div>
         )}
         <SnapshotButton
-          target={rowRef}
+          card={<HotTakeSnapshotCard take={item} />}
           filename={`hot-take-${item.id}`}
           showLabel={false}
           size={ButtonSize.XSmall}

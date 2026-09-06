@@ -293,18 +293,21 @@ describe('HotAndColdModal', () => {
 
     renderComponent();
 
-    expect(screen.getByText(currentTake.title)).toHaveClass(
-      'w-full',
-      'break-words',
-    );
-    expect(screen.getByText(currentTake.subtitle)).toHaveClass(
-      'w-full',
-      'break-words',
-      'text-center',
-    );
-    expect(screen.getByText(currentTake.subtitle)).not.toHaveClass(
-      'line-clamp-3',
-    );
+    expect(
+      screen.getByText(currentTake.title, {
+        ignore: '[aria-hidden="true"], [aria-hidden="true"] *',
+      }),
+    ).toHaveClass('w-full', 'break-words');
+    expect(
+      screen.getByText(currentTake.subtitle, {
+        ignore: '[aria-hidden="true"], [aria-hidden="true"] *',
+      }),
+    ).toHaveClass('w-full', 'break-words', 'text-center');
+    expect(
+      screen.getByText(currentTake.subtitle, {
+        ignore: '[aria-hidden="true"], [aria-hidden="true"] *',
+      }),
+    ).not.toHaveClass('line-clamp-3');
   });
 
   it('should keep long author names and handles shrinkable in the attribution row', () => {
