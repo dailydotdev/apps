@@ -24,6 +24,8 @@ import { isSourceUserSource } from '../../graphql/sources';
 
 import { ReadingHistoryOptionsMenu } from '../history/ReadingHistoryOptionsMenu';
 import type { QueryIndexes } from '../../hooks/useReadingHistory';
+import { useCopyPostLink } from '../../hooks/useCopyPostLink';
+import { CopyStateIcon } from '../share/CopyStateIcon';
 
 export interface PostItemCardProps {
   className?: string;
@@ -32,6 +34,7 @@ export interface PostItemCardProps {
   clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   showVoteActions?: boolean;
+  showCopyLink?: boolean;
   logOrigin?: Origin;
   indexes?: QueryIndexes;
 }
@@ -48,6 +51,7 @@ export default function PostItemCard({
   onHide,
   className,
   showVoteActions = false,
+  showCopyLink = false,
   logOrigin = Origin.Feed,
   indexes,
 }: PostItemCardProps): ReactElement {
@@ -66,6 +70,7 @@ export default function PostItemCard({
   const isUserSource = isSourceUserSource(source);
 
   const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost();
+  const [copying, copyLink] = useCopyPostLink(post.commentsPermalink);
 
   const classes = classNames(
     'relative flex w-full flex-row py-3 pl-9 pr-5',
@@ -183,6 +188,19 @@ export default function PostItemCard({
                   className="hidden laptop:flex"
                   icon={<XIcon />}
                   onClick={onHideClick}
+                />
+              )}
+              {showButtons && showCopyLink && (
+                <Button
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  aria-label={copying ? 'Link copied' : 'Copy link'}
+                  icon={<CopyStateIcon copied={copying} />}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    copyLink();
+                  }}
                 />
               )}
               {showButtons && (

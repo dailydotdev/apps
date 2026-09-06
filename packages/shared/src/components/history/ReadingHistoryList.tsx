@@ -23,37 +23,43 @@ export default function ReadHistoryList({
     let currentDate: Date;
 
     return data?.pages.map((page, pageIndex) =>
-      page.readHistory.edges.reduce((dom, { node: history }, edgeIndex) => {
-        const { timestamp } = history;
-        const date = new Date(timestamp);
+      page.readHistory.edges.reduce<ReactElement[]>(
+        (dom, { node: history }, edgeIndex) => {
+          const { timestamp } = history;
+          // Optional only because PostItem is shared with surfaces that carry
+          // no timestamp; every reading-history edge has one.
+          const date = new Date(timestamp as Date);
 
-        if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
-          currentDate = date;
+          if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
+            currentDate = date;
+            dom.push(
+              <DateFormat
+                key={date.toISOString()}
+                date={date}
+                type={TimeFormatType.ReadHistory}
+                className="my-3 px-6 text-text-tertiary typo-body first:mt-0"
+              />,
+            );
+          }
+
+          const indexes = { page: pageIndex, edge: edgeIndex };
+
           dom.push(
-            <DateFormat
-              key={date.toISOString()}
-              date={date}
-              type={TimeFormatType.ReadHistory}
-              className="my-3 px-6 text-text-tertiary typo-body first:mt-0"
+            <PostItemCard
+              key={`${history.post.id}-${timestamp}`}
+              postItem={history}
+              indexes={indexes}
+              onHide={(params) => onHide({ ...params, ...indexes })}
+              showVoteActions
+              showCopyLink
+              logOrigin={Origin.History}
             />,
           );
-        }
 
-        const indexes = { page: pageIndex, edge: edgeIndex };
-
-        dom.push(
-          <PostItemCard
-            key={`${history.post.id}-${timestamp}`}
-            postItem={history}
-            indexes={indexes}
-            onHide={(params) => onHide({ ...params, ...indexes })}
-            showVoteActions
-            logOrigin={Origin.History}
-          />,
-        );
-
-        return dom;
-      }, []),
+          return dom;
+        },
+        [],
+      ),
     );
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps

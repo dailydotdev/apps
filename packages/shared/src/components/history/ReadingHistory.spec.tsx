@@ -1,7 +1,7 @@
 import React from 'react';
 import { subDays } from 'date-fns';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { PostItemCardProps } from '../post/PostItemCard';
@@ -197,6 +197,26 @@ describe('PostItemCard component', () => {
       'src',
       defaultHistory.post.source?.image,
     );
+  });
+
+  it('should copy the post link and confirm on the button itself', async () => {
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+
+    renderCard({ showCopyLink: true });
+
+    fireEvent.click(await screen.findByLabelText('Copy link'));
+
+    await waitFor(() =>
+      expect(writeText).toHaveBeenCalledWith(post.commentsPermalink),
+    );
+    await screen.findByLabelText('Link copied');
+  });
+
+  it('should not render the copy link button by default', async () => {
+    renderCard();
+    await screen.findByText(postTitle);
+    expect(screen.queryByLabelText('Copy link')).not.toBeInTheDocument();
   });
 
   it('should call onHide on close button clicked', async () => {
