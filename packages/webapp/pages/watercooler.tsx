@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import dynamic from 'next/dynamic';
 import Feed from '@dailydotdev/shared/src/components/Feed';
+import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import {
   SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
@@ -88,6 +89,7 @@ const WatercoolerPage = (): ReactElement => {
 
   return (
     <FeedPageLayoutList>
+      <ExploreSignupStrip className="mb-4 px-4 laptop:px-0" />
       <div className="mb-4 flex w-full flex-col gap-4 px-4 laptop:px-0">
         <div className="flex min-w-0 flex-col">
           <Typography bold tag={TypographyTag.H1} type={TypographyType.Title2}>

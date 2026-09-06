@@ -47,18 +47,12 @@ import {
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  useFeedLayout,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
-import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
@@ -231,10 +225,8 @@ const SourcePage = ({
   relatedTags = [],
   topPosts = [],
 }: SourcePageProps): ReactElement => {
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-  const { shouldShowAuthBanner } = useOnboardingActions();
   const { user } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
@@ -411,7 +403,6 @@ const SourcePage = ({
             className={pageFeedClassName}
           />
         </div>
-        {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
       </FeedPageLayoutComponent>
     </>
   );

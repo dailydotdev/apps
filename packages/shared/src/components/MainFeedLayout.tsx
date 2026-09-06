@@ -212,6 +212,13 @@ const getQueryBasedOnLogin = (
   return null;
 };
 
+// The feed's own width: full width normally, and clamped + centered to the
+// same card-based max-width as the grid on wide screens (desktopL). The CSS
+// vars feed the `styles.container` max-width calc (grid gap is 2rem).
+const feedWidthClassName = classNames(
+  'relative flex w-full flex-col laptopL:mx-auto',
+  feedStyles.container,
+);
 const commentClassName = {
   container: 'rounded-none border-0 border-b tablet:border-x',
   commentBox: {
@@ -240,6 +247,10 @@ export default function MainFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
+  const feedWidthStyle = {
+    '--num-cards': feedSpacinessCards.eco,
+    '--feed-gap': '2rem',
+  } as CSSProperties;
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
   const feedName = getFeedName(feedNameProp, {
@@ -808,31 +819,22 @@ export default function MainFeedLayout({
       <FeedPageLayoutComponent
         className={classNames('relative', disableTopPadding && '!pt-0')}
       >
+        {!isExtension && isExploreHub && (
+          <div className={feedWidthClassName} style={feedWidthStyle}>
+            <ExploreSignupStrip
+              className={classNames(
+                'mb-4',
+                !shouldUseCommentFeedLayout && feedGutter,
+              )}
+            />
+          </div>
+        )}
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
         {isSearchOn && isFinder && !isSearchPageLaptop && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
-        {/* Share the feed's own width container so the banner lines up with
-            the feed: full width normally, and clamped + centered to the same
-            card-based max-width as the grid on wide screens (desktopL). The
-            CSS vars feed that `styles.container` max-width calc (grid gap is
-            2rem). */}
-        <div
-          className={classNames(
-            'relative flex w-full flex-col laptopL:mx-auto',
-            feedStyles.container,
-          )}
-          style={
-            {
-              '--num-cards': feedSpacinessCards.eco,
-              '--feed-gap': '2rem',
-            } as CSSProperties
-          }
-        >
-          {!isExtension && isExploreHub && (
-            <ExploreSignupStrip className={`mb-4 ${feedGutter}`} />
-          )}
+        <div className={feedWidthClassName} style={feedWidthStyle}>
           <FeedEngagementBanner className="mb-3" />
         </div>
         {!isExtension && isHomePage && (
