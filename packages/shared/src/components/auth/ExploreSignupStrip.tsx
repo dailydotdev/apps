@@ -8,6 +8,7 @@ import {
 } from './HijackingCoverStrip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetType } from '../../lib/log';
 
@@ -29,11 +30,12 @@ export function ExploreSignupStrip({
 }): ReactElement | null {
   const { isAuthReady, user, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
+  const isTablet = useViewSize(ViewSize.Tablet);
   const isAnonymous = isAuthReady && !user;
   const hasLoggedImpression = useRef(false);
 
   useEffect(() => {
-    if (!isAnonymous || hasLoggedImpression.current) {
+    if (!isAnonymous || !isTablet || hasLoggedImpression.current) {
       return;
     }
 
@@ -43,9 +45,12 @@ export function ExploreSignupStrip({
       target_type: TargetType.SignupButton,
       target_id: targetId,
     });
-  }, [isAnonymous, logEvent]);
+  }, [isAnonymous, isTablet, logEvent]);
 
-  // Phones already carry the header's Log in / Sign up pair.
+  // Phones already carry the header's Log in / Sign up pair. The gate is CSS so
+  // the slot is already in the SSR HTML and hydration doesn't reflow the H1;
+  // the impression above takes the matching JS gate instead, so a phone that
+  // never paints the strip doesn't report seeing it.
   const visibility = 'hidden tablet:block';
 
   // The server cannot know the visitor, so it paints the page without the
