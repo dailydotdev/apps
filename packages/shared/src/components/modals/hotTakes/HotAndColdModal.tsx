@@ -26,6 +26,7 @@ import {
   TypographyColor,
 } from '../../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../../ProfilePicture';
+import { SnapshotButton } from '../../imageShare/SnapshotButton';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../../PlusUserBadge';
@@ -862,6 +863,7 @@ const HotTakeCard = ({
   isDragging: boolean;
   dismissDurationMs: number;
 }): ReactElement => {
+  const cardRef = useRef<HTMLDivElement>(null);
   const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
   const isSkipDragging = isTop && !isDismissAnimating && skipDeltaY < 0;
   const rotation = isTop ? Math.max(Math.min(swipeDelta * 0.08, 18), -18) : 0;
@@ -960,6 +962,7 @@ const HotTakeCard = ({
 
   return (
     <div
+      ref={cardRef}
       className={classNames(
         'absolute inset-0 flex select-none flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle shadow-2',
         !isTop && 'pointer-events-none',
@@ -1324,18 +1327,27 @@ const HotTakeCard = ({
           </Typography>
         )}
 
-        {hotTake.upvotes > 0 && (
-          <div className="flex items-center gap-1 rounded-10 bg-surface-hover px-3 py-1">
-            <HotIcon className="text-accent-cabbage-default" />
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-              bold
-            >
-              {hotTake.upvotes}
-            </Typography>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {hotTake.upvotes > 0 && (
+            <div className="flex items-center gap-1 rounded-10 bg-surface-hover px-3 py-1">
+              <HotIcon className="text-accent-cabbage-default" />
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Secondary}
+                bold
+              >
+                {hotTake.upvotes}
+              </Typography>
+            </div>
+          )}
+          {isTop && (
+            <SnapshotButton
+              target={cardRef}
+              filename={`hot-take-${hotTake.id}`}
+              variant={ButtonVariant.Primary}
+            />
+          )}
+        </div>
       </div>
 
       {hotTake.user && (

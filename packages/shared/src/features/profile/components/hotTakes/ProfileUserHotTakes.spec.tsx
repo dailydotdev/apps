@@ -267,6 +267,17 @@ describe('ProfileUserHotTakes', () => {
     expect(screen.getByText('Hot take 1')).toBeVisible();
   });
 
+  it('offers a snapshot on every hot take, visitors included', () => {
+    mockHotTakes({
+      hotTakes: [createHotTake(1), createHotTake(2)],
+      isOwner: false,
+    });
+
+    renderProfileUserHotTakes();
+
+    expect(screen.getAllByLabelText('Snapshot')).toHaveLength(2);
+  });
+
   it('renders the hot takes anchor while loading for visitors', () => {
     mockHotTakes({
       isOwner: false,
