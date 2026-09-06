@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { UserAchievement } from '../../../../graphql/user/achievements';
 import {
@@ -30,6 +30,7 @@ import {
 } from './achievementRarity';
 import { RaritySparkles } from './RaritySparkles';
 import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { AchievementSnapshotCard } from '../../../snapshot/AchievementSnapshotCard';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
@@ -50,7 +51,6 @@ export function AchievementCard({
   onUntrack,
   isUntrackPending = false,
 }: AchievementCardProps): ReactElement {
-  const cardRef = useRef<HTMLDivElement>(null);
   const { achievement, progress, unlockedAt } = userAchievement;
   const targetCount = getTargetCount(achievement);
   const isUnlocked = unlockedAt !== null;
@@ -66,7 +66,6 @@ export function AchievementCard({
       : `${Math.round(achievement.rarity ?? 0)}%`;
   return (
     <div
-      ref={cardRef}
       className={classNames(
         'group relative flex flex-col rounded-16 border p-4 transition-colors',
         isUnlocked ? 'bg-surface-float' : 'bg-surface-subtle',
@@ -125,17 +124,30 @@ export function AchievementCard({
           </Typography>
         </div>
         <div className="relative flex shrink-0 items-center self-center">
-          {/* SnapshotButton sets `relative` on itself, which beats an
-              `absolute` passed in, so the wrapper carries the positioning. */}
-          <span className="absolute right-full top-1/2 mr-1 -translate-y-1/2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
-            <SnapshotButton
-              filename={`daily-achievement-${achievement.id}`}
-              showLabel={false}
-              size={ButtonSize.XSmall}
-              target={cardRef}
-              variant={ButtonVariant.Secondary}
-            />
-          </span>
+          {isUnlocked && unlockedAt && (
+            <span className="absolute right-full top-1/2 mr-1 -translate-y-1/2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+              <SnapshotButton
+                card={
+                  <AchievementSnapshotCard
+                    completedAt={formatDate({
+                      value: unlockedAt,
+                      type: TimeFormatType.Post,
+                    })}
+                    description={achievement.description}
+                    image={achievement.image}
+                    name={achievement.name}
+                    rarity={achievement.rarity ?? null}
+                    seed={achievement.id}
+                    tier={rarityTier}
+                  />
+                }
+                filename={`daily-achievement-${achievement.id}`}
+                showLabel={false}
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Secondary}
+              />
+            </span>
+          )}
           <Typography
             type={TypographyType.Callout}
             color={

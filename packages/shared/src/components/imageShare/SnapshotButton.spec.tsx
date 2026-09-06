@@ -5,10 +5,11 @@ import { SnapshotButton } from './SnapshotButton';
 const mockCapture = jest.fn();
 const mockCopy = jest.fn();
 const mockDownload = jest.fn();
-const mockDisplayToast = jest.fn();
 
 jest.mock('../../lib/imageShare/captureShareImage', () => ({
   captureShareImage: (...args: unknown[]) => mockCapture(...args),
+  SHARE_IMAGE_WIDTH: 1200,
+  SHARE_IMAGE_HEIGHT: 630,
 }));
 
 jest.mock('../../lib/imageShare/copyShareImage', () => ({
@@ -19,12 +20,8 @@ jest.mock('../../lib/imageShare/downloadShareImage', () => ({
   downloadShareImage: (...args: unknown[]) => mockDownload(...args),
 }));
 
-jest.mock('../../features/snapshot/shutterSound', () => ({
-  playShutterSound: jest.fn(),
-}));
-
 jest.mock('../../hooks/useToastNotification', () => ({
-  useToastNotification: () => ({ displayToast: mockDisplayToast }),
+  useToastNotification: () => ({ displayToast: jest.fn() }),
   ToastType: { Success: 'success', Error: 'error' },
 }));
 
@@ -33,78 +30,76 @@ jest.mock('../../hooks/useRequestProtocol', () => ({
 }));
 
 const blob = new Blob(['png'], { type: 'image/png' });
-
-const renderComponent = (props = {}) => {
-  const target = document.createElement('div');
-
-  return render(
-    <SnapshotButton filename="daily-snapshot" target={target} {...props} />,
-  );
-};
-
-const clickSnapshot = () =>
-  fireEvent.click(screen.getByLabelText('Snapshot'), {
-    preventDefault: jest.fn(),
-  });
+const card = <div>a designed card</div>;
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockCapture.mockResolvedValue(blob);
-});
-
-it('copies the image and says so', async () => {
   mockCopy.mockResolvedValue(true);
-  renderComponent();
-
-  clickSnapshot();
-
-  await waitFor(() =>
-    expect(mockDisplayToast).toHaveBeenCalledWith('Image copied', {
-      variant: 'success',
-    }),
-  );
-  expect(mockDownload).not.toHaveBeenCalled();
-});
-
-it('falls back to a download when the clipboard is unavailable', async () => {
-  mockCopy.mockResolvedValue(false);
-  renderComponent({ filename: 'daily-profile-tomer' });
-
-  clickSnapshot();
-
-  await waitFor(() =>
-    expect(mockDownload).toHaveBeenCalledWith(blob, 'daily-profile-tomer'),
-  );
-  expect(mockDisplayToast).toHaveBeenCalledWith('Image saved', {
-    variant: 'success',
+  // jsdom has neither, and the hook probes both before it will offer a copy.
+  Object.assign(URL, {
+    createObjectURL: () => 'blob:preview',
+    revokeObjectURL: () => undefined,
   });
+  Object.assign(globalThis, { ClipboardItem: class {} });
+  Object.assign(navigator, { clipboard: { write: async () => undefined } });
 });
 
-it('reports a failed capture instead of copying or downloading', async () => {
-  mockCapture.mockRejectedValue(new Error('target element has no size'));
-  mockCopy.mockResolvedValue(false);
-  renderComponent();
+const button = () => screen.getByLabelText('Share as image');
 
-  clickSnapshot();
+it('does not rasterize the card until there is intent', () => {
+  render(<SnapshotButton card={card} filename="daily-share" />);
+
+  expect(mockCapture).not.toHaveBeenCalled();
+});
+
+it('rasterizes on hover, so the press still owns the gesture', async () => {
+  render(<SnapshotButton card={card} filename="daily-share" />);
+
+  fireEvent.pointerEnter(button());
+
+  await waitFor(() => expect(mockCapture).toHaveBeenCalledTimes(1));
+});
+
+it('rasterizes on keyboard focus too', async () => {
+  render(<SnapshotButton card={card} filename="daily-share" />);
+
+  fireEvent.focus(button());
+
+  await waitFor(() => expect(mockCapture).toHaveBeenCalledTimes(1));
+});
+
+it('copies the rendered card once it is ready', async () => {
+  render(<SnapshotButton card={card} filename="daily-share" />);
+
+  fireEvent.pointerEnter(button());
+  await waitFor(() => expect(mockCapture).toHaveBeenCalled());
+  fireEvent.click(button());
+
+  await waitFor(() => expect(mockCopy).toHaveBeenCalled());
+  expect(mockDownload).not.toHaveBeenCalled();
+});
+
+it('downloads when the clipboard cannot take an image', async () => {
+  mockCopy.mockResolvedValue(false);
+  render(<SnapshotButton card={card} filename="daily-achievement-1" />);
+
+  fireEvent.pointerEnter(button());
+  await waitFor(() => expect(mockCapture).toHaveBeenCalled());
+  fireEvent.click(button());
 
   await waitFor(() =>
-    expect(mockDisplayToast).toHaveBeenCalledWith(
-      'Could not create the snapshot, please try again',
-      { variant: 'error' },
-    ),
+    expect(mockDownload).toHaveBeenCalledWith(blob, 'daily-achievement-1'),
   );
-  expect(mockDownload).not.toHaveBeenCalled();
 });
 
-it('hands the blob to onCapture instead of sharing it', async () => {
-  const onCapture = jest.fn();
-  mockCopy.mockResolvedValue(true);
-  renderComponent({ onCapture });
+it('refuses to render without a card or a target', () => {
+  // eslint-disable-next-line no-console
+  const error = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-  clickSnapshot();
+  expect(() => render(<SnapshotButton filename="daily-share" />)).toThrow(
+    'SnapshotButton needs either a card or a target',
+  );
 
-  await waitFor(() => expect(onCapture).toHaveBeenCalledWith(blob));
-  expect(mockCopy).not.toHaveBeenCalled();
-  expect(mockDownload).not.toHaveBeenCalled();
-  expect(mockDisplayToast).not.toHaveBeenCalled();
+  error.mockRestore();
 });
