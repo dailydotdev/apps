@@ -1,14 +1,28 @@
 import type { Post } from '../../graphql/posts';
 import type {
+  InterestQuestionChoice,
   InterestTurn,
   InterestTurnRelationship,
 } from '../../graphql/interests';
+
+export type AgentQuestionBlock = {
+  type: 'question';
+  questionId: string;
+  html: string;
+  input: 'chips' | 'text';
+  multi?: boolean;
+  choices?: InterestQuestionChoice[];
+  selected?: string[];
+};
 
 export type AgentBlock =
   | { type: 'text'; html: string }
   | { type: 'posts'; caption?: string; posts: Post[] }
   | { type: 'picks'; caption?: string; posts: Post[] }
-  | { type: 'feedLink'; label: string; posts: Post[] };
+  | { type: 'feedLink'; label: string; posts: Post[] }
+  | AgentQuestionBlock
+  | { type: 'brief'; html: string; brief: string }
+  | { type: 'review' };
 
 export type AgentAttachment = {
   id: string;
@@ -16,6 +30,13 @@ export type AgentAttachment = {
   label: string;
   detail?: string;
 };
+
+export type AgentPostsBlock = Extract<AgentBlock, { posts: Post[] }>;
+
+// Blocks that carry posts. A type guard rather than "not text", so a new block
+// type is excluded by default instead of crashing whatever reads `.posts`.
+export const isPostsBlock = (block: AgentBlock): block is AgentPostsBlock =>
+  block.type === 'posts' || block.type === 'picks' || block.type === 'feedLink';
 
 export type AgentMessage = {
   id: string;

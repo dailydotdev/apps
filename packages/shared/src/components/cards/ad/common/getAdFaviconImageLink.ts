@@ -1,14 +1,12 @@
 import type { Ad } from '../../../../graphql/posts';
-import { apiUrl } from '../../../../lib/config';
 import { adFaviconPlaceholder } from '../../../../lib/image';
+import { getSiteIconUrl } from '../../../../lib/links';
 
 interface GetAdFaviconImageLinkParams {
   ad: Ad;
   adImprovementsV3?: boolean;
   size?: number;
 }
-
-const minimumFaviconSize = 96;
 
 export const getAdFaviconImageLink = ({
   ad,
@@ -24,9 +22,6 @@ export const getAdFaviconImageLink = ({
   }
 
   const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
-  const iconSize = Math.max(Math.round(size * pixelRatio), minimumFaviconSize);
 
-  return `${apiUrl}/icon?url=${encodeURIComponent(
-    ad.adDomain,
-  )}&size=${iconSize}`;
+  return getSiteIconUrl({ url: ad.adDomain, size: size * pixelRatio });
 };

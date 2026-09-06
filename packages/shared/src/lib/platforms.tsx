@@ -7,6 +7,7 @@ import {
   CodebergIcon,
   CodePenIcon,
   CrunchbaseIcon,
+  DiscordIcon,
   FacebookIcon,
   GitHubIcon,
   GitLabIcon,
@@ -224,6 +225,13 @@ export const ORG_ONLY_PLATFORMS = {
  * User profile-specific platforms (extends core)
  */
 export const USER_ONLY_PLATFORMS = {
+  discord: {
+    id: 'discord',
+    label: 'Discord',
+    domains: ['discord.com', 'discord.gg', 'discordapp.com'],
+    icon: DiscordIcon,
+    // Discord profiles are keyed by user ID, not a username
+  },
   portfolio: {
     id: 'portfolio',
     label: 'Website',

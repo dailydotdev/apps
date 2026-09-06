@@ -35,6 +35,11 @@ const FRAMES: Frame[] = [
     storyId: 'components-onboarding-steps-funnelherolanding--panel',
     note: 'new — framed split',
   },
+  {
+    label: 'Horizon',
+    storyId: 'components-onboarding-steps-funnelherolanding--horizon',
+    note: 'new — full-bleed art, one primary CTA',
+  },
 ];
 
 type ComparisonProps = {

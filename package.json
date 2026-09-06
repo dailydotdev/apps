@@ -19,6 +19,13 @@
   "pnpm": {
     "patchedDependencies": {
       "graphql-request@3.7.0": "patches/graphql-request@3.7.0.patch"
+    },
+    "packageExtensions": {
+      "@next/bundle-analyzer": {
+        "peerDependencies": {
+          "next": "*"
+        }
+      }
     }
   },
   "volta": {

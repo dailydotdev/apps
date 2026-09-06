@@ -10,7 +10,7 @@ import {
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
-import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon, MagicIcon } from '@dailydotdev/shared/src/components/icons';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
@@ -520,7 +520,7 @@ function WorldCustomizeHeader({
   return (
     <header className="flex items-center justify-between gap-2">
       <Typography type={TypographyType.Body} bold>
-        Make it yours
+        Appearance
       </Typography>
       <CloseButton
         type="button"
@@ -537,6 +537,8 @@ interface WorldCustomizeProps {
   draft: WorldDraft;
   districts?: WorldDistrict[];
   settings: WorldDraftSettings;
+  /** Opens coding-agent authoring from the same customization surface. */
+  onProgram?: () => void;
 }
 
 /**
@@ -548,6 +550,7 @@ function WorldCustomize({
   draft,
   districts,
   settings,
+  onProgram,
 }: WorldCustomizeProps): ReactElement {
   const { setSettings, error } = draft;
   const [suggestion, setSuggestion] = useState(0);
@@ -557,6 +560,28 @@ function WorldCustomize({
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Opening the builder saves the bench first, so nothing dressed on the way is lost. */}
+      {!!onProgram && (
+        <button
+          type="button"
+          onClick={onProgram}
+          className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3 text-left hover:bg-surface-hover"
+        >
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <Typography type={TypographyType.Footnote} bold>
+              Program your world
+            </Typography>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              Let your coding agent redesign your realms, live.
+            </Typography>
+          </div>
+          <ArrowIcon className="rotate-90 text-text-tertiary" />
+        </button>
+      )}
+
       {/* Section heading names the field; TextField's own label is sr-only to avoid duplicating it visually. */}
       <Section title="Name">
         <TextField

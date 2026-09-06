@@ -263,7 +263,6 @@ export enum RequestKey {
   ProfileShowcase = 'profile_showcase',
   SourceStack = 'source_stack',
   StackSearch = 'stack_search',
-  UserHotTakes = 'user_hot_takes',
   DiscoverHotTakes = 'discover_hot_takes',
   UserTools = 'user_tools',
   ToolSearch = 'tool_search',
@@ -278,14 +277,16 @@ export enum RequestKey {
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   QuestDashboard = 'quest_dashboard',
+  // Not fetched. `useClaimQuestReward` writes the last successful claim here
+  // so listeners elsewhere in the tree can react to it, the same way
+  // `useLazyModal` carries the open modal.
+  QuestClaim = 'quest_claim',
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
   MarketingCtas = 'marketing_ctas',
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
-  LiveRooms = 'live_rooms',
-  ContributionCauseBreakdown = 'contribution_cause_breakdown',
   LeaderboardPosition = 'leaderboard_position',
   UserWorld = 'user_world',
   UserWorldTimeline = 'user_world_timeline',

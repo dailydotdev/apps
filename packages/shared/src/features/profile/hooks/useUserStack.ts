@@ -14,13 +14,10 @@ import {
   deleteUserStack,
   reorderUserStack,
 } from '../../../graphql/user/userStack';
-import type { ProfileShowcase } from '../../../graphql/user/profileShowcase';
 import { useProfileShowcase } from './useProfileShowcase';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-
-const selectStack = (data: ProfileShowcase) => data.userStack;
 
 export function useUserStack(user: PublicProfile | null) {
   const { isOwner } = useProfilePreview(user);
@@ -30,7 +27,7 @@ export function useUserStack(user: PublicProfile | null) {
     queryKey,
     invalidate: invalidateQuery,
     ...query
-  } = useProfileShowcase(user, selectStack);
+  } = useProfileShowcase(user, 'userStack');
 
   const stackItems = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],

@@ -5,7 +5,6 @@ import type { Source } from './sources';
 import type { Company } from '../lib/userCompany';
 
 export interface ToolPageTool extends DatasetTool {
-  url: string | null;
   category: string | null;
   stackCount: number;
   keyword: string | null;
@@ -43,6 +42,7 @@ const TOOLS_ALSO_STACKED_QUERY = gql`
       title
       slug
       faviconUrl
+      url
     }
   }
 `;
@@ -121,6 +121,35 @@ export const getToolClaimedBy = async (
   return result.datasetTool.claimedBy;
 };
 
+export interface ToolFact {
+  key: string;
+  value: string;
+  sourceUrl: string | null;
+  verifiedAt: string;
+}
+
+const TOOL_FACTS_QUERY = gql`
+  query ToolFacts($slug: String!) {
+    datasetTool(slug: $slug) {
+      facts {
+        key
+        value
+        sourceUrl
+        verifiedAt
+      }
+    }
+  }
+`;
+
+// Fetched separately from DATASET_TOOL_QUERY so a not-yet-deployed API
+// (missing this field) can't 500 the whole page during the rollout window.
+export const getToolFacts = async (slug: string): Promise<ToolFact[]> => {
+  const result = await gqlClient.request<{
+    datasetTool: { facts: ToolFact[] };
+  }>(TOOL_FACTS_QUERY, { slug });
+  return result.datasetTool.facts;
+};
+
 const TOOL_VIEWER_CAN_CLAIM_QUERY = gql`
   query ToolViewerCanClaim($slug: String!) {
     datasetTool(slug: $slug) {
@@ -175,6 +204,7 @@ const TOOL_ALTERNATIVES_QUERY = gql`
       title
       slug
       faviconUrl
+      url
       stackCount
     }
   }
@@ -361,17 +391,29 @@ export interface DirectoryTool {
   title: string;
   slug: string;
   faviconUrl: string | null;
+  url?: string | null;
   category: string | null;
   stackCount: number;
 }
 
-const TOP_TOOLS_QUERY = gql`
-  query TopTools($first: Int, $category: String, $trending: Boolean) {
-    topTools(first: $first, category: $category, trending: $trending) {
+export const TOP_TOOLS_QUERY = gql`
+  query TopTools(
+    $first: Int
+    $category: String
+    $trending: Boolean
+    $query: String
+  ) {
+    topTools(
+      first: $first
+      category: $category
+      trending: $trending
+      query: $query
+    ) {
       id
       title
       slug
       faviconUrl
+      url
       category
       stackCount
     }
@@ -382,14 +424,16 @@ export const getTopTools = async ({
   first = 6,
   category,
   trending,
+  query,
 }: {
   first?: number;
   category?: string;
   trending?: boolean;
+  query?: string;
 } = {}): Promise<DirectoryTool[]> => {
   const result = await gqlClient.request<{ topTools: DirectoryTool[] }>(
     TOP_TOOLS_QUERY,
-    { first, category, trending },
+    { first, category, trending, query },
   );
   return result.topTools;
 };
@@ -399,7 +443,7 @@ export interface ToolCategoryStat {
   toolCount: number;
 }
 
-const TOOL_CATEGORIES_QUERY = gql`
+export const TOOL_CATEGORIES_QUERY = gql`
   query ToolCategories {
     toolCategories {
       category

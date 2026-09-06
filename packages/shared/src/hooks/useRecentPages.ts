@@ -1,6 +1,7 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/router';
 import type { RecentPage, RecentPageType } from '../lib/recentPages';
+import { withoutLayoutVariantPrefix } from '../lib/layoutVariant';
 import {
   getRecentPages,
   recordRecentPage,
@@ -50,7 +51,7 @@ export const useRecordRecentPages = (enabled: boolean): void => {
 
     let timeoutId: number | undefined;
     const capture = (url: string) => {
-      if (router.pathname === '/posts/[id]') {
+      if (withoutLayoutVariantPrefix(router.pathname) === '/posts/[id]') {
         return;
       }
       const path = url.split('?')[0].split('#')[0];

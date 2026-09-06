@@ -32,6 +32,7 @@ import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getPageSeoTitles } from '../utils';
 import { getAppOrigin } from '../../../lib/seo';
+import { getShareImageUrl } from '../../../next-seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
 import { hasPublicWorld } from '../../world/profileWorld';
@@ -51,15 +52,8 @@ export interface ProfileLayoutProps extends Partial<ProfileV2> {
   hasWorld?: boolean;
 }
 
-export const getOGImageUrl = (userId: string): string => {
-  const ogImageUrl = new URL(
-    `/devcards/v2/${userId}.png`,
-    process.env.NEXT_PUBLIC_API_URL,
-  );
-  ogImageUrl.searchParams.set('type', 'wide');
-  ogImageUrl.searchParams.set('r', Math.random().toString(36).substring(2, 5));
-  return ogImageUrl.toString();
-};
+export const getOGImageUrl = (userId: string): string =>
+  getShareImageUrl('profile', userId);
 
 const getTwitterHandle = (user: PublicProfile): string | undefined => {
   const twitterLink = user.socialLinks?.find(

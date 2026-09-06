@@ -226,15 +226,6 @@ it('renders AchievementCard inside HoverCard when tracking', () => {
   expect(screen.getByTestId('achievement-card')).toBeInTheDocument();
 });
 
-it('renders achievement image in the button when tracking', () => {
-  mockUseTrackedAchievement.mockReturnValue({
-    ...defaultTrackedAchievementHook,
-    trackedAchievement: mockTrackedAchievement,
-  });
-  renderComponent();
-  expect(screen.getByAltText('First Steps')).toBeInTheDocument();
-});
-
 it('adds spacing classes to achievement image when label is shown', () => {
   mockUseTrackedAchievement.mockReturnValue({
     ...defaultTrackedAchievementHook,

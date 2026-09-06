@@ -112,6 +112,7 @@ export interface Source {
   currentMember?: SourceMember;
   privilegedMembers?: SourceMember[];
   public: boolean;
+  noindex?: boolean;
   headerImage?: string;
   color?: string;
   description?: string;

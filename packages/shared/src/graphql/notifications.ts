@@ -224,7 +224,6 @@ enum NotificationPreferenceType {
   Post = 'post',
   Comment = 'comment',
   Source = 'source',
-  LiveRoom = 'live_room',
 }
 
 export interface NotificationPreference {
@@ -265,7 +264,6 @@ export const notificationPreferenceMap: Partial<
   [NotificationType.SquadPostAdded]: NotificationPreferenceType.Source,
   [NotificationType.SquadMemberJoined]: NotificationPreferenceType.Source,
   [NotificationType.SourcePostAdded]: NotificationPreferenceType.Source,
-  [NotificationType.LiveRoomStarted]: NotificationPreferenceType.LiveRoom,
 };
 
 export const muteNotification = async (

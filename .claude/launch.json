@@ -1,0 +1,39 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "webapp",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "webapp",
+        "dev"
+      ],
+      "port": 5002,
+      "url": "https://app.staging.daily.dev:5002"
+    },
+    {
+      "name": "webapp-webpack",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "webapp",
+        "exec",
+        "next",
+        "dev",
+        "--webpack",
+        "-p",
+        "5002",
+        "--experimental-https",
+        "--experimental-https-key",
+        "./certificates/adhoc-server.key",
+        "--experimental-https-cert",
+        "./certificates/adhoc-server.crt",
+        "--experimental-https-ca",
+        "./certificates/root_ca.crt"
+      ],
+      "port": 5002,
+      "url": "https://app.staging.daily.dev:5002"
+    }
+  ]
+}

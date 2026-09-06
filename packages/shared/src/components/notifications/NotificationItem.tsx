@@ -8,8 +8,12 @@ import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import { NotificationItemLead } from './NotificationItemLead';
 import { NotificationCategoryBadge } from './NotificationCategoryBadge';
-import { getNotificationLeadAvatar } from './leadAvatar';
 import {
+  getNotificationAttribution,
+  getNotificationLeadAvatar,
+} from './leadAvatar';
+import {
+  contentArrivalNotificationTypes,
   getNotificationCategory,
   NotificationFilterCategory,
   notificationMutingCopy,
@@ -295,6 +299,42 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     attachmentTitleNorm !== titleNorm &&
     attachmentTitleNorm !== descriptionNorm;
 
+  const isContentArrival =
+    contentArrivalNotificationTypes.has(type) && !!attachmentTitle;
+  const attribution = isContentArrival
+    ? getNotificationAttribution(filteredAvatars)
+    : undefined;
+  const showSubtitle = isContentArrival
+    ? showDescription
+    : showDescription || showAttachmentTitle;
+  const showAttachmentLine =
+    !isContentArrival && showDescription && showAttachmentTitle;
+
+  let timeAnchor: 'attribution' | 'attachment' | 'subtitle' | null = null;
+  if (attribution) {
+    timeAnchor = 'attribution';
+  } else if (showAttachmentLine) {
+    timeAnchor = 'attachment';
+  } else if (showSubtitle) {
+    timeAnchor = 'subtitle';
+  }
+
+  const timeNode = timeText ? (
+    <Tooltip content={fullDate}>
+      <time className="relative z-1 whitespace-nowrap">{timeText}</time>
+    </Tooltip>
+  ) : null;
+  const timeTail = timeNode && (
+    <>
+      <span aria-hidden>·</span>
+      {timeNode}
+    </>
+  );
+  // A global `* { flex-shrink: 0 }` means truncating text must opt back in with
+  // `shrink`, or it keeps max-content width and overflows the row.
+  const greyLine =
+    'flex items-baseline gap-1.5 text-text-tertiary typo-footnote';
+
   return (
     <div
       className={classNames(
@@ -337,37 +377,64 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Headline (actor name bold, the rest regular for a scannable
-          hierarchy) with the relative time flowing inline right after it — so a
-          row reads "what happened" first and the time is a quiet suffix, not a
-          right-aligned column. Then the comment, then the post's title. */}
       <div className="flex min-w-0 flex-1 flex-col gap-1 text-left">
-        <div className="break-words font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold">
-          <span dangerouslySetInnerHTML={{ __html: memoizedTitle }} />
-          {timeText && (
-            <Tooltip content={fullDate}>
-              <time className="relative z-1 ml-1.5 whitespace-nowrap text-text-tertiary typo-footnote">
-                · {timeText}
-              </time>
-            </Tooltip>
-          )}
-        </div>
-        {(showDescription || showAttachmentTitle) && (
-          <div className="multi-truncate line-clamp-2 break-words text-text-tertiary typo-subhead [&_p]:m-0 [&_p]:inline">
-            {showDescription ? (
-              <span dangerouslySetInnerHTML={{ __html: memoizedDescription }} />
-            ) : (
-              showAttachmentTitle && <span>{attachmentTitle}</span>
-            )}
+        {isContentArrival ? (
+          <div className="multi-truncate line-clamp-2 break-words font-bold text-text-primary typo-callout">
+            {attachmentTitle}
           </div>
+        ) : (
+          <div className="break-words font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold">
+            <span dangerouslySetInnerHTML={{ __html: memoizedTitle }} />
+          </div>
+        )}
+        {showSubtitle && (
+          <>
+            {timeAnchor === 'subtitle' ? (
+              // `multi-truncate` is `display: -webkit-box`, which blockifies
+              // as a flex item and loses both its clamp and its width — hence
+              // the separate single-line branch whenever the time rides here.
+              <div className="flex items-baseline gap-1.5 text-text-tertiary typo-subhead">
+                <span className="min-w-0 shrink truncate [&_p]:m-0 [&_p]:inline">
+                  {showDescription ? (
+                    <span
+                      dangerouslySetInnerHTML={{ __html: memoizedDescription }}
+                    />
+                  ) : (
+                    showAttachmentTitle && attachmentTitle
+                  )}
+                </span>
+                <span className="flex shrink-0 items-baseline gap-1.5 typo-footnote">
+                  {timeTail}
+                </span>
+              </div>
+            ) : (
+              <div className="multi-truncate line-clamp-2 break-words text-text-tertiary typo-subhead [&_p]:m-0 [&_p]:inline">
+                {showDescription ? (
+                  <span
+                    dangerouslySetInnerHTML={{ __html: memoizedDescription }}
+                  />
+                ) : (
+                  showAttachmentTitle && <span>{attachmentTitle}</span>
+                )}
+              </div>
+            )}
+          </>
         )}
         {/* When there's both a comment and a post, name the post on its own
             line so it's clear which article it's about. */}
-        {showDescription && showAttachmentTitle && (
-          <div className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote">
-            {attachmentTitle}
+        {showAttachmentLine && (
+          <div className={greyLine}>
+            <span className="min-w-0 shrink truncate">{attachmentTitle}</span>
+            {timeAnchor === 'attachment' && timeTail}
           </div>
         )}
+        {attribution && (
+          <div className={greyLine}>
+            <span className="min-w-0 shrink truncate">{attribution}</span>
+            {timeAnchor === 'attribution' && timeTail}
+          </div>
+        )}
+        {!timeAnchor && timeNode && <div className={greyLine}>{timeNode}</div>}
         {type === NotificationType.UserFollow && (
           <span className="relative z-1">
             <NotificationFollowUserButton {...props} />

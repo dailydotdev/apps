@@ -15,6 +15,7 @@ import {
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useReadArticle } from '../../../hooks/usePostContent';
+import { anchorNofollowRel } from '../../../lib/strings';
 
 type ReaderFallbackProps = {
   post: Post;
@@ -88,7 +89,7 @@ export const ReaderFallback = forwardRef<HTMLDivElement, ReaderFallbackProps>(
           tag="a"
           href={post.permalink}
           target={openNewTab ? '_blank' : '_self'}
-          rel="noopener"
+          rel={anchorNofollowRel}
           size={ButtonSize.Large}
           variant={ButtonVariant.Primary}
           className="w-fit"

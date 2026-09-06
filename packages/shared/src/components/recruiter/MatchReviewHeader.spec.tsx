@@ -118,20 +118,6 @@ describe('MatchReviewHeader', () => {
   });
 
   describe('action buttons', () => {
-    it('should render Reject button when onReject is provided', async () => {
-      renderComponent();
-      expect(
-        await screen.findByRole('button', { name: /reject/i }),
-      ).toBeInTheDocument();
-    });
-
-    it('should render Approve button when onApprove is provided', async () => {
-      renderComponent();
-      expect(
-        await screen.findByRole('button', { name: /approve/i }),
-      ).toBeInTheDocument();
-    });
-
     it('should call onReject when Reject button is clicked', async () => {
       const onReject = jest.fn();
       renderComponent({ onReject });

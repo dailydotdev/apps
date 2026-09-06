@@ -12,6 +12,7 @@ import { IconSize } from '../../../components/Icon';
 import { useSharePost } from '../../../hooks/useSharePost';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
+import { getPostTitle } from '../../../graphql/posts';
 
 export const AgentSharePostButton = ({
   post,
@@ -41,7 +42,7 @@ export const AgentSharePostButton = ({
           reveal && '[@media(hover:none)]:hidden',
           className,
         )}
-        aria-label={`Share: ${post.title}`}
+        aria-label={`Share: ${getPostTitle(post) ?? 'Untitled post'}`}
         onClick={(event: React.MouseEvent) => {
           event.stopPropagation();
           event.preventDefault();

@@ -30,7 +30,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          'Every notification scenario with its avatar/badge rationale. Lead avatar rule: always show the human who acted (commenter, upvoter, follower, poster); fall back to the source only when there is no person; system/digest rows show the type icon.',
+          'Every notification scenario with its avatar/badge rationale. Lead avatar rule: always show the human who acted (commenter, upvoter, follower, poster); fall back to the source only when there is no person; system/digest rows show the type icon. This page is about the avatar column only — for which line leads and where the timestamp lands, see "Row anatomy".',
       },
     },
   },

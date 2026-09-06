@@ -4,8 +4,6 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
-import { pageMainClassNames } from '../layout/PageWrapperLayout';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { OrganizationMemberRole } from '../../features/organizations/types';
 
@@ -99,23 +97,55 @@ export const BaseFeedPage = classed(
   styles.feedPage,
 );
 
-// v2 (dual-sidebar layout) ships the feed inside the floating-card chrome,
-// which provides its own outer inset. The legacy `pageMainClassNames`
-// (`laptop:p-10`) adds another 40px on top, which reads as way too much
-// side spacing inside the card. Drop that padding under v2; control keeps
-// the existing behavior unchanged.
+/**
+ * The feed's horizontal inset — the single source of it.
+ *
+ * It lives on FeedContainer rather than on a page container because
+ * the feed renders through two different ones depending on layout and
+ * route: FeedPage, which carries `pageMainClassNames`, and
+ * FeedPageLayoutList, which forces `!px-0`. FeedContainer is the only
+ * element common to both, so it is the only place an inset applies
+ * everywhere and can never stack with another.
+ *
+ * Chrome outside the container — the breadcrumbs and the tab strip —
+ * uses the same constant to line up with the cards.
+ *
+ * Inside the v2 floating card (`LAYOUT_FRAME_CLASS`) there is no inset at
+ * all, which is what v2 has always shipped. The card is already the frame:
+ * rounded, bordered, and held off the window by its own margins. A gutter
+ * in there is a second frame drawn inside the first, and it costs the grid
+ * 80px of width that the column count never hears about — `numCards` comes
+ * from viewport media queries in `FeedLayoutProvider`, so the feed goes on
+ * asking for the same number of columns in a narrower space.
+ *
+ * Below laptop the card does not exist and neither does this class, so the
+ * small-width gutter this constant exists for applies in both layouts.
+ *
+ * Keyed to the frame's own class rather than to `isV2` on purpose. The flag
+ * resolves after mount, so a React-side gate let the gutter and the frame
+ * settle independently; a descendant selector cannot — the inset is absent
+ * exactly when the frame that replaces it is on screen.
+ */
+export const feedGutter =
+  'px-4 tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-0';
+
+// Vertical padding only. The horizontal inset moved to FeedContainer
+// (see `feedGutter`) because this component is not in the tree on
+// every feed route — FeedPageLayoutList is used instead on some — and
+// an inset here would both miss those routes and stack with the one
+// that covers them.
+const feedPageVerticalPadding =
+  'tablet:py-4 laptop:py-10 laptop:[.layout-frame_&]:py-0';
+
 export const FeedPage = ({
   className,
   ...props
-}: HTMLAttributes<HTMLElement>): ReactElement => {
-  const { isV2 } = useLayoutVariant();
-  return (
-    <BaseFeedPage
-      {...props}
-      className={classNames(!isV2 && pageMainClassNames, className)}
-    />
-  );
-};
+}: HTMLAttributes<HTMLElement>): ReactElement => (
+  <BaseFeedPage
+    {...props}
+    className={classNames(feedPageVerticalPadding, className)}
+  />
+);
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,

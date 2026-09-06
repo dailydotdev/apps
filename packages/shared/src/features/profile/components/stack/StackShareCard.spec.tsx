@@ -13,7 +13,13 @@ const user = {
 
 const buildItem = (overrides: Partial<UserStack>): UserStack => ({
   id: `item-${Math.random()}`,
-  tool: { id: 't1', title: 'TypeScript', slug: 'typescript', faviconUrl: null },
+  tool: {
+    id: 't1',
+    title: 'TypeScript',
+    slug: 'typescript',
+    faviconUrl: null,
+    url: null,
+  },
   section: 'Primary',
   position: 0,
   startedAt: null,
@@ -32,7 +38,13 @@ describe('StackShareCard', () => {
           buildItem({ section: 'Primary' }),
           buildItem({
             section: 'Learning',
-            tool: { id: 't2', title: 'Rust', slug: 'rust', faviconUrl: null },
+            tool: {
+              id: 't2',
+              title: 'Rust',
+              slug: 'rust',
+              faviconUrl: null,
+              url: null,
+            },
           }),
         ]}
       />,
@@ -59,6 +71,7 @@ describe('StackShareCard', () => {
             title: `Tool ${index}`,
             slug: `tool-${index}`,
             faviconUrl: null,
+            url: null,
           },
         }),
       ),

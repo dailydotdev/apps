@@ -12,6 +12,8 @@ import { generateTestSquad } from '../../__tests__/fixture/squads';
 import { getFacebookShareLink, getTwitterShareLink } from '../lib/share';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { NotificationsContextProvider } from '../contexts/NotificationsContext';
+import SettingsContext from '../contexts/SettingsContext';
+import { settingsContext } from '../../__tests__/helpers/boot';
 
 const defaultPost = Post;
 Object.defineProperty(window, 'matchMedia', {
@@ -65,10 +67,12 @@ const renderComponent = (
         loadedUserFromCache
         squads={customSquads}
       >
-        <NotificationsContextProvider>
-          <LazyModalElement />
-          <ShareBar post={post} />
-        </NotificationsContextProvider>
+        <SettingsContext.Provider value={settingsContext}>
+          <NotificationsContextProvider>
+            <LazyModalElement />
+            <ShareBar post={post} />
+          </NotificationsContextProvider>
+        </SettingsContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -113,15 +117,20 @@ describe('ShareBar Test Suite:', () => {
     });
   });
 
-  it('should render the component with logged user and squads and open the share to squad modal', async () => {
+  it('should render the component with logged user and squads and open the share to squad composer', async () => {
     renderComponent();
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
 
     expect(btn).toBeInTheDocument();
     btn.click();
     await waitFor(() => {
-      expect(screen.getByText('New post')).toBeInTheDocument();
+      expect(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+      ).toBeInTheDocument();
     });
+    expect(screen.getByRole('textbox', { name: 'Link URL' })).toHaveValue(
+      defaultPost.permalink,
+    );
   });
 
   it('should render the Facebook button and navigate to correct link', async () => {

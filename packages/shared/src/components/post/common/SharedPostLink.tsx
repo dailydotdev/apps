@@ -3,6 +3,7 @@ import React from 'react';
 import Link from '../../utilities/Link';
 import type { Post, SharedPost } from '../../../graphql/posts';
 import type { CombinedClicks } from '../../../lib/click';
+import { anchorUgcRel } from '../../../lib/strings';
 
 interface SharedPostTitleProps {
   sharedPost: SharedPost;
@@ -24,7 +25,7 @@ export const SharedPostLink = ({
     ? {
         href: sharedPost?.permalink,
         target: '_blank',
-        rel: 'noopener',
+        rel: anchorUgcRel,
         as: undefined,
         ...onGoToLinkProps,
       }

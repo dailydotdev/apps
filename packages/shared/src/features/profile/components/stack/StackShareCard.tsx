@@ -3,6 +3,7 @@ import React from 'react';
 import type { PublicProfile } from '../../../../lib/user';
 import type { UserStack } from '../../../../graphql/user/userStack';
 import { buildSectionsState, getVisibleSections } from './dnd';
+import { ToolLogo } from '../../../../components/tools/ToolLogo';
 
 const MAX_SECTIONS = 3;
 const MAX_TOOLS_PER_SECTION = 4;
@@ -48,20 +49,20 @@ const StackTool = ({
 
   return (
     <div className="border-white/10 bg-white/5 flex items-center gap-3.5 rounded-20 border px-4 py-3">
-      {iconUrl ? (
-        <img
-          src={iconUrl}
-          alt=""
-          className="size-8 flex-none rounded-10 object-contain"
-        />
-      ) : (
-        <span
-          className="grid size-8 flex-none place-items-center rounded-10 text-base font-bold"
-          style={tile}
-        >
-          {title.charAt(0).toUpperCase()}
-        </span>
-      )}
+      <ToolLogo
+        title={title}
+        faviconUrl={iconUrl}
+        url={item.tool.url}
+        className="size-8 rounded-10"
+        fallback={
+          <span
+            className="grid size-8 flex-none place-items-center rounded-10 text-base font-bold"
+            style={tile}
+          >
+            {title.charAt(0).toUpperCase()}
+          </span>
+        }
+      />
       <span className="flex-1 truncate text-[23px] font-bold text-white">
         {title}
       </span>

@@ -176,6 +176,10 @@ export const BootDataProvider = ({
 
   const isBootReady = isFetched && !isError;
   const loadedFromCache = !!cachedBootData;
+  const [remoteBootApplied, setRemoteBootApplied] = useState<{
+    dataUpdatedAt: number;
+    userId?: string;
+  }>({ dataUpdatedAt: 0 });
   const {
     user,
     settings,
@@ -186,6 +190,13 @@ export const BootDataProvider = ({
     geo,
     isAndroidApp,
   } = cachedBootData || {};
+  // `isBootReady` flips a commit before the response reaches `cachedBootData`
+  // (child effects run before this provider's), so consumers that need the
+  // settings themselves to be fresh, not merely present, read this instead.
+  const isRemoteBootApplied =
+    dataUpdatedAt > 0 &&
+    remoteBootApplied.dataUpdatedAt === dataUpdatedAt &&
+    remoteBootApplied.userId === user?.id;
 
   useRefreshToken(remoteData?.accessToken, refetch);
 
@@ -294,6 +305,10 @@ export const BootDataProvider = ({
     if (remoteData) {
       setInitialLoad(typeof initialLoad === 'undefined');
       updateBootData(remoteData);
+      setRemoteBootApplied({
+        dataUpdatedAt,
+        userId: remoteData.user?.id,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteData]);
@@ -383,6 +398,7 @@ export const BootDataProvider = ({
         <SettingsContextProvider
           settings={settings}
           loadedSettings={loadedFromCache}
+          isRemoteSettingsLoaded={isRemoteBootApplied}
           updateSettings={updateSettings}
         >
           <EngagementAdsProvider rawCreatives={remoteData?.engagementCreatives}>

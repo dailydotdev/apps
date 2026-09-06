@@ -74,11 +74,11 @@ export const CustomFeedSection = ({
     onNavTabClick,
   ]);
 
-  // v2 rail panels (`compact`) lead with a "New feed" row instead of a header
-  // "+"; v1 keeps its header add button.
-  const { compact } = defaultRenderSectionProps;
+  // The v2 panels lead with a "New feed" row instead of a header "+"; v1
+  // keeps its header add button.
+  const { isV2Panel } = defaultRenderSectionProps;
   const addHref = `${webappUrl}feeds/new`;
-  const items = compact
+  const items = isV2Panel
     ? [createSidebarAddItem('New feed', { href: addHref }), ...menuItems]
     : menuItems;
 
@@ -88,7 +88,7 @@ export const CustomFeedSection = ({
       items={items}
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.CustomFeedsExpanded}
-      addHref={compact ? undefined : addHref}
+      addHref={isV2Panel ? undefined : addHref}
     />
   );
 };

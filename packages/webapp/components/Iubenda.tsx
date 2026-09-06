@@ -175,6 +175,7 @@ export const Iubenda = (): ReactElement | null => {
       // Scoped with its stub: a framework enabled without the __gpp stub
       // answers no one, and US privacy signals mean nothing elsewhere.
       enableUspr: withGpp,
+      usprPurposes: 's,sh,adv',
       gdprAppliesGlobally: false,
       googleAdditionalConsentMode: withTcf,
       inlineDelay: 100,

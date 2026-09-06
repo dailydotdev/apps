@@ -40,11 +40,12 @@ export interface PostMarkdownPost
     | 'tags'
     | 'language'
     | 'private'
+    | 'noindex'
     | 'numUpvotes'
     | 'numComments'
   > {
   url?: string;
-  author?: { name?: string; username?: string; reputation?: number };
+  author?: { name?: string; username?: string };
   source?: { handle?: string; name?: string; public?: boolean };
   sharedPost?: { title?: string; url?: string; summary?: string };
   communitySentiment?: CommunitySentimentPost | null;
@@ -84,12 +85,12 @@ export const POST_MARKDOWN_QUERY = gql`
       tags
       language
       private
+      noindex
       numUpvotes
       numComments
       author {
         name
         username
-        reputation
       }
       source {
         handle

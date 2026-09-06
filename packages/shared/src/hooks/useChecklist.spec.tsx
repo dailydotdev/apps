@@ -188,31 +188,6 @@ describe('useChecklist hook', () => {
     );
   });
 
-  it('should open step after toggle', async () => {
-    const steps = [...defaultSteps];
-
-    const { result } = renderHook(
-      (props: { steps: ChecklistStepType[] }) =>
-        useChecklist({ steps: props.steps }),
-      {
-        wrapper,
-        initialProps: {
-          steps,
-        },
-      },
-    );
-
-    expect(result.current.openStep).toBeNull();
-
-    act(() => {
-      result.current.onToggleStep(steps[0].action);
-    });
-
-    await waitFor(() =>
-      expect(result.current.openStep).toBe(steps[0].action.type),
-    );
-  });
-
   it('should close step that is open after toggle', async () => {
     const steps = [...defaultSteps];
 

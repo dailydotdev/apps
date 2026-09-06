@@ -22,12 +22,12 @@ import {
   ThemeMode,
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { ArbitragePostContent } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitragePostContent';
+import { ReadPostContent } from '@dailydotdev/shared/src/components/post/read/ReadPostContent';
 import {
   ADSENSE_SCRIPT_SRC,
   hasLiveAdsenseUnits,
 } from '@dailydotdev/shared/src/features/monetization/adsense';
-import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
+import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdsenseSlots';
 import { AdsenseHeadHints } from '../../components/AdsenseHeadHints';
 import { getLayout } from '../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../components/layouts/FooterNavBarLayout';
@@ -40,7 +40,7 @@ import { seoTitle } from '../posts/[id]/index';
 
 const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
 
-const ARBITRAGE_ARTICLE_ROUTE_PATTERN =
+const READ_ARTICLE_ROUTE_PATTERN =
   /^\/(?:articles\/[^/]+|posts\/[^/]+\/read)(?:[/?#]|$)/;
 
 /**
@@ -55,7 +55,7 @@ const READ_ELIGIBLE_POST_TYPES = new Set<PostType>([
   PostType.Collection,
 ]);
 
-export interface ArbitragePostPageProps extends DynamicSeoProps {
+export interface ReadPostPageProps extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
   error?: ApiError;
@@ -75,11 +75,11 @@ export interface ArbitragePostPageProps extends DynamicSeoProps {
  * traffic, not search discovery. Forces light mode while mounted: the ad
  * partner's creatives are designed against light pages.
  */
-const ArbitragePostPage = ({
+const ReadPostPage = ({
   id,
   initialData,
   error,
-}: ArbitragePostPageProps): ReactElement => {
+}: ReadPostPageProps): ReactElement => {
   const router = useRouter();
   const { applyThemeMode } = useSettingsContext();
   const adsenseSlots = useReadAdsenseSlots();
@@ -115,7 +115,7 @@ const ArbitragePostPage = ({
       // Shallow same-page updates (comment permalinks, URL-masking modals,
       // query tweaks) never unload anything — only a genuine departure from
       // the article ad route has ads to tear down.
-      if (shallow || ARBITRAGE_ARTICLE_ROUTE_PATTERN.test(url)) {
+      if (shallow || READ_ARTICLE_ROUTE_PATTERN.test(url)) {
         return;
       }
       router.events.emit('routeChangeError');
@@ -131,7 +131,7 @@ const ArbitragePostPage = ({
     // the SPA transition and loading the target URL in place respects the
     // history position the user just moved to.
     router.beforePopState(({ as }) => {
-      if (ARBITRAGE_ARTICLE_ROUTE_PATTERN.test(as)) {
+      if (READ_ARTICLE_ROUTE_PATTERN.test(as)) {
         return true;
       }
       window.location.href = as;
@@ -177,7 +177,7 @@ const ArbitragePostPage = ({
             />
           </>
         )}
-        <ArbitragePostContent
+        <ReadPostContent
           post={post}
           // 72rem, wider than the standard template's 69.25rem: the main column
           // has to clear 728px for a leaderboard to render at its full size, and
@@ -189,15 +189,15 @@ const ArbitragePostPage = ({
   );
 };
 
-ArbitragePostPage.getLayout = getLayout;
-ArbitragePostPage.layoutProps = {
+ReadPostPage.getLayout = getLayout;
+ReadPostPage.layoutProps = {
   screenCentered: false,
   showSidebar: false,
   hideFeedbackWidget: true,
   // No customBanner on purpose: that is what mounts CustomAuthBanner.
 };
 
-export default ArbitragePostPage;
+export default ReadPostPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: 'blocking' };
@@ -206,7 +206,7 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<PostParams>): Promise<
-  GetStaticPropsResult<ArbitragePostPageProps>
+  GetStaticPropsResult<ReadPostPageProps>
 > {
   if (!params?.id) {
     return { notFound: true, revalidate: 60 };

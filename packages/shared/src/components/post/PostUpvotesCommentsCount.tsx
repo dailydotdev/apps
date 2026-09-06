@@ -14,9 +14,7 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize } from '../buttons/Button';
 import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureCardImpressions } from '../../lib/featureManagement';
-import { usePostImpressionsModal } from '../../hooks/post/usePostImpressionsModal';
+import { usePostImpressions } from '../../hooks/post/usePostImpressions';
 
 const DEFAULT_REPOSTS_PER_PAGE = 20;
 
@@ -48,7 +46,7 @@ type PostUpvotesCommentsCountContentProps = PostUpvotesCommentsCountProps & {
   onAwardsClick?: () => unknown;
   onImpressionsClick?: () => void;
   showPostAnalytics?: boolean;
-  impressionsEnabled?: boolean;
+  showImpressionsStat?: boolean;
 };
 
 const PostUpvotesCommentsCountContent = ({
@@ -59,7 +57,7 @@ const PostUpvotesCommentsCountContent = ({
   onAwardsClick,
   onImpressionsClick,
   showPostAnalytics = false,
-  impressionsEnabled = false,
+  showImpressionsStat = false,
   className,
   compact = false,
   passive = false,
@@ -70,14 +68,7 @@ const PostUpvotesCommentsCountContent = ({
   const reposts = post.numReposts || 0;
   const getText = ({ count, label }: { count: number; label: string }) =>
     `${largeNumberFormat(count)} ${label}${count > 1 ? 's' : ''}`;
-  // Flag on: a single impressions stat next to the other counts (links to the
-  // analytics page). Flag off: keep main's behaviour — the author/team-only
-  // `analytics.impressions` line plus the "Post analytics" button.
   const impressions = post.analytics?.impressions ?? 0;
-  const impressionsLabel =
-    impressionsEnabled && !compact && !!post.id && impressions > 0
-      ? getText({ count: impressions, label: 'Impression' })
-      : null;
 
   const renderText = ({
     key,
@@ -110,10 +101,11 @@ const PostUpvotesCommentsCountContent = ({
       )}
       data-testid="statsBar"
     >
-      {!impressionsEnabled && !!post.analytics?.impressions && (
-        <span>
-          {getText({ count: post.analytics.impressions, label: 'Impression' })}
-        </span>
+      {/* Control: the count stays author/team-only. The API returns
+          `analytics.impressions` to every viewer, anonymous ones included, so
+          the gate has to be the viewer, not the presence of the number. */}
+      {!showImpressionsStat && showPostAnalytics && impressions > 0 && (
+        <span>{getText({ count: impressions, label: 'Impression' })}</span>
       )}
       {upvotes > 0 &&
         renderText({
@@ -131,11 +123,11 @@ const PostUpvotesCommentsCountContent = ({
           stats. Tapping routes the owner/team to the analytics page and
           everyone else to the explainer popup (same handler as the feed cards).
           Shown on the post page/modal strip only (not the compact embed). */}
-      {impressionsLabel &&
+      {showImpressionsStat &&
         renderText({
           key: 'impressions',
           onClick: onImpressionsClick,
-          children: impressionsLabel,
+          children: getText({ count: impressions, label: 'Impression' }),
         })}
       {reposts > 0 &&
         renderText({
@@ -164,8 +156,9 @@ const PostUpvotesCommentsCountContent = ({
       {/* With the flag on, the impressions stat doubles as the analytics link,
           but it only renders when the post has impression data — keep the
           button as the fallback entry point so authors/team never lose the
-          direct link to analytics. */}
-      {showPostAnalytics && (!impressionsEnabled || !impressionsLabel) && (
+          direct link to analytics. Passive rows render spans only: an embed
+          wraps the whole row in an anchor, so a link here would nest one. */}
+      {showPostAnalytics && !showImpressionsStat && !passive && (
         <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
           <Button
             tag="a"
@@ -189,12 +182,13 @@ const InteractivePostUpvotesCommentsCount = ({
   compact,
 }: PostUpvotesCommentsCountProps): ReactElement => {
   const { openModal } = useLazyModal();
-  const { user, isAuthReady } = useAuthContext();
-  const { value: impressionsEnabled } = useConditionalFeature({
-    feature: featureCardImpressions,
-    shouldEvaluate: isAuthReady,
-  });
-  const onImpressionsClick = usePostImpressionsModal(post);
+  // Where the stat can render at all. It doubles as the enrolment condition:
+  // a compact embed or an impression-less post looks identical in both arms,
+  // so exposing those viewers would only dilute the experiment.
+  const canShowImpressions =
+    !compact && !!post.id && (post.analytics?.impressions ?? 0) > 0;
+  const { showImpressions, canViewAnalytics, onImpressionsClick } =
+    usePostImpressions(post, { shouldEvaluate: canShowImpressions });
   const awards = post.numAwards || 0;
   const hasAccessToCores = useHasAccessToCores();
   if (!post.id) {
@@ -247,11 +241,31 @@ const InteractivePostUpvotesCommentsCount = ({
             }
           : undefined
       }
-      showPostAnalytics={canViewPostAnalytics({ user, post })}
-      impressionsEnabled={impressionsEnabled}
+      showPostAnalytics={canViewAnalytics}
+      showImpressionsStat={canShowImpressions && showImpressions}
       onImpressionsClick={onImpressionsClick}
       className={className}
       compact={compact}
+    />
+  );
+};
+
+const PassivePostUpvotesCommentsCount = ({
+  post,
+  ...props
+}: PostUpvotesCommentsCountProps): ReactElement => {
+  // `passive` means no click handlers, not "no author gate": an author still
+  // sees their own impressions in an embed. Read from auth directly so the row
+  // needs no query client or router, and guarded because embedded content can
+  // render outside the auth provider.
+  const user = useAuthContext()?.user;
+
+  return (
+    <PostUpvotesCommentsCountContent
+      post={post}
+      passive
+      showPostAnalytics={canViewPostAnalytics({ user, post })}
+      {...props}
     />
   );
 };
@@ -261,7 +275,7 @@ export function PostUpvotesCommentsCount({
   ...props
 }: PostUpvotesCommentsCountProps): ReactElement {
   if (passive) {
-    return <PostUpvotesCommentsCountContent passive={passive} {...props} />;
+    return <PassivePostUpvotesCommentsCount {...props} />;
   }
 
   return <InteractivePostUpvotesCommentsCount {...props} />;

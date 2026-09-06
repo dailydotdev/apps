@@ -42,6 +42,7 @@ const world = {
     },
   ],
   userWorldSettings: null,
+  userWorldObjects: [],
   // The timeline is a second query; this stub answers both.
   userWorldTimeline: [{ day: '2024-01-01', niche: 'ai_llm', reads: 3 }],
 };
@@ -64,9 +65,21 @@ describe('useUserWorld', () => {
       look: null,
       private: false,
     };
+    const objects = [
+      {
+        scope: 'realm',
+        realm: 'frame',
+        niche: null,
+        family: 'house',
+        opsVersion: 1,
+        payload: { tiers: {} },
+        updatedAt: '2026-08-30T00:00:00.000Z',
+      },
+    ];
     request.mockResolvedValue({
       userWorld: districts,
       userWorldSettings: settings,
+      userWorldObjects: objects,
       // The timeline is a second query; this stub answers both.
       userWorldTimeline: [],
     });
@@ -76,6 +89,7 @@ describe('useUserWorld', () => {
     await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.districts).toEqual(districts);
     expect(result.current.settings).toEqual(settings);
+    expect(result.current.objects).toEqual(objects);
     expect(result.current.isPrivate).toBe(false);
   });
 

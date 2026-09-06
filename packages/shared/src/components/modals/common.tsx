@@ -41,13 +41,6 @@ const ReadingHistoryModal = dynamic(
     ),
 );
 
-const CreateSharedPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "createSharedPostModal" */ './post/CreateSharedPostModal'
-    ),
-);
-
 const SmartComposerModal = dynamic(
   () =>
     import(
@@ -107,10 +100,10 @@ const NewStreakModal = dynamic(
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
 );
 
-const StreakOffersModal = dynamic(
+const QuestOffersModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "streakOffersModal" */ './streaks/StreakOffersModal'
+      /* webpackChunkName: "questOffersModal" */ './quests/QuestOffersModal'
     ),
 );
 
@@ -540,7 +533,6 @@ export const modals = {
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
-  [LazyModal.CreateSharedPost]: CreateSharedPostModal,
   [LazyModal.SmartComposer]: SmartComposerModal,
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,
@@ -551,7 +543,7 @@ export const modals = {
   [LazyModal.Video]: VideoModal,
   [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
-  [LazyModal.StreakOffers]: StreakOffersModal,
+  [LazyModal.QuestOffers]: QuestOffersModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,

@@ -24,7 +24,6 @@ export const baseFeedSupportedTypes = [
   PostType.VideoYouTube,
   PostType.Collection,
   PostType.Poll,
-  PostType.LiveRoom,
 ];
 
 export const supportedTypesForPrivateSources = [

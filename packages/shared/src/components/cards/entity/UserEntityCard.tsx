@@ -9,7 +9,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { DevPlusIcon } from '../../icons';
+import { DevPlusIcon, WorldIcon } from '../../icons';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
@@ -19,9 +19,10 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import AuthContext from '../../../contexts/AuthContext';
-import { ButtonVariant } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
+import { webappUrl } from '../../../lib/constants';
 
 type Props = {
   user?: UserShortProfile;
@@ -48,6 +49,7 @@ const UserEntityCard = ({ user, className }: Props) => {
   const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
   const isSameUser = loggedUser?.id === id;
   const showActionBtns = !isLoading && !isSameUser;
+  const worldHref = `${webappUrl}world/${username}`;
 
   return (
     <EntityCard
@@ -60,16 +62,26 @@ const UserEntityCard = ({ user, className }: Props) => {
       }}
       entityName={username}
       actionButtons={
-        showActionBtns && (
-          <FollowButton
-            variant={ButtonVariant.Primary}
-            entityId={id}
-            status={contentPreference?.status}
-            showSubscribe={false}
-            type={ContentPreferenceType.User}
-            entityName={username}
+        <>
+          <Button
+            tag="a"
+            href={worldHref}
+            aria-label={`Visit @${username}'s world`}
+            icon={<WorldIcon />}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Secondary}
           />
-        )
+          {showActionBtns && (
+            <FollowButton
+              variant={ButtonVariant.Primary}
+              entityId={id}
+              status={contentPreference?.status}
+              showSubscribe={false}
+              type={ContentPreferenceType.User}
+              entityName={username}
+            />
+          )}
+        </>
       }
     >
       <div className="mt-2 flex w-full flex-col gap-3">

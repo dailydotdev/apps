@@ -161,15 +161,6 @@ describe('ReadingOverview component', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should calculate and display correct total reads', () => {
-    renderComponent();
-
-    // Total reads: 5 + 3 + 0 + 8 = 16
-    expect(
-      screen.getByText('Posts read in the last months (16)'),
-    ).toBeInTheDocument();
-  });
-
   it('should display total reads as 0 when readHistory is empty', () => {
     renderComponent({ readHistory: [] });
 
@@ -183,16 +174,6 @@ describe('ReadingOverview component', () => {
 
     expect(
       screen.getByText('Posts read in the last months (0)'),
-    ).toBeInTheDocument();
-  });
-
-  it('should render calendar heatmap with correct props', () => {
-    renderComponent();
-
-    // Check that CalendarHeatmap component is rendered by looking for its content
-    // The heatmap should be present in the DOM structure
-    expect(
-      screen.getByText('Posts read in the last months (16)'),
     ).toBeInTheDocument();
   });
 

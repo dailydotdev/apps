@@ -4,6 +4,7 @@ import {
   getInterestFindings,
   getInterestHistory,
   getInterestPosts,
+  getInterestRun,
   getInterests,
 } from '../../graphql/interests';
 import { generateQueryKey, RequestKey } from '../../lib/query';
@@ -37,14 +38,28 @@ export const interestFindingsQueryOptions = (
     enabled: !!user?.id && !!id,
   });
 
+export const historyPageSize = 40;
+
 export const interestHistoryQueryOptions = (
   id: string,
+  user: Pick<LoggedUser, 'id'> | undefined,
+  last: number,
+) =>
+  queryOptions({
+    queryKey: generateQueryKey(RequestKey.Interests, user, id, 'history', last),
+    queryFn: () => getInterestHistory({ id, last }),
+    enabled: !!user?.id && !!id,
+  });
+
+export const interestRunQueryOptions = (
+  id: string,
+  runId: string,
   user?: Pick<LoggedUser, 'id'>,
 ) =>
   queryOptions({
-    queryKey: generateQueryKey(RequestKey.Interests, user, id, 'history'),
-    queryFn: () => getInterestHistory(id),
-    enabled: !!user?.id && !!id,
+    queryKey: generateQueryKey(RequestKey.Interests, user, id, 'run', runId),
+    queryFn: () => getInterestRun({ id, runId }),
+    enabled: !!user?.id && !!id && !!runId,
   });
 
 export const interestPostsQueryOptions = (

@@ -258,9 +258,14 @@ export const FeedContainer = ({
     >
       {shouldShowBanner && (
         <div
+          // Vertical only. The horizontal inset used to live here
+          // because the container above had none below laptop; it now
+          // carries `feedGutter` at every width, so any padding here
+          // stacks on top of it and leaves the banner narrower than
+          // the cards underneath.
           className={classNames(
-            'laptop:px-0 laptop:pt-0',
-            hasFirstSlotCard ? 'px-4' : 'tablet:px-4 tablet:pt-1',
+            'laptop:pt-0',
+            !hasFirstSlotCard && 'tablet:pt-1',
           )}
         >
           <ProfileUploadBanner

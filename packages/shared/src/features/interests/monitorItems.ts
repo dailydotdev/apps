@@ -6,6 +6,7 @@ import {
 } from '../../graphql/interests';
 
 export type AgentMonitorState =
+  | 'onboarding'
   | 'waiting'
   | 'running'
   | 'watching'
@@ -28,6 +29,7 @@ export type AgentMonitorSource = UserInterest;
 const freshMs = 1000 * 60 * 60 * 6;
 
 const fallbackLine: Record<AgentMonitorState, string> = {
+  onboarding: 'Still being set up.',
   waiting: 'Came back with something.',
   running: 'Scanning now…',
   watching: 'Watching. Nothing new yet.',
@@ -40,6 +42,7 @@ const fallbackLine: Record<AgentMonitorState, string> = {
 // One word each. "Waiting for review" took the whole row on a phone, leaving
 // three letters of the name it described.
 export const stateLabel: Record<AgentMonitorState, string> = {
+  onboarding: 'Setup',
   waiting: 'Review',
   running: 'Running',
   watching: 'Watching',
@@ -50,6 +53,7 @@ export const stateLabel: Record<AgentMonitorState, string> = {
 };
 
 export const stateMeaning: Record<AgentMonitorState, string> = {
+  onboarding: 'Still being set up',
   waiting: 'Waiting for review',
   running: 'Running now',
   watching: 'Watching',
@@ -60,6 +64,7 @@ export const stateMeaning: Record<AgentMonitorState, string> = {
 };
 
 export const inkClass: Record<AgentMonitorState, string> = {
+  onboarding: 'text-status-help',
   waiting: 'text-brand-default',
   running: 'text-status-success',
   watching: 'text-status-info',
@@ -70,6 +75,7 @@ export const inkClass: Record<AgentMonitorState, string> = {
 };
 
 export const dotClass: Record<AgentMonitorState, string> = {
+  onboarding: 'bg-status-help',
   waiting: 'bg-brand-default',
   running: 'animate-pulse bg-status-success',
   watching: 'bg-status-info',
@@ -89,6 +95,11 @@ export const toMonitorItems = (
       !!agent.lastRunFindings && !!agent.lastRunAt && now - ran < freshMs;
 
     const resolve = (): AgentMonitorState => {
+      // Checked before the run status: its setup runs are not hunting runs.
+      if (agent.status === UserInterestStatus.Onboarding) {
+        return 'onboarding';
+      }
+
       if (
         agent.lastRunStatus === InterestRunStatus.Queued ||
         agent.lastRunStatus === InterestRunStatus.Running
