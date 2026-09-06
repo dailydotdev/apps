@@ -42,3 +42,12 @@ export const avatarUri = (fill: string, glyph: string) =>
   `data:image/svg+xml;utf8,${encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#1E2229"/><text x="32" y="43" font-family="sans-serif" font-size="30" font-weight="700" fill="${fill}" text-anchor="middle">${glyph}</text></svg>`,
   )}`;
+
+/**
+ * A stand-in post thumbnail. Inline, like the avatars: a real cross-origin
+ * image is intercepted by MSW inside Storybook and never reaches the capture.
+ */
+export const thumbUri = (from: string, to: string, label: string) =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216 122"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="216" height="122" fill="url(#g)"/><text x="108" y="68" font-family="sans-serif" font-size="20" font-weight="700" fill="rgba(255,255,255,0.92)" text-anchor="middle">${label}</text></svg>`,
+  )}`;

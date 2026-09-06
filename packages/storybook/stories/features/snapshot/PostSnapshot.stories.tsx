@@ -6,6 +6,8 @@ import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapsho
 import { SnapshotButton } from '@dailydotdev/shared/src/components/imageShare/SnapshotButton';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 
+import { thumbUri } from './snapshotFixtures';
+
 const POST = {
   id: 'post-1',
   title: 'Why iconic tech brands like HTC and LG lost their dominance',
@@ -14,6 +16,11 @@ const POST = {
   createdAt: '2026-08-24T09:00:00.000Z',
   readTime: 1,
   domain: 'xda-developers.com',
+  image: thumbUri('#3B2A63', '#171226', 'HTC · LG'),
+  tags: ['tech-news', 'mobile', 'htc'],
+  numUpvotes: 44,
+  numComments: 11,
+  analytics: { impressions: 429900 },
   source: {
     id: 'xda',
     name: 'XDA Developers',

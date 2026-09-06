@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { forwardRef } from 'react';
+import classNames from 'classnames';
 import LogoIcon from '../../svg/LogoIcon';
 import LogoText from '../../svg/LogoText';
 import {
@@ -9,13 +10,19 @@ import {
 } from './snapshotGradient';
 
 export const SNAPSHOT_CARD_SIZE = 780;
-/** The gutter the square leaves around the card, kept when the frame grows. */
-export const SNAPSHOT_FRAME_GUTTER = (SNAPSHOT_SIZE - SNAPSHOT_CARD_SIZE) / 2;
+/**
+ * A page-shaped card: the gradient stays as a border rather than a stage, so
+ * the copy gets the room instead. Surfaces where the text *is* the payload use
+ * it — a wide margin around a cramped article is space spent on nothing.
+ */
+export const SNAPSHOT_CARD_WIDE = 964;
 /** Canvas minus the logo row and the gaps either side of the card. */
 export const SNAPSHOT_CARD_MAX = SNAPSHOT_SIZE - 150;
 
 const CARD_RADIUS = 48;
 const CARD_EDGE = 2;
+const CARD_PADDING = 58;
+const CARD_PADDING_WIDE = 40;
 
 /**
  * The App Store device frame: a lit hairline that is brightest along the top
@@ -47,6 +54,11 @@ interface SnapshotFrameProps {
    * starts at the square and stops at SNAPSHOT_MAX_HEIGHT.
    */
   grow?: boolean;
+  /**
+   * Widen the card to SNAPSHOT_CARD_WIDE and tighten its padding, for surfaces
+   * whose copy needs the room more than the frame needs the margin.
+   */
+  wide?: boolean;
   children: ReactNode;
 }
 
@@ -56,11 +68,14 @@ function SnapshotFrameComponent(
     watermark,
     bare,
     grow,
+    wide,
     logoPlacement = 'inline',
     children,
   }: SnapshotFrameProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
+  const cardWidth = wide ? SNAPSHOT_CARD_WIDE : SNAPSHOT_CARD_SIZE;
+  const gutter = (SNAPSHOT_SIZE - cardWidth) / 2;
   const isOverlaid = logoPlacement !== 'inline';
   const overlayStyle = {
     position: 'absolute' as const,
@@ -91,7 +106,7 @@ function SnapshotFrameComponent(
               maxHeight: SNAPSHOT_MAX_HEIGHT,
               // justify-center has nothing to distribute once the height
               // follows the card, so the gutter has to be explicit.
-              paddingBlock: SNAPSHOT_FRAME_GUTTER,
+              paddingBlock: gutter,
             }
           : { height: SNAPSHOT_SIZE }),
       }}
@@ -108,10 +123,10 @@ function SnapshotFrameComponent(
       ) : (
         <div
           style={{
-            width: SNAPSHOT_CARD_SIZE,
-            minHeight: SNAPSHOT_CARD_SIZE,
+            width: cardWidth,
+            minHeight: SNAPSHOT_SIZE - gutter * 2,
             ...(grow && {
-              maxHeight: SNAPSHOT_MAX_HEIGHT - SNAPSHOT_FRAME_GUTTER * 2,
+              maxHeight: SNAPSHOT_MAX_HEIGHT - gutter * 2,
             }),
             padding: CARD_EDGE,
             borderRadius: CARD_RADIUS,
@@ -120,10 +135,13 @@ function SnapshotFrameComponent(
           }}
         >
           <div
-            className="relative flex h-full flex-col gap-7 overflow-hidden"
+            className={classNames(
+              'relative flex h-full flex-col overflow-hidden',
+              wide ? 'gap-6' : 'gap-7',
+            )}
             style={{
-              minHeight: SNAPSHOT_CARD_SIZE - CARD_EDGE * 2,
-              padding: 58,
+              minHeight: SNAPSHOT_SIZE - gutter * 2 - CARD_EDGE * 2,
+              padding: wide ? CARD_PADDING_WIDE : CARD_PADDING,
               borderRadius: CARD_RADIUS - CARD_EDGE,
               background: CARD_BODY,
             }}

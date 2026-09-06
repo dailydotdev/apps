@@ -22,6 +22,8 @@ import { DiscussionSnapshotCard } from '@dailydotdev/shared/src/features/snapsho
 import { ListSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ListSnapshotCard';
 import { CelebrationSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/CelebrationSnapshotCard';
 import { getSnapshotCaptureOptions } from '@dailydotdev/shared/src/features/snapshot/snapshotCapture';
+import { PostSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/PostSnapshotCard';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
 import { AwardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AwardSnapshotCard';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
@@ -37,8 +39,30 @@ import {
   COVER_PLACEHOLDER,
   HEATMAP,
   PROFILE_USER,
+  thumbUri,
   UNLOCKED_ART,
 } from './snapshotFixtures';
+
+/** The post page as it actually reads, for surface 1. */
+const POST = {
+  id: 'cdpr-physical',
+  title: "CD Projekt Red won't be abandoning physical releases",
+  summary:
+    "CD Projekt Red joint-CEO Michal Nowakowski says the studio has no plans to abandon physical game releases, despite Sony announcing it will end physical media production for PlayStation in 2028. Nowakowski notes CDPR doesn't control disc manufacturing (platform holders like Sony, Microsoft, and Nintendo do), but pledges to keep bundling extras into physical editions, potentially swapping the game disc for a download code, similar to the approach planned for GTA VI.",
+  createdAt: '2026-09-03T09:00:00.000Z',
+  readTime: 3,
+  domain: 'gamedeveloper.com',
+  image: thumbUri('#2A1436', '#0E0A18', 'The Witcher III'),
+  tags: ['tech-news', 'gaming', 'cd-projekt-red'],
+  numUpvotes: 44,
+  numComments: 11,
+  analytics: { impressions: 429900 },
+  source: {
+    id: 'game-developer',
+    name: 'Game Developer',
+    image: avatarUri('#EC527A', 'G'),
+  },
+} as Post;
 
 interface Placement {
   id: string;
@@ -54,15 +78,7 @@ const PLACEMENTS: Placement[] = [
   {
     id: 'post',
     surface: '1 · Post page (under the TLDR)',
-    grow: true,
-    content: {
-      bodyLines: 0,
-      titleLines: 0,
-      avatar: { src: avatarUri('#B14BD7', 'X'), name: 'XDA Developers' },
-      title: 'Why iconic tech brands like HTC and LG lost their dominance',
-      meta: ['Aug 24, 2026', '1m read time', 'xda-developers.com'],
-      body: "A brief retrospective on how once-dominant tech and smartphone brands declined, citing OnePlus's recent troubles, LG's exit from the mobile business, and HTC's fall from once outselling Apple in America to a niche VR-focused company.",
-    },
+    render: (ref) => <PostSnapshotCard ref={ref} post={POST} />,
   },
   {
     id: 'highlight-text',
