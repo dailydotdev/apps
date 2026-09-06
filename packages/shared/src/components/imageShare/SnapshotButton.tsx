@@ -148,16 +148,14 @@ export function SnapshotButton({
     </div>
   );
 
-  // Tsahi's split control from #6369: the left half copies, the chevron drops
-  // the standard tile grid. The image action joins it as one more tile.
+  // Tsahi's split control from #6369.
   if (menuVariant === 'split') {
     return (
       <SplitShareButton
         className={className}
         copied={copying}
         dropdownLabel="More share options"
-        // The same section the modal uses, so the two surfaces show one
-        // treatment. It owns its own capture, which is why this branch leaves
+        // The section runs its own capture, which is why this branch leaves
         // the button's off-screen card unmounted.
         header={
           <SnapshotImageSection
