@@ -7,7 +7,8 @@ import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/p
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { featurePostCopyLink } from '../../lib/featureManagement';
-import { PostHeaderActions } from './PostHeaderActions';
+import { Origin } from '../../lib/log';
+import { PostMenuOptions } from './PostMenuOptions';
 
 const withFlag = () => {
   const gb = new GrowthBook();
@@ -19,18 +20,15 @@ const withFlag = () => {
 const renderActions = (postToRender: Post, gb?: GrowthBook) =>
   render(
     <TestBootProvider client={new QueryClient()} gb={gb}>
-      <PostHeaderActions
-        contextMenuId="post-header-actions-spec"
-        onReadArticle={jest.fn()}
-        post={postToRender}
-      />
+      <PostMenuOptions origin={Origin.ArticlePage} post={postToRender} />
     </TestBootProvider>,
   );
 
 const copyLink = () => screen.queryByLabelText('Copy link');
 
-describe('PostHeaderActions copy link', () => {
-  // The cluster is shared by every type, and the ask was every type.
+describe('PostMenuOptions copy link', () => {
+  // Every post type builds its own header, but all of them render this menu,
+  // which is why the link hangs off it rather than off any one header.
   it.each([
     PostType.Article,
     PostType.Share,
@@ -51,7 +49,7 @@ describe('PostHeaderActions copy link', () => {
     expect(copyLink()).not.toBeInTheDocument();
   });
 
-  it('sits before the options menu, so it reads as part of that cluster', () => {
+  it('sits before the menu button, so it reads as part of that cluster', () => {
     renderActions(post, withFlag());
 
     const link = copyLink();
