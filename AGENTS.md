@@ -10,6 +10,7 @@ pnpm monorepo for the daily.dev app suite:
 - `packages/extension`: Chrome/Edge/Opera extension.
 - `packages/shared`: components, hooks, GraphQL, design system. Code used by both surfaces lives here.
 - `packages/storybook`, `packages/playwright`, eslint/prettier config packages.
+- Storybook is designer territory: no Vercel deploy, no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
 
 ## Verification
 
