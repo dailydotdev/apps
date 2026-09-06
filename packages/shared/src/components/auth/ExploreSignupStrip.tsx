@@ -1,37 +1,80 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-import { HijackingHeroStrip } from './HijackingLoginStrip';
-import { useOnboardingActions } from '../../hooks/auth/useOnboardingActions';
-import { HijackingVariant } from '../../lib/featureManagement';
+import React, { useEffect, useRef } from 'react';
+import classNames from 'classnames';
+import type { HijackingCoverCopy } from './HijackingCoverStrip';
+import {
+  HijackingCoverStrip,
+  hijackingCoverStripMinHeight,
+} from './HijackingCoverStrip';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
+import { AuthTriggers } from '../../lib/auth';
+import { LogEvent, TargetType } from '../../lib/log';
 
-// The extension's arms sell the new tab; the explore hub sells the feed the
-// visitor is already browsing.
-const copy = {
+const targetId = 'explore strip';
+
+const copy: HijackingCoverCopy = {
   heading: 'Make this your feed.',
   body: 'Sign up and daily.dev keeps the topics, sources, and discussions you care about in one place.',
+  signup: 'Sign up',
+  login: 'Log in',
 };
 
-// The new tab's hijacking strip on the Explore hub's pages, which are where
-// search engines land logged-out visitors. This is organic public traffic, not
-// the new-tab experiment's population, so it is not enrolled in
-// `hijacking_variants3`: it renders the arm that experiment settled on, for
-// anonymous visitors only — members already have the feed it offers.
+// The new tab's cover strip on the Explore hub, for anonymous visitors only.
 export function ExploreSignupStrip({
   className,
 }: {
   className?: string;
 }): ReactElement | null {
-  const { shouldShowAuthBanner } = useOnboardingActions();
+  const { isAuthReady, user, showLogin } = useAuthContext();
+  const { logEvent } = useLogContext();
+  const isAnonymous = isAuthReady && !user;
+  const hasLoggedImpression = useRef(false);
 
-  if (!shouldShowAuthBanner) {
+  useEffect(() => {
+    if (!isAnonymous || hasLoggedImpression.current) {
+      return;
+    }
+
+    hasLoggedImpression.current = true;
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.SignupButton,
+      target_id: targetId,
+    });
+  }, [isAnonymous, logEvent]);
+
+  // The server cannot know the visitor, so it paints the page without the
+  // strip; holding its slot until boot answers keeps the H1 from jumping.
+  if (!isAuthReady) {
+    return (
+      <div
+        aria-hidden
+        className={classNames(hijackingCoverStripMinHeight, className)}
+      />
+    );
+  }
+
+  if (user) {
     return null;
   }
 
+  const onAuthClick = (isLogin: boolean) => (): void => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: isLogin ? TargetType.LoginButton : TargetType.SignupButton,
+      target_id: targetId,
+    });
+
+    showLogin({ trigger: AuthTriggers.Onboarding, options: { isLogin } });
+  };
+
   return (
-    <HijackingHeroStrip
-      variant={HijackingVariant.CTA}
+    <HijackingCoverStrip
       copy={copy}
       className={className}
+      onSignupClick={onAuthClick(false)}
+      onLoginClick={onAuthClick(true)}
     />
   );
 }

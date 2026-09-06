@@ -136,15 +136,20 @@ export const SquadDirectoryLayout = (
             </div>
           </div>
         </header>
+        <ExploreSignupStrip
+          className={classNames(
+            'mt-5',
+            isV2Laptop && 'laptop:mb-6 laptop:mt-0',
+          )}
+        />
         <section
           {...attrs}
           className={classNames(
-            'flex w-full flex-col gap-6 pt-5',
+            'flex w-full flex-col pt-5',
             isV2Laptop && 'laptop:!pt-0',
             className,
           )}
         >
-          <ExploreSignupStrip />
           {children}
         </section>
       </BaseFeedPage>

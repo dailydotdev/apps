@@ -257,6 +257,7 @@ export default function MainFeedLayout({
     isUpvoted,
     isPopular,
     isAnyExplore,
+    isExploreHub,
     isExploreLatest,
     isSortableFeed,
     isCustomFeed,
@@ -753,11 +754,6 @@ export default function MainFeedLayout({
   // dropdown, so it's gated on isAnyExplore.
   const showExploreV2PageHeader = isAnyExplore && isV2;
 
-  // The Explore hub's feeds: the sort tabs, the explore-tag feed, and
-  // Discussions — the pages the sidebar's Explore panel leads to.
-  const isExploreFeed =
-    isAnyExplore || isExploreTag || feedName === OtherFeedPage.Discussed;
-
   // v2 also hoists the regular page-header strip up here, OUTSIDE
   // `FeedPageLayoutComponent`, so it can span the full floating-card
   // width without being clamped by `FeedPageLayoutList`'s 680px max
@@ -834,12 +830,8 @@ export default function MainFeedLayout({
             } as CSSProperties
           }
         >
-          {isExploreFeed && (
-            // Phones drop the feed gutter because cards run full-bleed there;
-            // a rounded, bordered card cannot, so it keeps its own inset.
-            <ExploreSignupStrip
-              className={classNames('mb-4 px-4', feedGutter)}
-            />
+          {!isExtension && isExploreHub && (
+            <ExploreSignupStrip className={`mb-4 px-4 ${feedGutter}`} />
           )}
           <FeedEngagementBanner className="mb-3" />
         </div>

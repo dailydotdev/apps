@@ -6,6 +6,7 @@ import type {
 import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
+import classNames from 'classnames';
 import React, { useContext, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
@@ -286,7 +287,7 @@ const SourcePage = ({
           />
         </Head>
         <ExploreSignupStrip
-          className={`${pageSectionClassName} mb-4 !w-auto`}
+          className={classNames(pageSectionAutoWidthClassName, 'mb-4')}
         />
         <ArchiveBreadcrumbs
           items={[
