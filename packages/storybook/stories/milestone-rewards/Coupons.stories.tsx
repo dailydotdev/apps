@@ -54,13 +54,13 @@ const PanelFrame = ({
   );
 };
 
-export const AllTen: Story = {
-  name: 'All ten',
+export const AllTwelve: Story = {
+  name: 'All twelve',
   render: () => (
     <Page>
       <PageHeader
         eyebrow="The right hand side"
-        title="Ten ways to draw the coupon, with real logos and real photography"
+        title="Twelve ways to draw the coupon, with real logos and real photography"
       >
         <p>
           The gradient placeholder is gone. Every brand mark here is the
@@ -69,7 +69,7 @@ export const AllTen: Story = {
           invented is a coupon nobody trusts enough to claim.
         </p>
         <p>
-          All ten answer the same four questions in the same order: who is giving
+          All twelve answer the same four questions in the same order: who is giving
           it, what is it, what is it worth, how do I take it. They differ only in
           how much they say around that, and every one of them ends in a single
           button.

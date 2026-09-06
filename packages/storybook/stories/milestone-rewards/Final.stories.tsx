@@ -264,6 +264,7 @@ export const States: Story = {
               offer={offers.disneyplus}
               gifts={gifts}
               state={RewardCardState.Claiming}
+              claimingId={gifts[2].id}
             />
           </Cell>
           <Cell label="Claimed" note="chip replaces the button, the rest stay live">
@@ -271,7 +272,7 @@ export const States: Story = {
               milestone={milestones.month}
               offer={offers.disneyplus}
               gifts={gifts}
-              state={RewardCardState.Claimed}
+              claimedIds={[gifts[1].id]}
               onKeep={noop}
             />
           </Cell>
@@ -343,6 +344,7 @@ export const StreakFamily: Story = {
           milestone={milestoneByDay(21)}
           onClaim={noop}
           onKeep={noop}
+          onGetFreezes={noop}
         />
       </Section>
 
@@ -364,10 +366,20 @@ export const StreakFamily: Story = {
       >
         <div className="flex flex-col gap-10">
           <Cell label="Restore available" note="within two days">
-            <BrokenMoment lostDays={30} onRestore={noop} onKeep={noop} />
+            <BrokenMoment
+              lostDays={30}
+              onRestore={noop}
+              onKeep={noop}
+              onGetFreezes={noop}
+            />
           </Cell>
           <Cell label="Too late to restore" note="the offer is gone, not hidden">
-            <BrokenMoment lostDays={30} canRestore={false} onKeep={noop} />
+            <BrokenMoment
+              lostDays={30}
+              canRestore={false}
+              onKeep={noop}
+              onGetFreezes={noop}
+            />
           </Cell>
         </div>
       </Section>
@@ -408,15 +420,31 @@ export const BrokenStreak: Story = {
       </PageHeader>
 
       <Section title="Within the restore window">
-        <BrokenMoment lostDays={30} onRestore={noop} onKeep={noop} />
+        <BrokenMoment
+          lostDays={30}
+          onRestore={noop}
+          onKeep={noop}
+          onGetFreezes={noop}
+        />
       </Section>
 
       <Section title="After the window">
-        <BrokenMoment lostDays={30} canRestore={false} onKeep={noop} />
+        <BrokenMoment
+          lostDays={30}
+          canRestore={false}
+          onKeep={noop}
+          onGetFreezes={noop}
+        />
       </Section>
 
       <Section title="A short streak, same treatment">
-        <BrokenMoment lostDays={5} price={80} onRestore={noop} onKeep={noop} />
+        <BrokenMoment
+          lostDays={5}
+          price={80}
+          onRestore={noop}
+          onKeep={noop}
+          onGetFreezes={noop}
+        />
       </Section>
 
       <Section title="Why it is drawn this way">
@@ -509,6 +537,7 @@ export const Mobile: Story = {
                 milestone={milestoneByDay(21)}
                 onClaim={noop}
                 onKeep={noop}
+                onGetFreezes={noop}
               />
             </PhoneFrame>
           </Cell>
@@ -523,12 +552,22 @@ export const Mobile: Story = {
           </Cell>
           <Cell label="Broken, restorable">
             <PhoneFrame>
-              <BrokenMoment lostDays={30} onRestore={noop} onKeep={noop} />
+              <BrokenMoment
+                lostDays={30}
+                onRestore={noop}
+                onKeep={noop}
+                onGetFreezes={noop}
+              />
             </PhoneFrame>
           </Cell>
           <Cell label="Broken, window closed">
             <PhoneFrame>
-              <BrokenMoment lostDays={30} canRestore={false} onKeep={noop} />
+              <BrokenMoment
+                lostDays={30}
+                canRestore={false}
+                onKeep={noop}
+                onGetFreezes={noop}
+              />
             </PhoneFrame>
           </Cell>
           <Cell label="No matching offer">
@@ -605,6 +644,7 @@ export const Strips: Story = {
           milestone={milestoneByDay(21)}
           onClaim={noop}
           onKeep={noop}
+          onGetFreezes={noop}
         />
       </Section>
 

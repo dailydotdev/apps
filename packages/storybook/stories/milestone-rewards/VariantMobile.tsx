@@ -125,6 +125,13 @@ export const MobileMoment = ({
 }): ReactElement => {
   const claimed = activeOffer ?? gifts[0];
 
+  // Every step below reads the claimed gift. An empty list is a caller mistake
+  // (NoOfferMoment is the surface for "nothing to give"), so say so plainly
+  // rather than throwing on an undefined property three screens later.
+  if (!claimed) {
+    throw new Error('MobileMoment needs a gift to show');
+  }
+
   if (step === MobileStep.Redirecting) {
     return (
       <MomentShell width="w-full max-w-[24rem]" className={classNames('flex-col', className)}>

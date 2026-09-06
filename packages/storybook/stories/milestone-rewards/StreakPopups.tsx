@@ -162,11 +162,14 @@ export const FirstPartyMoment = ({
   onClaim,
   onClose,
   onKeep,
+  onGetFreezes,
 }: {
   milestone: StreakMilestone;
   onClaim?: () => void;
   onClose?: () => void;
+  /** Declining the whole popup. Never the same event as taking a reward. */
   onKeep?: () => void;
+  onGetFreezes?: () => void;
 }): ReactElement => (
   <MomentShell
     onClose={onClose}
@@ -195,7 +198,7 @@ export const FirstPartyMoment = ({
           title="Two streak freezes"
           meta="Covers a day you miss"
           action="Get"
-          onAction={onKeep}
+          onAction={onGetFreezes}
         />
       </div>
       <NoThanks onClick={onKeep} className="mr-only-narrow" />
@@ -268,13 +271,16 @@ export const BrokenMoment = ({
   onRestore,
   onClose,
   onKeep,
+  onGetFreezes,
 }: {
   lostDays: number;
   price?: number;
   canRestore?: boolean;
   onRestore?: () => void;
   onClose?: () => void;
+  /** Declining the whole popup. Never the same event as taking a reward. */
   onKeep?: () => void;
+  onGetFreezes?: () => void;
 }): ReactElement => (
   <MomentShell
     onClose={onClose}
@@ -329,7 +335,7 @@ export const BrokenMoment = ({
           title="Two streak freezes"
           meta="Covers the next day you miss"
           action="Get"
-          onAction={onKeep}
+          onAction={onGetFreezes}
         />
       </div>
 

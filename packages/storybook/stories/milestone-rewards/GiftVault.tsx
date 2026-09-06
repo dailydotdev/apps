@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -95,6 +95,16 @@ export const CommissionSwap = ({
   </div>
 );
 
+// Every RewardCardState has to land in a section. A gift that is mid-claim or
+// selected is still a gift you own, so it stays under "Ready to claim" rather
+// than dropping out of the vault while the hand-off is in flight.
+const READY_STATES: RewardCardState[] = [
+  RewardCardState.Idle,
+  RewardCardState.Selected,
+  RewardCardState.Claiming,
+  RewardCardState.PlusOnly,
+];
+
 const categories = [
   { category: OfferCategory.Streaming, on: true },
   { category: OfferCategory.Music, on: true },
@@ -136,10 +146,12 @@ export const GiftVault = ({
   commissionPool?: number;
   className?: string;
 }): ReactElement => {
-  const ready = entries.filter(
-    ({ state }) =>
-      state === RewardCardState.Idle || state === RewardCardState.PlusOnly,
+  const [givingCommission, setGivingCommission] = useState(false);
+  const toggleCommission = useCallback(
+    () => setGivingCommission((current) => !current),
+    [],
   );
+  const ready = entries.filter(({ state }) => READY_STATES.includes(state));
   const active = entries.filter(
     ({ state }) => state === RewardCardState.Claimed,
   );
@@ -176,7 +188,11 @@ export const GiftVault = ({
         </section>
       )}
 
-      <CommissionSwap pool={commissionPool} />
+      <CommissionSwap
+        pool={commissionPool}
+        enabled={givingCommission}
+        onToggle={toggleCommission}
+      />
 
       {active.length > 0 && (
         <section className="flex flex-col gap-3">

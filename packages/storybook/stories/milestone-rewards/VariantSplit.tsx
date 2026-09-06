@@ -33,6 +33,8 @@ export const SplitMoment = ({
   offer,
   gifts,
   state = RewardCardState.Idle,
+  claimingId,
+  claimedIds,
   couponLayout = CouponLayout.AppRow,
   decline = DeclineStyle.CloseOnly,
   onClaim,
@@ -45,9 +47,13 @@ export const SplitMoment = ({
   /** List mode. When present the single coupon is replaced by these rows. */
   gifts?: Offer[];
   state?: RewardCardState;
+  /** Which row `state` applies to. List mode only; without it no row is busy. */
+  claimingId?: string;
+  /** Rows already claimed, independent of `state`. List mode only. */
+  claimedIds?: string[];
   couponLayout?: CouponLayout;
   decline?: DeclineStyle;
-  onClaim?: () => void;
+  onClaim?: (offer: Offer) => void;
   onKeep?: () => void;
   onClose?: () => void;
   onOptOut?: () => void;
@@ -75,7 +81,8 @@ export const SplitMoment = ({
         <CouponList
           offers={gifts}
           state={state}
-          claimingId={gifts[0]?.id}
+          claimingId={claimingId}
+          claimedIds={claimedIds}
           onClaim={onClaim}
         />
       ) : (
@@ -83,7 +90,7 @@ export const SplitMoment = ({
           offer={offer}
           layout={couponLayout}
           state={state}
-          onClaim={onClaim}
+          onClaim={() => onClaim?.(offer)}
         />
       )}
 

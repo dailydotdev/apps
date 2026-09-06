@@ -46,31 +46,51 @@ const giftList: Offer[] = [
   offers.applemusic,
 ];
 
-/** Drives idle → claiming → claimed for whichever popup is passed in. */
+/**
+ * Drives idle → claiming → claimed for whichever popup is passed in.
+ *
+ * It tracks *which* gift is in flight, not just that one is: a list popup has
+ * four rows and only the tapped one may show the loader.
+ */
 const useClaim = (): {
   state: RewardCardState;
-  claim: () => void;
+  claimingId?: string;
+  claimedIds: string[];
+  claim: (offer: Offer) => void;
   reset: () => void;
 } => {
   const [state, setState] = useState(RewardCardState.Idle);
+  const [claimingId, setClaimingId] = useState<string | undefined>(undefined);
+  const [claimedIds, setClaimedIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (state !== RewardCardState.Claiming) {
       return undefined;
     }
 
-    const timer = setTimeout(
-      () => setState(RewardCardState.Claimed),
-      CLAIM_DELAY,
-    );
+    const timer = setTimeout(() => {
+      setState(RewardCardState.Claimed);
+      setClaimedIds((current) =>
+        claimingId ? [...current, claimingId] : current,
+      );
+    }, CLAIM_DELAY);
 
     return () => clearTimeout(timer);
-  }, [state]);
+  }, [state, claimingId]);
 
   return {
     state,
-    claim: useCallback(() => setState(RewardCardState.Claiming), []),
-    reset: useCallback(() => setState(RewardCardState.Idle), []),
+    claimingId,
+    claimedIds,
+    claim: useCallback((offer: Offer) => {
+      setClaimingId(offer.id);
+      setState(RewardCardState.Claiming);
+    }, []),
+    reset: useCallback(() => {
+      setState(RewardCardState.Idle);
+      setClaimingId(undefined);
+      setClaimedIds([]);
+    }, []),
   };
 };
 
@@ -91,7 +111,7 @@ const Replay = ({ onClick }: { onClick: () => void }): React.ReactElement => (
 );
 
 const SplitPlayground = (): React.ReactElement => {
-  const { state, claim, reset } = useClaim();
+  const { state, claimingId, claimedIds, claim, reset } = useClaim();
   const [run, setRun] = useState(0);
   const replay = useCallback(() => {
     reset();
@@ -107,6 +127,8 @@ const SplitPlayground = (): React.ReactElement => {
           offer={offers.disneyplus}
           gifts={giftList}
           state={state}
+          claimingId={claimingId}
+          claimedIds={claimedIds}
           onClaim={claim}
           onKeep={replay}
           onClose={replay}
@@ -206,12 +228,13 @@ export const Split: Story = {
         description="Claiming sweeps the brand cover, claimed swaps the button for the receipt line and points at the vault."
       >
         <div className="flex flex-col gap-8">
-          <Cell label="Claiming" note="hand-off in flight">
+          <Cell label="Claiming" note="hand-off in flight on the third row">
             <SplitMoment
               milestone={milestones.month}
               offer={offers.disneyplus}
               gifts={giftList}
               state={RewardCardState.Claiming}
+              claimingId={giftList[2].id}
             />
           </Cell>
           <Cell label="Claimed" note="receipt, no dead end">
@@ -219,7 +242,7 @@ export const Split: Story = {
               milestone={milestones.month}
               offer={offers.disneyplus}
               gifts={giftList}
-              state={RewardCardState.Claimed}
+              claimedIds={[giftList[1].id]}
               onKeep={noop}
             />
           </Cell>
@@ -254,7 +277,7 @@ export const Split: Story = {
 };
 
 const LadderPlayground = (): React.ReactElement => {
-  const { state, claim, reset } = useClaim();
+  const { state, claimingId, claimedIds, claim, reset } = useClaim();
   const [run, setRun] = useState(0);
   const replay = useCallback(() => {
     reset();
@@ -270,6 +293,8 @@ const LadderPlayground = (): React.ReactElement => {
           offer={offers.spotify}
           gifts={giftList.slice(0, 3)}
           state={state}
+          claimingId={claimingId}
+          claimedIds={claimedIds}
           onClaim={claim}
           onKeep={replay}
           onClose={replay}
@@ -336,12 +361,10 @@ const REDIRECT_DELAY = 1600;
 
 
 const CarouselPlayground = (): React.ReactElement => {
-  const { state, claim, reset } = useClaim();
-  const [picked, setPicked] = useState<Offer>();
+  const { state, claimingId, claim, reset } = useClaim();
   const [run, setRun] = useState(0);
   const replay = useCallback(() => {
     reset();
-    setPicked(undefined);
     setRun((current) => current + 1);
   }, [reset]);
 
@@ -353,11 +376,8 @@ const CarouselPlayground = (): React.ReactElement => {
           milestone={milestones.month}
           gifts={giftList}
           state={state}
-          claimingId={picked?.id}
-          onClaim={(offer) => {
-            setPicked(offer);
-            claim();
-          }}
+          claimingId={claimingId}
+          onClaim={claim}
           onKeep={replay}
           onClose={replay}
         />

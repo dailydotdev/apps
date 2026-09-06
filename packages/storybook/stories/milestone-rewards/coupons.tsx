@@ -12,7 +12,7 @@ import type { Offer } from './data';
 import { sponsoredGiftArt } from './data';
 import { RewardCardState } from './RewardCard';
 
-// Ten ways to draw the coupon that sits on the right of the streak popup.
+// Twelve ways to draw the coupon that sits on the right of the streak popup.
 //
 // Real brand logos (public/brand-logos, pulled from each brand's own icon) and
 // real photography (public/offer-art). No invented gradients standing in for a
@@ -128,7 +128,7 @@ const ClaimButton = ({
   );
 };
 
-// 01. App row. The pattern every developer already knows from an app store:
+// 03. App row. The pattern every developer already knows from an app store:
 // icon, name, what you get, worth, one full-width button. Nothing else.
 const AppRow = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className={panel}>
@@ -155,7 +155,7 @@ const AppRow = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 00. List row. The smallest thing that can still be claimed: one line, a small
+// 02. List row. The smallest thing that can still be claimed: one line, a small
 // button on the end of it, no card around it. This is what the popup uses when
 // the gift should not outweigh the streak that earned it.
 const ListRow = ({ offer, state, onClaim }: CouponProps): ReactElement => (
@@ -188,7 +188,7 @@ const ListRow = ({ offer, state, onClaim }: CouponProps): ReactElement => (
 );
 
 
-// 11. Partner card. The shape the partner's own mock-up uses: their photography
+// 01. Partner card. The shape the partner's own mock-up uses: their photography
 // with the offer written across it, then a bar with the brand mark, the brand
 // name, its one-line description and the claim. Every partner writes its own
 // offer sentence, so the headline is never templated.
@@ -243,7 +243,7 @@ const PartnerCard = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 02. Ticket. A physical voucher: notched sides, a tear line, the value stamped
+// 04. Ticket. A physical voucher: notched sides, a tear line, the value stamped
 // on the stub.
 const Ticket = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
@@ -268,7 +268,7 @@ const Ticket = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 03. Logo hero. The brand's own colour as a wash, the mark at full size, one
+// 05. Logo hero. The brand's own colour as a wash, the mark at full size, one
 // sentence, one button.
 const LogoHero = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className="flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary">
@@ -291,7 +291,7 @@ const LogoHero = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 04. Value first. The number is the headline, everything else is a caption.
+// 06. Value first. The number is the headline, everything else is a caption.
 const ValueFirst = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className={panel}>
     <div className="flex items-start justify-between gap-3">
@@ -310,7 +310,7 @@ const ValueFirst = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 05. Gift box. Leads with the 3D gift artwork from the streak progression PR,
+// 07. Gift box. Leads with the 3D gift artwork from the streak progression PR,
 // so the coupon reads as a present before it reads as a brand.
 const GiftBox = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className={classNames(panel, 'items-center text-center')}>
@@ -331,7 +331,7 @@ const GiftBox = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 06. Wallet card. The gift as an object you own, in the shape of a card.
+// 08. Wallet card. The gift as an object you own, in the shape of a card.
 const WalletCard = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className="flex flex-col gap-3">
     <div
@@ -355,7 +355,7 @@ const WalletCard = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 07. Photo hero. The shape the partner's own mock-up used: real photography,
+// 09. Photo hero. The shape the partner's own mock-up used: real photography,
 // brand chip on top of it, offer underneath.
 const PhotoHero = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className="flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
@@ -383,7 +383,7 @@ const PhotoHero = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 08. Bullets. Everything a sceptic asks before clicking, in three lines.
+// 10. Bullets. Everything a sceptic asks before clicking, in three lines.
 const Bullets = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className={panel}>
     <div className="flex items-center gap-3">
@@ -416,7 +416,7 @@ const Bullets = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 09. Code voucher. For partners who hand out a code instead of a link.
+// 11. Code voucher. For partners who hand out a code instead of a link.
 const CodeVoucher = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className={panel}>
     <div className="flex items-center gap-3">
@@ -451,7 +451,7 @@ const CodeVoucher = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   </div>
 );
 
-// 10. Minimal. No card at all. One line of what, one button, one disclosure.
+// 12. Minimal. No card at all. One line of what, one button, one disclosure.
 const Minimal = ({ offer, state, onClaim }: CouponProps): ReactElement => (
   <div className="flex flex-col gap-4">
     <div className="flex items-center gap-3">
@@ -485,62 +485,62 @@ export const couponMeta: Record<
   { number: string; name: string; note: string }
 > = {
   [CouponLayout.ListRow]: {
-    number: '00',
+    number: '02',
     name: 'List row',
     note: 'One line, a small button, no card. The lightest possible claim.',
   },
   [CouponLayout.PartnerCard]: {
-    number: '11',
+    number: '01',
     name: 'Partner card',
     note: "The partner mock-up's own shape: photo, offer, brand bar, claim.",
   },
   [CouponLayout.AppRow]: {
-    number: '01',
+    number: '03',
     name: 'App row',
     note: 'Icon, name, plan, button. The app store pattern.',
   },
   [CouponLayout.Ticket]: {
-    number: '02',
+    number: '04',
     name: 'Ticket',
     note: 'Notched voucher with a tear line and the value on the stub.',
   },
   [CouponLayout.LogoHero]: {
-    number: '03',
+    number: '05',
     name: 'Logo hero',
     note: 'Brand wash, mark at full size, one sentence.',
   },
   [CouponLayout.ValueFirst]: {
-    number: '04',
+    number: '06',
     name: 'Value first',
     note: 'The duration is the headline, the brand is the caption.',
   },
   [CouponLayout.GiftBox]: {
-    number: '05',
+    number: '07',
     name: 'Gift box',
     note: 'Leads with the 3D gift artwork instead of the brand.',
   },
   [CouponLayout.WalletCard]: {
-    number: '06',
+    number: '08',
     name: 'Wallet card',
     note: 'The gift as an object you own, card shaped.',
   },
   [CouponLayout.PhotoHero]: {
-    number: '07',
+    number: '09',
     name: 'Photo hero',
     note: 'Real photography with a brand chip. The partner mock-up shape.',
   },
   [CouponLayout.Bullets]: {
-    number: '08',
+    number: '10',
     name: 'Bullets',
     note: 'Three facts a sceptic wants before clicking.',
   },
   [CouponLayout.CodeVoucher]: {
-    number: '09',
+    number: '11',
     name: 'Code voucher',
     note: 'For partners who hand out a code instead of a link.',
   },
   [CouponLayout.Minimal]: {
-    number: '10',
+    number: '12',
     name: 'Minimal',
     note: 'No card. One line, one button, one disclosure.',
   },

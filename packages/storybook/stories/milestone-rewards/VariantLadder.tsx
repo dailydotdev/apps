@@ -155,6 +155,8 @@ export const LadderMoment = ({
   offer,
   gifts,
   state = RewardCardState.Idle,
+  claimingId,
+  claimedIds,
   couponLayout = CouponLayout.AppRow,
   decline = DeclineStyle.CloseOnly,
   onClaim,
@@ -167,9 +169,13 @@ export const LadderMoment = ({
   /** List mode. Three or more gifts as rows instead of a single coupon. */
   gifts?: Offer[];
   state?: RewardCardState;
+  /** Which row `state` applies to. List mode only; without it no row is busy. */
+  claimingId?: string;
+  /** Rows already claimed, independent of `state`. List mode only. */
+  claimedIds?: string[];
   couponLayout?: CouponLayout;
   decline?: DeclineStyle;
-  onClaim?: () => void;
+  onClaim?: (offer: Offer) => void;
   onKeep?: () => void;
   onClose?: () => void;
   onOptOut?: () => void;
@@ -227,7 +233,8 @@ export const LadderMoment = ({
           <CouponList
             offers={gifts}
             state={state}
-            claimingId={gifts[0]?.id}
+            claimingId={claimingId}
+            claimedIds={claimedIds}
             onClaim={onClaim}
           />
         ) : (
@@ -235,7 +242,7 @@ export const LadderMoment = ({
             offer={offer}
             layout={couponLayout}
             state={state}
-            onClaim={onClaim}
+            onClaim={() => onClaim?.(offer)}
           />
         )}
 

@@ -33,6 +33,10 @@ import {
 
 const CARD_STEP = 13; // rem: card width plus gap, used to slide the track.
 const SWIPE_THRESHOLD = 48; // px of travel before a swipe counts as a move.
+// A drag ending on the card it started on still fires a click. Anything past a
+// few pixels was a swipe, not a tap, so the card's own select must not run and
+// undo the move the swipe just made.
+const DRAG_SLOP = 6;
 
 const SpotlightCard = ({
   offer,
@@ -91,19 +95,28 @@ export const SpotlightMoment = ({
   onClose?: () => void;
   className?: string;
 }): ReactElement => {
-  const [index, setIndex] = useState(startIndex);
+  // Clamped at the seed as well as on read: an out-of-range startIndex left in
+  // state would otherwise need several swipes before it re-entered the list.
+  const [index, setIndex] = useState(() =>
+    Math.min(Math.max(startIndex, 0), Math.max(gifts.length - 1, 0)),
+  );
   const [drag, setDrag] = useState(0);
   const startX = useRef<number | null>(null);
+  const wasDragged = useRef(false);
   // The travelled distance lives in a ref as well as state: state drives the
   // visual offset, but a fast flick can end before React re-renders, and the
   // release has to know how far the finger actually went.
   const travelled = useRef(0);
-  const active = gifts[index];
+  // A caller can hand us a startIndex past the end, and the list can shrink
+  // under a held index. Clamp on read so nothing ever indexes past the array.
+  const safeIndex = Math.min(Math.max(index, 0), gifts.length - 1);
+  const active = gifts[safeIndex];
   const isClaimed = state === RewardCardState.Claimed;
 
   const onPointerDown = useCallback((event: React.PointerEvent) => {
     startX.current = event.clientX;
     travelled.current = 0;
+    wasDragged.current = false;
   }, []);
 
   const onPointerMove = useCallback((event: React.PointerEvent) => {
@@ -126,6 +139,7 @@ export const SpotlightMoment = ({
 
     startX.current = null;
     travelled.current = 0;
+    wasDragged.current = Math.abs(distance) > DRAG_SLOP;
     setDrag(0);
 
     if (distance < -SWIPE_THRESHOLD) {
@@ -134,6 +148,22 @@ export const SpotlightMoment = ({
       setIndex((current) => Math.max(current - 1, 0));
     }
   }, [gifts.length]);
+
+  // The click that follows a swipe lands on the card the finger started on.
+  // Swallow it once, so a swipe is not immediately cancelled by a select.
+  const onSelect = useCallback((cardIndex: number) => {
+    if (wasDragged.current) {
+      wasDragged.current = false;
+
+      return;
+    }
+
+    setIndex(cardIndex);
+  }, []);
+
+  if (!active) {
+    throw new Error('SpotlightMoment needs at least one gift');
+  }
 
   return (
     <MomentShell
@@ -176,7 +206,7 @@ export const SpotlightMoment = ({
             )}
             style={{
               transform: `translateX(calc(${
-                ((gifts.length - 1) / 2 - index) * CARD_STEP
+                ((gifts.length - 1) / 2 - safeIndex) * CARD_STEP
               }rem + ${drag}px))`,
             }}
           >
@@ -184,8 +214,8 @@ export const SpotlightMoment = ({
               <SpotlightCard
                 key={offer.id}
                 offer={offer}
-                isActive={cardIndex === index}
-                onSelect={() => setIndex(cardIndex)}
+                isActive={cardIndex === safeIndex}
+                onSelect={() => onSelect(cardIndex)}
               />
             ))}
           </div>
@@ -200,7 +230,7 @@ export const SpotlightMoment = ({
               onClick={() => setIndex(dotIndex)}
               className={classNames(
                 'h-2 rounded-max transition-[width,background-color] duration-200',
-                dotIndex === index
+                dotIndex === safeIndex
                   ? 'w-5 bg-accent-bacon-default'
                   : 'w-2 bg-surface-hover',
               )}
