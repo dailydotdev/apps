@@ -446,15 +446,15 @@ function DefaultHijackingStrip({
   );
 }
 
-function HijackingHeroStrip({
+export function HijackingHeroStrip({
   variant: experimentVariant,
-  onboardingHandoff,
-  copy,
+  onboardingHandoff = false,
+  copy = LIVE_COPY,
   className,
 }: {
   variant: Exclude<HijackingVariant, HijackingVariant.Default>;
-  onboardingHandoff: boolean;
-  copy: HijackingCopy;
+  onboardingHandoff?: boolean;
+  copy?: HijackingCopy;
   className?: string;
 }): ReactElement {
   const { showLogin, user } = useAuthContext();
