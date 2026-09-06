@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from '../../utilities/Link';
 import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
@@ -11,6 +11,9 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
+import { ParagraphCopyButtons } from '../../../features/snapshot/ParagraphCopyButtons';
+import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
+import { featurePostCopySummary } from '../../../lib/featureManagement';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
@@ -56,6 +59,11 @@ const CollectionPostContentRaw = ({
   });
   const { createdAt, updatedAt, contentHtml, image, numCollectionSources } =
     post;
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const isParagraphCopyEnabled = useSharePlacement({
+    feature: featurePostCopySummary,
+    shouldEvaluate: !!contentHtml,
+  });
   const wasUpdated = isPostUpdated(post);
   const dateToShow = wasUpdated ? updatedAt : createdAt;
   const hasSources = !!numCollectionSources && numCollectionSources > 0;
@@ -185,7 +193,12 @@ const CollectionPostContentRaw = ({
                 />
               </div>
             )}
-            <Markdown content={contentHtml ?? ''} />
+            <div ref={bodyRef}>
+              <Markdown content={contentHtml ?? ''} />
+              {isParagraphCopyEnabled && (
+                <ParagraphCopyButtons containerRef={bodyRef} />
+              )}
+            </div>
           </div>
         </BasePostContent>
       </PostContainer>

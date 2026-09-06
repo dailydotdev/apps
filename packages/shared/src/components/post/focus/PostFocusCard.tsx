@@ -29,6 +29,7 @@ import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { CopySummaryButton } from '../../../features/snapshot/CopySummaryButton';
+import { ParagraphCopyButtons } from '../../../features/snapshot/ParagraphCopyButtons';
 import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
 import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
 import {
@@ -250,6 +251,12 @@ const PostFocusCardRaw = ({
   const isCopySummaryEnabled = useSharePlacement({
     feature: featurePostCopySummary,
     shouldEvaluate: !!article.summary,
+  });
+  // A markdown body has no summary to trail, so the copy sits per paragraph.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const isParagraphCopyEnabled = useSharePlacement({
+    feature: featurePostCopySummary,
+    shouldEvaluate: !!article.contentHtml,
   });
   // Shared into a squad → "Shared via {squad}"; shared to a profile → just
   // "Shared post" (we don't repeat the author's name).
@@ -598,10 +605,13 @@ const PostFocusCardRaw = ({
           )}
 
           {article.contentHtml ? (
-            <>
+            <div ref={bodyRef}>
               <Markdown content={article.contentHtml} className="break-words" />
+              {isParagraphCopyEnabled && (
+                <ParagraphCopyButtons containerRef={bodyRef} />
+              )}
               <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
-            </>
+            </div>
           ) : (
             article.summary &&
             (isVideoType ? (
