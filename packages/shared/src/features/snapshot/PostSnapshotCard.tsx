@@ -33,10 +33,10 @@ interface PostSnapshotCardProps {
 }
 
 /**
- * The TLDR is the card, in white, with the source and date under it as the
- * credit. Everything else the page shows is left off — headline, thumbnail,
- * follow, tags, counts, read time: it competes with the copy for the room,
- * and none of it can be pressed in a still image.
+ * The TLDR leads, in white, with the headline and then the credit under it.
+ * The rest of the page is left off — thumbnail, follow, tags, counts, read
+ * time: it competes with the copy for the room, and none of it can be pressed
+ * in a still image.
  */
 function PostSnapshotCardComponent(
   { post, seed }: PostSnapshotCardProps,
@@ -74,21 +74,32 @@ function PostSnapshotCardComponent(
           )}
         </div>
 
-        {credit && (
-          <div className="flex items-center gap-4" style={{ paddingTop: 40 }}>
-            {post.source?.image && (
-              <img
-                src={post.source.image}
-                alt=""
-                crossOrigin="anonymous"
-                className="block size-14 rounded-full object-cover"
-              />
-            )}
-            <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
-              {credit}
+        <div className="flex flex-col gap-4" style={{ paddingTop: 40 }}>
+          {post.title && (
+            <span
+              className="snapshot-copy font-bold text-white"
+              style={{ fontSize: 32, lineHeight: 1.25 }}
+            >
+              {post.title}
             </span>
-          </div>
-        )}
+          )}
+
+          {credit && (
+            <div className="flex items-center gap-4">
+              {post.source?.image && (
+                <img
+                  src={post.source.image}
+                  alt=""
+                  crossOrigin="anonymous"
+                  className="block size-14 rounded-full object-cover"
+                />
+              )}
+              <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
+                {credit}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </SnapshotFrame>
   );
