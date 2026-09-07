@@ -171,7 +171,19 @@ export const SponsorStrip = ({
   return (
     <div
       data-testid="sponsorStrip"
-      className="sticky bottom-0 z-3 hidden w-full flex-col bg-background-default tablet:flex"
+      className={classNames(
+        'sticky z-3 hidden w-full flex-col bg-background-default tablet:flex',
+        // Two resting places unless the offset matches the frame's own inset.
+        // `sticky bottom-0` reaches the viewport bottom only while its
+        // containing block extends past it; inside the v2 card that block
+        // stops 14px short — `laptop:my-3` on the wrapper plus `laptop:p-0.5`
+        // on the frame — so the dock sat 14px high on first paint, before the
+        // feed made the page scrollable, and dropped when it did. Pinning to
+        // the same 14px makes both positions one position. Keyed to the
+        // frame's class rather than to `isV2`, like `feedGutter`, because the
+        // flag resolves after mount. Outside the frame there is no inset.
+        'bottom-0 laptop:[.layout-frame_&]:bottom-3.5',
+      )}
     >
       {showSponsorRow && (
         <SponsorRow
