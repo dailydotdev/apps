@@ -66,6 +66,7 @@ import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
 import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
 import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -228,6 +229,7 @@ const SourcePage = ({
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { user } = useContext(AuthContext);
+  useRecentPageMeta({ image: source?.image });
   const mostUpvotedQueryVariables = useMemo(
     () => ({
       source: source?.id,

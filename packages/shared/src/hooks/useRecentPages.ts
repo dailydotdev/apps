@@ -1,11 +1,16 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/router';
-import type { RecentPage, RecentPageType } from '../lib/recentPages';
+import type {
+  RecentPage,
+  RecentPageMeta,
+  RecentPageType,
+} from '../lib/recentPages';
 import { withoutLayoutVariantPrefix } from '../lib/layoutVariant';
 import {
   getRecentPages,
   recordRecentPage,
   subscribeRecentPages,
+  updateRecentPageMeta,
 } from '../lib/recentPages';
 
 const EMPTY: RecentPage[] = [];
@@ -13,6 +18,22 @@ const getServerSnapshot = (): RecentPage[] => EMPTY;
 
 export const useRecentPages = (): RecentPage[] =>
   useSyncExternalStore(subscribeRecentPages, getRecentPages, getServerSnapshot);
+
+// Entity pages (squad, source, profile) already hold the avatar the sidebar
+// row wants, so they hand it to the store instead of leaving the row to fetch.
+export const useRecentPageMeta = (meta: RecentPageMeta): void => {
+  const router = useRouter();
+  const path = router?.asPath?.split('?')[0].split('#')[0];
+  const { image } = meta;
+
+  useEffect(() => {
+    if (!path || !image) {
+      return;
+    }
+
+    updateRecentPageMeta(path, { image });
+  }, [path, image]);
+};
 
 const brandSuffix = /\s*[|·\-–—]\s*daily\.dev\s*$/i;
 const cleanTitle = (title: string): string =>

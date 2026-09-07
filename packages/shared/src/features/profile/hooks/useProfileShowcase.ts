@@ -33,6 +33,7 @@ export type UseProfileShowcase<Slice extends keyof ProfileShowcase> =
 export function useProfileShowcase<Slice extends keyof ProfileShowcase>(
   user: ShowcaseUser,
   slice: Slice,
+  { enabled = true }: { enabled?: boolean } = {},
 ): UseProfileShowcase<Slice> {
   const queryClient = useQueryClient();
   const userId = user?.id;
@@ -52,7 +53,7 @@ export function useProfileShowcase<Slice extends keyof ProfileShowcase>(
     queryKey,
     queryFn: () => getProfileShowcase(userId as string),
     select,
-    enabled: !!userId,
+    enabled: !!userId && enabled,
     staleTime: StaleTime.Default,
   });
 
