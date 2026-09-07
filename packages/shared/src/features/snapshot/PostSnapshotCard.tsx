@@ -44,18 +44,30 @@ function PostSnapshotCardComponent(
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   const summary = post.summary?.trim();
+  // One line, dot-separated: two stacked lines of grey read as two facts, and
+  // the credit is one.
+  const credit = [
+    post.source?.name,
+    post.createdAt &&
+      formatDate({ value: post.createdAt, type: TimeFormatType.Post }),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <SnapshotFrame grow wide ref={ref} seed={seed ?? post.id}>
       <div className="flex flex-1 flex-col">
+        {/* Body copy, not display copy: no balanced wrapping and no negative
+            tracking, both of which fight legibility at normal weight, and the
+            leading a long paragraph needs. */}
         <div className="flex flex-1 flex-col justify-center">
           {summary && (
             <p
-              className="snapshot-copy text-white"
+              className="text-white"
               style={{
                 fontSize: summaryFontSize(summary.length),
-                lineHeight: 1.35,
-                letterSpacing: '-0.01em',
+                lineHeight: 1.55,
+                overflowWrap: 'break-word',
               }}
             >
               {summary}
@@ -76,9 +88,9 @@ function PostSnapshotCardComponent(
             </span>
           )}
 
-          {post.source?.name && (
+          {credit && (
             <div className="flex items-center gap-4">
-              {post.source.image && (
+              {post.source?.image && (
                 <img
                   src={post.source.image}
                   alt=""
@@ -87,15 +99,9 @@ function PostSnapshotCardComponent(
                 />
               )}
               <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
-                {post.source.name}
+                {credit}
               </span>
             </div>
-          )}
-
-          {post.createdAt && (
-            <span style={{ color: MUTED, fontSize: 26, lineHeight: 1.3 }}>
-              {formatDate({ value: post.createdAt, type: TimeFormatType.Post })}
-            </span>
           )}
         </div>
       </div>

@@ -102,7 +102,9 @@ function SnapshotFrameComponent(
         background: getSnapshotGradient(seed),
         ...(grow
           ? {
-              minHeight: SNAPSHOT_SIZE,
+              // No floor: the frame is whatever the card needs plus its
+              // gutter, so a short card gives a short image rather than one
+              // padded out to the square.
               maxHeight: SNAPSHOT_MAX_HEIGHT,
               // justify-center has nothing to distribute once the height
               // follows the card, so the gutter has to be explicit.
@@ -124,10 +126,9 @@ function SnapshotFrameComponent(
         <div
           style={{
             width: cardWidth,
-            minHeight: SNAPSHOT_SIZE - gutter * 2,
-            ...(grow && {
-              maxHeight: SNAPSHOT_MAX_HEIGHT - gutter * 2,
-            }),
+            ...(grow
+              ? { maxHeight: SNAPSHOT_MAX_HEIGHT - gutter * 2 }
+              : { minHeight: SNAPSHOT_SIZE - gutter * 2 }),
             padding: CARD_EDGE,
             borderRadius: CARD_RADIUS,
             background: CARD_EDGE_GRADIENT,
@@ -140,7 +141,9 @@ function SnapshotFrameComponent(
               wide ? 'gap-5' : 'gap-7',
             )}
             style={{
-              minHeight: SNAPSHOT_SIZE - gutter * 2 - CARD_EDGE * 2,
+              ...(!grow && {
+                minHeight: SNAPSHOT_SIZE - gutter * 2 - CARD_EDGE * 2,
+              }),
               padding: wide ? CARD_PADDING_WIDE : CARD_PADDING,
               borderRadius: CARD_RADIUS - CARD_EDGE,
               background: CARD_BODY,
