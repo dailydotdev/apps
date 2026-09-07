@@ -17,6 +17,7 @@ import { uploadCvBgMobile } from '../../../lib/image';
 import { useJobsFeature } from '../../../hooks/useJobsFeature';
 import { usePreferredSource } from '../../../hooks/usePreferredSource';
 import { GoogleIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { ButtonVariant } from '../../buttons/common';
 
 const illustrationFrameClass =
@@ -38,13 +39,18 @@ const CvIllustration = (): ReactElement => (
   </div>
 );
 
+// Deliberately not `illustrationFrameClass`: that frame is wider than it is
+// tall (w-32 around a size-24 tile), which leaves 16px of slack on each side.
+// Added to the section's own pl-3 that put 28px to the left of the tile against
+// 8px above and below it. A square frame removes the slack, and `!pl-2` on the
+// section trims the remaining left padding to match `py-2`.
 const GoogleIllustration = (): ReactElement => (
   <div
-    className={classNames(illustrationFrameClass, 'self-center')}
+    className="!m-0 flex size-24 shrink-0 items-center justify-center self-center tablet:size-28"
     aria-hidden
   >
     <span className="flex size-24 items-center justify-center rounded-12 bg-surface-float tablet:size-28">
-      <GoogleIcon secondary className="size-14" />
+      <GoogleIcon secondary size={IconSize.Size80} />
     </span>
   </div>
 );
@@ -129,6 +135,9 @@ export const HomepageTopBanners = ({
     cards.push(
       <TopHero
         key="preferred-source"
+        // Left padding down to py-2's 8px so the tile sits as far from the
+        // card's left edge as it does from its top and bottom.
+        className="!pl-2"
         subtitle="Add daily.dev and it shows up more often in Top Stories and AI Overviews."
         ctaLabel="Add as preferred source"
         ctaVariant={ButtonVariant.Primary}

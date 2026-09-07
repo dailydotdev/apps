@@ -74,6 +74,9 @@ export const getPreferredSourceUrl = (domain: string): string =>
  */
 export const PREFERRED_SOURCE_STATE_KEY = 'preferred_source_state';
 
+/** REVIEW AFFORDANCE — remove before merge. See usePreferredSource. */
+export const PREFERRED_SOURCE_FORCE_KEY = 'preferred_source_force';
+
 export type PreferredSourceState = 'added' | 'dismissed';
 
 /** Identifies our own notification / quest so the frontend can decorate it. */

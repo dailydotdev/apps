@@ -5,9 +5,10 @@ import { usePreferredSource } from '../../../hooks/usePreferredSource';
 import { PreferGoogleButton } from './PreferGoogleButton';
 
 /**
- * The widget-column ask, directly under the source card. Takes its own top
- * margin so the space above and below it matches the gap the recommend block
- * below already carries.
+ * The widget-column ask, at the very top of the rail — above the source card,
+ * the signup widget and the ad slot. No margin of its own: PageWidgets already
+ * sets the gap between rail items, and an extra one here would push the whole
+ * column down.
  */
 export function PreferGoogleSourceAction(): ReactElement | null {
   const { isEligible, isReady, onAdd, onImpression } = usePreferredSource({
@@ -26,7 +27,7 @@ export function PreferGoogleSourceAction(): ReactElement | null {
   }
 
   return (
-    <div className="mt-3 w-full">
+    <div className="w-full">
       <PreferGoogleButton
         className="w-full"
         isReady={isReady}

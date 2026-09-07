@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useConditionalFeature } from './useConditionalFeature';
 import usePersistentContext from './usePersistentContext';
@@ -7,7 +7,10 @@ import { useLogContext } from '../contexts/LogContext';
 import { featurePreferredSource } from '../lib/featureManagement';
 import { LogEvent, TargetType } from '../lib/log';
 import type { PreferredSourceState } from '../lib/preferredSources';
-import { PREFERRED_SOURCE_STATE_KEY } from '../lib/preferredSources';
+import {
+  PREFERRED_SOURCE_FORCE_KEY,
+  PREFERRED_SOURCE_STATE_KEY,
+} from '../lib/preferredSources';
 import { useGooglePreferredSource } from './useGooglePreferredSource';
 
 export type UsePreferredSourceProps = {
@@ -43,8 +46,31 @@ export const usePreferredSource = ({
   const router = useRouter();
   // REVIEW AFFORDANCE — remove before merge. The flag is off by default, so a
   // Vercel preview would show nothing; `?preferredSource=1` forces the gate on
-  // for one session so the placements can be reviewed without a GrowthBook rule.
-  const isForced = router?.query?.preferredSource === '1';
+  // so the placements can be reviewed without a GrowthBook rule.
+  //
+  // Sticky for the tab, deliberately: the param survives a full page load but
+  // not client-side navigation, so opening a post from the feed (which is a
+  // modal over the feed, with no query string of its own) would silently drop
+  // it and the reviewer would see nothing. sessionStorage carries it across
+  // every route until the tab closes.
+  //
+  // Read in an effect rather than during render: the server has no
+  // sessionStorage, so reading it inline would make the first client render
+  // disagree with the server HTML and trip a hydration error.
+  const [isForced, setIsForced] = useState(false);
+  const isForcedParam = router?.query?.preferredSource === '1';
+
+  useEffect(() => {
+    if (isForcedParam) {
+      globalThis.sessionStorage?.setItem(PREFERRED_SOURCE_FORCE_KEY, '1');
+      setIsForced(true);
+      return;
+    }
+
+    setIsForced(
+      globalThis.sessionStorage?.getItem(PREFERRED_SOURCE_FORCE_KEY) === '1',
+    );
+  }, [isForcedParam]);
   const { isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const [state, setState, isStateLoaded] =

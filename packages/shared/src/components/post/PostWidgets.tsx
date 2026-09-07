@@ -164,9 +164,9 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
+      <PreferGoogleSourceAction />
       {!hideSignupWidget && <PostSignupWidget />}
       {withAd(PostWidgetPosition.Source, sourceCard)}
-      <PreferGoogleSourceAction />
       {withAd(
         PostWidgetPosition.Creator,
         creator && (

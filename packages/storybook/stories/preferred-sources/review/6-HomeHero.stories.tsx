@@ -6,6 +6,7 @@ import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/Ar
 import { TopHero } from '@dailydotdev/shared/src/components/marketing/banners/HeroBottomBanner';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/Button';
 import { GoogleIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ReviewProviders, reviewPost } from './_providers';
 import { feedPosts, cardHandlers } from './_feed';
 
@@ -46,15 +47,15 @@ const meta: Meta<Args> = {
       <div className="min-h-screen bg-background-default px-4 pt-4 text-text-primary laptop:px-8">
         {variant === 'proposed' && (
           <TopHero
-            className="mb-4"
+            className="mb-4 !pl-2"
             subtitle="Add daily.dev and it shows up more often in Top Stories and AI Overviews."
             ctaLabel="Add as preferred source"
             ctaVariant={ButtonVariant.Primary}
             onCtaClick={fn()}
             onClose={fn()}
             illustration={
-              <span className="flex size-24 shrink-0 items-center justify-center self-center rounded-12 bg-surface-float">
-                <GoogleIcon secondary className="size-14" />
+              <span className="flex size-24 shrink-0 items-center justify-center self-center rounded-12 bg-surface-float tablet:size-28">
+                <GoogleIcon secondary size={IconSize.Size80} />
               </span>
             }
           />
