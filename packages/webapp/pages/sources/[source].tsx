@@ -47,7 +47,7 @@ import {
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';

@@ -1,18 +1,17 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { HijackingCoverCopy } from './HijackingCoverStrip';
 import {
   HijackingCoverStrip,
-  hijackingCoverStripMinHeight,
+  HijackingCoverStripPlaceholder,
 } from './HijackingCoverStrip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
+import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { AuthTriggers } from '../../lib/auth';
-import { LogEvent, TargetType } from '../../lib/log';
-
-const targetId = 'explore strip';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 
 // The new tab's copy, with the headline pointed at the feed rather than the tab.
 const copy: HijackingCoverCopy = {
@@ -22,7 +21,7 @@ const copy: HijackingCoverCopy = {
   login: 'Log in',
 };
 
-// The new tab's cover strip on the Explore hub, for anonymous visitors only.
+// The new tab's cover strip for anonymous visitors, tablet and up.
 export function ExploreSignupStrip({
   className,
 }: {
@@ -32,43 +31,30 @@ export function ExploreSignupStrip({
   const { logEvent } = useLogContext();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isAnonymous = isAuthReady && !user;
-  const hasLoggedImpression = useRef(false);
 
-  useEffect(() => {
-    if (!isAnonymous || !isTablet || hasLoggedImpression.current) {
-      return;
-    }
-
-    hasLoggedImpression.current = true;
-    logEvent({
+  useLogEventOnce(
+    () => ({
       event_name: LogEvent.Impression,
       target_type: TargetType.SignupButton,
-      target_id: targetId,
-    });
-  }, [isAnonymous, isTablet, logEvent]);
+      target_id: TargetId.ExploreStrip,
+    }),
+    { condition: isAnonymous && isTablet },
+  );
 
-  // Phones already carry the header's Log in / Sign up pair. The gate is CSS so
-  // the slot is already in the SSR HTML and hydration doesn't reflow the H1;
-  // the impression above takes the matching JS gate instead, so a phone that
-  // never paints the strip doesn't report seeing it.
-  const visibility = 'hidden tablet:block';
+  if (user) {
+    return null;
+  }
 
-  // The server cannot know the visitor, so it paints the page without the
-  // strip; holding its slot until boot answers keeps the H1 from jumping.
+  // Holds the strip's slot in the server HTML until boot answers.
   if (!isAuthReady) {
     return (
-      <div
-        aria-hidden
-        className={classNames(
-          visibility,
-          hijackingCoverStripMinHeight,
-          className,
-        )}
+      <HijackingCoverStripPlaceholder
+        className={classNames('hidden tablet:block', className)}
       />
     );
   }
 
-  if (user) {
+  if (!isTablet) {
     return null;
   }
 
@@ -76,7 +62,7 @@ export function ExploreSignupStrip({
     logEvent({
       event_name: LogEvent.Click,
       target_type: isLogin ? TargetType.LoginButton : TargetType.SignupButton,
-      target_id: targetId,
+      target_id: TargetId.ExploreStrip,
     });
 
     showLogin({ trigger: AuthTriggers.Onboarding, options: { isLogin } });
@@ -85,7 +71,7 @@ export function ExploreSignupStrip({
   return (
     <HijackingCoverStrip
       copy={copy}
-      className={classNames(visibility, className)}
+      className={className}
       onSignupClick={onAuthClick(false)}
       onLoginClick={onAuthClick(true)}
     />

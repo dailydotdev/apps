@@ -19,8 +19,7 @@ export interface HijackingCoverCopy {
 
 const coverArtPosition = { objectPosition: '50% 62%' };
 
-// The card's height without a sizer; a placeholder of the same height can
-// hold its slot before it renders.
+// The card's height without a sizer.
 export const hijackingCoverStripMinHeight = 'min-h-[14rem]';
 
 interface HijackingCoverStripProps {
@@ -43,17 +42,14 @@ export function HijackingCoverStrip({
 }: HijackingCoverStripProps): ReactElement {
   return (
     <section className={classNames('w-full', className)}>
-      <div
-        className={classNames(
-          'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2',
-          !sizer && hijackingCoverStripMinHeight,
-        )}
-      >
+      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
         <img
           src={cloudinaryHijackingCoverArt}
           alt=""
           aria-hidden
           role="presentation"
+          fetchPriority="high"
+          decoding="async"
           className="pointer-events-none absolute inset-0 size-full object-cover"
           style={coverArtPosition}
         />
@@ -72,7 +68,7 @@ export function HijackingCoverStrip({
             'dark relative z-1 flex flex-col items-center justify-center text-center',
             sizer
               ? 'p-5 tablet:absolute tablet:inset-0'
-              : classNames('px-5 py-10', hijackingCoverStripMinHeight),
+              : `px-5 py-10 ${hijackingCoverStripMinHeight}`,
           )}
         >
           <h3 className="font-bold text-white typo-title2 [text-shadow:0_2px_18px_rgba(0,0,0,0.6)]">
@@ -109,6 +105,19 @@ export function HijackingCoverStrip({
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+// The same box as the strip without a sizer, empty: holds its slot.
+export function HijackingCoverStripPlaceholder({
+  className,
+}: {
+  className?: string;
+}): ReactElement {
+  return (
+    <section aria-hidden className={classNames('w-full', className)}>
+      <div className={hijackingCoverStripMinHeight} />
     </section>
   );
 }

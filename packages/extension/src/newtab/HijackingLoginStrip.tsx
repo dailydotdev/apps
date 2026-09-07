@@ -308,7 +308,7 @@ function CoverSignupHero({
       copy={LIVE_COPY}
       onSignupClick={onSignupClick}
       onLoginClick={onLoginClick}
-      className={classNames('mb-4 pb-0', feedStyles.cards)}
+      className={classNames('mb-4', feedStyles.cards)}
       sizer={
         <>
           <ControlTextColumn isLoggedOut={isLoggedOut} />
