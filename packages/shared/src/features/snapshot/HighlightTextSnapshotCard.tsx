@@ -1,119 +1,51 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
-import colors from '../../styles/colors';
+import { SnapshotCredit } from './SnapshotCredit';
 import { SnapshotFrame } from './SnapshotFrame';
-import { snapshotCopyFontSize, windowPassage } from './snapshotText';
-
-const MUTED = colors.salt['90'];
-const DIVIDER = colors.pepper['10'];
-
-/**
- * The reader's own selection, set apart the way the page sets it apart. Kept
- * lighter than a solid fill: the marked run has to read as part of the passage,
- * not as a separate block.
- */
-const MARK_BACKGROUND = 'rgba(177, 75, 215, 0.32)';
-const MARK_EDGE = 'rgba(214, 196, 255, 0.42)';
+import {
+  SNAPSHOT_COPY_SIZE,
+  SNAPSHOT_PASSAGE_LIMIT,
+  truncateAtWord,
+} from './snapshotText';
 
 export interface HighlightTextSnapshotCardProps {
-  /**
-   * The passage around the selection — a paragraph, or the whole body. Sharing
-   * only what was marked loses the point the reader was making, so the image
-   * carries the context and marks the selection inside it.
-   */
+  /** What the reader marked, and the whole subject of the card. */
   text: string;
-  /** The marked run, as it appears in `text`. Without it the passage stands alone. */
-  highlight?: string;
   source?: { name: string; image?: string };
-  domain?: string;
   seed?: string;
 }
 
 /**
- * Set like the post card: same copy scale, same credit line. The two sit side
- * by side wherever this feature is reviewed, and a highlight is a post's text
- * — it should not look like a different product.
+ * The reader's selection, set like the post card's TLDR: same copy scale,
+ * same credit. Nothing around the selection is carried — what was marked is
+ * what gets sent, so the card needs no highlight of its own. The source is
+ * named, not linked: a URL is unreadable at a glance and unclickable in an
+ * image.
  */
 function HighlightTextSnapshotCardComponent(
-  { text, highlight, source, domain, seed }: HighlightTextSnapshotCardProps,
+  { text, source, seed }: HighlightTextSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
-  const { before, marked, after } = windowPassage(text, highlight);
-  const hasContext = !!(before || after);
-  const credit = [source?.name, domain].filter(Boolean).join(' · ');
+  const quote = truncateAtWord(text, SNAPSHOT_PASSAGE_LIMIT);
 
   return (
     <SnapshotFrame grow wide ref={ref} seed={seed ?? text}>
       <div className="flex flex-1 flex-col">
         <div className="flex flex-1 flex-col justify-center">
-          {/* An opening quote over a windowed passage would claim the context
-              as the quote too, so it only leads a bare selection. */}
-          {!hasContext && (
-            <span
-              aria-hidden
-              className="font-bold"
-              style={{
-                color: colors.cabbage['10'],
-                fontSize: 96,
-                lineHeight: 0.6,
-                height: 58,
-              }}
-            >
-              &ldquo;
-            </span>
-          )}
           <p
+            className="text-white"
             style={{
-              // Context sits back so the marked run carries the image.
-              color: hasContext ? MUTED : '#FFFFFF',
-              fontSize: snapshotCopyFontSize(
-                before.length + marked.length + after.length,
-              ),
+              fontSize: SNAPSHOT_COPY_SIZE,
               lineHeight: 1.55,
               overflowWrap: 'break-word',
             }}
           >
-            {before}
-            <span
-              className="text-white"
-              style={{
-                background: MARK_BACKGROUND,
-                boxShadow: `inset 0 0 0 1px ${MARK_EDGE}`,
-                borderRadius: 8,
-                padding: '0.08em 0.12em',
-                // Each wrapped line gets its own box, so a multi-line mark
-                // reads as marked text rather than one tall block.
-                boxDecorationBreak: 'clone',
-                WebkitBoxDecorationBreak: 'clone',
-              }}
-            >
-              {marked}
-            </span>
-            {after}
+            {quote}
           </p>
         </div>
 
-        {credit && (
-          <div
-            className="flex items-center gap-4"
-            style={{
-              marginTop: 44,
-              paddingTop: 32,
-              borderTop: `1px solid ${DIVIDER}`,
-            }}
-          >
-            {source?.image && (
-              <img
-                src={source.image}
-                alt=""
-                crossOrigin="anonymous"
-                className="block size-14 rounded-full object-cover"
-              />
-            )}
-            <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
-              {credit}
-            </span>
-          </div>
+        {source?.name && (
+          <SnapshotCredit image={source.image} name={source.name} />
         )}
       </div>
     </SnapshotFrame>

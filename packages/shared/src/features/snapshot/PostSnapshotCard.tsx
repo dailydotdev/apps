@@ -1,13 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import type { Post } from '../../graphql/posts';
-import { formatDate, TimeFormatType } from '../../lib/dateFormat';
-import colors from '../../styles/colors';
+import { SnapshotCredit } from './SnapshotCredit';
 import { SnapshotFrame } from './SnapshotFrame';
-import { snapshotCopyFontSize } from './snapshotText';
-
-const MUTED = colors.salt['90'];
-const DIVIDER = colors.pepper['10'];
+import { SNAPSHOT_COPY_SIZE } from './snapshotText';
 
 interface PostSnapshotCardProps {
   post: Post;
@@ -15,26 +11,16 @@ interface PostSnapshotCardProps {
 }
 
 /**
- * The TLDR in white, credited to its source and date. The headline is left
- * off because the TLDR already says what it says, at more length; so is the
- * rest of the page's furniture — thumbnail, follow, tags, counts, read time —
- * which competed with the copy for the room and cannot be pressed anyway.
+ * The TLDR in white, credited to its source. The headline is left off because
+ * the TLDR already says what it says, at more length; so is the rest of the
+ * page's furniture — date, thumbnail, follow, tags, counts, read time — which
+ * competed with the copy for the room and cannot be pressed anyway.
  */
 function PostSnapshotCardComponent(
   { post, seed }: PostSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   const summary = post.summary?.trim();
-  // One line, dot-separated: two stacked lines of grey read as two facts, and
-  // the credit is one.
-  const credit = [
-    post.source?.name,
-    post.createdAt &&
-      formatDate({ value: post.createdAt, type: TimeFormatType.Post }),
-  ]
-    .filter(Boolean)
-    .join(' · ');
-
   return (
     <SnapshotFrame grow wide ref={ref} seed={seed ?? post.id}>
       <div className="flex flex-1 flex-col">
@@ -46,7 +32,7 @@ function PostSnapshotCardComponent(
             <p
               className="text-white"
               style={{
-                fontSize: snapshotCopyFontSize(summary.length),
+                fontSize: SNAPSHOT_COPY_SIZE,
                 lineHeight: 1.55,
                 overflowWrap: 'break-word',
               }}
@@ -56,27 +42,8 @@ function PostSnapshotCardComponent(
           )}
         </div>
 
-        {credit && (
-          <div
-            className="flex items-center gap-4"
-            style={{
-              marginTop: 44,
-              paddingTop: 32,
-              borderTop: `1px solid ${DIVIDER}`,
-            }}
-          >
-            {post.source?.image && (
-              <img
-                src={post.source.image}
-                alt=""
-                crossOrigin="anonymous"
-                className="block size-14 rounded-full object-cover"
-              />
-            )}
-            <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
-              {credit}
-            </span>
-          </div>
+        {post.source?.name && (
+          <SnapshotCredit image={post.source.image} name={post.source.name} />
         )}
       </div>
     </SnapshotFrame>

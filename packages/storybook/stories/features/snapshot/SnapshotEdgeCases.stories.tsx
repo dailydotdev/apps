@@ -5,7 +5,10 @@ import { SnapshotFrame } from '@dailydotdev/shared/src/features/snapshot/Snapsho
 import { SnapshotContent } from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
 import { getSnapshotCaptureOptions } from '@dailydotdev/shared/src/features/snapshot/snapshotCapture';
-import { SNAPSHOT_PASSAGE_LIMIT } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
+import {
+  SNAPSHOT_COPY_SIZE,
+  SNAPSHOT_PASSAGE_LIMIT,
+} from '@dailydotdev/shared/src/features/snapshot/snapshotText';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
 import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
 import { ProfileSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ProfileSnapshotCard';
@@ -53,53 +56,13 @@ const CARDS: CardSpec[] = [
   {
     id: 'highlight',
     title: 'Highlighted text',
-    note: `Scales 54 → 33px by length, on the same scale as the post card. With a selection the passage is windowed around it to ${SNAPSHOT_PASSAGE_LIMIT} characters and the marked run is set apart; without one the passage stands alone.`,
+    note: `One size (${SNAPSHOT_COPY_SIZE}px, the post card's), truncated at the last word at ${SNAPSHOT_PASSAGE_LIMIT} characters. The frame grows or shrinks around it.`,
     cases: [
-      {
-        label: 'Selection inside its passage',
-        node: (ref) => (
-          <HighlightTextSnapshotCard
-            ref={ref}
-            domain="xda-developers.com"
-            highlight="the actual bottleneck was always the four hundred kilobytes of analytics we shipped on every single page load"
-            seed="a0"
-            source={{ name: 'XDA Developers', image: AVATAR }}
-            text={LOREM}
-          />
-        ),
-      },
-      {
-        label: 'Selection longer than the window',
-        node: (ref) => (
-          <HighlightTextSnapshotCard
-            ref={ref}
-            domain="xda-developers.com"
-            highlight={LOREM}
-            seed="a1"
-            source={{ name: 'XDA Developers', image: AVATAR }}
-            text={LOREM}
-          />
-        ),
-      },
-      {
-        label: 'Selection not found in the passage',
-        node: (ref) => (
-          <HighlightTextSnapshotCard
-            ref={ref}
-            domain="xda-developers.com"
-            highlight="a run that was never in this text"
-            seed="a2"
-            source={{ name: 'XDA Developers', image: AVATAR }}
-            text="Tabs won. Prettier just hid the bodies."
-          />
-        ),
-      },
       {
         label: 'Typical (59 chars)',
         node: (ref) => (
           <HighlightTextSnapshotCard
             ref={ref}
-            domain="xda-developers.com"
             seed="a"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text="TypeScript has become the default across frontend frameworks"
@@ -111,7 +74,6 @@ const CARDS: CardSpec[] = [
         node: (ref) => (
           <HighlightTextSnapshotCard
             ref={ref}
-            domain="xda-developers.com"
             seed="b"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text="Tabs won."
@@ -123,7 +85,6 @@ const CARDS: CardSpec[] = [
         node: (ref) => (
           <HighlightTextSnapshotCard
             ref={ref}
-            domain="xda-developers.com"
             seed="c"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text={LOREM}

@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnapshotFrame } from '@dailydotdev/shared/src/features/snapshot/SnapshotFrame';
 import type { SnapshotContentProps } from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
 import {
-  HIGHLIGHTS_EYEBROW_GRADIENT,
   HOT_TAKE_EYEBROW_GRADIENT,
   SnapshotContent,
 } from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
@@ -64,6 +63,18 @@ const POST = {
   },
 } as Post;
 
+/** A Happening now highlight, for surface 2 — same card, its own copy. */
+const HIGHLIGHT_POST = {
+  id: 'qwen-3-8-max',
+  summary:
+    'Alibaba released downloadable weights for Qwen3.8-Max, a 2.4 trillion-parameter mixture-of-experts vision-language model, alongside the smaller Qwen3.8-27B, within a week of unveiling the Max model.',
+  source: {
+    id: 'alibaba-cloud',
+    name: 'Alibaba Cloud',
+    image: avatarUri('#FF6A00', 'A'),
+  },
+} as Post;
+
 interface Placement {
   id: string;
   surface: string;
@@ -86,31 +97,19 @@ const PLACEMENTS: Placement[] = [
     render: (ref) => (
       <HighlightTextSnapshotCard
         ref={ref}
-        domain="traversymedia.com"
-        highlight="The speaker shares a personal timeline from ChatGPT's release through AI-driven layoffs, Tailwind's business model disruption, and his own layoff"
         seed="highlight-text"
         source={{
           name: 'Traversy Media',
           image: avatarUri('#B14BD7', 'T'),
         }}
-        text="A conference talk frames developers' emotional journey with AI coding tools through the five stages of grief, from denial through acceptance. The speaker shares a personal timeline from ChatGPT's release through AI-driven layoffs, Tailwind's business model disruption, and his own layoff, culminating in acceptance after testing Claude and seeing what the tools actually change about the job."
+        text="The speaker shares a personal timeline from ChatGPT's release through AI-driven layoffs, Tailwind's business model disruption, and his own layoff"
       />
     ),
   },
   {
     id: 'highlight',
     surface: '2 · Happening now (expanded highlight)',
-    grow: true,
-    content: {
-      bodyLines: 0,
-      titleLines: 0,
-      eyebrow: 'Happening now',
-      eyebrowGradient: HIGHLIGHTS_EYEBROW_GRADIENT,
-      title:
-        'Alibaba open-sources Qwen3.8-Max weights and releases 27B model for local use',
-      meta: ['14h ago'],
-      body: 'Alibaba released downloadable weights for Qwen3.8-Max, a 2.4 trillion-parameter mixture-of-experts vision-language model, alongside the smaller Qwen3.8-27B, within a week of unveiling the Max model.',
-    },
+    render: (ref) => <PostSnapshotCard ref={ref} post={HIGHLIGHT_POST} />,
   },
   {
     id: 'leaderboard',
