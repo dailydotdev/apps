@@ -6,6 +6,7 @@ import colors from '../../styles/colors';
 import { SnapshotFrame } from './SnapshotFrame';
 
 const MUTED = colors.salt['90'];
+const DIVIDER = colors.pepper['10'];
 
 /**
  * The TLDR is the payload, so it takes as much size as it can carry: a short
@@ -74,7 +75,14 @@ function PostSnapshotCardComponent(
           )}
         </div>
 
-        <div className="flex flex-col gap-4" style={{ paddingTop: 40 }}>
+        <div
+          className="flex flex-col gap-4"
+          style={{
+            marginTop: 44,
+            paddingTop: 32,
+            borderTop: `1px solid ${DIVIDER}`,
+          }}
+        >
           {post.title && (
             <span
               className="snapshot-copy font-bold text-white"
