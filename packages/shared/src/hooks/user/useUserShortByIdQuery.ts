@@ -2,7 +2,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import { USER_SHORT_BY_ID } from '../../graphql/users';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { gqlClient } from '../../graphql/common';
+import { gqlBatchRequest } from '../../graphql/batch';
 import type { PublicProfile } from '../../lib/user';
 
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -21,7 +21,10 @@ export const useUserShortByIdQuery = ({
   const queryResult = useQuery({
     queryKey,
     queryFn: async (): Promise<PublicProfile> => {
-      const res = await gqlClient.request(USER_SHORT_BY_ID, { id });
+      const res = await gqlBatchRequest<{ user: PublicProfile }>(
+        USER_SHORT_BY_ID,
+        { id },
+      );
       return res.user;
     },
     staleTime: StaleTime.Default,

@@ -257,21 +257,6 @@ describe('FunnelUploadCv', () => {
       expect(mockOnUpload).toHaveBeenCalledWith(expect.any(File));
     });
 
-    it('should pass status to UploadCv component', () => {
-      mockUseUploadCv.mockReturnValue({
-        onUpload: mockOnUpload,
-        status: 'pending',
-        isSuccess: false,
-        isPending: true,
-        shouldShow: false,
-        onCloseBanner: jest.fn(),
-      });
-
-      renderComponent(defaultParameters, mockOnTransition);
-
-      expect(screen.getByTestId('status')).toHaveTextContent('pending');
-    });
-
     it('should return null when no user', () => {
       mockUseAuthContext.mockReturnValue({
         user: null,

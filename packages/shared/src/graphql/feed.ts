@@ -806,6 +806,21 @@ export const PREVIEW_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const FEED_LIST_CONNECTION_FRAGMENT = gql`
+  fragment FeedListConnection on FeedConnection {
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        ...CustomFeed
+      }
+    }
+  }
+  ${CUSTOM_FEED_FRAGMENT}
+`;
+
 export const FEED_LIST_QUERY = gql`
   query FeedList(
     $includeTagChipFeeds: Boolean
@@ -815,18 +830,10 @@ export const FEED_LIST_QUERY = gql`
       includeTagChipFeeds: $includeTagChipFeeds
       tagChipSeedStrategy: $tagChipSeedStrategy
     ) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          ...CustomFeed
-        }
-      }
+      ...FeedListConnection
     }
   }
-  ${CUSTOM_FEED_FRAGMENT}
+  ${FEED_LIST_CONNECTION_FRAGMENT}
 `;
 
 export const CUSTOM_FEED_QUERY = gql`

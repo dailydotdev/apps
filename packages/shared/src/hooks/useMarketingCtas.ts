@@ -8,6 +8,7 @@ import {
   type MarketingCtaVariant,
 } from '../components/marketing/cta/common';
 import { gqlClient } from '../graphql/common';
+import { gqlBatchRequest } from '../graphql/batch';
 import { MARKETING_CTAS_BY_VARIANT_QUERY } from '../graphql/marketingCta';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
 import type { Boot } from '../lib/boot';
@@ -43,7 +44,7 @@ export function useMarketingCtas(
   const { data, isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
-      const res = await gqlClient.request<MarketingCtasResponse>(
+      const res = await gqlBatchRequest<MarketingCtasResponse>(
         MARKETING_CTAS_BY_VARIANT_QUERY,
         { variant },
       );
