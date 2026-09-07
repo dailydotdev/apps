@@ -4,10 +4,17 @@ export type SidebarTourStepId = 'rail' | 'dock' | 'gameCenter';
 // switch, or the real Streak/Game Center panel held open for the step.
 export type SidebarTourStepExtra = 'compactSwitch' | 'gameCenterPanel';
 
-// Where the card sits against its target. 'center' suits a tall target; 'top'
-// lines the card's first line up with the top of a single tab, which is where
-// that tab's own label and count sit.
-export type SidebarTourStepAlign = 'center' | 'top';
+// Where the card sits vertically. 'center' suits a tall target. 'top' lines it
+// up with the top of the target itself. 'panelTop' lines it up with the panel
+// the step opens, which is where that panel leads with the thing being taught
+// (the streak count), rather than with the rail tab far below it.
+export type SidebarTourStepAlign = 'center' | 'top' | 'panelTop';
+
+// How firmly the ring marks the target. 'default' stands a couple of pixels off
+// a small control. 'tight' hugs the target instead, for the rail step: its
+// target is the whole tab strip, and an outset ring around something that large
+// reads as a second sidebar rather than as a highlight.
+export type SidebarTourStepHighlight = 'default' | 'tight';
 
 export interface SidebarTourStep {
   id: SidebarTourStepId;
@@ -19,10 +26,7 @@ export interface SidebarTourStep {
   target: string;
   extra?: SidebarTourStepExtra;
   align?: SidebarTourStepAlign;
-  // The rail step's target is the whole tab strip, which the lifted rail and
-  // the scrim already spotlight. Ringing it as well drew a second sidebar-sized
-  // outline that reads as UI the layout does not have.
-  hasHighlight?: boolean;
+  highlight?: SidebarTourStepHighlight;
 }
 
 export type SidebarTourTrigger = 'auto' | 'support_menu';

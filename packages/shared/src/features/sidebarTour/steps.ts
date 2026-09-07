@@ -20,7 +20,7 @@ export const SIDEBAR_TOUR_STEPS: SidebarTourStep[] = [
     message: 'Your navigation moved into this rail, and panels open on hover.',
     target: RAIL_TABLIST_SELECTOR,
     extra: 'compactSwitch',
-    hasHighlight: false,
+    highlight: 'tight',
   },
   {
     id: 'dock',
@@ -33,7 +33,7 @@ export const SIDEBAR_TOUR_STEPS: SidebarTourStep[] = [
     message: 'Your streak and quests now share one Game Center.',
     target: `#sidebar-category-${SidebarCategory.GameCenter}`,
     extra: 'gameCenterPanel',
-    align: 'top',
+    align: 'panelTop',
   },
 ];
 
