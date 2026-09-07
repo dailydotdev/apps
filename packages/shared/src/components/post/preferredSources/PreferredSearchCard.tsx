@@ -10,52 +10,95 @@ import { usePreferredSource } from '../../../hooks/usePreferredSource';
 import { PreferGoogleButton } from './PreferGoogleButton';
 
 /**
+ * The daily.dev favicon, rebuilt in CSS: the shipped icon is a PNG in each
+ * app's `public/`, which a shared component cannot reach, and this preview
+ * needs the real one — Google puts a site's actual favicon beside its result,
+ * so the bare white logo mark read as neither Google nor daily.dev.
+ *
+ * The two colours are sampled from `favicon-32x32.png` and are deliberately
+ * literals: they mirror an image asset, not a theme token, so they must not
+ * follow the app's light/dark switch.
+ */
+const Favicon = (): ReactElement => (
+  <span
+    className="flex size-4 shrink-0 items-center justify-center rounded-4"
+    style={{ background: 'linear-gradient(180deg, #0e1217 0%, #af27dc 100%)' }}
+  >
+    <LogoIcon className={{ container: 'size-2.5', group: 'fill-white' }} />
+  </span>
+);
+
+/**
  * A glimpse of a Google results page with daily.dev marked Preferred. Drawn in
- * CSS rather than shipped as an asset: it stays crisp at any density, follows
- * the theme, and costs the feed no image request. The G mark is Google's own,
- * unmodified.
+ * CSS rather than shipped as an asset: it stays crisp at any density and costs
+ * the feed no image request. The G mark is Google's own, unmodified.
+ *
+ * Deliberately light in both themes. This is a picture *of Google*, not a piece
+ * of our UI — themed dark it stopped reading as a search result at all, which
+ * is the one job it has. Hence the literal colours: Google's own result palette
+ * rather than our tokens, which would flip with the app.
  */
 export const SearchPreview = ({
   className,
   query = 'cursor agent mode review',
+  title = 'Cursor agent mode: three weeks in production',
 }: {
   className?: string;
   query?: string;
+  title?: string;
 }): ReactElement => (
   <div
     className={classNames(
-      'relative overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle',
+      'relative overflow-hidden rounded-12 border',
       className,
     )}
+    style={{ background: '#ffffff', borderColor: '#dfe1e5' }}
     aria-hidden
   >
-    <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
+    <div
+      className="flex items-center gap-2 border-b px-3 py-2"
+      style={{ borderColor: '#ecedef' }}
+    >
       <GoogleIcon secondary className="size-4 shrink-0" />
-      <span className="truncate text-text-secondary typo-footnote">
+      <span className="truncate typo-footnote" style={{ color: '#5f6368' }}>
         {query}
       </span>
     </div>
     <div className="flex flex-col gap-1.5 px-3 pb-3 pt-2.5">
       <div className="flex items-center gap-2">
-        <span className="flex size-5 items-center justify-center rounded-6 bg-background-default">
-          <LogoIcon className={{ container: 'size-3' }} />
+        <Favicon />
+        <span className="typo-caption1" style={{ color: '#202124' }}>
+          daily.dev
         </span>
-        <span className="text-text-primary typo-caption1">daily.dev</span>
-        <span className="rounded-6 bg-action-upvote-float px-1.5 py-0.5 font-bold text-action-upvote-default typo-caption2">
+        <span
+          className="rounded-6 px-1.5 py-0.5 font-bold typo-caption2"
+          style={{ background: '#e6f4ea', color: '#137333' }}
+        >
           Preferred
         </span>
       </div>
-      <span className="text-text-link typo-callout">
-        Cursor agent mode: three weeks in production
+      <span className="typo-callout" style={{ color: '#1a0dab' }}>
+        {title}
       </span>
-      <span className="h-1.5 w-11/12 rounded-4 bg-surface-float" />
-      <span className="h-1.5 w-2/3 rounded-4 bg-surface-float" />
-      <div className="mt-2 flex flex-col gap-1.5 opacity-40">
-        <span className="h-1.5 w-1/3 rounded-4 bg-surface-float" />
-        <span className="h-1.5 w-10/12 rounded-4 bg-surface-float" />
+      <span
+        className="h-1.5 w-11/12 rounded-4"
+        style={{ background: '#ecedef' }}
+      />
+      <span
+        className="h-1.5 w-2/3 rounded-4"
+        style={{ background: '#ecedef' }}
+      />
+      <div className="opacity-60 mt-2 flex flex-col gap-1.5">
+        <span
+          className="h-1.5 w-1/3 rounded-4"
+          style={{ background: '#ecedef' }}
+        />
+        <span
+          className="h-1.5 w-10/12 rounded-4"
+          style={{ background: '#ecedef' }}
+        />
       </div>
     </div>
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background-subtle to-transparent" />
   </div>
 );
 
