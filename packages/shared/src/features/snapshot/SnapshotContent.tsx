@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import colors from '../../styles/colors';
 
 const MUTED = colors.salt['90'];
@@ -44,6 +45,8 @@ export interface SnapshotContentProps {
    * with its label, so the pair reads as one sentence.
    */
   statVariant?: 'display' | 'inline';
+  /** Centres the copy and its stat, for a card that is one short statement. */
+  centered?: boolean;
 }
 
 // 0 means no clamp: a growing frame carries the copy instead of cutting it.
@@ -69,6 +72,7 @@ export function SnapshotContent({
   bodyLines = 7,
   stat,
   statVariant = 'display',
+  centered,
 }: SnapshotContentProps): ReactElement {
   const isInlineStat = statVariant === 'inline';
   const statColor = eyebrowGradient
@@ -142,7 +146,10 @@ export function SnapshotContent({
       )}
 
       <h1
-        className="snapshot-copy font-bold text-white"
+        className={classNames(
+          'snapshot-copy font-bold text-white',
+          centered && 'text-center',
+        )}
         style={{ fontSize: 56, lineHeight: 1.15, ...clamp(titleLines) }}
       >
         {title}
@@ -171,7 +178,12 @@ export function SnapshotContent({
       )}
 
       {stat && (
-        <div className="mt-auto flex items-baseline gap-2">
+        <div
+          className={classNames(
+            'mt-auto flex items-baseline gap-2',
+            centered && 'justify-center',
+          )}
+        >
           <span
             className="font-bold"
             style={{ ...statColor, fontSize: isInlineStat ? 28 : 64 }}

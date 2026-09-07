@@ -4,7 +4,6 @@ import colors from '../../styles/colors';
 import { SnapshotFrame } from './SnapshotFrame';
 
 const MUTED = colors.salt['90'];
-const DIVIDER = colors.pepper['10'];
 
 export interface InviteSnapshotCardProps {
   name: string;
@@ -64,10 +63,7 @@ function InviteSnapshotCardComponent(
           </span>
         )}
 
-        <div
-          className="mt-auto w-full"
-          style={{ paddingTop: 26, borderTop: `1px solid ${DIVIDER}` }}
-        >
+        <div className="mt-auto w-full" style={{ paddingTop: 26 }}>
           <span
             className="font-bold text-white"
             style={{ fontSize: 30, lineHeight: 1.3 }}

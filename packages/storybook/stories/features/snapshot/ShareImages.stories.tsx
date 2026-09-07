@@ -179,6 +179,7 @@ const PLACEMENTS: Placement[] = [
       title:
         'Tabs won. Prettier just hid the bodies. Every formatter argument is a proxy war over indentation.',
       titleLines: 0,
+      centered: true,
       stat: { value: '128', label: 'found this hot' },
       statVariant: 'inline' as const,
     },
