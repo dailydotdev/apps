@@ -220,3 +220,31 @@ export const MAX_SCREENSHOT_SIZE = 5 * 1024 * 1024;
  */
 export const isValidFileSize = (file: File): boolean =>
   file.size <= MAX_SCREENSHOT_SIZE;
+
+/**
+ * Pull the first image out of a paste event's clipboard payload.
+ * Chrome exposes pasted images on `files`; `items` covers the browsers that
+ * only populate the item list. The image type itself is not filtered here so
+ * an unsupported one still reaches isValidImageType() and gets a toast.
+ */
+export const getImageFileFromClipboard = (
+  clipboardData: DataTransfer | null,
+): File | null => {
+  if (!clipboardData) {
+    return null;
+  }
+
+  const file = Array.from(clipboardData.files ?? []).find((item) =>
+    item.type.startsWith('image/'),
+  );
+
+  if (file) {
+    return file;
+  }
+
+  const item = Array.from(clipboardData.items ?? []).find(
+    (entry) => entry.kind === 'file' && entry.type.startsWith('image/'),
+  );
+
+  return item?.getAsFile() ?? null;
+};
