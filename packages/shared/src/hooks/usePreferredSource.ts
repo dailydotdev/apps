@@ -1,14 +1,13 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useConditionalFeature } from './useConditionalFeature';
-import usePersistentContext, {
-  PersistentContextKeys,
-} from './usePersistentContext';
+import usePersistentContext from './usePersistentContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
 import { featurePreferredSource } from '../lib/featureManagement';
 import { LogEvent, TargetType } from '../lib/log';
 import type { PreferredSourceState } from '../lib/preferredSources';
+import { PREFERRED_SOURCE_STATE_KEY } from '../lib/preferredSources';
 import { useGooglePreferredSource } from './useGooglePreferredSource';
 
 export type UsePreferredSourceProps = {
@@ -50,7 +49,7 @@ export const usePreferredSource = ({
   const { logEvent } = useLogContext();
   const [state, setState, isStateLoaded] =
     usePersistentContext<PreferredSourceState | null>(
-      PersistentContextKeys.PreferredSourceState,
+      PREFERRED_SOURCE_STATE_KEY,
       null,
     );
 
