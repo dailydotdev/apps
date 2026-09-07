@@ -15,7 +15,7 @@ export const SNAPSHOT_CARD_SIZE = 780;
  * the copy gets the room instead. Surfaces where the text *is* the payload use
  * it — a wide margin around a cramped article is space spent on nothing.
  */
-export const SNAPSHOT_CARD_WIDE = 964;
+export const SNAPSHOT_CARD_WIDE = 1008;
 /** Canvas minus the logo row and the gaps either side of the card. */
 export const SNAPSHOT_CARD_MAX = SNAPSHOT_SIZE - 150;
 
