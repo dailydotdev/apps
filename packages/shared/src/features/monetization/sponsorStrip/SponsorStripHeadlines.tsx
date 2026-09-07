@@ -33,14 +33,19 @@ export const SponsorStripHeadlines = ({
 }): ReactElement => {
   const { logEvent } = useLogContext();
 
-  useLogEventOnce(() =>
-    feedHighlightsLogEvent(LogEvent.Impression, {
-      feedName: HEADLINES_FEED_NAME,
-      action: 'impression',
-      count: headlines.length,
-      highlightIds: headlines.map(({ id }) => id),
-      origin: Origin.Feed,
-    }),
+  // Conditional because the row is mounted empty to hold its height open
+  // while the query runs, and an impression logged then would report a ticker
+  // of nothing.
+  useLogEventOnce(
+    () =>
+      feedHighlightsLogEvent(LogEvent.Impression, {
+        feedName: HEADLINES_FEED_NAME,
+        action: 'impression',
+        count: headlines.length,
+        highlightIds: headlines.map(({ id }) => id),
+        origin: Origin.Feed,
+      }),
+    { condition: !!headlines.length },
   );
 
   const onHeadlineClick = useCallback(

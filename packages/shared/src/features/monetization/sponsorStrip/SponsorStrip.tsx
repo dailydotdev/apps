@@ -29,6 +29,8 @@ interface SponsorStripProps {
    * cannot be allowed to answer that question two different ways.
    */
   headlines: PostHighlight[];
+  /** Whether that query has answered; see the row reservation below. */
+  headlinesSettled: boolean;
 }
 
 interface SponsorRowProps {
@@ -126,27 +128,43 @@ const SponsorRow = ({
  * bar carrying only advertising is rent, while one carrying the headlines the
  * reader came for is a feature that happens to be sponsored.
  *
- * Either row can be missing — no fill from the ad server, or no headline
- * inside the freshness window — and the dock still holds the other one. What
- * it must never do is show neither while the feed's Happening Now card is
- * suppressed on its behalf, which is why an empty dock renders nothing at all
- * and the suppression is keyed to the same gate.
+ * Either row can be missing — no fill from the ad server, or no headlines at
+ * all — and the dock still holds the other one. What it must never do is show
+ * neither while the feed's Happening Now card is suppressed on its behalf,
+ * which is why an empty dock renders nothing at all and the suppression is
+ * keyed to the same gate.
+ *
+ * Both rows are held open at their own height until their query answers. They
+ * are two independent round trips into a dock pinned to the bottom of the
+ * viewport, so a row appearing under the logos shoves the logos upward — and
+ * the reader watches the paid row jump on every load. Reserving costs an empty
+ * bar for as long as the queries take; collapsing happens only once a query
+ * has answered and there is genuinely nothing to show.
  */
 export const SponsorStrip = ({
   headlines,
+  headlinesSettled,
 }: SponsorStripProps): ReactElement | null => {
-  const { gold, premium, community, wallRef } = useSponsorStripAds({
+  const {
+    gold,
+    premium,
+    community,
+    wallRef,
+    isSettled: adsSettled,
+  } = useSponsorStripAds({
     enabled: true,
   });
   const hasSponsors = !!gold || !!premium.length || !!community.length;
+  const showSponsorRow = hasSponsors || !adsSettled;
+  const showHeadlines = !!headlines.length || !headlinesSettled;
   // Published before the early return so the controls that lift for the dock
   // also settle back when it has nothing to show.
   usePublishStripHeight(
-    (hasSponsors ? SPONSOR_ROW_HEIGHT : 0) +
-      (headlines.length ? HEADLINES_ROW_HEIGHT : 0),
+    (showSponsorRow ? SPONSOR_ROW_HEIGHT : 0) +
+      (showHeadlines ? HEADLINES_ROW_HEIGHT : 0),
   );
 
-  if (!hasSponsors && !headlines.length) {
+  if (!showSponsorRow && !showHeadlines) {
     return null;
   }
 
@@ -155,7 +173,7 @@ export const SponsorStrip = ({
       data-testid="sponsorStrip"
       className="sticky bottom-0 z-3 hidden w-full flex-col bg-background-default tablet:flex"
     >
-      {hasSponsors && (
+      {showSponsorRow && (
         <SponsorRow
           gold={gold}
           premium={premium}
@@ -163,7 +181,7 @@ export const SponsorStrip = ({
           wallRef={wallRef}
         />
       )}
-      {!!headlines.length && <SponsorStripHeadlines headlines={headlines} />}
+      {showHeadlines && <SponsorStripHeadlines headlines={headlines} />}
     </div>
   );
 };

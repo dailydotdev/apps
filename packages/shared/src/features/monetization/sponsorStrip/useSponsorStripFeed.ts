@@ -10,6 +10,8 @@ interface UseSponsorStripFeedProps {
 interface UseSponsorStripFeed {
   isEnabled: boolean;
   headlines: PostHighlight[];
+  /** Whether the headlines query has answered; the dock reserves until it has. */
+  headlinesSettled: boolean;
   /**
    * Drop the feed's Happening Now card, because the strip carries those
    * headlines in its place.
@@ -42,6 +44,7 @@ export const useSponsorStripFeed = ({
   return {
     isEnabled,
     headlines,
+    headlinesSettled: isSettled,
     disableHighlightItems: isEnabled && (!isSettled || headlines.length > 0),
   };
 };

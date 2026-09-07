@@ -65,4 +65,5 @@ it('should hand the strip the same headlines it decided with', () => {
 
   expect(result.current.headlines).toEqual([headline]);
   expect(result.current.isEnabled).toBe(true);
+  expect(result.current.headlinesSettled).toBe(true);
 });

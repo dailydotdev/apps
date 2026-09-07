@@ -22,6 +22,7 @@ jest.mock('../../../hooks/utils/useThemedAsset', () => ({
 
 const mockFetch = jest.mocked(fetchSponsorStripAds);
 let headlines: PostHighlight[] = [];
+let headlinesSettled = true;
 
 const creative = (
   company: string,
@@ -91,7 +92,10 @@ const renderStrip = () => {
             } as unknown as LogContextData
           }
         >
-          <SponsorStrip headlines={headlines} />
+          <SponsorStrip
+            headlines={headlines}
+            headlinesSettled={headlinesSettled}
+          />
         </LogContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -129,6 +133,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   mockFetch.mockResolvedValue(ads);
   headlines = [];
+  headlinesSettled = true;
   jest
     .spyOn(Element.prototype, 'getBoundingClientRect')
     .mockReturnValue({ width: WALL_WIDTH } as DOMRect);
@@ -313,4 +318,59 @@ it('should take the offset back when it unmounts', async () => {
   unmount();
 
   expect(publishedHeight()).toEqual('');
+});
+
+// Two independent round trips into a dock pinned to the viewport bottom: a row
+// appearing underneath shoves the logos up, so both are held open until their
+// query answers.
+it('should hold the ticker row open before the headlines arrive', async () => {
+  setHeadlines([]);
+  headlinesSettled = false;
+  renderStrip();
+  await settle();
+
+  expect(screen.getByTestId('sponsorStripHeadlines')).toBeInTheDocument();
+  expect(publishedHeight()).toEqual('72px');
+});
+
+it('should hold the sponsor row open before the ad query answers', () => {
+  setHeadlines([headline('h1')]);
+  renderStrip();
+
+  expect(screen.getByTestId('sponsorStripRow')).toBeInTheDocument();
+  expect(publishedHeight()).toEqual('72px');
+});
+
+const tickerImpressions = () =>
+  logEvent.mock.calls.filter(
+    (call) =>
+      (call[0] as { event_name: string }).event_name === LogEvent.Impression &&
+      extraOf(call).feed === 'sponsor-strip-headlines',
+  );
+
+it('should log the ticker impression once the headlines arrive', async () => {
+  setHeadlines([headline('h1'), headline('h2')]);
+  renderStrip();
+  await settle();
+
+  expect(tickerImpressions()).toHaveLength(1);
+  expect(extraOf(tickerImpressions()[0]).count).toEqual(2);
+});
+
+it('should not log a ticker impression while the row is still empty', async () => {
+  setHeadlines([]);
+  headlinesSettled = false;
+  renderStrip();
+  await settle();
+
+  expect(tickerImpressions()).toHaveLength(0);
+});
+
+it('should collapse the reserved row once the query answers empty', async () => {
+  setHeadlines([]);
+  renderStrip();
+  await settle();
+
+  expect(screen.queryByTestId('sponsorStripHeadlines')).not.toBeInTheDocument();
+  expect(publishedHeight()).toEqual('40px');
 });

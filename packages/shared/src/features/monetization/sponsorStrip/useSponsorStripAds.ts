@@ -20,6 +20,11 @@ interface UseSponsorStripAds {
   community: ResolvedSponsor[];
   /** Attach to the wall; its width decides how many marks the row holds. */
   wallRef: (node: HTMLElement | null) => void;
+  /**
+   * Whether the ad query has answered. The dock holds the row's height open
+   * until it has, so a fill landing cannot move the row.
+   */
+  isSettled: boolean;
 }
 
 /**
@@ -96,7 +101,7 @@ export const useSponsorStripAds = ({
   enabled: boolean;
 }): UseSponsorStripAds => {
   const isLight = useIsLightTheme();
-  const { data } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: [RequestKey.Ads, AdPlacement.SponsorStrip],
     queryFn: fetchSponsorStripAds,
     enabled,
@@ -136,6 +141,7 @@ export const useSponsorStripAds = ({
         .slice(0, Math.max(0, wallSlots - premiumSlots))
         .map((creative) => resolveSponsor(creative, isLight)),
       wallRef,
+      isSettled: !isPending,
     }),
     [
       pools.gold,
@@ -145,6 +151,7 @@ export const useSponsorStripAds = ({
       wallSlots,
       isLight,
       wallRef,
+      isPending,
     ],
   );
 };
