@@ -345,3 +345,12 @@ export const featurePostAdsense = new Feature('post_adsense', false);
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAdsense = new Feature('read_adsense', true);
+
+// Google Preferred Sources. One flag for every surface: the ask is the same
+// ask everywhere, and the capping is global, so splitting it per placement
+// would let a reader meet it twice after silencing it once.
+//
+// REVIEW BRANCH ONLY — the default is `true` so the Vercel preview is
+// reviewable without a GrowthBook rule. Flip to `false` before merging; this
+// ships to every signed-in reader otherwise.
+export const featurePreferredSource = new Feature('preferred_source', true);

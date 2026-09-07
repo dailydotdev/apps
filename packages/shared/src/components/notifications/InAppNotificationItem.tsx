@@ -7,6 +7,8 @@ import type { NewNotification } from '../../graphql/notifications';
 
 interface InAppNotificationItemProps extends NewNotification {
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  /** Inline actions under the title, e.g. a one-tap button. */
+  actions?: React.ReactNode;
 }
 
 // Real-time popup, laid out like a feed row (NotificationItem): the avatar with
@@ -19,6 +21,7 @@ export function InAppNotificationItem({
   avatars,
   targetUrl,
   onClick,
+  actions,
 }: InAppNotificationItemProps): ReactElement | null {
   const { title: memoizedTitle, isReady } = useObjectPurify({ title });
 
@@ -42,12 +45,15 @@ export function InAppNotificationItem({
       {/* A div (not a <p>): the sanitized title can itself be wrapped in a
           <p>, and a <p> inside a <p> is invalid and gets auto-closed by the
           browser, breaking the layout. */}
-      <div
-        className="mt-0.5 line-clamp-3 min-w-0 flex-1 break-words text-left font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold"
-        dangerouslySetInnerHTML={{
-          __html: memoizedTitle,
-        }}
-      />
+      <div className="mt-0.5 flex min-w-0 flex-1 flex-col items-start gap-2">
+        <div
+          className="line-clamp-3 break-words text-left font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold"
+          dangerouslySetInnerHTML={{
+            __html: memoizedTitle,
+          }}
+        />
+        {actions && <span className="relative z-1">{actions}</span>}
+      </div>
     </div>
   );
 }

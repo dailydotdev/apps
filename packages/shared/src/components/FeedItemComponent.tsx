@@ -16,6 +16,7 @@ import { useFeedLayout } from '../hooks';
 import { CollectionList } from './cards/collection/CollectionList';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
+import { PreferredSearchCard } from './post/preferredSources';
 import { AdList } from './cards/ad/AdList';
 import { SignalAdList } from './cards/ad/SignalAdList';
 import type { AdCardProps } from './cards/ad/common/common';
@@ -486,6 +487,18 @@ function FeedItemComponent({
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
           onViewable={onAdViewable}
         />
+      );
+    }
+    case FeedItemType.Placeholder: {
+      // An ad position the ad server could not fill renders a grey card.
+      // Offer something of ours in that space instead — never in a slot real
+      // content would have taken.
+      const isAdSlot = typeof item.index === 'number';
+
+      return isAdSlot ? (
+        <PreferredSearchCard fallback={<PlaceholderTag />} />
+      ) : (
+        <PlaceholderTag />
       );
     }
     default:

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -64,6 +64,8 @@ export interface NotificationItemProps
     | 'hasThanks'
   > {
   isUnread?: boolean;
+  /** Inline actions under the description, e.g. a one-tap button. */
+  actions?: ReactNode;
   targetUrl: string;
   createdAt?: Date;
   onClick?: (
@@ -182,6 +184,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     referenceId,
     hasThanks,
     createdAt,
+    actions,
   } = props;
 
   const {
@@ -368,6 +371,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             {attachmentTitle}
           </div>
         )}
+        {actions && <span className="relative z-1 mt-2">{actions}</span>}
         {type === NotificationType.UserFollow && (
           <span className="relative z-1">
             <NotificationFollowUserButton {...props} />

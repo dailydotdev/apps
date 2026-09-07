@@ -15,6 +15,9 @@ import { ActionType } from '../../../graphql/actions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { uploadCvBgMobile } from '../../../lib/image';
 import { useJobsFeature } from '../../../hooks/useJobsFeature';
+import { usePreferredSource } from '../../../hooks/usePreferredSource';
+import { GoogleIcon } from '../../icons';
+import { ButtonVariant } from '../../buttons/common';
 
 const illustrationFrameClass =
   '!m-0 flex h-24 w-32 shrink-0 items-center justify-center self-center tablet:h-28 tablet:w-36';
@@ -35,6 +38,17 @@ const CvIllustration = (): ReactElement => (
   </div>
 );
 
+const GoogleIllustration = (): ReactElement => (
+  <div
+    className={classNames(illustrationFrameClass, 'self-center')}
+    aria-hidden
+  >
+    <span className="flex size-24 items-center justify-center rounded-12 bg-surface-float tablet:size-28">
+      <GoogleIcon secondary className="size-14" />
+    </span>
+  </div>
+);
+
 const CompactReminderCat = (): ReactElement => (
   <ReadingReminderCatLaptop className="!m-0 h-24 w-28 shrink-0 self-center rounded-12 object-contain tablet:h-28 tablet:w-32" />
 );
@@ -42,15 +56,24 @@ const CompactReminderCat = (): ReactElement => (
 export const useHomepageTopBannersVisibility = (): {
   showReminder: boolean;
   showCv: boolean;
+  showPreferredSource: boolean;
   hasAny: boolean;
 } => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const reminder = useReadingReminderHero({ requireMobile: false });
   const { shouldShow: shouldShowCv } = useUploadCv();
+  const { isEligible: showPreferredSource } = usePreferredSource({
+    placement: 'homepage hero',
+  });
   const enabled = isAuthReady && isLoggedIn;
   const showReminder = enabled && reminder.shouldShow;
   const showCv = enabled && shouldShowCv;
-  return { showReminder, showCv, hasAny: showReminder || showCv };
+  return {
+    showReminder,
+    showCv,
+    showPreferredSource,
+    hasAny: showReminder || showCv || showPreferredSource,
+  };
 };
 
 type HomepageTopBannersProps = {
@@ -70,6 +93,7 @@ export const HomepageTopBanners = ({
   });
   const { completeAction } = useActions();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const preferredSource = usePreferredSource({ placement: 'homepage hero' });
 
   if (!isAuthReady || !isLoggedIn) {
     return null;
@@ -90,6 +114,22 @@ export const HomepageTopBanners = ({
         onClose={() => {
           reminder.onDismiss();
         }}
+      />,
+    );
+  }
+
+  // Last of the three: the reminder and the CV upload are both about the
+  // reader's own routine, and this one is a favour to us.
+  if (preferredSource.isEligible) {
+    cards.push(
+      <TopHero
+        key="preferred-source"
+        subtitle="Add daily.dev and it shows up more often in Top Stories and AI Overviews."
+        ctaLabel="Add as preferred source"
+        ctaVariant={ButtonVariant.Primary}
+        illustration={<GoogleIllustration />}
+        onCtaClick={preferredSource.onAdd}
+        onClose={preferredSource.onDismiss}
       />,
     );
   }

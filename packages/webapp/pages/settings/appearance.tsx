@@ -29,6 +29,7 @@ import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
+import { PreferredSourceSetting } from '@dailydotdev/shared/src/components/post/preferredSources/PreferredSourceSetting';
 
 const IOSIconPicker = dynamic(
   () =>
@@ -183,6 +184,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Show hero cards for highlighted news
           </SettingsSwitch>
+
+          <PreferredSourceSetting />
         </FlexCol>
 
         <FlexCol className="gap-5">

@@ -19,6 +19,7 @@ const preview: Preview = {
           'Components',
           'Pages',
           'Open Graph',
+          'Preferred Sources',
           'Experiments',
           'Extension',
         ],

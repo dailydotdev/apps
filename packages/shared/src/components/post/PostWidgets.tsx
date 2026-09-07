@@ -17,6 +17,7 @@ import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
+import { PreferGoogleSourceAction } from './preferredSources';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 const UserEntityCard = dynamic(
@@ -165,6 +166,7 @@ export function PostWidgets({
     <PageWidgets className={className}>
       {!hideSignupWidget && <PostSignupWidget />}
       {withAd(PostWidgetPosition.Source, sourceCard)}
+      <PreferGoogleSourceAction />
       {withAd(
         PostWidgetPosition.Creator,
         creator && (

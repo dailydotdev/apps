@@ -33,6 +33,7 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   aboveComments,
+  belowActions,
   commentAds,
   isPostPage,
 }: BasePostContentProps): ReactElement {
@@ -70,6 +71,7 @@ export function BasePostContent({
       {!!engagementProps && (
         <PostEngagements
           post={post}
+          belowActions={belowActions}
           onCopyLinkClick={onCopyPostLink}
           logOrigin={origin}
           shouldOnboardAuthor={shouldOnboardAuthor}

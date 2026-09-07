@@ -178,7 +178,9 @@ export const Bullets = ({
             <span style={{ color, fontWeight: 700, flexShrink: 0 }}>
               {mark}
             </span>
-            <span style={{ textWrap: 'pretty' }}>{item}</span>
+            <span style={{ textWrap: 'pretty', flex: '1 1 auto', minWidth: 0 }}>
+              {item}
+            </span>
           </li>
         ))}
       </ul>
