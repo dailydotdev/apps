@@ -25,6 +25,10 @@ jest.mock('../../hooks/useToastNotification', () => ({
   ToastType: { Success: 'success', Error: 'error' },
 }));
 
+jest.mock('../../features/snapshot/shutterSound', () => ({
+  playShutterSound: jest.fn(),
+}));
+
 jest.mock('../../hooks/useRequestProtocol', () => ({
   useRequestProtocol: () => ({ isCompanion: false }),
 }));
@@ -45,7 +49,7 @@ beforeEach(() => {
   Object.assign(navigator, { clipboard: { write: async () => undefined } });
 });
 
-const button = () => screen.getByLabelText('Share as image');
+const button = () => screen.getByLabelText('Snapshot');
 
 it('does not rasterize the card until there is intent', () => {
   render(<SnapshotButton card={card} filename="daily-share" />);

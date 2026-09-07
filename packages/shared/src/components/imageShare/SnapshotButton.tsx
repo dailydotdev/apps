@@ -2,15 +2,19 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { DownloadIcon, ShareIcon } from '../icons';
+import { SnapshotIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import type {
   CaptureShareImageOptions,
   CaptureTarget,
 } from '../../lib/imageShare/captureShareImage';
 import { useSnapshotCapture } from '../../features/snapshot/useSnapshotCapture';
+import { playShutterSound } from '../../features/snapshot/shutterSound';
 
-export const SHARE_LABEL = 'Share as image';
+export const SNAPSHOT_LABEL = 'Snapshot';
+
+/** Matches the snapshot-shutter-sweep animation in utilities.css. */
+const SHUTTER_SWEEP_MS = 380;
 
 export interface SnapshotButtonProps {
   /** The designed square card to rasterize. */
@@ -30,8 +34,8 @@ export interface SnapshotButtonProps {
 export function SnapshotButton({
   card,
   target,
-  filename = 'daily-share',
-  label = SHARE_LABEL,
+  filename = 'daily-snapshot',
+  label = SNAPSHOT_LABEL,
   showLabel = true,
   captureOptions,
   onCapture,
@@ -46,17 +50,27 @@ export function SnapshotButton({
   // Rendering starts on intent, not on mount: a feed would otherwise carry a
   // 1080px card for every item it shows.
   const [isPrepared, setIsPrepared] = useState(false);
+  const [isFlashing, setIsFlashing] = useState(false);
   const isPending = useRef(false);
+  const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
 
-  const { status, canShareFile, canCopyImage, offScreenCard, shareImage } =
-    useSnapshotCapture({
-      card,
-      target,
-      filename,
-      captureOptions,
-      isActive: isPrepared,
-      onCapture,
-    });
+  const { status, offScreenCard, shareImage } = useSnapshotCapture({
+    card,
+    target,
+    filename,
+    captureOptions,
+    isActive: isPrepared,
+    onCapture,
+  });
+
+  useEffect(
+    () => () => {
+      if (flashTimeout.current) {
+        clearTimeout(flashTimeout.current);
+      }
+    },
+    [],
+  );
 
   // A press before the render finished waits for it. The clipboard needs the
   // press's own gesture, so this path can only download — hovering first is
@@ -76,6 +90,13 @@ export function SnapshotButton({
       event.preventDefault();
       event.stopPropagation();
 
+      playShutterSound();
+      setIsFlashing(true);
+      flashTimeout.current = setTimeout(
+        () => setIsFlashing(false),
+        SHUTTER_SWEEP_MS,
+      );
+
       if (status === 'ready') {
         shareImage();
         return;
@@ -87,8 +108,6 @@ export function SnapshotButton({
     [shareImage, status],
   );
 
-  const canShare = canShareFile || canCopyImage;
-
   return (
     <>
       {offScreenCard}
@@ -96,8 +115,14 @@ export function SnapshotButton({
         <Button
           type="button"
           aria-label={label}
-          className={classNames('shrink-0', className)}
-          icon={canShare ? <ShareIcon /> : <DownloadIcon />}
+          className={classNames(
+            'relative shrink-0 overflow-hidden',
+            // A pseudo-element rather than a child: Button reads its children to
+            // decide whether it is icon-only, and an overlay node would widen it.
+            isFlashing && 'snapshot-shutter-sweep',
+            className,
+          )}
+          icon={<SnapshotIcon />}
           loading={isPending.current && status === 'loading'}
           onClick={onClick}
           onFocus={prepare}
