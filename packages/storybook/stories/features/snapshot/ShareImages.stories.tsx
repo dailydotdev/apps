@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnapshotFrame } from '@dailydotdev/shared/src/features/snapshot/SnapshotFrame';
 import type { SnapshotContentProps } from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
 import {
+  HIGHLIGHTS_EYEBROW_GRADIENT,
   HOT_TAKE_EYEBROW_GRADIENT,
   SnapshotContent,
 } from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
@@ -109,7 +110,14 @@ const PLACEMENTS: Placement[] = [
   {
     id: 'highlight',
     surface: '2 · Happening now (expanded highlight)',
-    render: (ref) => <PostSnapshotCard ref={ref} post={HIGHLIGHT_POST} />,
+    render: (ref) => (
+      <PostSnapshotCard
+        ref={ref}
+        eyebrow="Happening now"
+        eyebrowGradient={HIGHLIGHTS_EYEBROW_GRADIENT}
+        post={HIGHLIGHT_POST}
+      />
+    ),
   },
   {
     id: 'leaderboard',
