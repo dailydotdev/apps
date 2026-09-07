@@ -1,12 +1,11 @@
 import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
 import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
-import { PreferGoogleStrip } from './preferredSources';
 import PostToc from '../widgets/PostToc';
 import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
@@ -96,7 +95,6 @@ export function PostContentRaw({
   contentLeading,
   renderSummarySegments,
   aboveComments,
-  belowActions,
   commentAds,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
@@ -105,13 +103,6 @@ export function PostContentRaw({
     post,
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
-  // Google Preferred Sources: copying the link is a sharing gesture, so the
-  // ask rides that intent instead of appearing on page load.
-  const [hasCopiedLink, setHasCopiedLink] = useState(false);
-  const onCopyPostLinkWithPrompt = useCallback(() => {
-    setHasCopiedLink(true);
-    onCopyPostLink();
-  }, [onCopyPostLink]);
   const { onReadClick: onReaderInstallGateClick } = useReaderInstallPromptGate(
     post,
     {
@@ -184,12 +175,6 @@ export function PostContentRaw({
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
-        belowActions={
-          <>
-            <PreferGoogleStrip isTriggered={hasCopiedLink} />
-            {belowActions}
-          </>
-        }
         commentAds={commentAds}
         className={{
           ...className,
@@ -204,10 +189,7 @@ export function PostContentRaw({
         customNavigation={customNavigation}
         shouldOnboardAuthor={shouldOnboardAuthor}
         navigationProps={navigationProps}
-        engagementProps={{
-          ...engagementActions,
-          onCopyPostLink: onCopyPostLinkWithPrompt,
-        }}
+        engagementProps={engagementActions}
         origin={origin}
         post={post}
       >

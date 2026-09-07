@@ -42,7 +42,7 @@ const meta: Meta<Args> = {
             In-app popup — InAppNotificationItem (bottom-right on desktop,
             top-centre on mobile)
           </Note>
-          <div className="relative h-22 w-full max-w-[22.5rem] rounded-16 border border-theme-active bg-accent-pepper-subtler">
+          <div className="relative min-h-22 w-full max-w-[22.5rem] rounded-16 border border-theme-active bg-accent-pepper-subtler">
             <ModalClose
               size={ButtonSize.XSmall}
               top="3"

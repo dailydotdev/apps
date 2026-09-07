@@ -56,8 +56,6 @@ interface PostEngagementsProps {
    * comment-thread units, and two ad systems in one thread double the density.
    */
   hideInternalAd?: boolean;
-  /** Rendered right under the action bar. */
-  belowActions?: ReactNode;
   renderInterleaved?: (occurrence: number) => ReactNode;
 }
 
@@ -67,7 +65,6 @@ function PostEngagements({
   logOrigin,
   shouldOnboardAuthor,
   hideInternalAd,
-  belowActions,
   interleaveEvery,
   renderInterleaved,
 }: PostEngagementsProps): ReactElement {
@@ -141,7 +138,6 @@ function PostEngagements({
         }
         origin={logOrigin}
       />
-      {belowActions}
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
       {linkClicked && <SocialBar post={post} className="mt-6" />}

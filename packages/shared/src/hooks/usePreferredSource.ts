@@ -65,6 +65,7 @@ export const usePreferredSource = ({
 
   const isEligible =
     gate && (!!isEnabled || isForced) && isStateLoaded && !state;
+
   const { isReady, addPreferredSource } = useGooglePreferredSource({
     enabled: isEligible,
   });

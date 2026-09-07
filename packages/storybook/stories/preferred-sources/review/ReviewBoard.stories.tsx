@@ -26,53 +26,24 @@ type Item = {
 
 const ITEMS: Item[] = [
   {
-    n: 1,
-    id: 'preferred-sources-review-1-post-page-after-copying-the-link',
-    name: 'Post page · after copying the link',
-    appears:
-      'Once, right after the reader upvotes — a strip under the action bar, button right-aligned under Copy.',
-    goesAway: 'After click or dismiss, globally.',
-    label: 'Add as preferred source',
-    approve:
-      'The copy-link trigger, the strip under the action bar, and the label.',
-    variants: [
-      { key: 'current', label: 'Today' },
-      { key: 'proposed', label: 'Proposed' },
-    ],
-    viewports: {
-      desktop: {
-        show: true,
-        note: 'Strip under the engagement bar; button right-aligned.',
-      },
-      tablet: { show: true, note: 'Same.' },
-      mobile: {
-        show: true,
-        note: 'Stacks: text, then button. The floating bar is untouched.',
-      },
-    },
-    height: 900,
-  },
-  {
     n: 2,
     id: 'preferred-sources-review-2-post-page-under-the-source-card',
     name: 'Post page · under the source card',
     appears:
       'Every post page, signed in, directly under the source card. Equal spacing above and below.',
     goesAway: 'After click or dismiss, globally.',
-    label:
-      'Pick one: "Make us preferred on Google" or "Add as preferred source"',
-    approve: 'The placement, and which of the two labels.',
+    label: 'Add as preferred source',
+    approve: 'The placement and the label.',
     variants: [
       { key: 'current', label: 'Today' },
-      { key: 'mock-label', label: 'Make us preferred on Google' },
-      { key: 'google-label', label: 'Add as preferred source' },
+      { key: 'proposed', label: 'Proposed' },
     ],
     viewports: {
       desktop: { show: true, note: 'Rail slot after the source card.' },
       tablet: { show: true, note: 'Widget column renders from 656px.' },
       mobile: {
         show: false,
-        note: 'The widget column collapses under the comments on mobile; item 1 covers mobile.',
+        note: 'The widget column collapses under the comments on mobile, so the ask lands far below the fold. No mobile post-page ask ships.',
       },
     },
     height: 900,

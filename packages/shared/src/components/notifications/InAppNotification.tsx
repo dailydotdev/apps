@@ -24,7 +24,10 @@ const Container = classed(
   classNames(
     styles.inAppNotificationContainer,
     'animate-bounce',
-    'in-app-notification slide-in fixed right-1/2 z-max h-22 w-[22.5rem] translate-x-1/2 rounded-16 border border-theme-active bg-accent-pepper-subtler laptop:right-10 laptop:translate-x-0',
+    // min-h, not h: the toast can now carry an inline action button under the
+    // title, and a fixed height made that button overlap the bottom border.
+    // A title-only notification still lands at exactly the old 5.5rem.
+    'in-app-notification slide-in fixed right-1/2 z-max min-h-22 w-[22.5rem] translate-x-1/2 rounded-16 border border-theme-active bg-accent-pepper-subtler laptop:right-10 laptop:translate-x-0',
   ),
 );
 

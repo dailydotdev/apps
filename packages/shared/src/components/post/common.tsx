@@ -106,8 +106,6 @@ export interface PostContentProps
   renderSummarySegments?: (summary: string) => ReactNode;
   /** Rendered between the article content and the engagement block. */
   aboveComments?: ReactNode;
-  /** Rendered right under the engagement action bar. */
-  belowActions?: ReactNode;
   /** Interleaves the comment thread — see PostEngagements. */
   commentAds?: {
     interleaveEvery: number;
@@ -136,8 +134,6 @@ export interface BasePostContentProps extends UsePostContentProps {
   engagementProps?: UsePostContent;
   shouldOnboardAuthor?: boolean;
   aboveComments?: ReactNode;
-  /** Rendered right under the engagement action bar. */
-  belowActions?: ReactNode;
   commentAds?: {
     interleaveEvery: number;
     renderInterleaved: (occurrence: number) => ReactNode;
