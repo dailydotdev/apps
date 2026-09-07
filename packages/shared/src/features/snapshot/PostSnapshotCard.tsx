@@ -51,7 +51,7 @@ function PostSnapshotCardComponent(
         <div className="flex flex-1 flex-col justify-center">
           {summary && (
             <p
-              className="snapshot-copy font-bold text-white"
+              className="snapshot-copy text-white"
               style={{
                 fontSize: summaryFontSize(summary.length),
                 lineHeight: 1.35,
