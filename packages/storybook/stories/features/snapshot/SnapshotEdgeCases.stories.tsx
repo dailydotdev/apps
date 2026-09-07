@@ -53,7 +53,7 @@ const CARDS: CardSpec[] = [
   {
     id: 'highlight',
     title: 'Highlighted text',
-    note: `Scales 72 → 34px by length. With a selection the passage is windowed around it to ${SNAPSHOT_PASSAGE_LIMIT} characters and the marked run is set apart; without one the passage stands alone.`,
+    note: `Scales 54 → 33px by length, on the same scale as the post card. With a selection the passage is windowed around it to ${SNAPSHOT_PASSAGE_LIMIT} characters and the marked run is set apart; without one the passage stands alone.`,
     cases: [
       {
         label: 'Selection inside its passage',
@@ -62,7 +62,6 @@ const CARDS: CardSpec[] = [
             ref={ref}
             domain="xda-developers.com"
             highlight="the actual bottleneck was always the four hundred kilobytes of analytics we shipped on every single page load"
-            postTitle="Why the bundler war ended"
             seed="a0"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text={LOREM}
@@ -76,7 +75,6 @@ const CARDS: CardSpec[] = [
             ref={ref}
             domain="xda-developers.com"
             highlight={LOREM}
-            postTitle="Why the bundler war ended"
             seed="a1"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text={LOREM}
@@ -90,7 +88,6 @@ const CARDS: CardSpec[] = [
             ref={ref}
             domain="xda-developers.com"
             highlight="a run that was never in this text"
-            postTitle="Why the bundler war ended"
             seed="a2"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text="Tabs won. Prettier just hid the bodies."
@@ -103,7 +100,6 @@ const CARDS: CardSpec[] = [
           <HighlightTextSnapshotCard
             ref={ref}
             domain="xda-developers.com"
-            postTitle="TypeScript has become the default across frontend frameworks"
             seed="a"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text="TypeScript has become the default across frontend frameworks"
@@ -116,7 +112,6 @@ const CARDS: CardSpec[] = [
           <HighlightTextSnapshotCard
             ref={ref}
             domain="xda-developers.com"
-            postTitle="Why the bundler war ended"
             seed="b"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text="Tabs won."
@@ -129,7 +124,6 @@ const CARDS: CardSpec[] = [
           <HighlightTextSnapshotCard
             ref={ref}
             domain="xda-developers.com"
-            postTitle="Why the bundler war ended"
             seed="c"
             source={{ name: 'XDA Developers', image: AVATAR }}
             text={LOREM}
@@ -378,7 +372,6 @@ const CARDS: CardSpec[] = [
             ref={ref}
             author={{ name: 'Ante Barić', handle: '@capjavert', image: AVATAR }}
             comment="The bundler war is over and nobody noticed."
-            postTitle="Why iconic tech brands like HTC and LG lost their dominance"
             replies={24}
             seed="di-a"
             upvotes={186}
@@ -392,7 +385,6 @@ const CARDS: CardSpec[] = [
             ref={ref}
             author={{ name: 'Ante Barić', handle: '@capjavert' }}
             comment={LOREM}
-            postTitle={LOREM.slice(0, 140)}
             replies={1840}
             seed="di-b"
             upvotes={26400}

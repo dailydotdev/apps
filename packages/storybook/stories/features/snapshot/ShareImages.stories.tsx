@@ -88,7 +88,6 @@ const PLACEMENTS: Placement[] = [
         ref={ref}
         domain="traversymedia.com"
         highlight="The speaker shares a personal timeline from ChatGPT's release through AI-driven layoffs, Tailwind's business model disruption, and his own layoff"
-        postTitle="Developers process AI adoption grief while technical interviews remain rigorous"
         seed="highlight-text"
         source={{
           name: 'Traversy Media',
@@ -384,7 +383,6 @@ const PLACEMENTS: Placement[] = [
           image: avatarUri('#EC527A', 'A'),
         }}
         comment="The bundler war is over and nobody noticed. We spent five years optimising cold starts and the actual bottleneck was always the 400kb of analytics we shipped on every page."
-        postTitle="Why iconic tech brands like HTC and LG lost their dominance"
         replies={24}
         seed="discussion"
         upvotes={186}

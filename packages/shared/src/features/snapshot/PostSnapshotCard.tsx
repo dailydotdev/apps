@@ -4,29 +4,10 @@ import type { Post } from '../../graphql/posts';
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
 import colors from '../../styles/colors';
 import { SnapshotFrame } from './SnapshotFrame';
+import { snapshotCopyFontSize } from './snapshotText';
 
 const MUTED = colors.salt['90'];
 const DIVIDER = colors.pepper['10'];
-
-/**
- * The TLDR is the payload, so it takes as much size as it can carry: a short
- * one gets set large, a long one steps down rather than clip.
- */
-const summaryFontSize = (length: number): number => {
-  if (length <= 140) {
-    return 54;
-  }
-
-  if (length <= 280) {
-    return 46;
-  }
-
-  if (length <= 480) {
-    return 38;
-  }
-
-  return 33;
-};
 
 interface PostSnapshotCardProps {
   post: Post;
@@ -65,7 +46,7 @@ function PostSnapshotCardComponent(
             <p
               className="text-white"
               style={{
-                fontSize: summaryFontSize(summary.length),
+                fontSize: snapshotCopyFontSize(summary.length),
                 lineHeight: 1.55,
                 overflowWrap: 'break-word',
               }}

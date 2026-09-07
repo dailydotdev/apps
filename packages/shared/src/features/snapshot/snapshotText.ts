@@ -12,6 +12,28 @@ export const SNAPSHOT_TEXT_LIMIT = 280;
  */
 export const SNAPSHOT_PASSAGE_LIMIT = 900;
 
+/**
+ * The copy is the payload on these cards, so it takes as much size as it can
+ * carry: a short passage gets set large, a long one steps down rather than
+ * clip. Shared by the post and highlight cards, which sit side by side in
+ * review and would otherwise drift apart.
+ */
+export const snapshotCopyFontSize = (length: number): number => {
+  if (length <= 140) {
+    return 54;
+  }
+
+  if (length <= 280) {
+    return 46;
+  }
+
+  if (length <= 480) {
+    return 38;
+  }
+
+  return 33;
+};
+
 export function truncateAtWord(
   text: string,
   limit = SNAPSHOT_TEXT_LIMIT,
