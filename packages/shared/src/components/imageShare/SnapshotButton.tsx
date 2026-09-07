@@ -10,6 +10,12 @@ import type {
 } from '../../lib/imageShare/captureShareImage';
 import { useSnapshotCapture } from '../../features/snapshot/useSnapshotCapture';
 import { playShutterSound } from '../../features/snapshot/shutterSound';
+import { copyShareImage } from '../../lib/imageShare/copyShareImage';
+import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
+import {
+  ToastType,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
 
@@ -53,15 +59,41 @@ export function SnapshotButton({
   const [isFlashing, setIsFlashing] = useState(false);
   const isPending = useRef(false);
   const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const rendered = useRef<Blob>();
+  const { displayToast } = useToastNotification();
 
-  const { status, offScreenCard, shareImage } = useSnapshotCapture({
+  const onRendered = useCallback(
+    (blob: Blob) => {
+      rendered.current = blob;
+      onCapture?.(blob);
+    },
+    [onCapture],
+  );
+
+  const { status, offScreenCard } = useSnapshotCapture({
     card,
     target,
     filename,
     captureOptions,
     isActive: isPrepared,
-    onCapture,
+    onCapture: onRendered,
   });
+
+  // Pasting beats a file in Downloads for every target we share to, so the
+  // clipboard leads and the download is the fallback.
+  const shareImage = useCallback(async () => {
+    if (!rendered.current) {
+      return;
+    }
+
+    if (await copyShareImage(Promise.resolve(rendered.current))) {
+      displayToast('Image copied', { variant: ToastType.Success });
+      return;
+    }
+
+    downloadShareImage(rendered.current, filename);
+    displayToast('Image saved', { variant: ToastType.Success });
+  }, [displayToast, filename]);
 
   useEffect(
     () => () => {
@@ -76,11 +108,22 @@ export function SnapshotButton({
   // press's own gesture, so this path can only download — hovering first is
   // what buys the copy.
   useEffect(() => {
-    if (isPending.current && status === 'ready') {
+    if (!isPending.current) {
+      return;
+    }
+
+    if (status === 'ready') {
       isPending.current = false;
       shareImage();
     }
-  }, [shareImage, status]);
+
+    if (status === 'error') {
+      isPending.current = false;
+      displayToast('Could not create the snapshot, please try again', {
+        variant: ToastType.Error,
+      });
+    }
+  }, [displayToast, shareImage, status]);
 
   const prepare = useCallback(() => setIsPrepared(true), []);
 

@@ -5,6 +5,7 @@ import { SnapshotButton } from './SnapshotButton';
 const mockCapture = jest.fn();
 const mockCopy = jest.fn();
 const mockDownload = jest.fn();
+const mockDisplayToast = jest.fn();
 
 jest.mock('../../lib/imageShare/captureShareImage', () => ({
   captureShareImage: (...args: unknown[]) => mockCapture(...args),
@@ -21,7 +22,7 @@ jest.mock('../../lib/imageShare/downloadShareImage', () => ({
 }));
 
 jest.mock('../../hooks/useToastNotification', () => ({
-  useToastNotification: () => ({ displayToast: jest.fn() }),
+  useToastNotification: () => ({ displayToast: mockDisplayToast }),
   ToastType: { Success: 'success', Error: 'error' },
 }));
 
@@ -73,14 +74,18 @@ it('rasterizes on keyboard focus too', async () => {
   await waitFor(() => expect(mockCapture).toHaveBeenCalledTimes(1));
 });
 
-it('copies the rendered card once it is ready', async () => {
+it('copies the rendered card and says so', async () => {
   render(<SnapshotButton card={card} filename="daily-share" />);
 
   fireEvent.pointerEnter(button());
   await waitFor(() => expect(mockCapture).toHaveBeenCalled());
   fireEvent.click(button());
 
-  await waitFor(() => expect(mockCopy).toHaveBeenCalled());
+  await waitFor(() =>
+    expect(mockDisplayToast).toHaveBeenCalledWith('Image copied', {
+      variant: 'success',
+    }),
+  );
   expect(mockDownload).not.toHaveBeenCalled();
 });
 
@@ -95,6 +100,25 @@ it('downloads when the clipboard cannot take an image', async () => {
   await waitFor(() =>
     expect(mockDownload).toHaveBeenCalledWith(blob, 'daily-achievement-1'),
   );
+  expect(mockDisplayToast).toHaveBeenCalledWith('Image saved', {
+    variant: 'success',
+  });
+});
+
+it('reports a failed rasterization instead of going quiet', async () => {
+  mockCapture.mockRejectedValue(new Error('target element has no size'));
+  render(<SnapshotButton card={card} filename="daily-share" />);
+
+  fireEvent.click(button());
+
+  await waitFor(() =>
+    expect(mockDisplayToast).toHaveBeenCalledWith(
+      'Could not create the snapshot, please try again',
+      { variant: 'error' },
+    ),
+  );
+  expect(mockCopy).not.toHaveBeenCalled();
+  expect(mockDownload).not.toHaveBeenCalled();
 });
 
 it('refuses to render without a card or a target', () => {
