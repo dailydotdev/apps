@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useSidebarDragState } from '../../components/sidebar/useSidebarDragState';
 import { useSidebarShortcutItems } from '../../components/sidebar/SidebarShortcutsDock';
+import { cloudinarySidebarTourDockDrag } from '../../lib/image';
+import { CoachDemoVideo } from './CoachCard';
 import { CoachPopover } from './CoachPopover';
 import { DOCK_CUSTOMIZE_SELECTOR, PINNABLE_ROW_SELECTOR } from './steps';
 import { useCoachAnchor } from './useCoachAnchor';
@@ -117,6 +119,7 @@ export const PinCoach = ({
       isOpen={isVisible}
       highlightRect={dockAnchor.rect}
       message={PIN_COACH_MESSAGE}
+      media={<CoachDemoVideo src={cloudinarySidebarTourDockDrag} />}
     />
   );
 };

@@ -6,7 +6,12 @@ import { RootPortal } from '../../components/tooltips/Portal';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { RAIL_POPUP_GROUP } from '../../components/sidebar/common';
-import { CoachPrimaryButton, SkipTourButton } from './CoachCard';
+import { cloudinarySidebarTourDockDrag } from '../../lib/image';
+import {
+  CoachDemoVideo,
+  CoachPrimaryButton,
+  SkipTourButton,
+} from './CoachCard';
 import { CoachPopover } from './CoachPopover';
 import { useCoachAnchor } from './useCoachAnchor';
 import type { SidebarTourState } from './useSidebarTourState';
@@ -156,6 +161,11 @@ export const SidebarTourOverlay = ({
         align={step.align}
         dialogLabel="Sidebar tour"
         message={step.message}
+        media={
+          step.media === 'dockDrag' && (
+            <CoachDemoVideo src={cloudinarySidebarTourDockDrag} />
+          )
+        }
         progress={{ total: stepCount, active: stepIndex }}
         control={
           step.extra === 'compactSwitch' && (

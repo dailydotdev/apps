@@ -12,6 +12,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
+import { usePrefersReducedMotion } from '../giveback/useGivebackMotion';
 
 export type CoachPointerTop = number | 'center';
 
@@ -46,6 +47,30 @@ const CoachProgressRing = ({ total, active }: CoachProgress): ReactElement => (
     />
   </span>
 );
+
+// The dock lesson is a gesture, and a sentence about dragging is slower to read
+// than four seconds of watching one. Square and sized up front so the card does
+// not grow once the file lands, which would leave its pointer aiming nowhere.
+export const CoachDemoVideo = ({ src }: { src: string }): ReactElement => {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  return (
+    <video
+      aria-hidden
+      className="aspect-square w-full rounded-10 bg-background-subtle object-cover"
+      src={src}
+      // Held on its first frame rather than hidden: the still is the same
+      // gesture, and the sentence beside it does not depend on the motion.
+      autoPlay={!prefersReducedMotion}
+      loop={!prefersReducedMotion}
+      preload="metadata"
+      muted
+      playsInline
+      disablePictureInPicture
+      controls={false}
+    />
+  );
+};
 
 export const SkipTourButton = ({
   onClick,
@@ -96,6 +121,8 @@ export interface CoachCardProps {
   // the shell stays mounted and the ring sweeps continuously.
   stepKey?: string;
   progress?: CoachProgress;
+  // Sits above the sentence, for a step whose subject is easier shown than said.
+  media?: ReactNode;
   control?: ReactNode;
   actions?: ReactNode;
   pointer?: CoachPointerTop;
@@ -112,6 +139,7 @@ export const CoachCard = forwardRef<HTMLDivElement, CoachCardProps>(
       message,
       stepKey,
       progress,
+      media,
       control,
       actions,
       pointer,
@@ -140,6 +168,8 @@ export const CoachCard = forwardRef<HTMLDivElement, CoachCardProps>(
         key={stepKey}
         className="animate-coach-card-in flex flex-col gap-3.5"
       >
+        {media}
+
         <Typography
           className="text-balance"
           type={TypographyType.Footnote}

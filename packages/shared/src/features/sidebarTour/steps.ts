@@ -27,6 +27,7 @@ export const SIDEBAR_TOUR_STEPS: SidebarTourStep[] = [
     message:
       'Drag anything from the sidebar into the dock, or add it from the ••• menu.',
     target: DOCK_CUSTOMIZE_SELECTOR,
+    media: 'dockDrag',
   },
   {
     id: 'gameCenter',

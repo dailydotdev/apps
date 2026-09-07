@@ -16,6 +16,9 @@ export type SidebarTourStepAlign = 'center' | 'top' | 'panelTop';
 // reads as a second sidebar rather than as a highlight.
 export type SidebarTourStepHighlight = 'default' | 'tight';
 
+// A step whose subject is a gesture carries a short demo above its sentence.
+export type SidebarTourStepMedia = 'dockDrag';
+
 export interface SidebarTourStep {
   id: SidebarTourStepId;
   message: string;
@@ -27,6 +30,7 @@ export interface SidebarTourStep {
   extra?: SidebarTourStepExtra;
   align?: SidebarTourStepAlign;
   highlight?: SidebarTourStepHighlight;
+  media?: SidebarTourStepMedia;
 }
 
 export type SidebarTourTrigger = 'auto' | 'support_menu';

@@ -427,6 +427,23 @@ describe('sidebar tour wiring', () => {
       ]);
     });
 
+    it('shows the drag demo on the dock step only', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+      // The rail step is a sentence about layout, not a gesture.
+      expect(document.querySelector('video')).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByText('Next'));
+      await screen.findByText(/add it from the/);
+
+      const demo = document.querySelector('video');
+      expect(demo).toBeInTheDocument();
+      expect(demo).toHaveAttribute('src', expect.stringContaining('720_'));
+    });
+
     it('survives the dock step opening the ••• tray it is teaching', async () => {
       renderRail(true);
 
