@@ -25,6 +25,7 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
+import { PreferredSourceSetting } from '@dailydotdev/shared/src/components/post/preferredSources/PreferredSourceSetting';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -174,6 +175,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Show hero cards for highlighted news
           </SettingsSwitch>
+
+          <PreferredSourceSetting />
         </FlexCol>
 
         <FlexCol className="gap-5">

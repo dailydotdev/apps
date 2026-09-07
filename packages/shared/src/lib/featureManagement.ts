@@ -346,3 +346,8 @@ export const featureCommentFirstAction = new Feature(
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
+
+// Google Preferred Sources. One flag for every surface: the ask is the same
+// ask everywhere, and the capping is global, so splitting it per placement
+// would let a reader meet it twice after silencing it once.
+export const featurePreferredSource = new Feature('preferred_source', false);

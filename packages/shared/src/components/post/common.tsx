@@ -97,6 +97,8 @@ export interface PostContentProps
    * extensions.
    */
   getWidgetRailAd?: (position: PostWidgetPosition) => ReactNode;
+  /** Rendered at the very top of the widget column. */
+  widgetsLeading?: ReactNode;
   /**
    * Replaces the default TLDR paragraph so an ad template can interleave
    * units between summary segments. Like every ad prop here: only the
