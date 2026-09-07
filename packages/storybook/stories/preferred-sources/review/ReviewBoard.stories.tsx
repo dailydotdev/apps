@@ -27,10 +27,10 @@ type Item = {
 const ITEMS: Item[] = [
   {
     n: 2,
-    id: 'preferred-sources-review-2-post-page-under-the-source-card',
-    name: 'Post page · under the source card',
+    id: 'preferred-sources-review-2-post-page-top-of-the-widget-column',
+    name: 'Post page · top of the widget column',
     appears:
-      'Every post page, signed in, directly under the source card. Equal spacing above and below.',
+      'Every article post page, at the very top of the widget column — above the source card, signup widget and ad slot.',
     goesAway: 'After click or dismiss, globally.',
     label: 'Add as preferred source',
     approve: 'The placement and the label.',
@@ -39,7 +39,7 @@ const ITEMS: Item[] = [
       { key: 'proposed', label: 'Proposed' },
     ],
     viewports: {
-      desktop: { show: true, note: 'Rail slot after the source card.' },
+      desktop: { show: true, note: 'First item in the rail, above the source card.' },
       tablet: { show: true, note: 'Widget column renders from 656px.' },
       mobile: {
         show: false,

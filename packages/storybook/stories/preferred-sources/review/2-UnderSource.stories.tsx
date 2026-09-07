@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PostContentRaw } from '@dailydotdev/shared/src/components/post/PostContent';
-import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import { PreferGoogleButton } from '@dailydotdev/shared/src/components/post/preferredSources';
 import {
   ButtonSize,
@@ -19,7 +18,7 @@ type Args = { variant: 'current' | 'proposed' };
  * to make the space above and below the button read the same.
  */
 const meta: Meta<Args> = {
-  title: 'Preferred Sources/Review/2. Post page: under the source card',
+  title: 'Preferred Sources/Review/2. Post page: top of the widget column',
   args: { variant: 'proposed' },
   argTypes: {
     variant: { control: 'radio', options: ['current', 'proposed'] },
@@ -33,9 +32,9 @@ const meta: Meta<Args> = {
           origin={Origin.ArticlePage}
           isPostPage
           position="relative"
-          getWidgetRailAd={(position) =>
-            position === PostWidgetPosition.Source && variant !== 'current' ? (
-              <div className="mt-3 w-full">
+          widgetsLeading={
+            variant === 'current' ? null : (
+              <div className="w-full">
                 <PreferGoogleButton
                   className="w-full"
                   label="Add as preferred source"
@@ -43,7 +42,7 @@ const meta: Meta<Args> = {
                   variant={ButtonVariant.Float}
                 />
               </div>
-            ) : null
+            )
           }
         />
       </div>

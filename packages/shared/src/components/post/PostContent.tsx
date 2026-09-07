@@ -92,6 +92,7 @@ export function PostContentRaw({
   isBannerVisible,
   isPostPage,
   getWidgetRailAd,
+  widgetsLeading,
   contentLeading,
   renderSummarySegments,
   aboveComments,
@@ -314,6 +315,7 @@ export function PostContentRaw({
       origin={origin}
       onCopyPostLink={onCopyPostLink}
       getRailAd={getWidgetRailAd}
+      leading={widgetsLeading}
     />
   );
 
