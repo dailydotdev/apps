@@ -53,25 +53,6 @@ const buildMockHighlights = (
   });
 };
 
-/**
- * The same fixture headlines as a bare list, for the sponsor strip's ticker
- * row — which has the same problem for the same reason. Returns nothing
- * outside development, whatever the query param says.
- */
-export const mockStripHeadlines = (enabled: boolean): PostHighlight[] => {
-  if (!enabled || !isDevelopment) {
-    return [];
-  }
-
-  return MOCK_HEADLINES.map((headline, index) => ({
-    id: `mock-headline-${index}`,
-    channel: 'agents',
-    headline,
-    highlightedAt: new Date(Date.now() - index * 45 * 60_000).toISOString(),
-    post: { id: `mock-post-${index}`, commentsPermalink: '' },
-  }));
-};
-
 export const withMockFeedHighlights = (
   pages: FeedItemData[],
   enabled: boolean,

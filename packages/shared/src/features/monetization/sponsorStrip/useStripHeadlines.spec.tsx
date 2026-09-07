@@ -14,15 +14,7 @@ jest.mock('../../../graphql/highlights', () => ({
   majorHeadlinesQueryOptions: jest.fn(),
 }));
 
-jest.mock('../../../lib/constants', () => ({
-  ...(jest.requireActual('../../../lib/constants') as Record<string, unknown>),
-  isDevelopment: true,
-}));
-
 const mockQueryOptions = jest.mocked(majorHeadlinesQueryOptions);
-const mockConstants = jest.requireMock('../../../lib/constants') as {
-  isDevelopment: boolean;
-};
 
 const headline = (id: string, ageMs = 0) => ({
   node: {
@@ -60,7 +52,6 @@ const render = () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockConstants.isDevelopment = true;
 });
 
 it('should carry the headlines the API returned', async () => {
@@ -72,21 +63,44 @@ it('should carry the headlines the API returned', async () => {
   );
 });
 
-it('should drop a headline older than the freshness window', async () => {
-  setHeadlines([headline('fresh'), headline('stale', 25 * ONE_HOUR)]);
+// The row stands in for the feed's Happening Now card, which applies no age
+// filter of its own — a stale-only day must still fill the ticker rather than
+// silently dropping the dock to one row.
+it('should carry headlines the backend still serves however old they are', async () => {
+  setHeadlines([
+    headline('old', 36 * ONE_HOUR),
+    headline('older', 92 * ONE_HOUR),
+  ]);
   const { result } = render();
 
   await waitFor(() =>
-    expect(result.current.map(({ id }) => id)).toEqual(['fresh']),
+    expect(result.current.map(({ id }) => id)).toEqual(['old', 'older']),
   );
 });
 
-it('should fall back to the fixture in development so the row is never empty', async () => {
+it('should keep the order the API returned rather than resorting', async () => {
+  setHeadlines([
+    headline('newest'),
+    headline('middle', 40 * ONE_HOUR),
+    headline('oldest', 90 * ONE_HOUR),
+  ]);
+  const { result } = render();
+
+  await waitFor(() =>
+    expect(result.current.map(({ id }) => id)).toEqual([
+      'newest',
+      'middle',
+      'oldest',
+    ]),
+  );
+});
+
+it('should leave the row empty when the API has no headlines at all', async () => {
   setHeadlines([]);
   const { result } = render();
 
-  await waitFor(() => expect(result.current.length).toBeGreaterThan(0));
-  expect(result.current.every(({ id }) => id.startsWith('mock-'))).toBe(true);
+  await waitFor(() => expect(mockQueryOptions).toHaveBeenCalled());
+  expect(result.current).toEqual([]);
 });
 
 it('should not query at all while the strip is off', async () => {
@@ -101,13 +115,4 @@ it('should not query at all while the strip is off', async () => {
   });
 
   await waitFor(() => expect(result.current).toEqual([]));
-});
-
-it('should leave the row empty outside development', async () => {
-  mockConstants.isDevelopment = false;
-  setHeadlines([]);
-  const { result } = render();
-
-  await waitFor(() => expect(mockQueryOptions).toHaveBeenCalled());
-  expect(result.current).toEqual([]);
 });

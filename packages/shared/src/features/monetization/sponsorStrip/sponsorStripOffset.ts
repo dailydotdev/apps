@@ -20,8 +20,9 @@ const SPONSOR_STRIP_HEIGHT_VAR = '--sponsor-strip-height';
  * because the feed's inset there comes from the grid being narrower than the
  * frame rather than from padding. The dock spans the frame edge to edge, so a
  * zeroed gutter leaves its first logo smudged against the sidebar. These are
- * `feedGutter`'s own values, which is what lines the row up with the cards in
- * both layouts.
+ * `feedGutter`'s tablet-and-up values, which is what lines the row up with the
+ * cards in both layouts. The `px-4` below tablet is inert — the dock is
+ * `hidden tablet:flex` — and kept only so the two constants read alike.
  */
 export const DOCK_GUTTER = 'px-4 tablet:px-6 laptop:px-10';
 
