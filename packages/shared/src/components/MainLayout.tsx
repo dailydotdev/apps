@@ -450,11 +450,17 @@ function MainLayoutComponent({
                 // clipped into square off.
                 'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
                 LAYOUT_FRAME_CLASS,
+                // These subtract exactly the chrome above the frame plus its
+                // own margins, so the frame ends level with the window. With
+                // a dock the bottom margin is gone, so 0.75rem less comes off
+                // — a frame that stops short leaves a `sticky bottom-0` dock
+                // resting at its end, which is what happens for as long as
+                // the feed is too short to make the page scrollable.
                 !hasTopBanners &&
                   !topBanner &&
                   (isBannerAvailable
-                    ? 'laptop:min-h-[calc(100vh-3.5rem)]'
-                    : 'laptop:min-h-[calc(100vh-1.5rem)]'),
+                    ? 'laptop:min-h-[calc(100vh-3.5rem)] laptop:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
+                    : 'laptop:min-h-[calc(100vh-1.5rem)] laptop:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
               )}
             >
               <RouteProgressBar />
