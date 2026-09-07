@@ -4,7 +4,10 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import { featureSidebarTour } from '../../lib/featureManagement';
+import {
+  featureSidebarTour,
+  featureSidebarTourExistingBefore,
+} from '../../lib/featureManagement';
 import { LogEvent } from '../../lib/log';
 import { resolveSidebarTourSteps } from './steps';
 import type {
@@ -33,14 +36,6 @@ export const COACH_MAX_EXPOSURES = 3;
 // A card that flashed past under a travelling pointer taught nobody anything,
 // so both ambient coaches only charge an exposure once one has sat there.
 export const COACH_EXPOSURE_DWELL_MS = 700;
-
-// Users who joined before the v2 rail shipped are the only ones whose muscle
-// memory it broke, so they are the only ones the tour runs for on its own.
-// This is the fixed date v2 shipped, standing in for "when this user actually
-// got the v2 rail", which the layout rollout is what really decides. If that
-// ramp ever runs gradually, the cutoff belongs in the GrowthBook flag payload
-// so it can be tuned mid-ramp instead of waiting on a release.
-export const SIDEBAR_V2_ROLLOUT_DATE = new Date('2026-08-01T00:00:00.000Z');
 
 export interface SidebarCoachState {
   isActive: boolean;
@@ -114,6 +109,10 @@ export const useSidebarTourState = (): SidebarTourState => {
     feature: featureSidebarTour,
     shouldEvaluate,
   });
+  const { value: existingUserBefore } = useConditionalFeature({
+    feature: featureSidebarTourExistingBefore,
+    shouldEvaluate,
+  });
 
   const [isTourSeen, setTourSeen, isTourSeenFetched] =
     usePersistentContext<boolean>(SIDEBAR_TOUR_SEEN_KEY, false);
@@ -141,8 +140,14 @@ export const useSidebarTourState = (): SidebarTourState => {
     setStepIndex(0);
   }, [isEnabled, steps]);
 
+  // Only people whose muscle memory the rail broke get the tour on their own.
+  // With no cutoff set that is everyone, which is true of a first rollout: the
+  // v2 rail has not shipped, so nobody has landed on it before today.
+  const existingBefore = new Date(existingUserBefore);
   const isExistingUser =
-    !!user?.createdAt && new Date(user.createdAt) < SIDEBAR_V2_ROLLOUT_DATE;
+    !existingUserBefore ||
+    Number.isNaN(existingBefore.getTime()) ||
+    (!!user?.createdAt && new Date(user.createdAt) < existingBefore);
 
   const step = steps?.[stepIndex] ?? null;
   const isRunning = isEnabled && !!step;

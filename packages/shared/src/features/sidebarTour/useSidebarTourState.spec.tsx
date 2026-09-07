@@ -6,13 +6,15 @@ import { GrowthBook } from '@growthbook/growthbook-react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
-import { featureSidebarTour } from '../../lib/featureManagement';
+import {
+  featureSidebarTour,
+  featureSidebarTourExistingBefore,
+} from '../../lib/featureManagement';
 import { LogEvent } from '../../lib/log';
 import {
   COACH_MAX_EXPOSURES,
   SIDEBAR_PIN_COACH_KEY,
   SIDEBAR_TOUR_SEEN_KEY,
-  SIDEBAR_V2_ROLLOUT_DATE,
   useSidebarTourState,
 } from './useSidebarTourState';
 
@@ -45,18 +47,21 @@ const writesTo = (key: string): unknown[] =>
     .filter(([written]) => written === key)
     .map(([, value]) => value);
 
+// A rollout day, and an account either side of it.
+const ROLLOUT_DAY = '2026-09-01T00:00:00.000Z';
+const dayFromRollout = (days: number): string =>
+  new Date(
+    new Date(ROLLOUT_DAY).getTime() + days * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
 const existingUser: LoggedUser = {
   ...defaultUser,
-  createdAt: new Date(
-    SIDEBAR_V2_ROLLOUT_DATE.getTime() - 1000 * 60 * 60 * 24,
-  ).toISOString(),
+  createdAt: dayFromRollout(-1),
 };
 
 const newUser: LoggedUser = {
   ...defaultUser,
-  createdAt: new Date(
-    SIDEBAR_V2_ROLLOUT_DATE.getTime() + 1000 * 60 * 60 * 24,
-  ).toISOString(),
+  createdAt: dayFromRollout(1),
 };
 
 const logEvent = jest.fn();
@@ -80,15 +85,18 @@ const mountRail = () => {
 interface RenderOptions {
   user?: LoggedUser | null;
   isFeatureEnabled?: boolean;
+  existingBefore?: string;
 }
 
 const renderTour = ({
   user = existingUser,
   isFeatureEnabled = true,
+  existingBefore = ROLLOUT_DAY,
 }: RenderOptions = {}) => {
   const gb = new GrowthBook();
   gb.setFeatures({
     [featureSidebarTour.id]: { defaultValue: isFeatureEnabled },
+    [featureSidebarTourExistingBefore.id]: { defaultValue: existingBefore },
   });
 
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -123,6 +131,18 @@ describe('useSidebarTourState', () => {
 
   afterEach(() => {
     unmountRail();
+  });
+
+  it('treats everyone as an existing user until the rollout sets a cutoff', async () => {
+    // v2 has never shipped, so on a first rollout nobody has landed on the new
+    // rail before today: an unset cutoff must not withhold the tour from the
+    // accounts that signed up most recently.
+    const { result } = await renderEnabledTour({
+      user: newUser,
+      existingBefore: '',
+    });
+
+    expect(result.current.canAutoStart).toBe(true);
   });
 
   it('offers the tour to an existing user who has not seen it', async () => {
@@ -379,7 +399,10 @@ describe('useSidebarTourState', () => {
   it('drops a parked run when the user stops being eligible mid-tour', async () => {
     let user: LoggedUser | null = existingUser;
     const gb = new GrowthBook();
-    gb.setFeatures({ [featureSidebarTour.id]: { defaultValue: true } });
+    gb.setFeatures({
+      [featureSidebarTour.id]: { defaultValue: true },
+      [featureSidebarTourExistingBefore.id]: { defaultValue: ROLLOUT_DAY },
+    });
     const client = new QueryClient();
     const wrapper = ({ children }: { children: ReactNode }) => (
       <TestBootProvider

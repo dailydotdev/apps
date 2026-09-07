@@ -351,3 +351,17 @@ export const featureGqlBatching = new Feature('gql_batching', false);
 // memory the rail broke, plus the ambient pin/••• coaching for everyone else.
 // Control shows nothing at all. Keep the default false so GrowthBook ramps it.
 export const featureSidebarTour = new Feature('sidebar_tour', false);
+
+// ISO date splitting the tour's two audiences: accounts created before it came
+// from the old sidebar and get the guided tour, accounts created after land on
+// the v2 rail first and get the ambient coaches instead.
+//
+// Empty means "everyone here now came from the old sidebar", which is what a
+// first rollout looks like: v2 has never shipped, so no account has seen it.
+// Set this to the day the rollout starts and the split becomes exact again --
+// it lives in GrowthBook precisely because a build-time date cannot know when
+// the ramp actually reached people.
+export const featureSidebarTourExistingBefore = new Feature(
+  'sidebar_tour_existing_before',
+  '',
+);

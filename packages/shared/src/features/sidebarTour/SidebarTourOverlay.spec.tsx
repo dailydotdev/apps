@@ -20,7 +20,6 @@ import { SpotlightProvider } from '../../components/spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from '../../components/sidebar/SidebarDesktopV2';
 import { MODAL_KEY } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
-import { SIDEBAR_V2_ROLLOUT_DATE } from './useSidebarTourState';
 
 jest.mock('../../hooks/layout/useLayoutVariant', () => ({
   useLayoutVariant: () => ({ isV2: true, isLoading: false }),
@@ -28,9 +27,7 @@ jest.mock('../../hooks/layout/useLayoutVariant', () => ({
 
 const existingUser: LoggedUser = {
   ...defaultUser,
-  createdAt: new Date(
-    SIDEBAR_V2_ROLLOUT_DATE.getTime() - 1000 * 60 * 60 * 24,
-  ).toISOString(),
+  createdAt: '2026-01-01T00:00:00.000Z',
 };
 
 const updateFlag = jest.fn().mockResolvedValue(undefined);
