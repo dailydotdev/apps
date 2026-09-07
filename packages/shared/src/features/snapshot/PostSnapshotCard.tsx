@@ -6,7 +6,6 @@ import colors from '../../styles/colors';
 import { SnapshotFrame } from './SnapshotFrame';
 
 const MUTED = colors.salt['90'];
-const DIVIDER = colors.pepper['10'];
 
 /**
  * The TLDR is the payload, so it takes as much size as it can carry: a short
@@ -34,10 +33,10 @@ interface PostSnapshotCardProps {
 }
 
 /**
- * The TLDR first and in white, because that is the part worth sending; the
- * headline, source and date sit under it as attribution. The page's own
- * chrome — thumbnail, follow, tags, counts, read time — is left off: it
- * competes with the copy and none of it can be pressed in a still image.
+ * The TLDR is the card, in white, with the source and date under it as the
+ * credit. Everything else the page shows is left off — headline, thumbnail,
+ * follow, tags, counts, read time: it competes with the copy for the room,
+ * and none of it can be pressed in a still image.
  */
 function PostSnapshotCardComponent(
   { post, seed }: PostSnapshotCardProps,
@@ -75,35 +74,21 @@ function PostSnapshotCardComponent(
           )}
         </div>
 
-        <div
-          className="flex flex-col gap-4"
-          style={{ paddingTop: 26, borderTop: `1px solid ${DIVIDER}` }}
-        >
-          {post.title && (
-            <span
-              className="snapshot-copy font-bold text-white"
-              style={{ fontSize: 32, lineHeight: 1.25 }}
-            >
-              {post.title}
+        {credit && (
+          <div className="flex items-center gap-4" style={{ paddingTop: 40 }}>
+            {post.source?.image && (
+              <img
+                src={post.source.image}
+                alt=""
+                crossOrigin="anonymous"
+                className="block size-14 rounded-full object-cover"
+              />
+            )}
+            <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
+              {credit}
             </span>
-          )}
-
-          {credit && (
-            <div className="flex items-center gap-4">
-              {post.source?.image && (
-                <img
-                  src={post.source.image}
-                  alt=""
-                  crossOrigin="anonymous"
-                  className="block size-14 rounded-full object-cover"
-                />
-              )}
-              <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
-                {credit}
-              </span>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </SnapshotFrame>
   );
