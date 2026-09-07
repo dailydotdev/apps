@@ -236,8 +236,15 @@ const resolveShortcut = (entry: SidebarShortcut): ResolvedShortcut | null => {
     // would resolve against chrome-extension:// once pinned.
     path: toWebappHref(entry.path),
     // Prefer the image captured at drag time (instant, no flash); fall back to
-    // resolving a glyph/image from the path.
-    icon: () => <SidebarEntityIcon path={entry.path} image={entry.image} />,
+    // resolving a glyph/image from the path. `active` is forwarded so a pinned
+    // page fills on its own page like the catalog shortcuts beside it.
+    icon: (active) => (
+      <SidebarEntityIcon
+        path={entry.path}
+        image={entry.image}
+        active={active}
+      />
+    ),
   };
 };
 

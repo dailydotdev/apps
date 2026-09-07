@@ -22,54 +22,93 @@ jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => ({ isFetched: true }),
 }));
 
-jest.mock('../icons', () => {
+// Every icon compiles to the same bare <svg> under the svgr mock, so stand them
+// up as identifiable stubs — the mapping from path to icon is what's under test.
+const iconStub = (name: string) => {
   // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
   const react = require('react');
-  const icon = (name: string) => (): unknown =>
-    react.createElement('span', { 'data-testid': `icon-${name}` });
-  return {
-    __esModule: true,
-    BellIcon: icon('bell'),
-    BookmarkIcon: icon('bookmark'),
-    CompassIcon: icon('compass'),
-    EarthIcon: icon('earth'),
-    HashtagIcon: icon('hashtag'),
-    HotIcon: icon('hot'),
-    JobIcon: icon('job'),
-    LinkIcon: icon('link'),
-    SettingsIcon: icon('settings'),
-    SourceIcon: icon('source'),
-    SquadIcon: icon('squad'),
-    TimerIcon: icon('timer'),
-  };
-});
+  return ({ secondary }: { secondary?: boolean }) =>
+    react.createElement('span', {
+      'data-testid': `icon-${name}`,
+      'data-secondary': String(!!secondary),
+    });
+};
+
+jest.mock('../icons', () => ({
+  __esModule: true,
+  AnalyticsIcon: iconStub('Analytics'),
+  BellIcon: iconStub('Bell'),
+  BookmarkIcon: iconStub('Bookmark'),
+  BriefIcon: iconStub('Brief'),
+  CompassIcon: iconStub('Compass'),
+  EarthIcon: iconStub('Earth'),
+  HashtagIcon: iconStub('Hashtag'),
+  HomeIcon: iconStub('Home'),
+  HotIcon: iconStub('Hot'),
+  JobIcon: iconStub('Job'),
+  LinkIcon: iconStub('Link'),
+  SettingsIcon: iconStub('Settings'),
+  SourceIcon: iconStub('Source'),
+  SquadIcon: iconStub('Squad'),
+  TimerIcon: iconStub('Timer'),
+}));
+
+jest.mock('../icons/Bookmark/Reminder', () => ({
+  __esModule: true,
+  BookmarkReminderIcon: iconStub('BookmarkReminder'),
+}));
+
+jest.mock('../icons/Folder', () => ({
+  __esModule: true,
+  FolderIcon: iconStub('Folder'),
+}));
 
 describe('SidebarEntityIcon', () => {
   beforeEach(() => {
     mockSourceImageQueryOptions.mockClear();
   });
 
-  // Each of these is a panel row that can be dragged into the shortcuts dock;
+  // Each of these is a sidebar row that can be dragged into the shortcuts dock;
   // the pinned shortcut has to keep the glyph the row showed in the panel.
   it.each([
-    ['https://app.daily.dev/squads/moderate', 'icon-timer'],
-    ['https://app.daily.dev/squads/discover', 'icon-source'],
-    ['https://app.daily.dev/squads/discover/my', 'icon-source'],
-    ['/posts', 'icon-compass'],
-    ['https://app.daily.dev/jobs', 'icon-job'],
-    ['https://app.daily.dev/notifications', 'icon-bell'],
-    ['https://app.daily.dev/game-center', 'icon-hot'],
-    ['https://app.daily.dev/settings/notifications', 'icon-settings'],
-    ['https://app.daily.dev/bookmarks/some-folder-id', 'icon-bookmark'],
-    ['https://app.daily.dev/feeds/some-feed-id', 'icon-hashtag'],
-    ['https://app.daily.dev/sources/react', 'icon-earth'],
-    ['https://app.daily.dev/tags/webdev', 'icon-hashtag'],
-    ['https://app.daily.dev/squads/my-squad', 'icon-squad'],
-    ['https://app.daily.dev/something-else', 'icon-link'],
-  ])('renders the right glyph for %s', (path, testId) => {
+    ['https://app.daily.dev/squads/moderate', 'Timer'],
+    ['https://app.daily.dev/squads/discover', 'Source'],
+    ['https://app.daily.dev/squads/discover/my', 'Source'],
+    ['/posts', 'Compass'],
+    ['https://app.daily.dev/jobs', 'Job'],
+    ['https://app.daily.dev/notifications', 'Bell'],
+    ['https://app.daily.dev/game-center', 'Hot'],
+    ['https://app.daily.dev/settings/notifications', 'Settings'],
+    ['https://app.daily.dev/bookmarks', 'Bookmark'],
+    ['https://app.daily.dev/bookmarks/later', 'BookmarkReminder'],
+    ['https://app.daily.dev/bookmarks/some-folder-id', 'Folder'],
+    ['https://app.daily.dev/feeds/some-feed-id', 'Hashtag'],
+    ['https://app.daily.dev/sources/react', 'Earth'],
+    ['https://app.daily.dev/tags/webdev', 'Hashtag'],
+    ['https://app.daily.dev/squads/my-squad', 'Squad'],
+    ['https://app.daily.dev/something-else', 'Link'],
+  ])('renders the right glyph for %s', (path, icon) => {
     render(<SidebarEntityIcon path={path} />);
 
-    expect(screen.getByTestId(testId)).toBeInTheDocument();
+    expect(screen.getByTestId(`icon-${icon}`)).toBeInTheDocument();
+  });
+
+  it('fills the glyph when the shortcut is the current page', () => {
+    render(<SidebarEntityIcon path="/posts" active />);
+
+    expect(screen.getByTestId('icon-Compass')).toHaveAttribute(
+      'data-secondary',
+      'true',
+    );
+  });
+
+  it('leaves the glyph outlined when it is not the current page', () => {
+    render(<SidebarEntityIcon path="/posts" />);
+
+    expect(screen.getByTestId('icon-Compass')).toHaveAttribute(
+      'data-secondary',
+      'false',
+    );
   });
 
   it('only looks up a squad image for an actual handle', () => {
