@@ -12,7 +12,7 @@ import { useCoachAnchor } from './useCoachAnchor';
 import type { SidebarTourState } from './useSidebarTourState';
 import { COACH_EXPOSURE_DWELL_MS } from './useSidebarTourState';
 
-const DOTS_COACH_MESSAGE = 'Add, reorder and remove your shortcuts from here.';
+const DOTS_COACH_MESSAGE = 'Customize your shortcuts here.';
 
 export type DockCustomizeInteraction = 'hover' | 'open';
 

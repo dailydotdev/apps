@@ -137,9 +137,12 @@ describe('sidebar tour wiring', () => {
       const aside = screen.getByTestId('sidebar-aside');
       expect(aside).toHaveClass(RAIL_TOUR_LIFT_CLASS);
 
+      // The rail ships compact, so the first press is the one that widens it.
+      expect(screen.getByRole('checkbox')).toBeChecked();
+
       fireEvent.click(screen.getByText('Compact mode'));
 
-      expect(updateFlag).toHaveBeenCalledWith('sidebarCompact', true);
+      expect(updateFlag).toHaveBeenCalledWith('sidebarCompact', false);
     });
 
     it('ends the tour on skip and does not bring it back', async () => {
@@ -219,7 +222,7 @@ describe('sidebar tour wiring', () => {
       });
 
       await screen.findByText(
-        'Drag anything from the sidebar into the dock, or add it from the ••• menu.',
+        'Drag anything from the sidebar into the dock, or add one from the 3-dot menu.',
         undefined,
         { timeout: TOUR_TIMEOUT },
       );
@@ -434,7 +437,7 @@ describe('sidebar tour wiring', () => {
       expect(document.querySelector('video')).not.toBeInTheDocument();
 
       fireEvent.click(screen.getByText('Next'));
-      await screen.findByText(/add it from the/);
+      await screen.findByText(/add one from the/);
 
       const demo = document.querySelector('video');
       expect(demo).toBeInTheDocument();
@@ -448,7 +451,7 @@ describe('sidebar tour wiring', () => {
         timeout: TOUR_TIMEOUT,
       });
       fireEvent.click(screen.getByText('Next'));
-      await screen.findByText(/add it from the/);
+      await screen.findByText(/add one from the/);
 
       fireEvent.click(screen.getByLabelText('Customize shortcuts'));
 

@@ -159,7 +159,7 @@ describe('PinCoach exposure dwell', () => {
     mockShortcuts = [];
     mockAreShortcutsLoaded = true;
     mockIsDragging = false;
-    mockAnchorRect = { top: 0, height: 40 } as DOMRect;
+    mockAnchorRect = { top: 0, left: 72, width: 40, height: 40 } as DOMRect;
   });
 
   afterEach(() => {

@@ -22,8 +22,8 @@ both personas), `01 Tour (existing users)`, `02 Intent teaching (new users)`,
     the user has squads that panel is Squads; if not, the same lesson runs on
     whichever panel they open first. The lesson: drag any row into the dock, or
     use its pin button.
-  - **A ••• coach.** Hovering or opening the dock's tray shows one line saying
-    everything can be added, reordered and removed from there.
+  - **A 3-dot coach.** Hovering or opening the dock's tray shows one line
+    naming it as where shortcuts are customized.
   - Both **decay**: they retire on success (a pin happens, the tray is opened)
     or after three exposures, whichever comes first.
 
@@ -35,9 +35,10 @@ both personas), `01 Tour (existing users)`, `02 Intent teaching (new users)`,
    the explanation, so there is no caption. The setting lives in
    Settings → Appearance in the real product.
 2. **The shortcuts dock.** "Drag anything from the sidebar into the dock, or add
-   it from the ••• menu." The rows are sidebar options rather than pages, so the
-   sentence names them that way. Drag from any panel, drag pins to reorder, •••
-   as the click-only alternative.
+   one from the 3-dot menu." The rows are sidebar options rather than pages, so
+   the sentence names them that way. Drag from any panel, drag pins to reorder,
+   the 3-dot menu as the click-only alternative. The glyph is spelled out in
+   copy: it matches no on-screen label and reads as nothing to a screen reader.
 3. **Game Center.** "Your streak and quests now share one Game Center." The
    Streak tab glows alone and the Game Center panel opens beside it (streak
    block + quest rows). Final CTA: **Got it**.

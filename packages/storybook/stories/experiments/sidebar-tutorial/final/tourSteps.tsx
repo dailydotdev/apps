@@ -40,7 +40,7 @@ export const SIDEBAR_TOUR_STEPS: SidebarTourStep[] = [
   {
     id: 'dock',
     message:
-      'Drag anything from the sidebar into the dock, or add it from the ••• menu.',
+      'Drag anything from the sidebar into the dock, or add one from the 3-dot menu.',
     glow: 'dock',
     anchor: 'dock',
   },

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Switch } from '../../components/fields/Switch';
 import { RootPortal } from '../../components/tooltips/Portal';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
-import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
+import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { RAIL_POPUP_GROUP } from '../../components/sidebar/common';
 import { cloudinarySidebarTourDockDrag } from '../../lib/image';
 import {
@@ -38,15 +38,14 @@ export const SidebarTourOverlay = ({
     interrupt,
     dropStep,
   } = tour;
-  const { value: isCompact, set: setCompact } =
-    useSettingsBooleanFlag('sidebarCompact');
+  const { value: isCompact, toggle: toggleCompact } = useSidebarCompact();
   const anchor = useCoachAnchor(step?.target, isRunning);
   const { isOpen, onUpdate } = useInteractivePopup(RAIL_POPUP_GROUP);
   const { events } = useRouter();
   const wasGroupOpenRef = useRef(false);
   const hasFocusedRef = useRef(false);
 
-  // The dock step's whole sentence is "or add it from the ••• menu", so opening
+  // The dock step's whole sentence is "or add one from the 3-dot menu", so opening
   // that menu is the lesson being followed, not the user reaching past the
   // tour. The tour leaves the rail's popup group for that one step: the tray
   // then opens beside the card instead of evicting it, and the run survives.
@@ -173,7 +172,7 @@ export const SidebarTourOverlay = ({
               inputId={COMPACT_SWITCH_ID}
               name={COMPACT_SWITCH_ID}
               checked={isCompact}
-              onToggle={() => setCompact(!isCompact).catch(() => undefined)}
+              onToggle={() => toggleCompact().catch(() => undefined)}
             >
               Compact mode
             </Switch>

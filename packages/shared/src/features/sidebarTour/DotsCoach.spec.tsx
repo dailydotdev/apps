@@ -16,7 +16,7 @@ const mockTargetRef: { current: HTMLElement | null } = { current: null };
 jest.mock('./useCoachAnchor', () => ({
   useCoachAnchor: () => ({
     targetRef: mockTargetRef,
-    rect: { top: 100, height: 40 } as DOMRect,
+    rect: { top: 100, left: 72, width: 40, height: 40 } as DOMRect,
     left: 72,
   }),
 }));

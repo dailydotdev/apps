@@ -317,7 +317,7 @@ const FullExperienceDemo = (): JSX.Element => {
         {isDotsCoachOpen && (
           <CoachAnchor left={76} top={dotsCardTop}>
             <CoachCard
-              message="Add, reorder and remove your shortcuts from here."
+              message="Customize your shortcuts here."
               pointer={dotsPointerTop}
               actions={
                 <>
