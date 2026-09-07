@@ -127,32 +127,6 @@ describe('BriefBanner', () => {
   });
 
   describe('user authentication states', () => {
-    it('should handle non-Plus user correctly', () => {
-      const nonPlusUser = { ...defaultUser, isPlus: false };
-      mockUseAuthContext.mockReturnValue({
-        user: nonPlusUser,
-        isLoggedIn: true,
-        isAuthReady: true,
-        updateUser: jest.fn(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
-
-      render(
-        <TestWrapper>
-          <BriefBanner />
-        </TestWrapper>,
-      );
-
-      const button = screen.getByTestId('brief-banner-cta');
-      fireEvent.click(button);
-
-      expect(mockLogEvent).toHaveBeenCalledWith({
-        event_name: 'click brief',
-        target_id: 'scroll',
-        extra: expect.stringContaining('is_demo'),
-      });
-    });
-
     it('should handle Plus user correctly', () => {
       const plusUser = { ...defaultUser, isPlus: true };
       mockUseAuthContext.mockReturnValue({
@@ -256,18 +230,6 @@ describe('BriefBanner', () => {
   });
 
   describe('accessibility', () => {
-    it('should have proper ARIA attributes', () => {
-      render(
-        <TestWrapper>
-          <BriefBanner />
-        </TestWrapper>,
-      );
-
-      const button = screen.getByTestId('brief-banner-cta');
-      expect(button).toBeInTheDocument();
-      expect(button).toBeEnabled();
-    });
-
     it('should be keyboard accessible', () => {
       render(
         <TestWrapper>

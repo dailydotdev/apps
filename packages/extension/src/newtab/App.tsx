@@ -44,6 +44,7 @@ import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import HijackingLoginStrip from './HijackingLoginStrip';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
+import { ShellStateProvider } from '../../../shared/src/contexts/ShellStateProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
 
@@ -218,12 +219,14 @@ export default function App({
               getPage={() => currentPage}
               deviceId={deviceId}
             >
-              <SubscriptionContextProvider>
-                <ShortcutsProvider>
-                  <LazyModalElement />
-                  <InternalAppWithFeaturesBoundary />
-                </ShortcutsProvider>
-              </SubscriptionContextProvider>
+              <ShellStateProvider>
+                <SubscriptionContextProvider>
+                  <ShortcutsProvider>
+                    <LazyModalElement />
+                    <InternalAppWithFeaturesBoundary />
+                  </ShortcutsProvider>
+                </SubscriptionContextProvider>
+              </ShellStateProvider>
             </BootDataProvider>
           </ExtensionContextProvider>
           <ReactQueryDevtools />

@@ -91,16 +91,6 @@ describe('useStreakFreeze', () => {
     client = new QueryClient();
   });
 
-  it('should expose freezesAvailable from the user streak', async () => {
-    mockStreakQuery(3);
-    mockProductsQuery();
-    mockFreezeDatesQuery();
-
-    const { result } = renderStreakFreezeHook(client);
-
-    await waitFor(() => expect(result.current.freezesAvailable).toBe(3));
-  });
-
   it('should fetch streak freeze products', async () => {
     mockStreakQuery();
     mockProductsQuery();

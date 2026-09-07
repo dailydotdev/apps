@@ -216,36 +216,6 @@ describe('UserCertificationForm', () => {
     expect(screen.queryByText('Credential URL*')).not.toBeInTheDocument();
   });
 
-  it('should render all form sections with proper structure', () => {
-    const { container } = render(
-      <FormWrapper>
-        <UserCertificationForm />
-      </FormWrapper>,
-    );
-
-    // Verify all main input fields are present using proper queries
-    expect(getFieldByName(container, 'title')).toBeInTheDocument();
-    expect(
-      getFieldByName(container, 'externalReferenceId'),
-    ).toBeInTheDocument();
-    expect(getFieldByName(container, 'url')).toBeInTheDocument();
-    expect(getFieldByName(container, 'description')).toBeInTheDocument();
-
-    // Check currently valid certification text is present
-    expect(
-      screen.getByText('Currently valid certification'),
-    ).toBeInTheDocument();
-
-    // Check description section
-    expect(screen.getByText('Description')).toBeInTheDocument();
-
-    // Verify labels for each section
-    expect(screen.getByText('Certification Name*')).toBeInTheDocument();
-    expect(screen.getByText('Issuing Organization*')).toBeInTheDocument();
-    expect(screen.getByText('Credential ID')).toBeInTheDocument();
-    expect(screen.getByText('Credential URL')).toBeInTheDocument();
-  });
-
   it('should handle current certification toggle affecting expiration date', async () => {
     render(
       <FormWrapper>

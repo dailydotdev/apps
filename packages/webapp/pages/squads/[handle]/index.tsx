@@ -83,6 +83,7 @@ import {
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useEnableNotification } from '@dailydotdev/shared/src/hooks/notifications/useEnableNotification';
+import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import {
   ButtonColor,
   ButtonIconPosition,
@@ -290,6 +291,7 @@ const SquadPage = ({
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
   const squadId = squad?.id;
+  useRecentPageMeta({ image: squad?.image });
   const shownToastForSquadInSession = useRef<Record<string, boolean>>({});
   const squadNotificationToastState = useMemo(
     () => createSquadNotificationToastStateStore(user?.id),

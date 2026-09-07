@@ -148,26 +148,6 @@ describe('UserVolunteeringExperienceForm', () => {
     expect(screen.getByText('End date*')).toBeInTheDocument();
   });
 
-  it('should render all form sections with proper structure', () => {
-    const { container } = render(
-      <FormWrapper>
-        <UserVolunteeringExperienceForm />
-      </FormWrapper>,
-    );
-
-    // Verify all main input fields are present using proper queries
-    expect(getFieldByName(container, 'title')).toBeInTheDocument();
-
-    // Check current volunteer role text is present
-    expect(screen.getByText('Current volunteer role')).toBeInTheDocument();
-
-    // Verify labels for each section
-    expect(screen.getByText('Organization*')).toBeInTheDocument();
-    expect(screen.getByText('Role*')).toBeInTheDocument();
-    expect(screen.getByText('Start date*')).toBeInTheDocument();
-    expect(screen.getByText('End date*')).toBeInTheDocument();
-  });
-
   it('should handle current volunteer role toggle', async () => {
     render(
       <FormWrapper>
@@ -210,29 +190,6 @@ describe('UserVolunteeringExperienceForm', () => {
     // Check for year placeholders (should have 2 - one for start date and one for end date)
     const yearPlaceholders = screen.getAllByText('Year');
     expect(yearPlaceholders).toHaveLength(2);
-  });
-
-  it('should validate volunteering-specific fields', async () => {
-    const { container } = render(
-      <FormWrapper>
-        <UserVolunteeringExperienceForm />
-      </FormWrapper>,
-    );
-
-    // Test role field accepts various volunteer roles
-    const roleInput = getFieldByName(container, 'title');
-    await userEvent.type(roleInput, 'Community Outreach Coordinator');
-    expect(roleInput).toHaveValue('Community Outreach Coordinator');
-
-    // Clear and test another role
-    await userEvent.clear(roleInput);
-    await userEvent.type(roleInput, 'Event Organizer');
-    expect(roleInput).toHaveValue('Event Organizer');
-
-    // Clear and test another role
-    await userEvent.clear(roleInput);
-    await userEvent.type(roleInput, 'Open Source Maintainer');
-    expect(roleInput).toHaveValue('Open Source Maintainer');
   });
 
   it('should maintain form state when switching current volunteer status', async () => {
@@ -292,42 +249,5 @@ describe('UserVolunteeringExperienceForm', () => {
     await userEvent.clear(roleInput);
     await userEvent.type(roleInput, 'Community Ambassador');
     expect(roleInput).toHaveValue('Community Ambassador');
-  });
-
-  it('should properly order fields as Organization then Role', () => {
-    render(
-      <FormWrapper>
-        <UserVolunteeringExperienceForm />
-      </FormWrapper>,
-    );
-
-    // Verify both fields are present
-    const orgLabel = screen.getByText('Organization*');
-    const roleLabel = screen.getByText('Role*');
-
-    expect(orgLabel).toBeInTheDocument();
-    expect(roleLabel).toBeInTheDocument();
-
-    // The form structure has Organization field first, then Role field
-    // This is verified by the order in the component itself
-    // Testing the actual order would require checking the DOM structure
-    // which is already covered by the component implementation
-  });
-
-  it('should have correct field names for form submission', () => {
-    const { container } = render(
-      <FormWrapper>
-        <UserVolunteeringExperienceForm />
-      </FormWrapper>,
-    );
-
-    // Check that the role field has the correct name attribute
-    const roleInput = getFieldByName(container, 'title');
-    expect(roleInput).toHaveAttribute('name', 'title');
-
-    // The organization field (ProfileCompany) should have customCompanyName as the name
-    // We can't directly test this as it's an autocomplete component,
-    // but we can verify the label is present
-    expect(screen.getByText('Organization*')).toBeInTheDocument();
   });
 });

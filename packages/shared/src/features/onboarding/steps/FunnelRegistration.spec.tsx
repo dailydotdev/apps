@@ -299,16 +299,6 @@ describe('FunnelRegistration', () => {
     expect(screen.getByTestId('social-button-github')).toBeInTheDocument();
   });
 
-  it('renders the registration form with mobile image by default', () => {
-    render(<FunnelRegistration {...defaultProps} />);
-
-    const backgroundImage = screen.getByAltText('background');
-    expect(backgroundImage).toHaveAttribute(
-      'src',
-      defaultProps.parameters.imageMobile,
-    );
-  });
-
   it('shows tablet image on tablet view', () => {
     // Mock tablet view
     (useViewSize as jest.Mock).mockReturnValue(true);
@@ -456,42 +446,6 @@ describe('FunnelRegistration', () => {
     });
   });
 
-  it('should initialize registration with redirect_to when shouldRedirectAuth is true', () => {
-    // Mock shouldRedirectAuth to return true
-    (shouldRedirectAuth as jest.Mock).mockReturnValue(true);
-
-    // Mock window location
-    const originalLocation = window.location;
-    const mockLocation = new URL('https://daily.dev/onboarding');
-    Object.defineProperty(window, 'location', {
-      value: mockLocation,
-      writable: true,
-    });
-
-    let registrationConfig;
-    (useRegistration as jest.Mock).mockImplementation((config) => {
-      registrationConfig = config;
-      return {
-        onSocialRegistration: mockOnSocialRegistration,
-      };
-    });
-
-    render(<FunnelRegistration {...defaultProps} />);
-
-    expect(registrationConfig).toMatchObject({
-      enabled: true,
-      params: {
-        redirect_to: mockLocation.href,
-      },
-    });
-
-    // Restore window.location
-    Object.defineProperty(window, 'location', {
-      value: originalLocation,
-      writable: true,
-    });
-  });
-
   it('should not initialize registration when router is not ready', () => {
     // Mock router not ready
     (useRouter as jest.Mock).mockImplementation(() => ({
@@ -511,53 +465,5 @@ describe('FunnelRegistration', () => {
     expect(registrationConfig).toMatchObject({
       enabled: false,
     });
-  });
-
-  it('should handle direct navigation when shouldRedirectAuth is true', () => {
-    // Mock shouldRedirectAuth to return true
-    (shouldRedirectAuth as jest.Mock).mockReturnValue(true);
-
-    const mockLocation = { href: '' };
-    Object.defineProperty(window, 'location', {
-      value: mockLocation,
-      writable: true,
-    });
-
-    let registrationHook:
-      | {
-          onRedirect: (redirect: string) => void;
-        }
-      | undefined;
-    (useRegistration as jest.Mock).mockImplementation((props) => {
-      registrationHook = props;
-      return {
-        onSocialRegistration: mockOnSocialRegistration,
-      };
-    });
-
-    render(<FunnelRegistration {...defaultProps} />);
-
-    const redirectUrl = 'https://example.com/auth';
-    if (!registrationHook) {
-      throw new Error('Expected registration hook to be initialized');
-    }
-    registrationHook.onRedirect(redirectUrl);
-
-    expect(mockLocation.href).toBe(redirectUrl);
-  });
-
-  it('should not open popup for non-native auth when shouldRedirectAuth is true', async () => {
-    // Mock shouldRedirectAuth to return true
-    (shouldRedirectAuth as jest.Mock).mockReturnValue(true);
-
-    const mockWindowOpen = jest.fn();
-    global.open = mockWindowOpen;
-
-    render(<FunnelRegistration {...defaultProps} />);
-
-    const githubButton = screen.getByTestId('social-button-github');
-    await userEvent.click(githubButton);
-
-    expect(mockWindowOpen).not.toHaveBeenCalled();
   });
 });

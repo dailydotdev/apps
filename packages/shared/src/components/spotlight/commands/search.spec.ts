@@ -64,6 +64,44 @@ describe('useSpotlightSearchCommands tag navigation', () => {
   });
 });
 
+describe('useSpotlightSearchCommands post metadata', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockedUseSuggestions.mockImplementation(({ provider }) => ({
+      isLoading: false,
+      suggestions:
+        provider === SearchProviderEnum.Posts
+          ? {
+              hits: [
+                {
+                  id: 'post-id',
+                  title: 'Post title',
+                  subtitle: 'Source name',
+                  image: 'https://daily.dev/source.png',
+                },
+              ],
+            }
+          : { hits: [] },
+      queryKey: [],
+    }));
+  });
+
+  it('uses the source image for post result rows', () => {
+    const { result } = renderHook(() =>
+      useSpotlightSearchCommands({
+        router: { push: jest.fn() },
+        query: 'source',
+      }),
+    );
+
+    expect(result.current.posts[0].meta).toMatchObject({
+      kind: 'post',
+      sourceImage: 'https://daily.dev/source.png',
+      sourceName: 'Source name',
+    });
+  });
+});
+
 describe('useSpotlightSearchCommands provider fetching', () => {
   beforeEach(() => {
     jest.clearAllMocks();

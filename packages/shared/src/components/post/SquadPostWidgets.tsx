@@ -60,6 +60,7 @@ export function SquadPostWidgets({
             container: cardClasses,
           }}
           user={post.author as UserShortProfile}
+          postId={post.id}
         />
       )}
       <PostSidebarAdWidget

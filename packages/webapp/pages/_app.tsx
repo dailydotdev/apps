@@ -22,6 +22,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import '../styles/iubenda.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { ShellStateProvider } from '@dailydotdev/shared/src/contexts/ShellStateProvider';
 import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
@@ -453,17 +454,19 @@ export default function App(
             version={version}
             deviceId={deviceId}
           >
-            <PixelsProvider>
-              <PushNotificationContextProvider>
-                <SubscriptionContextProvider>
-                  <PostReferrerContextProvider>
-                    <ShortcutsProvider>
-                      <InternalApp {...props} />
-                    </ShortcutsProvider>
-                  </PostReferrerContextProvider>
-                </SubscriptionContextProvider>
-              </PushNotificationContextProvider>
-            </PixelsProvider>
+            <ShellStateProvider>
+              <PixelsProvider>
+                <PushNotificationContextProvider>
+                  <SubscriptionContextProvider>
+                    <PostReferrerContextProvider>
+                      <ShortcutsProvider>
+                        <InternalApp {...props} />
+                      </ShortcutsProvider>
+                    </PostReferrerContextProvider>
+                  </SubscriptionContextProvider>
+                </PushNotificationContextProvider>
+              </PixelsProvider>
+            </ShellStateProvider>
           </BootDataProvider>
           <ReactQueryDevtools />
         </HydrationBoundary>

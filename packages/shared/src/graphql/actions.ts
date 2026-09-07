@@ -80,13 +80,20 @@ export interface Action {
   completedAt: Date;
 }
 
+export const USER_ACTION_FRAGMENT = gql`
+  fragment UserAction on UserAction {
+    type
+    completedAt
+  }
+`;
+
 export const COMPLETED_USER_ACTIONS = gql`
   query CompletedUserActions {
     actions {
-      type
-      completedAt
+      ...UserAction
     }
   }
+  ${USER_ACTION_FRAGMENT}
 `;
 
 export const getUserActions = async (): Promise<Action[]> => {

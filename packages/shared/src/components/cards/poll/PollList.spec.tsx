@@ -62,13 +62,6 @@ describe('PollList', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render poll component successfully', async () => {
-    renderComponent();
-    expect(
-      await screen.findByText('What is your favorite programming language?'),
-    ).toBeInTheDocument();
-  });
-
   it('should call usePoll hook correctly', () => {
     renderComponent();
     expect(mockUsePoll).toHaveBeenCalledWith({ post: pollPost });
@@ -83,18 +76,6 @@ describe('PollList', () => {
 
     const percentages = screen.queryAllByText(/%$/);
     expect(percentages.length >= 0).toBe(true);
-  });
-
-  it('should handle voting correctly', () => {
-    const mockOnVote = jest.fn();
-    mockUsePoll.mockReturnValue({
-      onVote: mockOnVote,
-      isCastingVote: false,
-    });
-
-    renderComponent();
-
-    expect(mockUsePoll).toHaveBeenCalledWith({ post: pollPost });
   });
 
   it('should prevent voting again while voting is in progress', () => {

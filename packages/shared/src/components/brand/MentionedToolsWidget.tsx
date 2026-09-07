@@ -54,22 +54,6 @@ export const MentionedToolsWidget = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
-  const { stackItems, add, remove } = useUserStack(user as PublicProfile);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedToolName, setSelectedToolName] = useState<string | null>(null);
-
-  const isToolInStack = useCallback(
-    (toolName: string): boolean => {
-      return stackItems.some(
-        (item) =>
-          item.tool.title.toLowerCase() === toolName.toLowerCase() ||
-          item.title?.toLowerCase() === toolName.toLowerCase(),
-      );
-    },
-    [stackItems],
-  );
-
   // Extract tools from the matching creative
   const mentionedTools = useMemo(() => {
     const creative = getCreativeForTags(postTags);
@@ -87,6 +71,26 @@ export const MentionedToolsWidget = ({
       }),
     );
   }, [postTags, getCreativeForTags]);
+
+  // The widget renders nothing without a matching creative, so the showcase
+  // request only goes out for the posts that actually show tools.
+  const { stackItems, add, remove } = useUserStack(user as PublicProfile, {
+    enabled: mentionedTools.length > 0,
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedToolName, setSelectedToolName] = useState<string | null>(null);
+
+  const isToolInStack = useCallback(
+    (toolName: string): boolean => {
+      return stackItems.some(
+        (item) =>
+          item.tool.title.toLowerCase() === toolName.toLowerCase() ||
+          item.title?.toLowerCase() === toolName.toLowerCase(),
+      );
+    },
+    [stackItems],
+  );
 
   const handleToolClick = useCallback(
     (tool: Tool) => {

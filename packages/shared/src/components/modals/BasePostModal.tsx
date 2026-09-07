@@ -32,6 +32,14 @@ interface BasePostModalProps extends ModalProps {
   navigationContainerClassName?: string;
   navigationHideSubscribeAction?: boolean;
   /**
+   * The classic content layouts render their own action group (menu, boost,
+   * collection subscribe) from laptop up, next to the source line. Set this so
+   * the top strip drops its copy at that breakpoint rather than stacking a
+   * second, identical set right above it. Below laptop the content hides its
+   * group, so the strip stays the only home for these actions.
+   */
+  navigationContentOwnsActions?: boolean;
+  /**
    * Redesign top-bar behavior: hide the top strip's "…" menu (it lives in the
    * focus-card header) and, once scrolled, float a fixed bar with the post
    * stats + "…" menu + close.
@@ -55,6 +63,7 @@ function BasePostModal({
   navigationCustomActions,
   navigationContainerClassName,
   navigationHideSubscribeAction,
+  navigationContentOwnsActions,
   navigationRedesign,
   loadingChildren,
   post,
@@ -145,6 +154,9 @@ function BasePostModal({
                     navigationRedesign && 'sticky top-0 z-postNavigation',
                     navigationContainerClassName,
                   ),
+                  actions: navigationContentOwnsActions
+                    ? 'laptop:hidden'
+                    : undefined,
                 }}
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}
