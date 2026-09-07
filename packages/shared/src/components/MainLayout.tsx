@@ -417,7 +417,20 @@ function MainLayoutComponent({
           />
         )}
         {sidebarOwnsHeader ? (
-          <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
+          <div
+            className={classNames(
+              'flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3',
+              // A dock pins to the window, so the frame gives up its bottom
+              // gutter for the one case that holds one. Otherwise the frame
+              // stops 14px short of the viewport and a `sticky bottom-0` dock
+              // inside it cannot reach the bottom, resting there on first
+              // paint and at the end of the feed while pinning flush in
+              // between — a dock that jumps as the feed loads.
+              // Literal, not built from `DOCK_CLASS`: Tailwind scans source
+              // text and generates nothing for an interpolated class name.
+              'laptop:has-[.feed-dock]:mb-0',
+            )}
+          >
             {showHomepageTopBanners && (
               <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
             )}
@@ -432,6 +445,10 @@ function MainLayoutComponent({
                 // No drop shadow — the subtle border defines the floating card
                 // in both themes; shadow-2 cast a heavy bottom shadow.
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+                // The dock becomes the frame's bottom edge, so the padding
+                // that would hold it up goes, and the corners it would be
+                // clipped into square off.
+                'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
                 LAYOUT_FRAME_CLASS,
                 !hasTopBanners &&
                   !topBanner &&

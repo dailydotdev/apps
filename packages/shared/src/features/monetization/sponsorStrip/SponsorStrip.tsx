@@ -14,6 +14,7 @@ import { SponsorStripHeadlines } from './SponsorStripHeadlines';
 import type { PostHighlight } from '../../../graphql/highlights';
 import type { ResolvedSponsor } from './sponsorStripCreative';
 import {
+  DOCK_CLASS,
   DOCK_GUTTER,
   HEADLINES_ROW_HEIGHT,
   SPONSOR_ROW_HEIGHT,
@@ -172,17 +173,13 @@ export const SponsorStrip = ({
     <div
       data-testid="sponsorStrip"
       className={classNames(
-        'sticky z-3 hidden w-full flex-col bg-background-default tablet:flex',
-        // Two resting places unless the offset matches the frame's own inset.
+        'sticky bottom-0 z-3 hidden w-full flex-col bg-background-default tablet:flex',
         // `sticky bottom-0` reaches the viewport bottom only while its
-        // containing block extends past it; inside the v2 card that block
-        // stops 14px short — `laptop:my-3` on the wrapper plus `laptop:p-0.5`
-        // on the frame — so the dock sat 14px high on first paint, before the
-        // feed made the page scrollable, and dropped when it did. Pinning to
-        // the same 14px makes both positions one position. Keyed to the
-        // frame's class rather than to `isV2`, like `feedGutter`, because the
-        // flag resolves after mount. Outside the frame there is no inset.
-        'bottom-0 laptop:[.layout-frame_&]:bottom-3.5',
+        // containing block extends past that line, so the dock needs the v2
+        // frame to run all the way down — see `DOCK_CLASS`, which is how the
+        // frame knows to drop its bottom inset. Without that the dock has two
+        // resting places and jumps between them.
+        DOCK_CLASS,
       )}
     >
       {showSponsorRow && (
