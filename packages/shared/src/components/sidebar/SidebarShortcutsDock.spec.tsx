@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import {
+  isShortcutActive,
   useLegacyShortcutsMigration,
   useSidebarShortcutItems,
 } from './SidebarShortcutsDock';
@@ -151,5 +152,21 @@ describe('useSidebarShortcutItems device-storage migration', () => {
     renderHook(() => useLegacyShortcutsMigration());
 
     await waitFor(() => expect(mockUpdateFlag).not.toHaveBeenCalled());
+  });
+});
+
+describe('isShortcutActive', () => {
+  const hotTakes = `${webappUrl}?openModal=hottakes`;
+
+  it('does not light up a modal launcher on the page it opens over', () => {
+    expect(isShortcutActive('/', hotTakes)).toBe(false);
+  });
+
+  it('lights up the launcher once its modal is open', () => {
+    expect(isShortcutActive('/?openModal=hottakes', hotTakes)).toBe(true);
+  });
+
+  it('still ignores the query on a plain page shortcut', () => {
+    expect(isShortcutActive('/world?ref=x', `${webappUrl}world`)).toBe(true);
   });
 });

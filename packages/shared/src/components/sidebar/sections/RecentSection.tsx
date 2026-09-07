@@ -3,17 +3,9 @@ import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
+import { pageIconForPath } from '../pageIcons';
 import {
-  AnalyticsIcon,
-  BellIcon,
-  BookmarkIcon,
-  BriefIcon,
-  CompassIcon,
   HashtagIcon,
-  HomeIcon,
-  HotIcon,
-  JobIcon,
-  SettingsIcon,
   SourceIcon,
   SquadIcon,
   TimerIcon,
@@ -54,24 +46,6 @@ const firstSegment = (path: string): string =>
 
 const isJobsPath = (path: string): boolean => firstSegment(path) === 'jobs';
 
-// Recognizable glyphs for known internal destinations, keyed by the leading
-// path segment, so a recent page reads as itself (Game Center, Settings,
-// Notifications…) instead of the generic "history" timer. Anything unmapped
-// (and any page with no better icon/image) keeps the timer fallback.
-const PAGE_ICON_BY_SEGMENT: Record<string, () => ReactElement> = {
-  'game-center': () => <HotIcon />,
-  'daily-quests': () => <HotIcon />,
-  settings: () => <SettingsIcon />,
-  notifications: () => <BellIcon />,
-  bookmarks: () => <BookmarkIcon />,
-  briefing: () => <BriefIcon />,
-  analytics: () => <AnalyticsIcon />,
-  jobs: () => <JobIcon />,
-  following: () => <HomeIcon />,
-  posts: () => <CompassIcon />,
-  squads: () => <SquadIcon />,
-};
-
 const iconForType = (page: RecentPage, type: RecentPageType): ReactElement => {
   switch (type) {
     case 'user':
@@ -83,8 +57,10 @@ const iconForType = (page: RecentPage, type: RecentPageType): ReactElement => {
     case 'tag':
       return <HashtagIcon />;
     default: {
-      const makeIcon = PAGE_ICON_BY_SEGMENT[firstSegment(page.path)];
-      return makeIcon ? makeIcon() : <TimerIcon />;
+      // Shared with the shortcuts dock so a row and the pin dragged out of it
+      // can't drift apart. Anything unmapped keeps the "history" timer.
+      const PageIcon = pageIconForPath(page.path);
+      return PageIcon ? <PageIcon /> : <TimerIcon />;
     }
   }
 };
