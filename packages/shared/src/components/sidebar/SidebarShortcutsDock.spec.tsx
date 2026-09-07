@@ -9,6 +9,7 @@ import {
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
+  isShortcutActive,
   SidebarShortcutsDock,
   useLegacyShortcutsMigration,
   useSidebarShortcutItems,
@@ -222,5 +223,21 @@ describe('SidebarShortcutsDock customize button', () => {
     expect(
       onCustomizeInteraction.mock.calls.filter(([kind]) => kind === 'open'),
     ).toHaveLength(1);
+  });
+});
+
+describe('isShortcutActive', () => {
+  const hotTakes = `${webappUrl}?openModal=hottakes`;
+
+  it('does not light up a modal launcher on the page it opens over', () => {
+    expect(isShortcutActive('/', hotTakes)).toBe(false);
+  });
+
+  it('lights up the launcher once its modal is open', () => {
+    expect(isShortcutActive('/?openModal=hottakes', hotTakes)).toBe(true);
+  });
+
+  it('still ignores the query on a plain page shortcut', () => {
+    expect(isShortcutActive('/world?ref=x', `${webappUrl}world`)).toBe(true);
   });
 });

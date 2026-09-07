@@ -212,6 +212,19 @@ const RETIRED_SHORTCUTS: Record<string, ShortcutDragData> = {
 const SHORTCUTS_KEY = 'sidebar_shortcuts';
 const DOCK_DROPPABLE_ID = 'sidebar-shortcuts-dock';
 
+// A pinned modal launcher (Hot Takes is "/" plus a query) would otherwise read
+// as active on the very page it opens over, because the shared check drops the
+// query from both sides. Panel rows opt out of that with `disableActiveState`,
+// which a pinned {title, path} entry can't carry — so when the shortcut itself
+// has a query, the query has to match too.
+export const isShortcutActive = (asPath: string, path: string): boolean => {
+  const target = path.replace(/^https?:\/\/[^/]+/, '');
+  if (!target.includes('?')) {
+    return isSidebarItemActive(asPath, target);
+  }
+  return asPath === target;
+};
+
 const keyOf = (entry: SidebarShortcut): string =>
   typeof entry === 'string' ? entry : entry.path;
 
@@ -237,8 +250,15 @@ const resolveShortcut = (entry: SidebarShortcut): ResolvedShortcut | null => {
     // would resolve against chrome-extension:// once pinned.
     path: toWebappHref(entry.path),
     // Prefer the image captured at drag time (instant, no flash); fall back to
-    // resolving a glyph/image from the path.
-    icon: () => <SidebarEntityIcon path={entry.path} image={entry.image} />,
+    // resolving a glyph/image from the path. `active` is forwarded so a pinned
+    // page fills on its own page like the catalog shortcuts beside it.
+    icon: (active) => (
+      <SidebarEntityIcon
+        path={entry.path}
+        image={entry.image}
+        active={active}
+      />
+    ),
   };
 };
 
@@ -1063,7 +1083,7 @@ export const SidebarShortcutsDock = ({
                   )}
                   <SortableShortcut
                     shortcut={shortcut}
-                    active={isSidebarItemActive(router.asPath, shortcut.path)}
+                    active={isShortcutActive(router.asPath, shortcut.path)}
                   />
                 </React.Fragment>
               );
