@@ -27,10 +27,12 @@ import {
   revokePreviewUrl,
   isValidImageType,
   isValidFileSize,
+  getImageFileFromClipboard,
   MAX_SCREENSHOT_SIZE,
 } from '../../lib/screenshot';
 import { ScreenshotCropper } from '../feedback/ScreenshotCropper';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useEventListener } from '../../hooks/useEventListener';
 
 const FEEDBACK_MAX_LENGTH = 2000;
 type FeedbackModalProps = Omit<ModalProps, 'onRequestClose'> & {
@@ -251,6 +253,23 @@ const FeedbackModal = ({
   const isSubmitDisabled =
     !description.trim() || isOperationInProgress || isCropping;
 
+  // The modal owns the whole overlay while it is mounted, so listening on the
+  // document catches the paste wherever focus sits, textarea included. Only
+  // image pastes are swallowed; text still lands in the field it was aimed at.
+  useEventListener(globalThis?.document, 'paste', (event: ClipboardEvent) => {
+    if (isOperationInProgress || isCropping) {
+      return;
+    }
+
+    const file = getImageFileFromClipboard(event.clipboardData);
+    if (!file) {
+      return;
+    }
+
+    event.preventDefault();
+    handleScreenshotChange(file);
+  });
+
   return (
     <Modal
       {...props}
@@ -362,6 +381,15 @@ const FeedbackModal = ({
               aria-label="Upload screenshot"
             />
           </div>
+
+          {!isCropping && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              You can also paste an image straight from your clipboard.
+            </Typography>
+          )}
 
           {/* Screenshot preview */}
           {screenshotPreview && isCropping && (
