@@ -541,6 +541,20 @@ const FinalList = (): React.ReactElement => {
       <Row key={item.n} item={item} />
 
       <Muted style={{ fontSize: 12.5, marginTop: 24 }}>
+        Testing the real thing: the app preview lives at{' '}
+        <a
+          href="https://google-preferred-sources-dailydo.preview.app.daily.dev"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: 'var(--theme-text-link)' }}
+        >
+          google-preferred-sources-dailydo.preview.app.daily.dev
+        </a>
+        . Use that domain — the raw <code>*.vercel.app</code> preview is
+        CORS-blocked by the API and renders an empty shell.
+      </Muted>
+
+      <Muted style={{ fontSize: 12.5, marginTop: 12 }}>
         Shared rules for all eight: the click is recorded locally and treated as
         done (Google has no read API), one global dismissal covers every
         surface, and the settings row is the permanent home.
