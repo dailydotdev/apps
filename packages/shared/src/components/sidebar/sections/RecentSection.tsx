@@ -21,14 +21,13 @@ import {
 } from '../../icons';
 import { Image, ImageType } from '../../image/Image';
 import { Section } from '../Section';
-import { webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { sourceQueryOptions } from '../../../graphql/sources';
+import { sourceImageQueryOptions } from '../../../graphql/sources';
 import type { SidebarSectionProps } from './common';
 import type { RecentPage, RecentPageType } from '../../../lib/recentPages';
+import { toWebappHref } from '../../../lib/links';
 import { useRecentPages } from '../../../hooks/useRecentPages';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useSquad } from '../../../hooks/squads/useSquad';
 import { useUserShortByIdQuery } from '../../../hooks/user/useUserShortByIdQuery';
 import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
@@ -93,35 +92,39 @@ const iconForType = (page: RecentPage, type: RecentPageType): ReactElement => {
 const handleFromPath = (path: string): string =>
   path.split('?')[0].split('#')[0].split('/').filter(Boolean).pop() ?? '';
 
-// Renders the real entity avatar (squad logo / profile picture) when we can
-// resolve it — the entity is usually already cached from the visit — and falls
-// back to the typed vector icon while loading or when it can't be resolved.
+// Renders the real entity avatar (squad logo / profile picture). Entries record
+// the avatar with the visit, so only rows written before that fall back to a
+// lookup, and the typed vector icon covers whatever still can't be resolved.
 const RecentItemIcon = ({ page }: { page: RecentPage }): ReactElement => {
   const type = resolveType(page);
   const handle = handleFromPath(page.path);
   const { user } = useAuthContext();
   const isOwnProfile =
     type === 'user' && !!user?.username && handle === user.username;
+  const isSourceLike = type === 'squad' || type === 'source';
+  const needsLookup = !page.image && !isOwnProfile;
 
   // Each query self-disables when handed an empty id/handle, so only the row's
   // matching entity is fetched.
-  const { squad } = useSquad({ handle: type === 'squad' ? handle : '' });
   const { data: otherUser } = useUserShortByIdQuery({
-    id: type === 'user' && !isOwnProfile ? handle : '',
+    id: needsLookup && type === 'user' ? handle : '',
   });
   const { data: source } = useQuery(
-    sourceQueryOptions({ sourceId: type === 'source' ? handle : '' }),
+    sourceImageQueryOptions({
+      handle: isSourceLike ? handle : '',
+      enabled: needsLookup,
+    }),
   );
 
-  let image: string | undefined;
-  if (isOwnProfile) {
-    image = user?.image;
-  } else if (type === 'user') {
-    image = otherUser?.image;
-  } else if (type === 'squad') {
-    image = squad?.image;
-  } else if (type === 'source') {
-    image = source?.image;
+  let { image } = page;
+  if (!image) {
+    if (isOwnProfile) {
+      image = user?.image;
+    } else if (type === 'user') {
+      image = otherUser?.image;
+    } else if (isSourceLike) {
+      image = source?.image;
+    }
   }
 
   if (image) {
@@ -159,7 +162,7 @@ export const RecentSection = ({
           // Recorded from `router.asPath`, so always relative. The stored value
           // stays that way — `resolveType`/`handleFromPath` match on path prefixes
           // — and only the rendered link carries the origin.
-          path: `${webappUrl}${page.path.replace(/^\//, '')}`,
+          path: toWebappHref(page.path),
           // Recent mirrors pages you've already visited (often the current one),
           // so it should never render as the active nav item.
           disableActiveState: true,

@@ -487,7 +487,7 @@ describe('the live path', () => {
           role: 'agent',
           createdAt: '2026-01-01T00:00:01Z',
           status: 'failed',
-          trigger: 'command',
+          trigger: 'spawn',
           feedbackId: 'fb-1',
         } as InterestTurn,
       ],
@@ -500,7 +500,7 @@ describe('the live path', () => {
     expect(reply?.retryText).toBe('raise the bar');
   });
 
-  it('drops a quiet scheduled run but still answers a quiet command', async () => {
+  it('drops quiet runs whatever triggered them, keeping only turns with content', async () => {
     const agent = mountLive({
       turns: [
         {
@@ -512,12 +512,20 @@ describe('the live path', () => {
           blocks: [],
         } as InterestTurn,
         {
-          id: 'run-answer',
+          id: 'run-legacy-command',
           role: 'agent',
           createdAt: '2026-01-01T00:01:00Z',
           status: 'completed',
           trigger: 'command',
           blocks: [],
+        } as unknown as InterestTurn,
+        {
+          id: 'run-answer',
+          role: 'agent',
+          createdAt: '2026-01-01T00:02:00Z',
+          status: 'completed',
+          trigger: 'scheduled',
+          blocks: [{ type: 'text', html: '<p>One sharp read.</p>' }],
         } as InterestTurn,
       ],
     });
@@ -627,7 +635,7 @@ describe('the live path', () => {
           createdAt: '2026-01-01T00:01:00Z',
           finishedAt: '2026-01-01T00:02:00Z',
           status: 'completed',
-          trigger: 'command',
+          trigger: 'spawn',
           feedbackId: 'fb-1',
           findingsAdded: 2,
           summaryPostId: 'sp-1',
@@ -721,6 +729,143 @@ describe('the live path', () => {
       ),
     );
     expect(agent.current.isHistoryLimited).toBe(false);
+  });
+
+  it('renders a reply as the agent answering the turn it belongs to', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'what single pick do you recommend?',
+          replyStatus: 'completed' as never,
+          replyBlocks: [
+            { type: 'text', html: '<p>Read the teardown first.</p>' },
+          ] as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(
+      agent.current.messages.map(({ id, role, isPending }) => [
+        id,
+        role,
+        !!isPending,
+      ]),
+    ).toEqual([
+      ['fb-1', 'user', false],
+      ['fb-1-reply', 'agent', false],
+    ]);
+  });
+
+  it('never asks for a reply to a vote', async () => {
+    const send = jest.fn().mockResolvedValue(undefined);
+    const agent = mountLive({ send, runId: 'run-1' });
+
+    await flushQueries();
+    await act(async () => {
+      await agent.current.sendFeedback('Fewer replies like this one: "..."');
+    });
+
+    expect(send).toHaveBeenCalledWith({
+      text: 'Fewer replies like this one: "..."',
+      reply: false,
+    });
+  });
+
+  it('falls back to a plain answer when a completed reply carries no blocks', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'noted, thanks',
+          replyStatus: 'completed' as never,
+          replyBlocks: [] as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(agent.current.messages[1]).toMatchObject({
+      id: 'fb-1-reply',
+      role: 'agent',
+      isPending: false,
+      isError: false,
+      blocks: [{ type: 'text', html: '<p>Done.</p>' }],
+    });
+  });
+
+  it('counts a pending reply as the agent working', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'too shallow',
+          replyStatus: 'running' as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ isWorking }) => isWorking === true);
+
+    expect(agent.current.isWorking).toBe(true);
+  });
+
+  it('shows a queued reply as pending', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'fb-1',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'too shallow',
+          replyStatus: 'queued' as never,
+        },
+      ],
+    });
+
+    await waitForHistory(agent, ({ messages }) => messages.length === 2);
+
+    expect(agent.current.messages[1]).toMatchObject({
+      id: 'fb-1-reply',
+      role: 'agent',
+      isPending: true,
+    });
+  });
+
+  it('sends the run the reader has open, then leaves the run view', async () => {
+    const send = jest.fn().mockResolvedValue(undefined);
+    const agent = mountLive({
+      send,
+      runId: 'run-1',
+      run: {
+        id: 'run-1',
+        role: 'agent',
+        createdAt: '2026-01-01T00:01:00Z',
+        blocks: [],
+      } as never,
+    });
+
+    await flushQueries();
+    await act(async () => {
+      agent.current.runCommand({ text: 'what single pick do you recommend?' });
+    });
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'what single pick do you recommend?',
+        runId: 'run-1',
+      }),
+    );
+    expect(agent.onLeaveRunView).toHaveBeenCalled();
   });
 });
 

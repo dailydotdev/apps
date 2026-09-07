@@ -9,7 +9,6 @@ import {
 import type {
   UpdateUserWorldSettingsData,
   UserWorldEntitlementsData,
-  WorldDistrict,
   WorldEntitlement,
   WorldSettings,
 } from '../../graphql/world';
@@ -17,6 +16,7 @@ import {
   UPDATE_USER_WORLD_SETTINGS_MUTATION,
   USER_WORLD_ENTITLEMENTS_QUERY,
 } from '../../graphql/world';
+import type { UserWorldEntry } from './useUserWorld';
 import { userWorldQueryKey } from './useUserWorld';
 
 /** What a save sends: an absent key is left alone, an explicit null clears it. */
@@ -72,14 +72,13 @@ export const useUpdateWorldSettings = (userId: string): UpdateWorldSettings => {
       return res.updateUserWorldSettings;
     },
     /* Written straight into the cache rather than invalidated: a refetch would
-       take the world back to its stored look for the round trip. Districts on
-       that entry are untouched, so nothing rebuilds. */
+       take the world back to its stored look for the round trip. Everything
+       else on that entry is untouched, so nothing rebuilds. */
     onSuccess: (settings) =>
-      client.setQueryData<{
-        districts: WorldDistrict[];
-        settings: WorldSettings | null;
-      }>(userWorldQueryKey(userId), (previous) =>
-        previous ? { ...previous, settings: settings ?? null } : previous,
+      client.setQueryData<UserWorldEntry>(
+        userWorldQueryKey(userId),
+        (previous) =>
+          previous ? { ...previous, settings: settings ?? null } : previous,
       ),
   });
 

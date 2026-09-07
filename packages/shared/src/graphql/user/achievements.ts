@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from '../common';
+import { gqlBatchRequest } from '../batch';
 
 export enum AchievementType {
   Instant = 'instant',
@@ -109,34 +110,47 @@ export const ACHIEVEMENTS_QUERY = gql`
   ${ACHIEVEMENT_FRAGMENT}
 `;
 
+export const USER_ACHIEVEMENT_FRAGMENT = gql`
+  fragment UserAchievementFragment on UserAchievement {
+    achievement {
+      ...AchievementFragment
+    }
+    progress
+    unlockedAt
+    createdAt
+    updatedAt
+  }
+  ${ACHIEVEMENT_FRAGMENT}
+`;
+
 export const USER_ACHIEVEMENTS_QUERY = gql`
   query UserAchievements($userId: ID!) {
     userAchievements(userId: $userId) {
-      achievement {
-        ...AchievementFragment
-      }
-      progress
-      unlockedAt
-      createdAt
-      updatedAt
+      ...UserAchievementFragment
     }
   }
-  ${ACHIEVEMENT_FRAGMENT}
+  ${USER_ACHIEVEMENT_FRAGMENT}
 `;
 
 export const TRACKED_ACHIEVEMENT_QUERY = gql`
   query TrackedAchievement {
     trackedAchievement {
-      achievement {
-        ...AchievementFragment
-      }
-      progress
-      unlockedAt
-      createdAt
-      updatedAt
+      ...UserAchievementFragment
     }
   }
-  ${ACHIEVEMENT_FRAGMENT}
+  ${USER_ACHIEVEMENT_FRAGMENT}
+`;
+
+export const ACHIEVEMENT_TRACKER_QUERY = gql`
+  query AchievementTracker($userId: ID!) {
+    userAchievements(userId: $userId) {
+      ...UserAchievementFragment
+    }
+    trackedAchievement {
+      ...UserAchievementFragment
+    }
+  }
+  ${USER_ACHIEVEMENT_FRAGMENT}
 `;
 
 export const TRACK_ACHIEVEMENT_MUTATION = gql`
@@ -243,16 +257,28 @@ export const getAchievements = async (): Promise<Achievement[]> => {
 export const getUserAchievements = async (
   userId: string,
 ): Promise<UserAchievement[]> => {
-  const result = await gqlClient.request<UserAchievementsData>(
+  const result = await gqlBatchRequest<UserAchievementsData>(
     USER_ACHIEVEMENTS_QUERY,
     { userId },
   );
   return result.userAchievements;
 };
 
+export type AchievementTrackerData = {
+  userAchievements: UserAchievement[];
+  trackedAchievement: UserAchievement | null;
+};
+
+export const getAchievementTracker = async (
+  userId: string,
+): Promise<AchievementTrackerData> =>
+  gqlBatchRequest<AchievementTrackerData>(ACHIEVEMENT_TRACKER_QUERY, {
+    userId,
+  });
+
 export const getTrackedAchievement =
   async (): Promise<UserAchievement | null> => {
-    const result = await gqlClient.request<TrackedAchievementData>(
+    const result = await gqlBatchRequest<TrackedAchievementData>(
       TRACKED_ACHIEVEMENT_QUERY,
     );
 

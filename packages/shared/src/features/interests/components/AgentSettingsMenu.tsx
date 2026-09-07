@@ -47,7 +47,13 @@ const MenuRow = ({
 );
 
 export const AgentSettingsMenu = (): ReactElement => {
-  const { interest, status, update, isUpdating, setSettingsOpen } = useAgent();
+  const {
+    interest,
+    status,
+    update,
+    isUpdating,
+    openSettings: goToSettings,
+  } = useAgent();
   const isRunning = status === UserInterestStatus.Active;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -69,14 +75,14 @@ export const AgentSettingsMenu = (): ReactElement => {
 
   const openSettings = () => {
     if (isLaptop) {
-      setSettingsOpen(true);
+      goToSettings();
       return;
     }
 
     // Close the sheet before the page underneath changes; both at once reads
     // as a glitch.
     drawerRef.current?.onClose();
-    setSettingsOpen(true);
+    goToSettings();
   };
 
   const body = (

@@ -32,17 +32,16 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useOpenPostCommentRequest } from '../../hooks/post/useOpenPostCommentRequest';
 import { usePostComments } from '../../hooks/comments/usePostComments';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
 );
 
-const CommentInputOrModal = dynamic(
+const CommentInput = dynamic(
   () =>
-    import(
-      /* webpackChunkName: "commentInputOrModal" */ '../comments/CommentInputOrModal'
-    ),
+    import(/* webpackChunkName: "commentInput" */ '../comments/CommentInput'),
 );
 
 interface PostEngagementsProps {
@@ -79,7 +78,7 @@ function PostEngagements({
   const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const commentRef = useRef<NewCommentRef>();
+  const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
@@ -125,6 +124,8 @@ function PostEngagements({
     }
   }, [shouldOnboardAuthor]);
 
+  useOpenPostCommentRequest(commentRef);
+
   return (
     <>
       <PostUpvotesCommentsCount
@@ -155,7 +156,9 @@ function PostEngagements({
               <TimeSortIcon
                 secondary
                 className={
-                  sortBy === SortCommentsBy.OldestFirst && 'rotate-180'
+                  sortBy === SortCommentsBy.OldestFirst
+                    ? 'rotate-180'
+                    : undefined
                 }
               />
             }
@@ -174,13 +177,13 @@ function PostEngagements({
         </span>
       )}
       <NewComment
-        className={{ container: 'mt-3 hidden tablet:flex' }}
+        className={{ container: 'mt-3 flex' }}
         post={post}
         ref={commentRef}
         onCommented={onCommented}
         onComposerOpenChange={setIsComposerOpen}
         shouldHandleCommentQuery
-        CommentInputOrModal={CommentInputOrModal}
+        CommentInput={CommentInput}
       />
       {!isPlus && !hideInternalAd && <AdAsComment postId={post.id} />}
       <PostComments
@@ -199,7 +202,7 @@ function PostEngagements({
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={
-            !user && (() => showLogin({ trigger: AuthTriggers.Author }))
+            user ? undefined : () => showLogin({ trigger: AuthTriggers.Author })
           }
         />
       )}

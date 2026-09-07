@@ -18,6 +18,7 @@ import {
   RequestKey,
   StaleTime,
 } from '../../lib/query';
+import { gqlBatchRequest } from '../../graphql/batch';
 import { useRequestProtocol } from '../useRequestProtocol';
 
 export type UseRelatedPostsProps = {
@@ -41,7 +42,7 @@ export const useRelatedPosts = ({
   relationType,
   perPage = RELATED_POSTS_PER_PAGE_DEFAULT,
 }: UseRelatedPostsProps): UseRelatedPosts => {
-  const { requestMethod } = useRequestProtocol();
+  const { requestMethod, isCompanion } = useRequestProtocol();
   const queryClient = useQueryClient();
 
   const {
@@ -56,14 +57,23 @@ export const useRelatedPosts = ({
       type: relationType,
     }),
     queryFn: async ({ pageParam }) => {
-      const result = await requestMethod<{
-        relatedPosts: RelatedPostsQueryData;
-      }>(RELATED_POSTS_QUERY, {
+      const variables = {
         id: postId,
         relationType,
         first: perPage,
         after: pageParam,
-      });
+      };
+      // The companion runs its own request protocol; everywhere else this is a
+      // secondary widget query, so it rides the batch.
+      const result = await (isCompanion
+        ? requestMethod<{ relatedPosts: RelatedPostsQueryData }>(
+            RELATED_POSTS_QUERY,
+            variables,
+          )
+        : gqlBatchRequest<{ relatedPosts: RelatedPostsQueryData }>(
+            RELATED_POSTS_QUERY,
+            variables,
+          ));
 
       return result.relatedPosts;
     },

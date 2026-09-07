@@ -21,7 +21,6 @@ import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
-import type { LiveRoomPost } from './liveRooms';
 import type { PostHero } from './types';
 import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
 
@@ -132,6 +131,10 @@ export const getReadArticleHref = (
   post: Pick<Post, 'type' | 'subType' | 'sharedPost' | 'permalink'>,
 ): string | undefined =>
   getPostReadTarget(post).target?.permalink ?? post.permalink;
+
+export const getPostTitle = (
+  post: Pick<Post, 'title' | 'sharedPost'> | undefined | null,
+): string | undefined => post?.title || post?.sharedPost?.title || undefined;
 
 export const getReadPostButtonText = (post: Post): string => {
   if (isVideoPost(post)) {
@@ -290,6 +293,7 @@ export interface Post {
   type: PostType;
   subType?: string;
   private?: boolean;
+  noindex?: boolean;
   feedMeta?: string;
   downvoted?: boolean;
   flags?: PostFlags;
@@ -313,7 +317,6 @@ export interface Post {
   pollOptions?: PollOption[];
   numPollVotes?: number;
   endsAt?: string;
-  liveRoom?: LiveRoomPost | null;
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
   hero?: PostHero | null;
   /** LLM-generated digest of what the developer community outside daily.dev

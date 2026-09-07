@@ -175,6 +175,7 @@ export function PostWidgets({
               container: cardClasses,
             }}
             user={creator as UserShortProfile}
+            postId={post.id}
           />
         ),
       )}

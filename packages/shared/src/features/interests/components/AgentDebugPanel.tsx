@@ -8,6 +8,7 @@ import {
 import { FlexCol, FlexRow } from '../../../components/utilities';
 
 import Link from '../../../components/utilities/Link';
+import { getPostTitle } from '../../../graphql/posts';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
 import { useAgent } from '../AgentContext';
 
@@ -46,7 +47,7 @@ export const AgentDebugPanel = ({
             className="gap-1 rounded-12 border border-border-subtlest-tertiary p-3"
           >
             <Link href={item.post.commentsPermalink ?? item.post.permalink}>
-              <a className="typo-callout">{item.post.title}</a>
+              <a className="typo-callout">{getPostTitle(item.post)}</a>
             </Link>
             <Typography
               type={TypographyType.Caption1}

@@ -52,7 +52,6 @@ export enum ActionType {
   DisableBriefCardCta = 'disable_brief_card_cta',
   SeenPostPollTooltip = 'seen_post_poll_tooltip',
   SeenPostPollTab = 'seen_post_poll_tab',
-  SeenStandupTab = 'seen_standup_tab',
   OpportunityWelcomePage = 'opportunity_welcome_page',
   OpportunityInitialView = 'opportunity_initial_view',
   UserCandidatePreferencesSaved = 'user_candidate_preferences_saved',
@@ -81,13 +80,20 @@ export interface Action {
   completedAt: Date;
 }
 
+export const USER_ACTION_FRAGMENT = gql`
+  fragment UserAction on UserAction {
+    type
+    completedAt
+  }
+`;
+
 export const COMPLETED_USER_ACTIONS = gql`
   query CompletedUserActions {
     actions {
-      type
-      completedAt
+      ...UserAction
     }
   }
+  ${USER_ACTION_FRAGMENT}
 `;
 
 export const getUserActions = async (): Promise<Action[]> => {

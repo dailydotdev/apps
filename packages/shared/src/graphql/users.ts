@@ -135,7 +135,7 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
 export const PROFILE_V2_EXTRA_QUERY = gql`
   query ProfileV2($id: ID!) {
     userStats(id: $id) {
-      upvotes: numPostUpvotes
+      upvotes: numTotalUpvotes
       views: numPostViews
       numFollowers
       numFollowing

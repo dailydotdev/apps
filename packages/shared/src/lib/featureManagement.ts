@@ -13,7 +13,7 @@ const feature = {
   showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
   feedAdSpot: new Feature('feed_ad_spot', 2),
-  searchVersion: new Feature('search_version', 2),
+  searchVersion: new Feature('search_version2', 3),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
@@ -58,8 +58,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 });
 
 export const featureLuckyButton = new Feature('lucky_button', false);
-
-export const featureStandupCreation = new Feature('standup_creation', false);
 
 export const featureJobsUI = new Feature('jobs_ui', false);
 
@@ -110,13 +108,11 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
-// Experiment: sponsored partner offers (via Encore) replacing the classic
-// streak milestone popup. Enrollment is conditional on the popup actually
-// showing; treatment falls back to the classic popup when no offers return.
-export const featureStreakMilestoneOffers = new Feature(
-  'streak_milestone_offers',
-  isDevelopment,
-);
+// Experiment: sponsored partner offers (via Encore) presented as the reward
+// moment once the day's daily quests are all claimed. Enrollment is
+// conditional on the popup actually being eligible, so users who never finish
+// their quests don't dilute the split.
+export const featureQuestOffers = new Feature('quest_offers', isDevelopment);
 
 // whether the user will see post boost ads
 // does not necessarily mean they can't boost a post if they have access to cores
@@ -243,6 +239,8 @@ export enum HijackingVariant {
   Default = 'default',
   CTA = 'cta',
   Auth = 'auth',
+  /** Homepage cover art behind centered copy and a pair of CTAs. */
+  Cover = 'cover',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
   'hijacking_variants3',
@@ -333,18 +331,21 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
   },
 );
 
-// AdSense on the organic post page: two units, anonymous visitors only. The
-// unit map lives in code (post/arbitrage/slots.ts) — ids are public in any
-// live page's source, and a remote JSON value cost every surface's boot
-// payload the whole map.
-export const featurePostAdsense = new Feature('post_adsense', false);
-
 // Emergency kill switch for the /read template's ads — NOT an experiment, so
 // the true default is deliberate: the surface ships always-on (it is only
 // reachable through paid placements), and the flag exists solely so a policy
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAdsense = new Feature('read_adsense', true);
+
+export const featureCommentFirstAction = new Feature(
+  'comment_first_action',
+  false,
+);
+
+// Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
+// the control: the API only accepts batched bodies once its own change ships.
+export const featureGqlBatching = new Feature('gql_batching', false);
 
 // Google Preferred Sources. One flag for every surface: the ask is the same
 // ask everywhere, and the capping is global, so splitting it per placement

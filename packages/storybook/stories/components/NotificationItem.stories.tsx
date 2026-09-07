@@ -43,6 +43,14 @@ const meta: Meta<typeof NotificationItem> = {
   title: 'Components/Notifications/List item — all types',
   component: NotificationItem,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Every notification type rendered by the real component. See "Row anatomy" for the layout rules these rows follow — which line leads, and where the timestamp lands.',
+      },
+    },
+  },
   decorators: [
     (Story) => (
       <ExtensionProviders>
@@ -253,7 +261,10 @@ const allDefs: Array<Partial<NotificationItemProps>> = [
     title: 'New post in <b>Agentic Digest</b>',
     avatars: [sourceAvatar('agentic', 'Agentic Digest')],
     attachments: [
-      postAttachment('p1', 'MAI-Code-1-Flash beats Claude Haiku 4.5 on SWE-Bench'),
+      postAttachment(
+        'p1',
+        'MAI-Code-1-Flash beats Claude Haiku 4.5 on SWE-Bench',
+      ),
     ],
     createdAt: hoursAgo(23),
   },
@@ -429,13 +440,6 @@ const allDefs: Array<Partial<NotificationItemProps>> = [
     title: 'Your work experience has been linked to Acme Corp',
     createdAt: hoursAgo(200),
   },
-  {
-    type: NotificationType.LiveRoomStarted,
-    icon: NotificationIconType.Bell,
-    title: 'A live room just started in <b>AI</b>',
-    avatars: [sourceAvatar('ai', 'AI')],
-    createdAt: hoursAgo(400),
-  },
 ];
 
 const allNotifications: NotificationItemProps[] = allDefs.map((def, index) => ({
@@ -527,4 +531,141 @@ export const MobileViewport: Story = {
     viewport: { defaultViewport: 'mobile2' },
   },
   render: () => framed(<Feed />),
+};
+
+// ---- Row anatomy: the layout rules, with a live row for each --------------
+
+interface AnatomyCase {
+  label: string;
+  rule: string;
+  notification: NotificationItemProps;
+}
+
+const anatomyCases: AnatomyCase[] = [
+  {
+    label: 'Content arrival — a source posted',
+    rule: 'The post title leads in bold typo-callout. The announcing sentence ("New post in …") is dropped and rebuilt from the avatars as a quiet attribution, with the time trailing it.',
+    notification: {
+      type: NotificationType.SourcePostAdded,
+      icon: NotificationIconType.Bell,
+      title: 'New post in <b>The New Stack</b>',
+      avatars: [sourceAvatar('tns', 'The New Stack')],
+      attachments: [
+        postAttachment(
+          'tns',
+          "Anthropic's Claude now has a browser of its own",
+        ),
+      ],
+      createdAt: hoursAgo(3),
+      referenceId: 'anatomy-source',
+      targetUrl: '/post/1',
+      onClick: fn(),
+    },
+  },
+  {
+    label: 'Content arrival — a person posted into a squad',
+    rule: 'Same shape, but the attribution names both: "<user> in <squad>". Built from the avatars, never from the server sentence.',
+    notification: {
+      type: NotificationType.SquadPostAdded,
+      icon: NotificationIconType.Bell,
+      title: '<b>GeekLuffy</b> posted in <b>AI</b>',
+      avatars: [sourceAvatar('ai', 'AI'), userAvatar('luffy', 'Luffy')],
+      attachments: [
+        postAttachment('sq', 'Fine-tuning on a budget: what actually moved'),
+      ],
+      createdAt: hoursAgo(7),
+      referenceId: 'anatomy-squad',
+      targetUrl: '/post/2',
+      onClick: fn(),
+    },
+  },
+  {
+    label: 'Social — the person is the payload',
+    rule: 'Actor-first, unchanged. Grey lines follow: the comment, then the post it happened on. The time trails the LAST grey line — here the post title.',
+    notification: {
+      type: NotificationType.ArticleNewComment,
+      icon: NotificationIconType.Comment,
+      title: '<b>Nimrod Kramer</b> commented on your post',
+      description: 'Great write-up — the part about caching really helped.',
+      avatars: [userAvatar('nimrod', 'Nimrod')],
+      attachments: [postAttachment('c1', 'Scaling our cache layer')],
+      createdAt: hoursAgo(5),
+      referenceId: 'anatomy-comment',
+      targetUrl: '/post/3',
+      onClick: fn(),
+    },
+  },
+  {
+    label: 'Social — no grey text at all',
+    rule: 'A bare row has nothing for the time to follow, so it takes a line of its own. This is the only case where the timestamp stands alone.',
+    notification: {
+      type: NotificationType.UserFollow,
+      icon: NotificationIconType.User,
+      title: '<b>Tobias Wolf</b> started following you',
+      avatars: [userAvatar('tobias', 'Tobias')],
+      createdAt: hoursAgo(9),
+      referenceId: 'anatomy-follow',
+      targetUrl: '/tobias',
+      onClick: fn(),
+    },
+  },
+];
+
+export const RowAnatomy: Story = {
+  name: 'Row anatomy (layout rules)',
+  parameters: { layout: 'fullscreen' },
+  render: () => (
+    <div className="mx-auto flex max-w-[46rem] flex-col gap-6 p-6 text-text-primary">
+      <div>
+        <h2 className="font-bold typo-title3">Row anatomy</h2>
+        <p className="mt-2 text-text-secondary typo-callout">
+          A notification inbox carries two genres of row. <b>Content arrival</b>{' '}
+          (a post showed up) makes the article headline the payload; the
+          sentence announcing it is boilerplate that repeats on every row.{' '}
+          <b>Social</b> (someone acted) makes the person the payload. The row
+          leads with whichever one it is.
+        </p>
+        <p className="mt-2 text-text-secondary typo-callout">
+          The timestamp never rides the leading line. It follows the row&apos;s
+          last grey line, so it reads as part of the metadata trail instead of
+          competing with the thing you are trying to read.
+        </p>
+      </div>
+      {anatomyCases.map((item) => (
+        <section key={item.label}>
+          <h3 className="font-bold text-text-primary typo-callout">
+            {item.label}
+          </h3>
+          <p className="mb-2 mt-1 text-text-tertiary typo-footnote">
+            {item.rule}
+          </p>
+          <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
+            <NotificationItem {...item.notification} />
+          </div>
+        </section>
+      ))}
+      <section className="rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5">
+        <h3 className="font-bold typo-callout">
+          Two traps when editing this row
+        </h3>
+        <ul className="mt-2 flex list-disc flex-col gap-2 pl-5 text-text-secondary typo-footnote">
+          <li>
+            The time must stay a flex <b>sibling</b> of the truncating text,
+            never inside its clamp. Inline-inside-the-clamp is how a long
+            headline hides the timestamp entirely at mobile width.
+          </li>
+          <li>
+            <code>multi-truncate</code> cannot be used on a line the time rides:
+            it is <code>display: -webkit-box</code>, which blockifies as a flex
+            item and loses both its clamp and its width. And a global{' '}
+            <code>
+              * {'{'} flex-shrink: 0 {'}'}
+            </code>{' '}
+            means the text has to opt back into shrinking, or it overflows the
+            row instead of ellipsing.
+          </li>
+        </ul>
+      </section>
+    </div>
+  ),
 };

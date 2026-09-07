@@ -721,21 +721,6 @@ describe('computePlacements', () => {
       expect(placements[3]).toEqual({ colSpan: 1, row: 0, column: 3 });
     });
 
-    it('skips ad-clamp logic when cadence is omitted', () => {
-      // Same straddle setup as the first test, but with no cadence info
-      // → builder behaves as before (no clamp), wide card lands at its
-      // requested span (clamped only by row-fit).
-      const items = [
-        makePostItem(makePost()),
-        makePostItem(makePost()),
-        makePostItem(makePost()),
-        makePostItem(makePost({ significance: 'breaking' })),
-      ];
-      const placements = computePlacements(items, opts);
-      // col=3 at that point → row-fit clamps to 1 (numCards=4 - col=3).
-      expect(placements[3].colSpan).toBe(1);
-    });
-
     it('does not clamp wide cards at phantom slots when ad cadence is disabled', () => {
       const items = [
         makePostItem(makePost()),

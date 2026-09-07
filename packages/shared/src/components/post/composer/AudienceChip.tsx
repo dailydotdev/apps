@@ -158,7 +158,8 @@ export const AudienceChip = ({
           aria-expanded={canPickAudience ? open : undefined}
           aria-label={buildAriaLabel()}
           className={classNames(
-            'flex max-w-full shrink-0 items-center gap-1.5 rounded-12 px-2.5 py-1 text-text-primary transition-colors typo-callout',
+            // `shrink` opts back in past the global `flex-shrink: 0` reset.
+            'flex min-w-0 max-w-full shrink items-center gap-1.5 rounded-12 px-2.5 py-1 text-text-primary transition-colors typo-callout',
             showChevron && 'hover:bg-surface-float',
             !showChevron && 'cursor-default',
             open && showChevron && 'bg-surface-float',
@@ -171,7 +172,7 @@ export const AudienceChip = ({
               <SourceAvatar source={primary} size={ProfileImageSize.XSmall} />
             )
           )}
-          <TruncateText className="max-w-48 font-bold">
+          <TruncateText className="min-w-0 max-w-48 shrink font-bold">
             {triggerLabel}
           </TruncateText>
           {showChevron && (

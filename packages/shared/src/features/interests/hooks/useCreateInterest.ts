@@ -16,8 +16,11 @@ export const useCreateInterest = ({
   const queryClient = useQueryClient();
 
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: (input: { query: string; settings?: CreateInterestSettings }) =>
-      createInterest(input),
+    mutationFn: (input: {
+      query: string;
+      settings?: CreateInterestSettings;
+      onboarding?: boolean;
+    }) => createInterest(input),
     onSuccess: async (interest) => {
       // Without priming, the page opened below mounts while the fetch is still
       // in flight and lands on an empty transcript.

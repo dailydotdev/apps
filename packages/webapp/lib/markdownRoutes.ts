@@ -4,7 +4,7 @@
  * These routes are used in next.config.ts rewrites to map .md URLs
  * (e.g., /sources.md → /api/md/sources), giving agents that cannot set an
  * Accept header an explicit markdown URL. Header-based negotiation for post
- * pages lives in middleware.ts.
+ * pages lives in proxy.ts.
  */
 
 export const MARKDOWN_ROUTES: Record<string, string> = {
@@ -14,17 +14,6 @@ export const MARKDOWN_ROUTES: Record<string, string> = {
 } as const;
 
 export const POST_MARKDOWN_PATH = '/api/md/posts';
-
-/**
- * Single-segment `/posts/<x>` routes that are feed pages rather than posts.
- * Mirrors the non-dynamic files in pages/posts/.
- */
-export const RESERVED_POST_SLUGS = [
-  'best-of',
-  'discussed',
-  'latest',
-  'upvoted',
-];
 
 /**
  * Get the .md URL rewrite source patterns for next.config.ts

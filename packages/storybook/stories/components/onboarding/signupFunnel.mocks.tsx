@@ -212,13 +212,6 @@ const ADVANCED_SETTINGS = [
     defaultEnabledState: false,
     group: AdvancedSettingsGroup.ContentTypes,
   },
-  {
-    id: 25,
-    title: 'Standups',
-    description: 'Live standup posts hosted on daily.dev.',
-    defaultEnabledState: true,
-    group: AdvancedSettingsGroup.ContentTypes,
-  },
 ];
 
 // `useFeedSettings` and the onboarding tag list both hit the API. Seeding them

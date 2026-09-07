@@ -11,6 +11,7 @@ import { LinkIcon, VIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useCopyPostLink } from '../../../hooks/useCopyPostLink';
 import type { Post } from '../../../graphql/posts';
+import { getPostTitle } from '../../../graphql/posts';
 
 export const AgentCopyPostLinkButton = ({
   post,
@@ -49,7 +50,11 @@ export const AgentCopyPostLinkButton = ({
           reveal && '[@media(hover:none)]:hidden',
           className,
         )}
-        aria-label={isCopying ? 'Link copied' : `Copy link: ${post.title}`}
+        aria-label={
+          isCopying
+            ? 'Link copied'
+            : `Copy link: ${getPostTitle(post) ?? 'Untitled post'}`
+        }
         onClick={(event: React.MouseEvent) => {
           event.stopPropagation();
           event.preventDefault();

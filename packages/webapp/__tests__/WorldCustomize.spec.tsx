@@ -40,6 +40,7 @@ const district = (reads: number): WorldDistrict => ({
 const openBench = (
   settings: WorldDraftSettings = EMPTY,
   districts: WorldDistrict[] = [district(40)],
+  onProgram?: () => void,
 ): WorldDraft => {
   const draft: WorldDraft = {
     isOpen: true,
@@ -47,7 +48,7 @@ const openBench = (
     setSettings: jest.fn(),
     open: jest.fn(),
     cancel: jest.fn(),
-    save: jest.fn().mockResolvedValue(undefined),
+    save: jest.fn().mockResolvedValue(true),
     isSaving: false,
     applied: null,
   };
@@ -59,6 +60,7 @@ const openBench = (
         draft={draft}
         districts={districts}
         settings={settings}
+        onProgram={onProgram}
       />
     </QueryClientProvider>,
   );
@@ -175,6 +177,22 @@ describe('WorldCustomize', () => {
     expect(draft.setSettings).toHaveBeenCalledWith(
       expect.objectContaining({ private: true }),
     );
+  });
+
+  it('offers the builder only when this world can be programmed', () => {
+    const onProgram = jest.fn();
+    openBench(EMPTY, [district(40)], onProgram);
+
+    fireEvent.click(screen.getByRole('button', { name: /Program your world/ }));
+    expect(onProgram).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the builder entry off a world with nothing to program', () => {
+    openBench();
+
+    expect(
+      screen.queryByRole('button', { name: /Program your world/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('leaves the world the way it was found on cancel, and writes on save', () => {

@@ -51,8 +51,9 @@ const handler = async (
       { id },
     );
 
-    // The same gate the HTML page uses for `noindex`. Private posts, private
-    // squads, low-reputation authors and thin post types get no markdown twin.
+    // The same gate the HTML page uses for `noindex`: whatever the API marks
+    // as noindex, private posts, private squads and thin post types get no
+    // markdown twin.
     if (!post || shouldNoindexPost(post)) {
       sendNotFound(res, id);
       return;

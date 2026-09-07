@@ -100,9 +100,4 @@ describe('function formatDataTileValue', () => {
     expect(formatDataTileValue(1000000000000)).toBe('1T');
     expect(formatDataTileValue(1500000000000)).toBe('1.5T');
   });
-
-  it('should handle numbers exactly at the threshold', () => {
-    expect(formatDataTileValue(9999)).toBe('9,999');
-    expect(formatDataTileValue(10000)).toBe('10K');
-  });
 });

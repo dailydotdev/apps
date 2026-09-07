@@ -70,7 +70,7 @@ export function Tooltip({
             // surface via className; the flex wrapper is a no-op around one item.
             className={classNames(
               styles.TooltipContent,
-              'z-tooltip flex max-w-[18rem] items-center gap-1.5 rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2 py-1 font-medium text-text-primary shadow-2 typo-caption1',
+              'z-tooltip flex min-w-0 max-w-[18rem] items-center gap-1.5 whitespace-normal break-words rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2 py-1 font-medium text-text-primary shadow-2 typo-caption1 [&>*]:min-w-0 [&>*]:whitespace-normal [&>*]:break-words',
               className,
             )}
             sideOffset={5}

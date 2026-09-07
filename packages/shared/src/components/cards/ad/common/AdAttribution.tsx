@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { Ad } from '../../../../graphql/posts';
 import { useScrambler } from '../../../../hooks/useScrambler';
 import { useAdLabel } from '../../../../features/monetization/useAdLabel';
+import { anchorSponsoredRel } from '../../../../lib/strings';
 
 /**
  * Minimum room between the ad copy and the disclosure line. The grid card
@@ -43,7 +44,7 @@ export default function AdAttribution({
       <a
         href={ad.referralLink}
         target="_blank"
-        rel="noopener"
+        rel={anchorSponsoredRel}
         className={elementClass}
         data-testid="adAttribution"
         suppressHydrationWarning

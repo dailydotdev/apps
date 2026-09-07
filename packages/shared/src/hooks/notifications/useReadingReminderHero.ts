@@ -1,5 +1,6 @@
 import { isToday } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
+import { isTodayStamp } from '../../lib/dateFormat';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { UserPersonalizedDigestType } from '../../graphql/users';
@@ -23,6 +24,7 @@ interface UseReadingReminderHero {
 
 interface UseReadingReminderHeroProps {
   requireMobile?: boolean;
+  enabled?: boolean;
 }
 
 const DEFAULT_READING_REMINDER_HOUR = 9;
@@ -31,18 +33,8 @@ const READING_REMINDER_DISMISSED = 'dismissed';
 const isDismissedValue = (lastSeen: string | null): boolean =>
   lastSeen === READING_REMINDER_DISMISSED;
 
-const getHasSeenToday = (lastSeen: string | null): boolean => {
-  if (!lastSeen || isDismissedValue(lastSeen)) {
-    return false;
-  }
-
-  const parsedDate = new Date(lastSeen);
-  if (Number.isNaN(parsedDate.getTime())) {
-    return false;
-  }
-
-  return isToday(parsedDate);
-};
+const getHasSeenToday = (lastSeen: string | null): boolean =>
+  !isDismissedValue(lastSeen) && isTodayStamp(lastSeen);
 
 const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
   if (!createdAt) {
@@ -59,6 +51,7 @@ const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
 
 export const useReadingReminderHero = ({
   requireMobile = true,
+  enabled = true,
 }: UseReadingReminderHeroProps = {}): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -67,7 +60,7 @@ export const useReadingReminderHero = ({
     getPersonalizedDigest,
     isLoading: isDigestLoading,
     subscribePersonalizedDigest,
-  } = usePersonalizedDigest();
+  } = usePersonalizedDigest({ enabled });
   const [lastSeen, setLastSeen, isFetched] = usePersistentContext<
     string | null
   >(PersistentContextKeys.ReadingReminderLastSeen, null);
@@ -83,6 +76,7 @@ export const useReadingReminderHero = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const isEligibleViewSize = !requireMobile || isMobile;
   const shouldEvaluate =
+    enabled &&
     isEligibleViewSize &&
     isLoggedIn &&
     !isDigestLoading &&

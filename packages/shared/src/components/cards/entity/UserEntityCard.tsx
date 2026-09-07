@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from '../../utilities/Link';
 import type { UserShortProfile } from '../../../lib/user';
 import { fallbackImages } from '../../../lib/config';
@@ -23,19 +24,34 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import { webappUrl } from '../../../lib/constants';
+import { getPostByIdKey } from '../../../lib/query';
 
 type Props = {
   user?: UserShortProfile;
+  // The post query already selects `author.contentPreference`, so cards
+  // rendered from a post seed the follow status from it instead of asking for
+  // it again. Follow/unfollow mutations keep writing to the same key.
+  postId?: string;
   className?: {
     container?: string;
   };
 };
 
-const UserEntityCard = ({ user, className }: Props) => {
+const UserEntityCard = ({ user, postId, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  const postUpdatedAt = postId
+    ? queryClient.getQueryState(getPostByIdKey(postId))?.dataUpdatedAt
+    : undefined;
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
+    queryOptions: postUpdatedAt
+      ? {
+          initialData: user?.contentPreference ?? null,
+          initialDataUpdatedAt: postUpdatedAt,
+        }
+      : undefined,
   });
   const { isLoading } = useShowFollowAction({
     entityId: user?.id,

@@ -162,7 +162,7 @@ export function ReadingStreakPopup({
             <Tooltip
               side="bottom"
               content={
-                <div className="flex text-center">
+                <div className="min-w-0 text-center">
                   {isTimezoneOk ? (
                     <>
                       We are showing your reading streak in your selected
@@ -176,11 +176,11 @@ export function ReadingStreakPopup({
                 </div>
               }
             >
-              <div className="m-auto flex items-center tablet:m-0">
+              <div className="m-auto flex min-w-0 items-center tablet:m-0">
                 {!isTimezoneOk && (
                   <WarningIcon className="text-raw-cheese-40" secondary />
                 )}
-                <div className="flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
+                <div className="flex min-w-0 justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
                   <Link
                     onClick={async (event) => {
                       const deviceTimezone =
@@ -241,7 +241,9 @@ export function ReadingStreakPopup({
                     }}
                     href={timezoneSettingsUrl}
                   >
-                    {isTimezoneOk ? timezone : 'Timezone mismatch'}
+                    <a className="min-w-0 truncate">
+                      {isTimezoneOk ? timezone : 'Timezone mismatch'}
+                    </a>
                   </Link>
                 </div>
               </div>

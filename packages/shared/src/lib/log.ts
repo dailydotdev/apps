@@ -216,6 +216,8 @@ export enum LogEvent {
   // search start
   FocusSearch = 'focus search',
   SubmitSearch = 'submit search',
+  SearchResults = 'search results',
+  CloseSearch = 'close search',
   OpenSearchHistory = 'open search history',
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',
@@ -259,7 +261,6 @@ export enum LogEvent {
   // Reading Streaks
   OpenStreaks = 'open streaks',
   DismissStreaksMilestone = 'dismiss streaks milestone',
-  DismissStreakOffers = 'dismiss streak offers',
   ScheduleStreakReminder = 'schedule streak reminder',
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
@@ -295,41 +296,6 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
-  // Standups
-  ViewStandup = 'view standup',
-  CreateStandup = 'create standup',
-  LeaveStandup = 'leave standup',
-  StartStandup = 'start standup',
-  EndStandup = 'end standup',
-  JoinStandupQueue = 'join standup queue',
-  RaiseStandupHand = 'raise standup hand',
-  RemoveStandupHand = 'remove standup hand',
-  JoinStandupStage = 'join standup stage',
-  LeaveStandupStage = 'leave standup stage',
-  OpenStandupSettings = 'open standup settings',
-  OpenStandupReactions = 'open standup reactions',
-  SwitchStandupPanelTab = 'switch standup panel tab',
-  SendStandupReaction = 'send standup reaction',
-  SendStandupChatReaction = 'send standup chat reaction',
-  RemoveStandupChatReaction = 'remove standup chat reaction',
-  SendStandupChatMessage = 'send standup chat message',
-  DeleteStandupChatMessage = 'delete standup chat message',
-  UpdateStandupChatAccess = 'update standup chat access',
-  SubscribeStandup = 'subscribe standup',
-  UnsubscribeStandup = 'unsubscribe standup',
-  ShareStandup = 'share standup',
-  AddStandupToCalendar = 'add standup to calendar',
-  GrantStandupCoHost = 'grant standup co-host',
-  RevokeStandupCoHost = 'revoke standup co-host',
-  PromoteStandupSpeaker = 'promote standup speaker',
-  RemoveStandupSpeaker = 'remove standup speaker',
-  KickStandupParticipant = 'kick standup participant',
-  ChangeStandupSettings = 'change standup settings',
-  StandupError = 'standup error',
-  FocusStandupSpeaker = 'focus standup speaker',
-  ImpressionStandupsStrip = 'impression standups strip',
-  ClickStandupsStrip = 'click standups strip',
-  // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
   StartAddingIntegration = 'start adding integration',
@@ -531,6 +497,8 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
+  QuestOffersEligible = 'quest offers eligible',
+  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -576,7 +544,6 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
-  StreakOffer = 'streak offer',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',
@@ -597,6 +564,8 @@ export enum TargetType {
   Tag = 'tag',
   Tool = 'tool',
   Quest = 'quest',
+  QuestOffer = 'quest offer',
+  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
@@ -636,6 +605,7 @@ export enum TargetId {
   FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
+  ExploreStrip = 'explore strip',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign
@@ -745,7 +715,6 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
-  StandupLobby = 'standup lobby',
 }
 
 export enum ShortcutsSourceType {

@@ -31,6 +31,8 @@ import {
   ListIcon,
   Nav,
   RAIL_ICON_SIZE,
+  RAIL_ROW_GAP_PX,
+  railColumnGapClass,
   railCountBubbleClass,
   railDividerBgClass,
   railDividerBorderClass,
@@ -77,7 +79,6 @@ import {
   JoystickIcon,
   LinkIcon,
   MegaphoneIcon,
-  MicrophoneIcon,
   MoveToIcon,
   NewPostIcon,
   PhoneIcon,
@@ -90,13 +91,14 @@ import {
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
-import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
+import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
 import {
   SidebarShortcutsDock,
+  useLegacyShortcutsMigration,
   useSidebarShortcutItems,
 } from './SidebarShortcutsDock';
 import { RailMoreMenu } from './RailMoreMenu';
@@ -139,6 +141,7 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback/FeedbackWidget';
+import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import {
   Typography,
   TypographyColor,
@@ -211,7 +214,6 @@ const RAIL_DRAG_CLICK_GUARD_FALLBACK_MS = 500;
 // the exact class it mirrors, so editing a class has one obvious place to
 // follow — a silent desync only shows up as one tab too many or too few folding
 // into "More" at a particular viewport height, which nothing in CI can catch.
-const RAIL_ROW_GAP_PX = 4; // `gap-1` on the rail column
 const SHORTCUT_ROW_PX = 40; // shortcut dot row height
 const CREATE_BUTTON_PX = 36; // New post `!size-9`
 const CREATE_MARGIN_Y_PX = 16; // New post `my-2`
@@ -227,6 +229,11 @@ type RailItemId = SidebarCategoryId | typeof RAIL_CREATE_ID;
 // point, which sits last in the default order and would otherwise be the FIRST
 // thing to disappear on a short viewport (overflow peels from the end).
 const PINNED_RAIL_IDS: RailItemId[] = [RAIL_CREATE_ID, SidebarCategory.Profile];
+
+// Home sits above the tab strip rather than in it, so the rail's selection is
+// "Home, or one of the tabs" rather than a category on its own.
+const RAIL_HOME = 'home' as const;
+type RailSelection = SidebarCategoryId | typeof RAIL_HOME;
 
 const railButtonClass =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none focus-outline';
@@ -247,6 +254,34 @@ const RAIL_TOOLTIP_COLLISION_PADDING = 4;
 // Vertical slack (px) added to the safe-zone triangle so the pointer can dip
 // slightly past the panel's top/bottom edge while arcing in without losing it.
 const SAFE_ZONE_BUFFER = 26;
+const SAFE_ZONE_WATCHDOG_MS = 800;
+
+export const pointInPolygon = (
+  x: number,
+  y: number,
+  poly: Array<[number, number]>,
+): boolean => {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i, i += 1) {
+    const [xi, yi] = poly[i];
+    const [xj, yj] = poly[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+};
+
+export const shouldKeepSafeZone = (
+  x: number,
+  y: number,
+  panel: Pick<DOMRect, 'left' | 'right' | 'top' | 'bottom'>,
+  poly: Array<[number, number]> | null,
+): boolean => {
+  const overPanel =
+    x >= panel.left && x <= panel.right && y >= panel.top && y <= panel.bottom;
+  return overPanel || (!!poly && pointInPolygon(x, y, poly));
+};
 
 // Wraps a rail category tab so it can be reordered by cursor drag. Drag
 // listeners sit on this outer element; the tab's own button stays the focus
@@ -508,13 +543,6 @@ const createMenuOptions: {
     kind: 'poll',
     icon: (active) => <ListIcon Icon={() => <PollIcon secondary={active} />} />,
   },
-  {
-    title: 'Live',
-    kind: 'standup',
-    icon: (active) => (
-      <ListIcon Icon={() => <MicrophoneIcon secondary={active} />} />
-    ),
-  },
 ];
 
 // Account/app controls that used to live in the avatar dropdown now sit behind
@@ -655,7 +683,7 @@ const SidebarProfileButton = ({
         <span className={railGlyphBoxClass}>
           <ProfilePicture
             user={user}
-            size={ProfileImageSize.Small}
+            size={ProfileImageSize.XSmall}
             nativeLazyLoading
             // 1px frame around the avatar when this is the selected tab. A ring
             // (not a border) so the image doesn't shrink/shift on select.
@@ -718,7 +746,7 @@ export const SidebarDesktopV2 = ({
     : 'Daily Quests';
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { open: openSpotlight } = useSpotlight();
+  const { open: openSpotlight, prefetch: prefetchSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -729,7 +757,7 @@ export const SidebarDesktopV2 = ({
   if (isExtension) {
     myFeedPath = `${webappUrl}my-feed`;
   }
-  const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
+  const { value: isCompact } = useSidebarCompact();
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
   // padding so the content never overlaps the rail.
@@ -836,9 +864,11 @@ export const SidebarDesktopV2 = ({
   }, []);
 
   const { resolved: shortcutItems } = useSidebarShortcutItems();
+  useLegacyShortcutsMigration();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
   const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
-  const tabRowPx = (isCompact ? 44 : 56) + RAIL_ROW_GAP_PX;
+  // Measured from a rendered tab, not derived from the classes.
+  const tabRowPx = (isCompact ? 40 : 58) + RAIL_ROW_GAP_PX;
   const tabCount = foldableTabIds.length;
   // The pinned items sit inside the measured region but never fold into
   // "More" — reserve their rows up front so the tabs/dock budget is only what's
@@ -1057,7 +1087,8 @@ export const SidebarDesktopV2 = ({
   // — the panel behind the post page keeps whatever you came from (History,
   // a Squad, etc.). Remember the last non-post category (committed renders
   // only, so it's concurrent-safe) and reuse it on posts.
-  const isPostPage = router.pathname === '/posts/[id]';
+  const isPostPage =
+    withoutLayoutVariantPrefix(router.pathname) === '/posts/[id]';
   const lastNonPostCategoryRef = useRef<SidebarCategoryId>(
     SidebarCategory.Main,
   );
@@ -1072,9 +1103,31 @@ export const SidebarDesktopV2 = ({
 
   // Optimistic override so a rail click feels instant even when
   // router.push is async. Cleared once the URL catches up.
-  const [pendingCategory, setPendingCategory] =
-    useState<SidebarCategoryId | null>(null);
-  const selectedCategory = pendingCategory ?? resolvedCategory;
+  const [pendingSelection, setPendingSelection] =
+    useState<RailSelection | null>(null);
+  // What the rail paints as selected. Home is not a tab, so on the home feed
+  // nothing on the tab strip is selected and the Home button carries the state
+  // instead. Explore is the fallback category (`getSidebarCategoryForPath`
+  // returns Main for `/`), so without this it would light up on the home feed.
+  //
+  // Home is the default selection, so the tablist correctly has no
+  // `aria-selected` tab there: the selected affordance is Home, which announces
+  // itself with `aria-current="page"` from outside the tablist.
+  // Custom feeds are tabs in the feed's own top nav beside For You, never rows
+  // in a rail panel (CustomFeedSection is v1's sidebar only), so the rail reads
+  // them the way it reads the home feed: Home keeps the selected state and no
+  // tab claims it. Without this they fall through to Explore, which is the
+  // fallback category rather than where they live.
+  const isHomeSelectedPage = isHomeActive || isFeedPage;
+  const selectedRailItem: RailSelection =
+    pendingSelection ?? (isHomeSelectedPage ? RAIL_HOME : resolvedCategory);
+  const isHomeSelected = selectedRailItem === RAIL_HOME;
+  // Which panel the rail shows. Home has no panel of its own, so it borrows
+  // Explore's, which is what the home feed resolved to before Home was split
+  // out of the tab strip.
+  const selectedCategory: SidebarCategoryId = isHomeSelected
+    ? SidebarCategory.Main
+    : selectedRailItem;
   // On settings pages the sidebar collapses to a single full-width settings
   // panel (no rail), so hover-preview is irrelevant — pin the panel to Settings.
   const isSettingsSelected = selectedCategory === SidebarCategory.Settings;
@@ -1101,7 +1154,7 @@ export const SidebarDesktopV2 = ({
   // refresh (e.g. after the avatar navigates and you then open Settings). The
   // pending value still bridges the click→route-change gap for instant feedback.
   useEffect(() => {
-    setPendingCategory(null);
+    setPendingSelection(null);
   }, [activePage]);
 
   // Settings load client-side, so on a hard refresh `sidebarExpanded`
@@ -1117,13 +1170,16 @@ export const SidebarDesktopV2 = ({
   // collapses instead of instantly re-expanding under the cursor.
   const peekSuppressedRef = useRef(false);
   // Prediction-cone "safe zone": while the pointer arcs from the active tab
-  // into the panel, block the rail tabs' pointer events so clipping a
-  // neighbouring tab can't switch the preview (menu-aim done with pointer
-  // blocking rather than fragile slope guesses).
+  // into the panel, ignore neighbouring rail hovers so clipping a nearby row
+  // can't switch the preview.
   const panelRef = useRef<HTMLElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
   const safeBlockedRef = useRef(false);
   const safePolyRef = useRef<Array<[number, number]> | null>(null);
+  const safeZoneWatchdogRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const [safeZoneActive, setSafeZoneActive] = useState(false);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
@@ -1179,7 +1235,7 @@ export const SidebarDesktopV2 = ({
       cancelAnimationFrame(raf);
       clearTimeout(settle);
     };
-  }, [selectedCategory, visibleTabKey, isCompact, isAnyDragging]);
+  }, [selectedRailItem, visibleTabKey, isCompact, isAnyDragging]);
   // Enable the slide transition only after the first placement so the pill
   // doesn't animate in from the top on mount (it just appears in place).
   useEffect(() => {
@@ -1202,18 +1258,20 @@ export const SidebarDesktopV2 = ({
       if (!sidebarRef.current?.contains(document.activeElement)) {
         return;
       }
-      setPendingCategory(SidebarCategory.Main);
+      setPendingSelection(
+        isHomeSelectedPage ? RAIL_HOME : SidebarCategory.Main,
+      );
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isHomeSelectedPage]);
 
   const defaultRenderSectionProps = useMemo(
     () => ({
       sidebarExpanded: true,
       shouldShowLabel: true,
       activePage,
-      compact: true,
+      isV2Panel: true,
     }),
     [activePage],
   );
@@ -1233,7 +1291,7 @@ export const SidebarDesktopV2 = ({
 
   const onSelectCategory = useCallback(
     (category: SidebarCategoryId) => {
-      setPendingCategory(category);
+      setPendingSelection(category);
 
       // Click navigates to the category's first sub-page (its
       // `defaultPath`) — it no longer auto-expands the sidebar. The
@@ -1268,7 +1326,7 @@ export const SidebarDesktopV2 = ({
   // Avatar click opens the Profile panel and navigates to the user's profile
   // page. Like a rail tab, it sets the pending category for instant feedback.
   const onSelectProfile = useCallback(() => {
-    setPendingCategory(SidebarCategory.Profile);
+    setPendingSelection(SidebarCategory.Profile);
     if (!user) {
       return;
     }
@@ -1280,9 +1338,26 @@ export const SidebarDesktopV2 = ({
   // optimistic panel switch (home resolves to the Explore panel) while the
   // route resolves.
   const onHomeClick = useCallback(() => {
-    setPendingCategory(SidebarCategory.Main);
+    setPendingSelection(RAIL_HOME);
     onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/');
   }, [isCustomDefaultFeed, onNavTabClick]);
+
+  // Shared by the brand mark and the Home button, which lead to the same feed.
+  // The extension's `onLogoClick` defaults the event and switches the feed in
+  // place, so running Home's handler afterwards would overwrite that with the
+  // default feed.
+  const onGoHome = useCallback(
+    (event: React.MouseEvent) => {
+      onLogoClick?.(event);
+
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      onHomeClick();
+    },
+    [onHomeClick, onLogoClick],
+  );
 
   // Remember the last non-settings location so "Back to app" returns the user
   // where they were rather than always dumping them on the home feed.
@@ -1294,9 +1369,13 @@ export const SidebarDesktopV2 = ({
   }, [activePage]);
 
   const onBackToApp = useCallback(() => {
-    setPendingCategory(SidebarCategory.Main);
+    setPendingSelection(
+      isSidebarItemActive(lastAppPathRef.current, myFeedPath)
+        ? RAIL_HOME
+        : SidebarCategory.Main,
+    );
     Promise.resolve(router.push(lastAppPathRef.current)).catch(() => undefined);
-  }, [router]);
+  }, [myFeedPath, router]);
 
   // Entering settings collapses the rail, so any stale hover/create preview
   // would otherwise leak into the settings panel — clear it.
@@ -1339,8 +1418,13 @@ export const SidebarDesktopV2 = ({
   }, [onToggleExpanded]);
 
   const exitSafeZone = useCallback(() => {
+    if (safeZoneWatchdogRef.current) {
+      clearTimeout(safeZoneWatchdogRef.current);
+      safeZoneWatchdogRef.current = null;
+    }
     safeBlockedRef.current = false;
     safePolyRef.current = null;
+    setSafeZoneActive(false);
   }, []);
 
   const handleRailMouseLeave = useCallback(() => {
@@ -1380,40 +1464,57 @@ export const SidebarDesktopV2 = ({
     setHoveredCategory(key as SidebarCategoryId);
   }, []);
 
-  const enterSafeZone = useCallback((x: number, y: number) => {
-    const panel = panelRef.current?.getBoundingClientRect();
-    if (!panel || panel.width < 8) {
-      return;
-    }
-    // Triangle from the pointer to the panel's near (left) edge, padded
-    // vertically. While the pointer stays inside it, hover-switches are
-    // ignored (via commitPreview's guard) — but tabs stay clickable.
-    safePolyRef.current = [
-      [x, y],
-      [panel.left, panel.top - SAFE_ZONE_BUFFER],
-      [panel.left, panel.bottom + SAFE_ZONE_BUFFER],
-    ];
-    safeBlockedRef.current = true;
-  }, []);
-
-  const pointInPolygon = (
-    x: number,
-    y: number,
-    poly: Array<[number, number]>,
-  ): boolean => {
-    let inside = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i, i += 1) {
-      const [xi, yi] = poly[i];
-      const [xj, yj] = poly[j];
-      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
-        inside = !inside;
+  const releaseSafeZoneAtPoint = useCallback(
+    (x: number, y: number) => {
+      const panel = panelRef.current?.getBoundingClientRect();
+      if (!panel) {
+        exitSafeZone();
+        return;
       }
-    }
-    return inside;
-  };
+      if (shouldKeepSafeZone(x, y, panel, safePolyRef.current)) {
+        return;
+      }
+      exitSafeZone();
+      const el = document.elementFromPoint(x, y) as HTMLElement | null;
+      const trigger = el?.closest('[data-sidebar-preview]');
+      const key = trigger?.getAttribute('data-sidebar-preview');
+      if (key) {
+        commitPreview(key);
+      }
+    },
+    [exitSafeZone, commitPreview],
+  );
+
+  const enterSafeZone = useCallback(
+    (x: number, y: number) => {
+      const panel = panelRef.current?.getBoundingClientRect();
+      if (!panel || panel.width < 8) {
+        return;
+      }
+      // Triangle from the pointer to the panel's near (left) edge, padded
+      // vertically. While the pointer stays inside it, hover-switches are
+      // ignored (via commitPreview's guard) — but tabs stay clickable.
+      safePolyRef.current = [
+        [x, y],
+        [panel.left, panel.top - SAFE_ZONE_BUFFER],
+        [panel.left, panel.bottom + SAFE_ZONE_BUFFER],
+      ];
+      safeBlockedRef.current = true;
+      setSafeZoneActive(true);
+      if (safeZoneWatchdogRef.current) {
+        clearTimeout(safeZoneWatchdogRef.current);
+      }
+      safeZoneWatchdogRef.current = setTimeout(
+        exitSafeZone,
+        SAFE_ZONE_WATCHDOG_MS,
+      );
+    },
+    [exitSafeZone],
+  );
 
   // Enter the safe zone when the pointer leaves the *active* trigger heading
-  // toward the panel (rightward). Pointer blocking then takes over.
+  // toward the panel (rightward). Document-level tracking releases the block
+  // even if the pointer leaves the rail before the next rail mousemove.
   const handlePreviewLeave = useCallback(
     (key: string, event: React.MouseEvent) => {
       if (safeBlockedRef.current) {
@@ -1439,37 +1540,37 @@ export const SidebarDesktopV2 = ({
       if (!safeBlockedRef.current) {
         return;
       }
-      const panel = panelRef.current?.getBoundingClientRect();
-      if (!panel) {
-        exitSafeZone();
-        return;
-      }
-      const { clientX: x, clientY: y } = event;
-      const overPanel =
-        x >= panel.left &&
-        x <= panel.right &&
-        y >= panel.top &&
-        y <= panel.bottom;
-      if (overPanel) {
-        // Reached the panel — keep the current preview, release the block.
-        exitSafeZone();
-        return;
-      }
-      if (safePolyRef.current && pointInPolygon(x, y, safePolyRef.current)) {
-        return;
-      }
-      // Left the safe zone without reaching the panel — honour the trigger
-      // the pointer actually landed on.
-      exitSafeZone();
-      const el = document.elementFromPoint(x, y) as HTMLElement | null;
-      const trigger = el?.closest('[data-sidebar-preview]');
-      const key = trigger?.getAttribute('data-sidebar-preview');
-      if (key) {
-        commitPreview(key);
-      }
+      releaseSafeZoneAtPoint(event.clientX, event.clientY);
     },
-    [exitSafeZone, commitPreview],
+    [releaseSafeZoneAtPoint],
   );
+
+  useEffect(() => {
+    if (!safeZoneActive) {
+      return undefined;
+    }
+    const handlePointerMove = (event: PointerEvent) => {
+      releaseSafeZoneAtPoint(event.clientX, event.clientY);
+    };
+    const handleRelease = () => exitSafeZone();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') {
+        exitSafeZone();
+      }
+    };
+    document.addEventListener('pointermove', handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener('pointerup', handleRelease);
+    window.addEventListener('blur', handleRelease);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handleRelease);
+      window.removeEventListener('blur', handleRelease);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [exitSafeZone, releaseSafeZoneAtPoint, safeZoneActive]);
 
   useEffect(() => () => exitSafeZone(), [exitSafeZone]);
 
@@ -1502,7 +1603,9 @@ export const SidebarDesktopV2 = ({
         <ProfilePanelSection
           {...defaultRenderSectionProps}
           onNavTabClick={onNavTabClick}
-          isItemsButton={false}
+          // Its feed rows carry root-relative paths, which only survive the
+          // extension as buttons. See docs/sidebar-links-extension-audit.md.
+          isItemsButton={isNavButtons ?? false}
         />
       );
     }
@@ -1542,8 +1645,8 @@ export const SidebarDesktopV2 = ({
     // never moves while you hover/preview other tabs — you always know where
     // you are. Hovering only previews the panel and shows the row's hover
     // background; it doesn't claim the selected state.
-    const isSelected = selectedCategory === category.id;
-    const isPreviewing = !isSelected && activeCategory === category.id;
+    const isSelected = selectedRailItem === category.id;
+    const isPreviewing = !isSelected && hoveredCategory === category.id;
     // The gamification tab. With reading streaks on it's the "Streak" tab: the
     // state-driven StreakBadge stands in for the glyph and the day count is the
     // label. With streaks off (but other gamification on) it reads as the
@@ -1601,7 +1704,9 @@ export const SidebarDesktopV2 = ({
           onFocus={() => onPrefetchCategory(category.id)}
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
-              setPendingCategory(SidebarCategory.Main);
+              setPendingSelection(
+                isHomeSelectedPage ? RAIL_HOME : SidebarCategory.Main,
+              );
             }
           }}
           className={classNames(
@@ -1700,7 +1805,7 @@ export const SidebarDesktopV2 = ({
   const isNotificationsActive =
     activeCategory === SidebarCategory.Notifications;
   const isNotificationsSelected =
-    selectedCategory === SidebarCategory.Notifications;
+    selectedRailItem === SidebarCategory.Notifications;
 
   // New post is reorderable with the tabs but is an action, not a panel tab, so
   // it carries no `aria-selected` and the sliding pill (which tracks
@@ -1771,10 +1876,10 @@ export const SidebarDesktopV2 = ({
     if (id === SidebarCategory.Profile) {
       return (
         <SidebarProfileButton
-          isSelected={selectedCategory === SidebarCategory.Profile}
+          isSelected={selectedRailItem === SidebarCategory.Profile}
           isPreviewing={
-            selectedCategory !== SidebarCategory.Profile &&
-            activeCategory === SidebarCategory.Profile
+            selectedRailItem !== SidebarCategory.Profile &&
+            hoveredCategory === SidebarCategory.Profile
           }
           isCompact={isCompact}
           isExpanded={isExpanded}
@@ -1972,13 +2077,14 @@ export const SidebarDesktopV2 = ({
               // swap is triggered by the pointer being anywhere on the rail,
               // not just on the logo, so the way home is visible while you're
               // reading the tabs rather than only after you already found it.
-              'group/rail flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
+              'group/rail flex h-dvh min-h-dvh shrink-0 flex-col items-center px-1.5 pb-3 pt-[13px]',
+              railColumnGapClass,
               railNavWidth,
             )}
           >
             <Tooltip
               side="right"
-              content="Home"
+              content="daily.dev"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
               {/* mt nudges the logo down so it lines up vertically with the
@@ -1988,66 +2094,45 @@ export const SidebarDesktopV2 = ({
                 <Link href={myFeedPath} passHref>
                   <a
                     href={myFeedPath}
-                    aria-label="Home"
-                    aria-current={isHomeActive ? 'page' : undefined}
-                    // The brand mark doubles as the Home button: the daily.dev
-                    // logo at rest, crossfading into the home glyph while the
-                    // pointer is anywhere on the rail (`group/rail`, set on the
-                    // nav) so the destination is obvious without having to
-                    // hover the mark itself. `group/home` scopes the
-                    // keyboard-focus swap and the direct-hover tint to this
-                    // button alone — an unnamed `group` here would also match
-                    // the sidebar-wide group on SidebarAside, which covers the
-                    // panel too.
-                    className="focus-outline group/home flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
-                    onClick={(event) => {
-                      // Keep the removed logo link's click contract — the
-                      // extension resets its feed/search state there.
-                      onLogoClick?.(event);
-                      // ONE owner for the destination. The extension's
-                      // `onLogoClick` defaults the event and switches the feed
-                      // in place (to My Feed on the new tab); running Home's
-                      // handler afterwards would immediately overwrite that
-                      // with the default feed, so the brand mark would stop
-                      // landing on My Feed. On the webapp `onLogoClick` is
-                      // undefined, so Home still owns the click.
-                      if (event.defaultPrevented) {
-                        return;
-                      }
-                      onHomeClick();
-                    }}
+                    aria-label="daily.dev"
+                    className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
+                    onClick={onGoHome}
                   >
                     <span className={railGlyphBoxClass}>
                       <LogoIcon
-                        className={{
-                          container:
-                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover/rail:scale-75 group-hover/rail:opacity-0 group-focus-visible/home:scale-75 group-focus-visible/home:opacity-0 motion-reduce:transition-none',
-                        }}
+                        className={{ container: 'h-[1.125rem] w-auto' }}
                       />
-                      <span
-                        aria-hidden
-                        className={classNames(
-                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover/rail:scale-100 group-hover/rail:opacity-100 group-focus-visible/home:scale-100 group-focus-visible/home:opacity-100 motion-reduce:transition-none',
-                          // Filled white when the feed IS the current page;
-                          // elsewhere it's an inactive grey outline that goes
-                          // white on direct hover — exactly how the Search icon
-                          // behaves. (The logo keeps its own fill, so this only
-                          // colours the home glyph.)
-                          isHomeActive
-                            ? 'text-text-primary'
-                            : 'text-text-tertiary group-hover/home:text-text-primary',
-                        )}
-                      >
-                        <HomeIcon
-                          secondary={isHomeActive}
-                          size={RAIL_ICON_SIZE}
-                          aria-hidden
-                        />
-                      </span>
                     </span>
                   </a>
                 </Link>
               </div>
+            </Tooltip>
+
+            <Tooltip
+              side="right"
+              content="Home"
+              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+            >
+              <Link href={myFeedPath} passHref>
+                <a
+                  href={myFeedPath}
+                  aria-label="Home"
+                  aria-current={isHomeActive ? 'page' : undefined}
+                  className={classNames(
+                    'focus-outline flex size-10 items-center justify-center rounded-12 transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none',
+                    isHomeSelected ? 'text-text-primary' : 'text-text-tertiary',
+                  )}
+                  onClick={onGoHome}
+                >
+                  <span className={railGlyphBoxClass}>
+                    <HomeIcon
+                      secondary={isHomeSelected}
+                      size={RAIL_ICON_SIZE}
+                      aria-hidden
+                    />
+                  </span>
+                </a>
+              </Link>
             </Tooltip>
 
             <Tooltip
@@ -2075,6 +2160,8 @@ export const SidebarDesktopV2 = ({
                 type="button"
                 aria-label="Search"
                 onClick={openSpotlight}
+                onMouseEnter={prefetchSpotlight}
+                onFocus={prefetchSpotlight}
                 className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none"
               >
                 <SearchIcon size={RAIL_ICON_SIZE} aria-hidden />
@@ -2094,7 +2181,10 @@ export const SidebarDesktopV2 = ({
               between the framing separators. */}
             <div
               ref={lowerRegionRef}
-              className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
+              className={classNames(
+                'flex min-h-0 w-full flex-1 flex-col items-center',
+                railColumnGapClass,
+              )}
             >
               {/* Rail tabs that fit — fixed above the scrollable dock / More.
                 As the viewport shrinks, the lowest-priority tabs peel off into
@@ -2104,7 +2194,10 @@ export const SidebarDesktopV2 = ({
                 ref={tablistRef}
                 role="tablist"
                 aria-label="Sidebar categories"
-                className="relative flex w-full flex-col items-center gap-1"
+                className={classNames(
+                  'relative flex w-full flex-col items-center',
+                  railColumnGapClass,
+                )}
               >
                 {/* The selected pill — a single background that slides between
                   tabs. Sits behind them (z-0; tabs are relative z-1). The
@@ -2206,9 +2299,9 @@ export const SidebarDesktopV2 = ({
                 <div
                   aria-hidden
                   className={classNames(
-                    // Symmetric margins so the line sits exactly midway between
-                    // New post above it and the shortcuts "•••" below it.
-                    'my-3 h-px w-6',
+                    // No top margin on purpose: New post sits directly above
+                    // with its own `my-2`, so this lands 10px on both sides.
+                    'mb-2 h-px w-6',
                     railDividerBgClass,
                     shortcutCount === 0 &&
                       'opacity-0 transition-opacity group-hover:opacity-100',
@@ -2220,7 +2313,12 @@ export const SidebarDesktopV2 = ({
                 separators. The tiny -mx/px keeps focus rings from being
                 clipped. */}
               {showInlineDock && (
-                <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
+                <div
+                  className={classNames(
+                    'no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto px-0.5',
+                    railColumnGapClass,
+                  )}
+                >
                   <SidebarShortcutsDock />
                 </div>
               )}
@@ -2242,7 +2340,10 @@ export const SidebarDesktopV2 = ({
             <div
               aria-label="Sidebar utilities"
               onMouseEnter={handleRailMouseLeave}
-              className="flex w-full flex-col items-center gap-1"
+              className={classNames(
+                'flex w-full flex-col items-center',
+                railColumnGapClass,
+              )}
             >
               {/* Keyed on isLoggedIn (a constant, not shortcutCount or the
                 height-derived overflow state): it sits OUTSIDE the measured
@@ -2345,60 +2446,72 @@ export const SidebarDesktopV2 = ({
             suppressTransition,
           )}
         >
-          {/* pl-5 lines the panel title up with the list rows' icon glyphs
-            (icons sit ~8px into their w-9 column) and the section titles. */}
-          <div className="pl-5 pr-3 pt-6">
-            {isSettingsSelected ? (
-              <Button
-                type="button"
-                variant={ButtonVariant.Subtle}
-                size={ButtonSize.Small}
-                // Smaller glyph, flipped to point left (it's a back action).
-                icon={
-                  <MoveToIcon size={IconSize.Size16} className="-scale-x-100" />
-                }
-                onClick={onBackToApp}
-                className="-ml-1"
+          {/* Pinned to the open width so the content does not reflow while
+            the panel animates its own width. */}
+          <div
+            className={classNames(
+              'flex min-h-0 flex-1 flex-col',
+              !isSettingsSelected && 'w-60',
+            )}
+          >
+            {/* pl-5 lines the panel title up with the list rows' icon glyphs
+              (icons sit ~8px into their w-9 column) and the section titles. */}
+            <div className="pl-5 pr-3 pt-6">
+              {isSettingsSelected ? (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  // Smaller glyph, flipped to point left (it's a back action).
+                  icon={
+                    <MoveToIcon
+                      size={IconSize.Size16}
+                      className="-scale-x-100"
+                    />
+                  }
+                  onClick={onBackToApp}
+                  className="-ml-1"
+                >
+                  Back to app
+                </Button>
+              ) : (
+                <div className="flex h-10 items-center gap-1">
+                  <Typography bold type={TypographyType.Callout}>
+                    {utilityPanelTitle}
+                  </Typography>
+                </div>
+              )}
+            </div>
+
+            {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
+              <div className="mt-2 flex items-center gap-1 px-3">
+                {additionalButtons}
+              </div>
+            )}
+
+            <SidebarScrollWrapper
+              className={classNames(
+                'mt-1 min-h-0 flex-1',
+                showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
+              )}
+            >
+              <Nav
+                className={classNames(
+                  isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
+                  isStreakPanel && 'min-h-0 flex-1',
+                )}
               >
-                Back to app
-              </Button>
-            ) : (
-              <div className="flex h-10 items-center gap-1">
-                <Typography bold type={TypographyType.Callout}>
-                  {utilityPanelTitle}
-                </Typography>
+                {renderSelectedSection()}
+              </Nav>
+            </SidebarScrollWrapper>
+
+            {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
+            {showFeedbackWidget && !isUtilityPanelSelected && (
+              <div className="absolute inset-x-3 bottom-3">
+                <FeedbackWidget placement="sidebar" />
               </div>
             )}
           </div>
-
-          {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
-            <div className="mt-2 flex items-center gap-1 px-3">
-              {additionalButtons}
-            </div>
-          )}
-
-          <SidebarScrollWrapper
-            className={classNames(
-              'mt-1 min-h-0 flex-1',
-              showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
-            )}
-          >
-            <Nav
-              className={classNames(
-                isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
-                isStreakPanel && 'min-h-0 flex-1',
-              )}
-            >
-              {renderSelectedSection()}
-            </Nav>
-          </SidebarScrollWrapper>
-
-          {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
-          {showFeedbackWidget && !isUtilityPanelSelected && (
-            <div className="absolute inset-x-3 bottom-3">
-              <FeedbackWidget placement="sidebar" />
-            </div>
-          )}
         </section>
       </SidebarAside>
     </SidebarDragStateProvider>
