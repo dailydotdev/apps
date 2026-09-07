@@ -466,19 +466,30 @@ const SidebarSupportButton = ({
 }): ReactElement => {
   const { isOpen, onUpdate, wrapHandler } =
     useInteractivePopup(RAIL_POPUP_GROUP);
-  const items: ProfileSectionItemProps[] = onLearnSidebar
-    ? [
-        {
-          title: 'Learn the sidebar',
-          icon: MagicIcon,
-          onClick: () => {
-            onUpdate(false);
-            onLearnSidebar();
-          },
-        },
-        ...supportItems,
-      ]
-    : supportItems;
+  const items: ProfileSectionItemProps[] = useMemo(() => {
+    if (!onLearnSidebar) {
+      return supportItems;
+    }
+
+    const tutorial: ProfileSectionItemProps = {
+      title: 'Sidebar tutorial',
+      icon: MagicIcon,
+      onClick: () => {
+        onUpdate(false);
+        onLearnSidebar();
+      },
+    };
+    // Sits under Changelog, with the other "how this works" entries, rather
+    // than at the top where it would read as the menu's primary action.
+    const afterChangelog =
+      supportItems.findIndex(({ title }) => title === 'Changelog') + 1;
+
+    return [
+      ...supportItems.slice(0, afterChangelog),
+      tutorial,
+      ...supportItems.slice(afterChangelog),
+    ];
+  }, [onLearnSidebar, onUpdate]);
 
   return (
     <>
@@ -1395,6 +1406,17 @@ export const SidebarDesktopV2 = ({
     }
   }, [isSettingsSelected]);
 
+  // Same for the tour: the rail goes inert once it starts, but a panel opened
+  // in the beat before that would sit behind the card for the whole run.
+  useEffect(() => {
+    if (!isTourRunning) {
+      return;
+    }
+
+    setHoveredCategory(null);
+    setIsCreateHovered(false);
+  }, [isTourRunning]);
+
   const onToggleExpanded = useCallback(() => {
     logEvent({
       event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
@@ -2049,6 +2071,11 @@ export const SidebarDesktopV2 = ({
           // the page chrome. The rail is the one thing the tour is talking
           // about, so it steps up a tier for the duration.
           isTourRunning && 'laptop:!z-tooltip',
+          // Inert for the duration. The rail stays lifted and readable, but a
+          // hover must not open a panel over the card and a click must not
+          // navigate out from under the tour. The card portals outside the
+          // aside, so its own controls stay live.
+          isTourRunning && 'pointer-events-none',
           suppressTransition,
         )}
       >

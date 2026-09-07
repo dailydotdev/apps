@@ -43,6 +43,8 @@ export interface CoachPopoverProps extends Omit<CoachCardProps, 'pointer'> {
   anchor: CoachAnchor;
   isOpen: boolean;
   highlightRect?: DOMRect | null;
+  hasHighlight?: boolean;
+  align?: 'center' | 'top';
   containerRef?: RefObject<HTMLDivElement>;
 }
 
@@ -50,6 +52,8 @@ export const CoachPopover = ({
   anchor,
   isOpen,
   highlightRect,
+  hasHighlight = true,
+  align = 'center',
   containerRef,
   ...card
 }: CoachPopoverProps): ReactElement | null => {
@@ -79,8 +83,12 @@ export const CoachPopover = ({
 
   const targetCenter = anchor.rect.top + anchor.rect.height / 2;
   const viewportHeight = globalThis.window?.innerHeight ?? 0;
+  // 'top' lines the card up with the top of its target rather than its middle,
+  // so a single tab's card sits beside that tab's label and count.
+  const preferredTop =
+    align === 'top' ? anchor.rect.top : targetCenter - cardHeight / 2;
   const top = clamp(
-    targetCenter - cardHeight / 2,
+    preferredTop,
     VIEWPORT_MARGIN_PX,
     viewportHeight - cardHeight - VIEWPORT_MARGIN_PX,
   );
@@ -90,7 +98,7 @@ export const CoachPopover = ({
 
   return (
     <RootPortal>
-      <CoachHighlight rect={highlightRect ?? anchor.rect} />
+      {hasHighlight && <CoachHighlight rect={highlightRect ?? anchor.rect} />}
       <div
         ref={containerRef}
         className="fixed z-coach"

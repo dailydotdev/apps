@@ -119,7 +119,7 @@ describe('sidebar tour wiring', () => {
 
       fireEvent.click(screen.getByLabelText('Support'));
 
-      expect(screen.queryByText('Learn the sidebar')).not.toBeInTheDocument();
+      expect(screen.queryByText('Sidebar tutorial')).not.toBeInTheDocument();
       expect(screen.getByText('Docs')).toBeInTheDocument();
     });
   });
@@ -388,6 +388,45 @@ describe('sidebar tour wiring', () => {
       );
     });
 
+    it('makes the rail inert so nothing opens or navigates under the card', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      // Hover would open a panel over the card and a click would navigate out
+      // from under the tour; both are the user's own pointer, not a dismissal.
+      expect(screen.getByTestId('sidebar-aside')).toHaveClass(
+        'pointer-events-none',
+      );
+    });
+
+    it('renames the support entry and files it under Changelog', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+      fireEvent.click(screen.getByText('Skip tour'));
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('sidebar-tour-scrim'),
+        ).not.toBeInTheDocument(),
+      );
+
+      fireEvent.click(screen.getByLabelText('Support'));
+
+      const entries = await screen.findAllByText(
+        /Changelog|Sidebar tutorial|Docs/,
+      );
+      expect(entries.map((entry) => entry.textContent)).toEqual([
+        'Changelog',
+        'Sidebar tutorial',
+        'Docs',
+      ]);
+    });
+
     it('survives the dock step opening the ••• tray it is teaching', async () => {
       renderRail(true);
 
@@ -426,7 +465,7 @@ describe('sidebar tour wiring', () => {
       );
 
       fireEvent.click(screen.getByLabelText('Support'));
-      fireEvent.click(screen.getByText('Learn the sidebar'));
+      fireEvent.click(screen.getByText('Sidebar tutorial'));
 
       await screen.findByTestId('sidebar-tour-scrim');
       expect(

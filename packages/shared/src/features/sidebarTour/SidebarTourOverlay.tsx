@@ -156,6 +156,8 @@ export const SidebarTourOverlay = ({
         anchor={anchor}
         isOpen
         stepKey={step.id}
+        hasHighlight={step.hasHighlight ?? true}
+        align={step.align}
         dialogLabel="Sidebar tour"
         message={step.message}
         progress={{ total: stepCount, active: stepIndex }}

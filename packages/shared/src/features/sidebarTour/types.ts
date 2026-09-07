@@ -4,6 +4,11 @@ export type SidebarTourStepId = 'rail' | 'dock' | 'gameCenter';
 // switch, or the real Streak/Game Center panel held open for the step.
 export type SidebarTourStepExtra = 'compactSwitch' | 'gameCenterPanel';
 
+// Where the card sits against its target. 'center' suits a tall target; 'top'
+// lines the card's first line up with the top of a single tab, which is where
+// that tab's own label and count sit.
+export type SidebarTourStepAlign = 'center' | 'top';
+
 export interface SidebarTourStep {
   id: SidebarTourStepId;
   message: string;
@@ -13,6 +18,11 @@ export interface SidebarTourStep {
   // in the document (see resolveSidebarTourSteps).
   target: string;
   extra?: SidebarTourStepExtra;
+  align?: SidebarTourStepAlign;
+  // The rail step's target is the whole tab strip, which the lifted rail and
+  // the scrim already spotlight. Ringing it as well drew a second sidebar-sized
+  // outline that reads as UI the layout does not have.
+  hasHighlight?: boolean;
 }
 
 export type SidebarTourTrigger = 'auto' | 'support_menu';
