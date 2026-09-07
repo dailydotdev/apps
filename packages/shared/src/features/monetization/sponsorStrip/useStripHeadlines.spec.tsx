@@ -59,7 +59,7 @@ it('should carry the headlines the API returned', async () => {
   const { result } = render();
 
   await waitFor(() =>
-    expect(result.current.map(({ id }) => id)).toEqual(['h1', 'h2']),
+    expect(result.current.headlines.map(({ id }) => id)).toEqual(['h1', 'h2']),
   );
 });
 
@@ -74,7 +74,10 @@ it('should carry headlines the backend still serves however old they are', async
   const { result } = render();
 
   await waitFor(() =>
-    expect(result.current.map(({ id }) => id)).toEqual(['old', 'older']),
+    expect(result.current.headlines.map(({ id }) => id)).toEqual([
+      'old',
+      'older',
+    ]),
   );
 });
 
@@ -87,7 +90,7 @@ it('should keep the order the API returned rather than resorting', async () => {
   const { result } = render();
 
   await waitFor(() =>
-    expect(result.current.map(({ id }) => id)).toEqual([
+    expect(result.current.headlines.map(({ id }) => id)).toEqual([
       'newest',
       'middle',
       'oldest',
@@ -100,7 +103,7 @@ it('should leave the row empty when the API has no headlines at all', async () =
   const { result } = render();
 
   await waitFor(() => expect(mockQueryOptions).toHaveBeenCalled());
-  expect(result.current).toEqual([]);
+  expect(result.current.headlines).toEqual([]);
 });
 
 it('should not query at all while the strip is off', async () => {
@@ -114,5 +117,27 @@ it('should not query at all while the strip is off', async () => {
     ),
   });
 
-  await waitFor(() => expect(result.current).toEqual([]));
+  await waitFor(() => expect(result.current.headlines).toEqual([]));
+});
+
+it('should report settled only once the query has answered', async () => {
+  setHeadlines([headline('h1')]);
+  const { result } = render();
+
+  expect(result.current.isSettled).toBe(false);
+  await waitFor(() => expect(result.current.isSettled).toBe(true));
+});
+
+it('should count as settled while the strip is off so the feed keeps its card', () => {
+  setHeadlines([headline('h1')]);
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  const { result } = renderHook(() => useStripHeadlines(false), {
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    ),
+  });
+
+  expect(result.current.isSettled).toBe(true);
 });

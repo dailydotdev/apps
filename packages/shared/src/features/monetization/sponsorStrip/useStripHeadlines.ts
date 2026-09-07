@@ -5,6 +5,15 @@ import { ONE_MINUTE } from '../../../lib/time';
 
 const HEADLINE_LIMIT = 12;
 
+interface StripHeadlines {
+  headlines: PostHighlight[];
+  /**
+   * Whether the query has answered. The feed has to decide about its own
+   * Happening Now card before the answer lands, and cannot wait for it.
+   */
+  isSettled: boolean;
+}
+
 /**
  * The headlines the strip carries. Same `majorHeadlines` field the /highlights
  * page and the post-page widget read, and the same query document as the
@@ -22,16 +31,19 @@ const HEADLINE_LIMIT = 12;
  * reason the reader could see. The API already returns newest first, and every
  * row renders its own relative timestamp.
  */
-export const useStripHeadlines = (enabled: boolean): PostHighlight[] => {
-  const { data } = useQuery({
+export const useStripHeadlines = (enabled: boolean): StripHeadlines => {
+  const { data, isPending } = useQuery({
     ...majorHeadlinesQueryOptions({ first: HEADLINE_LIMIT }),
     enabled,
     refetchInterval: ONE_MINUTE,
   });
 
   if (!enabled) {
-    return [];
+    return { headlines: [], isSettled: true };
   }
 
-  return (data?.majorHeadlines?.edges ?? []).map(({ node }) => node);
+  return {
+    headlines: (data?.majorHeadlines?.edges ?? []).map(({ node }) => node),
+    isSettled: !isPending,
+  };
 };

@@ -11,11 +11,16 @@ interface UseSponsorStripFeed {
   isEnabled: boolean;
   headlines: PostHighlight[];
   /**
-   * Drop the feed's Happening Now card — true only when the strip is actually
-   * carrying the headlines in its place. With the strip up but no headline
-   * inside the freshness window there is nothing to replace the card with, so
-   * the card stays: breaking news must never fall out of the product entirely
-   * just because the experiment is on.
+   * Drop the feed's Happening Now card, because the strip carries those
+   * headlines in its place.
+   *
+   * Decided from the strip being up rather than from the headlines having
+   * arrived. The headlines are their own round trip and land after the feed
+   * has painted, so reading them here flipped this mid-scroll and pulled the
+   * card out of the middle of the feed, jumping everything below it. The one
+   * case that gives the card back is the query settling with nothing at all:
+   * breaking news must never fall out of the product entirely just because
+   * the experiment is on.
    */
   disableHighlightItems: boolean;
 }
@@ -32,11 +37,11 @@ export const useSponsorStripFeed = ({
   disableAds,
 }: UseSponsorStripFeedProps): UseSponsorStripFeed => {
   const isEnabled = useSponsorStrip({ feedName, disableAds });
-  const headlines = useStripHeadlines(isEnabled);
+  const { headlines, isSettled } = useStripHeadlines(isEnabled);
 
   return {
     isEnabled,
     headlines,
-    disableHighlightItems: isEnabled && !!headlines.length,
+    disableHighlightItems: isEnabled && (!isSettled || headlines.length > 0),
   };
 };

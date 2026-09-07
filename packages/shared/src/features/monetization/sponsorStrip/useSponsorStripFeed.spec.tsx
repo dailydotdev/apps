@@ -12,25 +12,39 @@ const mockHeadlines = jest.mocked(useStripHeadlines);
 
 const headline = { id: 'h1' } as PostHighlight;
 
+const settled = (headlines: PostHighlight[]) => ({
+  headlines,
+  isSettled: true,
+});
+
 const render = () =>
   renderHook(() => useSponsorStripFeed({ feedName: 'my-feed' }));
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockStrip.mockReturnValue(true);
-  mockHeadlines.mockReturnValue([headline]);
+  mockHeadlines.mockReturnValue(settled([headline]));
 });
 
 it('should drop the feed card when the strip is carrying the headlines', () => {
   expect(render().result.current.disableHighlightItems).toBe(true);
 });
 
-it('should keep the feed card when the strip has no headlines to carry', () => {
-  // No fresh headline means an empty ticker, and suppressing the card then
+it('should keep the feed card once the query settles with no headlines', () => {
+  // An empty ticker cannot stand in for the card, and suppressing it then
   // would take breaking news out of the product altogether.
-  mockHeadlines.mockReturnValue([]);
+  mockHeadlines.mockReturnValue(settled([]));
 
   expect(render().result.current.disableHighlightItems).toBe(false);
+});
+
+// The headlines are their own round trip, landing after the feed has painted.
+// Waiting for them flipped this mid-scroll and pulled the card out of the
+// middle of the feed.
+it('should drop the feed card before the headlines have arrived', () => {
+  mockHeadlines.mockReturnValue({ headlines: [], isSettled: false });
+
+  expect(render().result.current.disableHighlightItems).toBe(true);
 });
 
 it('should keep the feed card when the strip is off', () => {
