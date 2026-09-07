@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import type { SnapshotIdentityProps } from './SnapshotIdentity';
 import { SnapshotIdentity } from './SnapshotIdentity';
@@ -9,7 +10,7 @@ const MUTED = colors.salt['90'];
 const DIVIDER = colors.pepper['10'];
 
 export interface StreakSnapshotCardProps {
-  user: Omit<SnapshotIdentityProps, 'label'>;
+  user: SnapshotIdentityProps;
   days: number;
   milestone?: string;
   longestStreak: number;
@@ -29,9 +30,14 @@ function StreakSnapshotCardComponent(
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? `streak-${days}`} watermark="🔥">
+    <SnapshotFrame
+      logoAside={<SnapshotEyebrow label="Reading streak" />}
+      ref={ref}
+      seed={seed ?? `streak-${days}`}
+      watermark="🔥"
+    >
       <div className="flex flex-1 flex-col">
-        <SnapshotIdentity {...user} label="Reading streak" />
+        <SnapshotIdentity {...user} />
 
         <div className="flex flex-1 flex-col justify-center">
           <span

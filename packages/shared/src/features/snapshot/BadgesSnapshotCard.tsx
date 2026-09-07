@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
 import { largeNumberFormat } from '../../lib';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import type { SnapshotIdentityProps } from './SnapshotIdentity';
 import { SnapshotIdentity } from './SnapshotIdentity';
@@ -22,7 +23,7 @@ export interface AwardTally {
 }
 
 export interface BadgesSnapshotCardProps {
-  user: Omit<SnapshotIdentityProps, 'label'>;
+  user: SnapshotIdentityProps;
   topReaderBadges: number;
   totalAwards: number;
   badges: TopReaderBadge[];
@@ -67,9 +68,13 @@ function BadgesSnapshotCardComponent(
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? 'badges'}>
+    <SnapshotFrame
+      logoAside={<SnapshotEyebrow label="Badges & awards" />}
+      ref={ref}
+      seed={seed ?? 'badges'}
+    >
       <div className="flex flex-1 flex-col gap-6">
-        <SnapshotIdentity {...user} label="Badges & awards" />
+        <SnapshotIdentity {...user} />
 
         <div className="flex gap-4">
           <Tile

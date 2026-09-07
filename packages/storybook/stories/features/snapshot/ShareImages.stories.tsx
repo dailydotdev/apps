@@ -23,6 +23,7 @@ import { ListSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/List
 import { CelebrationSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/CelebrationSnapshotCard';
 import { getSnapshotCaptureOptions } from '@dailydotdev/shared/src/features/snapshot/snapshotCapture';
 import { PostSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/PostSnapshotCard';
+import { SnapshotEyebrow } from '@dailydotdev/shared/src/features/snapshot/SnapshotEyebrow';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
 import { AwardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AwardSnapshotCard';
@@ -76,10 +77,27 @@ const HIGHLIGHT_POST = {
   },
 } as Post;
 
+/**
+ * A watercooler post, for surface 4 — a person's own words, so they take the
+ * credit rather than a publication.
+ */
+const WATERCOOLER_POST = {
+  id: 'watercooler-ripgrep',
+  summary:
+    'Mine is ripgrep. I use it more than my editor at this point — every investigation starts with a search, and nothing else comes close on a big monorepo.',
+} as Post;
+
+const WATERCOOLER_AUTHOR = {
+  name: 'Ante Barić',
+  image: avatarUri('#EC527A', 'A'),
+};
+
 interface Placement {
   id: string;
   surface: string;
   watermark?: string;
+  /** Rides the logo row, far right — the surface's own label. */
+  eyebrow?: { label: string; gradient?: string };
   /** Height follows the content, for the text-heavy surfaces. */
   grow?: boolean;
   content?: SnapshotContentProps;
@@ -141,31 +159,26 @@ const PLACEMENTS: Placement[] = [
   {
     id: 'watercooler',
     surface: '4 · Watercooler post',
-    grow: true,
-    content: {
-      bodyLines: 0,
-      titleLines: 0,
-      avatar: {
-        src: avatarUri('#EC527A', 'A'),
-        name: 'Ante Barić',
-        handle: '@capjavert',
-      },
-      title: 'What is the one dev tool you would not give up?',
-      meta: ['2h ago', '24 comments'],
-      body: 'Mine is ripgrep. I use it more than my editor at this point — every investigation starts with a search, and nothing else comes close on a big monorepo.',
-    },
+    render: (ref) => (
+      <PostSnapshotCard
+        ref={ref}
+        credit={WATERCOOLER_AUTHOR}
+        post={WATERCOOLER_POST}
+      />
+    ),
   },
   {
     id: 'hot-take',
     surface: '5 · Hot take',
     watermark: '🔥',
+    eyebrow: { label: 'Hot take', gradient: HOT_TAKE_EYEBROW_GRADIENT },
+    grow: true,
     content: {
-      eyebrow: 'Hot take',
-      eyebrowGradient: HOT_TAKE_EYEBROW_GRADIENT,
-      title: 'Tabs won. Prettier just hid the bodies.',
-      titleLines: 3,
-      body: 'Every formatter argument is a proxy war over indentation.',
-      bodyLines: 3,
+      // One take, one type style: split across a title and a body it read as
+      // two voices arguing the same point.
+      title:
+        'Tabs won. Prettier just hid the bodies. Every formatter argument is a proxy war over indentation.',
+      titleLines: 0,
       stat: { value: '128', label: 'found this hot' },
       statVariant: 'inline' as const,
     },
@@ -390,9 +403,7 @@ const PLACEMENTS: Placement[] = [
           image: avatarUri('#EC527A', 'A'),
         }}
         comment="The bundler war is over and nobody noticed. We spent five years optimising cold starts and the actual bottleneck was always the 400kb of analytics we shipped on every page."
-        replies={24}
         seed="discussion"
-        upvotes={186}
       />
     ),
   },
@@ -566,6 +577,14 @@ const Gallery = () => {
             <SnapshotFrame
               key={placement.id}
               grow={placement.grow}
+              logoAside={
+                placement.eyebrow && (
+                  <SnapshotEyebrow
+                    gradient={placement.eyebrow.gradient}
+                    label={placement.eyebrow.label}
+                  />
+                )
+              }
               seed={placement.id}
               watermark={placement.watermark}
               ref={setRef}

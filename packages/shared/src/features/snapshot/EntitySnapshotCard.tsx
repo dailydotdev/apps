@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
 import { largeNumberFormat } from '../../lib';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import {
   SnapshotStat,
@@ -49,20 +50,13 @@ function EntitySnapshotCardComponent(
   const isTag = kind === 'tag';
 
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? name}>
+    <SnapshotFrame
+      logoAside={<SnapshotEyebrow label={KIND_LABEL[kind]} />}
+      ref={ref}
+      seed={seed ?? name}
+    >
       <div className="flex flex-1 flex-col items-center text-center">
-        <span
-          className="font-bold uppercase"
-          style={{
-            color: colors.cabbage['10'],
-            fontSize: 22,
-            letterSpacing: 2,
-          }}
-        >
-          {KIND_LABEL[kind]}
-        </span>
-
-        <div className="mt-7">
+        <div>
           {isTag || !image ? (
             <span
               className="flex items-center justify-center font-bold text-white"

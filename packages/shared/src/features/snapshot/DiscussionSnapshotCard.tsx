@@ -1,81 +1,47 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
-import colors from '../../styles/colors';
+import { SnapshotCredit } from './SnapshotCredit';
 import { SnapshotFrame } from './SnapshotFrame';
-import { SnapshotIdentity } from './SnapshotIdentity';
-import { SNAPSHOT_PASSAGE_LIMIT, truncateAtWord } from './snapshotText';
-
-const MUTED = colors.salt['90'];
-const DIVIDER = colors.pepper['10'];
+import {
+  SNAPSHOT_COPY_SIZE,
+  SNAPSHOT_PASSAGE_LIMIT,
+  truncateAtWord,
+} from './snapshotText';
 
 export interface DiscussionSnapshotCardProps {
-  postTitle: string;
   comment: string;
   author: { name: string; handle: string; image?: string };
-  upvotes: number;
-  replies: number;
   seed?: string;
 }
 
+/**
+ * A comment, set like the post card's TLDR and credited to whoever wrote it.
+ * No label above the copy: a comment in someone's name already reads as a
+ * comment, and the post it hung off was context nobody shares for.
+ */
 function DiscussionSnapshotCardComponent(
-  {
-    postTitle,
-    comment,
-    author,
-    upvotes,
-    replies,
-    seed,
-  }: DiscussionSnapshotCardProps,
+  { comment, author, seed }: DiscussionSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
-  return (
-    <SnapshotFrame grow ref={ref} seed={seed ?? postTitle}>
-      <div className="flex flex-1 flex-col">
-        <span
-          className="font-bold uppercase"
-          style={{
-            color: colors.cabbage['10'],
-            fontSize: 22,
-            letterSpacing: 2,
-          }}
-        >
-          From the discussion
-        </span>
+  const quote = truncateAtWord(comment, SNAPSHOT_PASSAGE_LIMIT);
 
-        <div className="mt-6 flex flex-1 flex-col justify-center">
+  return (
+    <SnapshotFrame grow wide ref={ref} seed={seed ?? author.handle}>
+      <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col justify-center">
           <p
-            className="snapshot-copy font-bold text-white"
-            style={{ fontSize: 46, lineHeight: 1.25 }}
+            className="text-white"
+            style={{
+              fontSize: SNAPSHOT_COPY_SIZE,
+              lineHeight: 1.55,
+              overflowWrap: 'break-word',
+            }}
           >
-            {truncateAtWord(comment, SNAPSHOT_PASSAGE_LIMIT)}
+            {quote}
           </p>
         </div>
 
-        {/* Muted and small: the comment is the subject, the post is context. */}
-        <span
-          className="mt-2"
-          style={{
-            color: MUTED,
-            fontSize: 30,
-            lineHeight: 1.3,
-            display: '-webkit-box',
-            WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: 2,
-            overflow: 'hidden',
-          }}
-        >
-          {postTitle}
-        </span>
-
-        <div
-          className="mt-7 flex flex-col gap-4"
-          style={{ paddingTop: 26, borderTop: `1px solid ${DIVIDER}` }}
-        >
-          <SnapshotIdentity {...author} />
-          <span style={{ color: MUTED, fontSize: 26 }}>
-            {upvotes} upvotes · {replies} replies
-          </span>
-        </div>
+        <SnapshotCredit image={author.image} name={author.name} />
       </div>
     </SnapshotFrame>
   );

@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
 import { largeNumberFormat } from '../../lib';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import type { SnapshotIdentityProps } from './SnapshotIdentity';
 import { SnapshotIdentity } from './SnapshotIdentity';
@@ -28,7 +29,7 @@ export interface ReadingOverviewTag {
 }
 
 export interface ReadingOverviewSnapshotCardProps {
-  user: Omit<SnapshotIdentityProps, 'label'>;
+  user: SnapshotIdentityProps;
   longestStreak: number;
   totalReadingDays: number;
   postsRead: number;
@@ -120,9 +121,13 @@ function ReadingOverviewSnapshotCardComponent(
   );
 
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? 'reading-overview'}>
+    <SnapshotFrame
+      logoAside={<SnapshotEyebrow label="Reading overview" />}
+      ref={ref}
+      seed={seed ?? 'reading-overview'}
+    >
       <div className="flex flex-1 flex-col gap-6">
-        <SnapshotIdentity {...user} label="Reading overview" />
+        <SnapshotIdentity {...user} />
 
         <div className="flex gap-4">
           <Tile

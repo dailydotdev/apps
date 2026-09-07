@@ -46,6 +46,11 @@ interface SnapshotFrameProps {
   logoPlacement?: SnapshotLogoPlacement;
   /** A glyph bled across the card body at low opacity, behind the content. */
   watermark?: string;
+  /**
+   * Sits on the logo row, far right — for a surface label that belongs with
+   * the mark rather than with the copy.
+   */
+  logoAside?: ReactNode;
   /** Drop the card shell and stand the children straight on the gradient. */
   bare?: boolean;
   /**
@@ -66,6 +71,7 @@ function SnapshotFrameComponent(
   {
     seed,
     watermark,
+    logoAside,
     bare,
     grow,
     wide,
@@ -93,6 +99,15 @@ function SnapshotFrameComponent(
     </div>
   );
 
+  const logoRow = logoAside ? (
+    <div className="flex w-full items-center justify-between gap-4">
+      {logo}
+      {logoAside}
+    </div>
+  ) : (
+    logo
+  );
+
   return (
     <div
       ref={ref}
@@ -115,7 +130,7 @@ function SnapshotFrameComponent(
     >
       {/* Standing alone on the gradient, the collectible has no card to sit
           in: the mark leads above it, or floats over its artwork. */}
-      {bare && !isOverlaid && logo}
+      {bare && !isOverlaid && logoRow}
 
       {bare ? (
         <div className="relative">
@@ -168,7 +183,7 @@ function SnapshotFrameComponent(
             )}
             {isOverlaid && logo}
             <div className="relative flex flex-1 flex-col gap-7">
-              {!isOverlaid && logo}
+              {!isOverlaid && logoRow}
               {children}
             </div>
           </div>

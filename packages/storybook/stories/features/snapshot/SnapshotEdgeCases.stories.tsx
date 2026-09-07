@@ -333,9 +333,7 @@ const CARDS: CardSpec[] = [
             ref={ref}
             author={{ name: 'Ante Barić', handle: '@capjavert', image: AVATAR }}
             comment="The bundler war is over and nobody noticed."
-            replies={24}
             seed="di-a"
-            upvotes={186}
           />
         ),
       },
@@ -346,9 +344,7 @@ const CARDS: CardSpec[] = [
             ref={ref}
             author={{ name: 'Ante Barić', handle: '@capjavert' }}
             comment={LOREM}
-            replies={1840}
             seed="di-b"
-            upvotes={26400}
           />
         ),
       },

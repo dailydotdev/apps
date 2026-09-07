@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import type { SnapshotIdentityProps } from './SnapshotIdentity';
 import { SnapshotIdentity } from './SnapshotIdentity';
@@ -10,7 +11,7 @@ const DIVIDER = colors.pepper['10'];
 
 export interface AwardSnapshotCardProps {
   /** The recipient — the card is theirs to share. */
-  user: Omit<SnapshotIdentityProps, 'label'>;
+  user: SnapshotIdentityProps;
   /** Who sent it. Named, because that is the whole point of this moment. */
   from: string;
   award: string;
@@ -42,9 +43,14 @@ function AwardSnapshotCardComponent(
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? `award-${award}`} watermark={emoji}>
+    <SnapshotFrame
+      logoAside={<SnapshotEyebrow label="Awarded" />}
+      ref={ref}
+      seed={seed ?? `award-${award}`}
+      watermark={emoji}
+    >
       <div className="flex flex-1 flex-col">
-        <SnapshotIdentity {...user} label="Awarded" />
+        <SnapshotIdentity {...user} />
 
         <div className="flex flex-1 flex-col justify-center">
           {image ? (

@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
 import { largeNumberFormat } from '../../lib';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import type { SnapshotIdentityProps } from './SnapshotIdentity';
 import { SnapshotIdentity } from './SnapshotIdentity';
@@ -15,7 +16,7 @@ import {
 const MUTED = colors.salt['90'];
 
 export interface CelebrationSnapshotCardProps {
-  user: Omit<SnapshotIdentityProps, 'label'>;
+  user: SnapshotIdentityProps;
   level: number;
   levelProgress: number;
   totalXp: number;
@@ -37,9 +38,14 @@ function CelebrationSnapshotCardComponent(
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? `level-${level}`} watermark="🎉">
+    <SnapshotFrame
+      logoAside={<SnapshotEyebrow label="Level up" />}
+      ref={ref}
+      seed={seed ?? `level-${level}`}
+      watermark="🎉"
+    >
       <div className="flex flex-1 flex-col">
-        <SnapshotIdentity {...user} label="Level up" />
+        <SnapshotIdentity {...user} />
 
         <div className="flex flex-1 flex-col items-center justify-center gap-6">
           <SnapshotLevelRing
