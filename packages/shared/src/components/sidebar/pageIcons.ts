@@ -6,6 +6,7 @@ import {
   BookmarkIcon,
   BriefIcon,
   CompassIcon,
+  CookieIcon,
   HashtagIcon,
   HomeIcon,
   HotIcon,
@@ -14,6 +15,8 @@ import {
   SourceIcon,
   SquadIcon,
   TimerIcon,
+  TourIcon,
+  WorldIcon,
 } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { FolderIcon } from '../icons/Folder';
@@ -29,6 +32,10 @@ export type SidebarPageIcon = ComponentType<IconProps>;
 // Exact paths win over prefixes, which is what keeps the app pages under
 // /squads/ (Pending Posts, Find Squads) from being read as squad handles.
 const EXACT_PAGE_ICONS: Record<string, SidebarPageIcon> = {
+  // Hot Takes is a modal launcher: "/" plus a query. Keyed with the query so it
+  // resolves as itself instead of as the feed it opens over.
+  '/?openModal=hottakes': TourIcon,
+  '/watercooler': CookieIcon,
   '/bookmarks': BookmarkIcon,
   '/bookmarks/later': BookmarkReminderIcon,
   '/squads': SquadIcon,
@@ -55,18 +62,23 @@ const PREFIX_PAGE_ICONS: [string, SidebarPageIcon][] = [
   ['/jobs', JobIcon],
   ['/posts', CompassIcon],
   ['/feeds', HashtagIcon],
+  ['/world', WorldIcon],
 ];
 
-const normalize = (path: string): string =>
-  path
-    .replace(/^https?:\/\/[^/]+/, '')
-    .split('?')[0]
-    .split('#')[0];
+const stripOrigin = (path: string): string =>
+  path.replace(/^https?:\/\/[^/]+/, '');
 
 // The glyph component for a known app page, or null when the path isn't one —
 // callers own the size/active props and their own fallback.
 export const pageIconForPath = (path: string): SidebarPageIcon | null => {
-  const normalized = normalize(path);
+  const withQuery = stripOrigin(path);
+  // Query-bearing destinations are matched before the query is dropped, or a
+  // modal launcher resolves as whatever page it sits on top of.
+  const launcher = EXACT_PAGE_ICONS[withQuery];
+  if (launcher) {
+    return launcher;
+  }
+  const normalized = withQuery.split('?')[0].split('#')[0];
   const exact = EXACT_PAGE_ICONS[normalized];
   if (exact) {
     return exact;
