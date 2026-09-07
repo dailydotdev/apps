@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useRouter } from 'next/router';
 import { useConditionalFeature } from './useConditionalFeature';
 import usePersistentContext, {
   PersistentContextKeys,
@@ -18,7 +19,7 @@ export type UsePreferredSourceProps = {
 };
 
 export type UsePreferredSource = {
-  /** The flag is on, the reader is signed in, and they have not answered yet. */
+  /** The flag is on and the reader has not answered yet. */
   isEligible: boolean;
   isReady: boolean;
   /** Opens Google's flow, logs the click and silences every other surface. */
@@ -40,7 +41,12 @@ export const usePreferredSource = ({
   placement,
   shouldEvaluate = true,
 }: UsePreferredSourceProps): UsePreferredSource => {
-  const { isLoggedIn, isAuthReady } = useAuthContext();
+  const router = useRouter();
+  // REVIEW AFFORDANCE — remove before merge. The flag is off by default, so a
+  // Vercel preview would show nothing; `?preferredSource=1` forces the gate on
+  // for one session so the placements can be reviewed without a GrowthBook rule.
+  const isForced = router?.query?.preferredSource === '1';
+  const { isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const [state, setState, isStateLoaded] =
     usePersistentContext<PreferredSourceState | null>(
@@ -48,13 +54,18 @@ export const usePreferredSource = ({
       null,
     );
 
-  const gate = isAuthReady && isLoggedIn && shouldEvaluate;
+  // Deliberately not gated on being signed in. Post pages and the feed are
+  // public, and a reader who arrived from Google — the one person for whom
+  // this ask is self-interested rather than a favour — is usually signed out.
+  // Capping is local-storage based, so it works for them too.
+  const gate = isAuthReady && shouldEvaluate;
   const { value: isEnabled } = useConditionalFeature({
     feature: featurePreferredSource,
     shouldEvaluate: gate,
   });
 
-  const isEligible = gate && !!isEnabled && isStateLoaded && !state;
+  const isEligible =
+    gate && (!!isEnabled || isForced) && isStateLoaded && !state;
   const { isReady, addPreferredSource } = useGooglePreferredSource({
     enabled: isEligible,
   });
