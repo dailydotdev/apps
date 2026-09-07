@@ -62,8 +62,8 @@ const Example = () => {
         </h1>
         <p className="max-w-[46rem] text-text-tertiary typo-body">
           1080 wide, as tall as the copy needs. A branded purple gradient seeded
-          from the post id, a black card carrying the source, headline, date,
-          read time, domain and TLDR, and the logo stamped underneath.
+          from the post id, and a black card that leads with the TLDR in white,
+          then credits it: headline, source, date.
         </p>
       </header>
 
