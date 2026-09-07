@@ -11,20 +11,20 @@ const DIVIDER = colors.pepper['10'];
 const CHIP_BORDER = 'rgba(255, 255, 255, 0.16)';
 
 /** The thumbnail keeps the post page's proportions beside the headline. */
-const THUMBNAIL_WIDTH = 264;
-const THUMBNAIL_HEIGHT = 148;
+const THUMBNAIL_WIDTH = 276;
+const THUMBNAIL_HEIGHT = 155;
 
 /** A long headline steps down rather than crowding the thumbnail. */
 const titleFontSize = (length: number): number => {
   if (length <= 48) {
-    return 58;
+    return 62;
   }
 
   if (length <= 90) {
-    return 50;
+    return 54;
   }
 
-  return 42;
+  return 46;
 };
 
 const Chip = ({ label }: { label: string }): ReactElement => (
@@ -49,7 +49,7 @@ const Stat = ({
   value: number;
   label: string;
 }): ReactElement => (
-  <span style={{ fontSize: 26 }}>
+  <span style={{ fontSize: 28 }}>
     <span className="font-bold text-white">{formatDataTileValue(value)}</span>
     <span style={{ color: MUTED }}> {label}</span>
   </span>
@@ -128,7 +128,7 @@ function PostSnapshotCardComponent(
         </div>
 
         {meta.length > 0 && (
-          <span style={{ color: MUTED, fontSize: 26, lineHeight: 1.3 }}>
+          <span style={{ color: MUTED, fontSize: 27, lineHeight: 1.3 }}>
             {meta.join(' · ')}
           </span>
         )}
@@ -136,7 +136,7 @@ function PostSnapshotCardComponent(
         {post.summary && (
           <p
             className="snapshot-copy"
-            style={{ color: MUTED, fontSize: 28, lineHeight: 1.55 }}
+            style={{ color: MUTED, fontSize: 33, lineHeight: 1.5 }}
           >
             {post.summary}
           </p>

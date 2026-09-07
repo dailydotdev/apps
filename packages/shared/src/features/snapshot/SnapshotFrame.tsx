@@ -22,7 +22,7 @@ export const SNAPSHOT_CARD_MAX = SNAPSHOT_SIZE - 150;
 const CARD_RADIUS = 48;
 const CARD_EDGE = 2;
 const CARD_PADDING = 58;
-const CARD_PADDING_WIDE = 40;
+const CARD_PADDING_WIDE = 32;
 
 /**
  * The App Store device frame: a lit hairline that is brightest along the top
@@ -137,7 +137,7 @@ function SnapshotFrameComponent(
           <div
             className={classNames(
               'relative flex h-full flex-col overflow-hidden',
-              wide ? 'gap-6' : 'gap-7',
+              wide ? 'gap-5' : 'gap-7',
             )}
             style={{
               minHeight: SNAPSHOT_SIZE - gutter * 2 - CARD_EDGE * 2,
