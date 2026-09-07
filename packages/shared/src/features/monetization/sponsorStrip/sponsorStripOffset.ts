@@ -14,19 +14,6 @@ import { useEffect } from 'react';
 const SPONSOR_STRIP_HEIGHT_VAR = '--sponsor-strip-height';
 
 /**
- * The dock's own horizontal inset.
- *
- * Not `feedGutter`: that one collapses to zero inside the v2 floating card,
- * because the feed's inset there comes from the grid being narrower than the
- * frame rather than from padding. The dock spans the frame edge to edge, so a
- * zeroed gutter leaves its first logo smudged against the sidebar. These are
- * `feedGutter`'s tablet-and-up values, which is what lines the row up with the
- * cards in both layouts. The `px-4` below tablet is inert — the dock is
- * `hidden tablet:flex` — and kept only so the two constants read alike.
- */
-export const DOCK_GUTTER = 'px-4 tablet:px-6 laptop:px-10';
-
-/**
  * Marks the dock for the v2 frame to style around. The frame floats with a
  * gutter on every side, and a dock is supposed to pin to the window, so the
  * frame drops its bottom inset for the one case where it holds one. A class

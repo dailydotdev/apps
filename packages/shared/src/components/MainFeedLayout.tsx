@@ -17,7 +17,11 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import { FeedPageLayoutMobile, feedGutter } from './utilities/common';
+import {
+  FeedPageLayoutMobile,
+  feedGutter,
+  feedWidth,
+} from './utilities/common';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
 import { useSponsorStripFeed } from '../features/monetization/sponsorStrip/useSponsorStripFeed';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
@@ -28,7 +32,6 @@ import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
 import { ExploreSignupStrip } from './auth/ExploreSignupStrip';
 import FeedContext from '../contexts/FeedContext';
-import feedStyles from './Feed.module.css';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -217,10 +220,7 @@ const getQueryBasedOnLogin = (
 // The feed's own width: full width normally, and clamped + centered to the
 // same card-based max-width as the grid on wide screens (desktopL). The CSS
 // vars feed the `styles.container` max-width calc (grid gap is 2rem).
-const feedWidthClassName = classNames(
-  'relative flex w-full flex-col laptopL:mx-auto',
-  feedStyles.container,
-);
+const feedWidthClassName = classNames('relative flex flex-col', feedWidth);
 const commentClassName = {
   container: 'rounded-none border-0 border-b tablet:border-x',
   commentBox: {

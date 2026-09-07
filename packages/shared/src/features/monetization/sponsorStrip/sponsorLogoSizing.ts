@@ -1,14 +1,22 @@
-/** Cap height of the gold mark; it reads a step above the wall, not a tier. */
-export const GOLD_CAP = 22;
+/**
+ * The gold mark is drawn at this height, full stop — no optical normalising.
+ * That normalising exists to stop a dozen unrelated wall marks fighting each
+ * other, and it works by trading height for width, so it punishes exactly the
+ * wide mark-plus-wordmark lockup a paid slot is most likely to supply: the
+ * lockup came out shorter than the tallest silhouette beside it, which is the
+ * opposite of what the slot is sold as. One known creative in one slot does
+ * not need normalising, it needs to be the biggest thing on the row.
+ */
+export const GOLD_HEIGHT = 28;
 /** The wall's two tiers differ by a hair of ink, not by a wash of opacity. */
 export const PREMIUM_CAP = 17;
 export const COMMUNITY_CAP = 15;
 
 /**
- * Ceilings for the rows the optical sizing knows nothing about: a near-square
- * mark would otherwise take its full optical height and outgrow the 40px row.
+ * Ceiling for the wall, which the optical sizing knows nothing about: a
+ * near-square mark would otherwise take its full optical height and outgrow
+ * the 40px row.
  */
-export const GOLD_MAX_HEIGHT = 26;
 export const WALL_MAX_HEIGHT = 20;
 
 /** Fixed box every wall mark is drawn into, and the gap between boxes. */

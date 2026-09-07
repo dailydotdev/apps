@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
+import feedStyles from '../Feed.module.css';
 import { ArrowIcon } from '../icons';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { OrganizationMemberRole } from '../../features/organizations/types';
@@ -135,6 +136,20 @@ export const BaseFeedPage = classed(
  */
 export const feedGutter =
   'tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-0';
+
+/**
+ * The feed grid's own width: full width normally, and clamped and centred to
+ * the same card-based max-width as the grid on wide screens (desktopL). Needs
+ * `--num-cards` and `--feed-gap` set on the element for that calc.
+ *
+ * Chrome that has to line up with the cards pairs this with `feedGutter`:
+ * together they are where the feed's left and right edges actually are, which
+ * neither one is on its own.
+ */
+export const feedWidth = classNames(
+  'w-full laptopL:mx-auto',
+  feedStyles.container,
+);
 
 // Vertical padding only. The horizontal inset moved to FeedContainer
 // (see `feedGutter`) because this component is not in the tree on

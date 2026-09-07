@@ -11,7 +11,17 @@ import { useSponsorSlotLog } from './useSponsorSlotLog';
 interface SponsorLogoProps {
   sponsor: ResolvedSponsor;
   slotIndex: number;
-  cap: number;
+  /**
+   * Cap height for the optical sizing that keeps a wall of unrelated marks
+   * looking like one row. Omitted by the slot that sets `exactHeight`.
+   */
+  cap?: number;
+  /**
+   * Draw the mark at exactly this height and let the width follow the ratio.
+   * The gold slot's shape is known and it is meant to dominate, so trading
+   * its height away for width the way the wall does only makes it smaller.
+   */
+  exactHeight?: number;
   /**
    * Fixed box the mark is drawn into. Wall slots use one so the row's width
    * cannot jump every time a rotation swaps a square mark for a long lockup;
@@ -35,6 +45,7 @@ export const SponsorLogo = ({
   sponsor,
   slotIndex,
   cap,
+  exactHeight,
   boxWidth,
   monochrome = false,
   maxHeight,
@@ -48,12 +59,21 @@ export const SponsorLogo = ({
     () => getViewedPixels(sponsor.pixel),
     [sponsor.pixel],
   );
-  const height = boxedLogoHeight(
-    sponsor.ratio,
-    cap,
-    boxWidth ?? Number.POSITIVE_INFINITY,
-    maxHeight,
-  );
+  let height: number;
+
+  if (exactHeight !== undefined) {
+    height = exactHeight;
+  } else if (cap !== undefined) {
+    height = boxedLogoHeight(
+      sponsor.ratio,
+      cap,
+      boxWidth ?? Number.POSITIVE_INFINITY,
+      maxHeight,
+    );
+  } else {
+    throw new Error('SponsorLogo needs either a cap or an exactHeight');
+  }
+
   const size: CSSProperties = {
     height: `${height}px`,
     width: `${Math.round(height * sponsor.ratio)}px`,

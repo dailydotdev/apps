@@ -1,10 +1,9 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import {
   COMMUNITY_CAP,
-  GOLD_CAP,
-  GOLD_MAX_HEIGHT,
+  GOLD_HEIGHT,
   PREMIUM_CAP,
   SLOT_WIDTH,
   WALL_MAX_HEIGHT,
@@ -15,13 +14,14 @@ import type { PostHighlight } from '../../../graphql/highlights';
 import type { ResolvedSponsor } from './sponsorStripCreative';
 import {
   DOCK_CLASS,
-  DOCK_GUTTER,
   HEADLINES_ROW_HEIGHT,
   SPONSOR_ROW_HEIGHT,
   usePublishStripHeight,
 } from './sponsorStripOffset';
+import { feedGutter, feedWidth } from '../../../components/utilities/common';
 import { PREMIUM_SLOT_COUNT } from './sponsorStripSlots';
 import { useSponsorStripAds } from './useSponsorStripAds';
+import FeedContext from '../../../contexts/FeedContext';
 
 interface SponsorStripProps {
   /**
@@ -39,6 +39,7 @@ interface SponsorRowProps {
   premium: ResolvedSponsor[];
   community: ResolvedSponsor[];
   wallRef: (node: HTMLElement | null) => void;
+  widthStyle: CSSProperties;
 }
 
 const SponsorRow = ({
@@ -46,74 +47,82 @@ const SponsorRow = ({
   premium,
   community,
   wallRef,
+  widthStyle,
 }: SponsorRowProps): ReactElement => (
+  // The border and the ground span the dock; only the content is held to the
+  // feed's own edges, so the row reads as one bar under a column of cards.
   <div
     data-testid="sponsorStripRow"
-    className={classNames(
-      'flex h-10 w-full items-center gap-5 border-t border-border-subtlest-tertiary',
-      DOCK_GUTTER,
-    )}
+    className="w-full border-t border-border-subtlest-tertiary"
   >
-    {gold && (
-      <div className="flex shrink-0 items-center gap-x-2.5">
-        <span className="whitespace-nowrap text-text-quaternary typo-caption2">
-          Made possible by
-        </span>
-        {/* The gold mark is the one slot that keeps its own inks, its size and
-            its hover: one coloured, live mark against a silhouetted wall is
-            the whole hierarchy of the row. */}
-        <SponsorLogo
-          sponsor={gold}
-          slotIndex={0}
-          cap={GOLD_CAP}
-          maxHeight={GOLD_MAX_HEIGHT}
-          className="origin-left text-text-primary transition-transform duration-200 ease-in-out hover:scale-105"
+    <div
+      className={classNames(
+        'flex h-10 items-center gap-5',
+        feedGutter,
+        feedWidth,
+      )}
+      style={widthStyle}
+    >
+      {gold && (
+        <div className="flex shrink-0 items-center gap-x-2.5">
+          <span className="whitespace-nowrap text-text-quaternary typo-caption2">
+            Made possible by
+          </span>
+          {/* The gold mark is the one slot that keeps its own inks and its own
+            size: one coloured mark at full height against a silhouetted wall
+            is the whole hierarchy of the row, without a hover effect on top. */}
+          <SponsorLogo
+            sponsor={gold}
+            slotIndex={0}
+            exactHeight={GOLD_HEIGHT}
+            className="text-text-primary"
+          />
+        </div>
+      )}
+      {gold && !!(premium.length || community.length) && (
+        <span
+          aria-hidden
+          className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
         />
-      </div>
-    )}
-    {gold && !!(premium.length || community.length) && (
-      <span
-        aria-hidden
-        className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
-      />
-    )}
-    {/* One run for both wall tiers, spread with `justify-between` the way the
+      )}
+      {/* One run for both wall tiers, spread with `justify-between` the way the
         broadcast bar this borrows from distributes its credits: the row
         breathes on a wide window and tightens before it clips. Premium sits
         left and carries a hair more ink; the slots are a fixed width, so a
         rotation swapping a square mark for a long lockup cannot make the whole
         row shuffle sideways. */}
-    <div
-      ref={wallRef}
-      className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
-    >
-      {premium.map((sponsor, index) => (
-        <SponsorLogo
-          key={sponsor.genId}
-          sponsor={sponsor}
-          slotIndex={index + 1}
-          cap={PREMIUM_CAP}
-          boxWidth={SLOT_WIDTH}
-          maxHeight={WALL_MAX_HEIGHT}
-          monochrome
-          className="text-text-secondary transition-colors hover:text-text-primary"
-        />
-      ))}
-      {community.map((sponsor, index) => (
-        <SponsorLogo
-          key={sponsor.genId}
-          sponsor={sponsor}
-          // Offset by the full premium row rather than by how many premium
-          // creatives happened to fill it, so a slot index means the same
-          // position from one session to the next.
-          slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
-          cap={COMMUNITY_CAP}
-          boxWidth={SLOT_WIDTH}
-          maxHeight={WALL_MAX_HEIGHT}
-          monochrome
-          className="text-text-tertiary transition-colors hover:text-text-primary"
-        />
-      ))}
+      <div
+        ref={wallRef}
+        className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
+      >
+        {premium.map((sponsor, index) => (
+          <SponsorLogo
+            key={sponsor.genId}
+            sponsor={sponsor}
+            slotIndex={index + 1}
+            cap={PREMIUM_CAP}
+            boxWidth={SLOT_WIDTH}
+            maxHeight={WALL_MAX_HEIGHT}
+            monochrome
+            className="text-text-secondary transition-colors hover:text-text-primary"
+          />
+        ))}
+        {community.map((sponsor, index) => (
+          <SponsorLogo
+            key={sponsor.genId}
+            sponsor={sponsor}
+            // Offset by the full premium row rather than by how many premium
+            // creatives happened to fill it, so a slot index means the same
+            // position from one session to the next.
+            slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
+            cap={COMMUNITY_CAP}
+            boxWidth={SLOT_WIDTH}
+            maxHeight={WALL_MAX_HEIGHT}
+            monochrome
+            className="text-text-tertiary transition-colors hover:text-text-primary"
+          />
+        ))}
+      </div>
     </div>
   </div>
 );
@@ -155,6 +164,13 @@ export const SponsorStrip = ({
   } = useSponsorStripAds({
     enabled: true,
   });
+  // Read here rather than passed down: the dock is mounted inside the same
+  // providers as the feed, and the calc behind `feedWidth` needs these.
+  const { numCards } = useContext(FeedContext);
+  const widthStyle = {
+    '--num-cards': numCards.eco,
+    '--feed-gap': '2rem',
+  } as CSSProperties;
   const hasSponsors = !!gold || !!premium.length || !!community.length;
   const showSponsorRow = hasSponsors || !adsSettled;
   const showHeadlines = !!headlines.length || !headlinesSettled;
@@ -188,9 +204,12 @@ export const SponsorStrip = ({
           premium={premium}
           community={community}
           wallRef={wallRef}
+          widthStyle={widthStyle}
         />
       )}
-      {showHeadlines && <SponsorStripHeadlines headlines={headlines} />}
+      {showHeadlines && (
+        <SponsorStripHeadlines headlines={headlines} widthStyle={widthStyle} />
+      )}
     </div>
   );
 };

@@ -72,7 +72,7 @@ const GOLD_COMPANY = 'Google Cloud';
  * in an `<img>` never reports one.
  */
 const WORDMARK_X = 36;
-const GOLD_WIDTH = WORDMARK_X + GOLD_COMPANY.length * 11 + 6;
+const GOLD_WIDTH = WORDMARK_X + GOLD_COMPANY.length * 9.25 + 6;
 
 /**
  * A lockup rather than a word, so the paid slot reads as a logo at a glance
@@ -85,7 +85,7 @@ const GOLD_WIDTH = WORDMARK_X + GOLD_COMPANY.length * 11 + 6;
  * one is the part a real creative would replace anyway.
  */
 const goldLockup = (wordmark: string): string => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${GOLD_WIDTH}" height="32" viewBox="0 0 ${GOLD_WIDTH} 32"><g transform="translate(-1.73 1.45) scale(0.2366)">${GOOGLE_CLOUD_MARK}</g><text x="${WORDMARK_X}" y="22" font-family="Verdana,Geneva,sans-serif" font-size="17" font-weight="700" fill="${wordmark}">${GOLD_COMPANY}</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${GOLD_WIDTH}" height="32" viewBox="0 0 ${GOLD_WIDTH} 32"><g transform="translate(-1.73 1.45) scale(0.2366)">${GOOGLE_CLOUD_MARK}</g><text x="${WORDMARK_X}" y="22" font-family="'Google Sans','Product Sans',Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="${wordmark}">${GOLD_COMPANY}</text></svg>`;
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
