@@ -17,6 +17,9 @@
 export const PREFERRED_SOURCE_SCRIPT_ID = 'google-preferred-source';
 export const PREFERRED_SOURCE_SRC =
   'https://news.google.com/swg/js/v1/publisher.js';
+
+/** How long to wait for Google's script before falling back to the deeplink. */
+export const PREFERRED_SOURCE_TIMEOUT_MS = 4000;
 export const PREFERRED_SOURCE_DEEPLINK =
   'https://www.google.com/preferences/source';
 

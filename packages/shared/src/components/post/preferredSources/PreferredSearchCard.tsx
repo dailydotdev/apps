@@ -112,7 +112,7 @@ export function PreferredSearchCard({
   /** Rendered instead when the prompt is not eligible — e.g. the placeholder. */
   fallback?: ReactElement | null;
 } = {}): ReactElement | null {
-  const { isEligible, isReady, onAdd, onDismiss, onImpression } =
+  const { isEligible, isReady, useDeeplink, onAdd, onDismiss, onImpression } =
     usePreferredSource({ placement: 'feed ad fallback' });
 
   useEffect(() => {
@@ -136,6 +136,7 @@ export function PreferredSearchCard({
       <PreferGoogleButton
         className="mt-auto w-full"
         isReady={isReady}
+        useDeeplink={useDeeplink}
         onAdd={onAdd}
         size={ButtonSize.Small}
         variant={ButtonVariant.Primary}

@@ -3,6 +3,7 @@ import { ThemeMode, useSettingsContext } from '../contexts/SettingsContext';
 import {
   PREFERRED_SOURCE_SCRIPT_ID,
   PREFERRED_SOURCE_SRC,
+  PREFERRED_SOURCE_TIMEOUT_MS,
 } from '../lib/preferredSources';
 
 type PreferredSourceTheme = 'light' | 'dark';
@@ -46,10 +47,20 @@ export const useGooglePreferredSource = ({
 }: {
   enabled?: boolean;
   lang?: string;
-} = {}): { isReady: boolean; addPreferredSource: () => void } => {
+} = {}): {
+  isReady: boolean;
+  hasFailed: boolean;
+  addPreferredSource: () => void;
+} => {
   const { themeMode } = useSettingsContext();
   const [isReady, setIsReady] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
   const apiRef = useRef<PreferredSourceApi>();
+  // Read at callback time, not closed over: the effect must not re-run when the
+  // reader flips the theme, because every run pushes another callback onto a
+  // queue with no way to remove one.
+  const themeRef = useRef(themeMode);
+  themeRef.current = themeMode;
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') {
@@ -64,12 +75,24 @@ export const useGooglePreferredSource = ({
       }
 
       apiRef.current = api;
-      api.init({ theme: resolveTheme(themeMode), lang });
+      api.init({ theme: resolveTheme(themeRef.current), lang });
       setIsReady(true);
     };
 
     globalThis.PREFERRED_SOURCE = globalThis.PREFERRED_SOURCE || [];
     globalThis.PREFERRED_SOURCE.push(onApi);
+
+    // `news.google.com/swg/...` is exactly the shape of host a content blocker
+    // eats, and a blocked script fires no error in every browser — so the
+    // timeout is the real detector and `onerror` only makes it faster. Without
+    // one of them the button stays disabled forever, which is worse than not
+    // offering it: callers switch to the deeplink, which needs no script.
+    const fail = () => {
+      if (!cancelled) {
+        setHasFailed(true);
+      }
+    };
+    const timeout = setTimeout(fail, PREFERRED_SOURCE_TIMEOUT_MS);
 
     if (!document.getElementById(PREFERRED_SOURCE_SCRIPT_ID)) {
       const script = document.createElement('script');
@@ -77,17 +100,19 @@ export const useGooglePreferredSource = ({
       script.src = PREFERRED_SOURCE_SRC;
       script.async = true;
       script.setAttribute('preferred-sources-control', 'manual');
+      script.addEventListener('error', fail);
       document.head.appendChild(script);
     }
 
     return () => {
       cancelled = true;
+      clearTimeout(timeout);
     };
-  }, [enabled, lang, themeMode]);
+  }, [enabled, lang]);
 
   const addPreferredSource = useCallback(() => {
     apiRef.current?.addPreferredSource();
   }, []);
 
-  return { isReady, addPreferredSource };
+  return { isReady, hasFailed, addPreferredSource };
 };

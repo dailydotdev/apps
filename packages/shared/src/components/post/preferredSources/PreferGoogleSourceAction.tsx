@@ -11,9 +11,10 @@ import { PreferGoogleButton } from './PreferGoogleButton';
  * column down.
  */
 export function PreferGoogleSourceAction(): ReactElement | null {
-  const { isEligible, isReady, onAdd, onImpression } = usePreferredSource({
-    placement: 'post widgets',
-  });
+  const { isEligible, isReady, useDeeplink, onAdd, onImpression } =
+    usePreferredSource({
+      placement: 'post widgets',
+    });
 
   useEffect(() => {
     if (isEligible) {
@@ -31,6 +32,7 @@ export function PreferGoogleSourceAction(): ReactElement | null {
       <PreferGoogleButton
         className="w-full"
         isReady={isReady}
+        useDeeplink={useDeeplink}
         onAdd={onAdd}
         size={ButtonSize.Small}
         variant={ButtonVariant.Float}

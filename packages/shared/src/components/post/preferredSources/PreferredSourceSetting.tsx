@@ -20,7 +20,7 @@ import { PreferGoogleButton } from './PreferGoogleButton';
  * already added us, and a switch would promise a state we cannot show.
  */
 export function PreferredSourceSetting(): ReactElement {
-  const { isReady, addPreferredSource } = useGooglePreferredSource();
+  const { isReady, hasFailed, addPreferredSource } = useGooglePreferredSource();
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -40,6 +40,7 @@ export function PreferredSourceSetting(): ReactElement {
       </div>
       <PreferGoogleButton
         isReady={isReady}
+        useDeeplink={hasFailed}
         label="Add"
         onAdd={addPreferredSource}
         size={ButtonSize.Small}

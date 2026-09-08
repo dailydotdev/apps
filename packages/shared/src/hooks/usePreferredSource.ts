@@ -24,6 +24,11 @@ export type UsePreferredSource = {
   /** The flag is on and the reader has not answered yet. */
   isEligible: boolean;
   isReady: boolean;
+  /**
+   * Google's script never arrived. Render the deeplink instead — it needs no
+   * script, so the ask still works for a reader running a content blocker.
+   */
+  useDeeplink: boolean;
   /** Opens Google's flow, logs the click and silences every other surface. */
   onAdd: () => void;
   /** Silences every surface without opening Google. */
@@ -92,7 +97,7 @@ export const usePreferredSource = ({
   const isEligible =
     gate && (!!isEnabled || isForced) && isStateLoaded && !state;
 
-  const { isReady, addPreferredSource } = useGooglePreferredSource({
+  const { isReady, hasFailed, addPreferredSource } = useGooglePreferredSource({
     enabled: isEligible,
   });
 
@@ -123,5 +128,12 @@ export const usePreferredSource = ({
     setState('dismissed');
   }, [logEvent, placement, setState]);
 
-  return { isEligible, isReady, onAdd, onDismiss, onImpression };
+  return {
+    isEligible,
+    isReady,
+    useDeeplink: hasFailed,
+    onAdd,
+    onDismiss,
+    onImpression,
+  };
 };
