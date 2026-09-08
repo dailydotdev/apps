@@ -16,20 +16,12 @@ import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { playShutterSound } from '../../features/snapshot/shutterSound';
-import { SNAPSHOT_SIZE } from '../../features/snapshot/snapshotGradient';
+import { getSnapshotCaptureOptions } from '../../features/snapshot/snapshotCapture';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
 
 /** Matches the snapshot-shutter-sweep animation in utilities.css. */
 const SHUTTER_SWEEP_MS = 380;
-
-/** A designed card is already square and carries its own logo. */
-const CARD_CAPTURE_OPTIONS: CaptureShareImageOptions = {
-  width: SNAPSHOT_SIZE,
-  height: SNAPSHOT_SIZE,
-  padding: 0,
-  branded: false,
-};
 
 export interface SnapshotButtonProps {
   /**
@@ -106,7 +98,9 @@ export function SnapshotButton({
 
         const capture = captureShareImage(
           subject,
-          captureOptions ?? (card ? CARD_CAPTURE_OPTIONS : undefined),
+          // Measured, not assumed: a grown card is taller than the square.
+          captureOptions ??
+            (card ? getSnapshotCaptureOptions(cardRef.current) : undefined),
         );
 
         if (onCapture) {

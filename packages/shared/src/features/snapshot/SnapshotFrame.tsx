@@ -1,15 +1,28 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { forwardRef } from 'react';
+import classNames from 'classnames';
 import LogoIcon from '../../svg/LogoIcon';
 import LogoText from '../../svg/LogoText';
-import { getSnapshotGradient, SNAPSHOT_SIZE } from './snapshotGradient';
+import {
+  getSnapshotGradient,
+  SNAPSHOT_MAX_HEIGHT,
+  SNAPSHOT_SIZE,
+} from './snapshotGradient';
 
 export const SNAPSHOT_CARD_SIZE = 780;
+/**
+ * A page-shaped card: the gradient stays as a border rather than a stage, so
+ * the copy gets the room instead. Surfaces where the text *is* the payload use
+ * it — a wide margin around a cramped article is space spent on nothing.
+ */
+export const SNAPSHOT_CARD_WIDE = 1008;
 /** Canvas minus the logo row and the gaps either side of the card. */
 export const SNAPSHOT_CARD_MAX = SNAPSHOT_SIZE - 150;
 
 const CARD_RADIUS = 48;
 const CARD_EDGE = 2;
+const CARD_PADDING = 58;
+const CARD_PADDING_WIDE = 32;
 
 /**
  * The App Store device frame: a lit hairline that is brightest along the top
@@ -33,8 +46,24 @@ interface SnapshotFrameProps {
   logoPlacement?: SnapshotLogoPlacement;
   /** A glyph bled across the card body at low opacity, behind the content. */
   watermark?: string;
+  /**
+   * Sits on the logo row, far right — for a surface label that belongs with
+   * the mark rather than with the copy.
+   */
+  logoAside?: ReactNode;
   /** Drop the card shell and stand the children straight on the gradient. */
   bare?: boolean;
+  /**
+   * Let the height follow the content instead of holding 1:1. Text surfaces
+   * use it so the image can carry more than a screenshot would; it still
+   * starts at the square and stops at SNAPSHOT_MAX_HEIGHT.
+   */
+  grow?: boolean;
+  /**
+   * Widen the card to SNAPSHOT_CARD_WIDE and tighten its padding, for surfaces
+   * whose copy needs the room more than the frame needs the margin.
+   */
+  wide?: boolean;
   children: ReactNode;
 }
 
@@ -42,12 +71,17 @@ function SnapshotFrameComponent(
   {
     seed,
     watermark,
+    logoAside,
     bare,
+    grow,
+    wide,
     logoPlacement = 'inline',
     children,
   }: SnapshotFrameProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
+  const cardWidth = wide ? SNAPSHOT_CARD_WIDE : SNAPSHOT_CARD_SIZE;
+  const gutter = (SNAPSHOT_SIZE - cardWidth) / 2;
   const isOverlaid = logoPlacement !== 'inline';
   const overlayStyle = {
     position: 'absolute' as const,
@@ -65,19 +99,38 @@ function SnapshotFrameComponent(
     </div>
   );
 
+  const logoRow = logoAside ? (
+    <div className="flex w-full items-center justify-between gap-4">
+      {logo}
+      {logoAside}
+    </div>
+  ) : (
+    logo
+  );
+
   return (
     <div
       ref={ref}
       className="flex flex-col items-center justify-center gap-9"
       style={{
         width: SNAPSHOT_SIZE,
-        height: SNAPSHOT_SIZE,
         background: getSnapshotGradient(seed),
+        ...(grow
+          ? {
+              // No floor: the frame is whatever the card needs plus its
+              // gutter, so a short card gives a short image rather than one
+              // padded out to the square.
+              maxHeight: SNAPSHOT_MAX_HEIGHT,
+              // justify-center has nothing to distribute once the height
+              // follows the card, so the gutter has to be explicit.
+              paddingBlock: gutter,
+            }
+          : { height: SNAPSHOT_SIZE }),
       }}
     >
       {/* Standing alone on the gradient, the collectible has no card to sit
           in: the mark leads above it, or floats over its artwork. */}
-      {bare && !isOverlaid && logo}
+      {bare && !isOverlaid && logoRow}
 
       {bare ? (
         <div className="relative">
@@ -87,8 +140,10 @@ function SnapshotFrameComponent(
       ) : (
         <div
           style={{
-            width: SNAPSHOT_CARD_SIZE,
-            minHeight: SNAPSHOT_CARD_SIZE,
+            width: cardWidth,
+            ...(grow
+              ? { maxHeight: SNAPSHOT_MAX_HEIGHT - gutter * 2 }
+              : { minHeight: SNAPSHOT_SIZE - gutter * 2 }),
             padding: CARD_EDGE,
             borderRadius: CARD_RADIUS,
             background: CARD_EDGE_GRADIENT,
@@ -96,10 +151,15 @@ function SnapshotFrameComponent(
           }}
         >
           <div
-            className="relative flex h-full flex-col gap-7 overflow-hidden"
+            className={classNames(
+              'relative flex h-full flex-col overflow-hidden',
+              wide ? 'gap-5' : 'gap-7',
+            )}
             style={{
-              minHeight: SNAPSHOT_CARD_SIZE - CARD_EDGE * 2,
-              padding: 58,
+              ...(!grow && {
+                minHeight: SNAPSHOT_SIZE - gutter * 2 - CARD_EDGE * 2,
+              }),
+              padding: wide ? CARD_PADDING_WIDE : CARD_PADDING,
               borderRadius: CARD_RADIUS - CARD_EDGE,
               background: CARD_BODY,
             }}
@@ -123,7 +183,7 @@ function SnapshotFrameComponent(
             )}
             {isOverlaid && logo}
             <div className="relative flex flex-1 flex-col gap-7">
-              {!isOverlaid && logo}
+              {!isOverlaid && logoRow}
               {children}
             </div>
           </div>
