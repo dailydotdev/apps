@@ -3,6 +3,7 @@ import type { Post } from '../../graphql/posts';
 import { postDateFormat } from '../../lib/dateFormat';
 import { largeNumberFormat } from '../../lib';
 import type { PollSnapshotCardProps } from './PollSnapshotCard';
+import { snapshotSource } from './snapshotSource';
 
 /**
  * The card renders what it is handed rather than recomputing anything, so the
@@ -44,7 +45,7 @@ export function pollSnapshotFromPost(post: Post): PollSnapshotCardProps | null {
         text: option.text,
         share: Math.round(((option.numVotes ?? 0) / total) * 100),
       })),
-    source: post.source ? { name: post.source.name } : undefined,
+    source: snapshotSource(post),
     seed: post.id,
   };
 }

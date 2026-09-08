@@ -21,6 +21,7 @@ import { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
 import { getSnapshotCaptureOptions } from './snapshotCapture';
+import { snapshotSource } from './snapshotSource';
 import type { TextSelection } from './useTextSelection';
 import { useTextSelection } from './useTextSelection';
 
@@ -141,11 +142,7 @@ export function SelectionSnapshotBar({
         <HighlightTextSnapshotCard
           ref={cardRef}
           seed={post.id}
-          source={
-            post.source
-              ? { name: post.source.name, image: post.source.image }
-              : undefined
-          }
+          source={snapshotSource(post)}
           text={quote.text}
         />
       </div>
