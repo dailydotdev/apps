@@ -40,10 +40,12 @@ export const SidebarTourOverlay = ({
   } = tour;
   const { value: isCompact, toggle: toggleCompact } = useSidebarCompact();
   const anchor = useCoachAnchor(step?.target, isRunning);
-  const { isOpen, onUpdate } = useInteractivePopup(RAIL_POPUP_GROUP);
+  const { isOpen, isGroupOpen, onUpdate } =
+    useInteractivePopup(RAIL_POPUP_GROUP);
   const { events } = useRouter();
   const wasGroupOpenRef = useRef(false);
   const hasFocusedRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // The dock step's whole sentence is "or add one from the 3-dot menu", so opening
   // that menu is the lesson being followed, not the user reaching past the
@@ -74,15 +76,32 @@ export const SidebarTourOverlay = ({
     wasGroupOpenRef.current = false;
   }, [interrupt, isOpen, shouldHoldPopupGroup]);
 
-  // The rail stays clickable above the scrim, so a tab or shortcut click
-  // navigates out from under the tour. Without this the scrim and card ride
-  // along to the new page pointing at a ring that no longer means anything.
+  // A real navigation takes the page the rail was pointing at away, so the tour
+  // goes with it rather than riding along to a ring that no longer means
+  // anything. Only a real one, though: `routeChangeStart` also fires for
+  // rewrites the user never asked for — useNotificationParams replaces the URL
+  // to strip notification params on mount, useSquadNavigation strips its own
+  // query, and the feed's post modal pushes shallow. Each of those would end a
+  // run and log a user reaching past the tour when nobody reached anywhere.
   useEffect(() => {
     if (!isRunning) {
       return undefined;
     }
 
-    const onNavigate = () => interrupt('navigation');
+    const onNavigate = (url?: string, options?: { shallow?: boolean }) => {
+      if (options?.shallow) {
+        return;
+      }
+
+      const [nextPath] = url?.split(/[?#]/) ?? [];
+
+      if (nextPath && nextPath === globalThis.window?.location.pathname) {
+        return;
+      }
+
+      interrupt('navigation');
+    };
+
     events.on('routeChangeStart', onNavigate);
     return () => events.off('routeChangeStart', onNavigate);
   }, [events, interrupt, isRunning]);
@@ -127,12 +146,67 @@ export const SidebarTourOverlay = ({
         return;
       }
 
+      // The dock step invites the ••• tray open beside the card, and the tray
+      // has no Escape handler of its own to mark the key as handled. Without
+      // this, the natural way to close the tray also skips the tour, which is
+      // the one ending meant to be final.
+      if (isGroupOpen) {
+        return;
+      }
+
       skip();
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isRunning, skip]);
+  }, [isGroupOpen, isRunning, skip]);
+
+  // The card claims `aria-modal`, and the rail behind it is inert, but the page
+  // behind the scrim is still tabbable. Wrapping Tab at the card's own edges is
+  // what makes that claim true for a keyboard.
+  useEffect(() => {
+    if (!isRunning) {
+      return undefined;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      const container = containerRef.current;
+
+      if (event.key !== 'Tab' || !container) {
+        return;
+      }
+
+      const focusable = Array.from(
+        container.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+
+      if (!focusable.length) {
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      const isLeavingBackwards = event.shiftKey && active === first;
+      const isLeavingForwards = !event.shiftKey && active === last;
+
+      if (!container.contains(active)) {
+        event.preventDefault();
+        first.focus();
+        return;
+      }
+
+      if (isLeavingBackwards || isLeavingForwards) {
+        event.preventDefault();
+        (isLeavingBackwards ? last : first).focus();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isRunning]);
 
   if (!isRunning || !step) {
     return null;
@@ -154,11 +228,13 @@ export const SidebarTourOverlay = ({
       </RootPortal>
       <CoachPopover
         anchor={anchor}
+        containerRef={containerRef}
         isOpen
         stepKey={step.id}
         highlight={step.highlight}
         align={step.align}
         dialogLabel="Sidebar tour"
+        isModal
         message={step.message}
         media={
           step.media === 'dockDrag' && (

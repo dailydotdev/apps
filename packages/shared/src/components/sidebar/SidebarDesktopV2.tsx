@@ -1262,6 +1262,25 @@ export const SidebarDesktopV2 = ({
   );
   const [safeZoneActive, setSafeZoneActive] = useState(false);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+  // `pointer-events-none` only makes the rail inert for a mouse: every tab, the
+  // dock and Support stay in the tab order behind the scrim, so a keyboard user
+  // could land on a control that is visible but unusable, and Enter would
+  // navigate out from under the tour. `inert` removes the whole subtree from
+  // hit-testing AND from the tab order, which is what the card's `aria-modal`
+  // claims. Set as a property because React 18 does not carry the attribute.
+  useEffect(() => {
+    const node = sidebarRef.current;
+
+    if (!node) {
+      return undefined;
+    }
+
+    node.inert = isTourRunning;
+    return () => {
+      node.inert = false;
+    };
+  }, [isTourRunning]);
+
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
     if (loadedSettings) {
@@ -2156,10 +2175,10 @@ export const SidebarDesktopV2 = ({
           // the page chrome. The rail is the one thing the tour is talking
           // about, so it steps up a tier for the duration.
           isTourRunning && 'laptop:!z-tooltip',
-          // Inert for the duration. The rail stays lifted and readable, but a
-          // hover must not open a panel over the card and a click must not
-          // navigate out from under the tour. The card portals outside the
-          // aside, so its own controls stay live.
+          // Belt to the `inert` property's braces below: the rail stays lifted
+          // and readable, but a hover must not open a panel over the card and a
+          // click must not navigate out from under the tour. The card portals
+          // outside the aside, so its own controls stay live.
           isTourRunning && 'pointer-events-none',
           suppressTransition,
         )}
@@ -2647,7 +2666,11 @@ export const SidebarDesktopV2 = ({
       <SidebarTourOverlay tour={tour} />
       <PinCoach
         coach={tour.pinCoach}
-        isPanelOpen={isExpanded && !showCreatePanel && !!hoveredCategory}
+        // Any open panel, not only a previewed one. A pinned-expanded sidebar
+        // has the pinnable rows and the dock on screen continuously, and gating
+        // on the hover would have made the new-user arm's main lesson depend on
+        // a gesture that reader never performs.
+        isPanelOpen={isExpanded && !showCreatePanel && !isSettingsSelected}
       />
       <DotsCoach state={dotsCoach} />
     </SidebarDragStateProvider>

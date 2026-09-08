@@ -34,7 +34,10 @@ const updateFlag = jest.fn().mockResolvedValue(undefined);
 const logEvent = jest.fn();
 // The rail navigates from above the scrim, so the tour has to hear the route
 // change; the global router mock carries no event emitter.
-const routeHandlers = new Map<string, () => void>();
+const routeHandlers = new Map<
+  string,
+  (url?: string, shallow?: boolean) => void
+>();
 // The one class the tour adds to the rail itself, lifting it over the scrim.
 const RAIL_TOUR_LIFT_CLASS = 'laptop:!z-tooltip';
 // The tour auto-starts on a grace timer, so every assertion about it needs more
@@ -89,8 +92,13 @@ describe('sidebar tour wiring', () => {
       asPath: '/',
       push: jest.fn(),
       events: {
-        on: (event: string, handler: () => void) =>
-          routeHandlers.set(event, handler),
+        on: (
+          event: string,
+          handler: (url?: string, options?: { shallow?: boolean }) => void,
+        ) =>
+          routeHandlers.set(event, (url?: string, shallow?: boolean) =>
+            handler(url, { shallow }),
+          ),
         off: (event: string) => routeHandlers.delete(event),
         emit: jest.fn(),
       },
@@ -272,6 +280,25 @@ describe('sidebar tour wiring', () => {
       );
     });
 
+    it('ignores a rewrite of the URL the user is already on', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      // useNotificationParams replaces the URL on mount to strip its params,
+      // useSquadNavigation strips its own query, and the feed's post modal
+      // pushes shallow. None of them is the user reaching past the tour.
+      act(() => routeHandlers.get('routeChangeStart')?.('/?notify=welcome'));
+      act(() => routeHandlers.get('routeChangeStart')?.('/other', true));
+
+      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+      expect(logEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.EndSidebarTour }),
+      );
+    });
+
     it('never starts on top of a modal that already owns the screen', async () => {
       renderRail(true, true);
 
@@ -397,9 +424,43 @@ describe('sidebar tour wiring', () => {
 
       // Hover would open a panel over the card and a click would navigate out
       // from under the tour; both are the user's own pointer, not a dismissal.
-      expect(screen.getByTestId('sidebar-aside')).toHaveClass(
-        'pointer-events-none',
+      const aside = screen.getByTestId('sidebar-aside');
+      expect(aside).toHaveClass('pointer-events-none');
+      // And the keyboard half: `inert` also takes the rail out of the tab
+      // order, so tabbing off the card cannot land on a control the pointer
+      // can no longer reach.
+      expect(aside.inert).toBe(true);
+
+      fireEvent.click(screen.getByText('Skip tour'));
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('sidebar-tour-scrim'),
+        ).not.toBeInTheDocument(),
       );
+      expect(aside.inert).toBe(false);
+    });
+
+    it('keeps focus inside the card when Tab reaches its last control', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      const card = screen.getByRole('dialog', { name: 'Sidebar tour' });
+      const next = screen.getByText('Next').closest('button');
+      next?.focus();
+
+      // Tab off the card's last control wraps to its first rather than landing
+      // on the page behind the scrim, which is what `aria-modal` promises.
+      fireEvent.keyDown(window, { key: 'Tab' });
+
+      expect(next).not.toHaveFocus();
+      expect(card.contains(document.activeElement)).toBe(true);
+
+      fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
+
+      expect(next).toHaveFocus();
     });
 
     it('renames the support entry and files it under Changelog', async () => {
@@ -462,6 +523,16 @@ describe('sidebar tour wiring', () => {
       );
       expect(logEvent).not.toHaveBeenCalledWith(
         expect.objectContaining({ event_name: LogEvent.EndSidebarTour }),
+      );
+
+      // Escape is how the tray is closed, and the tray does not mark the key as
+      // handled. Skipping is the one ending meant to be final, so it must not
+      // be what a user gets for closing the menu the step invited them into.
+      fireEvent.keyDown(window, { key: 'Escape' });
+
+      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+      expect(logEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
       );
 
       fireEvent.click(screen.getByText('Next'));

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
@@ -29,6 +30,30 @@ export const SIDEBAR_TOUR_SEEN_KEY = 'sidebar_tour_seen';
 export const SIDEBAR_PIN_COACH_KEY = 'sidebar_pin_coach';
 export const SIDEBAR_DOTS_COACH_KEY = 'sidebar_dots_coach';
 
+// idb-keyval is per-browser, not per-account, so a shared machine would hand
+// the second person the first person's progress: an existing user signing in
+// after someone finished the tour would never see it, and both coaches would
+// arrive pre-retired. Scoping by id also makes the eventual move to ActionType
+// a straight swap rather than a change of shape.
+const coachKey = (key: string, userId?: string): string =>
+  `${key}:${userId ?? 'anonymous'}`;
+
+// The rail rides MainLayout on every laptop route, so an ungated timer
+// spotlights whatever the user actually came for: an article opened from an
+// email, the Plus checkout, a squad. The tour only starts where the rail is
+// what the page is for, and any other route hands it to the next feed visit —
+// an unstarted tour writes nothing, so nothing is spent by waiting.
+export const TOUR_AUTO_START_ROUTES = [
+  // The main feed, and the extension's new tab.
+  '/',
+  '/my-feed',
+  '/popular',
+  '/upvoted',
+  '/discussed',
+  '/following',
+  '/feeds/[slugOrId]',
+];
+
 // Both ambient coaches retire on success or after this many exposures,
 // whichever comes first. Success writes the cap so one counter says both.
 export const COACH_MAX_EXPOSURES = 3;
@@ -56,6 +81,13 @@ interface CoachCounter {
 const useCoachCounter = (key: string): CoachCounter => {
   const [stored, setStored, isFetched] = usePersistentContext<number>(key, 0);
   const countRef = useRef(0);
+  // The ref only ever moves up, so switching accounts inside one session would
+  // otherwise carry the previous person's exposures onto the new key.
+  const keyRef = useRef(key);
+  if (keyRef.current !== key) {
+    keyRef.current = key;
+    countRef.current = 0;
+  }
   const count = Math.max(countRef.current, stored ?? 0);
   countRef.current = count;
 
@@ -103,6 +135,7 @@ export const useSidebarTourState = (): SidebarTourState => {
   const { isAuthReady, user } = useAuthContext();
   const { isV2 } = useLayoutVariant();
   const { logEvent } = useLogContext();
+  const router = useRouter();
 
   const shouldEvaluate = isV2 && isAuthReady && !!user;
   const { value: isFeatureEnabled } = useConditionalFeature({
@@ -115,9 +148,14 @@ export const useSidebarTourState = (): SidebarTourState => {
   });
 
   const [isTourSeen, setTourSeen, isTourSeenFetched] =
-    usePersistentContext<boolean>(SIDEBAR_TOUR_SEEN_KEY, false);
-  const pinCounter = useCoachCounter(SIDEBAR_PIN_COACH_KEY);
-  const dotsCounter = useCoachCounter(SIDEBAR_DOTS_COACH_KEY);
+    usePersistentContext<boolean>(
+      coachKey(SIDEBAR_TOUR_SEEN_KEY, user?.id),
+      false,
+    );
+  const pinCounter = useCoachCounter(coachKey(SIDEBAR_PIN_COACH_KEY, user?.id));
+  const dotsCounter = useCoachCounter(
+    coachKey(SIDEBAR_DOTS_COACH_KEY, user?.id),
+  );
 
   // Nothing renders until every flag has come back from storage, so a tour that
   // was already seen never flashes on the way to being read.
@@ -315,6 +353,7 @@ export const useSidebarTourState = (): SidebarTourState => {
     canAutoStart:
       isEnabled &&
       isExistingUser &&
+      TOUR_AUTO_START_ROUTES.includes(router?.pathname) &&
       !isTourSeen &&
       !hasEndedThisSession &&
       !steps,

@@ -3,6 +3,8 @@ import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
@@ -42,10 +44,17 @@ jest.mock('idb-keyval', () => {
   };
 });
 
+// Every key is scoped to the account it belongs to, so the specs assert on the
+// prefix and keep the id itself out of the expectations.
 const writesTo = (key: string): unknown[] =>
   mockStorageWrites
-    .filter(([written]) => written === key)
+    .filter(([written]) => written.startsWith(`${key}:`))
     .map(([, value]) => value);
+
+const keysWrittenFor = (key: string): string[] =>
+  mockStorageWrites
+    .filter(([written]) => written.startsWith(`${key}:`))
+    .map(([written]) => written);
 
 // A rollout day, and an account either side of it.
 const ROLLOUT_DAY = '2026-09-01T00:00:00.000Z';
@@ -126,6 +135,13 @@ describe('useSidebarTourState', () => {
     jest.clearAllMocks();
     mockStorageWrites.length = 0;
     mockShouldFailWrites = false;
+    // A route the tour is allowed to start on, restored per test because
+    // `mockReturnValue` outlives `clearAllMocks`.
+    jest.mocked(useRouter).mockReturnValue({
+      query: {},
+      pathname: '/',
+      push: jest.fn(),
+    } as unknown as NextRouter);
     unmountRail = mountRail();
   });
 
@@ -149,6 +165,32 @@ describe('useSidebarTourState', () => {
     const { result } = await renderEnabledTour();
 
     expect(result.current.canAutoStart).toBe(true);
+  });
+
+  it('holds the auto-start back on routes the rail is not the point of', async () => {
+    jest.mocked(useRouter).mockReturnValue({
+      query: {},
+      pathname: '/posts/[id]',
+      push: jest.fn(),
+    } as unknown as NextRouter);
+
+    const { result } = await renderEnabledTour();
+
+    expect(result.current.isEnabled).toBe(true);
+    expect(result.current.canAutoStart).toBe(false);
+  });
+
+  it('scopes what it remembers to the account that learned it', async () => {
+    const { result } = await renderEnabledTour();
+
+    act(() => result.current.start('auto'));
+    act(() => result.current.finish());
+
+    await act(async () => undefined);
+
+    expect(keysWrittenFor(SIDEBAR_TOUR_SEEN_KEY)).toEqual([
+      `${SIDEBAR_TOUR_SEEN_KEY}:${existingUser.id}`,
+    ]);
   });
 
   it('does not offer the tour to a user who joined after the rollout', async () => {
