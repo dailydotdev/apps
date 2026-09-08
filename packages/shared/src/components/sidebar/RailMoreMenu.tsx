@@ -2,7 +2,12 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { MenuIcon } from '../icons';
-import { RAIL_ICON_SIZE, railTabClass, railTabLabelClass } from './common';
+import {
+  RAIL_ICON_SIZE,
+  RAIL_POPUP_GROUP,
+  railTabClass,
+  railTabLabelClass,
+} from './common';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { RootPortal } from '../tooltips/Portal';
@@ -23,7 +28,8 @@ export const RailMoreMenu = ({
   compact?: boolean;
   children: ReactNode;
 }): ReactElement => {
-  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup('sidebar-rail');
+  const { isOpen, onUpdate, wrapHandler } =
+    useInteractivePopup(RAIL_POPUP_GROUP);
   const btnRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   useOutsideClick(popupRef, () => onUpdate(false), isOpen);
