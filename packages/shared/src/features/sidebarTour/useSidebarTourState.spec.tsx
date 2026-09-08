@@ -13,10 +13,10 @@ import {
   featureSidebarTourExistingBefore,
 } from '../../lib/featureManagement';
 import { LogEvent } from '../../lib/log';
+import { ActionType } from '../../graphql/actions';
 import {
   COACH_MAX_EXPOSURES,
   SIDEBAR_PIN_COACH_KEY,
-  SIDEBAR_TOUR_SEEN_KEY,
   useSidebarTourState,
 } from './useSidebarTourState';
 
@@ -26,6 +26,29 @@ jest.mock('../../hooks/layout/useLayoutVariant', () => ({
 
 const mockStorageWrites: Array<[string, unknown]> = [];
 let mockShouldFailWrites = false;
+
+// The seen-flag is a user action now. Stateful, so `checkHasCompleted` answers
+// the write the hook just made the way the real cache would.
+const mockCompletedActions: ActionType[] = [];
+let mockShouldFailAction = false;
+const mockCompleteAction = jest.fn((type: ActionType) => {
+  if (mockShouldFailAction) {
+    return Promise.reject(new Error('actions unavailable'));
+  }
+
+  mockCompletedActions.push(type);
+  return Promise.resolve();
+});
+
+jest.mock('../../hooks/useActions', () => ({
+  useActions: () => ({
+    actions: [],
+    completeAction: mockCompleteAction,
+    checkHasCompleted: (type: ActionType) =>
+      mockCompletedActions.includes(type),
+    isActionsFetched: true,
+  }),
+}));
 
 jest.mock('idb-keyval', () => {
   const actual = jest.requireActual('idb-keyval');
@@ -135,6 +158,8 @@ describe('useSidebarTourState', () => {
     jest.clearAllMocks();
     mockStorageWrites.length = 0;
     mockShouldFailWrites = false;
+    mockCompletedActions.length = 0;
+    mockShouldFailAction = false;
     // A route the tour is allowed to start on, restored per test because
     // `mockReturnValue` outlives `clearAllMocks`.
     jest.mocked(useRouter).mockReturnValue({
@@ -188,8 +213,19 @@ describe('useSidebarTourState', () => {
 
     await act(async () => undefined);
 
-    expect(keysWrittenFor(SIDEBAR_TOUR_SEEN_KEY)).toEqual([
-      `${SIDEBAR_TOUR_SEEN_KEY}:${existingUser.id}`,
+    // The tour's own flag is an action, so it is the account's without a key.
+    expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.SidebarTourSeen);
+  });
+
+  it('keeps the coach counters on a key of their own account', async () => {
+    const { result } = await renderEnabledTour({ user: newUser });
+
+    await act(async () => {
+      result.current.pinCoach.onShown();
+    });
+
+    expect(keysWrittenFor(SIDEBAR_PIN_COACH_KEY)).toEqual([
+      `${SIDEBAR_PIN_COACH_KEY}:${newUser.id}`,
     ]);
   });
 
@@ -286,7 +322,7 @@ describe('useSidebarTourState', () => {
     act(() => result.current.interrupt('modal'));
 
     expect(result.current.isRunning).toBe(false);
-    expect(writesTo(SIDEBAR_TOUR_SEEN_KEY)).toEqual([]);
+    expect(mockCompleteAction).not.toHaveBeenCalled();
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.EndSidebarTour,
@@ -339,7 +375,7 @@ describe('useSidebarTourState', () => {
 
     await waitFor(() => expect(result.current.canAutoStart).toBe(false));
     expect(result.current.isRunning).toBe(false);
-    expect(writesTo(SIDEBAR_TOUR_SEEN_KEY)).toEqual([true]);
+    expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.SidebarTourSeen);
     expect(eventsNamed(LogEvent.CompleteSidebarTour)).toHaveLength(0);
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -471,12 +507,12 @@ describe('useSidebarTourState', () => {
     await waitFor(() => expect(result.current.stepCount).toBe(0));
     expect(result.current.isRunning).toBe(false);
     // The user never acted on the tour, so nothing about it was learned.
-    expect(writesTo(SIDEBAR_TOUR_SEEN_KEY)).toEqual([]);
+    expect(mockCompleteAction).not.toHaveBeenCalled();
   });
 
   it('stays gone for the session when the seen flag fails to persist', async () => {
     const { result } = await renderEnabledTour();
-    mockShouldFailWrites = true;
+    mockShouldFailAction = true;
 
     act(() => result.current.start('auto'));
     act(() => result.current.skip());

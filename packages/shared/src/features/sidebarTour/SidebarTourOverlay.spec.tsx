@@ -19,6 +19,7 @@ import { LogEvent } from '../../lib/log';
 import { SpotlightProvider } from '../../components/spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from '../../components/sidebar/SidebarDesktopV2';
 import { MODAL_KEY } from '../../hooks/useLazyModal';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { LazyModal } from '../../components/modals/common/types';
 
 jest.mock('../../hooks/layout/useLayoutVariant', () => ({
@@ -62,6 +63,12 @@ const renderRail = (
     [featureSidebarTour.id]: { defaultValue: isFeatureEnabled },
   });
   client = new QueryClient();
+  // The tour waits for the seen-flag to have loaded, and that now rides
+  // `useActions`. Seeded rather than mocked so the real hook is exercised.
+  client.setQueryData(generateQueryKey(RequestKey.Actions, existingUser), {
+    actions: [],
+    serverLoaded: true,
+  });
 
   if (isModalOpen) {
     client.setQueryData(MODAL_KEY, { type: LazyModal.ReportPost });

@@ -5,6 +5,8 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
 import {
   featureSidebarTour,
   featureSidebarTourExistingBefore,
@@ -18,23 +20,24 @@ import type {
   SidebarTourTrigger,
 } from './types';
 
-// Device-local, on purpose. The idiomatic cross-device home for flags of
-// exactly this kind is `useActions` / `ActionType` (src/graphql/actions.ts),
-// which already carries ExistingUserSeenStreaks, CollectionsIntro and
-// FirstShortcutsSession. That needs a new ActionType on daily-api; adding an
-// undeclared key to SettingsFlags instead makes updateUserSettings fail
-// validation and takes every other setting in the payload down with it. Until
-// the backend field lands, everything here rides idb-keyval, so the whole swap
-// is this one file.
-export const SIDEBAR_TOUR_SEEN_KEY = 'sidebar_tour_seen';
+// The tour runs once per person, not once per browser, so its seen-flag is a
+// user action like every other one-shot of this kind in the house:
+// ExistingUserSeenStreaks, HasSeenTags, ViewedIntroQuests. SettingsFlags is
+// the wrong home — `flags` is a structured GraphQL input, so a key the API has
+// not declared fails validation and takes every other setting in the same
+// payload down with it.
+//
+// The two coach counters stay device-local. An action records only that
+// something happened, with no room for "twice of three", and spending three
+// action types per coach to count to three would be a worse trade than a coach
+// that gets a fresh budget on a new device.
 export const SIDEBAR_PIN_COACH_KEY = 'sidebar_pin_coach';
 export const SIDEBAR_DOTS_COACH_KEY = 'sidebar_dots_coach';
 
 // idb-keyval is per-browser, not per-account, so a shared machine would hand
-// the second person the first person's progress: an existing user signing in
-// after someone finished the tour would never see it, and both coaches would
-// arrive pre-retired. Scoping by id also makes the eventual move to ActionType
-// a straight swap rather than a change of shape.
+// the second person the first person's exposures and both coaches would arrive
+// pre-retired. The seen-flag needs none of this: an action is the account's by
+// construction.
 const coachKey = (key: string, userId?: string): string =>
   `${key}:${userId ?? 'anonymous'}`;
 
@@ -147,11 +150,8 @@ export const useSidebarTourState = (): SidebarTourState => {
     shouldEvaluate,
   });
 
-  const [isTourSeen, setTourSeen, isTourSeenFetched] =
-    usePersistentContext<boolean>(
-      coachKey(SIDEBAR_TOUR_SEEN_KEY, user?.id),
-      false,
-    );
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const isTourSeen = checkHasCompleted(ActionType.SidebarTourSeen);
   const pinCounter = useCoachCounter(coachKey(SIDEBAR_PIN_COACH_KEY, user?.id));
   const dotsCounter = useCoachCounter(
     coachKey(SIDEBAR_DOTS_COACH_KEY, user?.id),
@@ -160,7 +160,7 @@ export const useSidebarTourState = (): SidebarTourState => {
   // Nothing renders until every flag has come back from storage, so a tour that
   // was already seen never flashes on the way to being read.
   const isFetched =
-    isTourSeenFetched && pinCounter.isFetched && dotsCounter.isFetched;
+    isActionsFetched && pinCounter.isFetched && dotsCounter.isFetched;
   const isEnabled = shouldEvaluate && isFeatureEnabled && isFetched;
 
   const [steps, setSteps] = useState<SidebarTourStep[] | null>(null);
@@ -203,8 +203,8 @@ export const useSidebarTourState = (): SidebarTourState => {
 
   const end = useCallback(() => {
     clearRun();
-    setTourSeen(true).catch(() => undefined);
-  }, [clearRun, setTourSeen]);
+    completeAction(ActionType.SidebarTourSeen).catch(() => undefined);
+  }, [clearRun, completeAction]);
 
   const start = useCallback(
     (trigger: SidebarTourTrigger) => {

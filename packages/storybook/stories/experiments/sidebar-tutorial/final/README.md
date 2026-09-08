@@ -97,11 +97,14 @@ deliberately:
   folds tabs into the More menu on short viewports, and drops the Streak tab
   when gamification is off. A step whose target is not on screen is skipped
   rather than pointed blind, so the tour can legitimately run two steps.
-- **Seen-flags.** They ride `usePersistentContext` (device-local) rather than
-  `SettingsFlags`, because the API rejects flags it does not declare and one
-  undeclared key fails the whole `updateUserSettings` mutation. The cross-device
-  home is a `useActions` / `ActionType` field once daily-api declares it, and
-  the swap is isolated to `useSidebarTourState.ts`.
+- **Seen-flags.** The tour's own flag is a user action
+  (`ActionType.SidebarTourSeen`), so it runs once per person rather than once
+  per browser — the same home as `ExistingUserSeenStreaks` and `HasSeenTags`.
+  `SettingsFlags` is the wrong shape for it: `flags` is a structured GraphQL
+  input, so a key the API has not declared fails validation and takes every
+  other setting in the payload with it. The two coach counters stay
+  device-local, keyed per account, because an action records only that
+  something happened and cannot hold "twice of three".
 - **Step 3** opens the real streak and quests panel rather than a mock, since
   the Streak tab already is the Game Center.
 
