@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 
 const MUTED = colors.salt['90'];
@@ -31,21 +32,14 @@ function ListSnapshotCardComponent(
   const visible = items.slice(0, 5);
 
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? title}>
+    <SnapshotFrame
+      logoAside={<SnapshotEyebrow label={eyebrow} />}
+      ref={ref}
+      seed={seed ?? title}
+    >
       <div className="flex flex-1 flex-col">
-        <span
-          className="font-bold uppercase"
-          style={{
-            color: colors.cabbage['10'],
-            fontSize: 22,
-            letterSpacing: 2,
-          }}
-        >
-          {eyebrow}
-        </span>
-
         <h1
-          className="snapshot-copy mt-4 font-bold text-white"
+          className="snapshot-copy font-bold text-white"
           style={{
             fontSize: 50,
             lineHeight: 1.15,

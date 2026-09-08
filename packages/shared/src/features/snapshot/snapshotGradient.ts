@@ -1,4 +1,9 @@
 export const SNAPSHOT_SIZE = 1080;
+/**
+ * 9:16 — the tallest frame every share destination still shows whole. Text
+ * surfaces grow into it instead of clamping their copy to the square.
+ */
+export const SNAPSHOT_MAX_HEIGHT = 1920;
 
 /* eslint-disable no-bitwise -- an FNV hash and a mulberry32 PRNG are defined
    in terms of integer bit operations; expressing them any other way would
