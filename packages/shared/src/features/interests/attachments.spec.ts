@@ -148,12 +148,26 @@ describe('messagePostAttachments', () => {
         { type: 'text', html: '<p>Two things.</p>' },
         { type: 'posts', posts: [makePost('a')] },
         { type: 'picks', posts: [makePost('b')] },
-        { type: 'feedLink', label: 'All', posts: [makePost('c')] },
       ],
     });
 
-    expect(chips.map(({ id }) => id)).toEqual(['post:a', 'post:b', 'post:c']);
+    expect(chips.map(({ id }) => id)).toEqual(['post:a', 'post:b']);
     expect(chips.every(({ kind }) => kind === 'post')).toBe(true);
+  });
+
+  it('leaves feed links out, so a whole feed cannot claim the feedback', () => {
+    const chips = messagePostAttachments({
+      blocks: [
+        {
+          type: 'feedLink',
+          label: 'All',
+          posts: [makePost('x'), makePost('y')],
+        },
+        { type: 'picks', posts: [makePost('a')] },
+      ],
+    });
+
+    expect(chips.map(({ id }) => id)).toEqual(['post:a']);
   });
 
   it('names a post once even when several blocks carry it', () => {

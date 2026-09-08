@@ -76,7 +76,9 @@ export const targetAttachment = (
 export const FEEDBACK_POST_LIMIT = 5;
 
 // The posts a reply cited, as chips, so feedback about that reply can name
-// them with the `@dailydev:post:` markers the API resolves.
+// them with the `@dailydev:post:` markers the API resolves. Feed links are
+// left out: a hydrated feed link can carry the whole feed, so its posts would
+// misattribute the feedback to posts the reply never singled out.
 export const messagePostAttachments = (
   message: Pick<AgentMessage, 'blocks'>,
   limit = FEEDBACK_POST_LIMIT,
@@ -84,7 +86,9 @@ export const messagePostAttachments = (
   const seen = new Set<string>();
 
   return (message.blocks ?? [])
-    .flatMap((block) => (isPostsBlock(block) ? block.posts : []))
+    .flatMap((block) =>
+      block.type === 'posts' || block.type === 'picks' ? block.posts : [],
+    )
     .filter(({ id }) => {
       if (seen.has(id)) {
         return false;
