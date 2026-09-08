@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useConditionalFeature } from './useConditionalFeature';
 import { Feature } from '../lib/featureManagement';
 import loggedUser from '../../__tests__/fixture/loggedUser';
@@ -89,5 +89,55 @@ describe('useConditionalFeature hook', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBeFalsy());
     expect(result.current.value).toBe('new_value');
+  });
+
+  it('updates when boot replaces cached feature definitions', async () => {
+    const FeatureValue = () => {
+      const result = useConditionalFeature({
+        feature: testFeature,
+        shouldEvaluate: true,
+      });
+
+      return <span>{result.value}</span>;
+    };
+    const TestComponent = ({ value }: { value: string }) => (
+      <QueryClientProvider client={client}>
+        <AuthContextProvider
+          user={loggedUser}
+          updateUser={jest.fn()}
+          tokenRefreshed
+          getRedirectUri={jest.fn()}
+          loadingUser={false}
+          loadedUserFromCache
+          squads={[]}
+        >
+          <GrowthBookProvider
+            app={BootApp.Test}
+            user={loggedUser}
+            deviceId="123"
+            experimentation={{
+              f: '{}',
+              e: [],
+              a: [],
+              features: {
+                test_feature: {
+                  defaultValue: value,
+                },
+              },
+            }}
+          >
+            <FeatureValue />
+          </GrowthBookProvider>
+        </AuthContextProvider>
+      </QueryClientProvider>
+    );
+
+    const { rerender } = render(<TestComponent value="cached_value" />);
+
+    expect(await screen.findByText('cached_value')).toBeInTheDocument();
+
+    rerender(<TestComponent value="remote_value" />);
+
+    expect(await screen.findByText('remote_value')).toBeInTheDocument();
   });
 });

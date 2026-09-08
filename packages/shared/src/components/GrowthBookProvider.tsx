@@ -95,6 +95,8 @@ export const GrowthBookProvider = ({
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const callback = useRef<Context['trackingCallback']>();
+  const featuresRef = useRef<NonNullable<BootCacheData['exp']>['features']>();
+  const [, setFeaturesRevision] = useState(0);
   const [gb] = useState<GrowthBook>(
     () =>
       new GrowthBook({
@@ -105,11 +107,11 @@ export const GrowthBookProvider = ({
 
   useEffect(() => {
     if (gb && experimentation?.features) {
-      const currentFeats = gb.getFeatures?.();
-      // Do not update when the features are already set
-      if (!currentFeats || !Object.keys(currentFeats).length) {
+      if (featuresRef.current !== experimentation.features) {
         gb.setFeatures?.(experimentation.features);
+        featuresRef.current = experimentation.features;
         setReady(true);
+        setFeaturesRevision((revision) => revision + 1);
       }
     }
   }, [experimentation?.features, gb]);
