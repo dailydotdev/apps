@@ -68,15 +68,21 @@ export const useGooglePreferredSource = ({
     }
 
     let cancelled = false;
+    let timeout: ReturnType<typeof setTimeout>;
 
     const onApi = (api: PreferredSourceApi) => {
       if (cancelled) {
         return;
       }
 
+      // Cancel the failure timer first: it fires on a wall clock, so without
+      // this a script that simply loaded slowly would still be reported as
+      // blocked and every surface would drop to the deeplink.
+      clearTimeout(timeout);
       apiRef.current = api;
       api.init({ theme: resolveTheme(themeRef.current), lang });
       setIsReady(true);
+      setHasFailed(false);
     };
 
     globalThis.PREFERRED_SOURCE = globalThis.PREFERRED_SOURCE || [];
@@ -88,11 +94,11 @@ export const useGooglePreferredSource = ({
     // one of them the button stays disabled forever, which is worse than not
     // offering it: callers switch to the deeplink, which needs no script.
     const fail = () => {
-      if (!cancelled) {
+      if (!cancelled && !apiRef.current) {
         setHasFailed(true);
       }
     };
-    const timeout = setTimeout(fail, PREFERRED_SOURCE_TIMEOUT_MS);
+    timeout = setTimeout(fail, PREFERRED_SOURCE_TIMEOUT_MS);
 
     if (!document.getElementById(PREFERRED_SOURCE_SCRIPT_ID)) {
       const script = document.createElement('script');
