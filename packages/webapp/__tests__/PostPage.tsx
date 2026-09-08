@@ -36,6 +36,7 @@ import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { postWithCommunitySentiment } from '@dailydotdev/shared/__tests__/fixture/post';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
   completeActionMock,
@@ -1212,6 +1213,38 @@ describe('post redesign', () => {
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+  });
+
+  it('should show community sentiment in the classic layout when the redesign flag is off', async () => {
+    mockRedesignOn = false;
+    renderPost({}, [
+      createPostMock({
+        communitySentiment: postWithCommunitySentiment.communitySentiment,
+      }),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByRole('region', {
+        name: 'What the community thinks',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('should show community sentiment in the redesign layout when the redesign flag is on', async () => {
+    mockRedesignOn = true;
+    renderPost({}, [
+      createPostMock({
+        communitySentiment: postWithCommunitySentiment.communitySentiment,
+      }),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByRole('region', {
+        name: 'What the community thinks',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('should keep the classic layout for author onboarding even when the flag is on', async () => {
