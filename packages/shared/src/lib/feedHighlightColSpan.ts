@@ -59,6 +59,13 @@ export interface PlacementBuilderOptions {
   startIndex: number;
   widenableTypes: ReadonlySet<PostType>;
   firstSlotOffset?: number;
+  /**
+   * First grid row a wide card may occupy. `startIndex` gates on the item
+   * index, which at five columns still lets one land in the opening row, so a
+   * surface that already leads with a full-size card above the grid (the feed
+   * hero) needs the floor stated in rows instead.
+   */
+  minWideCardRow?: number;
 }
 
 /**
@@ -167,6 +174,7 @@ export const createPlacementBuilder = ({
   startIndex,
   widenableTypes,
   firstSlotOffset = 0,
+  minWideCardRow = 0,
 }: PlacementBuilderOptions): PlacementBuilder => {
   const layoutEnabled = isEnabled && !isMobile && !isList && numCards > 1;
   const safeNumCards = Math.max(numCards, 1);
@@ -210,6 +218,9 @@ export const createPlacementBuilder = ({
           return 1;
         }
         if (itemIdx < startIndex) {
+          return 1;
+        }
+        if (row < minWideCardRow) {
           return 1;
         }
         if (itemIdx - lastLargeIndex < minSpacing) {

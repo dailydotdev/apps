@@ -16,11 +16,21 @@ import { DeletedPostId } from '../../../lib/constants';
 import { stripHtmlTags } from '../../../lib/strings';
 import { HighlightChip } from '../common/HighlightChip';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
-import { INNER_GRID_COLS } from '../common/featuredWide';
+import {
+  DESCRIPTION_CLASS_NAME,
+  featuredWideGridClass,
+  featuredWideTextColClass,
+  HERO_DESCRIPTION_CLASS_NAME,
+  HERO_DESCRIPTION_MAX_LINES,
+  HERO_TEXT_FIT_CLASS_NAME,
+  HERO_TITLE_CLASS_NAME,
+  TITLE_CLASS_NAME,
+} from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
 import { FeaturedWideTextContainer } from '../common/FeaturedWideTextContainer';
+import { useFittedLineClamp } from '../../../hooks/useFittedLineClamp';
 
 export const ShareFeaturedWideGridCard = forwardRef(
   function ShareFeaturedWideGridCard(
@@ -40,6 +50,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
       domProps = {},
       eagerLoadImage = false,
       wideColSpan = 2,
+      hero,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -58,6 +69,8 @@ export const ShareFeaturedWideGridCard = forwardRef(
       ? stripHtmlTags(sharedPost?.contentHtml ?? post.contentHtml ?? '').trim()
       : '';
     const { overlay } = useCardCover({ post, onShare });
+    const hasMedia = !!image || !!overlay;
+    const textFit = useFittedLineClamp(HERO_DESCRIPTION_MAX_LINES);
 
     return (
       <FeaturedWideCardShell
@@ -74,11 +87,19 @@ export const ShareFeaturedWideGridCard = forwardRef(
         <div
           className={classNames(
             'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
-            image || overlay ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
+            featuredWideGridClass({ hasMedia, wideColSpan, hero }),
           )}
         >
-          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <FeaturedWideTextContainer>
+          <div
+            className={classNames(
+              'relative flex min-h-0 min-w-0 flex-col overflow-hidden',
+              featuredWideTextColClass({ hasMedia, hero }),
+            )}
+          >
+            <FeaturedWideTextContainer
+              ref={hero ? textFit.containerRef : undefined}
+              className={hero ? HERO_TEXT_FIT_CLASS_NAME : undefined}
+            >
               <PostCardHeader
                 post={post}
                 className="flex"
@@ -88,7 +109,12 @@ export const ShareFeaturedWideGridCard = forwardRef(
                 onReadArticleClick={onReadArticleClick}
               />
               {(!isSharedTweet || post.title) && (
-                <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
+                <h3
+                  className={classNames(
+                    'mt-2 break-words font-bold text-text-primary',
+                    hero ? HERO_TITLE_CLASS_NAME : TITLE_CLASS_NAME,
+                  )}
+                >
                   {title}
                 </h3>
               )}
@@ -122,7 +148,20 @@ export const ShareFeaturedWideGridCard = forwardRef(
               ) : (
                 <>
                   {!!sharedSummary && (
-                    <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+                    <p
+                      ref={hero ? textFit.textRef : undefined}
+                      // The measured fit replaces the class ceiling; inline because it is a
+                      // number rather than one of a handful of classes.
+                      style={
+                        hero ? { WebkitLineClamp: textFit.lines } : undefined
+                      }
+                      className={classNames(
+                        'mt-2 text-text-secondary typo-callout',
+                        hero
+                          ? HERO_DESCRIPTION_CLASS_NAME
+                          : DESCRIPTION_CLASS_NAME,
+                      )}
+                    >
                       {sharedSummary}
                     </p>
                   )}
@@ -143,11 +182,12 @@ export const ShareFeaturedWideGridCard = forwardRef(
               onDownvoteClick={onDownvoteClick}
             />
           </div>
-          {(!!image || !!overlay) && (
+          {hasMedia && (
             <FeaturedWideImageColumn
               image={image}
               alt={sharedTitle || post.title || ''}
               wideColSpan={wideColSpan}
+              hero={hero}
               overlay={overlay}
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}
