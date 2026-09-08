@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
 import { largeNumberFormat } from '../../lib';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import type { SnapshotIdentityProps } from './SnapshotIdentity';
 import { SnapshotIdentity } from './SnapshotIdentity';
@@ -18,7 +19,7 @@ export interface UnlockedAchievement {
 }
 
 export interface AchievementsSnapshotCardProps {
-  user: Omit<SnapshotIdentityProps, 'label'>;
+  user: SnapshotIdentityProps;
   unlocked: number;
   total: number;
   points: number;
@@ -63,9 +64,13 @@ function AchievementsSnapshotCardComponent(
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? 'achievements'}>
+    <SnapshotFrame
+      logoAside={<SnapshotEyebrow label="Achievements" />}
+      ref={ref}
+      seed={seed ?? 'achievements'}
+    >
       <div className="flex flex-1 flex-col gap-6">
-        <SnapshotIdentity {...user} label="Achievements" />
+        <SnapshotIdentity {...user} />
 
         <div className="flex gap-4">
           <Tile label={`of ${total} unlocked`} value={String(unlocked)} />

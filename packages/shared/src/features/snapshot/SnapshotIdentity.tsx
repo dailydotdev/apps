@@ -8,15 +8,12 @@ export interface SnapshotIdentityProps {
   name: string;
   handle: string;
   image?: string;
-  /** Small uppercase label pushed to the trailing edge of the row. */
-  label?: string;
 }
 
 export function SnapshotIdentity({
   name,
   handle,
   image,
-  label,
 }: SnapshotIdentityProps): ReactElement {
   return (
     <div className="flex items-center gap-4">
@@ -40,18 +37,6 @@ export function SnapshotIdentity({
           {handle}
         </span>
       </div>
-      {label && (
-        <span
-          className="ml-auto shrink-0 font-bold uppercase"
-          style={{
-            color: colors.cabbage['10'],
-            fontSize: 22,
-            letterSpacing: 2,
-          }}
-        >
-          {label}
-        </span>
-      )}
     </div>
   );
 }
