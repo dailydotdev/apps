@@ -43,7 +43,6 @@ import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
-import { installCaptureShareImage } from '@dailydotdev/shared/src/lib/imageShare/devCaptureShareImage';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import {
@@ -432,9 +431,13 @@ export default function App(
   useScrollbarWidth();
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      installCaptureShareImage();
+    if (process.env.NODE_ENV !== 'development') {
+      return;
     }
+
+    import('@dailydotdev/shared/src/lib/imageShare/devCaptureShareImage').then(
+      ({ installCaptureShareImage }) => installCaptureShareImage(),
+    );
   }, []);
 
   const { Component, pageProps, router } = props;
