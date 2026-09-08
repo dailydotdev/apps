@@ -1,102 +1,66 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
-import colors from '../../styles/colors';
+import { SnapshotCredit } from './SnapshotCredit';
+import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
-import { truncateAtWord } from './snapshotText';
-
-const MUTED = colors.salt['90'];
-const DIVIDER = colors.pepper['10'];
-
-const TLDR_LIMIT = 220;
-
-/** Longer headlines step down rather than push the TLDR off the edge. */
-const headlineFontSize = (length: number): number => {
-  if (length <= 50) {
-    return 64;
-  }
-
-  if (length <= 90) {
-    return 54;
-  }
-
-  if (length <= 140) {
-    return 44;
-  }
-
-  return 38;
-};
+import { HIGHLIGHTS_EYEBROW_GRADIENT } from './snapshotGradient';
+import {
+  SNAPSHOT_COPY_SIZE,
+  SNAPSHOT_PASSAGE_LIMIT,
+  truncateAtWord,
+} from './snapshotText';
 
 export interface HighlightSnapshotCardProps {
-  headline: string;
-  tldr?: string;
-  /** The same relative time the row shows, e.g. "2h ago". */
-  meta?: string;
+  /** The TLDR, and the whole subject of the card. */
+  tldr: string;
+  /** Credits the publication the claim came from, where the feed knows it. */
+  source?: { name: string; image?: string };
   seed?: string;
 }
 
+/**
+ * The claim in white under the Happening Now wordmark, credited to its source.
+ * The headline is left off: the TLDR already says what it says, at more
+ * length, and two statements of the same fact compete for the same glance.
+ */
 function HighlightSnapshotCardComponent(
-  { headline, tldr, meta, seed }: HighlightSnapshotCardProps,
+  { tldr, source, seed }: HighlightSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
-  const summary = tldr ? truncateAtWord(tldr, TLDR_LIMIT) : '';
+  const copy = truncateAtWord(tldr, SNAPSHOT_PASSAGE_LIMIT);
 
   return (
-    <SnapshotFrame ref={ref} seed={seed ?? headline}>
+    <SnapshotFrame
+      grow
+      logoAside={
+        <SnapshotEyebrow
+          gradient={HIGHLIGHTS_EYEBROW_GRADIENT}
+          label="Happening now"
+        />
+      }
+      ref={ref}
+      seed={seed ?? tldr}
+      wide
+    >
       <div className="flex flex-1 flex-col">
-        <div className="flex items-center gap-3">
-          <span
-            aria-hidden
+        {/* Body copy, not display copy: no balanced wrapping and no negative
+            tracking, both of which fight legibility at normal weight, and the
+            leading a long paragraph needs. */}
+        <div className="flex flex-1 flex-col justify-center">
+          <p
+            className="text-white"
             style={{
-              width: 14,
-              height: 14,
-              borderRadius: 999,
-              background: colors.ketchup['40'],
-            }}
-          />
-          <span
-            className="font-bold uppercase"
-            style={{
-              color: colors.ketchup['40'],
-              fontSize: 22,
-              letterSpacing: 2,
+              fontSize: SNAPSHOT_COPY_SIZE,
+              lineHeight: 1.55,
+              overflowWrap: 'break-word',
             }}
           >
-            Happening now
-          </span>
+            {copy}
+          </p>
         </div>
 
-        <h1
-          className="snapshot-copy mt-7 font-bold text-white"
-          style={{
-            fontSize: headlineFontSize(headline.length),
-            lineHeight: 1.15,
-            letterSpacing: '-0.01em',
-          }}
-        >
-          {headline}
-        </h1>
-
-        {summary && (
-          <p
-            className="snapshot-copy mt-7 flex-1"
-            style={{ color: MUTED, fontSize: 30, lineHeight: 1.4 }}
-          >
-            {summary}
-          </p>
-        )}
-
-        {meta && (
-          <span
-            className="mt-9 truncate"
-            style={{
-              color: MUTED,
-              fontSize: 26,
-              paddingTop: 26,
-              borderTop: `1px solid ${DIVIDER}`,
-            }}
-          >
-            {meta}
-          </span>
+        {source?.name && (
+          <SnapshotCredit image={source.image} name={source.name} />
         )}
       </div>
     </SnapshotFrame>

@@ -7,13 +7,6 @@ import type {
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import type { HighlightSnapshotCardProps } from './HighlightSnapshotCard';
 import { HighlightSnapshotCard } from './HighlightSnapshotCard';
-import { SNAPSHOT_SIZE } from './snapshotGradient';
-
-const CAPTURE_OPTIONS = {
-  width: SNAPSHOT_SIZE,
-  height: SNAPSHOT_SIZE,
-  padding: 0,
-};
 
 export interface HighlightSnapshotButtonProps
   extends Omit<HighlightSnapshotCardProps, 'seed'> {
@@ -31,9 +24,8 @@ export interface HighlightSnapshotButtonProps
  */
 export function HighlightSnapshotButton({
   id,
-  headline,
   tldr,
-  meta,
+  source,
   link,
   showLabel,
   size,
@@ -45,7 +37,6 @@ export function HighlightSnapshotButton({
   return (
     <>
       <SnapshotButton
-        captureOptions={CAPTURE_OPTIONS}
         className={className}
         filename={`daily-highlight-${id}`}
         link={link}
@@ -60,9 +51,8 @@ export function HighlightSnapshotButton({
       >
         <HighlightSnapshotCard
           ref={cardRef}
-          headline={headline}
-          meta={meta}
           seed={id}
+          source={source}
           tldr={tldr}
         />
       </div>

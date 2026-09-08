@@ -1,4 +1,18 @@
+import colors from '../../styles/colors';
+
 export const SNAPSHOT_SIZE = 1080;
+/**
+ * 9:16 — the tallest frame every share destination still shows whole. Text
+ * surfaces grow into it instead of clamping their copy to the square.
+ */
+export const SNAPSHOT_MAX_HEIGHT = 1920;
+
+/**
+ * The production "Happening Now" wordmark animates across
+ * blueCheese -> cheese -> avocado. A still frame has to pick a position, and
+ * the yellow-to-green end is the one the brand shots use.
+ */
+export const HIGHLIGHTS_EYEBROW_GRADIENT = `linear-gradient(120deg, ${colors.cheese['40']} 0%, ${colors.avocado['10']} 52%, ${colors.avocado['40']} 100%)`;
 
 /* eslint-disable no-bitwise -- an FNV hash and a mulberry32 PRNG are defined
    in terms of integer bit operations; expressing them any other way would

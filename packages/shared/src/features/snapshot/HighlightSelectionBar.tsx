@@ -12,7 +12,6 @@ import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
-import { SNAPSHOT_SIZE } from './snapshotGradient';
 import type { TextSelection } from './useTextSelection';
 import { useTextSelection } from './useTextSelection';
 
@@ -20,12 +19,6 @@ const BAR_HEIGHT = 44;
 const GAP = 8;
 /** Keeps the bar off the viewport edges when the quote runs to the margin. */
 const EDGE = 96;
-
-const CAPTURE_OPTIONS = {
-  width: SNAPSHOT_SIZE,
-  height: SNAPSHOT_SIZE,
-  padding: 0,
-};
 
 const position = (selection: TextSelection) => {
   const above = selection.top - BAR_HEIGHT - GAP;
@@ -44,14 +37,12 @@ const position = (selection: TextSelection) => {
 
 export interface HighlightSelectionBarProps {
   id: string;
-  headline: string;
   link: string;
   containerRef: RefObject<HTMLElement>;
 }
 
 export function HighlightSelectionBar({
   id,
-  headline,
   link,
   containerRef,
 }: HighlightSelectionBarProps): ReactElement | null {
@@ -85,7 +76,6 @@ export function HighlightSelectionBar({
           style={position(selection)}
         >
           <SnapshotButton
-            captureOptions={CAPTURE_OPTIONS}
             filename={`daily-highlight-quote-${id}`}
             link={link}
             target={cardRef}
@@ -119,12 +109,7 @@ export function HighlightSelectionBar({
         aria-hidden
         className="pointer-events-none fixed left-[-300vw] top-0"
       >
-        <HighlightTextSnapshotCard
-          ref={cardRef}
-          postTitle={headline}
-          seed={id}
-          text={quote.text}
-        />
+        <HighlightTextSnapshotCard ref={cardRef} seed={id} text={quote.text} />
       </div>
     </>,
     document.body,

@@ -16,6 +16,7 @@ import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { playShutterSound } from '../../features/snapshot/shutterSound';
+import { getSnapshotCaptureOptions } from '../../features/snapshot/snapshotCapture';
 
 const SNAPSHOT_LABEL = 'Snapshot';
 
@@ -32,7 +33,11 @@ export interface SnapshotButtonProps {
   size?: ButtonSize;
   variant?: ButtonVariant;
   className?: string;
-  captureOptions: CaptureShareImageOptions;
+  /**
+   * Omit for a designed card: its height is measured at the press instead,
+   * since a frame that grows to fit only has one once it is mounted.
+   */
+  captureOptions?: CaptureShareImageOptions;
   onCapture?: (blob: Blob) => void;
 }
 
@@ -76,7 +81,11 @@ export function SnapshotButton({
       setIsCapturing(true);
 
       try {
-        const capture = captureShareImage(target, captureOptions);
+        const element = target instanceof HTMLElement ? target : target.current;
+        const capture = captureShareImage(
+          target,
+          captureOptions ?? getSnapshotCaptureOptions(element),
+        );
 
         if (onCapture) {
           onCapture(await capture);

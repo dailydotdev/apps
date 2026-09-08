@@ -11,7 +11,7 @@ import { HighlightSnapshotButton } from './HighlightSnapshotButton';
 
 type HighlightShareActionsProps = Pick<
   HighlightSnapshotButtonProps,
-  'id' | 'headline' | 'tldr' | 'meta'
+  'id' | 'tldr' | 'source'
 > & {
   link: string;
 };

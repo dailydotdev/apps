@@ -12,7 +12,6 @@ import { HighlightSelectionBar } from '../../features/snapshot/HighlightSelectio
 import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
 import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 import { featureHappeningNowShare } from '../../lib/featureManagement';
-import { getLastActivityDateFormat } from '../../lib/dateFormat';
 
 const MAX_HOURS_AGO = 72;
 
@@ -101,7 +100,6 @@ export const HighlightItem = ({
           {canSnapshot && (
             <HighlightSelectionBar
               containerRef={tldrRef}
-              headline={highlight.headline}
               id={highlight.id}
               link={highlight.post.commentsPermalink}
             />
@@ -114,14 +112,8 @@ export const HighlightItem = ({
             </Link>
             {canSnapshot && (
               <HighlightShareActions
-                headline={highlight.headline}
                 id={highlight.id}
                 link={highlight.post.commentsPermalink}
-                // The card and the row must not disagree about how old the
-                // claim is, so both read the same formatter and window.
-                meta={getLastActivityDateFormat(highlight.highlightedAt, {
-                  maxHoursAgo: MAX_HOURS_AGO,
-                })}
                 tldr={tldr}
               />
             )}

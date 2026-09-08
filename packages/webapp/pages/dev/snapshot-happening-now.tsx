@@ -217,35 +217,27 @@ const SnapshotHappeningNowDevPage = (): ReactElement => {
             </Section>
 
             <Section
-              caption="Press Snapshot on any expanded highlight above and the PNG lands on your clipboard with the link. The headline steps down a size as it grows, so a long one keeps its TLDR."
+              caption="Press Snapshot on any expanded highlight above and the PNG lands on your clipboard with the link. The frame grows to fit the TLDR rather than clamping it to a square, so a long claim gets a taller image instead of smaller type."
               title="What it exports"
             >
-              <div className="flex flex-wrap gap-6">
+              <div className="flex flex-wrap items-start gap-6">
                 {HIGHLIGHTS.map((highlight) => (
                   <figure key={highlight.id} className="flex flex-col gap-2">
                     <figcaption className="font-bold uppercase text-text-quaternary typo-caption2">
-                      {highlight.headline.length} characters
+                      {highlight.post.summary?.length} characters
                     </figcaption>
                     <div
                       className="overflow-hidden rounded-16 border border-border-subtlest-tertiary"
-                      style={{
-                        width: CARD_PREVIEW_SIZE,
-                        height: CARD_PREVIEW_SIZE,
-                      }}
+                      style={{ width: CARD_PREVIEW_SIZE }}
                     >
-                      <div
-                        style={{
-                          transform: `scale(${
-                            CARD_PREVIEW_SIZE / SNAPSHOT_SIZE
-                          })`,
-                          transformOrigin: 'top left',
-                        }}
-                      >
+                      {/* zoom, not transform: a transformed card leaves its
+                          full height behind in the layout, and these grow.
+                          It sits inside the width rather than on it, since
+                          zoom scales the element's own box too. */}
+                      <div style={{ zoom: CARD_PREVIEW_SIZE / SNAPSHOT_SIZE }}>
                         <HighlightSnapshotCard
-                          headline={highlight.headline}
-                          meta="2h ago"
                           seed={highlight.id}
-                          tldr={highlight.post.summary}
+                          tldr={highlight.post.summary ?? ''}
                         />
                       </div>
                     </div>
