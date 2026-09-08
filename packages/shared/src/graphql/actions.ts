@@ -68,6 +68,7 @@ export enum ActionType {
   DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
   ClickedNewStripCta = 'click_new_strip_cta',
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
+  SidebarTourSeen = 'sidebar_tour_seen',
 }
 
 export const cvActions = [
