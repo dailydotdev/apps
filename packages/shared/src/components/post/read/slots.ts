@@ -23,10 +23,15 @@ export const READ_SLOT = {
   /** Half page closing the rail — the page's only sticky unit. */
   railBottomSticky: 19,
   /**
-   * The top leaderboard's phone twin: the same AdSense unit requested at a
-   * fixed 320x100. A responsive request can come back as expandable video,
-   * which inside the phone-sticky header block pinned half the screen; a
-   * fixed-size request can only return its exact size.
+   * The top leaderboard's phone twin: the same AdSense unit, requested
+   * separately so phone and desktop fill split by slot number in our events.
+   * It was a fixed 320x100 after a responsive request came back as expandable
+   * video and pinned half the screen inside the phone-sticky header block,
+   * but 320x100 alone has too little inventory and the header sat empty on
+   * most phones. It is a horizontal responsive request again (320x50 and
+   * 320x100 both serve) with expandable and video creatives blocked on the
+   * unit in the AdSense account, which is the only place that can rule them
+   * out: the <ins> can shape a request, not filter formats.
    */
   topLeaderboardPhone: 20,
 } as const;
@@ -100,12 +105,13 @@ export const MAX_CONTENT_ADS_PER_SECTION = 4;
  */
 export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   [READ_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
-  [READ_SLOT.topLeaderboardPhone]: {
-    id: '9942870945',
-    type: 'display',
-    width: 320,
-    height: 100,
-  },
+  // Same responsive request as the desktop twin: FORMAT_SPEC caps the phone
+  // at 320px and `horizontal` keeps rectangles out, so only the mobile
+  // banners fit. See READ_SLOT.topLeaderboardPhone for why this is not fixed.
+  // TODO(vas): in AdSense, block "Expandable" and "Video" under Blocking
+  // controls > Ad serving for unit 9942870945 before shipping — the fixed
+  // size was the only thing keeping expandables out of the pinned header.
+  [READ_SLOT.topLeaderboardPhone]: { id: '9942870945', type: 'display' },
   // The three MPU placements below share existing Display units while the
   // dedicated ones don't exist: Google's per-unit reporting blends them, but
   // our first-party events split by slot number, so per-placement RPM stays
@@ -148,7 +154,7 @@ export const ORGANIC_SLOT = {
   topLeaderboard: 15,
   /** Rail unit below the direct-sold ad widget. */
   railAfterDirectAd: 16,
-  /** The organic leaderboard's fixed 320x100 phone twin — see slot 20. */
+  /** The organic leaderboard's responsive phone twin — see slot 20. */
   topLeaderboardPhone: 21,
   /** MPU repeated through the TLDR, same cadence as the articles page. */
   inContentMpu: 22,
@@ -164,12 +170,7 @@ export const ORGANIC_SLOT = {
 // (Display 300x250) in AdSense and swap the ids for per-placement RPM.
 export const ORGANIC_ADSENSE_SLOTS: AdsenseSlots = {
   [ORGANIC_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
-  [ORGANIC_SLOT.topLeaderboardPhone]: {
-    id: '9942870945',
-    type: 'display',
-    width: 320,
-    height: 100,
-  },
+  [ORGANIC_SLOT.topLeaderboardPhone]: { id: '9942870945', type: 'display' },
   [ORGANIC_SLOT.railAfterDirectAd]: { id: '6921226982', type: 'display' },
   // Shared units, same trade as the articles map: Google's per-unit rows
   // blend, first-party events split by slot number.
