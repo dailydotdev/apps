@@ -397,31 +397,6 @@ describe('sidebar tour wiring', () => {
       );
     });
 
-    it('gets out of the way when another rail popup takes the group', async () => {
-      renderRail(true);
-
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
-
-      fireEvent.click(screen.getByLabelText('Support'));
-
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
-      expect(logEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          event_name: LogEvent.EndSidebarTour,
-          extra: JSON.stringify({ step: 'rail', reason: 'popup' }),
-        }),
-      );
-      expect(logEvent).not.toHaveBeenCalledWith(
-        expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
-      );
-    });
-
     it('makes the rail inert so nothing opens or navigates under the card', async () => {
       renderRail(true);
 
@@ -512,7 +487,7 @@ describe('sidebar tour wiring', () => {
       expect(demo).toHaveAttribute('src', expect.stringContaining('720_'));
     });
 
-    it('survives the dock step opening the ••• tray it is teaching', async () => {
+    it('teaches the dock gesture rather than inviting it mid-run', async () => {
       renderRail(true);
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
@@ -521,25 +496,15 @@ describe('sidebar tour wiring', () => {
       fireEvent.click(screen.getByText('Next'));
       await screen.findByText(/add one from the/);
 
-      fireEvent.click(screen.getByLabelText('Customize shortcuts'));
-
-      // The tray takes the rail's popup group; the tour must not read that as
-      // the user reaching past it, or the step ends the moment it is followed.
-      await waitFor(() =>
-        expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument(),
-      );
-      expect(logEvent).not.toHaveBeenCalledWith(
-        expect.objectContaining({ event_name: LogEvent.EndSidebarTour }),
-      );
-
-      // Escape is how the tray is closed, and the tray does not mark the key as
-      // handled. Skipping is the one ending meant to be final, so it must not
-      // be what a user gets for closing the menu the step invited them into.
-      fireEvent.keyDown(window, { key: 'Escape' });
-
-      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
-      expect(logEvent).not.toHaveBeenCalledWith(
-        expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
+      // The step is teach-only, and this is why: the tray's trigger lives
+      // inside the rail, which is inert for the whole run, so no browser lets
+      // it be clicked or tabbed to. jsdom enforces neither `inert` nor
+      // `pointer-events`, so a `fireEvent.click` here would pass while proving
+      // nothing — the containment is what is worth asserting.
+      const aside = screen.getByTestId('sidebar-aside');
+      expect(aside.inert).toBe(true);
+      expect(aside).toContainElement(
+        screen.getByLabelText('Customize shortcuts'),
       );
 
       fireEvent.click(screen.getByText('Next'));

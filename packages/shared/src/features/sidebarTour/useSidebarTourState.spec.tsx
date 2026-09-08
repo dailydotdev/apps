@@ -346,7 +346,7 @@ describe('useSidebarTourState', () => {
     const { result } = await renderEnabledTour();
 
     act(() => result.current.start('auto'));
-    act(() => result.current.interrupt('popup'));
+    act(() => result.current.interrupt('modal'));
 
     const { result: reloaded } = await renderEnabledTour();
 

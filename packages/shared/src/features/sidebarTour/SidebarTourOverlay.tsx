@@ -40,41 +40,20 @@ export const SidebarTourOverlay = ({
   } = tour;
   const { value: isCompact, toggle: toggleCompact } = useSidebarCompact();
   const anchor = useCoachAnchor(step?.target, isRunning);
-  const { isOpen, isGroupOpen, onUpdate } =
-    useInteractivePopup(RAIL_POPUP_GROUP);
+  const { onUpdate } = useInteractivePopup(RAIL_POPUP_GROUP);
   const { events } = useRouter();
-  const wasGroupOpenRef = useRef(false);
   const hasFocusedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // The dock step's whole sentence is "or add one from the 3-dot menu", so opening
-  // that menu is the lesson being followed, not the user reaching past the
-  // tour. The tour leaves the rail's popup group for that one step: the tray
-  // then opens beside the card instead of evicting it, and the run survives.
-  const shouldHoldPopupGroup = isRunning && step?.id !== 'dock';
-
+  // Claiming the group closes whatever rail popup was already open when the
+  // tour started — a Support menu opened inside the auto-start's grace window
+  // would otherwise sit stranded under the card. Held for the whole run rather
+  // than released for the dock step: the rail is inert for the duration, so no
+  // trigger in the group is reachable and the dock step teaches the pinning
+  // gesture for later instead of inviting the tray open now.
   useEffect(() => {
-    onUpdate(shouldHoldPopupGroup);
-  }, [onUpdate, shouldHoldPopupGroup]);
-
-  // Another rail popup taking the group means the user reached past the tour
-  // for something else, rather than leaving a card stranded under the dropdown
-  // that just opened. It is not a dismissal, so the tour is owed another run.
-  // Gated on wanting the group rather than on the tour running: stepping onto
-  // the dock step releases it deliberately, and that must not read as an
-  // eviction.
-  useEffect(() => {
-    if (isOpen) {
-      wasGroupOpenRef.current = true;
-      return;
-    }
-
-    if (wasGroupOpenRef.current && shouldHoldPopupGroup) {
-      interrupt('popup');
-    }
-
-    wasGroupOpenRef.current = false;
-  }, [interrupt, isOpen, shouldHoldPopupGroup]);
+    onUpdate(isRunning);
+  }, [isRunning, onUpdate]);
 
   // A real navigation takes the page the rail was pointing at away, so the tour
   // goes with it rather than riding along to a ring that no longer means
@@ -146,20 +125,12 @@ export const SidebarTourOverlay = ({
         return;
       }
 
-      // The dock step invites the ••• tray open beside the card, and the tray
-      // has no Escape handler of its own to mark the key as handled. Without
-      // this, the natural way to close the tray also skips the tour, which is
-      // the one ending meant to be final.
-      if (isGroupOpen) {
-        return;
-      }
-
       skip();
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isGroupOpen, isRunning, skip]);
+  }, [isRunning, skip]);
 
   // The card claims `aria-modal`, and the rail behind it is inert, but the page
   // behind the scrim is still tabbable. Wrapping Tab at the card's own edges is
