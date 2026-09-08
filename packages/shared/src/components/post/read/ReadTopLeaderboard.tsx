@@ -14,9 +14,9 @@ export interface ReadTopLeaderboardProps {
   released?: boolean;
   slot?: number;
   /**
-   * The fixed 320x100 twin the phone requests instead of the responsive
-   * unit. Must come from the same surface's map as `slot`, or the twin
-   * would ride the other surface's flag gating.
+   * The twin the phone requests instead of `slot`, so phone and desktop fill
+   * report under their own slot numbers. Must come from the same surface's
+   * map as `slot`, or the twin would ride the other surface's flag gating.
    */
   phoneSlot?: number;
   surface?: 'read' | 'organic';
@@ -27,7 +27,7 @@ export interface ReadTopLeaderboardProps {
  * Top leaderboard (slot 2), first thing in the article column. The column is
  * 745px wide inside its padding at the layout's full width, so a 728px
  * leaderboard renders at its booked size within the page rather than spanning
- * it; narrower viewports get the 320x100 large mobile banner instead.
+ * it; narrower viewports get a 320x50 or 320x100 mobile banner instead.
  *
  * Stays pinned for the first ten seconds of scrolling, then releases and
  * scrolls away with the page. Sticky rather than fixed so it only pins within
@@ -68,9 +68,10 @@ export function ReadTopLeaderboard({
           'z-2 laptop:sticky laptop:top-[var(--sticky-header-offset)]',
       )}
     >
-      {/* Two breakpoint twins of one unit: the phone requests a fixed
-          320x100 (a responsive request can answer with expandable video —
-          half a pinned phone screen), tablet+ keeps the responsive 728x90.
+      {/* Two breakpoint twins of one unit, both horizontal responsive: the
+          phone's 320px cap leaves room for the mobile banners only, tablet+
+          gets the 728x90. Expandable and video creatives are blocked on the
+          unit account-side, not here — see READ_SLOT.topLeaderboardPhone.
           Neither is eager: an eager push from a display:none twin would
           initialise the visible one out of order, and both sit at the top of
           the page where the intersection observer fires on first paint

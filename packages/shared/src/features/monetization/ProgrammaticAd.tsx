@@ -61,7 +61,7 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   // Leaderboard on desktop, large mobile banner on a phone.
   [ProgrammaticAdFormat.Leaderboard]: {
     label: 'Leaderboard',
-    size: '728x90 · 320x100 mobile',
+    size: '728x90 · 320x50 / 320x100 mobile',
     minHeight: 'min-h-[136px] tablet:min-h-[126px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
     shape: 'horizontal',
