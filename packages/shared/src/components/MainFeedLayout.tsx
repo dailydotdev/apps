@@ -64,13 +64,14 @@ import {
   useViewSize,
   ViewSize,
 } from '../hooks';
-import { feedNameToHeading } from './feeds/FeedContainer';
+import { feedNameToHeading, v2FeedSideInsetClass } from './feeds/FeedContainer';
 import { pageHeaderClassName } from './layout/PageHeader';
 import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
   featureFeedChips,
+  featureFeedHero,
   FeedChipsVariant,
   followingFeedVersion,
   latestFeedVersion,
@@ -78,6 +79,7 @@ import {
   upvotedFeedVersion,
 } from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
+import { FeedHero } from './feeds/hero/FeedHero';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
@@ -384,6 +386,18 @@ export default function MainFeedLayout({
       ) : null,
     [showExploreChips, exploreCategories, feeds, isV2],
   );
+
+  const isMainFeedPage =
+    feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+  const { value: isFeedHeroEnabled } = useConditionalFeature({
+    feature: featureFeedHero,
+    shouldEvaluate: isMainFeedPage,
+  });
+  // The hero reports back rather than being asked: it only has a placement once
+  // its own column exists and an ad has come back for it. While it is showing
+  // one, the grid stands its first ad down so the reader does not meet two
+  // before the first post.
+  const [isHeroAdVisible, setIsHeroAdVisible] = useState(false);
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -791,6 +805,45 @@ export default function MainFeedLayout({
     }
     return '';
   }, [customFeedsData, feedName, router.query.slugOrId]);
+  const chipsTopContent =
+    (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
+      <div
+        className={classNames('mb-8 w-full', shouldUseListFeedLayout && 'mt-8')}
+      >
+        {chipsNode}
+      </div>
+    ) : undefined;
+  // The v2 grid is inset inside the floating card and the hero is its sibling,
+  // not its child, so it has to repeat both the inset and the card border rules
+  // or it runs wider and brighter than every card under it. No bottom margin
+  // from `tablet` up, where the grid already opens with that same inset; mobile
+  // keeps one as the only separator the two have there.
+  const isV2Grid = isV2 && !shouldUseListFeedLayout;
+  const heroClassName = classNames(
+    'w-full tablet:pt-6',
+    isV2Grid
+      ? classNames(
+          v2FeedSideInsetClass,
+          'mb-8 tablet:mb-0',
+          '[&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
+        )
+      : 'mb-8',
+  );
+  // Left undefined when the hero is off so `Feed` keeps its own top slot for
+  // the reading reminder.
+  const topContent = isFeedHeroEnabled ? (
+    <>
+      <FeedHero
+        feedName={feedName}
+        className={heroClassName}
+        onAdVisibleChange={setIsHeroAdVisible}
+      />
+      {chipsTopContent}
+    </>
+  ) : (
+    chipsTopContent
+  );
+
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
     isV2 &&
@@ -861,18 +914,10 @@ export default function MainFeedLayout({
             <Feed
               {...feedProps}
               shortcuts={shortcuts}
-              topContent={
-                (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
-                  <div
-                    className={classNames(
-                      'mb-8 w-full',
-                      shouldUseListFeedLayout && 'mt-8',
-                    )}
-                  >
-                    {chipsNode}
-                  </div>
-                ) : undefined
-              }
+              topContent={topContent}
+              disableHighlightCards={isFeedHeroEnabled}
+              skipFirstAd={isHeroAdVisible}
+              deferWideCards={isFeedHeroEnabled}
               className={classNames(!isFinder && feedGutter)}
             />
           )
