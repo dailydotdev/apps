@@ -151,6 +151,24 @@ export const feedWidth = classNames(
   feedStyles.container,
 );
 
+/**
+ * The last step in to the cards, and the one `feedGutter` cannot describe.
+ *
+ * Inside the v2 floating card the gutter is zero — the card is already the
+ * frame — but the grid then takes an inset of its own so the cards sit off
+ * the frame's rounded corners (`laptop:p-6` in FeedContainer). So in v2 the
+ * cards' left and right edges are 24px inside the gutter's, and chrome that
+ * lines up with them by gutter alone lands a full inset short.
+ *
+ * Horizontal only: the grid's vertical half is the frame's own breathing
+ * room, and chrome outside the grid sets its own height.
+ *
+ * Keyed to the frame's class rather than to `isV2` for the same reason
+ * `feedGutter` is: the flag resolves after mount, and this inset has to
+ * appear at exactly the moment the frame it insets from does.
+ */
+export const feedFrameInsetX = 'laptop:[.layout-frame_&]:px-6';
+
 // Vertical padding only. The horizontal inset moved to FeedContainer
 // (see `feedGutter`) because this component is not in the tree on
 // every feed route — FeedPageLayoutList is used instead on some — and

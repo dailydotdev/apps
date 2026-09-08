@@ -18,7 +18,11 @@ import {
   SPONSOR_ROW_HEIGHT,
   usePublishStripHeight,
 } from './sponsorStripOffset';
-import { feedGutter, feedWidth } from '../../../components/utilities/common';
+import {
+  feedFrameInsetX,
+  feedGutter,
+  feedWidth,
+} from '../../../components/utilities/common';
 import { PREMIUM_SLOT_COUNT } from './sponsorStripSlots';
 import { useSponsorStripAds } from './useSponsorStripAds';
 import FeedContext from '../../../contexts/FeedContext';
@@ -55,73 +59,76 @@ const SponsorRow = ({
     data-testid="sponsorStripRow"
     className="w-full border-t border-border-subtlest-tertiary"
   >
-    <div
-      className={classNames(
-        'flex h-10 items-center gap-5',
-        feedGutter,
-        feedWidth,
-      )}
-      style={widthStyle}
-    >
-      {gold && (
-        <div className="flex shrink-0 items-center gap-x-2.5">
-          <span className="whitespace-nowrap text-text-quaternary typo-caption2">
-            Made possible by
-          </span>
-          {/* The gold mark is the one slot that keeps its own inks and its own
-            size: one coloured mark at full height against a silhouetted wall
-            is the whole hierarchy of the row, without a hover effect on top. */}
-          <SponsorLogo
-            sponsor={gold}
-            slotIndex={0}
-            exactHeight={GOLD_HEIGHT}
-            className="text-text-primary"
-          />
-        </div>
-      )}
-      {gold && !!(premium.length || community.length) && (
-        <span
-          aria-hidden
-          className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
-        />
-      )}
-      {/* One run for both wall tiers, spread with `justify-between` the way the
-        broadcast bar this borrows from distributes its credits: the row
-        breathes on a wide window and tightens before it clips. Premium sits
-        left and carries a hair more ink; the slots are a fixed width, so a
-        rotation swapping a square mark for a long lockup cannot make the whole
-        row shuffle sideways. */}
+    <div className={classNames(feedGutter, feedWidth)} style={widthStyle}>
+      {/* The frame inset rides its own element rather than joining the two
+        above: all three set horizontal padding, and stacking them on one
+        element leaves which wins to the order Tailwind happens to emit
+        them in. Nested, they compose — the gutter finds the frame, and this
+        finds the cards inside it. */}
       <div
-        ref={wallRef}
-        className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
+        className={classNames('flex h-10 items-center gap-5', feedFrameInsetX)}
       >
-        {premium.map((sponsor, index) => (
-          <SponsorLogo
-            key={sponsor.genId}
-            sponsor={sponsor}
-            slotIndex={index + 1}
-            cap={PREMIUM_CAP}
-            boxWidth={SLOT_WIDTH}
-            maxHeight={WALL_MAX_HEIGHT}
-            monochrome
-            className="text-text-secondary transition-colors hover:text-text-primary"
+        {gold && (
+          <div className="flex shrink-0 items-center gap-x-2.5">
+            <span className="whitespace-nowrap text-text-quaternary typo-caption2">
+              Made possible by
+            </span>
+            {/* The gold mark is the one slot that keeps its own inks and its
+              own size: one coloured mark at full height against a silhouetted
+              wall is the whole hierarchy of the row, without a hover effect
+              on top. */}
+            <SponsorLogo
+              sponsor={gold}
+              slotIndex={0}
+              exactHeight={GOLD_HEIGHT}
+              className="text-text-primary"
+            />
+          </div>
+        )}
+        {gold && !!(premium.length || community.length) && (
+          <span
+            aria-hidden
+            className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
           />
-        ))}
-        {community.map((sponsor, index) => (
-          <SponsorLogo
-            key={sponsor.genId}
-            sponsor={sponsor}
-            // Offset by the full premium row rather than by how many premium
-            // creatives happened to fill it, so a slot index means the same
-            // position from one session to the next.
-            slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
-            cap={COMMUNITY_CAP}
-            boxWidth={SLOT_WIDTH}
-            maxHeight={WALL_MAX_HEIGHT}
-            monochrome
-            className="text-text-tertiary transition-colors hover:text-text-primary"
-          />
-        ))}
+        )}
+        {/* One run for both wall tiers, spread with `justify-between` the way
+          the broadcast bar this borrows from distributes its credits: the row
+          breathes on a wide window and tightens before it clips. Premium sits
+          left and carries a hair more ink; the slots are a fixed width, so a
+          rotation swapping a square mark for a long lockup cannot make the
+          whole row shuffle sideways. */}
+        <div
+          ref={wallRef}
+          className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
+        >
+          {premium.map((sponsor, index) => (
+            <SponsorLogo
+              key={sponsor.genId}
+              sponsor={sponsor}
+              slotIndex={index + 1}
+              cap={PREMIUM_CAP}
+              boxWidth={SLOT_WIDTH}
+              maxHeight={WALL_MAX_HEIGHT}
+              monochrome
+              className="text-text-secondary transition-colors hover:text-text-primary"
+            />
+          ))}
+          {community.map((sponsor, index) => (
+            <SponsorLogo
+              key={sponsor.genId}
+              sponsor={sponsor}
+              // Offset by the full premium row rather than by how many premium
+              // creatives happened to fill it, so a slot index means the same
+              // position from one session to the next.
+              slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
+              cap={COMMUNITY_CAP}
+              boxWidth={SLOT_WIDTH}
+              maxHeight={WALL_MAX_HEIGHT}
+              monochrome
+              className="text-text-tertiary transition-colors hover:text-text-primary"
+            />
+          ))}
+        </div>
       </div>
     </div>
   </div>

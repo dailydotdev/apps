@@ -8,7 +8,11 @@ import { useLogContext } from '../../../contexts/LogContext';
 import type { PostHighlight } from '../../../graphql/highlights';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { feedHighlightsLogEvent } from '../../../lib/feed';
-import { feedGutter, feedWidth } from '../../../components/utilities/common';
+import {
+  feedFrameInsetX,
+  feedGutter,
+  feedWidth,
+} from '../../../components/utilities/common';
 import { LogEvent, Origin } from '../../../lib/log';
 
 const HEADLINES_FEED_NAME = 'sponsor-strip-headlines';
@@ -68,44 +72,43 @@ export const SponsorStripHeadlines = ({
       data-testid="sponsorStripHeadlines"
       className="w-full border-t border-border-subtlest-tertiary bg-background-default"
     >
-      <div
-        className={classNames(
-          'flex h-8 items-center gap-4',
-          feedGutter,
-          feedWidth,
-        )}
-        style={widthStyle}
-      >
-        {/* The sacrificial left zone, and the reason the strip has two rows at
-          all: the browser paints its link-status bubble over this corner, and
-          a label losing a word to it costs nothing, where the row above it is
-          the one somebody paid for. */}
-        <span className="shrink-0 whitespace-nowrap text-text-quaternary typo-caption2">
-          Breaking news
-        </span>
-        {/* Scrollable rather than merely clipped: the row carries more than it
-          can show, and a reader who wants the headline under the fade has no
-          other way to reach it. The bar is hidden because the fade already
-          says the row continues. */}
+      <div className={classNames(feedGutter, feedWidth)} style={widthStyle}>
+        {/* See the sponsor row: the frame inset is nested rather than stacked
+          so the three horizontal paddings compose instead of racing. */}
         <div
-          className="no-scrollbar flex min-w-0 flex-1 items-center gap-5 overflow-x-auto"
-          style={fadeStyle}
+          className={classNames('flex h-8 items-center gap-4', feedFrameInsetX)}
         >
-          {headlines.map((highlight, index) => (
-            <Link href={getHighlightsUrl(highlight.id)} key={highlight.id}>
-              <a
-                href={getHighlightsUrl(highlight.id)}
-                onClick={() => onHeadlineClick(highlight, index)}
-                className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
-              >
-                {highlight.headline}
-                <RelativeTime
-                  dateTime={highlight.highlightedAt}
-                  className="text-text-quaternary"
-                />
-              </a>
-            </Link>
-          ))}
+          {/* The sacrificial left zone, and the reason the strip has two rows
+            at all: the browser paints its link-status bubble over this corner,
+            and a label losing a word to it costs nothing, where the row above
+            it is the one somebody paid for. */}
+          <span className="shrink-0 whitespace-nowrap text-text-quaternary typo-caption2">
+            Breaking news
+          </span>
+          {/* Scrollable rather than merely clipped: the row carries more than
+            it can show, and a reader who wants the headline under the fade has
+            no other way to reach it. The bar is hidden because the fade
+            already says the row continues. */}
+          <div
+            className="no-scrollbar flex min-w-0 flex-1 items-center gap-5 overflow-x-auto"
+            style={fadeStyle}
+          >
+            {headlines.map((highlight, index) => (
+              <Link href={getHighlightsUrl(highlight.id)} key={highlight.id}>
+                <a
+                  href={getHighlightsUrl(highlight.id)}
+                  onClick={() => onHeadlineClick(highlight, index)}
+                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
+                >
+                  {highlight.headline}
+                  <RelativeTime
+                    dateTime={highlight.highlightedAt}
+                    className="text-text-quaternary"
+                  />
+                </a>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>
