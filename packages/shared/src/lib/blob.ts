@@ -8,6 +8,22 @@ export const blobToBase64 = (blob: Blob): Promise<string> =>
     reader.readAsDataURL(blob);
   });
 
+interface DownloadBlobProps {
+  filename: string;
+  blob: Blob;
+}
+
+export const downloadBlob = ({ filename, blob }: DownloadBlobProps): void => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+};
+
 interface DownloadProps {
   filename: string;
   url: string;
@@ -18,13 +34,7 @@ export const downloadUrl = async ({
   url,
 }: DownloadProps): Promise<void> => {
   const file = await fetch(url);
-  const imageBlog = await file.blob();
-  const imageURL = URL.createObjectURL(imageBlog);
+  const blob = await file.blob();
 
-  const link = document.createElement('a');
-  link.href = imageURL;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  downloadBlob({ filename, blob });
 };
