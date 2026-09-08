@@ -1,15 +1,25 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../__tests__/helpers/media';
 import basePost from '../../../../__tests__/fixture/post';
+import defaultUser from '../../../../__tests__/fixture/loggedUser';
 import type { Post } from '../../../graphql/posts';
 import * as copy from '../../../hooks/useCopy';
 import * as lazyModal from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { Origin } from '../../../lib/log';
+import type { InterestTurn } from '../../../graphql/interests';
 import type { AgentMessage } from '../chat';
+import * as command from '../hooks/useSendInterestCommand';
+import * as queries from '../queries';
 import { AgentProvider, useAgent } from '../AgentContext';
 import { AgentChatSection } from './AgentChatSection';
 
@@ -210,6 +220,136 @@ describe('the reply actions', () => {
     );
 
     expect(labels[labels.length - 1]).toBe('Share reply');
+  });
+});
+
+describe('voting on a reply', () => {
+  // Feedback is a no-op in the demo, so the vote goes through the live
+  // provider with the transport and the transcript query stubbed.
+  const mountLive = (turn: InterestTurn) => {
+    const send = jest.fn().mockResolvedValue(undefined);
+
+    jest
+      .spyOn(command, 'useSendInterestCommand')
+      .mockReturnValue({ isSending: false, sendCommand: send } as never);
+    jest.spyOn(queries, 'interestHistoryQueryOptions').mockReturnValue({
+      queryKey: ['history', 'a1', turn.id],
+      queryFn: async () => ({
+        edges: [{ node: turn, cursor: turn.id }],
+        pageInfo: { hasNextPage: false, hasPreviousPage: false },
+      }),
+    } as never);
+    jest.spyOn(queries, 'interestRunQueryOptions').mockReturnValue({
+      queryKey: ['run', 'a1', turn.id],
+      queryFn: async () => {
+        throw new Error('run not found');
+      },
+      retry: false,
+    } as never);
+
+    render(
+      <TestBootProvider client={new QueryClient()} auth={{ user: defaultUser }}>
+        <AgentProvider
+          id="a1"
+          interest={{ id: 'a1', query: 'zig' } as never}
+          isDemo={false}
+          findings={[
+            {
+              id: 'f1',
+              post: post('p1', 'Zig 0.15'),
+              score: 0.9,
+              rationale: '',
+              createdAt: new Date(0).toISOString(),
+            },
+            {
+              id: 'f2',
+              post: post('p2', 'Ghostty is open source'),
+              score: 0.8,
+              rationale: '',
+              createdAt: new Date(0).toISOString(),
+            },
+          ]}
+        >
+          <AgentChatSection />
+        </AgentProvider>
+      </TestBootProvider>,
+    );
+
+    return send;
+  };
+
+  const run = (blocks: InterestTurn['blocks']): InterestTurn =>
+    ({
+      id: 'run-1',
+      role: 'agent',
+      createdAt: '2026-01-01T00:01:00Z',
+      status: 'completed',
+      trigger: 'spawn',
+      blocks,
+    } as InterestTurn);
+
+  it('names the posts the reply cited, so the agent knows which finding it is about', async () => {
+    const send = mountLive(
+      run([
+        { type: 'text', html: '<p>Kept two.</p>' },
+        { type: 'picks', postIds: ['p1', 'p2'] },
+      ]),
+    );
+
+    fireEvent.click(await screen.findByLabelText('Bad reply'));
+
+    await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    const [{ text, reply: wantsReply }] = send.mock.calls[0];
+
+    expect(wantsReply).toBe(false);
+    expect(text).toContain('Fewer replies like this one: "Kept two.');
+    expect(text).toContain(
+      'In the context of: @dailydev:post:p1, @dailydev:post:p2',
+    );
+  });
+
+  it('sends the bare excerpt when the reply cited nothing', async () => {
+    const send = mountLive(run([{ type: 'text', html: '<p>Kept two.</p>' }]));
+
+    fireEvent.click(await screen.findByLabelText('Good reply'));
+
+    await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    const [{ text }] = send.mock.calls[0];
+
+    expect(text).toBe('More replies like this one: "Kept two."');
+    expect(text).not.toContain('@dailydev:post:');
+  });
+});
+
+describe('explaining a vote', () => {
+  const AttachmentsProbe = () => {
+    const { attachments } = useAgent();
+    return (
+      <div data-testid="attachments">
+        {attachments.map(({ id }) => id).join(',')}
+      </div>
+    );
+  };
+
+  it('attaches the posts the reply cited alongside the quoted text', () => {
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentProvider id="a1" isDemo initialMessages={[reply]}>
+          <AgentChatSection />
+          <AttachmentsProbe />
+        </AgentProvider>
+      </TestBootProvider>,
+    );
+
+    fireEvent.click(screen.getByLabelText('Bad reply'));
+    fireEvent.click(screen.getByText('Tell it why'));
+
+    const ids = screen.getByTestId('attachments').textContent?.split(',') ?? [];
+
+    expect(ids.some((id) => id.startsWith('quote:'))).toBe(true);
+    expect(ids).toContain('post:p1');
+    expect(ids).toContain('post:p2');
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 

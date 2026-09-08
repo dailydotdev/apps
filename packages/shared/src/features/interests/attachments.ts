@@ -70,6 +70,34 @@ export const targetAttachment = (
   return agentAttachments.find(({ id }) => id === `agent:${target.type}`);
 };
 
+// Most posts one piece of feedback can point at. The API sweeps every marker
+// into a relationship, so a reply that lists a whole feed would drown the
+// finding the vote was actually about.
+export const FEEDBACK_POST_LIMIT = 5;
+
+// The posts a reply cited, as chips, so feedback about that reply can name
+// them with the `@dailydev:post:` markers the API resolves.
+export const messagePostAttachments = (
+  message: Pick<AgentMessage, 'blocks'>,
+  limit = FEEDBACK_POST_LIMIT,
+): AgentAttachment[] => {
+  const seen = new Set<string>();
+
+  return (message.blocks ?? [])
+    .flatMap((block) => (isPostsBlock(block) ? block.posts : []))
+    .filter(({ id }) => {
+      if (seen.has(id)) {
+        return false;
+      }
+
+      seen.add(id);
+
+      return true;
+    })
+    .slice(0, limit)
+    .map(postAttachment);
+};
+
 const transcriptPosts = (messages: AgentMessage[]): Post[] =>
   messages
     // Newest first, so deduping downstream keeps the most recent copy.
