@@ -17,6 +17,7 @@ import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
+import { PreferGoogleSourceAction } from './preferredSources';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 const UserEntityCard = dynamic(
@@ -67,6 +68,8 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     hideToc?: boolean;
     /** Renders a slot after the widget at each position. */
     getRailAd?: (position: PostWidgetPosition) => ReactNode;
+    /** Rendered first, above every other widget. */
+    leading?: ReactNode;
     /** Rendered last, below the footer links. */
     trailing?: ReactNode;
     /** Drops the internal sidebar ad — for templates carrying their own. */
@@ -103,6 +106,7 @@ export function PostWidgets({
   hideSignupWidget = false,
   hideToc = false,
   getRailAd,
+  leading,
   trailing,
   hideAdWidget,
 }: PostWidgetsProps): ReactElement {
@@ -163,6 +167,8 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
+      {leading}
+      <PreferGoogleSourceAction />
       {!hideSignupWidget && <PostSignupWidget />}
       {withAd(PostWidgetPosition.Source, sourceCard)}
       {withAd(

@@ -354,3 +354,8 @@ export const featureSidebarTourExistingBefore = new Feature(
   'sidebar_tour_existing_before',
   '',
 );
+
+// Google Preferred Sources. One flag for every surface: the ask is the same
+// ask everywhere, and the capping is global, so splitting it per placement
+// would let a reader meet it twice after silencing it once.
+export const featurePreferredSource = new Feature('preferred_source', false);
