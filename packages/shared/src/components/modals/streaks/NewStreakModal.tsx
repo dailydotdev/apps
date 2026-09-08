@@ -9,6 +9,7 @@ import { ButtonVariant } from '../../buttons/Button';
 import { ModalClose } from '../common/ModalClose';
 import { SnapshotButton } from '../../../features/snapshot/SnapshotButton';
 import { useSnapshotShare } from '../../../features/snapshot/useSnapshotShare';
+import { StreakSnapshotCard } from '../../../features/snapshot/StreakSnapshotCard';
 import {
   cloudinaryStreakSplash,
   cloudinaryStreakFire,
@@ -129,9 +130,24 @@ export default function NewStreakModal({
         <StreakFreezeUpsell className="mt-6">
           Protect your streak with streak freezes
         </StreakFreezeUpsell>
-        {isSnapshotEnabled && (
+        {isSnapshotEnabled && user && (
           <SnapshotButton
+            card={
+              <StreakSnapshotCard
+                days={currentStreak}
+                longestStreak={maxStreak}
+                milestone={shouldShowSplash ? 'New streak record' : undefined}
+                seed={user.id}
+                totalReadingDays={maxStreak}
+                user={{
+                  handle: user.username,
+                  image: user.image,
+                  name: user.name,
+                }}
+              />
+            }
             className="mt-6"
+            filename={`daily-dev-streak-${currentStreak}`}
             label
             variant={ButtonVariant.Primary}
           />

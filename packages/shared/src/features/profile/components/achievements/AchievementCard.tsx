@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { SnapshotButton } from '../../../snapshot/SnapshotButton';
+import { AchievementSnapshotCard } from '../../../snapshot/AchievementSnapshotCard';
 import { useSnapshotShare } from '../../../snapshot/useSnapshotShare';
 import type { UserAchievement } from '../../../../graphql/user/achievements';
 import {
@@ -127,7 +128,21 @@ export function AchievementCard({
         </div>
         <div className="flex shrink-0 items-center gap-1 self-center">
           {isSnapshotEnabled && isUnlocked && (
-            <SnapshotButton size={ButtonSize.XSmall} />
+            <SnapshotButton
+              card={
+                <AchievementSnapshotCard
+                  completedAt={unlockedAt}
+                  description={achievement.description}
+                  image={achievement.image}
+                  name={achievement.name}
+                  rarity={achievement.rarity ?? null}
+                  seed={achievement.name}
+                  tier={rarityTier}
+                />
+              }
+              filename={`daily-dev-achievement-${achievement.name}`}
+              size={ButtonSize.XSmall}
+            />
           )}
           <Typography
             type={TypographyType.Callout}

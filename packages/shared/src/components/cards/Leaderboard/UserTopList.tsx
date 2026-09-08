@@ -5,6 +5,7 @@ import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import { SnapshotButton } from '../../../features/snapshot/SnapshotButton';
+import { LeaderboardSnapshotCard } from '../../../features/snapshot/LeaderboardSnapshotCard';
 import { useSnapshotShare } from '../../../features/snapshot/useSnapshotShare';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { CurrentUserPositionRow } from './CurrentUserPositionRow';
@@ -39,6 +40,8 @@ export function UserTopList({
   showLevel?: boolean;
   leaderboardType?: LeaderboardType;
 }): ReactElement {
+  const boardLabel = props.containerProps?.title ?? 'Leaderboard';
+
   const createRowMouseEnter = useCallback(
     (rankIndex: number) => (e: React.MouseEvent<HTMLLIElement>) => {
       const rankStyle = TOP_RANK_STYLES[rankIndex];
@@ -95,7 +98,24 @@ export function UserTopList({
           />
           {isSnapshotEnabled && (
             <SnapshotButton
+              card={
+                <LeaderboardSnapshotCard
+                  board={boardLabel}
+                  handle={item.user.username}
+                  image={item.user.image}
+                  level={item.level?.level ?? 0}
+                  levelProgress={
+                    item.level ? getQuestLevelProgress(item.level) : 0
+                  }
+                  name={item.user.name}
+                  rank={i + 1}
+                  reputation={item.user.reputation ?? 0}
+                  score={item.score}
+                  seed={item.user.id}
+                />
+              }
               className="ml-auto opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
+              filename={`daily-dev-rank-${i + 1}`}
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Float}
             />

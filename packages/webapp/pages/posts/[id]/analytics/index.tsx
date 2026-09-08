@@ -12,8 +12,6 @@ import {
   ResponsivePageContainer,
 } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
-import { SnapshotButton } from '@dailydotdev/shared/src/features/snapshot/SnapshotButton';
-import { useSnapshotShare } from '@dailydotdev/shared/src/features/snapshot/useSnapshotShare';
 import {
   ButtonSize,
   ButtonVariant,
@@ -432,8 +430,6 @@ const PostAnalyticsPage = ({
     );
   }, [campaignCompleted, campaign]);
 
-  const isSnapshotEnabled = useSnapshotShare();
-
   return (
     <div className="mx-auto w-full max-w-[48rem]">
       <LayoutHeader
@@ -534,13 +530,6 @@ const PostAnalyticsPage = ({
           </div>
           <ImpressionsChart post={post} />
         </SectionContainer>
-        {isSnapshotEnabled && (
-          <SnapshotButton
-            className="self-start"
-            label
-            variant={ButtonVariant.Primary}
-          />
-        )}
         <Divider className={dividerClassName} />
         {canBoost && !campaign && (
           <>
