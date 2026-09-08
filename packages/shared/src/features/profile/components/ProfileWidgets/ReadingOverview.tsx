@@ -34,6 +34,9 @@ import { tagTitlesQueryOptions } from '../../../../graphql/keywords';
 import type { PublicProfile } from '../../../../lib/user';
 import { ButtonSize } from '../../../../components/buttons/common';
 
+/** ReadingOverviewSnapshotCard's heatmap grid: four rows of twenty-two. */
+const SNAPSHOT_HEATMAP_CELLS = 88;
+
 // Utility functions
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
 
@@ -92,11 +95,29 @@ export function ReadingOverview({
     tagTitlesQueryOptions(),
   );
   const heatmap = useMemo(() => {
-    const counts = readHistory?.map(readHistoryToValue) ?? [];
-    const bins = getBins(counts);
+    if (!readHistory?.length) {
+      return [];
+    }
 
-    return counts.map((count) => getBin(count, bins));
-  }, [readHistory]);
+    // The card draws one cell per bucket and stops at its grid, so the window
+    // is compressed into that many buckets rather than handed a day each: a
+    // day per cell would show the oldest weeks and drop everything since.
+    const start = after.getTime();
+    const span = Math.max(1, before.getTime() - start);
+    const buckets = new Array(SNAPSHOT_HEATMAP_CELLS).fill(0);
+
+    readHistory.forEach((entry) => {
+      const offset = (new Date(entry.date).getTime() - start) / span;
+      const cell = Math.floor(offset * SNAPSHOT_HEATMAP_CELLS);
+
+      buckets[Math.min(SNAPSHOT_HEATMAP_CELLS - 1, Math.max(0, cell))] +=
+        readHistoryToValue(entry);
+    });
+
+    const bins = getBins(buckets);
+
+    return buckets.map((reads) => getBin(reads, bins));
+  }, [after, before, readHistory]);
 
   if (isLoading) {
     return <ReadingOverviewSkeleton />;
