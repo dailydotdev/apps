@@ -36,12 +36,7 @@ import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
 import { combinedClicks, withSelectionGuard } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import {
-  feature,
-  featureCommunitySentiment,
-} from '../../../lib/featureManagement';
-import { isDevelopment } from '../../../lib/constants';
+import { feature } from '../../../lib/featureManagement';
 import { SourceStrip } from '../reader/SourceStrip';
 import Link from '../../utilities/Link';
 import HoverCard from '../../cards/common/HoverCard';
@@ -270,19 +265,7 @@ const PostFocusCardRaw = ({
   const communitySentimentData = article.communitySentiment
     ? mapCommunitySentimentPost(article.communitySentiment)
     : undefined;
-  // Conditional enrollment: only evaluate (and log exposure for) the
-  // community_sentiment experiment on posts that actually have a take, so
-  // take-less posts don't dilute the treatment/control split. Backend keeps
-  // generating the take for every eligible post regardless of this flag.
-  const { value: communitySentimentEnabled } = useConditionalFeature({
-    feature: featureCommunitySentiment,
-    shouldEvaluate: !!communitySentimentData,
-  });
-  // Only when the post actually has a take. `isDevelopment` lets the surface be
-  // previewed locally without flipping the committed (always-`false`) flag
-  // default.
-  const showCommunitySentiment =
-    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
+  const showCommunitySentiment = !!communitySentimentData;
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
