@@ -976,8 +976,8 @@ export const SidebarDesktopV2 = ({
     [isAnyDragging, setSidebarDragging],
   );
 
-  // Every tour and coach hook below is inert unless the `sidebar_tour` flag is
-  // on, so the control arm keeps the rail's unmodified markup and behaviour.
+  // The tour and coach hooks below stay inert until the v2 rail, auth and
+  // persisted state are ready.
   const tour = useSidebarTourState();
   const dotsCoach = useDotsCoach(tour.dotsCoach);
   const {
@@ -2662,7 +2662,7 @@ export const SidebarDesktopV2 = ({
         the aside rather than a child: these portal to the body, and React
         portals still bubble their events up the React tree, which would feed
         the rail's own mousemove/mouseleave prediction machinery. Each is null
-        unless the `sidebar_tour` flag put it there. */}
+        unless the sidebar tour has something to show. */}
       <SidebarTourOverlay tour={tour} />
       <PinCoach
         coach={tour.pinCoach}
