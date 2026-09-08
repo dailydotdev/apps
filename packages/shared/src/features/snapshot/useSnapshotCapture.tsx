@@ -15,17 +15,9 @@ import {
   ToastType,
   useToastNotification,
 } from '../../hooks/useToastNotification';
-import { SNAPSHOT_SIZE } from './snapshotGradient';
+import { getSnapshotCaptureOptions } from './snapshotCapture';
 
 export type SnapshotStatus = 'loading' | 'ready' | 'error';
-
-/** A designed card is already square and carries its own logo. */
-const CARD_CAPTURE_OPTIONS: CaptureShareImageOptions = {
-  width: SNAPSHOT_SIZE,
-  height: SNAPSHOT_SIZE,
-  padding: 0,
-  branded: false,
-};
 
 // Writing an image needs both the async clipboard and ClipboardItem; Firefox
 // has the former without the latter. copyShareImage makes the same check before
@@ -110,8 +102,10 @@ export function useSnapshotCapture({
 
   const hasCard = !!card;
   const subject = hasCard ? cardRef : target;
-  const options =
-    captureOptions ?? (hasCard ? CARD_CAPTURE_OPTIONS : undefined);
+  const [size, setSize] = useState({
+    width: SHARE_IMAGE_WIDTH,
+    height: SHARE_IMAGE_HEIGHT,
+  });
 
   const releasePreview = useCallback(() => {
     if (previewUrl.current) {
@@ -135,8 +129,19 @@ export function useSnapshotCapture({
 
     setStatus('loading');
 
+    // Resolved here, not at render: a growing card's height is only known
+    // once it is mounted off-screen.
+    const options =
+      captureOptions ??
+      (hasCard ? getSnapshotCaptureOptions(cardRef.current) : undefined);
+
     try {
       const result = await captureShareImage(subject, options);
+
+      setSize({
+        width: options?.width ?? SHARE_IMAGE_WIDTH,
+        height: options?.height ?? SHARE_IMAGE_HEIGHT,
+      });
 
       blob.current = result;
       releasePreview();
@@ -147,7 +152,7 @@ export function useSnapshotCapture({
     } catch {
       setStatus('error');
     }
-  }, [onCapture, options, releasePreview, subject]);
+  }, [captureOptions, hasCard, onCapture, releasePreview, subject]);
 
   // Rasterizing is a long synchronous task, so yield once and let the caller
   // paint its skeleton before it starts — otherwise the press feels dropped.
@@ -203,9 +208,6 @@ export function useSnapshotCapture({
     downloadShareImage(blob.current, filename);
   }, [canCopyImage, canShareFile, displayToast, filename]);
 
-  const { width = SHARE_IMAGE_WIDTH, height = SHARE_IMAGE_HEIGHT } =
-    options ?? {};
-
   const offScreenCard = isActive && hasCard && (
     <div
       aria-hidden
@@ -219,8 +221,8 @@ export function useSnapshotCapture({
   return {
     status,
     preview,
-    width,
-    height,
+    width: size.width,
+    height: size.height,
     offScreenCard,
     canShareFile,
     canCopyImage,
