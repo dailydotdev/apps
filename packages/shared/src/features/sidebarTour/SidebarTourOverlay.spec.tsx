@@ -8,13 +8,11 @@ import {
 } from '@testing-library/react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
-import { featureSidebarTour } from '../../lib/featureManagement';
 import { LogEvent } from '../../lib/log';
 import { SpotlightProvider } from '../../components/spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from '../../components/sidebar/SidebarDesktopV2';
@@ -54,14 +52,7 @@ const openModal = () =>
     client.setQueryData(MODAL_KEY, { type: LazyModal.ReportPost });
   });
 
-const renderRail = (
-  isFeatureEnabled: boolean,
-  isModalOpen = false,
-): RenderResult => {
-  const gb = new GrowthBook();
-  gb.setFeatures({
-    [featureSidebarTour.id]: { defaultValue: isFeatureEnabled },
-  });
+const renderRail = (isModalOpen = false): RenderResult => {
   client = new QueryClient();
   // The tour waits for the seen-flag to have loaded, and that now rides
   // `useActions`. Seeded rather than mocked so the real hook is exercised.
@@ -77,7 +68,6 @@ const renderRail = (
   return render(
     <TestBootProvider
       client={client}
-      gb={gb}
       auth={{ user: existingUser, isLoggedIn: true }}
       settings={{ updateFlag }}
       log={{ logEvent }}
@@ -112,33 +102,9 @@ describe('sidebar tour wiring', () => {
     } as unknown as NextRouter);
   });
 
-  describe('with the feature flag off', () => {
-    it('leaves the rail exactly as it is today', async () => {
-      renderRail(false);
-
-      const aside = await screen.findByTestId('sidebar-aside');
-      expect(aside).not.toHaveClass(RAIL_TOUR_LIFT_CLASS);
-
-      // Give the auto-start timer more than its grace period to misfire.
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1200);
-      });
-
-      expect(
-        screen.queryByTestId('sidebar-tour-scrim'),
-      ).not.toBeInTheDocument();
-      expect(screen.queryByText('Skip tour')).not.toBeInTheDocument();
-
-      fireEvent.click(screen.getByLabelText('Support'));
-
-      expect(screen.queryByText('Sidebar tutorial')).not.toBeInTheDocument();
-      expect(screen.getByText('Docs')).toBeInTheDocument();
-    });
-  });
-
-  describe('with the feature flag on', () => {
+  describe('when the user is eligible for the tour', () => {
     it('spotlights the rail and teaches compact mode on step one', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -161,7 +127,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('ends the tour on skip and does not bring it back', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -185,7 +151,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('ends the tour on Escape and logs the step it left from', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -208,7 +174,7 @@ describe('sidebar tour wiring', () => {
 
     it('swallows a compact write that the settings mutation rejects', async () => {
       updateFlag.mockRejectedValueOnce(new Error('settings unavailable'));
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -221,7 +187,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('drops a step whose target stops existing rather than stranding the scrim', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -244,7 +210,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('leaves the tour alone when a modal already consumed Escape', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -263,7 +229,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('ends the tour when the rail navigates out from under it', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -288,7 +254,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('ignores a rewrite of the URL the user is already on', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -307,7 +273,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('never starts on top of a modal that already owns the screen', async () => {
-      renderRail(true, true);
+      renderRail(true);
 
       await screen.findByTestId('sidebar-aside');
       await new Promise((resolve) => {
@@ -320,7 +286,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('steps aside when a modal opens over a running tour', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -345,7 +311,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('announces the card as a labelled dialog and lands focus on the primary action', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -359,7 +325,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('drops the compact switch once the tour leaves the rail step', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -375,7 +341,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('finishes on the last step behind a "Got it" button', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -398,7 +364,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('makes the rail inert so nothing opens or navigates under the card', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -423,7 +389,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('keeps focus inside the card when Tab reaches its last control', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -446,7 +412,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('renames the support entry and files it under Changelog', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -471,7 +437,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('shows the drag demo on the dock step only', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -488,7 +454,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('teaches the dock gesture rather than inviting it mid-run', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,
@@ -512,7 +478,7 @@ describe('sidebar tour wiring', () => {
     });
 
     it('offers the tour again from the support menu', async () => {
-      renderRail(true);
+      renderRail();
 
       await screen.findByTestId('sidebar-tour-scrim', undefined, {
         timeout: TOUR_TIMEOUT,

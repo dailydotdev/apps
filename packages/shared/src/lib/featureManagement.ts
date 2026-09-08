@@ -247,7 +247,7 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
   OnboardingChromeVariant.Control,
 );
 
-export const featureLayoutV2 = new Feature('layout_v2', false);
+export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
@@ -335,22 +335,3 @@ export const featureCommentFirstAction = new Feature(
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
-
-// Sidebar v2 onboarding: a three-step spotlight tour for users whose muscle
-// memory the rail broke, plus the ambient pin/••• coaching for everyone else.
-// Control shows nothing at all. Keep the default false so GrowthBook ramps it.
-export const featureSidebarTour = new Feature('sidebar_tour', false);
-
-// ISO date splitting the tour's two audiences: accounts created before it came
-// from the old sidebar and get the guided tour, accounts created after land on
-// the v2 rail first and get the ambient coaches instead.
-//
-// Empty means "everyone here now came from the old sidebar", which is what a
-// first rollout looks like: v2 has never shipped, so no account has seen it.
-// Set this to the day the rollout starts and the split becomes exact again --
-// it lives in GrowthBook precisely because a build-time date cannot know when
-// the ramp actually reached people.
-export const featureSidebarTourExistingBefore = new Feature(
-  'sidebar_tour_existing_before',
-  '',
-);

@@ -2,15 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
-import {
-  featureSidebarTour,
-  featureSidebarTourExistingBefore,
-} from '../../lib/featureManagement';
 import { LogEvent } from '../../lib/log';
 import { resolveSidebarTourSteps } from './steps';
 import type {
@@ -65,6 +60,8 @@ export const COACH_MAX_EXPOSURES = 3;
 // so both ambient coaches only charge an exposure once one has sat there.
 export const COACH_EXPOSURE_DWELL_MS = 700;
 
+export const SIDEBAR_TOUR_EXISTING_USER_CUTOFF = Date.UTC(2026, 8, 8);
+
 export interface SidebarCoachState {
   isActive: boolean;
   onShown: () => void;
@@ -112,7 +109,7 @@ const useCoachCounter = (key: string): CoachCounter => {
 };
 
 export interface SidebarTourState {
-  // Flag on, v2 rail, signed in, and the persisted flags have loaded.
+  // v2 rail, signed in, and the persisted flags have loaded.
   isEnabled: boolean;
   isRunning: boolean;
   step: SidebarTourStep | null;
@@ -140,15 +137,7 @@ export const useSidebarTourState = (): SidebarTourState => {
   const { logEvent } = useLogContext();
   const router = useRouter();
 
-  const shouldEvaluate = isV2 && isAuthReady && !!user;
-  const { value: isFeatureEnabled } = useConditionalFeature({
-    feature: featureSidebarTour,
-    shouldEvaluate,
-  });
-  const { value: existingUserBefore } = useConditionalFeature({
-    feature: featureSidebarTourExistingBefore,
-    shouldEvaluate,
-  });
+  const isEligible = isV2 && isAuthReady && !!user;
 
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isTourSeen = checkHasCompleted(ActionType.SidebarTourSeen);
@@ -161,12 +150,12 @@ export const useSidebarTourState = (): SidebarTourState => {
   // was already seen never flashes on the way to being read.
   const isFetched =
     isActionsFetched && pinCounter.isFetched && dotsCounter.isFetched;
-  const isEnabled = shouldEvaluate && isFeatureEnabled && isFetched;
+  const isEnabled = isEligible && isFetched;
 
   const [steps, setSteps] = useState<SidebarTourStep[] | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
 
-  // Logging out or losing the flag mid-tour must not leave a run parked and
+  // Logging out or losing eligibility mid-tour must not leave a run parked and
   // ready to resume the moment eligibility comes back. The seen flag stays
   // untouched: the user never acted on it.
   useEffect(() => {
@@ -179,13 +168,10 @@ export const useSidebarTourState = (): SidebarTourState => {
   }, [isEnabled, steps]);
 
   // Only people whose muscle memory the rail broke get the tour on their own.
-  // With no cutoff set that is everyone, which is true of a first rollout: the
-  // v2 rail has not shipped, so nobody has landed on it before today.
-  const existingBefore = new Date(existingUserBefore);
+  // Everyone who signed up before September 8, 2026 came from the old sidebar.
   const isExistingUser =
-    !existingUserBefore ||
-    Number.isNaN(existingBefore.getTime()) ||
-    (!!user?.createdAt && new Date(user.createdAt) < existingBefore);
+    !!user?.createdAt &&
+    new Date(user.createdAt).getTime() < SIDEBAR_TOUR_EXISTING_USER_CUTOFF;
 
   const step = steps?.[stepIndex] ?? null;
   const isRunning = isEnabled && !!step;

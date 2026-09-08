@@ -2,20 +2,16 @@ import type { ReactNode } from 'react';
 import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
-import {
-  featureSidebarTour,
-  featureSidebarTourExistingBefore,
-} from '../../lib/featureManagement';
 import { LogEvent } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
 import {
   COACH_MAX_EXPOSURES,
+  SIDEBAR_TOUR_EXISTING_USER_CUTOFF,
   SIDEBAR_PIN_COACH_KEY,
   useSidebarTourState,
 } from './useSidebarTourState';
@@ -79,21 +75,20 @@ const keysWrittenFor = (key: string): string[] =>
     .filter(([written]) => written.startsWith(`${key}:`))
     .map(([written]) => written);
 
-// A rollout day, and an account either side of it.
-const ROLLOUT_DAY = '2026-09-01T00:00:00.000Z';
-const dayFromRollout = (days: number): string =>
+// The hardcoded sidebar tour cutoff, and an account either side of it.
+const dayFromCutoff = (days: number): string =>
   new Date(
-    new Date(ROLLOUT_DAY).getTime() + days * 24 * 60 * 60 * 1000,
+    SIDEBAR_TOUR_EXISTING_USER_CUTOFF + days * 24 * 60 * 60 * 1000,
   ).toISOString();
 
 const existingUser: LoggedUser = {
   ...defaultUser,
-  createdAt: dayFromRollout(-1),
+  createdAt: dayFromCutoff(-1),
 };
 
 const newUser: LoggedUser = {
   ...defaultUser,
-  createdAt: dayFromRollout(1),
+  createdAt: dayFromCutoff(1),
 };
 
 const logEvent = jest.fn();
@@ -116,25 +111,12 @@ const mountRail = () => {
 
 interface RenderOptions {
   user?: LoggedUser | null;
-  isFeatureEnabled?: boolean;
-  existingBefore?: string;
 }
 
-const renderTour = ({
-  user = existingUser,
-  isFeatureEnabled = true,
-  existingBefore = ROLLOUT_DAY,
-}: RenderOptions = {}) => {
-  const gb = new GrowthBook();
-  gb.setFeatures({
-    [featureSidebarTour.id]: { defaultValue: isFeatureEnabled },
-    [featureSidebarTourExistingBefore.id]: { defaultValue: existingBefore },
-  });
-
+const renderTour = ({ user = existingUser }: RenderOptions = {}) => {
   const wrapper = ({ children }: { children: ReactNode }) => (
     <TestBootProvider
       client={new QueryClient()}
-      gb={gb}
       log={{ logEvent }}
       auth={{ user: user ?? undefined, isLoggedIn: !!user }}
     >
@@ -172,18 +154,6 @@ describe('useSidebarTourState', () => {
 
   afterEach(() => {
     unmountRail();
-  });
-
-  it('treats everyone as an existing user until the rollout sets a cutoff', async () => {
-    // v2 has never shipped, so on a first rollout nobody has landed on the new
-    // rail before today: an unset cutoff must not withhold the tour from the
-    // accounts that signed up most recently.
-    const { result } = await renderEnabledTour({
-      user: newUser,
-      existingBefore: '',
-    });
-
-    expect(result.current.canAutoStart).toBe(true);
   });
 
   it('offers the tour to an existing user who has not seen it', async () => {
@@ -240,18 +210,6 @@ describe('useSidebarTourState', () => {
 
     await waitFor(() => expect(result.current.isEnabled).toBe(false));
     expect(result.current.canAutoStart).toBe(false);
-  });
-
-  it('shows nothing while the feature flag is off', async () => {
-    const { result } = renderTour({ isFeatureEnabled: false });
-
-    await waitFor(() => expect(result.current.isEnabled).toBe(false));
-    expect(result.current.canAutoStart).toBe(false);
-
-    act(() => result.current.start('auto'));
-
-    expect(result.current.isRunning).toBe(false);
-    expect(result.current.step).toBeNull();
   });
 
   it('runs every step whose target is on the rail', async () => {
@@ -476,16 +434,10 @@ describe('useSidebarTourState', () => {
 
   it('drops a parked run when the user stops being eligible mid-tour', async () => {
     let user: LoggedUser | null = existingUser;
-    const gb = new GrowthBook();
-    gb.setFeatures({
-      [featureSidebarTour.id]: { defaultValue: true },
-      [featureSidebarTourExistingBefore.id]: { defaultValue: ROLLOUT_DAY },
-    });
     const client = new QueryClient();
     const wrapper = ({ children }: { children: ReactNode }) => (
       <TestBootProvider
         client={client}
-        gb={gb}
         log={{ logEvent }}
         auth={{ user: user ?? undefined, isLoggedIn: !!user }}
       >
