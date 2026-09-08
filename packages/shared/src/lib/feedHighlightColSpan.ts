@@ -60,10 +60,8 @@ export interface PlacementBuilderOptions {
   widenableTypes: ReadonlySet<PostType>;
   firstSlotOffset?: number;
   /**
-   * First grid row a wide card may occupy. `startIndex` gates on the item
-   * index, which at five columns still lets one land in the opening row, so a
-   * surface that already leads with a full-size card above the grid (the feed
-   * hero) needs the floor stated in rows instead.
+   * First grid row a wide card may occupy. `startIndex` gates on item index,
+   * which at five columns still lets one land in the opening row.
    */
   minWideCardRow?: number;
 }

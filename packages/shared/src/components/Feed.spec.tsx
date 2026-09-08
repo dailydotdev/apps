@@ -2157,7 +2157,7 @@ describe('Feed ad cadence with highlight cards', () => {
     expect(order.slice(2).every((t) => t === 'postItem')).toBe(true);
   });
 
-  // The survivor keeps its index: the dropped ad no longer occupies a cell
+  // The survivor keeps index 12: the dropped ad no longer occupies a cell
   // against the cadence, so the next slot comes due one post later.
   it('drops the first ad slot when the surface shows one above the feed', async () => {
     const posts = Array.from({ length: 20 }, (_, i) => buildPost(`p${i}`));

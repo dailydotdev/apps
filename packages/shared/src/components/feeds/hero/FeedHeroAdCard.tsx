@@ -21,8 +21,7 @@ import { useAdLabel } from '../../../features/monetization/useAdLabel';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { TargetId } from '../../../lib/log';
 
-// `CardImage`'s own height and treatment, so the creative comes out the shape
-// the reader has already seen four of on the row below.
+// `CardImage`'s own height, so the creative matches the covers on the row below.
 const AdCover = classed(Image, 'h-40 w-full rounded-12 object-cover');
 
 interface FeedHeroAdCardProps {
@@ -33,14 +32,9 @@ interface FeedHeroAdCardProps {
 }
 
 /**
- * The rail's ad, built to read as another big article rather than a compact
- * widget. It follows the featured card beside it in both order and scale: the
- * advertiser mark, the headline, its tags, the disclosure where the card puts
- * its date, then the cover at the grid card's fixed 160px.
- *
- * The two controls sit below the card rather than inside it, the way "Read all"
- * sits below the headline list, so the hover highlight covers what the card
- * links to and stops short of the buttons that go somewhere else.
+ * The rail's ad, following the featured card beside it in order and scale. The
+ * two controls sit below the card rather than inside it, so the hover highlight
+ * covers what the card links to and stops short of buttons that go elsewhere.
  */
 export const FeedHeroAdCard = ({
   ad,
@@ -57,21 +51,15 @@ export const FeedHeroAdCard = ({
       <FlatCard
         data-testid="feedHeroAdCard"
         className={classNames(
-          // The card radius the feed and the highlights card use, not the rail
-          // rows' smaller one. It takes the column's height but stops above the
-          // controls, which are the hover surface's edge.
           'min-h-0 flex-1 rounded-16 px-4 py-3 transition-colors hover:bg-surface-hover',
         )}
       >
         <AdLink ad={ad} onLinkClick={onLinkClick} />
         <AdFavicon ad={ad} className="!m-0 shrink-0" />
-        {/* `typo-title3` is `CardTitle`'s size — what every post in the grid
-            gives its headline. */}
         <span className="mt-3 line-clamp-3 break-words font-bold text-text-primary typo-title3">
           {ad.description}
         </span>
-        {/* `CardSpace`'s job: the copy takes the column's slack so the cover
-            below keeps its fixed height. */}
+        {/* The copy takes the column's slack so the cover keeps its height. */}
         <div className="min-h-0 flex-1" />
         {matchingTags.length > 0 && (
           <PostTags
@@ -97,13 +85,8 @@ export const FeedHeroAdCard = ({
         <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />
       </FlatCard>
       {/* Outside the card, so hovering them does not light the creative up as
-          though it were the link. The creative's own call to action is left out
-          too: a third button wraps this row onto two lines in a 270px column,
-          and the card is already the click target.
-
-          The negative margins cancel the 12px `ButtonSize.Small` pads with, so
-          what lines up with the cover and the copy above is the label rather
-          than the button's box. */}
+          though it were the link. The negative margins cancel the padding
+          `ButtonSize.Small` adds, so the labels line up with the copy above. */}
       <div className="flex min-w-0 shrink-0 items-center justify-between gap-2 px-4 pb-3 pt-2">
         {showAdvertiseLink && (
           <AdvertiseLink

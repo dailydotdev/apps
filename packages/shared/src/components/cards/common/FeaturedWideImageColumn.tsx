@@ -12,10 +12,8 @@ export type FeaturedWideImageColumnProps = {
   alt: string;
   wideColSpan: FeaturedWideColSpan;
   /**
-   * The hero's treatment: container-query spans, and the cover cropped to fill
-   * its column inset with its own corners, the way the feed cards treat a
-   * cover. Off keeps the letterboxed image over the blurred backdrop the
-   * in-feed wide cards use.
+   * Container-query spans, and the cover cropped to fill its column. Off keeps
+   * the letterboxed image over a blurred backdrop.
    */
   hero?: boolean;
   overlay?: ReactNode;

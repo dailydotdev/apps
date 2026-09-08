@@ -13,39 +13,29 @@ import { feedHeroShape } from './feedHeroShape';
 export type FeedHeroAdSlot = {
   ad?: Ad;
   placement: FeedHeroAdPlacement;
-  /**
-   * The section's row. The carousel needs it too — it picks the featured card
-   * from the same number of columns the card is given, so the two cannot end
-   * up disagreeing about how much room there is.
-   */
+  /** The section's row, so the card and the layout around it share one number. */
   shape: FeedHeroShape;
 };
 
 /**
- * The hero's ad. The feed underneath drops its own first placement whenever the
- * hero has somewhere to put one, so the reader never meets two before the first
- * post — and gets it back the moment the hero does not.
- *
- * Whether there is somewhere comes from the grid's column count, which is there
- * on the first render, rather than from measuring the section: a load that
- * paints straight at its final size never fires a resize to measure on.
+ * The hero's ad. Whether there is room comes from the grid's column count,
+ * which is there on the first render — measuring the section instead missed a
+ * load that painted straight at its final size and so never fired a resize.
  */
-export const useFeedHeroAd = (enabled: boolean): FeedHeroAdSlot => {
+export const useFeedHeroAd = (): FeedHeroAdSlot => {
   const { user, tokenRefreshed } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { numCards } = useContext(FeedContext);
-  // The same call the feed makes, so the two agree on what a list is: below
-  // laptop, and on laptop up whenever the reader has list mode on.
+  // The same call the feed makes, so the two agree on what a list is.
   const { shouldUseListFeedLayout } = useFeedLayout();
-  // `.eco` regardless of the reader's spaciness, because that is the count the
-  // grid itself renders with — see `FeedContainer`.
+  // `.eco` regardless of the reader's spaciness: the count the grid renders
+  // with — see `FeedContainer`.
   const shape = feedHeroShape(numCards.eco, shouldUseListFeedLayout);
 
   const { data: ad } = useAdQuery({
     placement: AdPlacement.Feed,
     queryKey: generateQueryKey(RequestKey.Ads, user, 'feed-hero'),
-    enabled:
-      enabled && tokenRefreshed && !isPlus && shape.adPlacement !== 'none',
+    enabled: tokenRefreshed && !isPlus && shape.adPlacement !== 'none',
     staleTime: StaleTime.OneHour,
   });
 

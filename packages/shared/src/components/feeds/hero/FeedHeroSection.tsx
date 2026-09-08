@@ -11,10 +11,7 @@ import { FeedHeroCarousel } from './FeedHeroCarousel';
 import type { FeedHeroAdPlacement, FeedHeroShape } from './feedHeroShape';
 import { feedHeroShape } from './feedHeroShape';
 
-/**
- * Written out rather than built, because Tailwind only generates the classes it
- * can see. Six is the grid's own ceiling — `FeedContext`'s widest setting.
- */
+/** Written out, not built: Tailwind only generates the classes it can see. */
 const gridColsClass: Partial<Record<number, string>> = {
   2: 'grid-cols-2',
   3: 'grid-cols-3',
@@ -34,10 +31,6 @@ interface FeedHeroSectionProps {
   posts: Post[];
   highlights: PostHighlight[];
   ad?: Ad;
-  /**
-   * Where the section is putting the ad. Decided by the caller from the same
-   * shape passed in here, so the column and what goes in it cannot disagree.
-   */
   adPlacement?: FeedHeroAdPlacement;
   /** The section's row, measured against the feed grid's column count. */
   shape?: FeedHeroShape;
@@ -64,8 +57,6 @@ export function FeedHeroSection({
 }: FeedHeroSectionProps): ReactElement {
   const adProps = { onLinkClick: onAdLinkClick, onViewable: onAdViewable };
   const { columns, featuredSpan, railSpan, layout } = shape;
-  // One column stacks: no grid to hold columns apart, and no row height, since
-  // the list card and the headline list each take what they need.
   const isStacked = layout === 'stacked';
 
   return (
@@ -76,16 +67,12 @@ export function FeedHeroSection({
           isStacked
             ? 'flex flex-col gap-6'
             : classNames(
-                // The grid's own gap, so the hero's columns land on the
-                // columns underneath rather than near them.
+                // The feed grid's own gap, so the columns line up with it.
                 'grid gap-8',
                 gridColsClass[columns],
-                // The featured card's height plus the 3.5rem the paging
-                // controls and their gaps need under it. A single column is
-                // the narrow case, where the title wraps furthest and the card
-                // runs to its `max-h-cardLarge` ceiling; across two or more it
-                // settles 3rem shorter, and the row gives that back to the
-                // first feed row rather than holding a gap open.
+                // The card's height plus the 3.5rem the paging controls need
+                // under it. One column wraps the title furthest and runs to
+                // `max-h-cardLarge`; wider, the card settles 3rem shorter.
                 layout === 'wide'
                   ? 'grid-rows-[27.5rem]'
                   : 'grid-rows-[30.5rem]',

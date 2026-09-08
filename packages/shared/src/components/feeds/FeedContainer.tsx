@@ -55,9 +55,8 @@ export interface FeedContainerProps {
 }
 
 /**
- * The v2 grid sits inset inside the floating card. Anything the feed renders in
- * its top slot is a sibling of that grid, not a child, so it has to carry the
- * same side inset or it runs wider than the cards underneath it.
+ * Exported because anything in the feed's top slot is a sibling of the grid,
+ * not a child, and has to carry the same inset to line up with it.
  */
 export const v2FeedSideInsetClass = 'tablet:px-2 laptop:px-6';
 const v2FeedInsetClass = `${v2FeedSideInsetClass} tablet:py-2 laptop:py-6`;

@@ -44,12 +44,7 @@ export const FeedHero = ({
   /** For the headline click events, which the in-feed card also reports. */
   feedName: string;
   className?: string;
-  /**
-   * Told whether the hero ended up showing a placement, so the feed below can
-   * stand its own first ad down. Only the hero knows: it turns on the column
-   * the ad needs, and the ad still has to come back before there is one to
-   * stand down for.
-   */
+  /** Lets the feed below stand its own first ad down while the hero shows one. */
   onAdVisibleChange?: (isVisible: boolean) => void;
 }): ReactElement | null => {
   const { user, tokenRefreshed } = useAuthContext();
@@ -59,7 +54,7 @@ export const FeedHero = ({
   const { toggleBookmark } = useBookmarkPost();
   const [, copyLink] = useCopyLink();
 
-  const { ad, placement, shape } = useFeedHeroAd(true);
+  const { ad, placement, shape } = useFeedHeroAd();
 
   const { data: headlines } = useQuery({
     ...majorHeadlinesQueryOptions({ first: HIGHLIGHT_COUNT }),
@@ -98,13 +93,11 @@ export const FeedHero = ({
     return postIds.map((id) => byId.get(id)).filter(Boolean) as Post[];
   }, [featured, postIds]);
 
-  // The hero renders nothing without posts, so it is showing no ad either.
   const adPlacement = posts.length > 0 ? placement : 'none';
   const isAdShown = adPlacement !== 'none';
 
-  // Stacked, the section leads with one story as a list card and the headline
-  // list carries the rest, so the lead is dropped from the list rather than
-  // appearing twice a few pixels apart.
+  // Stacked, the lead story is already a card above the list, so drop it from
+  // the list rather than showing it twice a few pixels apart.
   const railHighlights =
     shape.layout === 'stacked' ? highlights.slice(1) : highlights;
 

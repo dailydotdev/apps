@@ -516,9 +516,6 @@ describe('computePlacements', () => {
   });
 
   describe('minWideCardRow', () => {
-    // `startIndex` counts items, so at four columns item 0 is still in the
-    // opening row. A surface that leads with its own featured card needs the
-    // floor stated in rows.
     it('keeps wide cards out of the rows below the floor', () => {
       const items = Array.from({ length: 6 }, () =>
         makePostItem(makePost({ significance: 'breaking' })),
@@ -536,9 +533,8 @@ describe('computePlacements', () => {
       const items = Array.from({ length: 6 }, (_, index) =>
         makePostItem(makePost(index === 5 ? { significance: 'breaking' } : {})),
       );
-      // Five single-column cards fill row 0 and spill into row 1, so the sixth
-      // is past the floor and widens — to the 3 columns left in its row, since
-      // the fit-to-row clamp still applies.
+      // Five cards fill row 0 and spill into row 1, so the sixth widens — to
+      // the 3 columns left in its row, since the fit-to-row clamp applies.
       const placements = computePlacements(items, {
         ...opts,
         minWideCardRow: 1,

@@ -11,22 +11,16 @@ interface FittedLineClamp {
 
 /**
  * How many whole lines of a block still fit the room left under everything
- * above it.
+ * above it. `-webkit-line-clamp` takes a number, not a height, and the free
+ * space is only known once the flex column above has been laid out, so it is
+ * measured and handed back as that number. Clamping to a count that no longer
+ * fits would let the box clip a row of glyphs through the middle.
  *
- * A fixed line count cannot do this: the text starts wherever the copy above it
- * happens to end, and clamping to a count that no longer fits lets the box clip
- * the overflow — a row of glyphs sliced through the middle rather than a
- * paragraph that stops. `-webkit-line-clamp` takes a number, not a height, and
- * the free space is only known once the flex column above has been laid out, so
- * it is measured here and handed back as that number.
- *
- * Reducing the count only makes the text shorter, and the text is the last
- * child, so where it starts does not move and the measurement cannot chase
- * itself.
+ * Safe against feedback: the text is the last child, so shortening it does not
+ * move where it starts.
  */
 export const useFittedLineClamp = (maxLines: number): FittedLineClamp => {
-  // Nodes as state rather than refs so the effect re-runs when they attach:
-  // the card renders no summary at all until the post arrives.
+  // Nodes as state, not refs, so the effect re-runs when they attach.
   const [container, setContainer] = useState<HTMLElement | null>(null);
   const [text, setText] = useState<HTMLElement | null>(null);
   const [lines, setLines] = useState(maxLines);
@@ -40,8 +34,7 @@ export const useFittedLineClamp = (maxLines: number): FittedLineClamp => {
       const style = getComputedStyle(text);
       const lineHeight = parseFloat(style.lineHeight);
 
-      // `normal` gives no number to divide by. Leaving the count alone keeps
-      // the CSS clamp, which is the behaviour without this hook at all.
+      // `normal` gives no number to divide by; leave the CSS clamp in charge.
       if (!lineHeight) {
         return;
       }
@@ -56,8 +49,7 @@ export const useFittedLineClamp = (maxLines: number): FittedLineClamp => {
       );
     };
 
-    // The container's own height moves the floor; the text's moves the ceiling,
-    // and the copy above it can rewrap without either box changing size.
+    // The container's height moves the floor, the text's moves the ceiling.
     const observer = new ResizeObserver(measure);
 
     observer.observe(container);

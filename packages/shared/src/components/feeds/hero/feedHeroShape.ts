@@ -1,19 +1,10 @@
-/**
- * Where the section puts the placement. `column` is the full card in a column
- * of its own; `none` hands it back to the feed, which places it exactly as it
- * does with no hero at all.
- */
+/** `none` hands the placement back to the feed, which shows it in its own slot. */
 export type FeedHeroAdPlacement = 'none' | 'column';
 
 /**
- * Which card the featured post takes.
- *
- * `stacked` is one column: the lead story as a list card with the headline list
- * under it, which is what the feed's own list view gets. `split` is one feed
- * column wide, which takes the platform's standard card — the wide card's own
- * layout has nothing left to trade at that size and its copy clips mid-
- * sentence. `wide` is two columns or more, where the wide card earns its shape
- * back.
+ * Which card the featured post takes: `stacked` a list card, `split` the
+ * standard grid card, `wide` the featured-wide card. The wide card's copy
+ * clips mid-sentence at one column, which is why `split` exists.
  */
 export type FeedHeroLayout = 'stacked' | 'split' | 'wide';
 
@@ -29,19 +20,10 @@ export type FeedHeroShape = {
 };
 
 /**
- * The hero's row, laid out on the feed grid's columns instead of on thresholds
- * of its own, so the section reflows when the feed does and its column edges
- * land on the grid's rather than beside them.
- *
- * The rail holds a single column until there are enough to spare it a second,
- * and the ad earns one from four columns up — below that the feed keeps the
- * placement rather than the hero squeezing it in. The featured card takes
- * whatever is left, which is what makes the row come out exactly as wide as the
- * grid beneath it however many columns that is.
- *
- * A feed rendering as a list takes the one-column shape whatever its column
- * count says, so the section reads as the same kind of thing as the rows under
- * it.
+ * The hero's row, laid out on the feed grid's own column count rather than on
+ * viewport thresholds, so the section reflows when the feed does and its column
+ * edges land on the grid's. The featured card takes what the rail and the ad
+ * leave, which is what keeps the row exactly as wide as the grid beneath it.
  */
 export const feedHeroShape = (
   columns: number,

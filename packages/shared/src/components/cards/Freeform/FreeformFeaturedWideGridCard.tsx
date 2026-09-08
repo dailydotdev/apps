@@ -115,8 +115,6 @@ export const FreeformFeaturedWideGridCard = forwardRef(
               {!!description && (
                 <p
                   ref={hero ? textFit.textRef : undefined}
-                  // The measured fit replaces the class ceiling; inline because it is a
-                  // number rather than one of a handful of classes.
                   style={hero ? { WebkitLineClamp: textFit.lines } : undefined}
                   className={classNames(
                     'mt-2 text-text-secondary typo-callout',

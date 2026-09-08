@@ -81,9 +81,8 @@ const HighlightRow = ({
     <Link href={getHighlightUrl(highlight)}>
       <a
         className={classNames(
-          // Drawn rather than bordered: a `border-b` follows the row's corner
-          // radius and curves up at both ends, reading as a half-open box
-          // around every headline instead of a list.
+          // Drawn, not bordered: a `border-b` follows the row's corner radius
+          // and curves up at both ends.
           'relative flex w-full flex-col gap-0 text-left transition-colors after:absolute after:bottom-0 after:h-px after:bg-border-subtlest-tertiary last:after:hidden hover:bg-surface-hover focus-visible:bg-surface-hover',
           compact
             ? 'rounded-12 px-4 py-3 after:inset-x-4'
@@ -94,8 +93,7 @@ const HighlightRow = ({
       >
         <span className="break-words font-bold text-text-primary typo-callout">
           {highlight.headline}
-          {/* In the headline's own text flow rather than on a line of its own,
-              so it trails the last word and wraps with it. */}
+          {/* In the headline's text flow, so it trails and wraps with it. */}
           <span className="font-normal text-text-tertiary typo-footnote">
             <span aria-hidden> · </span>
             <RelativeTime dateTime={highlight.highlightedAt} maxHoursAgo={72} />
@@ -128,15 +126,14 @@ export const HighlightCardContent = ({
     variant === 'grid' &&
       'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto pt-0',
     variant === 'grid' && !isFlushGrid && 'px-2.5 pb-1',
-    // Only from `laptop`, where the column has a fixed height and the list
-    // actually scrolls: the fade stops the pinned footer slicing a row flat.
+    // Only where the column has a fixed height and actually scrolls: the fade
+    // stops the pinned footer slicing a row flat.
     isFlushGrid &&
       'laptop:[mask-image:linear-gradient(to_bottom,black_calc(100%-1.25rem),transparent)]',
   );
   const footerClassName = classNames(
     variant === 'list' && 'pt-1.5',
-    // The bottom inset matches the ad card's padding, so the two columns finish
-    // on one line rather than 12px apart.
+    // Matches the ad card's padding, so the columns finish on one line.
     variant === 'grid' && (isFlushGrid ? 'px-4 pb-3 pt-2' : 'px-1 pb-1'),
   );
   const firstHighlight = highlights[0];

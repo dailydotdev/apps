@@ -112,8 +112,6 @@ it('renders no chip when post has no highlight', () => {
 });
 
 describe('hero sizing', () => {
-  // The shared fixture has no summary, and the summary is the element under
-  // test here.
   const summarised: Post = { ...post, summary: 'What the post is about.' };
   const summaryOf = (): HTMLElement =>
     screen.getByText(summarised.summary as string);
@@ -122,8 +120,7 @@ describe('hero sizing', () => {
     renderComponent({ post: summarised, hero: true });
 
     const summary = summaryOf();
-    // Every element is `flex-shrink: 0` by default in base.css, so both have to
-    // opt back in or the actions are pushed out of the fixed-height card.
+    // `base.css` resets every element to `flex-shrink: 0`.
     expect(summary).toHaveClass('shrink');
     expect(summary.parentElement).toHaveClass('shrink', 'min-h-0');
   });

@@ -206,23 +206,11 @@ export type FeedReturnType = {
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
-  /**
-   * Set when the surface already shows the highlights somewhere else (the feed
-   * hero), so the grid doesn't repeat them in a card.
-   */
+  /** The surface shows the highlights itself, so keep them out of the grid. */
   disableHighlightCards?: boolean;
-  /**
-   * Set when the surface shows an ad of its own above the feed (the feed hero),
-   * so the reader doesn't meet two of them before the first post. The queue is
-   * still consumed in order: the slot is dropped, not the creative that would
-   * have filled it.
-   */
+  /** The surface shows an ad above the feed, so drop the grid's first slot. */
   skipFirstAd?: boolean;
-  /**
-   * Set when the surface already leads with a full-size featured card (the feed
-   * hero), so the grid doesn't open with a second one directly beneath it. The
-   * first row stays all single-column cards; wide ones resume below it.
-   */
+  /** The surface leads with a featured card, so keep wide ones out of row one. */
   deferWideCards?: boolean;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };

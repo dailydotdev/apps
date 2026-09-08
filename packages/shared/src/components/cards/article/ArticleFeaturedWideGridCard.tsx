@@ -60,8 +60,6 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const image = usePostImage(post);
     const { overlay } = useCardCover({ post, onShare });
     const hasMedia = !!image || !!overlay;
-    // The headline keeps every line it needs; the summary takes what is left
-    // of the hero's fixed height, in whole lines.
     const textFit = useFittedLineClamp(HERO_DESCRIPTION_MAX_LINES);
     const significance = post.hero?.significance;
     const isTweetPost =
@@ -147,8 +145,6 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           {!!description && (
             <p
               ref={hero ? textFit.textRef : undefined}
-              // The measured fit replaces the class ceiling; inline because it is a
-              // number rather than one of a handful of classes.
               style={hero ? { WebkitLineClamp: textFit.lines } : undefined}
               className={classNames(
                 'mt-2 text-text-secondary typo-callout',

@@ -101,8 +101,6 @@ describe('FeedHeroCarousel split', () => {
     ).toHaveLength(titles.length);
   });
 
-  // Half a section is about a feed column wide, so the featured post takes the
-  // card the feed itself would give it rather than the wide card.
   it('uses the standard card, not the wide one', () => {
     renderComponent(posts, 'split');
 

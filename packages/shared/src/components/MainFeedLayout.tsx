@@ -394,9 +394,7 @@ export default function MainFeedLayout({
     shouldEvaluate: isMainFeedPage,
   });
   // The hero reports back rather than being asked: it only has a placement once
-  // its own column exists and an ad has come back for it. While it is showing
-  // one, the grid stands its first ad down so the reader does not meet two
-  // before the first post.
+  // its column exists and an ad has come back for it.
   const [isHeroAdVisible, setIsHeroAdVisible] = useState(false);
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
@@ -813,11 +811,9 @@ export default function MainFeedLayout({
         {chipsNode}
       </div>
     ) : undefined;
-  // The v2 grid is inset inside the floating card and the hero is its sibling,
-  // not its child, so it has to repeat both the inset and the card border rules
-  // or it runs wider and brighter than every card under it. No bottom margin
-  // from `tablet` up, where the grid already opens with that same inset; mobile
-  // keeps one as the only separator the two have there.
+  // The hero is a sibling of the v2 grid, so it repeats the grid's inset and
+  // card border rules. No bottom margin from `tablet` up, where the grid
+  // already opens with that inset; mobile keeps one as the only separator.
   const isV2Grid = isV2 && !shouldUseListFeedLayout;
   const heroClassName = classNames(
     'w-full tablet:pt-6',
@@ -829,8 +825,7 @@ export default function MainFeedLayout({
         )
       : 'mb-8',
   );
-  // Left undefined when the hero is off so `Feed` keeps its own top slot for
-  // the reading reminder.
+  // Left undefined when the hero is off so `Feed` keeps its own top slot.
   const topContent = isFeedHeroEnabled ? (
     <>
       <FeedHero

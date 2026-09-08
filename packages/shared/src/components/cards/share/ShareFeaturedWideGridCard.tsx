@@ -150,8 +150,6 @@ export const ShareFeaturedWideGridCard = forwardRef(
                   {!!sharedSummary && (
                     <p
                       ref={hero ? textFit.textRef : undefined}
-                      // The measured fit replaces the class ceiling; inline because it is a
-                      // number rather than one of a handful of classes.
                       style={
                         hero ? { WebkitLineClamp: textFit.lines } : undefined
                       }

@@ -18,12 +18,7 @@ import { ArrowIcon } from '../../icons';
 export type FeedHeroCarouselProps = Omit<FeaturedWideCardProps, 'post'> & {
   posts: Post[];
   autoplayMs?: number;
-  /**
-   * The section's shape. Passed in rather than measured here so the card and
-   * the layout around it come from one number: read apart, a viewport
-   * breakpoint and a container query disagreed, and a list card stretched down
-   * a 30rem column was the result.
-   */
+  /** Passed in, not measured, so the card and the layout share one number. */
   layout?: FeedHeroLayout;
   className?: string;
 };
@@ -47,11 +42,9 @@ export const FeedHeroCarousel = ({
     return null;
   }
 
-  // One column: the lead story as a list card, with the headline list under it,
-  // so the section is the same kind of thing as the rows beneath it. There is
-  // no paging here — a slide has to stop short of the edge for the next one to
-  // peek, and at these widths that left every card too narrow to read. The
-  // stories it would have paged through are the headline list's first rows.
+  // No paging at one column: a slide has to stop short of the edge for the
+  // next to peek, which left every card too narrow to read. The stories it
+  // would have paged through are the headline list's first rows.
   if (layout === 'stacked') {
     const [lead] = posts;
     const LeadCard = PostTypeToListCard[lead.type] ?? ArticleList;
@@ -83,9 +76,6 @@ export const FeedHeroCarousel = ({
 
   const post = posts[active];
   const outgoing = slide.from === null ? null : posts[slide.from];
-  // Half a section is about the width of a feed column, so the featured post
-  // takes the card the feed itself would give it. The wide card's own layout
-  // has nothing left to trade at that size and its copy clips mid-sentence.
   const isWide = layout === 'wide';
   const cardFor = (item: Post) => {
     if (isWide) {
@@ -95,13 +85,12 @@ export const FeedHeroCarousel = ({
     return PostTypeToGridCard[item.type] ?? ArticleGrid;
   };
   const Card = cardFor(post);
-  // `hero` is the wide card's own prop; the standard card has no use for it.
   const wideProps = isWide ? { hero: true } : {};
   const previous = posts[wrapIndex(active - 1, total)];
   const next = posts[wrapIndex(active + 1, total)];
 
-  // The slide being replaced stays mounted on top of the new one until its
-  // fade finishes, so the two cross over instead of the card popping.
+  // The outgoing slide stays mounted until its fade ends, so the two cross
+  // over instead of the card popping.
   let outgoingSlide: ReactElement | null = null;
   if (outgoing) {
     const OutgoingCard = cardFor(outgoing);
@@ -128,17 +117,15 @@ export const FeedHeroCarousel = ({
       aria-label="Featured posts"
       aria-roledescription="carousel"
       className={classNames(
-        // The bottom inset is the one the other two columns already carry — the
-        // rail on its "Read all" footer, the ad through its card padding — so
-        // this column's controls finish on their line rather than 12px below.
+        // The bottom inset the other two columns already carry, so all three
+        // finish on one line.
         'group/hero flex min-h-0 min-w-0 flex-col gap-3 pb-3',
         className,
       )}
     >
       <div
         // `overflow-hidden` makes this box the last word on a slide's height:
-        // every post type renders its own card, and one that wants more than
-        // the row would paint over the controls underneath.
+        // a card wanting more would paint over the controls underneath.
         className="grid min-h-0 flex-1 overflow-hidden"
         // Announcing every automatic rotation would talk over the reader, so
         // only a change the user asked for is live.
@@ -147,8 +134,6 @@ export const FeedHeroCarousel = ({
         {outgoingSlide}
         <div
           key={post.id}
-          // The card sizes its own split against this box, not the viewport:
-          // the hero is only ever as wide as the reader's feed grid.
           className="feed-hero-slide-in col-start-1 row-start-1 flex flex-col @container/wide"
         >
           <Card post={post} {...wideProps} {...cardProps} />
