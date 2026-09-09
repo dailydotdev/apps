@@ -364,8 +364,6 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
-        // Matches spinAndScale in UpvoteButtonIcon.module.css, so a copy
-        // confirmation reads as the same gesture as an upvote.
       },
       animation: {
         'image-zoom-in': 'image-zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
