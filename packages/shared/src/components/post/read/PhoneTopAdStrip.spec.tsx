@@ -3,20 +3,10 @@ import { render as rtlRender, screen } from '@testing-library/react';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import type { AdsenseSlots } from '../../../features/monetization/adsense';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { useViewSize } from '../../../hooks/useViewSize';
 import { useFeature } from '../../GrowthBookProvider';
 import { PHONE_TOP_AD_HEIGHT_VAR, PhoneTopAdStrip } from './PhoneTopAdStrip';
 import { ORGANIC_SLOT } from './slots';
 
-jest.mock('../../../hooks/useConditionalFeature');
-jest.mock('../../../hooks/useViewSize', () => ({
-  ...(jest.requireActual('../../../hooks/useViewSize') as Record<
-    string,
-    unknown
-  >),
-  useViewSize: jest.fn(),
-}));
 jest.mock('../../GrowthBookProvider', () => ({
   ...(jest.requireActual('../../GrowthBookProvider') as Record<
     string,
@@ -37,19 +27,15 @@ jest.mock('./slots', () => ({
 const mockSlotMaps = jest.requireMock('./slots') as {
   ORGANIC_ADSENSE_SLOTS: AdsenseSlots;
 };
-const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
-const mockUseViewSize = jest.mocked(useViewSize);
 const mockUseFeature = jest.mocked(useFeature);
 
 const anonymousAuth = { isAuthReady: true } as unknown as AuthContextData;
-const render = (ui: React.ReactElement) =>
-  rtlRender(
-    <AuthContext.Provider value={anonymousAuth}>{ui}</AuthContext.Provider>,
-  );
-
-const setFlag = (value: boolean): void => {
-  mockUseConditionalFeature.mockReturnValue({ value, isLoading: false });
-};
+const loggedInAuth = {
+  isAuthReady: true,
+  user: { id: 'u1' },
+} as unknown as AuthContextData;
+const render = (ui: React.ReactElement, auth = anonymousAuth) =>
+  rtlRender(<AuthContext.Provider value={auth}>{ui}</AuthContext.Provider>);
 
 beforeEach(() => {
   // jsdom has no ResizeObserver; the strip publishes its height through one.
@@ -60,7 +46,6 @@ beforeEach(() => {
 
     unobserve = jest.fn();
   } as unknown as typeof ResizeObserver;
-  mockUseViewSize.mockReturnValue(false);
   mockUseFeature.mockImplementation((feature) => feature.defaultValue);
   mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {
     [ORGANIC_SLOT.topLeaderboardPhone]: { id: '1234567890', type: 'display' },
@@ -72,23 +57,19 @@ afterEach(() => {
 });
 
 describe('PhoneTopAdStrip', () => {
-  it('renders nothing while the flag is off', () => {
-    setFlag(false);
-    const { container } = render(<PhoneTopAdStrip surface="organic" />);
+  it('renders nothing for logged-in users, like every other unit', () => {
+    const { container } = render(
+      <PhoneTopAdStrip surface="organic" />,
+      loggedInAuth,
+    );
 
     expect(container).toBeEmptyDOMElement();
-  });
-
-  it('stays out of the way from tablet up, where the in-column twin serves', () => {
-    setFlag(true);
-    mockUseViewSize.mockReturnValue(true);
-    const { container } = render(<PhoneTopAdStrip surface="organic" />);
-
-    expect(container).toBeEmptyDOMElement();
+    expect(
+      document.documentElement.style.getPropertyValue(PHONE_TOP_AD_HEIGHT_VAR),
+    ).toBe('');
   });
 
   it('pins the phone unit and publishes its height for the chrome below it', () => {
-    setFlag(true);
     const { unmount } = render(<PhoneTopAdStrip surface="organic" />);
 
     expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();

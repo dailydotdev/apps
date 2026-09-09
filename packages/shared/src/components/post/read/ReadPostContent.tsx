@@ -19,7 +19,6 @@ import { TruncateText } from '../../utilities';
 import Markdown from '../../Markdown';
 import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
 import { ReadTopLeaderboard } from './ReadTopLeaderboard';
-import { usePinnedPhoneBanner } from './usePinnedPhoneBanner';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { splitContentForAds, splitTextForAds } from './splitContentForAds';
 import {
@@ -103,7 +102,6 @@ export function ReadPostContent({
     post,
   });
   const leaderboardReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
-  const pinnedPhoneBanner = usePinnedPhoneBanner();
   // Memoised: the splits re-scan the whole text, and this component
   // re-renders on comment sorting, hover state and auth resolution. The TLDR
   // is main content here — for a scraped article it is the only content — so
@@ -163,10 +161,7 @@ export function ReadPostContent({
               : 'sticky top-[var(--phone-top-ad-height,0px)] z-postNavigation bg-background-default laptop:contents',
           )}
         >
-          <ReadTopLeaderboard
-            released={leaderboardReleased}
-            phoneTwin={!pinnedPhoneBanner}
-          />
+          <ReadTopLeaderboard released={leaderboardReleased} />
 
           <GoBackHeaderMobile
             className={classNames(

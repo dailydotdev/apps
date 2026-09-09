@@ -327,14 +327,6 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAdsense = new Feature('read_adsense', true);
 
-// Moves the phone header unit out of the article column into a strip pinned
-// at the top of the screen for the whole visit (PhoneTopAdStrip). Off is the
-// current in-column placement.
-export const featureReadPinnedPhoneBanner = new Feature(
-  'read_pinned_phone_banner',
-  false,
-);
-
 export const featureCommentFirstAction = new Feature(
   'comment_first_action',
   false,

@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from 'react';
 import type { ReadAdSurface } from './ReadAdSlot';
 import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
 import { ORGANIC_SLOT, READ_SLOT } from './slots';
-import { usePinnedPhoneBanner } from './usePinnedPhoneBanner';
 import {
   useOrganicAdsenseSlots,
   useReadAdsenseSlots,
@@ -28,23 +27,21 @@ export interface PhoneTopAdStripProps {
 }
 
 /**
- * The phone header unit as a game-style banner: the same fixed 320x50 twin,
- * pinned at the very top of the screen for the whole visit, above the
- * login/signup bar. Rendered through the layout's customBanner slot so it
- * sits outside the article column and above every other sticky element.
- * Behind read_pinned_phone_banner; while it renders, ReadTopLeaderboard drops
- * its in-column phone twin so the unit requests exactly once.
+ * The phone header unit as a game-style banner: the top leaderboard's fixed
+ * 320x50 twin, pinned at the very top of the screen for the whole visit,
+ * above the login/signup bar. Rendered through the layout's customBanner slot
+ * so it sits outside the article column and above every other sticky
+ * element; ReadTopLeaderboard carries only the tablet-and-up unit, so the
+ * twin requests exactly once.
  */
 export function PhoneTopAdStrip({
   surface,
 }: PhoneTopAdStripProps): ReactElement | null {
-  const pinned = usePinnedPhoneBanner();
   const readSlots = useReadAdsenseSlots();
   const organicSlots = useOrganicAdsenseSlots();
-  const isLive = hasLiveAdsenseUnits(
+  const isActive = hasLiveAdsenseUnits(
     surface === 'organic' ? organicSlots : readSlots,
   );
-  const isActive = pinned && isLive;
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
