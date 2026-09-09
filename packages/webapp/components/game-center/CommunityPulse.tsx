@@ -6,12 +6,12 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { ProfileTooltip } from '@dailydotdev/shared/src/components/profile/ProfileTooltip';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 
@@ -20,11 +20,10 @@ const raceLength = 5;
 type RaceProps = {
   title: string;
   entries: UserLeaderboard[];
-  unit: string;
   viewerId?: string;
 };
 
-const Race = ({ title, entries, unit, viewerId }: RaceProps): ReactElement => {
+const Race = ({ title, entries, viewerId }: RaceProps): ReactElement => {
   const ranked = entries.slice(0, raceLength);
   // The bars are relative to the leader, so the field reads as a race rather
   // than as a set of unrelated numbers.
@@ -48,7 +47,10 @@ const Race = ({ title, entries, unit, viewerId }: RaceProps): ReactElement => {
               >
                 {index + 1}
               </Typography>
-              <Tooltip content={`${entry.user.name} · ${entry.score} ${unit}`}>
+              <ProfileTooltip
+                userId={entry.user.id}
+                tooltip={{ placement: 'bottom' }}
+              >
                 <a href={`/${entry.user.username}`} className="shrink-0">
                   <ProfilePicture
                     user={entry.user}
@@ -56,7 +58,7 @@ const Race = ({ title, entries, unit, viewerId }: RaceProps): ReactElement => {
                     nativeLazyLoading
                   />
                 </a>
-              </Tooltip>
+              </ProfileTooltip>
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <div className="flex items-baseline justify-between gap-2">
                   <Typography
@@ -112,20 +114,17 @@ export const CommunityPulse = ({
       <Race
         title="Achievement points"
         entries={highestReputation}
-        unit="achievement points"
         viewerId={viewerId}
       />
       <Race
         title="Quests completed"
         entries={mostQuestsCompleted}
-        unit="quests"
         viewerId={viewerId}
       />
       {mostTopics && (
         <Race
           title="Top reader badges"
           entries={mostTopics}
-          unit="top reader badges"
           viewerId={viewerId}
         />
       )}
