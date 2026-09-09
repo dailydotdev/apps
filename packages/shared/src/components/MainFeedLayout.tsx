@@ -867,7 +867,6 @@ export default function MainFeedLayout({
           feedProps && (
             <Feed
               {...feedProps}
-              disableHighlightItems={sponsorStrip.disableHighlightItems}
               shortcuts={shortcuts}
               topContent={
                 (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (

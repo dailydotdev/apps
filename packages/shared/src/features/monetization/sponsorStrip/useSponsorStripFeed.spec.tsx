@@ -26,33 +26,6 @@ beforeEach(() => {
   mockHeadlines.mockReturnValue(settled([headline]));
 });
 
-it('should drop the feed card when the strip is carrying the headlines', () => {
-  expect(render().result.current.disableHighlightItems).toBe(true);
-});
-
-it('should keep the feed card once the query settles with no headlines', () => {
-  // An empty ticker cannot stand in for the card, and suppressing it then
-  // would take breaking news out of the product altogether.
-  mockHeadlines.mockReturnValue(settled([]));
-
-  expect(render().result.current.disableHighlightItems).toBe(false);
-});
-
-// The headlines are their own round trip, landing after the feed has painted.
-// Waiting for them flipped this mid-scroll and pulled the card out of the
-// middle of the feed.
-it('should drop the feed card before the headlines have arrived', () => {
-  mockHeadlines.mockReturnValue({ headlines: [], isSettled: false });
-
-  expect(render().result.current.disableHighlightItems).toBe(true);
-});
-
-it('should keep the feed card when the strip is off', () => {
-  mockStrip.mockReturnValue(false);
-
-  expect(render().result.current.disableHighlightItems).toBe(false);
-});
-
 it('should not query headlines when the strip is off', () => {
   mockStrip.mockReturnValue(false);
   render();
@@ -66,4 +39,16 @@ it('should hand the strip the same headlines it decided with', () => {
   expect(result.current.headlines).toEqual([headline]);
   expect(result.current.isEnabled).toBe(true);
   expect(result.current.headlinesSettled).toBe(true);
+});
+
+it('should report the strip as off when the flag is off', () => {
+  mockStrip.mockReturnValue(false);
+
+  expect(render().result.current.isEnabled).toBe(false);
+});
+
+it('should report the headlines as unsettled while the query runs', () => {
+  mockHeadlines.mockReturnValue({ headlines: [], isSettled: false });
+
+  expect(render().result.current.headlinesSettled).toBe(false);
 });
