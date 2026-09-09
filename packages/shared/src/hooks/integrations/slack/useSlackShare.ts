@@ -13,10 +13,15 @@ import { useSlack } from './useSlack';
 
 export type UseSlackShare = {
   /**
-   * The workspace a share posts to. Absent while loading, when the user has no
-   * Slack workspace, or when the connected one predates user-token scopes.
+   * The workspace a share posts to. Absent while loading, or when the user has
+   * no Slack workspace connected.
    */
   integration?: UserIntegration;
+  /**
+   * Whether a share is attributed to the person. False means it posts as the
+   * daily.dev app, which is what happens until the workspace grants user scopes.
+   */
+  canPostAsUser: boolean;
   isLoading: boolean;
   connect: (redirectPath: string) => void;
   share: (params: { channelId: string; postId: string }) => Promise<void>;
@@ -29,12 +34,14 @@ export const useSlackShare = (): UseSlackShare => {
   const { connect } = useSlack();
   const { data: integrations, isLoading } = useIntegrationsQuery();
 
-  // an integration connected before user scopes were requested holds no user
-  // token, so it cannot post as the person and has to go back through OAuth
-  const integration = integrations?.find(
-    ({ type, canPostAsUser }) =>
-      type === UserIntegrationType.Slack && canPostAsUser,
+  // prefer a workspace that can post as the person, but fall back to any
+  // connected one: sharing as the app beats not sharing at all
+  const slackIntegrations = integrations?.filter(
+    ({ type }) => type === UserIntegrationType.Slack,
   );
+  const integration =
+    slackIntegrations?.find(({ canPostAsUser }) => canPostAsUser) ??
+    slackIntegrations?.[0];
 
   const { mutateAsync: share, isPending: isSharing } = useMutation({
     mutationFn: async ({
@@ -62,6 +69,7 @@ export const useSlackShare = (): UseSlackShare => {
 
   return {
     integration,
+    canPostAsUser: !!integration?.canPostAsUser,
     isLoading,
     connect: useCallback(
       (redirectPath: string) => connect({ redirectPath }),

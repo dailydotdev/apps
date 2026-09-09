@@ -43,7 +43,8 @@ const SlackShareModal = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { integration, isLoading, share, isSharing } = useSlackShare();
+  const { integration, canPostAsUser, isLoading, share, isSharing, connect } =
+    useSlackShare();
   const { data: recentChannels = [] } = useQuery(
     integrationRecentChannelsQueryOptions({
       integrationId: integration?.id,
@@ -106,6 +107,22 @@ const SlackShareModal = ({
           >
             Share to Slack
           </Typography>
+          {!canPostAsUser && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              This posts as the daily.dev app.{' '}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => connect(window.location.pathname)}
+              >
+                Reconnect Slack
+              </button>{' '}
+              to post under your own name.
+            </Typography>
+          )}
           {!!recentChannels.length && (
             <div className="flex flex-col gap-2">
               <Typography
