@@ -35,6 +35,8 @@ interface FeedHeroSectionProps {
   /** The section's row, measured against the feed grid's column count. */
   shape?: FeedHeroShape;
   cardProps?: Omit<FeaturedWideCardProps, 'post'>;
+  /** Called once per post the carousel actually brings on screen. */
+  onPostImpression?: (post: Post) => void;
   onAdLinkClick?: (ad: Ad) => unknown;
   onAdViewable?: (ad: Ad, data: ViewabilityData) => void;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
@@ -49,6 +51,7 @@ export function FeedHeroSection({
   adPlacement = 'none',
   shape = feedHeroShape(1),
   cardProps,
+  onPostImpression,
   onAdLinkClick,
   onAdViewable,
   onHighlightClick,
@@ -57,7 +60,10 @@ export function FeedHeroSection({
 }: FeedHeroSectionProps): ReactElement {
   const adProps = { onLinkClick: onAdLinkClick, onViewable: onAdViewable };
   const { columns, featuredSpan, railSpan, layout } = shape;
-  const isStacked = layout === 'stacked';
+  // A column count with no class written out would render an unclassed grid —
+  // one implicit column with `col-span-3` children overflowing it. Stacking is
+  // a layout the reader can still use.
+  const isStacked = layout === 'stacked' || !gridColsClass[columns];
 
   return (
     <div className={classNames('w-full', className)}>
@@ -82,6 +88,7 @@ export function FeedHeroSection({
         <FeedHeroCarousel
           posts={posts}
           layout={layout}
+          onPostImpression={onPostImpression}
           className={isStacked ? undefined : colSpanClass[featuredSpan]}
           {...cardProps}
         />

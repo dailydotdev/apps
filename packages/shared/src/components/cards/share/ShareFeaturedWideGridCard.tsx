@@ -150,9 +150,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
                   {!!sharedSummary && (
                     <p
                       ref={hero ? textFit.textRef : undefined}
-                      style={
-                        hero ? { WebkitLineClamp: textFit.lines } : undefined
-                      }
+                      style={hero ? textFit.style : undefined}
                       className={classNames(
                         'mt-2 text-text-secondary typo-callout',
                         hero

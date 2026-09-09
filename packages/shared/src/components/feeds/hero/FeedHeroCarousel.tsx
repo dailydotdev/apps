@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { useSwipeable } from 'react-swipeable';
 import type { Post } from '../../../graphql/posts';
 import type { FeaturedWideCardProps } from '../../cards/common/featuredWide';
 import { PostTypeToWideCard } from '../../cards/common/wideCards';
@@ -20,6 +21,8 @@ export type FeedHeroCarouselProps = Omit<FeaturedWideCardProps, 'post'> & {
   autoplayMs?: number;
   /** Passed in, not measured, so the card and the layout share one number. */
   layout?: FeedHeroLayout;
+  /** Called once per post brought on screen, so clicks have a denominator. */
+  onPostImpression?: (post: Post) => void;
   className?: string;
 };
 
@@ -30,6 +33,7 @@ export const FeedHeroCarousel = ({
   posts,
   autoplayMs = 6000,
   layout = 'stacked',
+  onPostImpression,
   className,
   ...cardProps
 }: FeedHeroCarouselProps): ReactElement | null => {
@@ -38,6 +42,58 @@ export const FeedHeroCarousel = ({
     from: null,
   });
   const [isManualChange, setIsManualChange] = useState(false);
+  // Slides the reader has actually been shown. Only the active one is visible,
+  // so the rest are deliberately never counted.
+  const logged = useRef(new Set<string>());
+  const active = posts.length ? wrapIndex(slide.index, posts.length) : 0;
+  const shown = layout === 'stacked' ? posts[0] : posts[active];
+
+  useEffect(() => {
+    if (!shown || logged.current.has(shown.id)) {
+      return;
+    }
+
+    logged.current.add(shown.id);
+    onPostImpression?.(shown);
+  }, [shown, onPostImpression]);
+
+  const total = posts.length;
+
+  const moveTo = (position: number) => {
+    if (!total || wrapIndex(position, total) === active) {
+      return;
+    }
+    setSlide({ index: position, from: active });
+  };
+
+  const goTo = (position: number) => {
+    setIsManualChange(true);
+    moveTo(position);
+  };
+
+  // A touch laptop gets the grid layouts but no swipe from the dots and arrows
+  // alone, so the same gesture the rest of the app's carousels accept.
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => goTo(active + 1),
+    onSwipedRight: () => goTo(active - 1),
+    preventScrollOnSwipe: false,
+    trackMouse: false,
+  });
+
+  // The region is only live for the slide a manual change brings in. Reset on
+  // a timer rather than on the next automatic advance, which never arrives
+  // while the reader is hovering or focused — and would leave every later
+  // rotation announcing itself.
+  useEffect(() => {
+    if (!isManualChange) {
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => setIsManualChange(false), 1000);
+
+    return () => clearTimeout(timeout);
+  }, [isManualChange, active]);
+
   if (!posts.length) {
     return null;
   }
@@ -58,21 +114,6 @@ export const FeedHeroCarousel = ({
       </section>
     );
   }
-
-  const total = posts.length;
-  const active = wrapIndex(slide.index, total);
-
-  const moveTo = (position: number) => {
-    if (wrapIndex(position, total) === active) {
-      return;
-    }
-    setSlide({ index: position, from: active });
-  };
-
-  const goTo = (position: number) => {
-    setIsManualChange(true);
-    moveTo(position);
-  };
 
   const post = posts[active];
   const outgoing = slide.from === null ? null : posts[slide.from];
@@ -124,6 +165,7 @@ export const FeedHeroCarousel = ({
       )}
     >
       <div
+        {...swipeHandlers}
         // `overflow-hidden` makes this box the last word on a slide's height:
         // a card wanting more would paint over the controls underneath.
         className="grid min-h-0 flex-1 overflow-hidden"
@@ -166,10 +208,7 @@ export const FeedHeroCarousel = ({
                       } as CSSProperties
                     }
                     className="feed-hero-carousel-progress block h-full w-full rounded-max bg-text-primary group-focus-within/hero:[animation-play-state:paused] group-hover/hero:[animation-play-state:paused]"
-                    onAnimationEnd={() => {
-                      setIsManualChange(false);
-                      moveTo(active + 1);
-                    }}
+                    onAnimationEnd={() => moveTo(active + 1)}
                   />
                 )}
               </button>

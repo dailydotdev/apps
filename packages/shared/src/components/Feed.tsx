@@ -104,6 +104,8 @@ export interface FeedProps<T>
   disableAds?: boolean;
   /** The surface shows the highlights itself, so keep them out of the grid. */
   disableHighlightCards?: boolean;
+  /** The surface owns the top slot, so the feed must not render or measure its own hero. */
+  disableTopHero?: boolean;
   /** The surface shows an ad above the feed, so drop the grid's first one. */
   skipFirstAd?: boolean;
   /** The surface leads with a featured card, so keep wide ones out of row one. */
@@ -218,6 +220,7 @@ export default function Feed<T>({
   actionButtons,
   disableAds,
   disableHighlightCards,
+  disableTopHero,
   skipFirstAd,
   deferWideCards,
   staticAd,
@@ -380,7 +383,7 @@ export default function Feed<T>({
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
       engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
       firstSlotOffset: Number(eligibleFirstSlotCard !== null),
-      disableTopHero: isV2,
+      disableTopHero: isV2 || disableTopHero,
       isHorizontal,
       excludePinnedPosts,
       settings: {

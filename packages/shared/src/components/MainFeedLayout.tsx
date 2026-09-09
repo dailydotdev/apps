@@ -394,8 +394,10 @@ export default function MainFeedLayout({
     shouldEvaluate: isMainFeedPage,
   });
   // The hero reports back rather than being asked: it only has a placement once
-  // its column exists and an ad has come back for it.
+  // its column exists and an ad has come back for it, and it renders nothing at
+  // all until its headlines resolve.
   const [isHeroAdVisible, setIsHeroAdVisible] = useState(false);
+  const [isHeroRendered, setIsHeroRendered] = useState(false);
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -832,6 +834,7 @@ export default function MainFeedLayout({
         feedName={feedName}
         className={heroClassName}
         onAdVisibleChange={setIsHeroAdVisible}
+        onRenderedChange={setIsHeroRendered}
       />
       {chipsTopContent}
     </>
@@ -910,9 +913,15 @@ export default function MainFeedLayout({
               {...feedProps}
               shortcuts={shortcuts}
               topContent={topContent}
-              disableHighlightCards={isFeedHeroEnabled}
+              // The flag, not the hero's render: this placement logs an
+              // impression, so it has to be suppressed from the first paint
+              // rather than flickering in and out as the hero resolves.
+              disableTopHero={isFeedHeroEnabled}
+              // The render, so a hero that finds no headlines hands the
+              // highlights card and row one back to the grid.
+              disableHighlightCards={isHeroRendered}
               skipFirstAd={isHeroAdVisible}
-              deferWideCards={isFeedHeroEnabled}
+              deferWideCards={isHeroRendered}
               className={classNames(!isFinder && feedGutter)}
             />
           )

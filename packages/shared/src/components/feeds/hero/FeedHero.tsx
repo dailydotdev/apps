@@ -31,6 +31,9 @@ import { useFeedHeroAd } from './useFeedHeroAd';
 
 const HIGHLIGHT_COUNT = 6;
 const FEATURED_POST_COUNT = 4;
+// Distinct from `Origin.Feed` so the experiment can tell the hero's clicks and
+// impressions apart from the grid's. Matches the ad events' own origin.
+const HERO_ORIGIN = 'feed hero';
 
 /**
  * The carousel and the Happening Now list are the same headlines: the top few
@@ -40,12 +43,19 @@ export const FeedHero = ({
   feedName,
   className,
   onAdVisibleChange,
+  onRenderedChange,
 }: {
   /** For the headline click events, which the in-feed card also reports. */
   feedName: string;
   className?: string;
   /** Lets the feed below stand its own first ad down while the hero shows one. */
   onAdVisibleChange?: (isVisible: boolean) => void;
+  /**
+   * Whether the hero found anything to show. It returns `null` without posts,
+   * and the grid has to take back the highlights card and its first-row wide
+   * cards when it does, or the reader gets neither.
+   */
+  onRenderedChange?: (isRendered: boolean) => void;
 }): ReactElement | null => {
   const { user, tokenRefreshed } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -93,7 +103,8 @@ export const FeedHero = ({
     return postIds.map((id) => byId.get(id)).filter(Boolean) as Post[];
   }, [featured, postIds]);
 
-  const adPlacement = posts.length > 0 ? placement : 'none';
+  const isRendered = posts.length > 0;
+  const adPlacement = isRendered ? placement : 'none';
   const isAdShown = adPlacement !== 'none';
 
   // Stacked, the lead story is already a card above the list, so drop it from
@@ -108,7 +119,7 @@ export const FeedHero = ({
       }
 
       logEvent(
-        adLogEvent(action, ad, { extra: { origin: 'feed hero', ...extra } }),
+        adLogEvent(action, ad, { extra: { origin: HERO_ORIGIN, ...extra } }),
       );
     },
     [ad, logEvent],
@@ -135,6 +146,10 @@ export const FeedHero = ({
   }, [isAdShown, onAdVisibleChange]);
 
   useEffect(() => {
+    onRenderedChange?.(isRendered);
+  }, [isRendered, onRenderedChange]);
+
+  useEffect(() => {
     // Gated on `isAdShown`, not just on the ad existing: logging here while the
     // hero renders nothing would mark the cached ad LOGGED and swallow the
     // impression for the render that actually puts it on screen.
@@ -151,7 +166,7 @@ export const FeedHero = ({
       onPostClick: (post: Post) =>
         logEvent(
           postLogEvent(LogEvent.Click, post, {
-            extra: { origin: Origin.Feed },
+            extra: { origin: HERO_ORIGIN },
           }),
         ),
       onUpvoteClick: (post: Post, origin = Origin.Feed) =>
@@ -173,7 +188,7 @@ export const FeedHero = ({
     ],
   );
 
-  if (!posts.length) {
+  if (!isRendered) {
     return null;
   }
 
@@ -186,6 +201,13 @@ export const FeedHero = ({
       adPlacement={adPlacement}
       shape={shape}
       cardProps={cardProps}
+      onPostImpression={(post) =>
+        logEvent(
+          postLogEvent(LogEvent.Impression, post, {
+            extra: { origin: HERO_ORIGIN },
+          }),
+        )
+      }
       onHighlightClick={(highlight, position) =>
         logHighlightsClick('highlight_click', highlight, position)
       }

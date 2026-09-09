@@ -113,7 +113,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
               {!!post.summary && (
                 <p
                   ref={hero ? textFit.textRef : undefined}
-                  style={hero ? { WebkitLineClamp: textFit.lines } : undefined}
+                  style={hero ? textFit.style : undefined}
                   className={classNames(
                     'mt-2 text-text-secondary typo-callout',
                     hero ? HERO_DESCRIPTION_CLASS_NAME : DESCRIPTION_CLASS_NAME,

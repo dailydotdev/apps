@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface FittedLineClamp {
   /** The box the text has to fit inside. */
@@ -7,6 +8,12 @@ interface FittedLineClamp {
   textRef: (node: HTMLElement | null) => void;
   /** Whole lines that fit, never more than `maxLines`. */
   lines: number;
+  /**
+   * Apply to the text. `-webkit-line-clamp: 0` is invalid and would be dropped,
+   * leaving the text unclamped for its `overflow-hidden` parent to slice
+   * through a glyph row — so no room at all hides the block instead.
+   */
+  style: CSSProperties;
 }
 
 /**
@@ -67,5 +74,10 @@ export const useFittedLineClamp = (maxLines: number): FittedLineClamp => {
       setText(node);
     }, []),
     lines,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    style: useMemo(
+      () => (lines > 0 ? { WebkitLineClamp: lines } : { display: 'none' }),
+      [lines],
+    ),
   };
 };

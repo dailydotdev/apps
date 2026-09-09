@@ -77,28 +77,42 @@ const HighlightRow = ({
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
   compact?: boolean;
 }): ReactElement => {
+  const timestamp = (
+    <RelativeTime
+      dateTime={highlight.highlightedAt}
+      maxHoursAgo={72}
+      className={
+        compact ? undefined : 'mt-0.5 text-text-tertiary typo-footnote'
+      }
+    />
+  );
+
   return (
     <Link href={getHighlightUrl(highlight)}>
       <a
         className={classNames(
-          // Drawn, not bordered: a `border-b` follows the row's corner radius
-          // and curves up at both ends.
-          'relative flex w-full flex-col gap-0 text-left transition-colors after:absolute after:bottom-0 after:h-px after:bg-border-subtlest-tertiary last:after:hidden hover:bg-surface-hover focus-visible:bg-surface-hover',
+          'flex w-full flex-col gap-0 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
           compact
-            ? 'rounded-12 px-4 py-3 after:inset-x-4'
-            : 'rounded-8 px-3 py-2 after:inset-x-3',
+            ? // Drawn, not bordered: a `border-b` follows the row's corner
+              // radius and curves up at both ends.
+              'relative rounded-12 px-4 py-3 after:absolute after:inset-x-4 after:bottom-0 after:h-px after:bg-border-subtlest-tertiary last:after:hidden'
+            : 'rounded-8 border-b border-border-subtlest-tertiary px-3 py-2',
         )}
         href={getHighlightUrl(highlight)}
         onClick={() => onHighlightClick?.(highlight, index + 1)}
       >
         <span className="break-words font-bold text-text-primary typo-callout">
           {highlight.headline}
-          {/* In the headline's text flow, so it trails and wraps with it. */}
-          <span className="font-normal text-text-tertiary typo-footnote">
-            <span aria-hidden> · </span>
-            <RelativeTime dateTime={highlight.highlightedAt} maxHoursAgo={72} />
-          </span>
+          {/* Compact trails the headline in its own text flow, so it wraps
+              with the last word rather than taking a line of its own. */}
+          {!!compact && (
+            <span className="font-normal text-text-tertiary typo-footnote">
+              <span aria-hidden> · </span>
+              {timestamp}
+            </span>
+          )}
         </span>
+        {!compact && timestamp}
       </a>
     </Link>
   );
