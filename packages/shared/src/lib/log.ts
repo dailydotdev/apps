@@ -2,6 +2,7 @@ import type { PurchaseType } from '../graphql/paddle';
 
 export enum Origin {
   ShareBar = 'share bar',
+  DiscussionPanel = 'discussion panel',
   ReadingHistoryContextMenu = 'reading history context menu',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
@@ -174,6 +175,8 @@ export enum LogEvent {
   CompleteSquadCreation = 'complete squad creation',
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
+  StartShareToSlack = 'start share to slack',
+  ShareToSlackError = 'share to slack error',
   ChecklistClose = 'checklist close',
   DeletePost = 'delete post',
   DeleteComment = 'delete comment',
