@@ -51,17 +51,9 @@ const formatUnlockedAt = (value: string): string => {
   });
 };
 
-// The slab treatment only distinguishes two rarity bands; the shared four-tier
-// scale collapses onto them so the other achievement surfaces keep their tiers.
-const isEmerald = (tier: AchievementRarityTier | null) =>
-  tier === AchievementRarityTier.Emerald;
-
-// Gold is reserved for the sub-1% band, so it means something when it shows
-// up; every other tier states its number on a plain dark chip.
-const slabPillClasses: Record<'gold' | 'plain', string> = {
-  gold: 'bg-[#efab27] text-[#08110c]',
-  plain: 'bg-[rgba(8,10,13,0.72)] text-white',
-};
+// Only the sub-1% band earns a chip on the slab, so the gold reads as scarce
+// rather than as the label every card happens to carry.
+const rarityPillClasses = 'bg-[#efab27] text-[#08110c]';
 
 export function AchievementShelfCard({
   userAchievement,
@@ -77,15 +69,10 @@ export function AchievementShelfCard({
   const targetCount = getTargetCount(achievement);
   const isUnlocked = unlockedAt !== null;
   const progressPercentage = Math.min((progress / targetCount) * 100, 100);
-  const rarityTier = isUnlocked
-    ? getAchievementRarityTier(achievement.rarity)
-    : null;
-  const slabTier = rarityTier
-    ? ((isEmerald(rarityTier) ? 'gold' : 'plain') as 'gold' | 'plain')
-    : null;
-  const rarityLabel = isEmerald(rarityTier)
-    ? '<1%'
-    : `${Math.round(achievement.rarity ?? 0)}%`;
+  const isRarest =
+    isUnlocked &&
+    getAchievementRarityTier(achievement.rarity) ===
+      AchievementRarityTier.Emerald;
   const canTrack = !isUnlocked && isOwner && !!onTrack;
   const progressLabel = `${progress.toLocaleString()} / ${targetCount.toLocaleString()}`;
 
@@ -116,14 +103,14 @@ export function AchievementShelfCard({
           onClick={() => setIsExpanded(true)}
         />
 
-        {slabTier && (
+        {isRarest && (
           <span
             className={classNames(
               'absolute left-2.5 top-2.5 z-3 rounded-max px-2 py-1 text-[14px] font-semibold leading-none',
-              slabPillClasses[slabTier],
+              rarityPillClasses,
             )}
           >
-            {rarityLabel} rare
+            &lt;1% rare
           </span>
         )}
 
@@ -203,14 +190,14 @@ export function AchievementShelfCard({
                   !isUnlocked && 'brightness-[.6] grayscale-[.85]',
                 )}
               />
-              {slabTier && (
+              {isRarest && (
                 <span
                   className={classNames(
                     'absolute left-3 top-3 rounded-max px-2.5 py-1 text-xs font-semibold leading-none',
-                    slabPillClasses[slabTier],
+                    rarityPillClasses,
                   )}
                 >
-                  {rarityLabel} rare
+                  &lt;1% rare
                 </span>
               )}
               <CloseButton
