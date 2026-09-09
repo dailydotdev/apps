@@ -47,6 +47,12 @@ export function ReadTopLeaderboard({
     <div
       className={classNames(
         'bg-background-default pb-2 pt-4',
+        // Bleeds into the column's phone padding like GoBackHeaderMobile
+        // below it, so the 320px card has its full width on a 320px screen.
+        // Narrower than that, nothing standard fits: the wrapper hides, and a
+        // hidden wrapper never intersects, so the twin never requests. A raw
+        // media query because the screens config rules out max-* variants.
+        '-mx-4 tablet:mx-0 [@media(max-width:19.9375rem)]:hidden',
         className,
         // --sticky-header-offset is published by MainLayout and matches the
         // fixed chrome this layout actually has: 4rem for the v1 header, 0 on
@@ -70,7 +76,11 @@ export function ReadTopLeaderboard({
     >
       {/* Two breakpoint twins of one unit: the phone requests a fixed
           320x50 (see READ_SLOT.topLeaderboardPhone), tablet+ keeps the
-          responsive 728x90.
+          responsive 728x90. The fixed size only holds while the card is at
+          least 320px wide — given less, AdSense drops the size and serves
+          whatever fits the space, which is why the wrapper above bleeds
+          into the padding rather than leaving the column's 288px on a
+          320px phone.
           Neither is eager: an eager push from a display:none twin would
           initialise the visible one out of order, and both sit at the top of
           the page where the intersection observer fires on first paint
