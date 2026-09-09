@@ -430,6 +430,16 @@ export default function App(
   useManualScrollRestoration();
   useScrollbarWidth();
 
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') {
+      return;
+    }
+
+    import('@dailydotdev/shared/src/lib/imageShare/devCaptureShareImage').then(
+      ({ installCaptureShareImage }) => installCaptureShareImage(),
+    );
+  }, []);
+
   const { Component, pageProps, router } = props;
   const { dehydratedState } = pageProps;
 

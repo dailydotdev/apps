@@ -16,13 +16,17 @@ import { SettingsIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { UserInterestStatus } from '../../../graphql/interests';
+import {
+  UserInterestCadence,
+  UserInterestStatus,
+} from '../../../graphql/interests';
 import { useAgent } from '../AgentContext';
 
-const cadenceCopy: Record<string, string> = {
-  hourly: 'Runs every hour',
-  daily: 'Runs every day',
-  weekly: 'Runs every week',
+const cadenceCopy: Record<UserInterestCadence, string> = {
+  [UserInterestCadence.Auto]: 'Runs automatically',
+  [UserInterestCadence.Hourly]: 'Runs every hour',
+  [UserInterestCadence.Daily]: 'Runs every day',
+  [UserInterestCadence.Weekly]: 'Runs every week',
 };
 
 const MenuRow = ({
@@ -98,7 +102,7 @@ export const AgentSettingsMenu = (): ReactElement => {
             className="min-w-0 truncate"
           >
             {isRunning
-              ? cadenceCopy[interest?.cadence ?? 'daily']
+              ? cadenceCopy[interest?.cadence ?? UserInterestCadence.Auto]
               : 'No scheduled runs'}
           </Typography>
         </FlexCol>

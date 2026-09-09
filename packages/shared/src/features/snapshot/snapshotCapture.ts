@@ -17,5 +17,6 @@ export function getSnapshotCaptureOptions(
     width: SNAPSHOT_SIZE,
     height: measured ? Math.min(SNAPSHOT_MAX_HEIGHT, measured) : SNAPSHOT_SIZE,
     padding: 0,
+    branded: false,
   };
 }

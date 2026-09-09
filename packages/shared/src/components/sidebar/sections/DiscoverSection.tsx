@@ -13,11 +13,13 @@ import {
   WorldIcon,
 } from '../../icons';
 import { MedalIcon } from '../../icons/Medal';
+import { AgentIcon } from '../../icons/Agent';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions } from '../../../hooks';
+import { useActions, useConditionalFeature } from '../../../hooks';
+import { featureInterestAgent } from '../../../lib/featureManagement';
 import { ActionType } from '../../../graphql/actions';
 import { watercoolerUrl, webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -43,10 +45,14 @@ export const DiscoverSection = ({
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction } = useActions();
-  const { user } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
   const HotTakesIcon = isV2 ? TourIcon : HotIcon;
+  const { value: showAgent } = useConditionalFeature({
+    feature: featureInterestAgent,
+    shouldEvaluate: isLoggedIn && isV2,
+  });
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
@@ -130,6 +136,16 @@ export const DiscoverSection = ({
           logEvent({ event_name: LogEvent.OpenHotAndCold });
         },
       },
+      isV2 &&
+        showAgent && {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <AgentIcon secondary={active} />} />
+          ),
+          title: 'Agents',
+          path: `${webappUrl}agent`,
+          isForcedLink: true,
+          requiresLogin: true,
+        },
     ].filter(Boolean) as SidebarMenuItem[];
   }, [
     completeAction,
@@ -139,6 +155,8 @@ export const DiscoverSection = ({
     HotTakesIcon,
     showHotTakes,
     itemsAfterExplore,
+    isV2,
+    showAgent,
   ]);
 
   return (
