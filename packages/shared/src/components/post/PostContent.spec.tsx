@@ -6,17 +6,16 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment } from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/log';
 import {
-  featureCommunitySentiment,
   featurePostCopySummary,
   featureSnapshotSelectionShare,
 } from '../../lib/featureManagement';
 import { PostContentRaw } from './PostContent';
 
-const renderContent = (gb?: GrowthBook) =>
+const renderContent = (post = postWithCommunitySentiment) =>
   render(
-    <TestBootProvider client={new QueryClient()} gb={gb}>
+    <TestBootProvider client={new QueryClient()}>
       <PostContentRaw
-        post={postWithCommunitySentiment}
+        post={post}
         origin={Origin.ArticleModal}
         onClose={jest.fn()}
       />
@@ -86,15 +85,8 @@ const snapshotFlagOn = () => {
 };
 
 describe('PostContent community sentiment', () => {
-  it('renders in the classic post modal when the flag is enabled', () => {
-    const gb = new GrowthBook();
-    gb.setFeatures({
-      [featureCommunitySentiment.id]: {
-        defaultValue: true,
-      },
-    });
-
-    renderContent(gb);
+  it('renders in the classic post modal when the post has a take', () => {
+    renderContent();
 
     expect(
       screen.getByRole('region', { name: 'What the community thinks' }),
@@ -102,8 +94,8 @@ describe('PostContent community sentiment', () => {
     expect(screen.getByText('Most agree it is worth reading.')).toBeVisible();
   });
 
-  it('stays hidden in the classic post modal when the flag is disabled', () => {
-    renderContent();
+  it('stays hidden in the classic post modal when the post has no take', () => {
+    renderContent({ ...postWithCommunitySentiment, communitySentiment: null });
 
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { OpenLinkIcon } from '../icons';
+import { anchorSponsoredRel } from '../../lib/strings';
 
 interface SponsoredTagHeroProps {
   tag: string;
@@ -120,7 +121,7 @@ export const SponsoredTagHero = ({
             tag="a"
             href={ctaUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel={anchorSponsoredRel}
             className="hover:bg-white/90 w-full !bg-white text-raw-pepper-90 laptop:w-auto laptop:flex-shrink-0 laptop:self-center"
           >
             {ctaText}

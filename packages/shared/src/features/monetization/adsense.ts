@@ -82,12 +82,14 @@ export const ADSENSE_UTM_CHANNELS: Record<
 > = {
   source: {
     quora: '1363957592',
+    fb: '8140474737',
   },
   medium: {
     cpc: '4451381864',
   },
   campaign: {
     traffic_general_202608: '7344304362',
+    rpm_test_usa_ca_v1: '1523095492',
   },
   content: {
     text_v1: '2065831022',

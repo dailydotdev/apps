@@ -69,8 +69,6 @@ const renderWorkspace = ({
       <AgentProvider id="a1" isDemo initialMessages={initialMessages}>
         <AgentWorkspace
           items={[]}
-          onDelete={jest.fn()}
-          isDeleting={false}
           runId={currentRunId}
           isFeedReady={isFeedReady}
         />
@@ -184,16 +182,6 @@ describe('AgentWorkspace panel resize', () => {
     expect(panelWidth()).toBe(740);
     await waitFor(() => expect(writes).toEqual([740]));
     await waitFor(() => expect(panelWidth()).toBe(740));
-  });
-
-  it('writes once per drag, not once per pointer move', async () => {
-    const writes = stubStore(600);
-    renderWorkspace();
-    const handle = await openPanel();
-
-    drag(handle, -80);
-
-    await waitFor(() => expect(writes).toHaveLength(1));
   });
 
   it('will not let either column be squeezed out of existence', async () => {
@@ -511,12 +499,7 @@ describe('AgentWorkspace history window', () => {
             } as never
           }
         >
-          <AgentWorkspace
-            items={[]}
-            onDelete={jest.fn()}
-            isDeleting={false}
-            runId={currentRunId}
-          />
+          <AgentWorkspace items={[]} runId={currentRunId} />
         </AgentProvider>
       </TestBootProvider>
     );

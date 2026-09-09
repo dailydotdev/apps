@@ -1,37 +1,54 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Image, ImageType } from '../image/Image';
 import { EarthIcon, HashtagIcon, LinkIcon, SquadIcon } from '../icons';
 import { RAIL_ICON_SIZE } from './common';
-import { useSquad } from '../../hooks/squads/useSquad';
+import { pageIconForPath } from './pageIcons';
+import { sourceImageQueryOptions } from '../../graphql/sources';
+import { useAuthContext } from '../../contexts/AuthContext';
 
-const handleFromPath = (path: string): string =>
-  path.split('?')[0].split('#')[0].split('/').filter(Boolean).pop() ?? '';
+const segments = (path: string): string[] =>
+  path.split('?')[0].split('#')[0].split('/').filter(Boolean);
+
+// A squad shortcut's handle is the segment right AFTER /squads/ — not the last
+// one, which on a sub-page (/squads/<handle>/members) is the sub-page itself.
+const squadHandleFromPath = (path: string): string => segments(path)[1] ?? '';
 
 const stripOrigin = (path: string): string =>
   path.replace(/^https?:\/\/[^/]+/, '');
 
 // Resolves the right glyph/image for a pinned page shortcut from its path — a
-// squad shows its actual logo, sources/tags get their icon — so a pinned page
-// never falls back to a generic link icon when we can do better. The squad
-// lookup self-disables for non-squad paths, so only squad shortcuts fetch.
-// When `image` is provided (captured at drag time) it renders immediately and
-// the fetch is skipped entirely, so there's no placeholder flash.
+// squad shows its actual logo, sources/tags get their icon, and known app pages
+// keep the glyph the row they were dragged from used — so a pinned page never
+// falls back to a generic link icon when we can do better. Entries store the
+// logo they were pinned with, so `image` renders immediately and nothing is
+// fetched; the lookup only covers squad shortcuts pinned before that.
 export const SidebarEntityIcon = ({
   path,
   image,
+  active = false,
 }: {
   path: string;
   image?: string;
+  // Whether this shortcut is the page you're on. Vector glyphs switch to their
+  // filled art, matching how the catalog shortcuts beside them behave.
+  active?: boolean;
 }): ReactElement => {
   const normalized = stripOrigin(path);
-  const isSquad = normalized.startsWith('/squads/');
+  const PageIcon = pageIconForPath(normalized);
+  // `/squads/moderate` and friends are pages, not handles — resolving the page
+  // first also keeps them from firing a lookup that can never resolve.
+  const isSquad = !PageIcon && normalized.startsWith('/squads/');
   const isSource = normalized.startsWith('/sources/');
   const isTag = normalized.startsWith('/tags/');
-  // Only fetch when we don't already have the image in hand.
-  const { squad } = useSquad({
-    handle: isSquad && !image ? handleFromPath(path) : '',
-  });
+  const { isFetched: isBootFetched } = useAuthContext();
+  const { data: source } = useQuery(
+    sourceImageQueryOptions({
+      handle: isSquad ? squadHandleFromPath(normalized) : '',
+      enabled: !!isBootFetched && !image,
+    }),
+  );
 
   if (image) {
     return (
@@ -44,30 +61,34 @@ export const SidebarEntityIcon = ({
         // glyphs keeps one glyph size (the profile tab's avatar is deliberately
         // smaller — a solid photo carries more optical mass than an outline —
         // but that correction is for a lone avatar, not a mixed row).
-        className="size-[1.625rem] rounded-8 object-cover"
+        className="size-6 rounded-8 object-cover"
       />
     );
   }
 
+  if (PageIcon) {
+    return <PageIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />;
+  }
+
   if (isSquad) {
-    return squad?.image ? (
+    return source?.image ? (
       <Image
-        src={squad.image}
+        src={source.image}
         type={ImageType.Squad}
         alt=""
         aria-hidden
         // Same rail glyph size as the fallbacks below.
-        className="size-[1.625rem] rounded-8 object-cover"
+        className="size-6 rounded-8 object-cover"
       />
     ) : (
-      <SquadIcon size={RAIL_ICON_SIZE} aria-hidden />
+      <SquadIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     );
   }
   if (isSource) {
-    return <EarthIcon size={RAIL_ICON_SIZE} aria-hidden />;
+    return <EarthIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />;
   }
   if (isTag) {
-    return <HashtagIcon size={RAIL_ICON_SIZE} aria-hidden />;
+    return <HashtagIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />;
   }
-  return <LinkIcon size={RAIL_ICON_SIZE} aria-hidden />;
+  return <LinkIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />;
 };

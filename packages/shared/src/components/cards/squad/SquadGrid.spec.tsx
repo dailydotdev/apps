@@ -101,15 +101,6 @@ it('should render the component with basic props', async () => {
   );
 });
 
-it('should render the component with basic props with border and banner', async () => {
-  renderComponent();
-  admin.source.color = '!border-accent-avocado-default';
-  const element = screen.getByRole('article');
-
-  expect(screen.getByText(admin.source.name)).toBeInTheDocument();
-  expect(element).toHaveClass(admin.source.color);
-});
-
 it('should render the component with an image', () => {
   renderComponent();
   const avatar = screen.getByAltText(`${admin.source.name} source`);

@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import type { Connection } from '../common';
-import { gqlClient } from '../common';
+import { gqlBatchRequest } from '../batch';
 import type { UserStack } from './userStack';
 import { MAX_STACK_ITEMS, USER_STACK_FRAGMENT } from './userStack';
 import type { HotTake } from './userHotTake';
@@ -79,7 +79,7 @@ const PROFILE_SHOWCASE_QUERY = gql`
 `;
 
 export const getProfileShowcase = (userId: string): Promise<ProfileShowcase> =>
-  gqlClient.request<ProfileShowcase>(PROFILE_SHOWCASE_QUERY, {
+  gqlBatchRequest<ProfileShowcase>(PROFILE_SHOWCASE_QUERY, {
     userId,
     stackFirst: MAX_STACK_ITEMS,
     first: 50,

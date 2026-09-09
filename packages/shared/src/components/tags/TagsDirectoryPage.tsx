@@ -13,6 +13,7 @@ import { TagDirectorySearch } from './TagDirectorySearch';
 import { TagPageNavbar } from './TagPageNavbar';
 import { TagDirectoryListItem } from './TagDirectoryListItem';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
+import { ExploreSignupStrip } from '../auth/ExploreSignupStrip';
 import { useChipBarNavigation } from './useChipBarNavigation';
 import { ClickableText } from '../buttons/ClickableText';
 import {
@@ -194,6 +195,7 @@ export function TagsDirectoryPage({
       />
 
       <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
+        <ExploreSignupStrip className="mb-8" />
         {/* Hero */}
         <header className="flex w-full max-w-screen-tablet flex-col items-center gap-5 text-center">
           <Typography

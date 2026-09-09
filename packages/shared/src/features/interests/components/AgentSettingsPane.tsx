@@ -16,12 +16,16 @@ import {
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { MoveToIcon, TrashIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import type {
+  UpdateInterestInput,
+  UserInterest,
+} from '../../../graphql/interests';
 import {
   UserInterestCadence,
   UserInterestStatus,
   interestDisplayName,
 } from '../../../graphql/interests';
-import { useAgent } from '../AgentContext';
+import Link from '../../../components/utilities/Link';
 import {
   CadenceSection,
   FomoSection,
@@ -37,13 +41,20 @@ const sourceOptions = [
 ] as const;
 
 export const AgentSettingsPane = ({
+  interest,
+  update,
+  isUpdating,
+  backHref,
   onDelete,
   isDeleting,
 }: {
+  interest?: UserInterest;
+  update: (data: UpdateInterestInput) => void;
+  isUpdating: boolean;
+  backHref: string;
   onDelete: () => void;
   isDeleting: boolean;
 }): ReactElement => {
-  const { interest, update, isUpdating, setSettingsOpen } = useAgent();
   const [isConfirmingDelete, setConfirmingDelete] = useState(false);
   const isStopped = interest?.status === UserInterestStatus.Stopped;
 
@@ -53,13 +64,17 @@ export const AgentSettingsPane = ({
           switching between them shifts the frame. */}
       <FlexRow className="h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
         <Tooltip content="Back to the conversation">
-          <Button
-            icon={<MoveToIcon size={IconSize.XSmall} className="rotate-180" />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            aria-label="Back to the conversation"
-            onClick={() => setSettingsOpen(false)}
-          />
+          <Link href={backHref} passHref>
+            <Button
+              tag="a"
+              icon={
+                <MoveToIcon size={IconSize.XSmall} className="rotate-180" />
+              }
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              aria-label="Back to the conversation"
+            />
+          </Link>
         </Tooltip>
         <Typography type={TypographyType.Footnote} bold>
           Settings

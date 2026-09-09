@@ -17,6 +17,7 @@ interface UseFeedName {
   isExploreDiscussed: boolean;
   isExploreTag: boolean;
   isDiscussed: boolean;
+  isExploreHub: boolean;
   isCustomFeed: boolean;
   isSortableFeed: boolean;
 }
@@ -36,6 +37,14 @@ const explorePages: AllFeedPages[] = [
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreUpvoted,
   OtherFeedPage.ExploreDiscussed,
+];
+
+// The feeds the sidebar's Explore panel leads to: the sort tabs, the
+// explore-tag feed, and Discussions.
+const exploreHubPages: AllFeedPages[] = [
+  ...explorePages,
+  OtherFeedPage.ExploreTag,
+  OtherFeedPage.Discussed,
 ];
 
 // Feeds where the in-feed engagement strip may render: the two core home
@@ -65,6 +74,7 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
     isExploreDiscussed: feedName === OtherFeedPage.ExploreDiscussed,
     isExploreTag: feedName === OtherFeedPage.ExploreTag,
     isDiscussed: feedName === OtherFeedPage.Discussed,
+    isExploreHub: exploreHubPages.includes(feedName),
     isCustomFeed: customFeeds.includes(feedName),
     isSortableFeed: sortableFeeds.includes(feedName),
   };

@@ -36,7 +36,11 @@ export interface SnapshotButtonProps {
   size?: ButtonSize;
   variant?: ButtonVariant;
   className?: string;
-  captureOptions?: CaptureShareImageOptions;
+  /**
+   * A getter rather than a value for cards whose frame grows with its copy:
+   * the height can only be measured once the card is mounted.
+   */
+  captureOptions?: CaptureShareImageOptions | (() => CaptureShareImageOptions);
   onCapture?: (blob: Blob) => void;
 }
 
@@ -80,7 +84,12 @@ export function SnapshotButton({
       setIsCapturing(true);
 
       try {
-        const capture = captureShareImage(target, captureOptions);
+        const capture = captureShareImage(
+          target,
+          typeof captureOptions === 'function'
+            ? captureOptions()
+            : captureOptions,
+        );
 
         if (onCapture) {
           onCapture(await capture);

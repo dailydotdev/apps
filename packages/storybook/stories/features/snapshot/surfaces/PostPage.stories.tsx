@@ -46,23 +46,18 @@ const SUMMARY_QUOTE =
 const isCompact = (device: DeviceName) => device !== 'Desktop';
 
 /* The card from #6544 at a third of its size: it is built for a 1080px canvas,
-   so it is drawn full-size and scaled rather than made responsive. */
+   so it is drawn full-size and zoomed rather than made responsive. */
 const PREVIEW_SIZE = 360;
 
 const SnapshotResult = () => (
   <div
     className="overflow-hidden rounded-16 border border-border-subtlest-tertiary"
-    style={{ width: PREVIEW_SIZE, height: PREVIEW_SIZE }}
+    style={{ width: PREVIEW_SIZE }}
   >
-    <div
-      style={{
-        transform: `scale(${PREVIEW_SIZE / SNAPSHOT_SIZE})`,
-        transformOrigin: 'top left',
-      }}
-    >
+    {/* zoom, not transform: the frame grows with the passage, so the preview
+        box has to take its height from the card instead of assuming a square. */}
+    <div style={{ zoom: PREVIEW_SIZE / SNAPSHOT_SIZE }}>
       <HighlightTextSnapshotCard
-        domain="xda-developers.com"
-        postTitle={TITLE}
         seed={SUMMARY_QUOTE}
         source={{ name: 'XDA Developers', image: AVATAR }}
         text={SUMMARY_QUOTE}
@@ -669,7 +664,7 @@ const PostPage = () => (
       </Variant>
       <Variant
         headline="What the button exports"
-        note="The 1080×1080 PNG the bar produces, drawn from the real HighlightTextSnapshotCard and scaled to a third. The quote is the payload; the source and the post title sit under it as attribution, which is why the link stops being the thing being shared."
+        note="The PNG the bar produces, drawn from the real HighlightTextSnapshotCard and scaled to a third. The quote is the payload and the source is credited under it; the frame grows with the passage rather than shrinking the type to reach the bottom of a square."
         step="Result"
       >
         <SnapshotResult />

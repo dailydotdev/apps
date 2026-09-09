@@ -20,7 +20,8 @@ import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
-import { SNAPSHOT_SIZE } from './snapshotGradient';
+import { getSnapshotCaptureOptions } from './snapshotCapture';
+import { snapshotSource } from './snapshotSource';
 import type { TextSelection } from './useTextSelection';
 import { useTextSelection } from './useTextSelection';
 
@@ -28,13 +29,6 @@ const BAR_HEIGHT = 44;
 const GAP = 8;
 /** Keeps the bar off the viewport edges when the quote runs to the margin. */
 const EDGE = 96;
-
-const CAPTURE_OPTIONS = {
-  width: SNAPSHOT_SIZE,
-  height: SNAPSHOT_SIZE,
-  padding: 0,
-  branded: false,
-};
 
 const position = (selection: TextSelection) => {
   const above = selection.top - BAR_HEIGHT - GAP;
@@ -111,7 +105,7 @@ export function SelectionSnapshotBar({
           {/* Snapshot leads, labelled and solid: it is the reason the bar
               exists, and the two copies beside it are the familiar fallbacks. */}
           <SnapshotButton
-            captureOptions={CAPTURE_OPTIONS}
+            captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
             filename={`daily-quote-${post.id}`}
             link={getTrackedLink}
             target={cardRef}
@@ -147,14 +141,8 @@ export function SelectionSnapshotBar({
       >
         <HighlightTextSnapshotCard
           ref={cardRef}
-          domain={post.domain}
-          postTitle={post.title}
           seed={post.id}
-          source={
-            post.source
-              ? { name: post.source.name, image: post.source.image }
-              : undefined
-          }
+          source={snapshotSource(post)}
           text={quote.text}
         />
       </div>

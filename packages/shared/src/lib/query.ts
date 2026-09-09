@@ -277,13 +277,16 @@ export enum RequestKey {
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   QuestDashboard = 'quest_dashboard',
+  // Not fetched. `useClaimQuestReward` writes the last successful claim here
+  // so listeners elsewhere in the tree can react to it, the same way
+  // `useLazyModal` carries the open modal.
+  QuestClaim = 'quest_claim',
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
   MarketingCtas = 'marketing_ctas',
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
-  LiveRooms = 'live_rooms',
   LeaderboardPosition = 'leaderboard_position',
   UserWorld = 'user_world',
   UserWorldTimeline = 'user_world_timeline',
@@ -296,6 +299,8 @@ export enum RequestKey {
   WorldDomainRanking = 'world_domain_ranking',
   WorldRecentLevelUps = 'world_recent_level_ups',
   FollowedWorlds = 'followed_worlds',
+  ShellState = 'shell_state',
+  AchievementTracker = 'achievement_tracker',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

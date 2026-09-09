@@ -38,6 +38,7 @@ interface TextFormProps {
   onCoverChange?: (cover: TextFormCover | null) => void;
   toolbarLeading?: ReactNode;
   toolbarRightActions?: ReactNode;
+  stackToolbarLeading?: boolean;
   onMarkdownModeChange?: (isMarkdownMode: boolean) => void;
 }
 
@@ -58,6 +59,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
       onCoverChange,
       toolbarLeading,
       toolbarRightActions,
+      stackToolbarLeading,
       onMarkdownModeChange,
     },
     ref,
@@ -215,10 +217,13 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
           }}
           maxInputLength={BODY_MAX_LENGTH}
           allowBlockFormatting
-          minHeightClassName="min-h-[12rem]"
+          // A px floor taller than the keyboard-shrunk window would give an
+          // empty editor scroll range; `editorBody`'s flex-1 already fills it.
+          minHeightClassName="min-h-0"
           toolbarPosition="bottom"
           toolbarLeading={toolbarLeading}
           toolbarRightActions={toolbarRightActions}
+          stackToolbarLeading={stackToolbarLeading}
           hideMarkdownToggle
           hideMarkdownHeader
           hideFooter

@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { anchorSponsoredRel } from '../../lib/strings';
 
 type EngagementAdCtaProps = {
   href: string;
@@ -27,7 +28,7 @@ export const EngagementAdCta = ({
   <a
     href={href}
     target="_blank"
-    rel="noopener noreferrer"
+    rel={anchorSponsoredRel}
     onClick={onClick}
     style={
       inverted

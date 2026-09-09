@@ -7,7 +7,7 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
-import { anchorDefaultRel } from '../../../lib/strings';
+import { anchorDefaultRel, anchorSponsoredRel } from '../../../lib/strings';
 import { webappUrl } from '../../../lib/constants';
 
 export const HackathonHowItWorks = (): ReactElement => {
@@ -47,7 +47,11 @@ export const HackathonHowItWorks = (): ReactElement => {
           </Link>{' '}
           with all the benefits for best submissions.{' '}
           <Link href="https://www.coderabbit.ai/pricing">
-            <a target="_blank" className="text-[#FF570A] underline">
+            <a
+              target="_blank"
+              rel={anchorSponsoredRel}
+              className="text-[#FF570A] underline"
+            >
               3 free months of CodeRabbit Pro Plus.
             </a>
           </Link>{' '}

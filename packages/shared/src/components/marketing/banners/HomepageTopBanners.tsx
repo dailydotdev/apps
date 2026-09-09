@@ -39,15 +39,20 @@ const CompactReminderCat = (): ReactElement => (
   <ReadingReminderCatLaptop className="!m-0 h-24 w-28 shrink-0 self-center rounded-12 object-contain tablet:h-28 tablet:w-32" />
 );
 
-export const useHomepageTopBannersVisibility = (): {
+export const useHomepageTopBannersVisibility = ({
+  enabled: isEnabled = true,
+}: { enabled?: boolean } = {}): {
   showReminder: boolean;
   showCv: boolean;
   hasAny: boolean;
 } => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  const reminder = useReadingReminderHero({ requireMobile: false });
+  const reminder = useReadingReminderHero({
+    requireMobile: false,
+    enabled: isEnabled,
+  });
   const { shouldShow: shouldShowCv } = useUploadCv();
-  const enabled = isAuthReady && isLoggedIn;
+  const enabled = isEnabled && isAuthReady && isLoggedIn;
   const showReminder = enabled && reminder.shouldShow;
   const showCv = enabled && shouldShowCv;
   return { showReminder, showCv, hasAny: showReminder || showCv };

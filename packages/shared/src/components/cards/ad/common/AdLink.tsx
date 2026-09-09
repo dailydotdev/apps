@@ -4,6 +4,7 @@ import type { Ad } from '../../../../graphql/posts';
 import { CardLink } from '../../common/Card';
 import { combinedClicks } from '../../../../lib/click';
 import { useAdClickUrl } from '../../../../features/monetization/useAdClickUrl';
+import { anchorSponsoredRel } from '../../../../lib/strings';
 
 export type AdLinkProps = {
   ad: Ad;
@@ -17,7 +18,7 @@ export default function AdLink({ ad, onLinkClick }: AdLinkProps): ReactElement {
     <CardLink
       href={href}
       target="_blank"
-      rel="noopener"
+      rel={anchorSponsoredRel}
       title={ad.description}
       {...combinedClicks(() => onLinkClick?.(ad))}
     />

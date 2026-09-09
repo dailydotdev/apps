@@ -207,27 +207,6 @@ const nextConfig: NextConfig = {
           destination: '/',
           permanent: false,
         },
-        // The agent surface moved to /agents; shared links point at the old
-        // paths and the agent writes them into its own transcripts.
-        {
-          source: '/agent',
-          destination: '/agents',
-          permanent: false,
-        },
-        {
-          source: '/agent/:id',
-          destination: '/agents/:id',
-          permanent: false,
-        },
-        // Left over from the retired vibes surface, which owned /agents before
-        // the agent did. Matched before routing, so it never reaches
-        // /agents/[id]. Mirrors `agentsHighlightsPath`, which the config cannot
-        // import: it runs before shared is transpiled.
-        {
-          source: '/agents/arena',
-          destination: '/highlights/vibes',
-          permanent: true,
-        },
         {
           source: '/mobile',
           destination: '/',
@@ -299,6 +278,12 @@ const nextConfig: NextConfig = {
         {
           source: '/posts/:id/read',
           destination: '/articles/:id',
+          permanent: false,
+        },
+        // the layout v2 mirror is reachable through the proxy rewrite only
+        {
+          source: '/layout-v2/:path*',
+          destination: '/:path*',
           permanent: false,
         },
         // so we can't access /plus/gift route directly

@@ -1,6 +1,6 @@
 {
   "name": "@dailydotdev/world-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Author objects for your daily.dev world: validate locally, preview live.",
   "type": "module",
   "bin": {
@@ -12,7 +12,7 @@
     "templates"
   ],
   "dependencies": {
-    "@dailydotdev/world-kit": "workspace:*"
+    "@dailydotdev/world-kit": "0.1.1"
   },
   "engines": {
     "node": ">=20"

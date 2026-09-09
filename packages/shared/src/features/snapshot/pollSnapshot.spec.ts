@@ -1,5 +1,6 @@
 import type { Post } from '../../graphql/posts';
 import { pollSnapshotFromPost } from './pollSnapshot';
+import { snapshotSource } from './snapshotSource';
 
 const poll = {
   id: 'poll-1',
@@ -72,5 +73,30 @@ describe('pollSnapshotFromPost', () => {
     expect(
       pollSnapshotFromPost({ ...poll, pollOptions: [] } as Post),
     ).toBeNull();
+  });
+});
+
+describe('snapshotSource', () => {
+  it('falls back to the domain when the API could not attribute the link', () => {
+    expect(
+      snapshotSource({
+        source: { name: 'unknown', handle: 'unknown' },
+        domain: 'xda-developers.com',
+      } as unknown as Post),
+    ).toEqual({ name: 'xda-developers.com' });
+  });
+
+  it('credits nobody rather than a placeholder', () => {
+    expect(
+      snapshotSource({ source: { name: 'unknown' } } as unknown as Post),
+    ).toBeUndefined();
+  });
+
+  it('credits a real source with its avatar', () => {
+    expect(
+      snapshotSource({
+        source: { name: 'Trends', image: 'trends.png' },
+      } as unknown as Post),
+    ).toEqual({ name: 'Trends', image: 'trends.png' });
   });
 });

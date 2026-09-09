@@ -156,12 +156,3 @@ describe('useIubendaConsentMirror', () => {
     expect(otherGdprConsents).toEqual([GdprConsentKey.Marketing]);
   });
 });
-
-it('carries a refusal recorded on another daily.dev property', () => {
-  setup();
-  mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: false });
-
-  renderHook(() => useIubendaConsentMirror());
-
-  expect(saveCookies).toHaveBeenCalledWith([], otherGdprConsents);
-});

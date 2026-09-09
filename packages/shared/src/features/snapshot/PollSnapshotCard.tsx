@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
+import { SnapshotCredit } from './SnapshotCredit';
 import { SnapshotFrame } from './SnapshotFrame';
 
 const MUTED = colors.salt['90'];
@@ -116,14 +117,7 @@ function PollSnapshotCardComponent(
           ))}
         </ol>
 
-        {source && (
-          <span
-            className="mt-8 truncate font-bold text-white"
-            style={{ fontSize: 28 }}
-          >
-            {source.name}
-          </span>
-        )}
+        {source && <SnapshotCredit name={source.name} />}
       </div>
     </SnapshotFrame>
   );

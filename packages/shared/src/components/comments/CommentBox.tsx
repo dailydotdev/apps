@@ -29,6 +29,7 @@ function CommentBox({
   onDelete,
   onEdit,
   onShowUpvotes,
+  hideOptionsMenu,
   isModalThread = false,
   threadRepliesControl,
   children,
@@ -65,6 +66,7 @@ function CommentBox({
             onDelete={onDelete}
             onEdit={onEdit}
             onShowUpvotes={onShowUpvotes}
+            hideOptionsMenu={hideOptionsMenu}
             isModalThread={isModalThread}
             threadRepliesControl={threadRepliesControl}
             className={

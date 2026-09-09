@@ -14,6 +14,7 @@ import type { ResponseError } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import type { DayOfWeek } from '../../lib/date';
 import { isSameDayInTimezone } from '../../lib/timezones';
+import { useShellState } from '../../contexts/ShellStateContext';
 
 type UpdateReadingStreakConfig = {
   weekStart: DayOfWeek;
@@ -34,6 +35,7 @@ interface UserReadingStreak {
 
 export const useReadingStreak = (): UserReadingStreak => {
   const { user, isLoggedIn } = useAuthContext();
+  const { isSettled } = useShellState();
   const { optOutReadingStreak, loadedSettings } = useContext(SettingsContext);
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.UserStreak, user);
@@ -42,7 +44,7 @@ export const useReadingStreak = (): UserReadingStreak => {
     queryKey,
     queryFn: getReadingStreak,
     staleTime: StaleTime.Default,
-    enabled: isLoggedIn,
+    enabled: isLoggedIn && isSettled,
     refetchIntervalInBackground: true,
   });
 

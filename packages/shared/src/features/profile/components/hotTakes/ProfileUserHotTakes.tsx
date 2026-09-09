@@ -3,6 +3,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import type { PublicProfile } from '../../../../lib/user';
 import {
+  HOT_TAKE_LIMIT_HINT,
   HOT_TAKE_LIMIT_REACHED_MESSAGE,
   useHotTakes,
 } from '../../hooks/useHotTakes';
@@ -28,6 +29,7 @@ import { usePrompt } from '../../../../hooks/usePrompt';
 import { useVoteHotTake } from '../../../../hooks/vote/useVoteHotTake';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../../lib/log';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import {
   HOT_TAKES_ANCHOR,
   isOpenAddHotTakeQuery,
@@ -179,33 +181,65 @@ export function ProfileUserHotTakes({
     [toggleUpvote],
   );
 
-  const hasItems = hotTakes.length > 0;
+  const hotTakeCount = hotTakes.length;
+  const hasItems = hotTakeCount > 0;
+  const hotTakesAnchor = (
+    // eslint-disable-next-line jsx-a11y/anchor-has-content
+    <a id={HOT_TAKES_ANCHOR} />
+  );
 
   if (!hasItems && !isOwner) {
-    return null;
+    return hotTakesAnchor;
   }
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
-      <a id={HOT_TAKES_ANCHOR} />
-      <div className="flex items-center justify-between">
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          bold
-        >
-          Hot Takes
-        </Typography>
-        {isOwner && canAddMore && (
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            onClick={handleOpenModal}
+      {hotTakesAnchor}
+      <div className="flex items-center justify-between gap-4">
+        {isOwner ? (
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Primary}
+              bold
+            >
+              Hot Takes
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {HOT_TAKE_LIMIT_HINT}
+            </Typography>
+          </div>
+        ) : (
+          <Typography
+            type={TypographyType.Body}
+            color={TypographyColor.Primary}
+            bold
           >
-            Add
-          </Button>
+            Hot Takes
+          </Typography>
+        )}
+        {isOwner && (
+          <Tooltip
+            content={HOT_TAKE_LIMIT_REACHED_MESSAGE}
+            side="bottom"
+            visible={!canAddMore}
+          >
+            <span className="inline-flex">
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                onClick={handleOpenModal}
+                disabled={!canAddMore}
+              >
+                Add
+              </Button>
+            </span>
+          </Tooltip>
         )}
       </div>
       {hasItems ? (
@@ -243,6 +277,7 @@ export function ProfileUserHotTakes({
               </Typography>
             </div>
             <Button
+              type="button"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}

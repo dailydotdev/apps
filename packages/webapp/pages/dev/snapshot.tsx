@@ -23,6 +23,7 @@ import { CopySummaryButton } from '@dailydotdev/shared/src/features/snapshot/Cop
 import { SelectionSnapshotBar } from '@dailydotdev/shared/src/features/snapshot/SelectionSnapshotBar';
 import { PollSnapshotButton } from '@dailydotdev/shared/src/features/snapshot/PollSnapshotButton';
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
+import { getSnapshotCaptureOptions } from '@dailydotdev/shared/src/features/snapshot/snapshotCapture';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
 import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
 import {
@@ -127,21 +128,14 @@ const POLL_POST = {
 } as unknown as Post;
 
 const QUOTE_TIERS = [
-  { label: '<=70 chars . 72px', text: 'They optimised the product they had.' },
-  { label: '<=140 chars . 60px', text: QUOTE },
-  { label: '<=240 chars . 48px', text: `${SUMMARY_LEAD}${QUOTE}` },
+  { label: 'one line', text: 'They optimised the product they had.' },
+  { label: 'a sentence', text: QUOTE },
+  { label: 'a passage . the frame grows', text: `${SUMMARY_LEAD}${QUOTE}` },
   {
-    label: '>280 chars . truncated at the last word',
-    text: `${SUMMARY_LEAD}${QUOTE} ${SUMMARY_LEAD}${QUOTE}`,
+    label: 'past 900 chars . cut at the last word',
+    text: `${SUMMARY_LEAD}${QUOTE} `.repeat(6),
   },
 ];
-
-const CAPTURE_OPTIONS = {
-  width: SNAPSHOT_SIZE,
-  height: SNAPSHOT_SIZE,
-  padding: 0,
-  branded: false,
-};
 
 const useIsAllowedHost = () => {
   const [allowed, setAllowed] = useState(true);
@@ -360,16 +354,11 @@ const ScaledCard = ({
     </figcaption>
     <div
       className="overflow-hidden rounded-16 border border-border-subtlest-tertiary"
-      style={{ width: size, height: size }}
+      style={{ width: size }}
     >
-      <div
-        style={{
-          transform: `scale(${size / SNAPSHOT_SIZE})`,
-          transformOrigin: 'top left',
-        }}
-      >
-        {children}
-      </div>
+      {/* zoom, not transform: the card's height follows its copy now, and a
+          scaled box has to shrink with it rather than crop or pad it. */}
+      <div style={{ zoom: size / SNAPSHOT_SIZE }}>{children}</div>
     </div>
   </figure>
 );
@@ -392,7 +381,10 @@ const CaptureOutput = ({
     setError(null);
 
     try {
-      const blob = await captureShareImage(target, CAPTURE_OPTIONS);
+      const blob = await captureShareImage(
+        target,
+        getSnapshotCaptureOptions(target.current),
+      );
       setImage({ url: URL.createObjectURL(blob), size: blob.size });
     } catch (e) {
       setError(String(e));
@@ -476,7 +468,7 @@ const TheTwoAdditions = ({
 
       <Placement
         headline="What the selection exports"
-        note="The card at every size tier, and the real capture underneath — this is the file, not a preview of it."
+        note="The card at every passage length, and the real capture underneath — this is the file, not a preview of it."
         step="Result"
       >
         <div className="flex flex-col gap-6">
@@ -484,8 +476,6 @@ const TheTwoAdditions = ({
             {QUOTE_TIERS.map((tier) => (
               <ScaledCard key={tier.label} label={tier.label} size={220}>
                 <HighlightTextSnapshotCard
-                  domain={POST.domain}
-                  postTitle={TITLE}
                   seed={tier.label}
                   source={SOURCE}
                   text={tier.text}
@@ -750,8 +740,6 @@ const SnapshotDevPage = (): ReactElement => {
       >
         <HighlightTextSnapshotCard
           ref={quoteRef}
-          domain={POST.domain}
-          postTitle={TITLE}
           seed={POST.id}
           source={SOURCE}
           text={QUOTE}
