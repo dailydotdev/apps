@@ -4,7 +4,7 @@ import AlertContext from '../contexts/AlertContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import type { Banner } from '../graphql/banner';
 import { BANNER_QUERY } from '../graphql/banner';
-import { gqlClient } from '../graphql/common';
+import { gqlBatchRequest } from '../graphql/batch';
 import { hackathonParticipationQueryOptions } from '../features/hackathon/queries';
 import { useAuthContext } from '../contexts/AuthContext';
 
@@ -21,7 +21,9 @@ export function useBanner(): UseBanner {
   const { data: latestBanner } = useQuery({
     queryKey: generateQueryKey(RequestKey.Banner, null),
     queryFn: () =>
-      gqlClient.request(BANNER_QUERY, { lastSeen: alerts.lastBanner }),
+      gqlBatchRequest<{ banner?: Banner }>(BANNER_QUERY, {
+        lastSeen: alerts.lastBanner,
+      }),
     enabled: !!alerts.banner,
   });
 
@@ -42,7 +44,7 @@ export function useBanner(): UseBanner {
     }
 
     const lastSeenBannerDate = Date.parse(alerts?.lastBanner);
-    const latestBannerDate = Date.parse(latestBanner?.banner?.timestamp);
+    const latestBannerDate = Date.parse(latestBanner?.banner?.timestamp ?? '');
 
     if (Number.isNaN(latestBannerDate) || Number.isNaN(lastSeenBannerDate)) {
       return false;

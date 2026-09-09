@@ -24,6 +24,7 @@ import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderb
 import type { PopularHotTakes } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
 import { PopularHotTakesList } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
+import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -94,6 +95,7 @@ const LeaderboardPage = ({
     <>
       {isV2Laptop && <ExploreHubHeader />}
       <PageWrapperLayout>
+        <ExploreSignupStrip className="mb-6" />
         {!isV2Laptop && (
           <div className="mb-6 hidden justify-between laptop:flex">
             <BreadCrumbs>

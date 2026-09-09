@@ -30,17 +30,6 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
-// Experiment: community takes — an LLM-generated digest of what the developer
-// community on HN/Lobsters thinks about a post. Control hides the surface,
-// treatment shows it. Enrollment is conditional on the post actually having a
-// take (see PostFocusCard's `shouldEvaluate`), so exposure is only logged when
-// there's something to show — take-less posts never dilute the split. Backend
-// generation is unconditional; this flag gates rendering only, so flipping it
-// needs no data backfill. Default MUST stay `false` — see the rule below.
-export const featureCommunitySentiment = new Feature(
-  'community_sentiment',
-  false,
-);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
@@ -258,7 +247,7 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
   OnboardingChromeVariant.Control,
 );
 
-export const featureLayoutV2 = new Feature('layout_v2', false);
+export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
@@ -342,3 +331,7 @@ export const featureCommentFirstAction = new Feature(
   'comment_first_action',
   false,
 );
+
+// Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
+// the control: the API only accepts batched bodies once its own change ships.
+export const featureGqlBatching = new Feature('gql_batching', false);

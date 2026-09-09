@@ -21,6 +21,11 @@ import {
   providerMap,
   type SocialProvider,
 } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  HijackingCoverStrip,
+  hijackingGlassCta,
+  hijackingPrimaryCta,
+} from '@dailydotdev/shared/src/components/auth/HijackingCoverStrip';
 import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -34,7 +39,6 @@ import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
-  cloudinaryHijackingCoverArt,
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
   cloudinaryReadingReminderCat,
@@ -49,12 +53,6 @@ import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import LogoText from '@dailydotdev/shared/src/svg/LogoText';
 
 type CoverVariant = 'continue' | 'signin' | 'onboarding';
-
-const primaryCta =
-  'transition-transform duration-200 ease-out hover:-translate-y-0.5';
-
-const glassCta =
-  '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
 
 const LIVE_COPY = {
   heading: 'Own your new tab. Make it your dev briefing.',
@@ -111,7 +109,7 @@ function HeroActionButtons({
         type="button"
         variant={ButtonVariant.Primary}
         size={ButtonSize.Medium}
-        className={classNames('flex-1', primaryCta)}
+        className={classNames('flex-1', hijackingPrimaryCta)}
         onClick={onSignupClick}
       >
         {LIVE_COPY.signup}
@@ -120,7 +118,7 @@ function HeroActionButtons({
         type="button"
         variant={ButtonVariant.Secondary}
         size={ButtonSize.Medium}
-        className={classNames('flex-1', glassCta)}
+        className={classNames('flex-1', hijackingGlassCta)}
         onClick={onLoginClick}
       >
         {LIVE_COPY.login}
@@ -300,69 +298,24 @@ function OnboardingSignupHero({
   );
 }
 
-const coverArtPosition = { objectPosition: '50% 62%' };
-
 function CoverSignupHero({
   onSignupClick,
   onLoginClick,
   isLoggedOut,
 }: SigninHeroProps): ReactElement {
   return (
-    <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
-      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
-        <img
-          src={cloudinaryHijackingCoverArt}
-          alt=""
-          aria-hidden
-          role="presentation"
-          className="pointer-events-none absolute inset-0 size-full object-cover"
-          style={coverArtPosition}
-        />
-        <div className="cover-hero-dome pointer-events-none absolute inset-0" />
-        <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
-        <div
-          aria-hidden
-          className="invisible hidden tablet:flex tablet:flex-row tablet:items-stretch"
-        >
+    <HijackingCoverStrip
+      copy={LIVE_COPY}
+      onSignupClick={onSignupClick}
+      onLoginClick={onLoginClick}
+      className={classNames('mb-4', feedStyles.cards)}
+      sizer={
+        <>
           <ControlTextColumn isLoggedOut={isLoggedOut} />
           <ControlMediaPanel />
-        </div>
-        <div className="dark relative z-1 flex flex-col items-center justify-center p-5 text-center tablet:absolute tablet:inset-0">
-          <h3 className="font-bold text-white typo-title2 [text-shadow:0_2px_18px_rgba(0,0,0,0.6)]">
-            {LIVE_COPY.heading}
-          </h3>
-          <p className="text-white/80 mt-1 max-w-[34rem] text-balance text-sm [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
-            {LIVE_COPY.body}
-          </p>
-          <div className="mt-4 flex flex-row justify-center gap-2.5">
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              className={classNames(
-                'group/cta shadow-2 shadow-black/40',
-                primaryCta,
-              )}
-              onClick={onSignupClick}
-            >
-              {LIVE_COPY.signup}
-              <span className="ml-1 inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5">
-                →
-              </span>
-            </Button>
-            <Button
-              type="button"
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Medium}
-              className={glassCta}
-              onClick={onLoginClick}
-            >
-              {LIVE_COPY.login}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </section>
+        </>
+      }
+    />
   );
 }
 
@@ -574,7 +527,7 @@ function HijackingHeroStrip({
           href={onboardingHref}
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
-          className={classNames('mt-7', primaryCta)}
+          className={classNames('mt-7', hijackingPrimaryCta)}
           onClick={() => logClick(TargetType.LoginButton)}
         >
           Continue&nbsp;➔
@@ -614,7 +567,7 @@ function HijackingHeroStrip({
           type="button"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
-          className={classNames('mt-6 w-full max-w-80', primaryCta)}
+          className={classNames('mt-6 w-full max-w-80', hijackingPrimaryCta)}
           onClick={onLoginClick}
         >
           Continue as {firstName}&nbsp;➔

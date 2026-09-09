@@ -26,6 +26,10 @@ import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import type { Post } from '../../graphql/posts';
+import {
+  CommunitySentiment,
+  mapCommunitySentimentPost,
+} from './focus/CommunitySentiment';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -48,7 +52,7 @@ const getSquadContentComponent = (type: PostType) => {
 
 type SquadPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
-function SquadPostContentRaw({
+export function SquadPostContentRaw({
   post,
   isFallback,
   shouldOnboardAuthor,
@@ -110,6 +114,12 @@ function SquadPostContentRaw({
     ? PostType.VideoYouTube
     : socialTwitterType || post?.type;
   const Content = getSquadContentComponent(finalType);
+  const communitySentimentPost =
+    post.type === PostType.Share && post.sharedPost ? post.sharedPost : post;
+  const communitySentimentData = communitySentimentPost.communitySentiment
+    ? mapCommunitySentimentPost(communitySentimentPost.communitySentiment)
+    : undefined;
+  const showCommunitySentiment = !!communitySentimentData;
 
   return (
     <PostContentContainer
@@ -197,6 +207,12 @@ function SquadPostContentRaw({
             onReadArticle={onReadArticle}
             isCompactSpacing={isCompactModalSpacing}
           />
+          {showCommunitySentiment && (
+            <CommunitySentiment
+              data={communitySentimentData}
+              className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+            />
+          )}
         </BasePostContent>
       </div>
       <SquadPostWidgets

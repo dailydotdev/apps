@@ -3,6 +3,7 @@ import type { NotificationIconType } from '../components/notifications/utils';
 import { NotificationType } from '../components/notifications/utils';
 import type { Connection } from './common';
 import { gqlClient } from './common';
+import { gqlBatchRequest } from './batch';
 import type { EmptyResponse } from './emptyResponse';
 import type { WithClassNameProps } from '../components/utilities';
 
@@ -247,9 +248,9 @@ type FetchParams = Pick<
 export const getNotificationPreferences = async (
   params: FetchParams[],
 ): Promise<NotificationPreference[]> => {
-  const res = await gqlClient.request(NOTIFICATION_PREFERENCES_QUERY, {
-    data: params,
-  });
+  const res = await gqlBatchRequest<{
+    notificationPreferences: NotificationPreference[];
+  }>(NOTIFICATION_PREFERENCES_QUERY, { data: params });
 
   return res.notificationPreferences;
 };

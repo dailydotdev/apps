@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import FeedbackModal from './FeedbackModal';
 
@@ -44,6 +50,18 @@ const renderComponent = () => {
       <FeedbackModal isOpen onRequestClose={jest.fn()} ariaHideApp={false} />
     </QueryClientProvider>,
   );
+};
+
+const pasteFiles = (files: File[]): Event => {
+  const event = new Event('paste', { bubbles: true, cancelable: true });
+  Object.defineProperty(event, 'clipboardData', {
+    value: { files, items: [] },
+  });
+  act(() => {
+    document.dispatchEvent(event);
+  });
+
+  return event;
 };
 
 describe('FeedbackModal', () => {
@@ -178,6 +196,42 @@ describe('FeedbackModal', () => {
     // The original attachment and its preview URL must survive the rejection
     expect(screen.getByAltText('Screenshot preview')).toBeInTheDocument();
     expect(mockRevokePreviewUrl).not.toHaveBeenCalled();
+  });
+
+  it('attaches an image pasted from the clipboard', async () => {
+    renderComponent();
+
+    const file = new File(['pasted'], 'image.png', { type: 'image/png' });
+    const event = pasteFiles([file]);
+
+    expect(
+      await screen.findByAltText('Screenshot preview'),
+    ).toBeInTheDocument();
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('rejects a pasted image that fails validation', async () => {
+    renderComponent();
+
+    const tooLarge = new File(['x'], 'image.png', { type: 'image/png' });
+    Object.defineProperty(tooLarge, 'size', { value: 6 * 1024 * 1024 });
+    pasteFiles([tooLarge]);
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'File too large. Maximum size is 5MB.',
+      ),
+    );
+    expect(screen.queryByAltText('Screenshot preview')).not.toBeInTheDocument();
+  });
+
+  it('leaves a text-only paste to the focused field', async () => {
+    renderComponent();
+
+    const event = pasteFiles([]);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(screen.queryByAltText('Screenshot preview')).not.toBeInTheDocument();
   });
 
   it('renders all categories and submits content quality with updated enum value', async () => {
