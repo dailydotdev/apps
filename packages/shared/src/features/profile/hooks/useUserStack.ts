@@ -19,7 +19,10 @@ import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
-export function useUserStack(user: PublicProfile | null) {
+export function useUserStack(
+  user: PublicProfile | null,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
   const { isOwner } = useProfilePreview(user);
   const { logEvent } = useLogContext();
 
@@ -27,7 +30,7 @@ export function useUserStack(user: PublicProfile | null) {
     queryKey,
     invalidate: invalidateQuery,
     ...query
-  } = useProfileShowcase(user, 'userStack');
+  } = useProfileShowcase(user, 'userStack', { enabled });
 
   const stackItems = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],

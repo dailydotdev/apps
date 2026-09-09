@@ -12,20 +12,35 @@ import { IconSize } from '../Icon';
 import { ExploreTabs, urlToTab } from './FeedExploreHeader';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { periodTexts } from '../layout/common';
+import { checkIsExtension } from '../../lib/func';
 
 const sortsWithPeriod: ExploreTabs[] = [
   ExploreTabs.MostUpvoted,
   ExploreTabs.BestDiscussions,
 ];
 
+interface FeedExploreTabsProps {
+  // Extension only. There the new tab never changes route — the sort switches
+  // the feed in place — so the active sort and the switcher come from
+  // MainFeedLayout, exactly as v1 drives FeedExploreHeader's TabList. On the
+  // webapp each sort is its own route and these go unused.
+  tab?: ExploreTabs;
+  setTab?: (tab: ExploreTabs) => void;
+}
+
 // Explore sort tabs rendered with the same pill navbar as the Tags / Squad
 // directory pages (SquadDirectoryNavbar), instead of the underlined TabContainer
 // — so the look-and-feel matches the rest of the v2 directory headers. The
 // date-range filter stays as a compact icon dropdown for the applicable sorts.
-export function FeedExploreTabs(): ReactElement {
+export function FeedExploreTabs({
+  tab,
+  setTab,
+}: FeedExploreTabsProps): ReactElement {
   const router = useRouter();
+  const isExtension = checkIsExtension();
   const currentPath = (router.asPath || router.pathname).split('?')[0];
-  const activeTab = urlToTab[currentPath] ?? ExploreTabs.Popular;
+  const activeTab =
+    (isExtension ? tab : urlToTab[currentPath]) ?? ExploreTabs.Popular;
   const [period, setPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
@@ -41,9 +56,15 @@ export function FeedExploreTabs(): ReactElement {
           <SquadDirectoryNavbarItem
             key={label}
             buttonSize={ButtonSize.Small}
-            isActive={currentPath === url}
+            isActive={isExtension ? activeTab === label : currentPath === url}
             label={label}
-            path={url}
+            // These paths are root-relative so they can match `asPath`, which
+            // on the extension resolves against chrome-extension://<id> and
+            // 404s. So there they render as buttons that switch the feed in
+            // place instead — the contract v1's TabList has, and the one the
+            // sidebar rows rely on (docs/sidebar-links-extension-audit.md).
+            path={isExtension ? undefined : url}
+            onClick={isExtension ? () => setTab?.(label) : undefined}
             ariaLabel={`Show ${label}`}
           />
         ))}

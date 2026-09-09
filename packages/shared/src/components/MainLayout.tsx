@@ -217,12 +217,6 @@ function MainLayoutComponent({
   const isLayoutChromeResolved =
     !isHoldingChrome && (!isLaptop || !isLayoutVariantLoading);
 
-  // Extension new tab mounts its own `ExtensionTopBanners` strip, so
-  // the webapp strip is suppressed there to avoid duplicate cards.
-  const { hasAny: hasTopBannersRaw } = useHomepageTopBannersVisibility();
-  const showHomepageTopBanners = !isExtension;
-  const hasTopBanners = showHomepageTopBanners && hasTopBannersRaw;
-
   // The dual-sidebar layout takes ownership of the global header chrome
   // (logo + search + user actions) on laptop+ for authenticated users
   // (and for extension new tab regardless of auth state). When that's
@@ -240,6 +234,15 @@ function MainLayoutComponent({
     ownsHeaderAudience &&
     showSidebar &&
     (isAuthReady ? sidebarRendered : hasServerShell);
+
+  // Extension new tab mounts its own `ExtensionTopBanners` strip, so
+  // the webapp strip is suppressed there to avoid duplicate cards. The strip
+  // only renders inside the sidebar-owned header, so the visibility hook is
+  // evaluated there too instead of on every shell mount.
+  const showHomepageTopBanners = !isExtension;
+  const { hasAny: hasTopBanners } = useHomepageTopBannersVisibility({
+    enabled: showHomepageTopBanners && sidebarOwnsHeader,
+  });
 
   let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
   if (sidebarOwnsHeader) {

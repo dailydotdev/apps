@@ -320,8 +320,7 @@ export interface Post {
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
   hero?: PostHero | null;
   /** LLM-generated digest of what the developer community outside daily.dev
-   * (HN, Lobsters) thinks about this post. `null` when no take exists yet —
-   * gated by the `community_sentiment` experiment (see PostFocusCard). */
+   * (HN, Lobsters) thinks about this post. `null` when no take exists yet. */
   communitySentiment?: CommunitySentimentPost | null;
 }
 

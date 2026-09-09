@@ -16,6 +16,7 @@ import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
+import { ExploreSignupStrip } from '../../auth/ExploreSignupStrip';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -109,6 +110,7 @@ export const SquadDirectoryLayout = (
         {isDiscover && (
           <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
         )}
+        <ExploreSignupStrip className="mb-4" />
 
         <header
           className={classNames(

@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import type { UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
 import { gqlClient } from './common';
+import { gqlBatchRequest } from './batch';
 import {
   SOURCE_CATEGORY_FRAGMENT,
   SOURCE_DIRECTORY_INFO_FRAGMENT,
@@ -252,11 +253,44 @@ export interface SourceCategoryData {
   categories: Connection<SourceCategory>;
 }
 
+// Dock shortcuts and sidebar Recent rows persist the entity image with their
+// entry, so this only backfills the ones written before it was recorded.
+export const SOURCE_IMAGE_QUERY = gql`
+  query SourceImage($id: ID!) {
+    source(id: $id) {
+      id
+      handle
+      image
+    }
+  }
+`;
+
+export const sourceImageQueryOptions = ({
+  handle,
+  enabled,
+}: {
+  handle: string;
+  enabled: boolean;
+}) => {
+  return {
+    queryKey: [RequestKey.Source, null, handle, 'image'],
+    queryFn: async () => {
+      const res = await gqlBatchRequest<{
+        source: Pick<Source, 'id' | 'handle' | 'image'>;
+      }>(SOURCE_IMAGE_QUERY, { id: handle });
+
+      return res.source;
+    },
+    staleTime: StaleTime.OneHour,
+    enabled: enabled && !!handle,
+  };
+};
+
 export const sourceQueryOptions = ({ sourceId }: { sourceId: string }) => {
   return {
     queryKey: [RequestKey.Source, null, sourceId],
     queryFn: async () => {
-      const res = await gqlClient.request<SourceData>(SOURCE_QUERY, {
+      const res = await gqlBatchRequest<SourceData>(SOURCE_QUERY, {
         id: sourceId,
       });
 

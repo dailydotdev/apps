@@ -32,13 +32,17 @@ import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
-import { FEEDBACK_MARKER_REGEX } from '../chat';
+import { FEEDBACK_MARKER_REGEX, promptWithContext } from '../chat';
 import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
 import { transcriptProse } from '../prose';
 import { messageAsMarkdown, messageAsText } from '../replyText';
 import { AgentShareReplyModal } from './AgentShareReplyModal';
-import { feedAttachment, quoteAttachment } from '../attachments';
+import {
+  feedAttachment,
+  messagePostAttachments,
+  quoteAttachment,
+} from '../attachments';
 import { AgentPickList } from './AgentPickList';
 import { AgentAttachmentChip } from './AgentAttachmentChip';
 import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
@@ -195,11 +199,14 @@ const MessageActions = ({
 
     setVote(next);
     const text = messageAsText(message);
+    const excerpt = `${
+      next === 'up' ? 'More' : 'Fewer'
+    } replies like this one: "${text.slice(0, 140)}"`;
+
+    // The excerpt alone gives the agent nothing to act on: the posts the reply
+    // cited go along as markers, the same way attached chips are flattened.
     sendFeedback(
-      `${next === 'up' ? 'More' : 'Fewer'} replies like this one: "${text.slice(
-        0,
-        140,
-      )}"`,
+      promptWithContext(excerpt, messagePostAttachments(message)),
     ).catch(() => setVote(undefined));
   };
 
@@ -219,6 +226,9 @@ const MessageActions = ({
     if (text) {
       attachContext(quoteAttachment(text));
     }
+
+    // The quote is for the reader; the posts are what the API can resolve.
+    messagePostAttachments(message).forEach(attachContext);
 
     writeDraft(
       vote === 'down'

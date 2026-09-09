@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../graphql/common';
 import { isExtension } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -22,6 +22,20 @@ import { registerSpotlightShortcutBlocker } from './shortcuts';
 type SpotlightActionsResponse = { spotlightActions: SpotlightAction[] };
 
 export const SPOTLIGHT_ACTIONS_QUERY_KEY = ['spotlight', 'actions'];
+
+const getSpotlightActions = async (): Promise<SpotlightAction[]> => {
+  const result = await gqlClient.request<SpotlightActionsResponse>(
+    SPOTLIGHT_ACTIONS_QUERY,
+  );
+
+  return result.spotlightActions;
+};
+
+const spotlightActionsQueryOptions = {
+  queryKey: SPOTLIGHT_ACTIONS_QUERY_KEY,
+  queryFn: getSpotlightActions,
+  staleTime: Infinity,
+};
 
 const platformId = isExtension ? 'extension' : 'webapp';
 
@@ -51,6 +65,12 @@ export interface SpotlightContextValue {
   popScope: () => void;
   /** Reset the stack to `All`. */
   clearScope: () => void;
+  /**
+   * Warm the action catalog before the modal opens. Call it from hover/focus
+   * on anything that opens Spotlight so the list is there on click; the query
+   * never goes stale, so repeat calls are free.
+   */
+  prefetch: () => void;
   /** Action catalog from the API, filtered by current user's auth/plus/platform. */
   actions: SpotlightAction[];
   isActionsLoading: boolean;
@@ -72,22 +92,21 @@ export const SpotlightProvider = ({
   const [pendingConfirmId, setPendingConfirmId] = useState<string | null>(null);
   const [pages, setPages] = useState<SpotlightScope[]>([]);
 
+  const queryClient = useQueryClient();
   const { isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { data: rawActions, isPending: isActionsLoading } = useQuery({
-    queryKey: SPOTLIGHT_ACTIONS_QUERY_KEY,
-    queryFn: async () => {
-      const result = await gqlClient.request<SpotlightActionsResponse>(
-        SPOTLIGHT_ACTIONS_QUERY,
-      );
-      return result.spotlightActions;
-    },
-    staleTime: Infinity,
+    ...spotlightActionsQueryOptions,
+    enabled: isOpen,
     gcTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
+
+  const prefetch = useCallback(() => {
+    queryClient.prefetchQuery(spotlightActionsQueryOptions);
+  }, [queryClient]);
 
   const actions = useMemo<SpotlightAction[]>(() => {
     return (rawActions ?? []).filter((action) => {
@@ -189,6 +208,7 @@ export const SpotlightProvider = ({
       pushScope,
       popScope,
       clearScope,
+      prefetch,
       actions,
       isActionsLoading,
     }),
@@ -208,6 +228,7 @@ export const SpotlightProvider = ({
       pushScope,
       popScope,
       clearScope,
+      prefetch,
       actions,
       isActionsLoading,
     ],

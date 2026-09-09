@@ -17,6 +17,7 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
+import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import classNames from 'classnames';
 import { FeedExploreTabs } from '@dailydotdev/shared/src/components/header/FeedExploreTabs';
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
@@ -79,6 +80,7 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
+        <ExploreSignupStrip className="mb-6" />
         {!isV2 && (
           <ArchiveBreadcrumbs
             items={[{ label: 'Explore', href: '/posts' }, { label: 'Best of' }]}

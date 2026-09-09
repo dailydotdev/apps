@@ -14,6 +14,7 @@ import {
   MegaphoneIcon,
   YearInReviewIcon,
 } from '../../icons';
+import { AgentIcon } from '../../icons/Agent';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -27,7 +28,10 @@ import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
-import { featureYearInReview } from '../../../lib/featureManagement';
+import {
+  featureInterestAgent,
+  featureYearInReview,
+} from '../../../lib/featureManagement';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
@@ -47,6 +51,10 @@ export const MainSection = ({
   const ctaCopy = { full: 'Get API Access', short: 'API access' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
+    shouldEvaluate: isLoggedIn,
+  });
+  const { value: showAgent } = useConditionalFeature({
+    feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn,
   });
   const { data: questDashboard } = useQuestDashboard();
@@ -145,6 +153,18 @@ export const MainSection = ({
         }
       : undefined;
 
+    const agents = showAgent
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <AgentIcon secondary={active} />} />
+          ),
+          title: 'Agents',
+          path: `${webappUrl}agent`,
+          isForcedLink: true,
+          requiresLogin: true,
+        }
+      : undefined;
+
     // v2 folds the old Discover hub into Home: Explore (and its sub-pages)
     // are reached from here instead of a dedicated rail category.
     const explore = isV2
@@ -191,6 +211,7 @@ export const MainSection = ({
           isForcedLink: true,
           requiresLogin: true,
         },
+        agents,
         gameCenter,
         yearInReview,
         plusButton,
@@ -205,6 +226,7 @@ export const MainSection = ({
     isSaleActive,
     isV2,
     onNavTabClick,
+    showAgent,
     showYearInReview,
     user,
   ]);

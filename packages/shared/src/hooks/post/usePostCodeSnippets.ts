@@ -17,7 +17,7 @@ import {
   StaleTime,
 } from '../../lib/query';
 import type { Connection } from '../../graphql/common';
-import { gqlClient } from '../../graphql/common';
+import { gqlBatchRequest } from '../../graphql/batch';
 
 type UsePostCodeSnippetsData = Connection<PostCodeSnippet>;
 
@@ -46,7 +46,7 @@ export const usePostCodeSnippetsQuery = ({
       id: postId,
     }),
     queryFn: async ({ pageParam }) => {
-      const result = await gqlClient.request<{
+      const result = await gqlBatchRequest<{
         postCodeSnippets: UsePostCodeSnippetsData;
       }>(POST_CODE_SNIPPETS_QUERY, {
         id: postId,

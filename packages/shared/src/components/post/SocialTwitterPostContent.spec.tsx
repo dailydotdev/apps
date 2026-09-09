@@ -1,13 +1,11 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment } from '../../../__tests__/fixture/post';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { Origin } from '../../lib/log';
-import { featureCommunitySentiment } from '../../lib/featureManagement';
 import { SocialTwitterPostContentRaw } from './SocialTwitterPostContent';
 
 const tweetPost: Post = {
@@ -20,10 +18,10 @@ const tweetPost: Post = {
 
 const renderContent = (
   post: Post,
-  options: { gb?: GrowthBook; isPostPage?: boolean; onClose?: () => void } = {},
+  options: { isPostPage?: boolean; onClose?: () => void } = {},
 ) =>
   render(
-    <TestBootProvider client={new QueryClient()} gb={options.gb}>
+    <TestBootProvider client={new QueryClient()}>
       <SocialTwitterPostContentRaw
         post={post}
         origin={Origin.ArticlePage}
@@ -33,19 +31,9 @@ const renderContent = (
     </TestBootProvider>,
   );
 
-const enabledGrowthBook = () => {
-  const gb = new GrowthBook();
-  gb.setFeatures({
-    [featureCommunitySentiment.id]: {
-      defaultValue: true,
-    },
-  });
-  return gb;
-};
-
 describe('SocialTwitterPostContent community sentiment', () => {
-  it('renders on the tweet post page when the flag is enabled', () => {
-    renderContent(tweetPost, { gb: enabledGrowthBook() });
+  it('renders on the tweet post page when the post has a take', () => {
+    renderContent(tweetPost);
 
     expect(
       screen.getByRole('region', { name: 'What the community thinks' }),
@@ -53,9 +41,8 @@ describe('SocialTwitterPostContent community sentiment', () => {
     expect(screen.getByText('Most agree it is worth reading.')).toBeVisible();
   });
 
-  it('renders in the tweet preview modal when the flag is enabled', () => {
+  it('renders in the tweet preview modal when the post has a take', () => {
     renderContent(tweetPost, {
-      gb: enabledGrowthBook(),
       isPostPage: false,
       onClose: jest.fn(),
     });
@@ -66,18 +53,7 @@ describe('SocialTwitterPostContent community sentiment', () => {
   });
 
   it('stays hidden when the post has no take', () => {
-    renderContent(
-      { ...tweetPost, communitySentiment: undefined },
-      { gb: enabledGrowthBook() },
-    );
-
-    expect(
-      screen.queryByRole('region', { name: 'What the community thinks' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('stays hidden when the flag is disabled', () => {
-    renderContent(tweetPost);
+    renderContent({ ...tweetPost, communitySentiment: undefined });
 
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),

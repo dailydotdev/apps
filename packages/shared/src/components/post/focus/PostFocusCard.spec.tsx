@@ -1,6 +1,5 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import post, {
@@ -10,7 +9,6 @@ import post, {
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
-import { featureCommunitySentiment } from '../../../lib/featureManagement';
 import { getPostByIdKey } from '../../../lib/query';
 import { PostFocusCard } from './PostFocusCard';
 
@@ -51,16 +49,12 @@ const sharedFreeformPost: Post = {
 const renderCard = (
   postToRender: Post,
   options: {
-    gb?: GrowthBook;
     onClose?: () => void;
     client?: QueryClient;
   } = {},
 ) =>
   render(
-    <TestBootProvider
-      client={options.client ?? new QueryClient()}
-      gb={options.gb}
-    >
+    <TestBootProvider client={options.client ?? new QueryClient()}>
       <PostFocusCard
         post={postToRender}
         origin={Origin.ArticlePage}
@@ -119,15 +113,8 @@ describe('PostFocusCard opening the source article', () => {
 });
 
 describe('PostFocusCard community sentiment', () => {
-  it('renders in the post modal when the flag is enabled', () => {
-    const gb = new GrowthBook();
-    gb.setFeatures({
-      [featureCommunitySentiment.id]: {
-        defaultValue: true,
-      },
-    });
-
-    renderCard(postWithCommunitySentiment, { gb, onClose: jest.fn() });
+  it('renders in the post modal when the post has a take', () => {
+    renderCard(postWithCommunitySentiment, { onClose: jest.fn() });
 
     expect(
       screen.getByRole('region', { name: 'What the community thinks' }),
@@ -136,12 +123,6 @@ describe('PostFocusCard community sentiment', () => {
   });
 
   it('hydrates the take from the post-by-id cache when the feed post omits it', () => {
-    const gb = new GrowthBook();
-    gb.setFeatures({
-      [featureCommunitySentiment.id]: {
-        defaultValue: true,
-      },
-    });
     // Feed payloads omit `communitySentiment`, so the modal must read the
     // hydrated post from the post-by-id cache instead of the feed prop.
     const client = new QueryClient();
@@ -153,15 +134,18 @@ describe('PostFocusCard community sentiment', () => {
       communitySentiment: undefined,
     };
 
-    renderCard(feedPost, { gb, client, onClose: jest.fn() });
+    renderCard(feedPost, { client, onClose: jest.fn() });
 
     expect(
       screen.getByRole('region', { name: 'What the community thinks' }),
     ).toBeInTheDocument();
   });
 
-  it('stays hidden in the post modal when the flag is disabled', () => {
-    renderCard(postWithCommunitySentiment, { onClose: jest.fn() });
+  it('stays hidden in the post modal when the post has no take', () => {
+    renderCard(
+      { ...postWithCommunitySentiment, communitySentiment: null },
+      { onClose: jest.fn() },
+    );
 
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),
