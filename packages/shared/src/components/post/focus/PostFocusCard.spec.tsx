@@ -166,11 +166,11 @@ describe('PostFocusCard share placements', () => {
       ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
   });
 
-  it('runs copy summary into the end of the TLDR', () => {
+  it('runs the summary snapshot into the end of the TLDR', () => {
     renderCard(summaryPost);
 
     expect(screen.getByTestId('tldr-container')).toContainElement(
-      screen.getByLabelText('Copy summary'),
+      screen.getByLabelText('Snapshot'),
     );
   });
 

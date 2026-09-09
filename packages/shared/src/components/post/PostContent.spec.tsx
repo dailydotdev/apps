@@ -107,29 +107,29 @@ describe('PostContent selection snapshot', () => {
   });
 });
 
-describe('PostContent copy summary', () => {
+describe('PostContent summary snapshot', () => {
   it('runs the icon into the end of the TLDR', () => {
     renderPostPage();
 
-    expect(screen.getByLabelText('Copy summary')).toBeInTheDocument();
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
     // It has to live inside the paragraph, not under it.
     expect(screen.getByTestId('tldr-container')).toContainElement(
-      screen.getByLabelText('Copy summary'),
+      screen.getByLabelText('Snapshot'),
     );
   });
 
   it('stays off the modal, where the page it belongs to is not open', () => {
     renderModal();
 
-    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
   });
 });
 
-describe('PostContent copy summary with in-content ads', () => {
+describe('PostContent summary snapshot with in-content ads', () => {
   it('still offers the summary when the page renders it in segments', () => {
     renderWithAdSegments();
 
-    expect(screen.getByLabelText('Copy summary')).toBeInTheDocument();
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
   });
 });
 

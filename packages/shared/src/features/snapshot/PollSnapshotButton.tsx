@@ -1,16 +1,15 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
 import type {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/common';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
-import { useGetShortUrl } from '../../hooks';
-import { ReferralCampaignKey } from '../../lib/referral';
 import type { Post } from '../../graphql/posts';
 import { PollSnapshotCard } from './PollSnapshotCard';
 import { pollSnapshotFromPost } from './pollSnapshot';
 import { SNAPSHOT_SIZE } from './snapshotGradient';
+import { useArmedCard } from './useArmedCard';
 
 const CAPTURE_OPTIONS = {
   width: SNAPSHOT_SIZE,
@@ -37,13 +36,8 @@ export function PollSnapshotButton({
   variant?: ButtonVariant;
 }): ReactElement | null {
   const cardRef = useRef<HTMLDivElement>(null);
-  const { getShortUrl } = useGetShortUrl();
+  const { isArmed, armProps } = useArmedCard();
   const snapshot = pollSnapshotFromPost(post);
-
-  const getTrackedLink = useCallback(
-    () => getShortUrl(post.commentsPermalink, ReferralCampaignKey.SharePost),
-    [getShortUrl, post.commentsPermalink],
-  );
 
   if (!snapshot) {
     return null;
@@ -51,21 +45,24 @@ export function PollSnapshotButton({
 
   return (
     <>
-      <SnapshotButton
-        captureOptions={CAPTURE_OPTIONS}
-        filename={`daily-poll-${post.id}`}
-        link={getTrackedLink}
-        showLabel={showLabel}
-        size={size}
-        target={cardRef}
-        variant={variant}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none fixed left-[-300vw] top-0"
-      >
-        <PollSnapshotCard ref={cardRef} {...snapshot} />
-      </div>
+      <span className="contents" {...armProps}>
+        <SnapshotButton
+          captureOptions={CAPTURE_OPTIONS}
+          filename={`daily-poll-${post.id}`}
+          showLabel={showLabel}
+          size={size}
+          target={cardRef}
+          variant={variant}
+        />
+      </span>
+      {isArmed && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed left-[-300vw] top-0"
+        >
+          <PollSnapshotCard ref={cardRef} {...snapshot} />
+        </div>
+      )}
     </>
   );
 }

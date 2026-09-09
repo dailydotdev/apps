@@ -29,7 +29,7 @@ import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
-import { CopySummaryButton } from '../../../features/snapshot/CopySummaryButton';
+import { SummarySnapshotButton } from '../../../features/snapshot/SummarySnapshotButton';
 import { ParagraphCopyButtons } from '../../../features/snapshot/ParagraphCopyButtons';
 import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
 import { feature } from '../../../lib/featureManagement';
@@ -352,11 +352,7 @@ const PostFocusCardRaw = ({
       <VideoSummary
         summary={article.summary}
         trailing={
-          <CopySummaryButton
-            link={article.commentsPermalink}
-            summary={article.summary}
-            title={article.title ?? ''}
-          />
+          <SummarySnapshotButton post={article} summary={article.summary} />
         }
       />
     ) : (
@@ -365,11 +361,7 @@ const PostFocusCardRaw = ({
         data-testid="tldr-container"
       >
         {article.summary}
-        <CopySummaryButton
-          link={article.commentsPermalink}
-          summary={article.summary}
-          title={article.title ?? ''}
-        />
+        <SummarySnapshotButton post={article} summary={article.summary} />
       </p>
     ))
   );

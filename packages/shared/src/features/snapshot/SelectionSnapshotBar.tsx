@@ -12,7 +12,6 @@ import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
-import { useGetShortUrl } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
@@ -60,15 +59,7 @@ export function SelectionSnapshotBar({
   const [quote, setQuote] = useState<TextSelection | null>(null);
   const [linkCopied, copyLink] = useCopyPostLink();
   const [textCopied, copyText] = useCopyText(quote?.text);
-  const { getShortUrl } = useGetShortUrl();
   const { logEvent } = useLogContext();
-
-  // The same link every other copy on the page produces: shortened, and
-  // carrying the share campaign so the visit is attributed.
-  const getTrackedLink = useCallback(
-    () => getShortUrl(post.commentsPermalink, ReferralCampaignKey.SharePost),
-    [getShortUrl, post.commentsPermalink],
-  );
 
   const onCopyLink = useCallback(() => {
     logEvent(
@@ -77,8 +68,7 @@ export function SelectionSnapshotBar({
       }),
     );
     // `shorten`, not an awaited short URL: the write has to stay inside the
-    // task that handled the click or Safari refuses it. Snapshot still uses
-    // getTrackedLink, whose ClipboardItem carries the pending promise itself.
+    // task that handled the click or Safari refuses it.
     copyLink({
       link: post.commentsPermalink,
       shorten: true,
@@ -114,7 +104,6 @@ export function SelectionSnapshotBar({
           <SnapshotButton
             captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
             filename={`daily-quote-${post.id}`}
-            link={getTrackedLink}
             target={cardRef}
             variant={ButtonVariant.Primary}
           />

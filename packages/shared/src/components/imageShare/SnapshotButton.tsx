@@ -23,12 +23,6 @@ const SHUTTER_SWEEP_MS = 380;
 
 export interface SnapshotButtonProps {
   target: CaptureTarget;
-  /**
-   * Copied as text beside the image, so a paste carries both halves. A getter
-   * rather than a string: the tracked short link is fetched when pressed, the
-   * way every other copy on the page fetches it.
-   */
-  link?: string | (() => Promise<string> | string);
   filename?: string;
   label?: string;
   showLabel?: boolean;
@@ -45,7 +39,6 @@ export interface SnapshotButtonProps {
 
 export function SnapshotButton({
   target,
-  link,
   filename = 'daily-snapshot',
   label = SNAPSHOT_LABEL,
   showLabel = true,
@@ -95,15 +88,11 @@ export function SnapshotButton({
         }
 
         // Pasting beats a file in Downloads for every target we share to, so
-        // the clipboard leads and the download is the fallback.
-        // Called, not awaited: the capture and the link resolve in parallel
-        // and the clipboard write stays inside the gesture.
-        const resolvedLink = typeof link === 'function' ? link() : link;
-
-        if (await copyShareImage(capture, resolvedLink)) {
-          displayToast(link ? 'Image and link copied' : 'Image copied', {
-            variant: ToastType.Success,
-          });
+        // the clipboard leads and the download is the fallback. The image is
+        // the whole payload: a link pasted beside it lands as a second line of
+        // text in the composer, which is not what a snapshot is for.
+        if (await copyShareImage(capture)) {
+          displayToast('Image copied', { variant: ToastType.Success });
           return;
         }
 
@@ -117,7 +106,7 @@ export function SnapshotButton({
         setIsCapturing(false);
       }
     },
-    [captureOptions, displayToast, filename, link, onCapture, target],
+    [captureOptions, displayToast, filename, onCapture, target],
   );
 
   return (

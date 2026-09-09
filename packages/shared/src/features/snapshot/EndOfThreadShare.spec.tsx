@@ -23,11 +23,20 @@ describe('EndOfThreadShare', () => {
     expect(screen.getByRole('button', { name: 'Copy link' })).toBeVisible();
   });
 
-  it('stays away when there is no conversation to pass on', () => {
-    renderBand(0);
+  it.each([0, 1, 2])(
+    'stays away when %i replies is not yet a conversation',
+    (commentsCount) => {
+      renderBand(commentsCount);
 
-    expect(
-      screen.queryByText('Enjoyed this discussion?'),
-    ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Enjoyed this discussion?'),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it('appears from the third comment, where a thread becomes a discussion', () => {
+    renderBand(3);
+
+    expect(screen.getByText('Enjoyed this discussion?')).toBeInTheDocument();
   });
 });
