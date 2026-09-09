@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import type { PostHighlight } from '../../../graphql/highlights';
+import type { StatuslineItem } from '../../../graphql/statusline';
 import { useSponsorStrip } from './useSponsorStrip';
 import { useSponsorStripFeed } from './useSponsorStripFeed';
 import { useStripHeadlines } from './useStripHeadlines';
@@ -10,9 +10,9 @@ jest.mock('./useStripHeadlines', () => ({ useStripHeadlines: jest.fn() }));
 const mockStrip = jest.mocked(useSponsorStrip);
 const mockHeadlines = jest.mocked(useStripHeadlines);
 
-const headline = { id: 'h1' } as PostHighlight;
+const headline = { id: 'h1' } as StatuslineItem;
 
-const settled = (headlines: PostHighlight[]) => ({
+const settled = (headlines: StatuslineItem[]) => ({
   headlines,
   isSettled: true,
 });

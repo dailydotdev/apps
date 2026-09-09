@@ -1,11 +1,10 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
-import { getHighlightsUrl } from '../../../components/cards/highlight/common';
 import Link from '../../../components/utilities/Link';
 import { RelativeTime } from '../../../components/utilities/RelativeTime';
 import { useLogContext } from '../../../contexts/LogContext';
-import type { PostHighlight } from '../../../graphql/highlights';
+import type { StatuslineItem } from '../../../graphql/statusline';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { feedHighlightsLogEvent } from '../../../lib/feed';
 import {
@@ -30,11 +29,47 @@ const fadeStyle: CSSProperties = {
     'linear-gradient(to right, black calc(100% - 2.5rem), transparent)',
 };
 
+/**
+ * The log builder reads a highlight-shaped object; a statusline item is the
+ * same four facts under different names.
+ */
+const toLoggedHighlight = (item: StatuslineItem) => ({
+  id: item.id,
+  headline: item.title,
+  post: { id: item.postId, commentsPermalink: item.permalink },
+});
+
+/**
+ * Each kind gets the signal that means something for it, the way the terminal
+ * statusline does: a curated headline is time-sensitive, so it carries how long
+ * ago it broke, while a popular post carries the score that got it into the row.
+ */
+const ItemSignal = ({
+  item,
+}: {
+  item: StatuslineItem;
+}): ReactElement | null => {
+  if (item.kind === 'HEADLINE' && item.highlightedAt) {
+    return (
+      <RelativeTime
+        dateTime={item.highlightedAt}
+        className="text-text-quaternary"
+      />
+    );
+  }
+
+  if (item.upvotes > 0) {
+    return <span className="text-text-quaternary">{`▲${item.upvotes}`}</span>;
+  }
+
+  return null;
+};
+
 export const SponsorStripHeadlines = ({
   headlines,
   widthStyle,
 }: {
-  headlines: PostHighlight[];
+  headlines: StatuslineItem[];
   widthStyle: CSSProperties;
 }): ReactElement => {
   const { logEvent } = useLogContext();
@@ -55,11 +90,11 @@ export const SponsorStripHeadlines = ({
   );
 
   const onHeadlineClick = useCallback(
-    (highlight: PostHighlight, position: number) =>
+    (item: StatuslineItem, position: number) =>
       logEvent(
         feedHighlightsLogEvent(LogEvent.Click, {
           feedName: HEADLINES_FEED_NAME,
-          clickedHighlight: highlight,
+          clickedHighlight: toLoggedHighlight(item),
           position,
           origin: Origin.Feed,
         }),
@@ -83,7 +118,7 @@ export const SponsorStripHeadlines = ({
             and a label losing a word to it costs nothing, where the row above
             it is the one somebody paid for. */}
           <span className="shrink-0 whitespace-nowrap text-text-quaternary typo-caption2">
-            Breaking news
+            Trending
           </span>
           {/* Scrollable rather than merely clipped: the row carries more than
             it can show, and a reader who wants the headline under the fade has
@@ -93,18 +128,15 @@ export const SponsorStripHeadlines = ({
             className="no-scrollbar flex min-w-0 flex-1 items-center gap-5 overflow-x-auto"
             style={fadeStyle}
           >
-            {headlines.map((highlight, index) => (
-              <Link href={getHighlightsUrl(highlight.id)} key={highlight.id}>
+            {headlines.map((item, index) => (
+              <Link href={item.permalink} key={item.id}>
                 <a
-                  href={getHighlightsUrl(highlight.id)}
-                  onClick={() => onHeadlineClick(highlight, index)}
+                  href={item.permalink}
+                  onClick={() => onHeadlineClick(item, index)}
                   className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
                 >
-                  {highlight.headline}
-                  <RelativeTime
-                    dateTime={highlight.highlightedAt}
-                    className="text-text-quaternary"
-                  />
+                  {item.title}
+                  <ItemSignal item={item} />
                 </a>
               </Link>
             ))}

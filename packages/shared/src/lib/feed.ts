@@ -185,7 +185,15 @@ interface FeedHighlightsLogEventOptions extends FeedItemPosition {
   ranking?: string;
   action?: string;
   count?: number;
-  clickedHighlight?: PostHighlight;
+  /**
+   * Only the fields this builder actually reads, rather than a whole
+   * `PostHighlight`: the sponsor-strip ticker carries `statuslineFeed` items,
+   * which have no channel or editorial timestamp to hand over. Every caller
+   * passing a full highlight still satisfies it.
+   */
+  clickedHighlight?: Pick<PostHighlight, 'id' | 'headline'> & {
+    post: Pick<PostHighlight['post'], 'id' | 'commentsPermalink'>;
+  };
   highlightIds?: string[];
   feedMeta?: string | null;
   position?: number;

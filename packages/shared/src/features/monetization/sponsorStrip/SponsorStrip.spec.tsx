@@ -5,7 +5,7 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
-import type { PostHighlight } from '../../../graphql/highlights';
+import type { StatuslineItem } from '../../../graphql/statusline';
 import { AdActions } from '../../../lib/ads';
 import { LogEvent } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
@@ -21,7 +21,7 @@ jest.mock('../../../hooks/utils/useThemedAsset', () => ({
 }));
 
 const mockFetch = jest.mocked(fetchSponsorStripAds);
-let headlines: PostHighlight[] = [];
+let headlines: StatuslineItem[] = [];
 let headlinesSettled = true;
 
 const creative = (
@@ -38,12 +38,24 @@ const creative = (
   tier,
 });
 
-const headline = (id: string): PostHighlight => ({
+const headline = (id: string): StatuslineItem => ({
   id,
-  channel: 'agents',
-  headline: `Headline ${id}`,
+  kind: 'HEADLINE',
+  postId: `post-${id}`,
+  title: `Headline ${id}`,
+  upvotes: 0,
+  permalink: `https://daily.dev/posts/${id}`,
   highlightedAt: new Date().toISOString(),
-  post: { id: `post-${id}`, commentsPermalink: `https://daily.dev/p/${id}` },
+});
+
+const popular = (id: string, upvotes = 42): StatuslineItem => ({
+  id,
+  kind: 'POST',
+  postId: id,
+  title: `Post ${id}`,
+  upvotes,
+  permalink: `https://daily.dev/posts/${id}`,
+  highlightedAt: null,
 });
 
 const PREMIUM = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
@@ -144,7 +156,7 @@ afterEach(() => {
   document.documentElement.style.removeProperty('--sponsor-strip-height');
 });
 
-const setHeadlines = (next: PostHighlight[]) => {
+const setHeadlines = (next: StatuslineItem[]) => {
   headlines = next;
 };
 
@@ -235,16 +247,40 @@ it("should fire the ad server's impression pixel for a logo that carries one", a
   expect(pixels[0]).toHaveAttribute('src', 'https://api.daily.dev/px?id=gold');
 });
 
-it('should carry the breaking news the feed no longer shows', async () => {
-  setHeadlines([headline('h1'), headline('h2')]);
+it('should carry the statusline mix in the ticker', async () => {
+  setHeadlines([headline('h1'), popular('p1')]);
   renderStrip();
   await settle();
 
   const ticker = within(screen.getByTestId('sponsorStripHeadlines'));
 
-  expect(ticker.getByText('Breaking news')).toBeInTheDocument();
+  expect(ticker.getByText('Trending')).toBeInTheDocument();
   expect(ticker.getByText('Headline h1')).toBeInTheDocument();
-  expect(ticker.getByText('Headline h2')).toBeInTheDocument();
+  expect(ticker.getByText('Post p1')).toBeInTheDocument();
+});
+
+// Each kind carries the signal that means something for it, the way the
+// terminal statusline does.
+it('should show a timestamp for a headline and a score for a popular post', async () => {
+  setHeadlines([headline('h1'), popular('p1', 42)]);
+  renderStrip();
+  await settle();
+
+  const ticker = within(screen.getByTestId('sponsorStripHeadlines'));
+
+  expect(ticker.getByText('Now')).toBeInTheDocument();
+  expect(ticker.getByText('\u25b242')).toBeInTheDocument();
+});
+
+it('should leave a popular post with no score bare', async () => {
+  setHeadlines([popular('p1', 0)]);
+  renderStrip();
+  await settle();
+
+  const ticker = within(screen.getByTestId('sponsorStripHeadlines'));
+
+  expect(ticker.getByText('Post p1')).toBeInTheDocument();
+  expect(ticker.queryByText(/\u25b2/)).not.toBeInTheDocument();
 });
 
 it('should still carry the ticker when the ad server has no fill', async () => {
@@ -253,8 +289,8 @@ it('should still carry the ticker when the ad server has no fill', async () => {
   renderStrip();
   await settle();
 
-  // The feed's card is suppressed on the strip's behalf, so a strip with no
-  // sponsors must not also drop the headlines.
+  // The two rows are independent: no ad fill must not also cost the reader
+  // the ticker.
   expect(screen.getByTestId('sponsorStripHeadlines')).toBeInTheDocument();
   expect(screen.queryByTestId('sponsorStripRow')).not.toBeInTheDocument();
 });

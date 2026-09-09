@@ -1,4 +1,4 @@
-import type { PostHighlight } from '../../../graphql/highlights';
+import type { StatuslineItem } from '../../../graphql/statusline';
 import { useSponsorStrip } from './useSponsorStrip';
 import { useStripHeadlines } from './useStripHeadlines';
 
@@ -9,7 +9,7 @@ interface UseSponsorStripFeedProps {
 
 interface UseSponsorStripFeed {
   isEnabled: boolean;
-  headlines: PostHighlight[];
+  headlines: StatuslineItem[];
   /** Whether the headlines query has answered; the dock reserves until it has. */
   headlinesSettled: boolean;
 }

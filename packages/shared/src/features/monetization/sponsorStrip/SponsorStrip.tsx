@@ -10,7 +10,7 @@ import {
 } from './sponsorLogoSizing';
 import { SponsorLogo } from './SponsorLogo';
 import { SponsorStripHeadlines } from './SponsorStripHeadlines';
-import type { PostHighlight } from '../../../graphql/highlights';
+import type { StatuslineItem } from '../../../graphql/statusline';
 import type { ResolvedSponsor } from './sponsorStripCreative';
 import {
   DOCK_CLASS,
@@ -33,7 +33,7 @@ interface SponsorStripProps {
    * decide whether it can give up its Happening Now card, and one query
    * cannot be allowed to answer that question two different ways.
    */
-  headlines: PostHighlight[];
+  headlines: StatuslineItem[];
   /** Whether that query has answered; see the row reservation below. */
   headlinesSettled: boolean;
 }

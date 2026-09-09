@@ -1,39 +1,35 @@
 import { useQuery } from '@tanstack/react-query';
-import type { PostHighlight } from '../../../graphql/highlights';
-import { majorHeadlinesQueryOptions } from '../../../graphql/highlights';
+import type { StatuslineItem } from '../../../graphql/statusline';
+import { statuslineFeedQueryOptions } from '../../../graphql/statusline';
 import { ONE_MINUTE } from '../../../lib/time';
 
 const HEADLINE_LIMIT = 12;
 
 interface StripHeadlines {
-  headlines: PostHighlight[];
+  headlines: StatuslineItem[];
   /**
-   * Whether the query has answered. The feed has to decide about its own
-   * Happening Now card before the answer lands, and cannot wait for it.
+   * Whether the query has answered. The dock reserves the row's height until
+   * it has, rather than popping a second row in after the feed has painted.
    */
   isSettled: boolean;
 }
 
 /**
- * The headlines the strip carries. Same `majorHeadlines` field the /highlights
- * page and the post-page widget read, and the same query document as the
- * widget — the strip is a third view of one set of headlines, not a new source
- * of them. /highlights wraps the field in its own document only because its
- * cards need the post bodies, which cost 147KB at its page size and would put
- * all of it on the feed for four fields this row renders.
+ * The items the ticker carries: the same `statuslineFeed` mix the Claude Code
+ * statusline renders as terminal lines — curated major headlines interleaved
+ * with the most-upvoted posts of the day, deduped. One resolver and one cache
+ * sit behind both, so the terminal and the web can never disagree about what
+ * is worth showing; they differ only in how they draw it.
  *
- * No client-side freshness filter, because the row stands in for the feed's
- * Happening Now card and has to behave like it: that card renders whatever the
- * backend serves it, and so does /highlights. Deciding what still counts as a
- * major headline is the backend's call, and a second opinion held only by this
- * row emptied it on any day `majorHeadlines` went quiet — which it routinely
- * does for 36 hours or more — dropping the dock from two rows to one for no
- * reason the reader could see. The API already returns newest first, and every
- * row renders its own relative timestamp.
+ * No client-side freshness filter. Which headlines still count as major, and
+ * which posts count as popular, is the backend's call — a second opinion held
+ * only by this row emptied it on any day the curated set went quiet, dropping
+ * the dock from two rows to one for no reason the reader could see. The API
+ * already returns the mix in the order it wants shown.
  */
 export const useStripHeadlines = (enabled: boolean): StripHeadlines => {
   const { data, isPending } = useQuery({
-    ...majorHeadlinesQueryOptions({ first: HEADLINE_LIMIT }),
+    ...statuslineFeedQueryOptions({ first: HEADLINE_LIMIT }),
     enabled,
     refetchInterval: ONE_MINUTE,
   });
@@ -43,7 +39,7 @@ export const useStripHeadlines = (enabled: boolean): StripHeadlines => {
   }
 
   return {
-    headlines: (data?.majorHeadlines?.edges ?? []).map(({ node }) => node),
+    headlines: data?.statuslineFeed ?? [],
     isSettled: !isPending,
   };
 };
