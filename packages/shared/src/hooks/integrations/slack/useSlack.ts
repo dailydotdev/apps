@@ -25,6 +25,9 @@ export type UseSlack = {
 };
 
 const scopes = ['channels:read', 'chat:write', 'channels:join', 'groups:read'];
+// requested alongside the bot scopes on every entry point, so a workspace
+// connected from any flow can post as the user without a second consent screen
+const userScopes = ['channels:read', 'chat:write', 'groups:read'];
 
 export const useSlack = (): UseSlack => {
   const { user } = useAuthContext();
@@ -39,6 +42,7 @@ export const useSlack = (): UseSlack => {
 
       url.searchParams.append('state', user!.id);
       url.searchParams.append('scope', scopes.join(','));
+      url.searchParams.append('user_scope', userScopes.join(','));
       url.searchParams.append(
         'client_id',
         process.env.NEXT_PUBLIC_SLACK_CLIENT_ID!,

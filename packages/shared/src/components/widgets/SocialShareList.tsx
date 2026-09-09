@@ -16,10 +16,15 @@ import {
 import { IconSize } from '../Icon';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { useGetShortUrl } from '../../hooks';
+import { SlackShareButton } from './SlackShareButton';
+import type { Post } from '../../graphql/posts';
+import type { Origin } from '../../lib/log';
 
 interface SocialShareListProps {
   link: string;
   description: string;
+  post?: Post;
+  origin?: Origin;
   emailTitle?: string;
   emailSummary?: string;
   isCopying?: boolean;
@@ -31,6 +36,8 @@ interface SocialShareListProps {
 
 export function SocialShareList({
   link,
+  post,
+  origin,
   emailTitle,
   emailSummary,
   description,
@@ -66,6 +73,7 @@ export function SocialShareList({
           label={isCopying ? 'Copied!' : 'Copy link'}
         />
       )}
+      {!!post && <SlackShareButton post={post} origin={origin} />}
       <SocialShareButton
         icon={<TwitterIcon />}
         variant={ButtonVariant.Primary}

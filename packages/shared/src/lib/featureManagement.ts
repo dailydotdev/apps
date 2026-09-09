@@ -332,6 +332,11 @@ export const featureCommentFirstAction = new Feature(
   false,
 );
 
+// Slack in the share surfaces. Off is the control, and the experiment is judged
+// on total share events and unique sharers, not on Slack clicks: a Slack button
+// that only redistributes the existing provider tail has not moved anything.
+export const featureSlackShare = new Feature('slack_share', false);
+
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);

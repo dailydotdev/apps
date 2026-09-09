@@ -1,5 +1,8 @@
 import { gql } from 'graphql-request';
 import type { Source } from './sources';
+import { gqlClient } from './common';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import type { LoggedUser } from '../lib/user';
 
 export enum UserIntegrationType {
   Slack = 'slack',
@@ -12,6 +15,7 @@ export type UserIntegration = {
   updatedAt: Date;
   name: string;
   userId: string;
+  canPostAsUser?: boolean;
 };
 
 export type SlackChannel = {
@@ -36,6 +40,52 @@ export const SLACK_CHANNELS_QUERY = gql`
         name
       }
       cursor
+    }
+  }
+`;
+
+export const SLACK_RECENT_CHANNELS_QUERY = gql`
+  query SlackRecentChannels($integrationId: ID!) {
+    slackRecentChannels(integrationId: $integrationId) {
+      id
+      name
+    }
+  }
+`;
+
+export const slackRecentChannelsQueryOptions = ({
+  integrationId,
+  user,
+}: {
+  integrationId?: string;
+  user?: LoggedUser;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.SlackRecentChannels, user, {
+    integrationId,
+  }),
+  queryFn: async (): Promise<SlackChannel[]> => {
+    const { slackRecentChannels } = await gqlClient.request<{
+      slackRecentChannels: SlackChannel[];
+    }>(SLACK_RECENT_CHANNELS_QUERY, { integrationId });
+
+    return slackRecentChannels;
+  },
+  staleTime: StaleTime.Default,
+  enabled: !!integrationId && !!user,
+});
+
+export const SLACK_POST_MESSAGE_MUTATION = gql`
+  mutation SlackPostMessage(
+    $integrationId: ID!
+    $channelId: ID!
+    $postId: ID!
+  ) {
+    slackPostMessage(
+      integrationId: $integrationId
+      channelId: $channelId
+      postId: $postId
+    ) {
+      _
     }
   }
 `;
