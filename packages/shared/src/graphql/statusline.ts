@@ -1,11 +1,7 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from './common';
-import { ONE_MINUTE } from '../lib/time';
+import { FIVE_MINUTES } from '../lib/time';
 
-/**
- * Where a statusline item came from: a curated major headline, or a post off
- * the popular feed. Headlines are the only kind with an editorial timestamp.
- */
 export type StatuslineItemKind = 'HEADLINE' | 'POST';
 
 export interface StatuslineItem {
@@ -38,11 +34,7 @@ export const STATUSLINE_FEED_QUERY = gql`
   }
 `;
 
-/**
- * The curated-headlines-plus-popular mix the Claude Code statusline renders as
- * terminal lines, as data. One resolver and one cache serve both, so the
- * terminal and the web cannot drift apart on what they are showing.
- */
+/** The same mix the Claude Code statusline renders, off one shared resolver. */
 export const statuslineFeedQueryOptions = ({
   first,
 }: {
@@ -51,5 +43,5 @@ export const statuslineFeedQueryOptions = ({
   queryKey: ['statusline-feed', first ?? 0],
   queryFn: () =>
     gqlClient.request<StatuslineFeedData>(STATUSLINE_FEED_QUERY, { first }),
-  staleTime: ONE_MINUTE,
+  staleTime: FIVE_MINUTES,
 });

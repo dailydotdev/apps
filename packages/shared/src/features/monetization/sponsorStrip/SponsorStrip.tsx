@@ -29,9 +29,8 @@ import FeedContext from '../../../contexts/FeedContext';
 
 interface SponsorStripProps {
   /**
-   * Passed in rather than queried here: the feed layout needs the same list to
-   * decide whether it can give up its Happening Now card, and one query
-   * cannot be allowed to answer that question two different ways.
+   * Passed in rather than queried here so the dock can reserve the ticker's
+   * height off one query rather than racing a second one.
    */
   headlines: StatuslineItem[];
   /** Whether that query has answered; see the row reservation below. */

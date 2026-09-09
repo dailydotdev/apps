@@ -1,3 +1,4 @@
+import { isDevelopment } from '../../../lib/constants';
 import { SponsorTier } from './sponsorStripCreative';
 
 /**
@@ -9,144 +10,100 @@ import { SponsorTier } from './sponsorStripCreative';
  * The payload below is the wire shape `sponsorStripCreativeSchema` parses, so
  * the response drops in without touching anything downstream.
  *
- * PLACEHOLDER DATA — not a sponsorship and not an ad server. The wall marks
- * are advertiser logos already published on business.daily.dev, borrowed so
- * the row can be judged at the weight and spacing real assets give it. The
- * gold slot carries Google Cloud, per the design mockup, drawn from the
- * lockup their own site serves. It is still a fixture: nothing here says a
- * gold slot has been sold, and the "Made possible by" label claims more than
- * a display campaign does, so this stays behind the experiment flag until the
- * slot is actually sold.
- *
- * One mark is deliberately absent: business.daily.dev serves GitLab's logo as
- * a base64 WebP wrapped in an `<svg>`, and a raster has no alpha shape to mask
- * — it silhouettes into a solid block. It is the clearest example of why real
- * inventory needs an asset spec, and it is left out rather than papered over.
- *
- * `pixel` is empty throughout. A fixture that pinged the ad server with
- * invented generation ids would put junk impressions in real reporting; the
- * pixel path is covered by the specs instead.
+ * Every mark is a generated placeholder for a fictitious company, and the guard
+ * at the bottom returns nothing outside development. Both are deliberate: the
+ * row is labelled "Made possible by" and fires real impression, viewable
+ * impression, air time and click events, so a real company's mark here would
+ * claim a sponsorship that does not exist — and ramping the flag, which is the
+ * whole point of it being a flag, would ship that claim. Placeholders exercise
+ * the masking, the themed pair and the optical sizing identically.
  */
-
-const LOGO_BASE = 'https://business.daily.dev/assets/company-logos';
-
-const wallSponsor = (
-  company: string,
-  file: string,
-  ratio: number,
-  tier: SponsorTier,
-) => ({
-  gen_id: `mock-${file}`,
-  company,
-  // The same file for both themes: the wall silhouettes its marks through a
-  // mask that takes the row's text colour, so one asset serves either ground.
-  // Real creatives are expected to carry a themed pair — see the gold slot,
-  // which cannot be masked because its colour is the point.
-  logo_img: {
-    light: `${LOGO_BASE}/${file}.svg`,
-    dark: `${LOGO_BASE}/${file}.svg`,
-  },
-  logo_ratio: ratio,
-  link: `https://daily.dev/?utm_source=sponsor_strip&sponsor=${file}`,
-  pixel: [] as string[],
-  tier,
-});
 
 /**
- * The gold slot's artwork: Google Cloud's own lockup, taken from the file
- * their site serves (gstatic.com/cgc/google-cloud-logo-fullcolor.svg) — the
- * four-ink Google wordmark followed by "Cloud", and no cloud symbol. The
- * symbol lockup is an older mark they no longer lead with, and the inks here
- * are their refreshed palette, brighter than the classic four.
+ * Marks are generated rather than fetched so the fixture pulls nothing from a
+ * third party, and so `logo_ratio` is exact by construction rather than
+ * measured off someone else's file.
  */
-const GOOGLE_WORDMARK = [
-  // G
-  {
-    ink: '#3186FF',
-    d: 'M7.666 15.529c-1.423-.014-2.721-.367-3.895-1.058a7.659 7.659 0 0 1-2.766-2.832C.335 10.449 0 9.142 0 7.718c0-1.446.335-2.756 1.005-3.932a7.292 7.292 0 0 1 2.766-2.77C4.945.34 6.25 0 7.687 0c1.119 0 2.144.187 3.077.56a6.008 6.008 0 0 1 2.382 1.722L11.644 3.86c-.587-.602-1.191-1.034-1.813-1.297-.614-.263-1.319-.394-2.113-.394-1.008 0-1.92.228-2.735.685a4.987 4.987 0 0 0-1.937 1.96c-.47.844-.705 1.822-.705 2.936 0 1.086.235 2.057.705 2.915a5.136 5.136 0 0 0 1.927 1.991c.815.478 1.73.716 2.745.716.905 0 1.713-.159 2.424-.477a4.146 4.146 0 0 0 1.74-1.452c.442-.643.708-1.425.798-2.345H7.635V6.95h7.19c.069.457.103.871.103 1.245 0 1.452-.3 2.739-.901 3.859a6.31 6.31 0 0 1-2.559 2.583c-1.098.608-2.365.906-3.802.892z',
-  },
-  // o
-  {
-    ink: '#FC413D',
-    d: 'M21.588 15.53c-1.064 0-2.02-.246-2.87-.737a5.249 5.249 0 0 1-1.978-2.023c-.47-.864-.705-1.836-.705-2.915 0-1.106.242-2.085.725-2.935a5.175 5.175 0 0 1 2-1.992c.842-.47 1.785-.705 2.828-.705 1.057 0 2.006.238 2.849.715a5.156 5.156 0 0 1 2 2.002c.483.858.724 1.83.724 2.915 0 1.08-.238 2.05-.715 2.915a5.208 5.208 0 0 1-1.989 2.033c-.842.484-1.799.726-2.87.726zm0-1.971c.656 0 1.236-.163 1.74-.488a3.308 3.308 0 0 0 1.181-1.338 4.144 4.144 0 0 0 .425-1.878c0-.677-.142-1.293-.425-1.846a3.235 3.235 0 0 0-1.18-1.328 3.174 3.174 0 0 0-1.741-.487c-.608 0-1.167.155-1.678.466a3.38 3.38 0 0 0-1.223 1.307c-.297.554-.445 1.183-.445 1.888 0 .678.138 1.3.414 1.868.283.56.677 1.006 1.181 1.338.511.332 1.095.498 1.75.498z',
-  },
-  // o
-  {
-    ink: '#FFBE00',
-    d: 'M33.637 15.53c-1.064 0-2.02-.246-2.87-.737a5.25 5.25 0 0 1-1.979-2.023c-.47-.864-.704-1.836-.704-2.915 0-1.106.242-2.085.725-2.935a5.173 5.173 0 0 1 2-1.992c.842-.47 1.785-.705 2.828-.705 1.056 0 2.006.238 2.849.715a5.155 5.155 0 0 1 1.999 2.002c.483.858.725 1.83.725 2.915 0 1.08-.238 2.05-.715 2.915a5.21 5.21 0 0 1-1.989 2.033c-.842.484-1.799.726-2.87.726zm0-1.971c.656 0 1.236-.163 1.74-.488a3.309 3.309 0 0 0 1.181-1.338 4.143 4.143 0 0 0 .425-1.878c0-.677-.142-1.293-.425-1.846a3.236 3.236 0 0 0-1.18-1.328 3.174 3.174 0 0 0-1.741-.487c-.608 0-1.168.155-1.678.466a3.381 3.381 0 0 0-1.223 1.307c-.297.554-.445 1.183-.445 1.888 0 .678.138 1.3.414 1.868.283.56.677 1.006 1.18 1.338.512.332 1.096.498 1.752.498z',
-  },
-  // g
-  {
-    ink: '#3186FF',
-    d: 'M45.376 20c-1.188 0-2.169-.25-2.942-.747-.767-.498-1.406-1.29-1.917-2.376l1.948-.86c.324.615.718 1.096 1.18 1.441.463.353 1.03.53 1.7.53 1.022 0 1.799-.298 2.33-.893.54-.595.809-1.424.809-2.49v-.964h-.073c-.166.249-.4.501-.704.757a4.33 4.33 0 0 1-1.12.643 3.95 3.95 0 0 1-1.45.26c-1.043 0-1.947-.232-2.714-.696a4.575 4.575 0 0 1-1.761-1.929c-.407-.83-.611-1.78-.611-2.852 0-1.059.203-2.006.611-2.843.407-.843.988-1.504 1.74-1.981.76-.477 1.644-.716 2.652-.716.719 0 1.378.142 1.98.425.6.284 1.07.689 1.408 1.214h.041V4.606h2.155v9.356c0 4.025-1.754 6.038-5.262 6.038zm0-6.753c.635 0 1.188-.149 1.657-.446.47-.298.829-.71 1.078-1.235.248-.532.373-1.137.373-1.815 0-.692-.125-1.297-.373-1.815a2.754 2.754 0 0 0-1.078-1.214c-.47-.284-1.019-.425-1.647-.425-.615 0-1.157.145-1.627.435-.47.284-.835.688-1.098 1.214-.262.526-.393 1.13-.393 1.815 0 .72.131 1.342.393 1.868.27.525.64.926 1.109 1.203.47.276 1.005.415 1.606.415z',
-  },
-  // l
-  { ink: '#00AF57', d: 'M52.307 15.187V.332h2.258v14.855h-2.258z' },
-  // e
-  {
-    ink: '#FC413D',
-    d: 'M61.233 15.508c-1.588 0-2.904-.512-3.947-1.535-1.035-1.024-1.554-2.372-1.554-4.046 0-1.639.501-2.987 1.503-4.045 1.008-1.065 2.324-1.598 3.947-1.598 1.063 0 1.982.273 2.755.82.78.546 1.395 1.4 1.844 2.562a4.488 4.488 0 0 1 .207.788l-8.494 3.61-.59-1.712 7.033-2.987-.197.944c-.262-.74-.628-1.276-1.098-1.608a2.587 2.587 0 0 0-1.543-.498c-.967 0-1.737.332-2.31.996-.574.657-.86 1.521-.86 2.593 0 1.01.331 1.871.994 2.583.663.713 1.468 1.069 2.414 1.069.566 0 1.095-.142 1.585-.426.49-.283.919-.68 1.285-1.193l1.678 1.1a5.4 5.4 0 0 1-1.927 1.878c-.815.47-1.723.705-2.725.705z',
-  },
-];
-
-/**
- * "Cloud" ships as #212226 — near-black, and it all but disappears against
- * the dark feed — so it is the one ink taken off their file and flipped with
- * the ground instead. Nothing else about the artwork changes.
- */
-const CLOUD_WORD =
-  'M78.58 15.545c-2.204 0-4.041-.74-5.512-2.22-1.471-1.487-2.207-3.347-2.207-5.58 0-2.241.74-4.091 2.217-5.55 1.478-1.46 3.308-2.19 5.49-2.19a7.57 7.57 0 0 1 2.062.28 6.652 6.652 0 0 1 1.803.8c.546.339 1.115.83 1.71 1.473L82.567 4.05c-.511-.546-.95-.933-1.316-1.161a4.272 4.272 0 0 0-1.202-.519 5.418 5.418 0 0 0-1.47-.187c-1.54 0-2.832.512-3.875 1.535-1.043 1.017-1.564 2.355-1.564 4.015 0 1.653.517 3.005 1.553 4.056 1.036 1.044 2.331 1.566 3.885 1.566.546 0 1.07-.076 1.575-.228a5.14 5.14 0 0 0 1.378-.643c.414-.277.863-.685 1.347-1.224l1.616 1.546c-.663.74-1.288 1.29-1.876 1.649-.58.36-1.208.63-1.885.809a8.07 8.07 0 0 1-2.155.28zm7.055-.342V.348h2.258v14.855h-2.258zm9.052.342c-1.61 0-2.939-.536-3.988-1.608-1.05-1.072-1.575-2.42-1.575-4.045 0-1.646.525-2.998 1.575-4.056 1.056-1.058 2.386-1.587 3.988-1.587 1.602 0 2.932.532 3.989 1.597 1.056 1.065 1.584 2.414 1.584 4.046 0 1.625-.524 2.973-1.574 4.045s-2.383 1.608-3.999 1.608zm0-1.97c.946 0 1.74-.343 2.383-1.028.642-.691.963-1.577.963-2.655 0-1.093-.324-1.978-.974-2.656-.642-.678-1.433-1.017-2.372-1.017-.946 0-1.74.34-2.383 1.017-.642.678-.963 1.563-.963 2.656 0 1.078.318 1.964.953 2.655.642.685 1.44 1.027 2.393 1.027zm10.639 1.97c-1.257 0-2.227-.363-2.911-1.09-.684-.732-1.025-1.766-1.025-3.1V4.59h2.258v6.42c0 .865.197 1.526.59 1.982.401.457.971.685 1.71.685.773 0 1.426-.298 1.958-.892.532-.602.797-1.321.797-2.158V4.591h2.259v10.612h-2.145v-2.521l1.026 1.027h-1.088c-.297.533-.759.972-1.388 1.317a4.165 4.165 0 0 1-2.041.52zm11.894 0c-1.443 0-2.642-.522-3.595-1.566-.946-1.051-1.419-2.41-1.419-4.077 0-1.653.48-3.005 1.44-4.056.967-1.051 2.176-1.577 3.626-1.577a4.18 4.18 0 0 1 2.02.498c.621.325 1.088.754 1.399 1.286h.072V.348h2.238v14.855h-2.155v-1.878l.238.415h-.3c-.332.546-.819.986-1.461 1.317a4.59 4.59 0 0 1-2.103.488zm.404-1.95c.905 0 1.664-.346 2.279-1.038.622-.698.933-1.587.933-2.665 0-1.08-.314-1.957-.943-2.635-.622-.678-1.378-1.017-2.269-1.017-.891 0-1.65.34-2.279 1.017-.622.678-.932 1.56-.932 2.645 0 1.072.307 1.957.922 2.655.621.692 1.384 1.038 2.289 1.038z';
-
-const GOLD_COMPANY = 'Google Cloud';
-/** The artwork's own box, so `logo_ratio` below is measured, not guessed. */
-const GOLD_BOX = { width: 123, height: 20 };
-
-/**
- * A lockup rather than a word, so the paid slot reads as a logo at a glance
- * the way the marks beside it do. Two inks: the wordmark holds its brand
- * colours in both themes while "Cloud" flips, which is exactly the case a
- * single flat file cannot serve and the reason the wire contract takes a
- * pair.
- */
-const goldLockup = (cloudInk: string): string => {
-  const wordmark = GOOGLE_WORDMARK.map(
-    ({ ink, d }) => `<path fill="${ink}" d="${d}"/>`,
-  ).join('');
+const placeholderMark = (label: string, ratio: number, ink: string): string => {
+  const height = 40;
+  const width = Math.round(height * ratio);
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${GOLD_BOX.width}" height="${GOLD_BOX.height}" viewBox="0 0 ${GOLD_BOX.width} ${GOLD_BOX.height}">` +
-    `${wordmark}<path fill="${cloudInk}" d="${CLOUD_WORD}"/></svg>`;
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">` +
+    `<rect x="0" y="8" width="24" height="24" rx="6" fill="${ink}"/>` +
+    `<text x="32" y="28" font-family="sans-serif" font-size="20" font-weight="700" fill="${ink}">${label}</text>` +
+    `</svg>`;
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
 
-const MOCK_SPONSOR_STRIP_ADS = [
-  {
-    gen_id: 'mock-gold',
-    company: GOLD_COMPANY,
-    logo_img: {
-      light: goldLockup('#0E1217'),
-      dark: goldLockup('#FFFFFF'),
-    },
-    logo_ratio: GOLD_BOX.width / GOLD_BOX.height,
-    link: 'https://cloud.google.com/free?utm_source=sponsor_strip&sponsor=google-cloud',
-    pixel: [] as string[],
-    tier: SponsorTier.Gold,
+const slugOf = (company: string) =>
+  company.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+const wallSponsor = (company: string, ratio: number, tier: SponsorTier) => ({
+  gen_id: `mock-${slugOf(company)}`,
+  company,
+  // The same asset for both themes: the wall silhouettes its marks through a
+  // mask that takes the row's text colour, so one serves either ground. Real
+  // creatives are expected to carry a themed pair — see the gold slot, which
+  // cannot be masked because its colour is the point.
+  logo_img: {
+    light: placeholderMark(company, ratio, '#000000'),
+    dark: placeholderMark(company, ratio, '#000000'),
   },
-  // Ratios are the marks' own, read off each file's viewBox, so the optical
-  // sizing has the same numbers a real creative would carry.
-  wallSponsor('Datadog', 'datadog', 800.5 / 203.19, SponsorTier.Premium),
-  wallSponsor('PostHog', 'posthog', 512 / 90, SponsorTier.Premium),
-  wallSponsor('ClickHouse', 'clickhouse', 584.9 / 103.1, SponsorTier.Premium),
-  wallSponsor('Retool', 'retool', 87 / 17, SponsorTier.Premium),
-  wallSponsor('Snyk', 'snyk', 65 / 35, SponsorTier.Premium),
-  wallSponsor('Okta', 'okta', 512 / 169, SponsorTier.Community),
-  wallSponsor('Neo4j', 'neo4j', 512 / 170, SponsorTier.Community),
-  wallSponsor('Pulumi', 'pulumi', 512 / 128, SponsorTier.Community),
-  wallSponsor('LaunchDarkly', 'launchdarkly', 512 / 80, SponsorTier.Community),
-  wallSponsor('Sonar', 'sonar', 512 / 125, SponsorTier.Community),
-  wallSponsor('JetBrains', 'jetbrains', 298 / 64, SponsorTier.Community),
-  wallSponsor('Sentry', 'sentry', 512 / 113, SponsorTier.Community),
+  logo_ratio: ratio,
+  link: `https://daily.dev/?utm_source=sponsor_strip&sponsor=${slugOf(
+    company,
+  )}`,
+  pixel: [] as string[],
+  tier,
+});
+
+const GOLD_COMPANY = 'Relecloud';
+const GOLD_RATIO = 123 / 20;
+
+/**
+ * The gold slot keeps its own colour rather than being masked, which is the one
+ * case a single flat asset cannot serve and the reason the wire contract takes
+ * a themed pair.
+ */
+const goldSponsor = {
+  gen_id: 'mock-gold',
+  company: GOLD_COMPANY,
+  logo_img: {
+    light: placeholderMark(GOLD_COMPANY, GOLD_RATIO, '#0E1217'),
+    dark: placeholderMark(GOLD_COMPANY, GOLD_RATIO, '#FFFFFF'),
+  },
+  logo_ratio: GOLD_RATIO,
+  link: `https://daily.dev/?utm_source=sponsor_strip&sponsor=${slugOf(
+    GOLD_COMPANY,
+  )}`,
+  pixel: [] as string[],
+  tier: SponsorTier.Gold,
+};
+
+// Ratios span the range real marks do — a near-square through to a long
+// wordmark — so the optical sizing is exercised across the same spread.
+const MOCK_SPONSOR_STRIP_ADS = [
+  goldSponsor,
+  wallSponsor('Contoso', 3.94, SponsorTier.Premium),
+  wallSponsor('Fabrikam', 5.69, SponsorTier.Premium),
+  wallSponsor('Northwind', 5.67, SponsorTier.Premium),
+  wallSponsor('Litware', 5.12, SponsorTier.Premium),
+  wallSponsor('Proseware', 1.86, SponsorTier.Premium),
+  wallSponsor('Adventure Works', 3.03, SponsorTier.Community),
+  wallSponsor('Woodgrove', 3.01, SponsorTier.Community),
+  wallSponsor('Tailspin', 4.0, SponsorTier.Community),
+  wallSponsor('Wingtip', 6.4, SponsorTier.Community),
+  wallSponsor('Lucerne', 4.1, SponsorTier.Community),
+  wallSponsor('Trey Research', 4.66, SponsorTier.Community),
+  wallSponsor('Blue Yonder', 4.53, SponsorTier.Community),
 ];
 
+/**
+ * Empty outside development, so ramping `sponsor_strip` cannot put fabricated
+ * sponsorships in front of a reader. The guard is here rather than at the call
+ * site for the reason `mockFeedHighlights` did the same: nothing upstream can
+ * opt back in, and the ramp exercises the dock's empty-row path instead.
+ */
 export const fetchSponsorStripAds = async (): Promise<unknown> =>
-  MOCK_SPONSOR_STRIP_ADS;
+  isDevelopment ? MOCK_SPONSOR_STRIP_ADS : [];

@@ -303,20 +303,82 @@ it('should render nothing when it has neither sponsors nor headlines', async () 
   expect(screen.queryByTestId('sponsorStrip')).not.toBeInTheDocument();
 });
 
-it('should log a click on a headline with the headline that was clicked', async () => {
+const tickerClicks = () =>
+  logEvent.mock.calls.filter(
+    ([event]) =>
+      (event as { event_name: string }).event_name === LogEvent.Click,
+  );
+
+it('should log a click on a headline with the highlight that was clicked', async () => {
   setHeadlines([headline('h1'), headline('h2')]);
   renderStrip();
   await settle();
 
   fireEvent.click(screen.getByText('Headline h2'));
 
-  const clicks = logEvent.mock.calls.filter(
+  expect(extraOf(tickerClicks()[0])).toEqual(
+    expect.objectContaining({
+      kind: 'HEADLINE',
+      clicked_highlight_id: 'h2',
+      position: 1,
+    }),
+  );
+});
+
+// `id` is a highlight id for a headline and a post id for a popular post, so a
+// post must never be written into `clicked_highlight_id` — anything joining
+// that field against the highlights table would mis-join on the popular half.
+it('should log a click on a popular post without a highlight id', async () => {
+  setHeadlines([headline('h1'), popular('p1')]);
+  renderStrip();
+  await settle();
+
+  fireEvent.click(screen.getByText('Post p1'));
+
+  const extra = extraOf(tickerClicks()[0]);
+
+  expect(extra).toEqual(
+    expect.objectContaining({ kind: 'POST', post_id: 'p1', position: 1 }),
+  );
+  expect(extra).not.toHaveProperty('clicked_highlight_id');
+});
+
+it('should split the two id spaces on the impression', async () => {
+  setHeadlines([headline('h1'), popular('p1'), headline('h2')]);
+  renderStrip();
+  await settle();
+
+  const impression = logEvent.mock.calls.find(
     ([event]) =>
-      (event as { event_name: string }).event_name === LogEvent.Click,
+      (event as { event_name: string }).event_name === LogEvent.Impression &&
+      extraOf([event]).feed === 'sponsor-strip-headlines',
   );
 
-  expect(extraOf(clicks[0])).toEqual(
-    expect.objectContaining({ clicked_highlight_id: 'h2', position: 1 }),
+  expect(extraOf(impression)).toEqual(
+    expect.objectContaining({
+      highlight_ids: ['h1', 'h2'],
+      post_ids: ['p1'],
+      count: 3,
+    }),
+  );
+});
+
+// A curated headline keeps the /highlights destination the Happening Now card
+// leads to; only a popular post goes straight to its discussion page.
+it('should send a headline to /highlights and a post to its permalink', async () => {
+  setHeadlines([headline('h1'), popular('p1')]);
+  renderStrip();
+  await settle();
+
+  const ticker = within(screen.getByTestId('sponsorStripHeadlines'));
+
+  expect(ticker.getByText('Headline h1').closest('a')).toHaveAttribute(
+    'href',
+    expect.stringContaining('highlight=h1'),
+  );
+  expect(ticker.getByText('Post p1').closest('a')).toHaveAttribute(
+    'href',
+    'https://daily.dev/posts/p1',
   );
 });
 

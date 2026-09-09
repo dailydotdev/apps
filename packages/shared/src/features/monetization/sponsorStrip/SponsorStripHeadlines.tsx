@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
+import { getHighlightsUrl } from '../../../components/cards/highlight/common';
 import Link from '../../../components/utilities/Link';
 import { RelativeTime } from '../../../components/utilities/RelativeTime';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -16,6 +17,16 @@ import { LogEvent, Origin } from '../../../lib/log';
 
 const HEADLINES_FEED_NAME = 'sponsor-strip-headlines';
 
+const isHeadline = (item: StatuslineItem) => item.kind === 'HEADLINE';
+
+/**
+ * A curated headline keeps the `/highlights` destination the Happening Now card
+ * leads to, so the reader lands in the same curated context from either. Only a
+ * popular post goes straight to its discussion page.
+ */
+const destinationOf = (item: StatuslineItem): string =>
+  isHeadline(item) ? getHighlightsUrl(item.id) : item.permalink;
+
 /**
  * The row carries more than fits on purpose: it should read as a ticker
  * continuing past the edge, not a list that happens to end. The fade is what
@@ -29,40 +40,26 @@ const fadeStyle: CSSProperties = {
     'linear-gradient(to right, black calc(100% - 2.5rem), transparent)',
 };
 
-/**
- * The log builder reads a highlight-shaped object; a statusline item is the
- * same four facts under different names.
- */
-const toLoggedHighlight = (item: StatuslineItem) => ({
-  id: item.id,
-  headline: item.title,
-  post: { id: item.postId, commentsPermalink: item.permalink },
-});
-
-/**
- * Each kind gets the signal that means something for it, the way the terminal
- * statusline does: a curated headline is time-sensitive, so it carries how long
- * ago it broke, while a popular post carries the score that got it into the row.
- */
 const ItemSignal = ({
   item,
 }: {
   item: StatuslineItem;
 }): ReactElement | null => {
-  if (item.kind === 'HEADLINE' && item.highlightedAt) {
-    return (
+  // Keyed on kind rather than on the timestamp being present, so a headline
+  // served without one stays bare instead of falling through to an upvote
+  // count it was never meant to show.
+  if (isHeadline(item)) {
+    return item.highlightedAt ? (
       <RelativeTime
         dateTime={item.highlightedAt}
         className="text-text-quaternary"
       />
-    );
+    ) : null;
   }
 
-  if (item.upvotes > 0) {
-    return <span className="text-text-quaternary">{`▲${item.upvotes}`}</span>;
-  }
-
-  return null;
+  return item.upvotes > 0 ? (
+    <span className="text-text-quaternary">{`▲${item.upvotes}`}</span>
+  ) : null;
 };
 
 export const SponsorStripHeadlines = ({
@@ -83,7 +80,13 @@ export const SponsorStripHeadlines = ({
         feedName: HEADLINES_FEED_NAME,
         action: 'impression',
         count: headlines.length,
-        highlightIds: headlines.map(({ id }) => id),
+        // Split by kind: `id` is a highlight id for a headline and a post id
+        // for a popular post, so merging them would hand one field two key
+        // spaces and silently mis-join against the highlights table.
+        highlightIds: headlines.filter(isHeadline).map(({ id }) => id),
+        postIds: headlines
+          .filter((item) => !isHeadline(item))
+          .map(({ id }) => id),
         origin: Origin.Feed,
       }),
     { condition: !!headlines.length },
@@ -94,7 +97,22 @@ export const SponsorStripHeadlines = ({
       logEvent(
         feedHighlightsLogEvent(LogEvent.Click, {
           feedName: HEADLINES_FEED_NAME,
-          clickedHighlight: toLoggedHighlight(item),
+          kind: item.kind,
+          ...(isHeadline(item)
+            ? {
+                clickedHighlight: {
+                  id: item.id,
+                  headline: item.title,
+                  post: { id: item.postId, commentsPermalink: item.permalink },
+                },
+              }
+            : {
+                clickedPost: {
+                  id: item.postId,
+                  title: item.title,
+                  permalink: item.permalink,
+                },
+              }),
           position,
           origin: Origin.Feed,
         }),
@@ -128,18 +146,22 @@ export const SponsorStripHeadlines = ({
             className="no-scrollbar flex min-w-0 flex-1 items-center gap-5 overflow-x-auto"
             style={fadeStyle}
           >
-            {headlines.map((item, index) => (
-              <Link href={item.permalink} key={item.id}>
-                <a
-                  href={item.permalink}
-                  onClick={() => onHeadlineClick(item, index)}
-                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
-                >
-                  {item.title}
-                  <ItemSignal item={item} />
-                </a>
-              </Link>
-            ))}
+            {headlines.map((item, index) => {
+              const href = destinationOf(item);
+
+              return (
+                <Link href={href} key={item.id}>
+                  <a
+                    href={href}
+                    onClick={() => onHeadlineClick(item, index)}
+                    className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
+                  >
+                    {item.title}
+                    <ItemSignal item={item} />
+                  </a>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
