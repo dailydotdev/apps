@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import {
   Button,
   ButtonSize,
@@ -79,7 +79,11 @@ export const BadgeRow = ({
   );
 };
 
+// The floor for a page. The awards pane beside this one is usually taller, so
+// the real page size is whatever that leftover height fits.
 export const badgePageSize = 4;
+
+const badgeRowGap = 8;
 
 type BadgePagerProps = {
   badges: TopReader[];
@@ -87,35 +91,74 @@ type BadgePagerProps = {
 
 export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
   const [page, setPage] = useState(0);
-  const pageCount = Math.ceil(badges.length / badgePageSize);
-  const start = page * badgePageSize;
-  const visible = badges.slice(start, start + badgePageSize);
+  const [perPage, setPerPage] = useState(badgePageSize);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // The pane's height comes from its taller sibling, so how many rows belong
+  // on a page is only knowable once it has been laid out.
+  const measure = useCallback(() => {
+    const list = listRef.current;
+    const row = list?.firstElementChild as HTMLElement | null;
+
+    if (!list || !row) {
+      return;
+    }
+
+    const rowHeight = row.offsetHeight + badgeRowGap;
+    const fits = Math.floor((list.clientHeight + badgeRowGap) / rowHeight);
+
+    setPerPage(Math.max(badgePageSize, Math.min(fits, badges.length)));
+  }, [badges.length]);
+
+  // Measured before paint so the first render already fills, then observed
+  // because the awards pane grows again as its images arrive.
+  useLayoutEffect(() => {
+    const list = listRef.current;
+
+    if (!list) {
+      return undefined;
+    }
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+
+    return () => observer.disconnect();
+  }, [measure]);
+
+  const pageCount = Math.ceil(badges.length / perPage);
+  const boundedPage = Math.min(page, Math.max(pageCount - 1, 0));
+  const start = boundedPage * perPage;
+  const visible = badges.slice(start, start + perPage);
 
   return (
     <div className="flex flex-1 flex-col gap-2">
-      {visible.map((badge) => (
-        <BadgeRow
-          key={badge.id}
-          issuedAt={badge.issuedAt}
-          keyword={badge.keyword}
-          image={badge.image}
-        />
-      ))}
-
-      {/* A short last page would otherwise change the column's height and
-          shift everything below it. */}
-      {Array.from({ length: badgePageSize - visible.length }, (_, index) => (
-        <div
-          key={`filler-${index.toString()}`}
-          className="invisible"
-          aria-hidden
-        >
+      <div ref={listRef} className="flex flex-1 flex-col gap-2 overflow-hidden">
+        {visible.map((badge) => (
           <BadgeRow
-            issuedAt={visible[0].issuedAt}
-            keyword={visible[0].keyword}
+            key={badge.id}
+            issuedAt={badge.issuedAt}
+            keyword={badge.keyword}
+            image={badge.image}
           />
-        </div>
-      ))}
+        ))}
+
+        {/* A short last page would otherwise change the column's height and
+            shift everything below it. */}
+        {Array.from({ length: perPage - visible.length }, (_, index) => (
+          <div
+            key={`filler-${index.toString()}`}
+            className="invisible"
+            aria-hidden
+          >
+            <BadgeRow
+              issuedAt={visible[0].issuedAt}
+              keyword={visible[0].keyword}
+            />
+          </div>
+        ))}
+      </div>
 
       {pageCount > 1 && (
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
@@ -133,8 +176,8 @@ export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
               size={ButtonSize.Small}
               icon={<ArrowIcon className="-rotate-90" />}
               aria-label="Previous badges"
-              disabled={page === 0}
-              onClick={() => setPage((current) => current - 1)}
+              disabled={boundedPage === 0}
+              onClick={() => setPage(boundedPage - 1)}
             />
             <Button
               type="button"
@@ -142,8 +185,8 @@ export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
               size={ButtonSize.Small}
               icon={<ArrowIcon className="rotate-90" />}
               aria-label="Next badges"
-              disabled={page >= pageCount - 1}
-              onClick={() => setPage((current) => current + 1)}
+              disabled={boundedPage >= pageCount - 1}
+              onClick={() => setPage(boundedPage + 1)}
             />
           </div>
         </div>

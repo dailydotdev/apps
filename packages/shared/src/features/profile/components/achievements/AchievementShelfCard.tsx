@@ -138,6 +138,23 @@ export function AchievementShelfCard({
           </button>
         )}
 
+        {!isUnlocked && (
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-3">
+            <ProgressBar
+              percentage={progressPercentage}
+              shouldShowBg
+              className={{
+                wrapper: 'h-1',
+                bar: 'h-full rounded-r-max',
+                barColor: 'bg-accent-cabbage-default',
+              }}
+            />
+            <Typography className="px-[13px] pt-1.5 text-[14px] text-[rgba(255,255,255,0.7)]">
+              {progressLabel}
+            </Typography>
+          </div>
+        )}
+
         <div className="pointer-events-none relative z-2 px-[13px] pb-[13px] pt-3">
           <Typography
             tag={TypographyTag.H3}
@@ -149,25 +166,10 @@ export function AchievementShelfCard({
             {achievement.description}
           </Typography>
 
-          {isUnlocked ? (
+          {isUnlocked && (
             <Typography className="mt-[7px] text-[14px] text-[rgba(255,255,255,0.7)]">
               Completed {formatUnlockedAt(unlockedAt)}
             </Typography>
-          ) : (
-            <>
-              <Typography className="mt-[7px] text-[14px] text-[rgba(255,255,255,0.7)]">
-                {progressLabel}
-              </Typography>
-              <ProgressBar
-                percentage={progressPercentage}
-                shouldShowBg
-                className={{
-                  wrapper: 'mt-2 h-1 rounded-max',
-                  bar: 'h-full rounded-max',
-                  barColor: 'bg-accent-cabbage-default',
-                }}
-              />
-            </>
           )}
         </div>
       </article>

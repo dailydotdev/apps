@@ -18,7 +18,6 @@ import {
   userProductSummaryQueryOptions,
 } from '@dailydotdev/shared/src/graphql/njord';
 import type { QuestType } from '@dailydotdev/shared/src/graphql/quests';
-import { getTargetCount } from '@dailydotdev/shared/src/graphql/user/achievements';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useProfileAchievements } from '@dailydotdev/shared/src/hooks/profile/useProfileAchievements';
@@ -47,7 +46,6 @@ import {
   ResponsivePageContainer,
   pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
   Typography,
   TypographyColor,
@@ -56,24 +54,15 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
 import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
-  ArrowIcon,
   CoreIcon,
   MedalBadgeIcon,
-  PinIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -92,7 +81,6 @@ import {
   getAchievementSummary,
   getAwardSummary,
   getBadgeSummary,
-  getMostProgressedQuest,
 } from '../../lib/gameCenter';
 
 type GameCenterPageProps = {
@@ -122,7 +110,7 @@ const placeholderTopReaderBoard: UserLeaderboard[] = [
   },
 ] as UserLeaderboard[];
 
-const leaderboardLimit = 3;
+const leaderboardLimit = 5;
 
 const isQuestCompletionStatsSchemaMissing = (error: GraphQLError): boolean => {
   return (
@@ -300,43 +288,11 @@ function GameCenterPage({
     ? getQuestLevelProgress(questDashboard.level)
     : 0;
   const firstName = user?.name ? getFirstName(user.name) : 'there';
-  const { featuredAchievements, shelfAchievements } = achievementSummary;
-  const [featuredAchievement] = featuredAchievements;
-  const upcomingMilestoneQuest = useMemo(
-    () => getMostProgressedQuest(milestoneQuests),
-    [milestoneQuests],
-  );
+  const { shelfAchievements } = achievementSummary;
   const hasCommunityLeaderboards =
     highestReputation.length > 0 || mostQuestsCompleted.length > 0;
   const milestoneHash = `#${gameCenterMilestoneSectionId}`;
 
-  const isFeaturedAchievementTrackable =
-    shouldTrackAchievements &&
-    !!featuredAchievement &&
-    !featuredAchievement.unlockedAt;
-  const isFeaturedAchievementTracked =
-    isFeaturedAchievementTrackable &&
-    trackedAchievementState.trackedAchievement?.achievement.id ===
-      featuredAchievement.achievement.id;
-  const isFeaturedAchievementTrackingPending =
-    trackedAchievementState.isPending ||
-    trackedAchievementState.isTrackPending ||
-    trackedAchievementState.isUntrackPending;
-
-  const handleFeaturedAchievementTracking = async () => {
-    if (!isFeaturedAchievementTrackable || !featuredAchievement) {
-      return;
-    }
-
-    if (isFeaturedAchievementTracked) {
-      await trackedAchievementState.untrackAchievement();
-      return;
-    }
-
-    await trackedAchievementState.trackAchievement(
-      featuredAchievement.achievement.id,
-    );
-  };
   const handleMilestoneClaim = useCallback(
     (userQuestId: string, questId: string, questType: QuestType) => {
       claimQuestReward({
@@ -624,108 +580,6 @@ function GameCenterPage({
                 </div>
               )
             )}
-
-            <div className="grid gap-3 tablet:grid-cols-2">
-              <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-                <Typography
-                  type={TypographyType.Subhead}
-                  color={TypographyColor.Tertiary}
-                  bold
-                >
-                  Upcoming milestone
-                </Typography>
-                <Typography type={TypographyType.Callout} bold className="mt-1">
-                  {upcomingMilestoneQuest?.quest.name ??
-                    'No upcoming milestone yet'}
-                </Typography>
-                <Typography
-                  type={TypographyType.Subhead}
-                  color={TypographyColor.Tertiary}
-                  className="mt-1"
-                >
-                  {upcomingMilestoneQuest
-                    ? `${Math.min(
-                        upcomingMilestoneQuest.progress,
-                        upcomingMilestoneQuest.quest.targetCount,
-                      )}/${upcomingMilestoneQuest.quest.targetCount} progress`
-                    : 'Your next milestone will show up here.'}
-                </Typography>
-              </div>
-
-              {showAchievements && (
-                <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <Typography
-                      type={TypographyType.Subhead}
-                      color={TypographyColor.Tertiary}
-                      bold
-                    >
-                      Closest achievement
-                    </Typography>
-                    {isFeaturedAchievementTrackable && (
-                      <Tooltip
-                        content={
-                          isFeaturedAchievementTracked
-                            ? 'Stop tracking achievement'
-                            : 'Track achievement'
-                        }
-                        side="top"
-                      >
-                        <Button
-                          variant={ButtonVariant.Subtle}
-                          size={ButtonSize.Small}
-                          icon={
-                            <PinIcon secondary={isFeaturedAchievementTracked} />
-                          }
-                          pressed={isFeaturedAchievementTracked}
-                          disabled={isFeaturedAchievementTrackingPending}
-                          onClick={handleFeaturedAchievementTracking}
-                          aria-label={
-                            isFeaturedAchievementTracked
-                              ? `Stop tracking ${featuredAchievement.achievement.name}`
-                              : `Track ${featuredAchievement.achievement.name}`
-                          }
-                        />
-                      </Tooltip>
-                    )}
-                  </div>
-                  <div className="mt-3 flex items-start gap-3">
-                    {featuredAchievement && (
-                      <LazyImage
-                        imgSrc={featuredAchievement.achievement.image}
-                        imgAlt={featuredAchievement.achievement.name}
-                        className="size-14 shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
-                        fallbackSrc="https://daily.dev/default-achievement.png"
-                      />
-                    )}
-                    <div className="min-w-0">
-                      <Typography
-                        type={TypographyType.Callout}
-                        bold
-                        className={classNames(
-                          'line-clamp-2',
-                          !featuredAchievement && 'mt-1',
-                        )}
-                      >
-                        {featuredAchievement?.achievement.name ??
-                          'No tracked achievement'}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Subhead}
-                        color={TypographyColor.Tertiary}
-                        className="mt-1"
-                      >
-                        {featuredAchievement
-                          ? `${featuredAchievement.progress}/${getTargetCount(
-                              featuredAchievement.achievement,
-                            )} progress`
-                          : 'Once achievements load, your closest milestone shows here.'}
-                      </Typography>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
           </section>
 
           <section
@@ -738,29 +592,11 @@ function GameCenterPage({
           </section>
 
           {showAchievements && (
-            <>
-              <section className="flex flex-col gap-4">
-                <SectionHeader
-                  title="Achievement shelf"
-                  action={
-                    user?.username ? (
-                      <Button
-                        tag="a"
-                        href={`/${user.username}/achievements`}
-                        variant={ButtonVariant.Secondary}
-                        size={ButtonSize.Medium}
-                        icon={<ArrowIcon className="rotate-90" />}
-                        iconPosition={ButtonIconPosition.Right}
-                      >
-                        See all achievements
-                      </Button>
-                    ) : undefined
-                  }
-                />
+            <section className="flex flex-col gap-4">
+              <SectionHeader title="Achievement shelf" />
 
-                {achievementShelfContent}
-              </section>
-            </>
+              {achievementShelfContent}
+            </section>
           )}
 
           <section className="flex flex-col gap-4">
@@ -789,17 +625,7 @@ function GameCenterPage({
           </section>
 
           <section className="flex flex-col gap-4">
-            <SectionHeader
-              title="Community pulse"
-              action={
-                <Link href="/users" passHref>
-                  <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-subhead">
-                    Open full leaderboards
-                    <ArrowIcon className="rotate-90" />
-                  </a>
-                </Link>
-              }
-            />
+            <SectionHeader title="Community pulse" />
             {hasCommunityLeaderboards || questCompletionStats ? (
               <CommunityPulse
                 stats={questCompletionStats}
