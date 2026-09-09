@@ -95,16 +95,11 @@ const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
   );
 };
 
-export const useSponsorStripAds = ({
-  enabled,
-}: {
-  enabled: boolean;
-}): UseSponsorStripAds => {
+export const useSponsorStripAds = (): UseSponsorStripAds => {
   const isLight = useIsLightTheme();
   const { data, isPending } = useQuery({
     queryKey: [RequestKey.Ads, AdPlacement.SponsorStrip],
     queryFn: fetchSponsorStripAds,
-    enabled,
     staleTime: ONE_HOUR,
     ...disabledRefetch,
   });

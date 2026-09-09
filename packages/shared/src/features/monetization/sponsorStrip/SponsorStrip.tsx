@@ -167,9 +167,7 @@ export const SponsorStrip = ({
     community,
     wallRef,
     isSettled: adsSettled,
-  } = useSponsorStripAds({
-    enabled: true,
-  });
+  } = useSponsorStripAds();
   // Read here rather than passed down: the dock is mounted inside the same
   // providers as the feed, and the calc behind `feedWidth` needs these.
   const { numCards } = useContext(FeedContext);
