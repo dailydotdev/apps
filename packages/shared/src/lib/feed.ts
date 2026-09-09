@@ -197,10 +197,8 @@ interface FeedHighlightsLogEventOptions extends FeedItemPosition {
    */
   clickedPost?: { id: string; title: string; permalink: string };
   highlightIds?: string[];
-  /** Post ids from a row that mixes kinds; never merged into `highlightIds`. */
+  /** Post ids from a row that carries posts; never merged into `highlightIds`. */
   postIds?: string[];
-  /** Which kind a single-row event refers to, where the row carries both. */
-  kind?: string;
   feedMeta?: string | null;
   position?: number;
   origin?: Origin;
@@ -220,7 +218,6 @@ export function feedHighlightsLogEvent(
     clickedPost,
     highlightIds,
     postIds,
-    kind,
     feedMeta,
     position,
     origin,
@@ -252,7 +249,6 @@ export function feedHighlightsLogEvent(
       ...(action ? { action } : {}),
       ...(typeof count === 'number' ? { count } : {}),
       ...(typeof position === 'number' ? { position } : {}),
-      ...(kind ? { kind } : {}),
       ...(highlightIds?.length ? { highlight_ids: highlightIds } : {}),
       ...(postIds?.length ? { post_ids: postIds } : {}),
       ...(clickedHighlight

@@ -1,9 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
-import { getHighlightsUrl } from '../../../components/cards/highlight/common';
 import Link from '../../../components/utilities/Link';
-import { RelativeTime } from '../../../components/utilities/RelativeTime';
 import { useLogContext } from '../../../contexts/LogContext';
 import type { StatuslineItem } from '../../../graphql/statusline';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
@@ -17,16 +15,6 @@ import { LogEvent, Origin } from '../../../lib/log';
 
 const HEADLINES_FEED_NAME = 'sponsor-strip-headlines';
 
-const isHeadline = (item: StatuslineItem) => item.kind === 'HEADLINE';
-
-/**
- * A curated headline keeps the `/highlights` destination the Happening Now card
- * leads to, so the reader lands in the same curated context from either. Only a
- * popular post goes straight to its discussion page.
- */
-const destinationOf = (item: StatuslineItem): string =>
-  isHeadline(item) ? getHighlightsUrl(item.id) : item.permalink;
-
 /**
  * The row carries more than fits on purpose: it should read as a ticker
  * continuing past the edge, not a list that happens to end. The fade is what
@@ -38,28 +26,6 @@ const fadeStyle: CSSProperties = {
     'linear-gradient(to right, black calc(100% - 2.5rem), transparent)',
   WebkitMaskImage:
     'linear-gradient(to right, black calc(100% - 2.5rem), transparent)',
-};
-
-const ItemSignal = ({
-  item,
-}: {
-  item: StatuslineItem;
-}): ReactElement | null => {
-  // Keyed on kind rather than on the timestamp being present, so a headline
-  // served without one stays bare instead of falling through to an upvote
-  // count it was never meant to show.
-  if (isHeadline(item)) {
-    return item.highlightedAt ? (
-      <RelativeTime
-        dateTime={item.highlightedAt}
-        className="text-text-quaternary"
-      />
-    ) : null;
-  }
-
-  return item.upvotes > 0 ? (
-    <span className="text-text-quaternary">{`▲${item.upvotes}`}</span>
-  ) : null;
 };
 
 export const SponsorStripHeadlines = ({
@@ -80,13 +46,9 @@ export const SponsorStripHeadlines = ({
         feedName: HEADLINES_FEED_NAME,
         action: 'impression',
         count: headlines.length,
-        // Split by kind: `id` is a highlight id for a headline and a post id
-        // for a popular post, so merging them would hand one field two key
-        // spaces and silently mis-join against the highlights table.
-        highlightIds: headlines.filter(isHeadline).map(({ id }) => id),
-        postIds: headlines
-          .filter((item) => !isHeadline(item))
-          .map(({ id }) => id),
+        // Post ids, never `highlightIds`: the row carries no highlights, and
+        // the two id spaces must not meet in one field.
+        postIds: headlines.map(({ postId }) => postId),
         origin: Origin.Feed,
       }),
     { condition: !!headlines.length },
@@ -97,22 +59,11 @@ export const SponsorStripHeadlines = ({
       logEvent(
         feedHighlightsLogEvent(LogEvent.Click, {
           feedName: HEADLINES_FEED_NAME,
-          kind: item.kind,
-          ...(isHeadline(item)
-            ? {
-                clickedHighlight: {
-                  id: item.id,
-                  headline: item.title,
-                  post: { id: item.postId, commentsPermalink: item.permalink },
-                },
-              }
-            : {
-                clickedPost: {
-                  id: item.postId,
-                  title: item.title,
-                  permalink: item.permalink,
-                },
-              }),
+          clickedPost: {
+            id: item.postId,
+            title: item.title,
+            permalink: item.permalink,
+          },
           position,
           origin: Origin.Feed,
         }),
@@ -146,22 +97,20 @@ export const SponsorStripHeadlines = ({
             className="no-scrollbar flex min-w-0 flex-1 items-center gap-5 overflow-x-auto"
             style={fadeStyle}
           >
-            {headlines.map((item, index) => {
-              const href = destinationOf(item);
-
-              return (
-                <Link href={href} key={item.id}>
-                  <a
-                    href={href}
-                    onClick={() => onHeadlineClick(item, index)}
-                    className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
-                  >
-                    {item.title}
-                    <ItemSignal item={item} />
-                  </a>
-                </Link>
-              );
-            })}
+            {headlines.map((item, index) => (
+              <Link href={item.permalink} key={item.id}>
+                <a
+                  href={item.permalink}
+                  onClick={() => onHeadlineClick(item, index)}
+                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
+                >
+                  {item.title}
+                  {item.upvotes > 0 && (
+                    <span className="text-text-quaternary">{`▲${item.upvotes}`}</span>
+                  )}
+                </a>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

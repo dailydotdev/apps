@@ -6,7 +6,6 @@ import type {
   StatuslineItem,
 } from '../../../graphql/statusline';
 import { statuslineFeedQueryOptions } from '../../../graphql/statusline';
-import { ONE_HOUR } from '../../../lib/time';
 import { useStripHeadlines } from './useStripHeadlines';
 
 jest.mock('../../../graphql/statusline', () => ({
@@ -61,24 +60,29 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('should carry the mix the API returned', async () => {
-  setItems([headline('h1'), post('p1'), headline('h2')]);
+// The feed's own Happening Now card renders the curated headlines, off the
+// same table, so carrying them here too would show one story twice on a screen.
+it('should drop the curated half and keep only the popular posts', async () => {
+  setItems([headline('h1'), post('p1'), headline('h2'), post('p2')]);
   const { result } = render();
 
   await waitFor(() =>
-    expect(result.current.headlines.map(({ id }) => id)).toEqual([
-      'h1',
-      'p1',
-      'h2',
-    ]),
+    expect(result.current.headlines.map(({ id }) => id)).toEqual(['p1', 'p2']),
   );
 });
 
-// Which headlines still count as major, and which posts count as popular, is
-// the backend's call — a stale-only day must still fill the ticker rather than
-// silently dropping the dock to one row.
-it('should carry items the backend still serves however old they are', async () => {
-  setItems([headline('old', 36 * ONE_HOUR), headline('older', 92 * ONE_HOUR)]);
+it('should leave the row empty when the mix is all headlines', async () => {
+  setItems([headline('h1'), headline('h2')]);
+  const { result } = render();
+
+  await waitFor(() => expect(mockQueryOptions).toHaveBeenCalled());
+  expect(result.current.headlines).toEqual([]);
+});
+
+// Which posts count as popular is the backend's call — a quiet day must still
+// fill the ticker rather than silently dropping the dock to one row.
+it('should carry posts the backend still serves however old they are', async () => {
+  setItems([post('old'), post('older')]);
   const { result } = render();
 
   await waitFor(() =>
@@ -90,20 +94,23 @@ it('should carry items the backend still serves however old they are', async () 
 });
 
 it('should keep the order the API returned rather than resorting', async () => {
-  setItems([
-    headline('newest'),
-    post('popular', 400),
-    headline('oldest', 90 * ONE_HOUR),
-  ]);
+  setItems([post('first', 4), post('second', 900), post('third', 40)]);
   const { result } = render();
 
   await waitFor(() =>
     expect(result.current.headlines.map(({ id }) => id)).toEqual([
-      'newest',
-      'popular',
-      'oldest',
+      'first',
+      'second',
+      'third',
     ]),
   );
+});
+
+it('should draw no more rows than the ticker shows', async () => {
+  setItems(Array.from({ length: 20 }, (_, i) => post(`p${i}`)));
+  const { result } = render();
+
+  await waitFor(() => expect(result.current.headlines).toHaveLength(12));
 });
 
 it('should leave the row empty when the API has nothing at all', async () => {
