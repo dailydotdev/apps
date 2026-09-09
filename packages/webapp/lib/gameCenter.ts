@@ -298,6 +298,15 @@ export const getAchievementSummary = (
         achievement.unlockedAt !== null || achievement.progress > 0,
     )
     .sort((left, right) => {
+      // What is still open leads, since that is what there is left to do;
+      // completed achievements read as the record behind it.
+      const leftIsOpen = left.unlockedAt === null;
+      const rightIsOpen = right.unlockedAt === null;
+
+      if (leftIsOpen !== rightIsOpen) {
+        return leftIsOpen ? -1 : 1;
+      }
+
       const ratioDifference =
         getAchievementProgressRatio(right) - getAchievementProgressRatio(left);
 
@@ -306,7 +315,7 @@ export const getAchievementSummary = (
       }
 
       // Everything completed ties at 100%, so rarity breaks it and the
-      // hardest-won achievement leads the row.
+      // hardest-won achievement leads its half of the row.
       const leftRarity = left.achievement.rarity ?? Number.POSITIVE_INFINITY;
       const rightRarity = right.achievement.rarity ?? Number.POSITIVE_INFINITY;
 

@@ -72,7 +72,6 @@ import {
   BadgeTrophyCase,
 } from '../../components/game-center/BadgeTrophyCase';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
-import { SeeAllAchievementsCard } from '../../components/game-center/SeeAllAchievementsCard';
 import { CommunityPulse } from '../../components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../components/game-center/TrophyGrid';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -380,9 +379,6 @@ function GameCenterPage({
             }
           />
         ))}
-        {user?.username && (
-          <SeeAllAchievementsCard href={`/${user.username}/achievements`} />
-        )}
       </div>
     );
   } else {

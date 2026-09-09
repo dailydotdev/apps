@@ -110,13 +110,13 @@ export const CommunityPulse = ({
   <div className="flex flex-col gap-2 rounded-20 border border-border-subtlest-tertiary p-2">
     <div className="grid gap-2 tablet:grid-cols-3">
       <Race
-        title="Awards"
+        title="Achievement points"
         entries={highestReputation}
         unit="achievement points"
         viewerId={viewerId}
       />
       <Race
-        title="Quests"
+        title="Quests completed"
         entries={mostQuestsCompleted}
         unit="quests"
         viewerId={viewerId}
