@@ -7,7 +7,6 @@ import { ModalClose } from './common/ModalClose';
 import Autocomplete from '../fields/Autocomplete';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { SlackIcon } from '../icons';
 import { Loader } from '../Loader';
 import Alert, { AlertType } from '../widgets/Alert';
 import {
@@ -156,10 +155,13 @@ const SlackShareModal = ({
             Share to Slack
           </Typography>
           {!!recentChannels.length && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
+              {/* matches the label the channel field renders below it */}
               <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
+                className="px-2"
+                type={TypographyType.Caption1}
+                color={TypographyColor.Primary}
+                bold
               >
                 Recent
               </Typography>
@@ -170,7 +172,6 @@ const SlackShareModal = ({
                     type="button"
                     variant={ButtonVariant.Float}
                     size={ButtonSize.Small}
-                    icon={<SlackIcon />}
                     disabled={isSharing}
                     onClick={(event: React.MouseEvent) =>
                       onShare(id, 'recent', event)
@@ -184,12 +185,12 @@ const SlackShareModal = ({
           )}
           <Autocomplete
             name="slack-channel"
-            // secondary drops Autocomplete's own heading, which would otherwise
-            // repeat the label the field already floats above the input
+            // secondary keeps Autocomplete from rendering a second heading of
+            // its own above the one the field already draws
             fieldType="secondary"
             label="All channels"
             placeholder={
-              isFetchingAll ? 'Loading channels' : 'Search for a channel'
+              isFetchingAll ? 'Loading channels' : 'Select a channel'
             }
             options={channelOptions}
             isLoading={isFetchingAll}

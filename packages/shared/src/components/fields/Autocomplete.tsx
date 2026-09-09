@@ -120,6 +120,8 @@ const Autocomplete = ({
           side="bottom"
           align="start"
           avoidCollisions
+          // without padding the list runs flush into the viewport edge
+          collisionPadding={16}
           sameWidthAsAnchor
           onOpenAutoFocus={(e) => e.preventDefault()} // keep focus in input
           onCloseAutoFocus={(e) => e.preventDefault()} // avoid refocus jumps
