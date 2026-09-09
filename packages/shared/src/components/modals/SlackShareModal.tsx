@@ -9,6 +9,7 @@ import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { SlackIcon } from '../icons';
 import { Loader } from '../Loader';
+import Alert, { AlertType } from '../widgets/Alert';
 import {
   Typography,
   TypographyColor,
@@ -16,7 +17,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import type { Post } from '../../graphql/posts';
-import { integrationRecentChannelsQueryOptions } from '../../graphql/integrations';
+import {
+  integrationRecentChannelsQueryOptions,
+  UserIntegrationType,
+} from '../../graphql/integrations';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -63,21 +67,52 @@ const SlackShareModal = ({
   });
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  const onShare = async (channelId: string, event: React.MouseEvent) => {
+  const onShare = async (
+    channelId: string,
+    channelSource: 'recent' | 'list',
+    event: React.MouseEvent,
+  ) => {
+    const attribution = {
+      origin,
+      channel_source: channelSource,
+      posted_as: canPostAsUser ? 'user' : 'app',
+    };
+
     try {
       await share({ channelId, postId: post.id });
 
       logEvent(
         postLogEvent(LogEvent.SharePost, post, {
-          extra: { provider: ShareProvider.Slack, origin },
+          extra: { provider: ShareProvider.Slack, ...attribution },
         }),
       );
 
       displayToast('Shared to Slack');
       props.onRequestClose?.(event);
-    } catch {
+    } catch (error) {
+      // the bot path fails on private channels by design, so the reason matters
+      // as much as the count
+      logEvent(
+        postLogEvent(LogEvent.ShareToSlackError, post, {
+          extra: {
+            ...attribution,
+            error: (error as Error)?.message,
+          },
+        }),
+      );
+
       displayToast('Could not share to Slack, please try again');
     }
+  };
+
+  const onReconnect = () => {
+    logEvent({
+      event_name: LogEvent.StartAddingWorkspace,
+      target_id: UserIntegrationType.Slack,
+      extra: JSON.stringify({ origin, reason: 'upgrade' }),
+    });
+
+    connect(window.location.pathname);
   };
 
   return (
@@ -107,22 +142,6 @@ const SlackShareModal = ({
           >
             Share to Slack
           </Typography>
-          {!canPostAsUser && (
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              This posts as the daily.dev app.{' '}
-              <button
-                type="button"
-                className="underline"
-                onClick={() => connect(window.location.pathname)}
-              >
-                Reconnect Slack
-              </button>{' '}
-              to post under your own name.
-            </Typography>
-          )}
           {!!recentChannels.length && (
             <div className="flex flex-col gap-2">
               <Typography
@@ -140,7 +159,9 @@ const SlackShareModal = ({
                     size={ButtonSize.Small}
                     icon={<SlackIcon />}
                     disabled={isSharing}
-                    onClick={(event: React.MouseEvent) => onShare(id, event)}
+                    onClick={(event: React.MouseEvent) =>
+                      onShare(id, 'recent', event)
+                    }
                   >
                     {channelLabel(name)}
                   </Button>
@@ -178,11 +199,29 @@ const SlackShareModal = ({
             disabled={selectedIndex < 0}
             loading={isSharing}
             onClick={(event: React.MouseEvent) =>
-              onShare(channels[selectedIndex].id, event)
+              onShare(channels[selectedIndex].id, 'list', event)
             }
           >
             Share
           </Button>
+          {!canPostAsUser && (
+            <Alert
+              type={AlertType.Warning}
+              title={
+                <span>
+                  This posts as the daily.dev app.{' '}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={onReconnect}
+                  >
+                    Reconnect Slack
+                  </button>{' '}
+                  to post under your own name.
+                </span>
+              }
+            />
+          )}
         </Modal.Body>
       )}
     </Modal>

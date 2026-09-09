@@ -7,6 +7,7 @@ import { LazyModal } from '../../../components/modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import type { Origin } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
+import { postLogEvent } from '../../../lib/feed';
 import { getPathnameWithQuery } from '../../../lib/links';
 
 export type UseSlackShareButton = {
@@ -24,13 +25,25 @@ export const useSlackShareButton = ({
 }): UseSlackShareButton => {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
-  const { integration, isLoading, connect } = useSlackShare();
+  const { integration, canPostAsUser, isLoading, connect } = useSlackShare();
 
   const openPicker = useCallback(() => {
     openModal({ type: LazyModal.SlackShare, props: { post, origin } });
   }, [openModal, post, origin]);
 
   const onClick = useCallback(() => {
+    // logged on both branches: counting only the ones that go to OAuth would
+    // hide every share attempt by someone already connected
+    logEvent(
+      postLogEvent(LogEvent.StartShareToSlack, post, {
+        extra: {
+          origin,
+          has_integration: !!integration,
+          can_post_as_user: canPostAsUser,
+        },
+      }),
+    );
+
     if (integration) {
       openPicker();
 
@@ -40,7 +53,7 @@ export const useSlackShareButton = ({
     logEvent({
       event_name: LogEvent.StartAddingWorkspace,
       target_id: UserIntegrationType.Slack,
-      extra: JSON.stringify({ origin }),
+      extra: JSON.stringify({ origin, reason: 'share' }),
     });
 
     connect(
@@ -52,7 +65,7 @@ export const useSlackShareButton = ({
         }),
       ),
     );
-  }, [integration, openPicker, logEvent, origin, connect, post.id]);
+  }, [integration, canPostAsUser, openPicker, logEvent, origin, connect, post]);
 
   // returning from OAuth reopens the picker on whichever surface started the
   // share, so the round trip costs the user nothing beyond the consent screen.

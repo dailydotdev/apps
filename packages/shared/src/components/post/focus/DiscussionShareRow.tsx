@@ -61,7 +61,7 @@ export const DiscussionShareRow = ({
   const { squads } = useAuthContext();
   const { onClick: onShareToSlack } = useSlackShareButton({
     post,
-    origin: Origin.ShareBar,
+    origin: Origin.DiscussionPanel,
   });
   const inlineSquads = withSquads
     ? getShareableSquads(squads).slice(0, maxInlineSquads)
