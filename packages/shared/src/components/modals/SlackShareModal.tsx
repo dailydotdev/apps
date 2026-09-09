@@ -208,7 +208,10 @@ const SlackShareModal = ({
             <Alert
               type={AlertType.Warning}
               title={
-                <span>
+                // Alert lays its title out as a flex row, so multi-line copy
+                // needs to be a shrinkable item or it renders on one line and
+                // overflows the panel
+                <span className="flex-1">
                   This posts as the daily.dev app.{' '}
                   <button
                     type="button"
