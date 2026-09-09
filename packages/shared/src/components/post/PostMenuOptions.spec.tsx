@@ -1,25 +1,16 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
-import { featurePostCopyLink } from '../../lib/featureManagement';
 import { Origin } from '../../lib/log';
 import { PostMenuOptions } from './PostMenuOptions';
 
-const withFlag = () => {
-  const gb = new GrowthBook();
-  gb.setFeatures({ [featurePostCopyLink.id]: { defaultValue: true } });
-
-  return gb;
-};
-
-const renderActions = (postToRender: Post, gb?: GrowthBook) =>
+const renderActions = (postToRender: Post) =>
   render(
-    <TestBootProvider client={new QueryClient()} gb={gb}>
+    <TestBootProvider client={new QueryClient()}>
       <PostMenuOptions origin={Origin.ArticlePage} post={postToRender} />
     </TestBootProvider>,
   );
@@ -38,19 +29,13 @@ describe('PostMenuOptions copy link', () => {
     PostType.VideoYouTube,
     PostType.Poll,
   ])('offers the link on a %s post', (type) => {
-    renderActions({ ...post, type } as Post, withFlag());
+    renderActions({ ...post, type } as Post);
 
     expect(copyLink()).toBeInTheDocument();
   });
 
-  it('stays out of the header when the flag is disabled', () => {
-    renderActions(post);
-
-    expect(copyLink()).not.toBeInTheDocument();
-  });
-
   it('sits before the menu button, so it reads as part of that cluster', () => {
-    renderActions(post, withFlag());
+    renderActions(post);
 
     const link = copyLink();
     const options = screen.getByLabelText('Options');

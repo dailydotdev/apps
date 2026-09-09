@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
-import { LogEvent, Origin } from '../../lib/log';
+import type { Origin } from '../../lib/log';
+import { LogEvent } from '../../lib/log';
 import type { ButtonSize } from '../buttons/Button';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { PostOptionButton } from '../../features/posts/PostOptionButton';
@@ -9,13 +10,10 @@ import { LinkIcon } from '../icons';
 import { CopyStateIcon } from '../share/CopyStateIcon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
-import { useGetShortUrl } from '../../hooks';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
-import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
-import { featurePostCopyLink } from '../../lib/featureManagement';
 
 export interface PostMenuOptionsProps {
   post: Post;
@@ -28,25 +26,22 @@ export function PostMenuOptions({
   origin,
   buttonSize,
 }: PostMenuOptionsProps): ReactElement {
-  const isCopyLinkEnabled = useSharePlacement({
-    feature: featurePostCopyLink,
-    shouldEvaluate: !!post,
-  });
   const [linkCopied, copyLink] = useCopyPostLink();
-  const { getShortUrl } = useGetShortUrl();
   const { logEvent } = useLogContext();
 
-  const onCopyLink = async () => {
+  const onCopyLink = () => {
     logEvent(
       postLogEvent(LogEvent.SharePost, post, {
-        extra: { provider: ShareProvider.CopyLink, origin: Origin.PostContent },
+        extra: { provider: ShareProvider.CopyLink, origin },
       }),
     );
+    // `shorten`, not an awaited short URL: awaiting the shortener first ends
+    // the task that handled the click, and Safari refuses the write after
+    // that. The permalink lands immediately and the tracked link replaces it.
     copyLink({
-      link: await getShortUrl(
-        post.commentsPermalink,
-        ReferralCampaignKey.SharePost,
-      ),
+      link: post.commentsPermalink,
+      shorten: true,
+      cid: ReferralCampaignKey.SharePost,
     });
   };
 
@@ -54,7 +49,7 @@ export function PostMenuOptions({
     <>
       {/* Beside the menu rather than in any one header: every post type builds
           its own header, and this is the only control all of them share. */}
-      {isCopyLinkEnabled && post && (
+      {post && (
         <Tooltip side="bottom" content="Copy link">
           <Button
             aria-label="Copy link"

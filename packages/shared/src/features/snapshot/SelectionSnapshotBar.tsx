@@ -70,14 +70,21 @@ export function SelectionSnapshotBar({
     [getShortUrl, post.commentsPermalink],
   );
 
-  const onCopyLink = useCallback(async () => {
+  const onCopyLink = useCallback(() => {
     logEvent(
       postLogEvent(LogEvent.SharePost, post, {
         extra: { provider: ShareProvider.CopyLink, origin: Origin.PostContent },
       }),
     );
-    copyLink({ link: await getTrackedLink() });
-  }, [copyLink, getTrackedLink, logEvent, post]);
+    // `shorten`, not an awaited short URL: the write has to stay inside the
+    // task that handled the click or Safari refuses it. Snapshot still uses
+    // getTrackedLink, whose ClipboardItem carries the pending promise itself.
+    copyLink({
+      link: post.commentsPermalink,
+      shorten: true,
+      cid: ReferralCampaignKey.SharePost,
+    });
+  }, [copyLink, logEvent, post]);
 
   useEffect(() => {
     if (selection) {

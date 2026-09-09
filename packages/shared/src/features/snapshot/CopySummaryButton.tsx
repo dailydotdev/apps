@@ -11,10 +11,6 @@ import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { useGetShortUrl } from '../../hooks';
 import { ReferralCampaignKey } from '../../lib/referral';
-import {
-  ToastType,
-  useToastNotification,
-} from '../../hooks/useToastNotification';
 
 /**
  * #6350's Copy summary. One press puts the headline, the TLDR and the link on
@@ -35,26 +31,20 @@ export function CopySummaryButton({
 }): ReactElement {
   const [copied, copy] = useCopyText();
   const { getShortUrl } = useGetShortUrl();
-  const { displayToast } = useToastNotification();
 
-  // The clipboard rejects outright when the document is not focused, and a
-  // press that reports nothing at all reads as a dead button.
+  // The payload is one block of text rather than a link, so it cannot go on
+  // the clipboard as a pending ClipboardItem the way a bare link can — the
+  // shortener has to answer first. useCopyText reports a blocked clipboard.
   const onCopy = useCallback(async () => {
-    try {
-      // The tracked short link, like every other copy on the page — a raw
-      // permalink pasted into a thread is attributed to nobody.
-      const shortLink = await getShortUrl(link, ReferralCampaignKey.SharePost);
+    // The tracked short link, like every other copy on the page — a raw
+    // permalink pasted into a thread is attributed to nobody.
+    const shortLink = await getShortUrl(link, ReferralCampaignKey.SharePost);
 
-      await copy({
-        textToCopy: [title, summary, shortLink].join('\n\n'),
-        message: '✅ Copied summary',
-      });
-    } catch {
-      displayToast('❌ Your browser blocked the clipboard', {
-        variant: ToastType.Error,
-      });
-    }
-  }, [copy, displayToast, getShortUrl, link, summary, title]);
+    await copy({
+      textToCopy: [title, summary, shortLink].join('\n\n'),
+      message: '✅ Copied summary',
+    });
+  }, [copy, getShortUrl, link, summary, title]);
 
   return (
     <Tooltip content="Copy summary">

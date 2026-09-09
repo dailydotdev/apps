@@ -15,7 +15,6 @@ import type {
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
-import { playShutterSound } from '../../features/snapshot/shutterSound';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
 
@@ -75,7 +74,6 @@ export function SnapshotButton({
       // Every placement sits inside a clickable card, row or link.
       event.preventDefault();
       event.stopPropagation();
-      playShutterSound();
       setIsFlashing(true);
       flashTimeout.current = setTimeout(
         () => setIsFlashing(false),

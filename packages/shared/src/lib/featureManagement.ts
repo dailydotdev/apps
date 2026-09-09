@@ -30,14 +30,6 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
-export const featureSnapshotSelectionShare = new Feature(
-  'snapshot_selection_share',
-  false,
-);
-export const featurePostCopySummary = new Feature('post_copy_summary', false);
-export const featurePostSharePrompts = new Feature('post_share_prompts', false);
-export const featurePollSnapshot = new Feature('poll_snapshot', false);
-export const featurePostCopyLink = new Feature('post_copy_link', false);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{

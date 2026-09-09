@@ -1,6 +1,5 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import post, {
@@ -10,10 +9,6 @@ import post, {
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
-import {
-  featurePostCopySummary,
-  featureSnapshotSelectionShare,
-} from '../../../lib/featureManagement';
 import { getPostByIdKey } from '../../../lib/query';
 import { PostFocusCard } from './PostFocusCard';
 
@@ -54,16 +49,12 @@ const sharedFreeformPost: Post = {
 const renderCard = (
   postToRender: Post,
   options: {
-    gb?: GrowthBook;
     onClose?: () => void;
     client?: QueryClient;
   } = {},
 ) =>
   render(
-    <TestBootProvider
-      client={options.client ?? new QueryClient()}
-      gb={options.gb}
-    >
+    <TestBootProvider client={options.client ?? new QueryClient()}>
       <PostFocusCard
         post={postToRender}
         origin={Origin.ArticlePage}
@@ -169,13 +160,6 @@ describe('PostFocusCard share placements', () => {
     'They optimised the product they had instead of the one their customers were moving to.';
   const summaryPost: Post = { ...post, summary: QUOTE };
 
-  const withFlag = (feature: { id: string }) => {
-    const gb = new GrowthBook();
-    gb.setFeatures({ [feature.id]: { defaultValue: true } });
-
-    return gb;
-  };
-
   beforeAll(() => {
     // jsdom has no layout, and the bar refuses a selection it cannot place.
     Range.prototype.getBoundingClientRect = () =>
@@ -183,21 +167,15 @@ describe('PostFocusCard share placements', () => {
   });
 
   it('runs copy summary into the end of the TLDR', () => {
-    renderCard(summaryPost, { gb: withFlag(featurePostCopySummary) });
+    renderCard(summaryPost);
 
     expect(screen.getByTestId('tldr-container')).toContainElement(
       screen.getByLabelText('Copy summary'),
     );
   });
 
-  it('leaves the TLDR alone when copy summary is disabled', () => {
-    renderCard(summaryPost);
-
-    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
-  });
-
   it('offers a snapshot of a quote selected in the card', () => {
-    renderCard(summaryPost, { gb: withFlag(featureSnapshotSelectionShare) });
+    renderCard(summaryPost);
 
     const node = screen.getByTestId('tldr-container').firstChild as Node;
     const range = document.createRange();
@@ -211,23 +189,6 @@ describe('PostFocusCard share placements', () => {
     expect(
       screen.getByRole('toolbar', { name: 'Share selected text' }),
     ).toBeInTheDocument();
-  });
-
-  it('keeps the bar away from a selection when the flag is off', () => {
-    renderCard(summaryPost);
-
-    const node = screen.getByTestId('tldr-container').firstChild as Node;
-    const range = document.createRange();
-    range.setStart(node, 0);
-    range.setEnd(node, node.textContent?.length ?? 0);
-    const selection = window.getSelection();
-    selection?.removeAllRanges();
-    selection?.addRange(range);
-    fireEvent.pointerUp(document);
-
-    expect(
-      screen.queryByRole('toolbar', { name: 'Share selected text' }),
-    ).not.toBeInTheDocument();
   });
 });
 

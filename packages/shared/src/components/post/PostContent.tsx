@@ -18,11 +18,7 @@ import YoutubeVideo from '../video/YoutubeVideo';
 import { useTrackPostView } from '../../hooks/post/useTrackPostView';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
-import {
-  feature,
-  featurePostCopySummary,
-  featureSnapshotSelectionShare,
-} from '../../lib/featureManagement';
+import { feature } from '../../lib/featureManagement';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
@@ -32,7 +28,6 @@ import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
 import { CopySummaryButton } from '../../features/snapshot/CopySummaryButton';
-import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import {
   CommunitySentiment,
@@ -126,17 +121,6 @@ export function PostContentRaw({
     ? mapCommunitySentimentPost(post.communitySentiment)
     : undefined;
   const showCommunitySentiment = !!communitySentimentData;
-  // Page and modal both: a reader highlights a line wherever they are reading
-  // it, and the modal is where most of the reading on desktop happens.
-  const isSelectionSnapshotEnabled = useSharePlacement({
-    feature: featureSnapshotSelectionShare,
-  });
-  // Only where there is a summary to copy, so posts without one stay out of
-  // the experiment entirely.
-  const isCopySummaryEnabled = useSharePlacement({
-    feature: featurePostCopySummary,
-    shouldEvaluate: isPostPage && !!post.summary,
-  });
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const hasToc = (post.toc?.length ?? 0) > 0;
@@ -179,9 +163,10 @@ export function PostContentRaw({
       )}
       data-testid="postContainer"
     >
-      {isSelectionSnapshotEnabled && (
-        <SelectionSnapshotBar containerRef={postContainerRef} post={post} />
-      )}
+      {/* Page and modal both: a reader highlights a line wherever they are
+          reading it, and the modal is where most of the reading on desktop
+          happens. */}
+      <SelectionSnapshotBar containerRef={postContainerRef} post={post} />
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
@@ -237,7 +222,7 @@ export function PostContentRaw({
               {/* The segmented summary is the page's own render prop, with ad
                   slots between the parts, so the icon cannot run into the last
                   line the way it does below — it trails the block instead. */}
-              {isCopySummaryEnabled && (
+              {isPostPage && (
                 <div className="-mt-4 mb-6 flex">
                   <CopySummaryButton
                     link={post.commentsPermalink}
@@ -259,7 +244,7 @@ export function PostContentRaw({
                 data-testid="tldr-container"
               >
                 {post.summary}
-                {isCopySummaryEnabled && (
+                {isPostPage && (
                   <CopySummaryButton
                     link={post.commentsPermalink}
                     summary={post.summary}

@@ -22,8 +22,6 @@ import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
 import usePoll from '../../../hooks/usePoll';
 import PollOptions from '../../cards/poll/PollOptions';
 import { PollSnapshotButton } from '../../../features/snapshot/PollSnapshotButton';
-import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
-import { featurePollSnapshot } from '../../../lib/featureManagement';
 import PostMetadata from '../../cards/common/PostMetadata';
 import { PostTagList } from '../tags/PostTagList';
 import { Typography, TypographyType } from '../../typography/Typography';
@@ -53,11 +51,8 @@ function PollPostContentRaw({
   const [justVoted, setJustVoted] = useState(false);
   const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
   // Only where there is a result to share: an unvoted poll has nothing to
-  // put in the image, so those posts stay out of the experiment.
-  const isPollSnapshotEnabled = useSharePlacement({
-    feature: featurePollSnapshot,
-    shouldEvaluate: !!post?.numPollVotes,
-  });
+  // put in the image.
+  const hasPollResults = !!post?.numPollVotes;
   const router = useRouter();
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
@@ -237,7 +232,7 @@ function PollPostContentRaw({
                 endsAt={post?.endsAt}
                 shouldAnimateResults={shouldAnimateResults}
               />
-              {isPollSnapshotEnabled && (
+              {hasPollResults && (
                 <div className="mt-2 flex justify-end">
                   <PollSnapshotButton post={post} showLabel={false} />
                 </div>
@@ -252,7 +247,7 @@ function PollPostContentRaw({
                     <Typography bold>Why did you vote this way?</Typography>
                   </div>
                   <div className="flex items-center gap-2">
-                    {isPollSnapshotEnabled && (
+                    {hasPollResults && (
                       <PollSnapshotButton
                         post={post}
                         size={ButtonSize.XSmall}
