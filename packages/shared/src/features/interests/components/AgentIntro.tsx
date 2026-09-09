@@ -8,13 +8,17 @@ import {
 import { FlexRow } from '../../../components/utilities';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { UserInterestStatus } from '../../../graphql/interests';
+import {
+  UserInterestCadence,
+  UserInterestStatus,
+} from '../../../graphql/interests';
 import { useAgent } from '../AgentContext';
 
-const cadenceCopy: Record<string, string> = {
-  hourly: 'every hour',
-  daily: 'every day',
-  weekly: 'every week',
+const cadenceCopy: Record<UserInterestCadence, string> = {
+  [UserInterestCadence.Auto]: 'auto',
+  [UserInterestCadence.Hourly]: 'every hour',
+  [UserInterestCadence.Daily]: 'every day',
+  [UserInterestCadence.Weekly]: 'every week',
 };
 
 export const AgentIntro = ({
@@ -27,7 +31,7 @@ export const AgentIntro = ({
   const { interest, status } = useAgent();
   const isOnboarding = status === UserInterestStatus.Onboarding;
   const isPaused = !isOnboarding && status !== UserInterestStatus.Active;
-  const cadence = cadenceCopy[interest?.cadence ?? 'daily'];
+  const cadence = cadenceCopy[interest?.cadence ?? UserInterestCadence.Auto];
 
   return (
     <FlexRow className="flex-wrap items-center gap-x-1.5 gap-y-1 border-b border-border-subtlest-quaternary pb-4">

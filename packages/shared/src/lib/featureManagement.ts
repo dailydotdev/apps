@@ -30,17 +30,6 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
-// Experiment: community takes — an LLM-generated digest of what the developer
-// community on HN/Lobsters thinks about a post. Control hides the surface,
-// treatment shows it. Enrollment is conditional on the post actually having a
-// take (see PostFocusCard's `shouldEvaluate`), so exposure is only logged when
-// there's something to show — take-less posts never dilute the split. Backend
-// generation is unconditional; this flag gates rendering only, so flipping it
-// needs no data backfill. Default MUST stay `false` — see the rule below.
-export const featureCommunitySentiment = new Feature(
-  'community_sentiment',
-  false,
-);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
@@ -260,8 +249,9 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 
 /**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds with
- * the breaking-news ticker under it. While the strip carries those headlines,
- * the feed drops its Happening Now card, so the two never show it twice.
+ * a headlines ticker under it. The ticker carries the `statuslineFeed` mix; the
+ * feed keeps its own Happening Now card either way, the two showing different
+ * things.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
  * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
@@ -270,7 +260,7 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
-export const featureLayoutV2 = new Feature('layout_v2', false);
+export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 

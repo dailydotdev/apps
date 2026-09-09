@@ -62,6 +62,7 @@ import {
 } from '../typography/Typography';
 import {
   RAIL_ICON_SIZE,
+  RAIL_POPUP_GROUP,
   railDividerBorderClass,
   SHORTCUT_DRAG_MIME,
   isSidebarItemActive,
@@ -395,6 +396,9 @@ const TrayItem = ({
 export interface SidebarShortcutsApi {
   items: SidebarShortcut[];
   resolved: ResolvedShortcut[];
+  // False until the remote settings have answered. Consumers that react to the
+  // list growing need this to tell hydration apart from a pin.
+  isFetched: boolean;
   persist: (next: SidebarShortcut[]) => void;
   addCatalog: (id: string, index?: number) => void;
   removeShortcut: (key: string) => void;
@@ -453,8 +457,11 @@ export const useLegacyShortcutsMigration = (): void => {
 export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const { displayToast } = useToastNotification();
   const { isJobsEnabled } = useJobsFeature();
-  const { flags, updateFlag } = useSettingsContext();
+  const { flags, updateFlag, isRemoteSettingsLoaded } = useSettingsContext();
   const stored = flags?.sidebarShortcuts;
+  // The dock now lives in settings, so "storage has answered" is the remote
+  // settings landing rather than a device-storage read.
+  const isFetched = isRemoteSettingsLoaded;
   const items = useMemo(() => {
     // Drop invalid entries AND de-duplicate by key. Duplicate keys would make
     // React/dnd-kit treat several rows as the same node (all reporting
@@ -608,6 +615,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   return {
     items,
     resolved,
+    isFetched,
     persist,
     addCatalog,
     removeShortcut,
@@ -621,7 +629,17 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 // Add from the tray (drag-from or tap), drag a panel row in to pin it, reorder
 // by dragging, and remove by dragging an icon off the rail — all with an Undo
 // toast. Persisted per-user.
-export const SidebarShortcutsDock = (): ReactElement | null => {
+export interface SidebarShortcutsDockProps {
+  // Sidebar-tour hooks. Both are inert unless the tour feature passes them, so
+  // the dock's own markup is unchanged for everyone else.
+  onCustomizeInteraction?: (interaction: 'hover' | 'open') => void;
+  forceCustomizeVisible?: boolean;
+}
+
+export const SidebarShortcutsDock = ({
+  onCustomizeInteraction,
+  forceCustomizeVisible = false,
+}: SidebarShortcutsDockProps = {}): ReactElement | null => {
   const router = useRouter();
   const { items, persist, addCatalog, removeShortcut, pinPage } =
     useSidebarShortcutItems();
@@ -651,13 +669,12 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
 
   const { isDragging: isAnyDragging, setDragging } = useSidebarDragState();
   // Share the rail popup group so the customize menu is mutually exclusive with
-  // the Support/Settings popups and behaves like them. ('sidebar-rail' must
-  // match RAIL_POPUP_GROUP in SidebarDesktopV2.)
+  // the Support/Settings popups and behaves like them.
   const {
     isOpen: trayOpen,
     onUpdate: setTrayOpen,
     wrapHandler,
-  } = useInteractivePopup('sidebar-rail');
+  } = useInteractivePopup(RAIL_POPUP_GROUP);
   const trayRef = useRef<HTMLDivElement>(null);
   const customizeBtnRef = useRef<HTMLButtonElement>(null);
   useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
@@ -893,7 +910,10 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // pinned the button stays visible by default. The tray being open or a page
   // being dragged in always reveals it regardless of hover.
   const revealOnHover =
-    orderedItems.length === 0 && !trayOpen && !isPageDropActive;
+    orderedItems.length === 0 &&
+    !trayOpen &&
+    !isPageDropActive &&
+    !forceCustomizeVisible;
 
   const activeEntry = activeId
     ? orderedItems.find((entry) => keyOf(entry) === activeId)
@@ -1020,7 +1040,13 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               type="button"
               aria-label="Customize shortcuts"
               aria-expanded={trayOpen}
-              onClick={wrapHandler(() => setTrayOpen(!trayOpen))}
+              onMouseEnter={() => onCustomizeInteraction?.('hover')}
+              onClick={wrapHandler(() => {
+                if (!trayOpen) {
+                  onCustomizeInteraction?.('open');
+                }
+                setTrayOpen(!trayOpen);
+              })}
               className={classNames(
                 dockButtonClass,
                 'active:scale-90',

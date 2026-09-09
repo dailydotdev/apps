@@ -812,8 +812,10 @@ export default function MainFeedLayout({
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           {/* Sort options as pill tabs — same navbar as the Tags / Squad
-              directory pages, not the underlined TabContainer. */}
-          <FeedExploreTabs />
+              directory pages, not the underlined TabContainer. `tab`/
+              `onTabChange` are the same pair v1 hands FeedExploreHeader, so
+              the extension switches the feed in place here too. */}
+          <FeedExploreTabs tab={tab} setTab={onTabChange} />
         </header>
       )}
       {showFeedV2PageHeader && (
