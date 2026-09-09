@@ -19,6 +19,12 @@ export interface ReadTopLeaderboardProps {
    * would ride the other surface's flag gating.
    */
   phoneSlot?: number;
+  /**
+   * False while PhoneTopAdStrip carries the phone unit instead, so the twin
+   * is not requested twice. The wrapper then hides on phones as well, or its
+   * padding would stay behind as an empty band above the header.
+   */
+  phoneTwin?: boolean;
   surface?: 'read' | 'organic';
   className?: string;
 }
@@ -37,6 +43,7 @@ export function ReadTopLeaderboard({
   released,
   slot = READ_SLOT.topLeaderboard,
   phoneSlot = READ_SLOT.topLeaderboardPhone,
+  phoneTwin = true,
   surface = 'read',
   className,
 }: ReadTopLeaderboardProps): ReactElement {
@@ -53,6 +60,7 @@ export function ReadTopLeaderboard({
         // hidden wrapper never intersects, so the twin never requests. A raw
         // media query because the screens config rules out max-* variants.
         '-mx-4 tablet:mx-0 [@media(max-width:19.9375rem)]:hidden',
+        !phoneTwin && 'hidden tablet:block',
         className,
         // --sticky-header-offset is published by MainLayout and matches the
         // fixed chrome this layout actually has: 4rem for the v1 header, 0 on
@@ -85,13 +93,15 @@ export function ReadTopLeaderboard({
           initialise the visible one out of order, and both sit at the top of
           the page where the intersection observer fires on first paint
           anyway. A hidden ins never intersects, so exactly one requests. */}
-      <ReadAdSlot
-        slot={phoneSlot}
-        surface={surface}
-        format={ReadAdFormat.MobileBanner}
-        className="tablet:hidden"
-        refreshes
-      />
+      {phoneTwin && (
+        <ReadAdSlot
+          slot={phoneSlot}
+          surface={surface}
+          format={ReadAdFormat.MobileBanner}
+          className="tablet:hidden"
+          refreshes
+        />
+      )}
       <ReadAdSlot
         slot={slot}
         surface={surface}

@@ -8,6 +8,8 @@ import {
   ReadAdSlot,
 } from '@dailydotdev/shared/src/components/post/read/ReadAdSlot';
 import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read/ReadTopLeaderboard';
+import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
+import { usePinnedPhoneBanner } from '@dailydotdev/shared/src/components/post/read/usePinnedPhoneBanner';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   ADSENSE_SCRIPT_SRC,
@@ -238,6 +240,7 @@ export const PostPage = ({
   // fill.
   const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
   const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
+  const pinnedPhoneBanner = usePinnedPhoneBanner();
   // The same in-content treatment the /articles template ships, reused on
   // the organic page: the TLDR splits at the shared cadence with an MPU
   // between segments (phones keep only the first), an MPU sits above the
@@ -441,6 +444,7 @@ export const PostPage = ({
                     surface="organic"
                     slot={ORGANIC_SLOT.topLeaderboard}
                     phoneSlot={ORGANIC_SLOT.topLeaderboardPhone}
+                    phoneTwin={!pinnedPhoneBanner}
                   />
                 ) : undefined
               }
@@ -509,7 +513,13 @@ export const PostPage = ({
 PostPage.getLayout = getLayout;
 PostPage.layoutProps = {
   screenCentered: false,
-  customBanner: <CustomAuthBanner />,
+  // Strip first: both pin, and the banner's top offset is the strip's height.
+  customBanner: (
+    <>
+      <PhoneTopAdStrip surface="organic" />
+      <CustomAuthBanner />
+    </>
+  ),
 };
 
 export default PostPage;
