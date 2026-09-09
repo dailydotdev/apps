@@ -77,17 +77,16 @@ export const useSlackShareButton = ({
   return { onClick };
 };
 
-const hasSlackShareReturnParams = (postId?: string): boolean => {
-  if (!postId || typeof window === 'undefined') {
-    return false;
+const readSlackShareReturnPostId = (): string | undefined => {
+  if (typeof window === 'undefined') {
+    return undefined;
   }
 
   const params = new URLSearchParams(window.location.search);
 
-  return (
-    params.get('lzym') === LazyModal.SlackShare &&
-    params.get(postIdParam) === postId
-  );
+  return params.get('lzym') === LazyModal.SlackShare
+    ? params.get(postIdParam) ?? undefined
+    : undefined;
 };
 
 /**
@@ -98,17 +97,20 @@ const hasSlackShareReturnParams = (postId?: string): boolean => {
  */
 export const useSlackShareReturn = ({ post }: { post?: Post }): void => {
   const { openModal } = useLazyModal();
-  const [isReturning] = useState(() => hasSlackShareReturnParams(post?.id));
-  const { integration, isLoading } = useSlackShare({ enabled: isReturning });
+  // read once from the location, and deliberately not keyed on the post: the
+  // post arrives a render later than the URL does, so a latch that consulted it
+  // would conclude there was nothing to return to
+  const [returnPostId] = useState(readSlackShareReturnPostId);
+  const { integration, isLoading } = useSlackShare({ enabled: !!returnPostId });
   const reopened = useRef(false);
 
   useEffect(() => {
     if (
-      !isReturning ||
+      !returnPostId ||
       reopened.current ||
       isLoading ||
       !integration ||
-      !post
+      post?.id !== returnPostId
     ) {
       return;
     }
@@ -126,5 +128,5 @@ export const useSlackShareReturn = ({ post }: { post?: Post }): void => {
     );
 
     openModal({ type: LazyModal.SlackShare, props: { post } });
-  }, [isReturning, isLoading, integration, post, openModal]);
+  }, [returnPostId, isLoading, integration, post, openModal]);
 };

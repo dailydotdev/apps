@@ -40,7 +40,7 @@ export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
 const channelLabel = (name: string) =>
   name.startsWith('#') ? name : `#${name}`;
 
-const maxVisibleChannels = 50;
+const maxVisibleChannels = 20;
 
 const SlackShareModal = ({
   post,

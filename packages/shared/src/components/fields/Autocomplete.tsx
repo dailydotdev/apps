@@ -39,7 +39,9 @@ const Autocomplete = ({
   const [input, setInput] = useState(defaultValue || '');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedOption, setSelectedOption] = useState(undefined);
+  const [selectedOption, setSelectedOption] = useState<
+    AutocompleteOption | undefined
+  >(undefined);
 
   /* 
    To prevent flickering of the selected option image as the user types.
@@ -112,7 +114,9 @@ const Autocomplete = ({
           />
         </PopoverAnchor>
         <PopoverContent
-          className="rounded-16 border border-border-subtlest-tertiary bg-background-popover data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+          // sameWidthAsAnchor caps the height but nothing scrolls, so a long
+          // list renders past the popover and over the page behind it
+          className="overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-background-popover data-[side=bottom]:mt-1 data-[side=top]:mb-1"
           side="bottom"
           align="start"
           avoidCollisions
