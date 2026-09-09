@@ -184,6 +184,9 @@ const SlackShareModal = ({
           )}
           <Autocomplete
             name="slack-channel"
+            // secondary drops Autocomplete's own heading, which would otherwise
+            // repeat the label the field already floats above the input
+            fieldType="secondary"
             label="All channels"
             placeholder={
               isFetchingAll ? 'Loading channels' : 'Search for a channel'
