@@ -1,4 +1,6 @@
+import { getPostTitle } from '../../graphql/posts';
 import type { AgentBlock, AgentMessage } from './chat';
+import { isPostsBlock } from './chat';
 
 // For attribute position: a quote in an API title would otherwise close it.
 const escapeAttribute = (value: string) =>
@@ -37,8 +39,17 @@ export const messageAsMarkdown = (message: AgentMessage): string =>
         return blockParagraphs(block).join('\n\n');
       }
 
+      if (!isPostsBlock(block)) {
+        return '';
+      }
+
       const links = block.posts
-        .map((post) => `- [${post.title}](${post.commentsPermalink})`)
+        .map(
+          (post) =>
+            `- [${getPostTitle(post) ?? 'Untitled post'}](${
+              post.commentsPermalink
+            })`,
+        )
         .join('\n');
 
       return block.type === 'feedLink'
@@ -57,12 +68,16 @@ export const messageAsHtml = (message: AgentMessage): string =>
         return block.html;
       }
 
+      if (!isPostsBlock(block)) {
+        return '';
+      }
+
       const items = block.posts
         .map(
           (post) =>
             `<li><a href="${escapeAttribute(
               post.commentsPermalink,
-            )}">${escapeHtml(post.title ?? '')}</a></li>`,
+            )}">${escapeHtml(getPostTitle(post) ?? 'Untitled post')}</a></li>`,
         )
         .join('');
       const caption = block.type === 'feedLink' ? block.label : block.caption;

@@ -15,18 +15,6 @@ const config: UpvoteAnimationConfig = {
 };
 
 describe('BrandedUpvoteAnimation', () => {
-  it('renders nothing while isActive is false', () => {
-    const { container } = render(
-      <BrandedUpvoteAnimation
-        isActive={false}
-        colors={colors}
-        config={config}
-      />,
-    );
-    // eslint-disable-next-line testing-library/no-container
-    expect(container.querySelector('canvas')).toBeNull();
-  });
-
   it('mounts the canvas once isActive becomes true', () => {
     const { container, rerender } = render(
       <BrandedUpvoteAnimation

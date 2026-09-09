@@ -16,7 +16,7 @@ import {
   ClaimedChip,
   OfferLogo,
   offerBadgeLabels,
-} from '@dailydotdev/shared/src/components/streak/offers/common';
+} from '@dailydotdev/shared/src/components/quest/offers/common';
 import type { UserOffer } from '@dailydotdev/shared/src/graphql/offers';
 import {
   confirmOffersDelivered,
@@ -155,7 +155,7 @@ export const ClaimableGifts = ({
   const { data: offers = [] } = useQuery({
     ...userOffersQueryOptions({
       user,
-      placement: OfferPlacement.StreakMilestone,
+      placement: OfferPlacement.QuestCompletion,
     }),
     enabled: !!user?.id,
   });
@@ -177,7 +177,7 @@ export const ClaimableGifts = ({
     fresh.forEach((offer) =>
       logEvent({
         event_name: LogEvent.Impression,
-        target_type: TargetType.StreakOffer,
+        target_type: TargetType.QuestOffer,
         target_id: offer.impressionUid,
         extra: JSON.stringify({
           brand: offer.advertiserName,
@@ -191,7 +191,7 @@ export const ClaimableGifts = ({
     (offer: UserOffer) => {
       logEvent({
         event_name: LogEvent.Click,
-        target_type: TargetType.StreakOffer,
+        target_type: TargetType.QuestOffer,
         target_id: offer.impressionUid,
         extra: JSON.stringify({
           brand: offer.advertiserName,

@@ -32,18 +32,25 @@ import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
-import { FEEDBACK_MARKER_REGEX } from '../chat';
+import { FEEDBACK_MARKER_REGEX, promptWithContext } from '../chat';
 import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
 import { transcriptProse } from '../prose';
 import { messageAsMarkdown, messageAsText } from '../replyText';
 import { AgentShareReplyModal } from './AgentShareReplyModal';
-import { feedAttachment, quoteAttachment } from '../attachments';
+import {
+  feedAttachment,
+  messagePostAttachments,
+  quoteAttachment,
+} from '../attachments';
 import { AgentPickList } from './AgentPickList';
 import { AgentAttachmentChip } from './AgentAttachmentChip';
 import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
 import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
+import { AgentBriefBlock } from './AgentBriefBlock';
+import { AgentQuestionBlock } from './AgentQuestionBlock';
+import { AgentReviewBlock } from './AgentReviewBlock';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 
 const postLinkId = (href: string): string | undefined => {
@@ -79,6 +86,18 @@ const BlockRenderer = ({
   onPostLinkClick: (postId: string) => void;
   activePostId?: string;
 }): ReactElement => {
+  if (block.type === 'question') {
+    return <AgentQuestionBlock block={block} />;
+  }
+
+  if (block.type === 'review') {
+    return <AgentReviewBlock />;
+  }
+
+  if (block.type === 'brief') {
+    return <AgentBriefBlock html={block.html} brief={block.brief} />;
+  }
+
   if (block.type === 'text') {
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
@@ -180,11 +199,14 @@ const MessageActions = ({
 
     setVote(next);
     const text = messageAsText(message);
+    const excerpt = `${
+      next === 'up' ? 'More' : 'Fewer'
+    } replies like this one: "${text.slice(0, 140)}"`;
+
+    // The excerpt alone gives the agent nothing to act on: the posts the reply
+    // cited go along as markers, the same way attached chips are flattened.
     sendFeedback(
-      `${next === 'up' ? 'More' : 'Fewer'} replies like this one: "${text.slice(
-        0,
-        140,
-      )}"`,
+      promptWithContext(excerpt, messagePostAttachments(message)),
     ).catch(() => setVote(undefined));
   };
 
@@ -204,6 +226,9 @@ const MessageActions = ({
     if (text) {
       attachContext(quoteAttachment(text));
     }
+
+    // The quote is for the reader; the posts are what the API can resolve.
+    messagePostAttachments(message).forEach(attachContext);
 
     writeDraft(
       vote === 'down'
@@ -322,7 +347,7 @@ const ErrorTurn = ({ message }: { message: AgentMessage }): ReactElement => {
         color={TypographyColor.Tertiary}
         className="min-w-0 flex-1"
       >
-        Something went wrong and this run didn&apos;t finish.
+        Something went wrong and this didn&apos;t finish.
       </Typography>
       {retryText && (
         <Button
@@ -457,7 +482,10 @@ const MessageRow = ({
               activePostId={activePostId}
             />
           ))}
-          {!!message.blocks?.length && <MessageActions message={message} />}
+          {message.blocks?.some(
+            ({ type }) =>
+              type !== 'question' && type !== 'review' && type !== 'brief',
+          ) && <MessageActions message={message} />}
         </>
       )}
     </FlexCol>

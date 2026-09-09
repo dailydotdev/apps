@@ -27,11 +27,7 @@ const meta: Meta<typeof AgentWorkspace> = {
           findings={mockFeedItems}
           posts={mockAgentPosts}
         >
-          <AgentWorkspace
-            items={mockFeedItems}
-            onDelete={noop}
-            isDeleting={false}
-          />
+          <AgentWorkspace items={mockFeedItems} />
         </AgentProvider>
       </div>
     </AgentDemoProviders>

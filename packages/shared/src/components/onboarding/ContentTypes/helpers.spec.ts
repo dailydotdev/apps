@@ -2,11 +2,11 @@ import { getContentTypeNotEmpty, withoutRetiredTitles } from './helpers';
 import type { AdvancedSettings } from '../../../graphql/feedSettings';
 import { AdvancedSettingsGroup } from '../../../graphql/feedSettings';
 
-// The two titles the funnel retires, verbatim from the `advancedSettings`
+// The title the funnel retires, verbatim from the `advancedSettings`
 // query. They join on display copy, so a backend rename un-retires the cards
 // silently — this fixture is the tripwire: update it to match a rename and
 // these tests go red, which is the signal to re-key the filter.
-const RETIRED = ['Community picks', 'Standups'];
+const RETIRED = ['Community picks'];
 
 const settings: AdvancedSettings[] = [
   {
@@ -16,13 +16,6 @@ const settings: AdvancedSettings[] = [
     defaultEnabledState: true,
     group: AdvancedSettingsGroup.ContentSource,
     options: { source: { id: 'community', handle: 'community' } },
-  },
-  {
-    id: 25,
-    title: 'Standups',
-    description: 'Live standup posts.',
-    defaultEnabledState: true,
-    group: AdvancedSettingsGroup.ContentTypes,
   },
   {
     id: 9,
@@ -41,8 +34,8 @@ describe('withoutRetiredTitles', () => {
   });
 
   it('keeps them everywhere else', () => {
-    expect(withoutRetiredTitles(settings, false)).toHaveLength(3);
-    expect(withoutRetiredTitles(settings)).toHaveLength(3);
+    expect(withoutRetiredTitles(settings, false)).toHaveLength(2);
+    expect(withoutRetiredTitles(settings)).toHaveLength(2);
   });
 
   it('still matches the titles it is meant to retire', () => {
@@ -61,7 +54,7 @@ describe('getContentTypeNotEmpty', () => {
     expect(
       getContentTypeNotEmpty({
         advancedSettings: settings,
-        selectedSettings: { 8: true, 25: true, 9: false },
+        selectedSettings: { 8: true, 9: false },
         checkSourceBlocked,
         isOnboarding: true,
       }),
@@ -72,7 +65,7 @@ describe('getContentTypeNotEmpty', () => {
     expect(
       getContentTypeNotEmpty({
         advancedSettings: settings,
-        selectedSettings: { 8: false, 25: false, 9: true },
+        selectedSettings: { 8: false, 9: true },
         checkSourceBlocked,
         isOnboarding: true,
       }),

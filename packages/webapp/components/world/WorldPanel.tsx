@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { memo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
@@ -17,8 +17,8 @@ import {
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   ArrowIcon,
+  HammerIcon,
   InfoIcon,
-  SettingsIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
@@ -37,6 +37,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { Author } from '@dailydotdev/shared/src/graphql/comments';
 import type { WorldDistrict } from '../../graphql/world';
+import { WorldBuild } from './WorldBuild';
 import { WorldCustomizeRail } from './WorldCustomize';
 import { WorldGuideRail } from './WorldGuide';
 import { WorldImmersiveToggle } from './WorldMark';
@@ -46,6 +47,7 @@ import { WorldSignupCta } from './WorldSignupCta';
 import { WorldStats } from './WorldStats';
 import { WorldViewerAction } from './WorldViewerAction';
 import { levelProgress, REALM_DIV } from './ladder';
+import type { WorldBuildState } from './useWorldAuthoring';
 import type { WorldDraft } from './useWorldDraft';
 import type { WorldRankRow, WorldState } from './worldState';
 
@@ -118,7 +120,7 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
   /** False on a world its owner has hidden: the link would open on a wall. */
   canShare: boolean;
   onToggleImmersive: () => void;
-  /** Only on your own world: nobody else's place is yours to dress. */
+  /** One entry for programming and appearance on the owner's world. */
   onCustomize?: () => void;
   onLeaveRealm: () => void;
 }): ReactElement {
@@ -166,13 +168,13 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
             <WorldShare user={user} worldName={worldName} isOwn={isOwn} />
           )}
           {!!onCustomize && (
-            <Tooltip content="Make it yours">
+            <Tooltip content="Customize your world">
               <Button
                 type="button"
-                aria-label="Customise this world"
+                aria-label="Customize this world"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
-                icon={<SettingsIcon />}
+                icon={<HammerIcon />}
                 onClick={onCustomize}
               />
             </Tooltip>
@@ -261,6 +263,8 @@ interface WorldPanelProps {
   districts?: WorldDistrict[];
   /** The owner has never made this place theirs. */
   showNudge?: boolean;
+  /** Only ever set for the owner of a standing world: authoring is theirs alone. */
+  build?: WorldBuildState;
   onToggleImmersive: () => void;
   onFocus: (key: string) => void;
   onLeaveRealm: () => void;
@@ -268,6 +272,32 @@ interface WorldPanelProps {
 
 const RAIL =
   'pointer-events-auto absolute inset-y-0 left-0 z-1 flex w-80 flex-col gap-3 overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default p-4';
+
+/* The builder is memoised against the engine's per-frame state pushes, so its
+   callbacks have to hold still too. */
+function WorldBuildRail({
+  build,
+  draft,
+}: {
+  build: WorldBuildState;
+  draft?: WorldDraft;
+}): ReactElement {
+  const { close } = build;
+  const open = draft?.open;
+  const onAppearance = useCallback(() => {
+    close();
+    open?.();
+  }, [close, open]);
+
+  return (
+    <WorldBuild
+      handle={build.handle}
+      authoring={build.authoring}
+      onAppearance={onAppearance}
+      onClose={close}
+    />
+  );
+}
 
 /**
  * The lab's left rail: who this world belongs to and what is in it. Every
@@ -286,6 +316,7 @@ function WorldPanelRail({
   draft,
   districts,
   showNudge,
+  build,
   onToggleImmersive,
   onFocus,
   onLeaveRealm,
@@ -302,7 +333,31 @@ function WorldPanelRail({
         draft={draft}
         districts={districts}
         settings={draft.settings}
+        onProgram={
+          build
+            ? async () => {
+                /* Saves rather than cancels: the bench previews live, so
+                   whatever the owner dressed on the way here is what they
+                   meant. A failed write keeps the bench open with its error
+                   and the builder stays shut. */
+                if (await draft.save()) {
+                  build.open();
+                }
+              }
+            : undefined
+        }
       />
+    );
+  }
+
+  /* Third mode of the same column. Ahead of the guide because building has a
+     live connection behind it, and behind the dress bench because that one has
+     unsaved state and this one has none. */
+  if (build?.isOpen) {
+    return (
+      <aside data-world-overlay className={RAIL}>
+        <WorldBuildRail build={build} draft={draft} />
+      </aside>
     );
   }
 

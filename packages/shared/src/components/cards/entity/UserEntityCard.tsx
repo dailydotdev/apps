@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from '../../utilities/Link';
 import type { UserShortProfile } from '../../../lib/user';
 import { fallbackImages } from '../../../lib/config';
@@ -9,7 +10,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { DevPlusIcon } from '../../icons';
+import { DevPlusIcon, WorldIcon } from '../../icons';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
@@ -19,22 +20,38 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import AuthContext from '../../../contexts/AuthContext';
-import { ButtonVariant } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
+import { webappUrl } from '../../../lib/constants';
+import { getPostByIdKey } from '../../../lib/query';
 
 type Props = {
   user?: UserShortProfile;
+  // The post query already selects `author.contentPreference`, so cards
+  // rendered from a post seed the follow status from it instead of asking for
+  // it again. Follow/unfollow mutations keep writing to the same key.
+  postId?: string;
   className?: {
     container?: string;
   };
 };
 
-const UserEntityCard = ({ user, className }: Props) => {
+const UserEntityCard = ({ user, postId, className }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  const postUpdatedAt = postId
+    ? queryClient.getQueryState(getPostByIdKey(postId))?.dataUpdatedAt
+    : undefined;
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
+    queryOptions: postUpdatedAt
+      ? {
+          initialData: user?.contentPreference ?? null,
+          initialDataUpdatedAt: postUpdatedAt,
+        }
+      : undefined,
   });
   const { isLoading } = useShowFollowAction({
     entityId: user?.id,
@@ -48,6 +65,7 @@ const UserEntityCard = ({ user, className }: Props) => {
   const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
   const isSameUser = loggedUser?.id === id;
   const showActionBtns = !isLoading && !isSameUser;
+  const worldHref = `${webappUrl}world/${username}`;
 
   return (
     <EntityCard
@@ -60,16 +78,26 @@ const UserEntityCard = ({ user, className }: Props) => {
       }}
       entityName={username}
       actionButtons={
-        showActionBtns && (
-          <FollowButton
-            variant={ButtonVariant.Primary}
-            entityId={id}
-            status={contentPreference?.status}
-            showSubscribe={false}
-            type={ContentPreferenceType.User}
-            entityName={username}
+        <>
+          <Button
+            tag="a"
+            href={worldHref}
+            aria-label={`Visit @${username}'s world`}
+            icon={<WorldIcon />}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Secondary}
           />
-        )
+          {showActionBtns && (
+            <FollowButton
+              variant={ButtonVariant.Primary}
+              entityId={id}
+              status={contentPreference?.status}
+              showSubscribe={false}
+              type={ContentPreferenceType.User}
+              entityName={username}
+            />
+          )}
+        </>
       }
     >
       <div className="mt-2 flex w-full flex-col gap-3">

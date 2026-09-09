@@ -10,17 +10,20 @@ import {
 import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
+import { oneDay } from '../../../lib/dateFormat';
 import { useAgentShellHeight } from '../shell';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
 import { useAgent } from '../AgentContext';
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader';
 import { AgentIntro } from './AgentIntro';
 import { AgentChatSection } from './AgentChatSection';
+import { AgentHistoryEdge } from './AgentHistoryEdge';
+import { AgentEmptyState } from './AgentEmptyState';
 import { AgentComposer } from './AgentComposer';
 import { AgentQuoteAction } from './AgentQuoteAction';
 import { AgentContentPane } from './AgentContentPane';
 import { AgentDebugPanel } from './AgentDebugPanel';
-import { AgentSettingsPane } from './AgentSettingsPane';
 
 // Both columns floor at a mobile-width panel.
 const minPanelWidth = 384;
@@ -28,20 +31,24 @@ const defaultPaneWidth = 480;
 
 export const AgentWorkspace = ({
   items,
-  onDelete,
-  isDeleting,
   isStandalone,
   runId,
   isFeedReady = true,
 }: {
   items: AgentFeedItem[];
-  onDelete: () => void;
-  isDeleting: boolean;
   isStandalone?: boolean;
   runId?: string;
   isFeedReady?: boolean;
 }): ReactElement => {
-  const { isSettingsOpen, openContent, messages, summaryPosts } = useAgent();
+  const {
+    openContent,
+    messages,
+    summaryPosts,
+    isHistoryPending,
+    isRunView,
+    isHistoryLimited,
+    advanceOnboarding,
+  } = useAgent();
   const shellHeight = useAgentShellHeight(isStandalone);
   const [storedWidth, setStoredWidth, isWidthLoaded] =
     usePersistentContext<number>('agentPaneWidth', defaultPaneWidth);
@@ -144,6 +151,26 @@ export const AgentWorkspace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
+  useEffect(() => {
+    const transcript = transcriptRef.current;
+
+    if (isRunView || isHistoryPending || !transcript) {
+      return;
+    }
+
+    transcript.scrollTop = transcript.scrollHeight;
+    isPinnedRef.current = true;
+    setIsAwayFromBottom(false);
+    setHasUnseenReply(false);
+  }, [isHistoryPending, isRunView]);
+
+  const latestMessage = messages[messages.length - 1];
+  const isLatestStale =
+    isHistoryLimited &&
+    !!latestMessage &&
+    !latestMessage.isPending &&
+    Date.now() - new Date(latestMessage.at).getTime() > oneDay * 1000;
+
   const isTailPending = !!messages.at(-1)?.isPending;
 
   useEffect(() => {
@@ -161,6 +188,37 @@ export const AgentWorkspace = ({
     // The reply landing is the trigger; the length is the other effect's.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTailPending]);
+
+  // "Press Enter" has to hold anywhere on the screen, not just in the composer,
+  // whose own handler only fires while the field is focused. Controls that
+  // activate on Enter are left alone below; a pointer-clicked chip blurs itself
+  // so that its Enter reaches here rather than un-picking the chip.
+  useKeyboardNavigation(
+    globalThis?.window,
+    [
+      [
+        'Enter',
+        (event) => {
+          const target = event.target as HTMLElement | null;
+
+          // A focused control activates on Enter by way of the default action,
+          // so preventing it here would cancel the press instead of helping.
+          // They all run the same actions anyway.
+          if (
+            event.shiftKey ||
+            target?.closest('button, a, select, [role="button"]')
+          ) {
+            return;
+          }
+
+          if (advanceOnboarding()) {
+            event.preventDefault();
+          }
+        },
+      ],
+    ],
+    { disableOnTags: ['input', 'textarea'], disabledModalOpened: true },
+  );
 
   useEffect(() => {
     const measure = () => {
@@ -216,55 +274,53 @@ export const AgentWorkspace = ({
       {/* The extra pixel is the pane border's, so both header rules land on the
           same line. */}
       <FlexCol className="min-w-0 flex-1 laptop:pt-[calc(0.5rem+1px)]">
-        {isSettingsOpen ? (
-          <AgentSettingsPane onDelete={onDelete} isDeleting={isDeleting} />
-        ) : (
-          <>
-            <AgentWorkspaceHeader />
-            <div className="relative min-h-0 flex-1">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 -top-px z-1 h-8 bg-gradient-to-b from-background-default to-transparent"
+        <AgentWorkspaceHeader />
+        <div className="relative min-h-0 flex-1">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -top-px z-1 h-8 bg-gradient-to-b from-background-default to-transparent"
+          />
+          <div
+            ref={transcriptRef}
+            onScroll={onTranscriptScroll}
+            className="agent-scroll h-full overflow-y-auto px-5 tablet:px-8 laptop:px-10"
+          >
+            <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pb-14 pt-6">
+              <AgentIntro
+                findingsCount={items.length}
+                postsCount={summaryPosts.length}
               />
-              <div
-                ref={transcriptRef}
-                onScroll={onTranscriptScroll}
-                className="agent-scroll h-full overflow-y-auto px-5 tablet:px-8 laptop:px-10"
-              >
-                <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pb-14 pt-6">
-                  <AgentIntro
-                    findingsCount={items.length}
-                    postsCount={summaryPosts.length}
-                  />
-                  <AgentChatSection
-                    focusedRunId={isFeedReady ? runId : undefined}
-                    onFocusRun={onFocusRun}
-                  />
-                </FlexCol>
-              </div>
-            </div>
-            <AgentQuoteAction containerRef={transcriptRef} />
-            <div className="relative">
-              {isAwayFromBottom && (
-                <Button
-                  icon={
-                    <ArrowIcon size={IconSize.Size16} className="rotate-180" />
-                  }
-                  size={ButtonSize.XSmall}
-                  variant={ButtonVariant.Float}
-                  // Float's surface is an 8% wash, invisible over the scrolling
-                  // transcript, so the background is forced opaque.
-                  className="absolute bottom-full left-1/2 z-1 mb-4 -translate-x-1/2 border-border-subtlest-tertiary !bg-background-subtle shadow-2"
-                  aria-label="Scroll to latest"
-                  onClick={scrollToBottom}
-                >
-                  {hasUnseenReply ? 'New reply' : undefined}
-                </Button>
+              {!isRunView && <AgentHistoryEdge />}
+              {isLatestStale ? (
+                <AgentEmptyState />
+              ) : (
+                <AgentChatSection
+                  focusedRunId={isFeedReady ? runId : undefined}
+                  onFocusRun={onFocusRun}
+                />
               )}
-              <AgentComposer />
-            </div>
-          </>
-        )}
+              {isRunView && <AgentHistoryEdge />}
+            </FlexCol>
+          </div>
+        </div>
+        <AgentQuoteAction containerRef={transcriptRef} />
+        <div className="relative">
+          {isAwayFromBottom && !isRunView && (
+            <Button
+              icon={<ArrowIcon size={IconSize.Size16} className="rotate-180" />}
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Float}
+              // Float's surface is an 8% wash, invisible over the scrolling
+              // transcript, so the background is forced opaque.
+              className="absolute bottom-full left-1/2 z-1 mb-4 -translate-x-1/2 border-border-subtlest-tertiary !bg-background-subtle shadow-2"
+              aria-label="Scroll to latest"
+              onClick={scrollToBottom}
+            >
+              {hasUnseenReply ? 'New reply' : undefined}
+            </Button>
+          )}
+          <AgentComposer />
+        </div>
       </FlexCol>
       {!!openContent.length && (
         <AgentContentPane

@@ -6,6 +6,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { iOSSupportsPlusPurchase } from '../lib/ios';
 import type { PlusSaleConfig } from '../lib/featureManagement';
 import { featurePlusSale } from '../lib/featureManagement';
+import { oneDay } from '../lib/dateFormat';
 
 jest.mock('./useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -43,7 +44,9 @@ const runningSale: PlusSaleConfig = {
   label: '50% off',
   headline: 'Summer sale: 50% off Plus',
   description: 'Code SUMMER50 is already applied. Offer ends August 31.',
-  endDate: '2026-09-01T00:00:00.000Z',
+  // Relative so the fixture stays a *running* sale; a literal date turns
+  // every test below into a time bomb once it passes.
+  endDate: new Date(Date.now() + oneDay * 1000).toISOString(),
 };
 
 // Mirrors the real hook: the committed default (no discount) is returned until

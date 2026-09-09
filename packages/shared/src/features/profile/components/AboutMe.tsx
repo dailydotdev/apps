@@ -18,7 +18,7 @@ import { SimpleTooltip } from '../../../components/tooltips/SimpleTooltip';
 import { useLogContext } from '../../../contexts/LogContext';
 import { combinedClicks } from '../../../lib/click';
 import { LogEvent, TargetType } from '../../../lib/log';
-import { anchorDefaultRel } from '../../../lib/strings';
+import { anchorUgcRel } from '../../../lib/strings';
 import { getUserSocialLinks } from '../../../lib/socialLink';
 
 export interface AboutMeProps {
@@ -68,7 +68,7 @@ export function AboutMe({
                 tag="a"
                 href={link.url}
                 target="_blank"
-                rel={anchorDefaultRel}
+                rel={anchorUgcRel}
                 icon={link.icon}
                 aria-label={link.label}
                 data-testid={`social-link-${link.id}`}

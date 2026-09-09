@@ -6,6 +6,7 @@ import type {
 import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
+import classNames from 'classnames';
 import React, { useContext, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
@@ -46,18 +47,12 @@ import {
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  useFeedLayout,
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
-import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
@@ -70,8 +65,10 @@ import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayout
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
 import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
+import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import Custom404 from '../404';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -229,11 +226,10 @@ const SourcePage = ({
   relatedTags = [],
   topPosts = [],
 }: SourcePageProps): ReactElement => {
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-  const { shouldShowAuthBanner } = useOnboardingActions();
   const { user } = useContext(AuthContext);
+  useRecentPageMeta({ image: source?.image });
   const mostUpvotedQueryVariables = useMemo(
     () => ({
       source: source?.id,
@@ -242,7 +238,6 @@ const SourcePage = ({
         PostType.SocialTwitter,
         PostType.VideoYouTube,
         PostType.Collection,
-        PostType.LiveRoom,
       ],
       period: 365,
     }),
@@ -285,6 +280,9 @@ const SourcePage = ({
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
+        <ExploreSignupStrip
+          className={classNames(pageSectionAutoWidthClassName, 'mb-4')}
+        />
         <ArchiveBreadcrumbs
           items={[
             { label: 'Sources', href: '/sources' },
@@ -407,7 +405,6 @@ const SourcePage = ({
             className={pageFeedClassName}
           />
         </div>
-        {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
       </FeedPageLayoutComponent>
     </>
   );
@@ -482,6 +479,13 @@ export async function getStaticProps({
       openGraph: {
         ...defaultOpenGraph,
         ...seoTitles.openGraph,
+        images: [
+          {
+            url: getShareImageUrl('sources', source.id ?? ''),
+            width: 1200,
+            height: 630,
+          },
+        ],
       },
       description: source?.description || defaultSeo.description,
     };

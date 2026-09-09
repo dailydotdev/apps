@@ -32,6 +32,14 @@ interface BasePostModalProps extends ModalProps {
   navigationContainerClassName?: string;
   navigationHideSubscribeAction?: boolean;
   /**
+   * The classic content layouts render their own action group (menu, boost,
+   * collection subscribe) from laptop up, next to the source line. Set this so
+   * the top strip drops its copy at that breakpoint rather than stacking a
+   * second, identical set right above it. Below laptop the content hides its
+   * group, so the strip stays the only home for these actions.
+   */
+  navigationContentOwnsActions?: boolean;
+  /**
    * Redesign top-bar behavior: hide the top strip's "…" menu (it lives in the
    * focus-card header) and, once scrolled, float a fixed bar with the post
    * stats + "…" menu + close.
@@ -55,6 +63,7 @@ function BasePostModal({
   navigationCustomActions,
   navigationContainerClassName,
   navigationHideSubscribeAction,
+  navigationContentOwnsActions,
   navigationRedesign,
   loadingChildren,
   post,
@@ -115,6 +124,11 @@ function BasePostModal({
           className={classNames(
             className,
             'mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto laptop:overflow-hidden',
+            // A sticky child can only travel within this box. `tablet:h-full`
+            // caps it at one viewport, which would un-stick the header partway
+            // down a long post between tablet and laptop; let it grow with its
+            // content the way it already does from laptop up.
+            navigationRedesign && 'tablet:!h-auto',
             '!overscroll-y-auto', // TODO: remove when fixing modal scroll issues see https://github.com/dailydotdev/daily/issues/2036
           )}
         >
@@ -131,7 +145,18 @@ function BasePostModal({
             <>
               <PostNavigation
                 className={{
-                  container: classNames('px-4', navigationContainerClassName),
+                  container: classNames(
+                    'px-4',
+                    // The redesign card renders no navigation of its own, so
+                    // this strip carries the only close button. Stick it to the
+                    // top of the modal's scroll area rather than letting it
+                    // scroll away with the header.
+                    navigationRedesign && 'sticky top-0 z-postNavigation',
+                    navigationContainerClassName,
+                  ),
+                  actions: navigationContentOwnsActions
+                    ? 'laptop:hidden'
+                    : undefined,
                 }}
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}

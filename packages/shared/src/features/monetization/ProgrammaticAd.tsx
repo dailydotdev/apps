@@ -1,14 +1,14 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AdActions } from '../../lib/ads';
 import { useViewability } from './useViewability';
 import { viewabilityLogExtra } from './viewability';
 import type { AdsenseSlotConfig } from './adsense';
-import { ADSENSE_CLIENT_ID } from './adsense';
+import { ADSENSE_CLIENT_ID, isAdsenseProductionHost } from './adsense';
+import { useAdsenseUtmChannel } from './useAdsenseUtmChannel';
 
 // Module-level, not per-slot: one warning per page load says everything.
 let hasLoggedTestMode = false;
@@ -21,12 +21,19 @@ export enum ProgrammaticAdFormat {
   MediumRectangle = 'mediumRectangle',
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
+  MobileBanner = 'mobileBanner',
   Native = 'native',
 }
 
 type FormatSpec = {
   label: string;
   size: string;
+  /**
+   * Reserves the creative's height PLUS the chrome that renders with it —
+   * the label row (1rem line + pb-1) and the wrapper's py-2, 36px in all —
+   * so the box never grows under the reader when the request lands
+   * in-viewport.
+   */
   minHeight: string;
   /**
    * Caps the slot at its standard IAB width so every creative in a given
@@ -49,14 +56,21 @@ type FormatSpec = {
    * which a fixed pixel size could not do without breaking one of them.
    */
   shape?: 'rectangle' | 'horizontal' | 'vertical';
+  /**
+   * The reservation for the compact wrapper: creative height plus py-1, no
+   * label row. Only formats that render compact anywhere declare it.
+   */
+  compactMinHeight?: string;
 };
 
 export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
-  // Leaderboard on desktop, large mobile banner on a phone.
+  // Leaderboard on desktop; the phone header is the MobileBanner twin below.
+  // The phone cap stays so a Leaderboard left visible on a phone still comes
+  // back as a banner rather than whatever else fits the column.
   [ProgrammaticAdFormat.Leaderboard]: {
     label: 'Leaderboard',
     size: '728x90 · 320x100 mobile',
-    minHeight: 'min-h-[100px] tablet:min-h-[90px]',
+    minHeight: 'min-h-[136px] tablet:min-h-[126px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
     shape: 'horizontal',
   },
@@ -66,7 +80,7 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   [ProgrammaticAdFormat.MediumRectangle]: {
     label: 'Medium rectangle',
     size: '300x250',
-    minHeight: 'min-h-[250px]',
+    minHeight: 'min-h-[286px]',
     maxWidth: 'max-w-[300px]',
     shape: 'rectangle',
   },
@@ -75,21 +89,33 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   [ProgrammaticAdFormat.Rectangle]: {
     label: 'In-content',
     size: '336x280 · 300x250 mobile',
-    minHeight: 'min-h-[250px] tablet:min-h-[180px]',
+    minHeight: 'min-h-[286px] tablet:min-h-[216px]',
     maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
     shape: 'rectangle',
   },
   [ProgrammaticAdFormat.HalfPage]: {
     label: 'Sticky rail',
     size: '300x600',
-    minHeight: 'min-h-[320px]',
+    minHeight: 'min-h-[356px]',
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
+  },
+  // The phone header unit, booked at the fixed 320x50: the smallest standard
+  // size, so the pinned header block takes the least of a phone screen, and a
+  // fixed request can only return its exact size — no expandable or video
+  // creative can answer it, which a responsive request could not rule out.
+  [ProgrammaticAdFormat.MobileBanner]: {
+    label: 'Mobile banner',
+    size: '320x50',
+    minHeight: 'min-h-[86px]',
+    compactMinHeight: 'min-h-[3.625rem]',
+    maxWidth: 'max-w-[320px]',
+    shape: 'horizontal',
   },
   [ProgrammaticAdFormat.Native]: {
     label: 'Native',
     size: 'fluid',
-    minHeight: 'min-h-[96px]',
+    minHeight: 'min-h-[132px]',
   },
 };
 
@@ -152,17 +178,31 @@ function getInsAttributes(
   }
 
   if (config.width && config.height) {
+    // The opt-out applies here too: the units are responsive on the AdSense
+    // side, and without it a phone user agent had the tag rewrite a fixed
+    // 320x50 into a 390x390 with a negative margin, the same full-width
+    // expansion as below.
     return {
       style: {
         display: 'inline-block',
         width: config.width,
         height: config.height,
       },
+      'data-full-width-responsive': 'false',
     };
   }
 
   if (shape) {
-    return { style: { display: 'block' }, 'data-ad-format': shape };
+    // Off explicitly: for a phone user agent AdSense defaults full-width
+    // responsive ON and stretches the ins to the screen width, past the
+    // wrapper's IAB cap — a 390px ins overflowing a 300px card, and a 390x390
+    // request for a horizontal unit that nothing fills. Off, the ins takes
+    // the wrapper's width and the shape decides the height.
+    return {
+      style: { display: 'block' },
+      'data-ad-format': shape,
+      'data-full-width-responsive': 'false',
+    };
   }
 
   return {
@@ -183,12 +223,24 @@ export interface ProgrammaticAdProps {
   /** Drops the slot below the tablet breakpoint (and its request with it). */
   hideOnPhone?: boolean;
   /**
+   * The bare unit: no "Advertisements" row and the tighter padding, for a
+   * placement pinned on screen where every pixel of chrome is permanent.
+   * AdSense treats the label as optional, so nothing is owed here.
+   */
+  compact?: boolean;
+  /**
    * Requests the ad on mount instead of waiting to near the viewport. For
    * slots visible at first paint the intersection wait only adds latency —
    * and the adsbygoogle array queues pushes before the script has even
    * arrived, so eager pushes ride its very first processing pass.
    */
   eager?: boolean;
+  /**
+   * Merged into every event's extra. Repeated placements (in-body, comment
+   * interleave) share a slot number, so this is how the first occurrence
+   * stays distinguishable from the sixth in analytics.
+   */
+  logExtra?: Record<string, unknown>;
 }
 
 /**
@@ -205,7 +257,9 @@ export function ProgrammaticAd({
   className,
   refreshes,
   hideOnPhone,
+  compact,
   eager,
+  logExtra,
 }: ProgrammaticAdProps): ReactElement {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const insRef = useRef<HTMLModElement>(null);
@@ -221,7 +275,12 @@ export function ProgrammaticAd({
   // forward-marker for the Ad Manager migration, where this must be revisited
   // before declared refresh goes live.
   const hasLoggedClick = useRef(false);
+  // Ref, not dependency: callers pass inline objects whose identity changes
+  // every render, and the ad effects must not re-run for that.
+  const logExtraRef = useRef(logExtra);
+  logExtraRef.current = logExtra;
   const { id: unitId, type: unitType, layoutKey: unitLayoutKey } = config;
+  const { channel: adChannel, utm } = useAdsenseUtmChannel();
 
   const logSlotEvent = useCallback(
     (
@@ -247,12 +306,21 @@ export function ProgrammaticAd({
             format,
             surface,
             refreshes,
-            extra,
+            extra: {
+              utm_source: utm?.source,
+              utm_medium: utm?.medium,
+              utm_campaign: utm?.campaign,
+              utm_content: utm?.content,
+              ad_channel: adChannel,
+              ...logExtraRef.current,
+              ...extra,
+            },
           }),
         ),
       });
     },
     [
+      adChannel,
       format,
       logEvent,
       refreshes,
@@ -261,6 +329,7 @@ export function ProgrammaticAd({
       unitId,
       unitLayoutKey,
       unitType,
+      utm,
     ],
   );
 
@@ -321,7 +390,12 @@ export function ProgrammaticAd({
         observer.disconnect();
         setIsRequested(true);
       },
-      { rootMargin: '600px' },
+      // A compromise between the expert's ask (~50px: viewability over
+      // prefetch) and two behaviours that need the verdict to land while the
+      // box is still off screen: the auction round-trip (~300-800ms) and the
+      // CSS collapse of an unfilled slot, which at 50px would happen in front
+      // of the reader as a visible jump instead of invisibly below the fold.
+      { rootMargin: '250px' },
     );
     observer.observe(element);
 
@@ -341,19 +415,13 @@ export function ProgrammaticAd({
       return undefined;
     }
 
-    // Any host but the canonical production one serves test creatives.
-    // Preview deployments are production *builds*, so a build-time flag
-    // can't make this call — it has to happen here, before the request.
-    let productionHost = '';
-    try {
-      productionHost = new URL(webappUrl).hostname;
-    } catch {
-      // Fail-safe: unset/relative webappUrl means test creatives too.
-    }
-    if (productionHost !== window.location.hostname) {
+    // Any host but the production ones serves test creatives. Preview
+    // deployments are production *builds*, so a build-time flag can't make
+    // this call — it has to happen here, before the request.
+    if (!isAdsenseProductionHost(window.location.hostname)) {
       element.setAttribute('data-adtest', 'on');
       // Test mode pays nothing, so it engaging where it should not — a
-      // misconfigured webappUrl in production — must be visible in telemetry
+      // production host missing from the list — must be visible in telemetry
       // rather than silently zeroing revenue. Once per page is enough.
       if (!hasLoggedTestMode) {
         hasLoggedTestMode = true;
@@ -483,7 +551,18 @@ export function ProgrammaticAd({
     <div
       ref={setWrapperRef}
       className={classNames(
-        'mx-auto w-full text-center',
+        // A constant light island, deliberately NOT a theme token: display
+        // creatives are designed against light backgrounds, and on a dark
+        // page a white-bodied ad floating on the theme surface reads as a
+        // hole punched in the UI. The white card makes the unit an
+        // intentional object in both themes — the standard dark-mode ad
+        // treatment — without touching the visitor's theme.
+        // Vertical padding only: these boxes are border-box, so horizontal
+        // padding would shrink the usable width below the IAB cap the
+        // FORMAT_SPEC widths exist to guarantee (300x250 no longer fits a
+        // padded max-w-[300px]).
+        'mx-auto w-full rounded-8 bg-white text-center',
+        compact ? 'py-1' : 'py-2',
         // AdSense stamps data-ad-status="unfilled" when no creative was
         // returned. Without collapsing, the reserved min-height stays behind as
         // a block of empty page — most visible in the comment thread, where an
@@ -493,17 +572,20 @@ export function ProgrammaticAd({
         // unfilled phone-hidden slot would stay visible from tablet up.
         'has-[>ins[data-ad-status="unfilled"]]:!hidden',
         hideOnPhone && 'hidden tablet:block',
-        FORMAT_SPEC[format].minHeight,
+        (compact && FORMAT_SPEC[format].compactMinHeight) ||
+          FORMAT_SPEC[format].minHeight,
         FORMAT_SPEC[format].maxWidth,
         className,
       )}
     >
-      {/* A fluid native unit is the "confusable with site content" shape
-          AdSense prohibits shipping unlabeled — "Advertisements" is one of
-          the two label strings its policy permits. Inside the wrapper, so an
-          unfilled slot's collapse takes the label down with it. */}
-      {isRequested && config.type === 'inFeed' && (
-        <span className="mb-1 block text-left text-text-quaternary typo-caption2">
+      {/* Every unit is labeled so none can be confused with site content —
+          "Advertisements" is one of the two label strings AdSense permits
+          (a bare "Advertisement" is not). Inside the wrapper, so an unfilled
+          slot's collapse takes the label down with it. */}
+      {/* Constant gray, not a theme token: the label sits on the card's
+          constant white, where a dark-theme quaternary would vanish. */}
+      {isRequested && !compact && (
+        <span className="block pb-1 pr-1 text-right text-raw-pepper-10 typo-caption2">
           Advertisements
         </span>
       )}
@@ -514,6 +596,7 @@ export function ProgrammaticAd({
           data-testid={`adsense-slot-${slot}`}
           data-ad-client={ADSENSE_CLIENT_ID}
           data-ad-slot={config.id}
+          data-ad-channel={adChannel}
           {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
         />
       )}

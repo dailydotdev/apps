@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { PublicProfile } from '../../../lib/user';
 import { AboutMe } from './AboutMe';
 import { getLogContextStatic } from '../../../contexts/LogContext';
+import { anchorUgcRel } from '../../../lib/strings';
 
 const LogContext = getLogContextStatic();
 
@@ -98,13 +99,6 @@ describe('AboutMe', () => {
         screen.getByText('This is my awesome bio with some **markdown**!'),
       ).toBeInTheDocument();
     });
-
-    it('should render with social links when user has them', () => {
-      renderComponent(userWithSocialLinks);
-      expect(screen.getByTestId('social-link-github')).toBeInTheDocument();
-      expect(screen.getByTestId('social-link-linkedin')).toBeInTheDocument();
-      expect(screen.getByTestId('social-link-portfolio')).toBeInTheDocument();
-    });
   });
 
   describe('Social Links', () => {
@@ -112,6 +106,14 @@ describe('AboutMe', () => {
       renderComponent(userWithSocialLinks);
       const allLinks = screen.getAllByTestId(/^social-link-/);
       expect(allLinks.length).toBe(12);
+    });
+
+    it('should mark social links as ugc and nofollow', () => {
+      renderComponent(userWithSocialLinks);
+      expect(screen.getByTestId('social-link-portfolio')).toHaveAttribute(
+        'rel',
+        anchorUgcRel,
+      );
     });
 
     it('should render all social link types', () => {

@@ -31,12 +31,16 @@ import {
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
+import {
+  CommunitySentiment,
+  mapCommunitySentimentPost,
+} from './focus/CommunitySentiment';
 
 type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
 };
 
-function SocialTwitterPostContentRaw({
+export function SocialTwitterPostContentRaw({
   post,
   isFallback,
   shouldOnboardAuthor,
@@ -104,6 +108,10 @@ function SocialTwitterPostContentRaw({
     !post.content?.trim();
   const metadataLabel = getSocialTwitterMetadataLabel();
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
+  const communitySentimentData = post.communitySentiment
+    ? mapCommunitySentimentPost(post.communitySentiment)
+    : undefined;
+  const showCommunitySentiment = !!communitySentimentData;
 
   return (
     <PostContentContainer
@@ -224,6 +232,12 @@ function SocialTwitterPostContentRaw({
               textClampClass=""
               bodyClassName="typo-markdown"
               showImage
+            />
+          )}
+          {showCommunitySentiment && (
+            <CommunitySentiment
+              data={communitySentimentData}
+              className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
             />
           )}
         </BasePostContent>

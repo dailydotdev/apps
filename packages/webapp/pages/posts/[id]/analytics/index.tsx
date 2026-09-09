@@ -98,7 +98,7 @@ import { seoTitle } from '../index';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { getPostCanonicalUrl } from '../../../../lib/seo';
-import { noindexSeoProps } from '../../../../next-seo';
+import { getShareImageUrl, noindexSeoProps } from '../../../../next-seo';
 import type { SharePostPageProps } from '../share';
 import type { AnalyticsNumberList } from '../../../../../shared/src/components/analytics/common';
 
@@ -143,7 +143,7 @@ export const getServerSideProps: GetServerSideProps<
         ...pageSeoTitles.openGraph,
         images: [
           {
-            url: `https://og.daily.dev/api/posts/${post?.id}`,
+            url: getShareImageUrl('posts', post?.id ?? ''),
           },
         ],
         article: {

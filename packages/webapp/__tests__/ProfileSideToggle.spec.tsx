@@ -81,6 +81,7 @@ describe('ProfileSideToggle', () => {
     request.mockResolvedValue({
       userWorld: districts,
       userWorldSettings: null,
+      userWorldObjects: [],
     });
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
@@ -97,12 +98,17 @@ describe('ProfileSideToggle', () => {
       expect(queryClient.getQueryData(userWorldQueryKey('u1'))).toEqual({
         districts,
         settings: null,
+        objects: [],
       }),
     );
   });
 
   it('warms the world once, however often it is hovered', async () => {
-    request.mockResolvedValue({ userWorld: [], userWorldSettings: null });
+    request.mockResolvedValue({
+      userWorld: [],
+      userWorldSettings: null,
+      userWorldObjects: [],
+    });
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });

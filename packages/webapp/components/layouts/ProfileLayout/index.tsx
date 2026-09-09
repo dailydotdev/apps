@@ -22,16 +22,19 @@ import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
+import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getPageSeoTitles } from '../utils';
 import { getAppOrigin } from '../../../lib/seo';
+import { getShareImageUrl } from '../../../next-seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
 import { hasPublicWorld } from '../../world/profileWorld';
@@ -51,15 +54,8 @@ export interface ProfileLayoutProps extends Partial<ProfileV2> {
   hasWorld?: boolean;
 }
 
-export const getOGImageUrl = (userId: string): string => {
-  const ogImageUrl = new URL(
-    `/devcards/v2/${userId}.png`,
-    process.env.NEXT_PUBLIC_API_URL,
-  );
-  ogImageUrl.searchParams.set('type', 'wide');
-  ogImageUrl.searchParams.set('r', Math.random().toString(36).substring(2, 5));
-  return ogImageUrl.toString();
-};
+export const getOGImageUrl = (userId: string): string =>
+  getShareImageUrl('profile', userId);
 
 const getTwitterHandle = (user: PublicProfile): string | undefined => {
   const twitterLink = user.socialLinks?.find(
@@ -123,6 +119,7 @@ export default function ProfileLayout({
 
   // Auto-collapse sidebar on small screens
   useProfileSidebarCollapse();
+  useRecentPageMeta({ image: user?.image });
 
   useEffect(() => {
     if (trackedView || !user) {
@@ -161,6 +158,7 @@ export default function ProfileLayout({
       )}
       <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
         <main className="relative flex flex-1 flex-col laptop:max-w-2xl laptopL:max-w-3xl">
+          <ExploreSignupStrip className="p-4 laptop:mb-4 laptop:p-0" />
           {children}
         </main>
         <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">

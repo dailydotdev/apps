@@ -22,6 +22,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import '../styles/iubenda.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { ShellStateProvider } from '@dailydotdev/shared/src/contexts/ShellStateProvider';
 import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
@@ -339,6 +340,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             title="Sitemap"
             href="/sitemap.xml"
           />
+          <link rel="llms-txt" href="/llms.txt" />
           <link
             rel="alternate"
             type="text/plain"
@@ -428,6 +430,16 @@ export default function App(
   useManualScrollRestoration();
   useScrollbarWidth();
 
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') {
+      return;
+    }
+
+    import('@dailydotdev/shared/src/lib/imageShare/devCaptureShareImage').then(
+      ({ installCaptureShareImage }) => installCaptureShareImage(),
+    );
+  }, []);
+
   const { Component, pageProps, router } = props;
   const { dehydratedState } = pageProps;
 
@@ -452,17 +464,19 @@ export default function App(
             version={version}
             deviceId={deviceId}
           >
-            <PixelsProvider>
-              <PushNotificationContextProvider>
-                <SubscriptionContextProvider>
-                  <PostReferrerContextProvider>
-                    <ShortcutsProvider>
-                      <InternalApp {...props} />
-                    </ShortcutsProvider>
-                  </PostReferrerContextProvider>
-                </SubscriptionContextProvider>
-              </PushNotificationContextProvider>
-            </PixelsProvider>
+            <ShellStateProvider>
+              <PixelsProvider>
+                <PushNotificationContextProvider>
+                  <SubscriptionContextProvider>
+                    <PostReferrerContextProvider>
+                      <ShortcutsProvider>
+                        <InternalApp {...props} />
+                      </ShortcutsProvider>
+                    </PostReferrerContextProvider>
+                  </SubscriptionContextProvider>
+                </PushNotificationContextProvider>
+              </PixelsProvider>
+            </ShellStateProvider>
           </BootDataProvider>
           <ReactQueryDevtools />
         </HydrationBoundary>

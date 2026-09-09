@@ -9,7 +9,7 @@ import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
-import type { AuthProps } from '../../../components/auth/common';
+import type { AuthProps, SignupStyle } from '../../../components/auth/common';
 import { AuthDisplay } from '../../../components/auth/common';
 import { ExperimentWinner } from '../../../lib/featureValues';
 import { authAtom } from '../store/onboarding.store';
@@ -17,6 +17,8 @@ import type { AnonymousUser, LoggedUser } from '../../../lib/user';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useOnboardingActions } from '../../../hooks/auth';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureSignupWallHorizon } from '../../../lib/featureManagement';
 import { OnboardingSignupHero } from '../components/OnboardingSignupHero';
 
 type FunnelHeroLandingProps = FunnelStepHeroLanding;
@@ -28,6 +30,11 @@ const authContainerClass =
 // becomes dead space *under* the buttons that holds them off the bottom edge —
 // so they opt out and let the container hug its content instead.
 const splitAuthContainerClass = classNames(authContainerClass, '!min-h-0');
+// Narrower than the copy column: full-width buttons at 440px read as a form.
+const horizonAuthContainerClass = classNames(
+  'w-full max-w-full rounded-none tablet:max-w-[22.5rem]',
+  '!min-h-0',
+);
 
 const staticAuthProps = {
   className: {
@@ -53,16 +60,21 @@ const isSocialSignupUser = (
   );
 };
 
+// A safety net, not a budget: `ready` never flips when boot returns no
+// experiment features, and holding longer would blank the funnel's entry
+// screen for both arms every time that happens.
+const FLAG_RESOLVE_TIMEOUT_MS = 200;
+
 export const FunnelHeroLanding = withIsActiveGuard(
   ({
     parameters: {
       headline,
-      background,
+      background: backgroundParam,
       imageMode,
       imageMobile,
       showOrbs,
       forceDarkTheme,
-      oauthOrder,
+      oauthOrder: oauthOrderParam,
     },
     onTransition,
   }: FunnelHeroLandingProps): ReactElement => {
@@ -75,6 +87,34 @@ export const FunnelHeroLanding = withIsActiveGuard(
     const isOnboarding = useIsOnboardingFunnel();
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
+    // Evaluating is what enrolls — `getFeatureValue` fires GrowthBook's
+    // trackingCallback, which POSTs the allocation — so it waits for auth and
+    // is scoped to the onboarding funnel; paid funnels keep their served look.
+    const shouldEvaluateWallFlag = isAuthReady && isOnboarding;
+    const { value: isHorizonWallEnabled, isLoading: isHorizonFlagLoading } =
+      useConditionalFeature({
+        feature: featureSignupWallHorizon,
+        shouldEvaluate: shouldEvaluateWallFlag,
+      });
+    const [hasWaitedForFlag, setHasWaitedForFlag] = useState(false);
+    useEffect(() => {
+      if (!shouldEvaluateWallFlag) {
+        return undefined;
+      }
+      const timeout = setTimeout(
+        () => setHasWaitedForFlag(true),
+        FLAG_RESOLVE_TIMEOUT_MS,
+      );
+      return () => clearTimeout(timeout);
+    }, [shouldEvaluateWallFlag]);
+    // Painting the served wall and swapping when the flag lands would show
+    // the control arm to treatment users and waste a hero download.
+    const isWallPending =
+      shouldEvaluateWallFlag && isHorizonFlagLoading && !hasWaitedForFlag;
+    const background = isHorizonWallEnabled ? 'horizon' : backgroundParam;
+    const isHorizonWall = background === 'horizon';
+    const oauthOrder =
+      oauthOrderParam ?? (isHorizonWall ? 'googleFirst' : undefined);
     const [authDisplay, setAuthDisplay] = useState(
       AuthDisplay.OnboardingSignup,
     );
@@ -87,7 +127,19 @@ export const FunnelHeroLanding = withIsActiveGuard(
       !isEmailSignupActive &&
       isSocialSignupUser(user);
     const preferGithub = oauthOrder !== 'googleFirst';
-    const isSplitColumnBackground = background === 'panel';
+    const isPanelWall = background === 'panel';
+    // Only the panel takes the "Sign up with…" copy: "Continue with…" logs
+    // returning users straight in, so the horizon keeps it.
+    const isSplitColumnBackground = isPanelWall || isHorizonWall;
+    const getSignupStyle = (): SignupStyle | undefined => {
+      if (isHorizonWall) {
+        return 'singlePrimary';
+      }
+      if (isPanelWall) {
+        return 'splitCreateAccount';
+      }
+      return undefined;
+    };
 
     const onAuthStateUpdate = useCallback(
       (data: Partial<AuthProps>) => {
@@ -176,6 +228,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
 
     if (
       !isAuthReady ||
+      isWallPending ||
       (isLoggedIn && user.infoConfirmed) ||
       isOnboardingComplete
     ) {
@@ -204,13 +257,13 @@ export const FunnelHeroLanding = withIsActiveGuard(
             isSplitColumnBackground
               ? {
                   ...staticAuthProps.className,
-                  container: splitAuthContainerClass,
+                  container: isHorizonWall
+                    ? horizonAuthContainerClass
+                    : splitAuthContainerClass,
                 }
               : staticAuthProps.className
           }
-          // "Sign up with…" / "Create account", plus the left-aligned login
-          // link — the copy the split-column layouts are designed around.
-          splitSignupStyle={isSplitColumnBackground}
+          signupStyle={getSignupStyle()}
           preferGithub={preferGithub}
           defaultDisplay={
             isSocialSignupActive ? AuthDisplay.SocialRegistration : authDisplay

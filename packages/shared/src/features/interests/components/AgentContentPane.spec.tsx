@@ -7,6 +7,7 @@ import {
   mockMatchMedia,
 } from '../../../../__tests__/helpers/media';
 import type { Post } from '../../../graphql/posts';
+import { PostType } from '../../../graphql/posts';
 import basePost from '../../../../__tests__/fixture/post';
 import type { AgentContentTarget } from '../AgentContext';
 import { AgentProvider, useAgent } from '../AgentContext';
@@ -23,6 +24,22 @@ const setViewport = mockMatchMedia;
 // The panel renders the real post page, which reads far more than a title.
 const post = (id: string, title: string): Post =>
   ({ ...basePost, id, title } as Post);
+
+const sharePost = (id: string): Post =>
+  ({
+    ...basePost,
+    id,
+    type: PostType.Share,
+    title: null,
+    image: null,
+    sharedPost: {
+      ...basePost,
+      id: `${id}-shared`,
+      title: 'GitHub Advisory Database',
+      summary: 'Every reviewed advisory, in one database.',
+      permalink: 'https://api.daily.dev/r/shared1',
+    },
+  } as unknown as Post);
 
 const Opener = ({ targets }: { targets: AgentContentTarget[] }) => {
   const { openContentTarget } = useAgent();
@@ -166,7 +183,35 @@ describe('AgentContentPane tabs', () => {
   it('offers the original only for a post, where there is one to open', () => {
     renderPane([{ type: 'post', postId: 'p1', post: post('p1', 'Zig 0.15') }]);
 
-    expect(screen.getByLabelText('Open original')).toBeInTheDocument();
+    expect(screen.getByLabelText('Open original')).toHaveAttribute(
+      'href',
+      basePost.permalink,
+    );
+  });
+
+  it('opens the original of a share pick at the shared article, not the share', () => {
+    renderPane([{ type: 'post', postId: 's1', post: sharePost('s1') }]);
+
+    expect(screen.getByLabelText('Open original')).toHaveAttribute(
+      'href',
+      'https://api.daily.dev/r/shared1',
+    );
+  });
+
+  it('titles a share pick after the shared article', () => {
+    renderPane([{ type: 'post', postId: 's1', post: sharePost('s1') }]);
+
+    expect(
+      screen.getByRole('tab', { name: 'GitHub Advisory Database' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a share pick as a share, with the shared article embedded', () => {
+    renderPane([{ type: 'post', postId: 's1', post: sharePost('s1') }]);
+
+    expect(screen.getByTestId('tldr-container')).toHaveTextContent(
+      'Every reviewed advisory, in one database.',
+    );
   });
 
   it('has no original to offer for the activity log', () => {

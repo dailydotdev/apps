@@ -1,4 +1,4 @@
-import type { Dispatch, ReactElement } from 'react';
+import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import React, { useContext } from 'react';
 import { ShareProvider, addLogQueryParams } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
@@ -18,7 +18,7 @@ import { useGetShortUrl } from '../../hooks';
 import { ReferralCampaignKey } from '../../lib';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { Squad } from '../../graphql/sources';
-import { CreateSharedPostModal } from '../modals/post/CreateSharedPostModal';
+import { SmartComposerModal } from '../modals/post/SmartComposerModal';
 import type { ModalProps } from '../modals/common/Modal';
 
 interface SocialShareProps extends Pick<ModalProps, 'parentSelector'> {
@@ -27,7 +27,10 @@ interface SocialShareProps extends Pick<ModalProps, 'parentSelector'> {
   comment?: Comment;
   onClose?: () => void;
   commentary?: string;
-  shareToSquadState: [Squad, Dispatch<Squad>];
+  shareToSquadState: [
+    Squad | undefined,
+    Dispatch<SetStateAction<Squad | undefined>>,
+  ];
 }
 
 export const SocialShare = ({
@@ -101,23 +104,24 @@ export const SocialShare = ({
       <SocialShareContainer title="Share externally">
         <SocialShareList
           link={link}
-          description={post?.title}
+          description={post?.title ?? ''}
           emailSummary={post?.summary}
           isCopying={copying}
           onCopy={logAndCopyLink}
-          onNativeShare={() => openNativeSharePost(post)}
+          onNativeShare={() => openNativeSharePost?.(post)}
           onClickSocial={logClick}
           emailTitle={emailTitle}
         />
       </SocialShareContainer>
       {squadToShare && ( // using lazy modal would result to dep-cycle since this whole component is used in the share modal
-        <CreateSharedPostModal
+        <SmartComposerModal
           isOpen
+          initialUrl={post.permalink}
           preview={post}
-          squad={squadToShare}
-          onSharedSuccessfully={onSharedSuccessfully}
+          initialSquadId={squadToShare.id}
+          onPosted={onSharedSuccessfully}
           parentSelector={parentSelector}
-          onRequestClose={() => setSquadToShare(null)}
+          onRequestClose={() => setSquadToShare(undefined)}
         />
       )}
     </>

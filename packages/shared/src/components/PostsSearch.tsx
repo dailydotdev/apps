@@ -20,7 +20,9 @@ import { useDomPurify } from '../hooks/useDomPurify';
 import type { PopoverContentProps } from './popover/Popover';
 import { PopoverContent } from './popover/Popover';
 import { SearchIcon } from './icons';
-import { StaleTime } from '../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { useAuthContext } from '../contexts/AuthContext';
+import { defaultSearchDebounceMs } from '../lib/func';
 
 const SEARCH_TYPES = {
   searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
@@ -62,6 +64,7 @@ export default function PostsSearch({
   enableSuggestions = true,
 }: PostsSearchProps): ReactElement {
   const { time, contentCurationFilter } = useSearchContextProvider();
+  const { user } = useAuthContext();
   const searchBoxRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>();
   const [items, setItems] = useState<string[]>([]);
@@ -76,11 +79,15 @@ export default function PostsSearch({
   const purify = useDomPurify();
   const [isFocused, setIsFocused] = useState(false);
   const initialQuery = useRef<string>(initialQueryProp || '');
+  // `query` only catches up after the suggestion debounce, so submitting has to
+  // read the raw input value or an early Enter would search for nothing.
+  const typedQuery = useRef<string>(initialQueryProp || '');
 
   const { data: searchResults, isPending } = useQuery<{
     [suggestionType: string]: { hits: { title: string }[] };
   }>({
-    queryKey: [suggestionType, query],
+    // Bookmark and reading-history suggestions are private per user.
+    queryKey: generateQueryKey(RequestKey.Search, user, suggestionType, query),
     queryFn: () =>
       gqlClient.request(SEARCH_URL, { query, version: searchVersion }),
     enabled: !!query && enableSuggestions,
@@ -99,7 +106,7 @@ export default function PostsSearch({
 
   const submitQuery = async (item?: string) => {
     const itemQuery = item?.replace?.(sanitizeSearchTitleMatch, '');
-    await onSubmitQuery(itemQuery || query || '', {
+    await onSubmitQuery(itemQuery || typedQuery.current || '', {
       filters: {
         time: time.toString(),
         contentCuration: contentCurationFilter,
@@ -107,6 +114,7 @@ export default function PostsSearch({
     });
     if (itemQuery) {
       initialQuery.current = itemQuery;
+      typedQuery.current = itemQuery;
     }
 
     setIsFocused(false);
@@ -115,9 +123,11 @@ export default function PostsSearch({
   const { selectedItemIndex, onKeyDown } = useAutoComplete(items, submitQuery);
   const [debounceQuery] = useDebounceFn<string>(
     (value) => setQuery(value),
-    100,
+    defaultSearchDebounceMs,
   );
   const onValueChanged = (value: string) => {
+    typedQuery.current = value;
+
     if (!value.length) {
       setQuery('');
       initialQuery.current = '';

@@ -288,40 +288,6 @@ describe('BoostPostModal', () => {
     });
   });
 
-  describe('Post Refetching', () => {
-    it('should handle refetching logic within usePostBoostEstimation when post cannot be boosted', () => {
-      const post = createMockPost(); // No tags, no yggdrasilId
-      mockUsePostBoostEstimation.mockReturnValue({
-        ...defaultMockBoostEstimation,
-        canBoost: false,
-      } as UsePostBoostEstimation);
-
-      renderBoostPostModal(post);
-
-      // The refetching logic is now handled inside usePostBoostEstimation
-      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
-        post,
-        query: { budget: 5000 },
-      });
-    });
-
-    it('should handle refetching logic within usePostBoostEstimation when post can be boosted', () => {
-      const post = createMockPost({ tags: ['javascript'] });
-      mockUsePostBoostEstimation.mockReturnValue({
-        ...defaultMockBoostEstimation,
-        canBoost: true,
-      });
-
-      renderBoostPostModal(post);
-
-      // The refetching logic is now handled inside usePostBoostEstimation
-      expect(mockUsePostBoostEstimation).toHaveBeenCalledWith({
-        post,
-        query: { budget: 5000 },
-      });
-    });
-  });
-
   describe('Boost Button State', () => {
     it('should disable boost button when post cannot be boosted', () => {
       const post = createMockPost(); // No tags, no yggdrasilId

@@ -1,9 +1,17 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useRouter } from 'next/router';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { WorldBack } from './WorldBack';
 import { WorldBoot } from './WorldBoot';
@@ -12,18 +20,26 @@ import { WorldGuideSheet } from './WorldGuide';
 import { WorldIntro } from './WorldIntro';
 import { useIsOwnWorld, WorldInvite } from './WorldInvite';
 import { useWorldIntro } from './useWorldIntro';
+import { authoringEndpoint, useWorldAuthoring } from './useWorldAuthoring';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
 import { WorldPrivate } from './WorldPrivate';
 import { WorldRiding } from './WorldRiding';
 import { WorldStatus } from './WorldStatus';
 import { WorldTimeline } from './WorldTimeline';
-import type { WorldEngine, WorldState } from './worldState';
+import type {
+  WorldAuthoredEntry,
+  WorldAuthoredTarget,
+  WorldEngine,
+  WorldState,
+} from './worldState';
 import type { UserWorldResult } from './useUserWorld';
 import { useWorldDraft } from './useWorldDraft';
 import { useWorldLog } from './useWorldLog';
 import { RIDE_MUTED_KEY, useWorldMusic } from './useWorldMusic';
 import { useWorldPlate } from './useWorldPlate';
+import { useUpdateWorldObjects } from './useWorldObjects';
+import { worldPayloadHash } from './authoredPayload';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
 import { buildUnbuiltWorld } from './unbuiltWorld';
@@ -64,6 +80,21 @@ const PAD_IMMERSIVE = { l: 16, r: 16, t: 96, b: 16 };
 const PAD_UNBUILT_DESKTOP = { l: 344, r: 18, t: 176, b: 40 };
 const PAD_UNBUILT_MOBILE = { l: 16, r: 16, t: 208, b: 32 };
 
+const authoredEntriesOf = (
+  objects: UserWorldResult['objects'],
+): WorldAuthoredEntry[] =>
+  (objects ?? []).map(
+    ({ scope, realm, niche, family, opsVersion, payload }) => ({
+      scope,
+      realm,
+      niche,
+      family,
+      opsVersion,
+      payload,
+      payloadHash: worldPayloadHash(payload),
+    }),
+  );
+
 interface WorldViewProps {
   user: PublicProfile;
   /* Fetched by the page, not here: this component only exists once its own
@@ -87,6 +118,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const [failed, setFailed] = useState<string | null>(null);
   const [isImmersive, setIsImmersive] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const router = useRouter();
   const { autoDismissNotifications } = useSettingsContext();
   /* Answered before the engine is built and never asked again: it decides how
      the renderer is configured, and a WebGL context cannot be reconfigured
@@ -97,6 +129,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     districts,
     timeline,
     settings,
+    objects,
     isPending,
     isHistoryPending,
     isEmpty,
@@ -106,6 +139,35 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const isOwn = useIsOwnWorld(user);
   const draft = useWorldDraft(user.id, settings);
   const { applied } = draft;
+  const savedEntries = useMemo(() => authoredEntriesOf(objects), [objects]);
+  const { save: saveWorldObjects } = useUpdateWorldObjects(user.id);
+  const persistAuthored = useCallback(
+    async (
+      upserts: WorldAuthoredEntry[],
+      reverts: WorldAuthoredTarget[],
+    ): Promise<WorldAuthoredEntry[]> => {
+      const saved = await saveWorldObjects({
+        upserts: upserts.map(
+          ({ scope, realm, niche, family, opsVersion, payload }) => ({
+            scope,
+            realm,
+            niche,
+            family,
+            opsVersion,
+            payload,
+          }),
+        ),
+        reverts: reverts.map(({ scope, realm, niche, family }) => ({
+          scope,
+          realm,
+          niche,
+          family,
+        })),
+      });
+      return authoredEntriesOf(saved);
+    },
+    [saveWorldObjects],
+  );
 
   /* The app keeps a permanent scrollbar gutter on the body so feeds don't jump
      when they grow. Nothing on this page scrolls, and a fixed layer is laid out
@@ -168,6 +230,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     }
     setRaisedFor(user.id);
     setHasNoReplay(false);
+    engine.replaceAuthored([]);
 
     /* Building the model throws; raising the world rejects. Both have to land
        in `failed`, or the boot bar sweeps forever over a world that died. */
@@ -252,9 +315,65 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     engineRef.current?.setLevelProgress(isOwn);
   }, [isOwn]);
 
+  /* Live authoring, and only while the owner has the bench open. `world dev` on
+     their own machine synchronizes recorded realm object sets here as one
+     transaction. Nobody else's page ever opens the connection: for every
+     visitor this is one boolean that stays false. */
+  const [isBuildOpen, setIsBuildOpen] = useState(false);
+  const openBuild = useCallback(() => {
+    engineRef.current?.deselect();
+    setIsBuildOpen(true);
+  }, []);
+  /* Narrowed once: the handle either exists and building is offered, or it is
+     undefined and nothing downstream re-tests the same fact. */
+  const buildHandle =
+    isOwn && !isEmpty && !isPrivate ? user.username ?? undefined : undefined;
+  const canBuild = !!buildHandle;
+  useEffect(() => {
+    if (
+      isBuildOpen ||
+      !objects ||
+      state.status !== 'ready' ||
+      raisedFor !== user.id
+    ) {
+      return;
+    }
+    engineRef.current?.replaceAuthored(savedEntries);
+  }, [isBuildOpen, objects, raisedFor, savedEntries, state.status, user.id]);
+
+  const authoring = useWorldAuthoring(engineRef, {
+    endpoint: authoringEndpoint(router.query.authoring),
+    userId: user.id,
+    handle: buildHandle ?? '',
+    baseline: savedEntries,
+    onSave: persistAuthored,
+    enabled:
+      canBuild &&
+      isBuildOpen &&
+      state.status === 'ready' &&
+      raisedFor === user.id,
+  });
+
+  /* Closing drops the live preview back to the saved world; the project on
+     disk keeps everything, and the toast is what stops that looking like a
+     loss. */
+  const { displayToast } = useToastNotification();
+  const { unsaved: unsavedBuilds } = authoring;
+  const closeBuild = useCallback(() => {
+    /* A district clicked while building was a look around, not a feed request:
+       carrying the selection out would pop a stale feed over the world. */
+    engineRef.current?.deselect();
+    setIsBuildOpen(false);
+    if (unsavedBuilds > 0) {
+      displayToast(
+        'Live preview closed. Your local project still has your changes.',
+      );
+    }
+  }, [displayToast, unsavedBuilds]);
+
   /* The share card is composed server-side around a render only this machine
-     can cheaply make. Reads the STORED settings, not the draft: a plate is what
-     the world looks like to everyone, not what the owner is trying on. */
+     can cheaply make. Reads the STORED settings and objects, not either local
+     preview: a plate is what everyone sees, not what the owner is trying on. */
   useWorldPlate({
     userId: user.id,
     isOwn,
@@ -263,6 +382,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     engineRef,
     districts,
     settings,
+    objects,
   });
 
   useEffect(() => {
@@ -379,7 +499,9 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
      opening over every one of those clicks is noise on top of the one job the
      owner is there to do. */
   const openDistrict =
-    isChromeVisible && !ownerDraft?.isOpen ? state.district : null;
+    isChromeVisible && !ownerDraft?.isOpen && !isBuildOpen
+      ? state.district
+      : null;
 
   /* Below laptop only: on a laptop the same guide replaces the rail, and the
      rail is where it is asked for. */
@@ -441,6 +563,17 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
             draft={ownerDraft}
             districts={districts}
             showNudge={showNudge}
+            build={
+              buildHandle
+                ? {
+                    handle: buildHandle,
+                    authoring,
+                    isOpen: isBuildOpen,
+                    open: openBuild,
+                    close: closeBuild,
+                  }
+                : undefined
+            }
             onToggleImmersive={onToggleImmersive}
             onFocus={onFocus}
             onLeaveRealm={onLeaveRealm}

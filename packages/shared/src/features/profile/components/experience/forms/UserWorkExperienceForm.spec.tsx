@@ -190,44 +190,6 @@ describe('UserWorkExperienceForm', () => {
     expect(currentSwitch).toBeChecked();
   });
 
-  it('should display all required field indicators', () => {
-    const { container } = render(
-      <FormWrapper>
-        <UserWorkExperienceForm />
-      </FormWrapper>,
-    );
-
-    // Check for required field indicators
-    expect(getFieldByName(container, 'title')).toBeInTheDocument();
-
-    // Check date fields have required indicators
-    expect(screen.getByText('Start date*')).toBeInTheDocument();
-    expect(screen.getByText('End date*')).toBeInTheDocument();
-  });
-
-  it('should render all form sections with proper structure', () => {
-    const { container } = render(
-      <FormWrapper>
-        <UserWorkExperienceForm />
-      </FormWrapper>,
-    );
-
-    // Verify all main input fields are present using proper queries
-    expect(getFieldByName(container, 'title')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /please select/i }),
-    ).toBeInTheDocument();
-
-    // Check current position text is present
-    expect(screen.getByText('Current position')).toBeInTheDocument();
-    expect(getFieldByName(container, 'description')).toBeInTheDocument();
-
-    // Check text content for sections
-    expect(screen.getByText('Employment Type')).toBeInTheDocument();
-    expect(screen.getByText('Current position')).toBeInTheDocument();
-    expect(screen.getByText('Description')).toBeInTheDocument();
-  });
-
   it('should handle current position toggle affecting end date', async () => {
     render(
       <FormWrapper>

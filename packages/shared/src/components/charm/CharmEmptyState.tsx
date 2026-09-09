@@ -15,6 +15,7 @@ import Link from '../utilities/Link';
 interface CharmEmptyStateActionBase {
   label: string;
   icon?: ButtonProps<'button'>['icon'];
+  loading?: boolean;
 }
 
 /** Exactly one of `href` (renders a link) or `onClick` (renders a button). */
@@ -102,6 +103,7 @@ export function CharmEmptyState({
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
             icon={action.icon}
+            loading={action.loading}
             onClick={action.onClick}
             className="mt-5"
           >

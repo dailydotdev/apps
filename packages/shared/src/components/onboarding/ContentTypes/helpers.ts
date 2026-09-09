@@ -10,7 +10,7 @@ import { TOGGLEABLE_TYPES } from '../../feeds/FeedSettings/sections/FeedSettings
 // Keyed on display copy, as `TOGGLEABLE_TYPES`, `getAdvancedContentTypes` and
 // `contentTypeIcon` already are — `AdvancedSettings.id` is an autoincrement row
 // id. A backend rename un-retires these; `helpers.spec.ts` is the tripwire.
-const RETIRED_CONTENT_TITLES = ['Community picks', 'Standups'];
+const RETIRED_CONTENT_TITLES = ['Community picks'];
 
 export const withoutRetiredTitles = <T extends { title: string }>(
   items: T[],

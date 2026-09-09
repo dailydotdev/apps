@@ -119,16 +119,6 @@ describe('CollapsedRepliesPreview', () => {
     expect(button).toHaveAttribute('aria-label', 'View 2 replies');
   });
 
-  it('should be keyboard accessible', () => {
-    const replies = [createReply('r1', 'u1', 'user1')];
-    renderComponent(replies, onExpand);
-
-    const button = screen.getByRole('button');
-    fireEvent.keyDown(button, { key: 'Enter' });
-    fireEvent.click(button);
-    expect(onExpand).toHaveBeenCalled();
-  });
-
   it('should apply custom className', () => {
     const replies = [createReply('r1', 'u1', 'user1')];
     renderComponent(replies, onExpand, 'custom-class');

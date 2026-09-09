@@ -17,7 +17,7 @@ import {
 } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { Connection } from '../../graphql/common';
-import { gqlClient } from '../../graphql/common';
+import { gqlBatchRequest } from '../../graphql/batch';
 import { SourcePermissions } from '../../graphql/sources';
 
 type UseSquadPendingPosts = UseInfiniteQueryResult<
@@ -53,15 +53,13 @@ export const useSquadPendingPosts = ({
       status,
     ),
     queryFn: async ({ pageParam }) => {
-      return gqlClient
-        .request<{
-          sourcePostModerations: Connection<SourcePostModeration[]>;
-        }>(SQUAD_PENDING_POSTS_QUERY, {
-          sourceId: squadId,
-          status,
-          after: pageParam,
-        })
-        .then((res) => res.sourcePostModerations);
+      return gqlBatchRequest<{
+        sourcePostModerations: Connection<SourcePostModeration[]>;
+      }>(SQUAD_PENDING_POSTS_QUERY, {
+        sourceId: squadId,
+        status,
+        after: pageParam,
+      }).then((res) => res.sourcePostModerations);
     },
     initialPageParam: '',
     getNextPageParam: (lastPage) => getNextPageParam(lastPage?.pageInfo),

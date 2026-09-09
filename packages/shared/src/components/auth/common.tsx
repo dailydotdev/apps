@@ -85,6 +85,17 @@ export enum OnboardingActions {
   Login = 'login',
   Recover = 'recover',
   Signup = 'signup',
+  /**
+   * Straight to the account-details form, skipping the provider choice.
+   *
+   * `Signup` lands on `AuthDisplay.Default`, which offers the social buttons
+   * again alongside an email field — right for a link that means "sign up",
+   * wrong for one that means "sign up with email". The marketing homepage's
+   * hero has its own provider buttons and its own "Continue with email"; that
+   * button had no address to send anyone to, so it used `Signup` and asked the
+   * visitor to choose a second time.
+   */
+  SignupEmail = 'signupEmail',
   VerifyEmail = 'verify',
 }
 
@@ -93,8 +104,14 @@ export const actionToAuthDisplay: Record<OnboardingActions, AuthDisplay> = {
   [OnboardingActions.Login]: AuthDisplay.Default,
   [OnboardingActions.Recover]: AuthDisplay.ForgotPassword,
   [OnboardingActions.Signup]: AuthDisplay.Default,
+  [OnboardingActions.SignupEmail]: AuthDisplay.Registration,
   [OnboardingActions.VerifyEmail]: AuthDisplay.EmailVerification,
 } as const;
+
+/** Signup-wall treatment. Both values imply the split-column geometry and
+ * then differ in copy and CTA hierarchy. One name rather than independent
+ * booleans, so a caller cannot ask for a hierarchy without its geometry. */
+export type SignupStyle = 'splitCreateAccount' | 'singlePrimary';
 
 export interface AuthProps {
   isAuthenticating: boolean;
@@ -130,8 +147,7 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
-  /** X-style split onboarding: "Sign up with", "Create account", Sign in button */
-  splitSignupStyle?: boolean;
+  signupStyle?: SignupStyle;
   /** Order GitHub before Google in the OAuth provider list (developer-first). */
   preferGithub?: boolean;
   autoTriggerProvider?: string;

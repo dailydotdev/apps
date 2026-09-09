@@ -1,9 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
 import type { ContentEmbed, ContentEmbedPost } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { ContentEmbeds } from './ContentEmbeds';
+import user from '../../../__tests__/fixture/loggedUser';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import type { LoggedUser } from '../../lib/user';
 
 const createPost = (
   overrides: Partial<ContentEmbedPost> = {},
@@ -43,7 +47,7 @@ it('should render post metadata and engagement stats as passive metadata', () =>
 
   expect(screen.getByText('Now')).toBeInTheDocument();
   expect(screen.getByText('4m read time')).toBeInTheDocument();
-  expect(screen.getByText('10 Impressions')).toBeInTheDocument();
+  expect(screen.queryByText('10 Impressions')).not.toBeInTheDocument();
   expect(screen.getByText('1.2K Upvotes')).toBeInTheDocument();
   expect(screen.getByText('3 Comments')).toBeInTheDocument();
   expect(screen.getByText('5 Reposts')).toBeInTheDocument();
@@ -109,4 +113,45 @@ it('should reuse poll metadata for vote count', () => {
   expect(screen.getByText('Voting open')).toBeInTheDocument();
   expect(screen.getByText('15 votes')).toBeInTheDocument();
   expect(screen.queryByText('4m read time')).not.toBeInTheDocument();
+});
+
+describe('embedded post impressions', () => {
+  const renderWithViewer = (loggedUser?: LoggedUser) =>
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: loggedUser, isLoggedIn: !!loggedUser }}
+      >
+        <ContentEmbeds
+          embeds={[createEmbed(createPost({ author: { id: user.id } }))]}
+          variant="post"
+        />
+      </TestBootProvider>,
+    );
+
+  it('shows the count to the author', () => {
+    renderWithViewer(user);
+
+    expect(screen.getByText('10 Impressions')).toBeInTheDocument();
+  });
+
+  it('hides the count from another reader', () => {
+    renderWithViewer({ ...user, id: 'someone-else' });
+
+    expect(screen.queryByText('10 Impressions')).not.toBeInTheDocument();
+  });
+
+  it('hides the count from an anonymous reader', () => {
+    renderWithViewer();
+
+    expect(screen.queryByText('10 Impressions')).not.toBeInTheDocument();
+  });
+
+  it('keeps the analytics link out of the passive row', () => {
+    renderWithViewer(user);
+
+    expect(
+      screen.queryByRole('link', { name: 'Post analytics' }),
+    ).not.toBeInTheDocument();
+  });
 });
