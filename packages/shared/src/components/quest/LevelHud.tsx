@@ -35,7 +35,7 @@ const levelPanelStyle = {
     `url("${gameCenterLevelBackground}")`,
   ].join(', '),
   backgroundSize: 'auto, cover',
-  backgroundPosition: 'center, top center',
+  backgroundPosition: 'center, 74% 50%',
 };
 
 // Frosted glass over the patterned panel: a translucent white wash, a
