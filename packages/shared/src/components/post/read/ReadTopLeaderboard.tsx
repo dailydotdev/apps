@@ -13,21 +13,17 @@ export interface ReadTopLeaderboardProps {
    */
   released?: boolean;
   slot?: number;
-  /**
-   * The twin the phone requests instead of `slot`, so phone and desktop fill
-   * report under their own slot numbers. Must come from the same surface's
-   * map as `slot`, or the twin would ride the other surface's flag gating.
-   */
-  phoneSlot?: number;
   surface?: 'read' | 'organic';
   className?: string;
 }
 
 /**
- * Top leaderboard (slot 2), first thing in the article column. The column is
- * 745px wide inside its padding at the layout's full width, so a 728px
- * leaderboard renders at its booked size within the page rather than spanning
- * it; narrower viewports get a 320x50 or 320x100 mobile banner instead.
+ * Top leaderboard (slot 2), first thing in the article column from tablet
+ * up. The column is 745px wide inside its padding at the layout's full width,
+ * so a 728px leaderboard renders at its booked size within the page rather
+ * than spanning it. Phones get the unit's fixed 320x50 twin as
+ * PhoneTopAdStrip instead, pinned at the top of the screen outside the
+ * column, so nothing renders here below tablet — not even the padding.
  *
  * Stays pinned for the first ten seconds of scrolling, then releases and
  * scrolls away with the page. Sticky rather than fixed so it only pins within
@@ -36,7 +32,6 @@ export interface ReadTopLeaderboardProps {
 export function ReadTopLeaderboard({
   released,
   slot = READ_SLOT.topLeaderboard,
-  phoneSlot = READ_SLOT.topLeaderboardPhone,
   surface = 'read',
   className,
 }: ReadTopLeaderboardProps): ReactElement {
@@ -46,7 +41,7 @@ export function ReadTopLeaderboard({
   return (
     <div
       className={classNames(
-        'bg-background-default pb-2 pt-4',
+        'hidden bg-background-default pb-2 pt-4 tablet:block',
         className,
         // --sticky-header-offset is published by MainLayout and matches the
         // fixed chrome this layout actually has: 4rem for the v1 header, 0 on
@@ -68,21 +63,9 @@ export function ReadTopLeaderboard({
           'z-2 laptop:sticky laptop:top-[var(--sticky-header-offset)]',
       )}
     >
-      {/* Two breakpoint twins of one unit, both horizontal responsive: the
-          phone's 320px cap leaves room for the mobile banners only, tablet+
-          gets the 728x90. Expandable and video creatives are blocked on the
-          unit account-side, not here — see READ_SLOT.topLeaderboardPhone.
-          Neither is eager: an eager push from a display:none twin would
-          initialise the visible one out of order, and both sit at the top of
-          the page where the intersection observer fires on first paint
-          anyway. A hidden ins never intersects, so exactly one requests. */}
-      <ReadAdSlot
-        slot={phoneSlot}
-        surface={surface}
-        format={ReadAdFormat.Leaderboard}
-        className="tablet:hidden"
-        refreshes
-      />
+      {/* Not eager: the unit sits at the top of the page where the
+          intersection observer fires on first paint anyway, and a hidden ins
+          never intersects, so phones never request it. */}
       <ReadAdSlot
         slot={slot}
         surface={surface}

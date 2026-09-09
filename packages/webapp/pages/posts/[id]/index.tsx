@@ -8,6 +8,7 @@ import {
   ReadAdSlot,
 } from '@dailydotdev/shared/src/components/post/read/ReadAdSlot';
 import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read/ReadTopLeaderboard';
+import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   ADSENSE_SCRIPT_SRC,
@@ -440,7 +441,6 @@ export const PostPage = ({
                   <ReadTopLeaderboard
                     surface="organic"
                     slot={ORGANIC_SLOT.topLeaderboard}
-                    phoneSlot={ORGANIC_SLOT.topLeaderboardPhone}
                   />
                 ) : undefined
               }
@@ -509,7 +509,13 @@ export const PostPage = ({
 PostPage.getLayout = getLayout;
 PostPage.layoutProps = {
   screenCentered: false,
-  customBanner: <CustomAuthBanner />,
+  // Strip first: both pin, and the banner's top offset is the strip's height.
+  customBanner: (
+    <>
+      <PhoneTopAdStrip surface="organic" />
+      <CustomAuthBanner />
+    </>
+  ),
 };
 
 export default PostPage;

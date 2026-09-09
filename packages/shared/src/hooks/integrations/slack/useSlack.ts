@@ -1,11 +1,8 @@
 import { useCallback } from 'react';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { setCookie } from '../../../lib/cookie';
 import {
   SLACK_CONNECT_SOURCE_MUTATION,
   UserIntegrationType,
 } from '../../../graphql/integrations';
-import { isDevelopment } from '../../../lib/constants';
 import { gqlClient } from '../../../graphql/common';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
@@ -24,42 +21,19 @@ export type UseSlack = {
   }) => Promise<void>;
 };
 
-const scopes = ['channels:read', 'chat:write', 'channels:join', 'groups:read'];
-// requested alongside the bot scopes on every entry point, so a workspace
-// connected from any flow can post as the user without a second consent screen
-const userScopes = ['channels:read', 'chat:write', 'groups:read'];
-
 export const useSlack = (): UseSlack => {
-  const { user } = useAuthContext();
   const { logEvent } = useLogContext();
 
-  const connect = useCallback<UseSlack['connect']>(
-    async ({ redirectPath }) => {
-      const url = new URL('https://slack.com/oauth/v2/authorize');
+  const connect = useCallback<UseSlack['connect']>(({ redirectPath }) => {
+    // apiUrl is a relative proxy path on localhost, hence the base
+    const url = new URL(
+      `${apiUrl}/integrations/slack/auth/authorize`,
+      globalThis.location?.origin,
+    );
+    url.searchParams.set('redirectPath', redirectPath);
 
-      const redirectUrl = new URL(`${apiUrl}/integrations/slack/auth/callback`);
-      url.searchParams.append('redirect_uri', redirectUrl.toString());
-
-      url.searchParams.append('state', user!.id);
-      url.searchParams.append('scope', scopes.join(','));
-      url.searchParams.append('user_scope', userScopes.join(','));
-      url.searchParams.append(
-        'client_id',
-        process.env.NEXT_PUBLIC_SLACK_CLIENT_ID!,
-      );
-
-      setCookie('slackRedirectPath', redirectPath, {
-        path: '/',
-        maxAge: 3600,
-        secure: !isDevelopment,
-        domain: process.env.NEXT_PUBLIC_DOMAIN,
-        sameSite: 'lax',
-      });
-
-      window.location.href = url.toString();
-    },
-    [user],
-  );
+    window.location.href = url.toString();
+  }, []);
 
   const connectSource = useCallback<UseSlack['connectSource']>(
     async ({ integrationId, channelId, sourceId }) => {

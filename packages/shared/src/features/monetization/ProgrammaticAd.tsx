@@ -21,6 +21,7 @@ export enum ProgrammaticAdFormat {
   MediumRectangle = 'mediumRectangle',
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
+  MobileBanner = 'mobileBanner',
   Native = 'native',
 }
 
@@ -55,13 +56,20 @@ type FormatSpec = {
    * which a fixed pixel size could not do without breaking one of them.
    */
   shape?: 'rectangle' | 'horizontal' | 'vertical';
+  /**
+   * The reservation for the compact wrapper: creative height plus py-1, no
+   * label row. Only formats that render compact anywhere declare it.
+   */
+  compactMinHeight?: string;
 };
 
 export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
-  // Leaderboard on desktop, large mobile banner on a phone.
+  // Leaderboard on desktop; the phone header is the MobileBanner twin below.
+  // The phone cap stays so a Leaderboard left visible on a phone still comes
+  // back as a banner rather than whatever else fits the column.
   [ProgrammaticAdFormat.Leaderboard]: {
     label: 'Leaderboard',
-    size: '728x90 · 320x50 / 320x100 mobile',
+    size: '728x90 · 320x100 mobile',
     minHeight: 'min-h-[136px] tablet:min-h-[126px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
     shape: 'horizontal',
@@ -91,6 +99,18 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     minHeight: 'min-h-[356px]',
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
+  },
+  // The phone header unit, booked at the fixed 320x50: the smallest standard
+  // size, so the pinned header block takes the least of a phone screen, and a
+  // fixed request can only return its exact size — no expandable or video
+  // creative can answer it, which a responsive request could not rule out.
+  [ProgrammaticAdFormat.MobileBanner]: {
+    label: 'Mobile banner',
+    size: '320x50',
+    minHeight: 'min-h-[86px]',
+    compactMinHeight: 'min-h-[3.625rem]',
+    maxWidth: 'max-w-[320px]',
+    shape: 'horizontal',
   },
   [ProgrammaticAdFormat.Native]: {
     label: 'Native',
@@ -158,17 +178,31 @@ function getInsAttributes(
   }
 
   if (config.width && config.height) {
+    // The opt-out applies here too: the units are responsive on the AdSense
+    // side, and without it a phone user agent had the tag rewrite a fixed
+    // 320x50 into a 390x390 with a negative margin, the same full-width
+    // expansion as below.
     return {
       style: {
         display: 'inline-block',
         width: config.width,
         height: config.height,
       },
+      'data-full-width-responsive': 'false',
     };
   }
 
   if (shape) {
-    return { style: { display: 'block' }, 'data-ad-format': shape };
+    // Off explicitly: for a phone user agent AdSense defaults full-width
+    // responsive ON and stretches the ins to the screen width, past the
+    // wrapper's IAB cap — a 390px ins overflowing a 300px card, and a 390x390
+    // request for a horizontal unit that nothing fills. Off, the ins takes
+    // the wrapper's width and the shape decides the height.
+    return {
+      style: { display: 'block' },
+      'data-ad-format': shape,
+      'data-full-width-responsive': 'false',
+    };
   }
 
   return {
@@ -188,6 +222,12 @@ export interface ProgrammaticAdProps {
   refreshes?: boolean;
   /** Drops the slot below the tablet breakpoint (and its request with it). */
   hideOnPhone?: boolean;
+  /**
+   * The bare unit: no "Advertisements" row and the tighter padding, for a
+   * placement pinned on screen where every pixel of chrome is permanent.
+   * AdSense treats the label as optional, so nothing is owed here.
+   */
+  compact?: boolean;
   /**
    * Requests the ad on mount instead of waiting to near the viewport. For
    * slots visible at first paint the intersection wait only adds latency —
@@ -217,6 +257,7 @@ export function ProgrammaticAd({
   className,
   refreshes,
   hideOnPhone,
+  compact,
   eager,
   logExtra,
 }: ProgrammaticAdProps): ReactElement {
@@ -520,7 +561,8 @@ export function ProgrammaticAd({
         // padding would shrink the usable width below the IAB cap the
         // FORMAT_SPEC widths exist to guarantee (300x250 no longer fits a
         // padded max-w-[300px]).
-        'mx-auto w-full rounded-8 bg-white py-2 text-center',
+        'mx-auto w-full rounded-8 bg-white text-center',
+        compact ? 'py-1' : 'py-2',
         // AdSense stamps data-ad-status="unfilled" when no creative was
         // returned. Without collapsing, the reserved min-height stays behind as
         // a block of empty page — most visible in the comment thread, where an
@@ -530,7 +572,8 @@ export function ProgrammaticAd({
         // unfilled phone-hidden slot would stay visible from tablet up.
         'has-[>ins[data-ad-status="unfilled"]]:!hidden',
         hideOnPhone && 'hidden tablet:block',
-        FORMAT_SPEC[format].minHeight,
+        (compact && FORMAT_SPEC[format].compactMinHeight) ||
+          FORMAT_SPEC[format].minHeight,
         FORMAT_SPEC[format].maxWidth,
         className,
       )}
@@ -541,7 +584,7 @@ export function ProgrammaticAd({
           slot's collapse takes the label down with it. */}
       {/* Constant gray, not a theme token: the label sits on the card's
           constant white, where a dark-theme quaternary would vanish. */}
-      {isRequested && (
+      {isRequested && !compact && (
         <span className="block pb-1 pr-1 text-right text-raw-pepper-10 typo-caption2">
           Advertisements
         </span>

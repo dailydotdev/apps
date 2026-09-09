@@ -24,7 +24,8 @@ const CustomAuthBanner = (): ReactElement | null => {
       className={{
         container: classNames(
           authGradientBg,
-          'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-accent-cabbage-default px-4 py-2',
+          // Under PhoneTopAdStrip when it renders, at the top otherwise.
+          'sticky left-0 top-[var(--phone-top-ad-height,0px)] z-max w-full justify-center gap-2 border-b border-accent-cabbage-default px-4 py-2',
         ),
         button: 'flex-1 tablet:max-w-[9rem]',
       }}
