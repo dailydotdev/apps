@@ -117,12 +117,19 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
     PREMIUM_SLOT_COUNT + communityDeck.length,
   );
 
-  // Reserved from the pool rather than read off the rendered row: the row
-  // fills a render later than the measurement does, and a community count that
-  // subtracted an as-yet-empty premium row would open slots it is about to
-  // take back — each one logging an impression and firing a pixel on its way
-  // through.
-  const premiumSlots = Math.min(PREMIUM_SLOT_COUNT, premiumDeck.length);
+  // Bounded by the measured wall as well as the pool. The wall is
+  // `overflow-hidden` and a slot opens its impression and air time in a mount
+  // effect rather than on viewport, so a premium mark mounted past the fit
+  // books an impression it was never seen for — in the paid tier, at the
+  // narrowest width the strip supports. Reserved from the pool rather than
+  // counted off the rendered row, which fills a render later than the
+  // measurement; `useFittedSlots` measures in a layout effect, so this lands
+  // before paint rather than after a passive effect has already logged.
+  const premiumSlots = Math.min(
+    PREMIUM_SLOT_COUNT,
+    premiumDeck.length,
+    wallSlots,
+  );
 
   // Themed logos resolve here rather than in the decks, so switching theme
   // repaints the row without dealing anybody a different slot.

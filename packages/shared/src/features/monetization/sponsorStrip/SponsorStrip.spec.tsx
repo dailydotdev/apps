@@ -153,6 +153,56 @@ const setHeadlines = (next: StatuslineItem[]) => {
 const publishedHeight = (): string =>
   document.documentElement.style.getPropertyValue('--sponsor-strip-height');
 
+// SLOT_WIDTH 88 + SLOT_GAP 16: floor((200 + 16) / 104) === 2 wall slots, fewer
+// than the four premium marks the deck holds.
+const NARROW_WALL_WIDTH = 200;
+const NARROW_WALL_SLOTS = 2;
+
+const setWallWidth = (width: number) =>
+  jest
+    .spyOn(Element.prototype, 'getBoundingClientRect')
+    .mockReturnValue({ width } as DOMRect);
+
+// Gold sits outside the measured wall; premium and community share it.
+const NARROW_TOTAL_LOGOS = NARROW_WALL_SLOTS + 1;
+
+// The wall is overflow-hidden and a slot books its impression and opens its air
+// time on mount, not on viewport — so a premium mark mounted past the fit would
+// be paid-tier inventory logged as seen while clipped out of sight.
+it('should not mount more premium slots than the measured wall fits', async () => {
+  setWallWidth(NARROW_WALL_WIDTH);
+  renderStrip();
+  await settle();
+
+  const logos = shownLogos();
+
+  expect(logos.filter((company) => company === 'gold')).toHaveLength(1);
+  expect(logos.filter((company) => PREMIUM.includes(company))).toHaveLength(
+    NARROW_WALL_SLOTS,
+  );
+  // Premium already took the whole wall, so community gets nothing — the tier
+  // order is what survives the squeeze, not the premium count.
+  expect(logos.filter((company) => COMMUNITY.includes(company))).toHaveLength(
+    0,
+  );
+});
+
+it('should book no impression for a premium mark the wall cannot fit', async () => {
+  setWallWidth(NARROW_WALL_WIDTH);
+  renderStrip();
+  await settle();
+
+  expect(callsFor(AdActions.Impression)).toHaveLength(NARROW_TOTAL_LOGOS);
+});
+
+it('should open no air time for a premium mark the wall cannot fit', async () => {
+  setWallWidth(NARROW_WALL_WIDTH);
+  renderStrip();
+  await settle();
+
+  expect(logEventStart).toHaveBeenCalledTimes(NARROW_TOTAL_LOGOS);
+});
+
 it('should render the gold sponsor, four premium slots and the community row', async () => {
   renderStrip();
   await settle();

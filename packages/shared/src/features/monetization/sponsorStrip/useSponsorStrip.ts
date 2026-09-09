@@ -12,20 +12,13 @@ interface UseSponsorStripProps {
 }
 
 /**
- * The strip shows on the feeds that can show a Happening Now card, and on no
- * others. Sharing one set with the card means the two can never disagree: the
- * strip cannot appear on a feed whose card it does not replace, and the card
- * cannot be suppressed on a feed the strip never reaches.
+ * The strip shows on the main feeds and on no others, reusing the hero-eligible
+ * set rather than keeping a second list of feed names in step with it.
  */
 const isSponsorStripFeed = (feedName?: string): boolean =>
   !!feedName && HERO_ELIGIBLE_FEEDS.has(feedName as AllFeedPages);
 
-/**
- * The single gate for the sponsor strip. Both the strip itself and the feed's
- * Happening Now suppression read it, so "is the strip showing" and "is the
- * card hidden" are the same answer rather than two conditions that have to be
- * kept in step.
- */
+/** The single gate for the sponsor strip: flag, surface, viewport and ads. */
 export const useSponsorStrip = ({
   feedName,
   disableAds,
