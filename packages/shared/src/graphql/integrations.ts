@@ -44,31 +44,31 @@ export const SLACK_CHANNELS_QUERY = gql`
   }
 `;
 
-export const SLACK_RECENT_CHANNELS_QUERY = gql`
-  query SlackRecentChannels($integrationId: ID!) {
-    slackRecentChannels(integrationId: $integrationId) {
+export const INTEGRATION_RECENT_CHANNELS_QUERY = gql`
+  query IntegrationRecentChannels($integrationId: ID!) {
+    integrationRecentChannels(integrationId: $integrationId) {
       id
       name
     }
   }
 `;
 
-export const slackRecentChannelsQueryOptions = ({
+export const integrationRecentChannelsQueryOptions = ({
   integrationId,
   user,
 }: {
   integrationId?: string;
   user?: LoggedUser;
 }) => ({
-  queryKey: generateQueryKey(RequestKey.SlackRecentChannels, user, {
+  queryKey: generateQueryKey(RequestKey.IntegrationRecentChannels, user, {
     integrationId,
   }),
   queryFn: async (): Promise<SlackChannel[]> => {
-    const { slackRecentChannels } = await gqlClient.request<{
-      slackRecentChannels: SlackChannel[];
-    }>(SLACK_RECENT_CHANNELS_QUERY, { integrationId });
+    const { integrationRecentChannels } = await gqlClient.request<{
+      integrationRecentChannels: SlackChannel[];
+    }>(INTEGRATION_RECENT_CHANNELS_QUERY, { integrationId });
 
-    return slackRecentChannels;
+    return integrationRecentChannels;
   },
   staleTime: StaleTime.Default,
   enabled: !!integrationId && !!user,

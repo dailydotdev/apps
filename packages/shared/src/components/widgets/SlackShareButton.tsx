@@ -20,12 +20,8 @@ export const SlackShareButton = ({
   origin,
   size,
   variant = ButtonVariant.Primary,
-}: SlackShareButtonProps): ReactElement | null => {
-  const { isEnabled, onClick } = useSlackShareButton({ post, origin });
-
-  if (!isEnabled) {
-    return null;
-  }
+}: SlackShareButtonProps): ReactElement => {
+  const { onClick } = useSlackShareButton({ post, origin });
 
   return (
     <SocialShareButton

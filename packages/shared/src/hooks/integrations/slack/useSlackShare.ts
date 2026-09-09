@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../../graphql/common';
 import {
   SLACK_POST_MESSAGE_MUTATION,
-  slackRecentChannelsQueryOptions,
+  integrationRecentChannelsQueryOptions,
   UserIntegrationType,
 } from '../../../graphql/integrations';
 import type { UserIntegration } from '../../../graphql/integrations';
@@ -52,7 +52,7 @@ export const useSlackShare = (): UseSlackShare => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: slackRecentChannelsQueryOptions({
+        queryKey: integrationRecentChannelsQueryOptions({
           integrationId: integration!.id,
           user,
         }).queryKey,

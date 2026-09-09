@@ -4,15 +4,12 @@ import { UserIntegrationType } from '../../../graphql/integrations';
 import { useSlackShare } from './useSlackShare';
 import { useLazyModal } from '../../useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
-import { useConditionalFeature } from '../../useConditionalFeature';
-import { featureSlackShare } from '../../../lib/featureManagement';
 import { useLogContext } from '../../../contexts/LogContext';
 import type { Origin } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { getPathnameWithQuery } from '../../../lib/links';
 
 export type UseSlackShareButton = {
-  isEnabled: boolean;
   onClick: () => void;
 };
 
@@ -28,10 +25,6 @@ export const useSlackShareButton = ({
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { integration, isLoading, connect } = useSlackShare();
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureSlackShare,
-    shouldEvaluate: !!post,
-  });
 
   const openPicker = useCallback(() => {
     openModal({ type: LazyModal.SlackShare, props: { post, origin } });
@@ -94,5 +87,5 @@ export const useSlackShareButton = ({
     openPicker();
   }, [isLoading, integration, post.id, openPicker]);
 
-  return { isEnabled, onClick };
+  return { onClick };
 };

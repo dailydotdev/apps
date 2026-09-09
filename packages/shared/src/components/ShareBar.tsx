@@ -14,7 +14,6 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import type { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
 import { SlackShareButton } from './widgets/SlackShareButton';
-import { useSlackShareButton } from '../hooks/integrations/slack/useSlackShareButton';
 import { getShareableSquads, SquadsToShare } from './squads/SquadsToShare';
 import { Button } from './buttons/Button';
 import { ButtonSize, ButtonVariant } from './buttons/common';
@@ -29,8 +28,9 @@ interface ShareBarProps {
 
 const visibleRows = 2;
 const columns = 4;
-const baseFixedOptions = 4;
+const fixedOptions = 5;
 const maxVisibleOptions = visibleRows * columns;
+const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
 
 export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -43,18 +43,11 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const { logOpts } = useContext(ActiveFeedContext);
   const { squads } = useAuthContext();
 
-  const { isEnabled: isSlackShareEnabled } = useSlackShareButton({
-    post,
-    origin: Origin.ShareBar,
-  });
-
   const shareableSquadsCount = useMemo(
     () => getShareableSquads(squads).length,
     [squads],
   );
   const squadOptionsCount = shareableSquadsCount || 1;
-  const fixedOptions = baseFixedOptions + (isSlackShareEnabled ? 1 : 0);
-  const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
   const totalOptionsCount = fixedOptions + squadOptionsCount;
   const shouldShowToggle = totalOptionsCount > maxVisibleOptions;
 

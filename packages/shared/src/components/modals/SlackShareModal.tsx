@@ -16,7 +16,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import type { Post } from '../../graphql/posts';
-import { slackRecentChannelsQueryOptions } from '../../graphql/integrations';
+import { integrationRecentChannelsQueryOptions } from '../../graphql/integrations';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -45,7 +45,10 @@ const SlackShareModal = ({
   const { user } = useAuthContext();
   const { integration, isLoading, share, isSharing } = useSlackShare();
   const { data: recentChannels = [] } = useQuery(
-    slackRecentChannelsQueryOptions({ integrationId: integration?.id, user }),
+    integrationRecentChannelsQueryOptions({
+      integrationId: integration?.id,
+      user,
+    }),
   );
   const {
     channels,
