@@ -234,6 +234,7 @@ describe('ReadAdSlot', () => {
     );
     expect(ins).toHaveStyle({ width: '300px', height: '250px' });
     expect(ins).not.toHaveAttribute('data-ad-format');
+    expect(ins).toHaveAttribute('data-full-width-responsive', 'false');
   });
 
   it('never renders for logged-in users', () => {

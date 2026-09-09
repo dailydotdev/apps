@@ -172,12 +172,17 @@ function getInsAttributes(
   }
 
   if (config.width && config.height) {
+    // The opt-out applies here too: the units are responsive on the AdSense
+    // side, and without it a phone user agent had the tag rewrite a fixed
+    // 320x50 into a 390x390 with a negative margin, the same full-width
+    // expansion as below.
     return {
       style: {
         display: 'inline-block',
         width: config.width,
         height: config.height,
       },
+      'data-full-width-responsive': 'false',
     };
   }
 
