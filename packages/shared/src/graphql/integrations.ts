@@ -34,7 +34,7 @@ export type UserSourceIntegration = {
 
 export const SLACK_CHANNELS_QUERY = gql`
   query SlackChannels($integrationId: ID!, $cursor: String) {
-    slackChannels(integrationId: $integrationId, limit: 100, cursor: $cursor) {
+    slackChannels(integrationId: $integrationId, limit: 200, cursor: $cursor) {
       data {
         id
         name

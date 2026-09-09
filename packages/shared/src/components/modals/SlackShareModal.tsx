@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
-import { Dropdown } from '../fields/Dropdown';
+import Autocomplete from '../fields/Autocomplete';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { SlackIcon } from '../icons';
@@ -40,6 +40,8 @@ export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
 const channelLabel = (name: string) =>
   name.startsWith('#') ? name : `#${name}`;
 
+const maxVisibleChannels = 50;
+
 const SlackShareModal = ({
   post,
   origin,
@@ -56,17 +58,27 @@ const SlackShareModal = ({
       user,
     }),
   );
-  const {
-    channels,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading: isLoadingChannels,
-  } = useSlackChannelsQuery({
+  const { channels, isFetchingAll } = useSlackChannelsQuery({
     integrationId: integration?.id ?? '',
     queryOptions: { enabled: !!integration?.id },
+    fetchAll: true,
   });
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [channelQuery, setChannelQuery] = useState('');
+  const [selectedChannelId, setSelectedChannelId] = useState<string>();
+
+  const channelOptions = useMemo(() => {
+    const query = channelQuery.trim().toLowerCase().replace(/^#/, '');
+    const matches = query
+      ? channels.filter(({ name }) => name.toLowerCase().includes(query))
+      : channels;
+
+    // the popover renders one button per option, and a large workspace has
+    // thousands; the search is how you reach the rest
+    return matches.slice(0, maxVisibleChannels).map(({ id, name }) => ({
+      value: id,
+      label: channelLabel(name),
+    }));
+  }, [channels, channelQuery]);
 
   const onShare = async (
     channelId: string,
@@ -170,38 +182,29 @@ const SlackShareModal = ({
               </div>
             </div>
           )}
-          <div className="flex flex-col gap-2">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              All channels
-            </Typography>
-            <Dropdown
-              placeholder={
-                isLoadingChannels ? 'Loading channels' : 'Select channel'
-              }
-              shouldIndicateSelected
-              buttonSize={ButtonSize.Medium}
-              iconOnly={false}
-              selectedIndex={selectedIndex}
-              options={channels.map(({ name }) => channelLabel(name))}
-              onChange={(_, index) => setSelectedIndex(index)}
-              scrollable
-              fetchNextPage={fetchNextPage}
-              canFetchMore={hasNextPage}
-              isFetchingNextPage={isFetchingNextPage}
-            />
-          </div>
+          <Autocomplete
+            name="slack-channel"
+            label="All channels"
+            placeholder={
+              isFetchingAll ? 'Loading channels' : 'Search for a channel'
+            }
+            options={channelOptions}
+            isLoading={isFetchingAll}
+            selectedValue={selectedChannelId}
+            onChange={setChannelQuery}
+            onSelect={setSelectedChannelId}
+          />
           <Button
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
-            disabled={selectedIndex < 0}
+            disabled={!selectedChannelId}
             loading={isSharing}
-            onClick={(event: React.MouseEvent) =>
-              onShare(channels[selectedIndex].id, 'list', event)
-            }
+            onClick={(event: React.MouseEvent) => {
+              if (selectedChannelId) {
+                onShare(selectedChannelId, 'list', event);
+              }
+            }}
           >
             Share
           </Button>
