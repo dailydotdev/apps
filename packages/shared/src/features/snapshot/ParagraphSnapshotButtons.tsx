@@ -10,6 +10,22 @@ const MIN_LENGTH = 80;
 const SLOT_ATTRIBUTE = 'data-paragraph-snapshot';
 
 /**
+ * The paragraph's own words, with whatever this has appended to it left out.
+ * Reading `textContent` straight would fold the control — and anything it ever
+ * renders — into the text the button captures, and into the signature that
+ * decides whether the body has changed.
+ */
+const proseOf = (paragraph: HTMLElement): string => {
+  const clone = paragraph.cloneNode(true) as HTMLElement;
+
+  clone
+    .querySelectorAll(`[${SLOT_ATTRIBUTE}]`)
+    .forEach((slot) => slot.remove());
+
+  return (clone.textContent ?? '').trim();
+};
+
+/**
  * A snapshot control at the end of every paragraph of a rendered markdown
  * body, so a claim can be lifted out of a freeform post as a card the way the
  * TLDR and a highlighted quote can.
@@ -39,11 +55,9 @@ export function ParagraphSnapshotButtons({
     }
 
     const paragraphs = Array.from(container.querySelectorAll('p')).filter(
-      (paragraph) => (paragraph.textContent ?? '').trim().length >= MIN_LENGTH,
+      (paragraph) => proseOf(paragraph).length >= MIN_LENGTH,
     );
-    const nextSignature = paragraphs
-      .map((paragraph) => (paragraph.textContent ?? '').trim())
-      .join(' ');
+    const nextSignature = paragraphs.map(proseOf).join(' ');
 
     if (nextSignature === signature.current) {
       return;
@@ -52,7 +66,7 @@ export function ParagraphSnapshotButtons({
     signature.current = nextSignature;
     setSlots(
       paragraphs.map((paragraph) => {
-        const text = (paragraph.textContent ?? '').trim();
+        const text = proseOf(paragraph);
         const existing = paragraph.querySelector<HTMLElement>(
           `[${SLOT_ATTRIBUTE}]`,
         );

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
+import { createPortal } from 'react-dom';
 import type { ButtonVariant } from '../../components/buttons/common';
 import { ButtonSize } from '../../components/buttons/common';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
@@ -16,7 +17,12 @@ import { useArmedCard } from './useArmedCard';
  * into a thread does not.
  *
  * The card is staged off-screen at its full 1080px because the capture reads
- * the live DOM: it has to be mounted before the press, not after.
+ * the live DOM: it has to be mounted before the press, not after. It is
+ * portalled to the body rather than rendered where the button sits: the button
+ * trails prose, and a card left inside that prose would be a `div` inside a
+ * `p`, and would fold its own copy of the passage into the paragraph's
+ * `textContent` — which is what ParagraphSnapshotButtons reads to decide what
+ * each button captures.
  */
 export function TextSnapshotButton({
   post,
@@ -56,19 +62,22 @@ export function TextSnapshotButton({
           variant={variant}
         />
       </span>
-      {isArmed && (
-        <div
-          aria-hidden
-          className="pointer-events-none fixed left-[-300vw] top-0"
-        >
-          <HighlightTextSnapshotCard
-            ref={cardRef}
-            seed={post.id}
-            source={snapshotSource(post)}
-            text={text}
-          />
-        </div>
-      )}
+      {isArmed &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            aria-hidden
+            className="pointer-events-none fixed left-[-300vw] top-0"
+          >
+            <HighlightTextSnapshotCard
+              ref={cardRef}
+              seed={post.id}
+              source={snapshotSource(post)}
+              text={text}
+            />
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

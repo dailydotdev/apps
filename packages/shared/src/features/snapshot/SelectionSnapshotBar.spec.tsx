@@ -84,3 +84,41 @@ describe('SelectionSnapshotBar', () => {
     expect(toolbar()).not.toBeInTheDocument();
   });
 });
+
+describe('SelectionSnapshotBar placement', () => {
+  const rectAt = (rect: Partial<DOMRect>) => {
+    Range.prototype.getBoundingClientRect = () =>
+      ({ top: 400, bottom: 440, left: 100, width: 300, ...rect } as DOMRect);
+  };
+
+  const barStyle = () =>
+    screen.getByRole('toolbar', { name: 'Share selected text' }).style;
+
+  afterAll(() => rectAt({}));
+
+  it('keeps the bar on screen when the quote sits at the bottom edge', () => {
+    // The post modal is a short scroll area, so a quote can end at the very
+    // bottom of the viewport. Flipping below it would put the bar off screen.
+    Object.assign(globalThis, { innerHeight: 800, innerWidth: 1440 });
+    rectAt({ top: 4, bottom: 790 });
+
+    renderBar();
+    select('body');
+
+    const top = parseFloat(barStyle().top);
+    expect(top).toBeGreaterThanOrEqual(8);
+    expect(top).toBeLessThanOrEqual(800 - 44 - 8);
+  });
+
+  it('keeps the bar clear of the side edges', () => {
+    Object.assign(globalThis, { innerHeight: 800, innerWidth: 1440 });
+    rectAt({ left: 1430, width: 10 });
+
+    renderBar();
+    select('body');
+
+    const left = parseFloat(barStyle().left);
+    expect(left).toBeLessThanOrEqual(1440 - 96);
+    expect(left).toBeGreaterThanOrEqual(96);
+  });
+});
