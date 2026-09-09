@@ -6,7 +6,13 @@ import type { Squad } from '../../../graphql/sources';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { CopyIcon, ShareIcon, TwitterIcon, WhatsappIcon } from '../../icons';
+import {
+  CopyIcon,
+  ShareIcon,
+  SlackIcon,
+  TwitterIcon,
+  WhatsappIcon,
+} from '../../icons';
 import { useCopyPostLink } from '../../../hooks/useCopyPostLink';
 import { useGetShortUrl } from '../../../hooks';
 import { getShareLink, ShareProvider } from '../../../lib/share';
@@ -18,6 +24,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { ReferralCampaignKey } from '../../../lib';
 import { getShareableSquads } from '../../squads/SquadsToShare';
+import { useSlackShareButton } from '../../../hooks/integrations/slack/useSlackShareButton';
 import SourceProfilePicture from '../../profile/SourceProfilePicture';
 import { ProfileImageSize } from '../../ProfilePicture';
 
@@ -37,7 +44,7 @@ const mobileInlineSquads = 2;
 
 /**
  * Compact share row for the discussion panel. Surfaces the most-used quick
- * actions (copy, X, WhatsApp) inline and defers the long tail (Facebook,
+ * actions (copy, Slack, X, WhatsApp) inline and defers the long tail (Facebook,
  * squads, native share) to the full Share modal behind a single "more" action.
  */
 export const DiscussionShareRow = ({
@@ -52,6 +59,10 @@ export const DiscussionShareRow = ({
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { squads } = useAuthContext();
+  const { onClick: onShareToSlack } = useSlackShareButton({
+    post,
+    origin: Origin.ShareBar,
+  });
   const inlineSquads = withSquads
     ? getShareableSquads(squads).slice(0, maxInlineSquads)
     : [];
@@ -118,6 +129,16 @@ export const DiscussionShareRow = ({
               />
             }
             onClick={onCopy}
+            size={ButtonSize.Small}
+            type="button"
+            variant={ButtonVariant.Tertiary}
+          />
+        </Tooltip>
+        <Tooltip content="Share on Slack">
+          <Button
+            aria-label="Share on Slack"
+            icon={<SlackIcon />}
+            onClick={onShareToSlack}
             size={ButtonSize.Small}
             type="button"
             variant={ButtonVariant.Tertiary}
