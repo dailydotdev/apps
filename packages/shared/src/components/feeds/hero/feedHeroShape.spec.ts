@@ -1,4 +1,4 @@
-import { feedHeroShape } from './feedHeroShape';
+import { feedHeroShape, MAX_HERO_COLUMNS } from './feedHeroShape';
 
 describe('feedHeroShape', () => {
   // One column is excluded: it stacks rather than laying out on a grid.
@@ -6,6 +6,22 @@ describe('feedHeroShape', () => {
     const { featuredSpan, railSpan, adSpan } = feedHeroShape(columns);
 
     expect(featuredSpan + railSpan + adSpan).toBe(columns);
+  });
+
+  // The section writes its column classes out by hand and stops at this count.
+  // A shape that laid out beyond it would ask for classes that do not exist.
+  it('lays out on every column count the section has classes for', () => {
+    for (let columns = 2; columns <= MAX_HERO_COLUMNS; columns += 1) {
+      expect(feedHeroShape(columns).layout).not.toBe('stacked');
+    }
+  });
+
+  it('stacks a count past the widest row the section can class', () => {
+    expect(feedHeroShape(MAX_HERO_COLUMNS + 1)).toMatchObject({
+      columns: 1,
+      layout: 'stacked',
+      adPlacement: 'none',
+    });
   });
 
   it('stacks the phone, where there is one column to share', () => {

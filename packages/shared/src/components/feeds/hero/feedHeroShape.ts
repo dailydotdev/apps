@@ -8,6 +8,13 @@ export type FeedHeroAdPlacement = 'none' | 'column';
  */
 export type FeedHeroLayout = 'stacked' | 'split' | 'wide';
 
+/**
+ * Widest row the section has column classes written out for — Tailwind only
+ * generates what it can see, so `FeedHeroSection`'s maps stop here too. A count
+ * beyond it stacks rather than laying out on classes that do not exist.
+ */
+export const MAX_HERO_COLUMNS = 6;
+
 export type FeedHeroShape = {
   /** Columns in the hero's row — the feed grid's own count. */
   columns: number;
@@ -29,7 +36,7 @@ export const feedHeroShape = (
   columns: number,
   isList = false,
 ): FeedHeroShape => {
-  if (isList || columns <= 1) {
+  if (isList || columns <= 1 || columns > MAX_HERO_COLUMNS) {
     return {
       columns: 1,
       featuredSpan: 1,

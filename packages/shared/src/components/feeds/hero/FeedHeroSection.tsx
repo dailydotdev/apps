@@ -11,7 +11,11 @@ import { FeedHeroCarousel } from './FeedHeroCarousel';
 import type { FeedHeroAdPlacement, FeedHeroShape } from './feedHeroShape';
 import { feedHeroShape } from './feedHeroShape';
 
-/** Written out, not built: Tailwind only generates the classes it can see. */
+/**
+ * Written out, not built: Tailwind only generates the classes it can see. Must
+ * cover every count up to `MAX_HERO_COLUMNS`, which is what `feedHeroShape`
+ * stacks above — `feedHeroShape.spec.ts` pins the two together.
+ */
 const gridColsClass: Partial<Record<number, string>> = {
   2: 'grid-cols-2',
   3: 'grid-cols-3',
@@ -60,10 +64,7 @@ export function FeedHeroSection({
 }: FeedHeroSectionProps): ReactElement {
   const adProps = { onLinkClick: onAdLinkClick, onViewable: onAdViewable };
   const { columns, featuredSpan, railSpan, layout } = shape;
-  // A column count with no class written out would render an unclassed grid —
-  // one implicit column with `col-span-3` children overflowing it. Stacking is
-  // a layout the reader can still use.
-  const isStacked = layout === 'stacked' || !gridColsClass[columns];
+  const isStacked = layout === 'stacked';
 
   return (
     <div className={classNames('w-full', className)}>

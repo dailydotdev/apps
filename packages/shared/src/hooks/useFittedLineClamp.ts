@@ -11,7 +11,11 @@ interface FittedLineClamp {
   /**
    * Apply to the text. `-webkit-line-clamp: 0` is invalid and would be dropped,
    * leaving the text unclamped for its `overflow-hidden` parent to slice
-   * through a glyph row — so no room at all hides the block instead.
+   * through a glyph row, so no room at all hides the block instead.
+   *
+   * `visibility`, not `display`: the measurement reads this element's own top
+   * edge, and `display: none` reports a 0x0 box at the origin — which measures
+   * as a full viewport of room, brings the text back, and oscillates.
    */
   style: CSSProperties;
 }
@@ -66,6 +70,11 @@ export const useFittedLineClamp = (maxLines: number): FittedLineClamp => {
     return () => observer.disconnect();
   }, [container, text, maxLines]);
 
+  const style = useMemo<CSSProperties>(
+    () => (lines > 0 ? { WebkitLineClamp: lines } : { visibility: 'hidden' }),
+    [lines],
+  );
+
   return {
     containerRef: useCallback((node: HTMLElement | null) => {
       setContainer(node);
@@ -74,10 +83,6 @@ export const useFittedLineClamp = (maxLines: number): FittedLineClamp => {
       setText(node);
     }, []),
     lines,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    style: useMemo(
-      () => (lines > 0 ? { WebkitLineClamp: lines } : { display: 'none' }),
-      [lines],
-    ),
+    style,
   };
 };

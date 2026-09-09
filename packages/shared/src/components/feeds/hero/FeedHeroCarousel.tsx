@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSwipeable } from 'react-swipeable';
+import { useInView } from 'react-intersection-observer';
 import type { Post } from '../../../graphql/posts';
 import type { FeaturedWideCardProps } from '../../cards/common/featuredWide';
 import { PostTypeToWideCard } from '../../cards/common/wideCards';
@@ -45,17 +46,20 @@ export const FeedHeroCarousel = ({
   // Slides the reader has actually been shown. Only the active one is visible,
   // so the rest are deliberately never counted.
   const logged = useRef(new Set<string>());
+  // The same threshold the grid's cards use, so a hero impression and a card
+  // impression mean the same thing when the two are compared.
+  const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
   const active = posts.length ? wrapIndex(slide.index, posts.length) : 0;
   const shown = layout === 'stacked' ? posts[0] : posts[active];
 
   useEffect(() => {
-    if (!shown || logged.current.has(shown.id)) {
+    if (!inView || !shown || logged.current.has(shown.id)) {
       return;
     }
 
     logged.current.add(shown.id);
     onPostImpression?.(shown);
-  }, [shown, onPostImpression]);
+  }, [inView, shown, onPostImpression]);
 
   const total = posts.length;
 
@@ -107,6 +111,7 @@ export const FeedHeroCarousel = ({
 
     return (
       <section
+        ref={inViewRef}
         aria-label="Featured post"
         className={classNames('flex min-w-0 flex-col', className)}
       >
@@ -155,6 +160,7 @@ export const FeedHeroCarousel = ({
 
   return (
     <section
+      ref={inViewRef}
       aria-label="Featured posts"
       aria-roledescription="carousel"
       className={classNames(
@@ -207,7 +213,13 @@ export const FeedHeroCarousel = ({
                         '--feed-hero-carousel-duration': `${autoplayMs}ms`,
                       } as CSSProperties
                     }
-                    className="feed-hero-carousel-progress block h-full w-full rounded-max bg-text-primary group-focus-within/hero:[animation-play-state:paused] group-hover/hero:[animation-play-state:paused]"
+                    className={classNames(
+                      'feed-hero-carousel-progress block h-full w-full rounded-max bg-text-primary group-focus-within/hero:[animation-play-state:paused] group-hover/hero:[animation-play-state:paused]',
+                      // Off screen the rotation would burn through all four
+                      // posts unseen, and take the ad column's neighbour with
+                      // it.
+                      !inView && '[animation-play-state:paused]',
+                    )}
                     onAnimationEnd={() => moveTo(active + 1)}
                   />
                 )}
