@@ -28,11 +28,15 @@ export type UseSlackShare = {
   isSharing: boolean;
 };
 
-export const useSlackShare = (): UseSlackShare => {
+export const useSlackShare = ({
+  enabled = true,
+}: { enabled?: boolean } = {}): UseSlackShare => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const { connect } = useSlack();
-  const { data: integrations, isLoading } = useIntegrationsQuery();
+  const { data: integrations, isLoading } = useIntegrationsQuery({
+    queryOptions: { enabled },
+  });
 
   // prefer a workspace that can post as the person, but fall back to any
   // connected one: sharing as the app beats not sharing at all

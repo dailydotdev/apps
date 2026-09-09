@@ -22,6 +22,7 @@ import {
   UserIntegrationType,
 } from '../../graphql/integrations';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
+import { getSlackShareRedirectPath } from '../../hooks/integrations/slack/useSlackShareButton';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -112,7 +113,7 @@ const SlackShareModal = ({
       extra: JSON.stringify({ origin, reason: 'upgrade' }),
     });
 
-    connect(window.location.pathname);
+    connect(getSlackShareRedirectPath(post));
   };
 
   return (
