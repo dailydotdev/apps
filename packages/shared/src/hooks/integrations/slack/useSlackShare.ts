@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../../graphql/common';
 import {
-  SLACK_POST_MESSAGE_MUTATION,
+  INTEGRATION_SHARE_POST_MUTATION,
   integrationRecentChannelsQueryOptions,
   UserIntegrationType,
 } from '../../../graphql/integrations';
@@ -51,7 +51,7 @@ export const useSlackShare = (): UseSlackShare => {
       channelId: string;
       postId: string;
     }) => {
-      await gqlClient.request(SLACK_POST_MESSAGE_MUTATION, {
+      await gqlClient.request(INTEGRATION_SHARE_POST_MUTATION, {
         integrationId: integration!.id,
         channelId,
         postId,

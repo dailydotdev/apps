@@ -74,13 +74,13 @@ export const integrationRecentChannelsQueryOptions = ({
   enabled: !!integrationId && !!user,
 });
 
-export const SLACK_POST_MESSAGE_MUTATION = gql`
-  mutation SlackPostMessage(
+export const INTEGRATION_SHARE_POST_MUTATION = gql`
+  mutation IntegrationSharePost(
     $integrationId: ID!
     $channelId: ID!
     $postId: ID!
   ) {
-    slackPostMessage(
+    integrationSharePost(
       integrationId: $integrationId
       channelId: $channelId
       postId: $postId
