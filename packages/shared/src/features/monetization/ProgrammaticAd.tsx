@@ -21,6 +21,7 @@ export enum ProgrammaticAdFormat {
   MediumRectangle = 'mediumRectangle',
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
+  MobileBanner = 'mobileBanner',
   Native = 'native',
 }
 
@@ -58,10 +59,12 @@ type FormatSpec = {
 };
 
 export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
-  // Leaderboard on desktop, large mobile banner on a phone.
+  // Leaderboard on desktop; the phone header is the MobileBanner twin below.
+  // The phone cap stays so a Leaderboard left visible on a phone still comes
+  // back as a banner rather than whatever else fits the column.
   [ProgrammaticAdFormat.Leaderboard]: {
     label: 'Leaderboard',
-    size: '728x90 · 320x50 / 320x100 mobile',
+    size: '728x90 · 320x100 mobile',
     minHeight: 'min-h-[136px] tablet:min-h-[126px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
     shape: 'horizontal',
@@ -91,6 +94,17 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     minHeight: 'min-h-[356px]',
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
+  },
+  // The phone header unit, booked at the fixed 320x50: the smallest standard
+  // size, so the pinned header block takes the least of a phone screen, and a
+  // fixed request can only return its exact size — no expandable or video
+  // creative can answer it, which a responsive request could not rule out.
+  [ProgrammaticAdFormat.MobileBanner]: {
+    label: 'Mobile banner',
+    size: '320x50',
+    minHeight: 'min-h-[86px]',
+    maxWidth: 'max-w-[320px]',
+    shape: 'horizontal',
   },
   [ProgrammaticAdFormat.Native]: {
     label: 'Native',
@@ -158,17 +172,31 @@ function getInsAttributes(
   }
 
   if (config.width && config.height) {
+    // The opt-out applies here too: the units are responsive on the AdSense
+    // side, and without it a phone user agent had the tag rewrite a fixed
+    // 320x50 into a 390x390 with a negative margin, the same full-width
+    // expansion as below.
     return {
       style: {
         display: 'inline-block',
         width: config.width,
         height: config.height,
       },
+      'data-full-width-responsive': 'false',
     };
   }
 
   if (shape) {
-    return { style: { display: 'block' }, 'data-ad-format': shape };
+    // Off explicitly: for a phone user agent AdSense defaults full-width
+    // responsive ON and stretches the ins to the screen width, past the
+    // wrapper's IAB cap — a 390px ins overflowing a 300px card, and a 390x390
+    // request for a horizontal unit that nothing fills. Off, the ins takes
+    // the wrapper's width and the shape decides the height.
+    return {
+      style: { display: 'block' },
+      'data-ad-format': shape,
+      'data-full-width-responsive': 'false',
+    };
   }
 
   return {
