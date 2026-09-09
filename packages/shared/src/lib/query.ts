@@ -299,6 +299,8 @@ export enum RequestKey {
   WorldDomainRanking = 'world_domain_ranking',
   WorldRecentLevelUps = 'world_recent_level_ups',
   FollowedWorlds = 'followed_worlds',
+  ShellState = 'shell_state',
+  AchievementTracker = 'achievement_tracker',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

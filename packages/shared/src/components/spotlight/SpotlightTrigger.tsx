@@ -25,7 +25,7 @@ const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 export const SpotlightTrigger = ({
   className,
 }: SpotlightTriggerProps): ReactElement => {
-  const { open } = useSpotlight();
+  const { open, prefetch } = useSpotlight();
   const { logEvent } = useLogContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -45,6 +45,8 @@ export const SpotlightTrigger = ({
       aria-label="Open search"
       aria-keyshortcuts={isLaptop ? shortcutKeys.join('+') : undefined}
       onClick={onOpen}
+      onMouseEnter={prefetch}
+      onFocus={prefetch}
       className={classNames(
         // Sizing, color, and shape match the production SearchPanel field.
         'relative flex h-12 w-full items-center overflow-hidden rounded-12 border border-transparent bg-background-subtle px-3 text-left transition-colors',

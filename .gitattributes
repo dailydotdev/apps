@@ -1,2 +1,8 @@
 Dockerfile  eol=lf
 *.sh        eol=lf
+
+# Storybook is designer-facing and not part of any build or check. Mark it
+# generated so GitHub collapses it in pull request diffs.
+packages/storybook/** linguist-generated=true
+*.stories.tsx          linguist-generated=true
+*.mdx                  linguist-generated=true

@@ -68,6 +68,7 @@ export enum ActionType {
   DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
   ClickedNewStripCta = 'click_new_strip_cta',
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
+  SidebarTourSeen = 'sidebar_tour_seen',
 }
 
 export const cvActions = [
@@ -80,13 +81,20 @@ export interface Action {
   completedAt: Date;
 }
 
+export const USER_ACTION_FRAGMENT = gql`
+  fragment UserAction on UserAction {
+    type
+    completedAt
+  }
+`;
+
 export const COMPLETED_USER_ACTIONS = gql`
   query CompletedUserActions {
     actions {
-      type
-      completedAt
+      ...UserAction
     }
   }
+  ${USER_ACTION_FRAGMENT}
 `;
 
 export const getUserActions = async (): Promise<Action[]> => {

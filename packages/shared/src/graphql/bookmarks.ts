@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import type { EmptyResponse } from './emptyResponse';
 import { gqlClient } from './common';
+import { gqlBatchRequest } from './batch';
 
 export const SET_BOOKMARK_REMINDER = gql`
   mutation SetBookmarkReminder($postId: ID!, $remindAt: DateTime) {
@@ -72,11 +73,9 @@ export const GET_BOOKMARK_FOLDERS = gql`
 `;
 
 export const getBookmarkFolders = async (): Promise<BookmarkFolder[]> => {
-  return gqlClient
-    .request<{
-      bookmarkLists: Array<BookmarkFolder>;
-    }>(GET_BOOKMARK_FOLDERS)
-    .then((data) => data.bookmarkLists);
+  return gqlBatchRequest<{
+    bookmarkLists: Array<BookmarkFolder>;
+  }>(GET_BOOKMARK_FOLDERS).then((data) => data.bookmarkLists);
 };
 
 export const CREATE_BOOKMARK_FOLDER = gql`

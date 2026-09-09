@@ -10,6 +10,7 @@ pnpm monorepo for the daily.dev app suite:
 - `packages/extension`: Chrome/Edge/Opera extension.
 - `packages/shared`: components, hooks, GraphQL, design system. Code used by both surfaces lives here.
 - `packages/storybook`, `packages/playwright`, eslint/prettier config packages.
+- Storybook is designer territory: no Vercel deploy, no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
 
 ## Verification
 
@@ -26,6 +27,8 @@ pnpm monorepo for the daily.dev app suite:
 - Import from source files, never through barrel `index.ts` files, and don't add new barrels.
 - Queries are options-creator functions spread into `useQuery` (see `packages/shared/src/hooks/AGENTS.md`). Page or feature scoped state uses `createContextProvider` from `@kickass-coderz/react` (see `contexts/ActivePostContext.tsx`).
 - GraphQL has no codegen. Types in `packages/shared/src/graphql/types.ts` and the domain files are hand-written; update them with the query you edit.
+- Every GraphQL query is its own round trip unless it opts into `gqlBatchRequest` (`graphql/batch.ts`), which coalesces the queries fired in the same tick into one POST behind the `gql_batching` flag. Paint-blocking queries (boot, feeds, the post query) stay on `gqlClient.request`, and mutations never batch.
+- Data the shell needs on every page load for a logged-in user (actions, streak, feed list) comes from one `SHELL_STATE_QUERY` (`graphql/shellState.ts`) that `ShellStateProvider` fans out into the per-hook cache keys, so add a root field there instead of a new standalone shell query and gate the hook on `useShellState().isSettled` so it only fetches on its own as the fallback. Never merge boot, the feed, or the post query with anything slower, and gate widget queries on the surface that renders them.
 - Payment providers are per platform (`contexts/payment/index.tsx`): Paddle on web, StoreKit on iOS, a Chrome extension variant. Don't assume Paddle.
 - Native iOS/Android wrappers run the webapp shell, so `isExtension`/`BootApp` can't tell them apart. Platform comes from `getDailyClientPlatform(version)` in `packages/shared/src/lib/func.ts`, never from an extension/webapp boolean.
 

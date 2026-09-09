@@ -245,7 +245,7 @@ export async function getStaticProps({
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       ...noindexSeoProps,
-      // The article's own cover rather than the og.daily.dev generated card:
+      // The article's own cover rather than the generated share card:
       // an ad-bought click should land on exactly the image that sold it.
       ...(post.image && {
         openGraph: {

@@ -32,6 +32,10 @@ jest.mock('../../hooks/profile/useTrackedAchievement', () => ({
   useTrackedAchievement: () => mockUseTrackedAchievement(),
 }));
 
+jest.mock('../../hooks/profile/useAchievementTracker', () => ({
+  useAchievementTracker: () => ({ isSettled: true }),
+}));
+
 jest.mock('../../hooks', () => ({
   useViewSize: (...args: unknown[]) => mockUseViewSize(...args),
   ViewSize: { Laptop: 'laptop' },

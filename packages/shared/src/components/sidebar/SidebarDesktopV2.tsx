@@ -31,6 +31,7 @@ import {
   ListIcon,
   Nav,
   RAIL_ICON_SIZE,
+  RAIL_POPUP_GROUP,
   RAIL_ROW_GAP_PX,
   railColumnGapClass,
   railCountBubbleClass,
@@ -78,6 +79,7 @@ import {
   HotIcon,
   JoystickIcon,
   LinkIcon,
+  MagicIcon,
   MegaphoneIcon,
   MoveToIcon,
   NewPostIcon,
@@ -141,6 +143,11 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback/FeedbackWidget';
+import { useSidebarTourState } from '../../features/sidebarTour/useSidebarTourState';
+import { SidebarTourOverlay } from '../../features/sidebarTour/SidebarTourOverlay';
+import { PinCoach } from '../../features/sidebarTour/PinCoach';
+import { DotsCoach, useDotsCoach } from '../../features/sidebarTour/DotsCoach';
+import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/sidebarTour/useCoachAnchor';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import {
   Typography,
@@ -237,9 +244,6 @@ type RailSelection = SidebarCategoryId | typeof RAIL_HOME;
 
 const railButtonClass =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none focus-outline';
-// Shared group so the rail's click popups (support, profile menu, streak) are
-// mutually exclusive — opening one closes the others.
-const RAIL_POPUP_GROUP = 'sidebar-rail';
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
@@ -251,6 +255,9 @@ const RAIL_HOVER_SIDE_OFFSET = 12;
 // no top chrome to clip against, so a snug override re-centers tooltips
 // with their triggers.
 const RAIL_TOOLTIP_COLLISION_PADDING = 4;
+// Grace period before the sidebar tour auto-starts, so it measures a rail that
+// has finished settling (dock shortcuts loaded, overflow folding resolved).
+const TOUR_AUTO_START_DELAY_MS = 800;
 // Vertical slack (px) added to the safe-zone triangle so the pointer can dip
 // slightly past the panel's top/bottom edge while arcing in without losing it.
 const SAFE_ZONE_BUFFER = 26;
@@ -483,9 +490,39 @@ const legalItems: ProfileSectionItemProps[] = [
   },
 ];
 
-const SidebarSupportButton = (): ReactElement => {
+const SidebarSupportButton = ({
+  onLearnSidebar,
+}: {
+  // Present only while the sidebar tour is enabled. The tour never advertises
+  // itself, so this menu row is the one way back into it.
+  onLearnSidebar?: () => void;
+}): ReactElement => {
   const { isOpen, onUpdate, wrapHandler } =
     useInteractivePopup(RAIL_POPUP_GROUP);
+  const items: ProfileSectionItemProps[] = useMemo(() => {
+    if (!onLearnSidebar) {
+      return supportItems;
+    }
+
+    const tutorial: ProfileSectionItemProps = {
+      title: 'Sidebar tutorial',
+      icon: MagicIcon,
+      onClick: () => {
+        onUpdate(false);
+        onLearnSidebar();
+      },
+    };
+    // Sits under Changelog, with the other "how this works" entries, rather
+    // than at the top where it would read as the menu's primary action.
+    const afterChangelog =
+      supportItems.findIndex(({ title }) => title === 'Changelog') + 1;
+
+    return [
+      ...supportItems.slice(0, afterChangelog),
+      tutorial,
+      ...supportItems.slice(afterChangelog),
+    ];
+  }, [onLearnSidebar, onUpdate]);
 
   return (
     <>
@@ -511,7 +548,7 @@ const SidebarSupportButton = (): ReactElement => {
           className="animate-rail-popup-in flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <FeedbackWidget placement="support" />
-          <ProfileMenuSection items={supportItems} linkIconHoverOnly />
+          <ProfileMenuSection items={items} linkIconHoverOnly />
           <HorizontalSeparator />
           <ProfileMenuSection items={legalItems} linkIconHoverOnly />
         </InteractivePopup>
@@ -746,7 +783,7 @@ export const SidebarDesktopV2 = ({
     : 'Daily Quests';
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { open: openSpotlight } = useSpotlight();
+  const { open: openSpotlight, prefetch: prefetchSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -938,6 +975,46 @@ export const SidebarDesktopV2 = ({
     () => ({ isDragging: isAnyDragging, setDragging: setSidebarDragging }),
     [isAnyDragging, setSidebarDragging],
   );
+
+  // The tour and coach hooks below stay inert until the v2 rail, auth and
+  // persisted state are ready.
+  const tour = useSidebarTourState();
+  const dotsCoach = useDotsCoach(tour.dotsCoach);
+  const {
+    canAutoStart: canAutoStartTour,
+    start: startTour,
+    interrupt: interruptTour,
+  } = tour;
+  const isTourRunning = tour.isRunning;
+  // An empty dock paints its ••• on hover only, and during the tour the pointer
+  // is on the card, so the step would point at an invisible button.
+  const isTourOnDockStep = tour.step?.id === 'dock';
+  const isTourRunningRef = useRef(false);
+  useEffect(() => {
+    isTourRunningRef.current = isTourRunning;
+  }, [isTourRunning]);
+  // The tour resolves its targets from the live rail, so it waits for the rail
+  // to settle: the shortcuts dock reads from storage, and a tab can still fold
+  // into the "More" menu once the region height is measured. A modal is above
+  // both the scrim and the lifted rail, so the tour would talk about a rail
+  // nobody can see, and the two would race for Escape.
+  useEffect(() => {
+    if (!canAutoStartTour || isAnyDragging || !!modal) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => startTour('auto'), TOUR_AUTO_START_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [canAutoStartTour, isAnyDragging, modal, startTour]);
+
+  useEffect(() => {
+    if (!modal || !isTourRunning) {
+      return;
+    }
+
+    interruptTour('modal');
+  }, [interruptTour, isTourRunning, modal]);
+
   // Ending a drag makes the browser dispatch a `click` on whatever sits under
   // the cursor, and dnd-kit doesn't swallow it. Armed at drag start; CONSUMED
   // by that stray click in SortableRailTab's capture handler. It cannot be
@@ -1137,9 +1214,13 @@ export const SidebarDesktopV2 = ({
   // cursor leaves the sidebar (see handleRailMouseLeave).
   const [hoveredCategory, setHoveredCategory] =
     useState<SidebarCategoryId | null>(null);
+  // The Game Center tour step teaches the real panel, so it holds that panel
+  // open for its duration instead of mocking one.
+  const tourForcedCategory =
+    tour.step?.extra === 'gameCenterPanel' ? SidebarCategory.GameCenter : null;
   const activeCategory = isSettingsSelected
     ? SidebarCategory.Settings
-    : hoveredCategory ?? selectedCategory;
+    : tourForcedCategory ?? hoveredCategory ?? selectedCategory;
   // Hovering the "+" previews the create-post options panel (takes precedence
   // over a hovered category). Clicking "+" opens the composer modal instead.
   const [isCreateHovered, setIsCreateHovered] = useState(false);
@@ -1181,6 +1262,25 @@ export const SidebarDesktopV2 = ({
   );
   const [safeZoneActive, setSafeZoneActive] = useState(false);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+  // `pointer-events-none` only makes the rail inert for a mouse: every tab, the
+  // dock and Support stay in the tab order behind the scrim, so a keyboard user
+  // could land on a control that is visible but unusable, and Enter would
+  // navigate out from under the tour. `inert` removes the whole subtree from
+  // hit-testing AND from the tab order, which is what the card's `aria-modal`
+  // claims. Set as a property because React 18 does not carry the attribute.
+  useEffect(() => {
+    const node = sidebarRef.current;
+
+    if (!node) {
+      return undefined;
+    }
+
+    node.inert = isTourRunning;
+    return () => {
+      node.inert = false;
+    };
+  }, [isTourRunning]);
+
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
     if (loadedSettings) {
@@ -1386,6 +1486,17 @@ export const SidebarDesktopV2 = ({
     }
   }, [isSettingsSelected]);
 
+  // Same for the tour: the rail goes inert once it starts, but a panel opened
+  // in the beat before that would sit behind the card for the whole run.
+  useEffect(() => {
+    if (!isTourRunning) {
+      return;
+    }
+
+    setHoveredCategory(null);
+    setIsCreateHovered(false);
+  }, [isTourRunning]);
+
   const onToggleExpanded = useCallback(() => {
     logEvent({
       event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
@@ -1447,7 +1558,13 @@ export const SidebarDesktopV2 = ({
     // pointer events — blocking the tabs swallowed real clicks (the panel is
     // already open, so there's nothing to re-open here). Also ignore the hover
     // that fires under the cursor mid-drag so reordering doesn't flip panels.
-    if (safeBlockedRef.current || isDraggingRef.current) {
+    // The tour drives the panel itself; letting a hover switch it would pull
+    // the panel out from under the step that is talking about it.
+    if (
+      safeBlockedRef.current ||
+      isDraggingRef.current ||
+      isTourRunningRef.current
+    ) {
       return;
     }
     if (!peekSuppressedRef.current) {
@@ -1630,7 +1747,8 @@ export const SidebarDesktopV2 = ({
   // pads from `sidebarExpanded`, which the hover never touches), so nothing
   // behind the sidebar shifts — it just paints over the feed.
   const isCollapsedHoverMode = !sidebarExpanded && !forceExpanded;
-  const isHoverExpanded = isCollapsedHoverMode && isRailHovered;
+  const isHoverExpanded =
+    isCollapsedHoverMode && (isRailHovered || !!tourForcedCategory);
   const isExpanded = sidebarExpanded || forceExpanded || isHoverExpanded;
 
   const renderCategoryTab = (
@@ -1776,7 +1894,11 @@ export const SidebarDesktopV2 = ({
   // composer modal it opens is still open — otherwise clicking "+" would shift
   // the background panel back to the feed as focus leaves the rail (a glitch).
   const isComposerOpen = modal?.type === LazyModal.SmartComposer;
-  const showCreatePanel = isCreateHovered || isComposerOpen || createPinned;
+  // A tour step that forces a panel open wins: otherwise a pinned composer or a
+  // pointer resting on "+" paints the create panel over the Game Center the
+  // card is pointing at.
+  const showCreatePanel =
+    !tourForcedCategory && (isCreateHovered || isComposerOpen || createPinned);
   // Release the pin once any modal opened from "New post" has fully closed.
   useEffect(() => {
     if (!modal) {
@@ -2049,6 +2171,15 @@ export const SidebarDesktopV2 = ({
           isHoverExpanded &&
             'laptop:!border-r laptop:border-border-subtlest-tertiary',
           featureTheme && 'bg-transparent',
+          // The spotlight scrim sits at z-sidebarOverlay, above the header and
+          // the page chrome. The rail is the one thing the tour is talking
+          // about, so it steps up a tier for the duration.
+          isTourRunning && 'laptop:!z-tooltip',
+          // Belt to the `inert` property's braces below: the rail stays lifted
+          // and readable, but a hover must not open a panel over the card and a
+          // click must not navigate out from under the tour. The card portals
+          // outside the aside, so its own controls stay live.
+          isTourRunning && 'pointer-events-none',
           suppressTransition,
         )}
       >
@@ -2069,6 +2200,9 @@ export const SidebarDesktopV2 = ({
         {!isSettingsSelected && (
           <nav
             aria-label="Primary navigation"
+            // Lets the sidebar tour's coach cards measure the rail they have to
+            // clear (see RAIL_ANCHOR_ATTRIBUTE).
+            {...{ [RAIL_ANCHOR_ATTRIBUTE]: '' }}
             className={classNames(
               // pt matches the streak tile's side gap (54px tile centred in the
               // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right
@@ -2160,6 +2294,8 @@ export const SidebarDesktopV2 = ({
                 type="button"
                 aria-label="Search"
                 onClick={openSpotlight}
+                onMouseEnter={prefetchSpotlight}
+                onFocus={prefetchSpotlight}
                 className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none"
               >
                 <SearchIcon size={RAIL_ICON_SIZE} aria-hidden />
@@ -2317,7 +2453,12 @@ export const SidebarDesktopV2 = ({
                     railColumnGapClass,
                   )}
                 >
-                  <SidebarShortcutsDock />
+                  <SidebarShortcutsDock
+                    onCustomizeInteraction={dotsCoach.onCustomizeInteraction}
+                    forceCustomizeVisible={
+                      dotsCoach.isCustomizeForcedVisible || isTourOnDockStep
+                    }
+                  />
                 </div>
               )}
 
@@ -2355,7 +2496,11 @@ export const SidebarDesktopV2 = ({
                 />
               )}
               <SidebarInviteButton />
-              <SidebarSupportButton />
+              <SidebarSupportButton
+                onLearnSidebar={
+                  tour.isEnabled ? () => startTour('support_menu') : undefined
+                }
+              />
               {isLoggedIn && <SidebarSettingsButton />}
             </div>
           </nav>
@@ -2512,6 +2657,22 @@ export const SidebarDesktopV2 = ({
           </div>
         </section>
       </SidebarAside>
+
+      {/* Rendered once for the whole rail, never per tab, and as a sibling of
+        the aside rather than a child: these portal to the body, and React
+        portals still bubble their events up the React tree, which would feed
+        the rail's own mousemove/mouseleave prediction machinery. Each is null
+        unless the sidebar tour has something to show. */}
+      <SidebarTourOverlay tour={tour} />
+      <PinCoach
+        coach={tour.pinCoach}
+        // Any open panel, not only a previewed one. A pinned-expanded sidebar
+        // has the pinnable rows and the dock on screen continuously, and gating
+        // on the hover would have made the new-user arm's main lesson depend on
+        // a gesture that reader never performs.
+        isPanelOpen={isExpanded && !showCreatePanel && !isSettingsSelected}
+      />
+      <DotsCoach state={dotsCoach} />
     </SidebarDragStateProvider>
   );
 };

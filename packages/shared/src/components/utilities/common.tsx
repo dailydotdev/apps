@@ -119,7 +119,14 @@ export const BaseFeedPage = classed(
  * asking for the same number of columns in a narrower space.
  *
  * Below laptop the card does not exist and neither does this class, so the
- * small-width gutter this constant exists for applies in both layouts.
+ * tablet gutter this constant exists for applies in both layouts.
+ *
+ * Below tablet there is no gutter either, which is what every layout has
+ * always shipped on phones. The feed is a single full-bleed column there:
+ * cards run edge to edge and carry their own `px-4`, so a gutter here is
+ * that inset charged twice and leaves the post text 32px off the screen.
+ * The chrome that uses this constant to line up with the cards — the tab
+ * strip — has to go full-bleed on phones for the same reason.
  *
  * Keyed to the frame's own class rather than to `isV2` on purpose. The flag
  * resolves after mount, so a React-side gate let the gutter and the frame
@@ -127,7 +134,7 @@ export const BaseFeedPage = classed(
  * exactly when the frame that replaces it is on screen.
  */
 export const feedGutter =
-  'px-4 tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-0';
+  'tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-0';
 
 // Vertical padding only. The horizontal inset moved to FeedContainer
 // (see `feedGutter`) because this component is not in the tree on
