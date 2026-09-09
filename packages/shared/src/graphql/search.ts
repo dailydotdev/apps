@@ -113,6 +113,8 @@ export const SEARCH_POST_SUGGESTIONS = gql`
       hits {
         id
         title
+        subtitle
+        image
       }
     }
   }
@@ -308,7 +310,7 @@ export type SearchSuggestionResult = {
   hits: SearchSuggestion[];
 };
 
-export const minSearchQueryLength = 1;
+export const minSearchQueryLength = 2;
 
 export const sanitizeSearchTitleMatch = /<(\/?)strong>/g;
 

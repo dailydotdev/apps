@@ -5,7 +5,7 @@ import { BlockIcon, PlusIcon } from '../icons';
 import { useAdvancedSettings } from '../../hooks';
 import { MenuIcon } from '../MenuIcon';
 import { capitalize } from '../../lib/strings';
-import { PostType, type Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 
 interface UseFeedContentTypeAction {
   post: Post;
@@ -14,10 +14,6 @@ interface UseFeedContentTypeAction {
 }
 
 const getContentTypeActionTarget = (type: string): string => {
-  if (type === PostType.LiveRoom) {
-    return 'Standups';
-  }
-
   const [target] = type.split(':');
   return target;
 };

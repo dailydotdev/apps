@@ -28,13 +28,17 @@ import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { isPostUpdated, type Post } from '../../../graphql/posts';
 import { pluralize } from '../../../lib/strings';
 import { TRENDS_SOURCE_ID } from '../../../lib/utils';
+import {
+  CommunitySentiment,
+  mapCommunitySentimentPost,
+} from '../focus/CommunitySentiment';
 import { getCollectionPillLabel, isTrendsPost } from './common';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
 };
 
-const CollectionPostContentRaw = ({
+export const CollectionPostContentRaw = ({
   post,
   className = {},
   shouldOnboardAuthor,
@@ -69,6 +73,10 @@ const CollectionPostContentRaw = ({
   const hasSources = !!numCollectionSources && numCollectionSources > 0;
   const sourceId = isTrendsPost(post) ? TRENDS_SOURCE_ID : 'collections';
   const { onCopyPostLink, onReadArticle } = engagementActions;
+  const communitySentimentData = post.communitySentiment
+    ? mapCommunitySentimentPost(post.communitySentiment)
+    : undefined;
+  const showCommunitySentiment = !!communitySentimentData;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -199,6 +207,9 @@ const CollectionPostContentRaw = ({
                 <ParagraphCopyButtons containerRef={bodyRef} />
               )}
             </div>
+            {showCommunitySentiment && (
+              <CommunitySentiment data={communitySentimentData} />
+            )}
           </div>
         </BasePostContent>
       </PostContainer>

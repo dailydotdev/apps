@@ -14,13 +14,14 @@ import {
   getArchiveUrlFromArchive,
   getArchiveIndexUrl,
 } from '../../lib/archive';
-import { gqlClient } from '../../graphql/common';
+import { gqlBatchRequest } from '../../graphql/batch';
 import { RequestKey, StaleTime } from '../../lib/query';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { MedalIcon } from '../icons/Medal';
 import { IconSize } from '../Icon';
 import { WidgetContainer } from './common';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface FeaturedArchivesProps {
   postId: string;
@@ -85,14 +86,16 @@ export function FeaturedArchives({
   postId,
   className,
 }: FeaturedArchivesProps): ReactElement | null {
+  const { isFetched: isBootFetched } = useAuthContext();
   const { data } = useQuery({
     queryKey: [RequestKey.FeaturedArchives, postId],
     queryFn: () =>
-      gqlClient.request<FeaturedArchivesData>(FEATURED_ARCHIVES_QUERY, {
+      gqlBatchRequest<FeaturedArchivesData>(FEATURED_ARCHIVES_QUERY, {
         subjectType: ArchiveSubjectType.Post,
         subjectId: postId,
       }),
     staleTime: StaleTime.OneHour,
+    enabled: !!postId && isBootFetched,
   });
 
   const archives = data?.featuredArchives;

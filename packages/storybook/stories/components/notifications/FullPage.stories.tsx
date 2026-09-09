@@ -21,8 +21,8 @@ import { groupByTime, sampleNotifications } from './_mock';
 // Faithful, provider-light reconstruction of the /notifications page
 // (packages/webapp/components/notifications/NotificationsFeed.tsx) using the
 // real shared NotificationItem rows + the same filter bar primitive and time
-// grouping. The live page is auth-gated and needs backend data, so this is the
-// canvas to iterate on the page's readability.
+// grouping. The live page is auth-gated and needs backend data, so this is
+// where the shipped row layout can be seen in a full list.
 
 const meta: Meta = {
   title: 'Components/Notifications/Full page',
@@ -31,7 +31,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          'Reconstruction of the /notifications page — header, type filters, time-grouped feed of NotificationItem rows. Use the filter tabs to scope by category. The real page lives in NotificationsFeed.tsx and is auth-gated, so this is where to review page-level readability.',
+          'Reconstruction of the /notifications page — header, type filters, time-grouped feed of NotificationItem rows. Use the filter tabs to scope by category. The real page lives in NotificationsFeed.tsx and is auth-gated. Post arrivals lead with the headline here; see "Row anatomy" for the rules.',
       },
     },
   },

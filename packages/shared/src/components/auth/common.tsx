@@ -85,6 +85,17 @@ export enum OnboardingActions {
   Login = 'login',
   Recover = 'recover',
   Signup = 'signup',
+  /**
+   * Straight to the account-details form, skipping the provider choice.
+   *
+   * `Signup` lands on `AuthDisplay.Default`, which offers the social buttons
+   * again alongside an email field — right for a link that means "sign up",
+   * wrong for one that means "sign up with email". The marketing homepage's
+   * hero has its own provider buttons and its own "Continue with email"; that
+   * button had no address to send anyone to, so it used `Signup` and asked the
+   * visitor to choose a second time.
+   */
+  SignupEmail = 'signupEmail',
   VerifyEmail = 'verify',
 }
 
@@ -93,6 +104,7 @@ export const actionToAuthDisplay: Record<OnboardingActions, AuthDisplay> = {
   [OnboardingActions.Login]: AuthDisplay.Default,
   [OnboardingActions.Recover]: AuthDisplay.ForgotPassword,
   [OnboardingActions.Signup]: AuthDisplay.Default,
+  [OnboardingActions.SignupEmail]: AuthDisplay.Registration,
   [OnboardingActions.VerifyEmail]: AuthDisplay.EmailVerification,
 } as const;
 

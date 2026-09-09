@@ -1,6 +1,6 @@
 import type {
+  ForwardedRef,
   HTMLAttributes,
-  MutableRefObject,
   ReactElement,
   ReactNode,
 } from 'react';
@@ -11,6 +11,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { RootPortal } from '../tooltips/Portal';
+import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 
 export type PopupEventType =
   | MouseEvent
@@ -57,6 +58,17 @@ export interface DrawerOnMobileProps {
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
+// Drawers can stack; the page unlocks only when the last one leaves.
+let scrollLockCount = 0;
+let previousHtmlOverflow = '';
+let lockedScrollY = 0;
+
+// Escape must close only the top-most drawer of a stack.
+const drawerStack: symbol[] = [];
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'bottom-0 rounded-t-16',
   [DrawerPosition.Top]: 'top-0 rounded-b-16',
@@ -86,7 +98,35 @@ function BaseDrawer({
   instantOpen = false,
   ...props
 }: DrawerProps): ReactElement {
-  const container = useRef<HTMLDivElement>();
+  const container = useRef<HTMLDivElement | null>(null);
+  const stackToken = useRef(Symbol('drawer'));
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
+  // safeArea.css owns the top offset (an opaque `body::before` covers the
+  // status bar), so the viewport offset goes through its variable rather
+  // than an inline `top`. Height stays 100vh so the cover reaches the
+  // keyboard even mid-pan.
+  const overlayKeyboardStyle =
+    isFullScreen && viewportHeight
+      ? ({
+          '--safe-area-top-offset': `${offsetTop ?? 0}px`,
+          height: '100vh',
+        } as React.CSSProperties)
+      : undefined;
+  // Only the wrapper tracks the visual viewport. --keyboard-inset lets
+  // content cancel the safe-area-inset-bottom WKWebView keeps reporting
+  // while the keyboard covers the home indicator.
+  const wrapperKeyboardStyle =
+    isFullScreen && viewportHeight
+      ? ({
+          '--drawer-viewport-height': `${viewportHeight}px`,
+          '--keyboard-inset': `${Math.max(
+            0,
+            (globalThis.window?.innerHeight ?? 0) - viewportHeight,
+          )}px`,
+        } as React.CSSProperties)
+      : undefined;
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
@@ -99,15 +139,148 @@ function BaseDrawer({
     };
   }, [onAfterClose, onAfterOpen]);
 
+  useEffect(() => {
+    const token = stackToken.current;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    drawerStack.push(token);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || drawerStack[drawerStack.length - 1] !== token) {
+        return;
+      }
+      e.stopPropagation();
+      onCloseRef.current(e);
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    if (!container.current?.contains(document.activeElement)) {
+      container.current?.focus();
+    }
+
+    return () => {
+      drawerStack.splice(drawerStack.indexOf(token), 1);
+      document.removeEventListener('keydown', onKeyDown);
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isFullScreen) {
+      return undefined;
+    }
+
+    // <html> is the page's actual scroller — body-level `overflow: hidden`
+    // alone never reaches the viewport.
+    if (scrollLockCount === 0) {
+      previousHtmlOverflow = document.documentElement.style.overflow;
+      // WebKit's keyboard reveal scroll ignores `overflow: hidden`; pinning
+      // the body removes the scrollable range so the page cannot move at all.
+      lockedScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${lockedScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+    }
+    scrollLockCount += 1;
+    document.body.classList.add('hidden-scrollbar');
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      scrollLockCount -= 1;
+      if (scrollLockCount > 0) {
+        return;
+      }
+      document.body.classList.remove('hidden-scrollbar');
+      document.body.style.removeProperty('position');
+      document.body.style.removeProperty('top');
+      document.body.style.removeProperty('left');
+      document.body.style.removeProperty('right');
+      if (previousHtmlOverflow) {
+        document.documentElement.style.overflow = previousHtmlOverflow;
+      } else {
+        document.documentElement.style.removeProperty('overflow');
+      }
+      if (lockedScrollY) {
+        window.scrollTo(0, lockedScrollY);
+      }
+    };
+  }, [isFullScreen]);
+
+  // WKWebView extends the scroll range by the keyboard inset and pans to
+  // reveal the focused input, a native scroll the body pin cannot stop.
+  // Undoing it is safe: the wrapper already keeps the caret above the
+  // keyboard.
+  useEffect(() => {
+    if (!isFullScreen) {
+      return undefined;
+    }
+
+    const undoPan = () => {
+      if (window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+    // Touch pans reach the native scroller even from unscrollable content;
+    // block them unless an inner scroller (textarea, drawer body) owns them.
+    const onTouchMove = (e: TouchEvent) => {
+      let el = e.target as HTMLElement | null;
+      while (el && el !== e.currentTarget) {
+        if (el.scrollHeight > el.clientHeight) {
+          const { overflowY } = getComputedStyle(el);
+          if (overflowY === 'auto' || overflowY === 'scroll') {
+            return;
+          }
+        }
+        el = el.parentElement;
+      }
+      e.preventDefault();
+    };
+
+    const overlay = container.current?.parentElement;
+    window.addEventListener('scroll', undoPan);
+    window.visualViewport?.addEventListener('scroll', undoPan);
+    window.visualViewport?.addEventListener('resize', undoPan);
+    overlay?.addEventListener('touchmove', onTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('scroll', undoPan);
+      window.visualViewport?.removeEventListener('scroll', undoPan);
+      window.visualViewport?.removeEventListener('resize', undoPan);
+      overlay?.removeEventListener('touchmove', onTouchMove);
+    };
+  }, [isFullScreen]);
+
+  const trapFocus = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Tab' || !container.current) {
+      return;
+    }
+    const focusable = Array.from(
+      container.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    );
+    if (!focusable.length) {
+      e.preventDefault();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey && (active === first || active === container.current)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (
-      closeOnOutsideClick &&
-      hasAnimated &&
-      container.current &&
-      !container.current.contains(e.target as Node)
-    ) {
+    // Not a `contains` check: portaled children (dropdowns, popovers) live
+    // under document.body, yet React bubbles their clicks to this handler.
+    if (closeOnOutsideClick && hasAnimated && e.target === e.currentTarget) {
       onClose(e.nativeEvent);
     }
   };
@@ -116,18 +289,34 @@ function BaseDrawer({
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className={classNames(
-        'fixed inset-0 z-modal transition-opacity duration-300 ease-in-out',
-        !isFullScreen && 'bg-overlay-quaternary-onion',
+        'fixed z-modal transition-opacity duration-300 ease-in-out',
+        isFullScreen
+          ? 'inset-x-0 top-0 h-full bg-background-default'
+          : 'inset-0 bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
+      style={overlayKeyboardStyle}
       onClick={handleOverlayClick}
     >
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         {...props}
+        role="dialog"
+        aria-modal="true"
+        aria-label={
+          props['aria-label'] ?? (typeof title === 'string' ? title : undefined)
+        }
+        tabIndex={-1}
+        onKeyDown={trapFocus}
+        // The height below beats `inset-0`'s bottom edge only while this
+        // variable is set; without it the calc is invalid and `inset-0` wins.
+        style={wrapperKeyboardStyle}
         className={classNames(
-          'drawer-padding absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
-          isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
+          'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
+          isFullScreen
+            ? 'inset-0 h-[calc(var(--drawer-viewport-height)_-_var(--safe-area-top,0px))]'
+            : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
           !title && 'px-4 pt-3',
@@ -196,17 +385,18 @@ export interface DrawerRef {
 
 function AnimatedDrawer(
   { isOpen, onClose, appendOnRoot, ...props }: DrawerWrapperProps,
-  ref: MutableRefObject<DrawerRef>,
+  ref: ForwardedRef<DrawerRef>,
 ): ReactElement | null {
   const [isClosing, setIsClosing] = useState(false);
-  const [debounceClosing] = useDebounceFn((e: PopupEventType) => {
+  const [debounceClosing] = useDebounceFn<PopupEventType>((e) => {
     setIsClosing(false);
-    onClose?.(e);
+    // `onClosing`, the only caller, always forwards the event.
+    onClose?.(e as PopupEventType);
   }, ANIMATION_MS);
 
-  const onClosing = () => {
+  const onClosing = (e?: PopupEventType) => {
     setIsClosing(true);
-    debounceClosing();
+    debounceClosing(e);
   };
 
   useImperativeHandle(ref, () => ({ onClose: onClosing }));

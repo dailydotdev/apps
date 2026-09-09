@@ -1,8 +1,16 @@
 import type { RefObject } from 'react';
-import { createElement } from 'react';
 import type { SnapdomOptions } from '@zumer/snapdom';
-import LogoIcon from '../../svg/LogoIcon';
-import LogoText from '../../svg/LogoText';
+import {
+  markAlphas,
+  MARK_HEIGHT,
+  markPaths,
+  MARK_WIDTH,
+  wordmarkAlphas,
+  wordmarkFillRules,
+  wordmarkPaths,
+  WORDMARK_HEIGHT,
+  WORDMARK_WIDTH,
+} from '../../svg/logoGeometry';
 
 export const SHARE_IMAGE_WIDTH = 1200;
 export const SHARE_IMAGE_HEIGHT = 630;
@@ -11,12 +19,12 @@ const LOGO_BAR_HEIGHT = 72;
 const LOGO_BAR_BORDER = 2;
 const LOGO_HEIGHT = 26;
 const LOGO_GAP = 8;
-const LOGO_ICON_RATIO = 35 / 20;
-const LOGO_TEXT_RATIO = 77 / 20;
+const CAPTURE_TIMEOUT_MS = 15000;
 
 export type CaptureTarget = HTMLElement | RefObject<HTMLElement>;
 
-export interface CaptureShareImageOptions extends SnapdomOptions {
+export interface CaptureShareImageOptions
+  extends Omit<SnapdomOptions, 'scale' | 'width' | 'height'> {
   width?: number;
   height?: number;
   padding?: number;
@@ -24,8 +32,24 @@ export interface CaptureShareImageOptions extends SnapdomOptions {
   branded?: boolean;
 }
 
-const TRANSPARENT = 'rgba(0, 0, 0, 0)';
-const CAPTURE_TIMEOUT_MS = 15000;
+interface ShareImageTheme {
+  background: string;
+  border: string;
+  logo: string;
+}
+
+const PROBE_STYLE = [
+  'position:fixed',
+  'top:0',
+  'left:0',
+  'width:0',
+  'height:0',
+  'visibility:hidden',
+  'pointer-events:none',
+  'background-color:var(--theme-background-default)',
+  'border-top:1px solid var(--theme-border-subtlest-tertiary)',
+  'color:var(--theme-text-primary)',
+].join(';');
 
 // A cross-origin image without CORS headers leaves snapdom's inliner pending
 // forever, which would otherwise spin the trigger button indefinitely.
@@ -40,90 +64,78 @@ const withTimeout = <T>(promise: Promise<T>): Promise<T> =>
     }),
   ]);
 
-const resolveFrameBackground = (): string => {
-  const rootStyle = getComputedStyle(document.documentElement);
-  const rootBackground = rootStyle.backgroundColor;
+const resolveTheme = (element: HTMLElement): ShareImageTheme => {
+  const probe = element.ownerDocument.createElement('div');
+  probe.style.cssText = PROBE_STYLE;
+  element.appendChild(probe);
 
-  if (rootBackground && rootBackground !== TRANSPARENT) {
-    return rootBackground;
-  }
+  const style = getComputedStyle(probe);
+  const theme = {
+    background: style.backgroundColor,
+    border: style.borderTopColor,
+    logo: style.color,
+  };
 
-  const themeBackground = rootStyle
-    .getPropertyValue('--theme-background-default')
-    .trim();
+  probe.remove();
 
-  if (themeBackground) {
-    return themeBackground;
-  }
-
-  return getComputedStyle(document.body).backgroundColor;
+  return theme;
 };
 
-const svgToImage = async (markup: string): Promise<HTMLImageElement> => {
-  const image = new Image();
-  image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`;
-  await image.decode();
-
-  return image;
-};
-
-const drawLogoBar = async (
+const fillPaths = (
   context: CanvasRenderingContext2D,
+  paths: string[],
+  alphas: number[],
+  rules?: readonly CanvasFillRule[],
+): void => {
+  paths.forEach((path, index) => {
+    context.globalAlpha = alphas[index] ?? 1;
+    context.fill(new Path2D(path), rules?.[index] ?? 'nonzero');
+  });
+
+  context.globalAlpha = 1;
+};
+
+const drawLogoBar = (
+  context: CanvasRenderingContext2D,
+  theme: ShareImageTheme,
   canvasWidth: number,
   canvasHeight: number,
-): Promise<void> => {
-  const { renderToStaticMarkup } = await import('react-dom/server');
-  const rootStyle = getComputedStyle(document.documentElement);
-  const themeColor = rootStyle.getPropertyValue('--theme-text-primary').trim();
-  const color = themeColor || getComputedStyle(document.body).color;
-  const barBackground = rootStyle
-    .getPropertyValue('--theme-background-default')
-    .trim();
-  const barBorder = rootStyle
-    .getPropertyValue('--theme-border-subtlest-tertiary')
-    .trim();
-
+): void => {
   const barTop = canvasHeight - LOGO_BAR_HEIGHT;
 
-  if (barBackground) {
-    context.fillStyle = barBackground;
-    context.fillRect(0, barTop, canvasWidth, LOGO_BAR_HEIGHT);
-  }
+  context.fillStyle = theme.background;
+  context.fillRect(0, barTop, canvasWidth, LOGO_BAR_HEIGHT);
 
-  if (barBorder) {
-    context.fillStyle = barBorder;
-    context.fillRect(0, barTop, canvasWidth, LOGO_BAR_BORDER);
-  }
+  context.fillStyle = theme.border;
+  context.fillRect(0, barTop, canvasWidth, LOGO_BAR_BORDER);
 
-  const toSizedMarkup = (markup: string, width: number): string =>
-    markup
-      .replace('<svg ', `<svg width="${width}" height="${LOGO_HEIGHT}" `)
-      .replace(/var\(--theme-text-primary\)/g, color);
+  const markScale = LOGO_HEIGHT / MARK_HEIGHT;
+  const wordmarkScale = LOGO_HEIGHT / WORDMARK_HEIGHT;
+  const markWidth = MARK_WIDTH * markScale;
+  const wordmarkWidth = WORDMARK_WIDTH * wordmarkScale;
+  const left = (canvasWidth - (markWidth + LOGO_GAP + wordmarkWidth)) / 2;
+  const top = barTop + (LOGO_BAR_HEIGHT - LOGO_HEIGHT) / 2;
 
-  const iconWidth = LOGO_HEIGHT * LOGO_ICON_RATIO;
-  const textWidth = LOGO_HEIGHT * LOGO_TEXT_RATIO;
-  const [icon, text] = await Promise.all([
-    svgToImage(
-      toSizedMarkup(renderToStaticMarkup(createElement(LogoIcon)), iconWidth),
-    ),
-    svgToImage(
-      toSizedMarkup(renderToStaticMarkup(createElement(LogoText)), textWidth),
-    ),
-  ]);
+  context.fillStyle = theme.logo;
 
-  const totalWidth = iconWidth + LOGO_GAP + textWidth;
-  const x = (canvasWidth - totalWidth) / 2;
-  const y = barTop + (LOGO_BAR_HEIGHT - LOGO_HEIGHT) / 2;
+  context.save();
+  context.translate(left, top);
+  context.scale(markScale, markScale);
+  fillPaths(context, markPaths, markAlphas);
+  context.restore();
 
-  context.drawImage(icon, x, y, iconWidth, LOGO_HEIGHT);
-  context.drawImage(text, x + iconWidth + LOGO_GAP, y, textWidth, LOGO_HEIGHT);
+  context.save();
+  context.translate(left + markWidth + LOGO_GAP, top);
+  context.scale(wordmarkScale, wordmarkScale);
+  fillPaths(context, wordmarkPaths, wordmarkAlphas, wordmarkFillRules);
+  context.restore();
 };
 
 export async function captureShareImage(
   target: CaptureTarget,
   options: CaptureShareImageOptions = {},
 ): Promise<Blob> {
-  const element = target instanceof HTMLElement ? target : target.current;
+  const element = 'current' in target ? target.current : target;
 
   if (!element) {
     throw new Error('captureShareImage: target element is not mounted');
@@ -147,6 +159,8 @@ export async function captureShareImage(
     throw new Error('captureShareImage: target element has no size');
   }
 
+  const theme = resolveTheme(element);
+
   const fitScale = Math.min(
     contentWidth / rect.width,
     contentHeight / rect.height,
@@ -157,8 +171,8 @@ export async function captureShareImage(
   const result = await withTimeout(
     snapdom(element, {
       embedFonts: true,
-      scale: captureScale,
       ...snapOptions,
+      scale: captureScale,
     }),
   );
   const source = await result.toCanvas();
@@ -172,7 +186,7 @@ export async function captureShareImage(
     throw new Error('captureShareImage: canvas 2d context unavailable');
   }
 
-  context.fillStyle = frameBackgroundColor ?? resolveFrameBackground();
+  context.fillStyle = frameBackgroundColor ?? theme.background;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const drawScale = Math.min(
@@ -192,7 +206,7 @@ export async function captureShareImage(
   );
 
   if (branded) {
-    await drawLogoBar(context, width, height);
+    drawLogoBar(context, theme, width, height);
   }
 
   return new Promise<Blob>((resolve, reject) => {

@@ -69,6 +69,30 @@ describe('tag page static props', () => {
     });
   });
 
+  it('should 404 an unknown tag instead of serving an empty page', async () => {
+    mockRequest
+      .mockResolvedValueOnce({ keyword: null })
+      .mockResolvedValueOnce({ page: { edges: [] } })
+      .mockResolvedValueOnce({ recommendedTags: { tags: [] } })
+      .mockResolvedValueOnce({ topCreatorsByTag: [] });
+
+    const result = await getStaticProps({
+      params: { tag: 'not-a-real-tag' },
+    } as never);
+
+    expect(result).toEqual({ notFound: true, revalidate: 3600 });
+  });
+
+  it('should 404 when the keyword request fails', async () => {
+    mockRequest.mockRejectedValue(new Error('nope'));
+
+    const result = await getStaticProps({
+      params: { tag: 'javascript' },
+    } as never);
+
+    expect(result).toEqual({ notFound: true, revalidate: 3600 });
+  });
+
   it('should scope company tags to developer news', async () => {
     mockTagRequests({
       value: 'google',

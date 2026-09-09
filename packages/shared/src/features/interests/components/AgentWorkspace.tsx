@@ -24,7 +24,6 @@ import { AgentComposer } from './AgentComposer';
 import { AgentQuoteAction } from './AgentQuoteAction';
 import { AgentContentPane } from './AgentContentPane';
 import { AgentDebugPanel } from './AgentDebugPanel';
-import { AgentSettingsPane } from './AgentSettingsPane';
 
 // Both columns floor at a mobile-width panel.
 const minPanelWidth = 384;
@@ -32,21 +31,16 @@ const defaultPaneWidth = 480;
 
 export const AgentWorkspace = ({
   items,
-  onDelete,
-  isDeleting,
   isStandalone,
   runId,
   isFeedReady = true,
 }: {
   items: AgentFeedItem[];
-  onDelete: () => void;
-  isDeleting: boolean;
   isStandalone?: boolean;
   runId?: string;
   isFeedReady?: boolean;
 }): ReactElement => {
   const {
-    isSettingsOpen,
     openContent,
     messages,
     summaryPosts,
@@ -280,61 +274,53 @@ export const AgentWorkspace = ({
       {/* The extra pixel is the pane border's, so both header rules land on the
           same line. */}
       <FlexCol className="min-w-0 flex-1 laptop:pt-[calc(0.5rem+1px)]">
-        {isSettingsOpen ? (
-          <AgentSettingsPane onDelete={onDelete} isDeleting={isDeleting} />
-        ) : (
-          <>
-            <AgentWorkspaceHeader />
-            <div className="relative min-h-0 flex-1">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 -top-px z-1 h-8 bg-gradient-to-b from-background-default to-transparent"
+        <AgentWorkspaceHeader />
+        <div className="relative min-h-0 flex-1">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -top-px z-1 h-8 bg-gradient-to-b from-background-default to-transparent"
+          />
+          <div
+            ref={transcriptRef}
+            onScroll={onTranscriptScroll}
+            className="agent-scroll h-full overflow-y-auto px-5 tablet:px-8 laptop:px-10"
+          >
+            <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pb-14 pt-6">
+              <AgentIntro
+                findingsCount={items.length}
+                postsCount={summaryPosts.length}
               />
-              <div
-                ref={transcriptRef}
-                onScroll={onTranscriptScroll}
-                className="agent-scroll h-full overflow-y-auto px-5 tablet:px-8 laptop:px-10"
-              >
-                <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pb-14 pt-6">
-                  <AgentIntro
-                    findingsCount={items.length}
-                    postsCount={summaryPosts.length}
-                  />
-                  {!isRunView && <AgentHistoryEdge />}
-                  {isLatestStale ? (
-                    <AgentEmptyState />
-                  ) : (
-                    <AgentChatSection
-                      focusedRunId={isFeedReady ? runId : undefined}
-                      onFocusRun={onFocusRun}
-                    />
-                  )}
-                  {isRunView && <AgentHistoryEdge />}
-                </FlexCol>
-              </div>
-            </div>
-            <AgentQuoteAction containerRef={transcriptRef} />
-            <div className="relative">
-              {isAwayFromBottom && !isRunView && (
-                <Button
-                  icon={
-                    <ArrowIcon size={IconSize.Size16} className="rotate-180" />
-                  }
-                  size={ButtonSize.XSmall}
-                  variant={ButtonVariant.Float}
-                  // Float's surface is an 8% wash, invisible over the scrolling
-                  // transcript, so the background is forced opaque.
-                  className="absolute bottom-full left-1/2 z-1 mb-4 -translate-x-1/2 border-border-subtlest-tertiary !bg-background-subtle shadow-2"
-                  aria-label="Scroll to latest"
-                  onClick={scrollToBottom}
-                >
-                  {hasUnseenReply ? 'New reply' : undefined}
-                </Button>
+              {!isRunView && <AgentHistoryEdge />}
+              {isLatestStale ? (
+                <AgentEmptyState />
+              ) : (
+                <AgentChatSection
+                  focusedRunId={isFeedReady ? runId : undefined}
+                  onFocusRun={onFocusRun}
+                />
               )}
-              <AgentComposer />
-            </div>
-          </>
-        )}
+              {isRunView && <AgentHistoryEdge />}
+            </FlexCol>
+          </div>
+        </div>
+        <AgentQuoteAction containerRef={transcriptRef} />
+        <div className="relative">
+          {isAwayFromBottom && !isRunView && (
+            <Button
+              icon={<ArrowIcon size={IconSize.Size16} className="rotate-180" />}
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Float}
+              // Float's surface is an 8% wash, invisible over the scrolling
+              // transcript, so the background is forced opaque.
+              className="absolute bottom-full left-1/2 z-1 mb-4 -translate-x-1/2 border-border-subtlest-tertiary !bg-background-subtle shadow-2"
+              aria-label="Scroll to latest"
+              onClick={scrollToBottom}
+            >
+              {hasUnseenReply ? 'New reply' : undefined}
+            </Button>
+          )}
+          <AgentComposer />
+        </div>
       </FlexCol>
       {!!openContent.length && (
         <AgentContentPane

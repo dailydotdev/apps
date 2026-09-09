@@ -28,6 +28,7 @@ import { gqlClient } from '../../../graphql/common';
 export const ActivityRepliesTab = ({
   userId,
   isSameUser,
+  isPreviewMode,
   userName,
   user,
   selectedTab,
@@ -35,6 +36,7 @@ export const ActivityRepliesTab = ({
 }: {
   userId: string;
   isSameUser: boolean;
+  isPreviewMode: boolean;
   userName: string;
   user: PublicProfile;
   selectedTab: string;
@@ -89,32 +91,43 @@ export const ActivityRepliesTab = ({
         renderEmptyScreen(ActivityTabIndex.Replies, isSameUser, userName)
       ) : (
         <div className="w-full">
-          {replies?.map(({ node }) => (
-            <MainComment
-              key={node.id}
-              className={{
-                ...COMMENT_CLASS_NAME,
-                container: COMMENT_CLASS_NAME?.container,
-              }}
-              post={node.post}
-              comment={node}
-              origin={Origin.Profile}
-              onShare={(c) => openShareComment(c, c.post)}
-              onDelete={(comment, parentId) =>
-                deleteComment(comment.id, parentId, comment.post)
-              }
-              onShowUpvotes={(id, count) => onShowUpvoted(id, count, 'comment')}
-              onCommented={() => undefined}
-              postAuthorId={null}
-              postScoutId={null}
-              appendTooltipTo={() => document.body}
-              linkToComment
-              lazy
-              showContextHeader
-              logImpression
-              logClick
-            />
-          ))}
+          {replies?.map(({ node }) => {
+            const { post } = node;
+
+            if (!post) {
+              return null;
+            }
+
+            return (
+              <MainComment
+                key={node.id}
+                className={{
+                  ...COMMENT_CLASS_NAME,
+                  container: COMMENT_CLASS_NAME?.container,
+                }}
+                post={post}
+                comment={node}
+                origin={Origin.Profile}
+                onShare={(c) => openShareComment(c, post)}
+                onDelete={(comment, parentId) =>
+                  deleteComment(comment.id, parentId, post)
+                }
+                onShowUpvotes={(id, count) =>
+                  onShowUpvoted(id, count, 'comment')
+                }
+                onCommented={() => undefined}
+                postAuthorId={null}
+                postScoutId={null}
+                appendTooltipTo={() => document.body}
+                hideOptionsMenu={isPreviewMode}
+                linkToComment
+                lazy
+                showContextHeader
+                logImpression
+                logClick
+              />
+            );
+          })}
         </div>
       )}
       {shouldShowMoreButton && (

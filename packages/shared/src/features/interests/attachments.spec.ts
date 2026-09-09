@@ -3,7 +3,9 @@ import {
   activityAttachment,
   agentAttachments,
   feedAttachment,
+  FEEDBACK_POST_LIMIT,
   mentionCandidates,
+  messagePostAttachments,
   postAttachment,
   quoteAttachment,
   targetAttachment,
@@ -30,6 +32,27 @@ describe('postAttachment', () => {
 
   it('labels an untitled post rather than rendering an empty chip', () => {
     expect(postAttachment({ id: 'a' } as Post).label).toBe('Untitled post');
+  });
+
+  it('labels a share pick after the shared article', () => {
+    const share = {
+      id: 'a',
+      title: null,
+      source: { name: 'daily.dev' },
+      sharedPost: { id: 'a-shared', title: 'GitHub Advisory Database' },
+    } as unknown as Post;
+
+    expect(postAttachment(share).label).toBe('GitHub Advisory Database');
+  });
+
+  it('treats an empty title as no title at all', () => {
+    const share = {
+      id: 'a',
+      title: '',
+      sharedPost: { id: 'a-shared', title: '' },
+    } as unknown as Post;
+
+    expect(postAttachment(share).label).toBe('Untitled post');
   });
 
   it('keys on the post id, not the title', () => {
@@ -115,6 +138,77 @@ describe('targetAttachment', () => {
 
   it('has nothing to offer for the debug tab', () => {
     expect(targetAttachment({ type: 'debug' })).toBeUndefined();
+  });
+});
+
+describe('messagePostAttachments', () => {
+  it('turns every post the reply cited into a chip, in order', () => {
+    const chips = messagePostAttachments({
+      blocks: [
+        { type: 'text', html: '<p>Two things.</p>' },
+        { type: 'posts', posts: [makePost('a')] },
+        { type: 'picks', posts: [makePost('b')] },
+      ],
+    });
+
+    expect(chips.map(({ id }) => id)).toEqual(['post:a', 'post:b']);
+    expect(chips.every(({ kind }) => kind === 'post')).toBe(true);
+  });
+
+  it('leaves feed links out, so a whole feed cannot claim the feedback', () => {
+    const chips = messagePostAttachments({
+      blocks: [
+        {
+          type: 'feedLink',
+          label: 'All',
+          posts: [makePost('x'), makePost('y')],
+        },
+        { type: 'picks', posts: [makePost('a')] },
+      ],
+    });
+
+    expect(chips.map(({ id }) => id)).toEqual(['post:a']);
+  });
+
+  it('names a post once even when several blocks carry it', () => {
+    const chips = messagePostAttachments({
+      blocks: [
+        { type: 'posts', posts: [makePost('a')] },
+        { type: 'picks', posts: [makePost('a'), makePost('b')] },
+      ],
+    });
+
+    expect(chips.map(({ id }) => id)).toEqual(['post:a', 'post:b']);
+  });
+
+  it('stops at the limit so one vote does not reference a whole feed', () => {
+    const posts = Array.from({ length: FEEDBACK_POST_LIMIT + 3 }, (_, i) =>
+      makePost(`p${i}`),
+    );
+
+    expect(
+      messagePostAttachments({ blocks: [{ type: 'posts', posts }] }),
+    ).toHaveLength(FEEDBACK_POST_LIMIT);
+    expect(
+      messagePostAttachments({ blocks: [{ type: 'posts', posts }] }, 2),
+    ).toHaveLength(2);
+  });
+
+  it('has nothing for a text-only reply or one without blocks', () => {
+    expect(
+      messagePostAttachments({ blocks: [{ type: 'text', html: '<p>Hi</p>' }] }),
+    ).toEqual([]);
+    expect(messagePostAttachments({})).toEqual([]);
+  });
+
+  it('flattens into the marker form the API sweeps for', () => {
+    const chips = messagePostAttachments({
+      blocks: [{ type: 'posts', posts: [makePost('a'), makePost('b')] }],
+    });
+
+    expect(promptWithContext('Fewer like this', chips)).toBe(
+      'Fewer like this\n\nIn the context of: @dailydev:post:a, @dailydev:post:b',
+    );
   });
 });
 

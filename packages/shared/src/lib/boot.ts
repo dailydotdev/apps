@@ -19,10 +19,6 @@ interface NotificationsBootData {
   unreadNotificationsCount: number;
 }
 
-interface LiveRoomsBootData {
-  hasLive: boolean;
-}
-
 export type PostBootData = Pick<
   Post,
   | 'id'
@@ -88,7 +84,6 @@ export type Boot = {
   };
   isAndroidApp?: boolean;
   engagementCreatives?: EngagementCreative[];
-  liveRooms?: LiveRoomsBootData;
 };
 
 export type BootCacheData = Pick<

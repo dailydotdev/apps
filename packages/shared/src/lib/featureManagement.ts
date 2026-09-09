@@ -13,7 +13,7 @@ const feature = {
   showError: new Feature('show_error', false),
   feedVersion: new Feature('feed_version', 15),
   feedAdSpot: new Feature('feed_ad_spot', 2),
-  searchVersion: new Feature('search_version', 2),
+  searchVersion: new Feature('search_version2', 3),
   featureTheme: new Feature('feature_theme', {}),
   showRoadmap: new Feature('show_roadmap', true),
   showCodeSnippets: new Feature('show_code_snippets', false),
@@ -38,17 +38,6 @@ export const featurePostCopySummary = new Feature('post_copy_summary', false);
 export const featurePostSharePrompts = new Feature('post_share_prompts', false);
 export const featurePollSnapshot = new Feature('poll_snapshot', false);
 export const featurePostCopyLink = new Feature('post_copy_link', false);
-// Experiment: community takes — an LLM-generated digest of what the developer
-// community on HN/Lobsters thinks about a post. Control hides the surface,
-// treatment shows it. Enrollment is conditional on the post actually having a
-// take (see PostFocusCard's `shouldEvaluate`), so exposure is only logged when
-// there's something to show — take-less posts never dilute the split. Backend
-// generation is unconditional; this flag gates rendering only, so flipping it
-// needs no data backfill. Default MUST stay `false` — see the rule below.
-export const featureCommunitySentiment = new Feature(
-  'community_sentiment',
-  false,
-);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
@@ -66,8 +55,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 });
 
 export const featureLuckyButton = new Feature('lucky_button', false);
-
-export const featureStandupCreation = new Feature('standup_creation', false);
 
 export const featureJobsUI = new Feature('jobs_ui', false);
 
@@ -118,13 +105,11 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
-// Experiment: sponsored partner offers (via Encore) replacing the classic
-// streak milestone popup. Enrollment is conditional on the popup actually
-// showing; treatment falls back to the classic popup when no offers return.
-export const featureStreakMilestoneOffers = new Feature(
-  'streak_milestone_offers',
-  isDevelopment,
-);
+// Experiment: sponsored partner offers (via Encore) presented as the reward
+// moment once the day's daily quests are all claimed. Enrollment is
+// conditional on the popup actually being eligible, so users who never finish
+// their quests don't dilute the split.
+export const featureQuestOffers = new Feature('quest_offers', isDevelopment);
 
 // whether the user will see post boost ads
 // does not necessarily mean they can't boost a post if they have access to cores
@@ -270,7 +255,7 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
   OnboardingChromeVariant.Control,
 );
 
-export const featureLayoutV2 = new Feature('layout_v2', false);
+export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
@@ -349,3 +334,12 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAdsense = new Feature('read_adsense', true);
+
+export const featureCommentFirstAction = new Feature(
+  'comment_first_action',
+  false,
+);
+
+// Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
+// the control: the API only accepts batched bodies once its own change ships.
+export const featureGqlBatching = new Feature('gql_batching', false);

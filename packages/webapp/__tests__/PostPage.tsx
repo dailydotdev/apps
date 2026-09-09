@@ -36,12 +36,14 @@ import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { postWithCommunitySentiment } from '@dailydotdev/shared/__tests__/fixture/post';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
   completeActionMock,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import type { AllTagCategoriesData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
@@ -54,7 +56,7 @@ import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import type { Props } from '../pages/posts/[id]';
-import { isPostDetailPath, PostPage } from '../pages/posts/[id]';
+import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
@@ -578,7 +580,7 @@ it('should send cancel upvote mutation', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should open new comment modal and set the correct props', async () => {
+it('should open the comment composer inline on the page', async () => {
   renderPost();
   // Wait for GraphQL to return
   await screen.findByText('Learn SQL');
@@ -586,6 +588,24 @@ it('should open new comment modal and set the correct props', async () => {
   fireEvent.click(el);
   const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();
+});
+
+it('should open the comment composer when the mobile floating bar requests it', async () => {
+  renderPost();
+  await screen.findByText('Learn SQL');
+
+  const commentButton = await waitFor(() => {
+    const el = document.getElementById('mobile-comment-post-btn');
+    if (!el) {
+      throw new Error('mobile comment button not rendered');
+    }
+    return el;
+  });
+  fireEvent.click(commentButton);
+
+  expect(
+    await screen.findByRole('form', { name: 'Comment' }),
+  ).toBeInTheDocument();
 });
 
 it('should not show stats when they are zero', async () => {
@@ -615,13 +635,25 @@ it('should show both stats when they are greater than zero', async () => {
   expect(el).toHaveTextContent('7 Upvotes15 Comments');
 });
 
-it('should show impressions when it is greater than zero', async () => {
+it('should show impressions to the author', async () => {
   renderPost({}, [
-    createPostMock({ analytics: { impressions: 15 } }),
+    createPostMock({
+      analytics: { impressions: 15 },
+      author: { id: defaultUser.id } as Post['author'],
+    }),
     createCommentsMock(),
   ]);
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('15 Impressions');
+});
+
+it('should hide impressions from a reader who is not the author', async () => {
+  renderPost({}, [
+    createPostMock({ analytics: { impressions: 15 }, numUpvotes: 15 }),
+    createCommentsMock(),
+  ]);
+  const el = await screen.findByTestId('statsBar');
+  expect(el).not.toHaveTextContent('15 Impressions');
 });
 
 it('should hide the comments sort toggle when the comments empty state shows', async () => {
@@ -1183,6 +1215,38 @@ describe('post redesign', () => {
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
   });
 
+  it('should show community sentiment in the classic layout when the redesign flag is off', async () => {
+    mockRedesignOn = false;
+    renderPost({}, [
+      createPostMock({
+        communitySentiment: postWithCommunitySentiment.communitySentiment,
+      }),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByRole('region', {
+        name: 'What the community thinks',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('should show community sentiment in the redesign layout when the redesign flag is on', async () => {
+    mockRedesignOn = true;
+    renderPost({}, [
+      createPostMock({
+        communitySentiment: postWithCommunitySentiment.communitySentiment,
+      }),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByRole('region', {
+        name: 'What the community thinks',
+      }),
+    ).toBeInTheDocument();
+  });
+
   it('should keep the classic layout for author onboarding even when the flag is on', async () => {
     mockRedesignOn = true;
     mockRouterQuery({ author: 'true' });
@@ -1192,19 +1256,42 @@ describe('post redesign', () => {
   });
 });
 
-describe('isPostDetailPath (ad navigation boundary)', () => {
-  it('keeps client-side navigation only for other post detail pages', () => {
-    expect(isPostDetailPath('/posts/abc123')).toBe(true);
-    expect(isPostDetailPath('/posts/abc123?comment=1')).toBe(true);
-    expect(isPostDetailPath('/posts/abc123/share')).toBe(true);
+describe('post query failures', () => {
+  const createPostErrorMock = (
+    code: ApiError,
+  ): MockedGraphQLResponse<PostData> => ({
+    request: {
+      query: POST_BY_ID_QUERY,
+      variables: { id: '0e4005b2d3cf191f8c44c2718a457a1e' },
+    },
+    result: {
+      errors: [
+        {
+          message: 'Access denied!',
+          extensions: { code },
+        },
+      ] as never,
+    },
   });
 
-  it('treats the post list pages as departures that tear ads down', () => {
-    expect(isPostDetailPath('/posts/best-of/2026/08')).toBe(false);
-    expect(isPostDetailPath('/posts/latest')).toBe(false);
-    expect(isPostDetailPath('/posts/discussed')).toBe(false);
-    expect(isPostDetailPath('/posts/upvoted')).toBe(false);
-    expect(isPostDetailPath('/posts')).toBe(false);
-    expect(isPostDetailPath('/my-feed')).toBe(false);
+  it('should render the private discussion screen for a forbidden post', async () => {
+    renderPost({}, [
+      createPostErrorMock(ApiError.Forbidden),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByText('Oops! This link leads to a private discussion'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('notFound')).not.toBeInTheDocument();
+  });
+
+  it('should render 404 when the post is missing', async () => {
+    renderPost({}, [
+      createPostErrorMock(ApiError.NotFound),
+      createCommentsMock(),
+    ]);
+
+    expect(await screen.findByTestId('notFound')).toBeInTheDocument();
   });
 });

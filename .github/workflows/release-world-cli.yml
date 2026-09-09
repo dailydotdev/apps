@@ -73,16 +73,18 @@ jobs:
         env:
           BUMP: ${{ github.event.inputs.version }}
         run: |
-          NEXT_VERSION=$(npm version "$BUMP" --no-git-tag-version --prefix packages/world-cli)
+          NEXT_VERSION=$(npm version "$BUMP" --no-git-tag-version --prefix packages/world-kit)
           VERSION=${NEXT_VERSION#v}
-          npm version "$VERSION" --no-git-tag-version --prefix packages/world-kit
+          npm version "$VERSION" --no-git-tag-version --prefix packages/world-cli
+          npm pkg set "dependencies.@dailydotdev/world-kit=${VERSION}" --prefix packages/world-cli
+          pnpm install --lockfile-only
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Commit and tag release
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          git add packages/world-cli/package.json packages/world-kit/package.json
+          git add packages/world-cli/package.json packages/world-kit/package.json pnpm-lock.yaml
           git commit --message "chore: release world cli v${VERSION}"
           git tag --sign "world-cli-v${VERSION}" --message "@dailydotdev/world-cli v${VERSION}"
 
@@ -94,13 +96,57 @@ jobs:
           pnpm --dir packages/world-cli pack --pack-destination "$RUNNER_TEMP"
           test -f "$RUNNER_TEMP/dailydotdev-world-kit-${VERSION}.tgz"
           test -f "$RUNNER_TEMP/dailydotdev-world-cli-${VERSION}.tgz"
+          tar -xOf "$RUNNER_TEMP/dailydotdev-world-cli-${VERSION}.tgz" package/package.json \
+            > "$RUNNER_TEMP/world-cli-package.json"
+          CLI_KIT_VERSION=$(node --input-type=commonjs -p \
+            "require(process.argv[1]).dependencies['@dailydotdev/world-kit']" \
+            "$RUNNER_TEMP/world-cli-package.json")
+          test "$CLI_KIT_VERSION" = "$VERSION"
 
-      - name: Publish to npm
+      - name: Publish world kit to npm
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           npm publish "$RUNNER_TEMP/dailydotdev-world-kit-${VERSION}.tgz" --access public
+
+      - name: Verify world kit on npm
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          for attempt in {1..12}; do
+            PUBLISHED_VERSION=$(npm view "@dailydotdev/world-kit@${VERSION}" version 2>/dev/null || true)
+            if [ "$PUBLISHED_VERSION" = "$VERSION" ]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "@dailydotdev/world-kit@${VERSION} is not available on npm." >&2
+          exit 1
+
+      - name: Publish world cli to npm
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
           npm publish "$RUNNER_TEMP/dailydotdev-world-cli-${VERSION}.tgz" --access public
+
+      - name: Verify external install
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          for attempt in {1..12}; do
+            PUBLISHED_VERSION=$(npm view "@dailydotdev/world-cli@${VERSION}" version 2>/dev/null || true)
+            if [ "$PUBLISHED_VERSION" = "$VERSION" ]; then
+              break
+            fi
+            if [ "$attempt" = 12 ]; then
+              echo "@dailydotdev/world-cli@${VERSION} is not available on npm." >&2
+              exit 1
+            fi
+            sleep 5
+          done
+          npm install --global --prefix "$RUNNER_TEMP/world-cli-smoke" \
+            "@dailydotdev/world-cli@${VERSION}"
+          "$RUNNER_TEMP/world-cli-smoke/bin/world" palette
 
       - name: Push release
         env:

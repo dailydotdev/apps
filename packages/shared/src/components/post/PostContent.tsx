@@ -18,14 +18,11 @@ import YoutubeVideo from '../video/YoutubeVideo';
 import { useTrackPostView } from '../../hooks/post/useTrackPostView';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import {
   feature,
-  featureCommunitySentiment,
   featurePostCopySummary,
   featureSnapshotSelectionShare,
 } from '../../lib/featureManagement';
-import { isDevelopment } from '../../lib/constants';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
@@ -41,6 +38,7 @@ import {
   CommunitySentiment,
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
+import { anchorNofollowRel } from '../../lib/strings';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -69,7 +67,7 @@ const ArticleLink = ({
       href={href}
       title="Go to post"
       target="_blank"
-      rel="noopener"
+      rel={anchorNofollowRel}
       {...clickHandlers}
       {...props}
     >
@@ -127,17 +125,7 @@ export function PostContentRaw({
   const communitySentimentData = post.communitySentiment
     ? mapCommunitySentimentPost(post.communitySentiment)
     : undefined;
-  // Conditional enrollment: only evaluate (and log exposure for) the
-  // community_sentiment experiment on posts that actually have a take, so
-  // take-less posts don't dilute the treatment/control split.
-  const { value: communitySentimentEnabled } = useConditionalFeature({
-    feature: featureCommunitySentiment,
-    shouldEvaluate: !!communitySentimentData,
-  });
-  const showCommunitySentiment =
-    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
-  // Only the post page: in the modal the quote competes with the close and
-  // navigation controls, and the decision was to keep snapshot off it.
+  const showCommunitySentiment = !!communitySentimentData;
   // Page and modal both: a reader highlights a line wherever they are reading
   // it, and the modal is where most of the reading on desktop happens.
   const isSelectionSnapshotEnabled = useSharePlacement({

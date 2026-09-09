@@ -30,6 +30,7 @@ import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
 import AdAttribution, { adAttributionSpacing } from './common/AdAttribution';
+import { anchorSponsoredRel } from '../../../lib/strings';
 
 const getLinkProps = ({
   ad,
@@ -43,7 +44,7 @@ const getLinkProps = ({
   return {
     href,
     target: '_blank',
-    rel: 'noopener',
+    rel: anchorSponsoredRel,
     title: ad.description,
     ...combinedClicks(() => onLinkClick?.(ad)),
   };
@@ -99,7 +100,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
             tag="a"
             href={clickUrl}
             target="_blank"
-            rel="noopener"
+            rel={anchorSponsoredRel}
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             {...combinedClicks(() => onLinkClick?.(ad))}

@@ -5,6 +5,7 @@ import type {
   ShortcutMeta,
   ShortcutsAppearance,
   ShortcutsMode,
+  SidebarShortcut,
 } from '../features/shortcuts/types';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
@@ -46,14 +47,25 @@ export type SettingsFlags = {
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;
   showShortcutsOnWebapp?: boolean;
-  // v2 desktop rail: hide the text labels under each icon and narrow the
-  // rail back to its icon-only width.
   sidebarCompact?: boolean;
+  // In dock order.
+  sidebarShortcuts?: SidebarShortcut[];
   sidebarPinnedExpanded?: boolean;
   sidebarRecentExpanded?: boolean;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
+
+// Keep only flags the API does not know yet. Sending an unknown flag fails
+// GraphQL validation, and since every write ships the whole `flags` object,
+// that breaks the persistence of all settings in the same payload.
+export const clientOnlySettingsFlags = [] as const satisfies ReadonlyArray<
+  keyof SettingsFlags
+>;
+
+export type ClientOnlyFlagKey = (typeof clientOnlySettingsFlags)[number];
+
+export type ClientOnlySettingsFlags = Pick<SettingsFlags, ClientOnlyFlagKey>;
 
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',

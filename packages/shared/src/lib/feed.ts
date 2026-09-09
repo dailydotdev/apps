@@ -5,6 +5,7 @@ import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import type { PostBootData } from './boot';
 import { Origin, TargetType } from './log';
+import type { SearchLogExtra } from './searchLog';
 import { SharedFeedPage } from '../components/utilities';
 import type { AllFeedPages } from './query';
 import { OtherFeedPage } from './query';
@@ -62,6 +63,8 @@ interface FeedLogExtra {
     ranking?: string;
     variant?: string;
     parent_id?: string;
+    search_id?: string;
+    search_version?: number;
   };
 }
 
@@ -71,7 +74,7 @@ export function feedLogExtra(
   extra?: {
     scroll_y?: number;
     gen_id?: string;
-  },
+  } & SearchLogExtra,
   origin?: Origin,
   variant?: string,
   parent_id?: string,
@@ -97,6 +100,8 @@ export interface FeedItemPosition {
 export type PostLogEventFnOptions = FeedItemPosition & {
   extra?: Record<string, unknown>;
   is_ad?: boolean;
+  /** Absolute position of the item in the feed, ads and placeholders included. */
+  index?: number;
 };
 
 const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
@@ -106,9 +111,12 @@ export function postLogEvent(
   post: Post | ReadHistoryPost | PostBootData,
   opts?: PostLogEventFnOptions,
 ): PostItemLogEvent {
+  // Lives in `extra` rather than top-level: unmapped top-level event fields are
+  // dropped at analytics ingest, while the `extra` blob is stored intact.
   const extra: Record<string, unknown> = {
     ...opts?.extra,
     ...(opts?.is_ad && { is_ad: true }),
+    ...(typeof opts?.index === 'number' && { feed_item_index: opts.index }),
   };
 
   if (typeof window !== 'undefined') {

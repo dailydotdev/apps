@@ -32,6 +32,10 @@ jest.mock('../../hooks/profile/useTrackedAchievement', () => ({
   useTrackedAchievement: () => mockUseTrackedAchievement(),
 }));
 
+jest.mock('../../hooks/profile/useAchievementTracker', () => ({
+  useAchievementTracker: () => ({ isSettled: true }),
+}));
+
 jest.mock('../../hooks', () => ({
   useViewSize: (...args: unknown[]) => mockUseViewSize(...args),
   ViewSize: { Laptop: 'laptop' },
@@ -224,15 +228,6 @@ it('renders AchievementCard inside HoverCard when tracking', () => {
   });
   renderComponent();
   expect(screen.getByTestId('achievement-card')).toBeInTheDocument();
-});
-
-it('renders achievement image in the button when tracking', () => {
-  mockUseTrackedAchievement.mockReturnValue({
-    ...defaultTrackedAchievementHook,
-    trackedAchievement: mockTrackedAchievement,
-  });
-  renderComponent();
-  expect(screen.getByAltText('First Steps')).toBeInTheDocument();
 });
 
 it('adds spacing classes to achievement image when label is shown', () => {

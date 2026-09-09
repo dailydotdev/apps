@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { gqlClient } from '../../graphql/common';
+import { gqlBatchRequest } from '../../graphql/batch';
 import {
   HACKATHON_PARTICIPATION_QUERY,
   type HackathonParticipationData,
@@ -13,7 +13,7 @@ export const hackathonParticipationQueryOptions = (
   queryOptions({
     queryKey: generateQueryKey(RequestKey.HackathonParticipation, user),
     queryFn: () =>
-      gqlClient.request<HackathonParticipationData>(
+      gqlBatchRequest<HackathonParticipationData>(
         HACKATHON_PARTICIPATION_QUERY,
       ),
     enabled: !!user?.id,
