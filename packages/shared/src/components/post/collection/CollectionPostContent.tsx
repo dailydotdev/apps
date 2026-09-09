@@ -11,7 +11,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
-import { ParagraphCopyButtons } from '../../../features/snapshot/ParagraphCopyButtons';
+import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
@@ -197,7 +197,7 @@ export const CollectionPostContentRaw = ({
             )}
             <div ref={bodyRef}>
               <Markdown content={contentHtml ?? ''} />
-              <ParagraphCopyButtons containerRef={bodyRef} />
+              <ParagraphSnapshotButtons containerRef={bodyRef} post={post} />
             </div>
             {showCommunitySentiment && (
               <CommunitySentiment data={communitySentimentData} />

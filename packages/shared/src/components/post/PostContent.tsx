@@ -27,7 +27,7 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
-import { SummarySnapshotButton } from '../../features/snapshot/SummarySnapshotButton';
+import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import {
   CommunitySentiment,
@@ -224,7 +224,11 @@ export function PostContentRaw({
                   line the way it does below — it trails the block instead. */}
               {isPostPage && (
                 <div className="-mt-4 mb-6 flex">
-                  <SummarySnapshotButton post={post} summary={post.summary} />
+                  <TextSnapshotButton
+                    filename={`daily-summary-${post.id}`}
+                    post={post}
+                    text={post.summary}
+                  />
                 </div>
               )}
             </>
@@ -241,7 +245,11 @@ export function PostContentRaw({
               >
                 {post.summary}
                 {isPostPage && (
-                  <SummarySnapshotButton post={post} summary={post.summary} />
+                  <TextSnapshotButton
+                    filename={`daily-summary-${post.id}`}
+                    post={post}
+                    text={post.summary}
+                  />
                 )}
               </p>
             </div>

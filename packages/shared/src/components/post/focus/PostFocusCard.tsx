@@ -29,8 +29,8 @@ import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
-import { SummarySnapshotButton } from '../../../features/snapshot/SummarySnapshotButton';
-import { ParagraphCopyButtons } from '../../../features/snapshot/ParagraphCopyButtons';
+import { TextSnapshotButton } from '../../../features/snapshot/TextSnapshotButton';
+import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
 import { feature } from '../../../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
@@ -343,7 +343,7 @@ const PostFocusCardRaw = ({
   const postBody = article.contentHtml ? (
     <div ref={bodyRef} className="flex flex-col gap-4">
       <Markdown content={article.contentHtml} className="break-words" />
-      <ParagraphCopyButtons containerRef={bodyRef} />
+      <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
       <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
     </div>
   ) : (
@@ -352,7 +352,11 @@ const PostFocusCardRaw = ({
       <VideoSummary
         summary={article.summary}
         trailing={
-          <SummarySnapshotButton post={article} summary={article.summary} />
+          <TextSnapshotButton
+            filename={`daily-summary-${article.id}`}
+            post={article}
+            text={article.summary}
+          />
         }
       />
     ) : (
@@ -361,7 +365,11 @@ const PostFocusCardRaw = ({
         data-testid="tldr-container"
       >
         {article.summary}
-        <SummarySnapshotButton post={article} summary={article.summary} />
+        <TextSnapshotButton
+          filename={`daily-summary-${article.id}`}
+          post={article}
+          text={article.summary}
+        />
       </p>
     ))
   );

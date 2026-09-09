@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
-import { SummarySnapshotButton } from './SummarySnapshotButton';
+import { TextSnapshotButton } from './TextSnapshotButton';
 
 const SUMMARY =
   'Every one of them optimised the product they had instead of the one their customers were moving to.';
@@ -11,13 +11,13 @@ const SUMMARY =
 const renderButton = () =>
   render(
     <TestBootProvider client={new QueryClient()}>
-      <SummarySnapshotButton post={post} summary={SUMMARY} />
+      <TextSnapshotButton filename="daily-summary" post={post} text={SUMMARY} />
     </TestBootProvider>,
   );
 
 const cardCopies = () => screen.queryAllByText(SUMMARY).length;
 
-describe('SummarySnapshotButton', () => {
+describe('TextSnapshotButton', () => {
   it('keeps the card out of the page until the reader reaches for it', () => {
     renderButton();
 

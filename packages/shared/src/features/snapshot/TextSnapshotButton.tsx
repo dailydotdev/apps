@@ -10,25 +10,29 @@ import { snapshotSource } from './snapshotSource';
 import { useArmedCard } from './useArmedCard';
 
 /**
- * The TLDR as an image. It is the one piece of a post already written to be
- * read on its own, so it carries further as a card than as a paste of text —
- * and the card names the source, which a bare quote in a thread does not.
+ * A passage of the post as an image: the TLDR, or one paragraph of a body.
+ * Prose written to be read on its own carries further as a card than as a
+ * paste of text, and the card names the source, which a bare quote pasted
+ * into a thread does not.
  *
  * The card is staged off-screen at its full 1080px because the capture reads
  * the live DOM: it has to be mounted before the press, not after.
  */
-export function SummarySnapshotButton({
+export function TextSnapshotButton({
   post,
-  summary,
+  text,
+  filename,
   // Quieter than the body copy it trails: it runs in at the end of the
-  // summary's last line and must not break the paragraph's colour.
+  // passage's last line and must not break the paragraph's colour.
   className = 'ml-1 align-middle !text-text-quaternary',
   showLabel = false,
   size = ButtonSize.XSmall,
   variant,
 }: {
   post: Post;
-  summary: string;
+  text: string;
+  /** Distinguishes a summary from a paragraph in the reader's downloads. */
+  filename: string;
   className?: string;
   showLabel?: boolean;
   size?: ButtonSize;
@@ -45,7 +49,7 @@ export function SummarySnapshotButton({
         <SnapshotButton
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           className={className}
-          filename={`daily-summary-${post.id}`}
+          filename={filename}
           showLabel={showLabel}
           size={size}
           target={cardRef}
@@ -61,7 +65,7 @@ export function SummarySnapshotButton({
             ref={cardRef}
             seed={post.id}
             source={snapshotSource(post)}
-            text={summary}
+            text={text}
           />
         </div>
       )}
