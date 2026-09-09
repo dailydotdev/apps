@@ -48,10 +48,14 @@ export function ReadTopLeaderboard({
       className={classNames(
         'bg-background-default pb-2 pt-4',
         // Bleeds into the column's phone padding like GoBackHeaderMobile
-        // below it, so the 320x50 card has its full width on a 320px screen —
-        // the body's min-width, so the card never gets less. Given less,
-        // AdSense drops the fixed size and serves whatever fits the space.
-        '-mx-4 tablet:mx-0',
+        // below it, so the 320x50 card has its full width on a 320px screen.
+        // Hidden on narrower screens: AdSense sizes a fixed unit against the
+        // document's client width, not its container, so even with the card
+        // held at 320px by the body's min-width a 312px screen gets a 312x250
+        // in place of the banner. A hidden wrapper never intersects, so the
+        // twin never requests. In px, like the creative and the screens
+        // config, so the threshold does not drift with the browser font size.
+        '-mx-4 tablet:mx-0 [@media(max-width:319px)]:hidden',
         className,
         // --sticky-header-offset is published by MainLayout and matches the
         // fixed chrome this layout actually has: 4rem for the v1 header, 0 on
