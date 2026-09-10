@@ -31,7 +31,10 @@ export interface ReadingOverviewTag {
 
 export interface ReadingOverviewSnapshotCardProps {
   user: SnapshotIdentityProps;
-  /** Both left out when there is no streak, as the profile page does. */
+  /**
+   * Each section below is left out when its number is zero or unknown, so a
+   * quiet stretch reads as fewer sections rather than as zeros.
+   */
   longestStreak?: number;
   totalReadingDays?: number;
   postsRead: number;
@@ -102,19 +105,26 @@ function ReadingOverviewSnapshotCardComponent(
       <div className="flex flex-1 flex-col gap-6">
         <SnapshotIdentity {...user} />
 
-        {longestStreak !== undefined && totalReadingDays !== undefined && (
+        {(!!longestStreak || !!totalReadingDays) && (
           <div className="flex gap-4">
-            <SnapshotTile
-              glyph="🏆"
-              label="Longest streak"
-              value={largeNumberFormat(longestStreak) ?? String(longestStreak)}
-            />
-            <SnapshotTile
-              label="Total reading days"
-              value={
-                largeNumberFormat(totalReadingDays) ?? String(totalReadingDays)
-              }
-            />
+            {!!longestStreak && (
+              <SnapshotTile
+                glyph="🏆"
+                label="Longest streak"
+                value={
+                  largeNumberFormat(longestStreak) ?? String(longestStreak)
+                }
+              />
+            )}
+            {!!totalReadingDays && (
+              <SnapshotTile
+                label="Total reading days"
+                value={
+                  largeNumberFormat(totalReadingDays) ??
+                  String(totalReadingDays)
+                }
+              />
+            )}
           </div>
         )}
 
@@ -135,32 +145,34 @@ function ReadingOverviewSnapshotCardComponent(
           </div>
         )}
 
-        <div className="mt-auto flex flex-col gap-3">
-          <span style={{ color: MUTED, fontSize: 26 }}>
-            Posts read {monthsLabel} (
-            {largeNumberFormat(postsRead) ?? postsRead})
-          </span>
-          <div
-            className="grid"
-            style={{
-              gridTemplateColumns: `repeat(${HEATMAP_COLS}, ${HEATMAP_CELL}px)`,
-              gap: HEATMAP_GAP,
-            }}
-          >
-            {cells.map((level, index) => (
-              <span
-                // eslint-disable-next-line react/no-array-index-key
-                key={index}
-                style={{
-                  width: HEATMAP_CELL,
-                  height: HEATMAP_CELL,
-                  borderRadius: '50%',
-                  background: HEATMAP_LEVELS[Math.min(level, 3)],
-                }}
-              />
-            ))}
+        {postsRead > 0 && (
+          <div className="mt-auto flex flex-col gap-3">
+            <span style={{ color: MUTED, fontSize: 26 }}>
+              Posts read {monthsLabel} (
+              {largeNumberFormat(postsRead) ?? postsRead})
+            </span>
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `repeat(${HEATMAP_COLS}, ${HEATMAP_CELL}px)`,
+                gap: HEATMAP_GAP,
+              }}
+            >
+              {cells.map((level, index) => (
+                <span
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={index}
+                  style={{
+                    width: HEATMAP_CELL,
+                    height: HEATMAP_CELL,
+                    borderRadius: '50%',
+                    background: HEATMAP_LEVELS[Math.min(level, 3)],
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </SnapshotFrame>
   );

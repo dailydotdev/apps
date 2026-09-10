@@ -184,6 +184,8 @@ describe('BadgesAndAwards component', () => {
 
     // Should not show any badge or award items
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    // Nor offer an image of two zeros
+    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
   });
 
   it('should render top reader badges when available', async () => {
@@ -206,6 +208,7 @@ describe('BadgesAndAwards component', () => {
     // Check badge items
     expect(screen.getByText('JavaScript')).toBeInTheDocument();
     expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
   });
 
   it('should render awards when user has cores access', async () => {

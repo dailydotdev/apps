@@ -139,31 +139,35 @@ export function AchievementsWidget({
               {unlockedCount}/{totalCount}
             </ClickableText>
           </Link>
-          <ProfileSnapshotButton
-            filename={`daily-achievements-${user.username ?? user.id}`}
-            origin={Origin.AchievementsWidget}
-            renderCard={(ref) => (
-              <AchievementsSnapshotCard
-                achievements={sortRarestUnlockedAchievements(achievements ?? [])
-                  .slice(0, 10)
-                  .map(({ achievement }) => ({
-                    image: achievement.image,
-                    name: achievement.name,
-                  }))}
-                points={totalPoints}
-                ref={ref}
-                seed={user.username ?? user.id}
-                total={totalCount}
-                unlocked={unlockedCount}
-                user={{
-                  handle: `@${user.username ?? user.id}`,
-                  image: user.image,
-                  name: user.name,
-                }}
-              />
-            )}
-            ownerId={user.id}
-          />
+          {unlockedCount > 0 && (
+            <ProfileSnapshotButton
+              filename={`daily-achievements-${user.username ?? user.id}`}
+              origin={Origin.AchievementsWidget}
+              ownerId={user.id}
+              renderCard={(ref) => (
+                <AchievementsSnapshotCard
+                  achievements={sortRarestUnlockedAchievements(
+                    achievements ?? [],
+                  )
+                    .slice(0, 10)
+                    .map(({ achievement }) => ({
+                      image: achievement.image,
+                      name: achievement.name,
+                    }))}
+                  points={totalPoints}
+                  ref={ref}
+                  seed={user.username ?? user.id}
+                  total={totalCount}
+                  unlocked={unlockedCount}
+                  user={{
+                    handle: `@${user.username ?? user.id}`,
+                    image: user.image,
+                    name: user.name,
+                  }}
+                />
+              )}
+            />
+          )}
         </div>
       </div>
       <RecentAchievements user={user} />

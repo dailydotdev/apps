@@ -23,6 +23,7 @@ export interface AchievementsSnapshotCardProps {
   user: SnapshotIdentityProps;
   unlocked: number;
   total: number;
+  /** Left out when zero, as is the rarest row when there is nothing in it. */
   points: number;
   achievements: UnlockedAchievement[];
   seed?: string;
@@ -53,42 +54,46 @@ function AchievementsSnapshotCardComponent(
             label={`of ${total} unlocked`}
             value={String(unlocked)}
           />
-          <SnapshotTile
-            label="Achievement points"
-            value={largeNumberFormat(points) ?? String(points)}
-          />
+          {points > 0 && (
+            <SnapshotTile
+              label="Achievement points"
+              value={largeNumberFormat(points) ?? String(points)}
+            />
+          )}
         </div>
 
-        <div className="mt-auto flex flex-col gap-3">
-          <span style={{ color: MUTED, fontSize: 26 }}>Rarest unlocked</span>
-          <div className="grid grid-cols-5 gap-4">
-            {achievements.slice(0, 10).map((achievement) => (
-              <span
-                key={achievement.name}
-                className="flex items-center justify-center overflow-hidden rounded-20"
-                style={{
-                  width: TILE_SIZE,
-                  height: TILE_SIZE,
-                  border: `1px solid ${DIVIDER}`,
-                  background: 'rgba(255, 255, 255, 0.04)',
-                }}
-              >
-                {achievement.image ? (
-                  <img
-                    src={achievement.image}
-                    alt=""
-                    crossOrigin="anonymous"
-                    className="block size-full object-cover"
-                  />
-                ) : (
-                  <span style={{ fontSize: 54, lineHeight: 1 }}>
-                    {achievement.emoji}
-                  </span>
-                )}
-              </span>
-            ))}
+        {achievements.length > 0 && (
+          <div className="mt-auto flex flex-col gap-3">
+            <span style={{ color: MUTED, fontSize: 26 }}>Rarest unlocked</span>
+            <div className="grid grid-cols-5 gap-4">
+              {achievements.slice(0, 10).map((achievement) => (
+                <span
+                  key={achievement.name}
+                  className="flex items-center justify-center overflow-hidden rounded-20"
+                  style={{
+                    width: TILE_SIZE,
+                    height: TILE_SIZE,
+                    border: `1px solid ${DIVIDER}`,
+                    background: 'rgba(255, 255, 255, 0.04)',
+                  }}
+                >
+                  {achievement.image ? (
+                    <img
+                      src={achievement.image}
+                      alt=""
+                      crossOrigin="anonymous"
+                      className="block size-full object-cover"
+                    />
+                  ) : (
+                    <span style={{ fontSize: 54, lineHeight: 1 }}>
+                      {achievement.emoji}
+                    </span>
+                  )}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </SnapshotFrame>
   );

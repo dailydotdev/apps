@@ -120,6 +120,24 @@ describe('ReadingOverview component', () => {
     expect(screen.getByText('react')).toBeInTheDocument();
     expect(screen.getByText('+60%')).toBeInTheDocument(); // javascript percentage
     expect(screen.getByText('+40%')).toBeInTheDocument(); // react percentage
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
+  });
+
+  it('should not offer a snapshot when there is no reading to show', () => {
+    renderComponent({
+      readHistory: [],
+      streak: { ...mockStreak, max: 0, total: 0, current: 0 },
+      mostReadTags: [],
+    });
+
+    expect(screen.getByText('Reading Overview')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
+  });
+
+  it('should offer a snapshot for a streak with no reads in the window', () => {
+    renderComponent({ readHistory: [], mostReadTags: [] });
+
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
   });
 
   it('should render the keyword title once it is available', async () => {

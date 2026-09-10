@@ -135,6 +135,13 @@ export function ReadingOverview({
   isLoading = false,
 }: ReadingOverviewProps): ReactElement {
   const totalReads = sumReadHistory(readHistory);
+  // The card leaves out every section whose number is zero, so with no reads,
+  // no streak and no tags there would be nothing on it but the name.
+  const hasSnapshot =
+    totalReads > 0 ||
+    !!streak?.max ||
+    !!streak?.total ||
+    !!mostReadTags?.length;
 
   if (isLoading) {
     return <ReadingOverviewSkeleton />;
@@ -152,22 +159,24 @@ export function ReadingOverview({
         >
           Reading Overview
         </Typography>
-        <ProfileSnapshotButton
-          filename={`daily-reading-overview-${user.username ?? user.id}`}
-          origin={Origin.ReadingOverview}
-          renderCard={(ref) => (
-            <ReadingOverviewCard
-              after={after}
-              before={before}
-              mostReadTags={mostReadTags}
-              readHistory={readHistory}
-              ref={ref}
-              streak={streak}
-              user={user}
-            />
-          )}
-          ownerId={user.id}
-        />
+        {hasSnapshot && (
+          <ProfileSnapshotButton
+            filename={`daily-reading-overview-${user.username ?? user.id}`}
+            origin={Origin.ReadingOverview}
+            ownerId={user.id}
+            renderCard={(ref) => (
+              <ReadingOverviewCard
+                after={after}
+                before={before}
+                mostReadTags={mostReadTags}
+                readHistory={readHistory}
+                ref={ref}
+                streak={streak}
+                user={user}
+              />
+            )}
+          />
+        )}
       </div>
       <ClickableText
         tag="a"
