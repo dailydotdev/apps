@@ -32,6 +32,7 @@ import { ProfileSnapshotCard } from '../../features/snapshot/ProfileSnapshotCard
 import { devCardQueryOptions } from '../../hooks/profile/useDevCard';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyLink } from '../../hooks/useCopy';
+import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
@@ -107,6 +108,7 @@ const ProfileHeader = ({
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
   const { logEvent } = useLogContext();
   const [isCopying, copyLink] = useCopyLink();
+  const { getTrackedUrl } = useGetShortUrl();
 
   const onCopyLink = () => {
     logEvent({
@@ -119,9 +121,8 @@ const ProfileHeader = ({
       }),
     });
     copyLink({
-      link: user.permalink,
+      link: getTrackedUrl(user.permalink, ReferralCampaignKey.ShareProfile),
       shorten: true,
-      cid: ReferralCampaignKey.ShareProfile,
     });
   };
 

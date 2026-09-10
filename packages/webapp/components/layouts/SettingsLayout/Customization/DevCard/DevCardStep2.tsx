@@ -15,8 +15,10 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { DevCardQueryData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { useDevCard } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
-import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
+import { useGetShortUrl } from '@dailydotdev/shared/src/hooks/utils/useGetShortUrl';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
+import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import {
   generateQueryKey,
   RequestKey,
@@ -43,7 +45,10 @@ import { DevCardFetchWrapper } from '@dailydotdev/shared/src/components/profile/
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
 import classNames from 'classnames';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import {
+  isNullOrUndefined,
+  shouldUseNativeShare,
+} from '@dailydotdev/shared/src/lib/func';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import {
   Typography,
@@ -93,15 +98,39 @@ export const DevCardStep2 = ({
     [user?.name, user?.username, devCardSrc, type],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
-  const [sharing, onShareDevCard] = useShareOrCopyLink({
-    link: user?.permalink ?? '',
-    text: 'Check out my #DevCard on daily.dev',
-    logObject: (provider) => ({
-      event_name: LogEvent.ShareDevcard,
-      target_id: userId,
-      extra: JSON.stringify({ provider, origin: Origin.DevCard }),
-    }),
-  });
+  const [copyingProfileLink, copyProfileLink] = useCopyLink();
+  const { getTrackedUrl } = useGetShortUrl();
+  const onShareDevCard = async () => {
+    // The tracked link is known without a request, so both the share sheet
+    // and the clipboard get it inside the press; the copy swaps in the short
+    // link once it resolves.
+    const link = getTrackedUrl(
+      user?.permalink ?? '',
+      ReferralCampaignKey.ShareProfile,
+    );
+    const logShare = (provider: ShareProvider) =>
+      logEvent({
+        event_name: LogEvent.ShareDevcard,
+        target_id: userId,
+        extra: JSON.stringify({ provider, origin: Origin.DevCard }),
+      });
+
+    if (shouldUseNativeShare()) {
+      try {
+        await navigator.share({
+          text: `Check out my #DevCard on daily.dev\n${link}`,
+        });
+        logShare(ShareProvider.Native);
+      } catch {
+        // Dismissing the sheet rejects too.
+      }
+
+      return;
+    }
+
+    logShare(ShareProvider.CopyLink);
+    copyProfileLink({ link, shorten: true });
+  };
   const [selectedTab, setSelectedTab] = useState(0);
   const { mutateAsync: onDownloadUrl, isPending: downloading } = useMutation({
     mutationFn: downloadUrl,
@@ -260,7 +289,7 @@ export const DevCardStep2 = ({
               size={ButtonSize.Medium}
               icon={<ShareIcon />}
               onClick={onShareDevCard}
-              disabled={sharing || isLoading}
+              disabled={copyingProfileLink || isLoading}
             >
               Share
             </Button>
