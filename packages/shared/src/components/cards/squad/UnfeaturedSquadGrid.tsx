@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { largeNumberFormat } from '../../../lib';
+import { largeNumberFormat } from '../../../lib/numberFormat';
 import { Separator } from '../common/common';
 import type { UnFeaturedSquadCardProps } from './common/types';
 import { LogEvent, Origin } from '../../../lib/log';
@@ -54,7 +54,7 @@ export const UnfeaturedSquadGrid = ({
         />
         <div className="flex items-center gap-2">
           <CopyLinkButton
-            className="relative z-0 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
+            className="relative z-0 laptop:mouse:opacity-0 laptop:mouse:group-focus-within/squad:opacity-100 laptop:mouse:group-hover/squad:opacity-100"
             origin={Origin.SquadDirectory}
             shareProps={shareProps}
             size={ButtonSize.Medium}

@@ -37,7 +37,7 @@ export function SourceTopList({
           {/* Hover-revealed only where hover exists; always there on touch. */}
           <CopyLinkButton
             variant={ButtonVariant.Tertiary}
-            className="ml-auto shrink-0 laptop:opacity-0 laptop:group-focus-within/source:opacity-100 laptop:group-hover/source:opacity-100"
+            className="ml-auto shrink-0 laptop:mouse:opacity-0 laptop:mouse:group-focus-within/source:opacity-100 laptop:mouse:group-hover/source:opacity-100"
             origin={Origin.SourceDirectory}
             shareProps={{
               text: `Check out ${item.handle} on daily.dev`,
