@@ -78,7 +78,7 @@ export function AchievementShelfCard({
 
   return (
     <>
-      <article className="group relative flex h-[10.5rem] w-full flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform tablet:h-[17rem] hover:-translate-y-1">
+      <article className="group relative flex h-[10.5rem] w-full flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform hover:-translate-y-1 tablet:h-[17rem]">
         {/* `absolute` has to come from the prop: LazyImage appends its own
             `relative` after our classes, and that wins in the compiled CSS. */}
         <LazyImage
@@ -151,7 +151,7 @@ export function AchievementShelfCard({
           >
             {achievement.name}
           </Typography>
-          <Typography className="mt-[3px] hidden line-clamp-1 text-[14px] leading-[1.32] text-[rgba(255,255,255,0.78)] tablet:block">
+          <Typography className="mt-[3px] line-clamp-1 hidden text-[14px] leading-[1.32] text-[rgba(255,255,255,0.78)] tablet:block">
             {achievement.description}
           </Typography>
 
@@ -160,15 +160,22 @@ export function AchievementShelfCard({
               Completed {formatUnlockedAt(unlockedAt)}
             </Typography>
           ) : (
-            <ProgressBar
-              percentage={progressPercentage}
-              shouldShowBg
-              className={{
-                wrapper: 'mt-[13px] h-1 rounded-max',
-                bar: 'h-full rounded-max',
-                barColor: 'bg-accent-cabbage-default',
-              }}
-            />
+            <>
+              {/* The top edge is the Track chip's on a phone, so the count
+                  reads in the footer there and moves up from tablet. */}
+              <Typography className="mt-[5px] text-[14px] leading-none text-[rgba(255,255,255,0.7)] tablet:hidden">
+                {progressLabel}
+              </Typography>
+              <ProgressBar
+                percentage={progressPercentage}
+                shouldShowBg
+                className={{
+                  wrapper: 'mt-[7px] h-1 rounded-max tablet:mt-[13px]',
+                  bar: 'h-full rounded-max',
+                  barColor: 'bg-accent-cabbage-default',
+                }}
+              />
+            </>
           )}
         </div>
       </article>

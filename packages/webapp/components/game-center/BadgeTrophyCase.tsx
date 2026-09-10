@@ -134,19 +134,63 @@ export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
   const start = boundedPage * perPage;
   const visible = badges.slice(start, start + perPage);
 
-  // A phone scrolls the whole list rather than paging it: the arrows are a
-  // poor target at that size, and a thumb is already the obvious control.
+  // A phone swipes between the same pages the arrows step through, so the
+  // pane keeps its height and the thumb replaces a 32px target.
   if (isMobile) {
+    const pages = Array.from({ length: pageCount }, (_, index) =>
+      badges.slice(index * perPage, index * perPage + perPage),
+    );
+
     return (
-      <div className="-mx-1 flex max-h-[19rem] flex-col gap-2 overflow-y-auto overscroll-contain px-1">
-        {badges.map((badge) => (
-          <BadgeRow
-            key={badge.id}
-            issuedAt={badge.issuedAt}
-            keyword={badge.keyword}
-            image={badge.image}
-          />
-        ))}
+      <div className="flex flex-1 flex-col gap-2">
+        <div
+          className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
+          onScroll={(event) => {
+            const track = event.currentTarget;
+            setPage(Math.round(track.scrollLeft / track.clientWidth));
+          }}
+        >
+          {pages.map((rows, index) => (
+            <div
+              // eslint-disable-next-line react/no-array-index-key
+              key={`badge-page-${index}`}
+              className="flex w-full shrink-0 snap-start flex-col gap-2"
+            >
+              {rows.map((badge) => (
+                <BadgeRow
+                  key={badge.id}
+                  issuedAt={badge.issuedAt}
+                  keyword={badge.keyword}
+                  image={badge.image}
+                />
+              ))}
+
+              {/* A short last page would otherwise shorten the whole pane. */}
+              {Array.from({ length: perPage - rows.length }, (_, filler) => (
+                <div
+                  key={`filler-${filler.toString()}`}
+                  className="invisible"
+                  aria-hidden
+                >
+                  <BadgeRow
+                    issuedAt={rows[0].issuedAt}
+                    keyword={rows[0].keyword}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {pageCount > 1 && (
+          <Typography
+            type={TypographyType.Subhead}
+            color={TypographyColor.Tertiary}
+            className="mt-auto pt-1 tabular-nums"
+          >
+            {start + 1}-{start + visible.length} of {badges.length}
+          </Typography>
+        )}
       </div>
     );
   }
