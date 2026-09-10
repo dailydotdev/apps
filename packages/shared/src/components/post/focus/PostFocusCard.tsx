@@ -465,13 +465,12 @@ const PostFocusCardRaw = ({
                   buttonProps={{ size: ButtonSize.Small }}
                 />
               )}
-              <div className="[&_svg]:rotate-90">
-                <PostMenuOptions
-                  post={post}
-                  origin={origin}
-                  buttonSize={ButtonSize.Medium}
-                />
-              </div>
+              <PostMenuOptions
+                post={post}
+                origin={origin}
+                buttonSize={ButtonSize.Medium}
+                menuTriggerClassName="[&_svg]:rotate-90"
+              />
             </div>
           </div>
 

@@ -8,10 +8,14 @@ import { PostType } from '../../graphql/posts';
 import { Origin } from '../../lib/log';
 import { PostMenuOptions } from './PostMenuOptions';
 
-const renderActions = (postToRender: Post) =>
+const renderActions = (postToRender: Post, menuTriggerClassName?: string) =>
   render(
     <TestBootProvider client={new QueryClient()}>
-      <PostMenuOptions origin={Origin.ArticlePage} post={postToRender} />
+      <PostMenuOptions
+        origin={Origin.ArticlePage}
+        post={postToRender}
+        menuTriggerClassName={menuTriggerClassName}
+      />
     </TestBootProvider>,
   );
 
@@ -42,5 +46,14 @@ describe('PostMenuOptions copy link', () => {
     expect(link?.compareDocumentPosition(options)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+  });
+
+  it('restyles the menu trigger alone, never the copy link beside it', () => {
+    // The focus card rotates the ⋯ glyph 90°. Put on a wrapper, that rotation
+    // also turned the copy link and its confirmation check on their side.
+    renderActions(post, 'menu-glyph-probe');
+
+    expect(screen.getByLabelText('Options')).toHaveClass('menu-glyph-probe');
+    expect(copyLink()?.closest('.menu-glyph-probe')).toBeNull();
   });
 });
