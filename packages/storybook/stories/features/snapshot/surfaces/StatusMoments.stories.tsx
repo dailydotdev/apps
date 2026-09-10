@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -8,11 +7,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
-import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
 import { DownloadIcon } from '@dailydotdev/shared/src/components/icons/Download';
-import { ShieldPlusIcon } from '@dailydotdev/shared/src/components/icons/ShieldPlus';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import {
   ProfileImageSize,
   ProfilePicture,
@@ -70,47 +65,11 @@ const Celebration = () => (
   </EmberPanel>
 );
 
-/** The list primitive the decision column is built from. */
-const OptionRow = ({
-  action,
-  icon,
-  meta,
-  primary,
-  title,
-}: {
-  action: string;
-  icon: ReactNode;
-  meta: string;
-  primary?: boolean;
-  title: string;
-}) => (
-  <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-2 pr-3">
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-10 bg-surface-hover text-text-tertiary">
-      {icon}
-    </span>
-    <div className="flex min-w-0 flex-1 flex-col">
-      <span className="truncate font-bold text-text-primary typo-footnote">
-        {title}
-      </span>
-      <span className="truncate text-text-quaternary typo-caption1">
-        {meta}
-      </span>
-    </div>
-    <Button
-      className="shrink-0"
-      size={ButtonSize.Small}
-      variant={primary ? ButtonVariant.Primary : ButtonVariant.Secondary}
-    >
-      {action}
-    </Button>
-  </div>
-);
-
 /* -------------------------------------------------------------- surfaces */
 
 /**
  * The streak milestone popup from Milestone Rewards/Final review, at phone
- * width: celebration panel above, one decision column below.
+ * width: celebration panel above, the controls below.
  */
 const StreakScreen = () => (
   <Screen>
@@ -123,31 +82,6 @@ const StreakScreen = () => (
       <Celebration />
 
       <div className="flex flex-col gap-4 p-6">
-        <div className="flex flex-col gap-1">
-          <h3 className="font-bold text-text-primary typo-title2">
-            Day {INFERNO.day} unlocked
-          </h3>
-          <p className="text-text-tertiary typo-callout">
-            Nothing sponsored today. This one is ours.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <OptionRow
-            action="Claim"
-            icon={<CoreIcon size={IconSize.Small} />}
-            meta="Spend them on awards"
-            primary
-            title="50 Cores"
-          />
-          <OptionRow
-            action="Get"
-            icon={<ShieldPlusIcon secondary size={IconSize.Small} />}
-            meta="Covers a day you miss"
-            title="Two streak freezes"
-          />
-        </div>
-
         <Control
           action="Snapshot"
           label
@@ -161,11 +95,11 @@ const StreakScreen = () => (
   </Screen>
 );
 
-/** AchievementCard.tsx, the unlock card. */
+/** AchievementCard.tsx, the unlock card, with the real achievement. */
 const AchievementScreen = () => (
   <Screen>
     <div className="flex flex-col gap-3 p-4">
-      <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+      <div className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
         <div className="flex items-start gap-3">
           <img
             alt=""
@@ -177,7 +111,7 @@ const AchievementScreen = () => (
               Can&apos;t spend it all
             </span>
             <span className="mt-0.5 line-clamp-2 text-text-tertiary typo-footnote">
-              Hold more than 10,000 cores without spending any of them.
+              Spend 10000 Cores
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1 self-center">
@@ -186,30 +120,20 @@ const AchievementScreen = () => (
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Float}
             />
-            <span className="font-bold text-text-primary typo-callout">
-              120
-            </span>
+            <span className="font-bold text-text-primary typo-callout">25</span>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <span className="flex justify-between text-text-tertiary typo-footnote">
-            <span>Progress</span>
-            <span>8/10</span>
-          </span>
-          <ProgressBar
-            className={{
-              wrapper: 'h-1.5 rounded-14 bg-surface-invert',
-              bar: 'h-full rounded-14',
-            }}
-            percentage={80}
-            shouldShowBg
-          />
         </div>
       </div>
     </div>
   </Screen>
 );
+
+/** Fictional readers for the rank and awards screens. */
+const PEOPLE: [string, string][] = [
+  ['Maya Torres', 'mayatorres'],
+  ['Jonah Pike', 'jonahpike'],
+  ['Lena Brandt', 'lenabrandt'],
+];
 
 /** UserTopList.tsx, the leaderboard rows. */
 const RankScreen = () => (
@@ -220,26 +144,19 @@ const RankScreen = () => (
       </h3>
 
       <ol className="flex flex-col gap-1.5 typo-body">
-        {[
-          ['Bobby Iliev', 'bobbyiliev', 103],
-          ['Ante Barić', 'antebaric', 99],
-          ['Ido Shamun', 'idoshamun', 95],
-        ].map(([name, handle, score], index) => (
+        {PEOPLE.map(([name, handle], index) => (
           <li
-            key={handle as string}
+            key={handle}
             className={`group flex w-full flex-row items-center rounded-8 px-2 ${
               index === 0 ? 'bg-accent-pepper-subtler' : ''
             }`}
           >
-            <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
-              {score}
-            </span>
             <TopRankBadge rankIndex={index} />
             <div className="flex min-w-0 shrink items-center gap-2 p-2">
               <ProfilePicture
                 rounded="full"
                 size={ProfileImageSize.Medium}
-                user={{ image: AVATAR, username: handle as string }}
+                user={{ image: AVATAR, username: handle }}
               />
               <div className="ml-2 flex min-w-0 flex-col">
                 <span className="truncate text-text-primary typo-caption1">
@@ -277,9 +194,6 @@ const TopReaderScreen = () => (
       <h1 className="font-bold text-text-primary typo-title1">
         You&apos;ve earned the top reader badge!
       </h1>
-      <p className="text-text-tertiary typo-callout">
-        Top 1% of readers in #typescript this week
-      </p>
       <div className="mt-2 flex items-center gap-2">
         <Button
           icon={<DownloadIcon secondary />}
@@ -334,12 +248,12 @@ const AwardedScreen = () => (
         />
       </div>
 
-      {['Bobby Iliev', 'Ante Barić', 'Ido Shamun'].map((name) => (
-        <div key={name} className="flex items-center gap-3">
+      {PEOPLE.map(([name, handle]) => (
+        <div key={handle} className="flex items-center gap-3">
           <ProfilePicture
             rounded="full"
             size={ProfileImageSize.Medium}
-            user={{ image: AVATAR, username: name }}
+            user={{ image: AVATAR, username: handle }}
           />
           <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
             {name}
@@ -351,52 +265,9 @@ const AwardedScreen = () => (
   </Screen>
 );
 
-const POST_STATS: [string, string][] = [
-  ['Impressions', '41.2K'],
-  ['Upvotes', '862'],
-  ['Comments', '134'],
-  ['Clicks', '3.8K'],
-  ['Followers gained', '96'],
-  ['Cores earned', '1,250'],
-];
-
-/** posts/[id]/analytics, behind canViewPostAnalytics. */
-const AnalyticsScreen = () => (
-  <Screen>
-    <div className="flex flex-col gap-4 p-4">
-      <div className="flex min-w-0 flex-col">
-        <span className="font-bold uppercase text-text-quaternary typo-caption2">
-          Post analytics
-        </span>
-        <span className="truncate font-bold text-text-primary typo-callout">
-          Why iconic tech brands lost their dominance
-        </span>
-      </div>
-
-      <div className="h-20 rounded-12 bg-surface-float" />
-
-      <div className="grid grid-cols-2 gap-2">
-        {POST_STATS.map(([label, value]) => (
-          <div
-            key={label}
-            className="flex flex-col rounded-12 bg-surface-float p-3"
-          >
-            <span className="font-bold text-text-primary typo-title3">
-              {value}
-            </span>
-            <span className="text-text-tertiary typo-footnote">{label}</span>
-          </div>
-        ))}
-      </div>
-
-      <Control action="Snapshot" label variant={ButtonVariant.Primary} />
-    </div>
-  </Screen>
-);
-
 const StatusMoments = () => (
   <SurfacePage
-    intro="Seven surfaces that share one property: there is no page to send anyone to. A link to your streak, your rank or your unlocked achievement means nothing to the person receiving it. Snapshot is not the louder option here. It is the only one."
+    intro="Six surfaces that share one property: there is no page to send anyone to. A link to your streak, your rank or your unlocked achievement means nothing to the person receiving it. Snapshot is not the louder option here. It is the only one."
     map="Sharing map: lead with Snapshot on all three (#6358 streak, #6360 achievements, #6359 rank). Copy link is not a secondary option, it is absent, because there is nothing to link to."
     title="Status moments"
   >
@@ -406,8 +277,8 @@ const StatusMoments = () => (
       verdict="Placement is settled; frequency is the real lever. Every day dulls it, while 10 / 50 / 100 keeps it an event."
     >
       <Variant
-        headline="Snapshot under the reward rows"
-        note="Recommended. The number is the entire message, and the card is built to carry it at 168px. It sits under the decision rows, above No thanks, so it never competes with Claim."
+        headline="Snapshot under the celebration"
+        note="Recommended. The number is the entire message, and the card is built to carry it at 168px. It sits under the celebration, above No thanks."
         step="Proposed"
       >
         <StreakScreen />
@@ -435,7 +306,7 @@ const StatusMoments = () => (
     >
       <Variant
         headline="Snapshot revealed on your row"
-        note="Built and live. The row is score, rank badge, avatar, name and handle; the snapshot fades in on the right. Clean on desktop, completely absent on mobile."
+        note="Built and live. The snapshot fades in on the right of your row. Clean on desktop, completely absent on mobile."
         step="Proposed"
       >
         <RankScreen />
@@ -443,9 +314,9 @@ const StatusMoments = () => (
     </Category>
 
     <Category
-      covers="TopReaderBadgeModal.tsx · milestone-rewards tier ladder · ListAwardsModal.tsx · posts/[id]/analytics"
+      covers="TopReaderBadgeModal.tsx · milestone-rewards tier ladder · ListAwardsModal.tsx"
       title="Win moments with no share route"
-      verdict="Four more moments already ship, each one ending in a dismiss. All four are status with no destination, so snapshot is the only action that fits: the same argument as the streak and the achievement above."
+      verdict="Three more moments, each one ending in a dismiss. All three are status with no destination, so snapshot is the only action that fits: the same argument as the streak and the achievement above."
     >
       <Variant
         headline="Top reader badge, download only"
@@ -467,13 +338,6 @@ const StatusMoments = () => (
         step="Proposed"
       >
         <AwardedScreen />
-      </Variant>
-      <Variant
-        headline="A post that did well"
-        note="posts/[id]/analytics already reports impressions, upvotes, clicks, comments, followers gained and cores earned, behind canViewPostAnalytics. ‘My post reached 41k developers’ is the most shareable sentence an author can say, and there is nowhere to say it. The control sits under the stats, where the numbers have just made the case, not in the header, where it would ask before the case is made."
-        step="Proposed"
-      >
-        <AnalyticsScreen />
       </Variant>
     </Category>
   </SurfacePage>
