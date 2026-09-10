@@ -245,13 +245,14 @@ const CARDS: CardSpec[] = [
         node: (ref) => (
           <AchievementSnapshotCard
             ref={ref}
-            completedAt="Jun 1"
+            completedAt="Jun 1, 2026"
             description="Spend 100,000 Cores without running dry."
             image="https://media.daily.dev/image/upload/s--_MjhSTze--/q_auto/v1773608417/achievements/cant_spend_it_all"
             name="Can't spend it all"
             rarity={0.01}
             seed="ac-a"
             tier={AchievementRarityTier.Emerald}
+            user={USER}
           />
         ),
       },
@@ -266,6 +267,10 @@ const CARDS: CardSpec[] = [
             rarity={38}
             seed="ac-b"
             tier={AchievementRarityTier.Bronze}
+            user={{
+              name: 'A Considerably Longer Display Name For Truncation',
+              handle: '@an-extremely-long-handle-that-keeps-going',
+            }}
           />
         ),
       },

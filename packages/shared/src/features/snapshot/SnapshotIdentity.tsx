@@ -26,7 +26,7 @@ export function SnapshotIdentity({
           style={{ width: 76, height: 76, borderRadius: 22 }}
         />
       )}
-      <div className="flex min-w-0 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <span
           className="truncate font-bold text-white"
           style={{ fontSize: 32, lineHeight: 1.2 }}

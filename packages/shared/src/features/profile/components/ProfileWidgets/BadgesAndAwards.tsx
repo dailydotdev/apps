@@ -24,6 +24,10 @@ import {
   BadgesAndAwardsSkeleton,
 } from './BadgesAndAwardsComponents';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { ProfileSnapshotButton } from '../../../snapshot/ProfileSnapshotButton';
+import { BadgesSnapshotCard } from '../../../snapshot/BadgesSnapshotCard';
+import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
+import { Origin } from '../../../../lib/log';
 
 export const BadgesAndAwards = ({
   user,
@@ -60,18 +64,57 @@ export const BadgesAndAwards = ({
 
   const totalAwards =
     awards?.reduce((sum, award) => sum + (award?.count || 0), 0) ?? 0;
+  const topReaderBadges = topReaders?.[0]?.total ?? 0;
 
   return (
     <ActivityContainer>
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.Callout}
-        color={TypographyColor.Primary}
-        bold
-        className="flex items-center"
-      >
-        Badges &amp; Awards
-      </Typography>
+      <div className="flex items-center justify-between gap-2">
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+          bold
+          className="flex items-center"
+        >
+          Badges &amp; Awards
+        </Typography>
+        {(topReaderBadges > 0 || totalAwards > 0) && (
+          <ProfileSnapshotButton
+            filename={`daily-badges-${user.username ?? user.id}`}
+            origin={Origin.BadgesAndAwards}
+            ownerId={user.id}
+            renderCard={(ref) => (
+              <BadgesSnapshotCard
+                awards={
+                  awards?.map((award) => ({
+                    count: award.count,
+                    image: award.image,
+                    name: award.name,
+                  })) ?? []
+                }
+                badges={
+                  topReaders?.map((badge) => ({
+                    earnedAt: formatDate({
+                      value: badge.issuedAt,
+                      type: TimeFormatType.TopReaderBadge,
+                    }),
+                    keyword: badge.keyword.flags?.title || badge.keyword.value,
+                  })) ?? []
+                }
+                ref={ref}
+                seed={user.username ?? user.id}
+                topReaderBadges={topReaderBadges}
+                totalAwards={totalAwards}
+                user={{
+                  handle: `@${user.username ?? user.id}`,
+                  image: user.image,
+                  name: user.name,
+                }}
+              />
+            )}
+          />
+        )}
+      </div>
       <ClickableText
         tag="a"
         target="_blank"
@@ -82,10 +125,7 @@ export const BadgesAndAwards = ({
       </ClickableText>
 
       <div className="my-3 flex gap-3">
-        <SummaryCard
-          count={`x${topReaders?.[0]?.total ?? 0}`}
-          label="Top reader badge"
-        />
+        <SummaryCard count={`x${topReaderBadges}`} label="Top reader badge" />
         <SummaryCard count={`x${totalAwards}`} label="Total Awards" />
       </div>
 

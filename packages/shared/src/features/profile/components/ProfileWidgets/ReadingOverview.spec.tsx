@@ -7,6 +7,7 @@ import type {
   MostReadTag,
 } from '../../../../graphql/users';
 import { ReadingOverview } from './ReadingOverview';
+import type { PublicProfile } from '../../../../lib/user';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
 import { TAG_TITLES_QUERY } from '../../../../graphql/keywords';
@@ -58,7 +59,19 @@ const mockMostReadTags: MostReadTag[] = [
   },
 ];
 
+const mockUser = {
+  id: 'u1',
+  name: 'Test User',
+  username: 'testuser',
+  image: 'https://daily.dev/testuser.jpg',
+  createdAt: '2021-01-04T00:00:00.000Z',
+  permalink: 'https://app.daily.dev/testuser',
+  reputation: 1200,
+  premium: false,
+} as PublicProfile;
+
 const defaultProps = {
+  user: mockUser,
   readHistory: mockReadHistory,
   before: new Date('2024-01-31'),
   after: new Date('2024-01-01'),
@@ -107,6 +120,24 @@ describe('ReadingOverview component', () => {
     expect(screen.getByText('react')).toBeInTheDocument();
     expect(screen.getByText('+60%')).toBeInTheDocument(); // javascript percentage
     expect(screen.getByText('+40%')).toBeInTheDocument(); // react percentage
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
+  });
+
+  it('should not offer a snapshot when there is no reading to show', () => {
+    renderComponent({
+      readHistory: [],
+      streak: { ...mockStreak, max: 0, total: 0, current: 0 },
+      mostReadTags: [],
+    });
+
+    expect(screen.getByText('Reading Overview')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
+  });
+
+  it('should offer a snapshot for a streak with no reads in the window', () => {
+    renderComponent({ readHistory: [], mostReadTags: [] });
+
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
   });
 
   it('should render the keyword title once it is available', async () => {

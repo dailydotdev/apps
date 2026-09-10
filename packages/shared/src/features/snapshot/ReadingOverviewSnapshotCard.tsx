@@ -31,8 +31,12 @@ export interface ReadingOverviewTag {
 
 export interface ReadingOverviewSnapshotCardProps {
   user: SnapshotIdentityProps;
-  longestStreak: number;
-  totalReadingDays: number;
+  /**
+   * Each section below is left out when its number is zero or unknown, so a
+   * quiet stretch reads as fewer sections rather than as zeros.
+   */
+  longestStreak?: number;
+  totalReadingDays?: number;
   postsRead: number;
   monthsLabel: string;
   topTags: ReadingOverviewTag[];
@@ -101,61 +105,74 @@ function ReadingOverviewSnapshotCardComponent(
       <div className="flex flex-1 flex-col gap-6">
         <SnapshotIdentity {...user} />
 
-        <div className="flex gap-4">
-          <SnapshotTile
-            glyph="🏆"
-            label="Longest streak"
-            value={String(longestStreak)}
-          />
-          <SnapshotTile
-            label="Total reading days"
-            value={
-              largeNumberFormat(totalReadingDays) ?? String(totalReadingDays)
-            }
-          />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <span style={{ color: MUTED, fontSize: 26 }}>
-            Top tags by reading days
-          </span>
-          <div className="grid grid-cols-2 gap-3">
-            {visibleTags.map((tag) => (
-              <TagChip
-                key={tag.name}
-                {...tag}
-                share={tag.percentage / topPercentage}
+        {(!!longestStreak || !!totalReadingDays) && (
+          <div className="flex gap-4">
+            {!!longestStreak && (
+              <SnapshotTile
+                glyph="🏆"
+                label="Longest streak"
+                value={
+                  largeNumberFormat(longestStreak) ?? String(longestStreak)
+                }
               />
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-auto flex flex-col gap-3">
-          <span style={{ color: MUTED, fontSize: 26 }}>
-            Posts read {monthsLabel} (
-            {largeNumberFormat(postsRead) ?? postsRead})
-          </span>
-          <div
-            className="grid"
-            style={{
-              gridTemplateColumns: `repeat(${HEATMAP_COLS}, ${HEATMAP_CELL}px)`,
-              gap: HEATMAP_GAP,
-            }}
-          >
-            {cells.map((level, index) => (
-              <span
-                // eslint-disable-next-line react/no-array-index-key
-                key={index}
-                style={{
-                  width: HEATMAP_CELL,
-                  height: HEATMAP_CELL,
-                  borderRadius: '50%',
-                  background: HEATMAP_LEVELS[Math.min(level, 3)],
-                }}
+            )}
+            {!!totalReadingDays && (
+              <SnapshotTile
+                label="Total reading days"
+                value={
+                  largeNumberFormat(totalReadingDays) ??
+                  String(totalReadingDays)
+                }
               />
-            ))}
+            )}
           </div>
-        </div>
+        )}
+
+        {visibleTags.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <span style={{ color: MUTED, fontSize: 26 }}>
+              Top tags by reading days
+            </span>
+            <div className="grid grid-cols-2 gap-3">
+              {visibleTags.map((tag) => (
+                <TagChip
+                  key={tag.name}
+                  {...tag}
+                  share={tag.percentage / topPercentage}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {postsRead > 0 && (
+          <div className="mt-auto flex flex-col gap-3">
+            <span style={{ color: MUTED, fontSize: 26 }}>
+              Posts read {monthsLabel} (
+              {largeNumberFormat(postsRead) ?? postsRead})
+            </span>
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `repeat(${HEATMAP_COLS}, ${HEATMAP_CELL}px)`,
+                gap: HEATMAP_GAP,
+              }}
+            >
+              {cells.map((level, index) => (
+                <span
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={index}
+                  style={{
+                    width: HEATMAP_CELL,
+                    height: HEATMAP_CELL,
+                    borderRadius: '50%',
+                    background: HEATMAP_LEVELS[Math.min(level, 3)],
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </SnapshotFrame>
   );

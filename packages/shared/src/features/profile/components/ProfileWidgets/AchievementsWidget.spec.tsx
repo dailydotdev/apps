@@ -142,5 +142,32 @@ describe('AchievementsWidget', () => {
       .filter((alt): alt is string => expectedVisibleNames.includes(alt ?? ''));
 
     expect(renderedNames).toEqual(expectedVisibleNames);
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
+  });
+
+  it('should not offer a snapshot before anything is unlocked', () => {
+    mockUseProfileAchievements.mockReturnValue({
+      achievements: [
+        createUserAchievement({
+          id: 'locked',
+          name: 'Locked',
+          rarity: 1,
+          points: 100,
+          unlockedAt: null,
+        }),
+      ],
+      unlockedCount: 0,
+      totalCount: 1,
+      totalPoints: 0,
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent();
+
+    expect(
+      screen.getByText('No achievements unlocked yet'),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
   });
 });

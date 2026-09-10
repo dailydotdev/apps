@@ -1,5 +1,5 @@
 import { ClientError, gql } from 'graphql-request';
-import { subDays } from 'date-fns';
+import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
   TOP_READER_BADGE_FRAGMENT,
@@ -13,6 +13,7 @@ import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
 import type { NotificationSettings } from '../components/notifications/utils';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
 export const USER_SHORT_BY_ID = `
   query UserShortById($id: ID!) {
@@ -233,6 +234,45 @@ export const USER_READING_HISTORY_QUERY = gql`
     }
   }
 `;
+
+export const sumReadHistory = (readHistory?: UserReadHistory[]): number =>
+  readHistory?.reduce((total, entry) => {
+    const reads = entry?.reads || 0;
+
+    return total + (typeof reads === 'number' && reads >= 0 ? reads : 0);
+  }, 0) ?? 0;
+
+export const getProfileReadingWindow = (): { before: Date; after: Date } => {
+  const before = startOfTomorrow();
+
+  return { before, after: subMonths(subDays(before, 2), 5) };
+};
+
+export const profileReadingHistoryQueryOptions = ({
+  user,
+  enabled = true,
+}: {
+  user?: Pick<PublicProfile, 'id'>;
+  enabled?: boolean;
+}) => {
+  const { before, after } = getProfileReadingWindow();
+
+  return {
+    queryKey: generateQueryKey(RequestKey.ReadingStats, user),
+    queryFn: (): Promise<ProfileReadingData> =>
+      gqlClient.request(USER_READING_HISTORY_QUERY, {
+        id: user?.id,
+        before,
+        after,
+        version: 2,
+        limit: 6,
+      }),
+    enabled: !!user && enabled,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+  };
+};
 
 export const USER_STREAK_HISTORY = gql`
   query UserStreakHistory($id: ID!, $after: String!, $before: String!) {

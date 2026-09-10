@@ -21,6 +21,10 @@ import {
 import { RaritySparkles } from '../achievements/RaritySparkles';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { AchievementCard } from '../achievements/AchievementCard';
+import { AchievementsSnapshotCard } from '../../../snapshot/AchievementsSnapshotCard';
+import { sortRarestUnlockedAchievements } from '../../../../components/modals/achievement/sortAchievements';
+import { ProfileSnapshotButton } from '../../../snapshot/ProfileSnapshotButton';
+import { Origin } from '../../../../lib/log';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -47,28 +51,8 @@ function RecentAchievements({
   const { achievements, isPending } = useProfileAchievements(user);
 
   const rarestUnlocked = achievements
-    ?.filter((a) => a.unlockedAt !== null)
-    .sort((a, b) => {
-      const rarityA = a.achievement.rarity ?? Infinity;
-      const rarityB = b.achievement.rarity ?? Infinity;
-      if (rarityA !== rarityB) {
-        return rarityA - rarityB;
-      }
-
-      const pointsDelta = b.achievement.points - a.achievement.points;
-      if (pointsDelta !== 0) {
-        return pointsDelta;
-      }
-
-      const unlockedDateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;
-      const unlockedDateB = b.unlockedAt ? new Date(b.unlockedAt).getTime() : 0;
-      if (unlockedDateA !== unlockedDateB) {
-        return unlockedDateB - unlockedDateA;
-      }
-
-      return a.achievement.id.localeCompare(b.achievement.id);
-    })
-    .slice(0, 5);
+    ? sortRarestUnlockedAchievements(achievements).slice(0, 5)
+    : undefined;
 
   if (isPending) {
     return <AchievementsSkeleton />;
@@ -110,7 +94,7 @@ function RecentAchievements({
               }
             >
               <div className="w-80 rounded-16 bg-background-popover">
-                <AchievementCard userAchievement={ua} />
+                <AchievementCard user={user} userAchievement={ua} />
               </div>
             </HoverCard>
           );
@@ -133,7 +117,8 @@ function RecentAchievements({
 export function AchievementsWidget({
   user,
 }: AchievementsWidgetProps): ReactElement {
-  const { unlockedCount, totalCount } = useProfileAchievements(user);
+  const { achievements, unlockedCount, totalCount, totalPoints } =
+    useProfileAchievements(user);
 
   return (
     <ActivityContainer>
@@ -148,11 +133,42 @@ export function AchievementsWidget({
           <MedalBadgeIcon className="size-4" />
           Achievements
         </Typography>
-        <Link href={`/${user.username || user.id}/achievements`} passHref>
-          <ClickableText tag="a">
-            {unlockedCount}/{totalCount}
-          </ClickableText>
-        </Link>
+        <div className="flex items-center gap-1">
+          <Link href={`/${user.username || user.id}/achievements`} passHref>
+            <ClickableText tag="a">
+              {unlockedCount}/{totalCount}
+            </ClickableText>
+          </Link>
+          {unlockedCount > 0 && (
+            <ProfileSnapshotButton
+              filename={`daily-achievements-${user.username ?? user.id}`}
+              origin={Origin.AchievementsWidget}
+              ownerId={user.id}
+              renderCard={(ref) => (
+                <AchievementsSnapshotCard
+                  achievements={sortRarestUnlockedAchievements(
+                    achievements ?? [],
+                  )
+                    .slice(0, 10)
+                    .map(({ achievement }) => ({
+                      image: achievement.image,
+                      name: achievement.name,
+                    }))}
+                  points={totalPoints}
+                  ref={ref}
+                  seed={user.username ?? user.id}
+                  total={totalCount}
+                  unlocked={unlockedCount}
+                  user={{
+                    handle: `@${user.username ?? user.id}`,
+                    image: user.image,
+                    name: user.name,
+                  }}
+                />
+              )}
+            />
+          )}
+        </div>
       </div>
       <RecentAchievements user={user} />
     </ActivityContainer>

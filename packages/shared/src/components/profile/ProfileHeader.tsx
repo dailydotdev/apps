@@ -1,20 +1,23 @@
-import type { ReactNode } from 'react';
-import React from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { forwardRef } from 'react';
 import dynamic from 'next/dynamic';
+import { format } from 'date-fns';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import { Image } from '../image/Image';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { DevPlusIcon, EditIcon } from '../icons';
+import { DevPlusIcon, EditIcon, LinkIcon } from '../icons';
 import type { PublicProfile } from '../../lib/user';
 import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { CopyStateIcon } from '../share/CopyStateIcon';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -24,6 +27,16 @@ import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
+import { ProfileSnapshotButton } from '../../features/snapshot/ProfileSnapshotButton';
+import { ProfileSnapshotCard } from '../../features/snapshot/ProfileSnapshotCard';
+import { devCardQueryOptions } from '../../hooks/profile/useDevCard';
+import { Tooltip } from '../tooltip/Tooltip';
+import { useCopyLink } from '../../hooks/useCopy';
+import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { ShareProvider } from '../../lib/share';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -43,6 +56,32 @@ const ProfileActions = dynamic(
   {
     ssr: false,
     loading: ProfileActionsSkeleton,
+  },
+);
+
+const ProfileCard = forwardRef<HTMLDivElement, { user: PublicProfile }>(
+  function ProfileCard({ user }, ref): ReactElement {
+    // The lifetime count the DevCard shows. Only an armed card mounts this, so
+    // a profile view does not fetch it.
+    const { data: devCard } = useQuery(
+      devCardQueryOptions({ userId: user.id }),
+    );
+    const handle = user.username ?? user.id;
+
+    return (
+      <ProfileSnapshotCard
+        bio={user.bio}
+        cover={user.cover}
+        handle={`@${handle}`}
+        image={user.image}
+        joined={format(new Date(user.createdAt), 'MMMM y')}
+        name={user.name}
+        postsRead={devCard?.devCard.articlesRead}
+        ref={ref}
+        reputation={user.reputation}
+        seed={handle}
+      />
+    );
   },
 );
 
@@ -67,6 +106,25 @@ const ProfileHeader = ({
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
+  const { logEvent } = useLogContext();
+  const [isCopying, copyLink] = useCopyLink();
+  const { getTrackedUrl } = useGetShortUrl();
+
+  const onCopyLink = () => {
+    logEvent({
+      event_name: LogEvent.ShareProfile,
+      target_type: TargetType.ProfilePage,
+      target_id: user.id,
+      extra: JSON.stringify({
+        provider: ShareProvider.CopyLink,
+        origin: Origin.ProfileHeader,
+      }),
+    });
+    copyLink({
+      link: getTrackedUrl(user.permalink, ReferralCampaignKey.ShareProfile),
+      shorten: true,
+    });
+  };
 
   return (
     <div className="relative w-full overflow-hidden laptop:rounded-t-16">
@@ -100,6 +158,24 @@ const ProfileHeader = ({
               aria-label="Edit profile"
             />
           </Link>
+          <ProfileSnapshotButton
+            filename={`daily-profile-${username ?? user.id}`}
+            origin={Origin.ProfileHeader}
+            ownerId={user.id}
+            renderCard={(ref) => <ProfileCard ref={ref} user={user} />}
+            // Matches the edit button beside it, which takes Button's default.
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Float}
+          />
+          <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
+            <Button
+              aria-label="Copy link"
+              icon={<CopyStateIcon copied={isCopying} icon={LinkIcon} />}
+              onClick={onCopyLink}
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Float}
+            />
+          </Tooltip>
           {actions}
         </div>
         <div className="flex items-center gap-1">
