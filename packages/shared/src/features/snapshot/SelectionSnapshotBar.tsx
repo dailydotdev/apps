@@ -8,6 +8,7 @@ import {
 } from '../../components/buttons/Button';
 import { CopyIcon, LinkIcon } from '../../components/icons';
 import { CopyStateIcon } from '../../components/share/CopyStateIcon';
+import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
@@ -23,7 +24,6 @@ import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { snapshotSource } from './snapshotSource';
 import type { TextSelection } from './useTextSelection';
 import { useTextSelection } from './useTextSelection';
-import { useLogSnapshot } from './useLogSnapshot';
 
 const BAR_HEIGHT = 44;
 const GAP = 8;
@@ -53,13 +53,24 @@ const position = (selection: TextSelection) => {
   };
 };
 
-export function SelectionSnapshotBar({
-  post,
-  containerRef,
-}: {
-  post: Post;
+export interface SelectionShareBarProps {
   containerRef: RefObject<HTMLElement>;
-}): ReactElement | null {
+  /** The post permalink a copied link points at. */
+  link: string;
+  /** Seeds the card's gradient and names the downloaded file. */
+  seed: string;
+  source?: { name: string; image?: string };
+  /** Called once per action, with how a snapshot ended, so the host logs it. */
+  onShare: (provider: ShareProvider, result?: SnapshotResult) => void;
+}
+
+export function SelectionShareBar({
+  containerRef,
+  link,
+  seed,
+  source,
+  onShare,
+}: SelectionShareBarProps): ReactElement | null {
   const barRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const selection = useTextSelection(containerRef, true, barRef);
@@ -68,39 +79,23 @@ export function SelectionSnapshotBar({
   const [quote, setQuote] = useState<TextSelection | null>(null);
   const [linkCopied, copyLink] = useCopyPostLink();
   const [textCopied, copyText] = useCopyText(quote?.text);
-  const { logEvent } = useLogContext();
 
   const onCopyLink = useCallback(() => {
-    logEvent(
-      postLogEvent(LogEvent.SharePost, post, {
-        extra: {
-          provider: ShareProvider.CopyLink,
-          origin: Origin.TextSelection,
-        },
-      }),
-    );
+    onShare(ShareProvider.CopyLink);
     // `shorten`, not an awaited short URL: the write has to stay inside the
     // task that handled the click or Safari refuses it.
-    copyLink({
-      link: post.commentsPermalink,
-      shorten: true,
-      cid: ReferralCampaignKey.SharePost,
-    });
-  }, [copyLink, logEvent, post]);
+    copyLink({ link, shorten: true, cid: ReferralCampaignKey.SharePost });
+  }, [copyLink, link, onShare]);
 
   const onCopyText = useCallback(() => {
-    logEvent(
-      postLogEvent(LogEvent.SharePost, post, {
-        extra: {
-          provider: ShareProvider.CopyText,
-          origin: Origin.TextSelection,
-        },
-      }),
-    );
+    onShare(ShareProvider.CopyText);
     copyText({ message: '✅ Copied text' });
-  }, [copyText, logEvent, post]);
+  }, [copyText, onShare]);
 
-  const logSnapshot = useLogSnapshot(post, Origin.TextSelection);
+  const onSnapshot = useCallback(
+    (result: SnapshotResult) => onShare(ShareProvider.Snapshot, result),
+    [onShare],
+  );
 
   useEffect(() => {
     if (selection) {
@@ -132,9 +127,9 @@ export function SelectionSnapshotBar({
           {/* Snapshot leads, labelled and solid: it is the reason the bar
               exists, and the two copies beside it are the familiar fallbacks. */}
           <SnapshotButton
-            onResult={logSnapshot}
+            onResult={onSnapshot}
             captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
-            filename={`daily-quote-${post.id}`}
+            filename={`daily-quote-${seed}`}
             target={cardRef}
             variant={ButtonVariant.Primary}
           />
@@ -170,11 +165,45 @@ export function SelectionSnapshotBar({
           ref={cardRef}
           highlight={quote.highlight}
           passage={quote.passage}
-          seed={post.id}
-          source={snapshotSource(post)}
+          seed={seed}
+          source={source}
         />
       </div>
     </>,
     document.body,
+  );
+}
+
+export function SelectionSnapshotBar({
+  post,
+  containerRef,
+}: {
+  post: Post;
+  containerRef: RefObject<HTMLElement>;
+}): ReactElement {
+  const { logEvent } = useLogContext();
+
+  const onShare = useCallback(
+    (provider: ShareProvider, result?: SnapshotResult) =>
+      logEvent(
+        postLogEvent(LogEvent.SharePost, post, {
+          extra: {
+            provider,
+            origin: Origin.TextSelection,
+            ...(result && { result }),
+          },
+        }),
+      ),
+    [logEvent, post],
+  );
+
+  return (
+    <SelectionShareBar
+      containerRef={containerRef}
+      link={post.commentsPermalink}
+      onShare={onShare}
+      seed={post.id}
+      source={snapshotSource(post)}
+    />
   );
 }

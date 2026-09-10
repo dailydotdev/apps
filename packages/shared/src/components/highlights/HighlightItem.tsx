@@ -8,12 +8,9 @@ import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
-import { HighlightSelectionBar } from '../../features/snapshot/HighlightSelectionBar';
 import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
-import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureHappeningNowShare } from '../../lib/featureManagement';
-
-const MAX_HOURS_AGO = 72;
 
 interface HighlightItemProps {
   highlight: PostHighlightFeed;
@@ -27,7 +24,7 @@ export const HighlightItem = ({
   const [expanded, setExpanded] = useState(defaultExpanded);
   const ref = useRef<HTMLElement>(null);
   const tldrRef = useRef<HTMLParagraphElement>(null);
-  const canSnapshot = useSharePlacement({
+  const { value: canShare } = useConditionalFeature({
     feature: featureHappeningNowShare,
     shouldEvaluate: expanded,
   });
@@ -77,7 +74,7 @@ export const HighlightItem = ({
           </span>
           <RelativeTime
             dateTime={highlight.highlightedAt}
-            maxHoursAgo={MAX_HOURS_AGO}
+            maxHoursAgo={72}
             className="mt-0.5 text-text-quaternary typo-footnote"
           />
         </div>
@@ -97,24 +94,17 @@ export const HighlightItem = ({
           >
             {tldr}
           </p>
-          {canSnapshot && (
-            <HighlightSelectionBar
-              containerRef={tldrRef}
-              id={highlight.id}
-              link={highlight.post.commentsPermalink}
-            />
-          )}
           <div className="flex items-center gap-3">
             <Link href={highlight.post.commentsPermalink}>
               <a className="flex flex-1 items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
                 Read more
               </a>
             </Link>
-            {canSnapshot && (
+            {canShare && (
               <HighlightShareActions
-                id={highlight.id}
-                link={highlight.post.commentsPermalink}
+                highlight={highlight}
                 tldr={tldr}
+                tldrRef={tldrRef}
               />
             )}
           </div>
