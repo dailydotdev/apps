@@ -6,8 +6,10 @@ import { SnapshotContent } from '@dailydotdev/shared/src/features/snapshot/Snaps
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
 import { getSnapshotCaptureOptions } from '@dailydotdev/shared/src/features/snapshot/snapshotCapture';
 import {
+  findHighlightRange,
   SNAPSHOT_COPY_SIZE,
   SNAPSHOT_PASSAGE_LIMIT,
+  SNAPSHOT_TEXT_LIMIT,
 } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
 import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
@@ -35,8 +37,14 @@ const USER = { name: 'Tomer Redlich', handle: '@tomer', image: AVATAR };
 const LOREM =
   'The bundler war is over and nobody noticed, because we spent five entire years optimising cold starts while the actual bottleneck was always the four hundred kilobytes of analytics we shipped on every single page load, and no amount of tree shaking was ever going to fix a problem that lived in the product requirements rather than the build graph.';
 
+/** Long enough that the highlight, sitting near the end, has to be windowed to. */
+const LONG_PASSAGE = `Nobody set out to build it this way, and nobody in the room could have told you which meeting it started in. ${LOREM} ${LOREM} The honest version is that every one of those decisions was locally correct and the sum of them was not, which is the only interesting thing about it.`;
+
 const UNBREAKABLE =
   'ReallyLongGenericTypeParameterNameThatNeverBreaks<TInput, TOutput> https://app.daily.dev/posts/some-extremely-long-slug-that-keeps-going-and-going';
+
+const HIGHLIGHT_CONTEXT =
+  'Every framework team arrived at the same answer within about eighteen months of each other. TypeScript has become the default across frontend frameworks, and the holdouts are now the ones explaining themselves rather than the other way around.';
 
 const SCALE = 0.34;
 
@@ -56,7 +64,7 @@ const CARDS: CardSpec[] = [
   {
     id: 'highlight',
     title: 'Highlighted text',
-    note: `One size (${SNAPSHOT_COPY_SIZE}px, the post card's), truncated at the last word at ${SNAPSHOT_PASSAGE_LIMIT} characters. The frame grows or shrinks around it.`,
+    note: `The whole paragraph at one size (${SNAPSHOT_COPY_SIZE}px, the post card's), with the marked run picked out inside it. Over ${SNAPSHOT_PASSAGE_LIMIT} characters the passage is windowed around the highlight, cut at word boundaries. The frame grows or shrinks around it.`,
     cases: [
       {
         label: 'Typical (59 chars)',
@@ -65,7 +73,11 @@ const CARDS: CardSpec[] = [
             ref={ref}
             seed="a"
             source={{ name: 'XDA Developers', image: AVATAR }}
-            text="TypeScript has become the default across frontend frameworks"
+            passage={HIGHLIGHT_CONTEXT}
+            highlight={findHighlightRange(
+              HIGHLIGHT_CONTEXT,
+              'TypeScript has become the default across frontend frameworks',
+            )}
           />
         ),
       },
@@ -76,18 +88,23 @@ const CARDS: CardSpec[] = [
             ref={ref}
             seed="b"
             source={{ name: 'XDA Developers', image: AVATAR }}
-            text="Tabs won."
+            passage="Tabs won. Prettier just hid the bodies, and every formatter argument since has been a proxy war over indentation."
+            highlight={{ start: 0, end: 9 }}
           />
         ),
       },
       {
-        label: `Over the cap (${LOREM.length} chars → truncated)`,
+        label: `Over the cap (${LONG_PASSAGE.length} chars → windowed)`,
         node: (ref) => (
           <HighlightTextSnapshotCard
             ref={ref}
             seed="c"
             source={{ name: 'XDA Developers', image: AVATAR }}
-            text={LOREM}
+            passage={LONG_PASSAGE}
+            highlight={findHighlightRange(
+              LONG_PASSAGE,
+              'every one of those decisions was locally correct',
+            )}
           />
         ),
       },
@@ -98,7 +115,8 @@ const CARDS: CardSpec[] = [
             ref={ref}
             seed="d"
             source={{ name: 'XDA Developers' }}
-            text={UNBREAKABLE}
+            passage={UNBREAKABLE}
+            highlight={{ start: 0, end: UNBREAKABLE.indexOf(' ') }}
           />
         ),
       },

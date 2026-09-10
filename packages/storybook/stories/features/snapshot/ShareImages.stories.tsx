@@ -15,6 +15,7 @@ import { AchievementsSnapshotCard } from '@dailydotdev/shared/src/features/snaps
 import { AchievementSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AchievementSnapshotCard';
 import { AchievementRarityTier } from '@dailydotdev/shared/src/features/profile/components/achievements/achievementRarity';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
+import { findHighlightRange } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
 import { InviteSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/InviteSnapshotCard';
 import { StreakSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/StreakSnapshotCard';
 import { EntitySnapshotCard } from '@dailydotdev/shared/src/features/snapshot/EntitySnapshotCard';
@@ -104,6 +105,15 @@ interface Placement {
   render?: (ref: (node: HTMLDivElement | null) => void) => React.ReactNode;
 }
 
+const HIGHLIGHT_PARAGRAPH =
+  "He walks through the last two years without flinching: the week ChatGPT shipped, the quarter the layoffs started, the month Tailwind's business model came apart. The speaker shares a personal timeline from ChatGPT's release through AI-driven layoffs, Tailwind's business model disruption, and his own layoff. None of it is framed as a warning \u2014 it reads as the ordinary shape of a career in this industry now.";
+const HIGHLIGHT_MARKED =
+  "The speaker shares a personal timeline from ChatGPT's release through AI-driven layoffs, Tailwind's business model disruption, and his own layoff";
+const HIGHLIGHT_PASSAGE = {
+  passage: HIGHLIGHT_PARAGRAPH,
+  highlight: findHighlightRange(HIGHLIGHT_PARAGRAPH, HIGHLIGHT_MARKED),
+};
+
 const PLACEMENTS: Placement[] = [
   {
     id: 'post',
@@ -121,7 +131,7 @@ const PLACEMENTS: Placement[] = [
           name: 'Traversy Media',
           image: avatarUri('#B14BD7', 'T'),
         }}
-        text="The speaker shares a personal timeline from ChatGPT's release through AI-driven layoffs, Tailwind's business model disruption, and his own layoff"
+        {...HIGHLIGHT_PASSAGE}
       />
     ),
   },
