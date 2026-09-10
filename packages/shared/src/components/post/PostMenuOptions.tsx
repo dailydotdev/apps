@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
@@ -7,6 +8,7 @@ import type { ButtonSize } from '../buttons/Button';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { PostOptionButton } from '../../features/posts/PostOptionButton';
 import { LinkIcon } from '../icons';
+import type { IconProps } from '../Icon';
 import { CopyStateIcon } from '../share/CopyStateIcon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
@@ -14,6 +16,12 @@ import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
+
+// The shared glyph leans the other way to the design for this button, and it
+// is only this button: mirror it here rather than in the icon everything uses.
+const MirroredLinkIcon = ({ className, ...props }: IconProps): ReactElement => (
+  <LinkIcon {...props} className={classNames(className, '-scale-x-100')} />
+);
 
 export interface PostMenuOptionsProps {
   post: Post;
@@ -53,7 +61,7 @@ export function PostMenuOptions({
         <Tooltip side="bottom" content="Copy link">
           <Button
             aria-label="Copy link"
-            icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
+            icon={<CopyStateIcon copied={linkCopied} icon={MirroredLinkIcon} />}
             onClick={onCopyLink}
             size={buttonSize}
             type="button"
