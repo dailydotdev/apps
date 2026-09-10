@@ -29,6 +29,14 @@ const BAR_HEIGHT = 44;
 const GAP = 8;
 /** Keeps the bar off the viewport edges when the quote runs to the margin. */
 const EDGE = 96;
+/** Clears the drag handles Android hangs under the end of a selection. */
+const HANDLE = 32;
+
+// Android draws its own Copy/Share menu over the selection, above it whenever
+// there is room. Taking the other side leaves both readable: the platform menu
+// only moves below the quote in the case where we then sit above it.
+const prefersBelow = () =>
+  globalThis.matchMedia?.('(pointer: coarse)').matches ?? false;
 
 const clamp = (value: number, min: number, max: number) =>
   // A viewport shorter than the bar's own margins has no valid band, and
@@ -38,10 +46,12 @@ const clamp = (value: number, min: number, max: number) =>
 const position = (selection: TextSelection) => {
   const above = selection.top - BAR_HEIGHT - GAP;
   const center = selection.left + selection.width / 2;
+  const { innerHeight, innerWidth } = globalThis;
+  const below = selection.bottom + GAP + (prefersBelow() ? HANDLE : 0);
+  const fits = !innerHeight || below + BAR_HEIGHT + GAP <= innerHeight;
   // Below the quote when it starts at the top of the viewport, where there is
   // no room above it.
-  const top = above < GAP ? selection.bottom + GAP : above;
-  const { innerHeight, innerWidth } = globalThis;
+  const top = above < GAP || (prefersBelow() && fits) ? below : above;
 
   return {
     // Clamped to the viewport, not just flipped: in the post modal the quote
