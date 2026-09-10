@@ -45,16 +45,41 @@ export interface HighlightRange {
 }
 
 /**
- * Where a marked run sits inside its passage. A DOM selection already carries
- * offsets, so this is for callers that kept only the two strings.
+ * Folds every run of whitespace to one space. A block's `textContent` keeps
+ * the source's line breaks — markdown soft breaks arrive as a literal `\n`
+ * inside the paragraph — while the browser's selection string renders them as
+ * the space they display as, so the two only line up once both are folded.
+ * The card sets its copy with `white-space: normal`, so folding the passage
+ * itself changes nothing that is drawn.
+ */
+export const collapseWhitespace = (text: string): string =>
+  text.replace(/\s+/g, ' ').trim();
+
+/**
+ * Where a marked run sits inside its passage. When the run occurs more than
+ * once, the occurrence nearest `near` wins, so a caller that knows roughly
+ * where the selection started picks the one the reader actually marked.
  */
 export function findHighlightRange(
   passage: string,
   marked: string,
+  near = 0,
 ): HighlightRange | undefined {
-  const start = passage.indexOf(marked);
+  let best: number | undefined;
 
-  return start < 0 ? undefined : { start, end: start + marked.length };
+  for (
+    let from = passage.indexOf(marked);
+    from >= 0;
+    from = passage.indexOf(marked, from + 1)
+  ) {
+    if (best === undefined || Math.abs(from - near) < Math.abs(best - near)) {
+      best = from;
+    }
+  }
+
+  return best === undefined
+    ? undefined
+    : { start: best, end: best + marked.length };
 }
 
 export interface WindowedPassage {
@@ -89,11 +114,15 @@ export function windowAroundHighlight(
   }
 
   const slack = limit - marked.length;
-  const before = Math.min(highlight.start, Math.round(slack / 2));
-  // Whatever the leading side does not use goes to the trailing side, so a
-  // selection at the very start still fills the card with what follows it.
+  const room = passage.length - highlight.end;
+  // Split the slack evenly, then hand whatever one side cannot use to the
+  // other: a run at the very start fills the card with what follows it, and a
+  // run at the very end with what precedes it.
+  const half = Math.round(slack / 2);
+  const after = Math.min(room, Math.max(half, slack - highlight.start));
+  const before = Math.min(highlight.start, slack - after);
   const from = highlight.start - before;
-  const to = Math.min(passage.length, highlight.end + (slack - before));
+  const to = highlight.end + after;
 
   const head = passage.slice(from, highlight.start);
   const tail = passage.slice(highlight.end, to);
