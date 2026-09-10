@@ -7,7 +7,8 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyLink } from '../../hooks/useCopy';
 import type { PostHighlight } from '../../graphql/highlights';
 import type { Origin } from '../../lib/log';
-import { getHighlightsUrl } from '../../lib/links';
+import { getHighlightsShareUrl } from '../../lib/links';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import { useLogHighlightShare } from '../../features/snapshot/useLogHighlightShare';
 
@@ -17,8 +18,8 @@ export function CopyHighlightsLink({
   className,
   size = ButtonSize.Small,
 }: {
-  /** Links to this highlight on the page, or to the page without one. */
-  highlight?: PostHighlight;
+  /** Links to this highlight's post, or to the page without one. */
+  highlight?: Pick<PostHighlight, 'id' | 'post'>;
   origin: Origin;
   className?: string;
   size?: ButtonSize;
@@ -37,7 +38,21 @@ export function CopyHighlightsLink({
           event.preventDefault();
           event.stopPropagation();
           logShare(ShareProvider.CopyLink);
-          copyLink({ link: getHighlightsUrl(highlight?.id) });
+          // `shorten`, not an awaited short URL: the write has to stay inside
+          // the task that handled the click or Safari refuses it.
+          copyLink(
+            highlight
+              ? {
+                  link: highlight.post.commentsPermalink,
+                  shorten: true,
+                  cid: ReferralCampaignKey.SharePost,
+                }
+              : {
+                  link: getHighlightsShareUrl(),
+                  shorten: true,
+                  cid: ReferralCampaignKey.ShareHighlights,
+                },
+          );
         }}
         size={size}
         type="button"
