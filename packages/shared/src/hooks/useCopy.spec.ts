@@ -6,6 +6,7 @@ const mockWriteText = jest.fn();
 
 jest.mock('./useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
+  ToastType: { Error: 'error' },
 }));
 
 jest.mock('./utils/useGetShortUrl', () => ({
@@ -44,10 +45,9 @@ it('says so when the clipboard refuses the write', async () => {
   });
 
   expect(mockDisplayToast).toHaveBeenCalledWith(
-    '❌ Could not copy, please try again',
-    {},
+    '❌ Your browser blocked the clipboard',
+    { variant: 'error' },
   );
-  // Nothing was copied, so the caller must not render a copied confirmation.
   expect(result.current[0]).toBe(false);
 });
 
@@ -61,7 +61,7 @@ it('does not report a copy when there is no link', async () => {
   expect(mockWriteText).not.toHaveBeenCalled();
   expect(mockDisplayToast).toHaveBeenCalledWith(
     '❌ Could not copy, link is missing',
-    {},
+    { variant: 'error' },
   );
   expect(result.current[0]).toBe(false);
 });
