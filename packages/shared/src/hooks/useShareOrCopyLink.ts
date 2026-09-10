@@ -4,7 +4,7 @@ import { useCopyLink } from './useCopy';
 import { ShareProvider } from '../lib/share';
 import type { LogEvent } from './log/useLogQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
-import type { ReferralCampaignKey } from '../lib';
+import type { ReferralCampaignKey } from '../lib/referral';
 import { shouldUseNativeShare } from '../lib/func';
 
 export interface UseShareOrCopyLinkProps {
@@ -22,10 +22,9 @@ export function useShareOrCopyLink({
 }: UseShareOrCopyLinkProps): ReturnType<typeof useCopyLink> {
   const { logEvent } = useLogContext();
   const [copying, copyLink] = useCopyLink();
-  const { getShortUrl } = useGetShortUrl();
+  const { getShortUrl, getTrackedUrl } = useGetShortUrl();
 
   const onShareOrCopy: CopyNotifyFunction = async () => {
-    const shortLink = cid ? await getShortUrl(link, cid) : link;
     const logShareEvent = (provider: ShareProvider): void => {
       if (!logObject) {
         return;
@@ -35,6 +34,8 @@ export function useShareOrCopyLink({
     };
 
     if (shouldUseNativeShare()) {
+      const shortLink = cid ? await getShortUrl(link, cid) : link;
+
       try {
         await navigator.share({
           text: `${text}\n${shortLink}`,
@@ -45,7 +46,10 @@ export function useShareOrCopyLink({
       }
     } else {
       logShareEvent(ShareProvider.CopyLink);
-      copyLink({ link: shortLink });
+      copyLink({
+        link: cid ? getTrackedUrl(link, cid) : link,
+        shorten: !!cid,
+      });
     }
   };
 
