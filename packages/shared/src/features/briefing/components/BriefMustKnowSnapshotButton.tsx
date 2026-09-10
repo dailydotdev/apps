@@ -2,7 +2,10 @@ import type { ReactElement, RefObject } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
-import { SnapshotButton } from '../../../components/imageShare/SnapshotButton';
+import {
+  SNAPSHOT_LABEL,
+  SnapshotButton,
+} from '../../../components/imageShare/SnapshotButton';
 import type { Post } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
 import { ListSnapshotCard } from '../../snapshot/ListSnapshotCard';
@@ -97,6 +100,7 @@ export function BriefMustKnowSnapshotButton({
       {createPortal(
         <span className="contents" {...armProps}>
           <SnapshotButton
+            ariaLabel={`${SNAPSHOT_LABEL}: ${SECTION}`}
             captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
             className="ml-2 align-middle"
             filename={`daily-brief-${post.id}`}
@@ -117,6 +121,7 @@ export function BriefMustKnowSnapshotButton({
           <ListSnapshotCard
             ref={cardRef}
             eyebrow={SECTION}
+            grow
             items={slot.titles.map((title) => ({ title }))}
             seed={post.id}
             subtitle={

@@ -1,5 +1,10 @@
 import {
+  briefContentHtml,
+  briefContentHtmlWithoutMustKnow,
+} from '../../../__tests__/fixture/brief';
+import {
   BRIEF_BLOCK_SELECTOR,
+  getBriefBlockLabel,
   getBriefSection,
   splitBriefBullet,
 } from './briefBodyBlocks';
@@ -70,6 +75,35 @@ describe('getBriefSection', () => {
 
   it('returns null when the brief has no such section', () => {
     expect(getBriefSection(render(), 'Deep dive')).toBeNull();
+    expect(
+      getBriefSection(render(briefContentHtmlWithoutMustKnow), 'Must know'),
+    ).toBeNull();
+  });
+
+  it('leaves the link to the sources out of every bullet', () => {
+    const section = getBriefSection(render(briefContentHtml), 'Must know');
+
+    expect(section?.blocks).toHaveLength(3);
+    section?.blocks.forEach((block) => expect(block).not.toMatch(/Read more/));
+    expect(section?.blocks[0]).toMatch(/protect their model weights\.$/);
+    // A bullet backed by several posts links to a feed of them instead.
+    expect(section?.blocks[2]).toMatch(/AI-assisted discovery tools\.$/);
+  });
+});
+
+describe('getBriefBlockLabel', () => {
+  it('names the button after the opening of its block', () => {
+    expect(
+      getBriefBlockLabel(
+        'US intelligence labels Chinese AI distillation a national security threat: A joint advisory',
+      ),
+    ).toBe(
+      'Snapshot: US intelligence labels Chinese AI distillation a national…',
+    );
+  });
+
+  it('keeps a short block whole', () => {
+    expect(getBriefBlockLabel('Short block')).toBe('Snapshot: Short block');
   });
 });
 

@@ -67,7 +67,11 @@ import { ActionType } from '../../../graphql/actions';
 import { BriefUpgradeAlert } from '../../../features/briefing/components/BriefUpgradeAlert';
 import { BriefShareBand } from '../../../features/briefing/components/BriefShareBand';
 import { BriefMustKnowSnapshotButton } from '../../../features/briefing/components/BriefMustKnowSnapshotButton';
-import { BRIEF_BLOCK_SELECTOR } from '../../../features/briefing/briefBodyBlocks';
+import {
+  BRIEF_BLOCK_SELECTOR,
+  BRIEF_SOURCE_LINK_SELECTOR,
+  getBriefBlockLabel,
+} from '../../../features/briefing/briefBodyBlocks';
 import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
 import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import type { BriefPostHeaderProps } from '../../../features/briefing/components/BriefPostHeader';
@@ -405,7 +409,9 @@ const BriefPostContentRaw = ({
               post={post}
             />
             <ParagraphSnapshotButtons
+              ariaLabel={getBriefBlockLabel}
               containerRef={briefBodyRef}
+              omit={BRIEF_SOURCE_LINK_SELECTOR}
               origin={Origin.BriefParagraph}
               post={post}
               selector={BRIEF_BLOCK_SELECTOR}

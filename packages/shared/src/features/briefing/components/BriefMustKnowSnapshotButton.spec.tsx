@@ -8,6 +8,7 @@ import { captureShareImage } from '../../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../../lib/imageShare/copyShareImage';
 import { LogEvent, Origin } from '../../../lib/log';
 import { ShareProvider } from '../../../lib/share';
+import { briefContentHtmlWithoutMustKnow } from '../../../../__tests__/fixture/brief';
 
 jest.mock('../../../lib/imageShare/captureShareImage', () => ({
   captureShareImage: jest.fn(),
@@ -15,6 +16,8 @@ jest.mock('../../../lib/imageShare/captureShareImage', () => ({
 jest.mock('../../../lib/imageShare/copyShareImage', () => ({
   copyShareImage: jest.fn(),
 }));
+
+const NAME = 'Snapshot: Must know';
 
 const BODY = `
   <h2>Must know</h2>
@@ -71,27 +74,29 @@ describe('BriefMustKnowSnapshotButton', () => {
     const { setBody } = renderComponent('');
 
     expect(
-      screen.queryByRole('button', { name: 'Snapshot' }),
+      screen.queryByRole('button', { name: NAME }),
     ).not.toBeInTheDocument();
 
     setBody(BODY);
 
-    const button = await screen.findByRole('button', { name: 'Snapshot' });
+    const button = await screen.findByRole('button', { name: NAME });
     expect(button.closest('h2')).toHaveTextContent('Must know');
   });
 
   it('stays away from a brief without the section', () => {
-    renderComponent('<h2>Worth a look</h2><p>Only this.</p>');
+    renderComponent(briefContentHtmlWithoutMustKnow);
 
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    // Nothing is left behind on the headings that are there.
     expect(
-      screen.queryByRole('button', { name: 'Snapshot' }),
+      document.querySelector('[data-brief-section-snapshot]'),
     ).not.toBeInTheDocument();
   });
 
   it('mounts the card only once the button is reached for', async () => {
     renderComponent(BODY);
 
-    const button = await screen.findByRole('button', { name: 'Snapshot' });
+    const button = await screen.findByRole('button', { name: NAME });
     expect(screen.getAllByText('Agents are eating dev tools')).toHaveLength(1);
 
     fireEvent.pointerEnter(button);
@@ -110,7 +115,7 @@ describe('BriefMustKnowSnapshotButton', () => {
   it('logs the snapshot under the Must know origin', async () => {
     renderComponent(BODY);
 
-    const button = await screen.findByRole('button', { name: 'Snapshot' });
+    const button = await screen.findByRole('button', { name: NAME });
     fireEvent.pointerEnter(button);
     fireEvent.click(button);
 

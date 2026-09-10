@@ -1,3 +1,6 @@
+import { SNAPSHOT_LABEL } from '../../components/imageShare/SnapshotButton';
+import { truncateAtWord } from '../snapshot/snapshotText';
+
 /**
  * BriefPostContent renders the body as one `<Markdown content={contentHtml} />`
  * blob, with no per-item nodes, so the share controls read its blocks back out
@@ -6,6 +9,20 @@
 
 /** A bullet, or a paragraph that is not the body of one. */
 export const BRIEF_BLOCK_SELECTOR = 'li, :not(li) > p';
+
+/**
+ * The link each bullet closes with, to the post it was written from or to a
+ * feed of the posts when there are several. It is how the reader gets to the
+ * sources, not part of the claim, so a capture of the bullet leaves it out.
+ * `last-of-type` rather than `last-child`: the snapshot slot is appended after
+ * it.
+ */
+export const BRIEF_SOURCE_LINK_SELECTOR = [
+  'li > a[href*="/posts/"]:last-of-type',
+  'li > a[href*="/feed-by-ids"]:last-of-type',
+].join(', ');
+
+const LABEL_EXCERPT_LENGTH = 60;
 
 export interface BriefSection {
   heading: HTMLElement;
@@ -17,8 +34,15 @@ const HEADING_SELECTOR = 'h1, h2, h3';
 
 /* textContent, not innerText: innerText needs layout, which jsdom has none of,
    and the collapsed whitespace is what a card wants anyway. */
-const text = (node: Element) =>
-  (node.textContent ?? '').replace(/\s+/g, ' ').trim();
+const text = (node: Element) => {
+  const clone = node.cloneNode(true) as Element;
+
+  clone
+    .querySelectorAll(BRIEF_SOURCE_LINK_SELECTOR)
+    .forEach((link) => link.remove());
+
+  return (clone.textContent ?? '').replace(/\s+/g, ' ').trim();
+};
 
 /**
  * The section a heading opens, up to the next heading of any level. Matching is
@@ -71,4 +95,16 @@ export function splitBriefBullet(value: string): string {
   }
 
   return value.slice(0, separator).trim();
+}
+
+/**
+ * Every block has its own snapshot, so "Snapshot" alone repeats a dozen times
+ * down the brief. The opening of the block tells a screen reader which one
+ * each button captures.
+ */
+export function getBriefBlockLabel(passage: string): string {
+  return `${SNAPSHOT_LABEL}: ${truncateAtWord(
+    passage.replace(/\s+/g, ' '),
+    LABEL_EXCERPT_LENGTH,
+  )}`;
 }
