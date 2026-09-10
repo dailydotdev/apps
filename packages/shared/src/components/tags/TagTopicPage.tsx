@@ -34,7 +34,8 @@ import {
 } from '../icons';
 import type { TagsData } from '../../graphql/feedSettings';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { ReferralCampaignKey, useFeedLayout } from '../../hooks';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
+import { ReferralCampaignKey } from '../../lib/referral';
 import type { SourceTooltip } from '../../graphql/sources';
 import { SOURCES_BY_TAG_QUERY } from '../../graphql/sources';
 import type { Connection } from '../../graphql/common';
