@@ -118,14 +118,6 @@ const SquadInviteButton = <T extends AllowedTags>({
   squad,
   ...props
 }: SquadBarButtonProps<T>) => {
-  const canRender = useMemo(() => {
-    return verifyPermission(squad, SourcePermissions.Invite);
-  }, [squad]);
-
-  if (!canRender) {
-    return null;
-  }
-
   return (
     <Button
       variant={ButtonVariant.Secondary}
@@ -214,6 +206,8 @@ export function SquadHeaderBar({
   const { openModal, modal } = useLazyModal();
   const isMember = !!squad.currentMember;
   const userCanJoin = squad.public && !isMember;
+  const canInvite =
+    !userCanJoin && verifyPermission(squad, SourcePermissions.Invite);
   const showPendingCount = !!(
     squad.moderationRequired && squad.moderationPostCount
   );
@@ -239,7 +233,7 @@ export function SquadHeaderBar({
         members={members}
         size={ProfileImageSize.Small}
       />
-      {!userCanJoin && (
+      {canInvite && (
         <SquadInviteButton
           squad={squad}
           onClick={() => {
@@ -285,19 +279,21 @@ export function SquadHeaderBar({
           squad={squad}
         />
       )}
-      <CopyLinkButton
-        className="order-3 tablet:order-4"
-        origin={Origin.SquadPage}
-        shareProps={{
-          text: `Check out the ${squad.name} squad on daily.dev`,
-          link: squad.permalink,
-          cid: ReferralCampaignKey.ShareSource,
-          logObject: () => ({
-            event_name: LogEvent.ShareSource,
-            target_id: squad.id,
-          }),
-        }}
-      />
+      {!canInvite && (
+        <CopyLinkButton
+          className="order-3 tablet:order-4"
+          origin={Origin.SquadPage}
+          shareProps={{
+            text: `Check out the ${squad.name} squad on daily.dev`,
+            link: squad.permalink,
+            cid: ReferralCampaignKey.ShareSource,
+            logObject: () => ({
+              event_name: LogEvent.ShareSource,
+              target_id: squad.id,
+            }),
+          }}
+        />
+      )}
       <SquadAnalyticsButton squad={squad} />
       <SquadHeaderMenu squad={squad} />
     </div>
