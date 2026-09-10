@@ -26,6 +26,7 @@ export const BriefPostHeaderActions = ({
   isFixedNavigation,
   origin,
   showShareButton = false,
+  contextMenuId: _contextMenuId,
   ...props
 }: PostHeaderActionsProps & {
   origin: Origin;
