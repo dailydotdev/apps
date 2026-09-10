@@ -23,8 +23,8 @@ import HoverCard from '../../../../components/cards/common/HoverCard';
 import { AchievementCard } from '../achievements/AchievementCard';
 import { AchievementsSnapshotCard } from '../../../snapshot/AchievementsSnapshotCard';
 import { sortRarestUnlockedAchievements } from '../../../../components/modals/achievement/sortAchievements';
-import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
-import { ButtonSize } from '../../../../components/buttons/common';
+import { ProfileSnapshotButton } from '../../../snapshot/ProfileSnapshotButton';
+import { Origin } from '../../../../lib/log';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -120,10 +120,6 @@ export function AchievementsWidget({
   const { achievements, unlockedCount, totalCount, totalPoints } =
     useProfileAchievements(user);
 
-  const rarest = achievements
-    ? sortRarestUnlockedAchievements(achievements).slice(0, 10)
-    : [];
-
   return (
     <ActivityContainer>
       <div className="flex items-center justify-between">
@@ -143,14 +139,19 @@ export function AchievementsWidget({
               {unlockedCount}/{totalCount}
             </ClickableText>
           </Link>
-          <SnapshotButton
-            card={
+          <ProfileSnapshotButton
+            filename={`daily-achievements-${user.username ?? user.id}`}
+            origin={Origin.AchievementsWidget}
+            renderCard={(ref) => (
               <AchievementsSnapshotCard
-                achievements={rarest.map(({ achievement }) => ({
-                  image: achievement.image,
-                  name: achievement.name,
-                }))}
+                achievements={sortRarestUnlockedAchievements(achievements ?? [])
+                  .slice(0, 10)
+                  .map(({ achievement }) => ({
+                    image: achievement.image,
+                    name: achievement.name,
+                  }))}
                 points={totalPoints}
+                ref={ref}
                 seed={user.username ?? user.id}
                 total={totalCount}
                 unlocked={unlockedCount}
@@ -160,10 +161,8 @@ export function AchievementsWidget({
                   name: user.name,
                 }}
               />
-            }
-            filename={`daily-achievements-${user.username ?? user.id}`}
-            showLabel={false}
-            size={ButtonSize.XSmall}
+            )}
+            targetId={user.id}
           />
         </div>
       </div>

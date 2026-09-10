@@ -24,10 +24,10 @@ import {
   BadgesAndAwardsSkeleton,
 } from './BadgesAndAwardsComponents';
 import { anchorDefaultRel } from '../../../../lib/strings';
-import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { ProfileSnapshotButton } from '../../../snapshot/ProfileSnapshotButton';
 import { BadgesSnapshotCard } from '../../../snapshot/BadgesSnapshotCard';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
-import { ButtonSize } from '../../../../components/buttons/common';
+import { Origin } from '../../../../lib/log';
 
 export const BadgesAndAwards = ({
   user,
@@ -77,8 +77,10 @@ export const BadgesAndAwards = ({
         >
           Badges &amp; Awards
         </Typography>
-        <SnapshotButton
-          card={
+        <ProfileSnapshotButton
+          filename={`daily-badges-${user.username ?? user.id}`}
+          origin={Origin.BadgesAndAwards}
+          renderCard={(ref) => (
             <BadgesSnapshotCard
               awards={
                 awards?.map((award) => ({
@@ -96,6 +98,7 @@ export const BadgesAndAwards = ({
                   keyword: badge.keyword.flags?.title || badge.keyword.value,
                 })) ?? []
               }
+              ref={ref}
               seed={user.username ?? user.id}
               topReaderBadges={topReaders?.[0]?.total ?? 0}
               totalAwards={totalAwards}
@@ -105,10 +108,8 @@ export const BadgesAndAwards = ({
                 name: user.name,
               }}
             />
-          }
-          filename={`daily-badges-${user.username ?? user.id}`}
-          showLabel={false}
-          size={ButtonSize.XSmall}
+          )}
+          targetId={user.id}
         />
       </div>
       <ClickableText

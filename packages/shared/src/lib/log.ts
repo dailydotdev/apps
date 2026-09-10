@@ -60,6 +60,14 @@ export enum Origin {
   PollResults = 'poll results',
   PollVotePrompt = 'poll vote prompt',
   // snapshot placements - end
+  // profile share placements - start
+  ProfileHeader = 'profile header',
+  ReadingOverview = 'reading overview',
+  BadgesAndAwards = 'badges and awards',
+  AchievementsWidget = 'achievements widget',
+  AchievementCard = 'achievement card',
+  DevCard = 'devcard',
+  // profile share placements - end
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',

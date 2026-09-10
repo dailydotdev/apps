@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
-import React from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { forwardRef } from 'react';
 import dynamic from 'next/dynamic';
 import { format } from 'date-fns';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -26,17 +27,18 @@ import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
-import { SnapshotButton } from '../imageShare/SnapshotButton';
+import { ProfileSnapshotButton } from '../../features/snapshot/ProfileSnapshotButton';
 import { ProfileSnapshotCard } from '../../features/snapshot/ProfileSnapshotCard';
 import {
-  sumReads,
-  useProfileReadingHistory,
-} from '../../hooks/profile/useProfileReadingHistory';
+  profileReadingHistoryQueryOptions,
+  sumReadHistory,
+} from '../../graphql/users';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -56,6 +58,33 @@ const ProfileActions = dynamic(
   {
     ssr: false,
     loading: ProfileActionsSkeleton,
+  },
+);
+
+const ProfileCard = forwardRef<HTMLDivElement, { user: PublicProfile }>(
+  function ProfileCard({ user }, ref): ReactElement {
+    const { tokenRefreshed } = useAuthContext();
+    // The widgets column already fetched this, so arming the card is a cache
+    // read on the profile page.
+    const { data: readingHistory } = useQuery(
+      profileReadingHistoryQueryOptions({ user, enabled: tokenRefreshed }),
+    );
+    const handle = user.username ?? user.id;
+
+    return (
+      <ProfileSnapshotCard
+        bio={user.bio}
+        cover={user.cover}
+        handle={`@${handle}`}
+        image={user.image}
+        joined={format(new Date(user.createdAt), 'MMMM y')}
+        name={user.name}
+        postsRead={sumReadHistory(readingHistory?.userReadHistory)}
+        ref={ref}
+        reputation={user.reputation}
+        seed={handle}
+      />
+    );
   },
 );
 
@@ -81,16 +110,22 @@ const ProfileHeader = ({
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
   const { logEvent } = useLogContext();
-  const { readingHistory } = useProfileReadingHistory(user);
-  const [isCopying, copyLink] = useCopyLink(() => user.permalink);
+  const [isCopying, copyLink] = useCopyLink();
 
   const onCopyLink = () => {
-    copyLink();
     logEvent({
       event_name: LogEvent.ShareProfile,
       target_type: TargetType.ProfilePage,
       target_id: user.id,
-      extra: JSON.stringify({ provider: ShareProvider.CopyLink }),
+      extra: JSON.stringify({
+        provider: ShareProvider.CopyLink,
+        origin: Origin.ProfileHeader,
+      }),
+    });
+    copyLink({
+      link: user.permalink,
+      shorten: true,
+      cid: ReferralCampaignKey.ShareProfile,
     });
   };
 
@@ -126,24 +161,13 @@ const ProfileHeader = ({
               aria-label="Edit profile"
             />
           </Link>
-          <SnapshotButton
-            card={
-              <ProfileSnapshotCard
-                bio={bio}
-                cover={cover}
-                handle={`@${username ?? user.id}`}
-                image={image}
-                joined={format(new Date(user.createdAt), 'MMMM y')}
-                name={name}
-                postsRead={sumReads(readingHistory?.userReadHistory)}
-                reputation={user.reputation}
-                seed={username ?? user.id}
-              />
-            }
+          <ProfileSnapshotButton
             filename={`daily-profile-${username ?? user.id}`}
-            showLabel={false}
+            origin={Origin.ProfileHeader}
+            renderCard={(ref) => <ProfileCard ref={ref} user={user} />}
             // Matches the edit button beside it, which takes Button's default.
             size={ButtonSize.Medium}
+            targetId={user.id}
             variant={ButtonVariant.Float}
           />
           <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>

@@ -1,11 +1,12 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import React, { forwardRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type {
   UserReadHistory,
   UserStreak,
   MostReadTag,
 } from '../../../../graphql/users';
+import { sumReadHistory } from '../../../../graphql/users';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import {
   CalendarHeatmap,
@@ -27,12 +28,12 @@ import {
   ReadingOverviewSkeleton,
 } from './ReadingOverviewComponents';
 import { anchorDefaultRel, pluralize } from '../../../../lib/strings';
-import { largeNumberFormat } from '../../../../lib';
-import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { largeNumberFormat } from '../../../../lib/numberFormat';
 import { ReadingOverviewSnapshotCard } from '../../../snapshot/ReadingOverviewSnapshotCard';
+import { ProfileSnapshotButton } from '../../../snapshot/ProfileSnapshotButton';
 import { tagTitlesQueryOptions } from '../../../../graphql/keywords';
 import type { PublicProfile } from '../../../../lib/user';
-import { ButtonSize } from '../../../../components/buttons/common';
+import { Origin } from '../../../../lib/log';
 
 /** ReadingOverviewSnapshotCard's heatmap grid: four rows of twenty-two. */
 const SNAPSHOT_HEATMAP_CELLS = 88;
@@ -72,6 +73,58 @@ export interface ReadingOverviewProps {
   isLoading?: boolean;
 }
 
+type ReadingOverviewCardProps = Omit<ReadingOverviewProps, 'isLoading'>;
+
+const ReadingOverviewCard = forwardRef<
+  HTMLDivElement,
+  ReadingOverviewCardProps
+>(function ReadingOverviewCard(
+  { user, readHistory, before, after, streak, mostReadTags },
+  ref,
+): ReactElement {
+  const { data: tagTitles = {} } = useQuery(tagTitlesQueryOptions());
+
+  // The card draws one cell per bucket and stops at its grid, so the window
+  // is compressed into that many buckets rather than handed a day each: a
+  // day per cell would show the oldest weeks and drop everything since.
+  const start = after.getTime();
+  const span = Math.max(1, before.getTime() - start);
+  const buckets = new Array(SNAPSHOT_HEATMAP_CELLS).fill(0);
+
+  readHistory?.forEach((entry) => {
+    const offset = (new Date(entry.date).getTime() - start) / span;
+    const cell = Math.floor(offset * SNAPSHOT_HEATMAP_CELLS);
+
+    buckets[Math.min(SNAPSHOT_HEATMAP_CELLS - 1, Math.max(0, cell))] +=
+      readHistoryToValue(entry);
+  });
+
+  const bins = getBins(buckets);
+
+  return (
+    <ReadingOverviewSnapshotCard
+      heatmap={buckets.map((reads) => getBin(reads, bins))}
+      longestStreak={streak?.max ?? 0}
+      monthsLabel="in the last months"
+      postsRead={sumReadHistory(readHistory)}
+      ref={ref}
+      seed={user.username ?? user.id}
+      topTags={
+        mostReadTags?.map((tag) => ({
+          name: tagTitles[tag.value] || tag.value,
+          percentage: Math.round((tag.percentage ?? 0) * 100),
+        })) ?? []
+      }
+      totalReadingDays={streak?.total ?? 0}
+      user={{
+        handle: `@${user.username ?? user.id}`,
+        image: user.image,
+        name: user.name,
+      }}
+    />
+  );
+});
+
 export function ReadingOverview({
   user,
   readHistory,
@@ -81,43 +134,7 @@ export function ReadingOverview({
   mostReadTags,
   isLoading = false,
 }: ReadingOverviewProps): ReactElement {
-  const totalReads = useMemo(() => {
-    if (!readHistory?.length) {
-      return 0;
-    }
-    return readHistory.reduce((acc, val) => {
-      const reads = val?.reads || 0;
-      return acc + (typeof reads === 'number' && reads >= 0 ? reads : 0);
-    }, 0);
-  }, [readHistory]);
-
-  const { data: tagTitles = {} } = useQuery<Record<string, string>>(
-    tagTitlesQueryOptions(),
-  );
-  const heatmap = useMemo(() => {
-    if (!readHistory?.length) {
-      return [];
-    }
-
-    // The card draws one cell per bucket and stops at its grid, so the window
-    // is compressed into that many buckets rather than handed a day each: a
-    // day per cell would show the oldest weeks and drop everything since.
-    const start = after.getTime();
-    const span = Math.max(1, before.getTime() - start);
-    const buckets = new Array(SNAPSHOT_HEATMAP_CELLS).fill(0);
-
-    readHistory.forEach((entry) => {
-      const offset = (new Date(entry.date).getTime() - start) / span;
-      const cell = Math.floor(offset * SNAPSHOT_HEATMAP_CELLS);
-
-      buckets[Math.min(SNAPSHOT_HEATMAP_CELLS - 1, Math.max(0, cell))] +=
-        readHistoryToValue(entry);
-    });
-
-    const bins = getBins(buckets);
-
-    return buckets.map((reads) => getBin(reads, bins));
-  }, [after, before, readHistory]);
+  const totalReads = sumReadHistory(readHistory);
 
   if (isLoading) {
     return <ReadingOverviewSkeleton />;
@@ -135,31 +152,21 @@ export function ReadingOverview({
         >
           Reading Overview
         </Typography>
-        <SnapshotButton
-          card={
-            <ReadingOverviewSnapshotCard
-              heatmap={heatmap}
-              longestStreak={streak?.max ?? 0}
-              monthsLabel="in the last months"
-              postsRead={totalReads}
-              seed={user.username ?? user.id}
-              topTags={
-                mostReadTags?.map((tag) => ({
-                  name: tagTitles[tag.value] || tag.value,
-                  percentage: Math.round((tag.percentage ?? 0) * 100),
-                })) ?? []
-              }
-              totalReadingDays={streak?.total ?? 0}
-              user={{
-                handle: `@${user.username ?? user.id}`,
-                image: user.image,
-                name: user.name,
-              }}
+        <ProfileSnapshotButton
+          filename={`daily-reading-overview-${user.username ?? user.id}`}
+          origin={Origin.ReadingOverview}
+          renderCard={(ref) => (
+            <ReadingOverviewCard
+              after={after}
+              before={before}
+              mostReadTags={mostReadTags}
+              readHistory={readHistory}
+              ref={ref}
+              streak={streak}
+              user={user}
             />
-          }
-          filename="daily-reading-overview"
-          showLabel={false}
-          size={ButtonSize.XSmall}
+          )}
+          targetId={user.id}
         />
       </div>
       <ClickableText

@@ -29,8 +29,9 @@ import {
   rarityGlowClasses,
 } from './achievementRarity';
 import { RaritySparkles } from './RaritySparkles';
-import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
+import { ProfileSnapshotButton } from '../../../snapshot/ProfileSnapshotButton';
 import { AchievementSnapshotCard } from '../../../snapshot/AchievementSnapshotCard';
+import { Origin, TargetType } from '../../../../lib/log';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
@@ -67,7 +68,7 @@ export function AchievementCard({
   return (
     <div
       className={classNames(
-        'group relative flex flex-col rounded-16 border p-4 transition-colors',
+        'group/achievement relative flex flex-col rounded-16 border p-4 transition-colors',
         isUnlocked ? 'bg-surface-float' : 'bg-surface-subtle',
         rarityTier
           ? ['overflow-visible', rarityGlowClasses[rarityTier]]
@@ -123,11 +124,13 @@ export function AchievementCard({
             {achievement.description}
           </Typography>
         </div>
-        <div className="relative flex shrink-0 items-center self-center">
+        <div className="relative flex shrink-0 items-center gap-1 self-center">
           {isUnlocked && unlockedAt && (
-            <span className="absolute right-full top-1/2 mr-1 -translate-y-1/2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
-              <SnapshotButton
-                card={
+            <span className="flex mouse:absolute mouse:right-full mouse:top-1/2 mouse:mr-1 mouse:-translate-y-1/2 mouse:opacity-0 mouse:transition-opacity mouse:focus-within:opacity-100 mouse:group-hover/achievement:opacity-100">
+              <ProfileSnapshotButton
+                filename={`daily-achievement-${achievement.id}`}
+                origin={Origin.AchievementCard}
+                renderCard={(ref) => (
                   <AchievementSnapshotCard
                     completedAt={formatDate({
                       value: unlockedAt,
@@ -137,13 +140,13 @@ export function AchievementCard({
                     image={achievement.image}
                     name={achievement.name}
                     rarity={achievement.rarity ?? null}
+                    ref={ref}
                     seed={achievement.id}
                     tier={rarityTier}
                   />
-                }
-                filename={`daily-achievement-${achievement.id}`}
-                showLabel={false}
-                size={ButtonSize.XSmall}
+                )}
+                targetId={achievement.id}
+                targetType={TargetType.AchievementCard}
                 variant={ButtonVariant.Secondary}
               />
             </span>

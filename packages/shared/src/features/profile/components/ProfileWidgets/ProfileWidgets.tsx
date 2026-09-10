@@ -1,12 +1,16 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
 import type { ProfileV2 } from '../../../../graphql/users';
-import { useProfileReadingHistory } from '../../../../hooks/profile/useProfileReadingHistory';
+import {
+  getProfileReadingWindow,
+  profileReadingHistoryQueryOptions,
+} from '../../../../graphql/users';
 import { canViewUserProfileAnalytics } from '../../../../lib/user';
 import { ReadingOverview } from './ReadingOverview';
 import { ProfileCompletion } from './ProfileCompletion';
@@ -60,7 +64,7 @@ export function ProfileWidgets({
   sources,
   className,
 }: ProfileWidgetsProps): ReactElement {
-  const { user: loggedUser } = useAuthContext();
+  const { user: loggedUser, tokenRefreshed } = useAuthContext();
   const { optOutAchievements } = useSettingsContext();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
@@ -92,12 +96,10 @@ export function ProfileWidgets({
     !isAchievementsPending &&
     shouldRenderTrackingWidget;
 
-  const {
-    readingHistory,
-    isLoading: isReadingHistoryLoading,
-    before,
-    after,
-  } = useProfileReadingHistory(user);
+  const { before, after } = getProfileReadingWindow();
+  const { data: readingHistory, isLoading: isReadingHistoryLoading } = useQuery(
+    profileReadingHistoryQueryOptions({ user, enabled: tokenRefreshed }),
+  );
   const squads = sources?.edges?.map((s) => s.node.source) ?? [];
 
   return (
