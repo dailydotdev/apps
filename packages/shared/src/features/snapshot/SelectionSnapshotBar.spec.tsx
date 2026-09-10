@@ -112,6 +112,23 @@ describe('SelectionSnapshotBar placement', () => {
     expect(top).toBeLessThanOrEqual(800 - 44 - 8);
   });
 
+  it('sits below the quote on touch, clear of the platform menu', () => {
+    // Android's own Copy/Share menu takes the space above the selection.
+    Object.assign(globalThis, { innerHeight: 800, innerWidth: 1440 });
+    const desktop = globalThis.matchMedia;
+    globalThis.matchMedia = ((query: string) => ({
+      matches: query === '(pointer: coarse)',
+    })) as unknown as typeof globalThis.matchMedia;
+    rectAt({ top: 400, bottom: 440 });
+
+    renderBar();
+    select('body');
+
+    expect(parseFloat(barStyle().top)).toBeGreaterThan(440);
+
+    globalThis.matchMedia = desktop;
+  });
+
   it('keeps the bar clear of the side edges', () => {
     Object.assign(globalThis, { innerHeight: 800, innerWidth: 1440 });
     rectAt({ left: 1430, width: 10 });
