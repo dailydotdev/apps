@@ -1233,7 +1233,7 @@ img.agent-media-ring {
 
 /* Snapshot copy is rasterized once and never reflows, so it can afford the
    expensive wrapping: balance evens the line lengths and removes the orphan
-   word, and anywhere keeps long names inside the card. */
+   word, and anywhere keeps long URLs or type names inside the card. */
 .snapshot-copy {
   text-wrap: balance;
   overflow-wrap: anywhere;

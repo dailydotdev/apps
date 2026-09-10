@@ -5,6 +5,7 @@ import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
 import { useVotePost } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
+import { usePostActions } from '../../../hooks/post/usePostActions';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
 import { useLazyModal } from '../../../hooks/useLazyModal';
@@ -50,6 +51,7 @@ export const FocusCardActionBar = ({
 }: FocusCardActionBarProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { toggleUpvote, toggleDownvote } = useVotePost();
+  const { onInteract } = usePostActions({ post });
   const { toggleBookmark } = useBookmarkPost();
   const { onShowPanel, onClose: onCloseBlockPanel } = useBlockPostPanel(post);
   const { openModal } = useLazyModal();
@@ -66,6 +68,10 @@ export const FocusCardActionBar = ({
     if (post?.userState?.vote === UserVote.None) {
       onCloseBlockPanel(true);
     }
+    if (post?.userState?.vote !== UserVote.Up) {
+      onInteract('upvote');
+    }
+
     await toggleUpvote({ payload: post, origin });
   };
 

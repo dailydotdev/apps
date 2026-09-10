@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import type { ReferralCampaignKey } from '../lib/referral';
 import type { NotifyOptionalProps } from './useToastNotification';
-import { useToastNotification } from './useToastNotification';
+import { ToastType, useToastNotification } from './useToastNotification';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 
 type CopyNotifyFunctionProps = NotifyOptionalProps & {
@@ -8,14 +9,19 @@ type CopyNotifyFunctionProps = NotifyOptionalProps & {
   message?: string;
   textToCopy?: string;
   shorten?: boolean;
+  /** Campaign carried by the shortened link, so the visit is attributed. */
+  cid?: ReferralCampaignKey;
   disableToast?: boolean;
 };
 
 const defaultMessage = '✅ Copied to clipboard';
 const defaultLinkMessage = '✅ Copied link to clipboard';
 const noLinkErrorMessage = '❌ Could not copy, link is missing';
-const copyFailedMessage = '❌ Could not copy, please try again';
 const noTextErrorMessage = '❌ Could not copy, there is nothing to copy';
+// The clipboard rejects outright when the document is not focused, when the
+// page is not on a secure origin, or when permission is denied. A press that
+// reports nothing at all reads as a dead button.
+const blockedMessage = '❌ Your browser blocked the clipboard';
 
 export type CopyNotifyFunction =
   | ((props?: CopyNotifyFunctionProps) => void)
@@ -30,42 +36,44 @@ export function useCopyLink(
   const { getShortUrl } = useGetShortUrl();
 
   const copy: CopyNotifyFunction = async (props = {}) => {
+    // getLink is optional: useCopyPostLink omits it when the link is only
+    // known at press time, and those callers pass it in props instead.
     const link = props.link || getLink?.();
     const shortenLink = props.shorten || shorten;
 
-    if (!link) {
-      displayToast(noLinkErrorMessage, props);
-
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(link);
-    } catch {
-      // A refused write used to reject out of here, leaving the caller with no
-      // toast and no copied state, so the button read as dead.
-      displayToast(copyFailedMessage, props);
-
-      return;
-    }
-
-    // try with a shortened link as well, if requested
-    if (shortenLink) {
+    if (link) {
       try {
-        const clipBoardItem = new ClipboardItem({
-          'text/plain': getShortUrl(link).then((shortenedLink) => {
-            return new Blob([shortenedLink], { type: 'text/plain' });
-          }),
-        });
-        await navigator.clipboard.write([clipBoardItem]);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('Error copying to clipboard', e);
-      }
-    }
+        // write the link to clipboard
+        await navigator.clipboard.writeText(link);
+      } catch {
+        displayToast(blockedMessage, { variant: ToastType.Error });
 
-    if (!props.disableToast) {
-      displayToast(props.message || defaultLinkMessage, props);
+        return;
+      }
+
+      // try with a shortened link as well, if requested
+      if (shortenLink) {
+        try {
+          const clipBoardItem = new ClipboardItem({
+            // A promise, not an awaited value: awaiting the shortener first
+            // would end the task that handled the gesture, and Safari refuses
+            // the write after that.
+            'text/plain': getShortUrl(link, props.cid).then((shortenedLink) => {
+              return new Blob([shortenedLink], { type: 'text/plain' });
+            }),
+          });
+          await navigator.clipboard.write([clipBoardItem]);
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.warn('Error copying to clipboard', e);
+        }
+      }
+
+      if (!props.disableToast) {
+        displayToast(props.message || defaultLinkMessage, props);
+      }
+    } else {
+      displayToast(noLinkErrorMessage, { variant: ToastType.Error });
     }
 
     setCopying(true);
@@ -84,13 +92,20 @@ export function useCopyText(text?: string): [boolean, CopyNotifyFunction] {
   const copy: CopyNotifyFunction = async (props = {}) => {
     const textToCopy = props.textToCopy || text;
 
+    // Nothing to put on the clipboard; writing it anyway pastes "undefined".
     if (!textToCopy) {
-      displayToast(noTextErrorMessage, props);
+      displayToast(noTextErrorMessage, { variant: ToastType.Error });
 
       return;
     }
 
-    await navigator.clipboard.writeText(textToCopy);
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+    } catch {
+      displayToast(blockedMessage, { variant: ToastType.Error });
+
+      return;
+    }
 
     if (!props.disableToast) {
       displayToast(props.message || defaultMessage, props);

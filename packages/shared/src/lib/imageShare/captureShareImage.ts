@@ -53,16 +53,22 @@ const PROBE_STYLE = [
 
 // A cross-origin image without CORS headers leaves snapdom's inliner pending
 // forever, which would otherwise spin the trigger button indefinitely.
-const withTimeout = <T>(promise: Promise<T>): Promise<T> =>
-  Promise.race([
+const withTimeout = <T>(promise: Promise<T>): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout>;
+
+  return Promise.race([
     promise,
     new Promise<T>((_, reject) => {
-      setTimeout(
+      timer = setTimeout(
         () => reject(new Error('captureShareImage: capture timed out')),
         CAPTURE_TIMEOUT_MS,
       );
     }),
-  ]);
+    // Cleared once the race is decided: the loser's timer would otherwise stay
+    // queued for the full deadline, holding its closure and rejecting a
+    // settled race.
+  ]).finally(() => clearTimeout(timer));
+};
 
 const resolveTheme = (element: HTMLElement): ShareImageTheme => {
   const probe = element.ownerDocument.createElement('div');
