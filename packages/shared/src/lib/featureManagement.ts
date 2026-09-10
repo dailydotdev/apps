@@ -30,12 +30,6 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
-// Experiment: share controls on the briefing list and the briefing itself.
-// Default MUST stay `false`: it is the control.
-export const featureBriefingShareControls = new Feature(
-  'briefing_share_controls',
-  false,
-);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{

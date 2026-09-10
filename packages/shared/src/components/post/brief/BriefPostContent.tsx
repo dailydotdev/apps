@@ -46,10 +46,7 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { LogEvent, Origin, TargetId } from '../../../lib/log';
-import {
-  featureBriefingShareControls,
-  featurePlusCtaCopy,
-} from '../../../lib/featureManagement';
+import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { LottieAnimation } from '../../LottieAnimation';
 import { briefFeatureList, PlusList } from '../../plus/PlusList';
 import { HourDropdown } from '../../fields/HourDropdown';
@@ -144,9 +141,6 @@ const BriefPostContentRaw = ({
   } = usePersonalizedDigest();
   const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
   const briefBodyRef = useRef<HTMLDivElement>(null);
-  const { value: isShareEnabled } = useConditionalFeature({
-    feature: featureBriefingShareControls,
-  });
 
   const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
 
@@ -405,26 +399,22 @@ const BriefPostContentRaw = ({
             <div ref={briefBodyRef}>
               <Markdown content={contentHtml} />
             </div>
-            {isShareEnabled && (
-              <>
-                <SelectionSnapshotBar
-                  containerRef={briefBodyRef}
-                  origin={Origin.BriefTextSelection}
-                  post={post}
-                />
-                <ParagraphSnapshotButtons
-                  containerRef={briefBodyRef}
-                  origin={Origin.BriefParagraph}
-                  post={post}
-                  selector={BRIEF_BLOCK_SELECTOR}
-                />
-                <BriefMustKnowSnapshotButton
-                  containerRef={briefBodyRef}
-                  post={post}
-                />
-                <BriefShareBand post={post} />
-              </>
-            )}
+            <SelectionSnapshotBar
+              containerRef={briefBodyRef}
+              origin={Origin.BriefTextSelection}
+              post={post}
+            />
+            <ParagraphSnapshotButtons
+              containerRef={briefBodyRef}
+              origin={Origin.BriefParagraph}
+              post={post}
+              selector={BRIEF_BLOCK_SELECTOR}
+            />
+            <BriefMustKnowSnapshotButton
+              containerRef={briefBodyRef}
+              post={post}
+            />
+            <BriefShareBand post={post} />
             {isNotPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div

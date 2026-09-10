@@ -28,8 +28,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSharePost } from '../../hooks/useSharePost';
 import { CopyStateIcon } from '../share/CopyStateIcon';
-import { featureBriefingShareControls } from '../../lib/featureManagement';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 
 export type BriefListItemProps = {
   className?: string;
@@ -64,9 +62,6 @@ export const BriefListItem = ({
   const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
   const { copyLink, isCopying, openSharePost } = useSharePost(origin);
-  const { value: withShareControls } = useConditionalFeature({
-    feature: featureBriefingShareControls,
-  });
 
   const trackBriefClick = () => {
     onPostClick({ post });
@@ -98,14 +93,9 @@ export const BriefListItem = ({
       <div className="hidden items-center mobileXL:flex">
         <BriefGradientIcon secondary={!isRead} size={IconSize.Size48} />
       </div>
-      <div
-        className={classNames(
-          'flex flex-col gap-1',
-          // `w-full` would claim the whole card and push the controls past
-          // its border.
-          withShareControls ? 'min-w-0 flex-1' : 'w-full',
-        )}
-      >
+      {/* `w-full` would claim the whole card and push the controls past its
+          border. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex min-w-0 items-center gap-2">
           <Typography
             type={TypographyType.Title3}
@@ -113,7 +103,7 @@ export const BriefListItem = ({
             color={
               isRead ? TypographyColor.Quaternary : TypographyColor.Primary
             }
-            truncate={withShareControls}
+            truncate
           >
             {title}
           </Typography>
@@ -170,30 +160,28 @@ export const BriefListItem = ({
           onAuxClick={(event) => event.button === 1 && trackBriefClick()}
         />
       </Link>
-      {withShareControls && (
-        // After the CardLink and above it: the overlay covers the whole row,
-        // so anything rendered before it never receives the click.
-        <div className="relative z-1 flex shrink-0 items-center gap-1">
-          <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
-            <Button
-              aria-label="Copy link"
-              icon={<CopyStateIcon copied={isCopying} icon={LinkIcon} />}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              onClick={() => copyLink({ post })}
-            />
-          </Tooltip>
-          <Tooltip content="Share">
-            <Button
-              aria-label="Share briefing"
-              icon={<ShareIcon />}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              onClick={() => openSharePost({ post })}
-            />
-          </Tooltip>
-        </div>
-      )}
+      {/* After the CardLink and above it: the overlay covers the whole row,
+          so anything rendered before it never receives the click. */}
+      <div className="relative z-1 flex shrink-0 items-center gap-1">
+        <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
+          <Button
+            aria-label="Copy link"
+            icon={<CopyStateIcon copied={isCopying} icon={LinkIcon} />}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            onClick={() => copyLink({ post })}
+          />
+        </Tooltip>
+        <Tooltip content="Share">
+          <Button
+            aria-label="Share briefing"
+            icon={<ShareIcon />}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            onClick={() => openSharePost({ post })}
+          />
+        </Tooltip>
+      </div>
     </article>
   );
 };

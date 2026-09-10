@@ -77,7 +77,7 @@ const PAGES: React.ReactNode[][] = [
   [
     'Briefing',
     '#6563',
-    'Shipped behind briefing_share_controls: the live briefing is the reference, so it has no mockup here',
+    'Shipped: the live briefing is the reference, so it has no mockup here',
   ],
   [
     'Profile',

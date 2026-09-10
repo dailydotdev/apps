@@ -10,8 +10,6 @@ const mockLogEvent = jest.fn();
 const mockCopyLink = jest.fn();
 const mockOpenSharePost = jest.fn();
 
-let mockWithShareControls = false;
-
 jest.mock('../../hooks/useOnPostClick', () => ({
   __esModule: true,
   default: () => mockOnPostClick,
@@ -29,13 +27,6 @@ jest.mock('../../hooks/useSharePost', () => ({
   useSharePost: () => ({
     copyLink: mockCopyLink,
     openSharePost: mockOpenSharePost,
-  }),
-}));
-
-jest.mock('../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: () => ({
-    value: mockWithShareControls,
-    isLoading: false,
   }),
 }));
 
@@ -63,7 +54,6 @@ const renderComponent = (onClick = jest.fn()) =>
 describe('BriefListItem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockWithShareControls = false;
   });
 
   it('delegates regular clicks to the parent handler and tracks the click', () => {
@@ -110,19 +100,7 @@ describe('BriefListItem', () => {
     expect(mockLogEvent).toHaveBeenCalledTimes(1);
   });
 
-  it('renders no share controls while the flag is off', () => {
-    renderComponent();
-
-    expect(
-      screen.queryByRole('button', { name: 'Copy link' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Share briefing' }),
-    ).not.toBeInTheDocument();
-  });
-
   it('copies and shares the brief link without opening the brief', () => {
-    mockWithShareControls = true;
     const onClick = jest.fn();
     renderComponent(onClick);
 

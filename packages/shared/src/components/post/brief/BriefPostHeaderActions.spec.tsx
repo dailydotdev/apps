@@ -8,8 +8,6 @@ import { Origin } from '../../../lib/log';
 const mockCopyLink = jest.fn();
 const mockOpenSharePost = jest.fn();
 
-let mockAtEveryWidth = false;
-
 jest.mock('../../../hooks/useSharePost', () => ({
   useSharePost: () => ({
     copyLink: mockCopyLink,
@@ -17,17 +15,13 @@ jest.mock('../../../hooks/useSharePost', () => ({
   }),
 }));
 
-jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: () => ({ value: mockAtEveryWidth, isLoading: false }),
-}));
-
 const post = { id: 'brief-1', slug: 'brief-1' } as Post;
 
-const renderComponent = () =>
+const renderComponent = (showShareButton = true) =>
   render(
     <QueryClientProvider client={new QueryClient()}>
       <BriefPostHeaderActions
-        showShareButton
+        showShareButton={showShareButton}
         contextMenuId="post-widgets-context"
         origin={Origin.BriefPage}
         post={post}
@@ -38,36 +32,32 @@ const renderComponent = () =>
 describe('BriefPostHeaderActions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockAtEveryWidth = false;
   });
 
-  it('keeps the cluster desktop-only while the flag is off', () => {
+  it('shows share at every width and leaves the copy link to laptop', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('button', { name: 'Copy link' }).closest('div'),
-    ).toHaveClass('hidden', 'laptop:flex');
+      screen.getByRole('button', { name: 'Share briefing' }),
+    ).not.toHaveClass('hidden');
+    expect(screen.getByRole('button', { name: 'Copy link' })).toHaveClass(
+      'hidden',
+      'laptop:flex',
+    );
+  });
+
+  it('renders no share controls where the share button is off', () => {
+    renderComponent(false);
+
+    expect(
+      screen.queryByRole('button', { name: 'Copy link' }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Share briefing' }),
     ).not.toBeInTheDocument();
   });
 
-  it('shows copy link and share at every width when the flag is on', () => {
-    mockAtEveryWidth = true;
-    renderComponent();
-
-    const cluster = screen
-      .getByRole('button', { name: 'Copy link' })
-      .closest('div');
-
-    expect(cluster).not.toHaveClass('hidden');
-    expect(
-      screen.getByRole('button', { name: 'Share briefing' }),
-    ).toBeInTheDocument();
-  });
-
   it('copies the brief link and opens the share modal', () => {
-    mockAtEveryWidth = true;
     renderComponent();
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));

@@ -12,8 +12,6 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { useSharePost } from '../../../hooks/useSharePost';
 import { CopyStateIcon } from '../../share/CopyStateIcon';
 import type { Origin } from '../../../lib/log';
-import { featureBriefingShareControls } from '../../../lib/featureManagement';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -33,45 +31,38 @@ export const BriefPostHeaderActions = ({
   showShareButton?: boolean;
 }): ReactElement => {
   const { copyLink, isCopying, openSharePost } = useSharePost(origin);
-  const { value: atEveryWidth } = useConditionalFeature({
-    feature: featureBriefingShareControls,
-    shouldEvaluate: showShareButton,
-  });
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <div
-        className={classNames(
-          'flex items-center gap-1',
-          !atEveryWidth && 'hidden laptop:flex',
-        )}
-      >
+      {/* Below laptop the page's own header already has a copy link and a menu
+          with Settings, so only Share joins it there. */}
+      <div className="flex items-center gap-1">
         {showShareButton && (
           <>
             <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
               <Button
                 aria-label="Copy link"
+                className="hidden laptop:flex"
                 icon={<CopyStateIcon copied={isCopying} icon={LinkIcon} />}
                 size={ButtonSize.Medium}
                 variant={ButtonVariant.Tertiary}
                 onClick={() => copyLink({ post })}
               />
             </Tooltip>
-            {atEveryWidth && (
-              <Tooltip content="Share">
-                <Button
-                  aria-label="Share briefing"
-                  icon={<ShareIcon />}
-                  size={ButtonSize.Medium}
-                  variant={ButtonVariant.Tertiary}
-                  onClick={() => openSharePost({ post })}
-                />
-              </Tooltip>
-            )}
+            <Tooltip content="Share">
+              <Button
+                aria-label="Share briefing"
+                icon={<ShareIcon />}
+                size={ButtonSize.Medium}
+                variant={ButtonVariant.Tertiary}
+                onClick={() => openSharePost({ post })}
+              />
+            </Tooltip>
           </>
         )}
         <Link passHref href={`${settingsUrl}/notifications`}>
           <Button
+            className="hidden laptop:flex"
             icon={<SettingsIcon />}
             size={ButtonSize.Medium}
             tag="a"
