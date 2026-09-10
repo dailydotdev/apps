@@ -9,8 +9,9 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getAbsoluteWebappUrl } from '@dailydotdev/shared/src/lib/links';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
 import type { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 
 interface WorldShareProps {
@@ -43,7 +44,7 @@ export function WorldShare({
 }: WorldShareProps): ReactElement {
   const whose = isOwn ? 'my' : `${user.name}'s`;
   const [copying, onShareOrCopy] = useShareOrCopyLink({
-    link: `${webappUrl}world/${user.username || user.id}`,
+    link: getAbsoluteWebappUrl(`world/${user.username || user.id}`),
     text: worldName
       ? `Check out ${worldName}, ${whose} world on daily.dev`
       : `Check out ${whose} world on daily.dev`,
@@ -52,6 +53,7 @@ export function WorldShare({
       target_id: user.id,
       extra: JSON.stringify({ provider }),
     }),
+    cid: ReferralCampaignKey.ShareWorld,
   });
 
   return (

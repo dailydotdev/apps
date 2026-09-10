@@ -91,8 +91,10 @@ import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopy
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { getDomainFromUrl } from '@dailydotdev/shared/src/lib/links';
+import {
+  getAbsoluteWebappUrl,
+  getDomainFromUrl,
+} from '@dailydotdev/shared/src/lib/links';
 import {
   ProfileImageSize,
   ProfilePicture,
@@ -101,6 +103,7 @@ import { ProfilePictureGroup } from '@dailydotdev/shared/src/components/ProfileP
 import { ToolLogo } from '@dailydotdev/shared/src/components/tools/ToolLogo';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
@@ -356,13 +359,14 @@ const ToolPage = ({
   );
 
   const [copying, onShareOrCopy] = useShareOrCopyLink({
-    link: `${webappUrl}tools/${tool.slug}`,
+    link: getAbsoluteWebappUrl(`tools/${tool.slug}`),
     text: `Check out ${tool.title} on daily.dev`,
     logObject: (provider) => ({
       event_name: LogEvent.ShareTool,
       target_id: tool.slug,
       extra: JSON.stringify({ provider, origin: Origin.ToolPage }),
     }),
+    cid: ReferralCampaignKey.ShareTool,
   });
 
   const { data: followedStackers } = useQuery({
