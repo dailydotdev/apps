@@ -13,6 +13,7 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { ArchiveCopyLinkButton } from './ArchiveCopyLinkButton';
 
 interface ArchiveIndexPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -163,9 +164,16 @@ export function ArchiveIndexPage({
   return (
     <div className={classNames('flex flex-col', className)}>
       {/* Header */}
-      <h1 className="mx-4 font-bold typo-title2 tablet:typo-title1">
-        Best of {scopeName} &mdash; Archive
-      </h1>
+      <div className="mx-4 flex items-center gap-2">
+        <h1 className="flex-1 font-bold typo-title2 tablet:typo-title1">
+          Best of {scopeName} &mdash; Archive
+        </h1>
+        <ArchiveCopyLinkButton
+          scopeType={scopeType}
+          scopeId={scopeId}
+          text={`Check out the best of ${scopeName} on daily.dev`}
+        />
+      </div>
 
       {/* Archive grid by year */}
       <ArchiveGrid
