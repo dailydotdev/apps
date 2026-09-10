@@ -106,4 +106,19 @@ describe('HotTakeSnapshotButton', () => {
       }),
     );
   });
+
+  it('stays filled while capturing and ignores a second press', async () => {
+    jest.mocked(copyShareImage).mockReturnValue(new Promise(() => {}));
+    renderButton();
+    const button = screen.getByLabelText('Snapshot');
+    fireEvent.pointerEnter(button);
+    fireEvent.click(button);
+
+    // A disabled button paints the Primary fill grey and the spinner with it.
+    await waitFor(() => expect(button).toHaveAttribute('aria-busy', 'true'));
+    expect(button).toBeEnabled();
+
+    fireEvent.click(button);
+    expect(captureShareImage).toHaveBeenCalledTimes(1);
+  });
 });
