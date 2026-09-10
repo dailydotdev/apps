@@ -10,18 +10,9 @@ import { AchievementSnapshotCard } from '@dailydotdev/shared/src/features/snapsh
 import { AchievementRarityTier } from '@dailydotdev/shared/src/features/profile/components/achievements/achievementRarity';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
 import { findHighlightRange } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
-import { InviteSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/InviteSnapshotCard';
-import { StreakSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/StreakSnapshotCard';
-import { EntitySnapshotCard } from '@dailydotdev/shared/src/features/snapshot/EntitySnapshotCard';
-import { DiscussionSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/DiscussionSnapshotCard';
 import { ListSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ListSnapshotCard';
-import { CelebrationSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/CelebrationSnapshotCard';
 import { getSnapshotCaptureOptions } from '@dailydotdev/shared/src/features/snapshot/snapshotCapture';
-import { PostSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/PostSnapshotCard';
 import { SnapshotEyebrow } from '@dailydotdev/shared/src/features/snapshot/SnapshotEyebrow';
-import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
-import { AwardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AwardSnapshotCard';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
 import {
   Button,
@@ -31,67 +22,22 @@ import {
 import {
   ACHIEVEMENT_ART,
   avatarUri,
-  BOBBY_AVATAR,
   COVER_PLACEHOLDER,
   HEATMAP,
   PROFILE_USER,
-  thumbUri,
   UNLOCKED_ART,
 } from './snapshotFixtures';
 import type { SnapshotContentProps } from './SnapshotContent';
-import {
-  HIGHLIGHTS_EYEBROW_GRADIENT,
-  HOT_TAKE_EYEBROW_GRADIENT,
-  SnapshotContent,
-} from './SnapshotContent';
+import { HOT_TAKE_EYEBROW_GRADIENT, SnapshotContent } from './SnapshotContent';
 
 /** The post page as it actually reads, for surface 1. */
-const POST = {
-  id: 'cdpr-physical',
-  title: "CD Projekt Red won't be abandoning physical releases",
-  summary:
-    "CD Projekt Red joint-CEO Michal Nowakowski says the studio has no plans to abandon physical game releases, despite Sony announcing it will end physical media production for PlayStation in 2028. Nowakowski notes CDPR doesn't control disc manufacturing (platform holders like Sony, Microsoft, and Nintendo do), but pledges to keep bundling extras into physical editions, potentially swapping the game disc for a download code, similar to the approach planned for GTA VI.",
-  createdAt: '2026-09-03T09:00:00.000Z',
-  readTime: 3,
-  domain: 'gamedeveloper.com',
-  image: thumbUri('#2A1436', '#0E0A18', 'The Witcher III'),
-  tags: ['tech-news', 'gaming', 'cd-projekt-red'],
-  numUpvotes: 44,
-  numComments: 11,
-  analytics: { impressions: 429900 },
-  source: {
-    id: 'game-developer',
-    name: 'Game Developer',
-    image: avatarUri('#EC527A', 'G'),
-  },
-} as Post;
 
 /** A Happening now highlight, for surface 2 — same card, its own copy. */
-const HIGHLIGHT_POST = {
-  id: 'qwen-3-8-max',
-  summary:
-    'Alibaba released downloadable weights for Qwen3.8-Max, a 2.4 trillion-parameter mixture-of-experts vision-language model, alongside the smaller Qwen3.8-27B, within a week of unveiling the Max model.',
-  source: {
-    id: 'alibaba-cloud',
-    name: 'Alibaba Cloud',
-    image: avatarUri('#FF6A00', 'A'),
-  },
-} as Post;
 
 /**
  * A watercooler post, for surface 4 — a person's own words, so they take the
  * credit rather than a publication.
  */
-const WATERCOOLER_POST = {
-  id: 'watercooler-ripgrep',
-  summary:
-    'Mine is ripgrep. I use it more than my editor at this point — every investigation starts with a search, and nothing else comes close on a big monorepo.',
-} as Post;
-
-const WATERCOOLER_AUTHOR = {
-  name: 'Ante Barić',
-  image: avatarUri('#EC527A', 'A'),
-};
 
 interface Placement {
   id: string;
@@ -116,11 +62,6 @@ const HIGHLIGHT_PASSAGE = {
 
 const PLACEMENTS: Placement[] = [
   {
-    id: 'post',
-    surface: '1 · Post page (under the TLDR)',
-    render: (ref) => <PostSnapshotCard ref={ref} post={POST} />,
-  },
-  {
     id: 'highlight-text',
     surface: '1b · Highlighted text (reader selection)',
     render: (ref) => (
@@ -132,48 +73,6 @@ const PLACEMENTS: Placement[] = [
           image: avatarUri('#B14BD7', 'T'),
         }}
         {...HIGHLIGHT_PASSAGE}
-      />
-    ),
-  },
-  {
-    id: 'highlight',
-    surface: '2 · Happening now (expanded highlight)',
-    render: (ref) => (
-      <PostSnapshotCard
-        ref={ref}
-        eyebrow="Happening now"
-        eyebrowGradient={HIGHLIGHTS_EYEBROW_GRADIENT}
-        post={HIGHLIGHT_POST}
-      />
-    ),
-  },
-  {
-    id: 'leaderboard',
-    surface: '3 · Leaderboard row',
-    render: (ref) => (
-      <LeaderboardSnapshotCard
-        ref={ref}
-        board="Highest level"
-        handle="@bobbyiliev"
-        image={BOBBY_AVATAR}
-        level={103}
-        levelProgress={74}
-        name="Bobby Iliev"
-        rank={1}
-        reputation={76800}
-        score={15500}
-        seed="leaderboard"
-      />
-    ),
-  },
-  {
-    id: 'watercooler',
-    surface: '4 · Watercooler post',
-    render: (ref) => (
-      <PostSnapshotCard
-        ref={ref}
-        credit={WATERCOOLER_AUTHOR}
-        post={WATERCOOLER_POST}
       />
     ),
   },
@@ -298,127 +197,6 @@ const PLACEMENTS: Placement[] = [
     ),
   },
   {
-    id: 'invite',
-    surface: '8 · Invite a friend (#6366)',
-    render: (ref) => (
-      <InviteSnapshotCard
-        ref={ref}
-        handle="@tomer"
-        headline="Come read with me on daily.dev"
-        image={avatarUri('#B14BD7', 'T')}
-        link="daily.dev/join/tomer"
-        name="Tomer Redlich"
-        perk="We both get a month of Plus"
-        seed="invite"
-      />
-    ),
-  },
-  {
-    id: 'award',
-    surface: '9b · Being awarded (#6581)',
-    render: (ref) => (
-      <AwardSnapshotCard
-        ref={ref}
-        award="Superb"
-        emoji="🌟"
-        from="@capjavert"
-        reason="Why iconic tech brands like HTC and LG lost their dominance"
-        seed="award"
-        total={12}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
-      />
-    ),
-  },
-  {
-    id: 'streak',
-    surface: '9 · Reading streak (#6358)',
-    render: (ref) => (
-      <StreakSnapshotCard
-        ref={ref}
-        days={100}
-        longestStreak={100}
-        milestone="A new personal best"
-        seed="streak"
-        totalReadingDays={720}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
-      />
-    ),
-  },
-  {
-    id: 'tag',
-    surface: '10a · Tag page (#6357)',
-    render: (ref) => (
-      <EntitySnapshotCard
-        ref={ref}
-        description="Everything happening in TypeScript, ranked by the developers reading it."
-        kind="tag"
-        name="typescript"
-        seed="tag"
-        stats={[
-          { value: 48200, label: 'Followers' },
-          { value: 1240, label: 'Posts' },
-          { value: 96, label: 'This week' },
-        ]}
-      />
-    ),
-  },
-  {
-    id: 'source',
-    surface: '10b · Source page (#6357)',
-    render: (ref) => (
-      <EntitySnapshotCard
-        ref={ref}
-        description="Deep dives on Android, hardware and the software that runs it."
-        handle="@xda"
-        image={avatarUri('#B14BD7', 'X')}
-        kind="source"
-        name="XDA Developers"
-        seed="source"
-        stats={[
-          { value: 12400, label: 'Followers' },
-          { value: 8600, label: 'Posts' },
-          { value: 34, label: 'This week' },
-        ]}
-      />
-    ),
-  },
-  {
-    id: 'squad',
-    surface: '11 · Squad (#6363)',
-    render: (ref) => (
-      <EntitySnapshotCard
-        ref={ref}
-        description="Where the frontend crowd argues about bundlers and ships anyway."
-        handle="@frontend-fans"
-        image={avatarUri('#624AD3', 'F')}
-        kind="squad"
-        name="Frontend Fans"
-        seed="squad"
-        stats={[
-          { value: 3400, label: 'Members' },
-          { value: 820, label: 'Posts' },
-          { value: 47, label: 'This week' },
-        ]}
-      />
-    ),
-  },
-  {
-    id: 'discussion',
-    surface: '12 · Discussion (#6349)',
-    render: (ref) => (
-      <DiscussionSnapshotCard
-        ref={ref}
-        author={{
-          name: 'Ante Barić',
-          handle: '@capjavert',
-          image: avatarUri('#EC527A', 'A'),
-        }}
-        comment="The bundler war is over and nobody noticed. We spent five years optimising cold starts and the actual bottleneck was always the 400kb of analytics we shipped on every page."
-        seed="discussion"
-      />
-    ),
-  },
-  {
     id: 'briefing',
     surface: '13a · Briefing / digest (#6353)',
     render: (ref) => (
@@ -482,22 +260,6 @@ const PLACEMENTS: Placement[] = [
         seed="best-of"
         subtitle="The 5 posts developers upvoted most"
         title="August's most upvoted reads"
-      />
-    ),
-  },
-  {
-    id: 'celebration',
-    surface: '14 · Level up (#6360)',
-    render: (ref) => (
-      <CelebrationSnapshotCard
-        ref={ref}
-        headline="Level 104 reached"
-        level={104}
-        levelProgress={18}
-        questsCompleted={286}
-        seed="celebration"
-        totalXp={15500}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
       />
     ),
   },
