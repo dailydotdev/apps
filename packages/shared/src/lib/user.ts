@@ -12,6 +12,7 @@ import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 import type { Post } from '../graphql/posts';
 import type { TLocation } from '../graphql/autocomplete';
 import { generateQueryKey, RequestKey, StaleTime } from './query';
+import { ApiError } from '../graphql/common';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -239,7 +240,55 @@ export async function deleteAccount(): Promise<void> {
   }
 }
 
-const getProfileRequest = async (id: string) => {
+type ProfileRequestResponse = {
+  data?: {
+    user?: PublicProfile | null;
+  };
+  errors?: {
+    extensions?: {
+      code?: string;
+    };
+  }[];
+};
+
+export type ProfileRequestResult =
+  | { status: 'found'; user: PublicProfile }
+  | { status: 'notFound' }
+  | { status: 'failed'; error: Error };
+
+const profileNotFoundErrorCodes = [ApiError.Forbidden, ApiError.NotFound];
+
+export const classifyProfileRequest = (
+  status: number,
+  response?: ProfileRequestResponse,
+): ProfileRequestResult => {
+  if (status === 404) {
+    return { status: 'notFound' };
+  }
+
+  if (status >= 400) {
+    return {
+      status: 'failed',
+      error: new Error(`Failed to fetch profile: ${status}`),
+    };
+  }
+
+  if (response?.data?.user) {
+    return { status: 'found', user: response.data.user };
+  }
+
+  const errorCode = response?.errors?.[0]?.extensions?.code;
+  if (profileNotFoundErrorCodes.includes(errorCode as ApiError)) {
+    return { status: 'notFound' };
+  }
+
+  return {
+    status: 'failed',
+    error: new Error('Failed to fetch profile'),
+  };
+};
+
+const getProfileRequest = async (id: string): Promise<ProfileRequestResult> => {
   const userRes = await fetch(graphqlUrl, {
     method: 'POST',
     headers: {
@@ -253,12 +302,14 @@ const getProfileRequest = async (id: string) => {
     }),
     credentials: 'include',
   });
-  if (userRes.status === 404) {
-    throw new Error('not found');
+
+  const status = userRes.status ?? 200;
+  if (status === 404 || status >= 400) {
+    return classifyProfileRequest(status);
   }
 
-  const response = await userRes.json();
-  return response?.data?.user;
+  const response = (await userRes.json()) as ProfileRequestResponse;
+  return classifyProfileRequest(status, response);
 };
 
 const getProfileV2ExtraRequest = async (
@@ -286,7 +337,19 @@ const getProfileV2ExtraRequest = async (
 };
 
 export async function getProfile(id: string): Promise<PublicProfile> {
-  return await getProfileRequest(id);
+  const result = await getProfileRequest(id);
+  return (result.status === 'found' ? result.user : undefined) as PublicProfile;
+}
+
+export async function getProfileForStaticProps(
+  id: string,
+): Promise<Exclude<ProfileRequestResult, { status: 'failed' }>> {
+  const result = await getProfileRequest(id);
+  if (result.status === 'failed') {
+    throw result.error;
+  }
+
+  return result;
 }
 
 export async function getProfileV2Extra(

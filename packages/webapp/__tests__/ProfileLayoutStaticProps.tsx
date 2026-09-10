@@ -1,7 +1,7 @@
 import type { GetStaticPropsContext } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import {
-  getProfile,
+  getProfileForStaticProps,
   getProfileV2Extra,
 } from '@dailydotdev/shared/src/lib/user';
 import {
@@ -9,10 +9,11 @@ import {
   getStaticProps,
 } from '../components/layouts/ProfileLayout';
 import { hasPublicWorld } from '../components/world/profileWorld';
+import { getStaticProps as getWorldStaticProps } from '../pages/world/[userId]';
 
 jest.mock('@dailydotdev/shared/src/lib/user', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/lib/user'),
-  getProfile: jest.fn(),
+  getProfileForStaticProps: jest.fn(),
   getProfileV2Extra: jest.fn(),
 }));
 
@@ -20,7 +21,7 @@ jest.mock('../components/world/profileWorld', () => ({
   hasPublicWorld: jest.fn(),
 }));
 
-const mockedGetProfile = getProfile as jest.Mock;
+const mockedGetProfileForStaticProps = getProfileForStaticProps as jest.Mock;
 const mockedGetProfileV2Extra = getProfileV2Extra as jest.Mock;
 const mockedHasPublicWorld = hasPublicWorld as jest.Mock;
 
@@ -57,7 +58,7 @@ describe('profile getStaticPaths', () => {
 
 describe('profile getStaticProps', () => {
   it('returns notFound when the handle does not resolve to a user', async () => {
-    mockedGetProfile.mockResolvedValue(null);
+    mockedGetProfileForStaticProps.mockResolvedValue({ status: 'notFound' });
 
     await expect(
       getStaticProps(context('definitely-not-a-user')),
@@ -69,13 +70,11 @@ describe('profile getStaticProps', () => {
       notFound: true,
       revalidate: 60,
     });
-    expect(mockedGetProfile).not.toHaveBeenCalled();
+    expect(mockedGetProfileForStaticProps).not.toHaveBeenCalled();
   });
 
   it('returns notFound when the profile is forbidden, without confirming it exists', async () => {
-    mockedGetProfile.mockRejectedValue({
-      response: { errors: [{ extensions: { code: 'FORBIDDEN' } }] },
-    });
+    mockedGetProfileForStaticProps.mockResolvedValue({ status: 'notFound' });
 
     await expect(getStaticProps(context('blocked-user'))).resolves.toEqual({
       notFound: true,
@@ -85,7 +84,7 @@ describe('profile getStaticProps', () => {
 
   it('still serves a real profile', async () => {
     const user = { id: 'u1', username: 'kramer', noindex: false };
-    mockedGetProfile.mockResolvedValue(user);
+    mockedGetProfileForStaticProps.mockResolvedValue({ status: 'found', user });
     mockedGetProfileV2Extra.mockResolvedValue({ userStats: { numPosts: 1 } });
     mockedHasPublicWorld.mockResolvedValue(true);
 
@@ -101,9 +100,20 @@ describe('profile getStaticProps', () => {
   });
 
   it('rethrows unexpected errors rather than hiding them as a 404', async () => {
-    const boom = { response: { errors: [{ extensions: { code: 'BOOM' } }] } };
-    mockedGetProfile.mockRejectedValue(boom);
+    const boom = new Error('boom');
+    mockedGetProfileForStaticProps.mockRejectedValue(boom);
 
     await expect(getStaticProps(context('kramer'))).rejects.toEqual(boom);
+  });
+
+  it('forwards a world profile notFound result unchanged', async () => {
+    mockedGetProfileForStaticProps.mockResolvedValue({ status: 'notFound' });
+
+    await expect(getWorldStaticProps(context('blocked-user'))).resolves.toEqual(
+      {
+        notFound: true,
+        revalidate: 60,
+      },
+    );
   });
 });
