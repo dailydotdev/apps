@@ -36,6 +36,7 @@ import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { postWithCommunitySentiment } from '@dailydotdev/shared/__tests__/fixture/post';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
   completeActionMock,
@@ -634,13 +635,25 @@ it('should show both stats when they are greater than zero', async () => {
   expect(el).toHaveTextContent('7 Upvotes15 Comments');
 });
 
-it('should show impressions when it is greater than zero', async () => {
+it('should show impressions to the author', async () => {
   renderPost({}, [
-    createPostMock({ analytics: { impressions: 15 } }),
+    createPostMock({
+      analytics: { impressions: 15 },
+      author: { id: defaultUser.id } as Post['author'],
+    }),
     createCommentsMock(),
   ]);
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('15 Impressions');
+});
+
+it('should hide impressions from a reader who is not the author', async () => {
+  renderPost({}, [
+    createPostMock({ analytics: { impressions: 15 }, numUpvotes: 15 }),
+    createCommentsMock(),
+  ]);
+  const el = await screen.findByTestId('statsBar');
+  expect(el).not.toHaveTextContent('15 Impressions');
 });
 
 it('should hide the comments sort toggle when the comments empty state shows', async () => {
@@ -1200,6 +1213,38 @@ describe('post redesign', () => {
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+  });
+
+  it('should show community sentiment in the classic layout when the redesign flag is off', async () => {
+    mockRedesignOn = false;
+    renderPost({}, [
+      createPostMock({
+        communitySentiment: postWithCommunitySentiment.communitySentiment,
+      }),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByRole('region', {
+        name: 'What the community thinks',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('should show community sentiment in the redesign layout when the redesign flag is on', async () => {
+    mockRedesignOn = true;
+    renderPost({}, [
+      createPostMock({
+        communitySentiment: postWithCommunitySentiment.communitySentiment,
+      }),
+      createCommentsMock(),
+    ]);
+
+    expect(
+      await screen.findByRole('region', {
+        name: 'What the community thinks',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('should keep the classic layout for author onboarding even when the flag is on', async () => {

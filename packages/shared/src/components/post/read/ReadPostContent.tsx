@@ -158,7 +158,7 @@ export function ReadPostContent({
           className={classNames(
             leaderboardReleased
               ? 'contents'
-              : 'sticky top-0 z-postNavigation bg-background-default laptop:contents',
+              : 'sticky top-[var(--phone-top-ad-height,0px)] z-postNavigation bg-background-default laptop:contents',
           )}
         >
           <ReadTopLeaderboard released={leaderboardReleased} />

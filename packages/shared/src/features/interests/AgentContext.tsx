@@ -318,14 +318,7 @@ const turnsToMessages = ({
     const blocks = mapServerBlocks(turn, postsById, allPosts);
 
     if (!isPending && !isError && !blocks.length && !turn.summaryPostId) {
-      // A quiet run delivered nothing; a command still deserves an answer.
-      if (turn.trigger !== InterestRunTrigger.Command) {
-        return acc;
-      }
-      blocks.push({
-        type: 'text',
-        html: '<p>Done. Nothing new cleared your bar this run.</p>',
-      });
+      return acc;
     }
 
     acc.push({

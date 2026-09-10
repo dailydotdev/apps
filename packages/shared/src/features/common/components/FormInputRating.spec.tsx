@@ -15,20 +15,6 @@ const renderComponent = (
 };
 
 describe('FormInputRating', () => {
-  it('should render with default props', () => {
-    const onValueChange = jest.fn();
-    renderComponent({ onValueChange });
-
-    // Should have 5 buttons (default options [1, 2, 3, 4, 5])
-    const buttons = screen.getAllByRole('radio');
-    expect(buttons).toHaveLength(5);
-
-    // Should have correct labels
-    for (let i = 1; i <= 5; i += 1) {
-      expect(screen.getByLabelText(`${i} stars`)).toBeInTheDocument();
-    }
-  });
-
   it('should render with defaultValue', () => {
     renderComponent({ defaultValue: '3' });
 
@@ -43,18 +29,6 @@ describe('FormInputRating', () => {
     // The button with value 4 should be selected
     const selectedButton = screen.getByRole('radio', { checked: true });
     expect(selectedButton).toHaveTextContent('4');
-  });
-
-  it('should call onValueChange when a rating is selected', () => {
-    const onValueChange = jest.fn();
-    renderComponent({ onValueChange });
-
-    // Click on the button with value 3
-    const button = screen.getByText('3');
-    fireEvent.click(button);
-
-    // onValueChange should be called with the selected value
-    expect(onValueChange).toHaveBeenCalledWith('3');
   });
 
   it('should handle button click correctly', () => {

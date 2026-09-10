@@ -21,6 +21,8 @@ import {
   Variant,
 } from '../surfaceChrome';
 
+/** CustomFeedOptionsMenu — the same two items on tags, sources and profiles. */
+
 const Options = () => (
   <Button
     aria-label="Options"
@@ -82,7 +84,7 @@ const TagScreen = ({ device }: { device: DeviceName }) => (
         >
           Block
         </Button>
-        <Control />
+        <Control action="Link" />
         <Options />
       </div>
     </header>
@@ -100,7 +102,11 @@ const SourceScreen = ({ device }: { device: DeviceName }) => (
       </span>
 
       <div className="flex items-center font-bold">
-        <img alt="" className="size-10 rounded-full object-cover" src={AVATAR} />
+        <img
+          alt=""
+          className="size-10 rounded-full object-cover"
+          src={AVATAR}
+        />
         <h1 className="ml-2 w-fit text-text-primary typo-title2">
           XDA Developers
         </h1>
@@ -116,7 +122,7 @@ const SourceScreen = ({ device }: { device: DeviceName }) => (
           size={ButtonSize.Small}
           variant={ButtonVariant.Float}
         />
-        <Control />
+        <Control action="Link" />
         <Options />
       </div>
 
@@ -140,146 +146,55 @@ const SourceScreen = ({ device }: { device: DeviceName }) => (
 
 /* ----------------------------------------------------------------- squads */
 
-/** SquadGrid: banner, overlapping logo, then a full-width Join at the foot. */
-const FeaturedSquadCard = () => (
-  <div className="flex w-72 shrink-0 flex-col overflow-hidden rounded-16 border border-accent-cabbage-default bg-background-subtle">
-    <div className="h-16 w-full bg-accent-onion-bolder" />
-    <div className="-mt-8 flex flex-col gap-2 p-4">
-      <div className="flex items-end justify-between">
-        <img alt="" className="size-16 rounded-full object-cover" src={AVATAR} />
-        <span className="rounded-10 bg-surface-float px-2 py-1 text-text-tertiary typo-caption2">
-          5.1K
-        </span>
-      </div>
-      <span className="font-bold text-text-primary typo-title3">
-        Agentic Engineering
-      </span>
-      <span className="text-text-secondary typo-callout">agentic</span>
-      <p className="text-text-secondary typo-footnote">
-        Everything about agentic engineering and vibe coding.
-      </p>
-      <div className="mt-2 flex items-center gap-2">
-        <Button
-          className="flex-1"
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Secondary}
-        >
-          Join Squad
-        </Button>
-        <Control />
-      </div>
-    </div>
-  </div>
-);
-
-/** UnfeaturedSquadGrid: logo and Join on one row, body beneath. */
-const DirectorySquadCard = () => (
-  <div className="flex w-72 shrink-0 flex-col rounded-16 bg-background-subtle p-4">
-    <div className="mb-3 flex items-center justify-between">
-      <img alt="" className="size-16 rounded-full object-cover" src={AVATAR} />
-      <div className="flex items-center gap-2">
-        <Control />
-        <Button size={ButtonSize.Medium} variant={ButtonVariant.Secondary}>
+/** SquadEntityCard: w-80, image and actions on one row, body under it. */
+const SquadCard = () => (
+  <div className="flex w-80 shrink-0 flex-col items-center rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4">
+    <div className="flex w-full items-start justify-between gap-2">
+      <img alt="" className="size-10 rounded-full object-cover" src={AVATAR} />
+      <div className="relative flex items-center gap-2">
+        <Control action="Link" />
+        <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
           Join
         </Button>
+        {/* SquadHeaderMenu — `invisible group-hover/menu:visible`. */}
+        <Button
+          aria-label="Options"
+          icon={<MenuIcon />}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+        />
       </div>
     </div>
-    <span className="font-bold text-text-primary typo-body">Learn Python</span>
-    <p className="text-text-secondary typo-callout">
-      Welcome to the Learn Python community.
-    </p>
-    <span className="mt-2 text-text-tertiary typo-footnote">
-      @lpython · 27.4K members
-    </span>
+    <div className="mt-3 flex w-full flex-col gap-2">
+      <span className="font-bold text-text-primary typo-body">
+        Frontend Fans
+      </span>
+      <p className="text-text-secondary typo-footnote">
+        Everything CSS, React and the browser. Ship it and show it.
+      </p>
+      <span className="flex items-center gap-1 text-text-tertiary typo-footnote">
+        2.4K Members
+        <span aria-hidden>·</span>
+        12K Upvotes
+      </span>
+    </div>
   </div>
 );
 
 const SquadScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     <div className="flex flex-col gap-4 p-4">
-      <h1 className="font-bold text-text-primary typo-title2">Featured</h1>
+      <h1 className="font-bold text-text-primary typo-title2">Squads</h1>
       <div className="flex gap-4 overflow-hidden">
-        <FeaturedSquadCard />
-        {device === 'Desktop' && <FeaturedSquadCard />}
+        <SquadCard />
       </div>
-      <h2 className="font-bold text-text-primary typo-title3">Languages</h2>
-      <div className="flex gap-4 overflow-hidden">
-        <DirectorySquadCard />
-        {device === 'Desktop' && <DirectorySquadCard />}
-      </div>
-    </div>
-  </Device>
-);
-
-/* ----------------------------------------------------- squad page & rows */
-
-/** SquadHeaderBar: the control joins the icon cluster after the bell. */
-const SquadPageScreen = ({ device }: { device: DeviceName }) => (
-  <Device name={device}>
-    <div className="flex flex-col gap-3 p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Button size={ButtonSize.Small} variant={ButtonVariant.Secondary}>
-          Invitation link
-        </Button>
-        <Button
-          aria-label="Squad notifications settings"
-          icon={<BellIcon />}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Float}
-        />
-        <Control />
-        <Options />
-      </div>
-      <div className="flex items-center gap-2">
-        <img alt="" className="size-16 rounded-full object-cover" src={AVATAR} />
-        <div className="flex flex-col">
-          <span className="font-bold text-text-primary typo-title2">
-            TheCoverLikers
-          </span>
-          <span className="text-text-tertiary typo-footnote">
-            @thecoverlikers · Created Feb 2023
-          </span>
-        </div>
-      </div>
-    </div>
-  </Device>
-);
-
-/** SourceTopList: four ranked lists, the control revealed per row on hover. */
-const SourceRowsScreen = ({ device }: { device: DeviceName }) => (
-  <Device name={device}>
-    <div className="flex flex-col gap-3 p-4">
-      <h1 className="font-bold text-text-primary typo-title3">
-        Trending sources
-      </h1>
-      {['Joud Awad', 'Work Chronicles', 'Appwrite'].map((name, index) => (
-        <div
-          key={name}
-          className={`flex items-center gap-2 rounded-8 px-2 py-1 ${
-            index === 0 ? 'bg-surface-float' : ''
-          }`}
-        >
-          <span className="w-6 text-text-quaternary typo-callout">
-            {index + 1}
-          </span>
-          <img
-            alt=""
-            className="size-8 rounded-full object-cover"
-            src={AVATAR}
-          />
-          <span className="flex-1 truncate text-text-primary typo-caption1">
-            {name}
-          </span>
-          {index === 0 && <Control />}
-        </div>
-      ))}
     </div>
   </Device>
 );
 
 /* ---------------------------------------------------------------- archive */
 
-/** ArchiveIndexPage: a month grid, no posts and no feed controls. */
+/** ArchiveIndexPage: a month grid, no posts and no controls. */
 const ArchiveScreen = ({ device }: { device: DeviceName }) => (
   <Device name={device}>
     <div className="flex flex-col gap-4 py-4">
@@ -294,7 +209,7 @@ const ArchiveScreen = ({ device }: { device: DeviceName }) => (
         >
           Best of XDA Developers &mdash; Archive
         </h1>
-        <Control />
+        <Control action="Link" />
       </div>
 
       <div className="flex flex-col gap-4 px-4">
@@ -345,8 +260,8 @@ const Rails = ({
 
 const Directories = () => (
   <SurfacePage
-    intro="Tags, sources, squads and archives all end in a live feed, and each one now carries a copy link of its own. What differs is the frame around it — no two of these headers are laid out the same way, so the same control lands in a different place on each."
-    map="Sharing map: Copy link leads on all of them (#6357, #6363, #6364). These are live pages — an image of a tag says nothing a feed does not, and the point of a squad share is joining. No snapshot on any of them."
+    intro="Tags, sources, squads and archives all end in a live feed, and all four put sharing behind the same ⋯ menu. What differs is the frame around it — and no two of these four headers are laid out the same way."
+    map="Sharing map: Copy link leads on all of them (#6357, #6363, #6364). These are live pages — an image of a tag says nothing a feed does not, and the point of a squad share is joining."
     title="Topic & directory pages"
   >
     <Category
@@ -356,7 +271,7 @@ const Directories = () => (
     >
       <Variant
         headline="Copy link in the button row"
-        note="Sits between Block and the ⋯, matched to them at Small. The row is centred, so the extra control shifts everything — worth checking against the Sponsored hero above it."
+        note="Recommended. Sits between Block and the ⋯, matched to them at Small. The row is centred, so an extra control shifts everything — worth checking against the Sponsored hero above it."
         step="Shipping"
       >
         <Rails Screen={TagScreen} />
@@ -370,7 +285,7 @@ const Directories = () => (
     >
       <Variant
         headline="Copy link beside the bell"
-        note="Cheaper here than on the tag page: the row is left-aligned and already mixes labeled and icon buttons, so one more icon costs nothing and moves nothing."
+        note="Recommended, and cheaper here than on the tag page: the row is left-aligned and already mixes labeled and icon buttons, so one more icon costs nothing."
         step="Shipping"
       >
         <Rails Screen={SourceScreen} />
@@ -378,13 +293,13 @@ const Directories = () => (
     </Category>
 
     <Category
-      covers="SquadGrid.tsx · UnfeaturedSquadGrid.tsx"
-      title="Squad directory cards"
-      verdict="Two shapes on one page. The featured card is a banner with an overlapping logo and a full-width Join at the foot; the rest are flat cards with the logo and Join on one row. Sharing lived in a ⋯ that only appeared on hover, so on touch there was no share route at all."
+      covers="SquadEntityCard.tsx · EntityCard.tsx · SquadHeaderMenu"
+      title="Squad directory card"
+      verdict="A w-80 card: logo top-left, Join and ⋯ top-right, then name, description and ‘2.4K Members · 12K Upvotes’. The ⋯ is `invisible group-hover/menu:visible` — so on touch there is no share route at all."
     >
       <Variant
-        headline="Copy link beside Join"
-        note="Always there on the featured card, which carries one squad at full size. The flatter cards sit many to a row, so the control waits for hover where hover exists and stays put below laptop."
+        headline="A persistent copy-link icon"
+        note="Recommended. Always visible, so it works on touch, and placed before Join so it never competes with the conversion button."
         step="Shipping"
       >
         <Rails Screen={SquadScreen} />
@@ -392,41 +307,13 @@ const Directories = () => (
     </Category>
 
     <Category
-      covers="SquadHeaderBar.tsx"
-      title="Squad page"
-      verdict="A wrapping cluster of controls above the squad identity: invitation link, the bell for members, analytics for moderators, then the ⋯."
-    >
-      <Variant
-        headline="Copy link after the bell"
-        note="Shares the bell's order so the two stay adjacent as the row wraps. Rendered for non-members too, since a public squad link is worth sharing before joining."
-        step="Shipping"
-      >
-        <Rails Screen={SquadPageScreen} />
-      </Variant>
-    </Category>
-
-    <Category
-      covers="SourceTopList.tsx"
-      title="Source directory lists"
-      verdict="Four ranked lists — trending, popular, recently added, top video. Each row is a rank, an avatar and a handle, with no controls of any kind."
-      >
-      <Variant
-        headline="Copy link revealed per row"
-        note="Hover-revealed from laptop up and always present below it, so touch keeps a route. It fades rather than unmounting, which keeps the button reachable by keyboard."
-        step="Shipping"
-      >
-        <Rails Screen={SourceRowsScreen} />
-      </Variant>
-    </Category>
-
-    <Category
       covers="ArchiveIndexPage.tsx"
       title="Best of / archive"
-      verdict="This page has no post list and no controls of any kind — breadcrumbs, an H1, and a grid of month tiles. The most linkable thing we publish, with nothing on it."
+      verdict="Corrected: this page has no post list and no controls of any kind. It is breadcrumbs, an H1, and a grid of month tiles — the most linkable thing we publish, with nothing on it."
     >
       <Variant
         headline="Copy link beside the heading"
-        note="Evergreen pages are worth landing on, so the link is the gift, and the heading row was empty. No snapshot: the page is a month grid rather than content, so an image would have to be generated from data instead of captured."
+        note="Recommended. Evergreen pages are worth landing on, so the link is the gift, and the heading row is empty."
         step="Shipping"
       >
         <Rails Screen={ArchiveScreen} />

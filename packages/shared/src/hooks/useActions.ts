@@ -5,6 +5,7 @@ import type { Action, ActionType } from '../graphql/actions';
 import { completeUserAction, getUserActions } from '../graphql/actions';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
+import { useShellState } from '../contexts/ShellStateContext';
 
 interface UseActions {
   actions: Action[];
@@ -21,6 +22,7 @@ interface ActionQueryData {
 export const useActions = (): UseActions => {
   const client = useQueryClient();
   const { user } = useAuthContext();
+  const { isSettled } = useShellState();
   const actionsKey = generateQueryKey(RequestKey.Actions, user);
 
   const { data, isPending } = useQuery({
@@ -39,7 +41,7 @@ export const useActions = (): UseActions => {
 
       return { actions: [...current, ...filtered], serverLoaded: true };
     },
-    enabled: !!user,
+    enabled: !!user && isSettled,
     ...disabledRefetch,
   });
 

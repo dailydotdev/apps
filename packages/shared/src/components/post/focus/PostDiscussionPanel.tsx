@@ -28,6 +28,7 @@ import { SortCommentsBy } from '../../../graphql/comments';
 import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
+import { EndOfThreadShare } from '../../../features/snapshot/EndOfThreadShare';
 
 const CommentInput = dynamic(
   () =>
@@ -208,6 +209,11 @@ export const PostDiscussionPanel = ({
           removeTopSpacing
         />
       </div>
+      <EndOfThreadShare
+        className="mt-2"
+        commentsCount={commentsCount}
+        post={post}
+      />
       {showMetaBar && (
         <div className="flex shrink-0 flex-col gap-3 pt-3">
           <DiscussionMetaBar post={post} />

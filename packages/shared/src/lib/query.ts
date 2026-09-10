@@ -190,6 +190,7 @@ export enum RequestKey {
   Ads = 'ads',
   FeedByIds = 'feedByIds',
   SlackChannels = 'slack_channels',
+  IntegrationRecentChannels = 'integration_recent_channels',
   UserIntegrations = 'user_integrations',
   UserSourceIntegrations = 'user_source_integrations',
   SourceFeed = 'sourceFeed',
@@ -299,6 +300,8 @@ export enum RequestKey {
   WorldDomainRanking = 'world_domain_ranking',
   WorldRecentLevelUps = 'world_recent_level_ups',
   FollowedWorlds = 'followed_worlds',
+  ShellState = 'shell_state',
+  AchievementTracker = 'achievement_tracker',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

@@ -7,7 +7,12 @@ export type RecentPage = {
   path: string;
   title: string;
   type?: RecentPageType;
+  // Avatar/logo captured by the page that already loaded the entity, so the
+  // sidebar row renders it without a lookup of its own.
+  image?: string;
 };
+
+export type RecentPageMeta = Pick<RecentPage, 'image'>;
 
 const STORAGE_KEY = 'dailydev:recentPages';
 const MAX_RECENT = 5;
@@ -16,6 +21,9 @@ const MAX_RECENT = 5;
 // layout and the reader in the sidebar share one reactive list.
 let cache: RecentPage[] | null = null;
 const listeners = new Set<() => void>();
+// The entity page has its metadata on mount, but the recorder only writes the
+// entry once the document title settles, so meta arrives first and waits here.
+const pendingMeta = new Map<string, RecentPageMeta>();
 
 const readStorage = (): RecentPage[] => {
   if (typeof window === 'undefined') {
@@ -52,14 +60,50 @@ export const subscribeRecentPages = (listener: () => void): (() => void) => {
   };
 };
 
+const persist = (next: RecentPage[]): void => {
+  cache = next;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // ignore storage quota / privacy-mode failures
+  }
+  listeners.forEach((listener) => listener());
+};
+
+export const updateRecentPageMeta = (
+  path: string,
+  meta: RecentPageMeta,
+): void => {
+  if (typeof window === 'undefined' || !path || !meta.image) {
+    return;
+  }
+
+  const current = getRecentPages();
+  const index = current.findIndex((page) => page.path === path);
+  if (index === -1) {
+    pendingMeta.set(path, meta);
+    return;
+  }
+
+  if (current[index].image === meta.image) {
+    return;
+  }
+
+  const next = [...current];
+  next[index] = { ...next[index], ...meta };
+  persist(next);
+};
+
 export const recordRecentPage = (entry: RecentPage): void => {
   if (typeof window === 'undefined' || !entry.path || !entry.title) {
     return;
   }
 
   const current = getRecentPages();
+  const head = { ...entry, ...pendingMeta.get(entry.path) };
+  pendingMeta.delete(entry.path);
   const next = [
-    entry,
+    head,
     ...current.filter((page) => page.path !== entry.path),
   ].slice(0, MAX_RECENT);
 
@@ -68,16 +112,11 @@ export const recordRecentPage = (entry: RecentPage): void => {
   const isNoop =
     current.length === next.length &&
     current.every((page, index) => page.path === next[index].path) &&
-    current[0]?.title === next[0]?.title;
+    current[0]?.title === next[0]?.title &&
+    current[0]?.image === next[0]?.image;
   if (isNoop) {
     return;
   }
 
-  cache = next;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    // ignore storage quota / privacy-mode failures
-  }
-  listeners.forEach((listener) => listener());
+  persist(next);
 };

@@ -46,7 +46,6 @@ export enum InterestRunStatus {
 
 export enum InterestRunTrigger {
   Spawn = 'spawn',
-  Command = 'command',
   Scheduled = 'scheduled',
   Onboarding = 'onboarding',
 }

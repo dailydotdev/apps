@@ -99,6 +99,19 @@ on the extension. **absolute** = href starts with `webappUrl`.
 | Game Center settings | `${webappUrl}game-center/settings` | OK |
 | New post menu rows | no path, action only → button | OK |
 
+## Beyond the sidebar: page headers
+
+The same contract applies to any shared header that renders feed paths, and the
+Explore sort tabs are the case that got missed.
+
+| Surface | v1 (production) | v2 before | Extension result | Fix |
+|---|---|---|---|---|
+| **Explore sort tabs** | `FeedExploreHeader` branches on `isExtension` → `TabList` of buttons, `onTabChange` switches the feed in place (`Best of` opens the webapp in a new tab) | `FeedExploreTabs` renders `SquadDirectoryNavbarItem` with `/posts…` as a plain link, no extension branch | `chrome-extension://<id>/posts` | Takes `tab`/`setTab` — the same pair v1 hands `FeedExploreHeader` — and renders buttons on the extension |
+
+Note the header cannot derive the active sort from the route on the extension:
+the new tab never navigates, so the sort lives in `MainFeedLayout`'s state.
+Route-derived active matching stays on the webapp, where each sort is a route.
+
 ## Keeping it fixed
 
 `sidebarLinks.spec.ts` asserts every shortcut-catalog entry is absolute and
@@ -113,3 +126,6 @@ When adding a sidebar row, pick one:
 - **switches the feed in place** → relative path + `action`, and make sure the
   section receives `isItemsButton={isNavButtons ?? false}`;
 - **opens a modal/panel** → no path, `action` only.
+
+Shared page headers get the same three-way choice. `FeedExploreTabs.spec.tsx`
+pins the Explore tabs to it on both platforms.

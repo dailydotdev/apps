@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import type { ComponentProps, ReactElement } from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -29,6 +29,11 @@ import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
+import { Origin } from '../../../lib/log';
+import { TextSnapshotButton } from '../../../features/snapshot/TextSnapshotButton';
+import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
+import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
+import { feature } from '../../../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
@@ -36,12 +41,6 @@ import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
 import { combinedClicks, withSelectionGuard } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import {
-  feature,
-  featureCommunitySentiment,
-} from '../../../lib/featureManagement';
-import { isDevelopment } from '../../../lib/constants';
 import { SourceStrip } from '../reader/SourceStrip';
 import Link from '../../utilities/Link';
 import HoverCard from '../../cards/common/HoverCard';
@@ -58,6 +57,7 @@ import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
+import { PostContentShare } from '../common/PostContentShare';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
 import {
@@ -120,7 +120,13 @@ const SHOW_MORE_SUFFIX = '… Show more';
  * overlay. The fitting prefix is measured with an off-screen clone so the
  * suffix always lands on the last visible line.
  */
-const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
+const VideoSummary = ({
+  summary,
+  trailing,
+}: {
+  summary: string;
+  trailing?: ReactNode;
+}): ReactElement => {
   const ref = useRef<HTMLParagraphElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   // `null` => not measured yet or text fits; a string => the truncated prefix.
@@ -219,6 +225,7 @@ const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
       ) : (
         summary
       )}
+      {trailing}
     </p>
   );
 };
@@ -234,6 +241,11 @@ const PostFocusCardRaw = ({
   // treatment — auto-written articles/freeform posts render their own source.
   const isShared = post.type === PostType.Share && !!post.sharedPost;
   const article = (isShared ? post.sharedPost : post) as Post;
+  // The selection is scoped to the card, so a quote can only come from the
+  // post's own body — not the comments or the rail beside it.
+  const cardRef = useRef<HTMLElement>(null);
+  // A markdown body has no summary to trail, so the copy sits per paragraph.
+  const bodyRef = useRef<HTMLDivElement>(null);
   const isCollection = article.type === PostType.Collection;
   // Posts authored by a user (shared, freeform, welcome) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
@@ -270,19 +282,7 @@ const PostFocusCardRaw = ({
   const communitySentimentData = article.communitySentiment
     ? mapCommunitySentimentPost(article.communitySentiment)
     : undefined;
-  // Conditional enrollment: only evaluate (and log exposure for) the
-  // community_sentiment experiment on posts that actually have a take, so
-  // take-less posts don't dilute the treatment/control split. Backend keeps
-  // generating the take for every eligible post regardless of this flag.
-  const { value: communitySentimentEnabled } = useConditionalFeature({
-    feature: featureCommunitySentiment,
-    shouldEvaluate: !!communitySentimentData,
-  });
-  // Only when the post actually has a take. `isDevelopment` lets the surface be
-  // previewed locally without flipping the committed (always-`false`) flag
-  // default.
-  const showCommunitySentiment =
-    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
+  const showCommunitySentiment = !!communitySentimentData;
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
@@ -342,20 +342,37 @@ const PostFocusCardRaw = ({
     : readCtaLabel;
 
   const postBody = article.contentHtml ? (
-    <>
+    <div ref={bodyRef} className="flex flex-col gap-4">
       <Markdown content={article.contentHtml} className="break-words" />
+      <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
       <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
-    </>
+    </div>
   ) : (
     article.summary &&
     (isVideoType ? (
-      <VideoSummary summary={article.summary} />
+      <VideoSummary
+        summary={article.summary}
+        trailing={
+          <TextSnapshotButton
+            filename={`daily-summary-${article.id}`}
+            origin={Origin.PostSummary}
+            post={article}
+            text={article.summary}
+          />
+        }
+      />
     ) : (
       <p
         className="select-text break-words text-text-secondary typo-markdown"
         data-testid="tldr-container"
       >
         {article.summary}
+        <TextSnapshotButton
+          filename={`daily-summary-${article.id}`}
+          origin={Origin.PostSummary}
+          post={article}
+          text={article.summary}
+        />
       </p>
     ))
   );
@@ -398,9 +415,11 @@ const PostFocusCardRaw = ({
 
   return (
     <article
+      ref={cardRef}
       className="flex w-full flex-col rounded-24 bg-background-default"
       data-testid="post-focus-card"
     >
+      <SelectionSnapshotBar containerRef={cardRef} post={article} />
       <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
@@ -449,13 +468,12 @@ const PostFocusCardRaw = ({
                   buttonProps={{ size: ButtonSize.Small }}
                 />
               )}
-              <div className="[&_svg]:rotate-90">
-                <PostMenuOptions
-                  post={post}
-                  origin={origin}
-                  buttonSize={ButtonSize.Medium}
-                />
-              </div>
+              <PostMenuOptions
+                post={post}
+                origin={origin}
+                buttonSize={ButtonSize.Medium}
+                menuTriggerClassName="[&_svg]:rotate-90"
+              />
             </div>
           </div>
 
@@ -680,6 +698,11 @@ const PostFocusCardRaw = ({
             onCopyLinkClick={onCopyPostLink}
             className="my-2"
           />
+
+          {/* Directly under the upvote that raises it — the classic page gets
+              this from PostEngagements, in the same place. No margin: this
+              column is gap-4, and one of its own would double the air above. */}
+          <PostContentShare className="" post={post} />
 
           {!onClose && <PostAnsweredQuestions post={article} />}
 

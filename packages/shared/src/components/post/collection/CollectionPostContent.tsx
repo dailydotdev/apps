@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from '../../utilities/Link';
 import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
@@ -11,6 +11,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
+import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
@@ -25,13 +26,17 @@ import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { isPostUpdated, type Post } from '../../../graphql/posts';
 import { pluralize } from '../../../lib/strings';
 import { TRENDS_SOURCE_ID } from '../../../lib/utils';
+import {
+  CommunitySentiment,
+  mapCommunitySentimentPost,
+} from '../focus/CommunitySentiment';
 import { getCollectionPillLabel, isTrendsPost } from './common';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
 };
 
-const CollectionPostContentRaw = ({
+export const CollectionPostContentRaw = ({
   post,
   className = {},
   shouldOnboardAuthor,
@@ -56,11 +61,16 @@ const CollectionPostContentRaw = ({
   });
   const { createdAt, updatedAt, contentHtml, image, numCollectionSources } =
     post;
+  const bodyRef = useRef<HTMLDivElement>(null);
   const wasUpdated = isPostUpdated(post);
   const dateToShow = wasUpdated ? updatedAt : createdAt;
   const hasSources = !!numCollectionSources && numCollectionSources > 0;
   const sourceId = isTrendsPost(post) ? TRENDS_SOURCE_ID : 'collections';
   const { onCopyPostLink, onReadArticle } = engagementActions;
+  const communitySentimentData = post.communitySentiment
+    ? mapCommunitySentimentPost(post.communitySentiment)
+    : undefined;
+  const showCommunitySentiment = !!communitySentimentData;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -185,7 +195,13 @@ const CollectionPostContentRaw = ({
                 />
               </div>
             )}
-            <Markdown content={contentHtml ?? ''} />
+            <div ref={bodyRef}>
+              <Markdown content={contentHtml ?? ''} />
+              <ParagraphSnapshotButtons containerRef={bodyRef} post={post} />
+            </div>
+            {showCommunitySentiment && (
+              <CommunitySentiment data={communitySentimentData} />
+            )}
           </div>
         </BasePostContent>
       </PostContainer>

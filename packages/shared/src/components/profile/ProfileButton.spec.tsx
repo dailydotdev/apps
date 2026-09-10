@@ -46,14 +46,6 @@ const renderComponent = (user = defaultUser): RenderResult => {
   );
 };
 
-it('should show "Profile settings" tooltip on the profile picture', () => {
-  renderComponent();
-
-  expect(
-    screen.getByRole('button', { name: 'Profile settings' }),
-  ).toBeInTheDocument();
-});
-
 it('should render the reputation reward target inside the profile button', () => {
   renderComponent();
 

@@ -28,6 +28,7 @@ import {
   hasLiveAdsenseUnits,
 } from '@dailydotdev/shared/src/features/monetization/adsense';
 import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdsenseSlots';
+import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { AdsenseHeadHints } from '../../components/AdsenseHeadHints';
 import { getLayout } from '../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../components/layouts/FooterNavBarLayout';
@@ -194,7 +195,9 @@ ReadPostPage.layoutProps = {
   screenCentered: false,
   showSidebar: false,
   hideFeedbackWidget: true,
-  // No customBanner on purpose: that is what mounts CustomAuthBanner.
+  // Only the pinned phone ad here, never CustomAuthBanner: this template
+  // carries no auth banner.
+  customBanner: <PhoneTopAdStrip surface="read" />,
 };
 
 export default ReadPostPage;
@@ -245,7 +248,7 @@ export async function getStaticProps({
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       ...noindexSeoProps,
-      // The article's own cover rather than the og.daily.dev generated card:
+      // The article's own cover rather than the generated share card:
       // an ad-bought click should land on exactly the image that sold it.
       ...(post.image && {
         openGraph: {

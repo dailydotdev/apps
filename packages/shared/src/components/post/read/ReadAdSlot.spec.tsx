@@ -117,10 +117,12 @@ describe('ReadAdSlot', () => {
     setSlots({ '3': { id: '1234567890', type: 'display' } });
     render(<ReadAdSlot slot={3} format={ReadAdFormat.MediumRectangle} eager />);
 
-    // Left on `auto`, a 300px-wide slot is free to answer with a 300x600.
+    // Left on `auto`, a 300px-wide slot is free to answer with a 300x600;
+    // left on the phone default, the ins stretches to the screen width and
+    // overflows the card.
     const ins = screen.getByTestId('adsense-slot-3');
     expect(ins).toHaveAttribute('data-ad-format', 'rectangle');
-    expect(ins).not.toHaveAttribute('data-full-width-responsive');
+    expect(ins).toHaveAttribute('data-full-width-responsive', 'false');
   });
 
   it('keeps banners horizontal so a rectangle cannot fill them', () => {
@@ -232,6 +234,7 @@ describe('ReadAdSlot', () => {
     );
     expect(ins).toHaveStyle({ width: '300px', height: '250px' });
     expect(ins).not.toHaveAttribute('data-ad-format');
+    expect(ins).toHaveAttribute('data-full-width-responsive', 'false');
   });
 
   it('never renders for logged-in users', () => {

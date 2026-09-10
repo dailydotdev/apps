@@ -1,7 +1,6 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import post, {
   postWithCommunitySentiment,
@@ -10,7 +9,6 @@ import post, {
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
-import { featureCommunitySentiment } from '../../../lib/featureManagement';
 import { getPostByIdKey } from '../../../lib/query';
 import { PostFocusCard } from './PostFocusCard';
 
@@ -51,16 +49,12 @@ const sharedFreeformPost: Post = {
 const renderCard = (
   postToRender: Post,
   options: {
-    gb?: GrowthBook;
     onClose?: () => void;
     client?: QueryClient;
   } = {},
 ) =>
   render(
-    <TestBootProvider
-      client={options.client ?? new QueryClient()}
-      gb={options.gb}
-    >
+    <TestBootProvider client={options.client ?? new QueryClient()}>
       <PostFocusCard
         post={postToRender}
         origin={Origin.ArticlePage}
@@ -119,15 +113,8 @@ describe('PostFocusCard opening the source article', () => {
 });
 
 describe('PostFocusCard community sentiment', () => {
-  it('renders in the post modal when the flag is enabled', () => {
-    const gb = new GrowthBook();
-    gb.setFeatures({
-      [featureCommunitySentiment.id]: {
-        defaultValue: true,
-      },
-    });
-
-    renderCard(postWithCommunitySentiment, { gb, onClose: jest.fn() });
+  it('renders in the post modal when the post has a take', () => {
+    renderCard(postWithCommunitySentiment, { onClose: jest.fn() });
 
     expect(
       screen.getByRole('region', { name: 'What the community thinks' }),
@@ -136,12 +123,6 @@ describe('PostFocusCard community sentiment', () => {
   });
 
   it('hydrates the take from the post-by-id cache when the feed post omits it', () => {
-    const gb = new GrowthBook();
-    gb.setFeatures({
-      [featureCommunitySentiment.id]: {
-        defaultValue: true,
-      },
-    });
     // Feed payloads omit `communitySentiment`, so the modal must read the
     // hydrated post from the post-by-id cache instead of the feed prop.
     const client = new QueryClient();
@@ -153,19 +134,61 @@ describe('PostFocusCard community sentiment', () => {
       communitySentiment: undefined,
     };
 
-    renderCard(feedPost, { gb, client, onClose: jest.fn() });
+    renderCard(feedPost, { client, onClose: jest.fn() });
 
     expect(
       screen.getByRole('region', { name: 'What the community thinks' }),
     ).toBeInTheDocument();
   });
 
-  it('stays hidden in the post modal when the flag is disabled', () => {
-    renderCard(postWithCommunitySentiment, { onClose: jest.fn() });
+  it('stays hidden in the post modal when the post has no take', () => {
+    renderCard(
+      { ...postWithCommunitySentiment, communitySentiment: null },
+      { onClose: jest.fn() },
+    );
 
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+/* The redesigned layout is what the post_redesign flag serves, and the share
+   placements were wired to the classic one first — these hold that line. */
+describe('PostFocusCard share placements', () => {
+  const QUOTE =
+    'They optimised the product they had instead of the one their customers were moving to.';
+  const summaryPost: Post = { ...post, summary: QUOTE };
+
+  beforeAll(() => {
+    // jsdom has no layout, and the bar refuses a selection it cannot place.
+    Range.prototype.getBoundingClientRect = () =>
+      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+  });
+
+  it('runs the summary snapshot into the end of the TLDR', () => {
+    renderCard(summaryPost);
+
+    expect(screen.getByTestId('tldr-container')).toContainElement(
+      screen.getByLabelText('Snapshot'),
+    );
+  });
+
+  it('offers a snapshot of a quote selected in the card', () => {
+    renderCard(summaryPost);
+
+    const node = screen.getByTestId('tldr-container').firstChild as Node;
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(node, node.textContent?.length ?? 0);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    fireEvent.pointerUp(document);
+
+    expect(
+      screen.getByRole('toolbar', { name: 'Share selected text' }),
+    ).toBeInTheDocument();
   });
 });
 

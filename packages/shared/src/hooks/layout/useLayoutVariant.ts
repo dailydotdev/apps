@@ -37,7 +37,7 @@ export const useLayoutVariant = (): UseLayoutVariant => {
   const { isV2, isLoading } = useLayoutVariantFlag();
 
   // The shell the mirrored route painted stands only until the flag can
-  // contradict it, so turning `layout_v2` off takes effect on this render
+  // contradict it, so turning `layout_v2_2` off takes effect on this render
   // rather than the next hard navigation. `isLaptop` is client-only and would
   // contradict what the server painted, so it applies from the second render
   // on: `isAuthReady` is false on the server and on the first client render,

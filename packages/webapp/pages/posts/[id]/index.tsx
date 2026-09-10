@@ -8,6 +8,7 @@ import {
   ReadAdSlot,
 } from '@dailydotdev/shared/src/components/post/read/ReadAdSlot';
 import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read/ReadTopLeaderboard';
+import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   ADSENSE_SCRIPT_SRC,
@@ -78,6 +79,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
@@ -217,6 +219,7 @@ export const PostPage = ({
       retry: false,
     },
   });
+  useSlackShareReturn({ post });
   const queryClient = useQueryClient();
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
@@ -440,7 +443,6 @@ export const PostPage = ({
                   <ReadTopLeaderboard
                     surface="organic"
                     slot={ORGANIC_SLOT.topLeaderboard}
-                    phoneSlot={ORGANIC_SLOT.topLeaderboardPhone}
                   />
                 ) : undefined
               }
@@ -509,7 +511,13 @@ export const PostPage = ({
 PostPage.getLayout = getLayout;
 PostPage.layoutProps = {
   screenCentered: false,
-  customBanner: <CustomAuthBanner />,
+  // Strip first: both pin, and the banner's top offset is the strip's height.
+  customBanner: (
+    <>
+      <PhoneTopAdStrip surface="organic" />
+      <CustomAuthBanner />
+    </>
+  ),
 };
 
 export default PostPage;
