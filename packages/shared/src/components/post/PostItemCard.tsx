@@ -6,6 +6,7 @@ import type { HidePostItemCardProps } from '../../graphql/users';
 import type { PostItem } from '../../graphql/posts';
 import { UserVote, isVideoPost } from '../../graphql/posts';
 import { MiniCloseIcon as XIcon, UpvoteIcon, DownvoteIcon } from '../icons';
+import { LinkIcon } from '../icons/Link';
 import classed from '../../lib/classed';
 import PostMetadata from '../cards/common/PostMetadata';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -13,7 +14,7 @@ import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useReadHistoryVotePost } from '../../hooks';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 import {
   Button,
   ButtonColor,
@@ -26,6 +27,11 @@ import { ReadingHistoryOptionsMenu } from '../history/ReadingHistoryOptionsMenu'
 import type { QueryIndexes } from '../../hooks/useReadingHistory';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
 import { CopyStateIcon } from '../share/CopyStateIcon';
+import { Tooltip } from '../tooltip/Tooltip';
+import { useLogContext } from '../../contexts/LogContext';
+import { postLogEvent } from '../../lib/feed';
+import { ReferralCampaignKey } from '../../lib/referral';
+import { ShareProvider } from '../../lib/share';
 
 export interface PostItemCardProps {
   className?: string;
@@ -70,7 +76,23 @@ export default function PostItemCard({
   const isUserSource = isSourceUserSource(source);
 
   const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost();
-  const [copying, copyLink] = useCopyPostLink(post.commentsPermalink);
+  const [linkCopied, copyLink] = useCopyPostLink();
+  const { logEvent } = useLogContext();
+
+  const onCopyLink = (e: MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    logEvent(
+      postLogEvent(LogEvent.SharePost, post, {
+        extra: { provider: ShareProvider.CopyLink, origin: logOrigin },
+      }),
+    );
+    copyLink({
+      link: post.commentsPermalink,
+      shorten: true,
+      cid: ReferralCampaignKey.SharePost,
+    });
+  };
 
   const classes = classNames(
     'relative flex w-full flex-row py-3 pl-9 pr-5',
@@ -191,17 +213,15 @@ export default function PostItemCard({
                 />
               )}
               {showButtons && showCopyLink && (
-                <Button
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  aria-label={copying ? 'Link copied' : 'Copy link'}
-                  icon={<CopyStateIcon copied={copying} />}
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    copyLink();
-                  }}
-                />
+                <Tooltip content="Copy link">
+                  <Button
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    aria-label="Copy link"
+                    icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
+                    onClick={onCopyLink}
+                  />
+                </Tooltip>
               )}
               {showButtons && (
                 <ReadingHistoryOptionsMenu
