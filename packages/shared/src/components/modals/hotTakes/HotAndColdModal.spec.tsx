@@ -273,6 +273,36 @@ describe('HotAndColdModal', () => {
     expect(screen.getAllByLabelText('Snapshot')).toHaveLength(1);
   });
 
+  it('should not swipe the card when a drag starts on the snapshot button', () => {
+    const currentTake = createHotTake('snapshot-drag');
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    const swipeRight = (from: Element) =>
+      act(() => {
+        fireEvent.touchStart(from, { touches: [{ clientX: 0, clientY: 0 }] });
+        fireEvent.touchMove(from, { touches: [{ clientX: 200, clientY: 0 }] });
+        fireEvent.touchEnd(from, { touches: [] });
+      });
+
+    swipeRight(screen.getByLabelText('Snapshot'));
+    expect(toggleUpvote).not.toHaveBeenCalled();
+
+    swipeRight(screen.getByText(currentTake.title));
+    expect(toggleUpvote).toHaveBeenCalledWith({
+      payload: currentTake,
+      origin: Origin.HotAndCold,
+    });
+  });
+
   it('should keep subtitle visible even when title is very long', () => {
     const currentTake = {
       ...createHotTake('long-text'),

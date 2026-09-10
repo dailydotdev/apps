@@ -1726,6 +1726,7 @@ const HotAndColdModal = ({
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [skipDelta, setSkipDelta] = useState(0);
   const swipeDeltaYRef = useRef(0);
+  const swipeStartedOnButtonRef = useRef(false);
   const [internalDismissedCardIds, setInternalDismissedCardIds] = useState<
     Set<string>
   >(() => new Set<string>());
@@ -2192,8 +2193,12 @@ const HotAndColdModal = ({
   };
 
   const handlers = useSwipeable({
+    onTouchStartOrOnMouseDown: ({ event }) => {
+      swipeStartedOnButtonRef.current =
+        event.target instanceof Element && !!event.target.closest('button');
+    },
     onSwiping: (e) => {
-      if (!isAnimating) {
+      if (!isAnimating && !swipeStartedOnButtonRef.current) {
         if (isOnboardingMode && e.event.cancelable) {
           e.event.preventDefault();
         }
