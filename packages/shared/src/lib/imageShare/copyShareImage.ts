@@ -1,50 +1,23 @@
 /**
  * Puts the PNG on the clipboard so it can be pasted straight into a chat or a
- * composer, with the post's link beside it as text: a rich composer takes the
- * image, a plain one takes the link, and neither leaves the reader having to
- * go back for the other half.
+ * composer. The image is the whole payload: a link written beside it arrives
+ * as a stray line of text in the composer, and the card already names where it
+ * came from.
  *
  * Safari only honours a clipboard write inside the task that handled the
  * gesture, so the blob is handed over as a promise rather than awaited first —
  * `ClipboardItem` resolves it without losing the gesture.
  */
-export async function copyShareImage(
-  blob: Promise<Blob>,
-  /** May still be resolving — the short link is fetched at press time. */
-  link?: string | Promise<string>,
-): Promise<boolean> {
+export async function copyShareImage(blob: Promise<Blob>): Promise<boolean> {
   if (typeof ClipboardItem === 'undefined' || !navigator.clipboard?.write) {
     return false;
   }
 
-  const write = async (item: ClipboardItem): Promise<boolean> => {
-    try {
-      await navigator.clipboard.write([item]);
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
 
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  if (link) {
-    const copied = await write(
-      new ClipboardItem({
-        'image/png': blob,
-        // A promise, not an awaited value: awaiting here would end the task
-        // that handled the gesture, and Safari refuses the write after that.
-        'text/plain': Promise.resolve(link).then(
-          (resolved) => new Blob([resolved], { type: 'text/plain' }),
-        ),
-      }),
-    );
-
-    if (copied) {
-      return true;
-    }
+    return true;
+  } catch {
+    return false;
   }
-
-  // Not every browser accepts two representations in one item, and the image
-  // is the half worth keeping when one of them has to go.
-  return write(new ClipboardItem({ 'image/png': blob }));
 }

@@ -17,8 +17,6 @@ import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useMutationSubscription, useVotePost } from '../../hooks';
 import { usePostActions } from '../../hooks/post/usePostActions';
-import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
-import { featurePostSharePrompts } from '../../lib/featureManagement';
 import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
@@ -72,9 +70,6 @@ function PostActionsV1({
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const { onInteract } = usePostActions({ post });
-  const areSharePromptsEnabled = useSharePlacement({
-    feature: featurePostSharePrompts,
-  });
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
 
@@ -108,7 +103,7 @@ function PostActionsV1({
 
     // PostContentShare listens for this, and only feed cards were raising it
     // — upvoting on the post page itself never prompted anything.
-    if (areSharePromptsEnabled && post?.userState?.vote !== UserVote.Up) {
+    if (post?.userState?.vote !== UserVote.Up) {
       onInteract('upvote');
     }
 

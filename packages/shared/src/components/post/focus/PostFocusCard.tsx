@@ -29,15 +29,11 @@ import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
-import { CopySummaryButton } from '../../../features/snapshot/CopySummaryButton';
-import { ParagraphCopyButtons } from '../../../features/snapshot/ParagraphCopyButtons';
+import { Origin } from '../../../lib/log';
+import { TextSnapshotButton } from '../../../features/snapshot/TextSnapshotButton';
+import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
-import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
-import {
-  feature,
-  featurePostCopySummary,
-  featureSnapshotSelectionShare,
-} from '../../../lib/featureManagement';
+import { feature } from '../../../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
@@ -248,19 +244,8 @@ const PostFocusCardRaw = ({
   // The selection is scoped to the card, so a quote can only come from the
   // post's own body — not the comments or the rail beside it.
   const cardRef = useRef<HTMLElement>(null);
-  const isSelectionSnapshotEnabled = useSharePlacement({
-    feature: featureSnapshotSelectionShare,
-  });
-  const isCopySummaryEnabled = useSharePlacement({
-    feature: featurePostCopySummary,
-    shouldEvaluate: !!article.summary,
-  });
   // A markdown body has no summary to trail, so the copy sits per paragraph.
   const bodyRef = useRef<HTMLDivElement>(null);
-  const isParagraphCopyEnabled = useSharePlacement({
-    feature: featurePostCopySummary,
-    shouldEvaluate: !!article.contentHtml,
-  });
   const isCollection = article.type === PostType.Collection;
   // Posts authored by a user (shared, freeform, welcome) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
@@ -359,9 +344,7 @@ const PostFocusCardRaw = ({
   const postBody = article.contentHtml ? (
     <div ref={bodyRef} className="flex flex-col gap-4">
       <Markdown content={article.contentHtml} className="break-words" />
-      {isParagraphCopyEnabled && (
-        <ParagraphCopyButtons containerRef={bodyRef} />
-      )}
+      <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
       <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
     </div>
   ) : (
@@ -370,13 +353,12 @@ const PostFocusCardRaw = ({
       <VideoSummary
         summary={article.summary}
         trailing={
-          isCopySummaryEnabled && (
-            <CopySummaryButton
-              link={article.commentsPermalink}
-              summary={article.summary}
-              title={article.title ?? ''}
-            />
-          )
+          <TextSnapshotButton
+            filename={`daily-summary-${article.id}`}
+            origin={Origin.PostSummary}
+            post={article}
+            text={article.summary}
+          />
         }
       />
     ) : (
@@ -385,13 +367,12 @@ const PostFocusCardRaw = ({
         data-testid="tldr-container"
       >
         {article.summary}
-        {isCopySummaryEnabled && (
-          <CopySummaryButton
-            link={article.commentsPermalink}
-            summary={article.summary}
-            title={article.title ?? ''}
-          />
-        )}
+        <TextSnapshotButton
+          filename={`daily-summary-${article.id}`}
+          origin={Origin.PostSummary}
+          post={article}
+          text={article.summary}
+        />
       </p>
     ))
   );
@@ -438,9 +419,7 @@ const PostFocusCardRaw = ({
       className="flex w-full flex-col rounded-24 bg-background-default"
       data-testid="post-focus-card"
     >
-      {isSelectionSnapshotEnabled && (
-        <SelectionSnapshotBar containerRef={cardRef} post={article} />
-      )}
+      <SelectionSnapshotBar containerRef={cardRef} post={article} />
       <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           <div className="flex min-h-8 min-w-0 items-center gap-2">
@@ -489,13 +468,12 @@ const PostFocusCardRaw = ({
                   buttonProps={{ size: ButtonSize.Small }}
                 />
               )}
-              <div className="[&_svg]:rotate-90">
-                <PostMenuOptions
-                  post={post}
-                  origin={origin}
-                  buttonSize={ButtonSize.Medium}
-                />
-              </div>
+              <PostMenuOptions
+                post={post}
+                origin={origin}
+                buttonSize={ButtonSize.Medium}
+                menuTriggerClassName="[&_svg]:rotate-90"
+              />
             </div>
           </div>
 

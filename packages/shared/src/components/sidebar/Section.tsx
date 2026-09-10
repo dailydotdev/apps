@@ -62,6 +62,10 @@ export function Section({
   // persisted `flag` (e.g. the settings panel groups) — otherwise the
   // collapse never visibly happens.
   const [isVisible, setIsVisible] = useState(initialIsVisible);
+  const shouldRenderItems = !title || isVisible || shouldAlwaysBeVisible;
+  const hasVisibleItems = items.some((item) => !item.isSeparator);
+  const shouldRenderHeader =
+    !!title && (sidebarExpanded || (shouldRenderItems && hasVisibleItems));
 
   const toggleFlag = () => {
     const nextIsVisible = !isVisible;
@@ -75,9 +79,9 @@ export function Section({
 
   return (
     <NavSection className={classNames('group/section mt-1', className)}>
-      {title && (
+      {shouldRenderHeader && (
         <NavHeader className="relative hidden laptop:flex">
-          {/* Divider shown when a collapsible (titled) section is collapsed */}
+          {/* Divider shown when a visible titled section is collapsed */}
           <div
             className={classNames(
               'absolute inset-x-0 flex items-center justify-center px-2 transition-opacity duration-300',
@@ -161,7 +165,7 @@ export function Section({
           // only toggle). A flagged-but-title-less section — e.g. the Squads
           // and Saved panels — would otherwise get stuck hidden when its flag
           // is false, with no arrow to re-expand it.
-          !title || isVisible || shouldAlwaysBeVisible
+          shouldRenderItems
             ? 'grid-rows-[1fr] opacity-100'
             : 'grid-rows-[0fr] opacity-0',
         )}

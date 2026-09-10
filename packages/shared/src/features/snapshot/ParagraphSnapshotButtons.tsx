@@ -1,52 +1,47 @@
 import type { ReactElement, RefObject } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../components/buttons/Button';
-import { CopyStateIcon } from '../../components/share/CopyStateIcon';
-import { Tooltip } from '../../components/tooltip/Tooltip';
-import { useCopyText } from '../../hooks/useCopy';
+import type { Post } from '../../graphql/posts';
+import { Origin } from '../../lib/log';
+import { TextSnapshotButton } from './TextSnapshotButton';
 
-/** A one-line paragraph is a caption or a stub; copying it helps nobody. */
+/** A one-line paragraph is a caption or a stub; sharing it helps nobody. */
 const MIN_LENGTH = 80;
 
-const SLOT_ATTRIBUTE = 'data-paragraph-copy';
+const SLOT_ATTRIBUTE = 'data-paragraph-snapshot';
 
-const ParagraphCopy = ({ text }: { text: string }): ReactElement => {
-  const [copied, copy] = useCopyText(text);
+/**
+ * The paragraph's own words, with whatever this has appended to it left out.
+ * Reading `textContent` straight would fold the control — and anything it ever
+ * renders — into the text the button captures, and into the signature that
+ * decides whether the body has changed.
+ */
+const proseOf = (paragraph: HTMLElement): string => {
+  const clone = paragraph.cloneNode(true) as HTMLElement;
 
-  return (
-    <Tooltip content="Copy paragraph">
-      <Button
-        aria-label="Copy paragraph"
-        // Trails the last line rather than sitting under the block, so a body
-        // of many paragraphs does not become a column of buttons.
-        className="ml-1 align-middle !text-text-quaternary"
-        icon={<CopyStateIcon copied={copied} />}
-        onClick={() => copy({ message: 'Copied paragraph' })}
-        size={ButtonSize.XSmall}
-        type="button"
-        variant={ButtonVariant.Tertiary}
-      />
-    </Tooltip>
-  );
+  clone
+    .querySelectorAll(`[${SLOT_ATTRIBUTE}]`)
+    .forEach((slot) => slot.remove());
+
+  return (clone.textContent ?? '').trim();
 };
 
 /**
- * A copy control at the end of every paragraph of a rendered markdown body.
+ * A snapshot control at the end of every paragraph of a rendered markdown
+ * body, so a claim can be lifted out of a freeform post as a card the way the
+ * TLDR and a highlighted quote can.
  *
  * The body is sanitized HTML written straight into the DOM, so there is no JSX
  * to hang a button off. Each paragraph gets an empty span appended once and the
  * button is portalled into it: React keeps ownership of the control while the
  * markup underneath stays the renderer's.
  */
-export function ParagraphCopyButtons({
+export function ParagraphSnapshotButtons({
   containerRef,
+  post,
 }: {
   containerRef: RefObject<HTMLElement>;
+  post: Post;
 }): ReactElement | null {
   const [slots, setSlots] = useState<{ node: HTMLElement; text: string }[]>([]);
   // The observer fires on the spans this appends, so a signature guards the
@@ -61,11 +56,9 @@ export function ParagraphCopyButtons({
     }
 
     const paragraphs = Array.from(container.querySelectorAll('p')).filter(
-      (paragraph) => (paragraph.textContent ?? '').trim().length >= MIN_LENGTH,
+      (paragraph) => proseOf(paragraph).length >= MIN_LENGTH,
     );
-    const nextSignature = paragraphs
-      .map((paragraph) => (paragraph.textContent ?? '').trim())
-      .join(' ');
+    const nextSignature = paragraphs.map(proseOf).join(' ');
 
     if (nextSignature === signature.current) {
       return;
@@ -74,7 +67,7 @@ export function ParagraphCopyButtons({
     signature.current = nextSignature;
     setSlots(
       paragraphs.map((paragraph) => {
-        const text = (paragraph.textContent ?? '').trim();
+        const text = proseOf(paragraph);
         const existing = paragraph.querySelector<HTMLElement>(
           `[${SLOT_ATTRIBUTE}]`,
         );
@@ -116,7 +109,15 @@ export function ParagraphCopyButtons({
   return (
     <>
       {slots.map(({ node, text }) =>
-        createPortal(<ParagraphCopy text={text} />, node),
+        createPortal(
+          <TextSnapshotButton
+            filename={`daily-paragraph-${post.id}`}
+            origin={Origin.PostParagraph}
+            post={post}
+            text={text}
+          />,
+          node,
+        ),
       )}
     </>
   );

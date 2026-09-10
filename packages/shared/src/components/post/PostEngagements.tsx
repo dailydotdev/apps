@@ -34,8 +34,6 @@ import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useOpenPostCommentRequest } from '../../hooks/post/useOpenPostCommentRequest';
 import { usePostComments } from '../../hooks/comments/usePostComments';
-import { featurePostSharePrompts } from '../../lib/featureManagement';
-import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
 import { DiscussionShareRow } from './focus/DiscussionShareRow';
 import { EndOfThreadShare } from '../../features/snapshot/EndOfThreadShare';
 
@@ -93,9 +91,6 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
-  const areSharePromptsEnabled = useSharePlacement({
-    feature: featurePostSharePrompts,
-  });
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -191,9 +186,7 @@ function PostEngagements({
       {/* #6348: the densest share affordance we ship, directly under the
           composer — the one place on the page where someone has already
           decided to engage. */}
-      {areSharePromptsEnabled && (
-        <DiscussionShareRow className="mt-3" post={post} withSquads />
-      )}
+      <DiscussionShareRow className="mt-3" post={post} withSquads />
       {!isPlus && !hideInternalAd && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
@@ -208,9 +201,7 @@ function PostEngagements({
         joinNotificationCommentId={joinNotificationCommentId}
         onCommented={onCommented}
       />
-      {areSharePromptsEnabled && (
-        <EndOfThreadShare commentsCount={commentsCount} post={post} />
-      )}
+      <EndOfThreadShare commentsCount={commentsCount} post={post} />
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={

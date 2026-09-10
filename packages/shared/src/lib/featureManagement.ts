@@ -30,14 +30,6 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
-export const featureSnapshotSelectionShare = new Feature(
-  'snapshot_selection_share',
-  false,
-);
-export const featurePostCopySummary = new Feature('post_copy_summary', false);
-export const featurePostSharePrompts = new Feature('post_share_prompts', false);
-export const featurePollSnapshot = new Feature('poll_snapshot', false);
-export const featurePostCopyLink = new Feature('post_copy_link', false);
 // Experiment: share controls on the two briefing surfaces — copy link at every
 // width on the briefing (today the whole cluster is `hidden laptop:block`), a
 // copy button per row on /briefing, and a share band at the end of the read.

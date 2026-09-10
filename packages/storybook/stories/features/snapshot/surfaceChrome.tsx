@@ -57,17 +57,20 @@ export const LABELS: Record<LeadAction, string> = {
  */
 export const Control = ({
   action,
+  className,
   label,
   size = ButtonSize.Small,
   variant = ButtonVariant.Tertiary,
 }: {
   action: LeadAction;
+  className?: string;
   label?: boolean;
   size?: ButtonSize;
   variant?: ButtonVariant;
 }) => (
   <Button
     aria-label={LABELS[action]}
+    className={className}
     icon={ICONS[action]}
     size={size}
     variant={variant}
@@ -97,6 +100,17 @@ export const Screen = ({
   </div>
 );
 
+/**
+ * The real context menu, not an illustration of one. Every surface below
+ * passes its production item list — today the share entry is "Share via",
+ * which opens the share modal; no surface offers Copy link from a menu.
+ */
+/**
+ * A real context menu. Every production menu in the product leads with a
+ * share item — "Share via" on posts and squads, "Share" on profiles and
+ * tags, "Share post via..." in reading history — and none of them offers
+ * "Copy link" directly, so the items are passed in rather than invented.
+ */
 export type DeviceName = 'Desktop' | 'Tablet' | 'Mobile';
 
 /**
@@ -106,14 +120,12 @@ export type DeviceName = 'Desktop' | 'Tablet' | 'Mobile';
  * sticky back-bar, and a floating action bar appears at the bottom. A
  * recommendation that only works on one of the three is not a recommendation.
  */
-export const DEVICES: Record<
-  DeviceName,
-  { width: number; viewport: string }
-> = {
-  Desktop: { width: 680, viewport: '1020px and up' },
-  Tablet: { width: 560, viewport: '768px' },
-  Mobile: { width: 375, viewport: '375px' },
-};
+export const DEVICES: Record<DeviceName, { width: number; viewport: string }> =
+  {
+    Desktop: { width: 680, viewport: '1020px and up' },
+    Tablet: { width: 560, viewport: '768px' },
+    Mobile: { width: 375, viewport: '375px' },
+  };
 
 /** A surface drawn at one real viewport width, so density is comparable. */
 export const Device = ({

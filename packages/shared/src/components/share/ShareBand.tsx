@@ -29,8 +29,8 @@ export interface ShareBandProps {
  * One line of encouraging copy beside a single split copy-link control, with
  * the social networks behind its chevron.
  *
- * Shared by the two surfaces that prompt a share: `EndOfConversationShare`
- * below an active discussion, and `PostContentShare` right after an upvote.
+ * Shared by the two surfaces that prompt a share: `EndOfThreadShare` below an
+ * active discussion, and `PostContentShare` right after an upvote.
  * They differ only in copy, link and placement — everything visual lives here
  * so the two cannot drift apart.
  */

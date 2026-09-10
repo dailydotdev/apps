@@ -29,8 +29,6 @@ import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 import { EndOfThreadShare } from '../../../features/snapshot/EndOfThreadShare';
-import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
-import { featurePostSharePrompts } from '../../../lib/featureManagement';
 
 const CommentInput = dynamic(
   () =>
@@ -84,9 +82,6 @@ export const PostDiscussionPanel = ({
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
   const { commentsCount } = usePostComments({ postId: post.id, sortBy });
-  const areSharePromptsEnabled = useSharePlacement({
-    feature: featurePostSharePrompts,
-  });
   const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
   const commentRef = useRef<NewCommentRef | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -214,13 +209,11 @@ export const PostDiscussionPanel = ({
           removeTopSpacing
         />
       </div>
-      {areSharePromptsEnabled && (
-        <EndOfThreadShare
-          className="mt-2"
-          commentsCount={commentsCount}
-          post={post}
-        />
-      )}
+      <EndOfThreadShare
+        className="mt-2"
+        commentsCount={commentsCount}
+        post={post}
+      />
       {showMetaBar && (
         <div className="flex shrink-0 flex-col gap-3 pt-3">
           <DiscussionMetaBar post={post} />

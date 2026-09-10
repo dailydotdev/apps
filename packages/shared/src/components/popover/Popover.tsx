@@ -20,7 +20,9 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>(
           {...props}
           className={classNames(
             sameWidthAsAnchor &&
-              'max-h-[var(--radix-popover-content-available-height)] w-[var(--radix-popover-trigger-width)]',
+              // the available height runs to the viewport edge, so a list long
+              // enough to hit the cap would sit flush against it
+              'max-h-[calc(var(--radix-popover-content-available-height)-1rem)] w-[var(--radix-popover-trigger-width)]',
             props.className,
           )}
         >

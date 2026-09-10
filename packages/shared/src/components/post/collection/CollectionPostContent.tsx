@@ -11,9 +11,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
-import { ParagraphCopyButtons } from '../../../features/snapshot/ParagraphCopyButtons';
-import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
-import { featurePostCopySummary } from '../../../lib/featureManagement';
+import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
@@ -64,10 +62,6 @@ export const CollectionPostContentRaw = ({
   const { createdAt, updatedAt, contentHtml, image, numCollectionSources } =
     post;
   const bodyRef = useRef<HTMLDivElement>(null);
-  const isParagraphCopyEnabled = useSharePlacement({
-    feature: featurePostCopySummary,
-    shouldEvaluate: !!contentHtml,
-  });
   const wasUpdated = isPostUpdated(post);
   const dateToShow = wasUpdated ? updatedAt : createdAt;
   const hasSources = !!numCollectionSources && numCollectionSources > 0;
@@ -203,9 +197,7 @@ export const CollectionPostContentRaw = ({
             )}
             <div ref={bodyRef}>
               <Markdown content={contentHtml ?? ''} />
-              {isParagraphCopyEnabled && (
-                <ParagraphCopyButtons containerRef={bodyRef} />
-              )}
+              <ParagraphSnapshotButtons containerRef={bodyRef} post={post} />
             </div>
             {showCommunitySentiment && (
               <CommunitySentiment data={communitySentimentData} />

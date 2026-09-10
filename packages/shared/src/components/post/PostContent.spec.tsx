@@ -1,14 +1,9 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment } from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/log';
-import {
-  featurePostCopySummary,
-  featureSnapshotSelectionShare,
-} from '../../lib/featureManagement';
 import { PostContentRaw } from './PostContent';
 
 const renderContent = (post = postWithCommunitySentiment) =>
@@ -25,9 +20,9 @@ const renderContent = (post = postWithCommunitySentiment) =>
 const QUOTE =
   'They optimised the product they had instead of the one their customers were moving to.';
 
-const renderPostPage = (gb?: GrowthBook) =>
+const renderPostPage = () =>
   render(
-    <TestBootProvider client={new QueryClient()} gb={gb}>
+    <TestBootProvider client={new QueryClient()}>
       <PostContentRaw
         post={{ ...postWithCommunitySentiment, summary: QUOTE }}
         origin={Origin.ArticlePage}
@@ -38,9 +33,9 @@ const renderPostPage = (gb?: GrowthBook) =>
 
 /** Anonymous visitors get in-content ads, and then the page renders the
     summary itself through this prop rather than PostContent's own paragraph. */
-const renderWithAdSegments = (gb?: GrowthBook) =>
+const renderWithAdSegments = () =>
   render(
-    <TestBootProvider client={new QueryClient()} gb={gb}>
+    <TestBootProvider client={new QueryClient()}>
       <PostContentRaw
         post={{ ...postWithCommunitySentiment, summary: QUOTE }}
         origin={Origin.ArticlePage}
@@ -51,9 +46,9 @@ const renderWithAdSegments = (gb?: GrowthBook) =>
   );
 
 /** No isPostPage: that is the post modal, the overlay opened from a feed. */
-const renderModal = (gb?: GrowthBook) =>
+const renderModal = () =>
   render(
-    <TestBootProvider client={new QueryClient()} gb={gb}>
+    <TestBootProvider client={new QueryClient()}>
       <PostContentRaw
         post={{ ...postWithCommunitySentiment, summary: QUOTE }}
         origin={Origin.ArticleModal}
@@ -73,15 +68,6 @@ const selectTheSummary = () => {
   selection?.addRange(range);
   // The reader letting go of the drag is what commits the quote.
   fireEvent.pointerUp(document);
-};
-
-const snapshotFlagOn = () => {
-  const gb = new GrowthBook();
-  gb.setFeatures({
-    [featureSnapshotSelectionShare.id]: { defaultValue: true },
-  });
-
-  return gb;
 };
 
 describe('PostContent community sentiment', () => {
@@ -110,8 +96,8 @@ describe('PostContent selection snapshot', () => {
       ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
   });
 
-  it('offers a snapshot of a quote on the post page when the flag is enabled', () => {
-    renderPostPage(snapshotFlagOn());
+  it('offers a snapshot of a quote on the post page', () => {
+    renderPostPage();
 
     selectTheSummary();
 
@@ -119,57 +105,31 @@ describe('PostContent selection snapshot', () => {
       screen.getByRole('toolbar', { name: 'Share selected text' }),
     ).toBeInTheDocument();
   });
-
-  it('stays out of the way when the flag is disabled', () => {
-    renderPostPage();
-
-    selectTheSummary();
-
-    expect(
-      screen.queryByRole('toolbar', { name: 'Share selected text' }),
-    ).not.toBeInTheDocument();
-  });
 });
 
-describe('PostContent copy summary', () => {
-  const withFlag = () => {
-    const gb = new GrowthBook();
-    gb.setFeatures({ [featurePostCopySummary.id]: { defaultValue: true } });
+describe('PostContent summary snapshot', () => {
+  it('runs the icon into the end of the TLDR', () => {
+    renderPostPage();
 
-    return gb;
-  };
-
-  it('runs the icon into the end of the TLDR when the flag is enabled', () => {
-    renderPostPage(withFlag());
-
-    expect(screen.getByLabelText('Copy summary')).toBeInTheDocument();
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
     // It has to live inside the paragraph, not under it.
     expect(screen.getByTestId('tldr-container')).toContainElement(
-      screen.getByLabelText('Copy summary'),
+      screen.getByLabelText('Snapshot'),
     );
   });
 
-  it('stays off the paragraph when the flag is disabled', () => {
-    renderPostPage();
+  it('stays off the modal, where the page it belongs to is not open', () => {
+    renderModal();
 
-    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
   });
 });
 
-describe('PostContent copy summary with in-content ads', () => {
+describe('PostContent summary snapshot with in-content ads', () => {
   it('still offers the summary when the page renders it in segments', () => {
-    const gb = new GrowthBook();
-    gb.setFeatures({ [featurePostCopySummary.id]: { defaultValue: true } });
-
-    renderWithAdSegments(gb);
-
-    expect(screen.getByLabelText('Copy summary')).toBeInTheDocument();
-  });
-
-  it('stays away in the segmented summary when the flag is disabled', () => {
     renderWithAdSegments();
 
-    expect(screen.queryByLabelText('Copy summary')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
   });
 });
 
@@ -180,22 +140,12 @@ describe('PostContent selection snapshot in the post modal', () => {
   });
 
   it('offers a snapshot of a quote selected in the modal', () => {
-    renderModal(snapshotFlagOn());
+    renderModal();
 
     selectTheSummary();
 
     expect(
       screen.getByRole('toolbar', { name: 'Share selected text' }),
     ).toBeInTheDocument();
-  });
-
-  it('stays out of the modal when the flag is disabled', () => {
-    renderModal();
-
-    selectTheSummary();
-
-    expect(
-      screen.queryByRole('toolbar', { name: 'Share selected text' }),
-    ).not.toBeInTheDocument();
   });
 });
