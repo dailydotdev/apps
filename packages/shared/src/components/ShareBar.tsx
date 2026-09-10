@@ -13,6 +13,7 @@ import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import type { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
+import { SlackShareButton } from './widgets/SlackShareButton';
 import { getShareableSquads, SquadsToShare } from './squads/SquadsToShare';
 import { Button } from './buttons/Button';
 import { ButtonSize, ButtonVariant } from './buttons/common';
@@ -27,7 +28,7 @@ interface ShareBarProps {
 
 const visibleRows = 2;
 const columns = 4;
-const fixedOptions = 4;
+const fixedOptions = 5;
 const maxVisibleOptions = visibleRows * columns;
 const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
 
@@ -107,6 +108,12 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
             />
           }
           label={copying ? 'Copied!' : 'Copy link'}
+        />
+        <SlackShareButton
+          post={post}
+          origin={Origin.ShareBar}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
         />
         <SocialShareButton
           size={ButtonSize.Medium}
