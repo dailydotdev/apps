@@ -104,7 +104,7 @@ const ReadingOverviewCard = forwardRef<
   return (
     <ReadingOverviewSnapshotCard
       heatmap={buckets.map((reads) => getBin(reads, bins))}
-      longestStreak={streak?.max ?? 0}
+      longestStreak={streak?.max}
       monthsLabel="in the last months"
       postsRead={sumReadHistory(readHistory)}
       ref={ref}
@@ -115,7 +115,7 @@ const ReadingOverviewCard = forwardRef<
           percentage: Math.round((tag.percentage ?? 0) * 100),
         })) ?? []
       }
-      totalReadingDays={streak?.total ?? 0}
+      totalReadingDays={streak?.total}
       user={{
         handle: `@${user.username ?? user.id}`,
         image: user.image,

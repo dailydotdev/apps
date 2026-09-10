@@ -79,7 +79,11 @@ const ProfileCard = forwardRef<HTMLDivElement, { user: PublicProfile }>(
         image={user.image}
         joined={format(new Date(user.createdAt), 'MMMM y')}
         name={user.name}
-        postsRead={sumReadHistory(readingHistory?.userReadHistory)}
+        postsRead={
+          readingHistory
+            ? sumReadHistory(readingHistory.userReadHistory)
+            : undefined
+        }
         ref={ref}
         reputation={user.reputation}
         seed={handle}
