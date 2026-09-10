@@ -26,8 +26,7 @@ import {
   TypographyColor,
 } from '../../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../../ProfilePicture';
-import { SnapshotButton } from '../../imageShare/SnapshotButton';
-import { HotTakeSnapshotCard } from '../../../features/snapshot/HotTakeSnapshotCard';
+import { HotTakeSnapshotButton } from '../../../features/snapshot/HotTakeSnapshotButton';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../../PlusUserBadge';
@@ -1340,9 +1339,9 @@ const HotTakeCard = ({
             </div>
           )}
           {isTop && (
-            <SnapshotButton
-              card={<HotTakeSnapshotCard take={hotTake} />}
-              filename={`hot-take-${hotTake.id}`}
+            <HotTakeSnapshotButton
+              hotTake={hotTake}
+              origin={Origin.HotAndCold}
               variant={ButtonVariant.Primary}
             />
           )}

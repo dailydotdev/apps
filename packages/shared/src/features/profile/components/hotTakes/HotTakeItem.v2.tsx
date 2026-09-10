@@ -16,8 +16,8 @@ import {
 import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
 import { CardAction } from '../../../../components/buttons/CardAction';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
-import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
-import { HotTakeSnapshotCard } from '../../../snapshot/HotTakeSnapshotCard';
+import { HotTakeSnapshotButton } from '../../../snapshot/HotTakeSnapshotButton';
+import { Origin } from '../../../../lib/log';
 
 interface HotTakeItemProps {
   item: HotTake;
@@ -91,9 +91,9 @@ export function HotTakeItem({
             )}
           </div>
         )}
-        <SnapshotButton
-          card={<HotTakeSnapshotCard take={item} />}
-          filename={`hot-take-${item.id}`}
+        <HotTakeSnapshotButton
+          hotTake={item}
+          origin={Origin.HotTakeList}
           showLabel={false}
           size={ButtonSize.XSmall}
         />

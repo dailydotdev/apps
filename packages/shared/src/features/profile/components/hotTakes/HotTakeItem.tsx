@@ -19,8 +19,8 @@ import { IconSize } from '../../../../components/Icon';
 import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButton';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
-import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
-import { HotTakeSnapshotCard } from '../../../snapshot/HotTakeSnapshotCard';
+import { HotTakeSnapshotButton } from '../../../snapshot/HotTakeSnapshotButton';
+import { Origin } from '../../../../lib/log';
 import { HotTakeItem as HotTakeItemV2 } from './HotTakeItem.v2';
 
 interface HotTakeItemProps {
@@ -95,9 +95,9 @@ function HotTakeItemV1({
             )}
           </div>
         )}
-        <SnapshotButton
-          card={<HotTakeSnapshotCard take={item} />}
-          filename={`hot-take-${item.id}`}
+        <HotTakeSnapshotButton
+          hotTake={item}
+          origin={Origin.HotTakeList}
           showLabel={false}
           size={ButtonSize.XSmall}
         />

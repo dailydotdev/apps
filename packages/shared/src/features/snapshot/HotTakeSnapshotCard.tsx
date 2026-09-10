@@ -1,39 +1,57 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { HotTake } from '../../graphql/user/userHotTake';
-import { SnapshotFrame } from './SnapshotFrame';
-import { HOT_TAKE_EYEBROW_GRADIENT, SnapshotContent } from './SnapshotContent';
+import colors from '../../styles/colors';
 import { SnapshotEyebrow } from './SnapshotEyebrow';
+import { SnapshotFrame } from './SnapshotFrame';
+
+const MUTED = colors.salt['90'];
+
+/** Fire, for a take that ran hot: yellow core through orange into red. */
+export const HOT_TAKE_EYEBROW_GRADIENT = `linear-gradient(100deg, ${colors.cheese['40']} 0%, ${colors.ketchup['10']} 48%, ${colors.ketchup['50']} 100%)`;
 
 /**
  * The take is the whole payload, so the card carries the opinion rather than
  * the row it was read in: no avatar, and the upvote count reads as agreement
- * rather than a score. Title and subtitle are set as one statement — split
+ * rather than a score. Title and subtitle are set as one statement: split
  * across two type styles they read as two voices arguing the same point.
  */
-export const HotTakeSnapshotCard = ({
-  take,
-}: {
-  take: HotTake;
-}): ReactElement => (
-  <SnapshotFrame
-    grow
-    logoAside={
-      <SnapshotEyebrow gradient={HOT_TAKE_EYEBROW_GRADIENT} label="Hot take" />
-    }
-    seed={take.id}
-    watermark={take.emoji}
-  >
-    <SnapshotContent
-      centered
-      stat={
-        take.upvotes > 0
-          ? { value: `${take.upvotes}`, label: 'found this hot' }
-          : undefined
+function HotTakeSnapshotCardComponent(
+  { take }: { take: HotTake },
+  ref: React.Ref<HTMLDivElement>,
+): ReactElement {
+  return (
+    <SnapshotFrame
+      grow
+      logoAside={
+        <SnapshotEyebrow
+          gradient={HOT_TAKE_EYEBROW_GRADIENT}
+          label="Hot take"
+        />
       }
-      statVariant="inline"
-      title={[take.title, take.subtitle].filter(Boolean).join(' ')}
-      titleLines={0}
-    />
-  </SnapshotFrame>
-);
+      ref={ref}
+      seed={take.id}
+      watermark={take.emoji}
+    >
+      <h1
+        className="snapshot-copy text-center font-bold text-white"
+        style={{ fontSize: 56, lineHeight: 1.15 }}
+      >
+        {[take.title, take.subtitle].filter(Boolean).join(' ')}
+      </h1>
+      {take.upvotes > 0 && (
+        <div
+          className="mt-auto flex items-baseline justify-center gap-2"
+          style={{ fontSize: 28 }}
+        >
+          <span className="font-bold" style={{ color: colors.cabbage['10'] }}>
+            {take.upvotes}
+          </span>
+          <span style={{ color: MUTED }}>found this hot</span>
+        </div>
+      )}
+    </SnapshotFrame>
+  );
+}
+
+export const HotTakeSnapshotCard = forwardRef(HotTakeSnapshotCardComponent);
