@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Archive } from '../../graphql/archive';
-import { ArchiveScopeType } from '../../graphql/archive';
 import type { ArchiveScopeInfo, ArchivesByYear } from '../../lib/archive';
 import {
   getArchiveUrlFromArchive,
@@ -14,9 +13,7 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { CopyLinkButton } from '../share/CopyLinkButton';
-import { LogEvent, Origin } from '../../lib/log';
-import { ReferralCampaignKey } from '../../lib/referral';
+import { ArchiveCopyLinkButton } from './ArchiveCopyLinkButton';
 
 interface ArchiveIndexPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -154,24 +151,6 @@ function ArchiveGrid({
   );
 }
 
-const shareByScope: Record<
-  ArchiveScopeInfo['scopeType'],
-  { event: LogEvent; cid: ReferralCampaignKey }
-> = {
-  [ArchiveScopeType.Global]: {
-    event: LogEvent.ShareArchive,
-    cid: ReferralCampaignKey.Generic,
-  },
-  [ArchiveScopeType.Tag]: {
-    event: LogEvent.ShareTag,
-    cid: ReferralCampaignKey.ShareTag,
-  },
-  [ArchiveScopeType.Source]: {
-    event: LogEvent.ShareSource,
-    cid: ReferralCampaignKey.ShareSource,
-  },
-};
-
 export function ArchiveIndexPage({
   archives,
   scopeType,
@@ -181,7 +160,6 @@ export function ArchiveIndexPage({
   className,
 }: ArchiveIndexPageProps): ReactElement {
   const groups = groupArchivesByYear(archives);
-  const { event: shareEvent, cid: shareCampaign } = shareByScope[scopeType];
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -190,17 +168,10 @@ export function ArchiveIndexPage({
         <h1 className="flex-1 font-bold typo-title2 tablet:typo-title1">
           Best of {scopeName} &mdash; Archive
         </h1>
-        <CopyLinkButton
-          origin={Origin.ArchiveIndex}
-          shareProps={{
-            text: `Check out the best of ${scopeName} on daily.dev`,
-            link: globalThis?.location?.href,
-            cid: shareCampaign,
-            logObject: () => ({
-              event_name: shareEvent,
-              target_id: scopeId,
-            }),
-          }}
+        <ArchiveCopyLinkButton
+          scopeType={scopeType}
+          scopeId={scopeId}
+          text={`Check out the best of ${scopeName} on daily.dev`}
         />
       </div>
 
