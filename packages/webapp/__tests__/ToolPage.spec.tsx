@@ -2,7 +2,7 @@ import React from 'react';
 import nock from 'nock';
 import type { NextRouter } from 'next/router';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
@@ -268,4 +268,20 @@ it('should render squads with the directory card details', async () => {
   ).toBeInTheDocument();
   expect(screen.getByText(/@platform/)).toBeInTheDocument();
   expect(screen.getByText('42 members')).toBeInTheDocument();
+});
+
+it('should copy an absolute, tracked link to the tool', async () => {
+  const writeText = jest.fn().mockResolvedValue(undefined);
+  Object.assign(navigator, { clipboard: { writeText } });
+  renderComponent(defaultProps, loggedUser);
+
+  const share = await screen.findByRole('button', { name: 'Share' });
+  await act(async () => {
+    fireEvent.click(share);
+  });
+
+  // `webappUrl` is a bare `/` on the webapp, which pastes as a dead link.
+  expect(writeText).toHaveBeenCalledWith(
+    `${globalThis.location.origin}/tools/docker?userid=${loggedUser.id}&cid=share_tool`,
+  );
 });
