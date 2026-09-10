@@ -81,8 +81,8 @@ const PAGES: React.ReactNode[][] = [
   ],
   [
     'Profile',
-    '#6354 #6360 #6356',
-    'Header, the three widgets, and the DevCard — three surfaces on one page that want three different controls',
+    '#6580',
+    'Shipped: the live profile is the reference, so it has no mockup here',
   ],
   [
     'Status moments',

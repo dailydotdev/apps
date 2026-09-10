@@ -5,10 +5,25 @@ import type { UserReadHistory, UserStreak, MostReadTag } from '@dailydotdev/shar
 import { addDays, subDays, subMonths } from 'date-fns';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { fn } from 'storybook/test';
+import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+
+const profile = {
+  id: 'storybook-user',
+  name: 'Storybook User',
+  username: 'storybook',
+  premium: false,
+  reputation: 100,
+  image: 'https://via.placeholder.com/40',
+  createdAt: '2023-01-01T00:00:00Z',
+  permalink: 'https://app.daily.dev/storybook',
+} as PublicProfile;
 
 const meta: Meta<typeof ReadingOverview> = {
   title: 'Features/Profile/ReadingOverview',
   component: ReadingOverview,
+  args: {
+    user: profile,
+  },
   parameters: {
     layout: 'padded',
   },

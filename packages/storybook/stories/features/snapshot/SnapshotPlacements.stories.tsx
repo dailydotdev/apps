@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React, { useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -11,13 +10,9 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
-import { AchievementType } from '@dailydotdev/shared/src/graphql/user/achievements';
 import {
-  EditIcon,
   ArrowIcon,
   HotIcon,
-  MedalBadgeIcon,
   UpvoteIcon,
   DiscussIcon,
   BookmarkIcon,
@@ -549,175 +544,6 @@ const HotTakePlacement = () => {
   );
 };
 
-/** 6a. Profile header — right of the edit button. */
-const ProfileHeaderPlacement = () => {
-  const ref = useRef<HTMLDivElement>(null);
-
-  return (
-    <div
-      ref={ref}
-      className="relative w-full overflow-hidden rounded-16 bg-background-default"
-    >
-      <div className="h-24 bg-overlay-quaternary-cabbage" />
-      <img
-        src={AVATAR}
-        alt=""
-        className="absolute left-6 top-12 size-24 rounded-16 object-cover"
-      />
-      <div className="flex flex-col gap-3 px-6">
-        <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
-          <Button
-            variant={ButtonVariant.Float}
-            icon={<EditIcon />}
-            aria-label="Edit profile"
-            className="text-text-secondary"
-          />
-          <PreferredActions
-            compact
-            filename="daily-profile"
-            leads="Link"
-            size={ButtonSize.Medium}
-            target={ref}
-            variant={ButtonVariant.Float}
-          />
-        </div>
-        <span className="font-bold text-text-primary typo-title2">
-          Tomer Redlich
-        </span>
-        <span className="pb-4 text-text-tertiary typo-callout">@tomer</span>
-      </div>
-    </div>
-  );
-};
-
-/** 6b–6d. Profile widgets — icon-only, in the widget header row. */
-const WidgetPlacement = ({
-  title,
-  trailing,
-  children,
-}: {
-  title: React.ReactNode;
-  trailing?: React.ReactNode;
-  children: React.ReactNode;
-}) => {
-  const ref = useRef<HTMLElement>(null);
-
-  return (
-    <section
-      ref={ref}
-      className="flex w-full flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default p-4"
-    >
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="flex items-center gap-1 font-bold text-text-primary typo-callout">
-          {title}
-        </h2>
-        <div className="flex items-center gap-1">
-          {trailing}
-          <PreferredActions
-            compact
-            filename="daily-widget"
-            leads="Snapshot"
-            target={ref}
-            variant={ButtonVariant.Tertiary}
-          />
-        </div>
-      </div>
-      {children}
-    </section>
-  );
-};
-
-const ACHIEVEMENT: UserAchievement = {
-  achievement: {
-    id: 'achievement-1',
-    name: 'Streak keeper',
-    description: 'Read something on daily.dev 100 days in a row.',
-    image:
-      'https://media.daily.dev/image/upload/s--SNnLKKWe--/q_auto/v1773608419/achievements/coraholic',
-    points: 120,
-    rarity: 4,
-    type: AchievementType.Milestone,
-    criteria: { targetCount: 100 },
-    unit: 'days',
-  },
-  progress: 100,
-  unlockedAt: '2026-06-01T00:00:00Z',
-  createdAt: '2026-01-01T00:00:00Z',
-  updatedAt: '2026-06-01T00:00:00Z',
-};
-
-const AchievementBox = ({ entry }: { entry: UserAchievement }) => {
-  const isUnlocked = entry.unlockedAt !== null;
-
-  return (
-    <div
-      className={classNames(
-        'group relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-4',
-        isUnlocked ? 'bg-surface-float' : 'bg-surface-subtle',
-      )}
-    >
-      <div className="flex items-start gap-3">
-        <img
-          src={entry.achievement.image}
-          alt=""
-          className={classNames(
-            'size-12 shrink-0 rounded-12 object-cover',
-            !isUnlocked && 'opacity-50 grayscale',
-          )}
-        />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span
-            className={classNames(
-              'truncate font-bold typo-callout',
-              isUnlocked ? 'text-text-primary' : 'text-text-tertiary',
-            )}
-          >
-            {entry.achievement.name}
-          </span>
-          <span className="mt-0.5 line-clamp-2 text-text-tertiary typo-footnote">
-            {entry.achievement.description}
-          </span>
-        </div>
-        <div className="flex shrink-0 items-center gap-1 self-center">
-          <Snapshot
-            className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
-            filename={`daily-achievement-${entry.achievement.id}`}
-            showLabel={false}
-            size={ButtonSize.XSmall}
-            target={{ current: null }}
-            variant={ButtonVariant.Float}
-          />
-          <span
-            className={classNames(
-              'font-bold typo-callout',
-              isUnlocked ? 'text-text-primary' : 'text-text-tertiary',
-            )}
-          >
-            {entry.achievement.points}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const LOCKED_ACHIEVEMENT: UserAchievement = {
-  ...ACHIEVEMENT,
-  achievement: {
-    ...ACHIEVEMENT.achievement,
-    id: 'achievement-2',
-    name: 'First take',
-    description: 'Post your first hot take.',
-    rarity: 38,
-    image:
-      'https://media.daily.dev/image/upload/v1770222937/achievements/Town_crier.png',
-    criteria: { targetCount: 1 },
-    unit: null,
-  },
-  progress: 0,
-  unlockedAt: null,
-};
-
 const Placements = () => {
   const [capture, setCapture] = useState<string | null>(null);
   const onCapture = React.useCallback((blob: Blob) => {
@@ -748,9 +574,11 @@ const Placements = () => {
             <b className="text-text-primary">Sharing map</b>.
           </p>
           <p className="max-w-[46rem] text-text-quaternary typo-footnote">
-            Placements 1–7 are built and live; 8–20 are mock-ups of surfaces the
-            Sharing map covers but the code does not touch yet, so the control
-            and its verdict can be reviewed before anything is wired.
+            Placements 1–5 are built and live, and the profile placements (6
+            and 7) are left out because the live profile is the reference; 8–20
+            are mock-ups of surfaces the Sharing map covers but the code does
+            not touch yet, so the control and its verdict can be reviewed before
+            anything is wired.
           </p>
         </header>
 
@@ -924,96 +752,6 @@ const Placements = () => {
           note="Snapshot leads: a take is self-contained and quotable, and there is no per-take page to send anyone to."
         >
           <HotTakePlacement />
-        </Panel>
-
-        <Panel
-          step="Placement 6"
-          leads="Link"
-          title="Profile — header and widgets"
-          note="Copy link leads on the header — profiles have a real OG and the point is that they follow you. Snapshot leads in the widgets: reading overview, badges and achievements have no URL anyone else can open."
-        >
-          <div className="flex flex-col gap-4">
-            <ProfileHeaderPlacement />
-            <div className="grid gap-4 laptop:grid-cols-3">
-              <WidgetPlacement
-                title="Reading Overview"
-                trailing={
-                  <span className="text-text-link typo-footnote">
-                    Learn more
-                  </span>
-                }
-              >
-                <p className="mt-3 text-text-tertiary typo-footnote">
-                  Posts read in the last months (412)
-                </p>
-                <div className="mt-2 grid grid-cols-12 gap-1">
-                  {Array.from({ length: 36 }).map((_, i) => (
-                    <span
-                      // eslint-disable-next-line react/no-array-index-key
-                      key={i}
-                      className="size-3 rounded-4 bg-surface-float"
-                    />
-                  ))}
-                </div>
-              </WidgetPlacement>
-
-              <WidgetPlacement title="Badges & Awards">
-                <div className="my-3 flex gap-3">
-                  <div className="flex flex-1 flex-col rounded-12 bg-surface-float p-3">
-                    <span className="font-bold text-text-primary typo-title3">
-                      x4
-                    </span>
-                    <span className="text-text-tertiary typo-caption1">
-                      Top reader badge
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col rounded-12 bg-surface-float p-3">
-                    <span className="font-bold text-text-primary typo-title3">
-                      x12
-                    </span>
-                    <span className="text-text-tertiary typo-caption1">
-                      Total Awards
-                    </span>
-                  </div>
-                </div>
-              </WidgetPlacement>
-
-              <WidgetPlacement
-                title={
-                  <>
-                    <MedalBadgeIcon className="size-4" />
-                    Achievements
-                  </>
-                }
-                trailing={
-                  <span className="text-text-link typo-footnote">18/60</span>
-                }
-              >
-                <div className="mt-3 flex gap-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <span
-                      // eslint-disable-next-line react/no-array-index-key
-                      key={i}
-                      className="size-10 rounded-10 bg-surface-float"
-                    />
-                  ))}
-                </div>
-              </WidgetPlacement>
-            </div>
-          </div>
-        </Panel>
-
-        <Panel
-          step="Placement 7"
-          leads="Snapshot"
-          title="Achievements page — per achievement box"
-          note="Snapshot leads: an unlocked achievement is status with no shareable URL. Icon-only on hover, beside the points value."
-        >
-          <div className="grid gap-4 laptop:grid-cols-2">
-            {[ACHIEVEMENT, LOCKED_ACHIEVEMENT].map((entry) => (
-              <AchievementBox key={entry.achievement.id} entry={entry} />
-            ))}
-          </div>
         </Panel>
 
         <Panel
