@@ -90,10 +90,10 @@ export const ProfilePanelSection = ({
             <ListIcon Icon={() => <FilterIcon secondary={active} />} />
           ),
         },
-        // Non-Plus only: a purple "Get API Access" upgrade CTA (API access is a
-        // Plus perk). Plus users already have it, so it's hidden for them.
+        // Non-Plus only: a purple upgrade CTA for the higher API rate limits
+        // Plus carries. Plus users already have them, so it's hidden for them.
         !isPlus && {
-          title: 'Get API Access',
+          title: 'Full API access and higher rate limits',
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,

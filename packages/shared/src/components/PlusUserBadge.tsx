@@ -29,7 +29,7 @@ export const PlusUserBadge = ({
   size = IconSize.Size16,
 }: Props): ReactElement | null => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const plusCta = 'Get API Access';
+  const plusCta = 'Full API Access and higher rate limits';
 
   if (!user.isPlus) {
     return null;

@@ -6,6 +6,10 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
+import { ApiError, getApiError } from '@dailydotdev/shared/src/graphql/common';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   usePersonalAccessTokens,
   useCreatePersonalAccessToken,
@@ -248,8 +252,11 @@ const CreateTokenModal = ({
       onSuccess(result.token);
       setName('');
       setExpiration('');
-    } catch {
-      displayToast('Failed to create token. Please try again.');
+    } catch (err) {
+      displayToast(
+        getApiError(err as ApiErrorResult, ApiError.Forbidden)?.message ??
+          'Failed to create token. Please try again.',
+      );
     }
   };
 
@@ -448,7 +455,7 @@ const CopyableCodeBlock = ({
 };
 
 const ApiAccessPage = (): ReactElement => {
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
   const { displayToast } = useToastNotification();
@@ -459,13 +466,6 @@ const ApiAccessPage = (): ReactElement => {
   const [expandedSkills, setExpandedSkills] = useState<Record<string, boolean>>(
     {},
   );
-  let tokenEmptyStateText = 'No tokens yet. Create one to get started.';
-
-  if (!isPlus) {
-    tokenEmptyStateText =
-      'Upgrade to Plus to create API tokens and authenticate with the daily.dev API.';
-  }
-
   const handleCopy = async (value: string, successMessage = 'Copied') => {
     try {
       await navigator.clipboard.writeText(value);
@@ -495,16 +495,14 @@ const ApiAccessPage = (): ReactElement => {
     <AccountPageContainer
       title="API Access"
       actions={
-        isPlus ? (
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            onClick={() => setShowCreateModal(true)}
-          >
-            {isMobile ? undefined : 'Create token'}
-          </Button>
-        ) : undefined
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<PlusIcon />}
+          onClick={() => setShowCreateModal(true)}
+        >
+          {isMobile ? undefined : 'Create token'}
+        </Button>
       }
     >
       <div className="flex flex-col gap-6">
@@ -516,10 +514,40 @@ const ApiAccessPage = (): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Use tokens to authenticate with the daily.dev API. Tokens provide
-            read-only access to your personalized feed and posts.
+            Use tokens to authenticate with the daily.dev API from agents,
+            scripts, and integrations.
           </Typography>
         </div>
+
+        {!isPlus && (
+          <div className="plus-entry-gradient flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4">
+            <Typography type={TypographyType.Body} bold>
+              Full API access and higher rate limits
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              Plus raises your request limits and unlocks the Plus-only
+              endpoints, including bookmark folders and clickbait-shielded
+              titles.
+            </Typography>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              tag="a"
+              href={plusUrl}
+              onClick={() =>
+                logSubscriptionEvent({
+                  event_name: LogEvent.UpgradeSubscription,
+                  target_id: TargetId.ApiAccess,
+                })
+              }
+            >
+              Upgrade to Plus
+            </Button>
+          </div>
+        )}
 
         {isLoading && (
           <Typography
@@ -554,27 +582,16 @@ const ApiAccessPage = (): ReactElement => {
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              {tokenEmptyStateText}
+              No tokens yet. Create one to get started.
             </Typography>
-            {isPlus ? (
-              <Button
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Small}
-                icon={<PlusIcon />}
-                onClick={() => setShowCreateModal(true)}
-              >
-                Create your first token
-              </Button>
-            ) : (
-              <Button
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Small}
-                tag="a"
-                href="/plus"
-              >
-                Upgrade to Plus
-              </Button>
-            )}
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+              onClick={() => setShowCreateModal(true)}
+            >
+              Create your first token
+            </Button>
           </div>
         )}
 

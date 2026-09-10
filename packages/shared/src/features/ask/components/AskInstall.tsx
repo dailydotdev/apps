@@ -80,7 +80,7 @@ const methods: InstallMethod[] = [
 
 export const AskInstall = (): ReactElement => {
   const { displayToast } = useToastNotification();
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
   const [expandedTool, setExpandedTool] = useState<string | null>(null);
@@ -116,17 +116,14 @@ export const AskInstall = (): ReactElement => {
         color={TypographyColor.Secondary}
         center
       >
-        {isPlus ? (
+        You&apos;ll need an{' '}
+        <Link href={`${webappUrl}settings/api`} passHref>
+          <a className="font-bold text-text-primary underline">API token</a>
+        </Link>
+        . Pick your tool and install in seconds.
+        {!isPlus && (
           <>
-            You&apos;ll need an{' '}
-            <Link href={`${webappUrl}settings/api`} passHref>
-              <a className="font-bold text-text-primary underline">API token</a>
-            </Link>
-            . Pick your tool and install in seconds.
-          </>
-        ) : (
-          <>
-            Requires a{' '}
+            {' '}
             <Link href={plusUrl} passHref>
               <a
                 className="font-bold text-text-primary underline"
@@ -136,7 +133,12 @@ export const AskInstall = (): ReactElement => {
                   if (!isLoggedIn) {
                     e.preventDefault();
                     showLogin({ trigger: AuthTriggers.Plus });
+                    return;
                   }
+                  logSubscriptionEvent({
+                    event_name: LogEvent.UpgradeSubscription,
+                    target_id: TargetId.ApiAccess,
+                  });
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !isLoggedIn) {
@@ -145,14 +147,10 @@ export const AskInstall = (): ReactElement => {
                   }
                 }}
               >
-                Plus subscription
+                Upgrade to Plus
               </a>
             </Link>{' '}
-            and an{' '}
-            <Link href={`${webappUrl}settings/api`} passHref>
-              <a className="font-bold text-text-primary underline">API token</a>
-            </Link>
-            . Pick your tool and install in seconds.
+            for full API access and higher rate limits.
           </>
         )}
       </Typography>

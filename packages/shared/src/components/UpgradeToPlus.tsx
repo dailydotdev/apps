@@ -39,7 +39,10 @@ export const UpgradeToPlus = ({
   const isFullCTAText = !isLaptop || isLaptopXL;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { isActive: isSaleActive } = usePlusSale();
-  const ctaCopy = { full: 'Get API Access', short: 'API access' };
+  const ctaCopy = {
+    full: 'Full API access and higher rate limits',
+    short: 'Full API access',
+  };
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
   const showSaleLabel = isSaleActive && !iconOnly;
   const defaultColor = ButtonColor.Bacon;
