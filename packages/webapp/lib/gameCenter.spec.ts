@@ -18,7 +18,6 @@ import {
   getAchievementSummary,
   getAwardSummary,
   getBadgeSummary,
-  getMostProgressedQuest,
   getQuestSummary,
   getTopReaderTopicLabel,
   sortMilestoneQuests,
@@ -147,70 +146,6 @@ describe('game center helpers', () => {
     expect(summary.daily.completionRate).toBe(67);
     expect(summary.weekly.completionRate).toBe(100);
     expect(summary.highlightedQuest?.quest.id).toBe('daily-claimable');
-  });
-
-  it('picks the most progressed upcoming quest while skipping claimable and claimed ones', () => {
-    const mostProgressedQuest = getMostProgressedQuest([
-      createQuest({
-        questId: 'claimable-milestone',
-        name: 'Claimable milestone',
-        progress: 10,
-        claimable: true,
-        status: QuestStatus.Completed,
-        completedAt: new Date('2025-02-01T00:00:00.000Z'),
-        quest: {
-          id: 'claimable-milestone',
-          name: 'Claimable milestone',
-          description: 'Claimable milestone description',
-          type: QuestType.Milestone,
-          eventType: 'read_post',
-          targetCount: 10,
-        },
-      }),
-      createQuest({
-        questId: 'claimed-milestone',
-        name: 'Claimed milestone',
-        progress: 10,
-        status: QuestStatus.Claimed,
-        claimedAt: new Date('2025-02-01T00:00:00.000Z'),
-        quest: {
-          id: 'claimed-milestone',
-          name: 'Claimed milestone',
-          description: 'Claimed milestone description',
-          type: QuestType.Milestone,
-          eventType: 'read_post',
-          targetCount: 10,
-        },
-      }),
-      createQuest({
-        questId: 'ratio-winner',
-        name: 'Ratio winner',
-        progress: 7,
-        quest: {
-          id: 'ratio-winner',
-          name: 'Ratio winner',
-          description: 'Ratio winner description',
-          type: QuestType.Milestone,
-          eventType: 'read_post',
-          targetCount: 8,
-        },
-      }),
-      createQuest({
-        questId: 'progress-loser',
-        name: 'Progress loser',
-        progress: 9,
-        quest: {
-          id: 'progress-loser',
-          name: 'Progress loser',
-          description: 'Progress loser description',
-          type: QuestType.Milestone,
-          eventType: 'read_post',
-          targetCount: 12,
-        },
-      }),
-    ]);
-
-    expect(mostProgressedQuest?.quest.id).toBe('ratio-winner');
   });
 
   it('orders milestones claimable first, then closest to done, then claimed', () => {

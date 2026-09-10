@@ -101,38 +101,6 @@ const getHighlightedQuest = (quests: UserQuest[]): UserQuest | null => {
   })[0];
 };
 
-export const getMostProgressedQuest = (
-  quests?: UserQuest[],
-): UserQuest | null => {
-  const activeQuests =
-    quests?.filter(
-      (quest) => !quest.claimable && quest.status !== QuestStatus.Claimed,
-    ) ?? [];
-
-  if (activeQuests.length === 0) {
-    return null;
-  }
-
-  return [...activeQuests].sort((left, right) => {
-    if (left.locked !== right.locked) {
-      return left.locked ? 1 : -1;
-    }
-
-    const ratioDifference =
-      getQuestProgressRatio(right) - getQuestProgressRatio(left);
-
-    if (ratioDifference !== 0) {
-      return ratioDifference;
-    }
-
-    if (left.progress !== right.progress) {
-      return right.progress - left.progress;
-    }
-
-    return getQuestRewardTotal(right) - getQuestRewardTotal(left);
-  })[0];
-};
-
 const MILESTONE_RANK_CLAIMABLE = 0;
 const MILESTONE_RANK_IN_PROGRESS = 1;
 const MILESTONE_RANK_CLAIMED = 2;
