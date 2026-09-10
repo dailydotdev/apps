@@ -29,10 +29,7 @@ import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
 import { ProfileSnapshotButton } from '../../features/snapshot/ProfileSnapshotButton';
 import { ProfileSnapshotCard } from '../../features/snapshot/ProfileSnapshotCard';
-import {
-  profileReadingHistoryQueryOptions,
-  sumReadHistory,
-} from '../../graphql/users';
+import { devCardQueryOptions } from '../../hooks/profile/useDevCard';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useLogContext } from '../../contexts/LogContext';
@@ -63,11 +60,10 @@ const ProfileActions = dynamic(
 
 const ProfileCard = forwardRef<HTMLDivElement, { user: PublicProfile }>(
   function ProfileCard({ user }, ref): ReactElement {
-    const { tokenRefreshed } = useAuthContext();
-    // The widgets column already fetched this, so arming the card is a cache
-    // read on the profile page.
-    const { data: readingHistory } = useQuery(
-      profileReadingHistoryQueryOptions({ user, enabled: tokenRefreshed }),
+    // The lifetime count the DevCard shows. Only an armed card mounts this, so
+    // a profile view does not fetch it.
+    const { data: devCard } = useQuery(
+      devCardQueryOptions({ userId: user.id }),
     );
     const handle = user.username ?? user.id;
 
@@ -79,11 +75,7 @@ const ProfileCard = forwardRef<HTMLDivElement, { user: PublicProfile }>(
         image={user.image}
         joined={format(new Date(user.createdAt), 'MMMM y')}
         name={user.name}
-        postsRead={
-          readingHistory
-            ? sumReadHistory(readingHistory.userReadHistory)
-            : undefined
-        }
+        postsRead={devCard?.devCard.articlesRead}
         ref={ref}
         reputation={user.reputation}
         seed={handle}
@@ -168,10 +160,10 @@ const ProfileHeader = ({
           <ProfileSnapshotButton
             filename={`daily-profile-${username ?? user.id}`}
             origin={Origin.ProfileHeader}
+            ownerId={user.id}
             renderCard={(ref) => <ProfileCard ref={ref} user={user} />}
             // Matches the edit button beside it, which takes Button's default.
             size={ButtonSize.Medium}
-            ownerId={user.id}
             variant={ButtonVariant.Float}
           />
           <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>

@@ -248,8 +248,6 @@ export const getProfileReadingWindow = (): { before: Date; after: Date } => {
   return { before, after: subMonths(subDays(before, 2), 5) };
 };
 
-// The window is not part of the key, so the profile header's snapshot card
-// reads the entry the widgets column already fetched.
 export const profileReadingHistoryQueryOptions = ({
   user,
   enabled = true,

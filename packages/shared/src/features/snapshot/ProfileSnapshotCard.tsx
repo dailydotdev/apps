@@ -22,7 +22,7 @@ export interface ProfileSnapshotCardProps {
   bio?: string;
   image?: string;
   cover?: string;
-  /** Over the Reading Overview's window. Left out when it is not loaded. */
+  /** Lifetime, like the DevCard's. Left out when unknown or zero. */
   postsRead?: number;
   joined: string;
   reputation: number;
@@ -116,9 +116,9 @@ function ProfileSnapshotCardComponent(
         )}
 
         <SnapshotStatRow>
-          {postsRead !== undefined && (
+          {!!postsRead && (
             <SnapshotStat
-              label="Posts read in the last months"
+              label="Posts read"
               value={
                 <SnapshotStatValue>
                   {largeNumberFormat(postsRead) ?? postsRead}
@@ -130,14 +130,16 @@ function ProfileSnapshotCardComponent(
             label="Joined"
             value={<SnapshotStatValue compact>{joined}</SnapshotStatValue>}
           />
-          <SnapshotStat
-            label="Reputation"
-            value={
-              <SnapshotStatValue>
-                {largeNumberFormat(reputation) ?? reputation}
-              </SnapshotStatValue>
-            }
-          />
+          {!!reputation && (
+            <SnapshotStat
+              label="Reputation"
+              value={
+                <SnapshotStatValue>
+                  {largeNumberFormat(reputation) ?? reputation}
+                </SnapshotStatValue>
+              }
+            />
+          )}
         </SnapshotStatRow>
       </div>
     </SnapshotFrame>
