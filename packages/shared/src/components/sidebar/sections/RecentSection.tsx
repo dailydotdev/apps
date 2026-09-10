@@ -3,17 +3,9 @@ import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
+import { pageIconForPath } from '../pageIcons';
 import {
-  AnalyticsIcon,
-  BellIcon,
-  BookmarkIcon,
-  BriefIcon,
-  CompassIcon,
   HashtagIcon,
-  HomeIcon,
-  HotIcon,
-  JobIcon,
-  SettingsIcon,
   SourceIcon,
   SquadIcon,
   TimerIcon,
@@ -22,13 +14,12 @@ import {
 import { Image, ImageType } from '../../image/Image';
 import { Section } from '../Section';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { sourceQueryOptions } from '../../../graphql/sources';
+import { sourceImageQueryOptions } from '../../../graphql/sources';
 import type { SidebarSectionProps } from './common';
 import type { RecentPage, RecentPageType } from '../../../lib/recentPages';
 import { toWebappHref } from '../../../lib/links';
 import { useRecentPages } from '../../../hooks/useRecentPages';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useSquad } from '../../../hooks/squads/useSquad';
 import { useUserShortByIdQuery } from '../../../hooks/user/useUserShortByIdQuery';
 import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
@@ -55,24 +46,6 @@ const firstSegment = (path: string): string =>
 
 const isJobsPath = (path: string): boolean => firstSegment(path) === 'jobs';
 
-// Recognizable glyphs for known internal destinations, keyed by the leading
-// path segment, so a recent page reads as itself (Game Center, Settings,
-// Notifications…) instead of the generic "history" timer. Anything unmapped
-// (and any page with no better icon/image) keeps the timer fallback.
-const PAGE_ICON_BY_SEGMENT: Record<string, () => ReactElement> = {
-  'game-center': () => <HotIcon />,
-  'daily-quests': () => <HotIcon />,
-  settings: () => <SettingsIcon />,
-  notifications: () => <BellIcon />,
-  bookmarks: () => <BookmarkIcon />,
-  briefing: () => <BriefIcon />,
-  analytics: () => <AnalyticsIcon />,
-  jobs: () => <JobIcon />,
-  following: () => <HomeIcon />,
-  posts: () => <CompassIcon />,
-  squads: () => <SquadIcon />,
-};
-
 const iconForType = (page: RecentPage, type: RecentPageType): ReactElement => {
   switch (type) {
     case 'user':
@@ -84,8 +57,10 @@ const iconForType = (page: RecentPage, type: RecentPageType): ReactElement => {
     case 'tag':
       return <HashtagIcon />;
     default: {
-      const makeIcon = PAGE_ICON_BY_SEGMENT[firstSegment(page.path)];
-      return makeIcon ? makeIcon() : <TimerIcon />;
+      // Shared with the shortcuts dock so a row and the pin dragged out of it
+      // can't drift apart. Anything unmapped keeps the "history" timer.
+      const PageIcon = pageIconForPath(page.path);
+      return PageIcon ? <PageIcon /> : <TimerIcon />;
     }
   }
 };
@@ -93,35 +68,39 @@ const iconForType = (page: RecentPage, type: RecentPageType): ReactElement => {
 const handleFromPath = (path: string): string =>
   path.split('?')[0].split('#')[0].split('/').filter(Boolean).pop() ?? '';
 
-// Renders the real entity avatar (squad logo / profile picture) when we can
-// resolve it — the entity is usually already cached from the visit — and falls
-// back to the typed vector icon while loading or when it can't be resolved.
+// Renders the real entity avatar (squad logo / profile picture). Entries record
+// the avatar with the visit, so only rows written before that fall back to a
+// lookup, and the typed vector icon covers whatever still can't be resolved.
 const RecentItemIcon = ({ page }: { page: RecentPage }): ReactElement => {
   const type = resolveType(page);
   const handle = handleFromPath(page.path);
   const { user } = useAuthContext();
   const isOwnProfile =
     type === 'user' && !!user?.username && handle === user.username;
+  const isSourceLike = type === 'squad' || type === 'source';
+  const needsLookup = !page.image && !isOwnProfile;
 
   // Each query self-disables when handed an empty id/handle, so only the row's
   // matching entity is fetched.
-  const { squad } = useSquad({ handle: type === 'squad' ? handle : '' });
   const { data: otherUser } = useUserShortByIdQuery({
-    id: type === 'user' && !isOwnProfile ? handle : '',
+    id: needsLookup && type === 'user' ? handle : '',
   });
   const { data: source } = useQuery(
-    sourceQueryOptions({ sourceId: type === 'source' ? handle : '' }),
+    sourceImageQueryOptions({
+      handle: isSourceLike ? handle : '',
+      enabled: needsLookup,
+    }),
   );
 
-  let image: string | undefined;
-  if (isOwnProfile) {
-    image = user?.image;
-  } else if (type === 'user') {
-    image = otherUser?.image;
-  } else if (type === 'squad') {
-    image = squad?.image;
-  } else if (type === 'source') {
-    image = source?.image;
+  let { image } = page;
+  if (!image) {
+    if (isOwnProfile) {
+      image = user?.image;
+    } else if (type === 'user') {
+      image = otherUser?.image;
+    } else if (isSourceLike) {
+      image = source?.image;
+    }
   }
 
   if (image) {

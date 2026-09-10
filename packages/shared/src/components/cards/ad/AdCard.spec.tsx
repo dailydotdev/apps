@@ -11,6 +11,7 @@ import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
 import { businessWebsiteUrl } from '../../../lib/constants';
+import { anchorSponsoredRel } from '../../../lib/strings';
 import { useFeature } from '../../GrowthBookProvider';
 import { AdLabelVariant, featureAdLabel } from '../../../lib/featureManagement';
 
@@ -230,7 +231,7 @@ it('should render promoted attribution with source link', async () => {
 
   expect(link).toHaveAttribute('href', 'https://example.com/referral');
   expect(link).toHaveAttribute('target', '_blank');
-  expect(link).toHaveAttribute('rel', 'noopener');
+  expect(link).toHaveAttribute('rel', anchorSponsoredRel);
 });
 
 it('should render plain Promoted attribution without source link', async () => {

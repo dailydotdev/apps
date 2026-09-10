@@ -132,6 +132,10 @@ export const getReadArticleHref = (
 ): string | undefined =>
   getPostReadTarget(post).target?.permalink ?? post.permalink;
 
+export const getPostTitle = (
+  post: Pick<Post, 'title' | 'sharedPost'> | undefined | null,
+): string | undefined => post?.title || post?.sharedPost?.title || undefined;
+
 export const getReadPostButtonText = (post: Post): string => {
   if (isVideoPost(post)) {
     return 'Watch video';
@@ -289,6 +293,7 @@ export interface Post {
   type: PostType;
   subType?: string;
   private?: boolean;
+  noindex?: boolean;
   feedMeta?: string;
   downvoted?: boolean;
   flags?: PostFlags;
@@ -315,8 +320,7 @@ export interface Post {
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
   hero?: PostHero | null;
   /** LLM-generated digest of what the developer community outside daily.dev
-   * (HN, Lobsters) thinks about this post. `null` when no take exists yet —
-   * gated by the `community_sentiment` experiment (see PostFocusCard). */
+   * (HN, Lobsters) thinks about this post. `null` when no take exists yet. */
   communitySentiment?: CommunitySentimentPost | null;
 }
 

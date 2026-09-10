@@ -8,7 +8,8 @@ import { CONTENT_PREFERENCE_STATUS_QUERY } from '../../graphql/contentPreference
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { ApiErrorResult } from '../../graphql/common';
-import { ApiError, gqlClient } from '../../graphql/common';
+import { ApiError } from '../../graphql/common';
+import { gqlBatchRequest } from '../../graphql/batch';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
 import type { ContentPreferenceMutation } from './types';
 import {
@@ -50,7 +51,7 @@ export const useContentPreferenceStatusQuery = ({
       ];
 
       try {
-        const result = await gqlClient.request<{
+        const result = await gqlBatchRequest<{
           contentPreferenceStatus: ContentPreference;
         }>(CONTENT_PREFERENCE_STATUS_QUERY, queryVariables);
 

@@ -8,6 +8,8 @@ import {
   DELETE_FEED_MUTATION,
   TagChipSeedStrategy,
 } from '../../graphql/feed';
+import type { ShellStateVariables } from '../../graphql/shellState';
+import type { LoggedUser } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
@@ -19,6 +21,7 @@ import {
   FeedChipsVariant,
   featureFeedChips,
 } from '../../lib/featureManagement';
+import { useShellState } from '../../contexts/ShellStateContext';
 
 export type CreateFeedProps = {
   name: string;
@@ -36,27 +39,65 @@ export type UseFeeds = {
   deleteFeed: (props: DeleteFeedProps) => Promise<Pick<Feed, 'id'>>;
 };
 
-export const useFeeds = (): UseFeeds => {
-  const queryClient = useQueryClient();
-  const { displayToast } = useToastNotification();
-  const { user, feeds: bootFeeds } = useAuthContext();
+export type FeedListVariablesProps = {
+  feedChipsVariant: string;
+  isOnboardingComplete: boolean;
+  isTagChipFeedsSeeded?: boolean;
+};
+
+export const getFeedListVariables = ({
+  feedChipsVariant,
+  isOnboardingComplete,
+  isTagChipFeedsSeeded,
+}: FeedListVariablesProps): ShellStateVariables => {
+  const includeTagChipFeeds =
+    feedChipsVariant !== FeedChipsVariant.None &&
+    (isOnboardingComplete || !!isTagChipFeedsSeeded);
+  const tagChipSeedStrategy =
+    includeTagChipFeeds && feedChipsVariant === FeedChipsVariant.V3
+      ? TagChipSeedStrategy.V3
+      : undefined;
+
+  return {
+    includeTagChipFeeds,
+    ...(tagChipSeedStrategy && { tagChipSeedStrategy }),
+  };
+};
+
+export const useFeedListVariables = (): ShellStateVariables => {
+  const { user } = useAuthContext();
   const { isOnboardingComplete } = useOnboardingActions();
 
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
     shouldEvaluate: !!user,
   });
-  const includeTagChipFeeds =
-    feedChipsVariant !== FeedChipsVariant.None && isOnboardingComplete;
-  const tagChipSeedStrategy =
-    includeTagChipFeeds && feedChipsVariant === FeedChipsVariant.V3
-      ? TagChipSeedStrategy.V3
-      : undefined;
 
-  const queryKey = generateQueryKey(RequestKey.Feeds, user, {
-    includeTagChipFeeds,
-    ...(tagChipSeedStrategy && { tagChipSeedStrategy }),
-  });
+  const isTagChipFeedsSeeded = !!user?.flags?.tagChipFeedsSeededAt;
+
+  return useMemo(
+    () =>
+      getFeedListVariables({
+        feedChipsVariant,
+        isOnboardingComplete,
+        isTagChipFeedsSeeded,
+      }),
+    [feedChipsVariant, isOnboardingComplete, isTagChipFeedsSeeded],
+  );
+};
+
+export const getFeedListQueryKey = (
+  user: Pick<LoggedUser, 'id'> | undefined,
+  variables: ShellStateVariables,
+): unknown[] => generateQueryKey(RequestKey.Feeds, user, variables);
+
+export const useFeeds = (): UseFeeds => {
+  const queryClient = useQueryClient();
+  const { displayToast } = useToastNotification();
+  const { user, feeds: bootFeeds } = useAuthContext();
+  const { isSettled } = useShellState();
+  const variables = useFeedListVariables();
+  const queryKey = getFeedListQueryKey(user, variables);
 
   const initialData: FeedList['feedList'] | undefined = useMemo(() => {
     if (!bootFeeds) {
@@ -73,14 +114,14 @@ export const useFeeds = (): UseFeeds => {
     queryKey,
 
     queryFn: async () => {
-      const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY, {
-        includeTagChipFeeds,
-        ...(tagChipSeedStrategy && { tagChipSeedStrategy }),
-      });
+      const result = await gqlClient.request<FeedList>(
+        FEED_LIST_QUERY,
+        variables,
+      );
 
       return result.feedList;
     },
-    enabled: !!user,
+    enabled: !!user && isSettled,
     initialData,
     initialDataUpdatedAt: 0, // to interim force re-fetch until we sunset boot feeds data
     staleTime: StaleTime.OneHour,

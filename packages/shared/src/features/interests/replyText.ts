@@ -1,3 +1,4 @@
+import { getPostTitle } from '../../graphql/posts';
 import type { AgentBlock, AgentMessage } from './chat';
 import { isPostsBlock } from './chat';
 
@@ -43,7 +44,12 @@ export const messageAsMarkdown = (message: AgentMessage): string =>
       }
 
       const links = block.posts
-        .map((post) => `- [${post.title}](${post.commentsPermalink})`)
+        .map(
+          (post) =>
+            `- [${getPostTitle(post) ?? 'Untitled post'}](${
+              post.commentsPermalink
+            })`,
+        )
         .join('\n');
 
       return block.type === 'feedLink'
@@ -71,7 +77,7 @@ export const messageAsHtml = (message: AgentMessage): string =>
           (post) =>
             `<li><a href="${escapeAttribute(
               post.commentsPermalink,
-            )}">${escapeHtml(post.title ?? '')}</a></li>`,
+            )}">${escapeHtml(getPostTitle(post) ?? 'Untitled post')}</a></li>`,
         )
         .join('');
       const caption = block.type === 'feedLink' ? block.label : block.caption;

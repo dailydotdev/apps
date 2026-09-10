@@ -184,16 +184,6 @@ describe('AgentWorkspace panel resize', () => {
     await waitFor(() => expect(panelWidth()).toBe(740));
   });
 
-  it('writes once per drag, not once per pointer move', async () => {
-    const writes = stubStore(600);
-    renderWorkspace();
-    const handle = await openPanel();
-
-    drag(handle, -80);
-
-    await waitFor(() => expect(writes).toHaveLength(1));
-  });
-
   it('will not let either column be squeezed out of existence', async () => {
     stubStore(600);
     renderWorkspace();

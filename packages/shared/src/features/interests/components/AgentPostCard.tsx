@@ -15,6 +15,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
+import { getPostTitle } from '../../../graphql/posts';
 import { AgentRowActions } from './AgentRowActions';
 
 const Stat = ({
@@ -91,7 +92,7 @@ export const AgentPostCard = ({
           onClick={() => onOpen(post)}
           className="line-clamp-2 w-full text-left after:absolute after:inset-0 after:rounded-12"
         >
-          {post.title ?? post.sharedPost?.title}
+          {getPostTitle(post)}
         </button>
       </Typography>
       <FlexRow className="items-center gap-3">

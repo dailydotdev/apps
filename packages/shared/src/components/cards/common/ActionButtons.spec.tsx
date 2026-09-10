@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import ActionButtons from './ActionButtons';
 import type { ActionButtonsVariant } from './ActionButtons';
 import post from '../../../../__tests__/fixture/post';
@@ -8,6 +9,7 @@ import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import { useViewSize } from '../../../hooks/useViewSize';
+import { featureCommentFirstAction } from '../../../lib/featureManagement';
 
 jest.mock('../../../hooks/post/usePostImpressions', () => ({
   usePostImpressions: jest.fn(),
@@ -18,10 +20,6 @@ jest.mock('../../../hooks/post/usePostImpressions', () => ({
 jest.mock('../../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../../hooks/useViewSize'),
   useViewSize: jest.fn(),
-}));
-
-jest.mock('../../../hooks/post/usePostImpressionsModal', () => ({
-  usePostImpressionsModal: () => jest.fn(),
 }));
 
 jest.mock('../../../hooks/useEngagementBarV2', () => ({
@@ -38,6 +36,8 @@ const mockImpressions = (enabled: boolean) =>
     enabled,
     showImpressions: enabled,
     impressions: enabled ? 1000 : 0,
+    canViewAnalytics: false,
+    onImpressionsClick: jest.fn(),
   });
 
 const renderComponent = (variant: ActionButtonsVariant) =>
@@ -85,4 +85,53 @@ describe.each([
       expect(screen.getByTestId('award-action')).toBeInTheDocument();
     },
   );
+});
+
+describe('ActionButtons comment-first experiment', () => {
+  const renderWithFlag = (isCommentFirst: boolean) => {
+    const gb = new GrowthBook();
+    gb.setFeatures({
+      [featureCommentFirstAction.id]: { defaultValue: isCommentFirst },
+    });
+
+    return render(
+      <TestBootProvider client={new QueryClient()} gb={gb}>
+        <ActionButtons post={post} variant="grid" />
+      </TestBootProvider>,
+    );
+  };
+
+  const actionOrder = (container: HTMLElement) =>
+    Array.from(
+      container.querySelectorAll(
+        `#post-${post.id}-upvote-btn, #post-${post.id}-comment-btn, #post-${post.id}-downvote-btn`,
+      ),
+    ).map((element) => element.id);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(useEngagementBarV2).mockReturnValue(false);
+    jest.mocked(useViewSize).mockReturnValue(false);
+    mockImpressions(false);
+  });
+
+  it('keeps the control order when the flag is off', () => {
+    const { container } = renderWithFlag(false);
+
+    expect(actionOrder(container)).toEqual([
+      `post-${post.id}-upvote-btn`,
+      `post-${post.id}-comment-btn`,
+      `post-${post.id}-downvote-btn`,
+    ]);
+  });
+
+  it('moves the comment action first when the flag is on', () => {
+    const { container } = renderWithFlag(true);
+
+    expect(actionOrder(container)).toEqual([
+      `post-${post.id}-comment-btn`,
+      `post-${post.id}-upvote-btn`,
+      `post-${post.id}-downvote-btn`,
+    ]);
+  });
 });

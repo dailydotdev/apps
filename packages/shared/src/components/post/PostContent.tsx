@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
@@ -18,12 +18,7 @@ import YoutubeVideo from '../video/YoutubeVideo';
 import { useTrackPostView } from '../../hooks/post/useTrackPostView';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import {
-  feature,
-  featureCommunitySentiment,
-} from '../../lib/featureManagement';
-import { isDevelopment } from '../../lib/constants';
+import { feature } from '../../lib/featureManagement';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
@@ -31,11 +26,15 @@ import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
+import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
+import { Origin } from '../../lib/log';
+import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import {
   CommunitySentiment,
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
+import { anchorNofollowRel } from '../../lib/strings';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -64,7 +63,7 @@ const ArticleLink = ({
       href={href}
       title="Go to post"
       target="_blank"
-      rel="noopener"
+      rel={anchorNofollowRel}
       {...clickHandlers}
       {...props}
     >
@@ -97,6 +96,7 @@ export function PostContentRaw({
   commentAds,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
+  const postContainerRef = useRef<HTMLElement>(null);
   const engagementActions = usePostContent({
     origin,
     post,
@@ -121,15 +121,7 @@ export function PostContentRaw({
   const communitySentimentData = post.communitySentiment
     ? mapCommunitySentimentPost(post.communitySentiment)
     : undefined;
-  // Conditional enrollment: only evaluate (and log exposure for) the
-  // community_sentiment experiment on posts that actually have a take, so
-  // take-less posts don't dilute the treatment/control split.
-  const { value: communitySentimentEnabled } = useConditionalFeature({
-    feature: featureCommunitySentiment,
-    shouldEvaluate: !!communitySentimentData,
-  });
-  const showCommunitySentiment =
-    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
+  const showCommunitySentiment = !!communitySentimentData;
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const hasToc = (post.toc?.length ?? 0) > 0;
@@ -164,6 +156,7 @@ export function PostContentRaw({
 
   const postMainColumn = (
     <PostContainer
+      ref={postContainerRef}
       className={classNames(
         'relative',
         !!contentLeading && '!overflow-x-clip !overflow-y-visible',
@@ -171,6 +164,10 @@ export function PostContentRaw({
       )}
       data-testid="postContainer"
     >
+      {/* Page and modal both: a reader highlights a line wherever they are
+          reading it, and the modal is where most of the reading on desktop
+          happens. */}
+      <SelectionSnapshotBar containerRef={postContainerRef} post={post} />
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
@@ -221,7 +218,22 @@ export function PostContentRaw({
         )}
         {post.summary &&
           (renderSummarySegments ? (
-            renderSummarySegments(post.summary)
+            <>
+              {renderSummarySegments(post.summary)}
+              {/* The segmented summary is the page's own render prop, with ad
+                  slots between the parts, so the icon cannot run into the last
+                  line the way it does below — it trails the block instead. */}
+              {isPostPage && (
+                <div className="-mt-4 mb-6 flex">
+                  <TextSnapshotButton
+                    filename={`daily-summary-${post.id}`}
+                    origin={Origin.PostSummary}
+                    post={post}
+                    text={post.summary}
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <div
               className={classNames(
@@ -234,6 +246,14 @@ export function PostContentRaw({
                 data-testid="tldr-container"
               >
                 {post.summary}
+                {isPostPage && (
+                  <TextSnapshotButton
+                    filename={`daily-summary-${post.id}`}
+                    origin={Origin.PostSummary}
+                    post={post}
+                    text={post.summary}
+                  />
+                )}
               </p>
             </div>
           ))}

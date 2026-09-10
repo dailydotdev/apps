@@ -19,8 +19,9 @@ import {
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
-import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { useSearchId } from '@dailydotdev/shared/src/hooks/search/useSearchId';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
@@ -82,6 +83,7 @@ import {
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useEnableNotification } from '@dailydotdev/shared/src/hooks/notifications/useEnableNotification';
+import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import {
   ButtonColor,
   ButtonIconPosition,
@@ -289,6 +291,7 @@ const SquadPage = ({
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
   const squadId = squad?.id;
+  useRecentPageMeta({ image: squad?.image });
   const shownToastForSquadInSession = useRef<Record<string, boolean>>({});
   const squadNotificationToastState = useMemo(
     () => createSquadNotificationToastStateStore(user?.id),
@@ -390,7 +393,13 @@ const SquadPage = ({
   const searchQuery =
     typeof router.query?.q === 'string' ? router.query.q.trim() : '';
   const isSearching = searchQuery.length > 0;
-  const { getFeatureValue } = useFeaturesReadyContext();
+  const { value: searchVersion } = useConditionalFeature({
+    feature: feature.searchVersion,
+    shouldEvaluate: isSearching,
+  });
+  const searchId = useSearchId(
+    isSearching ? [squadId, searchQuery, searchVersion].join('|') : '',
+  );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearching) {
@@ -407,8 +416,10 @@ const SquadPage = ({
           source: squadId,
           query: searchQuery,
           supportedTypes: supportedTypesForPrivateSources,
-          version: getFeatureValue(feature.searchVersion),
+          version: searchVersion,
         },
+        searchId,
+        searchVersion,
         emptyScreen: <SearchEmptyScreen />,
       };
     }
@@ -430,7 +441,8 @@ const SquadPage = ({
     squadId,
     queryVariables,
     user?.id,
-    getFeatureValue,
+    searchId,
+    searchVersion,
   ]);
 
   // Search submit/clear write `q` to the URL. Cannot reuse `router.pathname`
@@ -697,8 +709,10 @@ export async function getServerSideProps({
     ]);
 
     // Fail closed: anything we can't positively confirm as a public squad stays
-    // out of the index.
+    // out of the index. The API's own gate covers inactive, vordr and tiny
+    // squads on top of that.
     const isPublicSquad = squad?.public === true;
+    const noindex = !isPublicSquad || squad?.noindex === true;
 
     const seoUsers = isPublicSquad
       ? await getSquad(handle)
@@ -720,8 +734,8 @@ export async function getServerSideProps({
         ...squadSeoTitles.openGraph,
         ...getSquadOpenGraph({ squad }),
       },
-      nofollow: !isPublicSquad,
-      noindex: !isPublicSquad,
+      nofollow: noindex,
+      noindex,
     };
 
     return {

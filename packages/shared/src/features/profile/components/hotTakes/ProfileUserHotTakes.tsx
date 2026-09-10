@@ -3,8 +3,8 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import type { PublicProfile } from '../../../../lib/user';
 import {
+  HOT_TAKE_LIMIT_HINT,
   HOT_TAKE_LIMIT_REACHED_MESSAGE,
-  MAX_HOT_TAKES,
   useHotTakes,
 } from '../../hooks/useHotTakes';
 import {
@@ -195,9 +195,9 @@ export function ProfileUserHotTakes({
   return (
     <div className="flex flex-col gap-4 py-4">
       {hotTakesAnchor}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         {isOwner ? (
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Primary}
@@ -209,7 +209,7 @@ export function ProfileUserHotTakes({
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              {hotTakeCount}/{MAX_HOT_TAKES}
+              {HOT_TAKE_LIMIT_HINT}
             </Typography>
           </div>
         ) : (

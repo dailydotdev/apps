@@ -355,6 +355,7 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       name
       handle
       public
+      noindex
       description
       image
       type
@@ -373,6 +374,7 @@ export type SquadStaticData = Pick<
   | 'name'
   | 'handle'
   | 'public'
+  | 'noindex'
   | 'description'
   | 'image'
   | 'type'

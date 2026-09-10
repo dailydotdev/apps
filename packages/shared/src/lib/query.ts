@@ -190,6 +190,7 @@ export enum RequestKey {
   Ads = 'ads',
   FeedByIds = 'feedByIds',
   SlackChannels = 'slack_channels',
+  IntegrationRecentChannels = 'integration_recent_channels',
   UserIntegrations = 'user_integrations',
   UserSourceIntegrations = 'user_source_integrations',
   SourceFeed = 'sourceFeed',
@@ -277,6 +278,10 @@ export enum RequestKey {
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   QuestDashboard = 'quest_dashboard',
+  // Not fetched. `useClaimQuestReward` writes the last successful claim here
+  // so listeners elsewhere in the tree can react to it, the same way
+  // `useLazyModal` carries the open modal.
+  QuestClaim = 'quest_claim',
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
@@ -295,6 +300,8 @@ export enum RequestKey {
   WorldDomainRanking = 'world_domain_ranking',
   WorldRecentLevelUps = 'world_recent_level_ups',
   FollowedWorlds = 'followed_worlds',
+  ShellState = 'shell_state',
+  AchievementTracker = 'achievement_tracker',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

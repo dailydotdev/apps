@@ -6,7 +6,11 @@ import { ProgressBar } from '../fields/ProgressBar';
 import { ArrowIcon, CoreIcon, LockIcon, ReputationIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { QuestReward, QuestType, UserQuest } from '../../graphql/quests';
-import { QuestRewardType, QuestStatus } from '../../graphql/quests';
+import {
+  QuestRewardType,
+  QuestStatus,
+  isQuestClaimed,
+} from '../../graphql/quests';
 import type { QuestRewardSource } from './QuestRewardAnimations';
 
 type ClaimedStampMaskHole = {
@@ -210,8 +214,7 @@ export const QuestCard = ({
     /[^a-zA-Z0-9_-]/g,
     '',
   )}`;
-  const hasPersistedClaim =
-    quest.status === QuestStatus.Claimed || Boolean(quest.claimedAt);
+  const hasPersistedClaim = isQuestClaimed(quest);
   const isClaimed = hasPersistedClaim || showClaimedStamp;
   const shouldShowClaimedStamp =
     showClaimedStamp ||

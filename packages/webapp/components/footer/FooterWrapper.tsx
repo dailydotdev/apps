@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { useActivePostContext } from '@dailydotdev/shared/src/contexts/ActivePostContext';
+import { withoutLayoutVariantPrefix } from '@dailydotdev/shared/src/lib/layoutVariant';
 
 const MobilePostFloatingBar = dynamic(() =>
   import(
@@ -37,10 +38,11 @@ export default function FooterWrapper({
   const router = useRouter();
   const { requestOpenComment } = useActivePostContext();
 
+  const pathname = withoutLayoutVariantPrefix(router?.pathname);
   const showPlusButton =
-    !router?.pathname?.startsWith('/settings') &&
-    !router?.pathname?.startsWith('/posts/') &&
-    !router?.pathname?.startsWith('/giveback');
+    !pathname.startsWith('/settings') &&
+    !pathname.startsWith('/posts/') &&
+    !pathname.startsWith('/giveback');
 
   return (
     <div

@@ -9,24 +9,28 @@ type AlertPropObject<T> = Record<AlertType, T>;
 
 export enum AlertType {
   Info = 'info',
+  Warning = 'warning',
   Error = 'error',
   Success = 'success',
 }
 
 const fontColor: AlertPropObject<string> = {
   info: 'text-accent-bun-default',
+  warning: 'text-status-warning',
   error: 'text-status-error',
   success: 'text-status-success',
 };
 
 const borderColor: AlertPropObject<string> = {
   info: 'border-l-accent-bun-default',
+  warning: 'border-l-status-warning',
   error: 'border-l-status-error',
   success: 'border-l-status-success',
 };
 
 const iconType: AlertPropObject<typeof FeedbackIcon> = {
   info: FeedbackIcon,
+  warning: AlertIcon,
   error: AlertIcon,
   success: CheckIcon,
 };

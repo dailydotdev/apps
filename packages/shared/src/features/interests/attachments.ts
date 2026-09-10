@@ -1,4 +1,5 @@
 import type { Post } from '../../graphql/posts';
+import { getPostTitle } from '../../graphql/posts';
 import type { AgentActivityItem, AgentContentTarget } from './AgentContext';
 import type { AgentAttachment, AgentMessage } from './chat';
 import { isPostsBlock } from './chat';
@@ -8,7 +9,7 @@ import { isPostsBlock } from './chat';
 export const postAttachment = (post: Post): AgentAttachment => ({
   id: `post:${post.id}`,
   kind: 'post',
-  label: post.title ?? 'Untitled post',
+  label: getPostTitle(post) ?? 'Untitled post',
   detail: post.source?.name,
 });
 
@@ -67,6 +68,38 @@ export const targetAttachment = (
   }
 
   return agentAttachments.find(({ id }) => id === `agent:${target.type}`);
+};
+
+// Most posts one piece of feedback can point at. The API sweeps every marker
+// into a relationship, so a reply that lists a whole feed would drown the
+// finding the vote was actually about.
+export const FEEDBACK_POST_LIMIT = 5;
+
+// The posts a reply cited, as chips, so feedback about that reply can name
+// them with the `@dailydev:post:` markers the API resolves. Feed links are
+// left out: a hydrated feed link can carry the whole feed, so its posts would
+// misattribute the feedback to posts the reply never singled out.
+export const messagePostAttachments = (
+  message: Pick<AgentMessage, 'blocks'>,
+  limit = FEEDBACK_POST_LIMIT,
+): AgentAttachment[] => {
+  const seen = new Set<string>();
+
+  return (message.blocks ?? [])
+    .flatMap((block) =>
+      block.type === 'posts' || block.type === 'picks' ? block.posts : [],
+    )
+    .filter(({ id }) => {
+      if (seen.has(id)) {
+        return false;
+      }
+
+      seen.add(id);
+
+      return true;
+    })
+    .slice(0, limit)
+    .map(postAttachment);
 };
 
 const transcriptPosts = (messages: AgentMessage[]): Post[] =>

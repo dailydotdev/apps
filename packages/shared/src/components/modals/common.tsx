@@ -100,10 +100,10 @@ const NewStreakModal = dynamic(
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
 );
 
-const StreakOffersModal = dynamic(
+const QuestOffersModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "streakOffersModal" */ './streaks/StreakOffersModal'
+      /* webpackChunkName: "questOffersModal" */ './quests/QuestOffersModal'
     ),
 );
 
@@ -164,6 +164,10 @@ const SlackIntegrationModal = dynamic(
     import(
       /* webpackChunkName: "slackIntegrationModal" */ './SlackIntegrationModal/SlackIntegrationModal'
     ),
+);
+
+const SlackShareModal = dynamic(
+  () => import(/* webpackChunkName: "slackShareModal" */ './SlackShareModal'),
 );
 
 const ReportSourceModal = dynamic(
@@ -543,7 +547,7 @@ export const modals = {
   [LazyModal.Video]: VideoModal,
   [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
-  [LazyModal.StreakOffers]: StreakOffersModal,
+  [LazyModal.QuestOffers]: QuestOffersModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
@@ -553,6 +557,7 @@ export const modals = {
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
+  [LazyModal.SlackShare]: SlackShareModal,
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,

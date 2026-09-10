@@ -1,11 +1,12 @@
 import type { NextRequest } from 'next/server';
 import { after, NextResponse } from 'next/server';
-import { acceptsMarkdown } from './lib/contentNegotiation';
 import {
-  MARKDOWN_ROUTES,
-  POST_MARKDOWN_PATH,
-  RESERVED_POST_SLUGS,
-} from './lib/markdownRoutes';
+  LAYOUT_VARIANT_COOKIE,
+  LAYOUT_VARIANT_ROUTE_PREFIX,
+} from '@dailydotdev/shared/src/lib/layoutVariant';
+import { acceptsMarkdown } from './lib/contentNegotiation';
+import { MARKDOWN_ROUTES, POST_MARKDOWN_PATH } from './lib/markdownRoutes';
+import { RESERVED_POST_SLUGS, isPostPermalinkPath } from './lib/postRoutes';
 import {
   getAgentSignupRequiredBody,
   hasValidAgentMarkdownToken,
@@ -125,6 +126,39 @@ const isMarkdownRequest = (req: NextRequest): boolean => {
   );
 };
 
+// Prerendered pages are cached per path, so the shell has to be part of the
+// path: the mirror renders the v2 chrome in the initial HTML for sessions
+// already bucketed into it, and the rewrite keeps the visible URL.
+// Only the post page is mirrored — every mirrored route doubles its ISR
+// entries and its revalidation traffic.
+export const getLayoutVariantResponse = (
+  req: NextRequest,
+): NextResponse | undefined => {
+  const { pathname } = req.nextUrl;
+
+  // Next normalises `/_next/data/<buildId>/posts/x.json` down to the page
+  // path, so a soft navigation reaches here looking exactly like a document
+  // request. Rewriting it answers with the mirror's route, which moves the
+  // client onto a route it never asked for; the shell is already resolved by
+  // then, so only the initial document needs the mirror.
+  if (
+    req.headers.has('x-nextjs-data') ||
+    req.cookies.get(LAYOUT_VARIANT_COOKIE)?.value !== 'v2' ||
+    !isPostPermalinkPath(pathname)
+  ) {
+    return undefined;
+  }
+
+  const url = req.nextUrl.clone();
+  url.pathname = `${LAYOUT_VARIANT_ROUTE_PREFIX}${pathname}`;
+
+  // Names the shell the response was built with, so a variant can be told
+  // apart from the control in logs and when debugging a cached page.
+  return NextResponse.rewrite(url, {
+    headers: { 'x-layout-variant': 'v2' },
+  });
+};
+
 export async function proxy(req: NextRequest): Promise<NextResponse> {
   const isMarkdown = isMarkdownRequest(req);
 
@@ -136,5 +170,5 @@ export async function proxy(req: NextRequest): Promise<NextResponse> {
     return handleMarkdownRequest(req);
   }
 
-  return NextResponse.next();
+  return getLayoutVariantResponse(req) ?? NextResponse.next();
 }

@@ -280,6 +280,12 @@ const nextConfig: NextConfig = {
           destination: '/articles/:id',
           permanent: false,
         },
+        // the layout v2 mirror is reachable through the proxy rewrite only
+        {
+          source: '/layout-v2/:path*',
+          destination: '/:path*',
+          permanent: false,
+        },
         // so we can't access /plus/gift route directly
         {
           source: '/plus/gift',

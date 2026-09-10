@@ -71,6 +71,7 @@ import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
+import { ExploreSignupStrip } from '../auth/ExploreSignupStrip';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { webappUrl } from '../../lib/constants';
 import {
@@ -90,11 +91,11 @@ const SUPPORTED_TYPES = [
 
 export interface TagTopicPageProps {
   tag: string;
-  initialData: Keyword | null;
+  initialData: Keyword;
   topPosts: TopPost[];
   recommendedTags: TagsData['tags'];
   topContributors: UserShortProfile[];
-  jsonLd?: string | null;
+  jsonLd?: string;
 }
 
 // Render the user/source cards in the same grid the post feed uses (same
@@ -249,9 +250,9 @@ export const TagTopicPage = ({
     showToastOnSuccess: false,
   });
 
-  const title = initialData?.flags?.title || formatKeyword(tag);
-  const followers = initialData?.followers;
-  const occurrences = initialData?.occurrences ?? 0;
+  const title = initialData.flags?.title || formatKeyword(tag);
+  const { followers } = initialData;
+  const occurrences = initialData.occurrences ?? 0;
 
   const topPostsQueryVariables = useMemo(
     () => ({ tag, ranking: 'POPULARITY', supportedTypes: SUPPORTED_TYPES }),
@@ -386,6 +387,7 @@ export const TagTopicPage = ({
       />
       <FeedPageLayoutComponent>
         <div className="flex w-full flex-col px-4 py-6 tablet:px-6">
+          <ExploreSignupStrip />
           {/* Hero cover — centered on the page; content below spans full width. */}
           <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
             {!engagementStripCreative && <SponsoredTagHero tag={tag} />}
@@ -411,7 +413,7 @@ export const TagTopicPage = ({
                 </React.Fragment>
               ))}
             </Typography>
-            {initialData?.flags?.description && (
+            {initialData.flags?.description && (
               <Typography
                 type={TypographyType.Body}
                 color={TypographyColor.Secondary}
@@ -518,7 +520,7 @@ export const TagTopicPage = ({
             />
           )}
 
-          {showRoadmap && initialData?.flags?.roadmap && (
+          {showRoadmap && initialData.flags?.roadmap && (
             <section className="mb-10">
               <EntitySectionHeading>Roadmaps</EntitySectionHeading>
               <Link href={initialData.flags.roadmap} passHref prefetch={false}>

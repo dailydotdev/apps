@@ -29,9 +29,11 @@ describe('Drawer', () => {
     const overlay = screen
       .getByText('content')
       .closest('.fixed') as HTMLElement;
+    expect(overlay).toHaveClass('fixed', 'top-0');
     expect(overlay.style.getPropertyValue('--safe-area-top-offset')).toBe(
       '40px',
     );
+    expect(overlay.getAttribute('style')).not.toMatch(/(^|;\s*)top\s*:/);
     // The overlay stays at full layout height so the page cannot show
     // through the keyboard; only the wrapper tracks the visual viewport.
     expect(overlay).toHaveStyle({ height: '100vh' });

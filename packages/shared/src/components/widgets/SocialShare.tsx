@@ -104,6 +104,8 @@ export const SocialShare = ({
       <SocialShareContainer title="Share externally">
         <SocialShareList
           link={link}
+          post={isComment ? undefined : post}
+          origin={origin}
           description={post?.title ?? ''}
           emailSummary={post?.summary}
           isCopying={copying}

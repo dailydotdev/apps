@@ -9,6 +9,7 @@ import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLa
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { webappUrl } from '../../../lib/constants';
+import { searchRecommendationLogExtra } from '../../../lib/searchLog';
 import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
@@ -35,36 +36,48 @@ export const SearchResultsLayout = (
   const { logEvent } = useLogContext();
   const query = typeof q === 'string' ? q : '';
 
-  const { isLoading: isTagsLoading, suggestions: suggestedTags } =
-    useSearchProviderSuggestions({
-      query,
-      provider: SearchProviderEnum.Tags,
-      limit: 10,
-      enabled: isSearchPageLaptop,
-    });
+  const {
+    isLoading: isTagsLoading,
+    suggestions: suggestedTags,
+    searchId: tagsSearchId,
+    searchVersion: tagsSearchVersion,
+  } = useSearchProviderSuggestions({
+    query,
+    provider: SearchProviderEnum.Tags,
+    limit: 10,
+    enabled: isSearchPageLaptop,
+  });
   const tags = suggestedTags?.hits.flatMap(({ id }) => (id ? [id] : [])) ?? [];
 
-  const { isLoading: isSourcesLoading, suggestions: suggestedSources } =
-    useSearchProviderSuggestions({
-      query,
-      provider: SearchProviderEnum.Sources,
-      limit: 10,
-      enabled: isSearchPageLaptop,
-    });
+  const {
+    isLoading: isSourcesLoading,
+    suggestions: suggestedSources,
+    searchId: sourcesSearchId,
+    searchVersion: sourcesSearchVersion,
+  } = useSearchProviderSuggestions({
+    query,
+    provider: SearchProviderEnum.Sources,
+    limit: 10,
+    enabled: isSearchPageLaptop,
+  });
   const sources = suggestedSources?.hits ?? [];
 
-  const { isLoading: isUsersLoading, suggestions: suggestedUsers } =
-    useSearchProviderSuggestions({
-      query,
-      provider: SearchProviderEnum.Users,
-      limit: 10,
-      includeContentPreference: true,
-      enabled: isSearchPageLaptop,
-    });
+  const {
+    isLoading: isUsersLoading,
+    suggestions: suggestedUsers,
+    searchId: usersSearchId,
+    searchVersion: usersSearchVersion,
+  } = useSearchProviderSuggestions({
+    query,
+    provider: SearchProviderEnum.Users,
+    limit: 10,
+    includeContentPreference: true,
+    enabled: isSearchPageLaptop,
+  });
 
   const users = suggestedUsers?.hits ?? [];
 
-  const onTagClick = (suggestion: SearchSuggestion) => {
+  const onTagClick = (suggestion: SearchSuggestion, position: number) => {
     const tag = suggestion.id || suggestion.title.toLowerCase();
 
     logEvent({
@@ -72,10 +85,15 @@ export const SearchResultsLayout = (
       target_type: TargetType.SearchRecommendation,
       target_id: tag,
       feed_item_title: tag,
-      extra: JSON.stringify({
-        origin: Origin.SearchPage,
-        provider: SearchProviderEnum.Tags,
-      }),
+      extra: JSON.stringify(
+        searchRecommendationLogExtra({
+          origin: Origin.SearchPage,
+          provider: SearchProviderEnum.Tags,
+          position,
+          searchId: tagsSearchId,
+          searchVersion: tagsSearchVersion,
+        }),
+      ),
     });
 
     push(`${webappUrl}tags/${tag}`);
@@ -132,14 +150,24 @@ export const SearchResultsLayout = (
                 target_type: TargetType.SearchRecommendation,
                 target_id: source.id,
                 feed_item_title: source.name,
-                extra: JSON.stringify({
-                  origin: Origin.SearchPage,
-                  provider: SearchProviderEnum.Sources,
-                }),
+                extra: JSON.stringify(
+                  searchRecommendationLogExtra({
+                    origin: Origin.SearchPage,
+                    provider: SearchProviderEnum.Sources,
+                    position: sources.findIndex((hit) => hit.id === source.id),
+                    searchId: sourcesSearchId,
+                    searchVersion: sourcesSearchVersion,
+                  }),
+                ),
               });
             }}
           />
-          <SearchResultsUsers isLoading={isUsersLoading} items={users} />
+          <SearchResultsUsers
+            isLoading={isUsersLoading}
+            items={users}
+            searchId={usersSearchId}
+            searchVersion={usersSearchVersion}
+          />
         </PageWidgets>
       </div>
     </section>

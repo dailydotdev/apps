@@ -40,6 +40,12 @@ export const formatKeyword = (value: string): string => {
 
 export const anchorDefaultRel = 'noopener noreferrer';
 
+export const anchorUgcRel = 'noopener noreferrer nofollow ugc';
+
+export const anchorSponsoredRel = 'noopener noreferrer nofollow sponsored';
+
+export const anchorNofollowRel = 'noopener noreferrer nofollow';
+
 export const checkLowercaseEquality = (
   value1: string,
   value2: string,

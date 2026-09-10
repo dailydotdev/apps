@@ -2,6 +2,7 @@ import type { PurchaseType } from '../graphql/paddle';
 
 export enum Origin {
   ShareBar = 'share bar',
+  DiscussionPanel = 'discussion panel',
   ReadingHistoryContextMenu = 'reading history context menu',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
@@ -51,6 +52,14 @@ export enum Origin {
   HistoryTooltip = 'history tooltip',
   // search - end
   PostContent = 'post content',
+  EndOfConversation = 'end of conversation',
+  // snapshot placements - start
+  TextSelection = 'text selection',
+  PostSummary = 'post summary',
+  PostParagraph = 'post paragraph',
+  PollResults = 'poll results',
+  PollVotePrompt = 'poll vote prompt',
+  // snapshot placements - end
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -174,6 +183,8 @@ export enum LogEvent {
   CompleteSquadCreation = 'complete squad creation',
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
+  StartShareToSlack = 'start share to slack',
+  ShareToSlackError = 'share to slack error',
   ChecklistClose = 'checklist close',
   DeletePost = 'delete post',
   DeleteComment = 'delete comment',
@@ -210,6 +221,8 @@ export enum LogEvent {
   // search start
   FocusSearch = 'focus search',
   SubmitSearch = 'submit search',
+  SearchResults = 'search results',
+  CloseSearch = 'close search',
   OpenSearchHistory = 'open search history',
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',
@@ -253,7 +266,6 @@ export enum LogEvent {
   // Reading Streaks
   OpenStreaks = 'open streaks',
   DismissStreaksMilestone = 'dismiss streaks milestone',
-  DismissStreakOffers = 'dismiss streak offers',
   ScheduleStreakReminder = 'schedule streak reminder',
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
@@ -490,6 +502,8 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
+  QuestOffersEligible = 'quest offers eligible',
+  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -509,6 +523,17 @@ export enum LogEvent {
   ExtensionPrimerShown = 'impression extension primer',
   ExtensionPrimerCtaClick = 'click extension primer cta',
   ExtensionPrimerSkipped = 'skip extension primer',
+  // Sidebar v2 onboarding
+  StartSidebarTour = 'start sidebar tour',
+  ViewSidebarTourStep = 'view sidebar tour step',
+  SkipSidebarTour = 'skip sidebar tour',
+  CompleteSidebarTour = 'complete sidebar tour',
+  // Every ending the user did not choose, so `skip` and `complete` stay clean
+  // enough to read a ramp decision off.
+  EndSidebarTour = 'end sidebar tour',
+  ViewSidebarPinCoach = 'view sidebar pin coach',
+  SidebarPinCoachSuccess = 'sidebar pin coach success',
+  ViewSidebarDotsCoach = 'view sidebar dots coach',
 }
 
 export enum TargetType {
@@ -535,7 +560,6 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
-  StreakOffer = 'streak offer',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',
@@ -555,6 +579,8 @@ export enum TargetType {
   Tag = 'tag',
   Tool = 'tool',
   Quest = 'quest',
+  QuestOffer = 'quest offer',
+  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
@@ -594,6 +620,7 @@ export enum TargetId {
   FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
+  ExploreStrip = 'explore strip',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign
