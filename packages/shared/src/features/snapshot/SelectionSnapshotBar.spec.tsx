@@ -134,7 +134,7 @@ describe('SelectionSnapshotBar share events', () => {
 
   it.each([
     ['Copy text', ShareProvider.CopyText],
-    ['Copy link', ShareProvider.CopyLink],
+    ['Copy text and link', ShareProvider.CopyLink],
   ])('logs %s under the selection origin', (label, provider) => {
     const logEvent = jest.fn();
     renderBar(logEvent);
@@ -147,6 +147,17 @@ describe('SelectionSnapshotBar share events', () => {
     expect(event.event_name).toBe(LogEvent.SharePost);
     expect(JSON.parse(event.extra)).toEqual(
       expect.objectContaining({ provider, origin: Origin.TextSelection }),
+    );
+  });
+
+  it('copies the quote along with the link', () => {
+    renderBar();
+    select('body');
+
+    fireEvent.click(screen.getByLabelText('Copy text and link'));
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      `"${QUOTE}"\n\n${post.commentsPermalink}`,
     );
   });
 });
