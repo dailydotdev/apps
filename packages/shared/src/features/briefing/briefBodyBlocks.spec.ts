@@ -1,5 +1,5 @@
 import {
-  getBriefBlocks,
+  BRIEF_BLOCK_SELECTOR,
   getBriefSection,
   splitBriefBullet,
 } from './briefBodyBlocks';
@@ -25,30 +25,24 @@ const render = (html = BODY) => {
   return container;
 };
 
-describe('getBriefBlocks', () => {
-  it('returns every bullet and paragraph in the body', () => {
-    const blocks = getBriefBlocks(render());
+describe('BRIEF_BLOCK_SELECTOR', () => {
+  it('matches every bullet and paragraph in the body', () => {
+    const blocks = render().querySelectorAll(BRIEF_BLOCK_SELECTOR);
 
-    expect(blocks).toHaveLength(4);
-    expect(blocks[0].text).toContain(
-      'AI agents are taking over your dev tools',
-    );
-    expect(blocks[2].text).toBe('A paragraph under the second heading.');
+    expect(Array.from(blocks, (block) => block.tagName)).toEqual([
+      'LI',
+      'LI',
+      'P',
+      'LI',
+    ]);
   });
 
   it('skips a paragraph that only wraps a list item', () => {
-    const blocks = getBriefBlocks(
-      render('<ul><li><p>Wrapped bullet</p></li></ul>'),
-    );
+    const blocks = render(
+      '<ul><li><p>Wrapped bullet</p></li></ul>',
+    ).querySelectorAll(BRIEF_BLOCK_SELECTOR);
 
-    expect(blocks).toHaveLength(1);
-    expect(blocks[0].node.tagName).toBe('LI');
-  });
-
-  it('drops empty blocks', () => {
-    expect(getBriefBlocks(render('<p></p><p>  </p><p>Real</p>'))).toHaveLength(
-      1,
-    );
+    expect(Array.from(blocks, (block) => block.tagName)).toEqual(['LI']);
   });
 });
 
@@ -58,13 +52,13 @@ describe('getBriefSection', () => {
 
     expect(section?.heading.tagName).toBe('H2');
     expect(section?.blocks).toHaveLength(2);
-    expect(section?.blocks[1].text).toContain('Postgres keeps eating');
+    expect(section?.blocks[1]).toContain('Postgres keeps eating');
   });
 
   it('stops at the next heading', () => {
     const section = getBriefSection(render(), 'Worth a look');
 
-    expect(section?.blocks.map((block) => block.text)).toEqual([
+    expect(section?.blocks).toEqual([
       'A paragraph under the second heading.',
       'A bullet under the second heading.',
     ]);

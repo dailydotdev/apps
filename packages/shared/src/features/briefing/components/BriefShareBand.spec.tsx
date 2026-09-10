@@ -1,45 +1,51 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { BriefShareBand } from './BriefShareBand';
 import type { Post } from '../../../graphql/posts';
-import { Origin } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
+import { ShareProvider } from '../../../lib/share';
 
-let mockIsEnabled = false;
+const logEvent = jest.fn();
+const writeText = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('../../snapshot/useSharePlacement', () => ({
-  useSharePlacement: () => mockIsEnabled,
-}));
+const post = {
+  id: 'brief-1',
+  slug: 'brief-1',
+  commentsPermalink: 'https://app.daily.dev/posts/brief-1',
+} as Post;
 
-const post = { id: 'brief-1', slug: 'brief-1' } as Post;
-
-const renderComponent = () =>
-  render(
-    <TestBootProvider client={new QueryClient()}>
-      <BriefShareBand origin={Origin.BriefPage} post={post} />
-    </TestBootProvider>,
-  );
+beforeEach(() => {
+  jest.clearAllMocks();
+  Object.assign(navigator, {
+    clipboard: { writeText },
+  });
+});
 
 describe('BriefShareBand', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockIsEnabled = false;
-  });
+  it('logs a copy from the end of the briefing under its own origin', async () => {
+    render(
+      <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
+        <BriefShareBand post={post} />
+      </TestBootProvider>,
+    );
 
-  it('renders nothing while the placement is off', () => {
-    const { container } = renderComponent();
+    expect(screen.getByText('Share this briefing')).toBeInTheDocument();
 
-    expect(container).toBeEmptyDOMElement();
-  });
+    fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
 
-  it('offers the brief link on the shared band when the placement is on', () => {
-    mockIsEnabled = true;
-    renderComponent();
+    const shares = logEvent.mock.calls
+      .map(([event]) => event)
+      .filter((event) => event.event_name === LogEvent.SharePost)
+      .map((event) => JSON.parse(event.extra));
 
-    expect(screen.getByText('Share your briefing')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Copy link' }),
-    ).toBeInTheDocument();
+    expect(shares).toEqual([
+      expect.objectContaining({
+        provider: ShareProvider.CopyLink,
+        origin: Origin.EndOfBriefing,
+      }),
+    ]);
   });
 });

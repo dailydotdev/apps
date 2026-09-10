@@ -1,35 +1,24 @@
 /**
- * BriefPostContent renders the body through `<Markdown content={contentHtml} />`
- * — one blob, no per-item nodes — so a control per bullet has nothing to hang
- * off in JSX. These read the blocks back out of the rendered DOM, which is also
- * the most faithful source: what the reader is actually looking at.
+ * BriefPostContent renders the body as one `<Markdown content={contentHtml} />`
+ * blob, with no per-item nodes, so the share controls read its blocks back out
+ * of the rendered DOM: what the reader is actually looking at.
  */
 
-export interface BriefBlock {
-  node: HTMLElement;
-  text: string;
-}
+/** A bullet, or a paragraph that is not the body of one. */
+export const BRIEF_BLOCK_SELECTOR = 'li, :not(li) > p';
 
 export interface BriefSection {
   heading: HTMLElement;
-  blocks: BriefBlock[];
+  /** The text of every bullet, or of every block when it has none. */
+  blocks: string[];
 }
 
-const BLOCK_SELECTOR = 'li, p';
 const HEADING_SELECTOR = 'h1, h2, h3';
 
 /* textContent, not innerText: innerText needs layout, which jsdom has none of,
-   and the collapsed whitespace is what a paste wants anyway. */
-const text = (node: HTMLElement) =>
+   and the collapsed whitespace is what a card wants anyway. */
+const text = (node: Element) =>
   (node.textContent ?? '').replace(/\s+/g, ' ').trim();
-
-/** Skips paragraphs that only wrap a list item, which would copy twice. */
-export function getBriefBlocks(container: HTMLElement): BriefBlock[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(BLOCK_SELECTOR))
-    .filter((node) => !(node.tagName === 'P' && node.closest('li')))
-    .map((node) => ({ node, text: text(node) }))
-    .filter((block) => block.text.length > 0);
-}
 
 /**
  * The section a heading opens, up to the next heading of any level. Matching is
@@ -49,22 +38,20 @@ export function getBriefSection(
     return null;
   }
 
-  const blocks: BriefBlock[] = [];
+  const blocks: string[] = [];
   let sibling = heading.nextElementSibling;
 
   while (sibling && !sibling.matches(HEADING_SELECTOR)) {
-    if (sibling instanceof HTMLElement) {
-      const nested = sibling.querySelectorAll<HTMLElement>('li');
-      const nodes = nested.length ? Array.from(nested) : [sibling];
+    const nested = sibling.querySelectorAll('li');
+    const nodes = nested.length ? Array.from(nested) : [sibling];
 
-      nodes.forEach((node) => {
-        const value = text(node);
+    nodes.forEach((node) => {
+      const value = text(node);
 
-        if (value) {
-          blocks.push({ node, text: value });
-        }
-      });
-    }
+      if (value) {
+        blocks.push(value);
+      }
+    });
 
     sibling = sibling.nextElementSibling;
   }

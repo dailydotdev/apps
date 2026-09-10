@@ -45,7 +45,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { LogEvent, TargetId } from '../../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../../lib/log';
 import {
   featureBriefingShareControls,
   featurePlusCtaCopy,
@@ -69,9 +69,10 @@ import Link from '../../utilities/Link';
 import { ActionType } from '../../../graphql/actions';
 import { BriefUpgradeAlert } from '../../../features/briefing/components/BriefUpgradeAlert';
 import { BriefShareBand } from '../../../features/briefing/components/BriefShareBand';
-import { BriefBodyShareControls } from '../../../features/briefing/components/BriefBodyShareControls';
+import { BriefMustKnowSnapshotButton } from '../../../features/briefing/components/BriefMustKnowSnapshotButton';
+import { BRIEF_BLOCK_SELECTOR } from '../../../features/briefing/briefBodyBlocks';
 import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
-import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
+import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import type { BriefPostHeaderProps } from '../../../features/briefing/components/BriefPostHeader';
 import { BriefPostHeader } from '../../../features/briefing/components/BriefPostHeader';
 import type { NotificationChannel } from '../../../hooks/notifications/useNotificationSettings';
@@ -143,9 +144,7 @@ const BriefPostContentRaw = ({
   } = usePersonalizedDigest();
   const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
   const briefBodyRef = useRef<HTMLDivElement>(null);
-  // The post page's highlight bar, on the briefing's own flag: one switch
-  // turns every control on this surface on or off together.
-  const isSelectionShareEnabled = useSharePlacement({
+  const { value: isShareEnabled } = useConditionalFeature({
     feature: featureBriefingShareControls,
   });
 
@@ -406,15 +405,26 @@ const BriefPostContentRaw = ({
             <div ref={briefBodyRef}>
               <Markdown content={contentHtml} />
             </div>
-            {isSelectionShareEnabled && (
-              <SelectionSnapshotBar containerRef={briefBodyRef} post={post} />
+            {isShareEnabled && (
+              <>
+                <SelectionSnapshotBar
+                  containerRef={briefBodyRef}
+                  origin={Origin.BriefTextSelection}
+                  post={post}
+                />
+                <ParagraphSnapshotButtons
+                  containerRef={briefBodyRef}
+                  origin={Origin.BriefParagraph}
+                  post={post}
+                  selector={BRIEF_BLOCK_SELECTOR}
+                />
+                <BriefMustKnowSnapshotButton
+                  containerRef={briefBodyRef}
+                  post={post}
+                />
+                <BriefShareBand post={post} />
+              </>
             )}
-            <BriefBodyShareControls
-              bodyRef={briefBodyRef}
-              contentHtml={contentHtml}
-              post={post}
-            />
-            <BriefShareBand origin={origin} post={post} />
             {isNotPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div

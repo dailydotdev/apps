@@ -39,9 +39,15 @@ const proseOf = (paragraph: HTMLElement): string => {
 export function ParagraphSnapshotButtons({
   containerRef,
   post,
+  selector = 'p',
+  origin = Origin.PostParagraph,
 }: {
   containerRef: RefObject<HTMLElement>;
   post: Post;
+  /** Which blocks of the body get a control. */
+  selector?: string;
+  /** Which surface the body is on, for the snapshot's share event. */
+  origin?: Origin;
 }): ReactElement | null {
   const [slots, setSlots] = useState<{ node: HTMLElement; text: string }[]>([]);
   // The observer fires on the spans this appends, so a signature guards the
@@ -55,9 +61,9 @@ export function ParagraphSnapshotButtons({
       return;
     }
 
-    const paragraphs = Array.from(container.querySelectorAll('p')).filter(
-      (paragraph) => proseOf(paragraph).length >= MIN_LENGTH,
-    );
+    const paragraphs = Array.from(
+      container.querySelectorAll<HTMLElement>(selector),
+    ).filter((paragraph) => proseOf(paragraph).length >= MIN_LENGTH);
     const nextSignature = paragraphs.map(proseOf).join(' ');
 
     if (nextSignature === signature.current) {
@@ -83,7 +89,7 @@ export function ParagraphSnapshotButtons({
         return { node: slot, text };
       }),
     );
-  }, [containerRef]);
+  }, [containerRef, selector]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -112,7 +118,7 @@ export function ParagraphSnapshotButtons({
         createPortal(
           <TextSnapshotButton
             filename={`daily-paragraph-${post.id}`}
-            origin={Origin.PostParagraph}
+            origin={origin}
             post={post}
             text={text}
           />,
