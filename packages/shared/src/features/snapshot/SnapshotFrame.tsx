@@ -21,7 +21,7 @@ export const SNAPSHOT_CARD_MAX = SNAPSHOT_SIZE - 150;
 
 const CARD_RADIUS = 48;
 const CARD_EDGE = 2;
-const CARD_PADDING = 58;
+export const SNAPSHOT_CARD_PADDING = 58;
 const CARD_PADDING_WIDE = 32;
 
 /**
@@ -159,7 +159,7 @@ function SnapshotFrameComponent(
               ...(!grow && {
                 minHeight: SNAPSHOT_SIZE - gutter * 2 - CARD_EDGE * 2,
               }),
-              padding: wide ? CARD_PADDING_WIDE : CARD_PADDING,
+              padding: wide ? CARD_PADDING_WIDE : SNAPSHOT_CARD_PADDING,
               borderRadius: CARD_RADIUS - CARD_EDGE,
               background: CARD_BODY,
             }}

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { forwardRef } from 'react';
 import { SnapshotCredit } from './SnapshotCredit';
 import { SnapshotFrame } from './SnapshotFrame';
@@ -20,6 +20,8 @@ export interface HighlightTextSnapshotCardProps {
    */
   highlight?: HighlightRange;
   source?: { name: string; image?: string };
+  /** The surface's own label, on the logo row. */
+  label?: ReactNode;
   seed?: string;
 }
 
@@ -43,7 +45,7 @@ const MARK_BACKGROUND = 'rgba(217, 126, 254, 0.22)';
  * unclickable in an image.
  */
 function HighlightTextSnapshotCardComponent(
-  { passage, highlight, source, seed }: HighlightTextSnapshotCardProps,
+  { passage, highlight, source, label, seed }: HighlightTextSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   const trimmed = passage.trim();
@@ -57,7 +59,7 @@ function HighlightTextSnapshotCardComponent(
     : undefined;
 
   return (
-    <SnapshotFrame grow wide ref={ref} seed={seed ?? trimmed}>
+    <SnapshotFrame grow wide logoAside={label} ref={ref} seed={seed ?? trimmed}>
       <div className="flex flex-1 flex-col">
         <div className="flex flex-1 flex-col justify-center">
           <p
