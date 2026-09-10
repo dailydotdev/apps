@@ -12,7 +12,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ArrowIcon,
-  HotIcon,
   UpvoteIcon,
   DiscussIcon,
   BookmarkIcon,
@@ -426,48 +425,6 @@ const HighlightPlacement = () => {
   );
 };
 
-/** 3. Leaderboard — icon-only, revealed on row hover. */
-const LEADERBOARD_ROWS = [
-  { score: 15500, name: 'Bobby Iliev', handle: 'bobbyiliev', level: 103 },
-  { score: 14200, name: 'Keshav Ashiya', handle: 'keshavashiya', level: 98 },
-  { score: 13700, name: 'Hadil Ben Abdallah', handle: 'hadilben', level: 96 },
-];
-
-const LeaderboardPlacement = () => (
-  <ul className="flex flex-col">
-    {LEADERBOARD_ROWS.map((row) => (
-      <li
-        key={row.handle}
-        className="group flex w-full flex-row items-center rounded-8 px-2 py-1.5 hover:bg-accent-pepper-subtler"
-      >
-        <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary typo-caption1">
-          {row.score.toLocaleString()}
-        </span>
-        <span className="mr-2 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border-subtlest-tertiary text-text-primary typo-caption1">
-          {row.level}
-        </span>
-        <img src={AVATAR} alt="" className="size-8 shrink-0 rounded-10" />
-        <span className="ml-2 flex min-w-0 flex-col">
-          <span className="truncate font-bold text-text-primary typo-caption1">
-            {row.name}
-          </span>
-          <span className="truncate text-text-tertiary typo-caption2">
-            @{row.handle}
-          </span>
-        </span>
-        <Snapshot
-          className="ml-auto opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
-          filename={`daily-leaderboard-${row.handle}`}
-          showLabel={false}
-          size={ButtonSize.XSmall}
-          target={{ current: null }}
-          variant={ButtonVariant.Float}
-        />
-      </li>
-    ))}
-  </ul>
-);
-
 /** 4. Watercooler feed — one per post card, in the card action row. */
 const WatercoolerPlacement = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -477,14 +434,9 @@ const WatercoolerPlacement = () => {
       <div ref={ref} className="flex flex-col">
         <div className="flex items-center gap-2">
           <img src={AVATAR} alt="" className="size-8 rounded-10" />
-          <div className="flex flex-col">
-            <span className="font-bold text-text-primary typo-footnote">
-              Ante Barić
-            </span>
-            <span className="text-text-quaternary typo-caption1">
-              Watercooler · 2h
-            </span>
-          </div>
+          <span className="text-text-quaternary typo-caption1">
+            Watercooler · 2h
+          </span>
         </div>
         <h4 className="mt-2 font-bold text-text-primary typo-title3">
           What is the one dev tool you would not give up?
@@ -526,19 +478,11 @@ const HotTakePlacement = () => {
         <p className="w-full break-words text-center text-text-tertiary typo-body">
           Every formatter argument is a proxy war over indentation.
         </p>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 rounded-10 bg-surface-hover px-3 py-1">
-            <HotIcon className="text-accent-cabbage-default" />
-            <span className="font-bold text-text-secondary typo-footnote">
-              128
-            </span>
-          </div>
-          <PreferredActions
-            filename="daily-hot-take"
-            leads="Snapshot"
-            target={ref}
-          />
-        </div>
+        <PreferredActions
+          filename="daily-hot-take"
+          leads="Snapshot"
+          target={ref}
+        />
       </div>
     </div>
   );
@@ -574,11 +518,11 @@ const Placements = () => {
             <b className="text-text-primary">Sharing map</b>.
           </p>
           <p className="max-w-[46rem] text-text-quaternary typo-footnote">
-            Placements 1–5 are built and live, and the profile placements (6
-            and 7) are left out because the live profile is the reference; 8–20
-            are mock-ups of surfaces the Sharing map covers but the code does
-            not touch yet, so the control and its verdict can be reviewed before
-            anything is wired.
+            Placement 1 is live on the post page, and the profile placements (6
+            and 7) are left out because the live profile is the reference. The
+            rest are mock-ups of surfaces the Sharing map covers but the code
+            does not touch yet, so the control and its verdict can be reviewed
+            before anything is wired.
           </p>
         </header>
 
@@ -728,15 +672,6 @@ const Placements = () => {
         </Panel>
 
         <Panel
-          step="Placement 3"
-          leads="Snapshot"
-          title="Leaderboards — on row hover"
-          note="Snapshot leads: a rank is status, and a link shows the reader this week's board, not your moment. Icon-only on hover so the table stays quiet."
-        >
-          <LeaderboardPlacement />
-        </Panel>
-
-        <Panel
           step="Placement 4"
           leads="Link"
           title="Watercooler feed — per post card"
@@ -773,7 +708,6 @@ const Placements = () => {
             filename="daily-thread"
             leads="Link"
             title="Enjoyed this discussion?"
-            body="24 replies · last one 4 minutes ago"
           />
         </Panel>
 
@@ -816,7 +750,6 @@ const Placements = () => {
             <HeaderSurface
               filename="daily-tag"
               leads="Link"
-              meta="48.2K followers · 1.2K posts"
               title="#typescript"
               trailing={
                 <Button size={ButtonSize.Small} variant={ButtonVariant.Float}>
@@ -827,7 +760,6 @@ const Placements = () => {
             <HeaderSurface
               filename="daily-source"
               leads="Link"
-              meta="12.4K followers · 8.6K posts"
               title="XDA Developers"
               trailing={
                 <Button size={ButtonSize.Small} variant={ButtonVariant.Float}>
@@ -842,7 +774,7 @@ const Placements = () => {
           step="Placement 13"
           leads="Link"
           title="Leaderboard page"
-          note="Copy link leads for the board itself — it changes weekly, so a link stays true where an image does not. Sharing your own rank is Placement 3."
+          note="Copy link leads for the board itself: it changes weekly, so a link stays true where an image does not."
         >
           <HeaderSurface
             eyebrow="Leaderboard"
@@ -911,7 +843,6 @@ const Placements = () => {
             eyebrow="My feed"
             filename="daily-my-feed"
             leads="Snapshot"
-            meta="Top 20 posts right now"
             title="What I'm reading"
           />
         </Panel>
@@ -925,7 +856,6 @@ const Placements = () => {
           <HeaderSurface
             filename="daily-squad"
             leads="Link"
-            meta="3.4K members · 820 posts"
             title="Frontend Fans"
             trailing={
               <Button size={ButtonSize.Small} variant={ButtonVariant.Float}>
@@ -960,7 +890,6 @@ const Placements = () => {
             filename="daily-invite"
             leads="Link"
             title="Come read with me on daily.dev"
-            body="We both get a month of Plus · daily.dev/join/tomer"
           />
         </Panel>
       </div>

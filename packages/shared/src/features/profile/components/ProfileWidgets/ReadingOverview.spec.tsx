@@ -61,11 +61,11 @@ const mockMostReadTags: MostReadTag[] = [
 
 const mockUser = {
   id: 'u1',
-  name: 'Tomer Redlich',
-  username: 'tomer',
-  image: 'https://daily.dev/tomer.jpg',
+  name: 'Test User',
+  username: 'testuser',
+  image: 'https://daily.dev/testuser.jpg',
   createdAt: '2021-01-04T00:00:00.000Z',
-  permalink: 'https://app.daily.dev/tomer',
+  permalink: 'https://app.daily.dev/testuser',
   reputation: 1200,
   premium: false,
 } as PublicProfile;

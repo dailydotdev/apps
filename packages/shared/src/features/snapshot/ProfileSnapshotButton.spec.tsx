@@ -22,7 +22,7 @@ const renderButton = () =>
   render(
     <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
       <ProfileSnapshotButton
-        filename="daily-profile-tomer"
+        filename="daily-profile-testuser"
         origin={Origin.ProfileHeader}
         renderCard={renderCard}
         targetId="u1"
