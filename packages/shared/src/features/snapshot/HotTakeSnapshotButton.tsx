@@ -12,6 +12,7 @@ import type { HotTake } from '../../graphql/user/userHotTake';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
+import type { SnapshotCreditProps } from './SnapshotCredit';
 import { HotTakeSnapshotCard } from './HotTakeSnapshotCard';
 import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { useArmedCard } from './useArmedCard';
@@ -22,12 +23,18 @@ import { useArmedCard } from './useArmedCard';
  * is transformed while it moves, which would carry a fixed child with it.
  */
 export function HotTakeSnapshotButton({
+  author,
   hotTake,
   origin,
   showLabel,
   size,
   variant,
 }: {
+  /**
+   * Credited on the card. Defaults to the take's own user; a profile's list
+   * fetches its takes without one, since the profile already names them.
+   */
+  author?: SnapshotCreditProps;
   hotTake: HotTake;
   /** Which placement this is, for the snapshot's share event. */
   origin: Origin;
@@ -73,7 +80,11 @@ export function HotTakeSnapshotButton({
             aria-hidden
             className="pointer-events-none fixed left-[-300vw] top-0"
           >
-            <HotTakeSnapshotCard ref={cardRef} take={hotTake} />
+            <HotTakeSnapshotCard
+              author={author ?? hotTake.user}
+              ref={cardRef}
+              take={hotTake}
+            />
           </div>,
           document.body,
         )}

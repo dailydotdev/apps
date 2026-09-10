@@ -17,10 +17,13 @@ import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
 import { CardAction } from '../../../../components/buttons/CardAction';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { HotTakeSnapshotButton } from '../../../snapshot/HotTakeSnapshotButton';
+import type { SnapshotCreditProps } from '../../../snapshot/SnapshotCredit';
 import { Origin } from '../../../../lib/log';
 
 interface HotTakeItemProps {
   item: HotTake;
+  /** The profile's owner, credited on the take's snapshot. */
+  author?: SnapshotCreditProps;
   isOwner: boolean;
   onEdit?: (item: HotTake) => void;
   onDelete?: (item: HotTake) => void;
@@ -29,6 +32,7 @@ interface HotTakeItemProps {
 
 export function HotTakeItem({
   item,
+  author,
   isOwner,
   onEdit,
   onDelete,
@@ -92,6 +96,7 @@ export function HotTakeItem({
           </div>
         )}
         <HotTakeSnapshotButton
+          author={author}
           hotTake={item}
           origin={Origin.HotTakeList}
           showLabel={false}

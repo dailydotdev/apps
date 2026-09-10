@@ -20,11 +20,14 @@ import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButto
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
 import { HotTakeSnapshotButton } from '../../../snapshot/HotTakeSnapshotButton';
+import type { SnapshotCreditProps } from '../../../snapshot/SnapshotCredit';
 import { Origin } from '../../../../lib/log';
 import { HotTakeItem as HotTakeItemV2 } from './HotTakeItem.v2';
 
 interface HotTakeItemProps {
   item: HotTake;
+  /** The profile's owner, credited on the take's snapshot. */
+  author?: SnapshotCreditProps;
   isOwner: boolean;
   onEdit?: (item: HotTake) => void;
   onDelete?: (item: HotTake) => void;
@@ -33,6 +36,7 @@ interface HotTakeItemProps {
 
 function HotTakeItemV1({
   item,
+  author,
   isOwner,
   onEdit,
   onDelete,
@@ -96,6 +100,7 @@ function HotTakeItemV1({
           </div>
         )}
         <HotTakeSnapshotButton
+          author={author}
           hotTake={item}
           origin={Origin.HotTakeList}
           showLabel={false}

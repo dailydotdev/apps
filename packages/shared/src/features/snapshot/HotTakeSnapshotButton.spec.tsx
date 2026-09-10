@@ -28,10 +28,10 @@ const hotTake: HotTake = {
 
 const logEvent = jest.fn();
 
-const renderButton = () =>
+const renderButton = (take = hotTake) =>
   render(
     <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
-      <HotTakeSnapshotButton hotTake={hotTake} origin={Origin.HotTakeList} />
+      <HotTakeSnapshotButton hotTake={take} origin={Origin.HotTakeList} />
     </TestBootProvider>,
   );
 
@@ -39,7 +39,7 @@ const cardCopies = () =>
   screen.queryAllByText('Tabs won Prettier just hid the bodies').length;
 
 beforeEach(() => {
-  logEvent.mockReset();
+  jest.clearAllMocks();
   jest
     .mocked(captureShareImage)
     .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));
@@ -56,6 +56,36 @@ describe('HotTakeSnapshotButton', () => {
     fireEvent.pointerEnter(screen.getByLabelText('Snapshot'));
 
     expect(cardCopies()).toBe(1);
+  });
+
+  it('credits the author so a shared take is not read as the sharer', () => {
+    renderButton({
+      ...hotTake,
+      user: {
+        id: 'user-1',
+        name: 'Ada Lovelace',
+        username: 'ada',
+        image: 'https://media.daily.dev/ada.png',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        reputation: 10,
+        permalink: 'https://app.daily.dev/ada',
+      },
+    });
+    fireEvent.pointerEnter(screen.getByLabelText('Snapshot'));
+
+    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument();
+    expect(document.querySelector('img')).toHaveAttribute(
+      'src',
+      'https://media.daily.dev/ada.png',
+    );
+  });
+
+  it('leaves the credit off a take without an author', () => {
+    renderButton();
+    fireEvent.pointerEnter(screen.getByLabelText('Snapshot'));
+
+    expect(cardCopies()).toBe(1);
+    expect(document.querySelector('img')).not.toBeInTheDocument();
   });
 
   it('logs the snapshot as a hot take share with its placement', async () => {
