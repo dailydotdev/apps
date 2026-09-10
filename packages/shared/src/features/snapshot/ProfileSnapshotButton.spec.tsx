@@ -18,17 +18,18 @@ jest.mock('../../lib/imageShare/copyShareImage', () => ({
 const logEvent = jest.fn();
 const renderCard = jest.fn((ref) => <div ref={ref}>profile card</div>);
 
-const renderButton = () =>
-  render(
-    <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
-      <ProfileSnapshotButton
-        filename="daily-profile-testuser"
-        origin={Origin.ProfileHeader}
-        renderCard={renderCard}
-        targetId="u1"
-      />
-    </TestBootProvider>,
-  );
+const client = new QueryClient();
+const snapshotButton = (ownerId = 'u1') => (
+  <TestBootProvider client={client} log={{ logEvent }}>
+    <ProfileSnapshotButton
+      filename="daily-profile-testuser"
+      origin={Origin.ProfileHeader}
+      ownerId={ownerId}
+      renderCard={renderCard}
+    />
+  </TestBootProvider>
+);
+const renderButton = () => render(snapshotButton());
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -47,6 +48,16 @@ describe('ProfileSnapshotButton', () => {
     fireEvent.pointerEnter(screen.getByLabelText('Snapshot'));
 
     expect(screen.getByText('profile card')).toBeInTheDocument();
+  });
+
+  it('drops the armed card when the profile changes under it', () => {
+    const { rerender } = renderButton();
+    fireEvent.pointerEnter(screen.getByLabelText('Snapshot'));
+    expect(screen.getByText('profile card')).toBeInTheDocument();
+
+    rerender(snapshotButton('u2'));
+
+    expect(screen.queryByText('profile card')).not.toBeInTheDocument();
   });
 
   it('logs the press as a profile share with its placement', async () => {

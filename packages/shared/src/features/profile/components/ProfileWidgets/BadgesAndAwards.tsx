@@ -109,7 +109,7 @@ export const BadgesAndAwards = ({
               }}
             />
           )}
-          targetId={user.id}
+          ownerId={user.id}
         />
       </div>
       <ClickableText

@@ -287,13 +287,14 @@ const PLACEMENTS: Placement[] = [
     render: (ref) => (
       <AchievementSnapshotCard
         ref={ref}
-        completedAt="Jun 1"
+        completedAt="Jun 1, 2026"
         description="Spend 100,000 Cores without running dry."
         image={ACHIEVEMENT_ART}
         name="Can't spend it all"
         rarity={0.01}
         seed="achievement"
         tier={AchievementRarityTier.Emerald}
+        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
       />
     ),
   },

@@ -1,7 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { format } from 'date-fns';
 import type { UserAchievement } from '../../../../graphql/user/achievements';
+import type { PublicProfile } from '../../../../lib/user';
 import {
   AchievementType,
   getTargetCount,
@@ -35,6 +37,11 @@ import { Origin, TargetType } from '../../../../lib/log';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
+  /**
+   * Whose achievement this is. The snapshot names them, so it is only offered
+   * where the card knows.
+   */
+  user?: Pick<PublicProfile, 'id' | 'name' | 'username' | 'image'>;
   isOwner?: boolean;
   isTracked?: boolean;
   isTrackPending?: boolean;
@@ -45,6 +52,7 @@ interface AchievementCardProps {
 
 export function AchievementCard({
   userAchievement,
+  user,
   isOwner = false,
   isTracked = false,
   isTrackPending = false,
@@ -125,17 +133,15 @@ export function AchievementCard({
           </Typography>
         </div>
         <div className="relative flex shrink-0 items-center gap-1 self-center">
-          {isUnlocked && unlockedAt && (
+          {isUnlocked && unlockedAt && user && (
             <span className="flex mouse:absolute mouse:right-full mouse:top-1/2 mouse:mr-1 mouse:-translate-y-1/2 mouse:opacity-0 mouse:transition-opacity mouse:focus-within:opacity-100 mouse:group-hover/achievement:opacity-100">
               <ProfileSnapshotButton
                 filename={`daily-achievement-${achievement.id}`}
                 origin={Origin.AchievementCard}
+                ownerId={user.id}
                 renderCard={(ref) => (
                   <AchievementSnapshotCard
-                    completedAt={formatDate({
-                      value: unlockedAt,
-                      type: TimeFormatType.Post,
-                    })}
+                    completedAt={format(new Date(unlockedAt), 'MMM d, yyyy')}
                     description={achievement.description}
                     image={achievement.image}
                     name={achievement.name}
@@ -143,6 +149,11 @@ export function AchievementCard({
                     ref={ref}
                     seed={achievement.id}
                     tier={rarityTier}
+                    user={{
+                      handle: `@${user.username ?? user.id}`,
+                      image: user.image,
+                      name: user.name,
+                    }}
                   />
                 )}
                 targetId={achievement.id}

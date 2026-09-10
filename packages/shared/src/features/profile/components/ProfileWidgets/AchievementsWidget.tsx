@@ -94,7 +94,7 @@ function RecentAchievements({
               }
             >
               <div className="w-80 rounded-16 bg-background-popover">
-                <AchievementCard userAchievement={ua} />
+                <AchievementCard user={user} userAchievement={ua} />
               </div>
             </HoverCard>
           );
@@ -162,7 +162,7 @@ export function AchievementsWidget({
                 }}
               />
             )}
-            targetId={user.id}
+            ownerId={user.id}
           />
         </div>
       </div>

@@ -166,7 +166,7 @@ export function ReadingOverview({
               user={user}
             />
           )}
-          targetId={user.id}
+          ownerId={user.id}
         />
       </div>
       <ClickableText

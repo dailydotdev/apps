@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import { AchievementRarityTier } from '../profile/components/achievements/achievementRarity';
 import { SnapshotFrame } from './SnapshotFrame';
+import type { SnapshotIdentityProps } from './SnapshotIdentity';
+import { SnapshotIdentity } from './SnapshotIdentity';
 
 const CARD_WIDTH = 620;
 /** Trading-card proportions (2.5:3.5) rather than a square slab. */
@@ -21,6 +23,8 @@ const PILL = {
 };
 
 export interface AchievementSnapshotCardProps {
+  /** Who earned it, so a visitor's share does not read as their own. */
+  user: SnapshotIdentityProps;
   name: string;
   description: string;
   image?: string;
@@ -32,6 +36,7 @@ export interface AchievementSnapshotCardProps {
 
 function AchievementSnapshotCardComponent(
   {
+    user,
     name,
     description,
     image,
@@ -119,6 +124,15 @@ function AchievementSnapshotCardComponent(
           >
             Completed {completedAt}
           </span>
+          <div
+            style={{
+              marginTop: 22,
+              paddingTop: 22,
+              borderTop: '1px solid rgba(255,255,255,0.16)',
+            }}
+          >
+            <SnapshotIdentity {...user} />
+          </div>
         </div>
       </div>
     </SnapshotFrame>

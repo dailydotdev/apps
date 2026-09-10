@@ -132,7 +132,10 @@ export function ProfileAchievementShowcase({
                 }
               >
                 <div className="w-80 rounded-16 bg-background-popover">
-                  <AchievementCard userAchievement={userAchievement} />
+                  <AchievementCard
+                    user={user}
+                    userAchievement={userAchievement}
+                  />
                 </div>
               </HoverCard>
             );

@@ -171,7 +171,7 @@ const ProfileHeader = ({
             renderCard={(ref) => <ProfileCard ref={ref} user={user} />}
             // Matches the edit button beside it, which takes Button's default.
             size={ButtonSize.Medium}
-            targetId={user.id}
+            ownerId={user.id}
             variant={ButtonVariant.Float}
           />
           <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>

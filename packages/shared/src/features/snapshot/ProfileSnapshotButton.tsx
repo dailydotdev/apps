@@ -16,7 +16,9 @@ export interface ProfileSnapshotButtonProps {
   /** Which placement this is, for the snapshot's share event. */
   origin: Origin;
   filename: string;
-  targetId: string;
+  /** The profile's user. The profile is also the target unless one is set. */
+  ownerId: string;
+  targetId?: string;
   targetType?: TargetType;
   /**
    * Called only once the button is armed, so whatever the card derives from
@@ -36,10 +38,11 @@ export interface ProfileSnapshotButtonProps {
  * the live DOM, and portalled to the body so it inherits neither a widget's
  * overflow nor a hover card's transform.
  */
-export function ProfileSnapshotButton({
+function ArmedProfileSnapshotButton({
   origin,
   filename,
-  targetId,
+  ownerId,
+  targetId = ownerId,
   targetType = TargetType.ProfilePage,
   renderCard,
   size = ButtonSize.XSmall,
@@ -89,5 +92,17 @@ export function ProfileSnapshotButton({
           document.body,
         )}
     </>
+  );
+}
+
+// Keyed by the owner: a client-side move to another profile reuses this
+// component, and a card armed on the last profile would stay mounted with the
+// next one's data.
+export function ProfileSnapshotButton({
+  ownerId,
+  ...props
+}: ProfileSnapshotButtonProps): ReactElement {
+  return (
+    <ArmedProfileSnapshotButton key={ownerId} ownerId={ownerId} {...props} />
   );
 }
