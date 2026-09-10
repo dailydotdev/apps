@@ -70,10 +70,10 @@ export function TextSnapshotButton({
             className="pointer-events-none fixed left-[-300vw] top-0"
           >
             <HighlightTextSnapshotCard
+              passage={text}
               ref={cardRef}
               seed={post.id}
               source={snapshotSource(post)}
-              text={text}
             />
           </div>,
           document.body,

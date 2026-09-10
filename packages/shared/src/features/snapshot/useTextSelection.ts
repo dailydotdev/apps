@@ -1,14 +1,46 @@
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import type { HighlightRange } from './snapshotText';
+import { findHighlightRange } from './snapshotText';
 
 export interface TextSelection {
   text: string;
+  /**
+   * The block the selection was taken from, so a card can show the marked run
+   * in its context. Falls back to the selection itself when the block cannot
+   * be resolved.
+   */
+  passage: string;
+  /** Where `text` sits inside `passage`, absent when the two are the same. */
+  highlight?: HighlightRange;
   /** Viewport coordinates, so a fixed toolbar can use them unchanged. */
   top: number;
   bottom: number;
   left: number;
   width: number;
 }
+
+/** The blocks a quote can be read out of, nearest first via `closest`. */
+const PASSAGE_SELECTOR = 'p,li,blockquote,h1,h2,h3,h4,h5,h6,td,dd,figcaption';
+
+/**
+ * The paragraph around a selection. The offsets come from matching the
+ * selection's own string inside the block rather than from the range, which
+ * counts into a single text node and not the block's rendered text; a
+ * selection that spans two blocks finds no match and is left on its own.
+ */
+const readPassage = (
+  range: Range,
+  text: string,
+): Pick<TextSelection, 'passage' | 'highlight'> => {
+  const { commonAncestorContainer: node } = range;
+  const element =
+    node instanceof Element ? node : (node.parentElement as Element | null);
+  const passage = element?.closest(PASSAGE_SELECTOR)?.textContent?.trim();
+  const highlight = passage ? findHighlightRange(passage, text) : undefined;
+
+  return passage && highlight ? { passage, highlight } : { passage: text };
+};
 
 /** Under this a selection is a stray double-click, not a quote worth sharing. */
 export const MIN_SELECTION_LENGTH = 24;
@@ -43,6 +75,7 @@ const read = (container: HTMLElement | null): TextSelection | null => {
 
   return {
     text,
+    ...readPassage(range, text),
     top: rect.top,
     bottom: rect.bottom,
     left: rect.left,

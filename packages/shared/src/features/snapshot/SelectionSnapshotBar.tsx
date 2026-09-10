@@ -149,9 +149,10 @@ export function SelectionSnapshotBar({
       >
         <HighlightTextSnapshotCard
           ref={cardRef}
+          highlight={quote.highlight}
+          passage={quote.passage}
           seed={post.id}
           source={snapshotSource(post)}
-          text={quote.text}
         />
       </div>
     </>,
