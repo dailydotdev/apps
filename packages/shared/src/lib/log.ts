@@ -52,6 +52,14 @@ export enum Origin {
   HistoryTooltip = 'history tooltip',
   // search - end
   PostContent = 'post content',
+  EndOfConversation = 'end of conversation',
+  // snapshot placements - start
+  TextSelection = 'text selection',
+  PostSummary = 'post summary',
+  PostParagraph = 'post paragraph',
+  PollResults = 'poll results',
+  PollVotePrompt = 'poll vote prompt',
+  // snapshot placements - end
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
