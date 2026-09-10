@@ -10,7 +10,9 @@ import {
 import type { PillProps } from '../Pill';
 import { Pill } from '../Pill';
 import { IconSize } from '../Icon';
-import { BriefGradientIcon, LinkIcon, LockIcon, ShareIcon } from '../icons';
+import { BriefGradientIcon, LockIcon } from '../icons';
+import { LinkIcon } from '../icons/Link';
+import { ShareIcon } from '../icons/Share';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { Origin, TargetId } from '../../lib/log';
@@ -27,7 +29,7 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSharePost } from '../../hooks/useSharePost';
 import { CopyStateIcon } from '../share/CopyStateIcon';
 import { featureBriefingShareControls } from '../../lib/featureManagement';
-import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 
 export type BriefListItemProps = {
   className?: string;
@@ -62,7 +64,7 @@ export const BriefListItem = ({
   const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
   const { copyLink, isCopying, openSharePost } = useSharePost(origin);
-  const withShareControls = useSharePlacement({
+  const { value: withShareControls } = useConditionalFeature({
     feature: featureBriefingShareControls,
   });
 

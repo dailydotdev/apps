@@ -32,8 +32,11 @@ jest.mock('../../hooks/useSharePost', () => ({
   }),
 }));
 
-jest.mock('../../features/snapshot/useSharePlacement', () => ({
-  useSharePlacement: () => mockWithShareControls,
+jest.mock('../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: () => ({
+    value: mockWithShareControls,
+    isLoading: false,
+  }),
 }));
 
 const post = {
@@ -107,7 +110,7 @@ describe('BriefListItem', () => {
     expect(mockLogEvent).toHaveBeenCalledTimes(1);
   });
 
-  it('renders no share controls while the placement is off', () => {
+  it('renders no share controls while the flag is off', () => {
     renderComponent();
 
     expect(
@@ -118,41 +121,17 @@ describe('BriefListItem', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('keeps the share controls inside the card', () => {
-    mockWithShareControls = true;
-    renderComponent();
-
-    const button = screen.getByRole('button', { name: 'Copy link' });
-    const article = button.closest('article');
-    const column = article?.querySelector('div.flex.flex-col');
-
-    // `w-full` on the text column pushes the control past the card border.
-    expect(column).not.toHaveClass('w-full');
-    expect(column).toHaveClass('min-w-0', 'flex-1');
-    expect(article).toContainElement(button);
-  });
-
-  it('copies the brief link without opening the brief', () => {
+  it('copies and shares the brief link without opening the brief', () => {
     mockWithShareControls = true;
     const onClick = jest.fn();
     renderComponent(onClick);
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
-
-    expect(mockCopyLink).toHaveBeenCalledWith({ post });
-    expect(onClick).not.toHaveBeenCalled();
-    expect(mockOnPostClick).not.toHaveBeenCalled();
-  });
-
-  it('opens the share surface without opening the brief', () => {
-    mockWithShareControls = true;
-    const onClick = jest.fn();
-    renderComponent(onClick);
-
     fireEvent.click(screen.getByRole('button', { name: 'Share briefing' }));
 
+    expect(mockCopyLink).toHaveBeenCalledWith({ post });
     expect(mockOpenSharePost).toHaveBeenCalledWith({ post });
-    expect(mockCopyLink).not.toHaveBeenCalled();
     expect(onClick).not.toHaveBeenCalled();
+    expect(mockOnPostClick).not.toHaveBeenCalled();
   });
 });

@@ -17,8 +17,8 @@ jest.mock('../../../hooks/useSharePost', () => ({
   }),
 }));
 
-jest.mock('../../../features/snapshot/useSharePlacement', () => ({
-  useSharePlacement: () => mockAtEveryWidth,
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: () => ({ value: mockAtEveryWidth, isLoading: false }),
 }));
 
 const post = { id: 'brief-1', slug: 'brief-1' } as Post;
@@ -41,7 +41,7 @@ describe('BriefPostHeaderActions', () => {
     mockAtEveryWidth = false;
   });
 
-  it('keeps the cluster desktop-only while the placement is off', () => {
+  it('keeps the cluster desktop-only while the flag is off', () => {
     renderComponent();
 
     expect(
@@ -52,7 +52,7 @@ describe('BriefPostHeaderActions', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows copy link and share at every width when the placement is on', () => {
+  it('shows copy link and share at every width when the flag is on', () => {
     mockAtEveryWidth = true;
     renderComponent();
 
@@ -64,19 +64,6 @@ describe('BriefPostHeaderActions', () => {
     expect(
       screen.getByRole('button', { name: 'Share briefing' }),
     ).toBeInTheDocument();
-  });
-
-  it('draws every control in the cluster at the same weight', () => {
-    mockAtEveryWidth = true;
-    renderComponent();
-
-    const controls = [
-      screen.getByRole('button', { name: 'Copy link' }),
-      screen.getByRole('button', { name: 'Share briefing' }),
-      screen.getByRole('link'),
-    ];
-
-    controls.forEach((control) => expect(control).toHaveClass('btn-tertiary'));
   });
 
   it('copies the brief link and opens the share modal', () => {

@@ -30,10 +30,8 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
-// Experiment: share controls on the two briefing surfaces — copy link at every
-// width on the briefing (today the whole cluster is `hidden laptop:block`), a
-// copy button per row on /briefing, and a share band at the end of the read.
-// Default MUST stay `false` — see the rule below.
+// Experiment: share controls on the briefing list and the briefing itself.
+// Default MUST stay `false`: it is the control.
 export const featureBriefingShareControls = new Feature(
   'briefing_share_controls',
   false,

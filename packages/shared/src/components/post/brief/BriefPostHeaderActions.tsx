@@ -6,13 +6,14 @@ import type { PostHeaderActionsProps } from '../common';
 import Link from '../../utilities/Link';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { settingsUrl } from '../../../lib/constants';
-import { LinkIcon, SettingsIcon, ShareIcon } from '../../icons';
+import { LinkIcon, SettingsIcon } from '../../icons';
+import { ShareIcon } from '../../icons/Share';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useSharePost } from '../../../hooks/useSharePost';
 import { CopyStateIcon } from '../../share/CopyStateIcon';
 import type { Origin } from '../../../lib/log';
 import { featureBriefingShareControls } from '../../../lib/featureManagement';
-import { useSharePlacement } from '../../../features/snapshot/useSharePlacement';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -31,7 +32,7 @@ export const BriefPostHeaderActions = ({
   showShareButton?: boolean;
 }): ReactElement => {
   const { copyLink, isCopying, openSharePost } = useSharePost(origin);
-  const atEveryWidth = useSharePlacement({
+  const { value: atEveryWidth } = useConditionalFeature({
     feature: featureBriefingShareControls,
     shouldEvaluate: showShareButton,
   });
