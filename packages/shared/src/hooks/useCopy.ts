@@ -9,7 +9,6 @@ type CopyNotifyFunctionProps = NotifyOptionalProps & {
   message?: string;
   textToCopy?: string;
   shorten?: boolean;
-  /** Wraps the link before it is written, e.g. to prepend the quoted text. */
   format?: (link: string) => string;
   /** Campaign carried by the shortened link, so the visit is attributed. */
   cid?: ReferralCampaignKey;
