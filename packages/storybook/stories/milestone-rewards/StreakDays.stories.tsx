@@ -1,6 +1,13 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Callout, CalloutTone, Page, PageHeader, Section, Table } from './shell';
+import {
+  Callout,
+  CalloutTone,
+  Page,
+  PageHeader,
+  Section,
+  Table,
+} from './shell';
 import { sponsoredGiftArt, streakLadder, tierArt } from './data';
 
 const meta: Meta = {
@@ -72,10 +79,10 @@ export const StreakDays: Story = {
 
       <Section
         title="The sponsored days"
-        description="Four days a year at most for a user who never breaks their streak, and realistically two."
+        description="Four days a year at most for a user who never breaks their streak."
       >
         <Table
-          head={['Day', 'Tier', 'Reward', 'Who sees it', 'Popup']}
+          head={['Day', 'Tier', 'Reward', 'Popup']}
           rows={streakLadder.map((milestone) => [
             <strong key={`${milestone.day}-day`}>Day {milestone.day}</strong>,
             milestone.label,
@@ -94,9 +101,8 @@ export const StreakDays: Story = {
             ) : (
               milestone.reward
             ),
-            milestone.rarity,
             milestone.sponsored
-              ? 'Full popup, one of the four variants'
+              ? 'Full popup'
               : 'Existing streak celebration, untouched',
           ])}
         />

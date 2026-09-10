@@ -21,25 +21,27 @@ import { InviteSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/In
 import { AchievementSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AchievementSnapshotCard';
 import { AchievementRarityTier } from '@dailydotdev/shared/src/features/profile/components/achievements/achievementRarity';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
+import { labels } from '@dailydotdev/shared/src/lib/labels';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { avatarUri, PROFILE_USER } from './snapshotFixtures';
 
-const AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#1E2229"/><text x="32" y="44" font-family="sans-serif" font-size="30" font-weight="700" fill="#B14BD7" text-anchor="middle">T</text></svg>',
-)}`;
+const AVATAR = avatarUri('#B14BD7', 'L');
 
-const USER = { name: 'Tomer Redlich', handle: '@tomer', image: AVATAR };
+const USER = { ...PROFILE_USER, image: AVATAR };
+
+const SOURCE_NAME = 'Acme Engineering';
 
 const POST = {
   id: 'post-a',
   summary:
     'Nokia, BlackBerry and Kodak all led their categories and all missed the same turn.',
-  domain: 'xda-developers.com',
-  source: { id: 'xda', name: 'XDA Developers', image: AVATAR },
+  domain: 'acme.example',
+  source: { id: 'acme', name: SOURCE_NAME, image: AVATAR },
 } as Post;
 
 const LOREM =
@@ -80,7 +82,7 @@ const CARDS: CardSpec[] = [
           <HighlightTextSnapshotCard
             ref={ref}
             seed="a"
-            source={{ name: 'XDA Developers', image: AVATAR }}
+            source={{ name: SOURCE_NAME, image: AVATAR }}
             passage={HIGHLIGHT_CONTEXT}
             highlight={findHighlightRange(
               HIGHLIGHT_CONTEXT,
@@ -95,7 +97,7 @@ const CARDS: CardSpec[] = [
           <HighlightTextSnapshotCard
             ref={ref}
             seed="b"
-            source={{ name: 'XDA Developers', image: AVATAR }}
+            source={{ name: SOURCE_NAME, image: AVATAR }}
             passage="Tabs won. Prettier just hid the bodies, and every formatter argument since has been a proxy war over indentation."
             highlight={{ start: 0, end: 9 }}
           />
@@ -107,7 +109,7 @@ const CARDS: CardSpec[] = [
           <HighlightTextSnapshotCard
             ref={ref}
             seed="c"
-            source={{ name: 'XDA Developers', image: AVATAR }}
+            source={{ name: SOURCE_NAME, image: AVATAR }}
             passage={LONG_PASSAGE}
             highlight={findHighlightRange(
               LONG_PASSAGE,
@@ -122,7 +124,7 @@ const CARDS: CardSpec[] = [
           <HighlightTextSnapshotCard
             ref={ref}
             seed="d"
-            source={{ name: 'XDA Developers' }}
+            source={{ name: SOURCE_NAME }}
             passage={UNBREAKABLE}
             highlight={{ start: 0, end: UNBREAKABLE.indexOf(' ') }}
           />
@@ -181,11 +183,11 @@ const CARDS: CardSpec[] = [
           <LeaderboardSnapshotCard
             ref={ref}
             board="Highest level"
-            handle="@bobbyiliev"
-            image={AVATAR}
+            handle="@ravicastellano"
+            image={avatarUri('#624AD3', 'R')}
             level={103}
             levelProgress={74}
-            name="Bobby Iliev"
+            name="Ravi Castellano"
             rank={1}
             reputation={76800}
             score={15500}
@@ -240,11 +242,10 @@ const CARDS: CardSpec[] = [
         node: (ref) => (
           <ProfileSnapshotCard
             ref={ref}
-            bio="Building the place developers go to grow"
-            handle="@tomer"
+            handle={USER.handle}
             image={AVATAR}
             joined="Jun 2021"
-            name="Tomer Redlich"
+            name={USER.name}
             postsRead={4128}
             reputation={12400}
             seed="pr-a"
@@ -299,7 +300,6 @@ const CARDS: CardSpec[] = [
             name="typescript"
             seed="en-a"
             stats={[
-              { value: 48200, label: 'Followers' },
               { value: 1240, label: 'Posts' },
               { value: 96, label: 'This week' },
             ]}
@@ -348,7 +348,11 @@ const CARDS: CardSpec[] = [
         node: (ref) => (
           <DiscussionSnapshotCard
             ref={ref}
-            author={{ name: 'Ante Barić', handle: '@capjavert', image: AVATAR }}
+            author={{
+              name: 'Noor Haddad',
+              handle: '@noorhaddad',
+              image: avatarUri('#EC527A', 'N'),
+            }}
             comment="The bundler war is over and nobody noticed."
             seed="di-a"
           />
@@ -359,7 +363,7 @@ const CARDS: CardSpec[] = [
         node: (ref) => (
           <DiscussionSnapshotCard
             ref={ref}
-            author={{ name: 'Ante Barić', handle: '@capjavert' }}
+            author={{ name: 'Noor Haddad', handle: '@noorhaddad' }}
             comment={LOREM}
             seed="di-b"
           />
@@ -401,7 +405,7 @@ const CARDS: CardSpec[] = [
               },
             ]}
             seed="li-a"
-            subtitle="Short briefing by @tomer"
+            subtitle="Short briefing by @lenaokafor"
             title="5 things worth your morning"
           />
         ),
@@ -475,7 +479,6 @@ const CARDS: CardSpec[] = [
             ref={ref}
             days={1284}
             longestStreak={1284}
-            milestone="Longer than daily.dev has existed"
             seed="st-c"
             totalReadingDays={2960}
             user={USER}
@@ -494,23 +497,22 @@ const CARDS: CardSpec[] = [
         node: (ref) => (
           <InviteSnapshotCard
             ref={ref}
-            handle="@tomer"
-            headline="Come read with me on daily.dev"
+            handle={USER.handle}
+            headline={labels.referral.generic.inviteText}
             image={AVATAR}
-            link="daily.dev/join/tomer"
-            name="Tomer Redlich"
-            perk="We both get a month of Plus"
+            link="daily.dev/join/lenaokafor"
+            name={USER.name}
             seed="in-a"
           />
         ),
       },
       {
-        label: 'No perk, long name and link',
+        label: 'Long name and link',
         node: (ref) => (
           <InviteSnapshotCard
             ref={ref}
             handle="@an-extremely-long-handle-that-keeps-going"
-            headline="Come read with me on daily.dev"
+            headline={labels.referral.generic.inviteText}
             image={AVATAR}
             link="daily.dev/join/an-extremely-long-referral-token-value"
             name="Someone With A Genuinely Very Long Display Name"
@@ -523,10 +525,10 @@ const CARDS: CardSpec[] = [
   {
     id: 'achievement',
     title: 'Single achievement',
-    note: 'Gold pill is reserved for sub-1%; art falls back to the card body.',
+    note: 'The rarity pill needs a tier; art falls back to the card body.',
     cases: [
       {
-        label: 'Sub-1% with art',
+        label: 'With art, no rarity',
         node: (ref) => (
           <AchievementSnapshotCard
             ref={ref}
@@ -534,9 +536,9 @@ const CARDS: CardSpec[] = [
             description="Spend 100,000 Cores without running dry."
             image="https://media.daily.dev/image/upload/s--_MjhSTze--/q_auto/v1773608417/achievements/cant_spend_it_all"
             name="Can't spend it all"
-            rarity={0.01}
+            rarity={null}
             seed="ac-a"
-            tier={AchievementRarityTier.Emerald}
+            tier={null}
           />
         ),
       },

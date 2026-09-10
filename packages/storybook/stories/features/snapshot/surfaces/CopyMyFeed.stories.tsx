@@ -178,7 +178,7 @@ const FeedSettingsScreen = ({
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 rounded-14 border border-border-subtlest-secondary px-3 py-2 tablet:max-w-70">
                 <span className="min-w-0 flex-1 truncate text-text-primary typo-body">
-                  dly.to/f/tomer-frontend
+                  dly.to/f/lena-frontend
                 </span>
                 <Button
                   icon={<LinkIcon />}
@@ -268,7 +268,7 @@ const LandingScreen = ({
       {spot === 'added' && (
         <>
           <h1 className="font-bold text-text-primary typo-title2">
-            Tomer&apos;s feed is yours now
+            Lena&apos;s feed is yours now
           </h1>
           <p className="text-text-tertiary typo-callout">
             It is in your sidebar as a new feed. Rename it, add tags, or delete
@@ -279,7 +279,7 @@ const LandingScreen = ({
       {spot === 'signin' && (
         <>
           <h1 className="font-bold text-text-primary typo-title2">
-            Sign in to add Tomer&apos;s feed
+            Sign in to add Lena&apos;s feed
           </h1>
           <p className="text-text-tertiary typo-callout">
             A feed lives in an account, so there is nowhere to put this one yet.
@@ -290,11 +290,11 @@ const LandingScreen = ({
       {(spot === 'preview' || spot === 'limit') && (
         <>
           <h1 className="font-bold text-text-primary typo-title2">
-            Tomer shared a feed with you
+            Lena shared a feed with you
           </h1>
           <p className="text-text-tertiary typo-callout">
             6 tags and 4 sources. Adding it creates a new feed in your account
-            called <span className="text-text-primary">Tomer&apos;s feed</span>.
+            called <span className="text-text-primary">Lena&apos;s feed</span>.
           </p>
         </>
       )}
@@ -420,8 +420,8 @@ const CopyMyFeed = () => (
       verdict="This is the part that makes it worth building, and the pattern already exists: /feeds/new?entityId=&entityType= creates a feed and follows one entity into it. A shared feed is the same flow with a set instead of a single tag — plus a way for a non-owner to read the feed's tags and sources, which is the backend work."
     >
       <Variant
-        headline="Tomer shared a feed with you"
-        note="Names what will happen before it happens: a new feed called ‘Tomer's feed’, with 6 tags and 4 sources. One action only — the posts underneath are a sample of what the feed holds, dimmed and not pressable, so adding the feed is the only way in."
+        headline="Lena shared a feed with you"
+        note="Names what will happen before it happens: a new feed called ‘Lena's feed’, with 6 tags and 4 sources. One action only — the posts underneath are a sample of what the feed holds, dimmed and not pressable, so adding the feed is the only way in."
         step="Preview"
       >
         <LandingRails spot="preview" />

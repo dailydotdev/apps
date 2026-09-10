@@ -75,7 +75,12 @@ export const FlameBadge = ({
   withEmbers?: boolean;
   className?: string;
 }): ReactElement => (
-  <div className={classNames('relative flex items-center justify-center', className)}>
+  <div
+    className={classNames(
+      'relative flex items-center justify-center',
+      className,
+    )}
+  >
     <span
       aria-hidden
       className="absolute inset-0 rounded-full opacity-70 blur-2xl"
@@ -106,7 +111,10 @@ export const FlameBadge = ({
     <img
       src={tierArt(milestone.tier)}
       alt={`${milestone.label} streak badge`}
-      className={classNames('mr-badge-in relative object-contain', flameSizeClass[size])}
+      className={classNames(
+        'mr-badge-in relative object-contain',
+        flameSizeClass[size],
+      )}
       style={{ filter: 'drop-shadow(0 8px 34px rgba(236, 82, 122, 0.5))' }}
     />
   </div>
@@ -183,48 +191,6 @@ export const DayStrip = ({
 );
 
 /**
- * The gift framing, and the only headline on the gift side of the popup.
- *
- * One sentence, one subline. The streak detail lives on the celebration side,
- * so this half never repeats it: a reader should be able to take the whole
- * right column in at a glance.
- */
-export const GiftHeadline = ({
-  eyebrow,
-  count,
-  className,
-  centered,
-}: {
-  eyebrow?: string;
-  count?: number;
-  className?: string;
-  centered?: boolean;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'flex flex-col gap-1',
-      centered && 'items-center text-center',
-      className,
-    )}
-  >
-    {eyebrow && (
-      <span className="uppercase tracking-[0.16em] text-text-quaternary typo-caption1">
-        {eyebrow}
-      </span>
-    )}
-    <h3 className="mr-balance font-bold typo-title2">
-      Here&apos;s a little{' '}
-      <span className="text-accent-bacon-default">gift</span> from us
-    </h3>
-    <p className="mr-pretty text-text-tertiary typo-callout">
-      {count && count > 1
-        ? 'Choose one of our partner offers below'
-        : 'A partner offer, on your streak'}
-    </p>
-  </div>
-);
-
-/**
  * The whole of the small print, in one line. Everything it used to say twice
  * (sponsorship, commission, expiry, renewal) is either here or on the claim
  * sheet, and never in both places.
@@ -237,43 +203,6 @@ export const FinePrint = ({
   <p className={classNames('text-text-quaternary typo-caption1', className)}>
     Sponsored offers. No charge until a trial ends, cancel anytime.
   </p>
-);
-
-/**
- * How the popup ends when the user does not want anything.
- *
- * On a phone the decline has to be a real target near the thumb, because the
- * close button is a small X in a far corner. On desktop the X is already right
- * there under the cursor, so a full-width button underneath it says the same
- * thing twice.
- */
-export enum DeclineStyle {
-  /** Desktop default: the X is the decline. Nothing at the bottom. */
-  CloseOnly = 'closeOnly',
-  /** A quiet link that names what closing actually does. */
-  SaveLink = 'saveLink',
-  /** Mobile: a real button at the end of the flow. */
-  Button = 'button',
-}
-
-/** The link version: a forward action rather than a refusal. */
-export const SaveForLater = ({
-  onClick,
-  className,
-}: {
-  onClick?: () => void;
-  className?: string;
-}): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={classNames(
-      'w-fit text-text-tertiary underline decoration-dotted underline-offset-2 typo-caption1 hover:text-text-primary',
-      className,
-    )}
-  >
-    Save these to my gift vault
-  </button>
 );
 
 /**
@@ -384,7 +313,10 @@ export const AshBadge = ({
   className?: string;
 }): ReactElement => (
   <div
-    className={classNames('relative flex items-center justify-center', className)}
+    className={classNames(
+      'relative flex items-center justify-center',
+      className,
+    )}
   >
     <span
       aria-hidden

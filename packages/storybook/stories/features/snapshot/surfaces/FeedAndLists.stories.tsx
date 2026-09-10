@@ -148,10 +148,10 @@ const HotTakeModalScreen = ({
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="flex min-w-0 items-center gap-1">
                 <span className="min-w-0 truncate font-bold text-text-primary typo-callout">
-                  James Davis
+                  Theo Lindgren
                 </span>
                 <span className="min-w-0 truncate text-text-tertiary typo-footnote">
-                  @jamesdavis7
+                  @theolindgren
                 </span>
               </span>
               <span className="flex items-center gap-1 text-text-tertiary typo-footnote">

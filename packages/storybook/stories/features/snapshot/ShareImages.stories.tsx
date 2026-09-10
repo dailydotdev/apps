@@ -7,7 +7,6 @@ import { ReadingOverviewSnapshotCard } from '@dailydotdev/shared/src/features/sn
 import { BadgesSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/BadgesSnapshotCard';
 import { AchievementsSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AchievementsSnapshotCard';
 import { AchievementSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AchievementSnapshotCard';
-import { AchievementRarityTier } from '@dailydotdev/shared/src/features/profile/components/achievements/achievementRarity';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
 import { findHighlightRange } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
 import { InviteSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/InviteSnapshotCard';
@@ -23,6 +22,7 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
 import { AwardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AwardSnapshotCard';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
+import { labels } from '@dailydotdev/shared/src/lib/labels';
 import {
   Button,
   ButtonVariant,
@@ -31,7 +31,6 @@ import {
 import {
   ACHIEVEMENT_ART,
   avatarUri,
-  BOBBY_AVATAR,
   COVER_PLACEHOLDER,
   HEATMAP,
   PROFILE_USER,
@@ -56,9 +55,6 @@ const POST = {
   domain: 'gamedeveloper.com',
   image: thumbUri('#2A1436', '#0E0A18', 'The Witcher III'),
   tags: ['tech-news', 'gaming', 'cd-projekt-red'],
-  numUpvotes: 44,
-  numComments: 11,
-  analytics: { impressions: 429900 },
   source: {
     id: 'game-developer',
     name: 'Game Developer',
@@ -89,8 +85,8 @@ const WATERCOOLER_POST = {
 } as Post;
 
 const WATERCOOLER_AUTHOR = {
-  name: 'Ante Barić',
-  image: avatarUri('#EC527A', 'A'),
+  name: 'Noor Haddad',
+  image: avatarUri('#EC527A', 'N'),
 };
 
 interface Placement {
@@ -128,7 +124,7 @@ const PLACEMENTS: Placement[] = [
         ref={ref}
         seed="highlight-text"
         source={{
-          name: 'Traversy Media',
+          name: 'Theo Lindgren',
           image: avatarUri('#B14BD7', 'T'),
         }}
         {...HIGHLIGHT_PASSAGE}
@@ -154,11 +150,11 @@ const PLACEMENTS: Placement[] = [
       <LeaderboardSnapshotCard
         ref={ref}
         board="Highest level"
-        handle="@bobbyiliev"
-        image={BOBBY_AVATAR}
+        handle="@ravicastellano"
+        image={avatarUri('#624AD3', 'R')}
         level={103}
         levelProgress={74}
-        name="Bobby Iliev"
+        name="Ravi Castellano"
         rank={1}
         reputation={76800}
         score={15500}
@@ -200,12 +196,11 @@ const PLACEMENTS: Placement[] = [
     render: (ref) => (
       <ProfileSnapshotCard
         ref={ref}
-        bio="Building the place developers go to grow"
         cover={COVER_PLACEHOLDER}
-        handle="@tomer"
-        image={avatarUri('#B14BD7', 'T')}
+        handle={PROFILE_USER.handle}
+        image={avatarUri('#B14BD7', 'L')}
         joined="Jun 2021"
-        name="Tomer Redlich"
+        name={PROFILE_USER.name}
         postsRead={4128}
         reputation={12400}
         seed="profile"
@@ -220,7 +215,7 @@ const PLACEMENTS: Placement[] = [
         ref={ref}
         heatmap={HEATMAP}
         longestStreak={31}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
+        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'L') }}
         monthsLabel="in the last months"
         postsRead={397}
         seed="reading-overview"
@@ -259,7 +254,7 @@ const PLACEMENTS: Placement[] = [
         seed="badges"
         topReaderBadges={10}
         totalAwards={87}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
+        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'L') }}
       />
     ),
   },
@@ -277,7 +272,7 @@ const PLACEMENTS: Placement[] = [
         seed="achievements"
         total={60}
         unlocked={18}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
+        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'L') }}
       />
     ),
   },
@@ -291,9 +286,9 @@ const PLACEMENTS: Placement[] = [
         description="Spend 100,000 Cores without running dry."
         image={ACHIEVEMENT_ART}
         name="Can't spend it all"
-        rarity={0.01}
+        rarity={null}
         seed="achievement"
-        tier={AchievementRarityTier.Emerald}
+        tier={null}
       />
     ),
   },
@@ -303,12 +298,11 @@ const PLACEMENTS: Placement[] = [
     render: (ref) => (
       <InviteSnapshotCard
         ref={ref}
-        handle="@tomer"
-        headline="Come read with me on daily.dev"
-        image={avatarUri('#B14BD7', 'T')}
-        link="daily.dev/join/tomer"
-        name="Tomer Redlich"
-        perk="We both get a month of Plus"
+        handle={PROFILE_USER.handle}
+        headline={labels.referral.generic.inviteText}
+        image={avatarUri('#B14BD7', 'L')}
+        link="daily.dev/join/lenaokafor"
+        name={PROFILE_USER.name}
         seed="invite"
       />
     ),
@@ -321,11 +315,11 @@ const PLACEMENTS: Placement[] = [
         ref={ref}
         award="Superb"
         emoji="🌟"
-        from="@capjavert"
+        from="@noorhaddad"
         reason="Why iconic tech brands like HTC and LG lost their dominance"
         seed="award"
         total={12}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
+        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'L') }}
       />
     ),
   },
@@ -340,7 +334,7 @@ const PLACEMENTS: Placement[] = [
         milestone="A new personal best"
         seed="streak"
         totalReadingDays={720}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
+        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'L') }}
       />
     ),
   },
@@ -350,12 +344,11 @@ const PLACEMENTS: Placement[] = [
     render: (ref) => (
       <EntitySnapshotCard
         ref={ref}
-        description="Everything happening in TypeScript, ranked by the developers reading it."
+        description="Everything happening in TypeScript."
         kind="tag"
         name="typescript"
         seed="tag"
         stats={[
-          { value: 48200, label: 'Followers' },
           { value: 1240, label: 'Posts' },
           { value: 96, label: 'This week' },
         ]}
@@ -369,10 +362,10 @@ const PLACEMENTS: Placement[] = [
       <EntitySnapshotCard
         ref={ref}
         description="Deep dives on Android, hardware and the software that runs it."
-        handle="@xda"
-        image={avatarUri('#B14BD7', 'X')}
+        handle="@acme-eng"
+        image={avatarUri('#B14BD7', 'A')}
         kind="source"
-        name="XDA Developers"
+        name="Acme Engineering"
         seed="source"
         stats={[
           { value: 12400, label: 'Followers' },
@@ -409,9 +402,9 @@ const PLACEMENTS: Placement[] = [
       <DiscussionSnapshotCard
         ref={ref}
         author={{
-          name: 'Ante Barić',
-          handle: '@capjavert',
-          image: avatarUri('#EC527A', 'A'),
+          name: 'Noor Haddad',
+          handle: '@noorhaddad',
+          image: avatarUri('#EC527A', 'N'),
         }}
         comment="The bundler war is over and nobody noticed. We spent five years optimising cold starts and the actual bottleneck was always the 400kb of analytics we shipped on every page."
         seed="discussion"
@@ -448,7 +441,7 @@ const PLACEMENTS: Placement[] = [
           },
         ]}
         seed="briefing"
-        subtitle="Short briefing by @tomer"
+        subtitle="Short briefing by @lenaokafor"
         title="5 things worth your morning"
       />
     ),
@@ -461,23 +454,11 @@ const PLACEMENTS: Placement[] = [
         ref={ref}
         eyebrow="Best of August"
         items={[
-          {
-            title: 'The bundler war is over and nobody noticed',
-            meta: '2.4K upvotes',
-          },
-          {
-            title: 'Alibaba open-sources Qwen3.8-Max weights',
-            meta: '1.9K upvotes',
-          },
-          {
-            title: 'Why your CI is slow and it is not the tests',
-            meta: '1.6K upvotes',
-          },
-          { title: 'A decade of Rust, in one migration', meta: '1.2K upvotes' },
-          {
-            title: 'Postgres 19 makes logical replication boring',
-            meta: '980 upvotes',
-          },
+          { title: 'The bundler war is over and nobody noticed' },
+          { title: 'Alibaba open-sources Qwen3.8-Max weights' },
+          { title: 'Why your CI is slow and it is not the tests' },
+          { title: 'A decade of Rust, in one migration' },
+          { title: 'Postgres 19 makes logical replication boring' },
         ]}
         seed="best-of"
         subtitle="The 5 posts developers upvoted most"
@@ -497,7 +478,7 @@ const PLACEMENTS: Placement[] = [
         questsCompleted={286}
         seed="celebration"
         totalXp={15500}
-        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'T') }}
+        user={{ ...PROFILE_USER, image: avatarUri('#B14BD7', 'L') }}
       />
     ),
   },

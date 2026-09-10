@@ -75,11 +75,11 @@ const StepScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
 
       <div className="mx-auto flex w-full max-w-[32rem] flex-col gap-4 px-6 py-8 text-center">
         <h2 className="font-bold text-text-primary typo-title1">
-          Invite 3 friends, get a month of Plus
+          Invite friends
         </h2>
         <p className="text-text-primary typo-body">
-          They get daily.dev, you both get Plus. It counts as soon as they sign
-          up with your link.
+          Invite other developers to discover how easy it is to stay updated
+          with daily.dev
         </p>
 
         <div className="my-2 flex items-center justify-center gap-4">
@@ -96,7 +96,7 @@ const StepScreen = ({ device, spot }: { device: DeviceName; spot: Spot }) => (
 
         <div className="flex items-center gap-2 rounded-14 border border-border-subtlest-secondary px-3 py-2 text-left">
           <span className="min-w-0 flex-1 truncate text-text-primary typo-body">
-            dly.to/tomer
+            dly.to/lenaokafor
           </span>
           <Button size={ButtonSize.Small} variant={ButtonVariant.Primary}>
             Copy link
@@ -158,11 +158,11 @@ const InviteOnboarding = () => (
     <Category
       covers="#6366 · blocked on backend · FunnelStepCtaWrapper.tsx · StepHeadline.tsx"
       title="The proposed onboarding step"
-      verdict="Same controls, moved to the moment the reward still means something. Built on the funnel step chrome: the logo and Skip in the sticky top bar, content on the 32rem rail, then the glass bar with a Medium Primary CTA and the step dots."
+      verdict="Same controls, moved into onboarding. Built on the funnel step chrome: the logo and Skip in the sticky top bar, content on the 32rem rail, then the glass bar with a Medium Primary CTA and the step dots."
     >
       <Variant
-        headline="Invite 3 friends, get a month of Plus"
-        note="Three empty slots, the invite link and the same target row. Skip stays in the top bar, so the step never blocks the funnel. Needs the funnel JSON step and a Plus-grant mechanism — the frontend cannot ship alone."
+        headline="Invite friends"
+        note="Three empty slots, the invite link and the same target row. Skip stays in the top bar, so the step never blocks the funnel. Needs the funnel JSON step, so the frontend cannot ship alone."
         step="Proposed"
       >
         <Rail>

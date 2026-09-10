@@ -1,8 +1,14 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Callout, CalloutTone, Page, PageHeader, Section, Table } from './shell';
-import { milestones, offers, sponsoredGiftArt } from './data';
-import { SplitMoment } from './VariantSplit';
+import {
+  Callout,
+  CalloutTone,
+  Page,
+  PageHeader,
+  Section,
+  Table,
+} from './shell';
+import { sponsoredGiftArt } from './data';
 
 const meta: Meta = {
   title: 'Milestone Rewards/0. Overview',
@@ -12,8 +18,6 @@ const meta: Meta = {
 export default meta;
 
 type Story = StoryObj;
-
-const noop = () => undefined;
 
 export const Overview: Story = {
   render: () => (
@@ -25,13 +29,13 @@ export const Overview: Story = {
         <p>
           The partnership gives us branded gifts to hand out when someone hits a
           reading streak milestone, and pays us a commission per claim. That is
-          real revenue with no ad inventory and no extra ask of the user, landing
-          on the one screen where they already feel good about us.
+          real revenue with no ad inventory and no extra ask of the user,
+          landing on the one screen where they already feel good about us.
         </p>
         <p>
           Which is exactly the risk. Developers are the most ad-hostile audience
-          on the internet, and a Disney+ upsell bolted onto a 30 day streak does
-          not read as a reward. It reads as the day we started selling the
+          on the internet, and a streaming upsell bolted onto a 30 day streak
+          does not read as a reward. It reads as the day we started selling the
           streak. Everything here exists to make the gift feel earned: the flame
           stays ours, the brand stays in its box, and the celebration survives a
           user who closes the popup in the first second.
@@ -57,15 +61,10 @@ export const Overview: Story = {
             streak progression PR (#5613), with its ember burst and the rolling
             streak count.
           </Callout>
-          <Callout title="The partner catalogue">
-            Disney+, Hulu, Notion, Apple Music, Spotify, NordVPN, Uber One and
-            the rest, each with its own logo, its own photography and its own
-            offer sentence.
-          </Callout>
           <Callout title="List mode on the right">
-            Every day carries three or more gifts, so the right side is a list of
-            single-line rows with a small button each, not one big card. Terms,
-            expiry and preferences moved to the claim sheet.
+            Every day carries three or more gifts, so the right side is a list
+            of single-line rows with a small button each, not one big card.
+            Terms, expiry and preferences moved to the claim sheet.
           </Callout>
           <Callout title="A mobile shape">
             Portrait variant with a swipeable row of gifts and the same three
@@ -80,59 +79,6 @@ export const Overview: Story = {
       </Section>
 
       <Section
-        title="The moment"
-        description="Day 30, Inferno, in the Split variant. The left half is entirely ours: tier artwork, embers, the number, the week behind it. The partner never crosses the divider."
-      >
-        <SplitMoment
-          milestone={milestones.month}
-          offer={offers.disneyplus}
-          gifts={[offers.disneyplus, offers.hulu, offers.notion]}
-          onOptOut={noop}
-        />
-      </Section>
-
-      <Section
-        title="Four variants"
-        description="Three desktop shapes and the phone. A compact ember band and a three-card picker were both drawn and cut: they put more weight on the offer than the streak could carry."
-      >
-        <Table
-          head={['Variant', 'Size', 'What it is good at', 'What it costs']}
-          rows={[
-            [
-              <strong key="a">1 · Split</strong>,
-              '832 × 500',
-              'The safe default. Big flame, one gift, one button, clean separation between the celebration and the brand.',
-              'One gift, no choice. A bad match wastes the day.',
-            ],
-            [
-              <strong key="d">2 · Flame ladder</strong>,
-              '896 × 500',
-              'Sells tomorrow as well as today. The gift becomes part of a progression rather than an ad slot.',
-              'Busiest of the four, and it needs the tier ladder shipped first.',
-            ],
-            [
-              <strong key="c">3 · Carousel</strong>,
-              '832 × 700',
-              "The partner mock-up's own shape: full cards with their photography, paged with arrows.",
-              'Tallest of the set, one gift readable at a time, and the last card may never be seen.',
-            ],
-            [
-              <strong key="e">4 · Mobile</strong>,
-              '384 × 620',
-              'The phone shape: win on top, gifts swipeable underneath, one small button per card.',
-              'A carousel hides gifts two and three until you swipe.',
-            ],
-          ]}
-        />
-        <Callout tone={CalloutTone.Good} title="The recommendation">
-          Ladder on the sponsored days, since it sells the next milestone as well
-          as this one. Split is the fallback if the tier ladder from #5613 does
-          not land in time, because it needs nothing but the day number and one
-          flame. The phone gets the mobile shape either way.
-        </Callout>
-      </Section>
-
-      <Section
         title="Five rules every variant is checked against"
         description="Where a rule and a claim-rate optimisation disagree, the rule wins. This feature is worth nothing if it costs the trust that makes people open daily.dev every morning."
       >
@@ -143,25 +89,26 @@ export const Overview: Story = {
             bought.
           </Callout>
           <Callout title="2. Say who is paying, every time">
-            &quot;Sponsored by Disney+&quot; sits inside the coupon component
-            itself, so no surface can render an offer without the disclosure
-            coming with it, plus one plain line on how the money works.
+            The sponsor&apos;s name sits inside the coupon component itself, so
+            no surface can render an offer without the disclosure coming with
+            it, plus one plain line on how the money works.
           </Callout>
           <Callout title="3. Every partner writes its own offer">
-            Disney+ discounts a monthly price, Hulu gives a trial, Notion gives
-            months of a plan, Uber gives money off rides. No component templates
-            that sentence, and category preferences let people mute the ones they
-            do not want.
+            No component templates that sentence, and category preferences let
+            people mute the ones they do not want.
           </Callout>
           <Callout title="4. Nothing earned is ever destroyed">
-            Closing moves the gift to the vault. That is what lets every popup be
-            calm: no countdowns, no confirm-shaming, no gate on the X.
+            Closing moves the gift to the vault. That is what lets every popup
+            be calm: no countdowns, no confirm-shaming, no gate on the X.
           </Callout>
           <Callout title="5. Four sponsored days a year, maximum">
             Days 7, 30, 90 and 365. Everything else on the ladder stays
             first-party Cores and perks.
           </Callout>
-          <Callout tone={CalloutTone.Good} title="The framing is a gift, not an offer">
+          <Callout
+            tone={CalloutTone.Good}
+            title="The framing is a gift, not an offer"
+          >
             &quot;Here&apos;s a little gift from us. Choose one of our partner
             offers below.&quot; We arranged it, the streak earned it, and the
             claim button stays white and quiet rather than shouting.
@@ -179,17 +126,13 @@ export const Overview: Story = {
             keeps the feed free.&quot; Plain, unhedged, always visible.
           </Callout>
           <Callout tone={CalloutTone.Bad} title="Do not dress it as generosity">
-            &quot;We wanted to say thank you with a special surprise&quot; is the
-            sentence that gets screenshotted next to the word
+            &quot;We wanted to say thank you with a special surprise&quot; is
+            the sentence that gets screenshotted next to the word
             &quot;affiliate&quot;.
           </Callout>
-          <Callout tone={CalloutTone.Good} title="Describe the gift concretely">
-            &quot;3 months of the All Products Pack, free · $89 value&quot;, with
-            the terms under the button rather than behind a link.
-          </Callout>
           <Callout tone={CalloutTone.Bad} title="No manufactured scarcity">
-            No countdown timers, no &quot;3 left&quot;, no &quot;expires when you
-            close this&quot;. Real expiry dates only, stated calmly.
+            No countdown timers, no &quot;3 left&quot;, no &quot;expires when
+            you close this&quot;. Real expiry dates only, stated calmly.
           </Callout>
         </div>
       </Section>
@@ -211,11 +154,7 @@ export const Overview: Story = {
               'Did the gift damage the habit it was celebrating',
               'Any drop against the no-gift control',
             ],
-            [
-              'Opt-out rate',
-              'Direct trust cost',
-              'Above 3% of exposed users',
-            ],
+            ['Opt-out rate', 'Direct trust cost', 'Above 3% of exposed users'],
             [
               'Time before the popup is dismissed',
               'Are we making the celebration feel transactional',

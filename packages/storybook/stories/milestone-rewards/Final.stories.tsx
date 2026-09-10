@@ -10,13 +10,7 @@ import {
   Section,
   Table,
 } from './shell';
-import type { Offer } from './data';
-import { milestones, milestoneByDay, offers } from './data';
-import { RewardCardState } from './RewardCard';
-import { SplitMoment } from './VariantSplit';
-import { LadderMoment } from './VariantLadder';
-import { SpotlightMoment } from './VariantSpotlight';
-import { ClaimSheet, ClaimStep } from './ClaimSheet';
+import { milestones, milestoneByDay } from './data';
 import {
   BrokenMoment,
   FirstPartyMoment,
@@ -25,7 +19,6 @@ import {
   PopupStrip,
   StripTone,
 } from './StreakPopups';
-import { DeclineStyle } from './moment';
 
 // The review group: only what we settled on, in the order a reviewer needs it.
 // Everything exploratory lives in the numbered sections; nothing here is a
@@ -41,13 +34,6 @@ export default meta;
 type Story = StoryObj;
 
 const noop = () => undefined;
-
-const gifts: Offer[] = [
-  offers.disneyplus,
-  offers.hulu,
-  offers.notion,
-  offers.applemusic,
-];
 
 export const Decisions: Story = {
   name: '1 · What we decided',
@@ -84,16 +70,12 @@ export const Decisions: Story = {
               'Single-line rows, small Claim on each, disclosure once underneath. Not one big card.',
             ],
             [
-              <strong key="d">The partner catalogue, verbatim</strong>,
-              'Disney+, Hulu, Notion, Apple Music and the rest, each with its own logo and its own offer sentence. Nothing templated.',
-            ],
-            [
               <strong key="e">Gift framing</strong>,
               '"Here\'s a little gift from us" plus "Choose one of our partner offers below". We arranged it, the streak earned it.',
             ],
             [
               <strong key="f">White claim buttons, pink streak accent</strong>,
-              'Plain primary button. The flame, tier chip and day strip use the app\'s streak pink.',
+              "Plain primary button. The flame, tier chip and day strip use the app's streak pink.",
             ],
             [
               <strong key="g">One line of small print</strong>,
@@ -156,18 +138,14 @@ export const Decisions: Story = {
 
       <Section title="Still open">
         <div className="grid gap-4 tablet:grid-cols-2">
-          <Callout title="Which desktop shape ships">
-            Ladder if the tier progression from #5613 lands first, Split if not.
-            Both are in this group at final quality.
-          </Callout>
           <Callout title="Vault storage">
             "Keep it for later" needs the gift written server-side when the day
             fires. Without it, closing loses the gift and the calm copy stops
             being true.
           </Callout>
           <Callout title="Five questions for the partner">
-            Category filtering, what the redirect passes, whether an offer can be
-            held for a user, claim confirmation, country coverage.
+            Category filtering, what the redirect passes, whether an offer can
+            be held for a user, claim confirmation, country coverage.
           </Callout>
           <Callout tone={CalloutTone.Bad} title="Not agreed, do not build">
             Countdown timers, confirm-shaming, gifts on a broken streak, and any
@@ -179,149 +157,8 @@ export const Decisions: Story = {
   ),
 };
 
-export const Popups: Story = {
-  name: '2 · The popups',
-  render: () => (
-    <Page>
-      <PageHeader
-        eyebrow="Final"
-        title="Two desktop shapes and the phone, at real size"
-      >
-        <p>
-          Same content, same copy, same list. Pick one desktop shape; the phone
-          gets the spotlight carousel either way.
-        </p>
-      </PageHeader>
-
-      <Section
-        title="Split"
-        description="The safe default. Needs nothing but the day number and one flame."
-      >
-        <SplitMoment
-          milestone={milestones.month}
-          offer={offers.disneyplus}
-          gifts={gifts}
-          onKeep={noop}
-        />
-      </Section>
-
-      <Section
-        title="Flame ladder"
-        description="Sells the next milestone as well as this one. Needs the tier ladder shipped."
-      >
-        <LadderMoment
-          milestone={milestones.month}
-          offer={offers.disneyplus}
-          gifts={gifts.slice(0, 3)}
-          onKeep={noop}
-        />
-      </Section>
-
-      <Section
-        title="Spotlight, on the phone"
-        description="One gift at a time, swipeable, single primary button."
-      >
-        <PhoneFrame>
-          <SpotlightMoment
-            milestone={milestones.month}
-            gifts={gifts}
-            onKeep={noop}
-          />
-        </PhoneFrame>
-      </Section>
-    </Page>
-  ),
-};
-
-export const States: Story = {
-  name: '3 · Every state',
-  render: () => (
-    <Page>
-      <PageHeader
-        eyebrow="Final"
-        title="Each state the gift moment can be in"
-      >
-        <p>
-          Claiming and claimed are per row, so a list with one claimed gift still
-          reads at a glance. The failure states are on the claim sheet, which is
-          shared by every surface.
-        </p>
-      </PageHeader>
-
-      <Section title="In the popup">
-        <div className="flex flex-col gap-10">
-          <Cell label="Idle" note="four gifts, nothing claimed">
-            <SplitMoment
-              milestone={milestones.month}
-              offer={offers.disneyplus}
-              gifts={gifts}
-              onKeep={noop}
-            />
-          </Cell>
-          <Cell label="Claiming" note="the row you tapped shows the loader">
-            <SplitMoment
-              milestone={milestones.month}
-              offer={offers.disneyplus}
-              gifts={gifts}
-              state={RewardCardState.Claiming}
-              claimingId={gifts[2].id}
-            />
-          </Cell>
-          <Cell label="Claimed" note="chip replaces the button, the rest stay live">
-            <SplitMoment
-              milestone={milestones.month}
-              offer={offers.disneyplus}
-              gifts={gifts}
-              claimedIds={[gifts[1].id]}
-              onKeep={noop}
-            />
-          </Cell>
-          <Cell
-            label="Decline, phone style"
-            note="what the same popup shows under 44rem, or when forced"
-          >
-            <SplitMoment
-              milestone={milestones.week}
-              offer={offers.hulu}
-              gifts={gifts.slice(0, 3)}
-              decline={DeclineStyle.Button}
-              onKeep={noop}
-            />
-          </Cell>
-        </div>
-      </Section>
-
-      <Section
-        title="On the claim sheet"
-        description="One sheet for every surface: confirm, hand off, confirm again, and four ways it can fail."
-      >
-        <div className="grid items-start gap-8 laptop:grid-cols-3">
-          <Cell label="Confirm">
-            <ClaimSheet offer={offers.disneyplus} step={ClaimStep.Confirm} />
-          </Cell>
-          <Cell label="Redirecting">
-            <ClaimSheet offer={offers.disneyplus} step={ClaimStep.Redirecting} />
-          </Cell>
-          <Cell label="Active">
-            <ClaimSheet offer={offers.disneyplus} step={ClaimStep.Active} />
-          </Cell>
-          <Cell label="Expired">
-            <ClaimSheet offer={offers.hulu} step={ClaimStep.Expired} />
-          </Cell>
-          <Cell label="Wrong country">
-            <ClaimSheet offer={offers.audible} step={ClaimStep.Unavailable} />
-          </Cell>
-          <Cell label="Partner pulled it">
-            <ClaimSheet offer={offers.notion} step={ClaimStep.Withdrawn} />
-          </Cell>
-        </div>
-      </Section>
-    </Page>
-  ),
-};
-
 export const StreakFamily: Story = {
-  name: '4 · The rest of the streak popups',
+  name: '2 · The streak popups',
   render: () => (
     <Page>
       <PageHeader
@@ -329,10 +166,10 @@ export const StreakFamily: Story = {
         title="Freeze, broken streak, first-party days: same shell, same rhythm"
       >
         <p>
-          A user meets these within the same fortnight as a gift. Three different
-          layouts would read as three different products, so they all use the
-          celebration-left, one-decision-right structure with a single primary
-          button and one line of small print.
+          A user meets these within the same fortnight as a gift. Three
+          different layouts would read as three different products, so they all
+          use the celebration-left, one-decision-right structure with a single
+          primary button and one line of small print.
         </p>
       </PageHeader>
 
@@ -373,7 +210,10 @@ export const StreakFamily: Story = {
               onGetFreezes={noop}
             />
           </Cell>
-          <Cell label="Too late to restore" note="the offer is gone, not hidden">
+          <Cell
+            label="Too late to restore"
+            note="the offer is gone, not hidden"
+          >
             <BrokenMoment
               lostDays={30}
               canRestore={false}
@@ -399,7 +239,7 @@ export const StreakFamily: Story = {
 };
 
 export const BrokenStreak: Story = {
-  name: '4b · Broken streak, close up',
+  name: '2b · Broken streak, close up',
   render: () => (
     <Page>
       <PageHeader
@@ -413,9 +253,9 @@ export const BrokenStreak: Story = {
           background cools from fire to ash.
         </p>
         <p>
-          Restore stays the primary action while it is available. Once the window
-          closes the popup does not grey a dead button out, it changes what it
-          offers: start again.
+          Restore stays the primary action while it is available. Once the
+          window closes the popup does not grey a dead button out, it changes
+          what it offers: start again.
         </p>
       </PageHeader>
 
@@ -449,12 +289,18 @@ export const BrokenStreak: Story = {
 
       <Section title="Why it is drawn this way">
         <div className="grid gap-4 tablet:grid-cols-2">
-          <Callout tone={CalloutTone.Good} title="Same family, different weather">
+          <Callout
+            tone={CalloutTone.Good}
+            title="Same family, different weather"
+          >
             Identical shell, identical rhythm, identical button hierarchy. Only
             the artwork and the background change, which is what makes the loss
             legible without a word of drama.
           </Callout>
-          <Callout tone={CalloutTone.Good} title="The freeze strip earns its place here">
+          <Callout
+            tone={CalloutTone.Good}
+            title="The freeze strip earns its place here"
+          >
             This is the one moment where the freeze upsell is genuinely useful
             rather than opportunistic, because the user just felt the problem it
             solves.
@@ -474,7 +320,7 @@ export const BrokenStreak: Story = {
 };
 
 export const Mobile: Story = {
-  name: '5 · Every popup on a phone',
+  name: '3 · Every popup on a phone',
   render: () => (
     <Page>
       <PageHeader
@@ -488,48 +334,9 @@ export const Mobile: Story = {
           the week strip and swaps the decline for a full-width button, because
           the corner X is out of thumb reach.
         </p>
-        <p>
-          The one purpose-built phone layout is the spotlight carousel, which
-          exists because a list of four gifts and a swipeable stack are genuinely
-          different interactions, not different CSS.
-        </p>
       </PageHeader>
 
-      <Section title="Gift days">
-        <div className="flex flex-wrap items-start gap-8">
-          <Cell label="Split, collapsed" note="four gifts as rows">
-            <PhoneFrame>
-              <SplitMoment
-                milestone={milestones.month}
-                offer={offers.disneyplus}
-                gifts={gifts}
-                onKeep={noop}
-              />
-            </PhoneFrame>
-          </Cell>
-          <Cell label="Ladder, collapsed" note="gifts first, rail underneath">
-            <PhoneFrame>
-              <LadderMoment
-                milestone={milestones.month}
-                offer={offers.disneyplus}
-                gifts={gifts.slice(0, 3)}
-                onKeep={noop}
-              />
-            </PhoneFrame>
-          </Cell>
-          <Cell label="Spotlight" note="built for the phone, swipeable">
-            <PhoneFrame>
-              <SpotlightMoment
-                milestone={milestones.month}
-                gifts={gifts}
-                onKeep={noop}
-              />
-            </PhoneFrame>
-          </Cell>
-        </div>
-      </Section>
-
-      <Section title="The rest of the family">
+      <Section title="The streak popups">
         <div className="flex flex-wrap items-start gap-8">
           <Cell label="First-party day" note="day 21, Cores">
             <PhoneFrame>
@@ -581,30 +388,12 @@ export const Mobile: Story = {
           </Cell>
         </div>
       </Section>
-
-      <Section
-        title="Claim, on a phone"
-        description="The claim sheet is already narrow, so it needs no collapse: it is the same sheet the desktop uses."
-      >
-        <div className="flex flex-wrap items-start gap-8">
-          <Cell label="Confirm">
-            <PhoneFrame>
-              <ClaimSheet offer={offers.disneyplus} step={ClaimStep.Confirm} />
-            </PhoneFrame>
-          </Cell>
-          <Cell label="Active">
-            <PhoneFrame>
-              <ClaimSheet offer={offers.disneyplus} step={ClaimStep.Active} />
-            </PhoneFrame>
-          </Cell>
-        </div>
-      </Section>
     </Page>
   ),
 };
 
 export const Strips: Story = {
-  name: '6 · The strip inside the popup',
+  name: '4 · The strip inside the popup',
   render: () => (
     <Page>
       <PageHeader
@@ -613,8 +402,8 @@ export const Strips: Story = {
       >
         <p>
           There is always something else worth saying: buy a freeze, the gifts
-          are in your vault, you have Cores waiting. The strip is where those go.
-          One line, one small secondary button, directly under the primary
+          are in your vault, you have Cores waiting. The strip is where those
+          go. One line, one small secondary button, directly under the primary
           action, never above it.
         </p>
       </PageHeader>
@@ -651,9 +440,9 @@ export const Strips: Story = {
       <Section title="Rules">
         <div className="grid gap-4 tablet:grid-cols-2">
           <Callout tone={CalloutTone.Good} title="One strip per popup">
-            Two strips is a settings screen. If both a freeze and a vault message
-            apply, the freeze wins on a streak day and the vault wins everywhere
-            else.
+            Two strips is a settings screen. If both a freeze and a vault
+            message apply, the freeze wins on a streak day and the vault wins
+            everywhere else.
           </Callout>
           <Callout tone={CalloutTone.Good} title="Never on the gift moment">
             The sponsored popup already carries a partner decision. A second ask
@@ -664,9 +453,9 @@ export const Strips: Story = {
             than that, it is not a strip, it is the popup.
           </Callout>
           <Callout tone={CalloutTone.Bad} title="Not a banner">
-            No background colour, no icon larger than the text, no two-line copy.
-            The moment it starts shouting it competes with the thing it sits
-            under.
+            No background colour, no icon larger than the text, no two-line
+            copy. The moment it starts shouting it competes with the thing it
+            sits under.
           </Callout>
         </div>
       </Section>
