@@ -1,7 +1,7 @@
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import type { HighlightRange } from './snapshotText';
-import { findHighlightRange } from './snapshotText';
+import { collapseWhitespace, findHighlightRange } from './snapshotText';
 
 export interface TextSelection {
   text: string;
@@ -28,6 +28,11 @@ const PASSAGE_SELECTOR = 'p,li,blockquote,h1,h2,h3,h4,h5,h6,td,dd,figcaption';
  * selection's own string inside the block rather than from the range, which
  * counts into a single text node and not the block's rendered text; a
  * selection that spans two blocks finds no match and is left on its own.
+ *
+ * Both sides are whitespace-folded first (see collapseWhitespace), and the
+ * text leading up to the selection says roughly where it starts, so a phrase
+ * the paragraph repeats is marked where the reader marked it, not at its
+ * first occurrence.
  */
 const readPassage = (
   range: Range,
@@ -36,10 +41,25 @@ const readPassage = (
   const { commonAncestorContainer: node } = range;
   const element =
     node instanceof Element ? node : (node.parentElement as Element | null);
-  const passage = element?.closest(PASSAGE_SELECTOR)?.textContent?.trim();
-  const highlight = passage ? findHighlightRange(passage, text) : undefined;
+  const block = element?.closest(PASSAGE_SELECTOR);
+  const passage = block?.textContent
+    ? collapseWhitespace(block.textContent)
+    : undefined;
 
-  return passage && highlight ? { passage, highlight } : { passage: text };
+  if (!block || !passage) {
+    return { passage: text };
+  }
+
+  const lead = document.createRange();
+  lead.setStart(block, 0);
+  lead.setEnd(range.startContainer, range.startOffset);
+  const highlight = findHighlightRange(
+    passage,
+    collapseWhitespace(text),
+    collapseWhitespace(lead.toString()).length,
+  );
+
+  return highlight ? { passage, highlight } : { passage: text };
 };
 
 /** Under this a selection is a stray double-click, not a quote worth sharing. */

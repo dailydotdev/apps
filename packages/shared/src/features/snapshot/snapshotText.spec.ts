@@ -1,5 +1,9 @@
 import type { HighlightRange } from './snapshotText';
-import { findHighlightRange, windowAroundHighlight } from './snapshotText';
+import {
+  collapseWhitespace,
+  findHighlightRange,
+  windowAroundHighlight,
+} from './snapshotText';
 
 const marked = 'the marked run';
 /** The range of a run the test just placed in its passage. */
@@ -19,6 +23,35 @@ describe('findHighlightRange', () => {
 
   it('returns nothing when the run is not in the passage', () => {
     expect(findHighlightRange('lead trail', marked)).toBeUndefined();
+  });
+
+  it('marks the repeat nearest the selection, not the first one', () => {
+    const passage = `${marked} opens it, and later ${marked} closes it`;
+    const second = passage.lastIndexOf(marked);
+
+    expect(findHighlightRange(passage, marked, second - 2)?.start).toBe(second);
+    expect(findHighlightRange(passage, marked)?.start).toBe(0);
+  });
+});
+
+describe('collapseWhitespace', () => {
+  it('lines a soft line break up with the selection string', () => {
+    // What daily-api renders for a soft break, against what Chrome's
+    // Selection.toString() returns for the same run.
+    const textContent = 'We use useEffect sparingly,\nso reviews stay small.';
+    const selection = 'sparingly, so reviews stay sm';
+
+    expect(textContent.includes(selection)).toBe(false);
+    expect(
+      findHighlightRange(
+        collapseWhitespace(textContent),
+        collapseWhitespace(selection),
+      ),
+    ).toBeDefined();
+  });
+
+  it('folds every whitespace run and trims the ends', () => {
+    expect(collapseWhitespace('  a\n\n b\t\u00a0c  ')).toBe('a b c');
   });
 });
 
@@ -42,6 +75,16 @@ describe('windowAroundHighlight', () => {
     ).toBe(marked);
     expect(windowed.text.startsWith('…')).toBe(true);
     expect(windowed.text.endsWith('tail')).toBe(true);
+  });
+
+  it('fills the card from before a run the paragraph ends on', () => {
+    const passage = `${filler('before', 200)} ${marked}`;
+    const windowed = windowAroundHighlight(passage, rangeOf(passage, marked));
+
+    // Nothing follows the run, so the leading side takes the whole budget
+    // instead of stopping at half of it.
+    expect(windowed.text.length).toBeGreaterThan(850);
+    expect(windowed.text.endsWith(marked)).toBe(true);
   });
 
   it('gives the trailing side the slack a leading edge does not use', () => {
