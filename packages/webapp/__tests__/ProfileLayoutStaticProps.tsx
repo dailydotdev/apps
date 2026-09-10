@@ -1,9 +1,7 @@
 import type { GetStaticPropsContext } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
-import {
-  getProfileForStaticProps,
-  getProfileV2Extra,
-} from '@dailydotdev/shared/src/lib/user';
+import { getProfileV2Extra } from '@dailydotdev/shared/src/lib/user';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import {
   getStaticPaths,
   getStaticProps,
@@ -13,7 +11,6 @@ import { getStaticProps as getWorldStaticProps } from '../pages/world/[userId]';
 
 jest.mock('@dailydotdev/shared/src/lib/user', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/lib/user'),
-  getProfileForStaticProps: jest.fn(),
   getProfileV2Extra: jest.fn(),
 }));
 
@@ -21,9 +18,9 @@ jest.mock('../components/world/profileWorld', () => ({
   hasPublicWorld: jest.fn(),
 }));
 
-const mockedGetProfileForStaticProps = getProfileForStaticProps as jest.Mock;
 const mockedGetProfileV2Extra = getProfileV2Extra as jest.Mock;
 const mockedHasPublicWorld = hasPublicWorld as jest.Mock;
+const fetchMock = jest.fn();
 
 // Mirrors the (unexported) ProfileParams in ProfileLayout. Typing the
 // helper as GetStaticPropsContext<ParsedUrlQuery> compiles under the
@@ -35,8 +32,16 @@ interface ProfileParams extends ParsedUrlQuery {
 const context = (userId?: string) =>
   ({ params: { userId } } as unknown as GetStaticPropsContext<ProfileParams>);
 
+const respondProfile = (body: unknown, status = 200) =>
+  fetchMock.mockResolvedValue({
+    status,
+    json: async () => body,
+  });
+
 beforeEach(() => {
   jest.clearAllMocks();
+  fetchMock.mockReset();
+  global.fetch = fetchMock as unknown as typeof fetch;
 });
 
 // `pages/[userId]` is a ROOT-LEVEL dynamic route, so it claims every
@@ -58,7 +63,10 @@ describe('profile getStaticPaths', () => {
 
 describe('profile getStaticProps', () => {
   it('returns notFound when the handle does not resolve to a user', async () => {
-    mockedGetProfileForStaticProps.mockResolvedValue({ status: 'notFound' });
+    respondProfile({
+      data: { user: null },
+      errors: [{ extensions: { code: ApiError.NotFound } }],
+    });
 
     await expect(
       getStaticProps(context('definitely-not-a-user')),
@@ -70,11 +78,14 @@ describe('profile getStaticProps', () => {
       notFound: true,
       revalidate: 60,
     });
-    expect(mockedGetProfileForStaticProps).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('returns notFound when the profile is forbidden, without confirming it exists', async () => {
-    mockedGetProfileForStaticProps.mockResolvedValue({ status: 'notFound' });
+    respondProfile({
+      data: { user: null },
+      errors: [{ extensions: { code: ApiError.Forbidden } }],
+    });
 
     await expect(getStaticProps(context('blocked-user'))).resolves.toEqual({
       notFound: true,
@@ -84,7 +95,7 @@ describe('profile getStaticProps', () => {
 
   it('still serves a real profile', async () => {
     const user = { id: 'u1', username: 'kramer', noindex: false };
-    mockedGetProfileForStaticProps.mockResolvedValue({ status: 'found', user });
+    respondProfile({ data: { user } });
     mockedGetProfileV2Extra.mockResolvedValue({ userStats: { numPosts: 1 } });
     mockedHasPublicWorld.mockResolvedValue(true);
 
@@ -99,15 +110,44 @@ describe('profile getStaticProps', () => {
     });
   });
 
-  it('rethrows unexpected errors rather than hiding them as a 404', async () => {
-    const boom = new Error('boom');
-    mockedGetProfileForStaticProps.mockRejectedValue(boom);
+  it('rethrows HTTP failures rather than hiding them as a 404', async () => {
+    respondProfile({ errors: [{ message: 'boom' }] }, 500);
 
-    await expect(getStaticProps(context('kramer'))).rejects.toEqual(boom);
+    await expect(getStaticProps(context('kramer'))).rejects.toThrow(
+      'Failed to fetch profile: 500',
+    );
+  });
+
+  it('rethrows network errors rather than hiding them as a 404', async () => {
+    const error = new Error('network down');
+    fetchMock.mockRejectedValue(error);
+
+    await expect(getStaticProps(context('kramer'))).rejects.toEqual(error);
+  });
+
+  it('rethrows aborts rather than hiding them as a 404', async () => {
+    const abort = Object.assign(new Error('aborted'), { name: 'AbortError' });
+    fetchMock.mockRejectedValue(abort);
+
+    await expect(getStaticProps(context('kramer'))).rejects.toEqual(abort);
+  });
+
+  it('rethrows unrecognised GraphQL errors rather than hiding them as a 404', async () => {
+    respondProfile({
+      data: { user: null },
+      errors: [{ extensions: { code: 'BOOM' } }],
+    });
+
+    await expect(getStaticProps(context('kramer'))).rejects.toThrow(
+      'Failed to fetch profile',
+    );
   });
 
   it('forwards a world profile notFound result unchanged', async () => {
-    mockedGetProfileForStaticProps.mockResolvedValue({ status: 'notFound' });
+    respondProfile({
+      data: { user: null },
+      errors: [{ extensions: { code: ApiError.Forbidden } }],
+    });
 
     await expect(getWorldStaticProps(context('blocked-user'))).resolves.toEqual(
       {
