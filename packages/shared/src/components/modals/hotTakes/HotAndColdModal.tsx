@@ -26,6 +26,7 @@ import {
   TypographyColor,
 } from '../../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../../ProfilePicture';
+import { HotTakeSnapshotButton } from '../../../features/snapshot/HotTakeSnapshotButton';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../../PlusUserBadge';
@@ -1324,18 +1325,27 @@ const HotTakeCard = ({
           </Typography>
         )}
 
-        {hotTake.upvotes > 0 && (
-          <div className="flex items-center gap-1 rounded-10 bg-surface-hover px-3 py-1">
-            <HotIcon className="text-accent-cabbage-default" />
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-              bold
-            >
-              {hotTake.upvotes}
-            </Typography>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {hotTake.upvotes > 0 && (
+            <div className="flex items-center gap-1 rounded-10 bg-surface-hover px-3 py-1">
+              <HotIcon className="text-accent-cabbage-default" />
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Secondary}
+                bold
+              >
+                {hotTake.upvotes}
+              </Typography>
+            </div>
+          )}
+          {isTop && (
+            <HotTakeSnapshotButton
+              hotTake={hotTake}
+              origin={Origin.HotAndCold}
+              variant={ButtonVariant.Primary}
+            />
+          )}
+        </div>
       </div>
 
       {hotTake.user && (
@@ -1716,6 +1726,7 @@ const HotAndColdModal = ({
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [skipDelta, setSkipDelta] = useState(0);
   const swipeDeltaYRef = useRef(0);
+  const swipeStartedOnButtonRef = useRef(false);
   const [internalDismissedCardIds, setInternalDismissedCardIds] = useState<
     Set<string>
   >(() => new Set<string>());
@@ -2182,8 +2193,12 @@ const HotAndColdModal = ({
   };
 
   const handlers = useSwipeable({
+    onTouchStartOrOnMouseDown: ({ event }) => {
+      swipeStartedOnButtonRef.current =
+        event.target instanceof Element && !!event.target.closest('button');
+    },
     onSwiping: (e) => {
-      if (!isAnimating) {
+      if (!isAnimating && !swipeStartedOnButtonRef.current) {
         if (isOnboardingMode && e.event.cancelable) {
           e.event.preventDefault();
         }
