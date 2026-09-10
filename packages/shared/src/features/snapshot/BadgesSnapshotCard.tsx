@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
-import { largeNumberFormat } from '../../lib';
+import { largeNumberFormat } from '../../lib/numberFormat';
 import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import type { SnapshotIdentityProps } from './SnapshotIdentity';
 import { SnapshotIdentity } from './SnapshotIdentity';
+import { SnapshotTile } from './SnapshotStats';
 
 const MUTED = colors.salt['90'];
 const DIVIDER = colors.pepper['10'];
@@ -31,31 +32,6 @@ export interface BadgesSnapshotCardProps {
   seed?: string;
 }
 
-const Tile = ({
-  value,
-  label,
-}: {
-  value: string;
-  label: string;
-}): ReactElement => (
-  <div
-    className="flex flex-1 flex-col items-center justify-center gap-1 rounded-24"
-    style={{
-      padding: '20px 16px',
-      border: `1px solid ${DIVIDER}`,
-      background: 'rgba(255, 255, 255, 0.03)',
-    }}
-  >
-    <span
-      className="font-bold text-white"
-      style={{ fontSize: 52, lineHeight: 1 }}
-    >
-      {value}
-    </span>
-    <span style={{ color: MUTED, fontSize: 24, lineHeight: 1.3 }}>{label}</span>
-  </div>
-);
-
 function BadgesSnapshotCardComponent(
   {
     user,
@@ -77,11 +53,11 @@ function BadgesSnapshotCardComponent(
         <SnapshotIdentity {...user} />
 
         <div className="flex gap-4">
-          <Tile
+          <SnapshotTile
             label="Top reader badge"
             value={`x${largeNumberFormat(topReaderBadges) ?? topReaderBadges}`}
           />
-          <Tile
+          <SnapshotTile
             label="Total awards"
             value={`x${largeNumberFormat(totalAwards) ?? totalAwards}`}
           />
@@ -89,7 +65,10 @@ function BadgesSnapshotCardComponent(
 
         <div className="flex flex-col gap-2">
           {badges.slice(0, 4).map((badge) => (
-            <div key={badge.keyword} className="flex items-center gap-3">
+            <div
+              key={`${badge.keyword}-${badge.earnedAt}`}
+              className="flex items-center gap-3"
+            >
               <span
                 className="truncate rounded-10 text-white"
                 style={{

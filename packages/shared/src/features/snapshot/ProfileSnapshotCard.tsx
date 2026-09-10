@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
-import { largeNumberFormat } from '../../lib';
-import { SnapshotFrame } from './SnapshotFrame';
+import { largeNumberFormat } from '../../lib/numberFormat';
+import { SNAPSHOT_CARD_PADDING, SnapshotFrame } from './SnapshotFrame';
 import {
   SnapshotStat,
   SnapshotStatRow,
@@ -15,8 +15,6 @@ const COVER_HEIGHT = 268;
 const AVATAR_SIZE = 208;
 const AVATAR_RING = 8;
 const AVATAR_RADIUS = 46;
-/** The frame's body padding, which the cover has to escape to bleed. */
-const BODY_PADDING = 58;
 
 export interface ProfileSnapshotCardProps {
   name: string;
@@ -49,10 +47,10 @@ function ProfileSnapshotCardComponent(
       <div className="flex flex-1 flex-col items-center text-center">
         <div
           style={{
-            marginLeft: -BODY_PADDING,
-            marginRight: -BODY_PADDING,
-            marginTop: -BODY_PADDING,
-            width: `calc(100% + ${BODY_PADDING * 2}px)`,
+            marginLeft: -SNAPSHOT_CARD_PADDING,
+            marginRight: -SNAPSHOT_CARD_PADDING,
+            marginTop: -SNAPSHOT_CARD_PADDING,
+            width: `calc(100% + ${SNAPSHOT_CARD_PADDING * 2}px)`,
             height: COVER_HEIGHT,
             background: cover
               ? `url("${cover}") center / cover no-repeat`

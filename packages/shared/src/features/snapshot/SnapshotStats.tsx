@@ -50,6 +50,36 @@ export const SnapshotStat = ({
   </div>
 );
 
+/** A boxed headline number, for the cards that lead with two of them. */
+export const SnapshotTile = ({
+  value,
+  label,
+  glyph,
+}: {
+  value: string;
+  label: string;
+  glyph?: string;
+}): ReactElement => (
+  <div
+    className="flex flex-1 flex-col items-center justify-center gap-1 rounded-24"
+    style={{
+      padding: '20px 16px',
+      border: `1px solid ${DIVIDER}`,
+      background: 'rgba(255, 255, 255, 0.03)',
+    }}
+  >
+    <span
+      className="font-bold text-white"
+      style={{ fontSize: 52, lineHeight: 1 }}
+    >
+      {value}
+    </span>
+    <span style={{ color: MUTED, fontSize: 24, lineHeight: 1.3 }}>
+      {label} {glyph}
+    </span>
+  </div>
+);
+
 export const SnapshotStatRow = ({
   children,
 }: {

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import colors from '../../styles/colors';
-import { largeNumberFormat } from '../../lib';
+import { largeNumberFormat } from '../../lib/numberFormat';
 import { SnapshotEyebrow } from './SnapshotEyebrow';
 import { SnapshotFrame } from './SnapshotFrame';
 import type { SnapshotIdentityProps } from './SnapshotIdentity';

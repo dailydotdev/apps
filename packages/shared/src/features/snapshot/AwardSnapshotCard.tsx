@@ -25,7 +25,7 @@ export interface AwardSnapshotCardProps {
 }
 
 /**
- * Being awarded, for #6581 — the one status moment that comes from someone
+ * Being awarded: the one status moment that comes from someone
  * else rather than from your own activity. The sender is on the card because a
  * gift with no giver reads as a self-congratulation.
  */

@@ -1,12 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
-import { SnapshotCredit } from './SnapshotCredit';
-import { SnapshotFrame } from './SnapshotFrame';
-import {
-  SNAPSHOT_COPY_SIZE,
-  SNAPSHOT_PASSAGE_LIMIT,
-  truncateAtWord,
-} from './snapshotText';
+import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
 
 export interface DiscussionSnapshotCardProps {
   comment: string;
@@ -23,27 +17,13 @@ function DiscussionSnapshotCardComponent(
   { comment, author, seed }: DiscussionSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
-  const quote = truncateAtWord(comment, SNAPSHOT_PASSAGE_LIMIT);
-
   return (
-    <SnapshotFrame grow wide ref={ref} seed={seed ?? author.handle}>
-      <div className="flex flex-1 flex-col">
-        <div className="flex flex-1 flex-col justify-center">
-          <p
-            className="text-white"
-            style={{
-              fontSize: SNAPSHOT_COPY_SIZE,
-              lineHeight: 1.55,
-              overflowWrap: 'break-word',
-            }}
-          >
-            {quote}
-          </p>
-        </div>
-
-        <SnapshotCredit image={author.image} name={author.name} />
-      </div>
-    </SnapshotFrame>
+    <HighlightTextSnapshotCard
+      passage={comment}
+      ref={ref}
+      seed={seed ?? author.handle}
+      source={{ name: author.name, image: author.image }}
+    />
   );
 }
 
