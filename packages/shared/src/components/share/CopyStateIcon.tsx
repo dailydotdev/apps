@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { CopyIcon, VIcon } from '../icons';
@@ -12,14 +12,20 @@ import type { IconProps } from '../Icon';
 export const EASE_OUT_EXPO = 'ease-[cubic-bezier(0.16,1,0.3,1)]';
 
 /**
- * Both glyphs share one grid cell so nothing beside them shifts mid-swap, and
+ * A copy is a rare, deliberate moment, so the confirmation earns real motion.
+ * Both glyphs share one grid cell so the button never resizes mid-swap, and
  * the transition collapses to an instant swap under `prefers-reduced-motion`.
  */
 export const CopyStateIcon = ({
   copied,
+  icon: Icon = CopyIcon,
   className,
   ...props
-}: IconProps & { copied: boolean }): ReactElement => {
+}: IconProps & {
+  copied: boolean;
+  /** What the button rests on — a link glyph where the payload is a URL. */
+  icon?: ComponentType<IconProps>;
+}): ReactElement => {
   const layer = classNames(
     className,
     'col-start-1 row-start-1 transition-[opacity,transform,filter] duration-200 motion-reduce:transition-none',
@@ -28,7 +34,7 @@ export const CopyStateIcon = ({
 
   return (
     <span className="inline-grid">
-      <CopyIcon
+      <Icon
         {...props}
         className={classNames(layer, copied && 'scale-50 opacity-0 blur-[2px]')}
       />

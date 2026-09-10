@@ -6,25 +6,32 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   LinkIcon,
+  ShareIcon,
   SnapshotIcon,
 } from '@dailydotdev/shared/src/components/icons';
-
-type LeadAction = 'Link' | 'Snapshot';
+import type { LeadAction } from './sharingMap';
 
 export const AVATAR =
   'https://res.cloudinary.com/daily-now/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile';
 
+export const ART =
+  'https://media.daily.dev/image/upload/s--_MjhSTze--/q_auto/v1773608417/achievements/cant_spend_it_all';
+
 /* ------------------------------------------------------------------ prose */
 
-const H1 = ({ children }: { children: React.ReactNode }) => (
+export const H1 = ({ children }: { children: React.ReactNode }) => (
   <h1 className="font-bold text-text-primary typo-mega3">{children}</h1>
 );
 
-const P = ({ children }: { children: React.ReactNode }) => (
+export const H2 = ({ children }: { children: React.ReactNode }) => (
+  <h2 className="font-bold text-text-primary typo-title1">{children}</h2>
+);
+
+export const P = ({ children }: { children: React.ReactNode }) => (
   <p className="max-w-[54rem] text-text-secondary typo-body">{children}</p>
 );
 
-const Note = ({ children }: { children: React.ReactNode }) => (
+export const Note = ({ children }: { children: React.ReactNode }) => (
   <p className="max-w-[54rem] rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 text-text-secondary typo-callout">
     {children}
   </p>
@@ -32,19 +39,21 @@ const Note = ({ children }: { children: React.ReactNode }) => (
 
 /* ---------------------------------------------------------------- controls */
 
-const ICONS: Record<LeadAction, React.ReactElement> = {
+export const ICONS: Record<LeadAction, React.ReactElement> = {
   Link: <LinkIcon />,
+  'Share to': <ShareIcon />,
   Snapshot: <SnapshotIcon />,
 };
 
-const LABELS: Record<LeadAction, string> = {
+export const LABELS: Record<LeadAction, string> = {
   Link: 'Copy link',
+  'Share to': 'Share',
   Snapshot: 'Snapshot',
 };
 
 /**
- * Inert on purpose: the page compares where a control sits inside a real
- * screen, not what it does when pressed.
+ * Inert on purpose: this page compares where a control sits inside a real
+ * screen. The working buttons and live capture are on Button placements.
  */
 export const Control = ({
   action,
@@ -72,22 +81,62 @@ export const Control = ({
 
 /* ---------------------------------------------------------- page furniture */
 
+/** The frame every surface is drawn inside, so variants compare like for like. */
+export const Screen = ({
+  children,
+  width = 'w-[26rem]',
+  className,
+}: {
+  children: React.ReactNode;
+  width?: string;
+  className?: string;
+}) => (
+  <div
+    className={`${width} shrink-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default ${
+      className ?? ''
+    }`}
+  >
+    {children}
+  </div>
+);
+
+/**
+ * The real context menu, not an illustration of one. Every surface below
+ * passes its production item list — today the share entry is "Share via",
+ * which opens the share modal; no surface offers Copy link from a menu.
+ */
+/**
+ * A real context menu. Every production menu in the product leads with a
+ * share item — "Share via" on posts and squads, "Share" on profiles and
+ * tags, "Share post via..." in reading history — and none of them offers
+ * "Copy link" directly, so the items are passed in rather than invented.
+ */
 export type DeviceName = 'Desktop' | 'Tablet' | 'Mobile';
 
-/** A control that only works at one of these widths is not a recommendation. */
-const DEVICES: Record<DeviceName, { width: number; viewport: string }> = {
-  Desktop: { width: 680, viewport: '1020px and up' },
-  Tablet: { width: 560, viewport: '768px' },
-  Mobile: { width: 375, viewport: '375px' },
-};
+/**
+ * Breakpoints matter more than usual here. PostSourceInfo renders the whole
+ * header cluster as `hidden laptop:flex`, so the ⋯ menu that carries sharing
+ * on desktop is simply not in the article header below 1020px — it moves to a
+ * sticky back-bar, and a floating action bar appears at the bottom. A
+ * recommendation that only works on one of the three is not a recommendation.
+ */
+export const DEVICES: Record<DeviceName, { width: number; viewport: string }> =
+  {
+    Desktop: { width: 680, viewport: '1020px and up' },
+    Tablet: { width: 560, viewport: '768px' },
+    Mobile: { width: 375, viewport: '375px' },
+  };
 
 /** A surface drawn at one real viewport width, so density is comparable. */
 export const Device = ({
   name,
   children,
+  height,
 }: {
   name: DeviceName;
   children: React.ReactNode;
+  /** Mobile surfaces pin a floating bar, so the frame needs a known height. */
+  height?: number;
 }) => (
   <div className="flex shrink-0 flex-col gap-2">
     <span className="font-bold uppercase text-text-quaternary typo-caption2">
@@ -95,7 +144,7 @@ export const Device = ({
     </span>
     <div
       className="relative shrink-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
-      style={{ width: DEVICES[name].width }}
+      style={{ width: DEVICES[name].width, height }}
     >
       {children}
     </div>
