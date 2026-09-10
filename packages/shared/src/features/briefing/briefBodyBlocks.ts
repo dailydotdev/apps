@@ -99,12 +99,14 @@ export function splitBriefBullet(value: string): string {
 
 /**
  * Every block has its own snapshot, so "Snapshot" alone repeats a dozen times
- * down the brief. The opening of the block tells a screen reader which one
- * each button captures.
+ * down the brief. The bullet's claim, or the opening of a paragraph, tells a
+ * screen reader which one each button captures.
  */
 export function getBriefBlockLabel(passage: string): string {
-  return `${SNAPSHOT_LABEL}: ${truncateAtWord(
-    passage.replace(/\s+/g, ' '),
+  const excerpt = truncateAtWord(
+    splitBriefBullet(passage.replace(/\s+/g, ' ')),
     LABEL_EXCERPT_LENGTH,
-  )}`;
+  ).replace(/[\s,.:;]+…$/, '…');
+
+  return `${SNAPSHOT_LABEL}: ${excerpt}`;
 }

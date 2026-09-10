@@ -92,18 +92,24 @@ describe('getBriefSection', () => {
 });
 
 describe('getBriefBlockLabel', () => {
-  it('names the button after the opening of its block', () => {
+  it('names a bullet after its claim', () => {
     expect(
       getBriefBlockLabel(
-        'US intelligence labels Chinese AI distillation a national security threat: A joint advisory',
+        'Shopify acquires Tailwind Labs to anchor the CSS framework: Tailwind CSS creator Adam Wathan announced',
       ),
     ).toBe(
-      'Snapshot: US intelligence labels Chinese AI distillation a national…',
+      'Snapshot: Shopify acquires Tailwind Labs to anchor the CSS framework',
     );
   });
 
-  it('keeps a short block whole', () => {
-    expect(getBriefBlockLabel('Short block')).toBe('Snapshot: Short block');
+  it('cuts a long opening at a word, without the punctuation it ends on', () => {
+    expect(
+      getBriefBlockLabel(
+        'The U.S. government now officially accuses Chinese AI labs, of industrial-scale model distillation.',
+      ),
+    ).toBe(
+      'Snapshot: The U.S. government now officially accuses Chinese AI labs…',
+    );
   });
 });
 
