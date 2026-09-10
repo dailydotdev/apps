@@ -220,7 +220,9 @@ const Pane = ({
   isGold?: boolean;
 }): ReactElement => (
   <div
-    className="flex flex-col gap-3 rounded-14 bg-background-subtle p-4"
+    // min-w-0 because a grid item will not shrink past its own content,
+    // and the rows inside are wider than a narrow phone.
+    className="flex min-w-0 flex-col gap-3 rounded-14 bg-background-subtle p-4"
     style={isGold ? goldPaneStyle : undefined}
   >
     {children}
