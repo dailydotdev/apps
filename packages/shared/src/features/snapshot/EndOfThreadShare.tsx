@@ -57,6 +57,8 @@ export function EndOfThreadShare({
       description="Send it to someone who’d have opinions."
       link={post.commentsPermalink}
       onShare={onShare}
+      origin={Origin.EndOfConversation}
+      post={post}
       text={post.title ?? post.sharedPost?.title ?? ''}
       title="Enjoyed this discussion?"
     />
