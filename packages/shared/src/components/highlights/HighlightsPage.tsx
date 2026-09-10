@@ -11,7 +11,9 @@ import {
   highlightsPageQueryOptions,
   postHighlightsFeedQueryOptions,
 } from '../../graphql/highlights';
+import { Origin } from '../../lib/log';
 import { Tab, TabContainer } from '../tabs/TabContainer';
+import { CopyHighlightsLink } from './CopyHighlightsLink';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
 
@@ -177,6 +179,7 @@ export const HighlightsPage = (): ReactElement => {
         <h1 className="feed-highlights-title-gradient font-bold typo-large-title">
           Happening Now
         </h1>
+        <CopyHighlightsLink className="ml-auto" origin={Origin.HappeningNow} />
       </header>
       <TabContainer
         controlledActive={activeTab}

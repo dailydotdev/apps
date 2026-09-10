@@ -8,6 +8,8 @@ import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
+import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
+import { snapshotSource } from '../../features/snapshot/snapshotSource';
 
 interface HighlightItemProps {
   highlight: PostHighlightFeed;
@@ -20,6 +22,7 @@ export const HighlightItem = ({
 }: HighlightItemProps): ReactElement => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const ref = useRef<HTMLElement>(null);
+  const tldrRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     if (defaultExpanded) {
@@ -33,12 +36,12 @@ export const HighlightItem = ({
     }
   }, [defaultExpanded]);
 
-  const tldr = useMemo(() => {
-    const post =
-      highlight.post.type === PostType.Share && highlight.post.sharedPost
-        ? highlight.post.sharedPost
-        : highlight.post;
+  const post =
+    highlight.post.type === PostType.Share && highlight.post.sharedPost
+      ? highlight.post.sharedPost
+      : highlight.post;
 
+  const tldr = useMemo(() => {
     const summary = post.summary?.trim();
     if (summary) {
       return summary;
@@ -50,7 +53,7 @@ export const HighlightItem = ({
     }
 
     return '';
-  }, [highlight.post]);
+  }, [post]);
 
   return (
     <article ref={ref}>
@@ -80,12 +83,25 @@ export const HighlightItem = ({
       </button>
       {expanded && tldr && (
         <div className="flex flex-col gap-3 px-4 pb-3">
-          <p className="text-text-secondary typo-markdown">{tldr}</p>
-          <Link href={highlight.post.commentsPermalink}>
-            <a className="flex items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
-              Read more
-            </a>
-          </Link>
+          <p
+            ref={tldrRef}
+            className="select-text text-text-secondary typo-markdown"
+          >
+            {tldr}
+          </p>
+          <div className="flex items-center gap-3">
+            <Link href={highlight.post.commentsPermalink}>
+              <a className="flex flex-1 items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
+                Read more
+              </a>
+            </Link>
+            <HighlightShareActions
+              highlight={highlight}
+              source={snapshotSource(post)}
+              tldr={tldr}
+              tldrRef={tldrRef}
+            />
+          </div>
         </div>
       )}
     </article>

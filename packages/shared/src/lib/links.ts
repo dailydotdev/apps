@@ -186,3 +186,21 @@ export const getRedirectNextPath = (params: URLSearchParams): string => {
 
   return checkIsExtension() ? `${webappUrl}${nextPath}` : nextPath;
 };
+
+/* A function, not a constant: `webappUrl` comes from the environment, and a
+   module-level template literal captures it before a test can set it. */
+export const getHighlightsUrl = (highlightId?: string): string => {
+  const base = `${webappUrl}highlights`;
+
+  return highlightId ? `${base}?highlight=${highlightId}` : base;
+};
+
+/** The Happening Now page as a link that still works once it leaves the tab. */
+export const getHighlightsShareUrl = (): string => {
+  const path = getHighlightsUrl();
+  // `webappUrl` is a bare path on the webapp, and the share pipeline runs
+  // `new URL(link)` on whatever it is handed.
+  const origin = globalThis?.location?.origin;
+
+  return origin ? new URL(path, origin).toString() : path;
+};

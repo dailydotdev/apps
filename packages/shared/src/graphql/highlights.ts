@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { Connection } from './common';
 import type { PostHighlightSignificance } from './types';
+import type { Source } from './sources';
 import { ONE_MINUTE } from '../lib/time';
 
 export interface PostHighlight {
@@ -15,6 +16,8 @@ export interface PostHighlight {
   };
 }
 
+type HighlightFeedSource = Pick<Source, 'name' | 'image'>;
+
 export interface PostHighlightFeed {
   id: string;
   channel: string;
@@ -27,9 +30,13 @@ export interface PostHighlightFeed {
     commentsPermalink: string;
     summary?: string;
     contentHtml?: string;
+    domain?: string;
+    source?: HighlightFeedSource;
     sharedPost?: {
       summary?: string;
       contentHtml?: string;
+      domain?: string;
+      source?: HighlightFeedSource;
     };
   };
 }
@@ -118,9 +125,19 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
       commentsPermalink
       summary
       contentHtml
+      domain
+      source {
+        name
+        image
+      }
       sharedPost {
         summary
         contentHtml
+        domain
+        source {
+          name
+          image
+        }
       }
     }
   }
