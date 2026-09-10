@@ -9,6 +9,8 @@ type CopyNotifyFunctionProps = NotifyOptionalProps & {
   message?: string;
   textToCopy?: string;
   shorten?: boolean;
+  /** Wraps the link before it is written, e.g. to prepend the quoted text. */
+  format?: (link: string) => string;
   /** Campaign carried by the shortened link, so the visit is attributed. */
   cid?: ReferralCampaignKey;
   disableToast?: boolean;
@@ -40,11 +42,12 @@ export function useCopyLink(
     // known at press time, and those callers pass it in props instead.
     const link = props.link || getLink?.();
     const shortenLink = props.shorten || shorten;
+    const format = props.format || ((value: string) => value);
 
     if (link) {
       try {
         // write the link to clipboard
-        await navigator.clipboard.writeText(link);
+        await navigator.clipboard.writeText(format(link));
       } catch {
         displayToast(blockedMessage, { variant: ToastType.Error });
 
@@ -59,7 +62,7 @@ export function useCopyLink(
             // would end the task that handled the gesture, and Safari refuses
             // the write after that.
             'text/plain': getShortUrl(link, props.cid).then((shortenedLink) => {
-              return new Blob([shortenedLink], { type: 'text/plain' });
+              return new Blob([format(shortenedLink)], { type: 'text/plain' });
             }),
           });
           await navigator.clipboard.write([clipBoardItem]);

@@ -85,8 +85,10 @@ export function SelectionSnapshotBar({
       link: post.commentsPermalink,
       shorten: true,
       cid: ReferralCampaignKey.SharePost,
+      format: (link) => (quote?.text ? `"${quote.text}"\n\n${link}` : link),
+      message: '✅ Copied text and link',
     });
-  }, [copyLink, logEvent, post]);
+  }, [copyLink, logEvent, post, quote]);
 
   const onCopyText = useCallback(() => {
     logEvent(
@@ -138,9 +140,9 @@ export function SelectionSnapshotBar({
             target={cardRef}
             variant={ButtonVariant.Primary}
           />
-          <Tooltip content="Copy link">
+          <Tooltip content="Copy text and link">
             <Button
-              aria-label="Copy link"
+              aria-label="Copy text and link"
               icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
               onClick={onCopyLink}
               size={ButtonSize.Small}
