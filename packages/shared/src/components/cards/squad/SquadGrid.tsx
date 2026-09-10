@@ -181,6 +181,7 @@ export const SquadGrid = ({
             </div>
             <CopyLinkButton
               className="relative z-0 shrink-0"
+              origin={Origin.SquadDirectory}
               shareProps={shareProps}
               size={ButtonSize.Medium}
               variant={ButtonVariant.Tertiary}

@@ -15,7 +15,7 @@ import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { CopyLinkButton } from '../share/CopyLinkButton';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
 
 interface ArchiveIndexPageProps {
@@ -154,6 +154,24 @@ function ArchiveGrid({
   );
 }
 
+const shareByScope: Record<
+  ArchiveScopeInfo['scopeType'],
+  { event: LogEvent; cid: ReferralCampaignKey }
+> = {
+  [ArchiveScopeType.Global]: {
+    event: LogEvent.ShareArchive,
+    cid: ReferralCampaignKey.Generic,
+  },
+  [ArchiveScopeType.Tag]: {
+    event: LogEvent.ShareTag,
+    cid: ReferralCampaignKey.ShareTag,
+  },
+  [ArchiveScopeType.Source]: {
+    event: LogEvent.ShareSource,
+    cid: ReferralCampaignKey.ShareSource,
+  },
+};
+
 export function ArchiveIndexPage({
   archives,
   scopeType,
@@ -163,11 +181,7 @@ export function ArchiveIndexPage({
   className,
 }: ArchiveIndexPageProps): ReactElement {
   const groups = groupArchivesByYear(archives);
-  const isTagScope = scopeType === ArchiveScopeType.Tag;
-  const shareCampaign = isTagScope
-    ? ReferralCampaignKey.ShareTag
-    : ReferralCampaignKey.ShareSource;
-  const shareEvent = isTagScope ? LogEvent.ShareTag : LogEvent.ShareSource;
+  const { event: shareEvent, cid: shareCampaign } = shareByScope[scopeType];
 
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -177,6 +191,7 @@ export function ArchiveIndexPage({
           Best of {scopeName} &mdash; Archive
         </h1>
         <CopyLinkButton
+          origin={Origin.ArchiveIndex}
           shareProps={{
             text: `Check out the best of ${scopeName} on daily.dev`,
             link: globalThis?.location?.href,

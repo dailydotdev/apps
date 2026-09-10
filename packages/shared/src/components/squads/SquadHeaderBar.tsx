@@ -287,6 +287,7 @@ export function SquadHeaderBar({
       )}
       <CopyLinkButton
         className="order-3 tablet:order-4"
+        origin={Origin.SquadPage}
         shareProps={{
           text: `Check out the ${squad.name} squad on daily.dev`,
           link: squad.permalink,

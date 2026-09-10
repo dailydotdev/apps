@@ -8,7 +8,7 @@ import { UserHighlight, UserType } from '../../widgets/PostUsersHighlights';
 import { CopyLinkButton } from '../../share/CopyLinkButton';
 import { ButtonVariant } from '../../buttons/Button';
 import { ReferralCampaignKey } from '../../../lib/referral';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 
 export function SourceTopList({
   items,
@@ -38,6 +38,7 @@ export function SourceTopList({
           <CopyLinkButton
             variant={ButtonVariant.Tertiary}
             className="ml-auto shrink-0 laptop:opacity-0 laptop:group-focus-within/source:opacity-100 laptop:group-hover/source:opacity-100"
+            origin={Origin.SourceDirectory}
             shareProps={{
               text: `Check out ${item.handle} on daily.dev`,
               link: item.permalink,

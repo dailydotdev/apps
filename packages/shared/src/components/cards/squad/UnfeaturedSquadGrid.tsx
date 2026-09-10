@@ -55,6 +55,7 @@ export const UnfeaturedSquadGrid = ({
         <div className="flex items-center gap-2">
           <CopyLinkButton
             className="relative z-0 laptop:opacity-0 laptop:group-focus-within/squad:opacity-100 laptop:group-hover/squad:opacity-100"
+            origin={Origin.SquadDirectory}
             shareProps={shareProps}
             size={ButtonSize.Medium}
             variant={ButtonVariant.Tertiary}

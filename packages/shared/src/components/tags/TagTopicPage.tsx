@@ -460,7 +460,7 @@ export const TagTopicPage = ({
                   {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
                 </Button>
               )}
-              <CopyLinkButton shareProps={shareProps} />
+              <CopyLinkButton origin={Origin.TagPage} shareProps={shareProps} />
               <CustomFeedOptionsMenu
                 onCreateNewFeed={() =>
                   push(

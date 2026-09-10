@@ -9,7 +9,7 @@ import SourceActionsBlock from './SourceActionsBlock';
 import SourceActionsFollow from './SourceActionsFollow';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import { CopyLinkButton } from '../../share/CopyLinkButton';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import type { ContentPreferenceMutation } from '../../../hooks/contentPreference/types';
@@ -104,7 +104,9 @@ export const SourceActions = ({
           {...blockProps}
         />
       )}
-      {showCopyLink && <CopyLinkButton shareProps={shareProps} />}
+      {showCopyLink && (
+        <CopyLinkButton origin={Origin.SourcePage} shareProps={shareProps} />
+      )}
       <CustomFeedOptionsMenu
         onCreateNewFeed={() =>
           router.push(
