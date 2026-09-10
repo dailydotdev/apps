@@ -23,7 +23,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import {
@@ -98,7 +98,8 @@ export const DevCardStep2 = ({
     text: 'Check out my #DevCard on daily.dev',
     logObject: (provider) => ({
       event_name: LogEvent.ShareDevcard,
-      extra: JSON.stringify({ provider }),
+      target_id: userId,
+      extra: JSON.stringify({ provider, origin: Origin.DevCard }),
     }),
   });
   const [selectedTab, setSelectedTab] = useState(0);
