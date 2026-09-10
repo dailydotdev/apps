@@ -21,6 +21,9 @@ export const SNAPSHOT_LABEL = 'Snapshot';
 /** Matches the snapshot-shutter-sweep animation in utilities.css. */
 const SHUTTER_SWEEP_MS = 380;
 
+/** How a press ended: pasted-ready, saved as a file, or not at all. */
+export type SnapshotResult = 'clipboard' | 'download' | 'error';
+
 export interface SnapshotButtonProps {
   target: CaptureTarget;
   filename?: string;
@@ -35,6 +38,8 @@ export interface SnapshotButtonProps {
    */
   captureOptions?: CaptureShareImageOptions | (() => CaptureShareImageOptions);
   onCapture?: (blob: Blob) => void;
+  /** Called once per press with how it ended, so the host can log it. */
+  onResult?: (result: SnapshotResult) => void;
 }
 
 export function SnapshotButton({
@@ -44,6 +49,7 @@ export function SnapshotButton({
   showLabel = true,
   captureOptions,
   onCapture,
+  onResult,
   size = ButtonSize.Small,
   variant = ButtonVariant.Tertiary,
   className,
@@ -93,20 +99,23 @@ export function SnapshotButton({
         // text in the composer, which is not what a snapshot is for.
         if (await copyShareImage(capture)) {
           displayToast('Image copied', { variant: ToastType.Success });
+          onResult?.('clipboard');
           return;
         }
 
         downloadShareImage(await capture, filename);
         displayToast('Image saved', { variant: ToastType.Success });
+        onResult?.('download');
       } catch {
         displayToast('Could not create the snapshot, please try again', {
           variant: ToastType.Error,
         });
+        onResult?.('error');
       } finally {
         setIsCapturing(false);
       }
     },
-    [captureOptions, displayToast, filename, onCapture, target],
+    [captureOptions, displayToast, filename, onCapture, onResult, target],
   );
 
   return (

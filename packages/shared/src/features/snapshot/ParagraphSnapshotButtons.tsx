@@ -2,6 +2,7 @@ import type { ReactElement, RefObject } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Post } from '../../graphql/posts';
+import { Origin } from '../../lib/log';
 import { TextSnapshotButton } from './TextSnapshotButton';
 
 /** A one-line paragraph is a caption or a stub; sharing it helps nobody. */
@@ -111,6 +112,7 @@ export function ParagraphSnapshotButtons({
         createPortal(
           <TextSnapshotButton
             filename={`daily-paragraph-${post.id}`}
+            origin={Origin.PostParagraph}
             post={post}
             text={text}
           />,

@@ -23,6 +23,7 @@ import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { snapshotSource } from './snapshotSource';
 import type { TextSelection } from './useTextSelection';
 import { useTextSelection } from './useTextSelection';
+import { useLogSnapshot } from './useLogSnapshot';
 
 const BAR_HEIGHT = 44;
 const GAP = 8;
@@ -72,7 +73,10 @@ export function SelectionSnapshotBar({
   const onCopyLink = useCallback(() => {
     logEvent(
       postLogEvent(LogEvent.SharePost, post, {
-        extra: { provider: ShareProvider.CopyLink, origin: Origin.PostContent },
+        extra: {
+          provider: ShareProvider.CopyLink,
+          origin: Origin.TextSelection,
+        },
       }),
     );
     // `shorten`, not an awaited short URL: the write has to stay inside the
@@ -83,6 +87,20 @@ export function SelectionSnapshotBar({
       cid: ReferralCampaignKey.SharePost,
     });
   }, [copyLink, logEvent, post]);
+
+  const onCopyText = useCallback(() => {
+    logEvent(
+      postLogEvent(LogEvent.SharePost, post, {
+        extra: {
+          provider: ShareProvider.CopyText,
+          origin: Origin.TextSelection,
+        },
+      }),
+    );
+    copyText({ message: '✅ Copied text' });
+  }, [copyText, logEvent, post]);
+
+  const logSnapshot = useLogSnapshot(post, Origin.TextSelection);
 
   useEffect(() => {
     if (selection) {
@@ -114,6 +132,7 @@ export function SelectionSnapshotBar({
           {/* Snapshot leads, labelled and solid: it is the reason the bar
               exists, and the two copies beside it are the familiar fallbacks. */}
           <SnapshotButton
+            onResult={logSnapshot}
             captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
             filename={`daily-quote-${post.id}`}
             target={cardRef}
@@ -133,7 +152,7 @@ export function SelectionSnapshotBar({
             <Button
               aria-label="Copy text"
               icon={<CopyStateIcon copied={textCopied} icon={CopyIcon} />}
-              onClick={() => copyText({ message: '✅ Copied text' })}
+              onClick={onCopyText}
               size={ButtonSize.Small}
               type="button"
               variant={ButtonVariant.Tertiary}

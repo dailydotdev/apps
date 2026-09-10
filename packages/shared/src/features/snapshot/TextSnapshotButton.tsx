@@ -9,6 +9,8 @@ import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
 import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { snapshotSource } from './snapshotSource';
 import { useArmedCard } from './useArmedCard';
+import { useLogSnapshot } from './useLogSnapshot';
+import type { Origin } from '../../lib/log';
 
 /**
  * A passage of the post as an image: the TLDR, or one paragraph of a body.
@@ -28,6 +30,7 @@ export function TextSnapshotButton({
   post,
   text,
   filename,
+  origin,
   // Quieter than the body copy it trails: it runs in at the end of the
   // passage's last line and must not break the paragraph's colour.
   className = 'ml-1 align-middle !text-text-quaternary',
@@ -39,6 +42,8 @@ export function TextSnapshotButton({
   text: string;
   /** Distinguishes a summary from a paragraph in the reader's downloads. */
   filename: string;
+  /** Which placement this is, for the snapshot's share event. */
+  origin: Origin;
   className?: string;
   showLabel?: boolean;
   size?: ButtonSize;
@@ -46,6 +51,7 @@ export function TextSnapshotButton({
 }): ReactElement {
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
+  const logSnapshot = useLogSnapshot(post, origin);
 
   return (
     <>
@@ -56,6 +62,7 @@ export function TextSnapshotButton({
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           className={className}
           filename={filename}
+          onResult={logSnapshot}
           showLabel={showLabel}
           size={size}
           target={cardRef}

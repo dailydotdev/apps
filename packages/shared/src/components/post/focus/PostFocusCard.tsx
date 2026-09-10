@@ -29,6 +29,7 @@ import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
+import { Origin } from '../../../lib/log';
 import { TextSnapshotButton } from '../../../features/snapshot/TextSnapshotButton';
 import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
@@ -354,6 +355,7 @@ const PostFocusCardRaw = ({
         trailing={
           <TextSnapshotButton
             filename={`daily-summary-${article.id}`}
+            origin={Origin.PostSummary}
             post={article}
             text={article.summary}
           />
@@ -367,6 +369,7 @@ const PostFocusCardRaw = ({
         {article.summary}
         <TextSnapshotButton
           filename={`daily-summary-${article.id}`}
+          origin={Origin.PostSummary}
           post={article}
           text={article.summary}
         />

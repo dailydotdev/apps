@@ -4,6 +4,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
+import { LogEvent, Origin } from '../../lib/log';
+import { ShareProvider } from '../../lib/share';
 import { SelectionSnapshotBar } from './SelectionSnapshotBar';
 
 const QUOTE =
@@ -27,9 +29,9 @@ const Harness = (): ReactElement => {
   );
 };
 
-const renderBar = () =>
+const renderBar = (logEvent = jest.fn()) =>
   render(
-    <TestBootProvider client={new QueryClient()}>
+    <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
       <Harness />
     </TestBootProvider>,
   );
@@ -120,5 +122,31 @@ describe('SelectionSnapshotBar placement', () => {
     const left = parseFloat(barStyle().left);
     expect(left).toBeLessThanOrEqual(1440 - 96);
     expect(left).toBeGreaterThanOrEqual(96);
+  });
+});
+
+describe('SelectionSnapshotBar share events', () => {
+  beforeAll(() => {
+    Object.assign(navigator, {
+      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+    });
+  });
+
+  it.each([
+    ['Copy text', ShareProvider.CopyText],
+    ['Copy link', ShareProvider.CopyLink],
+  ])('logs %s under the selection origin', (label, provider) => {
+    const logEvent = jest.fn();
+    renderBar(logEvent);
+    select('body');
+
+    fireEvent.click(screen.getByLabelText(label));
+
+    // One origin for the whole bar, so its three actions compare directly.
+    const [[event]] = logEvent.mock.calls;
+    expect(event.event_name).toBe(LogEvent.SharePost);
+    expect(JSON.parse(event.extra)).toEqual(
+      expect.objectContaining({ provider, origin: Origin.TextSelection }),
+    );
   });
 });

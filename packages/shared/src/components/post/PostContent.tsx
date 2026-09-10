@@ -27,6 +27,7 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
+import { Origin } from '../../lib/log';
 import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
 import {
@@ -226,6 +227,7 @@ export function PostContentRaw({
                 <div className="-mt-4 mb-6 flex">
                   <TextSnapshotButton
                     filename={`daily-summary-${post.id}`}
+                    origin={Origin.PostSummary}
                     post={post}
                     text={post.summary}
                   />
@@ -247,6 +249,7 @@ export function PostContentRaw({
                 {isPostPage && (
                   <TextSnapshotButton
                     filename={`daily-summary-${post.id}`}
+                    origin={Origin.PostSummary}
                     post={post}
                     text={post.summary}
                   />

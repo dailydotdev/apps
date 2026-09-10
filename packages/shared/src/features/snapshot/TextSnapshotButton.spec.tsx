@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
+import { Origin } from '../../lib/log';
 import { TextSnapshotButton } from './TextSnapshotButton';
 
 const SUMMARY =
@@ -11,7 +12,12 @@ const SUMMARY =
 const renderButton = () =>
   render(
     <TestBootProvider client={new QueryClient()}>
-      <TextSnapshotButton filename="daily-summary" post={post} text={SUMMARY} />
+      <TextSnapshotButton
+        filename="daily-summary"
+        origin={Origin.PostSummary}
+        post={post}
+        text={SUMMARY}
+      />
     </TestBootProvider>,
   );
 
