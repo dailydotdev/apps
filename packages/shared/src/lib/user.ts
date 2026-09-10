@@ -12,7 +12,6 @@ import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 import type { Post } from '../graphql/posts';
 import type { TLocation } from '../graphql/autocomplete';
 import { generateQueryKey, RequestKey, StaleTime } from './query';
-import { ApiError } from '../graphql/common';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -256,7 +255,7 @@ export type ProfileRequestResult =
   | { status: 'notFound' }
   | { status: 'failed'; error: Error };
 
-const profileNotFoundErrorCodes = [ApiError.Forbidden, ApiError.NotFound];
+const profileNotFoundErrorCodes = new Set(['FORBIDDEN', 'NOT_FOUND']);
 
 export const classifyProfileRequest = (
   status: number,
@@ -278,7 +277,7 @@ export const classifyProfileRequest = (
   }
 
   const errorCode = response?.errors?.[0]?.extensions?.code;
-  if (profileNotFoundErrorCodes.includes(errorCode as ApiError)) {
+  if (errorCode && profileNotFoundErrorCodes.has(errorCode)) {
     return { status: 'notFound' };
   }
 
