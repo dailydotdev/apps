@@ -105,7 +105,7 @@ function ReadingOverviewSnapshotCardComponent(
           <SnapshotTile
             glyph="🏆"
             label="Longest streak"
-            value={String(longestStreak)}
+            value={largeNumberFormat(longestStreak) ?? String(longestStreak)}
           />
           <SnapshotTile
             label="Total reading days"
