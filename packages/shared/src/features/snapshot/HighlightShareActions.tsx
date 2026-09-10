@@ -29,8 +29,7 @@ const HIGHLIGHTS_EYEBROW_GRADIENT = `linear-gradient(120deg, ${colors.cheese['40
 
 /**
  * Copy link and Snapshot for an expanded highlight, plus the quote bar over
- * its TLDR. Kept out of HighlightItem so the row itself needs no query client
- * or log context for a placement that is off by default.
+ * its TLDR. Mounts only once a row expands, so collapsed rows run none of it.
  */
 export function HighlightShareActions({
   highlight,

@@ -1,10 +1,9 @@
+import type { ReactElement } from 'react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import { featureHappeningNowShare } from '../../../lib/featureManagement';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { ShareProvider } from '../../../lib/share';
 import { HighlightGrid } from './HighlightGrid';
@@ -37,9 +36,16 @@ const highlights = [
   },
 ];
 
+const renderCard = (card: ReactElement, logEvent = jest.fn()) =>
+  render(
+    <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
+      {card}
+    </TestBootProvider>,
+  );
+
 describe('Highlight cards', () => {
   it('should render the grid card with highlight links', () => {
-    render(<HighlightGrid highlights={highlights} />);
+    renderCard(<HighlightGrid highlights={highlights} />);
 
     expect(screen.getByText('Happening Now')).toBeInTheDocument();
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
@@ -61,7 +67,7 @@ describe('Highlight cards', () => {
   });
 
   it('should render the list card with highlight links', () => {
-    render(<HighlightList highlights={highlights} />);
+    renderCard(<HighlightList highlights={highlights} />);
 
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
@@ -72,7 +78,7 @@ describe('Highlight cards', () => {
     const onHighlightClick = jest.fn();
     const onReadAllClick = jest.fn();
 
-    render(
+    renderCard(
       <HighlightGrid
         highlights={highlights}
         onHighlightClick={onHighlightClick}
@@ -97,22 +103,14 @@ describe('Highlight card share controls', () => {
     });
   });
 
-  const renderShareable = (
-    logEvent: jest.Mock,
-    onHighlightClick?: jest.Mock,
-  ) => {
-    const gb = new GrowthBook();
-    gb.setFeatures({ [featureHappeningNowShare.id]: { defaultValue: true } });
-
-    render(
-      <TestBootProvider client={new QueryClient()} gb={gb} log={{ logEvent }}>
-        <HighlightGrid
-          highlights={highlights}
-          onHighlightClick={onHighlightClick}
-        />
-      </TestBootProvider>,
+  const renderShareable = (logEvent: jest.Mock, onHighlightClick?: jest.Mock) =>
+    renderCard(
+      <HighlightGrid
+        highlights={highlights}
+        onHighlightClick={onHighlightClick}
+      />,
+      logEvent,
     );
-  };
 
   it('copies a highlight from its row without opening it', async () => {
     const logEvent = jest.fn();

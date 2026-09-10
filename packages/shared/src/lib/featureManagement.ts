@@ -30,13 +30,6 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
-// Every share control on Happening Now: copy link and snapshot on an expanded
-// highlight, the selection bar over its TLDR, the page header's copy link, and
-// the copy links on the feed's Happening Now card.
-export const featureHappeningNowShare = new Feature(
-  'happening_now_share',
-  false,
-);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{

@@ -9,8 +9,6 @@ import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
 import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureHappeningNowShare } from '../../lib/featureManagement';
 
 interface HighlightItemProps {
   highlight: PostHighlightFeed;
@@ -24,10 +22,6 @@ export const HighlightItem = ({
   const [expanded, setExpanded] = useState(defaultExpanded);
   const ref = useRef<HTMLElement>(null);
   const tldrRef = useRef<HTMLParagraphElement>(null);
-  const { value: canShare } = useConditionalFeature({
-    feature: featureHappeningNowShare,
-    shouldEvaluate: expanded,
-  });
 
   useEffect(() => {
     if (defaultExpanded) {
@@ -100,13 +94,11 @@ export const HighlightItem = ({
                 Read more
               </a>
             </Link>
-            {canShare && (
-              <HighlightShareActions
-                highlight={highlight}
-                tldr={tldr}
-                tldrRef={tldrRef}
-              />
-            )}
+            <HighlightShareActions
+              highlight={highlight}
+              tldr={tldr}
+              tldrRef={tldrRef}
+            />
           </div>
         </div>
       )}

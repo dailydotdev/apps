@@ -7,8 +7,6 @@ import { RelativeTime } from '../../utilities/RelativeTime';
 import Link from '../../utilities/Link';
 import { ButtonSize } from '../../buttons/common';
 import { CopyHighlightsLink } from '../../highlights/CopyHighlightsLink';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureHappeningNowShare } from '../../../lib/featureManagement';
 import { Origin } from '../../../lib/log';
 import { HighlightCardOptions } from './HighlightCardOptions';
 
@@ -65,12 +63,10 @@ const HighlightRow = ({
   highlight,
   index,
   onHighlightClick,
-  canShare,
 }: {
   highlight: PostHighlight;
   index: number;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
-  canShare: boolean;
 }): ReactElement => {
   return (
     <Link href={getHighlightUrl(highlight)}>
@@ -88,14 +84,12 @@ const HighlightRow = ({
             maxHoursAgo={72}
             className="text-text-tertiary typo-footnote"
           />
-          {canShare && (
-            <CopyHighlightsLink
-              className="pointer-events-none opacity-0 transition-opacity group-focus-within/highlight:opacity-100 group-hover/highlight:pointer-events-auto group-hover/highlight:opacity-100"
-              highlight={highlight}
-              origin={Origin.HighlightsCard}
-              size={ButtonSize.XSmall}
-            />
-          )}
+          <CopyHighlightsLink
+            className="pointer-events-none opacity-0 transition-opacity group-focus-within/highlight:opacity-100 group-hover/highlight:pointer-events-auto group-hover/highlight:opacity-100"
+            highlight={highlight}
+            origin={Origin.HighlightsCard}
+            size={ButtonSize.XSmall}
+          />
         </span>
       </a>
     </Link>
@@ -118,9 +112,6 @@ export const HighlightCardContent = ({
       : 'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto px-2.5 pb-1 pt-0';
   const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
   const firstHighlight = highlights[0];
-  const { value: canShare } = useConditionalFeature({
-    feature: featureHappeningNowShare,
-  });
 
   return (
     <>
@@ -133,17 +124,15 @@ export const HighlightCardContent = ({
         >
           Happening Now
         </h3>
-        {canShare && (
-          <CopyHighlightsLink
-            className={classNames(
-              'pointer-events-none ml-auto opacity-0 transition-opacity group-hover:pointer-events-auto',
-              // Keyboard users never fire hover, so focus has to reveal it too.
-              'focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100',
-            )}
-            origin={Origin.HighlightsCard}
-          />
-        )}
-        <HighlightCardOptions className={canShare ? undefined : 'ml-auto'} />
+        <CopyHighlightsLink
+          className={classNames(
+            'pointer-events-none ml-auto opacity-0 transition-opacity group-hover:pointer-events-auto',
+            // Keyboard users never fire hover, so focus has to reveal it too.
+            'focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100',
+          )}
+          origin={Origin.HighlightsCard}
+        />
+        <HighlightCardOptions />
       </header>
       <div className={contentClassName}>
         {highlights.map((highlight, index) => (
@@ -152,7 +141,6 @@ export const HighlightCardContent = ({
             highlight={highlight}
             index={index}
             onHighlightClick={onHighlightClick}
-            canShare={canShare}
           />
         ))}
       </div>

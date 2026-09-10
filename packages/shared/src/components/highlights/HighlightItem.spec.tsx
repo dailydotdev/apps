@@ -1,10 +1,9 @@
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import type { PostHighlightFeed } from '../../graphql/highlights';
-import { featureHappeningNowShare } from '../../lib/featureManagement';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 import { HighlightItem } from './HighlightItem';
@@ -36,22 +35,23 @@ beforeEach(() => {
   scrollIntoView.mockClear();
 });
 
-const renderWithSnapshot = (defaultExpanded = false, logEvent = jest.fn()) => {
-  const gb = new GrowthBook();
-  gb.setFeatures({
-    [featureHappeningNowShare.id]: { defaultValue: true },
-  });
+const renderItem = (defaultExpanded = false, logEvent = jest.fn()) => {
+  const client = new QueryClient();
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider client={client} log={{ logEvent }}>
+      {children}
+    </TestBootProvider>
+  );
 
   return render(
-    <TestBootProvider client={new QueryClient()} gb={gb} log={{ logEvent }}>
-      <HighlightItem defaultExpanded={defaultExpanded} highlight={highlight} />
-    </TestBootProvider>,
+    <HighlightItem defaultExpanded={defaultExpanded} highlight={highlight} />,
+    { wrapper },
   );
 };
 
 describe('HighlightItem', () => {
   it('should expand when the route-driven default changes after mount', () => {
-    const { rerender } = render(<HighlightItem highlight={highlight} />);
+    const { rerender } = renderItem();
 
     expect(screen.queryByText(summary)).not.toBeInTheDocument();
 
@@ -65,16 +65,8 @@ describe('HighlightItem', () => {
     expect(scrollIntoView).toHaveBeenCalled();
   });
 
-  it('keeps an expanded highlight free of share controls while the flag is off', () => {
-    render(<HighlightItem defaultExpanded highlight={highlight} />);
-
-    expect(
-      screen.queryByRole('button', { name: /snapshot/i }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('offers nothing on a collapsed row even with the flag on', () => {
-    renderWithSnapshot();
+  it('offers nothing on a collapsed row', () => {
+    renderItem();
 
     expect(
       screen.queryByRole('button', { name: /snapshot/i }),
@@ -82,7 +74,7 @@ describe('HighlightItem', () => {
   });
 
   it('offers snapshot and copy link beside Read more when expanded', () => {
-    renderWithSnapshot(true);
+    renderItem(true);
 
     expect(screen.getByRole('button', { name: /snapshot/i })).toBeVisible();
     expect(screen.getByRole('button', { name: /copy link/i })).toBeVisible();
@@ -94,7 +86,7 @@ describe('HighlightItem', () => {
       clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
     });
     const logEvent = jest.fn();
-    renderWithSnapshot(true, logEvent);
+    renderItem(true, logEvent);
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /copy link/i }));
