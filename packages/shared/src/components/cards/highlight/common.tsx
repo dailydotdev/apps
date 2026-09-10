@@ -27,10 +27,12 @@ const getHighlightUrl = (highlight: PostHighlight): string =>
 export const ReadAllHighlightsFooter = ({
   highlightId,
   onClick,
+  compact,
   className,
 }: {
   highlightId?: string;
   onClick?: () => void;
+  compact?: boolean;
   className?: string;
 }): ReactElement => {
   const href = getHighlightsUrl(highlightId);
@@ -39,7 +41,10 @@ export const ReadAllHighlightsFooter = ({
       <Link href={href}>
         <a
           aria-label="Read all highlights"
-          className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl"
+          className={classNames(
+            'flex h-8 w-full items-center',
+            !compact && 'bg-surface-float/70 rounded-10 px-3 backdrop-blur-xl',
+          )}
           href={href}
           onClick={() => onClick?.()}
         >
@@ -65,26 +70,49 @@ const HighlightRow = ({
   highlight,
   index,
   onHighlightClick,
+  compact,
 }: {
   highlight: PostHighlight;
   index: number;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
+  compact?: boolean;
 }): ReactElement => {
+  const timestamp = (
+    <RelativeTime
+      dateTime={highlight.highlightedAt}
+      maxHoursAgo={72}
+      className={
+        compact ? undefined : 'mt-0.5 text-text-tertiary typo-footnote'
+      }
+    />
+  );
+
   return (
     <Link href={getHighlightUrl(highlight)}>
       <a
-        className="flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
+        className={classNames(
+          'flex w-full flex-col gap-0 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
+          compact
+            ? // Drawn, not bordered: a `border-b` follows the row's corner
+              // radius and curves up at both ends.
+              'relative rounded-12 px-4 py-3 after:absolute after:inset-x-4 after:bottom-0 after:h-px after:bg-border-subtlest-tertiary last:after:hidden'
+            : 'rounded-8 border-b border-border-subtlest-tertiary px-3 py-2',
+        )}
         href={getHighlightUrl(highlight)}
         onClick={() => onHighlightClick?.(highlight, index + 1)}
       >
         <span className="break-words font-bold text-text-primary typo-callout">
           {highlight.headline}
+          {/* Compact trails the headline in its own text flow, so it wraps
+              with the last word rather than taking a line of its own. */}
+          {!!compact && (
+            <span className="font-normal text-text-tertiary typo-footnote">
+              <span aria-hidden> · </span>
+              {timestamp}
+            </span>
+          )}
         </span>
-        <RelativeTime
-          dateTime={highlight.highlightedAt}
-          maxHoursAgo={72}
-          className="mt-0.5 text-text-tertiary typo-footnote"
-        />
+        {!compact && timestamp}
       </a>
     </Link>
   );
@@ -95,16 +123,33 @@ export const HighlightCardContent = ({
   onHighlightClick,
   onReadAllClick,
   variant,
-}: HighlightCardProps & { variant: 'grid' | 'list' }): ReactElement => {
-  const headerClassName =
-    variant === 'list'
-      ? 'flex items-center pb-4'
-      : 'flex items-center px-4 py-4';
-  const contentClassName =
-    variant === 'list'
-      ? 'flex flex-col gap-2'
-      : 'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto px-2.5 pb-1 pt-0';
-  const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
+  compact,
+}: HighlightCardProps & {
+  variant: 'grid' | 'list';
+  /** Flush against its container, for a surface without card chrome. */
+  compact?: boolean;
+}): ReactElement => {
+  const isFlushGrid = variant === 'grid' && compact;
+  const headerClassName = classNames(
+    'flex items-center',
+    variant === 'list' && 'pb-4',
+    variant === 'grid' && (isFlushGrid ? 'px-4 pb-2' : 'px-4 py-4'),
+  );
+  const contentClassName = classNames(
+    variant === 'list' && 'flex flex-col gap-2',
+    variant === 'grid' &&
+      'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto pt-0',
+    variant === 'grid' && !isFlushGrid && 'px-2.5 pb-1',
+    // Only where the column has a fixed height and actually scrolls: the fade
+    // stops the pinned footer slicing a row flat.
+    isFlushGrid &&
+      'laptop:[mask-image:linear-gradient(to_bottom,black_calc(100%-1.25rem),transparent)]',
+  );
+  const footerClassName = classNames(
+    variant === 'list' && 'pt-1.5',
+    // Matches the ad card's padding, so the columns finish on one line.
+    variant === 'grid' && (isFlushGrid ? 'px-4 pb-3 pt-2' : 'px-1 pb-1'),
+  );
   const firstHighlight = highlights[0];
 
   return (
@@ -127,12 +172,14 @@ export const HighlightCardContent = ({
             highlight={highlight}
             index={index}
             onHighlightClick={onHighlightClick}
+            compact={compact}
           />
         ))}
       </div>
       <ReadAllHighlightsFooter
         highlightId={firstHighlight?.id}
         onClick={onReadAllClick}
+        compact={isFlushGrid}
         className={footerClassName}
       />
     </>

@@ -7,6 +7,7 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
+import type { FeaturedWideColSpan } from '../common/featuredWide';
 import type { Post } from '../../../graphql/posts';
 import type { PostHero, PostHeroSignificance } from '../../../graphql/types';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
@@ -59,7 +60,9 @@ const makeHero = (significance: PostHeroSignificance | null): PostHero | null =>
     : null;
 
 const renderComponent = (
-  props: Partial<PostCardProps & { wideColSpan?: 2 | 3 | 4 }> = {},
+  props: Partial<
+    PostCardProps & { wideColSpan?: FeaturedWideColSpan; hero?: boolean }
+  > = {},
 ): RenderResult => {
   // HighlightChip short-circuits when the experiment flag is off; the
   // chip-label tests need it on, so override the GrowthBook value here.
@@ -106,4 +109,27 @@ it('renders no chip when post has no highlight', () => {
   expect(screen.queryByText('Breaking')).not.toBeInTheDocument();
   expect(screen.queryByText('Major')).not.toBeInTheDocument();
   expect(screen.queryByText('Notable')).not.toBeInTheDocument();
+});
+
+describe('hero sizing', () => {
+  const summarised: Post = { ...post, summary: 'What the post is about.' };
+  const summaryOf = (): HTMLElement =>
+    screen.getByText(summarised.summary as string);
+
+  it('lets the summary give way so the action row keeps its place', () => {
+    renderComponent({ post: summarised, hero: true });
+
+    const summary = summaryOf();
+    // `base.css` resets every element to `flex-shrink: 0`.
+    expect(summary).toHaveClass('shrink');
+    expect(summary.parentElement).toHaveClass('shrink', 'min-h-0');
+  });
+
+  it('leaves the in-feed card unable to shrink its summary', () => {
+    renderComponent({ post: summarised, wideColSpan: 2 });
+
+    const summary = summaryOf();
+    expect(summary).not.toHaveClass('shrink');
+    expect(summary.parentElement).not.toHaveClass('shrink');
+  });
 });

@@ -54,6 +54,13 @@ export interface FeedContainerProps {
   disableListFrame?: boolean;
 }
 
+/**
+ * Exported because anything in the feed's top slot is a sibling of the grid,
+ * not a child, and has to carry the same inset to line up with it.
+ */
+export const v2FeedSideInsetClass = 'tablet:px-2 laptop:px-6';
+const v2FeedInsetClass = `${v2FeedSideInsetClass} tablet:py-2 laptop:py-6`;
+
 const listGapClass = 'gap-2';
 const gridGapClass = 'gap-8';
 const feedGapPx = {
@@ -381,7 +388,7 @@ export const FeedContainer = ({
                   // mock. The page-header strip above sets its own
                   // bottom border, so cards sit p-6 inside the floating
                   // card on all four sides.
-                  'tablet:p-2 laptop:p-6 [&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
+                  `${v2FeedInsetClass} [&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary`,
                 // Inner inset for the bordered list frame. With the frame gone
                 // there is nothing to inset from, so the cards run the full
                 // width of the column like the page header above them.
