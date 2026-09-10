@@ -15,18 +15,17 @@ import type {
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
-import { playShutterSound } from '../../features/snapshot/shutterSound';
-import { getSnapshotCaptureOptions } from '../../features/snapshot/snapshotCapture';
 
-const SNAPSHOT_LABEL = 'Snapshot';
+export const SNAPSHOT_LABEL = 'Snapshot';
 
 /** Matches the snapshot-shutter-sweep animation in utilities.css. */
 const SHUTTER_SWEEP_MS = 380;
 
+/** How a press ended: pasted-ready, saved as a file, or not at all. */
+export type SnapshotResult = 'clipboard' | 'download' | 'error';
+
 export interface SnapshotButtonProps {
   target: CaptureTarget;
-  /** Copied as text beside the image, so a paste carries both halves. */
-  link?: string;
   filename?: string;
   label?: string;
   showLabel?: boolean;
@@ -34,21 +33,23 @@ export interface SnapshotButtonProps {
   variant?: ButtonVariant;
   className?: string;
   /**
-   * Omit for a designed card: its height is measured at the press instead,
-   * since a frame that grows to fit only has one once it is mounted.
+   * A getter rather than a value for cards whose frame grows with its copy:
+   * the height can only be measured once the card is mounted.
    */
-  captureOptions?: CaptureShareImageOptions;
+  captureOptions?: CaptureShareImageOptions | (() => CaptureShareImageOptions);
   onCapture?: (blob: Blob) => void;
+  /** Called once per press with how it ended, so the host can log it. */
+  onResult?: (result: SnapshotResult) => void;
 }
 
 export function SnapshotButton({
   target,
-  link,
   filename = 'daily-snapshot',
   label = SNAPSHOT_LABEL,
   showLabel = true,
   captureOptions,
   onCapture,
+  onResult,
   size = ButtonSize.Small,
   variant = ButtonVariant.Tertiary,
   className,
@@ -72,7 +73,6 @@ export function SnapshotButton({
       // Every placement sits inside a clickable card, row or link.
       event.preventDefault();
       event.stopPropagation();
-      playShutterSound();
       setIsFlashing(true);
       flashTimeout.current = setTimeout(
         () => setIsFlashing(false),
@@ -81,10 +81,11 @@ export function SnapshotButton({
       setIsCapturing(true);
 
       try {
-        const element = target instanceof HTMLElement ? target : target.current;
         const capture = captureShareImage(
           target,
-          captureOptions ?? getSnapshotCaptureOptions(element),
+          typeof captureOptions === 'function'
+            ? captureOptions()
+            : captureOptions,
         );
 
         if (onCapture) {
@@ -93,25 +94,28 @@ export function SnapshotButton({
         }
 
         // Pasting beats a file in Downloads for every target we share to, so
-        // the clipboard leads and the download is the fallback.
-        if (await copyShareImage(capture, link)) {
-          displayToast(link ? 'Image and link copied' : 'Image copied', {
-            variant: ToastType.Success,
-          });
+        // the clipboard leads and the download is the fallback. The image is
+        // the whole payload: a link pasted beside it lands as a second line of
+        // text in the composer, which is not what a snapshot is for.
+        if (await copyShareImage(capture)) {
+          displayToast('Image copied', { variant: ToastType.Success });
+          onResult?.('clipboard');
           return;
         }
 
         downloadShareImage(await capture, filename);
         displayToast('Image saved', { variant: ToastType.Success });
+        onResult?.('download');
       } catch {
         displayToast('Could not create the snapshot, please try again', {
           variant: ToastType.Error,
         });
+        onResult?.('error');
       } finally {
         setIsCapturing(false);
       }
     },
-    [captureOptions, displayToast, filename, link, onCapture, target],
+    [captureOptions, displayToast, filename, onCapture, onResult, target],
   );
 
   return (

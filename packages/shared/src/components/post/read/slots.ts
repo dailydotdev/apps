@@ -24,13 +24,13 @@ export const READ_SLOT = {
   railBottomSticky: 19,
   /**
    * The top leaderboard's phone twin: the same AdSense unit requested at a
-   * fixed 320x50, the smallest standard banner. Fixed rather than responsive
-   * because a responsive request can come back as expandable video, which
-   * inside the phone-sticky header block once pinned half the screen, and
-   * because on a phone user agent AdSense stretches a responsive ins to the
-   * full screen width regardless of the wrapper. 320x50 over the earlier
-   * 320x100: it is the best-filled mobile size and takes the least of the
-   * pinned header.
+   * fixed 320x50, the smallest standard banner, as PhoneTopAdStrip — pinned
+   * at the top of the screen for the whole visit, outside the column. Fixed
+   * rather than responsive because a responsive request can come back as
+   * expandable video, which pinned would cover half the screen, and because
+   * on a phone user agent AdSense stretches a responsive ins to the full
+   * screen width regardless of the wrapper. 320x50 over the earlier 320x100:
+   * it is the best-filled mobile size and takes the least of the screen.
    */
   topLeaderboardPhone: 20,
 } as const;
@@ -152,7 +152,7 @@ export const ORGANIC_SLOT = {
   topLeaderboard: 15,
   /** Rail unit below the direct-sold ad widget. */
   railAfterDirectAd: 16,
-  /** The organic leaderboard's fixed 320x50 phone twin — see slot 20. */
+  /** The organic leaderboard's pinned 320x50 phone twin — see slot 20. */
   topLeaderboardPhone: 21,
   /** MPU repeated through the TLDR, same cadence as the articles page. */
   inContentMpu: 22,

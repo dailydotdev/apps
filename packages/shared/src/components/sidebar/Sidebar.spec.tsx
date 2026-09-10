@@ -7,7 +7,9 @@ import { createTestSettings } from '../../../__tests__/fixture/settings';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
-import SettingsContext from '../../contexts/SettingsContext';
+import SettingsContext, {
+  type SettingsContextData,
+} from '../../contexts/SettingsContext';
 import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
@@ -17,6 +19,9 @@ import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancement
 import type { Alerts } from '../../graphql/alerts';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import { SidebarDesktop } from './SidebarDesktop';
+import type { Feed } from '../../graphql/feed';
+import { FeedType } from '../../graphql/feed';
+import type { SettingsFlags } from '../../graphql/settings';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -35,16 +40,46 @@ const createMockFeedSettings = () => ({
 
 const defaultAlerts: Alerts = { filter: true };
 
+type RenderComponentOptions = {
+  feeds?: Feed[];
+  settings?: Partial<SettingsContextData>;
+};
+
+const createCustomFeed = (): Feed => ({
+  id: 'cf1',
+  userId: 'u1',
+  flags: {
+    name: 'Cool feed',
+  },
+  slug: 'cool-feed-cf1',
+  createdAt: new Date('2024-01-01T00:00:00.000Z'),
+  type: FeedType.Custom,
+});
+
+const createSidebarFlags = (
+  flags: Partial<SettingsFlags> = {},
+): SettingsFlags => ({
+  sidebarSquadExpanded: true,
+  sidebarCustomFeedsExpanded: true,
+  sidebarOtherExpanded: true,
+  sidebarResourcesExpanded: true,
+  sidebarBookmarksExpanded: true,
+  clickbaitShieldEnabled: true,
+  ...flags,
+});
+
 const renderComponent = (
   alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
   user: LoggedUser | null | undefined = defaultUser,
   sidebarExpanded = true,
+  options: RenderComponentOptions = {},
 ): RenderResult => {
   const resolvedUser = user === null ? undefined : user;
   const settingsContext = createTestSettings({
     sidebarExpanded,
     toggleSidebarExpanded,
+    ...options.settings,
   });
   client = new QueryClient();
   client.setQueryData(TOAST_NOTIF_KEY, null);
@@ -70,6 +105,7 @@ const renderComponent = (
             tokenRefreshed: true,
             getRedirectUri: jest.fn(),
             closeLogin: jest.fn(),
+            feeds: options.feeds,
           }}
         >
           <ProgressiveEnhancementContext.Provider
@@ -115,6 +151,45 @@ it('should show the sidebar as closed if user has this set', async () => {
 
   const section = await screen.findByText('Discover');
   expect(section).toHaveClass('opacity-0');
+});
+
+it('should not render a collapsed divider for empty custom feeds', async () => {
+  renderComponent(defaultAlerts, [], null, false);
+
+  await screen.findByLabelText('Find Squads');
+
+  expect(screen.getAllByRole('separator')).toHaveLength(3);
+});
+
+it('should render a collapsed divider for custom feeds with items', async () => {
+  renderComponent(defaultAlerts, [], null, false, {
+    feeds: [createCustomFeed()],
+  });
+
+  await screen.findByLabelText('Cool feed');
+
+  expect(screen.getAllByRole('separator')).toHaveLength(4);
+});
+
+it('should keep the expanded empty custom feeds header add affordance', async () => {
+  renderComponent();
+
+  const section = await screen.findByText('Feeds');
+  expect(section).toBeInTheDocument();
+  expect(screen.getByLabelText('Add to Feeds')).toBeInTheDocument();
+});
+
+it('should not render a collapsed divider for a flag-collapsed section', async () => {
+  renderComponent(defaultAlerts, [], null, false, {
+    feeds: [createCustomFeed()],
+    settings: {
+      flags: createSidebarFlags({ sidebarCustomFeedsExpanded: false }),
+    },
+  });
+
+  await screen.findByLabelText('Find Squads');
+
+  expect(screen.getAllByRole('separator')).toHaveLength(3);
 });
 
 it('should show the For You items if the user has filters', async () => {

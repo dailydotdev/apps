@@ -1,14 +1,66 @@
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import type { HighlightRange } from './snapshotText';
+import { collapseWhitespace, findHighlightRange } from './snapshotText';
 
 export interface TextSelection {
   text: string;
+  /**
+   * The block the selection was taken from, so a card can show the marked run
+   * in its context. Falls back to the selection itself when the block cannot
+   * be resolved.
+   */
+  passage: string;
+  /** Where `text` sits inside `passage`, absent when the two are the same. */
+  highlight?: HighlightRange;
   /** Viewport coordinates, so a fixed toolbar can use them unchanged. */
   top: number;
   bottom: number;
   left: number;
   width: number;
 }
+
+/** The blocks a quote can be read out of, nearest first via `closest`. */
+const PASSAGE_SELECTOR = 'p,li,blockquote,h1,h2,h3,h4,h5,h6,td,dd,figcaption';
+
+/**
+ * The paragraph around a selection. The offsets come from matching the
+ * selection's own string inside the block rather than from the range, which
+ * counts into a single text node and not the block's rendered text; a
+ * selection that spans two blocks finds no match and is left on its own.
+ *
+ * Both sides are whitespace-folded first (see collapseWhitespace), and the
+ * text leading up to the selection says roughly where it starts, so a phrase
+ * the paragraph repeats is marked where the reader marked it, not at its
+ * first occurrence.
+ */
+const readPassage = (
+  range: Range,
+  text: string,
+): Pick<TextSelection, 'passage' | 'highlight'> => {
+  const { commonAncestorContainer: node } = range;
+  const element =
+    node instanceof Element ? node : (node.parentElement as Element | null);
+  const block = element?.closest(PASSAGE_SELECTOR);
+  const passage = block?.textContent
+    ? collapseWhitespace(block.textContent)
+    : undefined;
+
+  if (!block || !passage) {
+    return { passage: text };
+  }
+
+  const lead = document.createRange();
+  lead.setStart(block, 0);
+  lead.setEnd(range.startContainer, range.startOffset);
+  const highlight = findHighlightRange(
+    passage,
+    collapseWhitespace(text),
+    collapseWhitespace(lead.toString()).length,
+  );
+
+  return highlight ? { passage, highlight } : { passage: text };
+};
 
 /** Under this a selection is a stray double-click, not a quote worth sharing. */
 export const MIN_SELECTION_LENGTH = 24;
@@ -43,6 +95,7 @@ const read = (container: HTMLElement | null): TextSelection | null => {
 
   return {
     text,
+    ...readPassage(range, text),
     top: rect.top,
     bottom: rect.bottom,
     left: rect.left,
@@ -100,18 +153,35 @@ export function useTextSelection(
     document.addEventListener('selectionchange', onSelectionChange);
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('pointerup', onPointerUp);
-    globalThis.addEventListener('scroll', sync, { passive: true });
+    // Capture, on the document: a scroll event does not bubble, and the post
+    // page scrolls an inner container rather than the window — listening on
+    // the window alone left the toolbar at the coordinates the quote had when
+    // it was made, hundreds of pixels from the text.
+    document.addEventListener('scroll', sync, {
+      capture: true,
+      passive: true,
+    });
     globalThis.addEventListener('resize', sync);
+
+    // The quote can also move without anything scrolling: expanding a
+    // truncated summary reflows everything under it.
+    const observer =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(sync);
+
+    if (containerRef.current) {
+      observer?.observe(containerRef.current);
+    }
 
     return () => {
       clearTimeout(settle);
+      observer?.disconnect();
       document.removeEventListener('selectionchange', onSelectionChange);
       document.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('pointerup', onPointerUp);
-      globalThis.removeEventListener('scroll', sync);
+      document.removeEventListener('scroll', sync, { capture: true });
       globalThis.removeEventListener('resize', sync);
     };
-  }, [enabled, ignoreRef, sync]);
+  }, [containerRef, enabled, ignoreRef, sync]);
 
   return selection;
 }
