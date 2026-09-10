@@ -7,21 +7,13 @@ import {
   findHighlightRange,
   SNAPSHOT_COPY_SIZE,
   SNAPSHOT_PASSAGE_LIMIT,
-  SNAPSHOT_TEXT_LIMIT,
 } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
-import { PostSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/PostSnapshotCard';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
-import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
 import { ProfileSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ProfileSnapshotCard';
-import { EntitySnapshotCard } from '@dailydotdev/shared/src/features/snapshot/EntitySnapshotCard';
-import { DiscussionSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/DiscussionSnapshotCard';
 import { ListSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ListSnapshotCard';
-import { StreakSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/StreakSnapshotCard';
-import { InviteSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/InviteSnapshotCard';
 import { AchievementSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AchievementSnapshotCard';
 import { AchievementRarityTier } from '@dailydotdev/shared/src/features/profile/components/achievements/achievementRarity';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
-import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   Button,
   ButtonSize,
@@ -31,16 +23,6 @@ import {
 const AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#1E2229"/><text x="32" y="44" font-family="sans-serif" font-size="30" font-weight="700" fill="#B14BD7" text-anchor="middle">T</text></svg>',
 )}`;
-
-const USER = { name: 'Tomer Redlich', handle: '@tomer', image: AVATAR };
-
-const POST = {
-  id: 'post-a',
-  summary:
-    'Nokia, BlackBerry and Kodak all led their categories and all missed the same turn.',
-  domain: 'xda-developers.com',
-  source: { id: 'xda', name: 'XDA Developers', image: AVATAR },
-} as Post;
 
 const LOREM =
   'The bundler war is over and nobody noticed, because we spent five entire years optimising cold starts while the actual bottleneck was always the four hundred kilobytes of analytics we shipped on every single page load, and no amount of tree shaking was ever going to fix a problem that lived in the product requirements rather than the build graph.';
@@ -131,106 +113,6 @@ const CARDS: CardSpec[] = [
     ],
   },
   {
-    id: 'post',
-    title: 'Post',
-    note: 'The TLDR runs in full up to the passage limit. No credit without a source; an unattributed link credits its domain.',
-    cases: [
-      {
-        label: 'Typical',
-        node: (ref) => (
-          <PostSnapshotCard
-            post={{
-              ...POST,
-              summary:
-                'A brief retrospective on how once-dominant tech and smartphone brands declined.',
-            }}
-            ref={ref}
-          />
-        ),
-      },
-      {
-        label: 'Unattributed source',
-        node: (ref) => (
-          <PostSnapshotCard
-            post={
-              { ...POST, source: { ...POST.source, name: 'unknown' } } as Post
-            }
-            ref={ref}
-          />
-        ),
-      },
-      {
-        label: 'Overflowing TLDR',
-        node: (ref) => (
-          <PostSnapshotCard
-            post={{ ...POST, summary: `${LOREM} ${LOREM} ${LOREM}` }}
-            ref={ref}
-          />
-        ),
-      },
-    ],
-  },
-  {
-    id: 'leaderboard',
-    title: 'Leaderboard rank',
-    note: 'Stat row never wraps; large values shorten to K/M.',
-    cases: [
-      {
-        label: 'Typical (#1)',
-        node: (ref) => (
-          <LeaderboardSnapshotCard
-            ref={ref}
-            board="Highest level"
-            handle="@bobbyiliev"
-            image={AVATAR}
-            level={103}
-            levelProgress={74}
-            name="Bobby Iliev"
-            rank={1}
-            reputation={76800}
-            score={15500}
-            seed="lb-a"
-          />
-        ),
-      },
-      {
-        label: 'Seven-digit values, level 1000, rank 48',
-        node: (ref) => (
-          <LeaderboardSnapshotCard
-            ref={ref}
-            board="Most achievement points"
-            handle="@a-very-long-handle-indeed"
-            image={AVATAR}
-            level={1000}
-            levelProgress={4}
-            name="Someone With A Genuinely Very Long Display Name"
-            rank={48}
-            reputation={1284000}
-            score={9250000}
-            seed="lb-b"
-          />
-        ),
-      },
-      {
-        label: 'Zeroes, no avatar',
-        node: (ref) => (
-          <LeaderboardSnapshotCard
-            ref={ref}
-            board="Longest streak"
-            handle="@new"
-            level={1}
-            levelProgress={0}
-            name="New Reader"
-            rank={9}
-            reputation={0}
-            score={0}
-            seed="lb-c"
-          />
-        ),
-      },
-    ],
-  },
-  {
     id: 'profile',
     title: 'Profile',
     note: 'Cover falls back to a gradient band; bio collapses.',
@@ -279,89 +161,6 @@ const CARDS: CardSpec[] = [
             postsRead={182400}
             reputation={1284000}
             seed="pr-c"
-          />
-        ),
-      },
-    ],
-  },
-  {
-    id: 'entity',
-    title: 'Tag / source / squad',
-    note: 'Tags use a hash tile; description collapses when absent.',
-    cases: [
-      {
-        label: 'Tag, typical',
-        node: (ref) => (
-          <EntitySnapshotCard
-            ref={ref}
-            description="Everything happening in TypeScript."
-            kind="tag"
-            name="typescript"
-            seed="en-a"
-            stats={[
-              { value: 48200, label: 'Followers' },
-              { value: 1240, label: 'Posts' },
-              { value: 96, label: 'This week' },
-            ]}
-          />
-        ),
-      },
-      {
-        label: 'Long tag, no description, one stat',
-        node: (ref) => (
-          <EntitySnapshotCard
-            ref={ref}
-            kind="tag"
-            name="machine-learning-operations-and-observability"
-            seed="en-b"
-            stats={[{ value: 12, label: 'Posts' }]}
-          />
-        ),
-      },
-      {
-        label: 'Source, no image',
-        node: (ref) => (
-          <EntitySnapshotCard
-            ref={ref}
-            description={LOREM.slice(0, 120)}
-            handle="@a-source-with-a-long-handle"
-            kind="source"
-            name="A Source With A Considerably Longer Name Than Usual"
-            seed="en-c"
-            stats={[
-              { value: 1284000, label: 'Followers' },
-              { value: 86000, label: 'Posts' },
-              { value: 340, label: 'This week' },
-            ]}
-          />
-        ),
-      },
-    ],
-  },
-  {
-    id: 'discussion',
-    title: 'Discussion',
-    note: `Comment truncates at ${SNAPSHOT_TEXT_LIMIT} characters, post title clamps at 2 lines.`,
-    cases: [
-      {
-        label: 'Typical',
-        node: (ref) => (
-          <DiscussionSnapshotCard
-            ref={ref}
-            author={{ name: 'Ante Barić', handle: '@capjavert', image: AVATAR }}
-            comment="The bundler war is over and nobody noticed."
-            seed="di-a"
-          />
-        ),
-      },
-      {
-        label: 'Long comment and title, no avatar',
-        node: (ref) => (
-          <DiscussionSnapshotCard
-            ref={ref}
-            author={{ name: 'Ante Barić', handle: '@capjavert' }}
-            comment={LOREM}
-            seed="di-b"
           />
         ),
       },
@@ -431,90 +230,6 @@ const CARDS: CardSpec[] = [
             seed="li-c"
             subtitle={LOREM.slice(0, 70)}
             title={LOREM.slice(0, 80)}
-          />
-        ),
-      },
-    ],
-  },
-  {
-    id: 'streak',
-    title: 'Reading streak',
-    note: 'Zero is meaningful here, so it renders rather than hides.',
-    cases: [
-      {
-        label: 'Typical (100)',
-        node: (ref) => (
-          <StreakSnapshotCard
-            ref={ref}
-            days={100}
-            longestStreak={100}
-            milestone="A new personal best"
-            seed="st-a"
-            totalReadingDays={720}
-            user={USER}
-          />
-        ),
-      },
-      {
-        label: 'Day one, no milestone',
-        node: (ref) => (
-          <StreakSnapshotCard
-            ref={ref}
-            days={1}
-            longestStreak={1}
-            seed="st-b"
-            totalReadingDays={1}
-            user={USER}
-          />
-        ),
-      },
-      {
-        label: 'Four digits',
-        node: (ref) => (
-          <StreakSnapshotCard
-            ref={ref}
-            days={1284}
-            longestStreak={1284}
-            milestone="Longer than daily.dev has existed"
-            seed="st-c"
-            totalReadingDays={2960}
-            user={USER}
-          />
-        ),
-      },
-    ],
-  },
-  {
-    id: 'invite',
-    title: 'Invite',
-    note: 'Perk collapses when there is no reward to offer.',
-    cases: [
-      {
-        label: 'Typical',
-        node: (ref) => (
-          <InviteSnapshotCard
-            ref={ref}
-            handle="@tomer"
-            headline="Come read with me on daily.dev"
-            image={AVATAR}
-            link="daily.dev/join/tomer"
-            name="Tomer Redlich"
-            perk="We both get a month of Plus"
-            seed="in-a"
-          />
-        ),
-      },
-      {
-        label: 'No perk, long name and link',
-        node: (ref) => (
-          <InviteSnapshotCard
-            ref={ref}
-            handle="@an-extremely-long-handle-that-keeps-going"
-            headline="Come read with me on daily.dev"
-            image={AVATAR}
-            link="daily.dev/join/an-extremely-long-referral-token-value"
-            name="Someone With A Genuinely Very Long Display Name"
-            seed="in-b"
           />
         ),
       },
