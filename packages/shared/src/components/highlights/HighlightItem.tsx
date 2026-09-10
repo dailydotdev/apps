@@ -9,6 +9,7 @@ import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
 import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
+import { snapshotSource } from '../../features/snapshot/snapshotSource';
 
 interface HighlightItemProps {
   highlight: PostHighlightFeed;
@@ -35,12 +36,12 @@ export const HighlightItem = ({
     }
   }, [defaultExpanded]);
 
-  const tldr = useMemo(() => {
-    const post =
-      highlight.post.type === PostType.Share && highlight.post.sharedPost
-        ? highlight.post.sharedPost
-        : highlight.post;
+  const post =
+    highlight.post.type === PostType.Share && highlight.post.sharedPost
+      ? highlight.post.sharedPost
+      : highlight.post;
 
+  const tldr = useMemo(() => {
     const summary = post.summary?.trim();
     if (summary) {
       return summary;
@@ -52,7 +53,7 @@ export const HighlightItem = ({
     }
 
     return '';
-  }, [highlight.post]);
+  }, [post]);
 
   return (
     <article ref={ref}>
@@ -96,6 +97,7 @@ export const HighlightItem = ({
             </Link>
             <HighlightShareActions
               highlight={highlight}
+              source={snapshotSource(post)}
               tldr={tldr}
               tldrRef={tldrRef}
             />

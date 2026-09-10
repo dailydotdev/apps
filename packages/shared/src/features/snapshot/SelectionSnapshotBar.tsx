@@ -1,4 +1,4 @@
-import type { ReactElement, RefObject } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -60,6 +60,8 @@ export interface SelectionShareBarProps {
   /** Seeds the card's gradient and names the downloaded file. */
   seed: string;
   source?: { name: string; image?: string };
+  /** The surface's own label on the card's logo row. */
+  label?: ReactNode;
   /** Called once per action, with how a snapshot ended, so the host logs it. */
   onShare: (provider: ShareProvider, result?: SnapshotResult) => void;
 }
@@ -69,6 +71,7 @@ export function SelectionShareBar({
   link,
   seed,
   source,
+  label,
   onShare,
 }: SelectionShareBarProps): ReactElement | null {
   const barRef = useRef<HTMLDivElement>(null);
@@ -164,6 +167,7 @@ export function SelectionShareBar({
         <HighlightTextSnapshotCard
           ref={cardRef}
           highlight={quote.highlight}
+          label={label}
           passage={quote.passage}
           seed={seed}
           source={source}

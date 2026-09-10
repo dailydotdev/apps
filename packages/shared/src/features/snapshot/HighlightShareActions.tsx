@@ -1,16 +1,10 @@
 import type { ReactElement, RefObject } from 'react';
 import React, { useCallback, useRef } from 'react';
-import { Button } from '../../components/buttons/Button';
-import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
-import { LinkIcon } from '../../components/icons/Link';
+import { CopyHighlightsLink } from '../../components/highlights/CopyHighlightsLink';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
-import { CopyStateIcon } from '../../components/share/CopyStateIcon';
-import { Tooltip } from '../../components/tooltip/Tooltip';
 import type { PostHighlightFeed } from '../../graphql/highlights';
-import { useCopyPostLink } from '../../hooks/useCopyPostLink';
 import { Origin } from '../../lib/log';
-import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import colors from '../../styles/colors';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
@@ -27,6 +21,13 @@ import { useLogHighlightShare } from './useLogHighlightShare';
  */
 const HIGHLIGHTS_EYEBROW_GRADIENT = `linear-gradient(120deg, ${colors.cheese['40']} 0%, ${colors.avocado['10']} 52%, ${colors.avocado['40']} 100%)`;
 
+const HappeningNowEyebrow = (): ReactElement => (
+  <SnapshotEyebrow
+    gradient={HIGHLIGHTS_EYEBROW_GRADIENT}
+    label="Happening now"
+  />
+);
+
 /**
  * Copy link and Snapshot for an expanded highlight, plus the quote bar over
  * its TLDR. Mounts only once a row expands, so collapsed rows run none of it.
@@ -35,14 +36,16 @@ export function HighlightShareActions({
   highlight,
   tldr,
   tldrRef,
+  source,
 }: {
   highlight: PostHighlightFeed;
   tldr: string;
   tldrRef: RefObject<HTMLElement>;
+  /** Who wrote the TLDR, credited on both cards. */
+  source?: { name: string; image?: string };
 }): ReactElement {
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
-  const [copied, copyLink] = useCopyPostLink();
   const logShare = useLogHighlightShare(
     Origin.HappeningNowHighlight,
     highlight,
@@ -51,12 +54,6 @@ export function HighlightShareActions({
     Origin.HappeningNowSelection,
     highlight,
   );
-  const link = highlight.post.commentsPermalink;
-
-  const onCopyLink = () => {
-    logShare(ShareProvider.CopyLink);
-    copyLink({ link, shorten: true, cid: ReferralCampaignKey.SharePost });
-  };
 
   const onSnapshot = useCallback(
     (result: SnapshotResult) => logShare(ShareProvider.Snapshot, result),
@@ -65,16 +62,10 @@ export function HighlightShareActions({
 
   return (
     <>
-      <Tooltip content="Copy link">
-        <Button
-          aria-label="Copy link"
-          icon={<CopyStateIcon copied={copied} icon={LinkIcon} />}
-          onClick={onCopyLink}
-          size={ButtonSize.Small}
-          type="button"
-          variant={ButtonVariant.Tertiary}
-        />
-      </Tooltip>
+      <CopyHighlightsLink
+        highlight={highlight}
+        origin={Origin.HappeningNowHighlight}
+      />
       <span className="contents" {...armProps}>
         <SnapshotButton
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
@@ -90,23 +81,21 @@ export function HighlightShareActions({
           className="pointer-events-none fixed left-[-300vw] top-0"
         >
           <HighlightTextSnapshotCard
-            label={
-              <SnapshotEyebrow
-                gradient={HIGHLIGHTS_EYEBROW_GRADIENT}
-                label="Happening now"
-              />
-            }
+            label={<HappeningNowEyebrow />}
             passage={tldr}
             ref={cardRef}
             seed={highlight.id}
+            source={source}
           />
         </div>
       )}
       <SelectionShareBar
         containerRef={tldrRef}
-        link={link}
+        label={<HappeningNowEyebrow />}
+        link={highlight.post.commentsPermalink}
         onShare={logSelectionShare}
         seed={highlight.id}
+        source={source}
       />
     </>
   );

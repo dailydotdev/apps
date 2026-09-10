@@ -21,6 +21,7 @@ const highlight: PostHighlightFeed = {
     type: 'article',
     commentsPermalink: '/posts/post-1',
     summary,
+    source: { name: 'The Pragmatic Engineer', image: 'https://img/source' },
   },
 };
 
@@ -29,6 +30,9 @@ beforeAll(() => {
     configurable: true,
     value: scrollIntoView,
   });
+  // jsdom has no layout, and the quote bar refuses a selection it cannot place.
+  Range.prototype.getBoundingClientRect = () =>
+    ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
 });
 
 beforeEach(() => {
@@ -81,10 +85,9 @@ describe('HighlightItem', () => {
     expect(screen.getByRole('link', { name: /read more/i })).toBeVisible();
   });
 
-  it('logs a copied link as a share of the highlighted post', async () => {
-    Object.assign(navigator, {
-      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
-    });
+  it('copies and logs the highlighted post link', async () => {
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
     const logEvent = jest.fn();
     renderItem(true, logEvent);
 
@@ -92,6 +95,8 @@ describe('HighlightItem', () => {
       fireEvent.click(screen.getByRole('button', { name: /copy link/i }));
     });
 
+    // The same link the feed card's row copies for this highlight.
+    expect(writeText).toHaveBeenCalledWith('/posts/post-1');
     const [[event]] = logEvent.mock.calls;
     expect(event).toMatchObject({
       event_name: LogEvent.SharePost,
@@ -103,5 +108,33 @@ describe('HighlightItem', () => {
       origin: Origin.HappeningNowHighlight,
       highlight_id: 'highlight-1',
     });
+  });
+
+  it('labels and credits the TLDR snapshot', () => {
+    renderItem(true);
+
+    // Focus arms the off-screen card the capture reads.
+    fireEvent.focus(screen.getByRole('button', { name: /snapshot/i }));
+
+    expect(screen.getByText('Happening now')).toBeInTheDocument();
+    expect(screen.getByText('The Pragmatic Engineer')).toBeInTheDocument();
+  });
+
+  it('labels and credits a quote selected in the TLDR', () => {
+    renderItem(true);
+    const node = screen.getByText(summary).firstChild as Node;
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(node, node.textContent?.length ?? 0);
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+
+    fireEvent.pointerUp(document);
+
+    expect(
+      screen.getByRole('toolbar', { name: 'Share selected text' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Happening now')).toBeInTheDocument();
+    expect(screen.getByText('The Pragmatic Engineer')).toBeInTheDocument();
   });
 });
