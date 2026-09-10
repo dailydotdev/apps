@@ -11,6 +11,9 @@ import {
   highlightsPageQueryOptions,
   postHighlightsFeedQueryOptions,
 } from '../../graphql/highlights';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureHappeningNowShare } from '../../lib/featureManagement';
+import { Origin } from '../../lib/log';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { CopyHighlightsLink } from './CopyHighlightsLink';
 import { DigestCTA } from './DigestCTA';
@@ -158,6 +161,9 @@ export const HighlightsPage = (): ReactElement => {
   const channel = getSingleQueryParam(router.query.channel);
   const expandedId = getSingleQueryParam(router.query.highlight);
   const isAllTab = router.pathname === ALL_HIGHLIGHTS_URL;
+  const { value: canShare } = useConditionalFeature({
+    feature: featureHappeningNowShare,
+  });
   const { data, isFetching } = useQuery(highlightsPageQueryOptions());
 
   const channels = data?.channelConfigurations ?? [];
@@ -174,11 +180,16 @@ export const HighlightsPage = (): ReactElement => {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary">
-      <header className="flex items-center gap-3 px-3 py-4 laptop:px-4">
-        <h1 className="feed-highlights-title-gradient flex-1 font-bold typo-large-title">
+      <header className="flex items-center px-3 py-4 laptop:px-4">
+        <h1 className="feed-highlights-title-gradient font-bold typo-large-title">
           Happening Now
         </h1>
-        <CopyHighlightsLink />
+        {canShare && (
+          <CopyHighlightsLink
+            className="ml-auto"
+            origin={Origin.HappeningNow}
+          />
+        )}
       </header>
       <TabContainer
         controlledActive={activeTab}

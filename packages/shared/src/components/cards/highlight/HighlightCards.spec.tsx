@@ -1,14 +1,17 @@
-import type { ReactElement } from 'react';
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import { featureHappeningNowShare } from '../../../lib/featureManagement';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { ShareProvider } from '../../../lib/share';
 import { HighlightGrid } from './HighlightGrid';
 import { HighlightList } from './HighlightList';
 
 jest.mock('../../../lib/constants', () => ({
   webappUrl: '/',
-  isPreviewHost: () => false,
 }));
 
 const highlights = [
@@ -34,15 +37,9 @@ const highlights = [
   },
 ];
 
-// The copy-link control reaches for the toast, which reads the query client.
-const renderCard = (ui: ReactElement) =>
-  render(
-    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
-  );
-
 describe('Highlight cards', () => {
   it('should render the grid card with highlight links', () => {
-    renderCard(<HighlightGrid highlights={highlights} />);
+    render(<HighlightGrid highlights={highlights} />);
 
     expect(screen.getByText('Happening Now')).toBeInTheDocument();
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
@@ -64,7 +61,7 @@ describe('Highlight cards', () => {
   });
 
   it('should render the list card with highlight links', () => {
-    renderCard(<HighlightList highlights={highlights} />);
+    render(<HighlightList highlights={highlights} />);
 
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
@@ -75,7 +72,7 @@ describe('Highlight cards', () => {
     const onHighlightClick = jest.fn();
     const onReadAllClick = jest.fn();
 
-    renderCard(
+    render(
       <HighlightGrid
         highlights={highlights}
         onHighlightClick={onHighlightClick}
@@ -90,5 +87,73 @@ describe('Highlight cards', () => {
 
     expect(onHighlightClick).toHaveBeenCalledWith(highlights[0], 1);
     expect(onReadAllClick).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Highlight card share controls', () => {
+  beforeAll(() => {
+    Object.assign(navigator, {
+      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+    });
+  });
+
+  const renderShareable = (
+    logEvent: jest.Mock,
+    onHighlightClick?: jest.Mock,
+  ) => {
+    const gb = new GrowthBook();
+    gb.setFeatures({ [featureHappeningNowShare.id]: { defaultValue: true } });
+
+    render(
+      <TestBootProvider client={new QueryClient()} gb={gb} log={{ logEvent }}>
+        <HighlightGrid
+          highlights={highlights}
+          onHighlightClick={onHighlightClick}
+        />
+      </TestBootProvider>,
+    );
+  };
+
+  it('copies a highlight from its row without opening it', async () => {
+    const logEvent = jest.fn();
+    const onHighlightClick = jest.fn();
+    renderShareable(logEvent, onHighlightClick);
+    // The header's page link comes first, then one per row.
+    const [, firstRow] = screen.getAllByRole('button', { name: 'Copy link' });
+
+    await act(async () => {
+      fireEvent.click(firstRow);
+    });
+
+    expect(onHighlightClick).not.toHaveBeenCalled();
+    const [[event]] = logEvent.mock.calls;
+    expect(event).toMatchObject({
+      event_name: LogEvent.SharePost,
+      target_id: 'post-1',
+      target_type: TargetType.Post,
+    });
+    expect(JSON.parse(event.extra)).toEqual({
+      provider: ShareProvider.CopyLink,
+      origin: Origin.HighlightsCard,
+      highlight_id: 'highlight-1',
+    });
+  });
+
+  it('logs the header link as a share of the page', async () => {
+    const logEvent = jest.fn();
+    renderShareable(logEvent);
+    const [header] = screen.getAllByRole('button', { name: 'Copy link' });
+
+    await act(async () => {
+      fireEvent.click(header);
+    });
+
+    const [[event]] = logEvent.mock.calls;
+    expect(event.event_name).toBe(LogEvent.ShareHighlights);
+    expect(event.target_id).toBeUndefined();
+    expect(JSON.parse(event.extra)).toEqual({
+      provider: ShareProvider.CopyLink,
+      origin: Origin.HighlightsCard,
+    });
   });
 });

@@ -3,7 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { WidgetContainer } from '../../widgets/common';
-import { getHighlightsUrl, highlightsTitleGradientClassName } from './common';
+import { highlightsTitleGradientClassName } from './common';
+import { getHighlightsUrl } from '../../../lib/links';
 import {
   majorHeadlinesQueryOptions,
   type PostHighlight,

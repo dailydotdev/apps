@@ -1,31 +1,30 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { LinkIcon } from '../icons';
+import { LinkIcon } from '../icons/Link';
 import { CopyStateIcon } from '../share/CopyStateIcon';
 import { Tooltip } from '../tooltip/Tooltip';
-import { useCopyText } from '../../hooks/useCopy';
+import { useCopyLink } from '../../hooks/useCopy';
+import type { PostHighlight } from '../../graphql/highlights';
+import type { Origin } from '../../lib/log';
 import { getHighlightsUrl } from '../../lib/links';
-import { useSharePlacement } from '../../features/snapshot/useSharePlacement';
-import { featureHappeningNowShare } from '../../lib/featureManagement';
+import { ShareProvider } from '../../lib/share';
+import { useLogHighlightShare } from '../../features/snapshot/useLogHighlightShare';
 
 export function CopyHighlightsLink({
-  link,
+  highlight,
+  origin,
   className,
   size = ButtonSize.Small,
 }: {
-  link?: string;
+  /** Links to this highlight on the page, or to the page without one. */
+  highlight?: PostHighlight;
+  origin: Origin;
   className?: string;
   size?: ButtonSize;
-}): ReactElement | null {
-  const isEnabled = useSharePlacement({ feature: featureHappeningNowShare });
-  // useCopyText, not useCopyLink: the link variant reaches for the shortener,
-  // which needs an authenticated user, and the page has to work signed out.
-  const [copied, copyLink] = useCopyText(link ?? getHighlightsUrl());
-
-  if (!isEnabled) {
-    return null;
-  }
+}): ReactElement {
+  const [copied, copyLink] = useCopyLink();
+  const logShare = useLogHighlightShare(origin, highlight);
 
   return (
     <Tooltip content="Copy link">
@@ -34,10 +33,11 @@ export function CopyHighlightsLink({
         className={className}
         icon={<CopyStateIcon copied={copied} icon={LinkIcon} />}
         onClick={(event: MouseEvent) => {
-          // The feed card is a link, and the page header sits above a tab bar.
+          // The feed card's rows are links.
           event.preventDefault();
           event.stopPropagation();
-          copyLink({ message: '✅ Copied link' });
+          logShare(ShareProvider.CopyLink);
+          copyLink({ link: getHighlightsUrl(highlight?.id) });
         }}
         size={size}
         type="button"
