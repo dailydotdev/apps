@@ -2,12 +2,6 @@ import React, { useCallback, useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnapshotFrame } from '@dailydotdev/shared/src/features/snapshot/SnapshotFrame';
-import type { SnapshotContentProps } from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
-import {
-  HIGHLIGHTS_EYEBROW_GRADIENT,
-  HOT_TAKE_EYEBROW_GRADIENT,
-  SnapshotContent,
-} from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
 import { ProfileSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ProfileSnapshotCard';
 import { ReadingOverviewSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ReadingOverviewSnapshotCard';
 import { BadgesSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/BadgesSnapshotCard';
@@ -44,6 +38,12 @@ import {
   thumbUri,
   UNLOCKED_ART,
 } from './snapshotFixtures';
+import type { SnapshotContentProps } from './SnapshotContent';
+import {
+  HIGHLIGHTS_EYEBROW_GRADIENT,
+  HOT_TAKE_EYEBROW_GRADIENT,
+  SnapshotContent,
+} from './SnapshotContent';
 
 /** The post page as it actually reads, for surface 1. */
 const POST = {

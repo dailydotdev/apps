@@ -15,12 +15,6 @@ const P = ({ children }: { children: React.ReactNode }) => (
   <p className="max-w-[54rem] text-text-secondary typo-body">{children}</p>
 );
 
-const Note = ({ children }: { children: React.ReactNode }) => (
-  <p className="max-w-[54rem] rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 text-text-secondary typo-callout">
-    {children}
-  </p>
-);
-
 const Table = ({
   head,
   rows,
@@ -81,19 +75,23 @@ const MAP: React.ReactNode[][] = SHARING_MAP.map((row) => [
 ]);
 
 const TARGETS: React.ReactNode[][] = [
-  ['Copy link', 'Link only', 'Going into a Slack thread or a DM, where a URL is the useful thing'],
-  ['X', 'Image + link in text', 'Native images outperform link cards, and outbound links get demoted'],
-  ['LinkedIn', 'Image + link in text', 'Same trade — native media beats an outbound link post'],
-  ['WhatsApp', 'Image + link', 'Renders inline in the conversation; already 2.1k shares/30d'],
-  ['Facebook', 'Image + link', 'Same inline rendering; 0.9k shares/30d'],
-];
-
-const DATA: React.ReactNode[][] = [
-  ['Post page views', '1,380,365', ''],
-  ['Unique viewers', '216,945', ''],
-  ['Shares from post page', '10,109', '0.73% of views'],
-  ['Unique sharers', '3,793', '1.75% of viewers'],
-  ['Shares per sharer', '2.7', 'People who share, share repeatedly'],
+  [
+    'Copy link',
+    'Link only',
+    'Going into a Slack thread or a DM, where a URL is the useful thing',
+  ],
+  [
+    'X',
+    'Image + link in text',
+    'Native images outperform link cards, and outbound links get demoted',
+  ],
+  [
+    'LinkedIn',
+    'Image + link in text',
+    'Same trade — native media beats an outbound link post',
+  ],
+  ['WhatsApp', 'Image + link', 'Renders inline in the conversation'],
+  ['Facebook', 'Image + link', 'Same inline rendering'],
 ];
 
 const SharingMap = () => (
@@ -128,27 +126,13 @@ const SharingMap = () => (
       rows={MAP}
     />
 
-    <H2>What the numbers say</H2>
-    <Table head={['Post page, last 30 days', 'Value', '']} rows={DATA} />
-    <Note>
-      Payload is not the bottleneck. Around 99.3% of post views end in no share
-      at all, while the people who do share come back and do it 2.7 times. The
-      scarce event is a viewer becoming a first-time sharer — so the question
-      worth testing is not link versus image, it is whether offering a snapshot
-      raises the share rate at all. Copy link leading every surface is also
-      confounded: it is the most prominent and lowest-friction control, so
-      &ldquo;most used&rdquo; is not evidence of &ldquo;most wanted&rdquo;.
-    </Note>
-
     <H2>Every snapshot needs a way back</H2>
     <P>
       Only the invite card carries a URL today, and only because a referral is
       useless without one. Every other snapshot is a dead end: no path back to
-      daily.dev beyond the logo. Two fixes, both cheap — bake a short URL into
-      every card, and put the link on the clipboard whenever a snapshot is
-      taken, so pasting gives both. Without them, leading with snapshot on seven
-      surfaces means removing the route back from our seven most shareable
-      moments.
+      daily.dev beyond the logo. The fix is to bake a short URL into every card.
+      The clipboard stays image-only: a link written beside the image arrives in
+      the composer as a stray line of text (#6556).
     </P>
   </div>
 );

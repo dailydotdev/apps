@@ -66,8 +66,8 @@ const MAP_ROWS: React.ReactNode[][] = SHARING_MAP.map((row) => [
 const PAGES: React.ReactNode[][] = [
   [
     'Post page',
-    '#6350 #6352 #6349 #6351',
-    'Six places on one screen: the ⋯ menu, the action row, under the TLDR, the selection bar, the end-of-thread band, the post-upvote prompt',
+    '#6556',
+    'Shipped: the live post page is the reference, so it has no mockup here',
   ],
   [
     'Happening now',

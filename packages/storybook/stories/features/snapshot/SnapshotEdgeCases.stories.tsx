@@ -1,8 +1,6 @@
 import React, { useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SnapshotFrame } from '@dailydotdev/shared/src/features/snapshot/SnapshotFrame';
-import { SnapshotContent } from '@dailydotdev/shared/src/features/snapshot/SnapshotContent';
 import { SNAPSHOT_SIZE } from '@dailydotdev/shared/src/features/snapshot/snapshotGradient';
 import { getSnapshotCaptureOptions } from '@dailydotdev/shared/src/features/snapshot/snapshotCapture';
 import {
@@ -11,6 +9,7 @@ import {
   SNAPSHOT_PASSAGE_LIMIT,
   SNAPSHOT_TEXT_LIMIT,
 } from '@dailydotdev/shared/src/features/snapshot/snapshotText';
+import { PostSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/PostSnapshotCard';
 import { HighlightTextSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/HighlightTextSnapshotCard';
 import { LeaderboardSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/LeaderboardSnapshotCard';
 import { ProfileSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/ProfileSnapshotCard';
@@ -22,6 +21,7 @@ import { InviteSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/In
 import { AchievementSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/AchievementSnapshotCard';
 import { AchievementRarityTier } from '@dailydotdev/shared/src/features/profile/components/achievements/achievementRarity';
 import { captureShareImage } from '@dailydotdev/shared/src/lib/imageShare/captureShareImage';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   Button,
   ButtonSize,
@@ -33,6 +33,14 @@ const AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
 )}`;
 
 const USER = { name: 'Tomer Redlich', handle: '@tomer', image: AVATAR };
+
+const POST = {
+  id: 'post-a',
+  summary:
+    'Nokia, BlackBerry and Kodak all led their categories and all missed the same turn.',
+  domain: 'xda-developers.com',
+  source: { id: 'xda', name: 'XDA Developers', image: AVATAR },
+} as Post;
 
 const LOREM =
   'The bundler war is over and nobody noticed, because we spent five entire years optimising cold starts while the actual bottleneck was always the four hundred kilobytes of analytics we shipped on every single page load, and no amount of tree shaking was ever going to fix a problem that lived in the product requirements rather than the build graph.';
@@ -125,48 +133,39 @@ const CARDS: CardSpec[] = [
   {
     id: 'post',
     title: 'Post',
-    note: 'Title clamps at 4 lines, TLDR at 7. Both collapse when absent.',
+    note: 'The TLDR runs in full up to the passage limit. No credit without a source; an unattributed link credits its domain.',
     cases: [
       {
         label: 'Typical',
         node: (ref) => (
-          <SnapshotFrame ref={ref} seed="post-a">
-            <SnapshotContent
-              avatar={{ name: 'XDA Developers', src: AVATAR }}
-              body="A brief retrospective on how once-dominant tech and smartphone brands declined."
-              meta={['Aug 24, 2026', '1m read time', 'xda-developers.com']}
-              title="Why iconic tech brands like HTC and LG lost their dominance"
-            />
-          </SnapshotFrame>
+          <PostSnapshotCard
+            post={{
+              ...POST,
+              summary:
+                'A brief retrospective on how once-dominant tech and smartphone brands declined.',
+            }}
+            ref={ref}
+          />
         ),
       },
       {
-        label: 'No TLDR, no source image',
+        label: 'Unattributed source',
         node: (ref) => (
-          <SnapshotFrame ref={ref} seed="post-b">
-            <SnapshotContent
-              avatar={{ name: 'XDA Developers' }}
-              meta={['Aug 24, 2026']}
-              title="Why iconic tech brands like HTC and LG lost their dominance"
-            />
-          </SnapshotFrame>
+          <PostSnapshotCard
+            post={
+              { ...POST, source: { ...POST.source, name: 'unknown' } } as Post
+            }
+            ref={ref}
+          />
         ),
       },
       {
-        label: 'Overflowing title and TLDR',
+        label: 'Overflowing TLDR',
         node: (ref) => (
-          <SnapshotFrame ref={ref} seed="post-c">
-            <SnapshotContent
-              avatar={{ name: 'XDA Developers', src: AVATAR }}
-              body={LOREM}
-              meta={[
-                'Aug 24, 2026',
-                '18m read time',
-                'a-very-long-domain-name.example.com',
-              ]}
-              title={LOREM}
-            />
-          </SnapshotFrame>
+          <PostSnapshotCard
+            post={{ ...POST, summary: `${LOREM} ${LOREM} ${LOREM}` }}
+            ref={ref}
+          />
         ),
       },
     ],
