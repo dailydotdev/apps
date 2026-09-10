@@ -25,7 +25,7 @@ export enum AdPlacement {
    * The sponsor strip's logo wall. The wire value is the ad server's own
    * placement name, which is why it does not match the client vocabulary.
    */
-  SponsorStrip = 'footer_logo',
+  SponsorStrip = 'advertiser_bar',
 }
 
 export interface FetchAdByPlacementOptions {
@@ -39,7 +39,7 @@ export interface FetchAdByPlacementOptions {
 // IAB-standard consent params; the ad server promotes them to typed request
 // metadata, so names must match its extraction (gdpr, gdpr_consent,
 // addtl_consent).
-const appendConsentParams = (
+export const appendConsentParams = (
   params: URLSearchParams,
   consent?: AdMacroContext,
 ): URLSearchParams => {

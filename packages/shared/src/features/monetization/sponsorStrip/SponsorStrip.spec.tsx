@@ -9,33 +9,35 @@ import type { StatuslineItem } from '../../../graphql/statusline';
 import { AdActions } from '../../../lib/ads';
 import { LogEvent } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
-import { fetchSponsorStripAds } from './mockSponsorStripAds';
+import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
 
-jest.mock('./mockSponsorStripAds', () => ({
+jest.mock('./fetchSponsorStripAds', () => ({
   fetchSponsorStripAds: jest.fn(),
-}));
-
-jest.mock('../../../hooks/utils/useThemedAsset', () => ({
-  useIsLightTheme: () => false,
 }));
 
 const mockFetch = jest.mocked(fetchSponsorStripAds);
 let headlines: StatuslineItem[] = [];
 let headlinesSettled = true;
 
-const creative = (
-  company: string,
-  tier: SponsorTier,
-  pixel: string[] = [],
-) => ({
-  gen_id: `gen-${company}`,
-  company,
-  logo_img: { light: `light-${company}`, dark: `dark-${company}` },
-  logo_ratio: 3,
+const advertiser = (company: string, pixels: string[] = []) => ({
+  generation_id: `gen-${company}`,
+  company_name: company,
+  icon: `icon-${company}`,
   link: `https://daily.dev/${company}`,
-  pixel,
-  tier,
+  pixels,
+});
+
+// The tier is the group, not a field, so the fixture is the wire envelope
+// rather than a flat list.
+const bar = (groups: {
+  pinned?: unknown[];
+  top_tier?: unknown[];
+  community?: unknown[];
+}) => ({
+  type: 'ADVERTISER_BAR',
+  generation_id: 'bar-1',
+  value: { advertiser_bar: groups },
 });
 
 const popular = (id: string, upvotes = 42): StatuslineItem => ({
@@ -57,11 +59,11 @@ const COMMUNITY = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10'];
 const WALL_WIDTH = 900;
 const COMMUNITY_SLOTS = 4;
 
-const ads = [
-  creative('gold', SponsorTier.Gold, ['https://api.daily.dev/px?id=gold']),
-  ...PREMIUM.map((company) => creative(company, SponsorTier.Premium)),
-  ...COMMUNITY.map((company) => creative(company, SponsorTier.Community)),
-];
+const ads = bar({
+  pinned: [advertiser('gold', ['https://api.daily.dev/px?id=gold'])],
+  top_tier: PREMIUM.map((company) => advertiser(company)),
+  community: COMMUNITY.map((company) => advertiser(company)),
+});
 
 const logEvent = jest.fn();
 const logEventStart = jest.fn();
@@ -228,7 +230,7 @@ it('should log an impression per logo with its tier and slot', async () => {
   expect(impressions).toHaveLength(shownLogos().length);
   expect(extraOf(impressions[0])).toEqual(
     expect.objectContaining({
-      placement: 'footer_logo',
+      placement: 'advertiser_bar',
       tier: SponsorTier.Gold,
       slot_index: 0,
       gen_id: 'gen-gold',
@@ -321,7 +323,7 @@ it('should leave a popular post with no score bare', async () => {
 });
 
 it('should still carry the ticker when the ad server has no fill', async () => {
-  mockFetch.mockResolvedValue([]);
+  mockFetch.mockResolvedValue(bar({}));
   setHeadlines([popular('p1')]);
   renderStrip();
   await settle();
@@ -333,7 +335,7 @@ it('should still carry the ticker when the ad server has no fill', async () => {
 });
 
 it('should render nothing when it has neither sponsors nor headlines', async () => {
-  mockFetch.mockResolvedValue([]);
+  mockFetch.mockResolvedValue(bar({}));
   renderStrip();
   await settle();
 
@@ -405,7 +407,7 @@ it('should publish its height so the floating controls can clear it', async () =
 });
 
 it('should publish only the height of the row it actually renders', async () => {
-  mockFetch.mockResolvedValue([]);
+  mockFetch.mockResolvedValue(bar({}));
   setHeadlines([popular('p1')]);
   renderStrip();
   await settle();
@@ -414,7 +416,7 @@ it('should publish only the height of the row it actually renders', async () => 
 });
 
 it('should take the offset back when it has nothing to show', async () => {
-  mockFetch.mockResolvedValue([]);
+  mockFetch.mockResolvedValue(bar({}));
   renderStrip();
   await settle();
 

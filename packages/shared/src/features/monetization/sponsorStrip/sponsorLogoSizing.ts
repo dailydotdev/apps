@@ -29,7 +29,13 @@ export const WALL_MAX_HEIGHT = 20;
 export const SLOT_WIDTH = 88;
 export const SLOT_GAP = 16;
 
-const REFERENCE_RATIO = 3.5;
+/**
+ * The ratio the normalising is calibrated around: a mark of this shape is
+ * drawn at exactly the cap. Also the fallback for a creative that arrives
+ * without dimensions, which is every one of them until the ad server sends
+ * them.
+ */
+export const REFERENCE_RATIO = 3.5;
 
 /**
  * Logo files run from square marks to 6:1 lockups. Sizing them all to one cap

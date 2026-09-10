@@ -7,13 +7,13 @@ const creative = (
   tier = SponsorTier.Community,
 ): SponsorStripCreative =>
   ({
-    gen_id: id,
-    company: id,
+    generation_id: id,
+    company_name: id,
     tier,
   } as SponsorStripCreative);
 
 const companies = (creatives: SponsorStripCreative[]) =>
-  creatives.map(({ company }) => company);
+  creatives.map(({ company_name: company }) => company);
 
 describe('partitionByTier', () => {
   it('should keep a single gold sponsor', () => {
@@ -24,7 +24,7 @@ describe('partitionByTier', () => {
       creative('community-1'),
     ]);
 
-    expect(pools.gold?.company).toEqual('gold-1');
+    expect(pools.gold?.company_name).toEqual('gold-1');
     expect(companies(pools.premium)).toEqual(['premium-1']);
     expect(companies(pools.community)).toEqual(['community-1']);
   });

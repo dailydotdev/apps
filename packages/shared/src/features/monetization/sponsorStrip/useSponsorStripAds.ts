@@ -1,11 +1,11 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 import { AdPlacement } from '../../../lib/ads';
 import { disabledRefetch, shuffleArray } from '../../../lib/func';
 import { RequestKey } from '../../../lib/query';
 import { ONE_HOUR } from '../../../lib/time';
-import { fetchSponsorStripAds } from './mockSponsorStripAds';
+import { useAdMacroContext } from '../useAdMacroContext';
+import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { fittedSlotCount } from './sponsorLogoSizing';
 import type {
   ResolvedSponsor,
@@ -86,7 +86,7 @@ const useFittedSlots = (
 const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
   // Identity, not the array: the pool is rebuilt on every render of the query,
   // and reshuffling then would deal a new row under the reader.
-  const poolKey = pool.map(({ gen_id: genId }) => genId).join(',');
+  const poolKey = pool.map(({ generation_id: genId }) => genId).join(',');
 
   return useMemo(
     () => shuffleArray(pool),
@@ -96,10 +96,17 @@ const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
 };
 
 export const useSponsorStripAds = (): UseSponsorStripAds => {
-  const isLight = useIsLightTheme();
+  const consent = useAdMacroContext(true) ?? undefined;
   const { data, isPending } = useQuery({
-    queryKey: [RequestKey.Ads, AdPlacement.SponsorStrip],
-    queryFn: fetchSponsorStripAds,
+    // Consent fingerprint, so the bar refetches when the reader answers the
+    // CMP banner rather than holding an hour-old unconsented fill.
+    queryKey: [
+      RequestKey.Ads,
+      AdPlacement.SponsorStrip,
+      consent?.gdprApplies,
+      consent?.consentString ?? '',
+    ],
+    queryFn: () => fetchSponsorStripAds(consent),
     staleTime: ONE_HOUR,
     ...disabledRefetch,
   });
@@ -131,17 +138,13 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
     wallSlots,
   );
 
-  // Themed logos resolve here rather than in the decks, so switching theme
-  // repaints the row without dealing anybody a different slot.
   return useMemo(
     () => ({
-      gold: pools.gold ? resolveSponsor(pools.gold, isLight) : null,
-      premium: premiumDeck
-        .slice(0, premiumSlots)
-        .map((creative) => resolveSponsor(creative, isLight)),
+      gold: pools.gold ? resolveSponsor(pools.gold) : null,
+      premium: premiumDeck.slice(0, premiumSlots).map(resolveSponsor),
       community: communityDeck
         .slice(0, Math.max(0, wallSlots - premiumSlots))
-        .map((creative) => resolveSponsor(creative, isLight)),
+        .map(resolveSponsor),
       wallRef,
       isSettled: !isPending,
     }),
@@ -151,7 +154,6 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       communityDeck,
       premiumSlots,
       wallSlots,
-      isLight,
       wallRef,
       isPending,
     ],
