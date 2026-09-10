@@ -25,7 +25,6 @@ export interface ProfileSnapshotButtonProps {
   renderCard: (ref: Ref<HTMLDivElement>) => ReactElement;
   size?: ButtonSize;
   variant?: ButtonVariant;
-  className?: string;
 }
 
 /**
@@ -45,7 +44,6 @@ export function ProfileSnapshotButton({
   renderCard,
   size = ButtonSize.XSmall,
   variant,
-  className,
 }: ProfileSnapshotButtonProps): ReactElement {
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
@@ -71,7 +69,6 @@ export function ProfileSnapshotButton({
       <span className="contents" {...armProps}>
         <SnapshotButton
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
-          className={className}
           filename={filename}
           onResult={onResult}
           showLabel={false}
