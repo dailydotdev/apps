@@ -78,7 +78,7 @@ export function AchievementShelfCard({
 
   return (
     <>
-      <article className="group relative flex h-[272px] w-full flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform hover:-translate-y-1">
+      <article className="group relative flex h-[10.5rem] w-full flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform tablet:h-[17rem] hover:-translate-y-1">
         {/* `absolute` has to come from the prop: LazyImage appends its own
             `relative` after our classes, and that wins in the compiled CSS. */}
         <LazyImage
@@ -139,7 +139,7 @@ export function AchievementShelfCard({
         )}
 
         {!isUnlocked && (
-          <Typography className="pointer-events-none absolute left-[13px] top-3 z-3 text-[14px] text-[rgba(255,255,255,0.7)]">
+          <Typography className="pointer-events-none absolute left-[13px] top-3 z-3 hidden text-[14px] text-[rgba(255,255,255,0.7)] tablet:block">
             {progressLabel}
           </Typography>
         )}
@@ -151,7 +151,7 @@ export function AchievementShelfCard({
           >
             {achievement.name}
           </Typography>
-          <Typography className="mt-[3px] line-clamp-1 text-[14px] leading-[1.32] text-[rgba(255,255,255,0.78)]">
+          <Typography className="mt-[3px] hidden line-clamp-1 text-[14px] leading-[1.32] text-[rgba(255,255,255,0.78)] tablet:block">
             {achievement.description}
           </Typography>
 

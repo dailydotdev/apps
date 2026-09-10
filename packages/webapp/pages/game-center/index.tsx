@@ -355,7 +355,7 @@ function GameCenterPage({
     );
   } else if (shelfAchievements.length > 0) {
     achievementShelfContent = (
-      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3 laptop:grid-cols-5">
+      <div className="grid grid-cols-3 gap-2 tablet:gap-3 laptop:grid-cols-5">
         {shelfAchievements.map((achievement) => (
           <AchievementShelfCard
             key={achievement.achievement.id}

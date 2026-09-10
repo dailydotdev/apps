@@ -32,6 +32,7 @@ import {
   BadgeTrophyCase,
 } from '../../../webapp/components/game-center/BadgeTrophyCase';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
+import { getAchievementSummary } from '../../../webapp/lib/gameCenter';
 
 const SectionHeader = ({ title }: { title: string }) => (
   <Typography
@@ -310,22 +311,8 @@ const achievements: UserAchievement[] = [
   ),
 ];
 
-// Same order the page applies: completed first, rarest leading, then the
-// in-progress ones with the closest to done on the left.
-const shelfOrder = [...achievements].sort((left, right) => {
-  const ratio = (item: UserAchievement) =>
-    Math.min(item.progress / (item.achievement.criteria?.targetCount ?? 1), 1);
-  const difference = ratio(right) - ratio(left);
-
-  if (difference !== 0) {
-    return difference;
-  }
-
-  return (
-    (left.achievement.rarity ?? Number.POSITIVE_INFINITY) -
-    (right.achievement.rarity ?? Number.POSITIVE_INFINITY)
-  );
-});
+// The page's own ordering, so the shelf here cannot drift from what ships.
+const { shelfAchievements: shelfOrder } = getAchievementSummary(achievements);
 
 // Real logos, resolved from the sources library by keyword. GitHub Actions
 // has no matching source, so it exercises the initial fallback.
@@ -548,7 +535,7 @@ const GameCenterRedesign = () => (
 
     <section className="flex flex-col gap-4">
       <SectionHeader title="Achievement shelf" />
-      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3 laptop:grid-cols-5">
+      <div className="grid grid-cols-3 gap-2 tablet:gap-3 laptop:grid-cols-5">
         {shelfOrder.map((item) => (
           <AchievementShelfCard
             key={item.achievement.id}

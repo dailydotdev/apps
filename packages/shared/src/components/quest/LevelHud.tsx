@@ -124,7 +124,7 @@ export const LevelHud = ({
           tag={TypographyTag.H1}
           type={TypographyType.Title1}
           bold
-          className="min-w-0 shrink truncate text-white"
+          className="min-w-0 shrink text-white"
         >
           {name}, here&apos;s how you&apos;re doing.
         </Typography>

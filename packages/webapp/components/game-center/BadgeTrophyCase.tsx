@@ -18,6 +18,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import type { TopReader } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
 import {
@@ -90,6 +91,7 @@ type BadgePagerProps = {
 };
 
 export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(badgePageSize);
   const listRef = useRef<HTMLDivElement>(null);
@@ -131,6 +133,23 @@ export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
   const boundedPage = Math.min(page, Math.max(pageCount - 1, 0));
   const start = boundedPage * perPage;
   const visible = badges.slice(start, start + perPage);
+
+  // A phone scrolls the whole list rather than paging it: the arrows are a
+  // poor target at that size, and a thumb is already the obvious control.
+  if (isMobile) {
+    return (
+      <div className="-mx-1 flex max-h-[19rem] flex-col gap-2 overflow-y-auto overscroll-contain px-1">
+        {badges.map((badge) => (
+          <BadgeRow
+            key={badge.id}
+            issuedAt={badge.issuedAt}
+            keyword={badge.keyword}
+            image={badge.image}
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-2">
