@@ -63,7 +63,9 @@ export default function ScrollToTopButton(): ReactElement | null {
       tabIndex={show ? 0 : -1}
       {...props}
       className={classNames(
-        'absolute right-4 z-2',
+        // Lifts over the sponsor strip when one is docked; the property is
+        // unset otherwise, so the margin collapses to zero.
+        'absolute right-4 z-2 mt-[calc(-1_*_var(--sponsor-strip-height,0px))]',
         showFeedbackButton
           ? '-top-26 tablet:-top-32'
           : '-top-12 tablet:-top-18 laptop:-top-24',

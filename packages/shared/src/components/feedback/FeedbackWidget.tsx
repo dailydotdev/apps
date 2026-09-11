@@ -182,7 +182,9 @@ export function FeedbackWidget({
     <Button
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
-      className="group fixed bottom-4 right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+      // `--sponsor-strip-height` is set only while the sponsor strip is docked
+      // (see `sponsorStripOffset`), so this is the usual 1rem everywhere else.
+      className="group fixed bottom-[calc(1rem_+_var(--sponsor-strip-height,0px))] right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback. Real people reply."
       aria-keyshortcuts="Control+Shift+F Meta+Shift+F"

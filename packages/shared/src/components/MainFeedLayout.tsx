@@ -17,7 +17,13 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import { FeedPageLayoutMobile, feedGutter } from './utilities/common';
+import {
+  FeedPageLayoutMobile,
+  feedGutter,
+  feedWidth,
+} from './utilities/common';
+import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
+import { useSponsorStripFeed } from '../features/monetization/sponsorStrip/useSponsorStripFeed';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
@@ -26,7 +32,6 @@ import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
 import { ExploreSignupStrip } from './auth/ExploreSignupStrip';
 import FeedContext from '../contexts/FeedContext';
-import feedStyles from './Feed.module.css';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -215,10 +220,7 @@ const getQueryBasedOnLogin = (
 // The feed's own width: full width normally, and clamped + centered to the
 // same card-based max-width as the grid on wide screens (desktopL). The CSS
 // vars feed the `styles.container` max-width calc (grid gap is 2rem).
-const feedWidthClassName = classNames(
-  'relative flex w-full flex-col laptopL:mx-auto',
-  feedStyles.container,
-);
+const feedWidthClassName = classNames('relative flex flex-col', feedWidth);
 const commentClassName = {
   container: 'rounded-none border-0 border-b tablet:border-x',
   commentBox: {
@@ -791,6 +793,13 @@ export default function MainFeedLayout({
     }
     return '';
   }, [customFeedsData, feedName, router.query.slugOrId]);
+  // Read here rather than inside the feed or the strip: this is the one place
+  // that owns both, so the card can only ever go missing on a surface that is
+  // mounting the strip — with headlines in it — in the card's place.
+  const sponsorStrip = useSponsorStripFeed({
+    feedName,
+    disableAds: feedProps?.disableAds,
+  });
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
     isV2 &&
@@ -879,6 +888,17 @@ export default function MainFeedLayout({
         )}
         {children}
       </FeedPageLayoutComponent>
+      {/* Docked outside the page container so it spans the feed column and
+          pins to the window, and mounted here rather than in each app's
+          MainFeedPage because this is the one component both the webapp and
+          the extension new tab render — and the only place the feed name is
+          already resolved from `default` to the reader's own feed. */}
+      {sponsorStrip.isEnabled && (
+        <SponsorStrip
+          headlines={sponsorStrip.headlines}
+          headlinesSettled={sponsorStrip.headlinesSettled}
+        />
+      )}
     </>
   );
 }
