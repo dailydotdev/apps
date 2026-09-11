@@ -165,7 +165,7 @@ export const AchievementPickerModal = ({
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
                     >
-                      {userAchievement.achievement.points} pts
+                      {userAchievement.achievement.xp} XP
                     </Typography>
                   </div>
                   <ProgressBar

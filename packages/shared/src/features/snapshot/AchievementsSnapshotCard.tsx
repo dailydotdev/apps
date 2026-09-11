@@ -23,7 +23,7 @@ export interface AchievementsSnapshotCardProps {
   user: SnapshotIdentityProps;
   unlocked: number;
   total: number;
-  points: number;
+  xp: number;
   achievements: UnlockedAchievement[];
   seed?: string;
 }
@@ -33,7 +33,7 @@ function AchievementsSnapshotCardComponent(
     user,
     unlocked,
     total,
-    points,
+    xp,
     achievements,
     seed,
   }: AchievementsSnapshotCardProps,
@@ -54,8 +54,8 @@ function AchievementsSnapshotCardComponent(
             value={String(unlocked)}
           />
           <SnapshotTile
-            label="Achievement points"
-            value={largeNumberFormat(points) ?? String(points)}
+            label="Achievement XP"
+            value={largeNumberFormat(xp) ?? String(xp)}
           />
         </div>
 

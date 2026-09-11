@@ -24,13 +24,13 @@ const createUserAchievement = ({
   id,
   name,
   rarity,
-  points,
+  xp,
   unlockedAt = '2024-01-01T00:00:00.000Z',
 }: {
   id: string;
   name: string;
   rarity: number | null;
-  points: number;
+  xp: number;
   unlockedAt?: string | null;
 }): UserAchievement => ({
   achievement: {
@@ -39,7 +39,7 @@ const createUserAchievement = ({
     description: `${name} description`,
     image: `https://daily.dev/${id}.png`,
     type: AchievementType.Instant,
-    points,
+    xp,
     rarity,
     unit: null,
   },
@@ -84,44 +84,44 @@ describe('AchievementsWidget', () => {
         id: 'common',
         name: 'Common',
         rarity: 20,
-        points: 10,
+        xp: 10,
       }),
       createUserAchievement({
-        id: 'rarity-tie-low-points',
+        id: 'rarity-tie-low-xp',
         name: 'Rarity Tie Low Points',
         rarity: 5,
-        points: 10,
+        xp: 10,
       }),
       createUserAchievement({
         id: 'locked',
         name: 'Locked',
         rarity: 1,
-        points: 100,
+        xp: 100,
         unlockedAt: null,
       }),
       createUserAchievement({
         id: 'rare',
         name: 'Rare',
         rarity: 1,
-        points: 30,
+        xp: 30,
       }),
       createUserAchievement({
         id: 'unknown-rarity',
         name: 'Unknown Rarity',
         rarity: null,
-        points: 100,
+        xp: 100,
       }),
       createUserAchievement({
-        id: 'rarity-tie-high-points',
+        id: 'rarity-tie-high-xp',
         name: 'Rarity Tie High Points',
         rarity: 5,
-        points: 50,
+        xp: 50,
       }),
       createUserAchievement({
         id: 'uncommon',
         name: 'Uncommon',
         rarity: 5,
-        points: 20,
+        xp: 20,
       }),
     ];
 
@@ -129,7 +129,7 @@ describe('AchievementsWidget', () => {
       achievements,
       unlockedCount: 6,
       totalCount: achievements.length,
-      totalPoints: 220,
+      totalAchievementXp: 220,
       isPending: false,
       isError: false,
     });

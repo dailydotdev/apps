@@ -54,7 +54,7 @@ export const AchievementShowcaseModal = ({
       if (aSelected !== bSelected) {
         return aSelected ? -1 : 1;
       }
-      return b.achievement.points - a.achievement.points;
+      return b.achievement.xp - a.achievement.xp;
     });
   }, [unlockedAchievements, initialSelectedIds]);
 
@@ -168,7 +168,7 @@ export const AchievementShowcaseModal = ({
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
                     >
-                      {userAchievement.achievement.points} pts
+                      {userAchievement.achievement.xp} XP
                     </Typography>
                     <div
                       className={classNames(

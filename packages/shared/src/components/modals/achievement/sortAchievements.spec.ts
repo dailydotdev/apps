@@ -5,13 +5,13 @@ import { sortLockedAchievements } from './sortAchievements';
 const createAchievement = ({
   id,
   progress,
-  points,
+  xp,
   targetCount,
   unlockedAt = null,
 }: {
   id: string;
   progress: number;
-  points: number;
+  xp: number;
   targetCount: number;
   unlockedAt?: string | null;
 }): UserAchievement => ({
@@ -22,7 +22,7 @@ const createAchievement = ({
     image: 'https://daily.dev/default-achievement.png',
     type: AchievementType.Milestone,
     criteria: { targetCount },
-    points,
+    xp,
     rarity: null,
     unit: null,
   },
@@ -33,31 +33,31 @@ const createAchievement = ({
 });
 
 describe('sortLockedAchievements', () => {
-  it('should filter unlocked achievements and sort by ratio, progress, then points', () => {
+  it('should filter unlocked achievements and sort by ratio, progress, then xp', () => {
     const achievements: UserAchievement[] = [
       createAchievement({
         id: 'ratio-high',
         progress: 8,
         targetCount: 10,
-        points: 10,
+        xp: 10,
       }),
       createAchievement({
         id: 'ratio-equal-progress-high',
         progress: 6,
         targetCount: 10,
-        points: 5,
+        xp: 5,
       }),
       createAchievement({
-        id: 'ratio-equal-progress-low-points-high',
+        id: 'ratio-equal-progress-low-xp-high',
         progress: 6,
         targetCount: 10,
-        points: 50,
+        xp: 50,
       }),
       createAchievement({
         id: 'unlocked',
         progress: 10,
         targetCount: 10,
-        points: 100,
+        xp: 100,
         unlockedAt: new Date().toISOString(),
       }),
     ];
@@ -66,7 +66,7 @@ describe('sortLockedAchievements', () => {
 
     expect(sorted.map((item) => item.achievement.id)).toEqual([
       'ratio-high',
-      'ratio-equal-progress-low-points-high',
+      'ratio-equal-progress-low-xp-high',
       'ratio-equal-progress-high',
     ]);
   });

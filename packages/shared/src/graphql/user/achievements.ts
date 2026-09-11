@@ -20,7 +20,7 @@ export interface Achievement {
   image: string;
   type: AchievementType;
   criteria?: AchievementCriteria;
-  points: number;
+  xp: number;
   rarity: number | null;
   unit: string | null;
 }
@@ -53,8 +53,9 @@ export interface AchievementSyncStatus {
 }
 
 export interface AchievementSyncResult extends AchievementSyncStatus {
-  pointsGained: number;
-  totalPoints: number;
+  xpGained: number;
+  /** XP from unlocked achievements only, not the user's whole balance. */
+  totalAchievementXp: number;
   newlyUnlockedAchievements: UserAchievement[];
   closeAchievements: UserAchievement[];
 }
@@ -95,7 +96,7 @@ const ACHIEVEMENT_FRAGMENT = gql`
     criteria {
       targetCount
     }
-    points
+    xp
     rarity
     unit
   }
@@ -194,8 +195,8 @@ export const SYNC_ACHIEVEMENTS_MUTATION = gql`
       remainingSyncs
       canSync
       syncedAchievements
-      pointsGained
-      totalPoints
+      xpGained
+      totalAchievementXp
       newlyUnlockedAchievements {
         achievement {
           ...AchievementFragment

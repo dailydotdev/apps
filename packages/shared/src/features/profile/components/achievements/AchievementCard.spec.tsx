@@ -15,7 +15,7 @@ const createLockedAchievement = (
     image: 'https://daily.dev/achievement.png',
     type: AchievementType.Milestone,
     criteria: { targetCount: 1 },
-    points: 10,
+    xp: 10,
     rarity: null,
     unit: null,
   },

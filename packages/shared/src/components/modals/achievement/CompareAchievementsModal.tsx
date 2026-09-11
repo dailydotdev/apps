@@ -28,7 +28,7 @@ interface CompareAchievementsModalProps extends ModalProps {
 /**
  * Sorts achievements by the logged user's unlock status, matching AchievementsList:
  * 1. Unlocked first
- * 2. Among unlocked: rarest first, then highest points
+ * 2. Among unlocked: rarest first, then highest xp
  * 3. Among locked: highest progress ratio first
  */
 const sortByMyStatus = (
@@ -54,7 +54,7 @@ const sortByMyStatus = (
       if (rarityA !== rarityB) {
         return rarityA - rarityB;
       }
-      return b.achievement.points - a.achievement.points;
+      return b.achievement.xp - a.achievement.xp;
     }
 
     const targetA = getTargetCount(a.achievement);
@@ -112,7 +112,7 @@ export const CompareAchievementsModal = ({
     };
   }, [myAchievements, profileAchievements]);
 
-  const handleClose = (event?: React.MouseEvent | React.KeyboardEvent): void =>
+  const handleClose = (event: React.MouseEvent | React.KeyboardEvent): void =>
     onRequestClose?.(event);
 
   return (
@@ -127,7 +127,9 @@ export const CompareAchievementsModal = ({
       <Modal.Body className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-2">
           <div className="flex flex-col items-center gap-1">
-            <ProfilePicture user={loggedUser} size={ProfileImageSize.Large} />
+            {loggedUser && (
+              <ProfilePicture user={loggedUser} size={ProfileImageSize.Large} />
+            )}
             <Typography
               type={TypographyType.Callout}
               bold
@@ -211,7 +213,7 @@ export const CompareAchievementsModal = ({
                         bold
                         className="shrink-0"
                       >
-                        {ua.achievement.points} pts
+                        {ua.achievement.xp} XP
                       </Typography>
                     </div>
                     <Typography
