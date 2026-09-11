@@ -11,12 +11,18 @@ import { get as getCache } from 'idb-keyval';
 import browser from 'webextension-polyfill';
 import type { DndSettings } from '@dailydotdev/shared/src/contexts/DndContext';
 import App from './App';
+import { preventFocusSteal } from './preventFocusSteal';
 
 declare global {
   interface Window {
     windowLoaded: boolean;
   }
 }
+
+// Before React, and before any dependency gets a chance to register its own
+// focus bookkeeping, so no `focus()` on this page can pull the caret out of
+// Chrome's address bar.
+preventFocusSteal();
 
 window.addEventListener(
   'load',
