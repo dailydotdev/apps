@@ -258,7 +258,11 @@ it('should give a masked wall mark a box to paint into', async () => {
   renderStrip();
   await settle();
 
-  const wall = within(screen.getByTitle(PREMIUM[0])).getByLabelText(PREMIUM[0]);
+  // Whichever premium mark the deck dealt, not a named one: the pool is
+  // shuffled per page load and holds more creatives than the row has slots,
+  // so naming one picks a mark that is only usually there.
+  const company = shownLogos().find((name) => PREMIUM.includes(name)) as string;
+  const wall = within(screen.getByTitle(company)).getByLabelText(company);
 
   expect(wall).toHaveStyle({ height: '17px', width: '60px' });
 });
