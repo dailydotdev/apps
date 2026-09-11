@@ -128,17 +128,19 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
             });
 
           // Dropping part of a paste silently is the bug being fixed, so always
-          // say what was left out.
-          if (overLimit) {
+          // say what was left out, and why, for every reason it happened.
+          const rejected = overLimit + tooLong;
+
+          if (rejected) {
+            const reasons = [
+              overLimit && limitHint,
+              tooLong &&
+                `Skills can be up to ${maxProfileSkillLength} characters.`,
+            ].filter(Boolean);
+
             displayToast(
-              `${limitHint} ${overLimit} ${
-                overLimit === 1 ? 'skill was' : 'skills were'
-              } not added.`,
-            );
-          } else if (tooLong) {
-            displayToast(
-              `Skills can be up to ${maxProfileSkillLength} characters. ${tooLong} ${
-                tooLong === 1 ? 'skill was' : 'skills were'
+              `${reasons.join(' ')} ${rejected} ${
+                rejected === 1 ? 'skill was' : 'skills were'
               } not added.`,
             );
           }

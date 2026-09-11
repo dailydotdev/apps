@@ -550,7 +550,12 @@ describe('useUserExperienceForm', () => {
     };
 
     const { result } = renderHook(
-      () => useUserExperienceForm({ defaultValues: openSourceExperience }),
+      () =>
+        useUserExperienceForm({
+          // The missing repository URL is the point of the test, so this
+          // fixture cannot satisfy the form values type.
+          defaultValues: openSourceExperience as unknown as BaseUserExperience,
+        }),
       { wrapper: createWrapper() },
     );
 
@@ -596,7 +601,7 @@ describe('useUserExperienceForm', () => {
         );
       });
       expect(
-        result.current.methods.getFieldState('skills' as never).error,
+        result.current.methods.getFieldState('skills').error,
       ).toBeDefined();
       expect(mockRouter.push).not.toHaveBeenCalled();
       expect(result.current.methods.getValues('title')).toBe(

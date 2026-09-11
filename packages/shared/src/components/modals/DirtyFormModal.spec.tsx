@@ -56,6 +56,38 @@ describe('DirtyFormModal', () => {
     await waitFor(() => expect(mockCloseModal).toHaveBeenCalledTimes(1));
   });
 
+  it('cannot be dismissed while an async save is in flight', async () => {
+    let resolveSave: () => void;
+    const onRequestClose = jest.fn();
+    const onSave = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+
+    render(
+      <DirtyFormModal
+        isOpen
+        onRequestClose={onRequestClose}
+        onDiscard={jest.fn()}
+        onSave={onSave}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await userEvent.keyboard('{Escape}');
+    expect(onRequestClose).not.toHaveBeenCalled();
+    expect(mockCloseModal).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveSave();
+    });
+
+    await waitFor(() => expect(mockCloseModal).toHaveBeenCalledTimes(1));
+  });
+
   it('closes after a rejected save so the form and its error stay visible', async () => {
     const onSave = jest.fn(() => Promise.reject(new Error('nope')));
 

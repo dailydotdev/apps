@@ -165,6 +165,23 @@ describe('ProfileSkills', () => {
     );
   });
 
+  it('reports every reason a pasted batch was trimmed, not just the first', () => {
+    const skills = Array.from(
+      { length: maxProfileSkills - 1 },
+      (_, index) => `skill-${index}`,
+    );
+    renderComponent({ skills });
+
+    const input = screen.getByPlaceholderText('Search skills');
+    const tooLong = 'a'.repeat(maxProfileSkillLength + 1);
+    submitSkills(input, `first,second,${tooLong}`);
+
+    expect(screen.getByRole('button', { name: 'first' })).toBeInTheDocument();
+    expect(mockDisplayToast).toHaveBeenCalledWith(
+      `You can add up to ${maxProfileSkills} skills. Skills can be up to ${maxProfileSkillLength} characters. 2 skills were not added.`,
+    );
+  });
+
   it('renders an array level server error', () => {
     let methods: UseFormReturn<{ skills: string[] }>;
     renderComponent({

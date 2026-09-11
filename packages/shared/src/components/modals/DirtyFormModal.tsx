@@ -54,10 +54,12 @@ export default function DirtyFormModal({
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={onRequestClose}
+      // Dismissing mid-save would close whichever modal is current by the time
+      // the save settles, so the overlay and Escape are inert while it runs.
+      onRequestClose={isSaving ? undefined : onRequestClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
-      shouldCloseOnOverlayClick
+      shouldCloseOnOverlayClick={!isSaving}
       isDrawerOnMobile
       drawerProps={{ displayCloseButton: false }}
     >

@@ -123,8 +123,29 @@ export const userExperienceInputBaseSchema = z
     },
   );
 
-type BaseUserExperience = Omit<
+/**
+ * What the form actually holds, which `UserExperience` does not describe: the
+ * date fields arrive from the page as serialized strings and become Dates once
+ * the month/year selects write to them, and the rest are form-only fields or
+ * fields specific to one experience type.
+ */
+export type UserExperienceFormValues = Omit<
   UserExperience,
+  'startedAt' | 'endedAt'
+> & {
+  startedAt?: string | Date | null;
+  endedAt?: string | Date | null;
+  current?: boolean;
+  skills?: string[];
+  repositorySearch?: string;
+  employmentType?: number | null;
+  locationType?: number | null;
+  externalLocationId?: string | null;
+  grade?: string | null;
+};
+
+type BaseUserExperience = Omit<
+  UserExperienceFormValues,
   'id' | 'createdAt' | 'company' | 'customCompanyName'
 > & {
   id?: string;
@@ -146,7 +167,7 @@ const useUserExperienceForm = ({
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
   const router = useRouter();
   const { displayToast } = useToastNotification();
-  const methods = useForm<UserExperience>({
+  const methods = useForm<UserExperienceFormValues>({
     defaultValues,
     reValidateMode: 'onSubmit',
     resolver: zodResolver(userExperienceInputBaseSchema),
@@ -163,11 +184,14 @@ const useUserExperienceForm = ({
   );
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (data: UserExperience | UserExperienceWork) => {
-      const input = { ...data, type } as UserExperience | UserExperienceWork;
+    mutationFn: (data: UserExperienceFormValues) => {
+      // The mutations are typed in the GraphQL shape, which the form values
+      // deliberately differ from: the API parses skills as strings and the
+      // dates as Dates, and returns them as UserSkill[] and strings.
+      const input = { ...data, type } as unknown as UserExperienceWork;
 
       return type === UserExperienceType.Work
-        ? upsertUserWorkExperience(input as UserExperienceWork, id)
+        ? upsertUserWorkExperience(input, id)
         : upsertUserGeneralExperience(input, id);
     },
     onSuccess: (result, vars) => {
