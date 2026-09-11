@@ -213,6 +213,15 @@ const strictSkipList = new Set([
   // errors on other lines predate that change.
   'packages/shared/src/hooks/useBanner.ts',
   'packages/shared/src/hooks/useFeedSettings.ts',
+  // Experience form spec — touched only to cover the skills save failure
+  // (ENG-1886). Its strict errors are all one pre-existing cause: the form
+  // is typed `useForm<UserExperience>` but holds values that type does not
+  // describe (Date rather than string dates, `current`, `skills` as
+  // string[]), so every fixture and setValue call mismatches. Fixing it
+  // means introducing a form-values type and settling where the page's
+  // serialized `startedAt` string becomes a Date — a refactor across the
+  // hook, the edit page and every experience form, not this bug fix.
+  'packages/shared/src/hooks/useUserExperienceForm.spec.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

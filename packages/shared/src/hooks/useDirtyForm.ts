@@ -4,7 +4,9 @@ import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 
 export interface UseDirtyFormOptions {
-  onSave: () => void;
+  // A promise keeps DirtyFormModal open until the save settles, so a rejected
+  // save cannot look like a successful one.
+  onSave: () => void | Promise<void>;
   onDiscard?: () => void;
 }
 

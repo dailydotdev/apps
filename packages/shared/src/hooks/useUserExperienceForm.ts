@@ -16,12 +16,20 @@ import {
 import { useDirtyForm } from './useDirtyForm';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ApiError } from '../graphql/common';
-import type { ApiErrorResult } from '../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiResponseError,
+  ApiZodErrorExtension,
+} from '../graphql/common';
 import { labels } from '../lib/labels';
 import { applyZodErrorsToForm } from '../lib/form';
 import { useToastNotification } from './useToastNotification';
 import { webappUrl } from '../lib/constants';
 import { useUserExperiencesByType } from '../features/profile/hooks/useUserExperiencesByType';
+import {
+  maxProfileSkillLength,
+  maxProfileSkills,
+} from '../features/profile/common';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
@@ -73,6 +81,21 @@ export const userExperienceInputBaseSchema = z
       .default(null),
     repository: repositorySchema,
     repositorySearch: z.string().optional(),
+    skills: z
+      .array(
+        z
+          .string()
+          .trim()
+          .normalize()
+          .nonempty()
+          .max(
+            maxProfileSkillLength,
+            `Skills can be up to ${maxProfileSkillLength} characters.`,
+          ),
+      )
+      .max(maxProfileSkills, `You can add up to ${maxProfileSkills} skills.`)
+      .optional()
+      .default([]),
   })
   .refine(
     (data) => {
@@ -139,7 +162,7 @@ const useUserExperienceForm = ({
     { condition: isNewExperience },
   );
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: UserExperience | UserExperienceWork) => {
       const input = { ...data, type } as UserExperience | UserExperienceWork;
 
@@ -165,23 +188,46 @@ const useUserExperienceForm = ({
       router.push(`${webappUrl}settings/profile/experience/${type}`);
     },
     onError: (error: ApiErrorResult) => {
-      if (
-        error.response?.errors?.[0]?.extensions?.code ===
-        ApiError.ZodValidationError
-      ) {
-        applyZodErrorsToForm({
-          error,
-          setError: methods.setError,
-        });
-      } else {
-        displayToast(
-          error.response?.errors?.[0]?.message || labels.error.generic,
-        );
+      const responseError = error.response?.errors?.[0];
+
+      if (responseError?.extensions?.code !== ApiError.ZodValidationError) {
+        displayToast(responseError?.message || labels.error.generic);
+        return;
       }
+
+      applyZodErrorsToForm({
+        error,
+        setError: methods.setError,
+      });
+
+      // The GraphQL message for a zod error is always a generic "Validation
+      // error", and not every field renders its own error, so surface the first
+      // issue as a toast to guarantee the rejection is visible.
+      const [issue] = (responseError as ApiResponseError<ApiZodErrorExtension>)
+        .extensions.issues;
+      displayToast(issue?.message || labels.error.generic);
     },
   });
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
-    onSave: () => mutate({ ...methods.getValues(), type }),
+    // getValues() rather than the resolver output: the client schema is a
+    // subset of the form, so parsed values would drop fields like
+    // employmentType or grade. trigger() gives us validation without that.
+    onSave: async () => {
+      const isValid = await methods.trigger();
+
+      if (!isValid) {
+        // The modal closes either way, so say why nothing was saved: some
+        // fields (type, for one) have no input that could show the error.
+        displayToast(labels.error.formInvalid);
+        return;
+      }
+
+      try {
+        await mutateAsync({ ...methods.getValues(), type });
+      } catch {
+        // handled by the mutation's onError
+      }
+    },
     onDiscard: () => {
       methods.reset();
     },
