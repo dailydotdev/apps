@@ -16,6 +16,7 @@ import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useMutationSubscription, useVotePost } from '../../hooks';
+import { usePostActions } from '../../hooks/post/usePostActions';
 import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
@@ -68,6 +69,7 @@ function PostActionsV1({
     : CommentIcon;
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
+  const { onInteract } = usePostActions({ post });
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
 
@@ -97,6 +99,12 @@ function PostActionsV1({
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
       onClose(true);
+    }
+
+    // PostContentShare listens for this, and only feed cards were raising it
+    // — upvoting on the post page itself never prompted anything.
+    if (post?.userState?.vote !== UserVote.Up) {
+      onInteract('upvote');
     }
 
     await toggleUpvote({ payload: post, origin });

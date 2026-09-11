@@ -10,6 +10,8 @@ export enum ShareProvider {
   LinkedIn = 'linkedin',
   Telegram = 'telegram',
   Email = 'email',
+  Snapshot = 'snapshot',
+  CopyText = 'copy text',
   Slack = 'slack',
 }
 

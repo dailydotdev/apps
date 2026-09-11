@@ -150,6 +150,7 @@ export * from './Shortcuts';
 export * from './Sidebar';
 export * from './Sites';
 export * from './Slack';
+export * from './Snapshot';
 export * from './Sort';
 export * from './Source';
 export * from './Sparkle';

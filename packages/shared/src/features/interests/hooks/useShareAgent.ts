@@ -1,17 +1,11 @@
 import { useState } from 'react';
 import { useShareOrCopyLink } from '../../../hooks/useShareOrCopyLink';
-import { webappUrl } from '../../../lib/constants';
+import { getAbsoluteWebappUrl } from '../../../lib/links';
 import { ReferralCampaignKey } from '../../../lib/referral';
 import type { UserInterest } from '../../../graphql/interests';
 
-export const agentShareLink = (query: string): string => {
-  const path = `${webappUrl}agent?q=${encodeURIComponent(query)}`;
-  // Must be absolute: the share pipeline runs `new URL(link)`, and `webappUrl`
-  // is a bare path in development, which threw rather than degrading.
-  const origin = globalThis?.location?.origin;
-
-  return origin ? new URL(path, origin).toString() : path;
-};
+export const agentShareLink = (query: string): string =>
+  getAbsoluteWebappUrl(`agent?q=${encodeURIComponent(query)}`);
 
 export const useShareAgent = (
   interest?: Pick<UserInterest, 'query'>,

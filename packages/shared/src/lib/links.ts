@@ -137,6 +137,16 @@ export const getPathnameWithQuery = (
 export const toWebappHref = (path: string): string =>
   path.startsWith('/') ? `${webappUrl}${path.slice(1)}` : path;
 
+// For links that leave the tab (share, copy): `webappUrl` is a bare `/` on the
+// webapp, and the share pipeline runs `new URL(link)` on whatever it is handed.
+// An absolute `webappUrl` (the extension) passes through unchanged.
+export const getAbsoluteWebappUrl = (path = ''): string => {
+  const url = `${webappUrl}${path}`;
+  const origin = globalThis?.location?.origin;
+
+  return origin ? new URL(url, origin).toString() : url;
+};
+
 export const agentsHighlightsPath = '/highlights/vibes';
 
 export const agentsHighlightsUrl = `${webappUrl}${agentsHighlightsPath.slice(

@@ -4,13 +4,14 @@ import classNames from 'classnames';
 import type { Archive, ArchiveItem } from '../../graphql/archive';
 import { ArchivePeriodType } from '../../graphql/archive';
 import type { ArchiveScopeInfo } from '../../lib/archive';
-import { getArchiveTitle, getArchiveIndexUrl } from '../../lib/archive';
+import { getArchiveIndexUrl, getArchivePeriodLabel } from '../../lib/archive';
 import { ArchiveNavigation } from './ArchiveNavigation';
 import { ArchivePostItem } from './ArchivePostItem';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { ArchiveCopyLinkButton } from './ArchiveCopyLinkButton';
 
 interface ArchiveFeedPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -83,7 +84,7 @@ export function ArchiveFeedPage({
   isLoading,
   className,
 }: ArchiveFeedPageProps): ReactElement {
-  const title = getArchiveTitle({
+  const periodLabel = getArchivePeriodLabel({
     periodType,
     periodStart:
       periodType === ArchivePeriodType.Month && month
@@ -104,9 +105,16 @@ export function ArchiveFeedPage({
       )}
     >
       {/* Header */}
-      <h1 className="mx-4 font-bold typo-title2 tablet:typo-title1">
-        Best of {scopeName} &mdash; {title.replace('Best of ', '')}
-      </h1>
+      <div className="mx-4 flex items-center gap-2">
+        <h1 className="flex-1 font-bold typo-title2 tablet:typo-title1">
+          Best of {scopeName} &mdash; {periodLabel}
+        </h1>
+        <ArchiveCopyLinkButton
+          scopeType={scopeType}
+          scopeId={scopeId}
+          text={`Check out the best of ${scopeName} from ${periodLabel}`}
+        />
+      </div>
 
       {/* Top navigation */}
       <ArchiveNavigation

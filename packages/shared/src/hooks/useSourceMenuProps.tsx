@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContentPreference } from './contentPreference/useContentPreference';
 import { webappUrl } from '../lib/constants';
+import { getAbsoluteWebappUrl } from '../lib/links';
 import type { SourceTooltip } from '../graphql/sources';
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { LogEvent } from '../lib/log';
@@ -58,7 +59,7 @@ const useSourceMenuProps = ({
     text: source?.handle
       ? `Check out ${source.handle} on daily.dev`
       : 'Check out this source on daily.dev',
-    link: source?.permalink || webappUrl,
+    link: source?.permalink || getAbsoluteWebappUrl(),
     cid: ReferralCampaignKey.ShareSource,
     logObject: () => ({
       event_name: LogEvent.ShareSource,
