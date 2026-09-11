@@ -112,7 +112,7 @@ export const CompareAchievementsModal = ({
     };
   }, [myAchievements, profileAchievements]);
 
-  const handleClose = (event?: React.MouseEvent | React.KeyboardEvent): void =>
+  const handleClose = (event: React.MouseEvent | React.KeyboardEvent): void =>
     onRequestClose?.(event);
 
   return (
@@ -127,7 +127,9 @@ export const CompareAchievementsModal = ({
       <Modal.Body className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-2">
           <div className="flex flex-col items-center gap-1">
-            <ProfilePicture user={loggedUser} size={ProfileImageSize.Large} />
+            {loggedUser && (
+              <ProfilePicture user={loggedUser} size={ProfileImageSize.Large} />
+            )}
             <Typography
               type={TypographyType.Callout}
               bold
