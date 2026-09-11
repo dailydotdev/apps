@@ -49,6 +49,7 @@ import {
   useEventListener,
   useJoinReferral,
   usePostById,
+  useShareLinkClick,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -220,6 +221,7 @@ export const PostPage = ({
     },
   });
   useSlackShareReturn({ post });
+  useShareLinkClick({ postId: post?.id });
   const queryClient = useQueryClient();
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
