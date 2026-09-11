@@ -648,6 +648,7 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
+  ApiAccess = 'api access',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
