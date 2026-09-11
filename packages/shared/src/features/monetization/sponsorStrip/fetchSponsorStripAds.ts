@@ -1,9 +1,6 @@
 import type { AdMacroContext } from '../adMacros';
 import { AdPlacement, appendConsentParams } from '../../../lib/ads';
 import { apiUrl } from '../../../lib/config';
-import { isDevelopment } from '../../../lib/constants';
-import { MOCK_ADVERTISER_BAR } from './mockSponsorStripAds';
-import { parseSponsors } from './sponsorStripCreative';
 
 /**
  * The placement lives on the ad server's `/v2/a/:placement` route, not the
@@ -14,31 +11,17 @@ import { parseSponsors } from './sponsorStripCreative';
  * The response carries the whole bar — pinned, top tier and community together
  * — so the composition is the ad server's call and the request carries nothing
  * but consent. How many of them the row draws is decided later, off the
- * measured width.
+ * measured width. The reader comes from the `da2` cookie, which is what
+ * `credentials` is for.
  */
-const withDevFallback = (bar: unknown): unknown =>
-  isDevelopment && !parseSponsors(bar).length ? MOCK_ADVERTISER_BAR : bar;
-
 export const fetchSponsorStripAds = async (
   consent?: AdMacroContext,
 ): Promise<unknown> => {
   const query = appendConsentParams(new URLSearchParams(), consent).toString();
+  const res = await fetch(
+    `${apiUrl}/v2/a/${AdPlacement.SponsorStrip}${query ? `?${query}` : ''}`,
+    { credentials: 'include' },
+  );
 
-  try {
-    const res = await fetch(
-      `${apiUrl}/v2/a/${AdPlacement.SponsorStrip}${query ? `?${query}` : ''}`,
-      { credentials: 'include' },
-    );
-
-    return withDevFallback(await res.json());
-  } catch (originalError) {
-    // A local run with no ad server behind it still gets a row to work on;
-    // anywhere else the query goes to error and the dock collapses, which is
-    // the same outcome as no fill.
-    if (isDevelopment) {
-      return MOCK_ADVERTISER_BAR;
-    }
-
-    throw originalError;
-  }
+  return res.json();
 };
