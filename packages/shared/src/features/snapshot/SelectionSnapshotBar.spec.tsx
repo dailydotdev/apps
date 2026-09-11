@@ -112,6 +112,23 @@ describe('SelectionSnapshotBar placement', () => {
     expect(top).toBeLessThanOrEqual(800 - 44 - 8);
   });
 
+  it('sits below the quote on touch, clear of the platform menu', () => {
+    // Android's own Copy/Share menu takes the space above the selection.
+    Object.assign(globalThis, { innerHeight: 800, innerWidth: 1440 });
+    const desktop = globalThis.matchMedia;
+    globalThis.matchMedia = ((query: string) => ({
+      matches: query === '(pointer: coarse)',
+    })) as unknown as typeof globalThis.matchMedia;
+    rectAt({ top: 400, bottom: 440 });
+
+    renderBar();
+    select('body');
+
+    expect(parseFloat(barStyle().top)).toBeGreaterThan(440);
+
+    globalThis.matchMedia = desktop;
+  });
+
   it('keeps the bar clear of the side edges', () => {
     Object.assign(globalThis, { innerHeight: 800, innerWidth: 1440 });
     rectAt({ left: 1430, width: 10 });
@@ -134,7 +151,7 @@ describe('SelectionSnapshotBar share events', () => {
 
   it.each([
     ['Copy text', ShareProvider.CopyText],
-    ['Copy link', ShareProvider.CopyLink],
+    ['Copy text and link', ShareProvider.CopyLink],
   ])('logs %s under the selection origin', (label, provider) => {
     const logEvent = jest.fn();
     renderBar(logEvent);
@@ -147,6 +164,17 @@ describe('SelectionSnapshotBar share events', () => {
     expect(event.event_name).toBe(LogEvent.SharePost);
     expect(JSON.parse(event.extra)).toEqual(
       expect.objectContaining({ provider, origin: Origin.TextSelection }),
+    );
+  });
+
+  it('copies the quote along with the link', () => {
+    renderBar();
+    select('body');
+
+    fireEvent.click(screen.getByLabelText('Copy text and link'));
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      `"${QUOTE}"\n\n${post.commentsPermalink}`,
     );
   });
 });
