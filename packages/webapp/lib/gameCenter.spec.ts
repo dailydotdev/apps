@@ -247,7 +247,7 @@ describe('game center helpers', () => {
 
     expect(summary.unlockedCount).toBe(2);
     expect(summary.totalCount).toBe(3);
-    expect(summary.totalXp).toBe(320);
+    expect(summary.totalAchievementXp).toBe(320);
     expect(summary.nextToUnlock?.achievement.id).toBe('tracked');
     expect(summary.latestUnlocked?.achievement.id).toBe('latest');
     expect(summary.rarestUnlocked?.achievement.id).toBe('rare');

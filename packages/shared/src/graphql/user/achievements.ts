@@ -54,7 +54,8 @@ export interface AchievementSyncStatus {
 
 export interface AchievementSyncResult extends AchievementSyncStatus {
   xpGained: number;
-  totalXp: number;
+  /** XP from unlocked achievements only, not the user's whole balance. */
+  totalAchievementXp: number;
   newlyUnlockedAchievements: UserAchievement[];
   closeAchievements: UserAchievement[];
 }
@@ -195,7 +196,7 @@ export const SYNC_ACHIEVEMENTS_MUTATION = gql`
       canSync
       syncedAchievements
       xpGained
-      totalXp
+      totalAchievementXp
       newlyUnlockedAchievements {
         achievement {
           ...AchievementFragment

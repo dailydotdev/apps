@@ -152,7 +152,7 @@ export const AchievementSyncModal = ({
       return;
     }
 
-    const baseScore = result.totalXp - result.xpGained;
+    const baseScore = result.totalAchievementXp - result.xpGained;
 
     setScore(baseScore);
     setCurrentIndex(0);

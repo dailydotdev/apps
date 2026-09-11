@@ -185,7 +185,8 @@ const dedupeAchievements = (
 export type GameCenterAchievementSummary = {
   unlockedCount: number;
   totalCount: number;
-  totalXp: number;
+  /** XP from unlocked achievements only, not the user's whole balance. */
+  totalAchievementXp: number;
   latestUnlocked: UserAchievement | null;
   rarestUnlocked: UserAchievement | null;
   nextToUnlock: UserAchievement | null;
@@ -248,7 +249,7 @@ export const getAchievementSummary = (
   return {
     unlockedCount: unlocked.length,
     totalCount: allAchievements.length,
-    totalXp: unlocked.reduce(
+    totalAchievementXp: unlocked.reduce(
       (total, achievement) => total + (achievement.achievement.xp ?? 0),
       0,
     ),

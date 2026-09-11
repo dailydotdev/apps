@@ -123,7 +123,7 @@ const defaultProfileAchievementsHook = {
   achievements: [mockTrackedAchievement],
   unlockedCount: 0,
   totalCount: 1,
-  totalXp: 0,
+  totalAchievementXp: 0,
   isPending: false,
   isError: false,
 };

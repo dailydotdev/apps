@@ -7,7 +7,8 @@ interface UseProfileAchievementsResult {
   achievements: UserAchievement[] | undefined;
   unlockedCount: number;
   totalCount: number;
-  totalXp: number;
+  /** XP from unlocked achievements only, not the user's whole balance. */
+  totalAchievementXp: number;
   isPending: boolean;
   isError: boolean;
 }
@@ -38,13 +39,16 @@ export function useProfileAchievements(
   const unlocked = data?.filter((a) => a.unlockedAt !== null) ?? [];
   const unlockedCount = unlocked.length;
   const totalCount = data?.length ?? 0;
-  const totalXp = unlocked.reduce((sum, a) => sum + (a.achievement.xp ?? 0), 0);
+  const totalAchievementXp = unlocked.reduce(
+    (sum, a) => sum + (a.achievement.xp ?? 0),
+    0,
+  );
 
   return {
     achievements: data,
     unlockedCount,
     totalCount,
-    totalXp,
+    totalAchievementXp,
     isPending,
     isError,
   };
