@@ -16,6 +16,7 @@ interface DataTileProps {
   valueClassName?: string;
   className?: {
     container?: string;
+    label?: string;
   };
 }
 
@@ -36,7 +37,9 @@ export const DataTile: React.FC<DataTileProps> = ({
       )}
     >
       <span className="flex flex-row items-center gap-1">
-        <Typography type={TypographyType.Footnote}>{label}</Typography>
+        <Typography type={TypographyType.Footnote} className={className?.label}>
+          {label}
+        </Typography>
         <Tooltip content={info} enableMobileClick>
           <span className="text-text-disabled">
             <InfoIcon size={IconSize.Size16} />

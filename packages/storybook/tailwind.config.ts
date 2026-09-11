@@ -7,8 +7,10 @@ export default {
     './src/**/*.{ts,tsx}',
     './stories/**/*.{ts,tsx}',
     './node_modules/@dailydotdev/shared/src/**/*.{ts,tsx}',
-    // Without this, extension stories silently drop any utility the shared
-    // package happens not to use, and review a layout we never ship.
+    // Stories that render webapp- or extension-only components need their
+    // classes generated too, otherwise the preview silently drops whatever
+    // shared happens not to use, and reviews a layout we never ship.
+    '../webapp/components/**/*.{ts,tsx}',
     '../extension/src/**/*.{ts,tsx}',
   ],
   safelist: [
