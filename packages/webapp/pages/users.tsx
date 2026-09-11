@@ -45,7 +45,6 @@ interface PageProps {
   mostUpvoted: UserLeaderboard[];
   mostReferrals: UserLeaderboard[];
   mostReadingDays: UserLeaderboard[];
-  mostAchievementPoints: UserLeaderboard[];
   highestLevel: UserLeaderboard[];
   isHighestLevelSupported: boolean;
   mostVerifiedUsers: CompanyLeaderboard[];
@@ -77,7 +76,6 @@ const LeaderboardPage = ({
   mostUpvoted,
   mostReferrals,
   mostReadingDays,
-  mostAchievementPoints,
   highestLevel,
   isHighestLevelSupported,
   mostVerifiedUsers,
@@ -167,14 +165,6 @@ const LeaderboardPage = ({
             isLoading={isLoading}
             leaderboardType={LeaderboardType.MostReadingDays}
           />
-          <UserTopList
-            containerProps={{
-              title: 'Most achievement points',
-              titleHref: `/users/${LeaderboardType.MostAchievementPoints}`,
-            }}
-            items={mostAchievementPoints}
-            isLoading={isLoading}
-          />
           <CompanyTopList
             containerProps={{
               title: 'Most verified employees',
@@ -255,7 +245,6 @@ export async function getStaticProps(): Promise<
         mostUpvoted: res.mostUpvoted,
         mostReferrals: res.mostReferrals,
         mostReadingDays: res.mostReadingDays,
-        mostAchievementPoints: res.mostAchievementPoints,
         highestLevel,
         isHighestLevelSupported,
         mostVerifiedUsers: res.mostVerifiedUsers,
@@ -279,7 +268,6 @@ export async function getStaticProps(): Promise<
           mostUpvoted: [],
           mostReferrals: [],
           mostReadingDays: [],
-          mostAchievementPoints: [],
           highestLevel: [],
           isHighestLevelSupported: false,
           mostVerifiedUsers: [],

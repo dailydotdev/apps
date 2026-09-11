@@ -26,6 +26,6 @@ export const sortLockedAchievements = (
         return b.progress - a.progress;
       }
 
-      return b.achievement.points - a.achievement.points;
+      return b.achievement.xp - a.achievement.xp;
     });
 };

@@ -129,7 +129,7 @@ export function AchievementCard({
             }
             bold
           >
-            {achievement.points}
+            {achievement.xp}
           </Typography>
         </div>
       </div>

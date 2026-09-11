@@ -209,7 +209,7 @@ export const AchievementCompletionModal = ({
                     {unlockedAchievement.achievement.description}
                   </Typography>
                   <div className="text-text-invert rounded-14 bg-accent-cabbage-default px-3 py-1 font-bold typo-subhead">
-                    +{unlockedAchievement.achievement.points} points
+                    +{unlockedAchievement.achievement.xp} XP
                   </div>
                 </div>
 
@@ -353,7 +353,7 @@ export const AchievementCompletionModal = ({
                           type={TypographyType.Footnote}
                           color={TypographyColor.Tertiary}
                         >
-                          {userAchievement.achievement.points} pts
+                          {userAchievement.achievement.xp} XP
                         </Typography>
                       </div>
                       <div className="rounded-sm mt-1 h-1.5 w-full overflow-hidden bg-accent-pepper-subtler">

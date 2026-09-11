@@ -74,7 +74,7 @@ export function ProfileAchievements({
     achievements,
     unlockedCount,
     totalCount,
-    totalPoints,
+    totalXp,
     isPending,
     isError,
   } = useProfileAchievements(user);
@@ -154,7 +154,7 @@ export function ProfileAchievements({
               color={TypographyColor.Primary}
               bold
             >
-              {totalPoints.toLocaleString()}
+              {totalXp.toLocaleString()} XP
             </Typography>
           </div>
           <Typography

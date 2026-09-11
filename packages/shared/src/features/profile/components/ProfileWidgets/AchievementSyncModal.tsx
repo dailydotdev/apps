@@ -98,7 +98,7 @@ const AchievementRevealCard = ({
         {achievement.achievement.description}
       </Typography>
       <Typography type={TypographyType.Subhead} bold>
-        +{achievement.achievement.points} points
+        +{achievement.achievement.xp} XP
       </Typography>
     </div>
   );
@@ -152,7 +152,7 @@ export const AchievementSyncModal = ({
       return;
     }
 
-    const baseScore = result.totalPoints - result.pointsGained;
+    const baseScore = result.totalXp - result.xpGained;
 
     setScore(baseScore);
     setCurrentIndex(0);
@@ -169,7 +169,7 @@ export const AchievementSyncModal = ({
 
     if (currentIndex >= result.newlyUnlockedAchievements.length) {
       setIsRevealComplete(true);
-      if (result.pointsGained > 0) {
+      if (result.xpGained > 0) {
         setShowSparkles(true);
       }
       return undefined;
@@ -182,8 +182,7 @@ export const AchievementSyncModal = ({
     const nextTimer = setTimeout(() => {
       setScore(
         (value) =>
-          value +
-          result.newlyUnlockedAchievements[currentIndex].achievement.points,
+          value + result.newlyUnlockedAchievements[currentIndex].achievement.xp,
       );
       setIsScoreShaking(true);
       setCurrentIndex((value) => value + 1);
@@ -230,7 +229,9 @@ export const AchievementSyncModal = ({
     logEvent({
       event_name: LogEvent.CompleteSyncAchievements,
       extra: JSON.stringify({
-        points_gained: result.pointsGained,
+        xp_gained: result.xpGained,
+        // kept so dashboards built on the points era keep reporting
+        points_gained: result.xpGained,
         newly_unlocked: result.newlyUnlockedAchievements.length,
       }),
     });
@@ -285,7 +286,7 @@ export const AchievementSyncModal = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Achievement points
+            Achievement XP
           </Typography>
           <Typography
             type={TypographyType.LargeTitle}
@@ -340,8 +341,8 @@ export const AchievementSyncModal = ({
                 Sync complete
               </Typography>
               <Typography type={TypographyType.Title4} bold>
-                {result.pointsGained > 0
-                  ? `Congrats! +${result.pointsGained} points earned.`
+                {result.xpGained > 0
+                  ? `Congrats! +${result.xpGained} XP earned.`
                   : 'No new achievements unlocked this time.'}
               </Typography>
             </div>

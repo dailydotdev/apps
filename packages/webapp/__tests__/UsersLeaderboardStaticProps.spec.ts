@@ -31,7 +31,6 @@ const baseLeaderboardResponse = {
   mostUpvoted: [],
   mostReferrals: [],
   mostReadingDays: [],
-  mostAchievementPoints: [],
   mostVerifiedUsers: [],
 };
 

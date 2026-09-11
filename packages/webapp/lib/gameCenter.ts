@@ -185,7 +185,7 @@ const dedupeAchievements = (
 export type GameCenterAchievementSummary = {
   unlockedCount: number;
   totalCount: number;
-  totalPoints: number;
+  totalXp: number;
   latestUnlocked: UserAchievement | null;
   rarestUnlocked: UserAchievement | null;
   nextToUnlock: UserAchievement | null;
@@ -235,7 +235,7 @@ export const getAchievementSummary = (
         return right.progress - left.progress;
       }
 
-      return right.achievement.points - left.achievement.points;
+      return right.achievement.xp - left.achievement.xp;
     })[0] ?? null;
 
   const featuredAchievements = dedupeAchievements([
@@ -248,8 +248,8 @@ export const getAchievementSummary = (
   return {
     unlockedCount: unlocked.length,
     totalCount: allAchievements.length,
-    totalPoints: unlocked.reduce(
-      (total, achievement) => total + (achievement.achievement.points ?? 0),
+    totalXp: unlocked.reduce(
+      (total, achievement) => total + (achievement.achievement.xp ?? 0),
       0,
     ),
     latestUnlocked,
