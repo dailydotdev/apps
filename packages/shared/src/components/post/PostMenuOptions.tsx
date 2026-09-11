@@ -60,6 +60,7 @@ export function PostMenuOptions({
         <Tooltip side="bottom" content="Copy link">
           <Button
             aria-label="Copy link"
+            className="hidden laptop:flex"
             icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
             onClick={onCopyLink}
             size={buttonSize}

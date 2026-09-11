@@ -48,6 +48,15 @@ describe('PostMenuOptions copy link', () => {
     );
   });
 
+  it('stays off the mobile headers, which have no room for it', () => {
+    // The ⋯ menu keeps "Share via" at every width, so the phone loses the
+    // shortcut, not the ability to share.
+    renderActions(post);
+
+    expect(copyLink()).toHaveClass('hidden', 'laptop:flex');
+    expect(screen.getByLabelText('Options')).not.toHaveClass('hidden');
+  });
+
   it('restyles the menu trigger alone, never the copy link beside it', () => {
     // The focus card rotates the ⋯ glyph 90°. Put on a wrapper, that rotation
     // also turned the copy link and its confirmation check on their side.
