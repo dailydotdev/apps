@@ -53,6 +53,14 @@ const introDestinationByEventType: Record<string, QuestDestination> = {
     label: 'Profile',
     path: '/settings/profile',
   },
+  api_token_create: {
+    label: 'API settings',
+    path: '/settings/api',
+  },
+  api_request: {
+    label: 'API settings',
+    path: '/settings/api',
+  },
 };
 
 const getExtensionIntroDestination = (

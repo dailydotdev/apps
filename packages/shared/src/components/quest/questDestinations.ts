@@ -68,6 +68,12 @@ export const getQuestDestination = (
       return { label: 'Feedback', path: '/settings/feedback' };
     case 'squad_join':
       return { label: 'Squads', path: '/squads/discover' };
+    case 'api_token_create':
+    case 'api_request':
+    case 'api_feed_fetch':
+    case 'api_bookmark':
+    case 'api_search':
+      return { label: 'API settings', path: '/settings/api' };
     default:
       return null;
   }
