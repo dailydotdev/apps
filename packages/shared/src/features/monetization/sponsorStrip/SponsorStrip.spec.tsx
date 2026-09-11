@@ -238,6 +238,31 @@ it('should log an impression per logo with its tier and slot', async () => {
   );
 });
 
+// The wire sends no dimensions, so every mark carries the stand-in ratio. A
+// masked wall mark needs a box computed from it — a mask paints whatever box it
+// gets — but the gold slot is an `<img>` with its own ratio, and handing it the
+// stand-in width letterboxes a wide lockup to two thirds of the height the row
+// reserves for the one slot somebody paid for.
+it('should let the gold mark take its own width', async () => {
+  renderStrip();
+  await settle();
+
+  // By alt text, not role: the slot also renders the ad server's pixel, which
+  // is an image too.
+  const gold = within(screen.getByTitle('gold')).getByAltText('gold');
+
+  expect(gold).toHaveStyle({ height: '20px', width: 'auto' });
+});
+
+it('should give a masked wall mark a box to paint into', async () => {
+  renderStrip();
+  await settle();
+
+  const wall = within(screen.getByTitle(PREMIUM[0])).getByLabelText(PREMIUM[0]);
+
+  expect(wall).toHaveStyle({ height: '17px', width: '60px' });
+});
+
 it('should open air time for every logo on the row', async () => {
   renderStrip();
   await settle();

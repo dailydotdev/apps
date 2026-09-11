@@ -17,9 +17,9 @@ interface SponsorLogoProps {
    */
   cap?: number;
   /**
-   * Draw the mark at exactly this height and let the width follow the ratio.
-   * The gold slot's shape is known and it is meant to dominate, so trading
-   * its height away for width the way the wall does only makes it smaller.
+   * Draw the mark at exactly this height and let the file's own ratio set the
+   * width. The gold slot is meant to dominate, so trading its height away for
+   * width the way the wall does only makes it smaller.
    */
   exactHeight?: number;
   /**
@@ -76,7 +76,17 @@ export const SponsorLogo = ({
 
   const size: CSSProperties = {
     height: `${height}px`,
-    width: `${Math.round(height * sponsor.ratio)}px`,
+    // A mask paints whatever box it is handed, and a boxed wall slot has to
+    // stay a predictable width, so both take the width the ratio implies. A
+    // bare `<img>` carries its own ratio, and with no dimensions on the wire
+    // the file beats the stand-in: the gold slot is sized by height and lets
+    // the width follow, which is what the slot was sold as. Handing it the
+    // stand-in width instead would letterbox a wide lockup down to two thirds
+    // of the height the row reserves for it.
+    width:
+      monochrome || boxWidth
+        ? `${Math.round(height * sponsor.ratio)}px`
+        : 'auto',
   };
 
   return (
