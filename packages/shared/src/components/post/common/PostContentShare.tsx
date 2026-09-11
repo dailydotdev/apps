@@ -80,6 +80,8 @@ export function PostContentShare({
       // shortens at press time and falls back to the tracked URL.
       link={post.commentsPermalink}
       onShare={onShare}
+      origin={Origin.PostContent}
+      post={post}
       text={post.title ?? post.sharedPost?.title ?? ''}
       title="Should anyone else see this post?"
     />

@@ -12,6 +12,7 @@ import { ShareActions } from './ShareActions';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { ShareProvider } from '../../lib/share';
 import { useViewSize } from '../../hooks/useViewSize';
+import { postWithCommunitySentiment as sharedPost } from '../../../__tests__/fixture/post';
 
 jest.mock('../../hooks/useViewSize', () => {
   const actual = jest.requireActual('../../hooks/useViewSize');
@@ -50,6 +51,15 @@ describe('ShareActions inline variant', () => {
     expect(screen.getByText('Copy link')).toBeInTheDocument();
     expect(screen.getByText('X')).toBeInTheDocument();
     expect(screen.getByText('WhatsApp')).toBeInTheDocument();
+  });
+
+  it('offers Slack only when there is a post to share', () => {
+    const { unmount } = renderComponent({ variant: 'inline' });
+    expect(screen.queryByText('Slack')).not.toBeInTheDocument();
+    unmount();
+
+    renderComponent({ variant: 'inline', post: sharedPost });
+    expect(screen.getByText('Slack')).toBeInTheDocument();
   });
 
   it('copies the link and reports the CopyLink provider', async () => {
