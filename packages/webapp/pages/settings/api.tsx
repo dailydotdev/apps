@@ -6,9 +6,8 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { ApiError, getApiError } from '@dailydotdev/shared/src/graphql/common';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { plusApiCta, plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   usePersonalAccessTokens,
@@ -253,9 +252,9 @@ const CreateTokenModal = ({
       setName('');
       setExpiration('');
     } catch (err) {
+      const [apiError] = (err as ApiErrorResult)?.response?.errors ?? [];
       displayToast(
-        getApiError(err as ApiErrorResult, ApiError.Forbidden)?.message ??
-          'Failed to create token. Please try again.',
+        apiError?.message ?? 'Failed to create token. Please try again.',
       );
     }
   };
@@ -522,7 +521,7 @@ const ApiAccessPage = (): ReactElement => {
         {!isPlus && (
           <div className="plus-entry-gradient flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4">
             <Typography type={TypographyType.Body} bold>
-              Full API access and higher rate limits
+              {plusApiCta}
             </Typography>
             <Typography
               type={TypographyType.Callout}

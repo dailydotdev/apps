@@ -15,7 +15,12 @@ import {
 } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
-import { plusUrl, settingsUrl, webappUrl } from '../../../lib/constants';
+import {
+  plusApiCta,
+  plusUrl,
+  settingsUrl,
+  webappUrl,
+} from '../../../lib/constants';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
@@ -93,7 +98,7 @@ export const ProfilePanelSection = ({
         // Non-Plus only: a purple upgrade CTA for the higher API rate limits
         // Plus carries. Plus users already have them, so it's hidden for them.
         !isPlus && {
-          title: 'Full API access and higher rate limits',
+          title: plusApiCta,
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,

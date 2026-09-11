@@ -16,7 +16,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons';
-import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { plusApiCta, plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -153,7 +153,7 @@ const AskPage = (): ReactElement => {
           {!isPlus && (
             <div className="plus-entry-gradient flex w-full flex-col items-center gap-3 overflow-hidden rounded-16 p-6">
               <Typography type={TypographyType.Title3} bold center>
-                Full API access and higher rate limits
+                {plusApiCta}
               </Typography>
               <Typography
                 type={TypographyType.Callout}
