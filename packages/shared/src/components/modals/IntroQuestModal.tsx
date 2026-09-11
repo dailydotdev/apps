@@ -57,7 +57,7 @@ const introDestinationByEventType: Record<string, QuestDestination> = {
     label: 'API settings',
     path: '/settings/api',
   },
-  api_request: {
+  api_profile_fetch: {
     label: 'API settings',
     path: '/settings/api',
   },

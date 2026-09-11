@@ -69,7 +69,7 @@ export const getQuestDestination = (
     case 'squad_join':
       return { label: 'Squads', path: '/squads/discover' };
     case 'api_token_create':
-    case 'api_request':
+    case 'api_profile_fetch':
     case 'api_feed_fetch':
     case 'api_bookmark':
     case 'api_search':
