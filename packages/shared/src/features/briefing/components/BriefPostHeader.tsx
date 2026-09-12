@@ -26,12 +26,14 @@ export const BriefPostHeader = ({
     <div className="flex flex-col gap-1">
       <div className="flex min-w-full items-center justify-between gap-2">
         <Typography
+          className="min-w-0"
           color={TypographyColor.Secondary}
           type={TypographyType.Callout}
+          truncate
         >
           {kicker}
         </Typography>
-        {children && <div>{children}</div>}
+        {children && <div className="shrink-0">{children}</div>}
       </div>
       <Typography type={TypographyType.LargeTitle} bold>
         {heading}

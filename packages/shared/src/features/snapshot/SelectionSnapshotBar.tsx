@@ -56,9 +56,12 @@ const position = (selection: TextSelection) => {
 export function SelectionSnapshotBar({
   post,
   containerRef,
+  origin = Origin.TextSelection,
 }: {
   post: Post;
   containerRef: RefObject<HTMLElement>;
+  /** Which surface the bar is on, for its share events. */
+  origin?: Origin;
 }): ReactElement | null {
   const barRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -75,7 +78,7 @@ export function SelectionSnapshotBar({
       postLogEvent(LogEvent.SharePost, post, {
         extra: {
           provider: ShareProvider.CopyLink,
-          origin: Origin.TextSelection,
+          origin,
         },
       }),
     );
@@ -86,21 +89,21 @@ export function SelectionSnapshotBar({
       shorten: true,
       cid: ReferralCampaignKey.SharePost,
     });
-  }, [copyLink, logEvent, post]);
+  }, [copyLink, logEvent, origin, post]);
 
   const onCopyText = useCallback(() => {
     logEvent(
       postLogEvent(LogEvent.SharePost, post, {
         extra: {
           provider: ShareProvider.CopyText,
-          origin: Origin.TextSelection,
+          origin,
         },
       }),
     );
     copyText({ message: '✅ Copied text' });
-  }, [copyText, logEvent, post]);
+  }, [copyText, logEvent, origin, post]);
 
-  const logSnapshot = useLogSnapshot(post, Origin.TextSelection);
+  const logSnapshot = useLogSnapshot(post, origin);
 
   useEffect(() => {
     if (selection) {

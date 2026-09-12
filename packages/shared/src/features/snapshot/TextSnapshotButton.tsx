@@ -37,6 +37,7 @@ export function TextSnapshotButton({
   showLabel = false,
   size = ButtonSize.XSmall,
   variant,
+  ariaLabel,
 }: {
   post: Post;
   text: string;
@@ -48,6 +49,7 @@ export function TextSnapshotButton({
   showLabel?: boolean;
   size?: ButtonSize;
   variant?: ButtonVariant;
+  ariaLabel?: string;
 }): ReactElement {
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
@@ -59,6 +61,7 @@ export function TextSnapshotButton({
           wrapping is cheaper than widening its props for one caller. */}
       <span className="contents" {...armProps}>
         <SnapshotButton
+          ariaLabel={ariaLabel}
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           className={className}
           filename={filename}
