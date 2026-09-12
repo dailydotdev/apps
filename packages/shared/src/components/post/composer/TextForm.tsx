@@ -136,7 +136,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
     );
 
     return (
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-3 pt-2">
           <textarea
             ref={titleRef}
