@@ -172,7 +172,7 @@ const PLACEMENTS: Placement[] = [
           name: `achievement-${index}`,
           image,
         }))}
-        points={1240}
+        xp={1240}
         seed="achievements"
         total={60}
         unlocked={18}

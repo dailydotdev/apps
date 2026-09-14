@@ -137,3 +137,32 @@ it('should show different empty screen when visiting your profile', async () => 
   const el = await screen.findByText('New post');
   expect(el).toBeInTheDocument();
 });
+
+it('should not offer the owner a new post CTA in preview mode', async () => {
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/[userId]/posts',
+        query: { userId: 'dailydotdev', preview: 'true' },
+        isFallback: false,
+      } as unknown as NextRouter),
+  );
+  renderComponent(
+    [
+      createFeedMock({
+        pageInfo: {
+          hasNextPage: true,
+          endCursor: '',
+        },
+        edges: [],
+      }),
+    ],
+    {},
+    defaultProfile as unknown as LoggedUser,
+  );
+  await waitForNock();
+  expect(
+    await screen.findByText("Daily Dev hasn't posted yet"),
+  ).toBeInTheDocument();
+  expect(screen.queryByText('New post')).not.toBeInTheDocument();
+});
