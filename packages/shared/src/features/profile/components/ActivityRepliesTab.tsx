@@ -136,6 +136,7 @@ export const ActivityRepliesTab = ({
             user?.username,
             user?.id,
             activityTabs[ActivityTabIndex.Replies].path,
+            isPreviewMode,
           )}
           passHref
         >
