@@ -7,7 +7,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyLink } from '../../hooks/useCopy';
 import type { PostHighlight } from '../../graphql/highlights';
 import type { Origin } from '../../lib/log';
-import { getHighlightsShareUrl } from '../../lib/links';
+import { getAbsoluteWebappUrl } from '../../lib/links';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import { useLogHighlightShare } from '../../features/snapshot/useLogHighlightShare';
@@ -48,7 +48,7 @@ export function CopyHighlightsLink({
                   cid: ReferralCampaignKey.SharePost,
                 }
               : {
-                  link: getHighlightsShareUrl(),
+                  link: getAbsoluteWebappUrl('highlights'),
                   shorten: true,
                   cid: ReferralCampaignKey.ShareHighlights,
                 },
