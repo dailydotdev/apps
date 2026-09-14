@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges/TopReaderBadgeCompact';
 import {
   Typography,
   TypographyColor,
@@ -20,6 +19,44 @@ import {
 } from '@dailydotdev/shared/src/components/profile/devcard';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
+
+// Story-local compact badge card; production has no equivalent component.
+const CompactBadge = ({
+  issuedAt,
+  keyword,
+}: {
+  issuedAt: Date;
+  keyword: { value: string; flags?: { title?: string } };
+}) => (
+  <div className="flex w-max min-w-36 flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-center">
+    <Typography type={TypographyType.Callout} bold>
+      Top reader
+    </Typography>
+    <Typography
+      tag={TypographyTag.Time}
+      type={TypographyType.Subhead}
+      color={TypographyColor.Tertiary}
+      dateTime={issuedAt.toISOString()}
+    >
+      {issuedAt.toLocaleDateString('en-US', {
+        month: 'short',
+        year: 'numeric',
+      })}
+    </Typography>
+    <div
+      className="mt-1 rounded-8 px-3 py-1"
+      style={{ backgroundImage: themeToLinearGradient[DevCardTheme.Gold] }}
+    >
+      <Typography
+        type={TypographyType.Subhead}
+        bold
+        className="whitespace-nowrap text-black"
+      >
+        {keyword.flags?.title || keyword.value}
+      </Typography>
+    </div>
+  </div>
+);
 
 const badges = [
   {
@@ -71,7 +108,9 @@ const Counts = () => (
       label="Topics mastered"
       value={badges.length}
       info="Topics you have held a top reader badge in."
-      icon={<MedalBadgeIcon size={IconSize.Small} className="text-text-tertiary" />}
+      icon={
+        <MedalBadgeIcon size={IconSize.Small} className="text-text-tertiary" />
+      }
       className={statTile}
     />
     <DataTile
@@ -91,7 +130,13 @@ const Header = ({ children }: { children?: React.ReactNode }) => (
   </div>
 );
 
-const Frame = ({ label, children }: { label: string; children: React.ReactNode }) => (
+const Frame = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
   <section className="flex flex-col gap-4">
     <Typography
       type={TypographyType.Subhead}
@@ -132,8 +177,7 @@ const SplitHolder = () => (
                 <span
                   className="rounded-8 px-2 py-0.5"
                   style={{
-                    backgroundImage:
-                      themeToLinearGradient[DevCardTheme.Gold],
+                    backgroundImage: themeToLinearGradient[DevCardTheme.Gold],
                   }}
                 >
                   <Typography
@@ -183,10 +227,7 @@ const UnifiedWall = () => (
                   backgroundImage: themeToLinearGradient[DevCardTheme.Gold],
                 }}
               >
-                <MedalBadgeIcon
-                  size={IconSize.Medium}
-                  className="text-black"
-                />
+                <MedalBadgeIcon size={IconSize.Medium} className="text-black" />
               </span>
               <Typography
                 type={TypographyType.Subhead}
@@ -271,7 +312,7 @@ const TabbedCase = () => {
               <div className="flex w-max gap-4">
                 {badges.map((badge) => (
                   <div key={badge.keyword.value} className="shrink-0">
-                    <TopReaderBadgeCompact
+                    <CompactBadge
                       issuedAt={badge.issuedAt}
                       keyword={badge.keyword}
                     />

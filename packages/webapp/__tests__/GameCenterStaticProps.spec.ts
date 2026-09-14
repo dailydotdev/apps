@@ -7,7 +7,7 @@ import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/L
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
-  MOST_ACHIEVEMENT_POINTS_QUERY,
+  HIGHEST_LEVEL_QUERY,
   MOST_QUESTS_COMPLETED_QUERY,
   QUEST_COMPLETION_STATS_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
@@ -42,9 +42,6 @@ jest.mock('@tanstack/react-query', () => {
   return {
     ...actual,
     useQuery: jest.fn(),
-    // The offer cards mutate on mount, and these tests render without a
-    // QueryClientProvider.
-    useMutation: jest.fn(() => ({ mutate: jest.fn(), isPending: false })),
   };
 });
 
@@ -131,7 +128,7 @@ const mockUseRouter = useRouter as jest.Mock;
 const mockPush = jest.fn();
 const scrollIntoView = jest.fn();
 
-const highestReputation = [
+const highestLevel = [
   {
     score: 1200,
     user: {
@@ -180,8 +177,10 @@ describe('game center static props', () => {
 
   it('should include quest completion stats when the schema supports them', async () => {
     mockRequest.mockImplementation((query: string) => {
-      if (query === MOST_ACHIEVEMENT_POINTS_QUERY) {
-        return Promise.resolve({ mostAchievementPoints: highestReputation });
+      if (query === HIGHEST_LEVEL_QUERY) {
+        return Promise.resolve({
+          highestLevel,
+        });
       }
 
       if (query === MOST_QUESTS_COMPLETED_QUERY) {
@@ -199,7 +198,7 @@ describe('game center static props', () => {
 
     expect(result).toMatchObject({
       props: {
-        highestReputation,
+        highestLevel,
         mostQuestsCompleted,
         questCompletionStats,
       },
@@ -208,8 +207,10 @@ describe('game center static props', () => {
 
   it('should keep leaderboards when quest completion stats are not yet in the schema', async () => {
     mockRequest.mockImplementation((query: string) => {
-      if (query === MOST_ACHIEVEMENT_POINTS_QUERY) {
-        return Promise.resolve({ mostAchievementPoints: highestReputation });
+      if (query === HIGHEST_LEVEL_QUERY) {
+        return Promise.resolve({
+          highestLevel,
+        });
       }
 
       if (query === MOST_QUESTS_COMPLETED_QUERY) {
@@ -231,7 +232,7 @@ describe('game center static props', () => {
 
     expect(result).toMatchObject({
       props: {
-        highestReputation,
+        highestLevel,
         mostQuestsCompleted,
         questCompletionStats: null,
       },
@@ -331,7 +332,7 @@ describe('game center client gating', () => {
 
     render(
       React.createElement(GameCenterPage, {
-        highestReputation: [],
+        highestLevel: [],
         mostQuestsCompleted: [],
         questCompletionStats: null,
       }),
@@ -398,7 +399,7 @@ describe('game center client gating', () => {
 
     render(
       React.createElement(GameCenterPage, {
-        highestReputation: [],
+        highestLevel: [],
         mostQuestsCompleted: [],
         questCompletionStats: null,
       }),
@@ -471,7 +472,7 @@ describe('game center client gating', () => {
 
     render(
       React.createElement(GameCenterPage, {
-        highestReputation: [],
+        highestLevel: [],
         mostQuestsCompleted: [],
         questCompletionStats: null,
       }),
@@ -537,7 +538,7 @@ describe('game center client gating', () => {
 
     render(
       React.createElement(GameCenterPage, {
-        highestReputation: [],
+        highestLevel: [],
         mostQuestsCompleted: [],
         questCompletionStats: null,
       }),

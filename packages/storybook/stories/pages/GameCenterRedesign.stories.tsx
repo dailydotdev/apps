@@ -2,7 +2,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
-import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges/TopReaderBadgeCompact';
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
 import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
 import { AchievementType } from '@dailydotdev/shared/src/graphql/user/achievements';
@@ -377,7 +376,13 @@ const awards: AwardWithRarity[] = [
     value: 400,
   },
   { id: 'cash', name: 'Cash', image: awardArt('Cash'), count: 9, value: 250 },
-  { id: 'pizza', name: 'Pizza', image: awardArt('Pizza'), count: 14, value: 150 },
+  {
+    id: 'pizza',
+    name: 'Pizza',
+    image: awardArt('Pizza'),
+    count: 14,
+    value: 150,
+  },
   {
     id: 'hotdog',
     name: 'Hotdog',
@@ -395,7 +400,9 @@ const awards: AwardWithRarity[] = [
   },
 ].map((award) => ({ ...award, imageGlow: null })) as AwardWithRarity[];
 
-const awardsByCount = [...awards].sort((left, right) => right.count - left.count);
+const awardsByCount = [...awards].sort(
+  (left, right) => right.count - left.count,
+);
 
 // Live rows from the two leaderboards, so the magnitudes are real:
 // achievement points sit in the hundreds, not the tens of thousands.
@@ -473,18 +480,6 @@ const board = (byQuests: boolean) =>
     }),
   ) as never;
 
-// PLACEHOLDER, matching the page: no leaderboard exists for badge counts.
-const topReaderBoard = [
-  ['Ole-Martin', 'ombratteng', 24],
-  ['Bobby Iliev', 'bobbyiliev', 19],
-  ['Ante Baric', 'capjavert', 17],
-  ['Jay', 'finallyjay', 15],
-  ['Keith Solomon', 'ksolomon', 12],
-].map(([name, username, score], i) => ({
-  score,
-  user: { id: `t${i.toString()}`, name, username, image: '' },
-})) as never;
-
 const communityStats = {
   totalCount: 90000,
   allTimeLeader: {
@@ -501,23 +496,22 @@ const communityStats = {
   },
 };
 
-
 const GameCenterRedesign = () => (
   <div className="pointer-default mx-auto flex w-full max-w-[72rem] flex-col gap-6 p-4 pb-10">
     <section className="-mx-4 -mt-4 flex flex-col">
-        <LevelHud
-          name="Tomer"
-          level={14}
-          levelProgress={70}
-          totalXp={3420}
-          xpInLevel={1400}
-          xpToNextLevel={600}
-          currentStreak={12}
-          longestStreak={28}
-          badges={4}
-          achievements={{ unlocked: 9, total: 24 }}
-          isPending={false}
-        />
+      <LevelHud
+        name="Tomer"
+        level={14}
+        levelProgress={70}
+        totalXp={3420}
+        xpInLevel={1400}
+        xpToNextLevel={600}
+        currentStreak={12}
+        longestStreak={28}
+        badges={4}
+        achievements={{ unlocked: 9, total: 24 }}
+        isPending={false}
+      />
     </section>
 
     <section className="flex flex-col gap-4">
@@ -526,12 +520,8 @@ const GameCenterRedesign = () => (
         quests={milestoneQuests}
         showLevelSystem
         onClaim={() => undefined}
-      
       />
     </section>
-
-
-
 
     <section className="flex flex-col gap-4">
       <SectionHeader title="Achievement shelf" />
@@ -548,7 +538,6 @@ const GameCenterRedesign = () => (
         ))}
       </div>
     </section>
-
 
     <section className="flex flex-col gap-4">
       <SectionHeader title="Badges & Awards" />
@@ -589,9 +578,8 @@ const GameCenterRedesign = () => (
       <SectionHeader title="Community pulse" />
       <CommunityPulse
         stats={communityStats}
-        highestReputation={board(false)}
+        highestLevel={board(false)}
         mostQuestsCompleted={board(true)}
-        mostTopics={topReaderBoard}
       />
     </section>
   </div>

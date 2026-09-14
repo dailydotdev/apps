@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
-  MOST_ACHIEVEMENT_POINTS_QUERY,
+  HIGHEST_LEVEL_QUERY,
   MOST_QUESTS_COMPLETED_QUERY,
   QUEST_COMPLETION_STATS_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
@@ -83,7 +83,7 @@ import {
 } from '../../lib/gameCenter';
 
 type GameCenterPageProps = {
-  highestReputation: UserLeaderboard[];
+  highestLevel: UserLeaderboard[];
   mostQuestsCompleted: UserLeaderboard[];
   questCompletionStats: QuestCompletionStats | null;
 };
@@ -92,22 +92,6 @@ type SectionProps = {
   title: string;
   action?: ReactElement;
 };
-
-// PLACEHOLDER. No leaderboard exists for top reader badge counts, so these
-// rows are invented. Do not ship: wire a real query or drop the column.
-const placeholderTopReaderBoard: UserLeaderboard[] = [
-  { score: 24, user: { id: 't1', name: 'Ole-Martin', username: 'ombratteng' } },
-  {
-    score: 19,
-    user: { id: 't2', name: 'Bobby Iliev', username: 'bobbyiliev' },
-  },
-  { score: 17, user: { id: 't3', name: 'Ante Baric', username: 'capjavert' } },
-  { score: 15, user: { id: 't4', name: 'Jay', username: 'finallyjay' } },
-  {
-    score: 12,
-    user: { id: 't5', name: 'Keith Solomon', username: 'ksolomon' },
-  },
-] as UserLeaderboard[];
 
 const leaderboardLimit = 5;
 
@@ -169,7 +153,7 @@ const seo: NextSeoProps = {
 };
 
 function GameCenterPage({
-  highestReputation,
+  highestLevel,
   mostQuestsCompleted,
   questCompletionStats,
 }: GameCenterPageProps): ReactElement {
@@ -289,7 +273,7 @@ function GameCenterPage({
   const firstName = user?.name ? getFirstName(user.name) : 'there';
   const { shelfAchievements } = achievementSummary;
   const hasCommunityLeaderboards =
-    highestReputation.length > 0 || mostQuestsCompleted.length > 0;
+    highestLevel.length > 0 || mostQuestsCompleted.length > 0;
   const milestoneHash = `#${gameCenterMilestoneSectionId}`;
 
   const handleMilestoneClaim = useCallback(
@@ -625,9 +609,8 @@ function GameCenterPage({
             {hasCommunityLeaderboards || questCompletionStats ? (
               <CommunityPulse
                 stats={questCompletionStats}
-                highestReputation={highestReputation}
+                highestLevel={highestLevel}
                 mostQuestsCompleted={mostQuestsCompleted}
-                mostTopics={placeholderTopReaderBoard}
                 viewerId={user?.id}
               />
             ) : (
@@ -655,10 +638,10 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<GameCenterPageProps>
 > {
   try {
-    const [highestReputationRes, mostQuestsCompletedRes] = await Promise.all([
+    const [highestLevelRes, mostQuestsCompletedRes] = await Promise.all([
       gqlClient.request<{
-        mostAchievementPoints: UserLeaderboard[];
-      }>(MOST_ACHIEVEMENT_POINTS_QUERY, { limit: leaderboardLimit }),
+        highestLevel: UserLeaderboard[];
+      }>(HIGHEST_LEVEL_QUERY, { limit: leaderboardLimit }),
       gqlClient.request<{
         mostQuestsCompleted: UserLeaderboard[];
       }>(MOST_QUESTS_COMPLETED_QUERY, { limit: leaderboardLimit }),
@@ -681,7 +664,7 @@ export async function getStaticProps(): Promise<
 
     return {
       props: {
-        highestReputation: highestReputationRes.mostAchievementPoints ?? [],
+        highestLevel: highestLevelRes.highestLevel ?? [],
         mostQuestsCompleted: mostQuestsCompletedRes.mostQuestsCompleted ?? [],
         questCompletionStats,
       },
@@ -705,7 +688,7 @@ export async function getStaticProps(): Promise<
     ) {
       return {
         props: {
-          highestReputation: [],
+          highestLevel: [],
           mostQuestsCompleted: [],
           questCompletionStats: null,
         },
@@ -715,7 +698,7 @@ export async function getStaticProps(): Promise<
 
     return {
       props: {
-        highestReputation: [],
+        highestLevel: [],
         mostQuestsCompleted: [],
         questCompletionStats: null,
       },

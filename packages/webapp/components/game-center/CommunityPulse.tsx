@@ -96,38 +96,25 @@ const Race = ({ title, entries, viewerId }: RaceProps): ReactElement => {
 
 type CommunityPulseProps = {
   stats: QuestCompletionStats | null;
-  highestReputation: UserLeaderboard[];
+  highestLevel: UserLeaderboard[];
   mostQuestsCompleted: UserLeaderboard[];
-  mostTopics?: UserLeaderboard[];
   viewerId?: string;
 };
 
 export const CommunityPulse = ({
   stats,
-  highestReputation,
+  highestLevel,
   mostQuestsCompleted,
-  mostTopics,
   viewerId,
 }: CommunityPulseProps): ReactElement => (
   <div className="flex flex-col gap-2 rounded-20 border border-border-subtlest-tertiary p-2">
-    <div className="grid gap-2 tablet:grid-cols-3">
-      <Race
-        title="Achievement points"
-        entries={highestReputation}
-        viewerId={viewerId}
-      />
+    <div className="grid gap-2 tablet:grid-cols-2">
+      <Race title="Total XP" entries={highestLevel} viewerId={viewerId} />
       <Race
         title="Quests completed"
         entries={mostQuestsCompleted}
         viewerId={viewerId}
       />
-      {mostTopics && (
-        <Race
-          title="Top reader badges"
-          entries={mostTopics}
-          viewerId={viewerId}
-        />
-      )}
     </div>
 
     {stats && (

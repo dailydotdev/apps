@@ -522,14 +522,14 @@ const DesignThree = () => {
     tab === 'rep'
       ? compact(p.rep)
       : tab === 'quests'
-      ? `${p.quests}`
-      : `${Math.round(p.quests / 2)}d`;
+        ? `${p.quests}`
+        : `${Math.round(p.quests / 2)}d`;
   const viewerMetric =
     tab === 'rep'
       ? compact(VIEWER.rep)
       : tab === 'quests'
-      ? `${VIEWER.quests}`
-      : '31d';
+        ? `${VIEWER.quests}`
+        : '31d';
 
   return (
     <Frame
@@ -765,7 +765,7 @@ export const FourAsShipped: Story = {
             count: 534,
           },
         }}
-        highestReputation={
+        highestLevel={
           PEOPLE.map((p, i) => ({
             score: p.rep,
             user: { id: `r${i}`, ...p },
