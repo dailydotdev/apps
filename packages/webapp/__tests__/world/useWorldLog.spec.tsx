@@ -80,6 +80,47 @@ describe('useWorldLog', () => {
     );
   });
 
+  /* The real ordering for a browser with no WebGL: the engine constructor throws
+     in the mount commit, long before the districts query comes back, so the
+     failure is already standing when the view is finally logged. */
+  it('logs the outcome for a failure that lands before the world settles', async () => {
+    const pending = {
+      isSettled: false,
+      isReady: false,
+      failure: 'Error creating WebGL context.',
+      failureKind: 'unsupported' as const,
+    };
+    const { rerender } = renderWorldLog(pending);
+
+    await waitFor(() => expect(events()).toHaveLength(0));
+
+    rerender({ ...pending, isSettled: true });
+
+    await waitFor(() =>
+      expect(eventsByName(LogEvent.WorldBootFailed)).toHaveLength(1),
+    );
+    expect(eventsByName(LogEvent.WorldView)).toHaveLength(1);
+
+    const [failure] = eventsByName(LogEvent.WorldBootFailed);
+    expect(extraOf(failure)).toEqual(
+      expect.objectContaining({
+        kind: 'unsupported',
+        reason: 'Error creating WebGL context.',
+      }),
+    );
+  });
+
+  it('keeps a failure with no kind out of the engine bucket', async () => {
+    renderWorldLog({ failureKind: undefined });
+
+    await waitFor(() =>
+      expect(eventsByName(LogEvent.WorldBootFailed)).toHaveLength(1),
+    );
+
+    const [failure] = eventsByName(LogEvent.WorldBootFailed);
+    expect(extraOf(failure).kind).toEqual('unknown');
+  });
+
   it('fires the boot failure again after soft navigation to another world', async () => {
     const { rerender } = renderWorldLog();
     await waitFor(() =>

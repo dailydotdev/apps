@@ -123,9 +123,10 @@ const createEngine = (
     dispose: jest.fn(),
   } as unknown as WorldEngine);
 
-const renderWorld = () =>
-  render(
-    <QueryClientProvider client={new QueryClient()}>
+const renderWorld = (overrides: Partial<UserWorldResult> = {}) => {
+  const client = new QueryClient();
+  const tree = (next: Partial<UserWorldResult>) => (
+    <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={
           {
@@ -137,10 +138,21 @@ const renderWorld = () =>
           } as never
         }
       >
-        <WorldView user={owner} world={world} />
+        <WorldView user={owner} world={{ ...world, ...next }} />
       </AuthContext.Provider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+
+  const view = render(tree(overrides));
+
+  return {
+    ...view,
+    /* The districts coming back, on the component that is already mounted:
+       a fresh render would be a fresh boot, which is the ordering this file
+       exists to rule out. */
+    settle: (next: Partial<UserWorldResult> = {}) => view.rerender(tree(next)),
+  };
+};
 
 const events = () => mockLogEvent.mock.calls.map(([event]) => event);
 
@@ -192,6 +204,51 @@ describe('WorldView boot failures', () => {
     );
     expect(() => view.unmount()).not.toThrow();
     window.removeEventListener('error', onError);
+  });
+
+  /* The real ordering on a browser with no WebGL: the constructor throws in the
+     mount commit, while the districts query is still on the wire, so the failure
+     is standing before there is a view for it to resolve. */
+  it('reports the outcome when WebGL fails before the districts settle', async () => {
+    mockCreateEngine.mockImplementation(() => {
+      throw new Error('Error creating WebGL context.');
+    });
+    mockCanvasContext(jest.fn(() => null));
+
+    const view = renderWorld({ isPending: true, districts: undefined });
+
+    await screen.findByText(/This browser can't render 3D worlds/);
+    expect(events()).toHaveLength(0);
+
+    view.settle();
+
+    await waitFor(() =>
+      expect(eventsByName(LogEvent.WorldBootFailed)).toHaveLength(1),
+    );
+    expect(eventsByName(LogEvent.WorldView)).toHaveLength(1);
+    expect(extraOf(eventsByName(LogEvent.WorldBootFailed)[0])).toEqual(
+      expect.objectContaining({ kind: 'unsupported' }),
+    );
+  });
+
+  it('leaves nothing of a half-built engine in the mount node', async () => {
+    let mount: HTMLElement | null = null;
+    mockCreateEngine.mockImplementation(
+      (options: { container: HTMLElement }) => {
+        /* What the engine really does before it builds the renderer: its root and
+         an injected <style> are in the container by the time it throws. */
+        mount = options.container;
+        mount.appendChild(document.createElement('div'));
+        throw new Error('Error creating WebGL context.');
+      },
+    );
+    mockCanvasContext(jest.fn(() => null));
+
+    renderWorld();
+
+    await screen.findByText(/This browser can't render 3D worlds/);
+    expect(mount).not.toBeNull();
+    expect(mount!.childNodes).toHaveLength(0);
   });
 
   it('logs context-limit when WebGL exists but the engine context was refused', async () => {

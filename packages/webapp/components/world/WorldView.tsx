@@ -200,6 +200,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       }) as WorldEngine;
       engineRef.current = engine;
     } catch (bootError) {
+      /* `createWorldEngine` is not atomic: it appends its root (carrying an
+         injected <style>) to the container before it builds the renderer, so a
+         throw leaves that DOM behind with no engine to dispose it. React takes
+         it down with the host node on unmount, but StrictMode's double invoke
+         would stack a second copy under it first. */
+      mountRef.current?.replaceChildren();
       setFailed({
         reason: reasonForWorldBootFailure(bootError),
         kind: classifyWorldEngineCreationFailure(bootError),
@@ -244,6 +250,13 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     }
     setRaisedFor(user.id);
     setHasNoReplay(false);
+    /* Cleared with the rest of the per-reader boot state: a soft navigation
+       from one world to another keeps this component, and a failure left
+       standing would hand the second reader the first one's dead world. A
+       failure from engine CONSTRUCTION never reaches here — there is no engine
+       to raise anything with — and is meant to survive, because that one is the
+       page's rather than the world's. */
+    setFailed(null);
     engine.replaceAuthored([]);
 
     /* Building the model throws; raising the world rejects. Both have to land
