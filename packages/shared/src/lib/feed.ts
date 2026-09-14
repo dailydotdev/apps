@@ -185,8 +185,20 @@ interface FeedHighlightsLogEventOptions extends FeedItemPosition {
   ranking?: string;
   action?: string;
   count?: number;
-  clickedHighlight?: PostHighlight;
+  /** Only the fields this builder reads, so a caller need not hold a whole one. */
+  clickedHighlight?: Pick<PostHighlight, 'id' | 'headline'> & {
+    post: Pick<PostHighlight['post'], 'id' | 'commentsPermalink'>;
+  };
+  /**
+   * A clicked row that is a post rather than a highlight. Separate from
+   * `clickedHighlight` so `clicked_highlight_id` is never written with a post
+   * id: the sponsor-strip ticker carries both kinds, and one field holding two
+   * key spaces mis-joins downstream instead of failing loudly.
+   */
+  clickedPost?: { id: string; title: string; permalink: string };
   highlightIds?: string[];
+  /** Post ids from a row that carries posts; never merged into `highlightIds`. */
+  postIds?: string[];
   feedMeta?: string | null;
   position?: number;
   origin?: Origin;
@@ -203,20 +215,34 @@ export function feedHighlightsLogEvent(
     ranking,
     count,
     clickedHighlight,
+    clickedPost,
     highlightIds,
+    postIds,
     feedMeta,
     position,
     origin,
   }: FeedHighlightsLogEventOptions,
 ): FeedItemLogEvent {
+  const clicked = clickedHighlight
+    ? {
+        title: clickedHighlight.headline,
+        url: clickedHighlight.post.commentsPermalink,
+        postId: clickedHighlight.post.id,
+      }
+    : clickedPost && {
+        title: clickedPost.title,
+        url: clickedPost.permalink,
+        postId: clickedPost.id,
+      };
+
   return {
     event_name: eventName,
     feed_grid_columns: columns,
     feed_item_grid_column: column,
     feed_item_grid_row: row,
     feed_item_meta: feedMeta ?? undefined,
-    feed_item_target_url: clickedHighlight?.post.commentsPermalink,
-    feed_item_title: clickedHighlight?.headline,
+    feed_item_target_url: clicked?.url,
+    feed_item_title: clicked?.title,
     target_type: TargetType.HighlightsCard,
     extra: JSON.stringify({
       ...feedLogExtra(feedName, ranking, undefined, origin).extra,
@@ -224,12 +250,11 @@ export function feedHighlightsLogEvent(
       ...(typeof count === 'number' ? { count } : {}),
       ...(typeof position === 'number' ? { position } : {}),
       ...(highlightIds?.length ? { highlight_ids: highlightIds } : {}),
+      ...(postIds?.length ? { post_ids: postIds } : {}),
       ...(clickedHighlight
-        ? {
-            clicked_highlight_id: clickedHighlight.id,
-            post_id: clickedHighlight.post.id,
-          }
+        ? { clicked_highlight_id: clickedHighlight.id }
         : {}),
+      ...(clicked ? { post_id: clicked.postId } : {}),
     }),
   };
 }

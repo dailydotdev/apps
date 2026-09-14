@@ -96,8 +96,8 @@ const PAGES: React.ReactNode[][] = [
   ],
   [
     'Topic & directory pages',
-    '#6357 #6363 #6364 #6359',
-    'Tags, sources, squads, collections — sharing beside a primary CTA without competing with it',
+    '#6566',
+    'Shipped: the live tag, source, squad and best-of pages are the reference, so they have no mockup here',
   ],
   [
     'Invite & feed export',

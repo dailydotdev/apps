@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { AUTHOR_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import type { FeedProps } from '@dailydotdev/shared/src/components/Feed';
@@ -8,7 +8,7 @@ import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import { cloudinaryCharmNoPosts } from '@dailydotdev/shared/src/lib/image';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useProfilePreview } from '@dailydotdev/shared/src/hooks/profile/useProfilePreview';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
@@ -35,14 +35,13 @@ const ProfilePostsPage = ({
   user,
   noindex,
 }: ProfileLayoutProps): ReactElement | null => {
-  const { user: loggedUser } = useContext(AuthContext);
+  const { isOwner } = useProfilePreview(user);
   const { shouldUseListFeedLayout } = useFeedLayout();
 
   if (!user) {
     return null;
   }
 
-  const isSameUser = loggedUser?.id === user.id;
   const userId = user.id;
   const feedProps: FeedProps<unknown> = {
     feedName: OtherFeedPage.Author,
@@ -52,7 +51,7 @@ const ProfilePostsPage = ({
       userId,
     },
     disableAds: true,
-    emptyScreen: isSameUser ? (
+    emptyScreen: isOwner ? (
       <MyProfileEmptyScreen
         className="items-center px-4 py-6 text-center tablet:px-6"
         image={cloudinaryCharmNoPosts}

@@ -44,6 +44,8 @@ interface PageProps extends DynamicSeoProps {
   companyItems?: CompanyLeaderboard[];
 }
 
+const RETIRED_ACHIEVEMENT_POINTS_SLUG = 'mostAchievementPoints';
+
 const getLeaderboardLimit = (leaderboardType: LeaderboardType): number =>
   leaderboardType === LeaderboardType.MostQuestsCompleted
     ? MOST_QUESTS_COMPLETED_LIMIT
@@ -157,6 +159,17 @@ export async function getStaticProps({
   GetStaticPropsResult<PageProps>
 > {
   const { id } = params || {};
+
+  // Achievement points were folded into XP, so highest level is now the
+  // superset of this board. Bookmarks and shared links land here.
+  if (id === RETIRED_ACHIEVEMENT_POINTS_SLUG) {
+    return {
+      redirect: {
+        destination: `/users/${LeaderboardType.HighestLevel}`,
+        permanent: true,
+      },
+    };
+  }
 
   if (!id || !Object.values(LeaderboardType).includes(id as LeaderboardType)) {
     return {

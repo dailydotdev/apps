@@ -1,4 +1,4 @@
-import { getPathnameWithQuery, withHttps } from './links';
+import { getAbsoluteWebappUrl, getPathnameWithQuery, withHttps } from './links';
 
 describe('lib/links tests', () => {
   it('should return links as https links', () => {
@@ -49,5 +49,36 @@ describe('getPathnameWithQuery', () => {
   it('ignores whitespace-only existing query', () => {
     expect(getPathnameWithQuery('/foo? ', new URLSearchParams())).toBe('/foo');
     expect(getPathnameWithQuery('/foo?   ', 'a=1')).toBe('/foo?a=1');
+  });
+});
+
+describe('getAbsoluteWebappUrl', () => {
+  // The test setup mirrors the webapp, where `webappUrl` is a bare `/`.
+  it('resolves the path against the page origin', () => {
+    expect(getAbsoluteWebappUrl('tools/docker')).toBe(
+      `${globalThis.location.origin}/tools/docker`,
+    );
+  });
+
+  it('points at the home page without a path', () => {
+    expect(getAbsoluteWebappUrl()).toBe(`${globalThis.location.origin}/`);
+  });
+
+  it('leaves an absolute webappUrl, as on the extension, alone', () => {
+    const previous = process.env.NEXT_PUBLIC_WEBAPP_URL;
+    process.env.NEXT_PUBLIC_WEBAPP_URL = 'https://app.daily.dev/';
+
+    try {
+      jest.isolateModules(() => {
+        // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+        const links = require('./links');
+
+        expect(links.getAbsoluteWebappUrl('world/ido')).toBe(
+          'https://app.daily.dev/world/ido',
+        );
+      });
+    } finally {
+      process.env.NEXT_PUBLIC_WEBAPP_URL = previous;
+    }
   });
 });

@@ -51,6 +51,8 @@ import {
   FEED_SETTINGS_QUERY,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { TRACK_SHARED_POST_CLICK_MUTATION } from '@dailydotdev/shared/src/graphql/quests';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
@@ -376,6 +378,46 @@ it('should format read time when available', async () => {
   renderPost();
   const el = await screen.findByTestId('readTime');
   expect(el).toHaveTextContent('8m read time');
+});
+
+it('should track attributed shared post clicks', async () => {
+  const onTrack = jest.fn();
+  const shareUserId = 'share-user';
+
+  mockRouter({
+    query: {
+      cid: ReferralCampaignKey.SharePost,
+      userid: shareUserId,
+    },
+  });
+
+  renderPost({}, [
+    createPostMock(),
+    createCommentsMock(),
+    {
+      request: {
+        query: TRACK_SHARED_POST_CLICK_MUTATION,
+        variables: {
+          referringUserId: shareUserId,
+          postId: defaultPost.id,
+          campaign: ReferralCampaignKey.SharePost,
+        },
+      },
+      result: () => {
+        onTrack();
+
+        return {
+          data: {
+            trackSharedPostClick: { _: true },
+          },
+        };
+      },
+    },
+  ]);
+
+  await waitFor(() => {
+    expect(onTrack).toHaveBeenCalledTimes(1);
+  });
 });
 
 it('should hide read time when not available', async () => {

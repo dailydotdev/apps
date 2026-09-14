@@ -24,6 +24,7 @@ import { HorizontalFeedWithContext } from './HorizontalFeedWithContext';
 export const ActivityUpvotedTab = ({
   userId,
   isSameUser,
+  isPreviewMode,
   userName,
   user,
   selectedTab,
@@ -31,6 +32,7 @@ export const ActivityUpvotedTab = ({
 }: {
   userId: string;
   isSameUser: boolean;
+  isPreviewMode: boolean;
   userName: string;
   user: PublicProfile;
   selectedTab: string;
@@ -82,6 +84,7 @@ export const ActivityUpvotedTab = ({
             user?.username,
             user?.id,
             activityTabs[ActivityTabIndex.Upvoted].path,
+            isPreviewMode,
           )}
           passHref
         >
