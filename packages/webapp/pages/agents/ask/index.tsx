@@ -16,7 +16,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons';
-import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { plusApiCta, plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -153,15 +153,15 @@ const AskPage = (): ReactElement => {
           {!isPlus && (
             <div className="plus-entry-gradient flex w-full flex-col items-center gap-3 overflow-hidden rounded-16 p-6">
               <Typography type={TypographyType.Title3} bold center>
-                Unlock daily-dev-ask with Plus
+                {plusApiCta}
               </Typography>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Secondary}
                 center
               >
-                daily-dev-ask requires a Plus subscription. Upgrade to get API
-                access and connect your AI tools.
+                daily-dev-ask works on any account. Plus raises your request
+                limits and unlocks the Plus-only endpoints.
               </Typography>
               <Button
                 tag="a"

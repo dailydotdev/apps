@@ -15,7 +15,12 @@ import {
 } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
-import { plusUrl, settingsUrl, webappUrl } from '../../../lib/constants';
+import {
+  plusApiCta,
+  plusUrl,
+  settingsUrl,
+  webappUrl,
+} from '../../../lib/constants';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
@@ -90,10 +95,10 @@ export const ProfilePanelSection = ({
             <ListIcon Icon={() => <FilterIcon secondary={active} />} />
           ),
         },
-        // Non-Plus only: a purple "Get API Access" upgrade CTA (API access is a
-        // Plus perk). Plus users already have it, so it's hidden for them.
+        // Non-Plus only: a purple upgrade CTA for the higher API rate limits
+        // Plus carries. Plus users already have them, so it's hidden for them.
         !isPlus && {
-          title: 'Get API Access',
+          title: plusApiCta,
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
