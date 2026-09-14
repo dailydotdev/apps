@@ -4,15 +4,23 @@ import { QueryClient } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
 import loggedUser from '../../__tests__/fixture/loggedUser';
+import { isIOS } from '../lib/func';
 import { LogEvent, Origin } from '../lib/log';
 import { ReferralCampaignKey } from '../lib/referral';
 import { ShareProvider } from '../lib/share';
 import { HOLD_GESTURE, useHoldToShare } from './useHoldToShare';
 
+jest.mock('../lib/func', () => ({
+  ...jest.requireActual('../lib/func'),
+  isIOS: jest.fn(() => false),
+}));
+
+const mockIsIOS = isIOS as jest.Mock;
 const writeText = jest.fn().mockResolvedValue(undefined);
 const logEvent = jest.fn();
 const onRowLinkClick = jest.fn();
 const link = 'https://app.daily.dev/squads/webdev';
+const HOLD_MS = 350;
 
 const Row = (): ReactElement => {
   const { isHeld, holdProps } = useHoldToShare({
@@ -62,6 +70,7 @@ const renderRow = () =>
 beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
+  mockIsIOS.mockReturnValue(false);
   Object.assign(navigator, { clipboard: { writeText } });
 });
 
@@ -69,20 +78,16 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-it('shares the tracked link when the finger lifts after a hold, and swallows the click', () => {
+it('shares the tracked link while the finger is still down, and swallows the click', () => {
   renderRow();
   const row = screen.getByTestId('row');
 
   fireEvent(row, touch('touchstart'));
   act(() => {
-    jest.advanceTimersByTime(500);
+    jest.advanceTimersByTime(HOLD_MS);
   });
 
   expect(row).toHaveAttribute('data-held', 'true');
-  expect(writeText).not.toHaveBeenCalled();
-
-  fireEvent(row, touch('touchend'));
-
   expect(writeText).toHaveBeenCalledWith(
     `${link}?userid=${loggedUser.id}&cid=share_source`,
   );
@@ -95,6 +100,10 @@ it('shares the tracked link when the finger lifts after a hold, and swallows the
       gesture: HOLD_GESTURE,
     }),
   });
+
+  fireEvent(row, touch('touchend'));
+
+  expect(writeText).toHaveBeenCalledTimes(1);
   expect(row).toHaveAttribute('data-held', 'false');
 
   fireEvent.click(screen.getByRole('link'));
@@ -103,6 +112,26 @@ it('shares the tracked link when the finger lifts after a hold, and swallows the
   // Only the click the hold produced is swallowed.
   fireEvent.click(screen.getByRole('link'));
   expect(onRowLinkClick).toHaveBeenCalledTimes(1);
+});
+
+it('on iOS shares when the finger lifts, where the gesture still counts', () => {
+  mockIsIOS.mockReturnValue(true);
+  renderRow();
+  const row = screen.getByTestId('row');
+
+  fireEvent(row, touch('touchstart'));
+  act(() => {
+    jest.advanceTimersByTime(HOLD_MS);
+  });
+
+  expect(row).toHaveAttribute('data-held', 'true');
+  expect(writeText).not.toHaveBeenCalled();
+
+  fireEvent(row, touch('touchend'));
+
+  expect(writeText).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole('link'));
+  expect(onRowLinkClick).not.toHaveBeenCalled();
 });
 
 it('leaves a tap alone', () => {
@@ -127,7 +156,7 @@ it('lets a scroll through', () => {
   fireEvent(row, touch('touchstart'));
   fireEvent(row, touch('touchmove', 0, 40));
   act(() => {
-    jest.advanceTimersByTime(500);
+    jest.advanceTimersByTime(HOLD_MS);
   });
   fireEvent(row, touch('touchend'));
 
@@ -141,7 +170,7 @@ it('does not share from a hold on a button inside the row', () => {
 
   fireEvent(button, touch('touchstart'));
   act(() => {
-    jest.advanceTimersByTime(500);
+    jest.advanceTimersByTime(HOLD_MS);
   });
   fireEvent(button, touch('touchend'));
 

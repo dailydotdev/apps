@@ -1,10 +1,16 @@
 import type { HTMLAttributes, MouseEvent, TouchEvent } from 'react';
 import { useCallback, useRef, useState } from 'react';
+import { isIOS } from '../lib/func';
 import type { Origin } from '../lib/log';
 import type { UseShareOrCopyLinkProps } from './useShareOrCopyLink';
 import { useShareOrCopyLink } from './useShareOrCopyLink';
 import { useTouchLongPress } from './useTouchLongPress';
 
+/**
+ * Under the platforms' own long-press thresholds (Android 400ms, iOS 500ms),
+ * so the hold registers before the browser's link menu would.
+ */
+const HOLD_DELAY_MS = 350;
 /** Long enough to register on the hand, short enough not to read as an error. */
 const HOLD_VIBRATION_MS = 15;
 
@@ -35,9 +41,10 @@ interface UseHoldToShareResult {
 
 /**
  * Hold a row or card to share its link, for touch screens where a hover-only
- * copy control has nothing to reveal it. The share runs when the finger lifts,
- * not when the hold registers: Safari refuses clipboard and share calls from a
- * timer, and touchend is still the user's gesture.
+ * copy control has nothing to reveal it. The share opens while the finger is
+ * still down, as a native long press would. On iOS it waits for the finger to
+ * lift: Safari refuses clipboard and share calls from a timer, and touchend is
+ * still the user's gesture.
  *
  * The hold takes over from the browser's own hold-a-link sheet, so the element
  * also needs `touch-callout-none`, and its context menu is cancelled while a
@@ -50,6 +57,7 @@ export function useHoldToShare({
   const [isHeld, setIsHeld] = useState(false);
   const pressingRef = useRef(false);
   const heldRef = useRef(false);
+  const sharedRef = useRef(false);
   const suppressClickRef = useRef(false);
   const [, share] = useShareOrCopyLink({
     ...shareProps,
@@ -63,18 +71,29 @@ export function useHoldToShare({
     heldRef.current = true;
     setIsHeld(true);
     globalThis.navigator?.vibrate?.(HOLD_VIBRATION_MS);
-  }, []);
+
+    if (!isIOS()) {
+      sharedRef.current = true;
+      suppressClickRef.current = true;
+      share();
+    }
+  }, [share]);
 
   const {
     onTouchStart: startLongPress,
     onTouchMove,
     onTouchEnd: endLongPress,
     onTouchCancel: cancelLongPress,
-  } = useTouchLongPress<undefined>({ enabled: true, onLongPress });
+  } = useTouchLongPress<undefined>({
+    enabled: true,
+    delayMs: HOLD_DELAY_MS,
+    onLongPress,
+  });
 
   const release = useCallback(() => {
     pressingRef.current = false;
     heldRef.current = false;
+    sharedRef.current = false;
     setIsHeld(false);
   }, []);
 
@@ -105,7 +124,10 @@ export function useHoldToShare({
         // hold does not also open the row's link.
         event.preventDefault();
         suppressClickRef.current = true;
-        share();
+
+        if (!sharedRef.current) {
+          share();
+        }
       }
 
       release();
