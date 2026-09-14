@@ -9,8 +9,8 @@ import { Image, ImageType } from '../../image/Image';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import type { UnFeaturedSquadCardProps } from './common/types';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { LogEvent, Origin } from '../../../lib/log';
-import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { Origin } from '../../../lib/log';
+import { ButtonVariant } from '../../buttons/common';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { useCampaignById } from '../../../graphql/campaigns';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -27,9 +27,6 @@ import {
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
-import { CopyLinkButton } from '../../share/CopyLinkButton';
-import { ReferralCampaignKey } from '../../../lib/referral';
-import { useHoldToShare } from '../../../hooks/useHoldToShare';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -90,19 +87,6 @@ export const SquadGrid = ({
   });
   const borderColor = border || color || SourceCardBorderColor.Avocado;
   const { ref, onClickAd, onViewableAd } = useSquadsDirectoryLogging(ad);
-  const shareProps = {
-    text: `Check out the ${name} squad on daily.dev`,
-    link: permalink,
-    cid: ReferralCampaignKey.ShareSource,
-    logObject: () => ({
-      event_name: LogEvent.ShareSource,
-      target_id: source.id,
-    }),
-  };
-  const { isHeld, holdProps } = useHoldToShare({
-    shareProps,
-    origin: Origin.SquadDirectory,
-  });
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
     campaign ? `Promoted by @${campaign.user.username}` : null,
@@ -110,10 +94,8 @@ export const SquadGrid = ({
 
   return (
     <Card
-      {...holdProps}
       className={classNames(
-        'touch-callout-none relative overflow-hidden !p-0 transition-transform',
-        isHeld && 'scale-[0.98]',
+        'relative overflow-hidden !p-0',
         borderColorToClassName[borderColor],
         className,
       )}
@@ -176,24 +158,13 @@ export const SquadGrid = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <SquadActionButton
-                className={{ button: 'z-0 w-full' }}
-                squad={source}
-                origin={Origin.SquadDirectory}
-                data-testid="squad-action"
-                buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
-              />
-            </div>
-            <CopyLinkButton
-              className="relative z-0 hidden shrink-0 laptop:inline-flex"
-              origin={Origin.SquadDirectory}
-              shareProps={shareProps}
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Tertiary}
-            />
-          </div>
+          <SquadActionButton
+            className={{ button: 'z-0 w-full' }}
+            squad={source}
+            origin={Origin.SquadDirectory}
+            data-testid="squad-action"
+            buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
+          />
         </div>
       </div>
       {children}

@@ -37,9 +37,9 @@ export function useShareOrCopyLink({
       const shortLink = cid ? await getShortUrl(link, cid) : link;
 
       try {
-        // The link as `url`, not folded into the text: Android's sheet then
-        // heads itself "Sharing link" with a preview instead of "Sharing text".
-        await navigator.share({ title: text, url: shortLink });
+        await navigator.share({
+          text: `${text}\n${shortLink}`,
+        });
         logShareEvent(ShareProvider.Native);
       } catch (err) {
         // Do nothing

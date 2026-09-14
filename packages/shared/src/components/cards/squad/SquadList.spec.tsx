@@ -1,11 +1,5 @@
 import type { RenderResult } from '@testing-library/react';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
@@ -27,9 +21,6 @@ import {
   CONTENT_PREFERENCE_STATUS_QUERY,
   ContentPreferenceType,
 } from '../../../graphql/contentPreference';
-import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import { LogEvent, Origin } from '../../../lib/log';
-import { ShareProvider } from '../../../lib/share';
 
 const squadsList = [generateTestSquad()];
 const members = generateMembersList();
@@ -88,81 +79,6 @@ it('should render the component and member count when members are provided', () 
 
   expect(memberCount).toBeInTheDocument();
   expect(memberCount.innerHTML).toEqual(`${length} members`);
-});
-
-it('copies the squad link from the row without following the row link', () => {
-  const writeText = jest.fn().mockResolvedValue(undefined);
-  const logEvent = jest.fn();
-  const onRowLinkClick = jest.fn();
-  Object.assign(navigator, { clipboard: { writeText } });
-  render(
-    <TestBootProvider
-      client={new QueryClient()}
-      auth={{ user: loggedUser }}
-      log={{ logEvent }}
-    >
-      <SquadList squad={admin.source} />
-    </TestBootProvider>,
-  );
-  screen
-    .getByTitle(admin.source.name)
-    .addEventListener('click', onRowLinkClick);
-
-  fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
-
-  expect(writeText).toHaveBeenCalledWith(
-    `${admin.source.permalink}?userid=${loggedUser.id}&cid=share_source`,
-  );
-  expect(logEvent).toHaveBeenCalledWith({
-    event_name: LogEvent.ShareSource,
-    target_id: admin.source.id,
-    extra: JSON.stringify({
-      provider: ShareProvider.CopyLink,
-      origin: Origin.SquadDirectory,
-    }),
-  });
-  expect(onRowLinkClick).not.toHaveBeenCalled();
-});
-
-it('shares the squad link when the row is held', () => {
-  jest.useFakeTimers();
-  const writeText = jest.fn().mockResolvedValue(undefined);
-  const logEvent = jest.fn();
-  Object.assign(navigator, { clipboard: { writeText } });
-  render(
-    <TestBootProvider
-      client={new QueryClient()}
-      auth={{ user: loggedUser }}
-      log={{ logEvent }}
-    >
-      <SquadList squad={admin.source} />
-    </TestBootProvider>,
-  );
-  const row = screen.getByTitle(admin.source.name).closest('div')!;
-  const touch = (type: string) => {
-    const event = new Event(type, { bubbles: true, cancelable: true });
-    Object.defineProperty(event, 'touches', {
-      value: [{ clientX: 0, clientY: 0 }],
-    });
-    return event;
-  };
-
-  fireEvent(row, touch('touchstart'));
-  act(() => {
-    jest.advanceTimersByTime(500);
-  });
-  fireEvent(row, touch('touchend'));
-
-  expect(writeText).toHaveBeenCalledWith(
-    `${admin.source.permalink}?userid=${loggedUser.id}&cid=share_source`,
-  );
-  expect(logEvent).toHaveBeenCalledWith(
-    expect.objectContaining({
-      event_name: LogEvent.ShareSource,
-      target_id: admin.source.id,
-    }),
-  );
-  jest.useRealTimers();
 });
 
 it('should render the component with a view squad button', async () => {

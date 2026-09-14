@@ -8,45 +8,22 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { largeNumberFormat } from '../../../lib/numberFormat';
+import { largeNumberFormat } from '../../../lib';
 import { Separator } from '../common/common';
 import type { UnFeaturedSquadCardProps } from './common/types';
-import { LogEvent, Origin } from '../../../lib/log';
+import { Origin } from '../../../lib/log';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { ButtonVariant } from '../../buttons/common';
 import { Image, ImageType } from '../../image/Image';
-import { CopyLinkButton } from '../../share/CopyLinkButton';
-import { ReferralCampaignKey } from '../../../lib/referral';
-import { useHoldToShare } from '../../../hooks/useHoldToShare';
 
 export const UnfeaturedSquadGrid = ({
   source,
   className,
 }: UnFeaturedSquadCardProps): ReactElement => {
   const title = source.name;
-  const shareProps = {
-    text: `Check out the ${title} squad on daily.dev`,
-    link: source.permalink,
-    cid: ReferralCampaignKey.ShareSource,
-    logObject: () => ({
-      event_name: LogEvent.ShareSource,
-      target_id: source.id,
-    }),
-  };
-  const { isHeld, holdProps } = useHoldToShare({
-    shareProps,
-    origin: Origin.SquadDirectory,
-  });
 
   return (
-    <Card
-      {...holdProps}
-      className={classNames(
-        'group/squad touch-callout-none overflow-hidden border-0 p-4 transition-transform',
-        isHeld && 'scale-[0.98]',
-        className,
-      )}
-    >
+    <Card className={classNames('overflow-hidden border-0 p-4', className)}>
       <CardLink
         href={source.permalink}
         rel="noopener"
@@ -59,22 +36,13 @@ export const UnfeaturedSquadGrid = ({
           className="size-16 rounded-full"
           type={ImageType.Squad}
         />
-        <div className="flex items-center gap-2">
-          <CopyLinkButton
-            className="relative z-0 hidden laptop:inline-flex laptop:mouse:opacity-0 laptop:mouse:group-focus-within/squad:opacity-100 laptop:mouse:group-hover/squad:opacity-100"
-            origin={Origin.SquadDirectory}
-            shareProps={shareProps}
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Tertiary}
-          />
-          <SquadActionButton
-            className={{ button: 'z-0' }}
-            squad={source}
-            origin={Origin.SquadDirectory}
-            data-testid="squad-action"
-            buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
-          />
-        </div>
+        <SquadActionButton
+          className={{ button: 'z-0' }}
+          squad={source}
+          origin={Origin.SquadDirectory}
+          data-testid="squad-action"
+          buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
+        />
       </div>
       <Typography
         tag={TypographyTag.H1}
