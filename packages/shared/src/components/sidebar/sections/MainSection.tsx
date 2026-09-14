@@ -21,6 +21,8 @@ import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
 import {
   gameCenterMilestoneSectionId,
+  plusApiCta,
+  plusApiCtaShort,
   plusUrl,
   webappUrl,
 } from '../../../lib/constants';
@@ -48,7 +50,7 @@ export const MainSection = ({
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
   const { isActive: isSaleActive } = usePlusSale();
-  const ctaCopy = { full: 'Get API Access', short: 'API access' };
+  const ctaCopy = { full: plusApiCta, short: plusApiCtaShort };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,

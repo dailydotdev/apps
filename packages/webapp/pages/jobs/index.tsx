@@ -7,7 +7,6 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { getUserOpportunityMatchesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { OpportunityCVUpload } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityCVUpload';
 import { OpportunityAllSet } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityAllSet';
-import { OpportunityHiring } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityHiring';
 import { OpportunityMatchList } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityMatchList';
 import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
@@ -135,7 +134,6 @@ const JobsPage = (): ReactElement | null => {
             ) : (
               <OpportunityAllSet />
             )}
-            <OpportunityHiring />
             {matchHistory.length > 0 && (
               <OpportunityMatchList
                 matches={matchHistory}
