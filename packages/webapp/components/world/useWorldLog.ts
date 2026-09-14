@@ -3,6 +3,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import type { WorldDistrict } from '../../graphql/world';
 import { levelOf, nearestLevelUp } from './ladder';
+import type { WorldBootFailureKind } from './worldBootFailure';
 import type { WorldState } from './worldState';
 
 /**
@@ -45,6 +46,8 @@ interface UseWorldLogProps {
   isReady: boolean;
   /** Why the boot died, if it did. */
   failure?: string;
+  /** Which part of boot failed, so expected degradation stays out of error logs. */
+  failureKind?: WorldBootFailureKind;
   state: WorldState;
   districts?: WorldDistrict[];
 }
@@ -76,6 +79,7 @@ export const useWorldLog = ({
   isUnbuilt,
   isReady,
   failure,
+  failureKind,
   state,
   districts,
 }: UseWorldLogProps): void => {
@@ -118,6 +122,14 @@ export const useWorldLog = ({
     });
   }, [isSettled, userId]);
 
+  /* `isSettled` is a dependency rather than a guard: the outcome is gated on the
+     view having been logged, and `viewedFor` is a ref the effect above writes.
+     A boot that dies BEFORE the districts settle — the engine constructor
+     throwing on a browser with no WebGL, which happens in the mount commit —
+     lands here first and finds no view to resolve, and nothing else it depends
+     on ever changes again. So the visit has to be re-checked when the view
+     itself becomes possible, or exactly the readers this hook cares most about
+     report a `world view` and no outcome. */
   useEffect(() => {
     if (viewedFor.current !== userId || settledFor.current === userId) {
       return;
@@ -145,6 +157,10 @@ export const useWorldLog = ({
           is_lite: current.isLite,
           boot_ms: bootMs,
           reason: failure,
+          /* Not defaulted to a real bucket: a failure that arrives without a
+             kind is a wiring gap, and folding it into `engine` would hide it
+             inside the numbers the ready-rate split is read off. */
+          kind: failureKind ?? 'unknown',
         }),
       });
       return;
@@ -183,7 +199,7 @@ export const useWorldLog = ({
         nearest_gap: nearest?.toNext ?? null,
       }),
     });
-  }, [failure, isReady, isUnbuilt, userId]);
+  }, [failure, failureKind, isReady, isSettled, isUnbuilt, userId]);
 
   /* One event per distinct thing per visit. Opening a realm you have already
      been in is the reader going back rather than a second realm opened, and the

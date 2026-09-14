@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import { USER_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useProfilePreview } from '@dailydotdev/shared/src/hooks/profile/useProfilePreview';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
@@ -42,16 +42,15 @@ const ProfileCommentsPage = ({
   user,
   noindex,
 }: ProfileLayoutProps): ReactElement | null => {
-  const { user: loggedUser } = useContext(AuthContext);
+  const { isOwner } = useProfilePreview(user);
 
   if (!user) {
     return null;
   }
 
-  const isSameUser = loggedUser?.id === user.id;
   const userId = user.id;
 
-  const emptyScreen = isSameUser ? (
+  const emptyScreen = isOwner ? (
     <MyProfileEmptyScreen
       className="items-center px-4 py-6 text-center tablet:px-6"
       image={cloudinaryCharmEmptyProfile}

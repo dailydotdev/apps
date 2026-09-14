@@ -24,7 +24,7 @@ const faq = [
   {
     title: 'Is this free?',
     description:
-      'daily-dev-ask requires a Plus subscription and an API token. You can get Plus at daily.dev/plus and create a token in your API settings.',
+      'Yes. Any daily.dev account can create an API token in API settings and use daily-dev-ask. Plus adds full API access and higher rate limits, check it out at daily.dev/plus.',
   },
   {
     title: 'What tools does it work with?',
