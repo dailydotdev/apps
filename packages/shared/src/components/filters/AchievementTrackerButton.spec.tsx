@@ -99,7 +99,7 @@ const mockTrackedAchievement: UserAchievement = {
     image: 'https://daily.dev/ach1.png',
     type: AchievementType.Milestone,
     criteria: { targetCount: 5 },
-    points: 10,
+    xp: 10,
     rarity: null,
     unit: 'steps',
   },
@@ -123,7 +123,7 @@ const defaultProfileAchievementsHook = {
   achievements: [mockTrackedAchievement],
   unlockedCount: 0,
   totalCount: 1,
-  totalPoints: 0,
+  totalAchievementXp: 0,
   isPending: false,
   isError: false,
 };

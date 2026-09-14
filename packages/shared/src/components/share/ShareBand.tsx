@@ -10,6 +10,8 @@ import {
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import type { ReferralCampaignKey } from '../../lib/referral';
 import type { ShareProvider } from '../../lib/share';
+import type { Post } from '../../graphql/posts';
+import type { Origin } from '../../lib/log';
 
 export interface ShareBandProps {
   title: string;
@@ -19,6 +21,9 @@ export interface ShareBandProps {
   text: string;
   /** Omit when `link` is already a tracked short URL — passing it double-shortens. */
   cid?: ReferralCampaignKey;
+  /** Adds Slack to the networks behind the chevron. */
+  post?: Post;
+  origin?: Origin;
   emailTitle?: string;
   /** Surface and spacing belong to the host: the two callers sit in different places. */
   className?: string;
@@ -40,6 +45,8 @@ export const ShareBand = ({
   link,
   text,
   cid,
+  post,
+  origin,
   emailTitle,
   className,
   onShare,
@@ -68,6 +75,8 @@ export const ShareBand = ({
       link={link}
       text={text}
       cid={cid}
+      post={post}
+      origin={origin}
       emailTitle={emailTitle}
       buttonVariant={ButtonVariant.Primary}
       buttonSize={ButtonSize.Small}

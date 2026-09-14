@@ -247,6 +247,19 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
   OnboardingChromeVariant.Control,
 );
 
+/**
+ * Experiment: the sponsor strip — a logo wall docked under the main feeds with
+ * a trending ticker under it. The ticker carries the popular half of
+ * `statuslineFeed`; the feed keeps its own Happening Now card and owns the
+ * curated headlines, so the two rows cannot show the same story.
+ *
+ * On in development and off everywhere else, the way `cores`, `quest_offers`
+ * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
+ * this cannot ship the experiment to anyone — GrowthBook ramps it — while a
+ * local session still gets the strip without anybody forcing a flag.
+ */
+export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
+
 export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);

@@ -693,7 +693,7 @@ const AchievementBox = ({ entry }: { entry: UserAchievement }) => {
               isUnlocked ? 'text-text-primary' : 'text-text-tertiary',
             )}
           >
-            {entry.achievement.points}
+            {entry.achievement.xp}
           </span>
         </div>
       </div>
@@ -1007,7 +1007,7 @@ const Placements = () => {
           step="Placement 7"
           leads="Snapshot"
           title="Achievements page — per achievement box"
-          note="Snapshot leads: an unlocked achievement is status with no shareable URL. Icon-only on hover, beside the points value."
+          note="Snapshot leads: an unlocked achievement is status with no shareable URL. Icon-only on hover, beside the xp value."
         >
           <div className="grid gap-4 laptop:grid-cols-2">
             {[ACHIEVEMENT, LOCKED_ACHIEVEMENT].map((entry) => (

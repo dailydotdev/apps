@@ -23,6 +23,8 @@ export enum Origin {
   TagPage = 'tag page',
   ToolPage = 'tool page',
   ToolsDirectory = 'tools directory',
+  SourceDirectory = 'source directory',
+  ArchiveIndex = 'archive index',
   Profile = 'profile',
   PostTags = 'post tags',
   // squads - start
@@ -362,6 +364,7 @@ export enum LogEvent {
   ShareWorld = 'share world',
   ShareTool = 'share tool',
   ShareHotTake = 'share hot take',
+  ShareArchive = 'share archive',
   // End Share
   /* Start World
      `world view` is the denominator and fires whatever happens next, so the

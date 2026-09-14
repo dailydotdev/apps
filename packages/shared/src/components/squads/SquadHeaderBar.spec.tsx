@@ -115,3 +115,34 @@ describe('Analytics button', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('Link controls', () => {
+  it('should show only the invitation link to a member who can invite', () => {
+    const squad = generateTestSquad({
+      currentMember: {
+        ...mock.squad.currentMember!,
+        permissions: [SourcePermissions.Invite],
+      },
+    });
+    renderComponent({ props: { squad } });
+
+    expect(
+      screen.getByRole('button', { name: 'Invitation link' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Copy link' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show only the copy link to a non-member', () => {
+    const squad = generateTestSquad({ currentMember: undefined });
+    renderComponent({ props: { squad } });
+
+    expect(
+      screen.getByRole('button', { name: 'Copy link' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Invitation link' }),
+    ).not.toBeInTheDocument();
+  });
+});
