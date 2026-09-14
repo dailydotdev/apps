@@ -292,6 +292,13 @@ const nextConfig: NextConfig = {
           destination: '/plus',
           permanent: false,
         },
+        // the recruiter self-serve section is closed; this catches /recruiter
+        // and every route under it so the flow can't be started or resumed
+        {
+          source: '/recruiter/:path*',
+          destination: '/',
+          permanent: false,
+        },
         // well-known redirect for change password
         {
           source: '/.well-known/change-password',
