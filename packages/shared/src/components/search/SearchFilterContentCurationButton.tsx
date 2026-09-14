@@ -8,9 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { SearchFilterPostTypeList } from './SearchFilterOptions';
+import { SearchFilterContentCurationList } from './SearchFilterOptions';
 
-const SearchFilterPostTypeButton = (): ReactElement => {
+const SearchFilterContentCurationButton = (): ReactElement => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -18,9 +18,9 @@ const SearchFilterPostTypeButton = (): ReactElement => {
           variant={ButtonVariant.Float}
           icon={<FilterIcon />}
           size={ButtonSize.Small}
-          aria-label="Open content type filter menu"
+          aria-label="Open content category filter menu"
         >
-          Type
+          Category
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -31,7 +31,7 @@ const SearchFilterPostTypeButton = (): ReactElement => {
             onKeyDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
           >
-            <SearchFilterPostTypeList />
+            <SearchFilterContentCurationList />
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -39,4 +39,4 @@ const SearchFilterPostTypeButton = (): ReactElement => {
   );
 };
 
-export default SearchFilterPostTypeButton;
+export default SearchFilterContentCurationButton;

@@ -39,7 +39,11 @@ export type PostsSearchProps = {
   onSubmitQuery: (
     query: string,
     extraFlags?: {
-      filters?: { time?: string; contentCuration: string[] };
+      filters?: {
+        time?: string;
+        contentCuration: string[];
+        postTypes: string[];
+      };
     },
   ) => Promise<unknown>;
   onClearQuery?: () => Promise<unknown>;
@@ -63,7 +67,8 @@ export default function PostsSearch({
   onClearQuery,
   enableSuggestions = true,
 }: PostsSearchProps): ReactElement {
-  const { time, contentCurationFilter } = useSearchContextProvider();
+  const { time, contentCurationFilter, postTypesFilter } =
+    useSearchContextProvider();
   const { user } = useAuthContext();
   const searchBoxRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>();
@@ -110,6 +115,7 @@ export default function PostsSearch({
       filters: {
         time: time.toString(),
         contentCuration: contentCurationFilter,
+        postTypes: postTypesFilter,
       },
     });
     if (itemQuery) {
