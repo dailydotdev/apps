@@ -16,7 +16,11 @@ import {
 import { useDirtyForm } from './useDirtyForm';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ApiError } from '../graphql/common';
-import type { ApiErrorResult } from '../graphql/common';
+import type {
+  ApiErrorResult,
+  ApiResponseError,
+  ApiZodErrorExtension,
+} from '../graphql/common';
 import { labels } from '../lib/labels';
 import { applyZodErrorsToForm } from '../lib/form';
 import { useToastNotification } from './useToastNotification';
@@ -26,6 +30,10 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import useLogEventOnce from './log/useLogEventOnce';
+import {
+  userExperienceSkillMaxLength,
+  userExperienceSkillsLimit,
+} from '../features/profile/common';
 
 const repositorySchema = z
   .object({
@@ -63,6 +71,24 @@ export const userExperienceInputBaseSchema = z
       .nullable()
       .optional()
       .default(null),
+    skills: z
+      .array(
+        z
+          .string()
+          .trim()
+          .normalize()
+          .min(1, 'Skill cannot be empty.')
+          .max(
+            userExperienceSkillMaxLength,
+            `Each skill must be ${userExperienceSkillMaxLength} characters or less.`,
+          ),
+      )
+      .max(
+        userExperienceSkillsLimit,
+        `You can add up to ${userExperienceSkillsLimit} skills.`,
+      )
+      .optional()
+      .default([]),
     url: z
       .union([
         z.url('Please enter a valid URL.').max(2000),
@@ -74,6 +100,7 @@ export const userExperienceInputBaseSchema = z
     repository: repositorySchema,
     repositorySearch: z.string().optional(),
   })
+  .passthrough()
   .refine(
     (data) => {
       if (
@@ -100,12 +127,38 @@ export const userExperienceInputBaseSchema = z
     },
   );
 
-type BaseUserExperience = Omit<
+export type UserExperienceFormValues = Omit<
   UserExperience,
-  'id' | 'createdAt' | 'company' | 'customCompanyName'
+  | 'id'
+  | 'createdAt'
+  | 'startedAt'
+  | 'endedAt'
+  | 'customCompanyName'
+  | 'repository'
 > & {
   id?: string;
+  createdAt?: string;
+  startedAt?: Date | string | null;
+  endedAt?: Date | string | null;
+  current?: boolean;
+  companyId?: string | null;
+  customCompanyName?: string | null;
+  customDomain?: string | null;
+  employmentType?: number | null;
+  locationType?: number | null;
+  externalLocationId?: string | null;
+  repository?: {
+    id?: string | null;
+    owner?: string | null;
+    name: string;
+    url?: string | null;
+    image?: string | null;
+  } | null;
+  repositorySearch?: string;
+  skills?: string[];
 };
+
+type BaseUserExperience = UserExperienceFormValues;
 
 const useUserExperienceForm = ({
   defaultValues,
@@ -123,7 +176,7 @@ const useUserExperienceForm = ({
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
   const router = useRouter();
   const { displayToast } = useToastNotification();
-  const methods = useForm<UserExperience>({
+  const methods = useForm<UserExperienceFormValues>({
     defaultValues,
     reValidateMode: 'onSubmit',
     resolver: zodResolver(userExperienceInputBaseSchema),
@@ -139,13 +192,13 @@ const useUserExperienceForm = ({
     { condition: isNewExperience },
   );
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: (data: UserExperience | UserExperienceWork) => {
-      const input = { ...data, type } as UserExperience | UserExperienceWork;
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (data: UserExperienceFormValues) => {
+      const input = { ...data, type } as UserExperienceFormValues;
 
       return type === UserExperienceType.Work
-        ? upsertUserWorkExperience(input as UserExperienceWork, id)
-        : upsertUserGeneralExperience(input, id);
+        ? upsertUserWorkExperience(input as unknown as UserExperienceWork, id)
+        : upsertUserGeneralExperience(input as unknown as UserExperience, id);
     },
     onSuccess: (result, vars) => {
       if (isNewExperience) {
@@ -165,23 +218,31 @@ const useUserExperienceForm = ({
       router.push(`${webappUrl}settings/profile/experience/${type}`);
     },
     onError: (error: ApiErrorResult) => {
-      if (
-        error.response?.errors?.[0]?.extensions?.code ===
-        ApiError.ZodValidationError
-      ) {
+      const apiError = error.response?.errors?.[0];
+      if (apiError?.extensions?.code === ApiError.ZodValidationError) {
+        const zodError = apiError as ApiResponseError<ApiZodErrorExtension>;
         applyZodErrorsToForm({
           error,
           setError: methods.setError,
         });
-      } else {
         displayToast(
-          error.response?.errors?.[0]?.message || labels.error.generic,
+          zodError.extensions.issues?.[0]?.message || labels.error.generic,
         );
+      } else {
+        displayToast(apiError?.message || labels.error.generic);
       }
     },
   });
+  const saveExperience = () => {
+    methods.setValue('type', type, { shouldDirty: false });
+
+    return methods.handleSubmit(async (data) => {
+      await mutateAsync({ ...data, type }).catch(() => undefined);
+    })();
+  };
+
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
-    onSave: () => mutate({ ...methods.getValues(), type }),
+    onSave: saveExperience,
     onDiscard: () => {
       methods.reset();
     },

@@ -3,11 +3,15 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import useUserExperienceForm from './useUserExperienceForm';
+import type { UserExperienceFormValues } from './useUserExperienceForm';
 import {
   upsertUserGeneralExperience,
   upsertUserWorkExperience,
   UserExperienceType,
 } from '../graphql/user/profile';
+import { ApiError } from '../graphql/common';
+
+const mockDisplayToast = jest.fn();
 
 // Mock dependencies
 jest.mock('next/router', () => ({
@@ -15,7 +19,7 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('./useToastNotification', () => ({
-  useToastNotification: () => ({ displayToast: jest.fn() }),
+  useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
 
 // Mock the GraphQL mutations
@@ -75,19 +79,7 @@ const createWrapper = () => {
   );
 };
 
-// BaseUserExperience type used by the hook
-type BaseUserExperience = {
-  type: UserExperienceType;
-  title: string;
-  description?: string | null;
-  startedAt?: Date | null;
-  endedAt?: Date | null;
-  subtitle?: string | null;
-  current?: boolean;
-  companyId?: string | null;
-  customCompanyName?: string | null;
-  url?: string | null;
-};
+type BaseUserExperience = UserExperienceFormValues;
 
 describe('useUserExperienceForm', () => {
   const baseWorkExperience: BaseUserExperience = {
@@ -168,7 +160,102 @@ describe('useUserExperienceForm', () => {
         }),
         'exp-1',
       );
+      expect(mockRouter.push).toHaveBeenCalledWith(
+        '/settings/profile/experience/work',
+      );
     });
+  });
+
+  it('should not save invalid values from the dirty-form save path', async () => {
+    const { result } = setupWorkExperienceForm();
+
+    act(() => {
+      result.current.methods.setValue('title', '', { shouldDirty: true });
+    });
+
+    await act(async () => {
+      await result.current.save?.();
+    });
+
+    expect(upsertUserWorkExperience).not.toHaveBeenCalled();
+    expect(result.current.methods.getFieldState('title').error).toBeDefined();
+  });
+
+  it('should surface zod validation errors as form errors and toast', async () => {
+    (upsertUserWorkExperience as jest.Mock).mockRejectedValueOnce({
+      response: {
+        errors: [
+          {
+            message: 'Validation error',
+            extensions: {
+              code: ApiError.ZodValidationError,
+              issues: [
+                {
+                  code: 'too_big',
+                  message: 'You can add up to 50 skills.',
+                  path: ['skills'],
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+    const { result } = setupWorkExperienceForm();
+
+    act(() => {
+      result.current.methods.setValue('title', 'Changed title', {
+        shouldDirty: true,
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.methods.formState.isDirty).toBe(true);
+    });
+
+    await act(async () => {
+      await Promise.resolve(result.current.save?.()).catch(() => undefined);
+    });
+
+    await waitFor(() => {
+      expect(
+        result.current.methods.getFieldState('skills' as never).error?.message,
+      ).toBe('You can add up to 50 skills.');
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'You can add up to 50 skills.',
+      );
+    });
+
+    expect(result.current.methods.getValues('title')).toBe('Changed title');
+    expect(result.current.methods.formState.isDirty).toBe(true);
+    expect(mockRouter.push).not.toHaveBeenCalled();
+  });
+
+  it('should keep existing toast behavior for non-zod errors', async () => {
+    (upsertUserWorkExperience as jest.Mock).mockRejectedValueOnce({
+      response: {
+        errors: [
+          {
+            message: 'Unable to save experience',
+            extensions: {
+              code: ApiError.Unexpected,
+            },
+          },
+        ],
+      },
+    });
+    const { result } = setupWorkExperienceForm();
+
+    await act(async () => {
+      await Promise.resolve(result.current.save?.()).catch(() => undefined);
+    });
+
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Unable to save experience',
+      );
+    });
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
   it('should validate required title field', async () => {

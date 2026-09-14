@@ -11,3 +11,6 @@ export const profileSecondaryFieldStyles = {
   outerLabel: '!px-0 !typo-callout',
   baseField: '!h-12',
 };
+
+export const userExperienceSkillsLimit = 50;
+export const userExperienceSkillMaxLength = 100;

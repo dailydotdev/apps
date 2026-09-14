@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import type { PopoverContentProps } from '@radix-ui/react-popover';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import { Controller, useFormContext } from 'react-hook-form';
+import type { FieldError } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { TextField } from '../../../components/fields/TextField';
 import { FeedbackIcon, SearchIcon } from '../../../components/icons';
@@ -16,13 +17,62 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { getKeywordAutocompleteOptions } from '../../opportunity/queries';
+import {
+  userExperienceSkillMaxLength,
+  userExperienceSkillsLimit,
+} from '../common';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 
 type ProfileSkillsProps = {
   name: string;
 };
 
+const defaultHint =
+  'Add commas (,) to add multiple skills. Press Enter to submit them.';
+const limitHint = `You can add up to ${userExperienceSkillsLimit} skills`;
+const overflowHint = `${limitHint}. Some skills were not added.`;
+
+const skillIdentity = (skill: string): string =>
+  skill
+    .trim()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, userExperienceSkillMaxLength);
+
+const getFieldErrorMessage = (error: unknown): string | undefined => {
+  if (!error) {
+    return undefined;
+  }
+
+  const fieldError = error as Partial<FieldError>;
+  if (typeof fieldError.message === 'string') {
+    return fieldError.message;
+  }
+
+  if (typeof error === 'object') {
+    return Object.values(error as Record<string, unknown>)
+      .map(getFieldErrorMessage)
+      .find(Boolean);
+  }
+
+  return undefined;
+};
+
+const getPathValue = (value: unknown, path: string): unknown =>
+  path.split('.').reduce<unknown>((acc, key) => {
+    if (!acc || typeof acc !== 'object') {
+      return undefined;
+    }
+
+    return (acc as Record<string, unknown>)[key];
+  }, value);
+
 const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
-  const { control } = useFormContext();
+  const { control, formState } = useFormContext();
+  const { displayToast } = useToastNotification();
   const [query, setQuery] = useState<string>('');
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -55,18 +105,34 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
     <Controller
       control={control}
       name={name}
-      render={({ field }) => {
+      render={({ field, fieldState }) => {
         const skills = Array.isArray(field.value) ? field.value : [];
+        const isAtLimit = skills.length >= userExperienceSkillsLimit;
+        const errorMessage = getFieldErrorMessage(
+          fieldState.error ?? getPathValue(formState.errors, name),
+        );
+        const hint = errorMessage || (isAtLimit ? limitHint : defaultHint);
+        const inputHint = errorMessage ? undefined : hint;
+        const existingSkillIdentities = new Set(skills.map(skillIdentity));
 
         const addSkill = (skill: string) => {
-          if (skills.includes(skill)) {
+          if (isAtLimit) {
+            displayToast(limitHint);
             return;
           }
+
+          if (existingSkillIdentities.has(skillIdentity(skill))) {
+            return;
+          }
+
           field.onChange([...skills, skill]);
         };
 
         const removeSkill = (skill: string) => {
-          field.onChange(skills.filter((s: string) => s !== skill));
+          const identity = skillIdentity(skill);
+          field.onChange(
+            skills.filter((s: string) => skillIdentity(s) !== identity),
+          );
         };
 
         return (
@@ -89,8 +155,9 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                       <GenericLoaderSpinner size={IconSize.Small} />
                     ) : undefined
                   }
-                  hint="Add commas (,) to add multiple skills. Press Enter to submit them."
-                  hintIcon={<FeedbackIcon />}
+                  hint={inputHint}
+                  hintIcon={errorMessage ? undefined : <FeedbackIcon />}
+                  valid={!errorMessage}
                   value={query}
                   onChange={({ target }) => {
                     if (target.value === '') {
@@ -108,11 +175,30 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
 
                     if (e.key === 'Enter') {
                       e.preventDefault();
+                      if (isAtLimit) {
+                        if (query) {
+                          displayToast(limitHint);
+                          clearQuery();
+                        }
+                        return;
+                      }
+
                       const newSkills = query
                         .split(',')
                         .map((k) => k.trim())
                         .filter(Boolean)
-                        .filter((k) => !skills.includes(k));
+                        .filter(
+                          (k) => !existingSkillIdentities.has(skillIdentity(k)),
+                        )
+                        .filter((skill, index, batch) => {
+                          const identity = skillIdentity(skill);
+
+                          return (
+                            batch.findIndex(
+                              (item) => skillIdentity(item) === identity,
+                            ) === index
+                          );
+                        });
 
                       if (newSkills.length === 0) {
                         if (query) {
@@ -121,7 +207,18 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                         return;
                       }
 
-                      field.onChange([...skills, ...newSkills]);
+                      const remainingSlots =
+                        userExperienceSkillsLimit - skills.length;
+                      const skillsToAdd = newSkills.slice(0, remainingSlots);
+
+                      if (skillsToAdd.length < newSkills.length) {
+                        displayToast(overflowHint);
+                      }
+
+                      if (skillsToAdd.length > 0) {
+                        field.onChange([...skills, ...skillsToAdd]);
+                      }
+
                       clearQuery();
                       return;
                     }
@@ -146,7 +243,9 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
               >
                 <div className="flex flex-wrap gap-2">
                   {autocompleteKeywords?.map(({ keyword }) => {
-                    const isSelected = skills.includes(keyword);
+                    const isSelected = existingSkillIdentities.has(
+                      skillIdentity(keyword),
+                    );
                     return (
                       <TagElement
                         key={keyword}
@@ -165,6 +264,15 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                 </div>
               </PopoverContent>
             </Popover>
+
+            {errorMessage && (
+              <div
+                role="alert"
+                className="flex items-center gap-1 px-2 text-status-error typo-caption1"
+              >
+                {errorMessage}
+              </div>
+            )}
 
             {skills.length > 0 && (
               <div className="flex flex-wrap gap-2">
