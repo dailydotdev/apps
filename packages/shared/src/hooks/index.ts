@@ -29,6 +29,7 @@ export * from './useBookmarkProvider';
 export * from './usePlusSubscription';
 export * from './useClaimQuestReward';
 export * from './useQuestDashboard';
+export * from './useShareLinkClick';
 export * from './onboarding/useCheckExistingEmail';
 export * from './onboarding/useGenerateUsername';
 export * from './post/useBlockPostPanel';

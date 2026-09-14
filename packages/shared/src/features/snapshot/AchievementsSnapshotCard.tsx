@@ -24,7 +24,7 @@ export interface AchievementsSnapshotCardProps {
   unlocked: number;
   total: number;
   /** Left out when zero, as is the rarest row when there is nothing in it. */
-  points: number;
+  xp: number;
   achievements: UnlockedAchievement[];
   seed?: string;
 }
@@ -34,7 +34,7 @@ function AchievementsSnapshotCardComponent(
     user,
     unlocked,
     total,
-    points,
+    xp,
     achievements,
     seed,
   }: AchievementsSnapshotCardProps,
@@ -54,10 +54,10 @@ function AchievementsSnapshotCardComponent(
             label={`of ${total} unlocked`}
             value={String(unlocked)}
           />
-          {points > 0 && (
+          {xp > 0 && (
             <SnapshotTile
-              label="Achievement points"
-              value={largeNumberFormat(points) ?? String(points)}
+              label="Achievement XP"
+              value={largeNumberFormat(xp) ?? String(xp)}
             />
           )}
         </div>

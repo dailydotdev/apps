@@ -137,3 +137,32 @@ it('should show different empty screen when visiting your profile', async () => 
   const el = await screen.findByText('Explore posts');
   expect(el).toBeInTheDocument();
 });
+
+it('should show the visitor empty screen to the owner in preview mode', async () => {
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/[userId]/upvoted',
+        query: { userId: 'dailydotdev', preview: 'true' },
+        isFallback: false,
+      } as unknown as NextRouter),
+  );
+  renderComponent(
+    [
+      createFeedMock({
+        pageInfo: {
+          hasNextPage: true,
+          endCursor: '',
+        },
+        edges: [],
+      }),
+    ],
+    {},
+    defaultProfile as unknown as LoggedUser,
+  );
+  await waitForNock();
+  expect(
+    await screen.findByText("Daily Dev hasn't upvoted yet"),
+  ).toBeInTheDocument();
+  expect(screen.queryByText('Explore posts')).not.toBeInTheDocument();
+});

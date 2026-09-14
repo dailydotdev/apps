@@ -117,7 +117,7 @@ function RecentAchievements({
 export function AchievementsWidget({
   user,
 }: AchievementsWidgetProps): ReactElement {
-  const { achievements, unlockedCount, totalCount, totalPoints } =
+  const { achievements, unlockedCount, totalCount, totalAchievementXp } =
     useProfileAchievements(user);
 
   return (
@@ -154,7 +154,7 @@ export function AchievementsWidget({
                       image: achievement.image,
                       name: achievement.name,
                     }))}
-                  points={totalPoints}
+                  xp={totalAchievementXp}
                   ref={ref}
                   seed={user.username ?? user.id}
                   total={totalCount}

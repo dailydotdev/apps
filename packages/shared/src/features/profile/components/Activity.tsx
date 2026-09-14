@@ -33,6 +33,7 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
           <ActivityPostsTab
             userId={userId}
             isSameUser={isOwner}
+            isPreviewMode={isPreviewMode}
             userName={user?.name ?? 'User'}
             user={user}
             selectedTab={selectedTab}
@@ -56,6 +57,7 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
           <ActivityUpvotedTab
             userId={userId}
             isSameUser={isOwner}
+            isPreviewMode={isPreviewMode}
             userName={user?.name ?? 'User'}
             user={user}
             selectedTab={selectedTab}

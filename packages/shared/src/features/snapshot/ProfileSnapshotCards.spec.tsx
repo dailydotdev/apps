@@ -89,11 +89,11 @@ describe('profile snapshot cards with little to show', () => {
     expect(screen.queryByText('x0')).not.toBeInTheDocument();
   });
 
-  it('leaves zero points and an empty rarest row off the achievements card', () => {
+  it('leaves zero XP and an empty rarest row off the achievements card', () => {
     render(
       <AchievementsSnapshotCard
         achievements={[]}
-        points={0}
+        xp={0}
         total={74}
         unlocked={1}
         user={user}
@@ -101,7 +101,7 @@ describe('profile snapshot cards with little to show', () => {
     );
 
     expect(screen.getByText('of 74 unlocked')).toBeInTheDocument();
-    expect(screen.queryByText('Achievement points')).not.toBeInTheDocument();
+    expect(screen.queryByText('Achievement XP')).not.toBeInTheDocument();
     expect(screen.queryByText('Rarest unlocked')).not.toBeInTheDocument();
   });
 });

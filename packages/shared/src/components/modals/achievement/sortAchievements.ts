@@ -26,7 +26,7 @@ export const sortLockedAchievements = (
         return b.progress - a.progress;
       }
 
-      return b.achievement.points - a.achievement.points;
+      return b.achievement.xp - a.achievement.xp;
     });
 };
 
@@ -46,9 +46,9 @@ export const sortRarestUnlockedAchievements = (
         return rarityA - rarityB;
       }
 
-      const pointsDelta = b.achievement.points - a.achievement.points;
-      if (pointsDelta !== 0) {
-        return pointsDelta;
+      const xpDelta = b.achievement.xp - a.achievement.xp;
+      if (xpDelta !== 0) {
+        return xpDelta;
       }
 
       const unlockedDateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;
