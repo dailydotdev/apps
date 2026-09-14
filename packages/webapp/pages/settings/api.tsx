@@ -516,6 +516,15 @@ const ApiAccessPage = (): ReactElement => {
             Use tokens to authenticate with the daily.dev API from agents,
             scripts, and integrations.
           </Typography>
+          {!isPlus && (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              API access for non daily.dev Plus users is currently in BETA and
+              subject to change.
+            </Typography>
+          )}
         </div>
 
         {!isPlus && (
