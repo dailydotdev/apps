@@ -67,23 +67,29 @@ const SponsorRow = ({
       <div
         className={classNames('flex h-10 items-center gap-5', feedFrameInsetX)}
       >
-        {gold && (
-          <div className="flex shrink-0 items-center gap-x-2.5">
-            <span className="whitespace-nowrap text-text-quaternary typo-caption2">
-              Made possible by
-            </span>
-            {/* The gold mark is the one slot that keeps its own inks and its
-              own size: one coloured mark at full height against a silhouetted
-              wall is the whole hierarchy of the row, without a hover effect
-              on top. */}
+        {/* The row's left zone, permanent the way the ticker's `Trending` is.
+          Both rows then open on the same column whatever the ad server
+          returns, so an unsold gold slot — or one still on the wire, under a
+          row already holding its height open — cannot change the shape of the
+          bar under the feed. It credits the row rather than the gold mark
+          alone, which is why it still reads with only the wall behind it. */}
+        <div className="flex shrink-0 items-center gap-x-2.5">
+          <span className="whitespace-nowrap text-text-quaternary typo-caption2">
+            Made possible by
+          </span>
+          {/* The gold mark is the one slot that keeps its own inks and its
+            own size: one coloured mark at full height against a silhouetted
+            wall is the whole hierarchy of the row, without a hover effect
+            on top. */}
+          {gold && (
             <SponsorLogo
               sponsor={gold}
               slotIndex={0}
               exactHeight={GOLD_HEIGHT}
               className="text-text-primary"
             />
-          </div>
-        )}
+          )}
+        </div>
         {gold && !!(premium.length || community.length) && (
           <span
             aria-hidden
