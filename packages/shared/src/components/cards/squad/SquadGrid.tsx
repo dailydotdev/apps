@@ -29,6 +29,7 @@ import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
 import { CopyLinkButton } from '../../share/CopyLinkButton';
 import { ReferralCampaignKey } from '../../../lib/referral';
+import { useHoldToShare } from '../../../hooks/useHoldToShare';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -98,6 +99,10 @@ export const SquadGrid = ({
       target_id: source.id,
     }),
   };
+  const { isHeld, holdProps } = useHoldToShare({
+    shareProps,
+    origin: Origin.SquadDirectory,
+  });
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
     campaign ? `Promoted by @${campaign.user.username}` : null,
@@ -105,8 +110,10 @@ export const SquadGrid = ({
 
   return (
     <Card
+      {...holdProps}
       className={classNames(
-        'relative overflow-hidden !p-0',
+        'touch-callout-none relative overflow-hidden !p-0 transition-transform',
+        isHeld && 'scale-[0.98]',
         borderColorToClassName[borderColor],
         className,
       )}
@@ -180,7 +187,7 @@ export const SquadGrid = ({
               />
             </div>
             <CopyLinkButton
-              className="relative z-0 shrink-0"
+              className="relative z-0 hidden shrink-0 laptop:inline-flex"
               origin={Origin.SquadDirectory}
               shareProps={shareProps}
               size={ButtonSize.Medium}

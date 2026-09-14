@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import Link from '../../utilities/Link';
 import type { Squad } from '../../../graphql/sources';
 import {
@@ -20,6 +21,7 @@ import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
 import { CopyLinkButton } from '../../share/CopyLinkButton';
 import { ReferralCampaignKey } from '../../../lib/referral';
+import { useHoldToShare } from '../../../hooks/useHoldToShare';
 
 interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
@@ -48,11 +50,19 @@ export const SquadList = ({
       target_id: squad.id,
     }),
   };
+  const { isHeld, holdProps } = useHoldToShare({
+    shareProps,
+    origin: Origin.SquadDirectory,
+  });
 
   return (
     <div
       {...attrs}
-      className="group/squad-row relative flex flex-row items-center gap-4"
+      {...holdProps}
+      className={classNames(
+        'group/squad-row touch-callout-none relative flex flex-row items-center gap-4 transition-transform',
+        isHeld && 'scale-[0.98]',
+      )}
       ref={ad ? ref : undefined}
     >
       <Link
@@ -93,7 +103,8 @@ export const SquadList = ({
       </div>
       <div className="flex items-center gap-2">
         <CopyLinkButton
-          className="relative z-0 laptop:mouse:opacity-0 laptop:mouse:group-focus-within/squad-row:opacity-100 laptop:mouse:group-hover/squad-row:opacity-100"
+          // Below laptop the row is held instead; the icon has no hover to hide behind.
+          className="relative z-0 hidden laptop:inline-flex laptop:mouse:opacity-0 laptop:mouse:group-focus-within/squad-row:opacity-100 laptop:mouse:group-hover/squad-row:opacity-100"
           origin={Origin.SquadDirectory}
           shareProps={shareProps}
           size={ButtonSize.Medium}

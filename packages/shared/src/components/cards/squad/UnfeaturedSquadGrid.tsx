@@ -17,6 +17,7 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Image, ImageType } from '../../image/Image';
 import { CopyLinkButton } from '../../share/CopyLinkButton';
 import { ReferralCampaignKey } from '../../../lib/referral';
+import { useHoldToShare } from '../../../hooks/useHoldToShare';
 
 export const UnfeaturedSquadGrid = ({
   source,
@@ -32,11 +33,17 @@ export const UnfeaturedSquadGrid = ({
       target_id: source.id,
     }),
   };
+  const { isHeld, holdProps } = useHoldToShare({
+    shareProps,
+    origin: Origin.SquadDirectory,
+  });
 
   return (
     <Card
+      {...holdProps}
       className={classNames(
-        'group/squad overflow-hidden border-0 p-4',
+        'group/squad touch-callout-none overflow-hidden border-0 p-4 transition-transform',
+        isHeld && 'scale-[0.98]',
         className,
       )}
     >
@@ -54,7 +61,7 @@ export const UnfeaturedSquadGrid = ({
         />
         <div className="flex items-center gap-2">
           <CopyLinkButton
-            className="relative z-0 laptop:mouse:opacity-0 laptop:mouse:group-focus-within/squad:opacity-100 laptop:mouse:group-hover/squad:opacity-100"
+            className="relative z-0 hidden laptop:inline-flex laptop:mouse:opacity-0 laptop:mouse:group-focus-within/squad:opacity-100 laptop:mouse:group-hover/squad:opacity-100"
             origin={Origin.SquadDirectory}
             shareProps={shareProps}
             size={ButtonSize.Medium}

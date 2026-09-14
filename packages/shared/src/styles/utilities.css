@@ -1239,3 +1239,8 @@ img.agent-media-ring {
   overflow-wrap: anywhere;
   hyphens: none;
 }
+
+/* Hold-to-share rows: iOS would open its own link sheet on the hold. */
+.touch-callout-none {
+  -webkit-touch-callout: none;
+}
