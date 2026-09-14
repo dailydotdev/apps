@@ -19,11 +19,14 @@ const LOGO_BAR_HEIGHT = 72;
 const LOGO_BAR_BORDER = 2;
 const LOGO_HEIGHT = 26;
 const LOGO_GAP = 8;
+const CAPTURE_TIMEOUT_MS = 15000;
 
 export type CaptureTarget = HTMLElement | RefObject<HTMLElement>;
 
 export interface CaptureShareImageOptions
   extends Omit<SnapdomOptions, 'scale' | 'width' | 'height'> {
+  width?: number;
+  height?: number;
   padding?: number;
   frameBackgroundColor?: string;
   branded?: boolean;
@@ -47,6 +50,25 @@ const PROBE_STYLE = [
   'border-top:1px solid var(--theme-border-subtlest-tertiary)',
   'color:var(--theme-text-primary)',
 ].join(';');
+
+// A cross-origin image without CORS headers leaves snapdom's inliner pending
+// forever, which would otherwise spin the trigger button indefinitely.
+const withTimeout = <T>(promise: Promise<T>): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout>;
+
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error('captureShareImage: capture timed out')),
+        CAPTURE_TIMEOUT_MS,
+      );
+    }),
+    // Cleared once the race is decided: the loser's timer would otherwise stay
+    // queued for the full deadline, holding its closure and rejecting a
+    // settled race.
+  ]).finally(() => clearTimeout(timer));
+};
 
 const resolveTheme = (element: HTMLElement): ShareImageTheme => {
   const probe = element.ownerDocument.createElement('div');
@@ -82,20 +104,22 @@ const fillPaths = (
 const drawLogoBar = (
   context: CanvasRenderingContext2D,
   theme: ShareImageTheme,
+  canvasWidth: number,
+  canvasHeight: number,
 ): void => {
-  const barTop = SHARE_IMAGE_HEIGHT - LOGO_BAR_HEIGHT;
+  const barTop = canvasHeight - LOGO_BAR_HEIGHT;
 
   context.fillStyle = theme.background;
-  context.fillRect(0, barTop, SHARE_IMAGE_WIDTH, LOGO_BAR_HEIGHT);
+  context.fillRect(0, barTop, canvasWidth, LOGO_BAR_HEIGHT);
 
   context.fillStyle = theme.border;
-  context.fillRect(0, barTop, SHARE_IMAGE_WIDTH, LOGO_BAR_BORDER);
+  context.fillRect(0, barTop, canvasWidth, LOGO_BAR_BORDER);
 
   const markScale = LOGO_HEIGHT / MARK_HEIGHT;
   const wordmarkScale = LOGO_HEIGHT / WORDMARK_HEIGHT;
   const markWidth = MARK_WIDTH * markScale;
   const wordmarkWidth = WORDMARK_WIDTH * wordmarkScale;
-  const left = (SHARE_IMAGE_WIDTH - (markWidth + LOGO_GAP + wordmarkWidth)) / 2;
+  const left = (canvasWidth - (markWidth + LOGO_GAP + wordmarkWidth)) / 2;
   const top = barTop + (LOGO_BAR_HEIGHT - LOGO_HEIGHT) / 2;
 
   context.fillStyle = theme.logo;
@@ -124,14 +148,16 @@ export async function captureShareImage(
   }
 
   const {
+    width = SHARE_IMAGE_WIDTH,
+    height = SHARE_IMAGE_HEIGHT,
     padding = 48,
     frameBackgroundColor,
     branded = true,
     ...snapOptions
   } = options;
   const barHeight = branded ? LOGO_BAR_HEIGHT : 0;
-  const contentWidth = SHARE_IMAGE_WIDTH - padding * 2;
-  const contentHeight = SHARE_IMAGE_HEIGHT - padding * 2 - barHeight;
+  const contentWidth = width - padding * 2;
+  const contentHeight = height - padding * 2 - barHeight;
 
   const rect = element.getBoundingClientRect();
 
@@ -148,16 +174,18 @@ export async function captureShareImage(
   const captureScale = Math.max(1, fitScale);
 
   const { snapdom } = await import('@zumer/snapdom');
-  const result = await snapdom(element, {
-    embedFonts: true,
-    ...snapOptions,
-    scale: captureScale,
-  });
+  const result = await withTimeout(
+    snapdom(element, {
+      embedFonts: true,
+      ...snapOptions,
+      scale: captureScale,
+    }),
+  );
   const source = await result.toCanvas();
 
   const canvas = document.createElement('canvas');
-  canvas.width = SHARE_IMAGE_WIDTH;
-  canvas.height = SHARE_IMAGE_HEIGHT;
+  canvas.width = width;
+  canvas.height = height;
   const context = canvas.getContext('2d');
 
   if (!context) {
@@ -184,7 +212,7 @@ export async function captureShareImage(
   );
 
   if (branded) {
-    drawLogoBar(context, theme);
+    drawLogoBar(context, theme, width, height);
   }
 
   return new Promise<Blob>((resolve, reject) => {

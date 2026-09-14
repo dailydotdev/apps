@@ -1,0 +1,144 @@
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import classNames from 'classnames';
+import { AdPixel } from '../../../components/cards/ad/common/AdPixel';
+import { getViewedPixels } from '../../../components/cards/ad/common/getViewedPixels';
+import { anchorSponsoredRel } from '../../../lib/strings';
+import { boxedLogoHeight } from './sponsorLogoSizing';
+import type { ResolvedSponsor } from './sponsorStripCreative';
+import { useSponsorSlotLog } from './useSponsorSlotLog';
+
+interface SponsorLogoProps {
+  sponsor: ResolvedSponsor;
+  slotIndex: number;
+  /**
+   * Cap height for the optical sizing that keeps a wall of unrelated marks
+   * looking like one row. Omitted by the slot that sets `exactHeight`.
+   */
+  cap?: number;
+  /**
+   * Draw the mark at exactly this height and let the file's own ratio set the
+   * width. The gold slot is meant to dominate, so trading its height away for
+   * width the way the wall does only makes it smaller.
+   */
+  exactHeight?: number;
+  /**
+   * Fixed box the mark is drawn into. Wall slots use one so the row's width
+   * cannot jump every time a rotation swaps a square mark for a long lockup;
+   * the gold slot takes its natural width instead.
+   */
+  boxWidth?: number;
+  /**
+   * Draw the mark as a single-colour silhouette that takes the surrounding
+   * text colour, instead of the file's own inks. This is what makes a wall of
+   * marks from a dozen advertisers read as one row in both themes — full
+   * colour there is a patchwork, and half the marks die against one ground.
+   * The gold slot is the exception: its brand colour is what was sold.
+   */
+  monochrome?: boolean;
+  /** Height ceiling in px, so a mark cannot outgrow the row it sits in. */
+  maxHeight?: number;
+  className?: string;
+}
+
+export const SponsorLogo = ({
+  sponsor,
+  slotIndex,
+  cap,
+  exactHeight,
+  boxWidth,
+  monochrome = false,
+  maxHeight,
+  className,
+}: SponsorLogoProps): ReactElement => {
+  const { ref, isViewable, onClick } = useSponsorSlotLog<HTMLAnchorElement>({
+    sponsor,
+    slotIndex,
+  });
+  const viewedPixels = useMemo(
+    () => getViewedPixels(sponsor.pixel),
+    [sponsor.pixel],
+  );
+  let height: number;
+
+  if (exactHeight !== undefined) {
+    height = exactHeight;
+  } else if (cap !== undefined) {
+    height = boxedLogoHeight(
+      sponsor.ratio,
+      cap,
+      boxWidth ?? Number.POSITIVE_INFINITY,
+      maxHeight,
+    );
+  } else {
+    throw new Error('SponsorLogo needs either a cap or an exactHeight');
+  }
+
+  const size: CSSProperties = {
+    height: `${height}px`,
+    // A mask paints whatever box it is handed, and a boxed wall slot has to
+    // stay a predictable width, so both take the width the ratio implies. A
+    // bare `<img>` carries its own ratio, and with no dimensions on the wire
+    // the file beats the stand-in: the gold slot is sized by height and lets
+    // the width follow, which is what the slot was sold as. Handing it the
+    // stand-in width instead would letterbox a wide lockup down to two thirds
+    // of the height the row reserves for it.
+    width:
+      monochrome || boxWidth
+        ? `${Math.round(height * sponsor.ratio)}px`
+        : 'auto',
+  };
+
+  return (
+    <a
+      ref={ref}
+      href={sponsor.link}
+      target="_blank"
+      rel={anchorSponsoredRel}
+      title={sponsor.company}
+      onClick={onClick}
+      className={classNames(
+        'relative flex shrink-0 items-center justify-center',
+        className,
+      )}
+      style={boxWidth ? { width: `${boxWidth}px` } : undefined}
+    >
+      {monochrome ? (
+        <span
+          role="img"
+          aria-label={sponsor.company}
+          className="block"
+          style={{
+            ...size,
+            // `bg-current` is not in this palette — the design tokens replace
+            // the default colours — so the ink is painted directly and the
+            // logo file is what shapes it.
+            backgroundColor: 'currentColor',
+            maskImage: `url(${sponsor.logo})`,
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+            maskSize: 'contain',
+            WebkitMaskImage: `url(${sponsor.logo})`,
+            WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            WebkitMaskSize: 'contain',
+          }}
+        />
+      ) : (
+        <img
+          src={sponsor.logo}
+          alt={sponsor.company}
+          className="object-contain"
+          style={size}
+        />
+      )}
+      {/* No `fireOnMount`: the ad server should count the impression when the
+          mark reaches the viewport, which is how every other placement counts
+          it. Only the viewable re-fire below is already gated by then. */}
+      <AdPixel pixel={sponsor.pixel} />
+      {isViewable && !!viewedPixels.length && (
+        <AdPixel pixel={viewedPixels} fireOnMount />
+      )}
+    </a>
+  );
+};

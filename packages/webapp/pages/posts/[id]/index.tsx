@@ -49,6 +49,7 @@ import {
   useEventListener,
   useJoinReferral,
   usePostById,
+  useShareLinkClick,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -79,6 +80,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
@@ -218,6 +220,8 @@ export const PostPage = ({
       retry: false,
     },
   });
+  useSlackShareReturn({ post });
+  useShareLinkClick({ postId: post?.id });
   const queryClient = useQueryClient();
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error

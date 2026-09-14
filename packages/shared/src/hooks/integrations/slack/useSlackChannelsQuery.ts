@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { SlackChannel } from '../../../graphql/integrations';
 import { SLACK_CHANNELS_QUERY } from '../../../graphql/integrations';
@@ -17,20 +17,32 @@ export type UseSlackChannelsQueryProps = {
   integrationId: string;
   queryOptions?: { enabled?: boolean };
   selectedChannelId?: string;
+  /**
+   * Pull the remaining pages in the background. Slack has no channel search
+   * endpoint, so filtering can only ever happen over what has been fetched, and
+   * a search box that quietly ignores unfetched channels is worse than none.
+   */
+  fetchAll?: boolean;
 };
 
 export type UseSlackChannelsQuery = {
   channels: SlackChannel[];
+  isFetchingAll: boolean;
   fetchNextPage: () => Promise<unknown>;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   isLoading: boolean;
 };
 
+// a bound so a very large workspace cannot turn the picker into a request storm
+// against Slack's per-minute limit; the filter then covers the first pages only
+const maxAutoFetchedPages = 10;
+
 export const useSlackChannelsQuery = ({
   integrationId,
   queryOptions,
   selectedChannelId,
+  fetchAll = false,
 }: UseSlackChannelsQueryProps): UseSlackChannelsQuery => {
   const { user } = useAuthContext();
   const enabled = !!integrationId;
@@ -86,8 +98,24 @@ export const useSlackChannelsQuery = ({
     ];
   }, [queryResult.data?.pages, selectedChannelId]);
 
+  const loadedPages = queryResult.data?.pages?.length ?? 0;
+  const canFetchMore =
+    fetchAll &&
+    queryResult.hasNextPage &&
+    !queryResult.isFetchingNextPage &&
+    loadedPages < maxAutoFetchedPages;
+
+  useEffect(() => {
+    if (!canFetchMore) {
+      return;
+    }
+
+    queryResult.fetchNextPage();
+  }, [canFetchMore, queryResult]);
+
   return {
     channels,
+    isFetchingAll: queryResult.isLoading || canFetchMore,
     fetchNextPage: queryResult.fetchNextPage,
     hasNextPage: queryResult.hasNextPage,
     isFetchingNextPage: queryResult.isFetchingNextPage,

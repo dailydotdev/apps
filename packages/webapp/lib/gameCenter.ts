@@ -192,7 +192,8 @@ const dedupeAchievements = (
 export type GameCenterAchievementSummary = {
   unlockedCount: number;
   totalCount: number;
-  totalPoints: number;
+  /** XP from unlocked achievements only, not the user's whole balance. */
+  totalAchievementXp: number;
   latestUnlocked: UserAchievement | null;
   rarestUnlocked: UserAchievement | null;
   nextToUnlock: UserAchievement | null;
@@ -245,7 +246,7 @@ export const getAchievementSummary = (
         return right.progress - left.progress;
       }
 
-      return right.achievement.points - left.achievement.points;
+      return right.achievement.xp - left.achievement.xp;
     })[0] ?? null;
 
   // The four are picked by role, then ordered by how far along they are, so
@@ -293,8 +294,8 @@ export const getAchievementSummary = (
   return {
     unlockedCount: unlocked.length,
     totalCount: allAchievements.length,
-    totalPoints: unlocked.reduce(
-      (total, achievement) => total + (achievement.achievement.points ?? 0),
+    totalAchievementXp: unlocked.reduce(
+      (total, achievement) => total + (achievement.achievement.xp ?? 0),
       0,
     ),
     latestUnlocked,

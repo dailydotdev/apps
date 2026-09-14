@@ -2,6 +2,7 @@ import type { PurchaseType } from '../graphql/paddle';
 
 export enum Origin {
   ShareBar = 'share bar',
+  DiscussionPanel = 'discussion panel',
   ReadingHistoryContextMenu = 'reading history context menu',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
@@ -22,6 +23,8 @@ export enum Origin {
   TagPage = 'tag page',
   ToolPage = 'tool page',
   ToolsDirectory = 'tools directory',
+  SourceDirectory = 'source directory',
+  ArchiveIndex = 'archive index',
   Profile = 'profile',
   PostTags = 'post tags',
   // squads - start
@@ -51,6 +54,14 @@ export enum Origin {
   HistoryTooltip = 'history tooltip',
   // search - end
   PostContent = 'post content',
+  EndOfConversation = 'end of conversation',
+  // snapshot placements - start
+  TextSelection = 'text selection',
+  PostSummary = 'post summary',
+  PostParagraph = 'post paragraph',
+  PollResults = 'poll results',
+  PollVotePrompt = 'poll vote prompt',
+  // snapshot placements - end
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -174,6 +185,8 @@ export enum LogEvent {
   CompleteSquadCreation = 'complete squad creation',
   StartShareToSquad = 'start share to squad',
   ShareToSquad = 'share to squad',
+  StartShareToSlack = 'start share to slack',
+  ShareToSlackError = 'share to slack error',
   ChecklistClose = 'checklist close',
   DeletePost = 'delete post',
   DeleteComment = 'delete comment',
@@ -350,6 +363,7 @@ export enum LogEvent {
   ShareLog = 'share log',
   ShareWorld = 'share world',
   ShareTool = 'share tool',
+  ShareArchive = 'share archive',
   // End Share
   /* Start World
      `world view` is the denominator and fires whatever happens next, so the

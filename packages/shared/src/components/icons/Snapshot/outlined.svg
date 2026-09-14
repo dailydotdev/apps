@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Icon/Snapshot/Outline</title>
+    <g id="Icon/Snapshot/Outline" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none" fill-rule="evenodd">
+        <path d="M3.75,9 L3.75,6.25 C3.75,4.86928813 4.86928813,3.75 6.25,3.75 L9,3.75"></path>
+        <path d="M15,3.75 L17.75,3.75 C19.1307119,3.75 20.25,4.86928813 20.25,6.25 L20.25,9"></path>
+        <path d="M20.25,15 L20.25,17.75 C20.25,19.1307119 19.1307119,20.25 17.75,20.25 L15,20.25"></path>
+        <path d="M9,20.25 L6.25,20.25 C4.86928813,20.25 3.75,19.1307119 3.75,17.75 L3.75,15"></path>
+        <circle cx="12" cy="12" r="3.6"></circle>
+    </g>
+</svg>
