@@ -9,4 +9,6 @@ export enum ReferralCampaignKey {
   ShareAgent = 'share_agent',
   ShareSlack = 'share_slack',
   ShareHighlights = 'share_highlights',
+  ShareWorld = 'share_world',
+  ShareTool = 'share_tool',
 }

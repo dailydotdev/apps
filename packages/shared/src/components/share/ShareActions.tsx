@@ -13,6 +13,8 @@ import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { shouldUseNativeShare } from '../../lib/func';
 import { ShareProvider } from '../../lib/share';
 import type { ReferralCampaignKey } from '../../lib/referral';
+import type { Post } from '../../graphql/posts';
+import type { Origin } from '../../lib/log';
 import { CopyStateIcon } from './CopyStateIcon';
 import { SplitShareButton } from './SplitShareButton';
 
@@ -23,6 +25,10 @@ export interface ShareActionsProps {
   /** Share text / description used for native share + pre-filled network text. */
   text: string;
   cid?: ReferralCampaignKey;
+  /** The post being shared, when there is one: Slack shares a post. */
+  post?: Post;
+  /** Where the Slack share starts, for its own events. */
+  origin?: Origin;
   variant?: ShareActionsVariant;
   /** Desktop only: reveal the popover on hover as well as click. */
   openOnHover?: boolean;
@@ -50,6 +56,8 @@ export function ShareActions({
   link,
   text,
   cid,
+  post,
+  origin,
   variant = 'icon',
   openOnHover = false,
   buttonVariant = ButtonVariant.Tertiary,
@@ -87,6 +95,8 @@ export function ShareActions({
     <SocialShareList
       link={link}
       description={text}
+      post={post}
+      origin={origin}
       emailTitle={emailTitle}
       emailSummary={emailSummary}
       isCopying={copying}
