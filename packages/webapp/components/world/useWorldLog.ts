@@ -3,6 +3,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import type { WorldDistrict } from '../../graphql/world';
 import { levelOf, nearestLevelUp } from './ladder';
+import type { WorldBootFailureKind } from './worldBootFailure';
 import type { WorldState } from './worldState';
 
 /**
@@ -45,6 +46,8 @@ interface UseWorldLogProps {
   isReady: boolean;
   /** Why the boot died, if it did. */
   failure?: string;
+  /** Which part of boot failed, so expected degradation stays out of error logs. */
+  failureKind?: WorldBootFailureKind;
   state: WorldState;
   districts?: WorldDistrict[];
 }
@@ -76,6 +79,7 @@ export const useWorldLog = ({
   isUnbuilt,
   isReady,
   failure,
+  failureKind,
   state,
   districts,
 }: UseWorldLogProps): void => {
@@ -145,6 +149,7 @@ export const useWorldLog = ({
           is_lite: current.isLite,
           boot_ms: bootMs,
           reason: failure,
+          kind: failureKind ?? 'engine',
         }),
       });
       return;
@@ -183,7 +188,7 @@ export const useWorldLog = ({
         nearest_gap: nearest?.toNext ?? null,
       }),
     });
-  }, [failure, isReady, isUnbuilt, userId]);
+  }, [failure, failureKind, isReady, isUnbuilt, userId]);
 
   /* One event per distinct thing per visit. Opening a realm you have already
      been in is the reader going back rather than a second realm opened, and the

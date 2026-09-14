@@ -43,6 +43,11 @@ import { worldPayloadHash } from './authoredPayload';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
 import { buildUnbuiltWorld } from './unbuiltWorld';
+import type { WorldBootFailure } from './worldBootFailure';
+import {
+  classifyWorldEngineCreationFailure,
+  reasonForWorldBootFailure,
+} from './worldBootFailure';
 import {
   isWorldCustomised,
   resolveCrest,
@@ -115,7 +120,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
 
   const engineRef = useRef<WorldEngine | null>(null);
   const [state, setState] = useState<WorldState>(INITIAL);
-  const [failed, setFailed] = useState<string | null>(null);
+  const [failed, setFailed] = useState<WorldBootFailure | null>(null);
   const [isImmersive, setIsImmersive] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
@@ -185,16 +190,25 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   }, []);
 
   useEffect(() => {
-    const engine = createWorldEngine({
-      container: mountRef.current,
-      onState: setState,
-      lite: isLite,
-    }) as WorldEngine;
-    engineRef.current = engine;
+    let engine: WorldEngine | null = null;
+
+    try {
+      engine = createWorldEngine({
+        container: mountRef.current,
+        onState: setState,
+        lite: isLite,
+      }) as WorldEngine;
+      engineRef.current = engine;
+    } catch (bootError) {
+      setFailed({
+        reason: reasonForWorldBootFailure(bootError),
+        kind: classifyWorldEngineCreationFailure(bootError),
+      });
+    }
 
     return () => {
       engineRef.current = null;
-      engine.dispose();
+      engine?.dispose();
     };
     // The tier is read once, deliberately: see `isLite`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -241,9 +255,17 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
             ? buildWorld(user.id, districts, [])
             : buildUnbuiltWorld(user.id),
         )
-        .catch((bootError: Error) => setFailed(bootError.message));
+        .catch((bootError: Error) =>
+          setFailed({
+            reason: reasonForWorldBootFailure(bootError),
+            kind: 'engine',
+          }),
+        );
     } catch (buildError) {
-      setFailed((buildError as Error).message);
+      setFailed({
+        reason: reasonForWorldBootFailure(buildError),
+        kind: 'engine',
+      });
     }
   }, [districts, isEmpty, raisedFor, user?.id]);
 
@@ -434,7 +456,8 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   /* Kept as the reason rather than as a boolean so it still reads in a stack
      trace and in the devtools, and never as copy: what a reader is told is
      `WorldStatus`'s own line. */
-  const failure = failed ?? error?.message;
+  const failure = failed?.reason ?? error?.message;
+  const failureKind = failed?.kind ?? (error ? 'data' : undefined);
   // `raisedFor` is the third term for the same reason it is state: until the
   // engine has been handed THIS reader, `state` is somebody else's world.
   const isBooting =
@@ -475,6 +498,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     isUnbuilt,
     isReady: isStanding,
     failure,
+    failureKind,
     state,
     districts,
   });
@@ -690,7 +714,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
 
       {!isStanding &&
         (failure ? (
-          <WorldStatus user={user} />
+          <WorldStatus user={user} failureKind={failureKind} />
         ) : (
           /* Determinate only once the engine is raising something. Before that
              the wait is a chunk download and a query, neither of which can be

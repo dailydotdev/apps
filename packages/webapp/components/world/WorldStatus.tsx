@@ -14,9 +14,11 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { WorldStage, WorldStageIdentity } from './WorldBoot';
+import type { WorldBootFailureKind } from './worldBootFailure';
 
 interface WorldStatusProps {
   user: PublicProfile;
+  failureKind?: WorldBootFailureKind;
 }
 
 /**
@@ -32,7 +34,10 @@ interface WorldStatusProps {
  * that has not been built yet, and that is a thing to show rather than a thing
  * to report (`WorldInvite`).
  */
-export function WorldStatus({ user }: WorldStatusProps): ReactElement {
+export function WorldStatus({
+  user,
+  failureKind,
+}: WorldStatusProps): ReactElement {
   return (
     <WorldStage>
       <WorldStageIdentity user={user} />
@@ -43,6 +48,12 @@ export function WorldStatus({ user }: WorldStatusProps): ReactElement {
         className="max-w-sm"
       >
         This world could not be loaded right now. Try again in a moment.
+        {failureKind === 'unsupported' && (
+          <>
+            <br />
+            This browser can&apos;t render 3D worlds.
+          </>
+        )}
       </Typography>
 
       {/* The panel is what normally carries the way out, and it is not rendered
