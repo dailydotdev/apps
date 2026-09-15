@@ -300,11 +300,16 @@ function renderPost(
   props: Partial<Props> = {},
   mocks: MockedGraphQLResponse[] = [createPostMock(), createCommentsMock()],
   user?: LoggedUser,
+  // The page's own getLayout carries the layout banner (phone ad strip and
+  // auth banner); the bare main layout leaves it out.
+  withPageLayout = false,
 ): RenderResult {
   const resolvedUser = arguments.length < 3 ? defaultUser : user;
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
   };
+  const pageProps = { ...defaultProps, ...props };
+  const page = <PostPage {...pageProps} />;
 
   client = new QueryClient();
 
@@ -357,7 +362,9 @@ function renderPost(
           sendBeacon: jest.fn(),
         }}
       >
-        {getMainLayout(<PostPage {...defaultProps} {...props} />)}
+        {withPageLayout
+          ? PostPage.getLayout(page, pageProps, PostPage.layoutProps)
+          : getMainLayout(page)}
       </LogContext.Provider>
     </TestBootProvider>,
   );
@@ -1295,6 +1302,32 @@ describe('post redesign', () => {
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+  });
+
+  describe('phone ad strip', () => {
+    const renderAnonymousPage = () =>
+      renderPost(
+        { initialData: { post: getPostFromMock(createPostMock()) } },
+        [createPostMock(), createCommentsMock()],
+        undefined,
+        true,
+      );
+
+    it('pins the strip on the classic layout', async () => {
+      mockRedesignOn = false;
+      renderAnonymousPage();
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
+    });
+
+    it('drops the strip with the focus card, which never loads adsbygoogle', async () => {
+      mockRedesignOn = true;
+      renderAnonymousPage();
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('phone-top-ad-strip'),
+      ).not.toBeInTheDocument();
+    });
   });
 });
 

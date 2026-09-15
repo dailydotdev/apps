@@ -8,7 +8,6 @@ import {
   ReadAdSlot,
 } from '@dailydotdev/shared/src/components/post/read/ReadAdSlot';
 import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read/ReadTopLeaderboard';
-import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   ADSENSE_SCRIPT_SRC,
@@ -66,7 +65,6 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
@@ -76,12 +74,11 @@ import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
-import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
+import { PostPageBanner } from '../../../components/post/PostPageBanner';
+import { usePostPageRedesign } from '../../../components/post/usePostPageRedesign';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -226,16 +223,7 @@ export const PostPage = ({
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
-  const isRedesignEligible = isPostRedesignEligible(post);
-  const { value: isRedesignFlagOn } = useConditionalFeature({
-    feature: featurePostRedesign,
-    shouldEvaluate: isRedesignEligible,
-  });
-  // Entry-specific flows the focus card doesn't render (author onboarding via
-  // `?author`, back-to-squad via `?squad`) stay on the classic layout.
-  const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
-  const showRedesign =
-    isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
+  const showRedesign = usePostPageRedesign(post);
   // Empty for every logged-in visitor; the slot components check the same
   // hook, so with it empty neither markup nor script exists. Gated on a unit
   // id being present, not key presence — the map keeps placeholder entries
@@ -510,16 +498,15 @@ export const PostPage = ({
   );
 };
 
-PostPage.getLayout = getLayout;
+PostPage.getLayout = (page, pageProps, layoutProps) =>
+  getLayout(page, pageProps, {
+    ...layoutProps,
+    customBanner: (
+      <PostPageBanner post={(pageProps as Props)?.initialData?.post} />
+    ),
+  });
 PostPage.layoutProps = {
   screenCentered: false,
-  // Strip first: both pin, and the banner's top offset is the strip's height.
-  customBanner: (
-    <>
-      <PhoneTopAdStrip surface="organic" />
-      <CustomAuthBanner />
-    </>
-  ),
 };
 
 export default PostPage;
