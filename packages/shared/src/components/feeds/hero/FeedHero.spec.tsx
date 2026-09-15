@@ -92,6 +92,50 @@ describe('FeedHero', () => {
     expect(screen.getByText('Third headline')).toBeInTheDocument();
   });
 
+  it('should drop only the lead story from a stacked rail', async () => {
+    jest.mocked(useFeedHeroAd).mockReturnValue({
+      ad: undefined,
+      placement: 'none',
+      // Stacked: the lead story is already a card above the list.
+      shape: feedHeroShape(1),
+    });
+    mockHero({ posts, highlights });
+
+    renderComponent();
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'First hero post' }),
+      ).toBeInTheDocument(),
+    );
+    // Matched on the post behind it, not on its position in the list.
+    expect(screen.queryByText('First headline')).not.toBeInTheDocument();
+    expect(screen.getByText('Second headline')).toBeInTheDocument();
+    expect(screen.getByText('Third headline')).toBeInTheDocument();
+  });
+
+  it('should keep a rail headline whose post is not the lead card', async () => {
+    jest.mocked(useFeedHeroAd).mockReturnValue({
+      ad: undefined,
+      placement: 'none',
+      shape: feedHeroShape(1),
+    });
+    // The cards and the headlines are separate lists, so the lead card need
+    // not be the first headline.
+    mockHero({ posts: [posts[1]], highlights });
+
+    renderComponent();
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'Second hero post' }),
+      ).toBeInTheDocument(),
+    );
+    expect(screen.getByText('First headline')).toBeInTheDocument();
+    expect(screen.queryByText('Second headline')).not.toBeInTheDocument();
+    expect(screen.getByText('Third headline')).toBeInTheDocument();
+  });
+
   it('should render nothing when the query returns no posts', async () => {
     mockHero({ posts: [], highlights: [] });
 

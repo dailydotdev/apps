@@ -33,9 +33,9 @@ import { useFeedHeroAd } from './useFeedHeroAd';
 const HERO_ORIGIN = 'feed hero';
 
 /**
- * The carousel and the Happening Now list are the same headlines: `feedHero`
- * returns the leading few already hydrated into posts for the cards, and every
- * headline it kept for the rows beside them.
+ * The carousel and the Happening Now list are two lists, not one: `feedHero`
+ * grades the cards across editorial highlights and lifecycle states, while the
+ * rows beside them stay major headlines. A post can be in both, or in one.
  */
 export const FeedHero = ({
   feedName,
@@ -76,7 +76,6 @@ export const FeedHero = ({
   });
 
   const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
-  /** In headline order and index-aligned with the highlights, per `feedHero`. */
   const posts: Post[] = useMemo(() => hero?.feedHero?.posts ?? [], [hero]);
 
   const isRendered = posts.length > 0;
@@ -84,9 +83,17 @@ export const FeedHero = ({
   const isAdShown = adPlacement !== 'none';
 
   // Stacked, the lead story is already a card above the list, so drop it from
-  // the list rather than showing it twice a few pixels apart.
-  const railHighlights =
-    shape.layout === 'stacked' ? highlights.slice(1) : highlights;
+  // the list rather than showing it twice a few pixels apart. Matched on the
+  // post, not the position: the cards and the headlines are separate lists.
+  const railHighlights = useMemo(() => {
+    const leadPostId = posts[0]?.id;
+
+    if (shape.layout !== 'stacked' || !leadPostId) {
+      return highlights;
+    }
+
+    return highlights.filter(({ post }) => post.id !== leadPostId);
+  }, [highlights, posts, shape.layout]);
 
   const onAdAction = useCallback(
     (action: AdActions, extra?: Record<string, unknown>) => {
