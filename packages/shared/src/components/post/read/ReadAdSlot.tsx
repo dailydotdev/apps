@@ -35,6 +35,8 @@ export interface ReadAdSlotProps {
    * and a display:none box never intersects.
    */
   hideOnPhone?: boolean;
+  /** No label row and tighter padding — see ProgrammaticAd. */
+  compact?: boolean;
   /**
    * Which slot map gates the unit: the /read template (default) or
    * the organic post page. The dashed density-review placeholder is a
@@ -58,6 +60,7 @@ function MappedAdSlot({
   className,
   refreshes,
   hideOnPhone,
+  compact,
   eager,
   logExtra,
   slots,
@@ -89,6 +92,7 @@ function MappedAdSlot({
         className={className}
         refreshes={refreshes}
         hideOnPhone={hideOnPhone}
+        compact={compact}
         eager={eager}
         logExtra={logExtra}
       />

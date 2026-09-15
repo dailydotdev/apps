@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import post, {
   postWithCommunitySentiment,
@@ -150,6 +150,45 @@ describe('PostFocusCard community sentiment', () => {
     expect(
       screen.queryByRole('region', { name: 'What the community thinks' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+/* The redesigned layout is what the post_redesign flag serves, and the share
+   placements were wired to the classic one first — these hold that line. */
+describe('PostFocusCard share placements', () => {
+  const QUOTE =
+    'They optimised the product they had instead of the one their customers were moving to.';
+  const summaryPost: Post = { ...post, summary: QUOTE };
+
+  beforeAll(() => {
+    // jsdom has no layout, and the bar refuses a selection it cannot place.
+    Range.prototype.getBoundingClientRect = () =>
+      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+  });
+
+  it('runs the summary snapshot into the end of the TLDR', () => {
+    renderCard(summaryPost);
+
+    expect(screen.getByTestId('tldr-container')).toContainElement(
+      screen.getByLabelText('Snapshot'),
+    );
+  });
+
+  it('offers a snapshot of a quote selected in the card', () => {
+    renderCard(summaryPost);
+
+    const node = screen.getByTestId('tldr-container').firstChild as Node;
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(node, node.textContent?.length ?? 0);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    fireEvent.pointerUp(document);
+
+    expect(
+      screen.getByRole('toolbar', { name: 'Share selected text' }),
+    ).toBeInTheDocument();
   });
 });
 

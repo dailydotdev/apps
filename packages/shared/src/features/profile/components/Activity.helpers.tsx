@@ -107,9 +107,11 @@ export const getUserPath = (
   username: string | undefined,
   userId: string | undefined,
   path: string,
+  isPreviewMode?: boolean,
 ): string => {
   const userIdentifier = username || userId;
-  return `/${userIdentifier}${path}`;
+  const query = isPreviewMode ? '?preview=true' : '';
+  return `/${userIdentifier}${path}${query}`;
 };
 
 export const renderEmptyScreen = (

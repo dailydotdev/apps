@@ -7,7 +7,7 @@ import SquadHeaderMenu from './SquadHeaderMenu';
 import type { SquadMemberShortListProps } from './SquadMemberShortList';
 import SquadMemberShortList from './SquadMemberShortList';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
 import { SquadActionButton } from './SquadActionButton';
@@ -29,6 +29,8 @@ import { AwardButton } from '../award/AwardButton';
 import type { LoggedUser } from '../../lib/user';
 import { Tooltip } from '../tooltip/Tooltip';
 import { BoostSourceButton } from '../../features/boost/BoostSourceButton';
+import { CopyLinkButton } from '../share/CopyLinkButton';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 type SquadBarButtonProps<T extends AllowedTags> = Pick<
   Partial<ButtonProps<T>>,
@@ -59,7 +61,7 @@ const SquadSlackButton = <T extends AllowedTags>({
       return 'Connect to Slack';
     }
 
-    if (sourceIntegration?.userIntegration.userId === user.id) {
+    if (sourceIntegration?.userIntegration.userId === user?.id) {
       return 'Manage';
     }
 
@@ -92,7 +94,7 @@ const SquadAwardButton = ({
   });
   const canAwardSquad = !!eligibleAdmin;
 
-  if (!canAwardSquad) {
+  if (!canAwardSquad || !squad.id) {
     return null;
   }
   return (
@@ -116,14 +118,6 @@ const SquadInviteButton = <T extends AllowedTags>({
   squad,
   ...props
 }: SquadBarButtonProps<T>) => {
-  const canRender = useMemo(() => {
-    return verifyPermission(squad, SourcePermissions.Invite);
-  }, [squad]);
-
-  if (!canRender) {
-    return null;
-  }
-
   return (
     <Button
       variant={ButtonVariant.Secondary}
@@ -212,6 +206,8 @@ export function SquadHeaderBar({
   const { openModal, modal } = useLazyModal();
   const isMember = !!squad.currentMember;
   const userCanJoin = squad.public && !isMember;
+  const canInvite =
+    !userCanJoin && verifyPermission(squad, SourcePermissions.Invite);
   const showPendingCount = !!(
     squad.moderationRequired && squad.moderationPostCount
   );
@@ -237,7 +233,7 @@ export function SquadHeaderBar({
         members={members}
         size={ProfileImageSize.Small}
       />
-      {!userCanJoin && (
+      {canInvite && (
         <SquadInviteButton
           squad={squad}
           onClick={() => {
@@ -281,6 +277,21 @@ export function SquadHeaderBar({
             });
           }}
           squad={squad}
+        />
+      )}
+      {!canInvite && (
+        <CopyLinkButton
+          className="order-3 tablet:order-4"
+          origin={Origin.SquadPage}
+          shareProps={{
+            text: `Check out the ${squad.name} squad on daily.dev`,
+            link: squad.permalink,
+            cid: ReferralCampaignKey.ShareSource,
+            logObject: () => ({
+              event_name: LogEvent.ShareSource,
+              target_id: squad.id,
+            }),
+          }}
         />
       )}
       <SquadAnalyticsButton squad={squad} />

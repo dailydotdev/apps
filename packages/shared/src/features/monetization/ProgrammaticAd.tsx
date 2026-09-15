@@ -56,6 +56,11 @@ type FormatSpec = {
    * which a fixed pixel size could not do without breaking one of them.
    */
   shape?: 'rectangle' | 'horizontal' | 'vertical';
+  /**
+   * The reservation for the compact wrapper: creative height plus py-1, no
+   * label row. Only formats that render compact anywhere declare it.
+   */
+  compactMinHeight?: string;
 };
 
 export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
@@ -103,6 +108,7 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     label: 'Mobile banner',
     size: '320x50',
     minHeight: 'min-h-[86px]',
+    compactMinHeight: 'min-h-[3.625rem]',
     maxWidth: 'max-w-[320px]',
     shape: 'horizontal',
   },
@@ -217,6 +223,12 @@ export interface ProgrammaticAdProps {
   /** Drops the slot below the tablet breakpoint (and its request with it). */
   hideOnPhone?: boolean;
   /**
+   * The bare unit: no "Advertisements" row and the tighter padding, for a
+   * placement pinned on screen where every pixel of chrome is permanent.
+   * AdSense treats the label as optional, so nothing is owed here.
+   */
+  compact?: boolean;
+  /**
    * Requests the ad on mount instead of waiting to near the viewport. For
    * slots visible at first paint the intersection wait only adds latency —
    * and the adsbygoogle array queues pushes before the script has even
@@ -245,6 +257,7 @@ export function ProgrammaticAd({
   className,
   refreshes,
   hideOnPhone,
+  compact,
   eager,
   logExtra,
 }: ProgrammaticAdProps): ReactElement {
@@ -548,7 +561,8 @@ export function ProgrammaticAd({
         // padding would shrink the usable width below the IAB cap the
         // FORMAT_SPEC widths exist to guarantee (300x250 no longer fits a
         // padded max-w-[300px]).
-        'mx-auto w-full rounded-8 bg-white py-2 text-center',
+        'mx-auto w-full rounded-8 bg-white text-center',
+        compact ? 'py-1' : 'py-2',
         // AdSense stamps data-ad-status="unfilled" when no creative was
         // returned. Without collapsing, the reserved min-height stays behind as
         // a block of empty page — most visible in the comment thread, where an
@@ -558,7 +572,8 @@ export function ProgrammaticAd({
         // unfilled phone-hidden slot would stay visible from tablet up.
         'has-[>ins[data-ad-status="unfilled"]]:!hidden',
         hideOnPhone && 'hidden tablet:block',
-        FORMAT_SPEC[format].minHeight,
+        (compact && FORMAT_SPEC[format].compactMinHeight) ||
+          FORMAT_SPEC[format].minHeight,
         FORMAT_SPEC[format].maxWidth,
         className,
       )}
@@ -569,7 +584,7 @@ export function ProgrammaticAd({
           slot's collapse takes the label down with it. */}
       {/* Constant gray, not a theme token: the label sits on the card's
           constant white, where a dark-theme quaternary would vanish. */}
-      {isRequested && (
+      {isRequested && !compact && (
         <span className="block pb-1 pr-1 text-right text-raw-pepper-10 typo-caption2">
           Advertisements
         </span>

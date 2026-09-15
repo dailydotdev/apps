@@ -34,6 +34,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import { UpvoteButtonIcon } from '../cards/common/UpvoteButtonIcon';
+import { usePostActions } from '../../hooks/post/usePostActions';
 import { usePostActionsLabelVisibility } from './usePostActionsLabelVisibility';
 
 interface PostActionsProps {
@@ -62,6 +63,7 @@ export function PostActions({
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
+  const { onInteract } = usePostActions({ post });
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
@@ -91,6 +93,12 @@ export function PostActions({
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
       onClose(true);
+    }
+
+    // The same signal the v1 bar raises: PostContentShare listens for it, and
+    // without this the share prompt never appears for anyone on this bar.
+    if (post?.userState?.vote !== UserVote.Up) {
+      onInteract('upvote');
     }
 
     await toggleUpvote({ payload: post, origin });

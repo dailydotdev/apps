@@ -800,6 +800,7 @@ export const USER_INTEGRATIONS = gql`
           id
           type
           name
+          canPostAsUser
         }
       }
     }
