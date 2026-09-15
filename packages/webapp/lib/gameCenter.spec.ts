@@ -47,7 +47,7 @@ const createAchievement = (
   overrides: Partial<UserAchievement> & {
     id: string;
     name: string;
-    points?: number;
+    xp?: number;
   },
 ): UserAchievement => ({
   achievement: {
@@ -57,7 +57,7 @@ const createAchievement = (
     image: 'https://daily.dev/achievement.png',
     type: AchievementType.Milestone,
     criteria: { targetCount: 10 },
-    points: overrides.points ?? 100,
+    xp: overrides.xp ?? 100,
     rarity: 10,
     unit: 'posts',
   },
@@ -214,13 +214,13 @@ describe('game center helpers', () => {
       id: 'tracked',
       name: 'Tracked',
       progress: 9,
-      points: 50,
+      xp: 50,
     });
     const rareUnlocked = createAchievement({
       id: 'rare',
       name: 'Rare unlocked',
       unlockedAt: '2025-03-01T00:00:00.000Z',
-      points: 200,
+      xp: 200,
       achievement: {
         id: 'rare',
         name: 'Rare unlocked',
@@ -228,7 +228,7 @@ describe('game center helpers', () => {
         image: 'https://daily.dev/rare.png',
         type: AchievementType.Milestone,
         criteria: { targetCount: 10 },
-        points: 200,
+        xp: 200,
         rarity: 1,
         unit: 'posts',
       },
@@ -237,7 +237,7 @@ describe('game center helpers', () => {
       id: 'latest',
       name: 'Latest unlocked',
       unlockedAt: '2025-03-10T00:00:00.000Z',
-      points: 120,
+      xp: 120,
     });
 
     const summary = getAchievementSummary(
@@ -247,7 +247,7 @@ describe('game center helpers', () => {
 
     expect(summary.unlockedCount).toBe(2);
     expect(summary.totalCount).toBe(3);
-    expect(summary.totalPoints).toBe(320);
+    expect(summary.totalAchievementXp).toBe(320);
     expect(summary.nextToUnlock?.achievement.id).toBe('tracked');
     expect(summary.latestUnlocked?.achievement.id).toBe('latest');
     expect(summary.rarestUnlocked?.achievement.id).toBe('rare');

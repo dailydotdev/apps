@@ -180,14 +180,14 @@ export function AchievementsList({
       if (!a.unlockedAt && b.unlockedAt) {
         return 1;
       }
-      // Among unlocked, sort by rarity (rarest first), then points (highest first)
+      // Among unlocked, sort by rarity (rarest first), then xp (highest first)
       if (a.unlockedAt && b.unlockedAt) {
         const rarityA = a.achievement.rarity ?? Infinity;
         const rarityB = b.achievement.rarity ?? Infinity;
         if (rarityA !== rarityB) {
           return rarityA - rarityB;
         }
-        return b.achievement.points - a.achievement.points;
+        return b.achievement.xp - a.achievement.xp;
       }
       // Among locked, sort by progress percentage (highest first)
       const targetA = getTargetCount(a.achievement);

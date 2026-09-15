@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { PopoverContentProps } from '@radix-ui/react-popover';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
-import { Controller, useFormContext } from 'react-hook-form';
 import type { FieldError } from 'react-hook-form';
+import { Controller, useFormContext, useFormState } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { TextField } from '../../../components/fields/TextField';
 import { FeedbackIcon, SearchIcon } from '../../../components/icons';
@@ -11,39 +11,51 @@ import { IconSize } from '../../../components/Icon';
 import { TagElement } from '../../../components/feeds/FeedSettings/TagElement';
 import { PopoverContent } from '../../../components/popover/Popover';
 import useDebounceFn from '../../../hooks/useDebounceFn';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { GenericLoaderSpinner } from '../../../components/utilities/loaders';
 import {
   Typography,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { getKeywordAutocompleteOptions } from '../../opportunity/queries';
-import {
-  userExperienceSkillMaxLength,
-  userExperienceSkillsLimit,
-} from '../common';
-import { useToastNotification } from '../../../hooks/useToastNotification';
+import { maxProfileSkillLength, maxProfileSkills } from '../common';
 
 type ProfileSkillsProps = {
   name: string;
 };
 
-const defaultHint =
+const skillsHint =
   'Add commas (,) to add multiple skills. Press Enter to submit them.';
-const limitHint = `You can add up to ${userExperienceSkillsLimit} skills`;
-const overflowHint = `${limitHint}. Some skills were not added.`;
+const limitHint = `You can add up to ${maxProfileSkills} skills.`;
+const maxLengthHint = `Skills can be up to ${maxProfileSkillLength} characters.`;
 
-const skillIdentity = (skill: string): string =>
+// The API stores skills under slugify(value), so "React.js" and "react js"
+// are the same skill to it but two entries here.
+const skillKey = (skill: string): string =>
   skill
     .trim()
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .substring(0, userExperienceSkillMaxLength);
+    .replace(/^-+|-+$/g, '');
 
-const getFieldErrorMessage = (error: unknown): string | undefined => {
+/**
+ * A rejected skill arrives either as an array-level issue (path `skills`) or as
+ * an item-level one (path `skills.3`), which react-hook-form stores as a sparse
+ * array with no message on the root. Reading `error.message` alone would render
+ * nothing for the second shape.
+ */
+const getSkillsError = (error: unknown): string | undefined => {
   if (!error) {
+    return undefined;
+  }
+
+  if (Array.isArray(error)) {
+    return error.map(getSkillsError).find(Boolean) ?? limitHint;
+  }
+
+  if (typeof error !== 'object') {
     return undefined;
   }
 
@@ -52,13 +64,11 @@ const getFieldErrorMessage = (error: unknown): string | undefined => {
     return fieldError.message;
   }
 
-  if (typeof error === 'object') {
-    return Object.values(error as Record<string, unknown>)
-      .map(getFieldErrorMessage)
-      .find(Boolean);
-  }
-
-  return undefined;
+  return (
+    Object.values(error as Record<string, unknown>)
+      .map(getSkillsError)
+      .find(Boolean) ?? limitHint
+  );
 };
 
 const getPathValue = (value: unknown, path: string): unknown =>
@@ -71,7 +81,11 @@ const getPathValue = (value: unknown, path: string): unknown =>
   }, value);
 
 const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
-  const { control, formState } = useFormContext();
+  const { control } = useFormContext();
+  // useController subscribes to its own name exactly, so a server issue on
+  // `skills.3` never reaches the Controller. useFormState subscribes to the
+  // whole subtree, which covers both the array and the item level paths.
+  const { errors } = useFormState({ control, name });
   const { displayToast } = useToastNotification();
   const [query, setQuery] = useState<string>('');
   const [open, setOpen] = useState(false);
@@ -105,34 +119,74 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
     <Controller
       control={control}
       name={name}
-      render={({ field, fieldState }) => {
+      render={({ field }) => {
         const skills = Array.isArray(field.value) ? field.value : [];
-        const isAtLimit = skills.length >= userExperienceSkillsLimit;
-        const errorMessage = getFieldErrorMessage(
-          fieldState.error ?? getPathValue(formState.errors, name),
-        );
-        const hint = errorMessage || (isAtLimit ? limitHint : defaultHint);
-        const inputHint = errorMessage ? undefined : hint;
-        const existingSkillIdentities = new Set(skills.map(skillIdentity));
+        const isAtLimit = skills.length >= maxProfileSkills;
+        const error = getSkillsError(getPathValue(errors, name));
 
-        const addSkill = (skill: string) => {
-          if (isAtLimit) {
-            displayToast(limitHint);
-            return;
+        const addSkills = (candidates: string[]) => {
+          const seen = new Set(skills.map(skillKey));
+          const room = maxProfileSkills - skills.length;
+          const accepted: string[] = [];
+          let overLimit = 0;
+          let tooLong = 0;
+
+          candidates
+            .map((candidate) => candidate.trim())
+            .filter(Boolean)
+            .forEach((skill) => {
+              if (seen.has(skillKey(skill))) {
+                return;
+              }
+
+              if (skill.length > maxProfileSkillLength) {
+                tooLong += 1;
+                return;
+              }
+
+              if (accepted.length >= room) {
+                overLimit += 1;
+                return;
+              }
+
+              seen.add(skillKey(skill));
+              accepted.push(skill);
+            });
+
+          // Dropping part of a paste silently is the bug being fixed, so always
+          // say what was left out, and why, for every reason it happened.
+          const rejected = overLimit + tooLong;
+
+          if (rejected) {
+            const reasons = [
+              overLimit && limitHint,
+              tooLong && maxLengthHint,
+            ].filter(Boolean);
+
+            displayToast(
+              `${reasons.join(' ')} ${rejected} ${
+                rejected === 1 ? 'skill was' : 'skills were'
+              } not added.`,
+            );
           }
 
-          if (existingSkillIdentities.has(skillIdentity(skill))) {
-            return;
+          if (accepted.length) {
+            field.onChange([...skills, ...accepted]);
           }
-
-          field.onChange([...skills, skill]);
         };
 
         const removeSkill = (skill: string) => {
-          const identity = skillIdentity(skill);
           field.onChange(
-            skills.filter((s: string) => skillIdentity(s) !== identity),
+            skills.filter((s: string) => skillKey(s) !== skillKey(skill)),
           );
+        };
+
+        const getHint = () => {
+          if (error) {
+            return error;
+          }
+
+          return isAtLimit ? limitHint : skillsHint;
         };
 
         return (
@@ -155,9 +209,9 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                       <GenericLoaderSpinner size={IconSize.Small} />
                     ) : undefined
                   }
-                  hint={inputHint}
-                  hintIcon={errorMessage ? undefined : <FeedbackIcon />}
-                  valid={!errorMessage}
+                  hint={getHint()}
+                  hintIcon={<FeedbackIcon />}
+                  valid={!error}
                   value={query}
                   onChange={({ target }) => {
                     if (target.value === '') {
@@ -175,50 +229,7 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
 
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      if (isAtLimit) {
-                        if (query) {
-                          displayToast(limitHint);
-                          clearQuery();
-                        }
-                        return;
-                      }
-
-                      const newSkills = query
-                        .split(',')
-                        .map((k) => k.trim())
-                        .filter(Boolean)
-                        .filter(
-                          (k) => !existingSkillIdentities.has(skillIdentity(k)),
-                        )
-                        .filter((skill, index, batch) => {
-                          const identity = skillIdentity(skill);
-
-                          return (
-                            batch.findIndex(
-                              (item) => skillIdentity(item) === identity,
-                            ) === index
-                          );
-                        });
-
-                      if (newSkills.length === 0) {
-                        if (query) {
-                          clearQuery();
-                        }
-                        return;
-                      }
-
-                      const remainingSlots =
-                        userExperienceSkillsLimit - skills.length;
-                      const skillsToAdd = newSkills.slice(0, remainingSlots);
-
-                      if (skillsToAdd.length < newSkills.length) {
-                        displayToast(overflowHint);
-                      }
-
-                      if (skillsToAdd.length > 0) {
-                        field.onChange([...skills, ...skillsToAdd]);
-                      }
-
+                      addSkills(query.split(','));
                       clearQuery();
                       return;
                     }
@@ -243,8 +254,8 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
               >
                 <div className="flex flex-wrap gap-2">
                   {autocompleteKeywords?.map(({ keyword }) => {
-                    const isSelected = existingSkillIdentities.has(
-                      skillIdentity(keyword),
+                    const isSelected = skills.some(
+                      (skill: string) => skillKey(skill) === skillKey(keyword),
                     );
                     return (
                       <TagElement
@@ -255,7 +266,7 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                           if (isSelected) {
                             removeSkill(keyword);
                           } else {
-                            addSkill(keyword);
+                            addSkills([keyword]);
                           }
                         }}
                       />
@@ -264,15 +275,6 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
                 </div>
               </PopoverContent>
             </Popover>
-
-            {errorMessage && (
-              <div
-                role="alert"
-                className="flex items-center gap-1 px-2 text-status-error typo-caption1"
-              >
-                {errorMessage}
-              </div>
-            )}
 
             {skills.length > 0 && (
               <div className="flex flex-wrap gap-2">

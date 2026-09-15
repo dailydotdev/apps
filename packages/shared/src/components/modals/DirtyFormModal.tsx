@@ -29,7 +29,6 @@ export default function DirtyFormModal({
       return;
     }
 
-    setIsSaving(true);
     let result: void | Promise<void>;
     try {
       result = onSave();
@@ -38,11 +37,23 @@ export default function DirtyFormModal({
       return;
     }
 
-    if (result) {
-      await result.catch(() => undefined);
+    // Callers that save synchronously keep the original fire-and-forget close.
+    if (!result || typeof result.then !== 'function') {
+      closeModal();
+      return;
     }
 
-    closeModal();
+    setIsSaving(true);
+
+    try {
+      await result;
+    } catch {
+      // The caller owns surfacing the failure; the modal closes either way so
+      // the user lands back on their still-unsaved form.
+    } finally {
+      setIsSaving(false);
+      closeModal();
+    }
   };
 
   const handleDiscard = () => {
@@ -53,10 +64,12 @@ export default function DirtyFormModal({
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={onRequestClose}
+      // Dismissing mid-save would close whichever modal is current by the time
+      // the save settles, so the overlay and Escape are inert while it runs.
+      onRequestClose={isSaving ? undefined : onRequestClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
-      shouldCloseOnOverlayClick
+      shouldCloseOnOverlayClick={!isSaving}
       isDrawerOnMobile
       drawerProps={{ displayCloseButton: false }}
     >
@@ -81,8 +94,8 @@ export default function DirtyFormModal({
             className="flex-1"
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Medium}
-            disabled={isSaving}
             onClick={handleDiscard}
+            disabled={isSaving}
           >
             Discard
           </Button>
@@ -90,9 +103,9 @@ export default function DirtyFormModal({
             className="flex-1"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
+            onClick={handleSave}
             disabled={isSaving}
             loading={isSaving}
-            onClick={handleSave}
           >
             Save changes
           </Button>

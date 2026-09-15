@@ -1,47 +1,31 @@
-import React, { type ReactNode } from 'react';
+import React, { useEffect, type ReactNode } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { UseFormReturn } from 'react-hook-form';
 import { FormProvider, useForm } from 'react-hook-form';
 import ProfileSkills from './ProfileSkills';
-import { userExperienceSkillsLimit } from '../common';
+import { maxProfileSkillLength, maxProfileSkills } from '../common';
 
 const mockDisplayToast = jest.fn();
-
-jest.mock('../../opportunity/queries', () => ({
-  getKeywordAutocompleteOptions: () => ({
-    queryKey: ['keyword-autocomplete'],
-    queryFn: jest.fn(),
-    enabled: false,
-  }),
-}));
 
 jest.mock('../../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
 
-type FormValues = {
-  skills: string[];
-};
-
 type FormWrapperProps = {
   children: ReactNode;
-  defaultSkills?: string[];
-  onReady?: (methods: UseFormReturn<FormValues>) => void;
+  skills?: string[];
+  onReady?: (methods: UseFormReturn<{ skills: string[] }>) => void;
 };
 
-const FormWrapper = ({
-  children,
-  defaultSkills = [],
-  onReady,
-}: FormWrapperProps) => {
-  const methods = useForm<FormValues>({
+const FormWrapper = ({ children, skills = [], onReady }: FormWrapperProps) => {
+  const methods = useForm<{ skills: string[] }>({
     defaultValues: {
-      skills: defaultSkills,
+      skills,
     },
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     onReady?.(methods);
   }, [methods, onReady]);
 
@@ -65,9 +49,15 @@ const advanceDebounce = () => {
   });
 };
 
+const submitSkills = (input: HTMLElement, value: string) => {
+  fireEvent.change(input, { target: { value } });
+  advanceDebounce();
+  fireEvent.keyDown(input, { code: 'Enter', key: 'Enter' });
+};
+
 describe('ProfileSkills', () => {
   beforeEach(() => {
-    mockDisplayToast.mockClear();
+    jest.clearAllMocks();
     jest.useFakeTimers();
   });
 
@@ -112,63 +102,20 @@ describe('ProfileSkills', () => {
     expect(input).toHaveValue('');
   });
 
-  it('blocks adding skills after the limit and shows helper copy', () => {
-    const skills = Array.from(
-      { length: userExperienceSkillsLimit },
-      (_, index) => `Skill ${index}`,
-    );
-    renderComponent({ defaultSkills: skills });
-
-    expect(
-      screen.getByText(`You can add up to ${userExperienceSkillsLimit} skills`),
-    ).toBeInTheDocument();
+  it('does not add a skill that only differs by casing', () => {
+    renderComponent({ skills: ['React'] });
 
     const input = screen.getByPlaceholderText('Search skills');
-    fireEvent.change(input, { target: { value: 'Extra' } });
-    advanceDebounce();
-    fireEvent.keyDown(input, { code: 'Enter', key: 'Enter' });
+    submitSkills(input, 'react');
 
-    expect(
-      screen.queryByRole('button', { name: 'Extra' }),
-    ).not.toBeInTheDocument();
-    expect(mockDisplayToast).toHaveBeenCalledWith(
-      `You can add up to ${userExperienceSkillsLimit} skills`,
-    );
+    expect(screen.getAllByRole('button', { name: /react/i })).toHaveLength(1);
   });
 
-  it('adds only the skills that fit when a comma batch exceeds the limit', () => {
-    const skills = Array.from(
-      { length: userExperienceSkillsLimit - 1 },
-      (_, index) => `Skill ${index}`,
-    );
-    renderComponent({ defaultSkills: skills });
-
-    const input = screen.getByPlaceholderText('Search skills');
-    fireEvent.change(input, { target: { value: 'One, Two, Three' } });
-    advanceDebounce();
-    fireEvent.keyDown(input, { code: 'Enter', key: 'Enter' });
-
-    expect(screen.getByRole('button', { name: 'One' })).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Two' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Three' }),
-    ).not.toBeInTheDocument();
-    expect(mockDisplayToast).toHaveBeenCalledWith(
-      `You can add up to ${userExperienceSkillsLimit} skills. Some skills were not added.`,
-    );
-  });
-
-  it('dedupes added skills case-insensitively', () => {
+  it('dedupes skills using the same slug-style identity as the API', () => {
     renderComponent();
 
     const input = screen.getByPlaceholderText('Search skills');
-    fireEvent.change(input, {
-      target: { value: 'React, react, REACT, TypeScript' },
-    });
-    advanceDebounce();
-    fireEvent.keyDown(input, { code: 'Enter', key: 'Enter' });
+    submitSkills(input, 'React.js, react js, TypeScript');
 
     expect(screen.getAllByRole('button', { name: /react/i })).toHaveLength(1);
     expect(
@@ -176,34 +123,116 @@ describe('ProfileSkills', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders an array-level skills error', async () => {
-    renderComponent({
-      onReady: (methods) => {
-        methods.setError('skills', {
-          type: 'too_big',
-          message: 'You can add up to 50 skills.',
-        });
-      },
-    });
+  it('blocks adding past the limit and shows the limit copy', () => {
+    const skills = Array.from(
+      { length: maxProfileSkills },
+      (_, index) => `skill-${index}`,
+    );
+    renderComponent({ skills });
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'You can add up to 50 skills.',
+    const input = screen.getByPlaceholderText('Search skills');
+    submitSkills(input, 'one too many');
+
+    expect(
+      screen.queryByRole('button', { name: 'one too many' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(`You can add up to ${maxProfileSkills} skills.`),
+    ).toBeInTheDocument();
+    expect(mockDisplayToast).toHaveBeenCalledWith(
+      `You can add up to ${maxProfileSkills} skills. 1 skill was not added.`,
     );
   });
 
-  it('renders an item-level skills error', async () => {
+  it('caps a pasted batch that exceeds the limit and reports the remainder', () => {
+    const skills = Array.from(
+      { length: maxProfileSkills - 1 },
+      (_, index) => `skill-${index}`,
+    );
+    renderComponent({ skills });
+
+    const input = screen.getByPlaceholderText('Search skills');
+    submitSkills(input, 'first,second,third');
+
+    expect(screen.getByRole('button', { name: 'first' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'second' }),
+    ).not.toBeInTheDocument();
+    expect(mockDisplayToast).toHaveBeenCalledWith(
+      `You can add up to ${maxProfileSkills} skills. 2 skills were not added.`,
+    );
+  });
+
+  it('does not add a skill longer than the allowed length', () => {
+    renderComponent();
+
+    const input = screen.getByPlaceholderText('Search skills');
+    const tooLong = 'a'.repeat(maxProfileSkillLength + 1);
+    submitSkills(input, tooLong);
+
+    expect(
+      screen.queryByRole('button', { name: tooLong }),
+    ).not.toBeInTheDocument();
+    expect(mockDisplayToast).toHaveBeenCalledWith(
+      `Skills can be up to ${maxProfileSkillLength} characters. 1 skill was not added.`,
+    );
+  });
+
+  it('reports every reason a pasted batch was trimmed, not just the first', () => {
+    const skills = Array.from(
+      { length: maxProfileSkills - 1 },
+      (_, index) => `skill-${index}`,
+    );
+    renderComponent({ skills });
+
+    const input = screen.getByPlaceholderText('Search skills');
+    const tooLong = 'a'.repeat(maxProfileSkillLength + 1);
+    submitSkills(input, `first,second,${tooLong}`);
+
+    expect(screen.getByRole('button', { name: 'first' })).toBeInTheDocument();
+    expect(mockDisplayToast).toHaveBeenCalledWith(
+      `You can add up to ${maxProfileSkills} skills. Skills can be up to ${maxProfileSkillLength} characters. 2 skills were not added.`,
+    );
+  });
+
+  it('renders an array level server error', () => {
+    let methods: UseFormReturn<{ skills: string[] }>;
     renderComponent({
-      defaultSkills: ['TypeScript', 'React', 'Node.js', 'GraphQL'],
-      onReady: (methods) => {
-        methods.setError('skills.3', {
-          type: 'too_big',
-          message: 'Each skill must be 100 characters or less.',
-        });
+      onReady: (form) => {
+        methods = form;
       },
     });
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Each skill must be 100 characters or less.',
-    );
+    act(() => {
+      methods.setError('skills', {
+        type: 'too_big',
+        message: 'You can add up to 50 skills.',
+      });
+    });
+
+    expect(
+      screen.getByText('You can add up to 50 skills.'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders an item level server error stored as a sparse array', () => {
+    let methods: UseFormReturn<{ skills: string[] }>;
+    renderComponent({
+      skills: ['a', 'b', 'c', 'd'],
+      onReady: (form) => {
+        methods = form;
+      },
+    });
+
+    act(() => {
+      methods.setError('skills.3', {
+        type: 'too_big',
+        message: 'Skills can be up to 100 characters.',
+      });
+    });
+
+    expect(
+      screen.getByText('Skills can be up to 100 characters.'),
+    ).toBeInTheDocument();
   });
 });

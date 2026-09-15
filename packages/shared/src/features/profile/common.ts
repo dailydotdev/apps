@@ -12,5 +12,10 @@ export const profileSecondaryFieldStyles = {
   baseField: '!h-12',
 };
 
-export const userExperienceSkillsLimit = 50;
-export const userExperienceSkillMaxLength = 100;
+/**
+ * Mirrors the work experience limits enforced by the API
+ * (`src/common/schema/profile.ts`); the form blocks these client side so a
+ * save is never rejected for something the input could have prevented.
+ */
+export const maxProfileSkills = 50;
+export const maxProfileSkillLength = 100;

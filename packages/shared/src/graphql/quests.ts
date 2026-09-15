@@ -410,6 +410,22 @@ export const TRACK_QUEST_EVENT_MUTATION = gql`
   }
 `;
 
+export const TRACK_SHARED_POST_CLICK_MUTATION = gql`
+  mutation TrackSharedPostClick(
+    $referringUserId: ID!
+    $postId: ID!
+    $campaign: String!
+  ) {
+    trackSharedPostClick(
+      referringUserId: $referringUserId
+      postId: $postId
+      campaign: $campaign
+    ) {
+      _
+    }
+  }
+`;
+
 export const QUEST_UPDATE_SUBSCRIPTION = gql`
   subscription QuestUpdate {
     questUpdate {
@@ -433,4 +449,20 @@ export const trackQuestClientEvent = async (
   eventType: ClientQuestEventType,
 ): Promise<void> => {
   await gqlClient.request(TRACK_QUEST_EVENT_MUTATION, { eventType });
+};
+
+export const trackSharedPostClick = async ({
+  referringUserId,
+  postId,
+  campaign,
+}: {
+  referringUserId: string;
+  postId: string;
+  campaign: string;
+}): Promise<void> => {
+  await gqlClient.request(TRACK_SHARED_POST_CLICK_MUTATION, {
+    referringUserId,
+    postId,
+    campaign,
+  });
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DirtyFormModal from './DirtyFormModal';
 
@@ -9,22 +9,7 @@ jest.mock('../../hooks/useLazyModal', () => ({
   useLazyModal: () => ({ closeModal: mockCloseModal }),
 }));
 
-const createDeferred = () => {
-  let resolve!: () => void;
-  let reject!: (error: Error) => void;
-  const promise = new Promise<void>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-
-  return {
-    promise,
-    resolve: () => resolve(),
-    reject: (error: Error) => reject(error),
-  };
-};
-
-const renderComponent = (onSave: () => void | Promise<void>) =>
+const renderModal = (onSave: () => void | Promise<void>) =>
   render(
     <DirtyFormModal
       isOpen
@@ -36,40 +21,95 @@ const renderComponent = (onSave: () => void | Promise<void>) =>
 
 describe('DirtyFormModal', () => {
   beforeEach(() => {
-    mockCloseModal.mockClear();
+    jest.clearAllMocks();
   });
 
-  it('closes immediately for synchronous save handlers', async () => {
-    const onSave = jest.fn();
-    renderComponent(onSave);
+  it('closes immediately for a synchronous save', async () => {
+    renderModal(jest.fn());
 
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
 
-    expect(onSave).toHaveBeenCalledTimes(1);
     expect(mockCloseModal).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps the modal pending until an async save fails', async () => {
-    const deferred = createDeferred();
-    const onSave = jest.fn(() => deferred.promise);
-    renderComponent(onSave);
+  it('stays open until an async save settles', async () => {
+    let resolveSave: () => void;
+    const onSave = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+
+    renderModal(onSave);
 
     const saveButton = screen.getByRole('button', { name: 'Save changes' });
     await userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
+    expect(mockCloseModal).not.toHaveBeenCalled();
     expect(saveButton).toHaveAttribute('aria-busy', 'true');
     expect(saveButton).toBeDisabled();
-    expect(mockCloseModal).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Discard' })).toBeDisabled();
 
     await userEvent.click(saveButton);
     expect(onSave).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      deferred.reject(new Error('failed'));
-      await deferred.promise.catch(() => undefined);
+      resolveSave();
     });
 
-    expect(mockCloseModal).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(mockCloseModal).toHaveBeenCalledTimes(1));
+  });
+
+  it('cannot be dismissed while an async save is in flight', async () => {
+    let resolveSave: () => void;
+    const onRequestClose = jest.fn();
+    const onSave = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+
+    render(
+      <DirtyFormModal
+        isOpen
+        onRequestClose={onRequestClose}
+        onDiscard={jest.fn()}
+        onSave={onSave}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await userEvent.keyboard('{Escape}');
+    expect(onRequestClose).not.toHaveBeenCalled();
+    expect(mockCloseModal).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveSave();
+    });
+
+    await waitFor(() => expect(mockCloseModal).toHaveBeenCalledTimes(1));
+  });
+
+  it('closes after a rejected save so the form and its error stay visible', async () => {
+    let rejectSave: (error: Error) => void;
+    const savePromise = new Promise<void>((_, reject) => {
+      rejectSave = reject;
+    });
+    const onSave = jest.fn(() => savePromise);
+
+    renderModal(onSave);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await act(async () => {
+      rejectSave(new Error('nope'));
+      await savePromise.catch(() => undefined);
+    });
+
+    await waitFor(() => expect(mockCloseModal).toHaveBeenCalledTimes(1));
   });
 });

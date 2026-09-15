@@ -26,14 +26,14 @@ import { applyZodErrorsToForm } from '../lib/form';
 import { useToastNotification } from './useToastNotification';
 import { webappUrl } from '../lib/constants';
 import { useUserExperiencesByType } from '../features/profile/hooks/useUserExperiencesByType';
+import {
+  maxProfileSkillLength,
+  maxProfileSkills,
+} from '../features/profile/common';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import useLogEventOnce from './log/useLogEventOnce';
-import {
-  userExperienceSkillMaxLength,
-  userExperienceSkillsLimit,
-} from '../features/profile/common';
 
 const repositorySchema = z
   .object({
@@ -71,24 +71,6 @@ export const userExperienceInputBaseSchema = z
       .nullable()
       .optional()
       .default(null),
-    skills: z
-      .array(
-        z
-          .string()
-          .trim()
-          .normalize()
-          .min(1, 'Skill cannot be empty.')
-          .max(
-            userExperienceSkillMaxLength,
-            `Each skill must be ${userExperienceSkillMaxLength} characters or less.`,
-          ),
-      )
-      .max(
-        userExperienceSkillsLimit,
-        `You can add up to ${userExperienceSkillsLimit} skills.`,
-      )
-      .optional()
-      .default([]),
     url: z
       .union([
         z.url('Please enter a valid URL.').max(2000),
@@ -99,8 +81,22 @@ export const userExperienceInputBaseSchema = z
       .default(null),
     repository: repositorySchema,
     repositorySearch: z.string().optional(),
+    skills: z
+      .array(
+        z
+          .string()
+          .trim()
+          .normalize()
+          .nonempty('Skills cannot be empty.')
+          .max(
+            maxProfileSkillLength,
+            `Skills can be up to ${maxProfileSkillLength} characters.`,
+          ),
+      )
+      .max(maxProfileSkills, `You can add up to ${maxProfileSkills} skills.`)
+      .optional()
+      .default([]),
   })
-  .passthrough()
   .refine(
     (data) => {
       if (
@@ -127,38 +123,33 @@ export const userExperienceInputBaseSchema = z
     },
   );
 
+/**
+ * What the form actually holds, which `UserExperience` does not describe: the
+ * date fields arrive from the page as serialized strings and become Dates once
+ * the month/year selects write to them, and the rest are form-only fields or
+ * fields specific to one experience type.
+ */
 export type UserExperienceFormValues = Omit<
   UserExperience,
-  | 'id'
-  | 'createdAt'
-  | 'startedAt'
-  | 'endedAt'
-  | 'customCompanyName'
-  | 'repository'
+  'startedAt' | 'endedAt'
 > & {
-  id?: string;
-  createdAt?: string;
-  startedAt?: Date | string | null;
-  endedAt?: Date | string | null;
+  startedAt?: string | Date | null;
+  endedAt?: string | Date | null;
   current?: boolean;
-  companyId?: string | null;
-  customCompanyName?: string | null;
-  customDomain?: string | null;
+  skills?: string[];
+  repositorySearch?: string;
   employmentType?: number | null;
   locationType?: number | null;
   externalLocationId?: string | null;
-  repository?: {
-    id?: string | null;
-    owner?: string | null;
-    name: string;
-    url?: string | null;
-    image?: string | null;
-  } | null;
-  repositorySearch?: string;
-  skills?: string[];
+  grade?: string | null;
 };
 
-type BaseUserExperience = UserExperienceFormValues;
+type BaseUserExperience = Omit<
+  UserExperienceFormValues,
+  'id' | 'createdAt' | 'company' | 'customCompanyName'
+> & {
+  id?: string;
+};
 
 const useUserExperienceForm = ({
   defaultValues,
@@ -194,11 +185,14 @@ const useUserExperienceForm = ({
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: UserExperienceFormValues) => {
-      const input = { ...data, type } as UserExperienceFormValues;
+      // The mutations are typed in the GraphQL shape, which the form values
+      // deliberately differ from: the API parses skills as strings and the
+      // dates as Dates, and returns them as UserSkill[] and strings.
+      const input = { ...data, type } as unknown as UserExperienceWork;
 
       return type === UserExperienceType.Work
-        ? upsertUserWorkExperience(input as unknown as UserExperienceWork, id)
-        : upsertUserGeneralExperience(input as unknown as UserExperience, id);
+        ? upsertUserWorkExperience(input, id)
+        : upsertUserGeneralExperience(input, id);
     },
     onSuccess: (result, vars) => {
       if (isNewExperience) {
@@ -218,31 +212,48 @@ const useUserExperienceForm = ({
       router.push(`${webappUrl}settings/profile/experience/${type}`);
     },
     onError: (error: ApiErrorResult) => {
-      const apiError = error.response?.errors?.[0];
-      if (apiError?.extensions?.code === ApiError.ZodValidationError) {
-        const zodError = apiError as ApiResponseError<ApiZodErrorExtension>;
-        applyZodErrorsToForm({
-          error,
-          setError: methods.setError,
-        });
-        displayToast(
-          zodError.extensions.issues?.[0]?.message || labels.error.generic,
-        );
-      } else {
-        displayToast(apiError?.message || labels.error.generic);
+      const responseError = error.response?.errors?.[0];
+
+      if (responseError?.extensions?.code !== ApiError.ZodValidationError) {
+        displayToast(responseError?.message || labels.error.generic);
+        return;
       }
+
+      applyZodErrorsToForm({
+        error,
+        setError: methods.setError,
+      });
+
+      // The GraphQL message for a zod error is always a generic "Validation
+      // error", and not every field renders its own error, so surface the first
+      // issue as a toast to guarantee the rejection is visible.
+      const [issue] = (responseError as ApiResponseError<ApiZodErrorExtension>)
+        .extensions.issues;
+      displayToast(issue?.message || labels.error.generic);
     },
   });
-  const saveExperience = () => {
-    methods.setValue('type', type, { shouldDirty: false });
-
-    return methods.handleSubmit(async (data) => {
-      await mutateAsync({ ...data, type }).catch(() => undefined);
-    })();
-  };
-
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
-    onSave: saveExperience,
+    // getValues() rather than the resolver output: the client schema is a
+    // subset of the form, so parsed values would drop fields like
+    // employmentType or grade. trigger() gives us validation without that.
+    onSave: async () => {
+      methods.setValue('type', type, { shouldDirty: false });
+
+      const isValid = await methods.trigger();
+
+      if (!isValid) {
+        // The modal closes either way, so say why nothing was saved: some
+        // fields (type, for one) have no input that could show the error.
+        displayToast(labels.error.formInvalid);
+        return;
+      }
+
+      try {
+        await mutateAsync({ ...methods.getValues(), type });
+      } catch {
+        // handled by the mutation's onError
+      }
+    },
     onDiscard: () => {
       methods.reset();
     },

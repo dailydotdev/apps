@@ -404,6 +404,20 @@ function MainLayoutComponent({
           // content, so the base value is zero.
           '[--sticky-header-offset:0px]',
           stickyHeaderOffset,
+          // A page holding a dock owns the whole window. `sticky bottom-0`
+          // only ever pulls a box *up* — it never pushes one down — so a dock
+          // whose flow position is above the window's bottom edge simply
+          // stays there, which is every feed for as long as it is still
+          // loading: the bar sits under the skeleton cards and drops to the
+          // bottom once enough posts arrive to make the page scroll.
+          // `min-h-screen` on the column every layout shares — v1's bare
+          // `<main>`, v2's floating card, tablet, laptop — is what gives the
+          // dock a full-height column to be pushed to the end of. Borders and
+          // padding count toward it, so the header padding above comes out of
+          // the same 100vh rather than adding to it.
+          // Literal, not built from `DOCK_CLASS`: Tailwind scans source text
+          // and generates nothing for an interpolated class name.
+          'has-[.feed-dock]:min-h-screen',
         )}
       >
         {isAuthReady && isLayoutChromeResolved && showSidebar && (
@@ -417,7 +431,20 @@ function MainLayoutComponent({
           />
         )}
         {sidebarOwnsHeader ? (
-          <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
+          <div
+            className={classNames(
+              'flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3',
+              // A dock pins to the window, so the frame gives up its bottom
+              // gutter for the one case that holds one. Otherwise the frame
+              // stops 14px short of the viewport and a `sticky bottom-0` dock
+              // inside it cannot reach the bottom, resting there on first
+              // paint and at the end of the feed while pinning flush in
+              // between — a dock that jumps as the feed loads.
+              // Literal, not built from `DOCK_CLASS`: Tailwind scans source
+              // text and generates nothing for an interpolated class name.
+              'laptop:has-[.feed-dock]:mb-0',
+            )}
+          >
             {showHomepageTopBanners && (
               <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
             )}
@@ -432,12 +459,22 @@ function MainLayoutComponent({
                 // No drop shadow — the subtle border defines the floating card
                 // in both themes; shadow-2 cast a heavy bottom shadow.
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+                // The dock becomes the frame's bottom edge, so the padding
+                // that would hold it up goes, and the corners it would be
+                // clipped into square off.
+                'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
                 LAYOUT_FRAME_CLASS,
+                // These subtract exactly the chrome above the frame plus its
+                // own margins, so the frame ends level with the window. With
+                // a dock the bottom margin is gone, so 0.75rem less comes off
+                // — a frame that stops short leaves a `sticky bottom-0` dock
+                // resting at its end, which is what happens for as long as
+                // the feed is too short to make the page scrollable.
                 !hasTopBanners &&
                   !topBanner &&
                   (isBannerAvailable
-                    ? 'laptop:min-h-[calc(100vh-3.5rem)]'
-                    : 'laptop:min-h-[calc(100vh-1.5rem)]'),
+                    ? 'laptop:min-h-[calc(100vh-3.5rem)] laptop:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
+                    : 'laptop:min-h-[calc(100vh-1.5rem)] laptop:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
               )}
             >
               <RouteProgressBar />

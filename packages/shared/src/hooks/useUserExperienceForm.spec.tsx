@@ -3,20 +3,20 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import useUserExperienceForm from './useUserExperienceForm';
-import type { UserExperienceFormValues } from './useUserExperienceForm';
 import {
   upsertUserGeneralExperience,
   upsertUserWorkExperience,
   UserExperienceType,
 } from '../graphql/user/profile';
 import { ApiError } from '../graphql/common';
-
-const mockDisplayToast = jest.fn();
+import { labels } from '../lib/labels';
 
 // Mock dependencies
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
+
+const mockDisplayToast = jest.fn();
 
 jest.mock('./useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
@@ -79,7 +79,20 @@ const createWrapper = () => {
   );
 };
 
-type BaseUserExperience = UserExperienceFormValues;
+// BaseUserExperience type used by the hook
+type BaseUserExperience = {
+  id?: string;
+  type: UserExperienceType;
+  title: string;
+  description?: string | null;
+  startedAt?: Date | null;
+  endedAt?: Date | null;
+  subtitle?: string | null;
+  current?: boolean;
+  companyId?: string | null;
+  customCompanyName?: string | null;
+  url?: string | null;
+};
 
 describe('useUserExperienceForm', () => {
   const baseWorkExperience: BaseUserExperience = {
@@ -129,7 +142,7 @@ describe('useUserExperienceForm', () => {
   it('should include type in the mutation payload when editing', async () => {
     (upsertUserWorkExperience as jest.Mock).mockResolvedValue({ id: 'exp-1' });
 
-    const existingExperience: BaseUserExperience & { id: string } = {
+    const existingExperience: BaseUserExperience = {
       ...baseWorkExperience,
       id: 'exp-1',
     };
@@ -147,7 +160,7 @@ describe('useUserExperienceForm', () => {
     });
 
     await act(async () => {
-      result.current.save?.();
+      await result.current.save?.();
     });
 
     await waitFor(() => {
@@ -160,102 +173,7 @@ describe('useUserExperienceForm', () => {
         }),
         'exp-1',
       );
-      expect(mockRouter.push).toHaveBeenCalledWith(
-        '/settings/profile/experience/work',
-      );
     });
-  });
-
-  it('should not save invalid values from the dirty-form save path', async () => {
-    const { result } = setupWorkExperienceForm();
-
-    act(() => {
-      result.current.methods.setValue('title', '', { shouldDirty: true });
-    });
-
-    await act(async () => {
-      await result.current.save?.();
-    });
-
-    expect(upsertUserWorkExperience).not.toHaveBeenCalled();
-    expect(result.current.methods.getFieldState('title').error).toBeDefined();
-  });
-
-  it('should surface zod validation errors as form errors and toast', async () => {
-    (upsertUserWorkExperience as jest.Mock).mockRejectedValueOnce({
-      response: {
-        errors: [
-          {
-            message: 'Validation error',
-            extensions: {
-              code: ApiError.ZodValidationError,
-              issues: [
-                {
-                  code: 'too_big',
-                  message: 'You can add up to 50 skills.',
-                  path: ['skills'],
-                },
-              ],
-            },
-          },
-        ],
-      },
-    });
-    const { result } = setupWorkExperienceForm();
-
-    act(() => {
-      result.current.methods.setValue('title', 'Changed title', {
-        shouldDirty: true,
-      });
-    });
-
-    await waitFor(() => {
-      expect(result.current.methods.formState.isDirty).toBe(true);
-    });
-
-    await act(async () => {
-      await Promise.resolve(result.current.save?.()).catch(() => undefined);
-    });
-
-    await waitFor(() => {
-      expect(
-        result.current.methods.getFieldState('skills' as never).error?.message,
-      ).toBe('You can add up to 50 skills.');
-      expect(mockDisplayToast).toHaveBeenCalledWith(
-        'You can add up to 50 skills.',
-      );
-    });
-
-    expect(result.current.methods.getValues('title')).toBe('Changed title');
-    expect(result.current.methods.formState.isDirty).toBe(true);
-    expect(mockRouter.push).not.toHaveBeenCalled();
-  });
-
-  it('should keep existing toast behavior for non-zod errors', async () => {
-    (upsertUserWorkExperience as jest.Mock).mockRejectedValueOnce({
-      response: {
-        errors: [
-          {
-            message: 'Unable to save experience',
-            extensions: {
-              code: ApiError.Unexpected,
-            },
-          },
-        ],
-      },
-    });
-    const { result } = setupWorkExperienceForm();
-
-    await act(async () => {
-      await Promise.resolve(result.current.save?.()).catch(() => undefined);
-    });
-
-    await waitFor(() => {
-      expect(mockDisplayToast).toHaveBeenCalledWith(
-        'Unable to save experience',
-      );
-    });
-    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
   it('should validate required title field', async () => {
@@ -641,7 +559,12 @@ describe('useUserExperienceForm', () => {
     };
 
     const { result } = renderHook(
-      () => useUserExperienceForm({ defaultValues: openSourceExperience }),
+      () =>
+        useUserExperienceForm({
+          // The missing repository URL is the point of the test, so this
+          // fixture cannot satisfy the form values type.
+          defaultValues: openSourceExperience as unknown as BaseUserExperience,
+        }),
       { wrapper: createWrapper() },
     );
 
@@ -649,6 +572,158 @@ describe('useUserExperienceForm', () => {
       const isValid = await result.current.methods.trigger('repository');
       // Should be invalid without URL
       expect(isValid).toBe(false);
+    });
+  });
+
+  describe('server validation errors', () => {
+    const zodError = (
+      issues: { path: (string | number)[]; message: string }[],
+    ) => ({
+      response: {
+        errors: [
+          {
+            message: 'Validation error',
+            extensions: {
+              code: ApiError.ZodValidationError,
+              issues: issues.map((issue) => ({ ...issue, code: 'too_big' })),
+            },
+          },
+        ],
+      },
+    });
+
+    it('should surface a rejected skills array on the form and as a toast', async () => {
+      (upsertUserWorkExperience as jest.Mock).mockRejectedValue(
+        zodError([
+          { path: ['skills'], message: 'You can add up to 50 skills.' },
+        ]),
+      );
+
+      const { result } = setupWorkExperienceForm();
+
+      act(() => {
+        result.current.methods.setValue('title', 'Changed title', {
+          shouldDirty: true,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.methods.formState.isDirty).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.save?.();
+      });
+
+      await waitFor(() => {
+        expect(mockDisplayToast).toHaveBeenCalledWith(
+          'You can add up to 50 skills.',
+        );
+      });
+      expect(
+        result.current.methods.getFieldState('skills').error,
+      ).toBeDefined();
+      expect(mockRouter.push).not.toHaveBeenCalled();
+      expect(result.current.methods.getValues('title')).toBe('Changed title');
+      expect(result.current.methods.formState.isDirty).toBe(true);
+    });
+
+    it('should surface an item level skills issue as a toast', async () => {
+      (upsertUserWorkExperience as jest.Mock).mockRejectedValue(
+        zodError([
+          {
+            path: ['skills', 3],
+            message: 'Skills can be up to 100 characters.',
+          },
+        ]),
+      );
+
+      const { result } = setupWorkExperienceForm();
+
+      await act(async () => {
+        await result.current.save?.();
+      });
+
+      await waitFor(() => {
+        expect(mockDisplayToast).toHaveBeenCalledWith(
+          'Skills can be up to 100 characters.',
+        );
+      });
+      expect(
+        result.current.methods.getFieldState('skills.3' as never).error,
+      ).toBeDefined();
+      expect(mockRouter.push).not.toHaveBeenCalled();
+    });
+
+    it('should keep the generic toast for non zod errors', async () => {
+      (upsertUserWorkExperience as jest.Mock).mockRejectedValue({
+        response: {
+          errors: [{ message: 'Something exploded', extensions: {} }],
+        },
+      });
+
+      const { result } = setupWorkExperienceForm();
+
+      await act(async () => {
+        await result.current.save?.();
+      });
+
+      await waitFor(() => {
+        expect(mockDisplayToast).toHaveBeenCalledWith('Something exploded');
+      });
+      expect(mockRouter.push).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('dirty form save', () => {
+    it('should not run the mutation when the form is invalid', async () => {
+      const { result } = setupWorkExperienceForm();
+
+      act(() => {
+        result.current.methods.setValue('title', '');
+      });
+
+      await act(async () => {
+        await result.current.save?.();
+      });
+
+      expect(upsertUserWorkExperience).not.toHaveBeenCalled();
+      expect(mockDisplayToast).toHaveBeenCalledWith(labels.error.formInvalid);
+      expect(mockRouter.push).not.toHaveBeenCalled();
+    });
+
+    it('should resolve only once the save settles and keep the values on failure', async () => {
+      let rejectMutation: (error: unknown) => void;
+      (upsertUserWorkExperience as jest.Mock).mockReturnValue(
+        new Promise((_, reject) => {
+          rejectMutation = reject;
+        }),
+      );
+
+      const { result } = setupWorkExperienceForm();
+
+      let settled = false;
+      let savePromise: Promise<void>;
+      await act(async () => {
+        savePromise = Promise.resolve(result.current.save?.()).then(() => {
+          settled = true;
+        });
+      });
+
+      expect(settled).toBe(false);
+
+      await act(async () => {
+        rejectMutation({
+          response: { errors: [{ message: 'Nope', extensions: {} }] },
+        });
+        await savePromise;
+      });
+
+      expect(settled).toBe(true);
+      expect(result.current.methods.getValues('title')).toBe(
+        'Software Engineer',
+      );
+      expect(mockRouter.push).not.toHaveBeenCalled();
     });
   });
 });
