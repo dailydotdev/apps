@@ -367,6 +367,7 @@ export enum LogEvent {
   ShareLog = 'share log',
   ShareWorld = 'share world',
   ShareTool = 'share tool',
+  ShareHotTake = 'share hot take',
   ShareArchive = 'share archive',
   // End Share
   /* Start World
