@@ -62,6 +62,20 @@ describe('Highlight cards', () => {
     expect(screen.getByText('Read all')).toBeInTheDocument();
   });
 
+  // The hero passes `compact`; the in-feed cards do not, and must keep the
+  // row they had before it existed.
+  it('keeps the in-feed row bordered, with the timestamp on its own line', () => {
+    render(<HighlightGrid highlights={highlights} />);
+
+    const row = screen.getByRole('link', { name: /the first highlight/i });
+
+    expect(row).toHaveClass('border-b');
+    expect(row.className).not.toMatch(/after:/);
+    expect(
+      screen.getByText('The first highlight').querySelector('time'),
+    ).toBeNull();
+  });
+
   it('should trigger the highlight callbacks without blocking navigation', async () => {
     const onHighlightClick = jest.fn();
     const onReadAllClick = jest.fn();
