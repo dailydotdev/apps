@@ -3,6 +3,8 @@ import type { DevCardTheme } from '../../components/profile/devcard/common';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { DEV_CARD_QUERY } from '../../graphql/users';
 import { useRequestProtocol } from '../useRequestProtocol';
+import type { RequestProtocol } from '../../graphql/common';
+import { gqlRequest } from '../../graphql/common';
 import type { PublicProfile } from '../../lib/user';
 import type { Source } from '../../graphql/sources';
 import { cloudinaryDevcardDefaultCoverImage } from '../../lib/image';
@@ -36,18 +38,25 @@ export interface UseDevCard {
   coverImage: string;
 }
 
+export const devCardQueryOptions = ({
+  userId,
+  requestMethod = gqlRequest,
+}: {
+  userId: string;
+  requestMethod?: RequestProtocol['requestMethod'];
+}) => ({
+  queryKey: generateQueryKey(RequestKey.DevCard, { id: userId }),
+  queryFn: (): Promise<DevCardQueryData> =>
+    requestMethod(DEV_CARD_QUERY, { id: userId }),
+  staleTime: StaleTime.Default,
+  enabled: !!userId,
+});
+
 export const useDevCard = (userId: string): UseDevCard => {
   const { requestMethod } = useRequestProtocol();
-  const { data, isLoading } = useQuery<DevCardQueryData>({
-    queryKey: generateQueryKey(RequestKey.DevCard, { id: userId }),
-
-    queryFn: async () =>
-      await requestMethod(DEV_CARD_QUERY, {
-        id: userId,
-      }),
-    staleTime: StaleTime.Default,
-    enabled: !!userId,
-  });
+  const { data, isLoading } = useQuery(
+    devCardQueryOptions({ userId, requestMethod }),
+  );
 
   const { devCard, userStreakProfile } = data || {};
 
