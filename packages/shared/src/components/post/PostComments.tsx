@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useRef } from 'react';
 import classNames from 'classnames';
 import type { Comment, SortCommentsBy } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
@@ -10,6 +10,7 @@ import { Origin } from '../../lib/log';
 import type { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { usePostComments } from '../../hooks/comments/usePostComments';
+import { useScrollToHashComment } from '../../hooks/comments/useScrollToHashComment';
 import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
@@ -92,17 +93,14 @@ export function PostComments({
 
   useCommentContentPreferenceMutationSubscription({ queryKey });
 
-  const { hash: commentHash } = globalThis?.window?.location || {};
   const commentRef = useRef<HTMLElement | null>(null);
   const { deleteComment } = useDeleteComment();
-
-  const [scrollToComment, setScrollToComment] = useState(!!commentHash);
-  useEffect(() => {
-    if (commentsCount > 0 && scrollToComment && commentRef.current) {
-      commentRef.current.scrollIntoView({ block: 'center', inline: 'nearest' });
-      setScrollToComment(false);
-    }
-  }, [commentsCount, scrollToComment]);
+  const { commentHash } = useScrollToHashComment({
+    containerRef: container,
+    commentRef,
+    postId: id,
+    enabled: !isLoadingComments && commentsCount > 0,
+  });
 
   if (isLoadingComments || isNullOrUndefined(comments)) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
