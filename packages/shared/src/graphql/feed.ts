@@ -420,13 +420,8 @@ export interface FeedHeroData {
 }
 
 export const FEED_HERO_QUERY = gql`
-  query FeedHero(
-    $loggedIn: Boolean! = false
-    $first: Int
-    $featured: Int
-    ${SUPPORTED_TYPES}
-  ) {
-    feedHero(first: $first, featured: $featured, supportedTypes: $supportedTypes) {
+  query FeedHero($loggedIn: Boolean! = false, ${SUPPORTED_TYPES}) {
+    feedHero(supportedTypes: $supportedTypes) {
       posts {
         ...FeedPost
         contentHtml

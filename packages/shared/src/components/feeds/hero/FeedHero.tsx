@@ -67,21 +67,16 @@ export const FeedHero = ({
   const { data: hero } = useQuery({
     queryKey: generateQueryKey(RequestKey.FeedHero, user),
     queryFn: () =>
-      // How many headlines, and how many of them get a card, are the server's
-      // call — so the mix can be retuned without shipping a client.
       gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
         loggedIn: !!user,
         supportedTypes: supportedTypesForPrivateSources,
       }),
     enabled: tokenRefreshed,
-    // Breaking headlines, so the same minute the headline query kept rather
-    // than the five the post hydration used to.
-    staleTime: StaleTime.OneMinute,
+    staleTime: StaleTime.Default,
   });
 
   const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
-  // Already in headline order and index-aligned with the highlights above, so
-  // the carousel reads in the same order as the list beside it.
+  /** In headline order and index-aligned with the highlights, per `feedHero`. */
   const posts: Post[] = useMemo(() => hero?.feedHero?.posts ?? [], [hero]);
 
   const isRendered = posts.length > 0;
