@@ -22,5 +22,6 @@ export const usePostPageRedesign = (
   });
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
 
-  return isEligible && !requiresClassicLayout && isFlagOn;
+  // TEMP-REVIEW: the remote flag is off, so the preview forces the treatment.
+  return isEligible && !requiresClassicLayout && (isFlagOn || true);
 };
