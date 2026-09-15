@@ -245,6 +245,7 @@ describe('RichTextInput', () => {
     const input = (
       <RichTextInput
         toolbarPosition="bottom"
+        enabledCommand={{ upload: true }}
         inputPrefix={<textarea aria-label="Post title" />}
         hideFooter
       />
@@ -258,6 +259,28 @@ describe('RichTextInput', () => {
 
     expect(screen.getByRole('textbox', { name: 'Post title' })).toBe(title);
     expect(title).toHaveFocus();
+  });
+
+  it('keeps header actions hidden until the editor is ready', () => {
+    mockEditorReady = false;
+    const input = (
+      <RichTextInput
+        header={<button type="button">Comment editor actions</button>}
+        hideFooter
+      />
+    );
+    const { rerender } = render(input);
+
+    expect(
+      screen.queryByRole('button', { name: 'Comment editor actions' }),
+    ).not.toBeInTheDocument();
+
+    mockEditorReady = true;
+    rerender(React.cloneElement(input));
+
+    expect(
+      screen.getByRole('button', { name: 'Comment editor actions' }),
+    ).toBeInTheDocument();
   });
 
   it('gives the bottom bar the safe-area floor instead of the drawer', () => {

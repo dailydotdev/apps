@@ -866,8 +866,7 @@ function RichTextInput(
           className?.container,
         )}
       >
-        {header}
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div key="editor-container" className="flex min-h-0 flex-1 flex-col">
           <ConditionalWrapper
             key="input-body"
             condition={isBottomToolbar}
@@ -1025,6 +1024,7 @@ function RichTextInput(
     >
       {header}
       <div
+        key="editor-container"
         className="flex min-h-0 flex-1 flex-col"
         ref={editorContainerRef}
         onDrop={isMarkdownMode ? undefined : upload.handleDrop}
