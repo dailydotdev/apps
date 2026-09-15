@@ -61,6 +61,10 @@ export enum Origin {
   PostParagraph = 'post paragraph',
   PollResults = 'poll results',
   PollVotePrompt = 'poll vote prompt',
+  HappeningNow = 'happening now',
+  HappeningNowHighlight = 'happening now highlight',
+  HappeningNowSelection = 'happening now selection',
+  HighlightsCard = 'highlights card',
   // snapshot placements - end
   History = 'history',
   FeedbackCard = 'feedback card',
@@ -363,6 +367,7 @@ export enum LogEvent {
   ShareLog = 'share log',
   ShareWorld = 'share world',
   ShareTool = 'share tool',
+  ShareHighlights = 'share highlights',
   ShareArchive = 'share archive',
   // End Share
   /* Start World
