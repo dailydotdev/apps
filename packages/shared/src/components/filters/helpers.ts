@@ -20,6 +20,11 @@ export const getContentCurationList = (
     AdvancedSettingsGroup.SourceTypes,
   ]);
 
+export const getContentTypeList = (
+  advancedSettings: AdvancedSettings[],
+): AdvancedSettings[] =>
+  getContentFromGroup(advancedSettings, [AdvancedSettingsGroup.ContentTypes]);
+
 export const getAdvancedContentTypes = (
   titles: string[],
   advancedSettings: AdvancedSettings[],

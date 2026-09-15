@@ -12,6 +12,7 @@ import type { NextSeoProps } from 'next-seo';
 import Head from 'next/head';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import type { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import type { PostsSearchProps } from '@dailydotdev/shared/src/components/PostsSearch';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   SEARCH_SOURCE_POSTS_QUERY,
@@ -73,6 +74,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
+import { useSearchContextProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type {
   PublicProfile,
@@ -285,6 +287,7 @@ const SquadPage = ({
   const { displayToast } = useToastNotification();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
+  const { postTypesFilter } = useSearchContextProvider();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { user, isFetched: isBootFetched } = useAuthContext();
@@ -398,7 +401,11 @@ const SquadPage = ({
     shouldEvaluate: isSearching,
   });
   const searchId = useSearchId(
-    isSearching ? [squadId, searchQuery, searchVersion].join('|') : '',
+    isSearching
+      ? [squadId, searchQuery, searchVersion, postTypesFilter.join(',')].join(
+          '|',
+        )
+      : '',
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
@@ -410,12 +417,14 @@ const SquadPage = ({
           user?.id ?? 'anonymous',
           squadId,
           searchQuery,
+          postTypesFilter,
         ],
         query: SEARCH_SOURCE_POSTS_QUERY,
         variables: {
           source: squadId,
           query: searchQuery,
           supportedTypes: supportedTypesForPrivateSources,
+          postTypes: postTypesFilter,
           version: searchVersion,
         },
         searchId,
@@ -443,6 +452,7 @@ const SquadPage = ({
     user?.id,
     searchId,
     searchVersion,
+    postTypesFilter,
   ]);
 
   // Search submit/clear write `q` to the URL. Cannot reuse `router.pathname`
@@ -451,13 +461,17 @@ const SquadPage = ({
   // "/squads/[handle]" href when the dynamic segment isn't present in the
   // provided query object, so we build the concrete path from `asPath`.
   const onSubmitSquadSearch = useCallback(
-    (query: string) => {
+    (
+      query: string,
+      extraFlags?: Parameters<PostsSearchProps['onSubmitQuery']>[1],
+    ) => {
       logEvent({
         event_name: LogEvent.SubmitSearch,
         extra: JSON.stringify({
           query,
           provider: SearchProviderEnum.Posts,
           squad: squadId,
+          ...extraFlags,
         }),
       });
 
