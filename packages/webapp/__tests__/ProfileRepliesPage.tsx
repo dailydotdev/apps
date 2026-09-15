@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import type {
   LoggedUser,
   PublicProfile,
+  UserSocialLink,
 } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
@@ -20,11 +21,26 @@ import type {
   Author,
 } from '@dailydotdev/shared/src/graphql/comments';
 import { USER_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import ProfilePage from '../pages/[userId]/replies';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
+
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/',
+        query: {},
+        isFallback: false,
+      } as unknown as NextRouter),
+  );
 });
 
 const defaultProfile: PublicProfile = {
@@ -37,10 +53,12 @@ const defaultProfile: PublicProfile = {
   cover: 'https://daily.dev/cover.png',
   bio: 'The best company!',
   createdAt: '2020-08-26T13:04:35.000Z',
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
+  socialLinks: [
+    { platform: 'twitter', url: 'https://x.com/dailydotdev' },
+    { platform: 'github', url: 'https://github.com/dailydotdev' },
+    { platform: 'hashnode', url: 'https://dailydotdev.hashnode.dev' },
+    { platform: 'portfolio', url: 'https://daily.dev/?key=vaue' },
+  ] as UserSocialLink[],
   permalink: 'https://daily.dev/dailydotdev',
 };
 
@@ -56,6 +74,7 @@ export const defaultCommentsPage: Connection<Comment> = {
         createdAt: '2020-07-26T13:04:35.000Z',
         content: 'My comment',
         numUpvotes: 50,
+        numAwards: 0,
         id: 'c1',
         contentHtml: 'My comment',
         post: defaultPost,
@@ -93,7 +112,7 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      <ProfilePage user={{ ...defaultProfile, ...profile }} />
+      <ProfilePage user={{ ...defaultProfile, ...profile }} noindex={false} />
     </TestBootProvider>,
   );
 };
@@ -144,4 +163,33 @@ it('should show different empty screen when visiting your profile', async () => 
   await waitForNock();
   const el = await screen.findByText('Explore posts');
   expect(el).toBeInTheDocument();
+});
+
+it('should show the visitor empty screen to the owner in preview mode', async () => {
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/[userId]/replies',
+        query: { userId: 'dailydotdev', preview: 'true' },
+        isFallback: false,
+      } as unknown as NextRouter),
+  );
+  renderComponent(
+    [
+      createCommentsMock({
+        pageInfo: {
+          hasNextPage: true,
+          endCursor: '',
+        },
+        edges: [],
+      }),
+    ],
+    {},
+    defaultProfile as unknown as LoggedUser,
+  );
+  await waitForNock();
+  expect(
+    await screen.findByText("Daily Dev hasn't replied to any post yet"),
+  ).toBeInTheDocument();
+  expect(screen.queryByText('Explore posts')).not.toBeInTheDocument();
 });

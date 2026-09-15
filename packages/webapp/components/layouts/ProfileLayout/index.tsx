@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import {
-  getProfile,
+  getProfileForStaticProps,
   getProfileV2Extra,
 } from '@dailydotdev/shared/src/lib/user';
 import dynamic from 'next/dynamic';
@@ -229,10 +229,12 @@ export async function getStaticProps({
     return profileNotFound;
   }
   try {
-    const user = await getProfile(userId);
-    if (!user) {
+    const profile = await getProfileForStaticProps(userId);
+    if (profile.status === 'notFound') {
       return profileNotFound;
     }
+
+    const { user } = profile;
     // Both only need the resolved id, so neither has to wait on the other.
     const [data, hasWorld] = await Promise.all([
       getProfileV2Extra(user.id),
