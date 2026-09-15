@@ -1,5 +1,12 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import type { ReactElement } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import type { ForwardedRef, ReactElement } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 import { TextField } from '../fields/TextField';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -22,6 +29,28 @@ export interface SocialLinksInputProps {
   hint?: string;
 }
 
+export interface SocialLinksInputHandle {
+  flushPendingUrl: () => boolean;
+}
+
+export const normalizeSocialLinkUrl = (rawUrl: string): string | null => {
+  const trimmedUrl = rawUrl.trim();
+
+  if (!trimmedUrl) {
+    return null;
+  }
+
+  try {
+    const parsedUrl = new URL(
+      /^https?:\/\//i.test(trimmedUrl) ? trimmedUrl : `https://${trimmedUrl}`,
+    );
+
+    return parsedUrl.href.replace(/\/$/, '');
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Get display info for a social link
  */
@@ -35,14 +64,17 @@ const getSocialLinkDisplay = (link: UserSocialLink): SocialLinkDisplay => {
   };
 };
 
-export function SocialLinksInput({
-  name,
-  label = 'Links',
-  hint = "Paste any URL and we'll auto-detect the platform",
-}: SocialLinksInputProps): ReactElement {
-  const { control } = useFormContext();
+function SocialLinksInputComponent(
+  {
+    name,
+    label = 'Links',
+    hint = "Paste any URL and we'll auto-detect the platform",
+  }: SocialLinksInputProps,
+  ref: ForwardedRef<SocialLinksInputHandle>,
+): ReactElement {
+  const { clearErrors, control, setError } = useFormContext();
   const {
-    field: { value = [], onChange },
+    field: { value = [], onBlur, onChange },
     fieldState: { error },
   } = useController({
     name,
@@ -51,9 +83,13 @@ export function SocialLinksInput({
   });
 
   const [url, setUrl] = useState('');
+  const pendingUrlRef = useRef('');
+  const linksRef = useRef<UserSocialLink[]>([]);
+  const skipBlurCommitRef = useRef(false);
   const { displayToast } = useToastNotification();
 
   const links: UserSocialLink[] = useMemo(() => value || [], [value]);
+  linksRef.current = links;
 
   // Detect platform as user types
   const detectedPlatform = detectUserPlatform(url);
@@ -61,55 +97,90 @@ export function SocialLinksInput({
     ? PLATFORM_LABELS[detectedPlatform]
     : null;
 
+  const updateUrl = useCallback(
+    (nextUrl: string) => {
+      pendingUrlRef.current = nextUrl;
+      setUrl(nextUrl);
+      clearErrors(name);
+    },
+    [clearErrors, name],
+  );
+
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(e.target.value);
+    updateUrl(e.target.value);
   };
 
-  const handleAdd = useCallback(() => {
-    const trimmedUrl = url.trim();
-    if (!trimmedUrl) {
-      return;
-    }
+  const commitPendingUrl = useCallback(
+    ({ allowDuplicate = false } = {}) => {
+      const trimmedUrl = pendingUrlRef.current.trim();
 
-    // Basic URL validation
-    try {
-      const parsedUrl = new URL(
-        trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`,
-      );
-      // Normalize URL by removing trailing slash for consistency
-      const normalizedUrl = parsedUrl.href.replace(/\/$/, '');
-
-      // Check if URL already exists
-      if (
-        links.some(
-          (link) =>
-            link.url.toLowerCase().replace(/\/$/, '') ===
-            normalizedUrl.toLowerCase(),
-        )
-      ) {
-        displayToast('This link has already been added');
-        return;
+      if (!trimmedUrl) {
+        clearErrors(name);
+        return true;
       }
 
-      const newLink: UserSocialLink = {
-        url: normalizedUrl,
-        platform: detectedPlatform || 'other',
-      };
+      const normalizedUrl = normalizeSocialLinkUrl(trimmedUrl);
+      if (!normalizedUrl) {
+        setError(name, {
+          type: 'manual',
+          message: 'Please enter a valid URL',
+        });
+        return false;
+      }
 
-      onChange([...links, newLink]);
-      setUrl('');
-    } catch {
-      displayToast('Please enter a valid URL');
-    }
-  }, [url, detectedPlatform, links, onChange, displayToast]);
+      const currentLinks = linksRef.current;
+      const isDuplicate = currentLinks.some(
+        (link) =>
+          link.url.toLowerCase().replace(/\/$/, '') ===
+          normalizedUrl.toLowerCase(),
+      );
+
+      if (isDuplicate) {
+        displayToast('This link has already been added');
+
+        if (allowDuplicate) {
+          updateUrl('');
+        }
+
+        return allowDuplicate;
+      }
+
+      const platform = detectUserPlatform(trimmedUrl);
+      const newLinks = [
+        ...currentLinks,
+        {
+          url: normalizedUrl,
+          platform: platform || 'other',
+        },
+      ];
+
+      linksRef.current = newLinks;
+      onChange(newLinks);
+      updateUrl('');
+      clearErrors(name);
+
+      return true;
+    },
+    [clearErrors, displayToast, name, onChange, setError, updateUrl],
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      flushPendingUrl: () => commitPendingUrl({ allowDuplicate: true }),
+    }),
+    [commitPendingUrl],
+  );
 
   const handleRemove = useCallback(
     (index: number) => {
       const newLinks = [...links];
       newLinks.splice(index, 1);
+      linksRef.current = newLinks;
       onChange(newLinks);
+      clearErrors(name);
     },
-    [links, onChange],
+    [clearErrors, links, name, onChange],
   );
 
   const displayLinks = useMemo(() => links.map(getSocialLinkDisplay), [links]);
@@ -137,12 +208,22 @@ export function SocialLinksInput({
         placeholder="Paste a URL (e.g., github.com/username)"
         value={url}
         onChange={handleUrlChange}
+        onBlur={() => {
+          onBlur();
+
+          if (skipBlurCommitRef.current) {
+            return;
+          }
+
+          commitPendingUrl();
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            handleAdd();
+            commitPendingUrl();
           }
         }}
+        valid={!error}
         fieldType="secondary"
         actionButton={
           <Button
@@ -150,7 +231,16 @@ export function SocialLinksInput({
             variant={ButtonVariant.Secondary}
             size={ButtonSize.XSmall}
             icon={<PlusIcon />}
-            onClick={handleAdd}
+            onMouseDown={() => {
+              skipBlurCommitRef.current = true;
+            }}
+            onMouseUp={() => {
+              skipBlurCommitRef.current = false;
+            }}
+            onClick={() => {
+              skipBlurCommitRef.current = false;
+              commitPendingUrl();
+            }}
             disabled={!url.trim()}
           >
             Add
@@ -219,3 +309,6 @@ export function SocialLinksInput({
     </div>
   );
 }
+
+export const SocialLinksInput = forwardRef(SocialLinksInputComponent);
+SocialLinksInput.displayName = 'SocialLinksInput';

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -16,8 +16,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
 
 export interface ProfileFormHint {
-  username?: string;
-  name?: string;
+  [key: string]: string;
 }
 
 export type UpdateProfileParameters = Partial<UserProfile> & {
@@ -30,6 +29,42 @@ interface UseUserInfoForm {
   save: () => void;
   isLoading: boolean;
 }
+
+const renderedProfileFields = new Set<keyof UserProfile>([
+  'bio',
+  'experienceLevel',
+  'externalLocationId',
+  'hideExperience',
+  'name',
+  'readme',
+  'socialLinks',
+  'username',
+]);
+
+const isRenderedProfileField = (key: string): key is keyof UserProfile =>
+  renderedProfileFields.has(key as keyof UserProfile);
+
+const parseProfileFormHint = (message?: string): ProfileFormHint | null => {
+  if (!message) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(message);
+
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return null;
+    }
+
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        (entry): entry is [string, string] => typeof entry[1] === 'string',
+      ),
+    );
+  } catch {
+    return null;
+  }
+};
 
 const useUserInfoForm = (): UseUserInfoForm => {
   const qc = useQueryClient();
@@ -73,17 +108,18 @@ const useUserInfoForm = (): UseUserInfoForm => {
       experienceLevel: user?.experienceLevel,
       hideExperience: user?.hideExperience,
       readme: user?.readme || '',
-      socialLinks: [],
+      socialLinks: user?.socialLinks || [],
     },
   });
 
-  // Update socialLinks when fullProfile loads (async fetch completes)
-  const hasUpdatedSocialLinks = useRef(false);
   useEffect(() => {
-    if (fullProfile && !hasUpdatedSocialLinks.current) {
-      hasUpdatedSocialLinks.current = true;
-      methods.setValue('socialLinks', fullProfile.socialLinks || [], {
-        shouldDirty: false,
+    if (!fullProfile) {
+      return;
+    }
+
+    if (!methods.getFieldState('socialLinks').isDirty) {
+      methods.resetField('socialLinks', {
+        defaultValue: fullProfile.socialLinks || [],
       });
     }
   }, [fullProfile, methods]);
@@ -120,26 +156,51 @@ const useUserInfoForm = (): UseUserInfoForm => {
 
     onError: (err) => {
       const errorMessage = err?.response?.errors?.[0]?.message;
+      const data = parseProfileFormHint(errorMessage);
 
-      if (errorMessage) {
-        const data: ProfileFormHint = JSON.parse(errorMessage);
+      if (!data) {
+        displayToast('Failed to update profile');
+        return;
+      }
 
-        Object.entries(data).forEach(([key, value]) => {
+      const toastMessages: string[] = [];
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (isRenderedProfileField(key)) {
           methods.setError(key as keyof UserProfile, {
             type: 'manual',
             message: value,
           });
-        });
-      } else {
+        } else {
+          toastMessages.push(value);
+        }
+      });
+
+      if (toastMessages.length) {
+        displayToast(toastMessages[0]);
+      } else if (!Object.keys(data).length) {
         displayToast('Failed to update profile');
       }
     },
   });
 
+  const getProfileUpdatePayload = useCallback((): UpdateProfileParameters => {
+    const formData = methods.getValues();
+    const socialLinksTouched = methods.getFieldState('socialLinks').isDirty;
+    const hasInitializedSocialLinks =
+      !!fullProfile || Array.isArray(user?.socialLinks);
+
+    if (!hasInitializedSocialLinks && !socialLinksTouched) {
+      const { socialLinks, ...payload } = formData;
+      return payload;
+    }
+
+    return formData;
+  }, [fullProfile, methods, user?.socialLinks]);
+
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
     onSave: () => {
-      const formData = methods.getValues();
-      updateUserProfile(formData);
+      updateUserProfile(getProfileUpdatePayload());
     },
     onDiscard: () => {
       methods.reset();
