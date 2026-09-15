@@ -42,24 +42,20 @@ export const usePushNotificationMutation = ({
     usePushNotificationContext();
   const { user } = useAuthContext();
   const [acceptedJustNow, onAcceptedJustNow] = useState(false);
-  const { completeAction, checkHasCompleted } = useActions();
+  const { completeAction } = useActions();
   const [permissionCache, setPermissionCache] = usePermissionCache();
 
   const onGranted = useCallback(async () => {
     await setPermissionCache('granted');
     onAcceptedJustNow(true);
 
-    if (!checkHasCompleted(ActionType.EnableNotification)) {
-      await completeAction(ActionType.EnableNotification);
-    }
+    // Sent on every grant, not only the first one: the action insert ignores
+    // duplicates, and the quest progress it drives is idempotent, so this is
+    // what lets someone whose notifications quest is stuck fix it themselves.
+    await completeAction(ActionType.EnableNotification);
 
     return true;
-  }, [
-    checkHasCompleted,
-    completeAction,
-    setPermissionCache,
-    onAcceptedJustNow,
-  ]);
+  }, [completeAction, setPermissionCache, onAcceptedJustNow]);
 
   const { onOpenPopup } = useNotificationPermissionPopup({
     onPermissionChange: (permission) => {

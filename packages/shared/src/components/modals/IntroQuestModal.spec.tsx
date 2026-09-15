@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event';
 import ReactModal from 'react-modal';
 import { IntroQuestModal } from './IntroQuestModal';
 import { QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS } from '../quest/QuestCard';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { ActionType } from '../../graphql/actions';
 import { useActions, useViewSize } from '../../hooks';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
@@ -46,6 +48,14 @@ jest.mock('../../contexts/LogContext', () => ({
   useLogContext: jest.fn(),
 }));
 
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuthContext: jest.fn(),
+}));
+
+jest.mock('../../contexts/PushNotificationContext', () => ({
+  usePushNotificationContext: jest.fn(),
+}));
+
 jest.mock('../../lib/func', () => ({
   ...jest.requireActual('../../lib/func'),
   getCurrentBrowserName: jest.fn(),
@@ -69,6 +79,8 @@ const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
 const mockUsePrompt = usePrompt as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
+const mockUseAuthContext = useAuthContext as jest.Mock;
+const mockUsePushNotificationContext = usePushNotificationContext as jest.Mock;
 const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 const completeAction = jest.fn();
 const logEvent = jest.fn();
@@ -112,6 +124,11 @@ describe('IntroQuestModal', () => {
     });
     mockUseLogContext.mockReturnValue({
       logEvent,
+    });
+    mockUseAuthContext.mockReturnValue({ user: null });
+    mockUsePushNotificationContext.mockReturnValue({
+      isPushSupported: true,
+      isInitialized: true,
     });
     mockGetCurrentBrowserName.mockReturnValue(BrowserName.Chrome);
     mockUseViewSize.mockReturnValue(false);
@@ -417,6 +434,161 @@ describe('IntroQuestModal', () => {
 
     expect(
       screen.getByText("You're all caught up — no intro quests to show."),
+    ).toBeInTheDocument();
+  });
+  const buildNotificationsQuest = (overrides: Partial<UserQuest> = {}) =>
+    buildIntroQuest({
+      rotationId: 'rot-notifications',
+      quest: {
+        id: 'quest-notifications',
+        name: 'Turn on notifications',
+        description: 'Enable alerts.',
+        type: QuestType.Intro,
+        eventType: 'notifications_enable',
+        targetCount: 1,
+      },
+      ...overrides,
+    });
+
+  const buildProfileQuest = (overrides: Partial<UserQuest> = {}) =>
+    buildIntroQuest({
+      rotationId: 'rot-profile',
+      quest: {
+        id: 'quest-profile',
+        name: 'Complete your profile',
+        description: 'Add enough context.',
+        type: QuestType.Intro,
+        eventType: 'profile_complete',
+        targetCount: 1,
+      },
+      ...overrides,
+    });
+
+  it('spells out what the profile quest is still missing', () => {
+    mockUseAuthContext.mockReturnValue({
+      user: {
+        id: 'u1',
+        profileCompletion: {
+          percentage: 60,
+          hasProfileImage: true,
+          hasHeadline: false,
+          hasExperienceLevel: true,
+          hasWork: true,
+          hasEducation: false,
+        },
+      },
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: { intro: [buildProfileQuest()] },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
+
+    expect(screen.getByText('Add Headline and Education.')).toBeInTheDocument();
+  });
+
+  it('does not spell out missing items once the profile quest is done', () => {
+    mockUseAuthContext.mockReturnValue({
+      user: {
+        id: 'u1',
+        profileCompletion: {
+          percentage: 60,
+          hasProfileImage: true,
+          hasHeadline: false,
+          hasExperienceLevel: true,
+          hasWork: true,
+          hasEducation: false,
+        },
+      },
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        intro: [
+          buildProfileQuest({
+            status: QuestStatus.Completed,
+            progress: 1,
+            claimable: true,
+          }),
+        ],
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
+
+    expect(
+      screen.queryByText('Add Headline and Education.'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('names browser push as the requirement for the notifications quest', () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: { intro: [buildNotificationsQuest()] },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
+
+    expect(
+      screen.getByText(
+        'Needs browser push permission — the email and in-app toggles do not count.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Go to Notifications', hidden: true }),
+    ).toBeInTheDocument();
+  });
+
+  it('says so and drops the dead-end link when push is unsupported', () => {
+    mockUsePushNotificationContext.mockReturnValue({
+      isPushSupported: false,
+      isInitialized: true,
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: { intro: [buildNotificationsQuest()] },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
+
+    expect(
+      screen.getByText(
+        'This browser cannot receive push notifications, so this step cannot be completed here.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: 'Go to Notifications',
+        hidden: true,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('waits for push support to resolve before hinting', () => {
+    mockUsePushNotificationContext.mockReturnValue({
+      isPushSupported: false,
+      isInitialized: false,
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: { intro: [buildNotificationsQuest()] },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
+
+    expect(
+      screen.queryByText(
+        'This browser cannot receive push notifications, so this step cannot be completed here.',
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Go to Notifications', hidden: true }),
     ).toBeInTheDocument();
   });
 });
