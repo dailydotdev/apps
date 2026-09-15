@@ -49,10 +49,11 @@ export const usePushNotificationMutation = ({
     await setPermissionCache('granted');
     onAcceptedJustNow(true);
 
-    // Sent on every grant, not only the first one: the action insert ignores
-    // duplicates, and the quest progress it drives is idempotent, so this is
-    // what lets someone whose notifications quest is stuck fix it themselves.
-    await completeAction(ActionType.EnableNotification);
+    // Forced so it is sent on every grant, not only the first one: the action
+    // insert ignores duplicates, and the quest progress it drives is
+    // idempotent, so this is what lets someone whose notifications quest is
+    // stuck fix it themselves.
+    await completeAction(ActionType.EnableNotification, { force: true });
 
     return true;
   }, [completeAction, setPermissionCache, onAcceptedJustNow]);

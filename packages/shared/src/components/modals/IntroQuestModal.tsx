@@ -29,7 +29,6 @@ import type { QuestType, UserQuest } from '../../graphql/quests';
 import { QuestStatus } from '../../graphql/quests';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { useActions } from '../../hooks';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { usePrompt } from '../../hooks/usePrompt';
@@ -96,8 +95,6 @@ const getExtensionIntroDestination = (
 const padStep = (index: number): string =>
   `Step ${(index + 1).toString().padStart(2, '0')}`;
 
-const PUSH_UNSUPPORTED_HINT =
-  'This browser cannot receive push notifications, so this step cannot be completed here.';
 const PUSH_REQUIREMENT_HINT =
   'Needs browser push permission — the email and in-app toggles do not count.';
 
@@ -126,13 +123,9 @@ const getProfileRequirementHint = (
 const getIntroRequirementHint = ({
   userQuest,
   profileCompletion,
-  isPushSupported,
-  isPushInitialized,
 }: {
   userQuest: UserQuest;
   profileCompletion?: ProfileCompletion;
-  isPushSupported: boolean;
-  isPushInitialized: boolean;
 }): string | null => {
   if (userQuest.status !== QuestStatus.InProgress) {
     return null;
@@ -142,11 +135,7 @@ const getIntroRequirementHint = ({
     case 'profile_complete':
       return getProfileRequirementHint(profileCompletion);
     case 'notifications_enable':
-      if (!isPushInitialized) {
-        return null;
-      }
-
-      return isPushSupported ? PUSH_REQUIREMENT_HINT : PUSH_UNSUPPORTED_HINT;
+      return PUSH_REQUIREMENT_HINT;
     default:
       return null;
   }
@@ -160,8 +149,6 @@ export const IntroQuestModal = ({
   const browserName = getCurrentBrowserName();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { isPushSupported, isInitialized: isPushInitialized } =
-    usePushNotificationContext();
   const { completeAction } = useActions();
   const { showPrompt } = usePrompt();
   const { data, isPending, isError } = useQuestDashboard();
@@ -209,14 +196,8 @@ export const IntroQuestModal = ({
     () => ({
       ...introDestinationByEventType,
       extension_install: getExtensionIntroDestination(browserName),
-      // Without push support the notifications settings page has no push row,
-      // so sending the user there is a dead end.
-      notifications_enable:
-        isPushInitialized && !isPushSupported
-          ? null
-          : introDestinationByEventType.notifications_enable,
     }),
-    [browserName, isPushInitialized, isPushSupported],
+    [browserName],
   );
 
   useEffect(() => {
@@ -485,8 +466,6 @@ export const IntroQuestModal = ({
                   hint={getIntroRequirementHint({
                     userQuest,
                     profileCompletion: user?.profileCompletion,
-                    isPushSupported,
-                    isPushInitialized,
                   })}
                   showLockIcon={false}
                 />

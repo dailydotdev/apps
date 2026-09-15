@@ -6,7 +6,6 @@ import { IntroQuestModal } from './IntroQuestModal';
 import { QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS } from '../quest/QuestCard';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { ActionType } from '../../graphql/actions';
 import { useActions, useViewSize } from '../../hooks';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
@@ -52,10 +51,6 @@ jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
 }));
 
-jest.mock('../../contexts/PushNotificationContext', () => ({
-  usePushNotificationContext: jest.fn(),
-}));
-
 jest.mock('../../lib/func', () => ({
   ...jest.requireActual('../../lib/func'),
   getCurrentBrowserName: jest.fn(),
@@ -80,7 +75,6 @@ const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
 const mockUsePrompt = usePrompt as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseAuthContext = useAuthContext as jest.Mock;
-const mockUsePushNotificationContext = usePushNotificationContext as jest.Mock;
 const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 const completeAction = jest.fn();
 const logEvent = jest.fn();
@@ -126,10 +120,6 @@ describe('IntroQuestModal', () => {
       logEvent,
     });
     mockUseAuthContext.mockReturnValue({ user: null });
-    mockUsePushNotificationContext.mockReturnValue({
-      isPushSupported: true,
-      isInitialized: true,
-    });
     mockGetCurrentBrowserName.mockReturnValue(BrowserName.Chrome);
     mockUseViewSize.mockReturnValue(false);
     mockUseClaimQuestReward.mockReturnValue({
@@ -538,55 +528,6 @@ describe('IntroQuestModal', () => {
         'Needs browser push permission — the email and in-app toggles do not count.',
       ),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Go to Notifications', hidden: true }),
-    ).toBeInTheDocument();
-  });
-
-  it('says so and drops the dead-end link when push is unsupported', () => {
-    mockUsePushNotificationContext.mockReturnValue({
-      isPushSupported: false,
-      isInitialized: true,
-    });
-    mockUseQuestDashboard.mockReturnValue({
-      data: { intro: [buildNotificationsQuest()] },
-      isPending: false,
-      isError: false,
-    });
-
-    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
-
-    expect(
-      screen.getByText(
-        'This browser cannot receive push notifications, so this step cannot be completed here.',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', {
-        name: 'Go to Notifications',
-        hidden: true,
-      }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('waits for push support to resolve before hinting', () => {
-    mockUsePushNotificationContext.mockReturnValue({
-      isPushSupported: false,
-      isInitialized: false,
-    });
-    mockUseQuestDashboard.mockReturnValue({
-      data: { intro: [buildNotificationsQuest()] },
-      isPending: false,
-      isError: false,
-    });
-
-    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
-
-    expect(
-      screen.queryByText(
-        'This browser cannot receive push notifications, so this step cannot be completed here.',
-      ),
-    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Go to Notifications', hidden: true }),
     ).toBeInTheDocument();
