@@ -240,6 +240,26 @@ describe('RichTextInput', () => {
     expect(mockFocus).toHaveBeenCalledWith('end');
   });
 
+  it('preserves the input prefix and its focus while the editor loads', () => {
+    mockEditorReady = false;
+    const input = (
+      <RichTextInput
+        toolbarPosition="bottom"
+        inputPrefix={<textarea aria-label="Post title" />}
+        hideFooter
+      />
+    );
+    const { rerender } = render(input);
+    const title = screen.getByRole('textbox', { name: 'Post title' });
+    title.focus();
+
+    mockEditorReady = true;
+    rerender(React.cloneElement(input));
+
+    expect(screen.getByRole('textbox', { name: 'Post title' })).toBe(title);
+    expect(title).toHaveFocus();
+  });
+
   it('gives the bottom bar the safe-area floor instead of the drawer', () => {
     render(<RichTextInput toolbarPosition="bottom" hideFooter />);
 
