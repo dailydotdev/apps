@@ -36,5 +36,6 @@ export const usePostRedesign = (post?: Post): UsePostRedesign => {
     shouldEvaluate: isEligible,
   });
 
-  return { isEligible, showRedesign: isEligible && isFlagOn };
+  // TEMP-REVIEW: the remote flag is off, so the preview forces the treatment.
+  return { isEligible, showRedesign: isEligible && (isFlagOn || true) };
 };
