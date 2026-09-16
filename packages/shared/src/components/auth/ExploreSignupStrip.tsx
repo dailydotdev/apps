@@ -14,10 +14,10 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 
-// The new tab's copy, with the headline pointed at the feed rather than the tab.
+// The new tab control strip's signed-out copy.
 const copy: HijackingCoverCopy = {
-  heading: 'Own your feed. Make it your dev briefing.',
-  body: 'Sign in and daily.dev remembers the topics, saves, and discussions that matter to you.',
+  heading: 'Unlock the full daily.dev experience',
+  body: 'Log in to pick up where you left off.',
 };
 
 // The new tab's cover strip for anonymous visitors, tablet and up.
