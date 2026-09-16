@@ -670,6 +670,7 @@ export const SEARCH_SOURCE_POSTS_QUERY = gql`
     $source: ID!
     $query: String!
     $supportedTypes: [String!]
+    $postTypes: [String!]
     $version: Int
   ) {
     page: searchSourcePosts(
@@ -678,6 +679,7 @@ export const SEARCH_SOURCE_POSTS_QUERY = gql`
       source: $source
       query: $query
       supportedTypes: $supportedTypes
+      postTypes: $postTypes
       version: $version
     ) {
       ...FeedPostConnection
@@ -704,6 +706,7 @@ export const SEARCH_POSTS_QUERY = gql`
     $query: String!
     ${SUPPORTED_TYPES}
     $contentCuration: [String]
+    $postTypes: [String!]
     $time: SearchTime
     $version: Int
     $columns: Int
@@ -714,6 +717,7 @@ export const SEARCH_POSTS_QUERY = gql`
       query: $query,
       supportedTypes: $supportedTypes,
       contentCuration: $contentCuration,
+      postTypes: $postTypes,
       time: $time,
       version: $version,
       columns: $columns

@@ -7,10 +7,21 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
 import { useShellState } from '../contexts/ShellStateContext';
 
+interface CompleteActionOptions {
+  /**
+   * Send the mutation even when the action is already completed. For actions
+   * the backend reacts to on every send, not only the first one.
+   */
+  force?: boolean;
+}
+
 interface UseActions {
   actions: Action[];
   checkHasCompleted: (type: ActionType) => boolean;
-  completeAction: (type: ActionType) => Promise<void>;
+  completeAction: (
+    type: ActionType,
+    options?: CompleteActionOptions,
+  ) => Promise<void>;
   isActionsFetched: boolean;
 }
 
@@ -68,6 +79,11 @@ export const useActions = (): UseActions => {
           return { actions: [optimisticAction], serverLoaded: false };
         }
 
+        // A forced resend runs on an action that is already in the cache.
+        if (old.actions.some((action) => action.type === type)) {
+          return old;
+        }
+
         return {
           actions: [...old?.actions, optimisticAction],
           serverLoaded: !!old?.serverLoaded,
@@ -118,8 +134,11 @@ export const useActions = (): UseActions => {
   return useMemo<UseActions>(() => {
     return {
       actions,
-      completeAction: async (type: ActionType): Promise<void> => {
-        if (checkHasCompleted(type)) {
+      completeAction: async (
+        type: ActionType,
+        { force }: CompleteActionOptions = {},
+      ): Promise<void> => {
+        if (!force && checkHasCompleted(type)) {
           return;
         }
 

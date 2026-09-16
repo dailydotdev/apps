@@ -25,10 +25,20 @@ export default function DirtyFormModal({
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
-    const result = onSave?.();
+    if (isSaving) {
+      return;
+    }
+
+    let result: void | Promise<void>;
+    try {
+      result = onSave();
+    } catch {
+      closeModal();
+      return;
+    }
 
     // Callers that save synchronously keep the original fire-and-forget close.
-    if (!(result instanceof Promise)) {
+    if (!result || typeof result.then !== 'function') {
       closeModal();
       return;
     }

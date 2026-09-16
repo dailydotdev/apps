@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { PostComments } from './PostComments';
 import { usePostComments } from '../../hooks/comments/usePostComments';
 import { Origin } from '../../lib/log';
@@ -19,8 +19,21 @@ jest.mock('./useCommentContentPreferenceMutationSubscription', () => ({
 
 jest.mock('../comments/MainComment', () => ({
   __esModule: true,
-  default: ({ comment }: { comment: { id: string } }) => (
-    <div data-testid="comment">{comment.id}</div>
+  default: ({
+    comment,
+    commentHash,
+    commentRef,
+  }: {
+    comment: { id: string };
+    commentHash: string;
+    commentRef: React.MutableRefObject<HTMLElement>;
+  }) => (
+    <article
+      data-testid="comment"
+      ref={commentHash === `#c-${comment.id}` ? commentRef : undefined}
+    >
+      {comment.id}
+    </article>
   ),
 }));
 
@@ -78,5 +91,117 @@ describe('PostComments interleaving', () => {
 
     expect(screen.queryByTestId('interleaved')).not.toBeInTheDocument();
     expect(screen.getAllByTestId('comment')).toHaveLength(11);
+  });
+});
+
+describe('PostComments hash scrolling', () => {
+  let scrollIntoView: jest.Mock;
+  let targetTop: number;
+
+  const advanceFrames = (count = 1) =>
+    act(() => jest.advanceTimersByTime(16 * count));
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    window.history.replaceState({}, '', '/posts/p1#c-c1');
+    targetTop = 1200;
+    jest
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(() => ({ top: targetTop, height: 100 } as DOMRect));
+    scrollIntoView = jest.fn(() => {
+      targetTop = 300;
+    });
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoView,
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    jest.useRealTimers();
+    window.history.replaceState({}, '', '/');
+  });
+
+  it('waits for comments to load even beyond the settling budget', () => {
+    setComments(0);
+    mockUsePostComments.mockReturnValue({
+      ...mockUsePostComments({ postId: post.id }),
+      isLoading: true,
+    } as ReturnType<typeof usePostComments>);
+    const { rerender } = render(
+      <PostComments post={post} origin={Origin.ArticlePage} />,
+    );
+    advanceFrames(200);
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    setComments(2);
+    rerender(<PostComments post={post} origin={Origin.ArticlePage} />);
+    advanceFrames();
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'instant',
+      block: 'center',
+      inline: 'nearest',
+    });
+    expect(scrollIntoView.mock.instances[0]).toBe(screen.getByText('c1'));
+  });
+
+  it('corrects a late layout shift above the comment', () => {
+    renderThread(2);
+    advanceFrames(60);
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+
+    targetTop += 700;
+    advanceFrames();
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(screen.getByText('c1').getBoundingClientRect().top).toBe(300);
+  });
+
+  it.each(['wheel', 'touchmove', 'keydown', 'mousedown'])(
+    'stops correcting after %s, including on refetch',
+    (event) => {
+      const { rerender } = renderThread(2);
+      advanceFrames();
+      fireEvent(window, new Event(event));
+      targetTop += 700;
+      setComments(3);
+      rerender(<PostComments post={post} origin={Origin.ArticlePage} />);
+      advanceFrames(200);
+
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(targetTop).toBe(1000);
+    },
+  );
+
+  it('leaves an absent target alone and exhausts its frame budget', () => {
+    window.history.replaceState({}, '', '/posts/p1#c-missing');
+    renderThread(2);
+    advanceFrames(200);
+    expect(scrollIntoView).not.toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  it('re-arms when the hash changes while the post stays mounted', () => {
+    renderThread(2);
+    advanceFrames(200);
+    window.history.replaceState({}, '', '/posts/p1#c-c0');
+    fireEvent(window, new HashChangeEvent('hashchange'));
+    advanceFrames();
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollIntoView.mock.instances[1]).toBe(screen.getByText('c0'));
+  });
+
+  it('reads the live hash on a client navigation render without hashchange', () => {
+    const { rerender } = renderThread(2);
+    advanceFrames(200);
+    window.history.pushState({}, '', '/posts/p1#c-c0');
+    rerender(<PostComments post={post} origin={Origin.ArticlePage} />);
+    advanceFrames();
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollIntoView.mock.instances[1]).toBe(screen.getByText('c0'));
   });
 });

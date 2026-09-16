@@ -61,6 +61,10 @@ export enum Origin {
   PostParagraph = 'post paragraph',
   PollResults = 'poll results',
   PollVotePrompt = 'poll vote prompt',
+  HappeningNow = 'happening now',
+  HappeningNowHighlight = 'happening now highlight',
+  HappeningNowSelection = 'happening now selection',
+  HighlightsCard = 'highlights card',
   // snapshot placements - end
   History = 'history',
   FeedbackCard = 'feedback card',
@@ -121,11 +125,15 @@ export enum LogEvent {
   // AdSense slots on the /read template and the organic post page. First-party
   // per-placement lifecycle — the shared unit ids blend AdSense's own
   // reporting, and Google reports nothing about requests it never answered.
-  RequestAdsenseSlot = 'request adsense slot',
-  FillAdsenseSlot = 'fill adsense slot',
-  EmptyAdsenseSlot = 'empty adsense slot',
-  AdsenseSlotError = 'adsense slot error',
-  AdsenseTestMode = 'adsense test mode',
+  // Provider-neutral since the move off AdSense: the wire values changed with
+  // them, so a query spanning the switch has to union the old
+  // `* adsense slot` names. The cross-provider metrics ride AdActions
+  // (impression, viewable impression, click) instead, whose names did not
+  // change and which carry ad_provider_id.
+  RequestAdSlot = 'request ad slot',
+  FillAdSlot = 'fill ad slot',
+  EmptyAdSlot = 'empty ad slot',
+  AdSlotError = 'ad slot error',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -364,6 +372,7 @@ export enum LogEvent {
   ShareWorld = 'share world',
   ShareTool = 'share tool',
   ShareHotTake = 'share hot take',
+  ShareHighlights = 'share highlights',
   ShareArchive = 'share archive',
   // End Share
   /* Start World
@@ -649,6 +658,7 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
+  ApiAccess = 'api access',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
