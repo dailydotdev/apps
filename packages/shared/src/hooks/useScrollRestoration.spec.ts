@@ -118,7 +118,7 @@ describe('useScrollRestoration', () => {
     expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
   });
 
-  it('waits without polling when the page is too short', () => {
+  it('abandons restoration before unrelated late page growth', () => {
     saveFeedPosition();
 
     renderScrollRestoration();
@@ -133,7 +133,7 @@ describe('useScrollRestoration', () => {
 
     setPageHeight(FEED_HEIGHT);
     advanceFrames();
-    expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
+    expect(scrollTo).not.toHaveBeenCalled();
   });
 
   it('keeps the saved position when the router resets the scroll to the top', () => {
@@ -234,5 +234,55 @@ describe('useScrollRestoration', () => {
     act(() => window.dispatchEvent(new Event('resize')));
 
     expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
+  });
+
+  it('stops on a changed scroll position even without a wheel or touch event', () => {
+    saveFeedPosition();
+    const { unmount } = renderScrollRestoration();
+    setPageHeight(3000);
+    scrollUserTo(1200);
+    setPageHeight(FEED_HEIGHT);
+    advanceFrames();
+    expect(scrollTo).not.toHaveBeenCalled();
+
+    unmount();
+    setScrollY(0);
+    renderScrollRestoration();
+    advanceFrames();
+    expect(scrollTo).toHaveBeenCalledWith(0, 1200);
+  });
+
+  it('records scrolling again after the restoration deadline', () => {
+    saveFeedPosition();
+    const { unmount } = renderScrollRestoration();
+    act(() => jest.advanceTimersByTime(10000));
+    setPageHeight(FEED_HEIGHT);
+    scrollUserTo(1200);
+    unmount();
+    setScrollY(0);
+    renderScrollRestoration();
+    advanceFrames();
+    expect(scrollTo).toHaveBeenCalledWith(0, 1200);
+  });
+
+  it('restores with bounded polling when ResizeObserver is unavailable', () => {
+    saveFeedPosition();
+    const observerConstructor = global.ResizeObserver;
+    Object.defineProperty(global, 'ResizeObserver', {
+      value: undefined,
+    });
+    try {
+      const { unmount } = renderScrollRestoration();
+      act(() => jest.advanceTimersByTime(2500));
+      setPageHeight(FEED_HEIGHT);
+      act(() => jest.advanceTimersByTime(120));
+      expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
+      expect(jest.getTimerCount()).toBe(0);
+      unmount();
+    } finally {
+      Object.defineProperty(global, 'ResizeObserver', {
+        value: observerConstructor,
+      });
+    }
   });
 });

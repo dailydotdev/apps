@@ -4,6 +4,7 @@ import post from '../../__tests__/fixture/post';
 import { FeedItemType } from '../components/cards/common/common';
 import type { UseRouterMemory } from './useRouterMemory';
 import { usePostModalNavigation } from './usePostModalNavigation';
+import { useScrollRestoration } from './useScrollRestoration';
 
 const mockRouter = {
   asPath: '/',
@@ -26,6 +27,9 @@ jest.mock('./useKeyboardNavigation', () => ({
 }));
 
 let historyKey = 0;
+let pageHeight = 20000;
+let notifyResize: (() => void) | undefined;
+const advanceFrame = () => act(() => jest.advanceTimersByTime(16));
 
 const setScrollY = (value: number): void => {
   Object.defineProperty(window, 'scrollY', { configurable: true, value });
@@ -63,6 +67,22 @@ const renderNavigation = () =>
   );
 
 beforeEach(() => {
+  jest.useFakeTimers();
+  pageHeight = 20000;
+  notifyResize = undefined;
+  Object.defineProperty(document.documentElement, 'scrollHeight', {
+    configurable: true,
+    get: () => pageHeight,
+  });
+  jest.mocked(ResizeObserver).mockImplementation((callback) => {
+    const observer = {
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    };
+    notifyResize = () => callback([], observer);
+    return observer;
+  });
   historyKey += 1;
   restoreHistoryEntry({
     key: `${historyKey}`,
@@ -85,9 +105,13 @@ beforeEach(() => {
   setScrollY(0);
   Object.defineProperty(window, 'scrollTo', {
     configurable: true,
-    value: jest.fn((_x: number, y: number) => setScrollY(y)),
+    value: jest.fn((_x: number, y: number) =>
+      setScrollY(Math.min(y, Math.max(0, pageHeight - window.innerHeight))),
+    ),
   });
 });
+
+afterEach(() => jest.useRealTimers());
 
 it('restores the feed when browser Back reopens a closed post', async () => {
   const { result, rerender } = renderNavigation();
@@ -99,6 +123,7 @@ it('restores the feed when browser Back reopens a closed post', async () => {
 
   await act(async () => result.current.onCloseModal());
   rerender();
+  advanceFrame();
   expect(window.scrollY).toBe(5000);
 
   restoreHistoryEntry(postEntry);
@@ -107,6 +132,7 @@ it('restores the feed when browser Back reopens a closed post', async () => {
   setScrollY(0);
   await act(async () => result.current.onCloseModal());
 
+  advanceFrame();
   expect(window.scrollY).toBe(5000);
 });
 
@@ -129,12 +155,14 @@ it('keeps separate positions for earlier modal history entries after a remount',
   setScrollY(0);
   const utils = renderNavigation();
   await act(async () => utils.result.current.onCloseModal());
+  advanceFrame();
   expect(window.scrollY).toBe(5000);
 
   restoreHistoryEntry(secondEntry);
   setScrollY(0);
   utils.rerender();
   await act(async () => utils.result.current.onCloseModal());
+  advanceFrame();
   expect(window.scrollY).toBe(9000);
 });
 
@@ -151,6 +179,7 @@ it('carries the original feed position through next-post navigation after a remo
   expect(utils.result.current.selectedPost?.id).toBe('second-post');
   await act(async () => utils.result.current.onCloseModal());
 
+  advanceFrame();
   expect(window.scrollY).toBe(5000);
 });
 
@@ -173,4 +202,32 @@ it('does not restore the feed when closing navigation is cancelled', async () =>
   await act(async () => result.current.onCloseModal());
 
   expect(window.scrollTo).not.toHaveBeenCalled();
+});
+
+it('waits for a remounted feed to grow after closing a post', async () => {
+  const view = renderNavigation();
+  setScrollY(5000);
+  await act(async () => view.result.current.onOpenModal(0));
+  view.unmount();
+  setScrollY(0);
+  pageHeight = window.innerHeight;
+
+  const { result, rerender } = renderNavigation();
+  await act(async () => result.current.onCloseModal());
+  rerender();
+  const destination = getHistoryEntry();
+  act(() => jest.advanceTimersByTime(2500));
+  expect(window.scrollTo).not.toHaveBeenCalled();
+  expect(window.scrollY).toBe(0);
+
+  pageHeight = 20000;
+  notifyResize?.();
+  advanceFrame();
+  expect(window.scrollY).toBe(5000);
+
+  restoreHistoryEntry(destination);
+  setScrollY(0);
+  renderHook(() => useScrollRestoration());
+  advanceFrame();
+  expect(window.scrollY).toBe(5000);
 });
