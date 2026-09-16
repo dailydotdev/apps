@@ -663,7 +663,7 @@ export function SmartComposerModal({
           handleClose();
         }}
         onAfterClose={props.onAfterClose}
-        className={{ wrapper: 'flex flex-col !p-0' }}
+        className={{ wrapper: 'flex flex-col !overflow-hidden !p-0' }}
       >
         {formContent}
       </Drawer>
@@ -677,10 +677,10 @@ export function SmartComposerModal({
       onRequestClose={handleClose}
       overlayClassName={isExpanded ? '!pt-0' : 'tablet:!pt-16 laptop:!pt-12'}
       className={classNames(
-        'flex flex-col',
+        'flex flex-col overflow-hidden',
         isExpanded
           ? '!mb-0 !mt-0 !h-[100vh] !max-h-[100vh] !w-[100vw] !max-w-[100vw] !rounded-none'
-          : '!min-h-[30.5rem] !max-w-[48.75rem] tablet:!max-h-[calc(100vh-7rem)] tablet:w-[48.75rem] laptop:!max-h-[calc(100vh-6rem)]',
+          : '!min-h-[min(30.5rem,calc(100vh-6rem))] !max-w-[48.75rem] tablet:!max-h-[calc(100vh-7rem)] tablet:w-[48.75rem] laptop:!max-h-[calc(100vh-6rem)]',
       )}
       {...props}
     >

@@ -1359,7 +1359,7 @@ describe('post redesign', () => {
     };
     const mountedUnits = () =>
       screen
-        .getAllByTestId(/^adsense-slot-/)
+        .getAllByTestId(/^ad-slot-/)
         .map((el) => el.getAttribute('data-testid'))
         .sort();
 
@@ -1369,11 +1369,11 @@ describe('post redesign', () => {
       const classicUnits = mountedUnits();
       expect(classicUnits).toEqual(
         expect.arrayContaining([
-          'adsense-slot-15',
-          'adsense-slot-16',
-          'adsense-slot-21',
-          'adsense-slot-22',
-          'adsense-slot-23',
+          'ad-slot-15',
+          'ad-slot-16',
+          'ad-slot-21',
+          'ad-slot-22',
+          'ad-slot-23',
         ]),
       );
       expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();

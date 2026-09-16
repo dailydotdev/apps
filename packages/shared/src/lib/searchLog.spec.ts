@@ -24,7 +24,11 @@ describe('searchResultsLogEvent', () => {
       resultCount: 3,
       latencyMs: 128,
       scope: 'all',
-      filters: { time: '7d', content_curation: ['article'] },
+      filters: {
+        time: '7d',
+        content_curation: ['article'],
+        post_types: ['video:youtube'],
+      },
     });
 
     expect(event.event_name).toEqual(LogEvent.SearchResults);
@@ -36,7 +40,11 @@ describe('searchResultsLogEvent', () => {
       result_count: 3,
       latency_ms: 128,
       scope: 'all',
-      filters: { time: '7d', content_curation: ['article'] },
+      filters: {
+        time: '7d',
+        content_curation: ['article'],
+        post_types: ['video:youtube'],
+      },
       is_zero_result: false,
     });
   });

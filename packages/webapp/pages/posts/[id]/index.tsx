@@ -11,9 +11,9 @@ import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read
 import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
-  ADSENSE_SCRIPT_SRC,
-  hasLiveAdsenseUnits,
-} from '@dailydotdev/shared/src/features/monetization/adsense';
+  hasLiveAdSlots,
+  PREBID_SCRIPT_SRC,
+} from '@dailydotdev/shared/src/features/monetization/kueez';
 import {
   COMMENTS_PER_INTERLEAVED_AD,
   CONTENT_CHARS_PER_AD,
@@ -21,7 +21,7 @@ import {
   ORGANIC_SLOT,
 } from '@dailydotdev/shared/src/components/post/read/slots';
 import { splitTextForAds } from '@dailydotdev/shared/src/components/post/read/splitContentForAds';
-import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdsenseSlots';
+import { useOrganicAdSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdSlots';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -78,7 +78,7 @@ import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
-import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
+import { AdHeadHints } from '../../../components/AdHeadHints';
 import { usePostPageRedesign } from '../../../components/post/usePostPageRedesign';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
@@ -227,12 +227,9 @@ export const PostPage = ({
   const showRedesign = usePostPageRedesign(post);
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
   // Empty for every logged-in visitor; the slot components check the same
-  // hook, so with it empty neither markup nor script exists. Gated on a unit
-  // id being present, not key presence — the map keeps placeholder entries
-  // with empty ids, and the script must not load for inventory that cannot
-  // fill.
-  const adsenseSlots = useOrganicAdsenseSlots();
-  const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
+  // hook, so with it empty neither markup nor the Prebid bundle exists.
+  const adSlots = useOrganicAdSlots();
+  const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
   // the organic page: the TLDR splits at the shared cadence with an MPU
   // between segments (phones keep only the first), an MPU sits above the
@@ -242,14 +239,14 @@ export const PostPage = ({
   // post_redesign arms differ in layout only, never in inventory.
   const summarySegments = useMemo(
     () =>
-      adsenseActive && post?.summary
+      adsActive && post?.summary
         ? splitTextForAds(
             post.summary,
             CONTENT_CHARS_PER_AD,
             MAX_CONTENT_ADS_PER_SECTION + 1,
           )
         : null,
-    [adsenseActive, post?.summary],
+    [adsActive, post?.summary],
   );
   const renderSummarySegments = useMemo(() => {
     if (!summarySegments) {
@@ -296,7 +293,7 @@ export const PostPage = ({
   // props, the focus card takes it whole.
   const organicAds = useMemo(
     () =>
-      adsenseActive
+      adsActive
         ? {
             contentLeading: (
               <ReadTopLeaderboard
@@ -334,7 +331,7 @@ export const PostPage = ({
             },
           }
         : undefined,
-    [adsenseActive, renderSummarySegments],
+    [adsActive, renderSummarySegments],
   );
 
   // Same boundary the /read template draws: adsbygoogle must never follow a
@@ -343,7 +340,7 @@ export const PostPage = ({
   // destination carries its own slots — while any departure forces a full
   // page load that tears every Google global down.
   useEffect(() => {
-    if (!adsenseActive) {
+    if (!adsActive) {
       return undefined;
     }
     const forceHardNavigation = (
@@ -374,7 +371,7 @@ export const PostPage = ({
       router.events.off('routeChangeStart', forceHardNavigation);
       router.beforePopState(() => true);
     };
-  }, [adsenseActive, router]);
+  }, [adsActive, router]);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -456,14 +453,13 @@ export const PostPage = ({
           <Head>
             <link rel="preload" as="image" href={post?.image} />
           </Head>
-          {adsenseActive && (
+          {adsActive && (
             <>
-              <AdsenseHeadHints />
+              <AdHeadHints />
               <Script
-                id="adsbygoogle-loader"
-                src={ADSENSE_SCRIPT_SRC}
+                id="prebid-loader"
+                src={PREBID_SCRIPT_SRC}
                 strategy="afterInteractive"
-                crossOrigin="anonymous"
               />
             </>
           )}
