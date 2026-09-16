@@ -21,9 +21,7 @@ import type { Entry } from './data';
 import { feedEntries, formatCount, team } from './data';
 import {
   HomeFrame,
-  HomeTab,
-  HomeTabs,
-  PostsTab,
+  PostsArea,
   SectionTitle,
   Separator,
   Tile,
@@ -397,24 +395,28 @@ const Badges = (): ReactElement => (
   </Widget>
 );
 
+export enum ProfileTab {
+  Activity = 'activity',
+  About = 'about',
+}
+
 const profileTabs = [
-  { id: HomeTab.Posts, label: 'Activity', count: user.posts },
-  { id: HomeTab.About, label: 'About' },
+  { id: ProfileTab.Activity, label: 'Activity', count: user.posts },
+  { id: ProfileTab.About, label: 'About' },
 ];
 
 export const ProfileHome = ({
   isOwner = false,
-  initialTab = HomeTab.Posts,
+  initialTab = ProfileTab.Activity,
 }: {
   isOwner?: boolean;
-  initialTab?: HomeTab;
+  initialTab?: ProfileTab;
 }): ReactElement => {
-  const [tab, setTab] = useState<HomeTab>(initialTab);
+  const [tab, setTab] = useState<ProfileTab>(initialTab);
 
   return (
     <HomeFrame
       header={<ProfileHeader isOwner={isOwner} />}
-      tabs={<HomeTabs tabs={profileTabs} active={tab} onSelect={setTab} />}
       widgets={
         <>
           <ReadingOverview />
@@ -423,12 +425,30 @@ export const ProfileHome = ({
         </>
       }
     >
-      {tab === HomeTab.Posts ? (
-        <PostsTab
-          chips={['Posts', 'Replies', 'Upvoted']}
-          activeChip="Posts"
-          entries={posts.slice(0, 6)}
-        />
+      <div className="flex items-center gap-6 border-b border-border-subtlest-tertiary px-6">
+        {profileTabs.map((item) => (
+          <button
+            type="button"
+            key={item.id}
+            onClick={() => setTab(item.id)}
+            className={classNames(
+              'relative flex items-center gap-1.5 py-3 typo-callout',
+              item.id === tab
+                ? 'sq-tab-active font-bold text-text-primary'
+                : 'text-text-tertiary hover:text-text-primary',
+            )}
+          >
+            {item.label}
+            {typeof item.count === 'number' && (
+              <span className="sq-nums font-normal text-text-quaternary">
+                {item.count}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+      {tab === ProfileTab.Activity ? (
+        <PostsArea sort="Posts" entries={posts.slice(0, 6)} />
       ) : (
         <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
           <div />

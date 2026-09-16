@@ -1,14 +1,17 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  ArrowIcon,
   BellIcon,
+  CardLayout,
   EditIcon,
   GitHubIcon,
   LinkIcon,
@@ -63,7 +66,13 @@ export const Separator = (): ReactElement => (
 /* -------------------------------------------------------------- header */
 
 /** ProfileHeader, for a squad. */
-const SquadHeader = ({ viewer }: { viewer: Viewer }): ReactElement => (
+const SquadHeader = ({
+  viewer,
+  standalone,
+}: {
+  viewer: Viewer;
+  standalone: boolean;
+}): ReactElement => (
   <div className="relative w-full overflow-hidden rounded-t-16">
     <div className="h-36">
       <img
@@ -114,7 +123,7 @@ const SquadHeader = ({ viewer }: { viewer: Viewer }): ReactElement => (
         </div>
         {viewer !== Viewer.Admin && (
           <div className="flex items-center gap-2">
-            {viewer === Viewer.Visitor ? (
+            {standalone && viewer === Viewer.Visitor && (
               <Button
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Cabbage}
@@ -122,22 +131,23 @@ const SquadHeader = ({ viewer }: { viewer: Viewer }): ReactElement => (
               >
                 Join
               </Button>
-            ) : (
-              <Button
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Small}
-                icon={<VIcon />}
-              >
-                Joined
-              </Button>
             )}
             {viewer === Viewer.Member && (
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<BellIcon />}
-                aria-label="Notifications"
-              />
+              <>
+                <Button
+                  variant={ButtonVariant.Secondary}
+                  size={ButtonSize.Small}
+                  icon={<VIcon />}
+                >
+                  Joined
+                </Button>
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<BellIcon />}
+                  aria-label="Notifications"
+                />
+              </>
             )}
             <Button
               variant={ButtonVariant.Float}
@@ -303,116 +313,99 @@ const StackSection = ({ viewer }: { viewer: Viewer }): ReactElement => (
   </div>
 );
 
-/* ----------------------------------------------------------------- tabs */
+/* ---------------------------------------------------------------- posts */
 
 /**
- * The page-level tabs, right under the stats. Posts is the default and the
- * dominant surface; everything that used to stack down the column lives in
- * About. The profile gets the same pair.
+ * Reddit's feed controls, in our clothes: one sort menu instead of a row of
+ * tabs, the grid / list toggle the product already has, and search. No tab
+ * bar anywhere on the page; the sidebar is the navigation.
  */
-export const HomeTabs = ({
-  tabs,
-  active,
-  onSelect,
+export const PostsToolbar = ({
+  sort,
+  view = 'grid',
+  children,
 }: {
-  tabs: { id: HomeTab; label: string; count?: number }[];
-  active: HomeTab;
-  onSelect?: (tab: HomeTab) => void;
+  sort: string;
+  view?: 'grid' | 'list';
+  children?: ReactNode;
 }): ReactElement => (
-  <div className="flex items-center gap-6 border-b border-border-subtlest-tertiary px-6">
-    {tabs.map((tab) => (
-      <button
-        type="button"
-        key={tab.id}
-        onClick={() => onSelect?.(tab.id)}
-        className={classNames(
-          'relative flex items-center gap-1.5 py-3 typo-callout',
-          tab.id === active
-            ? 'sq-tab-active font-bold text-text-primary'
-            : 'text-text-tertiary hover:text-text-primary',
-        )}
-      >
-        {tab.label}
-        {typeof tab.count === 'number' && (
-          <span className="sq-nums font-normal text-text-quaternary">
-            {formatCount(tab.count)}
-          </span>
-        )}
-      </button>
-    ))}
-  </div>
-);
-
-export enum HomeTab {
-  Posts = 'posts',
-  About = 'about',
-}
-
-export const Chips = ({
-  options,
-  active,
-}: {
-  options: string[];
-  active: string;
-}): ReactElement => (
-  <div className="flex items-center gap-1">
-    {options.map((option) => (
-      <button
-        type="button"
-        key={option}
-        className={classNames(
-          'rounded-10 px-3 py-1.5 font-bold typo-callout',
-          option === active
-            ? 'bg-surface-float text-text-primary'
-            : 'text-text-tertiary hover:text-text-primary',
-        )}
-      >
-        {option}
-      </button>
-    ))}
-  </div>
-);
-
-/**
- * The Posts tab: the cards are the page. Two production cards per row in
- * the profile column, a sort row above, the pinned post leading with its
- * flag, load more at the foot.
- */
-export const PostsTab = ({
-  chips,
-  activeChip,
-  entries: list,
-  pinned,
-  composer,
-}: {
-  chips: string[];
-  activeChip: string;
-  entries: Entry[];
-  pinned?: Entry;
-  composer?: ReactNode;
-}): ReactElement => (
-  <div className="flex flex-col gap-4 p-6">
-    <div className="flex items-center justify-between">
-      <Chips options={chips} active={activeChip} />
+  <div className="flex items-center gap-2">
+    <Button
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      icon={<ArrowIcon className="rotate-180" />}
+      iconPosition={ButtonIconPosition.Right}
+    >
+      {sort}
+    </Button>
+    {children}
+    <div className="ml-auto flex items-center gap-1">
       <Button
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<SearchIcon />}
         aria-label="Search"
       />
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<CardLayout secondary={view === 'list'} />}
+        aria-label="Toggle layout"
+      />
     </div>
-    {composer}
-    {pinned && (
-      <div className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 py-2.5">
-        <PinIcon size={IconSize.Small} className="text-text-tertiary" />
-        <span className="truncate text-text-primary typo-callout">
-          {pinned.title}
-        </span>
-        <span className="ml-auto whitespace-nowrap text-text-quaternary typo-footnote">
-          Pinned · {pinned.author.name}
-        </span>
-      </div>
+  </div>
+);
+
+/**
+ * Reddit's community highlight: the pinned post as one compact card above
+ * the feed, thumbnail and all, instead of a text row.
+ */
+export const Highlight = ({ entry }: { entry: Entry }): ReactElement => (
+  <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3">
+    {entry.image ? (
+      <img
+        src={entry.image}
+        alt=""
+        className="h-14 w-24 shrink-0 rounded-10 object-cover"
+      />
+    ) : (
+      <span className="flex h-14 w-24 shrink-0 items-center justify-center rounded-10 bg-background-default text-text-tertiary">
+        <PinIcon size={IconSize.Medium} />
+      </span>
     )}
+    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <span className="flex items-center gap-1.5 text-text-tertiary typo-caption1">
+        <PinIcon size={IconSize.XSmall} />
+        Pinned by {entry.author.name}
+      </span>
+      <span className="line-clamp-1 font-bold text-text-primary typo-callout">
+        {entry.title}
+      </span>
+      <span className="line-clamp-1 text-text-tertiary typo-footnote">
+        {entry.summary}
+      </span>
+    </div>
+  </div>
+);
+
+/** The posts, as the page. */
+export const PostsArea = ({
+  sort,
+  entries: list,
+  pinned,
+  composer,
+  toolbarChildren,
+}: {
+  sort: string;
+  entries: Entry[];
+  pinned?: Entry;
+  composer?: ReactNode;
+  toolbarChildren?: ReactNode;
+}): ReactElement => (
+  <div className="flex flex-col gap-4 p-6">
+    <PostsToolbar sort={sort}>{toolbarChildren}</PostsToolbar>
+    {composer}
+    {pinned && <Highlight entry={pinned} />}
     <div
       className="grid gap-4"
       style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
@@ -642,12 +635,10 @@ const AwardsWidget = (): ReactElement => (
 /** One frame for a squad and a person: card + widget column. */
 export const HomeFrame = ({
   header,
-  tabs,
   children,
   widgets,
 }: {
   header: ReactNode;
-  tabs: ReactNode;
   children: ReactNode;
   widgets: ReactNode;
 }): ReactElement => (
@@ -655,7 +646,6 @@ export const HomeFrame = ({
     <main className="flex min-w-0 flex-1 flex-col">
       <div className="rounded-16 border border-border-subtlest-tertiary">
         {header}
-        {tabs}
         {children}
       </div>
     </main>
@@ -663,47 +653,45 @@ export const HomeFrame = ({
   </div>
 );
 
-const squadTabs = [
-  { id: HomeTab.Posts, label: 'Posts', count: squad.totalPosts },
-  { id: HomeTab.About, label: 'About' },
-];
+/** The About page in the sidebar: what used to stack under the header. */
+export const SquadAbout = ({
+  viewer = Viewer.Visitor,
+}: {
+  viewer?: Viewer;
+}): ReactElement => (
+  <div className="flex flex-col divide-y divide-border-subtlest-tertiary">
+    <AboutSection />
+    <StackSection viewer={viewer} />
+    <RolesSection />
+  </div>
+);
+
+export const SquadWidgets = (): ReactElement => (
+  <>
+    <OverviewWidget />
+    <TeamWidget />
+    <AwardsWidget />
+  </>
+);
 
 export const SquadHome = ({
   viewer = Viewer.Visitor,
-  initialTab = HomeTab.Posts,
+  standalone = false,
 }: {
   viewer?: Viewer;
-  initialTab?: HomeTab;
-}): ReactElement => {
-  const [tab, setTab] = useState<HomeTab>(initialTab);
-
-  return (
-    <HomeFrame
-      header={<SquadHeader viewer={viewer} />}
-      tabs={<HomeTabs tabs={squadTabs} active={tab} onSelect={setTab} />}
-      widgets={
-        <>
-          <OverviewWidget />
-          <TeamWidget />
-          <AwardsWidget />
-        </>
-      }
-    >
-      {tab === HomeTab.Posts ? (
-        <PostsTab
-          chips={['Latest', 'Top', 'Discussed']}
-          activeChip="Latest"
-          entries={feedEntries.slice(0, 6)}
-          pinned={pinnedEntry}
-        />
-      ) : (
-        <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
-          <div />
-          <AboutSection />
-          <StackSection viewer={viewer} />
-          <RolesSection />
-        </div>
-      )}
-    </HomeFrame>
-  );
-};
+  /** Outside the workspace there is no sidebar to carry Join, so the header does. */
+  standalone?: boolean;
+}): ReactElement => (
+  <HomeFrame
+    header={<SquadHeader viewer={viewer} standalone={standalone} />}
+    widgets={<SquadWidgets />}
+  >
+    <div className="border-t border-border-subtlest-tertiary">
+      <PostsArea
+        sort="Latest"
+        entries={feedEntries.slice(0, 6)}
+        pinned={pinnedEntry}
+      />
+    </div>
+  </HomeFrame>
+);

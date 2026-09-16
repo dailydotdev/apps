@@ -19,6 +19,7 @@ import {
   DocsIcon,
   DragIcon,
   EyeCancelIcon,
+  HashtagIcon,
   HomeIcon,
   HotIcon,
   JobIcon,
@@ -54,7 +55,7 @@ import {
 } from './data';
 import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
 import { Composer, Kit2Styles, LeaderboardBody } from './kit2';
-import { SquadHome } from './home';
+import { SquadAbout, SquadHome } from './home';
 
 // Round three: the Whop mindset. A squad is not a page with widgets, it is a
 // workspace. The owner composes a left column of pages (a feed, a chat, a
@@ -66,6 +67,7 @@ import { SquadHome } from './home';
 
 export enum PageType {
   Home = 'home',
+  About = 'about',
   Feed = 'feed',
   Doc = 'doc',
   Chat = 'chat',
@@ -107,6 +109,7 @@ export const sections: SidebarSection[] = [
     id: 'top',
     pages: [
       { id: 'home', label: 'Home', type: PageType.Home },
+      { id: 'about', label: 'About', type: PageType.About },
       {
         id: 'announcements',
         label: 'Announcements',
@@ -177,6 +180,7 @@ export const allPages = sections.flatMap((section) => section.pages);
 export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
   ({
     [PageType.Home]: <HomeIcon size={size} />,
+    [PageType.About]: <HashtagIcon size={size} />,
     [PageType.Feed]: <MegaphoneIcon size={size} />,
     [PageType.Doc]: <DocsIcon size={size} />,
     [PageType.Chat]: <DiscussIcon size={size} />,
@@ -424,6 +428,18 @@ export const SquadSidebar = ({
           </span>
         </div>
       </header>
+      {viewer === Viewer.Visitor && (
+        <div className="border-b border-border-subtlest-tertiary p-3">
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Medium}
+            className="w-full"
+          >
+            Join squad
+          </Button>
+        </div>
+      )}
       {admin && (
         <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-4 py-2 text-text-tertiary typo-caption1">
           Preview as
@@ -490,18 +506,6 @@ export const SquadSidebar = ({
           </button>
         )}
       </div>
-      {viewer === Viewer.Visitor && (
-        <div className="mt-auto border-t border-border-subtlest-tertiary p-3">
-          <Button
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            size={ButtonSize.Medium}
-            className="w-full"
-          >
-            Join squad
-          </Button>
-        </div>
-      )}
     </aside>
   );
 };
@@ -950,6 +954,12 @@ const PageBody = ({
   switch (page.type) {
     case PageType.Home:
       return <HomePage viewer={viewer} />;
+    case PageType.About:
+      return (
+        <Column width="max-w-[46rem]">
+          <SquadAbout viewer={viewer} />
+        </Column>
+      );
     case PageType.Feed:
       return <FeedPage viewer={viewer} />;
     case PageType.Chat:

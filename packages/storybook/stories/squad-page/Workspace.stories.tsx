@@ -4,8 +4,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import ExtensionProviders from '../extension/_providers';
 import { KitStyles, Viewer } from './kit';
-import { HomeTab, SquadHome } from './home';
-import { ProfileHome } from './profile';
+import { SquadHome } from './home';
+import { ProfileHome, ProfileTab } from './profile';
 import {
   addPage,
   allPages,
@@ -224,23 +224,28 @@ export const Overview: StoryObj = {
             ['Profile, on the new frame', <ProfileHome key="profile" />],
             [
               'Squad Home, same frame',
-              <SquadHome key="squad" viewer={Viewer.Visitor} />,
+              <SquadHome key="squad" viewer={Viewer.Visitor} standalone />,
             ],
           ]}
         />
-        <Caption>The About tab on both, where the long content went.</Caption>
+        <Caption>
+          Where the long content went: the profile keeps an About tab because it
+          has no sidebar; the squad gets an About page in its sidebar.
+        </Caption>
         <Pair
           items={[
             [
               'Profile · About',
-              <ProfileHome key="profile-about" initialTab={HomeTab.About} />,
+              <ProfileHome key="profile-about" initialTab={ProfileTab.About} />,
             ],
             [
-              'Squad · About',
-              <SquadHome
+              'Squad · About page',
+              <WorkspaceShell
                 key="squad-about"
                 viewer={Viewer.Visitor}
-                initialTab={HomeTab.About}
+                initialPage={findPage('about')}
+                height={44}
+                width={1152}
               />,
             ],
           ]}
@@ -604,12 +609,15 @@ export const Playground: StoryObj<{ viewer: Viewer; page: string }> = {
   ),
 };
 
-export const ProfileOnNewFrame: StoryObj<{ isOwner: boolean; tab: HomeTab }> = {
-  args: { isOwner: false, tab: HomeTab.Posts },
+export const ProfileOnNewFrame: StoryObj<{
+  isOwner: boolean;
+  tab: ProfileTab;
+}> = {
+  args: { isOwner: false, tab: ProfileTab.Activity },
   argTypes: {
     tab: {
       control: 'inline-radio' as const,
-      options: [HomeTab.Posts, HomeTab.About],
+      options: [ProfileTab.Activity, ProfileTab.About],
     },
   },
   render: (args) => (
