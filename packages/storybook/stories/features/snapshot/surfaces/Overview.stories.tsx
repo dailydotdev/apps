@@ -76,8 +76,8 @@ const PAGES: React.ReactNode[][] = [
   ],
   [
     'Briefing',
-    '#6353',
-    'Whole briefing versus per item, plus a closing band at the end of the read',
+    '#6563',
+    'Shipped: the live briefing is the reference, so it has no mockup here',
   ],
   [
     'Profile',

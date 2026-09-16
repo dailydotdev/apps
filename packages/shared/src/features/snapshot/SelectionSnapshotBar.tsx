@@ -181,9 +181,12 @@ export function SelectionShareBar({
 export function SelectionSnapshotBar({
   post,
   containerRef,
+  origin = Origin.TextSelection,
 }: {
   post: Post;
   containerRef: RefObject<HTMLElement>;
+  /** Which surface the bar is on, for its share events. */
+  origin?: Origin;
 }): ReactElement {
   const { logEvent } = useLogContext();
 
@@ -193,12 +196,12 @@ export function SelectionSnapshotBar({
         postLogEvent(LogEvent.SharePost, post, {
           extra: {
             provider,
-            origin: Origin.TextSelection,
+            origin,
             ...(result && { result }),
           },
         }),
       ),
-    [logEvent, post],
+    [logEvent, origin, post],
   );
 
   return (
