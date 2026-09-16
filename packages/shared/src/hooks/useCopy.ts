@@ -76,6 +76,8 @@ export function useCopyLink(
       }
     } else {
       displayToast(noLinkErrorMessage, { variant: ToastType.Error });
+
+      return;
     }
 
     setCopying(true);
