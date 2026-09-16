@@ -24,12 +24,12 @@ import {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ReadPostContent } from '@dailydotdev/shared/src/components/post/read/ReadPostContent';
 import {
-  ADSENSE_SCRIPT_SRC,
-  hasLiveAdsenseUnits,
-} from '@dailydotdev/shared/src/features/monetization/adsense';
-import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdsenseSlots';
+  hasLiveAdSlots,
+  PREBID_SCRIPT_SRC,
+} from '@dailydotdev/shared/src/features/monetization/kueez';
+import { useReadAdSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdSlots';
 import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
-import { AdsenseHeadHints } from '../../components/AdsenseHeadHints';
+import { AdHeadHints } from '../../components/AdHeadHints';
 import { getLayout } from '../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../components/layouts/FooterNavBarLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -83,8 +83,8 @@ const ReadPostPage = ({
 }: ReadPostPageProps): ReactElement => {
   const router = useRouter();
   const { applyThemeMode } = useSettingsContext();
-  const adsenseSlots = useReadAdsenseSlots();
-  const adsLive = hasLiveAdsenseUnits(adsenseSlots);
+  const adSlots = useReadAdSlots();
+  const adsLive = hasLiveAdSlots(adSlots);
   const { post, isError, isLoading } = usePostById({
     id,
     options: { initialData, retry: false },
@@ -169,12 +169,11 @@ const ReadPostPage = ({
         </Head>
         {adsLive && (
           <>
-            <AdsenseHeadHints />
+            <AdHeadHints />
             <Script
-              id="adsbygoogle-loader"
-              src={ADSENSE_SCRIPT_SRC}
+              id="prebid-loader"
+              src={PREBID_SCRIPT_SRC}
               strategy="afterInteractive"
-              crossOrigin="anonymous"
             />
           </>
         )}

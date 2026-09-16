@@ -8,13 +8,14 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { DevPlusIcon, EditIcon } from '../icons';
+import { DevPlusIcon, EditIcon, LinkIcon } from '../icons';
 import type { PublicProfile } from '../../lib/user';
 import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { CopyStateIcon } from '../share/CopyStateIcon';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -24,6 +25,13 @@ import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
+import { Tooltip } from '../tooltip/Tooltip';
+import { useCopyLink } from '../../hooks/useCopy';
+import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { ShareProvider } from '../../lib/share';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -67,6 +75,25 @@ const ProfileHeader = ({
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
+  const { logEvent } = useLogContext();
+  const [isCopying, copyLink] = useCopyLink();
+  const { getTrackedUrl } = useGetShortUrl();
+
+  const onCopyLink = () => {
+    logEvent({
+      event_name: LogEvent.ShareProfile,
+      target_type: TargetType.ProfilePage,
+      target_id: user.id,
+      extra: JSON.stringify({
+        provider: ShareProvider.CopyLink,
+        origin: Origin.ProfileHeader,
+      }),
+    });
+    copyLink({
+      link: getTrackedUrl(user.permalink, ReferralCampaignKey.ShareProfile),
+      shorten: true,
+    });
+  };
 
   return (
     <div className="relative w-full overflow-hidden laptop:rounded-t-16">
@@ -100,6 +127,15 @@ const ProfileHeader = ({
               aria-label="Edit profile"
             />
           </Link>
+          <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
+            <Button
+              aria-label="Copy link"
+              icon={<CopyStateIcon copied={isCopying} icon={LinkIcon} />}
+              onClick={onCopyLink}
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Float}
+            />
+          </Tooltip>
           {actions}
         </div>
         <div className="flex items-center gap-1">

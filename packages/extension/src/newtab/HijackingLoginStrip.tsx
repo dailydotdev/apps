@@ -298,22 +298,50 @@ function OnboardingSignupHero({
   );
 }
 
-function CoverSignupHero({
-  onSignupClick,
-  onLoginClick,
+// The cover arm is a design change only: it carries the control's copy and
+// single CTA over the cover art, and reserves the control's exact height.
+function CoverControlStrip({
   isLoggedOut,
-}: SigninHeroProps): ReactElement {
+  action,
+}: {
+  isLoggedOut: boolean;
+  action: ReactNode;
+}): ReactElement {
+  const copy = isLoggedOut ? CONTROL_COPY.loggedOut : CONTROL_COPY.onboarding;
+
   return (
     <HijackingCoverStrip
-      copy={LIVE_COPY}
-      onSignupClick={onSignupClick}
-      onLoginClick={onLoginClick}
+      copy={{ heading: CONTROL_COPY.heading, body: copy.body }}
+      actions={action}
       className={classNames('mb-4', feedStyles.cards)}
       sizer={
         <>
           <ControlTextColumn isLoggedOut={isLoggedOut} />
           <ControlMediaPanel />
         </>
+      }
+    />
+  );
+}
+
+const coverCtaClassName = classNames(
+  'shadow-2 shadow-black/40',
+  hijackingPrimaryCta,
+);
+
+function CoverSignupHero({ onLoginClick }: SigninHeroProps): ReactElement {
+  return (
+    <CoverControlStrip
+      isLoggedOut
+      action={
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          className={coverCtaClassName}
+          onClick={onLoginClick}
+        >
+          {CONTROL_COPY.loggedOut.cta}
+        </Button>
       }
     />
   );
@@ -429,6 +457,9 @@ function HijackingHeroStrip({
     return hasContinueAs ? 'continue' : 'signin';
   })();
   const isReadyToLogImpression = !isLoggedOut || isSignBackLoaded;
+  // The cover arm's signed-out card offers only the control's login CTA.
+  const isSignupImpression =
+    variant === 'signin' && experimentVariant !== HijackingVariant.Cover;
 
   const logClick = (targetType: TargetType): void => {
     logEvent({
@@ -450,11 +481,12 @@ function HijackingHeroStrip({
 
     logEvent({
       event_name: LogEvent.Impression,
-      target_type:
-        variant === 'signin' ? TargetType.SignupButton : TargetType.LoginButton,
+      target_type: isSignupImpression
+        ? TargetType.SignupButton
+        : TargetType.LoginButton,
       target_id: 'hijacking',
     });
-  }, [isReadyToLogImpression, variant, logEvent]);
+  }, [isReadyToLogImpression, isSignupImpression, logEvent]);
 
   // The Auth arm runs auth inline (it renders AuthOptions); the CTA arm hands
   // off to the webapp onboarding flow to avoid the extension OAuth-origin 403.
@@ -506,6 +538,28 @@ function HijackingHeroStrip({
       </div>
     </section>
   );
+
+  if (
+    variant === 'onboarding' &&
+    experimentVariant === HijackingVariant.Cover
+  ) {
+    return (
+      <CoverControlStrip
+        isLoggedOut={false}
+        action={
+          <Button
+            tag="a"
+            href={onboardingHref}
+            variant={ButtonVariant.Primary}
+            className={coverCtaClassName}
+            onClick={() => logClick(TargetType.LoginButton)}
+          >
+            {CONTROL_COPY.onboarding.cta}
+          </Button>
+        }
+      />
+    );
+  }
 
   if (variant === 'onboarding') {
     return chrome(

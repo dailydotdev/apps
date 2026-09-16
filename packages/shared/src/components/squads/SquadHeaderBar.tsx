@@ -279,21 +279,19 @@ export function SquadHeaderBar({
           squad={squad}
         />
       )}
-      {!canInvite && (
-        <CopyLinkButton
-          className="order-3 tablet:order-4"
-          origin={Origin.SquadPage}
-          shareProps={{
-            text: `Check out the ${squad.name} squad on daily.dev`,
-            link: squad.permalink,
-            cid: ReferralCampaignKey.ShareSource,
-            logObject: () => ({
-              event_name: LogEvent.ShareSource,
-              target_id: squad.id,
-            }),
-          }}
-        />
-      )}
+      <CopyLinkButton
+        className="order-3 tablet:order-4"
+        origin={Origin.SquadPage}
+        shareProps={{
+          text: `Check out the ${squad.name} squad on daily.dev`,
+          link: squad.permalink,
+          cid: ReferralCampaignKey.ShareSource,
+          logObject: () => ({
+            event_name: LogEvent.ShareSource,
+            target_id: squad.id,
+          }),
+        }}
+      />
       <SquadAnalyticsButton squad={squad} />
       <SquadHeaderMenu squad={squad} />
     </div>

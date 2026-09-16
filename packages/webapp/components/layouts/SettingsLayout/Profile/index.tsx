@@ -29,6 +29,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useUserInfoForm from '@dailydotdev/shared/src/hooks/useUserInfoForm';
 import ControlledSwitch from '@dailydotdev/shared/src/components/fields/ControlledSwitch';
 import { SocialLinksInput } from '@dailydotdev/shared/src/components/profile/SocialLinksInput';
+import { MarkdownCommand } from '@dailydotdev/shared/src/hooks/input/useMarkdownInput';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
@@ -120,6 +121,11 @@ const ProfileIndex = (): ReactElement => {
               <ControlledMarkdownInput
                 name="readme"
                 textareaProps={{ rows: 10 }}
+                enabledCommand={{
+                  [MarkdownCommand.Link]: true,
+                  [MarkdownCommand.Emoji]: true,
+                  [MarkdownCommand.Gif]: true,
+                }}
               />
             </Section>
             <HorizontalSeparator />

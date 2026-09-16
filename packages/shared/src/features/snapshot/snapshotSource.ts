@@ -1,4 +1,5 @@
 import type { Post } from '../../graphql/posts';
+import type { Source } from '../../graphql/sources';
 
 /**
  * The API's catch-all source for a link it could not attribute: handle and
@@ -11,7 +12,7 @@ const UNKNOWN_SOURCE = 'unknown';
 
 /** Who to credit on a share image, or nobody rather than a placeholder. */
 export function snapshotSource(
-  post: Pick<Post, 'source' | 'domain'>,
+  post: Pick<Post, 'domain'> & { source?: Pick<Source, 'name' | 'image'> },
 ): { name: string; image?: string } | undefined {
   const { source, domain } = post;
 

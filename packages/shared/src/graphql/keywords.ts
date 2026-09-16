@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { gqlBatchRequest } from './batch';
 
 export type KeywordStatus = 'pending' | 'allow' | 'deny' | 'synonym';
 
@@ -139,6 +140,18 @@ export const TAG_DIRECTORY_QUERY = gql`
     }
   }
 `;
+
+export interface TagDirectoryData {
+  tags: Keyword[];
+  trendingTags: Pick<Keyword, 'value'>[];
+  popularTags: Pick<Keyword, 'value'>[];
+}
+
+export const tagDirectoryQueryOptions = () => ({
+  queryKey: generateQueryKey(RequestKey.Tags, undefined, 'directory'),
+  queryFn: () => gqlBatchRequest<TagDirectoryData>(TAG_DIRECTORY_QUERY),
+  staleTime: StaleTime.OneHour,
+});
 
 export const SET_KEYWORD_AS_SYNONYM_MUTATION = gql`
   mutation SetKeywordAsSynonym(

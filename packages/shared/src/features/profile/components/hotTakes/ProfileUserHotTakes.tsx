@@ -247,6 +247,7 @@ export function ProfileUserHotTakes({
           {hotTakes.map((item) => (
             <HotTakeItem
               key={item.id}
+              author={user}
               item={item}
               isOwner={isOwner}
               onEdit={handleEdit}
