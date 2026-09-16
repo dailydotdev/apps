@@ -2,7 +2,7 @@ import React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
-import type { AdsenseSlots } from '../../../features/monetization/adsense';
+import type { AdSlots } from '../../../features/monetization/kueez';
 import { useFeature } from '../../GrowthBookProvider';
 import { PHONE_TOP_AD_HEIGHT_VAR, PhoneTopAdStrip } from './PhoneTopAdStrip';
 import { ORGANIC_SLOT } from './slots';
@@ -20,12 +20,20 @@ jest.mock('../../../lib/constants', () => ({
 }));
 jest.mock('./slots', () => ({
   ...(jest.requireActual('./slots') as Record<string, unknown>),
-  READ_ADSENSE_SLOTS: {},
-  ORGANIC_ADSENSE_SLOTS: {},
+  READ_AD_SLOTS: {},
+  ORGANIC_AD_SLOTS: {},
+}));
+
+// jsdom has no Prebid bundle; the strip only cares that a slot renders.
+jest.mock('../../../features/monetization/prebid', () => ({
+  configurePrebid: jest.fn(),
+  requestKueezBid: jest.fn().mockResolvedValue({ status: 'no_bid' }),
+  renderPrebidBid: jest.fn(),
+  pingViewable: jest.fn(),
 }));
 
 const mockSlotMaps = jest.requireMock('./slots') as {
-  ORGANIC_ADSENSE_SLOTS: AdsenseSlots;
+  ORGANIC_AD_SLOTS: AdSlots;
 };
 const mockUseFeature = jest.mocked(useFeature);
 
@@ -47,8 +55,8 @@ beforeEach(() => {
     unobserve = jest.fn();
   } as unknown as typeof ResizeObserver;
   mockUseFeature.mockImplementation((feature) => feature.defaultValue);
-  mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {
-    [ORGANIC_SLOT.topLeaderboardPhone]: { id: '1234567890', type: 'display' },
+  mockSlotMaps.ORGANIC_AD_SLOTS = {
+    [ORGANIC_SLOT.topLeaderboardPhone]: { sizes: [[320, 50]] },
   };
 });
 

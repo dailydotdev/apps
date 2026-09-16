@@ -64,18 +64,6 @@ jest.mock('../../post/composer/KindModePicker', () => ({
   KindModePicker: () => null,
 }));
 
-jest.mock('../../post/composer/PollForm', () => ({
-  PollForm: () => null,
-}));
-
-jest.mock('../../post/composer/TextForm', () => {
-  const ReactActual = jest.requireActual('react') as typeof React;
-  const TextForm = ReactActual.forwardRef(() => null);
-  TextForm.displayName = 'TextForm';
-
-  return { TextForm };
-});
-
 jest.mock('../../tooltip/Tooltip', () => ({
   Tooltip: ({ children }: React.PropsWithChildren) => children,
 }));
@@ -89,7 +77,14 @@ jest.mock('../../post/write/WritePreviewSkeleton', () => ({
 }));
 
 jest.mock('../common/Modal', () => ({
-  Modal: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
+  Modal: ({
+    children,
+    className,
+  }: React.PropsWithChildren<{ className?: string }>) => (
+    <div role="dialog" className={className}>
+      {children}
+    </div>
+  ),
 }));
 
 const renderWithClient = (ui: React.ReactElement) => {
@@ -160,6 +155,32 @@ describe('SmartComposerModal', () => {
       fetchPreview: jest.fn(),
     });
   });
+
+  it.each([
+    ['text', 'Post title'],
+    ['link', 'Post commentary'],
+    ['poll', 'Poll question'],
+  ] as const)(
+    'contains %s content in a scroll region with actions outside it',
+    async (kind, label) => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialKind={kind}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      const field = await screen.findByRole('textbox', { name: label });
+      const scrollRegion = field.parentElement?.closest('.overflow-y-auto');
+
+      expect(scrollRegion).toHaveClass('min-h-0', 'flex-1');
+      expect(scrollRegion).not.toContainElement(
+        screen.getByRole('button', { name: /^Post$/ }),
+      );
+      expect(field.closest('[role="dialog"]')).toHaveClass('overflow-hidden');
+    },
+  );
 
   it('keeps the production notification CTA visible in the composer', () => {
     renderWithClient(

@@ -15,14 +15,17 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { DevCardQueryData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { useDevCard } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
+import { useGetShortUrl } from '@dailydotdev/shared/src/hooks/utils/useGetShortUrl';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
+import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import {
@@ -32,15 +35,20 @@ import {
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
+  DownloadIcon,
   GitHubIcon,
   OpenLinkIcon,
+  ShareIcon,
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { DevCardFetchWrapper } from '@dailydotdev/shared/src/components/profile/devcard/DevCardFetchWrapper';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
 import classNames from 'classnames';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import {
+  isNullOrUndefined,
+  shouldUseNativeShare,
+} from '@dailydotdev/shared/src/lib/func';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import {
   Typography,
@@ -90,6 +98,39 @@ export const DevCardStep2 = ({
     [user?.name, user?.username, devCardSrc, type],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
+  const [copyingProfileLink, copyProfileLink] = useCopyLink();
+  const { getTrackedUrl } = useGetShortUrl();
+  const onShareDevCard = async () => {
+    // The tracked link is known without a request, so both the share sheet
+    // and the clipboard get it inside the press; the copy swaps in the short
+    // link once it resolves.
+    const link = getTrackedUrl(
+      user?.permalink ?? '',
+      ReferralCampaignKey.ShareProfile,
+    );
+    const logShare = (provider: ShareProvider) =>
+      logEvent({
+        event_name: LogEvent.ShareDevcard,
+        target_id: userId,
+        extra: JSON.stringify({ provider, origin: Origin.DevCard }),
+      });
+
+    if (shouldUseNativeShare()) {
+      try {
+        await navigator.share({
+          text: `Check out my #DevCard on daily.dev\n${link}`,
+        });
+        logShare(ShareProvider.Native);
+      } catch {
+        // Dismissing the sheet rejects too.
+      }
+
+      return;
+    }
+
+    logShare(ShareProvider.CopyLink);
+    copyProfileLink({ link, shorten: true });
+  };
   const [selectedTab, setSelectedTab] = useState(0);
   const { mutateAsync: onDownloadUrl, isPending: downloading } = useMutation({
     mutationFn: downloadUrl,
@@ -230,18 +271,29 @@ export const DevCardStep2 = ({
         </div>
 
         {!isNullOrUndefined(devcard) && (
-          <Button
-            className="mx-auto mt-4 grow-0 self-start"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            onClick={() => generateThenDownload({})}
-            disabled={downloading || isLoading}
-            tag={isMobile ? 'a' : 'button'}
-            href={devCardSrc}
-            target={isMobile ? '_blank' : undefined}
-          >
-            Download DevCard
-          </Button>
+          <div className="mx-auto mt-4 flex grow-0 items-center gap-2">
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Medium}
+              icon={<DownloadIcon />}
+              onClick={() => generateThenDownload({})}
+              disabled={downloading || isLoading}
+              tag={isMobile ? 'a' : 'button'}
+              href={devCardSrc}
+              target={isMobile ? '_blank' : undefined}
+            >
+              Download
+            </Button>
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              icon={<ShareIcon />}
+              onClick={onShareDevCard}
+              disabled={copyingProfileLink || isLoading}
+            >
+              Share
+            </Button>
+          </div>
         )}
       </section>
 

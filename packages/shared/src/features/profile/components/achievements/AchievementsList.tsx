@@ -282,6 +282,7 @@ export function AchievementsList({
             <AchievementCard
               key={userAchievement.achievement.id}
               userAchievement={userAchievement}
+              user={user}
               isOwner={isOwner}
               isTracked={
                 trackedAchievementId === userAchievement.achievement.id
