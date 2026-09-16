@@ -15,7 +15,7 @@ const ARM_NOTES: Record<HijackingVariant, string> = {
 
 const Strip = ({ variant }: { variant: HijackingVariant }): ReactElement => (
   <ExtensionProviders>
-    <FeatureOverrides values={{ hijacking_variants3: variant }}>
+    <FeatureOverrides values={{ hijacking_variants4: variant }}>
       <div className="dark min-h-dvh bg-background-default p-6">
         <p className="mb-4 text-text-tertiary typo-footnote">
           <strong className="text-text-secondary">{variant}</strong> —{' '}
