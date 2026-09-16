@@ -713,8 +713,8 @@ export const SquadWidgets = ({
 }): ReactElement => (
   <>
     <RulesWidget onOpenRules={onOpenRules} />
-    <OverviewWidget />
     <TeamWidget />
+    <OverviewWidget />
     <AwardsWidget />
   </>
 );
