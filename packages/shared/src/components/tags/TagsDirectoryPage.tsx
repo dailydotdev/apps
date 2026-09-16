@@ -11,6 +11,7 @@ import { TagCategorySection } from './TagCategorySection';
 import { TagDirectorySearch } from './TagDirectorySearch';
 import { TagPageNavbar } from './TagPageNavbar';
 import { TagDirectory } from './TagDirectory';
+import { TagDirectoryFilter } from './TagDirectoryFilter';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { ExploreSignupStrip } from '../auth/ExploreSignupStrip';
 import {
@@ -40,6 +41,7 @@ export function TagsDirectoryPage({
     origin: Origin.TagsFilter,
   });
   const [search, setSearch] = useState('');
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
 
   const followedTags = useMemo(
     () => new Set(feedSettings?.includeTags ?? []),
@@ -143,11 +145,22 @@ export function TagsDirectoryPage({
         </header>
 
         <div className="mt-8 w-full">
+          {!search.trim() && (
+            <>
+              <TagDirectoryFilter
+                tags={tags}
+                activeLetter={activeLetter}
+                onSelectLetter={setActiveLetter}
+              />
+              <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
+            </>
+          )}
           <TagDirectory
             tags={tags}
             followedTags={followedTags}
             onToggleFollow={onToggleFollow}
             search={search}
+            activeLetter={activeLetter}
           >
             {featuredLists.length > 0 && (
               <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">

@@ -1,9 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo, useState } from 'react';
-import classNames from 'classnames';
 import type { Keyword } from '../../graphql/keywords';
 import { TagDirectoryListItem } from './TagDirectoryListItem';
-import { useChipBarNavigation } from './useChipBarNavigation';
+import { getTagFirstLetter, tagDirectoryLetters } from './TagDirectoryFilter';
 import { ClickableText } from '../buttons/ClickableText';
 import {
   Typography,
@@ -12,20 +11,14 @@ import {
   TypographyType,
 } from '../typography/Typography';
 
-const OTHER_LETTER = '#';
-const LETTERS = [...'abcdefghijklmnopqrstuvwxyz'.split(''), OTHER_LETTER];
 const LETTER_LIMIT = 40;
-
-const firstLetterOf = (value: string): string => {
-  const raw = value[0]?.toLowerCase() ?? OTHER_LETTER;
-  return /^[a-z]$/.test(raw) ? raw : OTHER_LETTER;
-};
 
 interface TagDirectoryProps {
   tags: Keyword[];
   followedTags: Set<string>;
   onToggleFollow: (tag: string) => void;
   search: string;
+  activeLetter: string | null;
   selectable?: boolean;
   classNameColumns?: string;
   children?: ReactNode;
@@ -36,13 +29,11 @@ export function TagDirectory({
   followedTags,
   onToggleFollow,
   search,
+  activeLetter,
   selectable,
   classNameColumns = 'columns-2 gap-x-10 tablet:columns-3 laptop:columns-4',
   children,
 }: TagDirectoryProps): ReactElement {
-  const { ref: letterNavRef, onKeyDown: onLetterNavKeyDown } =
-    useChipBarNavigation();
-  const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [expandedLetters, setExpandedLetters] = useState<Set<string>>(
     () => new Set(),
   );
@@ -61,7 +52,7 @@ export function TagDirectory({
   const tagsByLetter = useMemo<Record<string, Keyword[]>>(() => {
     const grouped =
       tags?.reduce<Record<string, Keyword[]>>((acc, tag) => {
-        const letter = firstLetterOf(tag.value);
+        const letter = getTagFirstLetter(tag.value);
         (acc[letter] ||= []).push(tag);
         return acc;
       }, {}) ?? {};
@@ -72,7 +63,7 @@ export function TagDirectory({
   }, [tags]);
 
   const availableLetters = useMemo(
-    () => LETTERS.filter((letter) => tagsByLetter[letter]?.length),
+    () => tagDirectoryLetters.filter((letter) => tagsByLetter[letter]?.length),
     [tagsByLetter],
   );
 
@@ -96,17 +87,6 @@ export function TagDirectory({
       )
       .sort((a, b) => a.value.localeCompare(b.value));
   }, [tags, isSearching, normalizedSearch]);
-
-  const letterButtonClass = (isActive: boolean, isDisabled: boolean): string =>
-    classNames(
-      'flex h-8 min-w-8 items-center justify-center rounded-10 border border-transparent px-2 font-bold uppercase transition-colors typo-footnote',
-      isDisabled && 'cursor-default text-text-disabled',
-      !isDisabled &&
-        !isActive &&
-        'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
-      isActive &&
-        'border-border-subtlest-tertiary bg-surface-float text-text-primary',
-    );
 
   return (
     <div className="w-full">
@@ -140,46 +120,6 @@ export function TagDirectory({
         </section>
       ) : (
         <>
-          {/* A–Z filter — narrows the directory below to a single letter. */}
-          {availableLetters.length > 0 && (
-            <nav aria-label="Filter tags by letter" className="w-full">
-              <div
-                ref={letterNavRef}
-                onKeyDown={onLetterNavKeyDown}
-                role="toolbar"
-                aria-orientation="horizontal"
-                className="flex flex-wrap items-center justify-center gap-1"
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveLetter(null)}
-                  aria-pressed={!activeLetter}
-                  className={letterButtonClass(!activeLetter, false)}
-                >
-                  All
-                </button>
-                {LETTERS.map((letter) => {
-                  const isDisabled = !tagsByLetter[letter]?.length;
-                  const isActive = activeLetter === letter;
-                  return (
-                    <button
-                      key={letter}
-                      type="button"
-                      disabled={isDisabled}
-                      aria-pressed={isActive}
-                      onClick={() => setActiveLetter(isActive ? null : letter)}
-                      className={letterButtonClass(isActive, isDisabled)}
-                    >
-                      {letter}
-                    </button>
-                  );
-                })}
-              </div>
-            </nav>
-          )}
-
-          <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
-
           {!activeLetter && children}
 
           {/* Directory — all tags grouped alphabetically. */}

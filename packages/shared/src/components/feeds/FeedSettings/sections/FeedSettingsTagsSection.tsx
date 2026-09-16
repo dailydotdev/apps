@@ -16,6 +16,7 @@ import useFeedSettings from '../../../../hooks/useFeedSettings';
 import useTagAndSource from '../../../../hooks/useTagAndSource';
 import { FeedType } from '../../../../graphql/feed';
 import { TagDirectory } from '../../../tags/TagDirectory';
+import { TagDirectoryFilter } from '../../../tags/TagDirectoryFilter';
 import { TagCategorySection } from '../../../tags/TagCategorySection';
 import { TagDirectoryListItem } from '../../../tags/TagDirectoryListItem';
 import { ClickableText } from '../../../buttons/ClickableText';
@@ -34,6 +35,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
     shouldUpdateAlerts: false,
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const {
     data: directory,
     isPending,
@@ -119,6 +121,15 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         placeholder="Search all tags"
         valueChanged={setSearchQuery}
       />
+      {!normalizedSearch && !!directory?.tags.length && (
+        <div className="border-b border-border-subtlest-tertiary pb-6">
+          <TagDirectoryFilter
+            tags={directory.tags}
+            activeLetter={activeLetter}
+            onSelectLetter={setActiveLetter}
+          />
+        </div>
+      )}
       <Typography
         color={TypographyColor.Tertiary}
         type={TypographyType.Callout}
@@ -191,6 +202,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           followedTags={followedTags}
           onToggleFollow={onToggleFollow}
           search={searchQuery}
+          activeLetter={activeLetter}
           selectable
           classNameColumns={columns}
         />
