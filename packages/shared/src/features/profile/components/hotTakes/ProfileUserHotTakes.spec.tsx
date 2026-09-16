@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
@@ -265,6 +265,27 @@ describe('ProfileUserHotTakes', () => {
     expect(screen.queryByText(`1/${MAX_HOT_TAKES}`)).not.toBeInTheDocument();
     expect(screen.queryByText(HOT_TAKE_LIMIT_HINT)).not.toBeInTheDocument();
     expect(screen.getByText('Hot take 1')).toBeVisible();
+  });
+
+  it('offers a snapshot on every hot take, visitors included', () => {
+    mockHotTakes({
+      hotTakes: [createHotTake(1), createHotTake(2)],
+      isOwner: false,
+    });
+
+    renderProfileUserHotTakes();
+
+    expect(screen.getAllByLabelText('Snapshot')).toHaveLength(2);
+  });
+
+  it("credits the profile's owner on a hot take's snapshot", () => {
+    mockHotTakes({ hotTakes: [createHotTake(1)], isOwner: false });
+
+    renderProfileUserHotTakes();
+    fireEvent.pointerEnter(screen.getByLabelText('Snapshot'));
+
+    // The list is fetched without a user on each take.
+    expect(screen.getByText(user.name)).toBeInTheDocument();
   });
 
   it('renders the hot takes anchor while loading for visitors', () => {

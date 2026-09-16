@@ -3,6 +3,7 @@ import { isNullOrUndefined } from '../lib/func';
 import { webappUrl } from '../lib/constants';
 import { labels } from '../lib';
 import type { ContentPreference } from './contentPreference';
+import { PostType } from '../types';
 
 export enum SearchTime {
   AllTime = 'All Time',
@@ -46,6 +47,56 @@ export const getSearchTimeQueryParam = (
   time: SearchTimeKey,
 ): { time?: string } =>
   time === defaultSearchTime ? {} : { time: searchTimeUrlSlug[time] };
+
+const searchPostTypeUrlSlug: Partial<Record<PostType, string>> = {
+  [PostType.Article]: 'article',
+  [PostType.Share]: 'share',
+  [PostType.Freeform]: 'freeform',
+  [PostType.VideoYouTube]: 'video',
+  [PostType.Collection]: 'collection',
+};
+
+export const searchableSearchPostTypes = Object.keys(
+  searchPostTypeUrlSlug,
+) as PostType[];
+
+const urlSlugToSearchPostType = Object.fromEntries(
+  Object.entries(searchPostTypeUrlSlug).map(([postType, slug]) => [
+    slug,
+    postType,
+  ]),
+) as Record<string, PostType>;
+
+const getSearchListFromUrl = (value?: string): string[] =>
+  value
+    ?.split(',')
+    .map((item) => item.trim())
+    .filter(Boolean) ?? [];
+
+export const getSearchPostTypesFromUrl = (value?: string): PostType[] =>
+  getSearchListFromUrl(value)
+    .map((slug) => urlSlugToSearchPostType[slug])
+    .filter((postType): postType is PostType => !!postType);
+
+export const getSearchPostTypesQueryParam = (
+  postTypes: string[],
+): { type?: string } => {
+  const slugs = [...new Set(postTypes)]
+    .map((postType) => searchPostTypeUrlSlug[postType as PostType])
+    .filter((slug): slug is string => !!slug);
+
+  return slugs.length ? { type: slugs.join(',') } : {};
+};
+
+export const getSearchContentCurationFromUrl = (value?: string): string[] =>
+  getSearchListFromUrl(value);
+
+export const getSearchContentCurationQueryParam = (
+  contentCuration: string[],
+): { contentCuration?: string } =>
+  contentCuration.length
+    ? { contentCuration: [...new Set(contentCuration)].join(',') }
+    : {};
 
 export enum SearchProviderEnum {
   Posts = 'posts',

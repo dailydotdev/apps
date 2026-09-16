@@ -43,11 +43,17 @@ describe('DirtyFormModal', () => {
 
     renderModal(onSave);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    const saveButton = screen.getByRole('button', { name: 'Save changes' });
+    await userEvent.click(saveButton);
 
-    expect(onSave).toHaveBeenCalled();
+    expect(onSave).toHaveBeenCalledTimes(1);
     expect(mockCloseModal).not.toHaveBeenCalled();
+    expect(saveButton).toHaveAttribute('aria-busy', 'true');
+    expect(saveButton).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Discard' })).toBeDisabled();
+
+    await userEvent.click(saveButton);
+    expect(onSave).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       resolveSave();
@@ -89,11 +95,20 @@ describe('DirtyFormModal', () => {
   });
 
   it('closes after a rejected save so the form and its error stay visible', async () => {
-    const onSave = jest.fn(() => Promise.reject(new Error('nope')));
+    let rejectSave: (error: Error) => void;
+    const savePromise = new Promise<void>((_, reject) => {
+      rejectSave = reject;
+    });
+    const onSave = jest.fn(() => savePromise);
 
     renderModal(onSave);
 
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await act(async () => {
+      rejectSave(new Error('nope'));
+      await savePromise.catch(() => undefined);
+    });
 
     await waitFor(() => expect(mockCloseModal).toHaveBeenCalledTimes(1));
   });
