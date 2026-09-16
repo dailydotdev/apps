@@ -22,38 +22,96 @@ const inkClassNames: Record<Ink, string> = {
   theme: 'text-text-primary',
 };
 
-type ThemeStyle = { fill: string; ink: Ink; invertedCta?: boolean };
+// `theme`: the app theme's primary. `white`: always the white primary, for
+// fills whose text is white in both modes. `inverted`: the opposite theme's
+// primary, for the neutral fills that flip with the theme.
+type Cta = 'theme' | 'white' | 'inverted';
 
-// The CTA is the theme's primary button; only the neutral fills that flip
-// with the theme (white in dark mode, dark in light mode) invert it.
+const ctaClassNames: Record<Cta, string | undefined> = {
+  theme: undefined,
+  white: 'btn-primary-white',
+  inverted: 'btn-primary-inverted',
+};
+
+type ThemeStyle = { fill: string; ink: Ink; cta: Cta };
+
 const stylesByTheme: Record<BannerTheme, ThemeStyle> = {
   [BannerCustomTheme.CabbageOnion]: {
     fill: 'from-accent-cabbage-subtler to-accent-onion-subtler bg-gradient-to-r',
     ink: 'invert',
+    cta: 'white',
   },
   [BannerCustomTheme.WhitePepper]: {
     fill: 'bg-surface-primary',
     ink: 'invert',
-    invertedCta: true,
+    cta: 'inverted',
   },
-  [Theme.Avocado]: { fill: 'bg-accent-avocado-default', ink: 'pepper' },
-  [Theme.Bacon]: { fill: 'bg-accent-bacon-default', ink: 'pepper' },
-  [Theme.BlueCheese]: { fill: 'bg-accent-blueCheese-default', ink: 'pepper' },
-  [Theme.Bun]: { fill: 'bg-accent-bun-default', ink: 'pepper' },
-  [Theme.Burger]: { fill: 'bg-accent-burger-default', ink: 'white' },
-  [Theme.Cabbage]: { fill: 'bg-accent-cabbage-default', ink: 'invert' },
-  [Theme.Cheese]: { fill: 'bg-accent-cheese-default', ink: 'pepper' },
-  [Theme.Ketchup]: { fill: 'bg-accent-ketchup-default', ink: 'invert' },
-  [Theme.Lettuce]: { fill: 'bg-accent-lettuce-default', ink: 'pepper' },
-  [Theme.Onion]: { fill: 'bg-accent-onion-default', ink: 'white' },
-  [Theme.Water]: { fill: 'bg-accent-water-default', ink: 'invert' },
+  [Theme.Avocado]: {
+    fill: 'bg-accent-avocado-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.Bacon]: {
+    fill: 'bg-accent-bacon-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.BlueCheese]: {
+    fill: 'bg-accent-blueCheese-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.Bun]: { fill: 'bg-accent-bun-default', ink: 'pepper', cta: 'theme' },
+  [Theme.Burger]: {
+    fill: 'bg-accent-burger-default',
+    ink: 'white',
+    cta: 'white',
+  },
+  [Theme.Cabbage]: {
+    fill: 'bg-accent-cabbage-default',
+    ink: 'invert',
+    cta: 'white',
+  },
+  [Theme.Cheese]: {
+    fill: 'bg-accent-cheese-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.Ketchup]: {
+    fill: 'bg-accent-ketchup-default',
+    ink: 'invert',
+    cta: 'white',
+  },
+  [Theme.Lettuce]: {
+    fill: 'bg-accent-lettuce-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.Onion]: {
+    fill: 'bg-accent-onion-default',
+    ink: 'white',
+    cta: 'white',
+  },
+  [Theme.Water]: {
+    fill: 'bg-accent-water-default',
+    ink: 'invert',
+    cta: 'white',
+  },
   [Theme.Salt]: {
     fill: 'bg-accent-salt-default',
     ink: 'invert',
-    invertedCta: true,
+    cta: 'inverted',
   },
-  [Theme.Pepper]: { fill: 'bg-accent-pepper-default', ink: 'theme' },
-  [Theme.Background]: { fill: 'bg-background-default', ink: 'theme' },
+  [Theme.Pepper]: {
+    fill: 'bg-accent-pepper-default',
+    ink: 'theme',
+    cta: 'theme',
+  },
+  [Theme.Background]: {
+    fill: 'bg-background-default',
+    ink: 'theme',
+    cta: 'theme',
+  },
 };
 
 export type PromotionalBannerViewProps = {
@@ -69,7 +127,7 @@ export function PromotionalBannerView({
   onDismiss,
   className,
 }: PromotionalBannerViewProps): ReactElement {
-  const { fill, ink, invertedCta } =
+  const { fill, ink, cta } =
     stylesByTheme[banner.theme] ??
     stylesByTheme[BannerCustomTheme.CabbageOnion];
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -94,7 +152,7 @@ export function PromotionalBannerView({
         variant={ButtonVariant.Primary}
         className={classNames(
           'mt-2 laptop:ml-4 laptop:mt-0',
-          invertedCta && 'btn-primary-inverted',
+          ctaClassNames[cta],
         )}
         onClick={onCtaClick}
       >

@@ -157,6 +157,18 @@
   }
 
   /*
+   * The neutral primary pinned to its white form, for a brand fill whose
+   * text is white in both modes so the button stays on the same ink.
+   */
+  &.btn-primary-white,
+  .invert &.btn-primary-white {
+    --button-default-color: var(--btn-label-on-fill-dark);
+    --button-default-background: theme('colors.white');
+    --button-hover-background: theme('colors.raw.salt.30');
+    --button-active-background: theme('colors.raw.salt.50');
+  }
+
+  /*
    * The neutral primary of the opposite theme, for a fill painted with
    * `bg-surface-primary` (white in dark mode, dark in light mode) where the
    * theme's own primary would match the fill.
