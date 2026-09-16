@@ -464,7 +464,7 @@ export const Overview: StoryObj = {
               'Maintainers',
               'Member list, online',
               'Admins, moderators, top members',
-              'People: Members, Team. Open roles for a company',
+              'Members behind the count in the header; the team on About. Open roles beside Products at the top for a company',
             ],
             [
               'Points and rewards',

@@ -19,8 +19,8 @@ import {
   PlusIcon,
   SearchIcon,
   SettingsIcon,
-  ShieldCheckIcon,
   UpvoteIcon,
+  VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FreeformGrid } from '@dailydotdev/shared/src/components/cards/Freeform/FreeformGrid';
@@ -199,10 +199,11 @@ export const VerifiedMark = ({
       className,
     )}
   >
-    <ShieldCheckIcon
-      size={label ? IconSize.XSmall : IconSize.Small}
-      secondary
-    />
+    {/* The check-in-a-circle every network uses for verified. Not the
+        shield: on daily.dev that glyph is the clickbait shield. */}
+    <span className="flex size-4 items-center justify-center rounded-full bg-accent-cabbage-default text-white">
+      <VIcon size={IconSize.XSmall} />
+    </span>
     {label && 'Verified'}
   </span>
 );

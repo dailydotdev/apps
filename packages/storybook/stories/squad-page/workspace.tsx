@@ -195,7 +195,10 @@ export enum SidebarPreset {
 
 export const presets: Record<SidebarPreset, SidebarSection[]> = {
   [SidebarPreset.Company]: [
-    { id: 'top', pages: [common.home, common.about] },
+    {
+      id: 'top',
+      pages: [common.home, common.about, common.products, common.jobs],
+    },
     {
       id: 'channels',
       label: 'Channels',
@@ -223,12 +226,6 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
         link('discord', 'Discord', 'https://discord.gg/dailydev'),
       ],
     },
-    {
-      id: 'company',
-      label: 'Company',
-      pages: [common.products, common.jobs],
-    },
-    { id: 'people', label: 'People', pages: [common.members] },
     manage,
   ],
   [SidebarPreset.Community]: [
@@ -264,20 +261,21 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
         link('related', 'Related squads', 'https://daily.dev/squads/discover'),
       ],
     },
-    { id: 'people', label: 'People', pages: [common.members] },
     manage,
   ],
 };
 
 export const sections = presets[SidebarPreset.Company];
 
-export const allPages: SquadPage[] = Object.values(presets)
-  .flat()
-  .flatMap((section) => section.pages)
-  .filter(
-    (candidate, index, list) =>
-      list.findIndex((other) => other.id === candidate.id) === index,
-  );
+export const allPages: SquadPage[] = [
+  ...Object.values(presets)
+    .flat()
+    .flatMap((section) => section.pages),
+  common.members,
+].filter(
+  (candidate, index, list) =>
+    list.findIndex((other) => other.id === candidate.id) === index,
+);
 
 export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
   ({
@@ -647,7 +645,14 @@ export const SquadSidebar = ({
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-1 text-text-tertiary typo-caption1">
+        <button
+          type="button"
+          onClick={() => onSelect(common.members)}
+          className={classNames(
+            'flex items-center gap-1 rounded-8 text-left text-text-tertiary typo-caption1 transition-colors hover:text-text-primary',
+            active.id === common.members.id && 'text-text-primary',
+          )}
+        >
           <span className="sq-nums text-text-secondary">
             {formatCount(squad.membersCount)}
           </span>
@@ -656,7 +661,7 @@ export const SquadSidebar = ({
           <span className="size-1.5 rounded-full bg-status-success" />
           <span className="sq-nums text-text-secondary">38</span>
           online
-        </div>
+        </button>
         {viewer === Viewer.Visitor && (
           <Button
             variant={ButtonVariant.Primary}
