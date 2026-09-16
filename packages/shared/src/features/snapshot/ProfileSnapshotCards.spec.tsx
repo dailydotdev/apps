@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { ProfileSnapshotCard } from './ProfileSnapshotCard';
 import { ReadingOverviewSnapshotCard } from './ReadingOverviewSnapshotCard';
 import { BadgesSnapshotCard } from './BadgesSnapshotCard';
 import { AchievementsSnapshotCard } from './AchievementsSnapshotCard';
@@ -8,37 +7,6 @@ import { AchievementsSnapshotCard } from './AchievementsSnapshotCard';
 const user = { name: 'Ada Lovelace', handle: '@ada' };
 
 describe('profile snapshot cards with little to show', () => {
-  it('leaves zero stats off the header card', () => {
-    render(
-      <ProfileSnapshotCard
-        handle="@ada"
-        joined="May 2026"
-        name="Ada Lovelace"
-        postsRead={0}
-        reputation={0}
-      />,
-    );
-
-    expect(screen.getByText('Joined')).toBeInTheDocument();
-    expect(screen.queryByText('Posts read')).not.toBeInTheDocument();
-    expect(screen.queryByText('Reputation')).not.toBeInTheDocument();
-  });
-
-  it('labels the header card reads as a plain count', () => {
-    render(
-      <ProfileSnapshotCard
-        handle="@ada"
-        joined="May 2026"
-        name="Ada Lovelace"
-        postsRead={1200}
-        reputation={40}
-      />,
-    );
-
-    expect(screen.getByText('Posts read')).toBeInTheDocument();
-    expect(screen.getByText('1.2K')).toBeInTheDocument();
-  });
-
   it('leaves the heatmap, tags and zero streak off the reading card', () => {
     render(
       <ReadingOverviewSnapshotCard

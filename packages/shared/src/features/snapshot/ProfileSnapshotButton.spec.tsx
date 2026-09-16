@@ -22,8 +22,8 @@ const client = new QueryClient();
 const snapshotButton = (ownerId = 'u1') => (
   <TestBootProvider client={client} log={{ logEvent }}>
     <ProfileSnapshotButton
-      filename="daily-profile-testuser"
-      origin={Origin.ProfileHeader}
+      filename="daily-reading-testuser"
+      origin={Origin.ReadingOverview}
       ownerId={ownerId}
       renderCard={renderCard}
     />
@@ -73,7 +73,7 @@ describe('ProfileSnapshotButton', () => {
         target_id: 'u1',
         extra: JSON.stringify({
           provider: ShareProvider.Snapshot,
-          origin: Origin.ProfileHeader,
+          origin: Origin.ReadingOverview,
           result: 'clipboard',
         }),
       }),

@@ -1,9 +1,7 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { forwardRef } from 'react';
+import type { ReactNode } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
-import { format } from 'date-fns';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -27,9 +25,6 @@ import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
-import { ProfileSnapshotButton } from '../../features/snapshot/ProfileSnapshotButton';
-import { ProfileSnapshotCard } from '../../features/snapshot/ProfileSnapshotCard';
-import { devCardQueryOptions } from '../../hooks/profile/useDevCard';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
@@ -56,32 +51,6 @@ const ProfileActions = dynamic(
   {
     ssr: false,
     loading: ProfileActionsSkeleton,
-  },
-);
-
-const ProfileCard = forwardRef<HTMLDivElement, { user: PublicProfile }>(
-  function ProfileCard({ user }, ref): ReactElement {
-    // The lifetime count the DevCard shows. Only an armed card mounts this, so
-    // a profile view does not fetch it.
-    const { data: devCard } = useQuery(
-      devCardQueryOptions({ userId: user.id }),
-    );
-    const handle = user.username ?? user.id;
-
-    return (
-      <ProfileSnapshotCard
-        bio={user.bio}
-        cover={user.cover}
-        handle={`@${handle}`}
-        image={user.image}
-        joined={format(new Date(user.createdAt), 'MMMM y')}
-        name={user.name}
-        postsRead={devCard?.devCard.articlesRead}
-        ref={ref}
-        reputation={user.reputation}
-        seed={handle}
-      />
-    );
   },
 );
 
@@ -158,15 +127,6 @@ const ProfileHeader = ({
               aria-label="Edit profile"
             />
           </Link>
-          <ProfileSnapshotButton
-            filename={`daily-profile-${username ?? user.id}`}
-            origin={Origin.ProfileHeader}
-            ownerId={user.id}
-            renderCard={(ref) => <ProfileCard ref={ref} user={user} />}
-            // Matches the edit button beside it, which takes Button's default.
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Float}
-          />
           <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
             <Button
               aria-label="Copy link"

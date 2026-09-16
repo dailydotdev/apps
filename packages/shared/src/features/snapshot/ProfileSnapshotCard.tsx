@@ -22,8 +22,7 @@ export interface ProfileSnapshotCardProps {
   bio?: string;
   image?: string;
   cover?: string;
-  /** Lifetime, like the DevCard's. Left out when unknown or zero. */
-  postsRead?: number;
+  postsRead: number;
   joined: string;
   reputation: number;
   seed?: string;
@@ -116,30 +115,26 @@ function ProfileSnapshotCardComponent(
         )}
 
         <SnapshotStatRow>
-          {!!postsRead && (
-            <SnapshotStat
-              label="Posts read"
-              value={
-                <SnapshotStatValue>
-                  {largeNumberFormat(postsRead) ?? postsRead}
-                </SnapshotStatValue>
-              }
-            />
-          )}
+          <SnapshotStat
+            label="Posts read"
+            value={
+              <SnapshotStatValue>
+                {largeNumberFormat(postsRead) ?? postsRead}
+              </SnapshotStatValue>
+            }
+          />
           <SnapshotStat
             label="Joined"
             value={<SnapshotStatValue compact>{joined}</SnapshotStatValue>}
           />
-          {!!reputation && (
-            <SnapshotStat
-              label="Reputation"
-              value={
-                <SnapshotStatValue>
-                  {largeNumberFormat(reputation) ?? reputation}
-                </SnapshotStatValue>
-              }
-            />
-          )}
+          <SnapshotStat
+            label="Reputation"
+            value={
+              <SnapshotStatValue>
+                {largeNumberFormat(reputation) ?? reputation}
+              </SnapshotStatValue>
+            }
+          />
         </SnapshotStatRow>
       </div>
     </SnapshotFrame>
