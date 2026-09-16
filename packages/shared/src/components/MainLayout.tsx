@@ -404,6 +404,20 @@ function MainLayoutComponent({
           // content, so the base value is zero.
           '[--sticky-header-offset:0px]',
           stickyHeaderOffset,
+          // A page holding a dock owns the whole window. `sticky bottom-0`
+          // only ever pulls a box *up* — it never pushes one down — so a dock
+          // whose flow position is above the window's bottom edge simply
+          // stays there, which is every feed for as long as it is still
+          // loading: the bar sits under the skeleton cards and drops to the
+          // bottom once enough posts arrive to make the page scroll.
+          // `min-h-screen` on the column every layout shares — v1's bare
+          // `<main>`, v2's floating card, tablet, laptop — is what gives the
+          // dock a full-height column to be pushed to the end of. Borders and
+          // padding count toward it, so the header padding above comes out of
+          // the same 100vh rather than adding to it.
+          // Literal, not built from `DOCK_CLASS`: Tailwind scans source text
+          // and generates nothing for an interpolated class name.
+          'has-[.feed-dock]:min-h-screen',
         )}
       >
         {isAuthReady && isLayoutChromeResolved && showSidebar && (

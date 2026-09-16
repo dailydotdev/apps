@@ -186,6 +186,21 @@ describe('useDirtyForm', () => {
       expect(mockRouter.push).toHaveBeenCalledWith('/new-path');
       expect(result.current.hasPendingNavigation()).toBe(false);
     });
+
+    it('should return the onSave promise from save', async () => {
+      const promise = Promise.resolve();
+      mockOnSave.mockReturnValue(promise);
+
+      const { result } = renderHook(() =>
+        useDirtyForm(mockFormMethods.formState.isDirty, {
+          onSave: mockOnSave,
+          onDiscard: mockOnDiscard,
+        }),
+      );
+
+      await expect(result.current.save()).resolves.toBeUndefined();
+      expect(mockOnSave).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('discard functionality', () => {

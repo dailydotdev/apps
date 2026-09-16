@@ -101,6 +101,7 @@ describe('ProfileSkills', () => {
 
     expect(input).toHaveValue('');
   });
+
   it('does not add a skill that only differs by casing', () => {
     renderComponent({ skills: ['React'] });
 
@@ -108,6 +109,18 @@ describe('ProfileSkills', () => {
     submitSkills(input, 'react');
 
     expect(screen.getAllByRole('button', { name: /react/i })).toHaveLength(1);
+  });
+
+  it('dedupes skills using the same slug-style identity as the API', () => {
+    renderComponent();
+
+    const input = screen.getByPlaceholderText('Search skills');
+    submitSkills(input, 'React.js, react js, TypeScript');
+
+    expect(screen.getAllByRole('button', { name: /react/i })).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: 'TypeScript' }),
+    ).toBeInTheDocument();
   });
 
   it('blocks adding past the limit and shows the limit copy', () => {

@@ -482,6 +482,31 @@ it('should hold the sponsor row open before the ad query answers', () => {
   expect(publishedHeight()).toEqual('72px');
 });
 
+// The ticker's `Trending` is permanent, and this is the same label one row up:
+// the bar opens on the same column whatever the ad server returns, so an unsold
+// gold slot cannot change its shape under the feed.
+it('should credit the row with no gold mark on it', async () => {
+  mockFetch.mockResolvedValue(
+    bar({ top_tier: PREMIUM.map((company) => advertiser(company)) }),
+  );
+  setHeadlines([popular('p1')]);
+  renderStrip();
+  await settle();
+
+  const row = within(screen.getByTestId('sponsorStripRow'));
+  expect(row.getByText('Made possible by')).toBeInTheDocument();
+  expect(row.queryByTitle('gold')).not.toBeInTheDocument();
+});
+
+it('should carry the credit on a row still held open for the ad query', () => {
+  setHeadlines([popular('p1')]);
+  renderStrip();
+
+  expect(
+    within(screen.getByTestId('sponsorStripRow')).getByText('Made possible by'),
+  ).toBeInTheDocument();
+});
+
 const tickerImpressions = () =>
   logEvent.mock.calls.filter(
     (call) =>

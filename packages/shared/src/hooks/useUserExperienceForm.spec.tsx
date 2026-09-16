@@ -8,6 +8,7 @@ import {
   upsertUserWorkExperience,
   UserExperienceType,
 } from '../graphql/user/profile';
+import { ApiError } from '../graphql/common';
 import { labels } from '../lib/labels';
 
 // Mock dependencies
@@ -80,6 +81,7 @@ const createWrapper = () => {
 
 // BaseUserExperience type used by the hook
 type BaseUserExperience = {
+  id?: string;
   type: UserExperienceType;
   title: string;
   description?: string | null;
@@ -140,7 +142,7 @@ describe('useUserExperienceForm', () => {
   it('should include type in the mutation payload when editing', async () => {
     (upsertUserWorkExperience as jest.Mock).mockResolvedValue({ id: 'exp-1' });
 
-    const existingExperience: BaseUserExperience & { id: string } = {
+    const existingExperience: BaseUserExperience = {
       ...baseWorkExperience,
       id: 'exp-1',
     };
@@ -149,6 +151,13 @@ describe('useUserExperienceForm', () => {
       () => useUserExperienceForm({ defaultValues: existingExperience }),
       { wrapper: createWrapper() },
     );
+
+    act(() => {
+      result.current.methods.reset({
+        ...existingExperience,
+        type: undefined as never,
+      });
+    });
 
     await act(async () => {
       await result.current.save?.();
@@ -565,6 +574,7 @@ describe('useUserExperienceForm', () => {
       expect(isValid).toBe(false);
     });
   });
+
   describe('server validation errors', () => {
     const zodError = (
       issues: { path: (string | number)[]; message: string }[],
@@ -574,7 +584,7 @@ describe('useUserExperienceForm', () => {
           {
             message: 'Validation error',
             extensions: {
-              code: 'ZOD_VALIDATION_ERROR',
+              code: ApiError.ZodValidationError,
               issues: issues.map((issue) => ({ ...issue, code: 'too_big' })),
             },
           },
@@ -591,6 +601,16 @@ describe('useUserExperienceForm', () => {
 
       const { result } = setupWorkExperienceForm();
 
+      act(() => {
+        result.current.methods.setValue('title', 'Changed title', {
+          shouldDirty: true,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.methods.formState.isDirty).toBe(true);
+      });
+
       await act(async () => {
         await result.current.save?.();
       });
@@ -604,9 +624,8 @@ describe('useUserExperienceForm', () => {
         result.current.methods.getFieldState('skills').error,
       ).toBeDefined();
       expect(mockRouter.push).not.toHaveBeenCalled();
-      expect(result.current.methods.getValues('title')).toBe(
-        'Software Engineer',
-      );
+      expect(result.current.methods.getValues('title')).toBe('Changed title');
+      expect(result.current.methods.formState.isDirty).toBe(true);
     });
 
     it('should surface an item level skills issue as a toast', async () => {

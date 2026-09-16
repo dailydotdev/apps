@@ -134,6 +134,7 @@ interface RichTextInputProps {
   showUserAvatar?: boolean;
   isUpdatingDraft?: boolean;
   header?: ReactNode;
+  inputPrefix?: ReactNode;
   isLoading?: boolean;
   disabledSubmit?: boolean;
   maxInputLength?: number;
@@ -180,6 +181,7 @@ function RichTextInput(
     showUserAvatar,
     isUpdatingDraft,
     header,
+    inputPrefix,
     isLoading,
     disabledSubmit,
     maxInputLength,
@@ -864,13 +866,26 @@ function RichTextInput(
           className?.container,
         )}
       >
-        <div
-          className={classNames(
-            minHeightClassName,
-            'flex items-center justify-center p-4',
-          )}
-        >
-          <Loader />
+        <div key="editor-container" className="flex min-h-0 flex-1 flex-col">
+          <ConditionalWrapper
+            key="input-body"
+            condition={isBottomToolbar}
+            wrapper={(component) => (
+              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                {component}
+              </div>
+            )}
+          >
+            {inputPrefix}
+            <div
+              className={classNames(
+                minHeightClassName,
+                'flex items-center justify-center p-4',
+              )}
+            >
+              <Loader />
+            </div>
+          </ConditionalWrapper>
         </div>
       </div>
     );
@@ -1009,6 +1024,7 @@ function RichTextInput(
     >
       {header}
       <div
+        key="editor-container"
         className="flex min-h-0 flex-1 flex-col"
         ref={editorContainerRef}
         onDrop={isMarkdownMode ? undefined : upload.handleDrop}
@@ -1051,6 +1067,7 @@ function RichTextInput(
           />
         )}
         <ConditionalWrapper
+          key="input-body"
           condition={isBottomToolbar}
           wrapper={(component) => (
             <div
@@ -1061,6 +1078,7 @@ function RichTextInput(
             </div>
           )}
         >
+          {inputPrefix}
           {editorBody}
         </ConditionalWrapper>
         {isBottomToolbar && toolbarNode}

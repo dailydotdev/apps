@@ -1,11 +1,14 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BriefListItem } from './BriefListItem';
 import type { Post } from '../../graphql/posts';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
 
 const mockOnPostClick = jest.fn();
 const mockLogEvent = jest.fn();
+const mockCopyLink = jest.fn();
+const mockOpenSharePost = jest.fn();
 
 jest.mock('../../hooks/useOnPostClick', () => ({
   __esModule: true,
@@ -20,6 +23,13 @@ jest.mock('../../hooks/usePlusSubscription', () => ({
   usePlusSubscription: () => ({ isPlus: true }),
 }));
 
+jest.mock('../../hooks/useSharePost', () => ({
+  useSharePost: () => ({
+    copyLink: mockCopyLink,
+    openSharePost: mockOpenSharePost,
+  }),
+}));
+
 const post = {
   id: 'brief-1',
   slug: 'brief-1',
@@ -30,13 +40,15 @@ const post = {
 
 const renderComponent = (onClick = jest.fn()) =>
   render(
-    <BriefListItem
-      post={post}
-      title={post.title}
-      onClick={onClick}
-      origin={Origin.BriefPage}
-      targetId={TargetId.List}
-    />,
+    <QueryClientProvider client={new QueryClient()}>
+      <BriefListItem
+        post={post}
+        title={post.title}
+        onClick={onClick}
+        origin={Origin.BriefPage}
+        targetId={TargetId.List}
+      />
+    </QueryClientProvider>,
   );
 
 describe('BriefListItem', () => {
@@ -86,5 +98,18 @@ describe('BriefListItem', () => {
     expect(onClick).not.toHaveBeenCalled();
     expect(mockOnPostClick).toHaveBeenCalledWith({ post });
     expect(mockLogEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('copies and shares the brief link without opening the brief', () => {
+    const onClick = jest.fn();
+    renderComponent(onClick);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Share briefing' }));
+
+    expect(mockCopyLink).toHaveBeenCalledWith({ post });
+    expect(mockOpenSharePost).toHaveBeenCalledWith({ post });
+    expect(onClick).not.toHaveBeenCalled();
+    expect(mockOnPostClick).not.toHaveBeenCalled();
   });
 });
