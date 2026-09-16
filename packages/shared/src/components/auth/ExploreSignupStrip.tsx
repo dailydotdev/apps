@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { HijackingCoverCopy } from './HijackingCoverStrip';
 import {
+  HijackingCoverAuthActions,
   HijackingCoverStrip,
   HijackingCoverStripPlaceholder,
 } from './HijackingCoverStrip';
@@ -17,8 +18,6 @@ import { LogEvent, TargetId, TargetType } from '../../lib/log';
 const copy: HijackingCoverCopy = {
   heading: 'Own your feed. Make it your dev briefing.',
   body: 'Sign in and daily.dev remembers the topics, saves, and discussions that matter to you.',
-  signup: 'Sign up',
-  login: 'Log in',
 };
 
 // The new tab's cover strip for anonymous visitors, tablet and up.
@@ -72,8 +71,14 @@ export function ExploreSignupStrip({
     <HijackingCoverStrip
       copy={copy}
       className={className}
-      onSignupClick={onAuthClick(false)}
-      onLoginClick={onAuthClick(true)}
+      actions={
+        <HijackingCoverAuthActions
+          signup="Sign up"
+          login="Log in"
+          onSignupClick={onAuthClick(false)}
+          onLoginClick={onAuthClick(true)}
+        />
+      }
     />
   );
 }
