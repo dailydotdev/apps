@@ -18,6 +18,7 @@ import { useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
 import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
+import SearchFilterContentCurationButton from '../SearchFilterContentCurationButton';
 import { AskSearchBanner } from '../../marketing/banners/AskSearchBanner';
 
 type SearchResultsLayoutProps = PropsWithChildren;
@@ -114,6 +115,7 @@ export const SearchResultsLayout = (
             <div className="mx-4 flex gap-2">
               <SearchFilterTimeButton />
               <SearchFilterPostTypeButton />
+              <SearchFilterContentCurationButton />
             </div>
           </div>
 

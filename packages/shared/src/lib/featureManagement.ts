@@ -342,7 +342,7 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // reachable through paid placements), and the flag exists solely so a policy
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
-export const featureReadAdsense = new Feature('read_adsense', true);
+export const featureReadAds = new Feature('read_ads', true);
 
 export const featureCommentFirstAction = new Feature(
   'comment_first_action',

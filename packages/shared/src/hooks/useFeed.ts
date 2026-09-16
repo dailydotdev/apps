@@ -384,6 +384,7 @@ export default function useFeed<T>(
           query?: string;
           time?: string;
           contentCuration?: string[];
+          postTypes?: string[];
         };
 
         logEvent(
@@ -397,6 +398,7 @@ export default function useFeed<T>(
             filters: {
               time: searchVariables.time,
               content_curation: searchVariables.contentCuration,
+              post_types: searchVariables.postTypes,
             },
           }),
         );

@@ -186,6 +186,8 @@ export type QuestCardProps = {
   destination?: QuestDestination | null;
   onDestinationClick?: (destination: QuestDestination) => void;
   eyebrow?: ReactNode;
+  /** Optional line under the description, e.g. what is still missing. */
+  hint?: ReactNode;
   statusLabel?: string;
   showLockIcon?: boolean;
 };
@@ -202,6 +204,7 @@ export const QuestCard = ({
   destination,
   onDestinationClick,
   eyebrow,
+  hint,
   statusLabel,
   showLockIcon = true,
 }: QuestCardProps): ReactElement => {
@@ -267,6 +270,11 @@ export const QuestCard = ({
               <p className="line-clamp-2 text-text-tertiary typo-caption1">
                 {quest.quest.description}
               </p>
+              {hint && (
+                <p className="mt-1 text-text-quaternary typo-caption1">
+                  {hint}
+                </p>
+              )}
             </div>
             {showLockIcon && quest.locked && (
               <LockIcon className="shrink-0 text-text-tertiary" />

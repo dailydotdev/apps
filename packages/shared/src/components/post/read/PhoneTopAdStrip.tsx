@@ -3,11 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import type { ReadAdSurface } from './ReadAdSlot';
 import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
 import { ORGANIC_SLOT, READ_SLOT } from './slots';
-import {
-  useOrganicAdsenseSlots,
-  useReadAdsenseSlots,
-} from './useReadAdsenseSlots';
-import { hasLiveAdsenseUnits } from '../../../features/monetization/adsense';
+import { useOrganicAdSlots, useReadAdSlots } from './useReadAdSlots';
+import { hasLiveAdSlots } from '../../../features/monetization/kueez';
 
 /**
  * The strip's rendered height, published on <html> so the sticky chrome that
@@ -37,9 +34,9 @@ export interface PhoneTopAdStripProps {
 export function PhoneTopAdStrip({
   surface,
 }: PhoneTopAdStripProps): ReactElement | null {
-  const readSlots = useReadAdsenseSlots();
-  const organicSlots = useOrganicAdsenseSlots();
-  const isActive = hasLiveAdsenseUnits(
+  const readSlots = useReadAdSlots();
+  const organicSlots = useOrganicAdSlots();
+  const isActive = hasLiveAdSlots(
     surface === 'organic' ? organicSlots : readSlots,
   );
   const ref = useRef<HTMLDivElement>(null);
@@ -75,11 +72,11 @@ export function PhoneTopAdStrip({
     // z-max alongside the auth banner: the strip is the topmost thing on the
     // screen and nothing may slide over it. Collapses with its card when the
     // request comes back unfilled, so no empty strip stays pinned. Hidden on
-    // screens narrower than the banner for the same reason the in-column twin
-    // is: AdSense sizes a fixed unit against the screen, not its container.
+    // screens narrower than the banner, where a 320x50 creative would be the
+    // one thing on the page forcing a horizontal scroll.
     <div
       ref={ref}
-      className='sticky top-0 z-max w-full bg-background-default py-1 has-[ins[data-ad-status="unfilled"]]:!hidden tablet:hidden [@media(max-width:319px)]:hidden'
+      className='sticky top-0 z-max w-full bg-background-default py-1 has-[[data-ad-status="unfilled"]]:!hidden tablet:hidden [@media(max-width:319px)]:hidden'
       data-testid="phone-top-ad-strip"
     >
       <ReadAdSlot
