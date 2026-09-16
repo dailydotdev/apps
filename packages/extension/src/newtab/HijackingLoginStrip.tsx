@@ -457,6 +457,9 @@ function HijackingHeroStrip({
     return hasContinueAs ? 'continue' : 'signin';
   })();
   const isReadyToLogImpression = !isLoggedOut || isSignBackLoaded;
+  // The cover arm's signed-out card offers only the control's login CTA.
+  const isSignupImpression =
+    variant === 'signin' && experimentVariant !== HijackingVariant.Cover;
 
   const logClick = (targetType: TargetType): void => {
     logEvent({
@@ -478,11 +481,12 @@ function HijackingHeroStrip({
 
     logEvent({
       event_name: LogEvent.Impression,
-      target_type:
-        variant === 'signin' ? TargetType.SignupButton : TargetType.LoginButton,
+      target_type: isSignupImpression
+        ? TargetType.SignupButton
+        : TargetType.LoginButton,
       target_id: 'hijacking',
     });
-  }, [isReadyToLogImpression, variant, logEvent]);
+  }, [isReadyToLogImpression, isSignupImpression, logEvent]);
 
   // The Auth arm runs auth inline (it renders AuthOptions); the CTA arm hands
   // off to the webapp onboarding flow to avoid the extension OAuth-origin 403.

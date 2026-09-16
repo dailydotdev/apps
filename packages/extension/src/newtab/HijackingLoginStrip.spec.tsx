@@ -408,12 +408,13 @@ describe('HijackingLoginStrip', () => {
       expect(assignMock).toHaveBeenCalledWith(loginHref);
     });
 
-    it('logs a signup impression for new visitors', () => {
+    // Its only CTA is the login button, so the impression must match the click.
+    it('logs a login impression for new visitors', () => {
       renderComponent();
 
       expect(logEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Impression,
-        target_type: TargetType.SignupButton,
+        target_type: TargetType.LoginButton,
         target_id: 'hijacking',
       });
     });
