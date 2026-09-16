@@ -1,10 +1,14 @@
 import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { AuthContextData } from '../contexts/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { getLogContextStatic } from '../contexts/LogContext';
 import type { LogContextData } from './log/useLogContextData';
 import { LogEvent, TargetType } from '../lib/log';
 import usePersistentContext from './usePersistentContext';
 import { useGooglePreferredSource } from './useGooglePreferredSource';
+import { addPreferredSource } from '../graphql/user/preferredSource';
 import { usePreferredSource } from './usePreferredSource';
 
 jest.mock('./usePersistentContext', () => ({
@@ -16,13 +20,18 @@ jest.mock('./useGooglePreferredSource', () => ({
   useGooglePreferredSource: jest.fn(),
 }));
 
+jest.mock('../graphql/user/preferredSource', () => ({
+  addPreferredSource: jest.fn().mockResolvedValue(undefined),
+}));
+
 const mockPersistent = jest.mocked(usePersistentContext);
 const mockGoogle = jest.mocked(useGooglePreferredSource);
+const mockReportAdd = jest.mocked(addPreferredSource);
 
 const LogContext = getLogContextStatic();
 
 const setHasAdded = jest.fn();
-const addPreferredSource = jest.fn();
+const addToGoogle = jest.fn();
 const logEvent = jest.fn();
 
 const eventsNamed = (name: string) =>
@@ -34,25 +43,38 @@ const render = ({
   hasAdded = false,
   isPermanent = false,
   hasFailed = false,
+  isLoggedIn = true,
 }: {
   hasAdded?: boolean;
   isPermanent?: boolean;
   hasFailed?: boolean;
+  isLoggedIn?: boolean;
 } = {}) => {
   mockPersistent.mockReturnValue([hasAdded, setHasAdded, true, false]);
   mockGoogle.mockReturnValue({
     isReady: !hasFailed,
     hasFailed,
-    addPreferredSource,
+    addPreferredSource: addToGoogle,
+  });
+  const queryClient = new QueryClient({
+    defaultOptions: { mutations: { retry: false } },
   });
 
   return renderHook(
     () => usePreferredSource({ placement: 'post widgets', isPermanent }),
     {
       wrapper: ({ children }) => (
-        <LogContext.Provider value={{ logEvent } as unknown as LogContextData}>
-          {children}
-        </LogContext.Provider>
+        <QueryClientProvider client={queryClient}>
+          <AuthContext.Provider
+            value={{ isLoggedIn } as unknown as AuthContextData}
+          >
+            <LogContext.Provider
+              value={{ logEvent } as unknown as LogContextData}
+            >
+              {children}
+            </LogContext.Provider>
+          </AuthContext.Provider>
+        </QueryClientProvider>
       ),
     },
   );
@@ -80,7 +102,7 @@ describe('usePreferredSource', () => {
 
     result.current.onAdd();
 
-    await waitFor(() => expect(addPreferredSource).toHaveBeenCalled());
+    await waitFor(() => expect(addToGoogle).toHaveBeenCalled());
     expect(setHasAdded).toHaveBeenCalledWith(true);
   });
 
@@ -140,6 +162,27 @@ describe('usePreferredSource', () => {
       render();
 
       expect(eventsNamed(LogEvent.PreferredSourceBlocked)).toHaveLength(0);
+    });
+  });
+
+  describe('achievement', () => {
+    it('reports the add so the achievement can unlock', async () => {
+      const { result } = render();
+
+      result.current.onAdd();
+
+      await waitFor(() => expect(mockReportAdd).toHaveBeenCalled());
+    });
+
+    // The mutation is `@auth`. Signed-out readers still get the ask, so the
+    // call has to be skipped rather than left to fail.
+    it('skips the report when signed out', async () => {
+      const { result } = render({ isLoggedIn: false });
+
+      result.current.onAdd();
+
+      await waitFor(() => expect(mockReportAdd).toHaveBeenCalledTimes(0));
+      expect(setHasAdded).toHaveBeenCalledWith(true);
     });
   });
 });

@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import usePersistentContext from './usePersistentContext';
 import useLogEventOnce from './log/useLogEventOnce';
+import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
+import { addPreferredSource } from '../graphql/user/preferredSource';
 import { LogEvent, TargetType } from '../lib/log';
 import { PREFERRED_SOURCE_ADDED_KEY } from '../lib/preferredSources';
 import { useGooglePreferredSource } from './useGooglePreferredSource';
@@ -45,6 +48,7 @@ export const usePreferredSource = ({
   isPermanent = false,
 }: UsePreferredSourceProps): UsePreferredSource => {
   const { logEvent } = useLogContext();
+  const { isLoggedIn } = useAuthContext();
   const [hasAdded, setHasAdded, isStateLoaded] = usePersistentContext<boolean>(
     PREFERRED_SOURCE_ADDED_KEY,
     false,
@@ -52,9 +56,11 @@ export const usePreferredSource = ({
 
   const isEligible = isPermanent || (isStateLoaded && !hasAdded);
 
-  const { isReady, hasFailed, addPreferredSource } = useGooglePreferredSource({
-    enabled: isEligible,
-  });
+  const {
+    isReady,
+    hasFailed,
+    addPreferredSource: addToGoogle,
+  } = useGooglePreferredSource({ enabled: isEligible });
 
   useLogEventOnce(
     () => ({
@@ -79,6 +85,15 @@ export const usePreferredSource = ({
     { condition: isEligible && hasFailed },
   );
 
+  // Fire and forget: the API call only exists to unlock the achievement, so a
+  // failure must not stop Google's dialog from opening or the prompt from
+  // going quiet. Signed-out readers still get the ask, they just get no
+  // achievement — the mutation is `@auth` and there is no user to credit.
+  const { mutate: reportAdd } = useMutation({
+    mutationFn: addPreferredSource,
+    onError: () => undefined,
+  });
+
   const onAdd = useCallback(() => {
     logEvent({
       event_name: LogEvent.ClickPreferredSource,
@@ -90,9 +105,22 @@ export const usePreferredSource = ({
       // fallback is worth keeping.
       extra: JSON.stringify({ deeplink: hasFailed }),
     });
-    addPreferredSource();
+    addToGoogle();
+
+    if (isLoggedIn) {
+      reportAdd();
+    }
+
     setHasAdded(true);
-  }, [addPreferredSource, hasFailed, logEvent, placement, setHasAdded]);
+  }, [
+    addToGoogle,
+    hasFailed,
+    isLoggedIn,
+    logEvent,
+    placement,
+    reportAdd,
+    setHasAdded,
+  ]);
 
   return { isEligible, isReady, useDeeplink: hasFailed, onAdd };
 };
