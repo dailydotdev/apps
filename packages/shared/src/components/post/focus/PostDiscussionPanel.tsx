@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import type { LegacyRef, ReactElement } from 'react';
+import type { LegacyRef, ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -61,6 +61,9 @@ export interface PostDiscussionPanelProps {
    * panel root so modals stay scoped to this surface.
    */
   modalParentSelector?: () => HTMLElement;
+  /** Interleaves the thread with ad units — see PostComments. */
+  interleaveEvery?: number;
+  renderInterleaved?: (occurrence: number) => ReactNode;
 }
 
 const noopFocus = (): void => {};
@@ -78,6 +81,8 @@ export const PostDiscussionPanel = ({
   showSortHeader = false,
   onRegisterFocusComment,
   modalParentSelector,
+  interleaveEvery,
+  renderInterleaved,
 }: PostDiscussionPanelProps): ReactElement => {
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
@@ -207,6 +212,8 @@ export const PostDiscussionPanel = ({
           onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
           modalParentSelector={resolveModalParent}
           removeTopSpacing
+          interleaveEvery={interleaveEvery}
+          renderInterleaved={renderInterleaved}
         />
       </div>
       <EndOfThreadShare

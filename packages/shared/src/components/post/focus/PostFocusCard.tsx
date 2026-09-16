@@ -74,10 +74,30 @@ const PostCodeSnippets = dynamic(() =>
 
 export type FocusCardLeftVariant = 'lean' | 'rich';
 
+/**
+ * The organic post page's programmatic units, mirroring PostContentProps so
+ * both layouts carry the same placements: the leaderboard leads the column,
+ * MPUs interleave the TLDR, one follows the direct-sold widget, one sits above
+ * the discussion and the thread carries one per interval. Only the webapp
+ * post page passes it — post modals and the extension render the same card
+ * and must never carry ad markup.
+ */
+export interface PostFocusCardAds {
+  contentLeading?: ReactNode;
+  renderSummarySegments?: (summary: string) => ReactNode;
+  afterDirectAd?: ReactNode;
+  aboveComments?: ReactNode;
+  commentAds?: {
+    interleaveEvery: number;
+    renderInterleaved: (occurrence: number) => ReactNode;
+  };
+}
+
 interface PostFocusCardProps {
   post: Post;
   origin: PostOrigin;
   leftVariant?: FocusCardLeftVariant;
+  ads?: PostFocusCardAds;
   /**
    * Never invoked — nothing in the card calls it. Read only as an "am I in the
    * modal?" flag (clamped title, no answered-questions block).
@@ -235,6 +255,7 @@ const PostFocusCardRaw = ({
   origin,
   leftVariant,
   onClose,
+  ads,
 }: PostFocusCardProps): ReactElement => {
   // A shared post (someone reposting a post into a squad or onto their profile)
   // wraps an underlying post. Only true Share-type posts get the "Shared via"
@@ -341,6 +362,41 @@ const PostFocusCardRaw = ({
     ? `${readCtaLabel} on ${article.domain}`
     : readCtaLabel;
 
+  const summarySnapshotButton = article.summary ? (
+    <TextSnapshotButton
+      filename={`daily-summary-${article.id}`}
+      origin={Origin.PostSummary}
+      post={article}
+      text={article.summary}
+    />
+  ) : null;
+  const renderSummary = (summary: string): ReactNode => {
+    if (isVideoType) {
+      return (
+        <VideoSummary summary={summary} trailing={summarySnapshotButton} />
+      );
+    }
+    if (ads?.renderSummarySegments) {
+      return (
+        <>
+          {ads.renderSummarySegments(summary)}
+          {/* The segmented summary has ad slots between its parts, so the icon
+              cannot trail the last line the way it does below. */}
+          <div className="flex">{summarySnapshotButton}</div>
+        </>
+      );
+    }
+    return (
+      <p
+        className="select-text break-words text-text-secondary typo-markdown"
+        data-testid="tldr-container"
+      >
+        {summary}
+        {summarySnapshotButton}
+      </p>
+    );
+  };
+
   const postBody = article.contentHtml ? (
     <div ref={bodyRef} className="flex flex-col gap-4">
       <Markdown content={article.contentHtml} className="break-words" />
@@ -348,33 +404,7 @@ const PostFocusCardRaw = ({
       <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
     </div>
   ) : (
-    article.summary &&
-    (isVideoType ? (
-      <VideoSummary
-        summary={article.summary}
-        trailing={
-          <TextSnapshotButton
-            filename={`daily-summary-${article.id}`}
-            origin={Origin.PostSummary}
-            post={article}
-            text={article.summary}
-          />
-        }
-      />
-    ) : (
-      <p
-        className="select-text break-words text-text-secondary typo-markdown"
-        data-testid="tldr-container"
-      >
-        {article.summary}
-        <TextSnapshotButton
-          filename={`daily-summary-${article.id}`}
-          origin={Origin.PostSummary}
-          post={article}
-          text={article.summary}
-        />
-      </p>
-    ))
+    article.summary && renderSummary(article.summary)
   );
 
   const readCta = canReadArticle ? (
@@ -422,6 +452,7 @@ const PostFocusCardRaw = ({
       <SelectionSnapshotBar containerRef={cardRef} post={article} />
       <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
+          {ads?.contentLeading}
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
               <div className="flex min-w-0 items-center gap-3">
@@ -680,6 +711,7 @@ const PostFocusCardRaw = ({
           )}
 
           <PostSidebarAdWidget postId={post.id} variant="inline" />
+          {ads?.afterDirectAd}
 
           <PostUpvotesCommentsCount
             post={post}
@@ -706,10 +738,14 @@ const PostFocusCardRaw = ({
 
           {!onClose && <PostAnsweredQuestions post={article} />}
 
+          {ads?.aboveComments}
+
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel
               showMetaBar={false}
               showSortHeader
+              interleaveEvery={ads?.commentAds?.interleaveEvery}
+              renderInterleaved={ads?.commentAds?.renderInterleaved}
               onRegisterFocusComment={(fn) => {
                 focusCommentRef.current = fn;
               }}

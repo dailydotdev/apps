@@ -1314,29 +1314,75 @@ describe('post redesign', () => {
     ).toBeInTheDocument();
   });
 
-  describe('phone ad strip', () => {
-    const renderAnonymousPage = () =>
-      renderPost(
-        { initialData: { post: getPostFromMock(createPostMock()) } },
-        [createPostMock(), createCommentsMock()],
+  describe('organic ads', () => {
+    // Long enough to split at the in-content cadence, so the TLDR units
+    // render too.
+    const summary = Array.from(
+      { length: 12 },
+      (_, i) =>
+        `Sentence ${i} explains how traces surface breaking changes early.`,
+    ).join(' ');
+    const originalObserver = global.IntersectionObserver;
+
+    beforeEach(() => {
+      // The suite-wide mock never fires; units only mount their <ins> once
+      // they intersect, and the parity check needs every unit mounted.
+      global.IntersectionObserver = class {
+        constructor(private callback: IntersectionObserverCallback) {}
+
+        observe = (target: Element): void => {
+          this.callback(
+            [{ isIntersecting: true, target } as IntersectionObserverEntry],
+            this as unknown as IntersectionObserver,
+          );
+        };
+
+        disconnect = jest.fn();
+
+        unobserve = jest.fn();
+      } as unknown as typeof IntersectionObserver;
+    });
+
+    afterEach(() => {
+      global.IntersectionObserver = originalObserver;
+    });
+
+    const renderAnonymous = (redesign: boolean) => {
+      mockRedesignOn = redesign;
+      const postMock = createPostMock({ summary });
+      return renderPost(
+        { initialData: { post: getPostFromMock(postMock) } },
+        [postMock, createCommentsMock()],
         undefined,
         true,
       );
+    };
+    const mountedUnits = () =>
+      screen
+        .getAllByTestId(/^adsense-slot-/)
+        .map((el) => el.getAttribute('data-testid'))
+        .sort();
 
-    it('pins the strip on the classic layout', async () => {
-      mockRedesignOn = false;
-      renderAnonymousPage();
+    it('carries the same units on the focus card as on the classic layout', async () => {
+      const { unmount } = renderAnonymous(false);
       expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      const classicUnits = mountedUnits();
+      expect(classicUnits).toEqual(
+        expect.arrayContaining([
+          'adsense-slot-15',
+          'adsense-slot-16',
+          'adsense-slot-21',
+          'adsense-slot-22',
+          'adsense-slot-23',
+        ]),
+      );
       expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
-    });
+      unmount();
 
-    it('drops the strip with the focus card, which never loads adsbygoogle', async () => {
-      mockRedesignOn = true;
-      renderAnonymousPage();
+      renderAnonymous(true);
       expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      expect(
-        screen.queryByTestId('phone-top-ad-strip'),
-      ).not.toBeInTheDocument();
+      expect(mountedUnits()).toEqual(classicUnits);
+      expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
     });
   });
 });

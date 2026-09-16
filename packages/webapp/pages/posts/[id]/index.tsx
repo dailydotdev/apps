@@ -8,6 +8,7 @@ import {
   ReadAdSlot,
 } from '@dailydotdev/shared/src/components/post/read/ReadAdSlot';
 import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read/ReadTopLeaderboard';
+import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   ADSENSE_SCRIPT_SRC,
@@ -65,6 +66,7 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
@@ -77,7 +79,6 @@ import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/Com
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
-import { PostPageBanner } from '../../../components/post/PostPageBanner';
 import { usePostPageRedesign } from '../../../components/post/usePostPageRedesign';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
@@ -230,14 +231,15 @@ export const PostPage = ({
   // id being present, not key presence — the map keeps placeholder entries
   // with empty ids, and the script must not load for inventory that cannot
   // fill.
-  const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
+  const adsenseSlots = useOrganicAdsenseSlots();
   const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
   // The same in-content treatment the /articles template ships, reused on
   // the organic page: the TLDR splits at the shared cadence with an MPU
   // between segments (phones keep only the first), an MPU sits above the
   // comments, and a long thread carries one per interval — all only while
   // ads are live, so members and modal/extension surfaces keep the
-  // untouched production markup.
+  // untouched production markup. Both layouts take the same set, so the
+  // post_redesign arms differ in layout only, never in inventory.
   const summarySegments = useMemo(
     () =>
       adsenseActive && post?.summary
@@ -260,7 +262,14 @@ export const PostPage = ({
         {summarySegments.map((segment, index, segments) => (
           // eslint-disable-next-line react/no-array-index-key
           <React.Fragment key={index}>
-            <div className="mb-6 overflow-hidden text-text-secondary">
+            <div
+              className={classNames(
+                'overflow-hidden text-text-secondary',
+                // The focus card spaces its column with gap-4; the classic
+                // TLDR carries its own margin.
+                !showRedesign && 'mb-6',
+              )}
+            >
               <p
                 className="select-text break-words typo-markdown"
                 data-testid={index === 0 ? 'tldr-container' : undefined}
@@ -273,7 +282,7 @@ export const PostPage = ({
                 surface="organic"
                 slot={ORGANIC_SLOT.inContentMpu}
                 format={ReadAdFormat.MediumRectangle}
-                className="my-6"
+                className={showRedesign ? 'my-2' : 'my-6'}
                 hideOnPhone={index > 0}
                 logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
@@ -282,7 +291,51 @@ export const PostPage = ({
         ))}
       </>
     );
-  }, [summarySegments]);
+  }, [summarySegments, showRedesign]);
+  // One set for both layouts: the classic page spreads it over PostContent's
+  // props, the focus card takes it whole.
+  const organicAds = useMemo(
+    () =>
+      adsenseActive
+        ? {
+            contentLeading: (
+              <ReadTopLeaderboard
+                surface="organic"
+                slot={ORGANIC_SLOT.topLeaderboard}
+              />
+            ),
+            renderSummarySegments,
+            afterDirectAd: (
+              <ReadAdSlot
+                surface="organic"
+                slot={ORGANIC_SLOT.railAfterDirectAd}
+                format={ReadAdFormat.MediumRectangle}
+              />
+            ),
+            aboveComments: (
+              <ReadAdSlot
+                surface="organic"
+                slot={ORGANIC_SLOT.aboveCommentsMpu}
+                format={ReadAdFormat.MediumRectangle}
+                className="my-6"
+              />
+            ),
+            commentAds: {
+              interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
+              renderInterleaved: (occurrence: number) => (
+                <ReadAdSlot
+                  surface="organic"
+                  slot={ORGANIC_SLOT.commentMpu}
+                  format={ReadAdFormat.MediumRectangle}
+                  hideOnPhone
+                  logExtra={{ occurrence }}
+                />
+              ),
+            },
+          }
+        : undefined,
+    [adsenseActive, renderSummarySegments],
+  );
 
   // Same boundary the /read template draws: adsbygoogle must never follow a
   // client-side navigation off the post pages, because its Auto ads overlays
@@ -424,7 +477,11 @@ export const PostPage = ({
                 showLaptopAuthBanner && 'laptop:pb-72',
               )}
             >
-              <PostFocusCard post={post} origin={Origin.ArticlePage} />
+              <PostFocusCard
+                post={post}
+                origin={Origin.ArticlePage}
+                ads={organicAds}
+              />
             </div>
           ) : (
             <Content
@@ -436,54 +493,19 @@ export const PostPage = ({
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
-              contentLeading={
-                adsenseActive ? (
-                  <ReadTopLeaderboard
-                    surface="organic"
-                    slot={ORGANIC_SLOT.topLeaderboard}
-                  />
-                ) : undefined
-              }
+              contentLeading={organicAds?.contentLeading}
+              renderSummarySegments={organicAds?.renderSummarySegments}
+              aboveComments={organicAds?.aboveComments}
+              commentAds={organicAds?.commentAds}
               // Only while ads are actually live: a truthy hook flattens the
               // further-reading widget around the slot, and without an ad that
               // changes rail spacing for members who never see one.
-              renderSummarySegments={renderSummarySegments}
-              aboveComments={
-                adsenseActive ? (
-                  <ReadAdSlot
-                    surface="organic"
-                    slot={ORGANIC_SLOT.aboveCommentsMpu}
-                    format={ReadAdFormat.MediumRectangle}
-                    className="my-6"
-                  />
-                ) : undefined
-              }
-              commentAds={
-                adsenseActive
-                  ? {
-                      interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
-                      renderInterleaved: (occurrence) => (
-                        <ReadAdSlot
-                          surface="organic"
-                          slot={ORGANIC_SLOT.commentMpu}
-                          format={ReadAdFormat.MediumRectangle}
-                          hideOnPhone
-                          logExtra={{ occurrence }}
-                        />
-                      ),
-                    }
-                  : undefined
-              }
               getWidgetRailAd={
-                adsenseActive
+                organicAds
                   ? (widgetPosition) =>
-                      widgetPosition === PostWidgetPosition.DirectAd ? (
-                        <ReadAdSlot
-                          surface="organic"
-                          slot={ORGANIC_SLOT.railAfterDirectAd}
-                          format={ReadAdFormat.MediumRectangle}
-                        />
-                      ) : null
+                      widgetPosition === PostWidgetPosition.DirectAd
+                        ? organicAds.afterDirectAd
+                        : null
                   : undefined
               }
               className={{
@@ -504,15 +526,16 @@ export const PostPage = ({
   );
 };
 
-PostPage.getLayout = (page, pageProps, layoutProps) =>
-  getLayout(page, pageProps, {
-    ...layoutProps,
-    customBanner: (
-      <PostPageBanner post={(pageProps as Props)?.initialData?.post} />
-    ),
-  });
+PostPage.getLayout = getLayout;
 PostPage.layoutProps = {
   screenCentered: false,
+  // Strip first: both pin, and the banner's top offset is the strip's height.
+  customBanner: (
+    <>
+      <PhoneTopAdStrip surface="organic" />
+      <CustomAuthBanner />
+    </>
+  ),
 };
 
 export default PostPage;
