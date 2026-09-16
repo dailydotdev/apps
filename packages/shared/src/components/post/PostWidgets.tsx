@@ -164,7 +164,6 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PreferGoogleSourceAction />
       {!hideSignupWidget && <PostSignupWidget />}
       {withAd(PostWidgetPosition.Source, sourceCard)}
       {withAd(
@@ -188,6 +187,7 @@ export function PostWidgets({
           />,
         )}
       <MentionedToolsWidget postTags={post.tags || []} />
+      <PreferGoogleSourceAction />
       {withAd(
         PostWidgetPosition.Share,
         <>

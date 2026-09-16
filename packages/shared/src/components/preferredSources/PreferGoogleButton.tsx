@@ -30,7 +30,7 @@ export type PreferGoogleButtonProps = Pick<
  * G mark itself, which must stay full-colour and unmodified.
  */
 export function PreferGoogleButton({
-  label = 'Add as preferred source',
+  label = 'Add daily.dev as preferred source',
   size = ButtonSize.Small,
   variant = ButtonVariant.Primary,
   className,

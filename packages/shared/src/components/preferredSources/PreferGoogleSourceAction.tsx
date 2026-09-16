@@ -4,15 +4,25 @@ import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePreferredSource } from '../../hooks/usePreferredSource';
 import { PreferGoogleButton } from './PreferGoogleButton';
 
+export type PreferGoogleSourceActionProps = {
+  /**
+   * Which rail is rendering it. Each post type has its own widget column, so
+   * this is what separates them in the events — the component cannot tell.
+   */
+  placement?: string;
+};
+
 /**
- * The widget-column ask, at the very top of the rail — above the source card,
- * the signup widget and the ad slot. No margin of its own: PageWidgets already
- * sets the gap between rail items, and an extra one here would push the whole
- * column down.
+ * The widget-column ask, sitting directly above the share bar. It trades on the
+ * same intent: a reader deciding whether to recommend the post has already
+ * decided the source was worth their time. No margin of its own, since
+ * PageWidgets sets the gap between rail items.
  */
-export function PreferGoogleSourceAction(): ReactElement | null {
+export function PreferGoogleSourceAction({
+  placement = 'post widgets',
+}: PreferGoogleSourceActionProps = {}): ReactElement | null {
   const { isEligible, isReady, useDeeplink, onAdd } = usePreferredSource({
-    placement: 'post widgets',
+    placement,
   });
 
   if (!isEligible) {
