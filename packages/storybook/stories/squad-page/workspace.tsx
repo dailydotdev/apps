@@ -14,6 +14,7 @@ import {
   BellIcon,
   BulletListIcon,
   CalendarIcon,
+  CardIcon,
   CompassIcon,
   DiscussIcon,
   DocsIcon,
@@ -51,6 +52,7 @@ import {
   formatSince,
   jobs,
   pinnedEntry,
+  products,
   squad,
   team,
 } from './data';
@@ -77,6 +79,7 @@ export enum PageType {
   Chat = 'chat',
   Link = 'link',
   Jobs = 'jobs',
+  Products = 'products',
   Members = 'members',
   Analytics = 'analytics',
   Moderation = 'moderation',
@@ -166,6 +169,7 @@ const common = {
   recurring: page('recurring', 'Recurring threads', PageType.Recurring),
   members: page('members', 'Members', PageType.Members),
   jobs: page('jobs', 'Open roles', PageType.Jobs, { badge: 2 }),
+  products: page('products', 'Products', PageType.Products),
 };
 
 const link = (id: string, label: string, href: string): SquadPage =>
@@ -220,10 +224,11 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
       ],
     },
     {
-      id: 'people',
-      label: 'People',
-      pages: [common.members, common.jobs],
+      id: 'company',
+      label: 'Company',
+      pages: [common.products, common.jobs],
     },
+    { id: 'people', label: 'People', pages: [common.members] },
     manage,
   ],
   [SidebarPreset.Community]: [
@@ -285,6 +290,7 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
     [PageType.Chat]: <DiscussIcon size={size} />,
     [PageType.Link]: <OpenLinkIcon size={size} />,
     [PageType.Jobs]: <JobIcon size={size} />,
+    [PageType.Products]: <CardIcon size={size} />,
     [PageType.Members]: <UserIcon size={size} />,
     [PageType.Analytics]: <AnalyticsIcon size={size} />,
     [PageType.Moderation]: <TimerIcon size={size} />,
@@ -417,6 +423,24 @@ export const pageCatalogue: {
     ],
   },
   {
+    group: 'Company',
+    items: [
+      {
+        type: PageType.Products,
+        title: 'Products',
+        description:
+          'Everything the company makes. Imported from Product Hunt, G2, GitHub or a URL; each card links to the member stack.',
+        exists: false,
+      },
+      {
+        type: PageType.Jobs,
+        title: 'Open roles',
+        description: 'Recruiter listings, inside the squad.',
+        exists: true,
+      },
+    ],
+  },
+  {
     group: 'Links and people',
     items: [
       {
@@ -429,12 +453,6 @@ export const pageCatalogue: {
         type: PageType.Members,
         title: 'Members',
         description: 'Everyone in the squad, with the team on top.',
-        exists: true,
-      },
-      {
-        type: PageType.Jobs,
-        title: 'Open roles',
-        description: 'Recruiter listings, inside the squad.',
         exists: true,
       },
       {
@@ -1077,6 +1095,123 @@ const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
   </Column>
 );
 
+const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
+
+/**
+ * Everything the company makes, on one page. Listings are imported, not
+ * typed: paste a Product Hunt, G2, Trustpilot or GitHub link and the card
+ * arrives with the logo, tagline, category and the source's rating. The
+ * daily.dev part is the stack: each product is a tool members can add, and
+ * the card says how many already have.
+ */
+const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
+  <Column width="max-w-[52rem]">
+    {viewer === Viewer.Admin ? (
+      <div className="flex flex-col gap-3 rounded-16 border border-dashed border-border-subtlest-secondary p-4">
+        <div className="flex items-center justify-between">
+          <span className="font-bold text-text-primary typo-callout">
+            Import a product
+          </span>
+          <span className="text-text-quaternary typo-caption1">
+            Synced weekly. Edit anything after import.
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex h-10 flex-1 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-callout">
+            <LinkIcon size={IconSize.Small} />
+            Paste a Product Hunt, G2, Trustpilot, GitHub or website link
+          </div>
+          <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
+            Import
+          </Button>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5 text-text-tertiary typo-caption1">
+          <span className="mr-1">Or connect</span>
+          {importSources.map((source) => (
+            <span
+              key={source}
+              className="rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 text-text-secondary"
+            >
+              {source}
+            </span>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <p className="max-w-[52ch] text-text-secondary typo-callout">
+        Everything {squad.company.website} makes. Add one to your stack and it
+        shows on your profile.
+      </p>
+    )}
+    <div className="grid grid-cols-2 gap-3">
+      {products.map((product) => (
+        <div
+          key={product.id}
+          className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+        >
+          <div className="flex items-start gap-3">
+            <img
+              src={product.image}
+              alt=""
+              className="size-12 shrink-0 rounded-12 bg-background-default object-cover p-1"
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="flex items-center gap-2">
+                <span className="truncate font-bold text-text-primary typo-callout">
+                  {product.name}
+                </span>
+                <span className="shrink-0 rounded-6 bg-background-default px-1.5 text-text-tertiary typo-caption2">
+                  {product.pricing}
+                </span>
+              </span>
+              <span className="text-text-quaternary typo-caption1">
+                {product.category}
+              </span>
+            </div>
+          </div>
+          <p className="line-clamp-2 text-text-secondary typo-footnote">
+            {product.tagline}
+          </p>
+          <div className="flex items-center gap-3 text-text-tertiary typo-caption1">
+            {product.rating && (
+              <span className="sq-nums flex items-center gap-1 text-text-primary">
+                <StarIcon size={IconSize.XSmall} secondary />
+                {product.rating.toFixed(1)}
+                <span className="text-text-quaternary">
+                  ({formatCount(product.reviews ?? 0)} on {product.source})
+                </span>
+              </span>
+            )}
+            <span className="sq-nums ml-auto">
+              In {formatCount(product.inStacks)} stacks
+            </span>
+          </div>
+          <div className="mt-auto flex items-center gap-2 border-t border-border-subtlest-tertiary pt-3">
+            {product.links.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-1 text-text-tertiary typo-caption1 hover:text-text-primary"
+              >
+                <OpenLinkIcon size={IconSize.XSmall} />
+                {item.label}
+              </a>
+            ))}
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.XSmall}
+              className="ml-auto"
+              icon={<PlusIcon />}
+            >
+              Add to stack
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </Column>
+);
+
 const JobsPage = (): ReactElement => (
   <Column>
     <p className="max-w-[52ch] text-text-secondary typo-callout">
@@ -1227,6 +1362,8 @@ const PageBody = ({
       return <RecurringPage viewer={viewer} />;
     case PageType.Jobs:
       return <JobsPage />;
+    case PageType.Products:
+      return <ProductsPage viewer={viewer} />;
     case PageType.Members:
       return <MembersPage />;
     case PageType.Add:
@@ -1259,6 +1396,12 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
           <IconButton icon={<BellIcon />} label="Notifications" />
         </>
       );
+    case PageType.Products:
+      return viewer === Viewer.Admin ? (
+        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+          Sync now
+        </Button>
+      ) : null;
     case PageType.Doc:
       return viewer === Viewer.Admin ? (
         <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>

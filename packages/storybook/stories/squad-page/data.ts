@@ -491,3 +491,111 @@ export const entriesByMonth = feedEntries.reduce<
   }
   return groups;
 }, []);
+
+export interface Product {
+  id: string;
+  name: string;
+  tagline: string;
+  image: string;
+  category: string;
+  pricing: 'Free' | 'Freemium' | 'Paid' | 'Open source';
+  /** Where the listing was imported from. Ratings are the source's. */
+  source: 'Product Hunt' | 'G2' | 'GitHub' | 'Website';
+  rating?: number;
+  reviews?: number;
+  /** daily.dev members with this in their stack. */
+  inStacks: number;
+  links: { label: string; href: string }[];
+}
+
+/** Illustrative. Real products, ratings and counts are placeholders. */
+export const products: Product[] = [
+  {
+    id: 'app',
+    name: 'daily.dev',
+    tagline:
+      'The professional network for developers to learn, grow and stay updated.',
+    image: squad.image,
+    category: 'Developer news',
+    pricing: 'Free',
+    source: 'Product Hunt',
+    rating: 4.9,
+    reviews: 1240,
+    inStacks: 8420,
+    links: [
+      { label: 'Website', href: 'https://daily.dev' },
+      {
+        label: 'Product Hunt',
+        href: 'https://www.producthunt.com/products/daily-dev',
+      },
+    ],
+  },
+  {
+    id: 'extension',
+    name: 'daily.dev browser extension',
+    tagline: 'Your feed in every new tab. Chrome, Edge, Firefox and Opera.',
+    image: 'https://cdn.simpleicons.org/googlechrome',
+    category: 'Browser extension',
+    pricing: 'Free',
+    source: 'Website',
+    rating: 4.7,
+    reviews: 3100,
+    inStacks: 5210,
+    links: [{ label: 'Chrome Web Store', href: 'https://daily.dev/extension' }],
+  },
+  {
+    id: 'plus',
+    name: 'daily.dev Plus',
+    tagline: 'Smart briefings, clickbait shield, custom feeds and more.',
+    image: squad.image,
+    category: 'Subscription',
+    pricing: 'Paid',
+    source: 'G2',
+    rating: 4.6,
+    reviews: 212,
+    inStacks: 1930,
+    links: [
+      { label: 'Website', href: 'https://daily.dev/plus' },
+      { label: 'G2', href: 'https://www.g2.com/products/daily-dev' },
+    ],
+  },
+  {
+    id: 'recruiter',
+    name: 'daily.dev Recruiter',
+    tagline: 'Hire developers where they already read.',
+    image: squad.image,
+    category: 'Hiring',
+    pricing: 'Paid',
+    source: 'Website',
+    inStacks: 140,
+    links: [{ label: 'Website', href: 'https://daily.dev/recruiter' }],
+  },
+  {
+    id: 'api',
+    name: 'Public API',
+    tagline:
+      'Personal access tokens, 200 free requests a month, guides for agents.',
+    image: 'https://cdn.simpleicons.org/graphql',
+    category: 'API',
+    pricing: 'Freemium',
+    source: 'GitHub',
+    inStacks: 610,
+    links: [
+      { label: 'Docs', href: 'https://docs.daily.dev/api' },
+      { label: 'GitHub', href: 'https://github.com/dailydotdev' },
+    ],
+  },
+  {
+    id: 'claude-plugin',
+    name: 'Claude Code plugin',
+    tagline: 'Developer headlines in your terminal statusline.',
+    image: 'https://cdn.simpleicons.org/anthropic',
+    category: 'Integration',
+    pricing: 'Open source',
+    source: 'GitHub',
+    rating: 4.8,
+    reviews: 96,
+    inStacks: 880,
+    links: [{ label: 'GitHub', href: 'https://github.com/dailydotdev' }],
+  },
+];

@@ -374,8 +374,8 @@ export const Overview: StoryObj = {
             ],
             [
               'Products, Reviews tabs',
-              'Plus, Recruiter',
-              'Open roles page from Recruiter. No reviews',
+              'Plus, Recruiter, the source stack',
+              "Products page imported from Product Hunt, G2, Trustpilot, GitHub or a URL, with the source's rating and a link into the member stack. Open roles from Recruiter",
             ],
             [
               'Links, "Our website"',
@@ -635,6 +635,16 @@ export const Overview: StoryObj = {
               viewer={Viewer.Member}
               initialPage={findPage('help')}
               height={40}
+            />
+          </Screen>
+          <Screen
+            title="Products, as an admin"
+            note="Everything the company makes, imported rather than typed: paste a Product Hunt, G2, Trustpilot, GitHub or website link and the card arrives with logo, tagline, category and the source's rating, synced weekly. The daily.dev part is the stack: each product is a tool a member can add, and the card says how many already have."
+          >
+            <WorkspaceShell
+              viewer={Viewer.Admin}
+              initialPage={findPage('products')}
+              height={52}
             />
           </Screen>
           <Screen
