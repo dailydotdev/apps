@@ -4,7 +4,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import ExtensionProviders from '../extension/_providers';
 import { KitStyles, Viewer } from './kit';
-import { SquadHome } from './home';
+import { HomeTab, SquadHome } from './home';
+import { ProfileHome } from './profile';
 import {
   addPage,
   allPages,
@@ -145,6 +146,24 @@ const Screen = ({
   </div>
 );
 
+/** Two 1152px pages side by side, scaled so both fit. */
+const Pair = ({ items }: { items: [string, ReactNode][] }): ReactElement => (
+  <div className="flex gap-6 overflow-x-auto">
+    {items.map(([label, node]) => (
+      <div
+        key={label}
+        className="flex shrink-0 flex-col gap-2"
+        style={{ width: 1152, zoom: 0.62 }}
+      >
+        <span className="text-text-quaternary typo-callout">{label}</span>
+        <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
+          {node}
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 /* --------------------------------------------------------------- stories */
 
 export const Overview: StoryObj = {
@@ -193,42 +212,39 @@ export const Overview: StoryObj = {
       <Section eyebrow="Parity" title="Home is the profile page, for a squad">
         <Caption>
           A person and a squad are the same kind of thing on daily.dev, so their
-          pages share one skeleton. Left: the live profile page. Right: the
-          squad&apos;s Home. Same card, same cover height, same avatar seat,
-          same name, meta, actions and stats stack, same divided sections
-          beneath, same widget column. Only the nouns change.
+          pages share one skeleton, and both get the same correction: the posts
+          are the page. Everything that used to stack down the column (the
+          readme, the stack, the CV, the roles) sits under one About tab, and
+          Posts is the default. Left: the profile on the new frame. Right: the
+          squad. Same card, cover, avatar seat, name, meta, actions, stats,
+          tabs, widget column. Only the nouns change.
         </Caption>
-        <div className="flex gap-6 overflow-x-auto">
-          {[
+        <Pair
+          items={[
+            ['Profile, on the new frame', <ProfileHome key="profile" />],
             [
-              'Profile, as it ships today',
-              <img
-                key="profile"
-                src="/squad-page/profile-reference.png"
-                alt="The daily.dev profile page"
-                className="w-full rounded-16 border border-border-subtlest-tertiary"
+              'Squad Home, same frame',
+              <SquadHome key="squad" viewer={Viewer.Visitor} />,
+            ],
+          ]}
+        />
+        <Caption>The About tab on both, where the long content went.</Caption>
+        <Pair
+          items={[
+            [
+              'Profile · About',
+              <ProfileHome key="profile-about" initialTab={HomeTab.About} />,
+            ],
+            [
+              'Squad · About',
+              <SquadHome
+                key="squad-about"
+                viewer={Viewer.Visitor}
+                initialTab={HomeTab.About}
               />,
             ],
-            [
-              'Squad Home, same skeleton',
-              <div
-                key="squad"
-                className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
-              >
-                <SquadHome viewer={Viewer.Visitor} />
-              </div>,
-            ],
-          ].map(([label, node]) => (
-            <div
-              key={label as string}
-              className="flex shrink-0 flex-col gap-2"
-              style={{ width: 1152, zoom: 0.62 }}
-            >
-              <span className="text-text-quaternary typo-callout">{label}</span>
-              {node}
-            </div>
-          ))}
-        </div>
+          ]}
+        />
         <Table
           head={['Profile', 'Squad Home', 'Note']}
           rows={[
@@ -244,7 +260,7 @@ export const Overview: StoryObj = {
             ],
             ['Bio', 'Tagline', 'One line. The long form lives in About.'],
             [
-              'Company badge · location',
+              'Company badge',
               '"Verified company" · location',
               'The company badge is what makes the page sellable, so it stays in the header.',
             ],
@@ -260,24 +276,19 @@ export const Overview: StoryObj = {
               'Same 2x2 grid; members take the reputation seat with the icon.',
             ],
             [
-              'About me: social links + readme',
-              'About: links + readme',
-              'A squad gets a readme. Companies will write one.',
+              'Tabs: Activity · About',
+              'Tabs: Posts · About',
+              'New on both. Posts is the default and takes the whole card.',
             ],
             [
-              'Stack',
-              'Stack and tools',
-              "The source stack already exists; it moves into the profile's row style.",
+              'Activity: Posts / Replies / Upvoted chips, 2-up card grid, Load more',
+              'Posts: Latest / Top / Discussed chips, pinned row, 2-up card grid, Load more',
+              'The cards are the page again. Load more, not a rail.',
             ],
             [
-              'Activity: Posts / Replies / Upvoted, card rail, Show more',
-              'Activity: Posts / Announcements / Polls, card rail, Show more',
-              'The pinned post leads the rail with its flag. Show more opens the Posts page.',
-            ],
-            [
-              'Work experience, education',
-              'Open roles',
-              'Recruiter listings in the experience row style.',
+              'About: readme, social links, work experience',
+              'About: readme, links, stack, open roles',
+              'One tab for everything that is not posts.',
             ],
             [
               'Reading overview, Active in squads, Badges',
@@ -589,6 +600,27 @@ export const Playground: StoryObj<{ viewer: Viewer; page: string }> = {
         initialPage={args.page === 'add' ? addPage : findPage(args.page)}
         height={60}
       />
+    </Full>
+  ),
+};
+
+export const ProfileOnNewFrame: StoryObj<{ isOwner: boolean; tab: HomeTab }> = {
+  args: { isOwner: false, tab: HomeTab.Posts },
+  argTypes: {
+    tab: {
+      control: 'inline-radio' as const,
+      options: [HomeTab.Posts, HomeTab.About],
+    },
+  },
+  render: (args) => (
+    <Full>
+      <div className="w-[72rem] max-w-full overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
+        <ProfileHome
+          key={`${args.isOwner}-${args.tab}`}
+          isOwner={args.isOwner}
+          initialTab={args.tab}
+        />
+      </div>
     </Full>
   ),
 };

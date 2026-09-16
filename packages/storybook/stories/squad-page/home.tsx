@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -8,19 +8,21 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  ArrowIcon,
   BellIcon,
   EditIcon,
   GitHubIcon,
   LinkIcon,
   LinkedInIcon,
   MenuIcon,
+  PinIcon,
   ReputationIcon,
+  SearchIcon,
   TwitterIcon,
   VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FreeformGrid } from '@dailydotdev/shared/src/components/cards/Freeform/FreeformGrid';
+import type { Entry } from './data';
 import {
   feedEntries,
   formatCount,
@@ -42,7 +44,7 @@ import { Avatar, VerifiedMark, Viewer } from './kit';
 // Squads, the squad lists its team.
 
 const noop = () => undefined;
-const cardHandlers = {
+export const cardHandlers = {
   onPostClick: noop,
   onPostAuxClick: noop,
   onUpvoteClick: noop,
@@ -54,7 +56,7 @@ const cardHandlers = {
   onReadArticleClick: noop,
 };
 
-const Separator = (): ReactElement => (
+export const Separator = (): ReactElement => (
   <span className="mx-1 text-text-secondary typo-subhead">•</span>
 );
 
@@ -186,7 +188,7 @@ const SquadStats = (): ReactElement => {
 
 /* ------------------------------------------------------------- sections */
 
-const SectionTitle = ({
+export const SectionTitle = ({
   children,
   action,
 }: {
@@ -301,52 +303,122 @@ const StackSection = ({ viewer }: { viewer: Viewer }): ReactElement => (
   </div>
 );
 
-const activityTabs = ['Posts', 'Announcements', 'Polls'];
+/* ----------------------------------------------------------------- tabs */
 
-/** Activity, for a squad: the same tabs, the same horizontal card rail. */
-const ActivitySection = (): ReactElement => (
-  <div className="mb-4 flex flex-col gap-3 pt-6">
-    <div className="flex flex-col gap-3">
-      <SectionTitle>Activity</SectionTitle>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {activityTabs.map((tab, index) => (
-            <button
-              type="button"
-              key={tab}
-              className={classNames(
-                'rounded-10 px-3 py-1.5 font-bold typo-callout',
-                index === 0
-                  ? 'bg-surface-float text-text-primary'
-                  : 'text-text-tertiary hover:text-text-primary',
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-1">
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<ArrowIcon className="-rotate-90" />}
-            aria-label="Previous"
-            disabled
-          />
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<ArrowIcon className="rotate-90" />}
-            aria-label="Next"
-          />
-        </div>
-      </div>
+/**
+ * The page-level tabs, right under the stats. Posts is the default and the
+ * dominant surface; everything that used to stack down the column lives in
+ * About. The profile gets the same pair.
+ */
+export const HomeTabs = ({
+  tabs,
+  active,
+  onSelect,
+}: {
+  tabs: { id: HomeTab; label: string; count?: number }[];
+  active: HomeTab;
+  onSelect?: (tab: HomeTab) => void;
+}): ReactElement => (
+  <div className="flex items-center gap-6 border-b border-border-subtlest-tertiary px-6">
+    {tabs.map((tab) => (
+      <button
+        type="button"
+        key={tab.id}
+        onClick={() => onSelect?.(tab.id)}
+        className={classNames(
+          'relative flex items-center gap-1.5 py-3 typo-callout',
+          tab.id === active
+            ? 'sq-tab-active font-bold text-text-primary'
+            : 'text-text-tertiary hover:text-text-primary',
+        )}
+      >
+        {tab.label}
+        {typeof tab.count === 'number' && (
+          <span className="sq-nums font-normal text-text-quaternary">
+            {formatCount(tab.count)}
+          </span>
+        )}
+      </button>
+    ))}
+  </div>
+);
+
+export enum HomeTab {
+  Posts = 'posts',
+  About = 'about',
+}
+
+export const Chips = ({
+  options,
+  active,
+}: {
+  options: string[];
+  active: string;
+}): ReactElement => (
+  <div className="flex items-center gap-1">
+    {options.map((option) => (
+      <button
+        type="button"
+        key={option}
+        className={classNames(
+          'rounded-10 px-3 py-1.5 font-bold typo-callout',
+          option === active
+            ? 'bg-surface-float text-text-primary'
+            : 'text-text-tertiary hover:text-text-primary',
+        )}
+      >
+        {option}
+      </button>
+    ))}
+  </div>
+);
+
+/**
+ * The Posts tab: the cards are the page. Two production cards per row in
+ * the profile column, a sort row above, the pinned post leading with its
+ * flag, load more at the foot.
+ */
+export const PostsTab = ({
+  chips,
+  activeChip,
+  entries: list,
+  pinned,
+  composer,
+}: {
+  chips: string[];
+  activeChip: string;
+  entries: Entry[];
+  pinned?: Entry;
+  composer?: ReactNode;
+}): ReactElement => (
+  <div className="flex flex-col gap-4 p-6">
+    <div className="flex items-center justify-between">
+      <Chips options={chips} active={activeChip} />
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<SearchIcon />}
+        aria-label="Search"
+      />
     </div>
-    <div className="sq2-shelf -mx-6 flex gap-4 overflow-x-auto px-6 pb-1">
-      {[pinnedEntry, ...feedEntries.slice(0, 4)].map((entry) => (
-        <div key={entry.id} className="w-[18.75rem] shrink-0">
-          <FreeformGrid post={toPost(entry)} {...cardHandlers} />
-        </div>
+    {composer}
+    {pinned && (
+      <div className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 py-2.5">
+        <PinIcon size={IconSize.Small} className="text-text-tertiary" />
+        <span className="truncate text-text-primary typo-callout">
+          {pinned.title}
+        </span>
+        <span className="ml-auto whitespace-nowrap text-text-quaternary typo-footnote">
+          Pinned · {pinned.author.name}
+        </span>
+      </div>
+    )}
+    <div
+      className="grid gap-4"
+      style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
+    >
+      {list.map((entry) => (
+        <FreeformGrid key={entry.id} post={toPost(entry)} {...cardHandlers} />
       ))}
     </div>
     <Button
@@ -354,7 +426,7 @@ const ActivitySection = (): ReactElement => (
       size={ButtonSize.Medium}
       className="w-full"
     >
-      Show More
+      Load more
     </Button>
   </div>
 );
@@ -398,7 +470,7 @@ const RolesSection = (): ReactElement => (
 
 /* -------------------------------------------------------------- widgets */
 
-const Widget = ({
+export const Widget = ({
   title,
   children,
   action,
@@ -416,7 +488,7 @@ const Widget = ({
   </section>
 );
 
-const Tile = ({
+export const Tile = ({
   value,
   label,
 }: {
@@ -567,28 +639,71 @@ const AwardsWidget = (): ReactElement => (
 
 /* ------------------------------------------------------------------ page */
 
-export const SquadHome = ({
-  viewer = Viewer.Visitor,
+/** One frame for a squad and a person: card + widget column. */
+export const HomeFrame = ({
+  header,
+  tabs,
+  children,
+  widgets,
 }: {
-  viewer?: Viewer;
+  header: ReactNode;
+  tabs: ReactNode;
+  children: ReactNode;
+  widgets: ReactNode;
 }): ReactElement => (
   <div className="m-auto flex w-full max-w-[72rem] gap-4 p-4 pb-6">
     <main className="flex min-w-0 flex-1 flex-col">
       <div className="rounded-16 border border-border-subtlest-tertiary">
-        <SquadHeader viewer={viewer} />
+        {header}
+        {tabs}
+        {children}
+      </div>
+    </main>
+    <aside className="flex w-80 shrink-0 flex-col gap-4">{widgets}</aside>
+  </div>
+);
+
+const squadTabs = [
+  { id: HomeTab.Posts, label: 'Posts', count: squad.totalPosts },
+  { id: HomeTab.About, label: 'About' },
+];
+
+export const SquadHome = ({
+  viewer = Viewer.Visitor,
+  initialTab = HomeTab.Posts,
+}: {
+  viewer?: Viewer;
+  initialTab?: HomeTab;
+}): ReactElement => {
+  const [tab, setTab] = useState<HomeTab>(initialTab);
+
+  return (
+    <HomeFrame
+      header={<SquadHeader viewer={viewer} />}
+      tabs={<HomeTabs tabs={squadTabs} active={tab} onSelect={setTab} />}
+      widgets={
+        <>
+          <OverviewWidget />
+          <TeamWidget />
+          <AwardsWidget />
+        </>
+      }
+    >
+      {tab === HomeTab.Posts ? (
+        <PostsTab
+          chips={['Latest', 'Top', 'Discussed']}
+          activeChip="Latest"
+          entries={feedEntries.slice(0, 6)}
+          pinned={pinnedEntry}
+        />
+      ) : (
         <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
           <div />
           <AboutSection />
           <StackSection viewer={viewer} />
-          <ActivitySection />
           <RolesSection />
         </div>
-      </div>
-    </main>
-    <aside className="flex w-80 shrink-0 flex-col gap-4">
-      <OverviewWidget />
-      <TeamWidget />
-      <AwardsWidget />
-    </aside>
-  </div>
-);
+      )}
+    </HomeFrame>
+  );
+};
