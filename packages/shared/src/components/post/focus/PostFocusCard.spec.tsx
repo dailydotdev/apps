@@ -46,6 +46,25 @@ const sharedFreeformPost: Post = {
   },
 } as Post;
 
+const sharedTweetPost: Post = {
+  ...sharePost,
+  id: 'shared-tweet-id',
+  title: 'Anyone excited by the new expansion?',
+  sharedPost: {
+    ...sharePost.sharedPost,
+    type: PostType.SocialTwitter,
+    title: 'Carve A New Path In A Legendary World.',
+    summary: 'A new expansion is set to launch, promising a fresh path.',
+    creatorTwitterName: 'World of Warcraft',
+    creatorTwitter: 'warcraft',
+    domain: 'x.com',
+    // Tweets arrive under the unknown placeholder source, so the identity
+    // comes from the creator fields.
+    source: { ...sharePost.sharedPost?.source, id: 'unknown', name: 'unknown' },
+    author: undefined,
+  },
+} as Post;
+
 const renderCard = (
   postToRender: Post,
   options: {
@@ -109,6 +128,23 @@ describe('PostFocusCard opening the source article', () => {
     expect(
       screen.getByTestId('post-modal-title').querySelector('a'),
     ).toBeNull();
+  });
+});
+
+describe('PostFocusCard shared tweet', () => {
+  it('renders the tweet as an embedded tweet, not as an article', () => {
+    renderCard(sharedTweetPost);
+
+    expect(screen.getByText('World of Warcraft @warcraft')).toBeInTheDocument();
+    expect(
+      screen.getByText('Carve A New Path In A Legendary World.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('post-modal-title')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('tldr-container')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('post-cover-link')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Anyone excited by the new expansion?'),
+    ).toBeInTheDocument();
   });
 });
 

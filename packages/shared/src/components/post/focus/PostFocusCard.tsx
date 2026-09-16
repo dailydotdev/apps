@@ -7,6 +7,7 @@ import {
   getReadArticleHref,
   getReadPostButtonText,
   isInternalReadType,
+  isSocialTwitterPost,
   isVideoPost,
   PostType,
 } from '../../../graphql/posts';
@@ -60,6 +61,7 @@ import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostContentShare } from '../common/PostContentShare';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
+import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
 import {
   CommunitySentiment,
   mapCommunitySentimentPost,
@@ -284,6 +286,10 @@ const PostFocusCardRaw = ({
       ? { label: isShared ? 'Shared via' : 'Posted in', source: post.source }
       : undefined;
   const isVideoType = isVideoPost(article);
+  // A shared tweet is the tweet, not an article about one: its text is not a
+  // title, its summary is not a TLDR and its author is the handle on the
+  // card, so it renders as the same embedded tweet the classic layout uses.
+  const isSharedTweet = isShared && isSocialTwitterPost(article);
   const { title } = useSmartTitle(article);
   // A share post's own `title` is the sharer's commentary, not the article's
   // title — but it mirrors the article title when they wrote nothing.
@@ -557,99 +563,110 @@ const PostFocusCardRaw = ({
                 {commentary}
               </p>
             )}
+            {isSharedTweet && (
+              <EmbeddedTweetPreview
+                post={article}
+                className="w-full"
+                textClampClass=""
+                bodyClassName="typo-markdown"
+                showImage
+              />
+            )}
             {/* The cover keeps a fixed ratio so a short title can't squash it. */}
-            <div className="flex min-w-0 flex-row items-start gap-4">
-              <div className="flex min-w-0 flex-1 flex-col gap-4">
-                <h1
-                  className={classNames(
-                    'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
-                    // On the post page the reader came to read, so the title is
-                    // always shown in full and the button flows below it; only
-                    // the modal (a feed preview) clamps it.
-                    onClose && 'line-clamp-3',
-                  )}
-                  data-testid="post-modal-title"
-                >
-                  {canReadArticle ? (
+            {!isSharedTweet && (
+              <div className="flex min-w-0 flex-row items-start gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-4">
+                  <h1
+                    className={classNames(
+                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                      // On the post page the reader came to read, so the title is
+                      // always shown in full and the button flows below it; only
+                      // the modal (a feed preview) clamps it.
+                      onClose && 'line-clamp-3',
+                    )}
+                    data-testid="post-modal-title"
+                  >
+                    {canReadArticle ? (
+                      <a
+                        href={readHref}
+                        target="_blank"
+                        rel={anchorNofollowRel}
+                        {...combinedClicks<HTMLAnchorElement>(
+                          withSelectionGuard(handleReadClick),
+                        )}
+                        className="transition-colors hover:text-text-link"
+                      >
+                        {title}
+                      </a>
+                    ) : (
+                      title
+                    )}
+                  </h1>
+                  <PostMetadata
+                    // Wraps on mobile so a long domain stays whole (no ellipsis).
+                    className="flex-wrap !typo-callout tablet:flex-nowrap"
+                    createdAt={article.createdAt}
+                    domain={
+                      !isVideoType &&
+                      article.domain &&
+                      article.domain.length > 0 && (
+                        <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
+                          From{' '}
+                          <ArticleLink
+                            className="hover:text-text-link hover:underline"
+                            href={article.permalink}
+                            onClick={onReadArticle}
+                            title={article.domain}
+                          >
+                            {article.domain}
+                          </ArticleLink>
+                        </span>
+                      )
+                    }
+                    isVideoType={isVideoType}
+                    readTime={article.readTime}
+                  />
+                </div>
+                {/* Duplicates the title link, so it stays out of the tab order and
+                  the accessibility tree rather than adding an identical stop. */}
+                {coverImage &&
+                  (canReadArticle ? (
                     <a
                       href={readHref}
                       target="_blank"
                       rel={anchorNofollowRel}
-                      {...combinedClicks<HTMLAnchorElement>(
-                        withSelectionGuard(handleReadClick),
+                      {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
+                      aria-hidden
+                      tabIndex={-1}
+                      data-testid="post-cover-link"
+                      className={classNames(
+                        coverClassName,
+                        'cursor-pointer transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none',
                       )}
-                      className="transition-colors hover:text-text-link"
                     >
-                      {title}
+                      {coverImage}
                     </a>
                   ) : (
-                    title
-                  )}
-                </h1>
-                <PostMetadata
-                  // Wraps on mobile so a long domain stays whole (no ellipsis).
-                  className="flex-wrap !typo-callout tablet:flex-nowrap"
-                  createdAt={article.createdAt}
-                  domain={
-                    !isVideoType &&
-                    article.domain &&
-                    article.domain.length > 0 && (
-                      <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
-                        From{' '}
-                        <ArticleLink
-                          className="hover:text-text-link hover:underline"
-                          href={article.permalink}
-                          onClick={onReadArticle}
-                          title={article.domain}
-                        >
-                          {article.domain}
-                        </ArticleLink>
-                      </span>
-                    )
-                  }
-                  isVideoType={isVideoType}
-                  readTime={article.readTime}
-                />
+                    <button
+                      type="button"
+                      aria-label="View cover image"
+                      className={classNames(coverClassName, 'cursor-zoom-in')}
+                      onClick={(event) => {
+                        openModal({
+                          type: LazyModal.ImageView,
+                          props: {
+                            src: article.image as string,
+                            alt: 'Post cover image',
+                            originRect: getImageOriginRect(event.currentTarget),
+                          },
+                        });
+                      }}
+                    >
+                      {coverImage}
+                    </button>
+                  ))}
               </div>
-              {/* Duplicates the title link, so it stays out of the tab order and
-                  the accessibility tree rather than adding an identical stop. */}
-              {coverImage &&
-                (canReadArticle ? (
-                  <a
-                    href={readHref}
-                    target="_blank"
-                    rel={anchorNofollowRel}
-                    {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
-                    aria-hidden
-                    tabIndex={-1}
-                    data-testid="post-cover-link"
-                    className={classNames(
-                      coverClassName,
-                      'cursor-pointer transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none',
-                    )}
-                  >
-                    {coverImage}
-                  </a>
-                ) : (
-                  <button
-                    type="button"
-                    aria-label="View cover image"
-                    className={classNames(coverClassName, 'cursor-zoom-in')}
-                    onClick={(event) => {
-                      openModal({
-                        type: LazyModal.ImageView,
-                        props: {
-                          src: article.image as string,
-                          alt: 'Post cover image',
-                          originRect: getImageOriginRect(event.currentTarget),
-                        },
-                      });
-                    }}
-                  >
-                    {coverImage}
-                  </button>
-                ))}
-            </div>
+            )}
           </div>
 
           {isVideoType && (
@@ -692,7 +709,9 @@ const PostFocusCardRaw = ({
             )}
           >
             {/* Must stay two children, or the reversal reorders the body too. */}
-            {postBody && <div className="flex flex-col gap-4">{postBody}</div>}
+            {postBody && !isSharedTweet && (
+              <div className="flex flex-col gap-4">{postBody}</div>
+            )}
             {readCta}
           </div>
 
