@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import AuthOptions from './AuthOptions';
+import { ButtonSize } from '../buttons/Button';
 import type { AuthOptionsProps } from './common';
 import { AuthDisplay } from './common';
 import type { HijackingCoverCopy } from './HijackingCoverStrip';
@@ -23,9 +24,8 @@ const copy: HijackingCoverCopy = {
   body: 'Log in to pick up where you left off.',
 };
 
-// The card's height with the auth stack: stacked under the copy until laptop,
-// beside it from there.
-export const exploreSignupStripMinHeight = 'min-h-[22rem] laptop:min-h-[17rem]';
+// The card's height with the copy and auth stack in one left column.
+export const exploreSignupStripMinHeight = 'min-h-[18rem]';
 
 // The new tab's cover strip for anonymous visitors, tablet and up, with the
 // sticky auth banner's signup stack in place of a sign up / log in pair.
@@ -89,20 +89,21 @@ export function ExploreSignupStrip({
 
   return (
     <HijackingCoverCard className={className}>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-raw-pepper-90/[0.9] via-raw-pepper-90/[0.55] to-transparent laptop:inset-y-0 laptop:left-auto laptop:h-auto laptop:w-3/5 laptop:bg-gradient-to-l" />
+      <div className="cover-strip-blur-near pointer-events-none absolute inset-y-0 left-0 w-3/4" />
+      <div className="cover-strip-blur-mid pointer-events-none absolute inset-y-0 left-0 w-3/4" />
+      <div className="cover-strip-blur-far pointer-events-none absolute inset-y-0 left-0 w-3/4" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-raw-pepper-90/[0.85] via-raw-pepper-90/[0.45] to-transparent" />
       <div
         className={classNames(
-          'dark relative z-1 flex flex-col items-center gap-6 px-5 py-8 text-center',
-          'laptop:flex-row laptop:justify-between laptop:gap-10 laptop:px-10',
-          'laptop:text-left',
+          'dark relative z-1 flex flex-col items-start px-6 py-8 text-left laptop:px-8',
           exploreSignupStripMinHeight,
         )}
       >
-        <div className="flex max-w-[34rem] flex-col gap-1 laptop:min-w-0 laptop:flex-1">
+        <div className="flex max-w-[28rem] flex-col gap-1">
           <h3 className={hijackingCoverHeadingClassName}>{copy.heading}</h3>
           <p className={hijackingCoverBodyClassName}>{copy.body}</p>
         </div>
-        <div className="w-full max-w-[23.25rem] shrink-0">
+        <div className="mt-5 w-full max-w-[28rem]">
           <AuthOptions
             ignoreMessages
             formRef={null as unknown as AuthOptionsProps['formRef']}
@@ -112,7 +113,9 @@ export function ExploreSignupStrip({
             defaultDisplay={AuthDisplay.OnboardingSignup}
             forceDefaultDisplay
             signupStyle="singlePrimary"
+            inlineProviders
             preferGithub={false}
+            onboardingSignupButton={{ size: ButtonSize.Medium }}
             className={{ container: '!min-h-0 !overflow-visible' }}
             onAuthStateUpdate={onAuthStateUpdate}
           />

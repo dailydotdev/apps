@@ -40,6 +40,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   hideSignupDisclaimer?: boolean;
   compact?: boolean;
   signupStyle?: SignupStyle;
+  inlineProviders?: boolean;
   preferGithub?: boolean;
   onAuthOpenLogged?: () => void;
 }
@@ -119,6 +120,7 @@ export const OnboardingRegistrationForm = ({
   hideSignupDisclaimer,
   compact,
   signupStyle,
+  inlineProviders,
   preferGithub,
   onAuthOpenLogged,
 }: OnboardingRegistrationFormProps): ReactElement => {
@@ -283,9 +285,18 @@ export const OnboardingRegistrationForm = ({
 
   return (
     <div aria-label="Login/Register options" className="flex flex-col gap-4">
-      <ul aria-label="Social login buttons" className="flex flex-col gap-4">
+      <ul
+        aria-label="Social login buttons"
+        className={classNames(
+          'flex gap-4',
+          inlineProviders ? 'flex-row gap-3' : 'flex-col',
+        )}
+      >
         {signupProviders.map((provider, index) => (
-          <li key={provider.value}>
+          <li
+            key={provider.value}
+            className={inlineProviders ? 'flex-1' : undefined}
+          >
             <Button
               aria-label={
                 isCreateAccountCopy
