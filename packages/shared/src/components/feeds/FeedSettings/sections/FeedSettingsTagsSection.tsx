@@ -75,7 +75,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         title: 'Recommended tags',
         emoji: '',
         tags: (suggested?.onboardingTags.tags ?? []).flatMap(({ name }) =>
-          name ? [name] : [],
+          name && !followedTags.has(name) ? [name] : [],
         ),
       },
       {
@@ -99,7 +99,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
             .map(({ value }) => value) ?? [],
       },
     ],
-    [directory, suggested],
+    [directory, suggested, followedTags],
   );
 
   const onToggleFollow = (tag: string): void => {

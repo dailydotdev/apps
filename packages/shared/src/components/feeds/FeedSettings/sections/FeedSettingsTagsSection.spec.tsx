@@ -65,15 +65,15 @@ const renderComponent = (type = FeedType.Main) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  const component = (
+  const component = () => (
     <QueryClientProvider client={client}>
       <FeedSettingsEditContext.Provider value={context}>
         <FeedSettingsTagsSection />
       </FeedSettingsEditContext.Provider>
     </QueryClientProvider>
   );
-  render(component);
-  return { editFeedSettings };
+  const { rerender } = render(component());
+  return { editFeedSettings, refresh: () => rerender(component()) };
 };
 
 beforeEach(() => {
@@ -85,7 +85,7 @@ beforeEach(() => {
     }
     if (query === GET_ONBOARDING_TAGS_QUERY) {
       return Promise.resolve({
-        onboardingTags: { tags: [{ name: 'containers' }] },
+        onboardingTags: { tags: [{ name: 'containers' }, { name: 'docker' }] },
       });
     }
     return Promise.reject(new Error('Unexpected query'));
@@ -115,6 +115,38 @@ it('keeps followed tags first, including tags missing from the directory', async
     screen.queryByRole('link', { name: 'Docker' }),
   ).not.toBeInTheDocument();
 });
+
+it.each([FeedType.Main, FeedType.Custom])(
+  'excludes followed tags from recommendations as the %s feed selection changes',
+  async (type) => {
+    const { refresh } = renderComponent(type);
+    const recommendations = within(
+      await screen.findByRole('region', { name: 'Recommended tags' }),
+    );
+    expect(
+      recommendations.getByRole('button', { name: 'Follow containers' }),
+    ).toBeInTheDocument();
+    expect(
+      recommendations.queryByRole('button', { name: 'Unfollow docker' }),
+    ).not.toBeInTheDocument();
+
+    mockFeedSettings = { includeTags: ['containers'] };
+    refresh();
+
+    expect(
+      recommendations.queryByRole('button', { name: 'Unfollow containers' }),
+    ).not.toBeInTheDocument();
+    expect(
+      recommendations.getByRole('button', { name: 'Follow docker' }),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('region', { name: 'My tags' })).getByRole(
+        'button',
+        { name: 'Unfollow containers' },
+      ),
+    ).toBeInTheDocument();
+  },
+);
 
 it.each([FeedType.Main, FeedType.Custom])(
   'follows and unfollows only the selected tag in the %s feed',
