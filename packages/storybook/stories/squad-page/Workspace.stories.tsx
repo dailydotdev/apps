@@ -12,6 +12,7 @@ import {
   findPage,
   pageCatalogue,
   pageIcon,
+  SidebarPreset,
   WorkspaceShell,
   WorkspaceStyles,
 } from './workspace';
@@ -202,9 +203,10 @@ export const Overview: StoryObj = {
       <Section eyebrow="Try it" title="The workspace, as a member">
         <Caption>
           Click the pages in the second column. Home is the identity block plus
-          the feed. Announcements is a feed where only the team posts. Chat is a
-          room. Start here is a document. Bounties pay Cores. Open roles is
-          Recruiter. The links open outside.
+          the feed. Channels are the feed filtered to one flair, each with its
+          own posting rule; Announcements is the one only the team posts to.
+          Start here, Rules and FAQ are pages. Open roles is Recruiter. The
+          links open outside.
         </Caption>
         <WorkspaceShell viewer={Viewer.Member} />
       </Section>
@@ -353,7 +355,7 @@ export const Overview: StoryObj = {
             [
               'Announcements app',
               'Any post; pinned posts',
-              'A Feed page with posting restricted to admins and moderators',
+              'A channel with the posting gate set to team',
             ],
             [
               'Chat app',
@@ -368,7 +370,7 @@ export const Overview: StoryObj = {
             [
               'Content Rewards, Bounties',
               'Cores and Awards',
-              'Bounties page: the company pays Cores for content it wants',
+              'Not carried over. Developer communities do not organise around rewards; awards stay on posts',
             ],
             [
               'Products, Reviews tabs',
@@ -394,38 +396,169 @@ export const Overview: StoryObj = {
         />
       </Section>
 
+      <Section
+        eyebrow="Research"
+        title="How developer communities organise themselves"
+      >
+        <Caption>
+          The subreddits developers actually live in (r/reactjs, r/rust,
+          r/golang, r/webdev, r/devops, r/ExperiencedDevs) and the company ones
+          (r/nextjs, r/supabase, r/cursor) converge on one shape. GitHub
+          Discussions ships that shape as its default categories, and every
+          Discord dev server names the same channels. daily.dev already has most
+          of the parts; what it lacks is the container.
+        </Caption>
+        <Table
+          head={[
+            'Convention',
+            'Reddit',
+            'GitHub Discussions',
+            'Discord',
+            'daily.dev today',
+            'In the sidebar',
+          ]}
+          rows={[
+            [
+              'Post types, chosen when posting',
+              'Post flairs: Needs help, Discussion, Show and tell, News, Resource, Announcement',
+              'Categories: Announcements, General, Ideas, Polls, Q&A, Show and tell',
+              '#announcements #general #help #showcase',
+              'Post types (link, freeform, poll, video), tags, posting gates',
+              'Channels: one feed, one flair per post, a posting rule per channel',
+            ],
+            [
+              'Team-only news',
+              'Announcement flair, mod-only; pinned',
+              'Announcements category, maintainers only',
+              '#announcements, locked',
+              'Pinned posts; posting gate is squad-wide',
+              'Announcements channel with the gate set to team',
+            ],
+            [
+              'Threads on a schedule',
+              "Monthly Who's hiring, weekly Easy questions, Showoff Saturday",
+              'Pinned discussions',
+              'Scheduled events',
+              'Scheduled posts (14 days), pinning',
+              'Recurring threads: a scheduled post that pins itself while live',
+            ],
+            [
+              'Read before you post',
+              'Rules widget (numbered), wiki, FAQ',
+              'CONTRIBUTING, discussion guidelines',
+              '#rules, #start-here',
+              'Welcome post, description',
+              'Read first: Start here, Rules, FAQ, Roadmap',
+            ],
+            [
+              'Where else to go',
+              'Sidebar links, related communities, Discord',
+              'Repository links',
+              'Link channels',
+              'Website in the description, source stack',
+              'Links: docs, GitHub, status, Discord, related squads',
+            ],
+            [
+              'Who is here',
+              'Moderators list, member and online counts',
+              'Maintainers',
+              'Member list, online',
+              'Admins, moderators, top members',
+              'People: Members, Team. Open roles for a company',
+            ],
+            [
+              'Points and rewards',
+              'None per community (karma is global)',
+              'None',
+              'Levels bots, rarely',
+              'Reputation, Cores, Awards (global)',
+              'Removed from the sidebar. Bounties and a leaderboard are not how developer communities organise; awards stay on posts.',
+            ],
+          ]}
+        />
+      </Section>
+
+      <Section
+        eyebrow="Two squads"
+        title="The same sidebar, composed differently"
+      >
+        <Caption>
+          A company squad and a topic squad want different pages. Left, the
+          daily.dev changelog: team-only announcements, Q&A, ideas and bugs, the
+          read-first docs, product links, open roles. Right, a topic community
+          like Learn Python: a chat, show and tell and links, the recurring
+          threads Reddit taught everyone, official docs and related squads. Same
+          page types, different order and selection.
+        </Caption>
+        <Pair
+          items={[
+            [
+              'Company squad · daily.dev Changelog',
+              <WorkspaceShell
+                key="company"
+                viewer={Viewer.Member}
+                preset={SidebarPreset.Company}
+                initialPage={findPage('ideas')}
+                height={50}
+                width={1152}
+              />,
+            ],
+            [
+              'Topic squad · a community preset',
+              <WorkspaceShell
+                key="community"
+                viewer={Viewer.Member}
+                preset={SidebarPreset.Community}
+                initialPage={findPage('recurring')}
+                height={50}
+                width={1152}
+              />,
+            ],
+          ]}
+        />
+      </Section>
+
       <Section eyebrow="Catalogue" title="What a page can be">
         <Caption>
-          Six of the ten exist as primitives already. The new ones are ranked by
-          how much they sell a verified company page: Bounties and Leaderboard
-          give a company a reason to be here; Chat is the biggest build and the
-          last to do.
+          Grouped the way a community thinks about it. Most channels are the
+          feed with a flair and a rule; the two that need new work are Q&A (an
+          accepted answer) and the bug template. Rules and recurring threads are
+          the two things Reddit has that we do not.
         </Caption>
-        <div className="grid grid-cols-5 gap-3">
-          {pageCatalogue.map((item) => (
-            <div
-              key={item.type}
-              className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
-            >
-              <span className="flex items-center justify-between text-text-primary">
-                {pageIcon(item.type, IconSize.Small)}
-                <span
-                  className={classNames(
-                    'rounded-6 px-1.5 typo-caption2',
-                    item.exists
-                      ? 'bg-background-default text-text-quaternary'
-                      : 'bg-accent-cabbage-flat text-accent-cabbage-default',
-                  )}
-                >
-                  {item.exists ? 'Exists' : 'New'}
-                </span>
+        <div className="flex flex-col gap-6">
+          {pageCatalogue.map((group) => (
+            <div key={group.group} className="flex flex-col gap-3">
+              <span className="font-bold uppercase tracking-wide text-text-quaternary typo-caption2">
+                {group.group}
               </span>
-              <span className="font-bold text-text-primary typo-callout">
-                {item.title}
-              </span>
-              <span className="text-text-tertiary typo-footnote">
-                {item.description}
-              </span>
+              <div className="grid grid-cols-4 gap-3">
+                {group.items.map((item) => (
+                  <div
+                    key={item.title}
+                    className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+                  >
+                    <span className="flex items-center justify-between text-text-primary">
+                      {pageIcon(item.type, IconSize.Small)}
+                      <span
+                        className={classNames(
+                          'rounded-6 px-1.5 typo-caption2',
+                          item.exists
+                            ? 'bg-background-default text-text-quaternary'
+                            : 'bg-accent-cabbage-flat text-accent-cabbage-default',
+                        )}
+                      >
+                        {item.exists ? 'Exists' : 'New'}
+                      </span>
+                    </span>
+                    <span className="font-bold text-text-primary typo-callout">
+                      {item.title}
+                    </span>
+                    <span className="text-text-tertiary typo-footnote">
+                      {item.description}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -445,7 +578,7 @@ export const Overview: StoryObj = {
           </Screen>
           <Screen
             title="Announcements, as an admin"
-            note="A feed page with posting restricted. The lock in the sidebar and the page bar say so. The composer appears only for people who can post here."
+            note="A channel with the posting gate set to team. The lock in the sidebar and the page bar say so; a member sees Team only where an admin sees Post to Announcements."
           >
             <WorkspaceShell
               viewer={Viewer.Admin}
@@ -474,13 +607,34 @@ export const Overview: StoryObj = {
             />
           </Screen>
           <Screen
-            title="Bounties"
-            note="The company pays Cores for content it wants. Claim, post, get paid on acceptance. This is the page that makes a verified company page worth paying for."
+            title="Rules"
+            note="Reddit's rules widget as a page: numbered, one line and the why. Shown once before a first post; moderators point at a number when they remove something."
           >
             <WorkspaceShell
               viewer={Viewer.Member}
-              initialPage={findPage('bounties')}
-              height={36}
+              initialPage={findPage('rules')}
+              height={40}
+            />
+          </Screen>
+          <Screen
+            title="Recurring threads"
+            note="Who's hiring monthly, easy questions weekly, Showoff Saturday. Each is a scheduled post that pins itself in its channel while live; this page is where members find the open one and admins set the cadence."
+          >
+            <WorkspaceShell
+              viewer={Viewer.Admin}
+              preset={SidebarPreset.Community}
+              initialPage={findPage('recurring')}
+              height={40}
+            />
+          </Screen>
+          <Screen
+            title="A channel: Q&A, as a member"
+            note="The feed filtered to one flair, with its description and posting rule in the strip. Post to Q&A lands the post in the right place without a picker."
+          >
+            <WorkspaceShell
+              viewer={Viewer.Member}
+              initialPage={findPage('help')}
+              height={40}
             />
           </Screen>
           <Screen
@@ -535,13 +689,13 @@ export const Overview: StoryObj = {
             ],
             [
               '3',
-              'Restricted feeds (Announcements), Team, Stack, Open roles as pages.',
-              'Small: a posting rule on a feed, and three surfaces we already render, moved into the column.',
+              'Channels: a flair on every post, a posting rule per channel, Announcements as the team-only one.',
+              'The Reddit and GitHub shape. One new field on a post and the existing gate, applied per channel.',
             ],
             [
               '4',
-              'Bounties and Leaderboard.',
-              'The reasons to come back. Bounties reuse Cores; the leaderboard is a query.',
+              'Rules and Recurring threads.',
+              'The two things Reddit has that we do not. Rules is a page type; recurring is a scheduled post that pins itself.',
             ],
             [
               '5',
@@ -585,8 +739,12 @@ const Full = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-export const Playground: StoryObj<{ viewer: Viewer; page: string }> = {
-  args: { viewer: Viewer.Member, page: 'home' },
+export const Playground: StoryObj<{
+  viewer: Viewer;
+  page: string;
+  preset: SidebarPreset;
+}> = {
+  args: { viewer: Viewer.Member, page: 'home', preset: SidebarPreset.Company },
   argTypes: {
     viewer: {
       control: 'inline-radio' as const,
@@ -596,12 +754,17 @@ export const Playground: StoryObj<{ viewer: Viewer; page: string }> = {
       control: 'select' as const,
       options: [...allPages.map((page) => page.id), 'add'],
     },
+    preset: {
+      control: 'inline-radio' as const,
+      options: [SidebarPreset.Company, SidebarPreset.Community],
+    },
   },
   render: (args) => (
     <Full>
       <WorkspaceShell
-        key={`${args.viewer}-${args.page}`}
+        key={`${args.viewer}-${args.page}-${args.preset}`}
         viewer={args.viewer}
+        preset={args.preset}
         initialPage={args.page === 'add' ? addPage : findPage(args.page)}
         height={60}
       />

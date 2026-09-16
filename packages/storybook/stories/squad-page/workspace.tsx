@@ -12,13 +12,15 @@ import {
   AnalyticsIcon,
   ArrowIcon,
   BellIcon,
+  BulletListIcon,
   CalendarIcon,
   CompassIcon,
-  CoreIcon,
   DiscussIcon,
   DocsIcon,
   DragIcon,
   EyeCancelIcon,
+  FeedbackIcon,
+  FlagIcon,
   HashtagIcon,
   HomeIcon,
   HotIcon,
@@ -31,13 +33,13 @@ import {
   PinIcon,
   PlayIcon,
   PlusIcon,
+  PollIcon,
   SearchIcon,
   SendAirplaneIcon,
   SettingsIcon,
   SquadIcon,
-  TerminalIcon,
+  StarIcon,
   TimerIcon,
-  TrendingIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -50,11 +52,10 @@ import {
   jobs,
   pinnedEntry,
   squad,
-  stack,
   team,
 } from './data';
 import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
-import { Composer, Kit2Styles, LeaderboardBody } from './kit2';
+import { Composer, Kit2Styles } from './kit2';
 import { SquadAbout, SquadHome } from './home';
 
 // Round three: the Whop mindset. A squad is not a page with widgets, it is a
@@ -68,16 +69,15 @@ import { SquadAbout, SquadHome } from './home';
 export enum PageType {
   Home = 'home',
   About = 'about',
-  Feed = 'feed',
+  /** A saved filter on the squad feed with its own posting rule. */
+  Channel = 'channel',
   Doc = 'doc',
+  Rules = 'rules',
+  Recurring = 'recurring',
   Chat = 'chat',
   Link = 'link',
   Jobs = 'jobs',
-  Bounties = 'bounties',
-  Leaderboard = 'leaderboard',
   Members = 'members',
-  Stack = 'stack',
-  Events = 'events',
   Analytics = 'analytics',
   Moderation = 'moderation',
   Settings = 'settings',
@@ -94,6 +94,8 @@ export interface SquadPage {
   restricted?: boolean;
   /** Opens outside daily.dev. */
   href?: string;
+  /** One line under the channel name on its page. */
+  description?: string;
 }
 
 export interface SidebarSection {
@@ -104,168 +106,344 @@ export interface SidebarSection {
   admin?: boolean;
 }
 
-export const sections: SidebarSection[] = [
-  {
-    id: 'top',
-    pages: [
-      { id: 'home', label: 'Home', type: PageType.Home },
-      { id: 'about', label: 'About', type: PageType.About },
-      {
-        id: 'announcements',
-        label: 'Announcements',
-        type: PageType.Feed,
-        badge: 2,
-        restricted: true,
-      },
-      { id: 'chat', label: 'Chat', type: PageType.Chat, badge: 14 },
-    ],
-  },
-  {
-    id: 'start',
-    label: 'Get started',
-    pages: [
-      { id: 'start-here', label: 'Start here', type: PageType.Doc },
-      { id: 'rules', label: 'Rules and how to post', type: PageType.Doc },
-      { id: 'faq', label: 'FAQ', type: PageType.Doc },
-    ],
-  },
-  {
-    id: 'earn',
-    label: 'Earn',
-    pages: [
-      { id: 'bounties', label: 'Bounties', type: PageType.Bounties, badge: 3 },
-      { id: 'leaderboard', label: 'Leaderboard', type: PageType.Leaderboard },
-    ],
-  },
-  {
-    id: 'company',
-    label: 'Company',
-    pages: [
-      { id: 'jobs', label: 'Open roles', type: PageType.Jobs, badge: 2 },
-      { id: 'stack', label: 'Stack and tools', type: PageType.Stack },
-      { id: 'team', label: 'Team', type: PageType.Members },
-      {
-        id: 'website',
-        label: 'daily.dev',
-        type: PageType.Link,
-        href: 'https://daily.dev',
-      },
-      {
-        id: 'github',
-        label: 'GitHub',
-        type: PageType.Link,
-        href: 'https://github.com/dailydotdev',
-      },
-    ],
-  },
-  {
-    id: 'manage',
-    label: 'Manage',
-    admin: true,
-    pages: [
-      { id: 'analytics', label: 'Analytics', type: PageType.Analytics },
-      {
-        id: 'moderation',
-        label: 'Moderation',
-        type: PageType.Moderation,
-        badge: 3,
-      },
-      { id: 'settings', label: 'Settings', type: PageType.Settings },
-    ],
-  },
-];
+// The shape every developer community converges on. Reddit calls the channel
+// a post flair (Needs help, Discussion, Show and tell, News, Resource,
+// Announcement), GitHub Discussions ships the same list as its default
+// categories (Announcements, General, Ideas, Polls, Q&A, Show and tell) and
+// Discord servers name them #announcements #general #help #showcase #jobs.
+// Recurring threads are Reddit's other invention: the monthly Who's hiring,
+// the weekly easy-questions thread, Showoff Saturday. Rules and a Read-first
+// wiki are the sidebar on every subreddit. daily.dev already has the parts:
+// post types, posting gates, scheduled posts, pinning, the welcome post.
 
-export const allPages = sections.flatMap((section) => section.pages);
+const page = (
+  id: string,
+  label: string,
+  type: PageType,
+  extra: Partial<SquadPage> = {},
+): SquadPage => ({ id, label, type, ...extra });
+
+const channels = {
+  announcements: page('announcements', 'Announcements', PageType.Channel, {
+    restricted: true,
+    badge: 2,
+    description: 'Releases and news from the team. Only the team posts here.',
+  }),
+  discussions: page('discussions', 'Discussions', PageType.Channel, {
+    description: 'Opinions, threads, anything worth talking about.',
+  }),
+  help: page('help', 'Q&A', PageType.Channel, {
+    badge: 5,
+    description: 'Ask, answer, mark the answer. Search before you post.',
+  }),
+  showcase: page('showcase', 'Show and tell', PageType.Channel, {
+    description: 'What you built, with the technical details.',
+  }),
+  links: page('links', 'Links', PageType.Channel, {
+    description: "Articles, videos and tools worth the squad's time.",
+  }),
+  polls: page('polls', 'Polls', PageType.Channel),
+  ideas: page('ideas', 'Ideas and feedback', PageType.Channel, {
+    badge: 3,
+    description: 'Feature requests and feedback. The team reads all of it.',
+  }),
+  bugs: page('bugs', 'Bugs', PageType.Channel, {
+    description: 'Something broke. Steps, browser, screenshot.',
+  }),
+};
+
+const docs = {
+  start: page('start-here', 'Start here', PageType.Doc),
+  rules: page('rules', 'Rules', PageType.Rules),
+  faq: page('faq', 'FAQ', PageType.Doc),
+  roadmap: page('roadmap', 'Roadmap', PageType.Doc),
+};
+
+const common = {
+  home: page('home', 'Home', PageType.Home),
+  about: page('about', 'About', PageType.About),
+  chat: page('chat', 'Chat', PageType.Chat, { badge: 14 }),
+  recurring: page('recurring', 'Recurring threads', PageType.Recurring),
+  members: page('members', 'Members', PageType.Members),
+  jobs: page('jobs', 'Open roles', PageType.Jobs, { badge: 2 }),
+};
+
+const link = (id: string, label: string, href: string): SquadPage =>
+  page(id, label, PageType.Link, { href });
+
+const manage: SidebarSection = {
+  id: 'manage',
+  label: 'Manage',
+  admin: true,
+  pages: [
+    page('analytics', 'Analytics', PageType.Analytics),
+    page('moderation', 'Moderation', PageType.Moderation, { badge: 3 }),
+    page('settings', 'Settings', PageType.Settings),
+  ],
+};
+
+export enum SidebarPreset {
+  /** A company squad: the changelog, a product community, a DevRel team. */
+  Company = 'company',
+  /** A topic squad: Learn Python, DevOps, Go developers. */
+  Community = 'community',
+}
+
+export const presets: Record<SidebarPreset, SidebarSection[]> = {
+  [SidebarPreset.Company]: [
+    { id: 'top', pages: [common.home, common.about] },
+    {
+      id: 'channels',
+      label: 'Channels',
+      pages: [
+        channels.announcements,
+        channels.discussions,
+        channels.help,
+        channels.ideas,
+        channels.bugs,
+        channels.showcase,
+      ],
+    },
+    {
+      id: 'read',
+      label: 'Read first',
+      pages: [docs.start, docs.rules, docs.faq, docs.roadmap],
+    },
+    {
+      id: 'links',
+      label: 'Links',
+      pages: [
+        link('docs', 'Docs', 'https://docs.daily.dev'),
+        link('github', 'GitHub', 'https://github.com/dailydotdev'),
+        link('status', 'Status', 'https://status.daily.dev'),
+        link('discord', 'Discord', 'https://discord.gg/dailydev'),
+      ],
+    },
+    {
+      id: 'people',
+      label: 'People',
+      pages: [common.members, common.jobs],
+    },
+    manage,
+  ],
+  [SidebarPreset.Community]: [
+    { id: 'top', pages: [common.home, common.about, common.chat] },
+    {
+      id: 'channels',
+      label: 'Channels',
+      pages: [
+        channels.announcements,
+        channels.discussions,
+        channels.help,
+        channels.showcase,
+        channels.links,
+        channels.polls,
+      ],
+    },
+    {
+      id: 'recurring',
+      label: 'Recurring',
+      pages: [common.recurring],
+    },
+    {
+      id: 'read',
+      label: 'Read first',
+      pages: [docs.start, docs.rules, docs.faq],
+    },
+    {
+      id: 'links',
+      label: 'Links',
+      pages: [
+        link('official-docs', 'Official docs', 'https://docs.python.org'),
+        link('discord', 'Discord', 'https://discord.gg/python'),
+        link('related', 'Related squads', 'https://daily.dev/squads/discover'),
+      ],
+    },
+    { id: 'people', label: 'People', pages: [common.members] },
+    manage,
+  ],
+};
+
+export const sections = presets[SidebarPreset.Company];
+
+export const allPages: SquadPage[] = Object.values(presets)
+  .flat()
+  .flatMap((section) => section.pages)
+  .filter(
+    (candidate, index, list) =>
+      list.findIndex((other) => other.id === candidate.id) === index,
+  );
 
 export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
   ({
     [PageType.Home]: <HomeIcon size={size} />,
     [PageType.About]: <HashtagIcon size={size} />,
-    [PageType.Feed]: <MegaphoneIcon size={size} />,
+    [PageType.Channel]: <MegaphoneIcon size={size} />,
     [PageType.Doc]: <DocsIcon size={size} />,
+    [PageType.Rules]: <DocsIcon size={size} />,
+    [PageType.Recurring]: <CalendarIcon size={size} />,
     [PageType.Chat]: <DiscussIcon size={size} />,
     [PageType.Link]: <OpenLinkIcon size={size} />,
     [PageType.Jobs]: <JobIcon size={size} />,
-    [PageType.Bounties]: <CoreIcon size={size} />,
-    [PageType.Leaderboard]: <TrendingIcon size={size} />,
     [PageType.Members]: <UserIcon size={size} />,
-    [PageType.Stack]: <TerminalIcon size={size} />,
-    [PageType.Events]: <CalendarIcon size={size} />,
     [PageType.Analytics]: <AnalyticsIcon size={size} />,
     [PageType.Moderation]: <TimerIcon size={size} />,
     [PageType.Settings]: <SettingsIcon size={size} />,
     [PageType.Add]: <PlusIcon size={size} />,
   }[type]);
 
-/** What an admin can add. The catalogue is the product. */
+/** Channels get their own glyphs; everything else keeps the type's. */
+const channelIcons: Record<string, ReactElement> = {
+  announcements: <MegaphoneIcon size={IconSize.Small} />,
+  discussions: <DiscussIcon size={IconSize.Small} />,
+  help: <FeedbackIcon size={IconSize.Small} />,
+  showcase: <StarIcon size={IconSize.Small} />,
+  links: <LinkIcon size={IconSize.Small} />,
+  polls: <PollIcon size={IconSize.Small} />,
+  ideas: <BulletListIcon size={IconSize.Small} />,
+  bugs: <FlagIcon size={IconSize.Small} />,
+};
+
+export const iconFor = (item: SquadPage): ReactElement =>
+  channelIcons[item.id] ?? pageIcon(item.type);
+
+/** What an admin can add, grouped the way a community thinks about it. */
 export const pageCatalogue: {
-  type: PageType;
-  title: string;
-  description: string;
-  exists: boolean;
+  group: string;
+  items: {
+    type: PageType;
+    title: string;
+    description: string;
+    exists: boolean;
+  }[];
 }[] = [
   {
-    type: PageType.Feed,
-    title: 'Feed',
-    description:
-      'A stream of posts. Restrict posting to admins and it becomes Announcements.',
-    exists: true,
+    group: 'Channels',
+    items: [
+      {
+        type: PageType.Channel,
+        title: 'Announcements',
+        description: 'Team only. Releases, news, the pinned monthly notes.',
+        exists: true,
+      },
+      {
+        type: PageType.Channel,
+        title: 'Discussions',
+        description: 'General. The default place a post lands.',
+        exists: true,
+      },
+      {
+        type: PageType.Channel,
+        title: 'Q&A',
+        description:
+          'Questions with an accepted answer. Needs help, in Reddit words.',
+        exists: false,
+      },
+      {
+        type: PageType.Channel,
+        title: 'Show and tell',
+        description:
+          'Projects and demos. Optionally one day a week, like Showoff Saturday.',
+        exists: false,
+      },
+      {
+        type: PageType.Channel,
+        title: 'Links',
+        description:
+          'Shared articles, videos and tools. The post type daily.dev is built on.',
+        exists: true,
+      },
+      {
+        type: PageType.Channel,
+        title: 'Polls',
+        description: 'The poll post type, on its own.',
+        exists: true,
+      },
+      {
+        type: PageType.Channel,
+        title: 'Ideas and feedback',
+        description: 'Feature requests, for a company squad.',
+        exists: false,
+      },
+      {
+        type: PageType.Channel,
+        title: 'Bugs',
+        description: 'Bug reports with a template, for a company squad.',
+        exists: false,
+      },
+    ],
   },
   {
-    type: PageType.Doc,
-    title: 'Page',
-    description:
-      'A long-form document: a welcome, the rules, an FAQ, a roadmap. A freeform post, rendered as a page.',
-    exists: true,
+    group: 'Read first',
+    items: [
+      {
+        type: PageType.Doc,
+        title: 'Start here',
+        description:
+          'The welcome post, as a page. Exists on every squad today.',
+        exists: true,
+      },
+      {
+        type: PageType.Rules,
+        title: 'Rules',
+        description:
+          'Numbered, one line each, expandable. Shown before the first post.',
+        exists: false,
+      },
+      {
+        type: PageType.Doc,
+        title: 'FAQ or wiki',
+        description: 'A freeform post rendered as a page.',
+        exists: true,
+      },
+      {
+        type: PageType.Doc,
+        title: 'Roadmap',
+        description: 'What is coming, for a company squad.',
+        exists: true,
+      },
+    ],
   },
   {
-    type: PageType.Chat,
-    title: 'Chat',
-    description: 'A real-time room for members. New for daily.dev.',
-    exists: false,
+    group: 'Recurring',
+    items: [
+      {
+        type: PageType.Recurring,
+        title: 'Recurring thread',
+        description:
+          "Who's hiring monthly, an easy-questions weekly, a showoff day. A scheduled post that pins itself when live.",
+        exists: false,
+      },
+    ],
   },
   {
-    type: PageType.Link,
-    title: 'Link',
-    description: 'Website, GitHub, Discord, Slack. Opens in a new tab.',
-    exists: true,
-  },
-  {
-    type: PageType.Jobs,
-    title: 'Open roles',
-    description: 'Your Recruiter listings, inside the squad.',
-    exists: true,
-  },
-  {
-    type: PageType.Bounties,
-    title: 'Bounties',
-    description:
-      'Pay Cores for the content you want: tutorials, reviews, integrations.',
-    exists: false,
-  },
-  {
-    type: PageType.Leaderboard,
-    title: 'Leaderboard',
-    description: 'Top contributors this week, month, all time.',
-    exists: false,
-  },
-  {
-    type: PageType.Events,
-    title: 'Events',
-    description: 'Livestreams, office hours, launches. With reminders.',
-    exists: false,
-  },
-  {
-    type: PageType.Members,
-    title: 'Members',
-    description: 'Everyone in the squad, with the team on top.',
-    exists: true,
-  },
-  {
-    type: PageType.Stack,
-    title: 'Stack and tools',
-    description: 'What the company builds with.',
-    exists: true,
+    group: 'Links and people',
+    items: [
+      {
+        type: PageType.Link,
+        title: 'Link',
+        description: 'Docs, GitHub, Discord, status page, a related squad.',
+        exists: true,
+      },
+      {
+        type: PageType.Members,
+        title: 'Members',
+        description: 'Everyone in the squad, with the team on top.',
+        exists: true,
+      },
+      {
+        type: PageType.Jobs,
+        title: 'Open roles',
+        description: 'Recruiter listings, inside the squad.',
+        exists: true,
+      },
+      {
+        type: PageType.Chat,
+        title: 'Chat',
+        description: 'A real-time room. New for daily.dev, last on the list.',
+        exists: false,
+      },
+    ],
   },
 ];
 
@@ -366,7 +544,7 @@ const SidebarItem = ({
     <span
       className={classNames('flex shrink-0', active && 'text-text-primary')}
     >
-      {pageIcon(page.type)}
+      {iconFor(page)}
     </span>
     <span className="truncate">{page.label}</span>
     {page.restricted && (
@@ -394,14 +572,17 @@ export const SquadSidebar = ({
   active,
   viewer,
   onSelect,
+  preset = SidebarPreset.Company,
   className,
 }: {
   active: SquadPage;
   viewer: Viewer;
   onSelect: (page: SquadPage) => void;
+  preset?: SidebarPreset;
   className?: string;
 }): ReactElement => {
   const admin = viewer === Viewer.Admin;
+  const sidebarSections = presets[preset];
 
   return (
     <aside
@@ -450,7 +631,7 @@ export const SquadSidebar = ({
         </div>
       )}
       <div className="flex flex-col gap-4 px-2 py-3">
-        {sections
+        {sidebarSections
           .filter((section) => !section.admin || admin)
           .map((section) => (
             <div key={section.id} className="flex flex-col gap-0.5">
@@ -519,7 +700,7 @@ const PageBar = ({
   children?: ReactNode;
 }): ReactElement => (
   <div className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-6">
-    <span className="text-text-tertiary">{pageIcon(page.type)}</span>
+    <span className="text-text-tertiary">{iconFor(page)}</span>
     <span className="font-bold text-text-primary typo-callout">
       {page.label}
     </span>
@@ -575,10 +756,191 @@ const HomePage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <SquadHome viewer={viewer} />
 );
 
-const FeedPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
+/**
+ * A channel is the squad feed filtered to one flair, with a posting rule of
+ * its own. The strip under the bar says what belongs here and who may post,
+ * the way a subreddit's flair description and posting rule do.
+ */
+const ChannelPage = ({
+  page: channel,
+  viewer,
+}: {
+  page: SquadPage;
+  viewer: Viewer;
+}): ReactElement => {
+  const canPost =
+    viewer === Viewer.Admin ||
+    (viewer === Viewer.Member && !channel.restricted);
+
+  return (
+    <Column>
+      {channel.description && (
+        <div className="flex items-center justify-between gap-4 rounded-12 bg-surface-float px-4 py-3">
+          <span className="text-text-secondary typo-footnote">
+            {channel.description}
+          </span>
+          {canPost ? (
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+            >
+              Post to {channel.label}
+            </Button>
+          ) : (
+            <span className="flex shrink-0 items-center gap-1 text-text-quaternary typo-caption1">
+              <LockIcon size={IconSize.XSmall} />
+              {channel.restricted ? 'Team only' : 'Join to post'}
+            </span>
+          )}
+        </div>
+      )}
+      <CardList entries={feedEntries.slice(0, 5)} />
+    </Column>
+  );
+};
+
+const rules = [
+  [
+    'Stay on topic',
+    'Posts are about daily.dev: releases, questions, feedback, bugs.',
+  ],
+  [
+    'Search before you ask',
+    'Q&A and FAQ first. Duplicates get merged into the original.',
+  ],
+  [
+    'Show your work, not your product',
+    'Show and tell is for the technical details of what you built. Commercial promotion is removed.',
+  ],
+  [
+    'Bugs get a template',
+    'Steps, expected and actual, browser or app version, a screenshot.',
+  ],
+  [
+    'Be useful',
+    'Low-effort posts and comments are removed. Answers that help stay.',
+  ],
+  [
+    'One account, one voice',
+    'No vote brigading, no sockpuppets, no reposting removed content.',
+  ],
+];
+
+/** Reddit's rules widget, as a page: numbered, one line each, with the why. */
+const RulesPage = (): ReactElement => (
+  <Column width="max-w-[44rem]" className="gap-6">
+    <div className="flex flex-col gap-1">
+      <h1 className="font-bold text-text-primary typo-large-title">Rules</h1>
+      <p className="text-text-tertiary typo-callout">
+        Shown once before your first post. Moderators remove what breaks them.
+      </p>
+    </div>
+    <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+      {rules.map(([title, body], index) => (
+        <li key={title} className="flex gap-4 px-5 py-4">
+          <span className="sq-nums w-5 shrink-0 font-bold text-text-quaternary typo-callout">
+            {index + 1}
+          </span>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-bold text-text-primary typo-callout">
+              {title}
+            </span>
+            <span className="text-text-tertiary typo-footnote">{body}</span>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </Column>
+);
+
+const recurring = [
+  {
+    title: "Who's hiring",
+    cadence: 'Monthly, first Monday',
+    channel: 'Discussions',
+    status: 'Live now · 41 comments',
+    live: true,
+  },
+  {
+    title: 'Easy questions thread',
+    cadence: 'Weekly, Monday',
+    channel: 'Q&A',
+    status: 'Live now · 12 comments',
+    live: true,
+  },
+  {
+    title: 'Showoff Saturday',
+    cadence: 'Weekly, Saturday',
+    channel: 'Show and tell',
+    status: 'Next in 3 days',
+    live: false,
+  },
+  {
+    title: 'Release notes',
+    cadence: 'Monthly, last Friday',
+    channel: 'Announcements',
+    status: 'Next in 12 days',
+    live: false,
+  },
+];
+
+/**
+ * The threads a community runs on a schedule. Each is a scheduled post
+ * that pins itself while live; the page is where members find the open
+ * one and admins set the cadence.
+ */
+const RecurringPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column>
-    {viewer === Viewer.Admin && <Composer member={team[2]} />}
-    <CardList entries={feedEntries.slice(0, 5)} />
+    <div className="flex items-center justify-between">
+      <p className="max-w-[52ch] text-text-secondary typo-callout">
+        Threads that come back on a schedule. The live one is pinned in its
+        channel until the next one opens.
+      </p>
+      {viewer === Viewer.Admin && (
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<PlusIcon />}
+        >
+          New recurring thread
+        </Button>
+      )}
+    </div>
+    <div className="flex flex-col gap-3">
+      {recurring.map((thread) => (
+        <div
+          key={thread.title}
+          className="flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-10 bg-background-default text-text-tertiary">
+            <CalendarIcon size={IconSize.Small} />
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="font-bold text-text-primary typo-callout">
+              {thread.title}
+            </span>
+            <span className="text-text-tertiary typo-footnote">
+              {thread.cadence} · in {thread.channel}
+            </span>
+          </div>
+          <span
+            className={classNames(
+              'flex items-center gap-1.5 whitespace-nowrap typo-footnote',
+              thread.live ? 'text-text-primary' : 'text-text-quaternary',
+            )}
+          >
+            {thread.live && (
+              <span className="size-1.5 rounded-full bg-status-success" />
+            )}
+            {thread.status}
+          </span>
+          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
+            {thread.live ? 'Open' : 'Remind me'}
+          </Button>
+        </div>
+      ))}
+    </div>
   </Column>
 );
 
@@ -715,72 +1077,6 @@ const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
   </Column>
 );
 
-const bounties = [
-  {
-    title:
-      'Write a tutorial: build a morning briefing agent with the public API',
-    reward: 1500,
-    claims: 4,
-    due: 'Oct 3',
-  },
-  {
-    title: 'Record a 60 second walkthrough of World',
-    reward: 800,
-    claims: 2,
-    due: 'Sep 28',
-  },
-  {
-    title: 'Review the Claude statusline plugin, honestly',
-    reward: 500,
-    claims: 9,
-    due: 'Open',
-  },
-];
-
-const BountiesPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
-  <Column>
-    <div className="flex items-center justify-between">
-      <p className="max-w-[52ch] text-text-secondary typo-callout">
-        Content the team pays for, in Cores. Claim one, post it to the squad,
-        get paid when it is accepted.
-      </p>
-      {viewer === Viewer.Admin && (
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<PlusIcon />}
-        >
-          New bounty
-        </Button>
-      )}
-    </div>
-    <div className="flex flex-col gap-3">
-      {bounties.map((bounty) => (
-        <div
-          key={bounty.title}
-          className="flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
-        >
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="font-bold text-text-primary typo-callout">
-              {bounty.title}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              {bounty.claims} claimed · Due {bounty.due}
-            </span>
-          </div>
-          <span className="sq-nums flex items-center gap-1 rounded-10 bg-background-default px-3 py-1.5 font-bold text-text-primary typo-callout">
-            <CoreIcon size={IconSize.Small} />
-            {formatCount(bounty.reward)}
-          </span>
-          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
-            Claim
-          </Button>
-        </div>
-      ))}
-    </div>
-  </Column>
-);
-
 const JobsPage = (): ReactElement => (
   <Column>
     <p className="max-w-[52ch] text-text-secondary typo-callout">
@@ -808,33 +1104,6 @@ const JobsPage = (): ReactElement => (
         </div>
       ))}
     </div>
-  </Column>
-);
-
-const LeaderboardPage = (): ReactElement => (
-  <Column width="max-w-[36rem]">
-    <div className="flex items-center gap-1">
-      {['This week', 'This month', 'All time'].map((range, index) => (
-        <button
-          type="button"
-          key={range}
-          className={classNames(
-            'rounded-10 px-3 py-1.5 typo-callout',
-            index === 0
-              ? 'bg-surface-float font-bold text-text-primary'
-              : 'text-text-tertiary',
-          )}
-        >
-          {range}
-        </button>
-      ))}
-    </div>
-    <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-      <LeaderboardBody rows={5} highlight />
-    </div>
-    <p className="text-text-quaternary typo-footnote">
-      Points are upvotes received on posts and comments in this squad.
-    </p>
   </Column>
 );
 
@@ -869,61 +1138,47 @@ const MembersPage = (): ReactElement => (
   </Column>
 );
 
-const StackPage = (): ReactElement => (
-  <Column>
-    <p className="max-w-[52ch] text-text-secondary typo-callout">
-      What daily.dev is built with.
-    </p>
-    <div className="grid grid-cols-3 gap-3">
-      {stack.map((item) => (
-        <div
-          key={item.name}
-          className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
-        >
-          <img src={item.image} alt="" className="size-6 rounded-6" />
-          <span className="font-bold text-text-primary typo-callout">
-            {item.name}
-          </span>
-        </div>
-      ))}
-    </div>
-  </Column>
-);
-
 const AddPage = (): ReactElement => (
-  <Column width="max-w-[52rem]">
+  <Column width="max-w-[52rem]" className="gap-8">
     <div className="flex flex-col gap-1">
       <h1 className="font-bold text-text-primary typo-title2">Add a page</h1>
       <p className="text-text-tertiary typo-callout">
         Pick what the page is. You name it and choose the section afterwards.
       </p>
     </div>
-    <div className="grid grid-cols-2 gap-3">
-      {pageCatalogue.map((item) => (
-        <button
-          type="button"
-          key={item.type}
-          className="flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left hover:border-border-subtlest-primary"
-        >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-10 bg-background-default text-text-primary">
-            {pageIcon(item.type, IconSize.Small)}
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span className="flex items-center gap-2 font-bold text-text-primary typo-callout">
-              {item.title}
-              {!item.exists && (
-                <span className="rounded-6 bg-accent-cabbage-flat px-1.5 text-accent-cabbage-default typo-caption2">
-                  New
+    {pageCatalogue.map((group) => (
+      <div key={group.group} className="flex flex-col gap-3">
+        <span className="font-bold uppercase tracking-wide text-text-quaternary typo-caption2">
+          {group.group}
+        </span>
+        <div className="grid grid-cols-2 gap-3">
+          {group.items.map((item) => (
+            <button
+              type="button"
+              key={item.title}
+              className="flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left hover:border-border-subtlest-primary"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-10 bg-background-default text-text-primary">
+                {pageIcon(item.type, IconSize.Small)}
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="flex items-center gap-2 font-bold text-text-primary typo-callout">
+                  {item.title}
+                  {!item.exists && (
+                    <span className="rounded-6 bg-accent-cabbage-flat px-1.5 text-accent-cabbage-default typo-caption2">
+                      New
+                    </span>
+                  )}
                 </span>
-              )}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              {item.description}
-            </span>
-          </span>
-        </button>
-      ))}
-    </div>
+                <span className="text-text-tertiary typo-footnote">
+                  {item.description}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    ))}
   </Column>
 );
 
@@ -945,13 +1200,13 @@ const AdminPlaceholder = ({ page }: { page: SquadPage }): ReactElement => (
 );
 
 const PageBody = ({
-  page,
+  page: current,
   viewer,
 }: {
   page: SquadPage;
   viewer: Viewer;
 }): ReactElement => {
-  switch (page.type) {
+  switch (current.type) {
     case PageType.Home:
       return <HomePage viewer={viewer} />;
     case PageType.About:
@@ -960,33 +1215,31 @@ const PageBody = ({
           <SquadAbout viewer={viewer} />
         </Column>
       );
-    case PageType.Feed:
-      return <FeedPage viewer={viewer} />;
+    case PageType.Channel:
+      return <ChannelPage page={current} viewer={viewer} />;
     case PageType.Chat:
       return <ChatPage />;
     case PageType.Doc:
-      return <DocPage page={page} />;
-    case PageType.Bounties:
-      return <BountiesPage viewer={viewer} />;
+      return <DocPage page={current} />;
+    case PageType.Rules:
+      return <RulesPage />;
+    case PageType.Recurring:
+      return <RecurringPage viewer={viewer} />;
     case PageType.Jobs:
       return <JobsPage />;
-    case PageType.Leaderboard:
-      return <LeaderboardPage />;
     case PageType.Members:
       return <MembersPage />;
-    case PageType.Stack:
-      return <StackPage />;
     case PageType.Add:
       return <AddPage />;
     default:
-      return <AdminPlaceholder page={page} />;
+      return <AdminPlaceholder page={current} />;
   }
 };
 
 const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
   switch (page.type) {
     case PageType.Home:
-    case PageType.Feed:
+    case PageType.Channel:
       return (
         <>
           <IconButton icon={<SearchIcon />} label="Search" />
@@ -1024,11 +1277,13 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
 export const WorkspaceShell = ({
   viewer = Viewer.Member,
   initialPage = allPages[0],
+  preset = SidebarPreset.Company,
   height = 56,
   width = 1440,
 }: {
   viewer?: Viewer;
   initialPage?: SquadPage;
+  preset?: SidebarPreset;
   /** rem */
   height?: number;
   width?: number;
@@ -1050,7 +1305,12 @@ export const WorkspaceShell = ({
       <WorkspaceStyles />
       <Kit2Styles />
       <Rail />
-      <SquadSidebar active={active} viewer={viewer} onSelect={onSelect} />
+      <SquadSidebar
+        active={active}
+        viewer={viewer}
+        onSelect={onSelect}
+        preset={preset}
+      />
       <main className="ws-scroll flex min-w-0 flex-1 flex-col overflow-y-auto">
         {active.type !== PageType.Home && (
           <PageBar page={active}>{pageBarTools(active, viewer)}</PageBar>
