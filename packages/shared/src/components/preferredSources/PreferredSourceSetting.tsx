@@ -18,15 +18,11 @@ import { PreferGoogleButton } from './PreferGoogleButton';
  * A button, not a toggle: Google exposes no way to read whether the reader
  * already added us, and a switch would promise a state we cannot show.
  */
-export function PreferredSourceSetting(): ReactElement | null {
-  const { isEligible, isReady, useDeeplink, onAdd } = usePreferredSource({
+export function PreferredSourceSetting(): ReactElement {
+  const { isReady, useDeeplink, onAdd } = usePreferredSource({
     placement: 'settings',
     isPermanent: true,
   });
-
-  if (!isEligible) {
-    return null;
-  }
 
   return (
     <div className="flex items-center justify-between gap-4">

@@ -1,19 +1,14 @@
 import { useCallback } from 'react';
-import { useConditionalFeature } from './useConditionalFeature';
 import usePersistentContext from './usePersistentContext';
 import useLogEventOnce from './log/useLogEventOnce';
-import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
-import { featurePreferredSource } from '../lib/featureManagement';
 import { LogEvent, TargetType } from '../lib/log';
 import { PREFERRED_SOURCE_ADDED_KEY } from '../lib/preferredSources';
 import { useGooglePreferredSource } from './useGooglePreferredSource';
 
 export type UsePreferredSourceProps = {
-  /** Which surface is asking. Goes out with every event. */
+  /** Which surface is asking. Goes out with every event as the target id. */
   placement: string;
-  /** Extra gate on top of the flag and the stored answer. */
-  shouldEvaluate?: boolean;
   /**
    * Keeps the ask visible after the reader has already added us. Only the
    * settings row does this: every other surface goes quiet on the first click,
@@ -23,7 +18,7 @@ export type UsePreferredSourceProps = {
 };
 
 export type UsePreferredSource = {
-  /** The flag is on and the reader has not added us yet. */
+  /** The reader has not added us yet, or the surface is permanent. */
   isEligible: boolean;
   isReady: boolean;
   /**
@@ -36,37 +31,26 @@ export type UsePreferredSource = {
 };
 
 /**
- * The one gate every Preferred Sources surface goes through.
+ * The one gate every Preferred Sources surface goes through, and the only place
+ * the feature is measured.
  *
  * Because Google has no read API, "already added" is our own optimistic state:
  * a reader who clicks is treated as done even if they abandon Google's dialog.
  * That is the right trade — asking again is worse than counting one non-answer
- * as a yes — and it is why the settings row is `isPermanent`.
+ * as a yes — and it is why the settings row is `isPermanent`. It also means the
+ * funnel ends at the click: nothing downstream of it is observable to us.
  */
 export const usePreferredSource = ({
   placement,
-  shouldEvaluate = true,
   isPermanent = false,
 }: UsePreferredSourceProps): UsePreferredSource => {
-  const { isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const [hasAdded, setHasAdded, isStateLoaded] = usePersistentContext<boolean>(
     PREFERRED_SOURCE_ADDED_KEY,
     false,
   );
 
-  // Deliberately not gated on being signed in. Post pages are public, and a
-  // reader who arrived from Google — the one person for whom this ask is
-  // self-interested rather than a favour — is usually signed out. The cap is
-  // local-storage based, so it works for them too.
-  const gate = isAuthReady && shouldEvaluate;
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featurePreferredSource,
-    shouldEvaluate: gate,
-  });
-
-  const isEligible =
-    gate && isEnabled && (isPermanent || (isStateLoaded && !hasAdded));
+  const isEligible = isPermanent || (isStateLoaded && !hasAdded);
 
   const { isReady, hasFailed, addPreferredSource } = useGooglePreferredSource({
     enabled: isEligible,
@@ -81,15 +65,34 @@ export const usePreferredSource = ({
     { condition: isEligible },
   );
 
+  // A blocked script is the difference between an ask that can be answered and
+  // a disabled button, and the impression cannot carry it: the impression fires
+  // on sight, while the block only resolves on a timeout well after it. Without
+  // its own event those readers look like an audience that saw the ask and did
+  // not want it.
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.PreferredSourceBlocked,
+      target_type: TargetType.PreferredSource,
+      target_id: placement,
+    }),
+    { condition: isEligible && hasFailed },
+  );
+
   const onAdd = useCallback(() => {
     logEvent({
       event_name: LogEvent.ClickPreferredSource,
       target_type: TargetType.PreferredSource,
       target_id: placement,
+      // Which route the reader actually took. Google's dialog and the deeplink
+      // are a same-tab overlay and a new tab respectively, so they are not the
+      // same ask, and the split is the only thing that says whether the
+      // fallback is worth keeping.
+      extra: JSON.stringify({ deeplink: hasFailed }),
     });
     addPreferredSource();
     setHasAdded(true);
-  }, [addPreferredSource, logEvent, placement, setHasAdded]);
+  }, [addPreferredSource, hasFailed, logEvent, placement, setHasAdded]);
 
   return { isEligible, isReady, useDeeplink: hasFailed, onAdd };
 };
