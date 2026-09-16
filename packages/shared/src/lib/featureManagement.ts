@@ -232,7 +232,7 @@ export enum HijackingVariant {
   Cover = 'cover',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants3',
+  'hijacking_variants4',
   HijackingVariant.Default,
 );
 
