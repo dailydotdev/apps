@@ -12,7 +12,6 @@ import {
   AnalyticsIcon,
   ArrowIcon,
   BellIcon,
-  BulletListIcon,
   CalendarIcon,
   CardIcon,
   CompassIcon,
@@ -20,8 +19,7 @@ import {
   DocsIcon,
   DragIcon,
   EyeCancelIcon,
-  FeedbackIcon,
-  FlagIcon,
+  HelpIcon,
   HomeIcon,
   InfoIcon,
   HotIcon,
@@ -134,26 +132,22 @@ const channels = {
     description: 'Releases and news from the team. Only the team posts here.',
   }),
   discussions: page('discussions', 'Discussions', PageType.Channel, {
-    description: 'Opinions, threads, anything worth talking about.',
+    description:
+      'Questions, opinions, feedback, bug reports. If it needs an answer, it lives here.',
   }),
-  help: page('help', 'Q&A', PageType.Channel, {
-    badge: 5,
-    description: 'Ask, answer, mark the answer. Search before you post.',
+  reviews: page('reviews', 'Reviews', PageType.Channel, {
+    badge: 4,
+    description:
+      'What members think of the product, with a rating on every post. The team replies.',
   }),
-  showcase: page('showcase', 'Show and tell', PageType.Channel, {
-    description: 'What you built, with the technical details.',
+  quiz: page('quiz', 'Quiz', PageType.Channel, {
+    description:
+      'A short quiz from the team each week. Answer in the thread, see who got it.',
   }),
   links: page('links', 'Links', PageType.Channel, {
     description: "Articles, videos and tools worth the squad's time.",
   }),
   polls: page('polls', 'Polls', PageType.Channel),
-  ideas: page('ideas', 'Ideas and feedback', PageType.Channel, {
-    badge: 3,
-    description: 'Feature requests and feedback. The team reads all of it.',
-  }),
-  bugs: page('bugs', 'Bugs', PageType.Channel, {
-    description: 'Something broke. Steps, browser, screenshot.',
-  }),
 };
 
 const docs = {
@@ -204,10 +198,8 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
       pages: [
         channels.announcements,
         channels.discussions,
-        channels.help,
-        channels.ideas,
-        channels.bugs,
-        channels.showcase,
+        channels.reviews,
+        channels.quiz,
       ],
     },
     {
@@ -235,10 +227,9 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
       pages: [
         channels.announcements,
         channels.discussions,
-        channels.help,
-        channels.showcase,
         channels.links,
         channels.polls,
+        channels.quiz,
       ],
     },
     {
@@ -299,12 +290,10 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
 const channelIcons: Record<string, ReactElement> = {
   announcements: <MegaphoneIcon size={IconSize.Small} />,
   discussions: <DiscussIcon size={IconSize.Small} />,
-  help: <FeedbackIcon size={IconSize.Small} />,
-  showcase: <StarIcon size={IconSize.Small} />,
+  reviews: <StarIcon size={IconSize.Small} />,
+  quiz: <HelpIcon size={IconSize.Small} />,
   links: <LinkIcon size={IconSize.Small} />,
   polls: <PollIcon size={IconSize.Small} />,
-  ideas: <BulletListIcon size={IconSize.Small} />,
-  bugs: <FlagIcon size={IconSize.Small} />,
 };
 
 export const iconFor = (item: SquadPage): ReactElement =>
@@ -332,21 +321,21 @@ export const pageCatalogue: {
       {
         type: PageType.Channel,
         title: 'Discussions',
-        description: 'General. The default place a post lands.',
+        description:
+          'General. Questions, feedback and bug reports live here too.',
         exists: true,
       },
       {
         type: PageType.Channel,
-        title: 'Q&A',
+        title: 'Reviews',
         description:
-          'Questions with an accepted answer. Needs help, in Reddit words.',
+          'Posts with a rating. What members think of the product, in public.',
         exists: false,
       },
       {
         type: PageType.Channel,
-        title: 'Show and tell',
-        description:
-          'Projects and demos. Optionally one day a week, like Showoff Saturday.',
+        title: 'Quiz',
+        description: 'A poll with a right answer. Weekly, from the team.',
         exists: false,
       },
       {
@@ -361,18 +350,6 @@ export const pageCatalogue: {
         title: 'Polls',
         description: 'The poll post type, on its own.',
         exists: true,
-      },
-      {
-        type: PageType.Channel,
-        title: 'Ideas and feedback',
-        description: 'Feature requests, for a company squad.',
-        exists: false,
-      },
-      {
-        type: PageType.Channel,
-        title: 'Bugs',
-        description: 'Bug reports with a template, for a company squad.',
-        exists: false,
       },
     ],
   },
@@ -896,14 +873,14 @@ const recurring = [
   {
     title: 'Easy questions thread',
     cadence: 'Weekly, Monday',
-    channel: 'Q&A',
+    channel: 'Discussions',
     status: 'Live now · 12 comments',
     live: true,
   },
   {
-    title: 'Showoff Saturday',
-    cadence: 'Weekly, Saturday',
-    channel: 'Show and tell',
+    title: 'Weekly quiz',
+    cadence: 'Weekly, Friday',
+    channel: 'Quiz',
     status: 'Next in 3 days',
     live: false,
   },

@@ -204,9 +204,10 @@ export const Overview: StoryObj = {
         <Caption>
           Click the pages in the second column. Home is the identity block plus
           the feed. Channels are the feed filtered to one flair, each with its
-          own posting rule; Announcements is the one only the team posts to.
-          Rules and FAQ are pages, and the rules sit in a widget on Home too.
-          Open roles is Recruiter. The links open outside.
+          own posting rule; Announcements is the one only the team posts to,
+          Reviews carries a rating, Quiz has a right answer. Rules and FAQ are
+          pages, and the rules sit in a widget on Home too. Open roles is
+          Recruiter. The links open outside.
         </Caption>
         <WorkspaceShell viewer={Viewer.Member} />
       </Section>
@@ -484,11 +485,12 @@ export const Overview: StoryObj = {
       >
         <Caption>
           A company squad and a topic squad want different pages. Left, the
-          daily.dev changelog: team-only announcements, Q&A, ideas and bugs, the
-          read-first docs, product links, open roles. Right, a topic community
-          like Learn Python: a chat, show and tell and links, the recurring
-          threads Reddit taught everyone, official docs and related squads. Same
-          page types, different order and selection.
+          daily.dev changelog: products and open roles up top, team-only
+          announcements, discussions, reviews and a quiz, the documentation,
+          product links. Right, a topic community like Learn Python: a chat,
+          show and tell and links, the recurring threads Reddit taught everyone,
+          official docs and related squads. Same page types, different order and
+          selection.
         </Caption>
         <Pair
           items={[
@@ -498,7 +500,7 @@ export const Overview: StoryObj = {
                 key="company"
                 viewer={Viewer.Member}
                 preset={SidebarPreset.Company}
-                initialPage={findPage('ideas')}
+                initialPage={findPage('reviews')}
                 height={50}
                 width={1152}
               />,
@@ -521,9 +523,9 @@ export const Overview: StoryObj = {
       <Section eyebrow="Catalogue" title="What a page can be">
         <Caption>
           Grouped the way a community thinks about it. Most channels are the
-          feed with a flair and a rule; the two that need new work are Q&A (an
-          accepted answer) and the bug template. Rules and recurring threads are
-          the two things Reddit has that we do not.
+          feed with a flair and a rule; the two that need new work are Reviews
+          (a rating on a post) and Quiz (a poll with a right answer). Rules and
+          recurring threads are the two things Reddit has that we do not.
         </Caption>
         <div className="flex flex-col gap-6">
           {pageCatalogue.map((group) => (
@@ -628,12 +630,12 @@ export const Overview: StoryObj = {
             />
           </Screen>
           <Screen
-            title="A channel: Q&A, as a member"
-            note="The feed filtered to one flair, with its description and posting rule in the strip. Post to Q&A lands the post in the right place without a picker."
+            title="A channel: Reviews, as a member"
+            note="The feed filtered to one flair, with its description and posting rule in the strip. Post to Reviews lands the post in the right place without a picker."
           >
             <WorkspaceShell
               viewer={Viewer.Member}
-              initialPage={findPage('help')}
+              initialPage={findPage('reviews')}
               height={40}
             />
           </Screen>
