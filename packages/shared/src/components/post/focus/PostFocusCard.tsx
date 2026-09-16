@@ -88,6 +88,13 @@ export type FocusCardLeftVariant = 'lean' | 'rich';
 export interface PostFocusCardAds {
   contentLeading?: ReactNode;
   renderSummarySegments?: (summary: string) => ReactNode;
+  /** Replaces the markdown body so units can sit between its blocks. */
+  renderBody?: (contentHtml: string) => ReactNode;
+  /**
+   * Drops the direct-sold widget: the /articles template carries none, so a
+   * programmatic unit never stacks against it.
+   */
+  withoutDirectSold?: boolean;
   /**
    * The classic rail's MPU. Beside the column, in the gutter the centred
    * layout leaves free, once the viewport has room for it; inline under the
@@ -415,7 +422,11 @@ const PostFocusCardRaw = ({
 
   const postBody = article.contentHtml ? (
     <div ref={bodyRef} className="flex flex-col gap-4">
-      <Markdown content={article.contentHtml} className="break-words" />
+      {ads?.renderBody ? (
+        ads.renderBody(article.contentHtml)
+      ) : (
+        <Markdown content={article.contentHtml} className="break-words" />
+      )}
       <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
       <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
     </div>
@@ -752,7 +763,9 @@ const PostFocusCardRaw = ({
             </div>
           )}
 
-          <PostSidebarAdWidget postId={post.id} variant="inline" />
+          {!ads?.withoutDirectSold && (
+            <PostSidebarAdWidget postId={post.id} variant="inline" />
+          )}
           {!hasRailRoom && ads?.rail}
 
           <PostUpvotesCommentsCount
