@@ -62,6 +62,7 @@ import { PostContentShare } from '../common/PostContentShare';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
+import { useMedia } from '../../../hooks/useMedia';
 import {
   CommunitySentiment,
   mapCommunitySentimentPost,
@@ -87,7 +88,12 @@ export type FocusCardLeftVariant = 'lean' | 'rich';
 export interface PostFocusCardAds {
   contentLeading?: ReactNode;
   renderSummarySegments?: (summary: string) => ReactNode;
-  afterDirectAd?: ReactNode;
+  /**
+   * The classic rail's MPU. Beside the column, in the gutter the centred
+   * layout leaves free, once the viewport has room for it; inline under the
+   * direct-sold widget until then. The column itself never moves.
+   */
+  rail?: ReactNode;
   aboveComments?: ReactNode;
   commentAds?: {
     interleaveEvery: number;
@@ -290,6 +296,10 @@ const PostFocusCardRaw = ({
   // title, its summary is not a TLDR and its author is the handle on the
   // card, so it renders as the same embedded tweet the classic layout uses.
   const isSharedTweet = isShared && isSocialTwitterPost(article);
+  // Room for a 300px unit beside the centred 768px column with a 2rem gap,
+  // plus the sidebar: below this the unit stays inline. Evaluated client-side
+  // only, which is also the only place ads ever exist.
+  const hasRailRoom = useMedia(['(min-width: 92rem)'], [true], false);
   const { title } = useSmartTitle(article);
   // A share post's own `title` is the sharer's commentary, not the article's
   // title — but it mirrors the article title when they wrote nothing.
@@ -458,6 +468,13 @@ const PostFocusCardRaw = ({
       <SelectionSnapshotBar containerRef={cardRef} post={article} />
       <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
+          {hasRailRoom && ads?.rail && (
+            <div className="absolute inset-y-0 left-full ml-8 w-[300px]">
+              <div className="sticky top-[calc(var(--sticky-header-offset,0px)+1.5rem)] pt-6">
+                {ads.rail}
+              </div>
+            </div>
+          )}
           {ads?.contentLeading}
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
@@ -736,7 +753,7 @@ const PostFocusCardRaw = ({
           )}
 
           <PostSidebarAdWidget postId={post.id} variant="inline" />
-          {ads?.afterDirectAd}
+          {!hasRailRoom && ads?.rail}
 
           <PostUpvotesCommentsCount
             post={post}

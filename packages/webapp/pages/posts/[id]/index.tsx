@@ -306,7 +306,7 @@ export const PostPage = ({
               />
             ),
             renderSummarySegments,
-            afterDirectAd: (
+            rail: (
               <ReadAdSlot
                 surface="organic"
                 slot={ORGANIC_SLOT.railAfterDirectAd}
@@ -504,7 +504,7 @@ export const PostPage = ({
                 organicAds
                   ? (widgetPosition) =>
                       widgetPosition === PostWidgetPosition.DirectAd
-                        ? organicAds.afterDirectAd
+                        ? organicAds.rail
                         : null
                   : undefined
               }
