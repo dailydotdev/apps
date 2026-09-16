@@ -23,7 +23,6 @@ import {
   VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { FreeformGrid } from '@dailydotdev/shared/src/components/cards/Freeform/FreeformGrid';
 import type { Entry } from './data';
 import {
   feedEntries,
@@ -34,9 +33,8 @@ import {
   squad,
   stack,
   team,
-  toPost,
 } from './data';
-import { Avatar, Facepile, VerifiedMark, Viewer } from './kit';
+import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
 import { Composer } from './kit2';
 
 // The squad's Home, built on the profile page's skeleton so a person and a
@@ -46,19 +44,6 @@ import { Composer } from './kit2';
 // same right column of widgets. Where the profile shows Reading Overview,
 // the squad shows its posting overview; where it lists Active in these
 // Squads, the squad lists its team.
-
-const noop = () => undefined;
-export const cardHandlers = {
-  onPostClick: noop,
-  onPostAuxClick: noop,
-  onUpvoteClick: noop,
-  onDownvoteClick: noop,
-  onCommentClick: noop,
-  onBookmarkClick: noop,
-  onCopyLinkClick: noop,
-  onShare: noop,
-  onReadArticleClick: noop,
-};
 
 export const Separator = (): ReactElement => (
   <span className="mx-1 text-text-secondary typo-subhead">•</span>
@@ -421,14 +406,7 @@ export const PostsArea = ({
     {composer}
     <PostsToolbar sort={sort}>{toolbarChildren}</PostsToolbar>
     {pinned && <Highlight entry={pinned} />}
-    <div
-      className="grid gap-4"
-      style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
-    >
-      {list.map((entry) => (
-        <FreeformGrid key={entry.id} post={toPost(entry)} {...cardHandlers} />
-      ))}
-    </div>
+    <CardList entries={list} />
     <Button
       variant={ButtonVariant.Float}
       size={ButtonSize.Medium}
