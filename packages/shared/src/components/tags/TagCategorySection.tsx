@@ -18,6 +18,8 @@ interface TagCategorySectionProps {
   followedTags: Set<string>;
   onToggleFollow: (tag: string) => void;
   className?: string;
+  selectable?: boolean;
+  tagTitles?: Record<string, string>;
 }
 
 // One column block in the tag directory: an emoji + title heading above a
@@ -27,6 +29,8 @@ export function TagCategorySection({
   followedTags,
   onToggleFollow,
   className,
+  selectable,
+  tagTitles,
 }: TagCategorySectionProps): ReactElement | null {
   const [expanded, setExpanded] = useState(false);
 
@@ -42,6 +46,7 @@ export function TagCategorySection({
   return (
     <section
       id={`tag-category-${category.id}`}
+      aria-label={category.title}
       className={classNames(
         'mb-8 flex scroll-mt-24 break-inside-avoid flex-col gap-3',
         className,
@@ -61,6 +66,8 @@ export function TagCategorySection({
           <TagDirectoryListItem
             key={tag}
             tag={tag}
+            title={tagTitles?.[tag]}
+            selectable={selectable}
             isFollowed={followedTags.has(tag)}
             onToggleFollow={onToggleFollow}
           />
