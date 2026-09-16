@@ -197,4 +197,11 @@ describe('AchievementPickerModal — stop tracking', () => {
       screen.getByText('You unlocked every achievement.'),
     ).toBeInTheDocument();
   });
+
+  it('clamps locked progress labels at the target count', () => {
+    renderModal({ achievements: [createLockedAchievement('ach1', 12)] });
+
+    expect(screen.getByText('10/10')).toBeInTheDocument();
+    expect(screen.queryByText('12/10')).not.toBeInTheDocument();
+  });
 });

@@ -7,7 +7,10 @@ import type {
 } from '@dailydotdev/shared/src/graphql/quests';
 import { QuestStatus } from '@dailydotdev/shared/src/graphql/quests';
 import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
-import { getTargetCount } from '@dailydotdev/shared/src/graphql/user/achievements';
+import {
+  getClampedProgress,
+  getTargetCount,
+} from '@dailydotdev/shared/src/graphql/user/achievements';
 
 const getDateValue = (value?: string | Date | null): number => {
   if (!value) {
@@ -160,7 +163,7 @@ export const getQuestSummary = (
 
 const getAchievementProgressRatio = (achievement: UserAchievement): number => {
   const target = Math.max(getTargetCount(achievement.achievement), 1);
-  return Math.min(achievement.progress / target, 1);
+  return getClampedProgress(achievement) / target;
 };
 
 const dedupeAchievements = (
@@ -232,8 +235,10 @@ export const getAchievementSummary = (
         return progressDifference;
       }
 
-      if (left.progress !== right.progress) {
-        return right.progress - left.progress;
+      const leftProgress = getClampedProgress(left);
+      const rightProgress = getClampedProgress(right);
+      if (leftProgress !== rightProgress) {
+        return rightProgress - leftProgress;
       }
 
       return right.achievement.xp - left.achievement.xp;

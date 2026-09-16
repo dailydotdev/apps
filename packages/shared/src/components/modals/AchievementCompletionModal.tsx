@@ -21,7 +21,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Checkbox } from '../fields/Checkbox';
-import { getTargetCount } from '../../graphql/user/achievements';
+import {
+  getClampedProgress,
+  getTargetCount,
+} from '../../graphql/user/achievements';
 import { sortLockedAchievements } from './achievement/sortAchievements';
 
 const SPARKLE_DURATION_MS = 4500;
@@ -291,8 +294,9 @@ export const AchievementCompletionModal = ({
               <div className="flex max-h-[22rem] flex-col gap-2 overflow-y-auto">
                 {lockedAchievements.map((userAchievement) => {
                   const target = getTargetCount(userAchievement.achievement);
+                  const progress = getClampedProgress(userAchievement);
                   const progressPercentage = Math.min(
-                    (userAchievement.progress / target) * 100,
+                    (progress / target) * 100,
                     100,
                   );
                   const isTracked =
@@ -347,7 +351,7 @@ export const AchievementCompletionModal = ({
                           type={TypographyType.Footnote}
                           color={TypographyColor.Tertiary}
                         >
-                          {userAchievement.progress}/{target}
+                          {progress}/{target}
                         </Typography>
                         <Typography
                           type={TypographyType.Footnote}

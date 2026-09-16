@@ -5,7 +5,10 @@ import type {
   AchievementSyncResult,
   UserAchievement,
 } from '../../../../graphql/user/achievements';
-import { getTargetCount } from '../../../../graphql/user/achievements';
+import {
+  getClampedProgress,
+  getTargetCount,
+} from '../../../../graphql/user/achievements';
 import { AchievementCard } from './AchievementCard';
 import {
   Typography,
@@ -192,9 +195,20 @@ export function AchievementsList({
       // Among locked, sort by progress percentage (highest first)
       const targetA = getTargetCount(a.achievement);
       const targetB = getTargetCount(b.achievement);
-      const progressA = targetA > 0 ? a.progress / targetA : 0;
-      const progressB = targetB > 0 ? b.progress / targetB : 0;
-      return progressB - progressA;
+      const progressA = targetA > 0 ? getClampedProgress(a) / targetA : 0;
+      const progressB = targetB > 0 ? getClampedProgress(b) / targetB : 0;
+      const progressDelta = progressB - progressA;
+      if (progressDelta !== 0) {
+        return progressDelta;
+      }
+
+      const clampedProgressA = getClampedProgress(a);
+      const clampedProgressB = getClampedProgress(b);
+      if (clampedProgressB !== clampedProgressA) {
+        return clampedProgressB - clampedProgressA;
+      }
+
+      return 0;
     });
 
     if (filter === 'all') {

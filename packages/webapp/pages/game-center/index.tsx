@@ -18,7 +18,10 @@ import {
   userProductSummaryQueryOptions,
 } from '@dailydotdev/shared/src/graphql/njord';
 import type { QuestType } from '@dailydotdev/shared/src/graphql/quests';
-import { getTargetCount } from '@dailydotdev/shared/src/graphql/user/achievements';
+import {
+  getClampedProgress,
+  getTargetCount,
+} from '@dailydotdev/shared/src/graphql/user/achievements';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useProfileAchievements } from '@dailydotdev/shared/src/hooks/profile/useProfileAchievements';
@@ -382,6 +385,19 @@ function GameCenterPage({
     trackedAchievementState.isPending ||
     trackedAchievementState.isTrackPending ||
     trackedAchievementState.isUntrackPending;
+  let featuredAchievementDescription =
+    'Once achievements load, your closest milestone shows here.';
+
+  if (featuredAchievement?.unlockedAt) {
+    featuredAchievementDescription = `Unlocked ${formatDate({
+      value: featuredAchievement.unlockedAt,
+      type: TimeFormatType.Post,
+    })}`;
+  } else if (featuredAchievement) {
+    featuredAchievementDescription = `${getClampedProgress(
+      featuredAchievement,
+    )}/${getTargetCount(featuredAchievement.achievement)} progress`;
+  }
 
   const handleFeaturedAchievementTracking = async () => {
     if (!isFeaturedAchievementTrackable || !featuredAchievement) {
@@ -907,13 +923,7 @@ function GameCenterPage({
                             color={TypographyColor.Tertiary}
                             className="mt-1"
                           >
-                            {featuredAchievement
-                              ? `${
-                                  featuredAchievement.progress
-                                }/${getTargetCount(
-                                  featuredAchievement.achievement,
-                                )} progress`
-                              : 'Once achievements load, your closest milestone shows here.'}
+                            {featuredAchievementDescription}
                           </Typography>
                         </div>
                       </div>

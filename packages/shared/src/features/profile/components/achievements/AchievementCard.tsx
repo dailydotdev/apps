@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { UserAchievement } from '../../../../graphql/user/achievements';
 import {
   AchievementType,
+  getClampedProgress,
   getTargetCount,
 } from '../../../../graphql/user/achievements';
 import {
@@ -49,10 +50,11 @@ export function AchievementCard({
   onUntrack,
   isUntrackPending = false,
 }: AchievementCardProps): ReactElement {
-  const { achievement, progress, unlockedAt } = userAchievement;
+  const { achievement, unlockedAt } = userAchievement;
   const targetCount = getTargetCount(achievement);
+  const progressValue = getClampedProgress(userAchievement);
   const isUnlocked = unlockedAt !== null;
-  const progressPercentage = Math.min((progress / targetCount) * 100, 100);
+  const progressPercentage = Math.min((progressValue / targetCount) * 100, 100);
   const showProgress =
     achievement.type === AchievementType.Milestone && !isUnlocked;
   const rarityTier = isUnlocked
@@ -120,6 +122,13 @@ export function AchievementCard({
           >
             {achievement.description}
           </Typography>
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Quaternary}
+            className="mt-1"
+          >
+            Achievements track your all-time peak and are never taken back.
+          </Typography>
         </div>
         <div className="flex shrink-0 items-center self-center">
           <Typography
@@ -147,7 +156,7 @@ export function AchievementCard({
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              {progress}/{targetCount}
+              {progressValue}/{targetCount}
             </Typography>
           </div>
           <ProgressBar

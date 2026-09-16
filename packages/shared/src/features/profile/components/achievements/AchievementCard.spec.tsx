@@ -127,4 +127,49 @@ describe('AchievementCard — stop tracking', () => {
       screen.queryByRole('button', { name: /^track$/i }),
     ).not.toBeInTheDocument();
   });
+
+  it('renders unlocked state instead of raw progress for unlocked achievements', () => {
+    const baseAchievement = createLockedAchievement();
+    const unlockedAchievement = {
+      ...baseAchievement,
+      progress: 490,
+      unlockedAt: '2024-01-01T00:00:00.000Z',
+      achievement: {
+        ...baseAchievement.achievement,
+        criteria: { targetCount: 500 },
+      },
+    };
+
+    renderCard({ userAchievement: unlockedAchievement });
+
+    expect(screen.getByText(/Unlocked/)).toBeInTheDocument();
+    expect(screen.queryByText('490/500')).not.toBeInTheDocument();
+  });
+
+  it('clamps locked progress labels at the target count', () => {
+    const baseAchievement = createLockedAchievement();
+    const lockedAchievement = {
+      ...baseAchievement,
+      progress: 12,
+      achievement: {
+        ...baseAchievement.achievement,
+        criteria: { targetCount: 10 },
+      },
+    };
+
+    renderCard({ userAchievement: lockedAchievement });
+
+    expect(screen.getByText('10/10')).toBeInTheDocument();
+    expect(screen.queryByText('12/10')).not.toBeInTheDocument();
+  });
+
+  it('explains that achievements use all-time peak progress', () => {
+    renderCard();
+
+    expect(
+      screen.getByText(
+        'Achievements track your all-time peak and are never taken back.',
+      ),
+    ).toBeInTheDocument();
+  });
 });

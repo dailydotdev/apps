@@ -1,5 +1,8 @@
 import type { UserAchievement } from '../../../graphql/user/achievements';
-import { getTargetCount } from '../../../graphql/user/achievements';
+import {
+  getClampedProgress,
+  getTargetCount,
+} from '../../../graphql/user/achievements';
 
 const getProgressRatio = (achievement: UserAchievement): number => {
   const targetCount = getTargetCount(achievement.achievement);
@@ -8,7 +11,7 @@ const getProgressRatio = (achievement: UserAchievement): number => {
     return 0;
   }
 
-  return Math.min(achievement.progress / targetCount, 1);
+  return getClampedProgress(achievement) / targetCount;
 };
 
 export const sortLockedAchievements = (
@@ -22,8 +25,10 @@ export const sortLockedAchievements = (
         return ratioDelta;
       }
 
-      if (b.progress !== a.progress) {
-        return b.progress - a.progress;
+      const clampedProgressA = getClampedProgress(a);
+      const clampedProgressB = getClampedProgress(b);
+      if (clampedProgressB !== clampedProgressA) {
+        return clampedProgressB - clampedProgressA;
       }
 
       return b.achievement.xp - a.achievement.xp;

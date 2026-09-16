@@ -342,3 +342,12 @@ export const setShowcaseAchievements = async (
 export const getTargetCount = (achievement: Achievement): number => {
   return achievement.criteria?.targetCount ?? 1;
 };
+
+export const getClampedProgress = (
+  userAchievement: Pick<UserAchievement, 'achievement' | 'progress'>,
+): number => {
+  return Math.min(
+    userAchievement.progress,
+    getTargetCount(userAchievement.achievement),
+  );
+};

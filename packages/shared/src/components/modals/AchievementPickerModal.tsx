@@ -13,7 +13,10 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import type { UserAchievement } from '../../graphql/user/achievements';
-import { getTargetCount } from '../../graphql/user/achievements';
+import {
+  getClampedProgress,
+  getTargetCount,
+} from '../../graphql/user/achievements';
 import { sortLockedAchievements } from './achievement/sortAchievements';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
@@ -104,8 +107,9 @@ export const AchievementPickerModal = ({
           <div className="flex flex-col gap-2">
             {lockedAchievements.map((userAchievement) => {
               const target = getTargetCount(userAchievement.achievement);
+              const progress = getClampedProgress(userAchievement);
               const progressPercentage = Math.min(
-                (userAchievement.progress / target) * 100,
+                (progress / target) * 100,
                 100,
               );
               const isTracked =
@@ -159,7 +163,7 @@ export const AchievementPickerModal = ({
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
                     >
-                      {userAchievement.progress}/{target}
+                      {progress}/{target}
                     </Typography>
                     <Typography
                       type={TypographyType.Footnote}
