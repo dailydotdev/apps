@@ -5,7 +5,6 @@
   "description": "E2E tests for daily.dev using Playwright",
   "scripts": {
     "test": "playwright test",
-    "test:scroll-restoration": "playwright test --config scroll-restoration.config.ts",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
