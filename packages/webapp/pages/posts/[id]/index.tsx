@@ -290,10 +290,14 @@ export const PostPage = ({
     );
   }, [summarySegments, showRedesign]);
   // One set for both layouts: the classic page spreads it over PostContent's
-  // props, the focus card takes it whole.
+  // props, the focus card takes it whole. Only the article and video
+  // templates carry in-page units on the classic layout; squad and
+  // collection posts keep the pinned phone strip alone.
+  const carriesInPageAds =
+    post?.type === PostType.Article || post?.type === PostType.VideoYouTube;
   const organicAds = useMemo(
     () =>
-      adsActive
+      adsActive && carriesInPageAds
         ? {
             contentLeading: (
               <ReadTopLeaderboard
@@ -331,7 +335,7 @@ export const PostPage = ({
             },
           }
         : undefined,
-    [adsActive, renderSummarySegments],
+    [adsActive, carriesInPageAds, renderSummarySegments],
   );
 
   // Same boundary the /read template draws: adsbygoogle must never follow a

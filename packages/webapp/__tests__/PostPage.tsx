@@ -1347,9 +1347,12 @@ describe('post redesign', () => {
       global.IntersectionObserver = originalObserver;
     });
 
-    const renderAnonymous = (redesign: boolean) => {
+    const renderAnonymous = (
+      redesign: boolean,
+      overrides: Partial<Post> = {},
+    ) => {
       mockRedesignOn = redesign;
-      const postMock = createPostMock({ summary });
+      const postMock = createPostMock({ summary, ...overrides });
       return renderPost(
         { initialData: { post: getPostFromMock(postMock) } },
         [postMock, createCommentsMock()],
@@ -1383,6 +1386,17 @@ describe('post redesign', () => {
       expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
       expect(mountedUnits()).toEqual(classicUnits);
       expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
+    });
+
+    it('keeps a collection to the phone strip on both layouts', async () => {
+      const { unmount } = renderAnonymous(false, { type: PostType.Collection });
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(['ad-slot-21']);
+      unmount();
+
+      renderAnonymous(true, { type: PostType.Collection });
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(['ad-slot-21']);
     });
   });
 });
