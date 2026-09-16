@@ -599,3 +599,31 @@ export const products: Product[] = [
     links: [{ label: 'GitHub', href: 'https://github.com/dailydotdev' }],
   },
 ];
+
+/** Illustrative. Reddit's rules widget: numbered, one line, the why underneath. */
+export const rules: [string, string][] = [
+  [
+    'Stay on topic',
+    'Posts are about daily.dev: releases, questions, feedback, bugs.',
+  ],
+  [
+    'Search before you ask',
+    'Q&A and FAQ first. Duplicates get merged into the original.',
+  ],
+  [
+    'Show your work, not your product',
+    'Show and tell is for the technical details of what you built. Commercial promotion is removed.',
+  ],
+  [
+    'Bugs get a template',
+    'Steps, expected and actual, browser or app version, a screenshot.',
+  ],
+  [
+    'Be useful',
+    'Low-effort posts and comments are removed. Answers that help stay.',
+  ],
+  [
+    'One account, one voice',
+    'No vote brigading, no sockpuppets, no reposting removed content.',
+  ],
+];

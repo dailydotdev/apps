@@ -32,6 +32,7 @@ import {
   pinnedEntry,
   squad,
   stack,
+  rules,
   team,
 } from './data';
 import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
@@ -572,6 +573,42 @@ const OverviewWidget = (): ReactElement => (
   </Widget>
 );
 
+/**
+ * Reddit's rules widget, in the column: the titles only, numbered, each row
+ * a doorway to the Rules page. A visitor reads the contract before joining
+ * without leaving the feed.
+ */
+const RulesWidget = ({
+  onOpenRules,
+}: {
+  onOpenRules?: () => void;
+}): ReactElement => (
+  <Widget title="Rules">
+    <ol className="mt-3 flex flex-col divide-y divide-border-subtlest-tertiary">
+      {rules.map(([title], index) => (
+        <li key={title}>
+          <button
+            type="button"
+            onClick={onOpenRules}
+            className="flex w-full items-center gap-3 py-2 text-left"
+          >
+            <span className="sq-nums w-4 shrink-0 text-text-quaternary typo-caption1">
+              {index + 1}
+            </span>
+            <span className="min-w-0 flex-1 truncate text-text-primary typo-footnote">
+              {title}
+            </span>
+            <ArrowIcon
+              size={IconSize.XSmall}
+              className="shrink-0 rotate-90 text-text-quaternary"
+            />
+          </button>
+        </li>
+      ))}
+    </ol>
+  </Widget>
+);
+
 /** ActiveOrRecommendedSquads, for a squad: the people behind it. */
 const TeamWidget = (): ReactElement => (
   <Widget title="Team">
@@ -669,8 +706,13 @@ export const SquadAbout = ({
   </div>
 );
 
-export const SquadWidgets = (): ReactElement => (
+export const SquadWidgets = ({
+  onOpenRules,
+}: {
+  onOpenRules?: () => void;
+}): ReactElement => (
   <>
+    <RulesWidget onOpenRules={onOpenRules} />
     <OverviewWidget />
     <TeamWidget />
     <AwardsWidget />
@@ -681,11 +723,13 @@ export const SquadHome = ({
   viewer = Viewer.Visitor,
   standalone = false,
   onOpenMembers,
+  onOpenRules,
 }: {
   viewer?: Viewer;
   /** Outside the workspace there is no sidebar to carry Join, so the header does. */
   standalone?: boolean;
   onOpenMembers?: () => void;
+  onOpenRules?: () => void;
 }): ReactElement => (
   <HomeFrame
     header={
@@ -695,7 +739,7 @@ export const SquadHome = ({
         onOpenMembers={onOpenMembers}
       />
     }
-    widgets={<SquadWidgets />}
+    widgets={<SquadWidgets onOpenRules={onOpenRules} />}
   >
     <div className="border-t border-border-subtlest-tertiary">
       <PostsArea

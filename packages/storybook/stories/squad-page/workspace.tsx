@@ -22,8 +22,8 @@ import {
   EyeCancelIcon,
   FeedbackIcon,
   FlagIcon,
-  HashtagIcon,
   HomeIcon,
+  InfoIcon,
   HotIcon,
   JobIcon,
   LinkIcon,
@@ -53,6 +53,7 @@ import {
   jobs,
   pinnedEntry,
   products,
+  rules,
   squad,
   team,
 } from './data';
@@ -156,10 +157,8 @@ const channels = {
 };
 
 const docs = {
-  start: page('start-here', 'Start here', PageType.Doc),
   rules: page('rules', 'Rules', PageType.Rules),
   faq: page('faq', 'FAQ', PageType.Doc),
-  roadmap: page('roadmap', 'Roadmap', PageType.Doc),
 };
 
 const common = {
@@ -212,9 +211,9 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
       ],
     },
     {
-      id: 'read',
-      label: 'Read first',
-      pages: [docs.start, docs.rules, docs.faq, docs.roadmap],
+      id: 'docs',
+      label: 'Documentation',
+      pages: [docs.rules, docs.faq],
     },
     {
       id: 'links',
@@ -248,9 +247,9 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
       pages: [common.recurring],
     },
     {
-      id: 'read',
-      label: 'Read first',
-      pages: [docs.start, docs.rules, docs.faq],
+      id: 'docs',
+      label: 'Documentation',
+      pages: [docs.rules, docs.faq],
     },
     {
       id: 'links',
@@ -280,7 +279,7 @@ export const allPages: SquadPage[] = [
 export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
   ({
     [PageType.Home]: <HomeIcon size={size} />,
-    [PageType.About]: <HashtagIcon size={size} />,
+    [PageType.About]: <InfoIcon size={size} />,
     [PageType.Channel]: <MegaphoneIcon size={size} />,
     [PageType.Doc]: <DocsIcon size={size} />,
     [PageType.Rules]: <DocsIcon size={size} />,
@@ -378,20 +377,13 @@ export const pageCatalogue: {
     ],
   },
   {
-    group: 'Read first',
+    group: 'Documentation',
     items: [
-      {
-        type: PageType.Doc,
-        title: 'Start here',
-        description:
-          'The welcome post, as a page. Exists on every squad today.',
-        exists: true,
-      },
       {
         type: PageType.Rules,
         title: 'Rules',
         description:
-          'Numbered, one line each, expandable. Shown before the first post.',
+          'Numbered, one line each, expandable. Also shown on Home and before a first post.',
         exists: false,
       },
       {
@@ -402,8 +394,8 @@ export const pageCatalogue: {
       },
       {
         type: PageType.Doc,
-        title: 'Roadmap',
-        description: 'What is coming, for a company squad.',
+        title: 'Page',
+        description: 'Any long-form document: a welcome, a roadmap, a guide.',
         exists: true,
       },
     ],
@@ -808,10 +800,18 @@ const Column = ({
 const HomePage = ({
   viewer,
   onOpenMembers,
+  onOpenRules,
 }: {
   viewer: Viewer;
   onOpenMembers: () => void;
-}): ReactElement => <SquadHome viewer={viewer} onOpenMembers={onOpenMembers} />;
+  onOpenRules: () => void;
+}): ReactElement => (
+  <SquadHome
+    viewer={viewer}
+    onOpenMembers={onOpenMembers}
+    onOpenRules={onOpenRules}
+  />
+);
 
 /**
  * A channel is the squad feed filtered to one flair, with a posting rule of
@@ -857,33 +857,6 @@ const ChannelPage = ({
     </Column>
   );
 };
-
-const rules = [
-  [
-    'Stay on topic',
-    'Posts are about daily.dev: releases, questions, feedback, bugs.',
-  ],
-  [
-    'Search before you ask',
-    'Q&A and FAQ first. Duplicates get merged into the original.',
-  ],
-  [
-    'Show your work, not your product',
-    'Show and tell is for the technical details of what you built. Commercial promotion is removed.',
-  ],
-  [
-    'Bugs get a template',
-    'Steps, expected and actual, browser or app version, a screenshot.',
-  ],
-  [
-    'Be useful',
-    'Low-effort posts and comments are removed. Answers that help stay.',
-  ],
-  [
-    'One account, one voice',
-    'No vote brigading, no sockpuppets, no reposting removed content.',
-  ],
-];
 
 /** Reddit's rules widget, as a page: numbered, one line each, with the why. */
 const RulesPage = (): ReactElement => (
@@ -1438,6 +1411,7 @@ const PageBody = ({
         <HomePage
           viewer={viewer}
           onOpenMembers={() => onSelect(common.members)}
+          onOpenRules={() => onSelect(docs.rules)}
         />
       );
     case PageType.About:

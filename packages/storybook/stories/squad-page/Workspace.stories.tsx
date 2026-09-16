@@ -205,8 +205,8 @@ export const Overview: StoryObj = {
           Click the pages in the second column. Home is the identity block plus
           the feed. Channels are the feed filtered to one flair, each with its
           own posting rule; Announcements is the one only the team posts to.
-          Start here, Rules and FAQ are pages. Open roles is Recruiter. The
-          links open outside.
+          Rules and FAQ are pages, and the rules sit in a widget on Home too.
+          Open roles is Recruiter. The links open outside.
         </Caption>
         <WorkspaceShell viewer={Viewer.Member} />
       </Section>
@@ -448,7 +448,7 @@ export const Overview: StoryObj = {
               'CONTRIBUTING, discussion guidelines',
               '#rules, #start-here',
               'Welcome post, description',
-              'Read first: Start here, Rules, FAQ, Roadmap',
+              'Documentation: Rules and FAQ, with the rules also as a widget on Home',
             ],
             [
               'Where else to go',
@@ -597,12 +597,12 @@ export const Overview: StoryObj = {
             />
           </Screen>
           <Screen
-            title="Start here, a document page"
-            note="A freeform post rendered as a page: title, a video, headings, links. Admins get Edit page in the bar. This is where Whop communities put their onboarding, and where a company puts its story."
+            title="FAQ, a document page"
+            note="A freeform post rendered as a page: title, a video, headings, links. Admins get Edit page in the bar. This is where a company puts the answers it repeats."
           >
             <WorkspaceShell
               viewer={Viewer.Admin}
-              initialPage={findPage('start-here')}
+              initialPage={findPage('faq')}
               height={48}
             />
           </Screen>
