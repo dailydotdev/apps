@@ -1,11 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import AuthOptions from './AuthOptions';
+import type { AuthOptionsProps } from './common';
+import { AuthDisplay } from './common';
 import type { HijackingCoverCopy } from './HijackingCoverStrip';
 import {
-  HijackingCoverAuthActions,
-  HijackingCoverStrip,
-  HijackingCoverStripPlaceholder,
+  HijackingCoverCard,
+  hijackingCoverBodyClassName,
+  hijackingCoverHeadingClassName,
 } from './HijackingCoverStrip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
@@ -20,7 +23,12 @@ const copy: HijackingCoverCopy = {
   body: 'Log in to pick up where you left off.',
 };
 
-// The new tab's cover strip for anonymous visitors, tablet and up.
+// The card's height with the auth stack: stacked under the copy until laptop,
+// beside it from there.
+export const exploreSignupStripMinHeight = 'min-h-[22rem] laptop:min-h-[17rem]';
+
+// The new tab's cover strip for anonymous visitors, tablet and up, with the
+// sticky auth banner's signup stack in place of a sign up / log in pair.
 export function ExploreSignupStrip({
   className,
 }: {
@@ -47,9 +55,12 @@ export function ExploreSignupStrip({
   // Holds the strip's slot in the server HTML until boot answers.
   if (!isAuthReady) {
     return (
-      <HijackingCoverStripPlaceholder
-        className={classNames('hidden tablet:block', className)}
-      />
+      <section
+        aria-hidden
+        className={classNames('hidden w-full tablet:block', className)}
+      >
+        <div className={exploreSignupStripMinHeight} />
+      </section>
     );
   }
 
@@ -57,28 +68,56 @@ export function ExploreSignupStrip({
     return null;
   }
 
-  const onAuthClick = (isLogin: boolean) => (): void => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_type: isLogin ? TargetType.LoginButton : TargetType.SignupButton,
-      target_id: TargetId.ExploreStrip,
-    });
+  const onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'] = (props) => {
+    if (props.isLoginFlow) {
+      logEvent({
+        event_name: LogEvent.Click,
+        target_type: TargetType.LoginButton,
+        target_id: TargetId.ExploreStrip,
+      });
+    }
 
-    showLogin({ trigger: AuthTriggers.Onboarding, options: { isLogin } });
+    showLogin({
+      trigger: AuthTriggers.Onboarding,
+      options: {
+        isLogin: !!props.isLoginFlow,
+        defaultDisplay: props.defaultDisplay,
+        formValues: props.email ? { email: props.email } : undefined,
+      },
+    });
   };
 
   return (
-    <HijackingCoverStrip
-      copy={copy}
-      className={className}
-      actions={
-        <HijackingCoverAuthActions
-          signup="Sign up"
-          login="Log in"
-          onSignupClick={onAuthClick(false)}
-          onLoginClick={onAuthClick(true)}
+    <HijackingCoverCard className={className}>
+      <div
+        className={classNames(
+          'dark relative z-1 flex flex-col items-center gap-6 px-5 py-8 text-center',
+          'laptop:flex-row laptop:justify-between laptop:gap-10 laptop:px-10',
+          'laptop:text-left',
+          exploreSignupStripMinHeight,
+        )}
+      >
+        <div className="flex max-w-[34rem] flex-col gap-1 laptop:min-w-0 laptop:flex-1">
+          <h3 className={hijackingCoverHeadingClassName}>{copy.heading}</h3>
+          <p className={hijackingCoverBodyClassName}>{copy.body}</p>
+        </div>
+        <AuthOptions
+          ignoreMessages
+          formRef={null as unknown as AuthOptionsProps['formRef']}
+          trigger={AuthTriggers.Onboarding}
+          targetId={TargetId.ExploreStrip}
+          simplified
+          defaultDisplay={AuthDisplay.OnboardingSignup}
+          forceDefaultDisplay
+          signupStyle="singlePrimary"
+          preferGithub={false}
+          className={{
+            container:
+              '!min-h-0 w-full max-w-[23.25rem] shrink-0 !overflow-visible',
+          }}
+          onAuthStateUpdate={onAuthStateUpdate}
         />
-      }
-    />
+      </div>
+    </HijackingCoverCard>
   );
 }
