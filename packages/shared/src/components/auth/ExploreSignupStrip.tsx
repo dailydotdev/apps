@@ -89,6 +89,7 @@ export function ExploreSignupStrip({
 
   return (
     <HijackingCoverCard className={className}>
+      <div className="from-raw-pepper-90/90 via-raw-pepper-90/55 pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t to-transparent laptop:inset-y-0 laptop:left-auto laptop:h-auto laptop:w-3/5 laptop:bg-gradient-to-l" />
       <div
         className={classNames(
           'dark relative z-1 flex flex-col items-center gap-6 px-5 py-8 text-center',
@@ -101,22 +102,21 @@ export function ExploreSignupStrip({
           <h3 className={hijackingCoverHeadingClassName}>{copy.heading}</h3>
           <p className={hijackingCoverBodyClassName}>{copy.body}</p>
         </div>
-        <AuthOptions
-          ignoreMessages
-          formRef={null as unknown as AuthOptionsProps['formRef']}
-          trigger={AuthTriggers.Onboarding}
-          targetId={TargetId.ExploreStrip}
-          simplified
-          defaultDisplay={AuthDisplay.OnboardingSignup}
-          forceDefaultDisplay
-          signupStyle="singlePrimary"
-          preferGithub={false}
-          className={{
-            container:
-              '!min-h-0 w-full max-w-[23.25rem] shrink-0 !overflow-visible',
-          }}
-          onAuthStateUpdate={onAuthStateUpdate}
-        />
+        <div className="w-full max-w-[23.25rem] shrink-0">
+          <AuthOptions
+            ignoreMessages
+            formRef={null as unknown as AuthOptionsProps['formRef']}
+            trigger={AuthTriggers.Onboarding}
+            targetId={TargetId.ExploreStrip}
+            simplified
+            defaultDisplay={AuthDisplay.OnboardingSignup}
+            forceDefaultDisplay
+            signupStyle="singlePrimary"
+            preferGithub={false}
+            className={{ container: '!min-h-0 !overflow-visible' }}
+            onAuthStateUpdate={onAuthStateUpdate}
+          />
+        </div>
       </div>
     </HijackingCoverCard>
   );
