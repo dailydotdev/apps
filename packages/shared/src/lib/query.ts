@@ -171,7 +171,6 @@ export enum RequestKey {
   PushNotification = 'push_notification',
   ShortUrl = 'short_url',
   SourceRequestAvailability = 'source_request_availability',
-  CommentFeed = 'comment_feed',
   Feature = 'feature',
   AccountNavigation = 'account_navigation',
   RecommendedTags = 'recommended_tags',

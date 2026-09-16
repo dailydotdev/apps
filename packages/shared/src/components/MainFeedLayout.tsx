@@ -48,7 +48,8 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
+import { generateQueryKey, OtherFeedPage } from '../lib/query';
+import type { RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -160,9 +161,6 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   },
   upvoted: {
     query: MOST_UPVOTED_FEED_QUERY,
-  },
-  discussed: {
-    query: MOST_DISCUSSED_FEED_QUERY,
   },
   [OtherFeedPage.ExploreLatest]: {
     query: ANONYMOUS_FEED_QUERY,
@@ -871,7 +869,7 @@ export default function MainFeedLayout({
         {shouldUseCommentFeedLayout ? (
           <CommentFeed
             isMainFeed
-            feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
+            feedQueryKey={generateQueryKey(OtherFeedPage.Discussed, undefined)}
             query={COMMENT_FEED_QUERY}
             logOrigin={Origin.CommentFeed}
             emptyScreen={

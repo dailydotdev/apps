@@ -21,7 +21,6 @@ export enum ActionType {
   CollectionsIntro = 'collections_intro',
   DevCardGenerate = 'dev_card_generate',
   AckRep250 = 'ack_rep_250',
-  CommentFeed = 'comment_feed',
   ExistingUserSeenStreaks = 'existing_user_seen_streaks',
   BookmarkPromoteMobile = 'bookmark_promote_mobile',
   HidePublicSquadEligibilityCard = 'hide_public_squad_eligibility_card',

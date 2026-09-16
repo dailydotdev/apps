@@ -1,5 +1,3 @@
-import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
-import { MOST_DISCUSSED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
@@ -10,7 +8,6 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
@@ -45,27 +42,6 @@ beforeEach(() => {
   );
 });
 
-const createFeedMock = (
-  page = defaultFeedPage,
-  query: string = MOST_DISCUSSED_FEED_QUERY,
-  variables: Record<string, unknown> = {
-    first: 7,
-    after: '',
-    loggedIn: true,
-    columns: 1,
-  },
-): MockedGraphQLResponse<FeedData> => ({
-  request: {
-    query,
-    variables,
-  },
-  result: {
-    data: {
-      page,
-    },
-  },
-});
-
 const createCommentFeedMock = (
   page = defaultCommentsPage,
   query: string = COMMENT_FEED_QUERY,
@@ -86,7 +62,7 @@ const createCommentFeedMock = (
 });
 
 function renderComponent(
-  mocks: MockedGraphQLResponse[] = [createFeedMock()],
+  mocks: MockedGraphQLResponse[] = [createCommentFeedMock()],
   user?: LoggedUser,
 ): RenderResult {
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
@@ -101,7 +77,7 @@ function renderComponent(
   );
 }
 
-it('should request most discussed feed when logged-in', async () => {
+it('should request comment feed when logged-in', async () => {
   renderComponent([createCommentFeedMock()]);
   const elements = await screen.findAllByTestId('comment', undefined, {
     timeout: feedTimeout,
@@ -109,7 +85,7 @@ it('should request most discussed feed when logged-in', async () => {
   expect(elements.length).toBeTruthy();
 });
 
-it('should not request most discussed feed when not logged-in', async () => {
+it('should not request comment feed when not logged-in', async () => {
   renderComponent([createCommentFeedMock()], undefined);
   const elements = screen.queryAllByTestId('comment');
   expect(elements.length).toBeFalsy();

@@ -18,9 +18,8 @@ import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions, useConditionalFeature } from '../../../hooks';
+import { useConditionalFeature } from '../../../hooks';
 import { featureInterestAgent } from '../../../lib/featureManagement';
-import { ActionType } from '../../../graphql/actions';
 import { watercoolerUrl, webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
@@ -44,8 +43,7 @@ export const DiscoverSection = ({
   itemsAfterExplore,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
-  const { completeAction } = useActions();
-  const { user, isLoggedIn } = useAuthContext();
+  const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
   const HotTakesIcon = isV2 ? TourIcon : HotIcon;
@@ -114,11 +112,6 @@ export const DiscoverSection = ({
         title: 'Discussions',
         path: `${webappUrl}discussed`,
         isForcedLink: true,
-        action: () => {
-          if (user) {
-            completeAction(ActionType.CommentFeed);
-          }
-        },
       },
       showHotTakes && {
         icon: (active: boolean) => (
@@ -148,8 +141,6 @@ export const DiscoverSection = ({
         },
     ].filter(Boolean) as SidebarMenuItem[];
   }, [
-    completeAction,
-    user,
     logEvent,
     onNavTabClick,
     HotTakesIcon,
