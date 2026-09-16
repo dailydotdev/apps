@@ -205,9 +205,9 @@ export const Overview: StoryObj = {
           Click the pages in the second column. Home is the identity block plus
           the feed. Channels are the feed filtered to one flair, each with its
           own posting rule; Announcements is the one only the team posts to,
-          Reviews carries a rating, Quiz has a right answer. Rules and FAQ are
-          pages, and the rules sit in a widget on Home too. Open roles is
-          Recruiter. The links open outside.
+          Reviews carries a rating, Quiz is poll cards with a right answer.
+          Rules and FAQ are pages, and the rules sit in a widget on Home too.
+          Open roles is Recruiter. The links open outside.
         </Caption>
         <WorkspaceShell viewer={Viewer.Member} />
       </Section>
@@ -647,6 +647,16 @@ export const Overview: StoryObj = {
               viewer={Viewer.Admin}
               initialPage={findPage('products')}
               height={52}
+            />
+          </Screen>
+          <Screen
+            title="Quiz, as a member"
+            note="Poll cards with a right answer, generated from the company's own posts. Answer in place: the right option turns green, a wrong pick red, the squad's split on every bar, a score when the set is done."
+          >
+            <WorkspaceShell
+              viewer={Viewer.Member}
+              initialPage={findPage('quiz')}
+              height={46}
             />
           </Screen>
           <Screen

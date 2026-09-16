@@ -43,6 +43,7 @@ import {
   TimerIcon,
   UpvoteIcon,
   UserIcon,
+  VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
@@ -56,6 +57,7 @@ import {
   jobs,
   pinnedEntry,
   products,
+  quiz,
   ratingBreakdown,
   reviewSources,
   reviews,
@@ -82,6 +84,7 @@ export enum PageType {
   Channel = 'channel',
   Reviews = 'reviews',
   Releases = 'releases',
+  Quiz = 'quiz',
   Doc = 'doc',
   Rules = 'rules',
   Recurring = 'recurring',
@@ -146,10 +149,7 @@ const channels = {
       'Questions, opinions, feedback, bug reports. If it needs an answer, it lives here.',
   }),
   reviews: page('reviews', 'Reviews', PageType.Reviews, { badge: 4 }),
-  quiz: page('quiz', 'Quiz', PageType.Channel, {
-    description:
-      'A short quiz from the team each week. Answer in the thread, see who got it.',
-  }),
+  quiz: page('quiz', 'Quiz', PageType.Quiz),
   links: page('links', 'Links', PageType.Channel, {
     description: "Articles, videos and tools worth the squad's time.",
   }),
@@ -287,6 +287,7 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
     [PageType.Channel]: <MegaphoneIcon size={size} />,
     [PageType.Reviews]: <StarIcon size={size} />,
     [PageType.Releases]: <SparkleIcon size={size} secondary />,
+    [PageType.Quiz]: <HelpIcon size={size} />,
     [PageType.Doc]: <DocsIcon size={size} />,
     [PageType.Rules]: <DocsIcon size={size} />,
     [PageType.Recurring]: <CalendarIcon size={size} />,
@@ -348,9 +349,10 @@ export const pageCatalogue: {
         exists: false,
       },
       {
-        type: PageType.Channel,
+        type: PageType.Quiz,
         title: 'Quiz',
-        description: 'A poll with a right answer. Weekly, from the team.',
+        description:
+          'Poll cards with a right answer, generated from your docs, releases and products. A score at the end.',
         exists: false,
       },
       {
@@ -1462,6 +1464,182 @@ const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   </Column>
 );
 
+/**
+ * The quiz is the poll card with a right answer. Each question is a card,
+ * answered in place: the right option turns green, a wrong pick turns red,
+ * and the squad's split shows on every bar. The set is generated from the
+ * company's own posts, so the source sits under each question. A score
+ * lands once every card is answered.
+ */
+const QuizPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const answered = Object.keys(answers).length;
+  const total = quiz.questions.length;
+  const correct = quiz.questions.filter(
+    (question) => answers[question.id] === question.answer,
+  ).length;
+  const done = answered === total;
+
+  return (
+    <Column width="max-w-[52rem]" className="gap-5">
+      <div className="flex items-start justify-between gap-6">
+        <div className="flex flex-col gap-1">
+          <h1 className="font-bold text-text-primary typo-title3">
+            {quiz.title}
+          </h1>
+          <span className="sq-nums text-text-tertiary typo-footnote">
+            {total} questions · {formatCount(quiz.played)} played · generated
+            from this month&apos;s releases
+          </span>
+        </div>
+        {viewer === Viewer.Admin ? (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<SparkleIcon secondary />}
+          >
+            Generate a quiz
+          </Button>
+        ) : (
+          <div className="flex flex-col items-end gap-1">
+            <span className="sq-nums text-text-tertiary typo-caption1">
+              {answered} of {total} answered
+            </span>
+            <span className="h-1.5 w-32 overflow-hidden rounded-6 bg-surface-float">
+              <span
+                className="block h-full rounded-6 bg-accent-cabbage-default transition-[width]"
+                style={{ width: `${(answered / total) * 100}%` }}
+              />
+            </span>
+          </div>
+        )}
+      </div>
+
+      {done && (
+        <div className="flex items-center gap-4 rounded-16 border border-accent-cabbage-default bg-accent-cabbage-flat p-4">
+          <span className="sq-nums font-bold leading-none text-text-primary typo-mega3">
+            {correct}/{total}
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="font-bold text-text-primary typo-callout">
+              {correct === total
+                ? 'Perfect.'
+                : correct >= total / 2
+                ? 'Nice.'
+                : 'Next week.'}
+            </span>
+            <span className="text-text-tertiary typo-footnote">
+              Better than {Math.min(98, 30 + correct * 17)}% of the squad.
+            </span>
+          </div>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            icon={<LinkIcon />}
+          >
+            Share result
+          </Button>
+        </div>
+      )}
+
+      <div
+        className="grid gap-4"
+        style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
+      >
+        {quiz.questions.map((question, index) => {
+          const picked = answers[question.id];
+          const revealed = picked !== undefined;
+
+          return (
+            <div
+              key={question.id}
+              className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+            >
+              <div className="flex items-start gap-3">
+                <span className="sq-nums flex size-6 shrink-0 items-center justify-center rounded-8 bg-background-default font-bold text-text-tertiary typo-caption1">
+                  {index + 1}
+                </span>
+                <span className="min-w-0 flex-1 font-bold text-text-primary typo-callout">
+                  {question.question}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                {question.options.map((option, optionIndex) => {
+                  const isAnswer = optionIndex === question.answer;
+                  const isPicked = optionIndex === picked;
+
+                  return (
+                    <button
+                      type="button"
+                      key={option}
+                      disabled={revealed || viewer === Viewer.Visitor}
+                      onClick={() =>
+                        setAnswers((current) => ({
+                          ...current,
+                          [question.id]: optionIndex,
+                        }))
+                      }
+                      className={classNames(
+                        'relative flex items-center justify-between overflow-hidden rounded-12 border px-3 py-2 text-left typo-callout transition-colors',
+                        !revealed &&
+                          'border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-primary',
+                        revealed &&
+                          isAnswer &&
+                          'border-status-success text-text-primary',
+                        revealed &&
+                          isPicked &&
+                          !isAnswer &&
+                          'border-status-error text-text-primary',
+                        revealed &&
+                          !isAnswer &&
+                          !isPicked &&
+                          'border-border-subtlest-tertiary text-text-tertiary',
+                      )}
+                    >
+                      {revealed && (
+                        <span
+                          className="absolute inset-y-0 left-0"
+                          style={{
+                            width: `${question.split[optionIndex]}%`,
+                            background: isAnswer
+                              ? 'color-mix(in srgb, var(--status-success) 22%, transparent)'
+                              : 'color-mix(in srgb, var(--theme-text-quaternary) 18%, transparent)',
+                          }}
+                        />
+                      )}
+                      <span className="relative flex items-center gap-2">
+                        {revealed && isAnswer && (
+                          <VIcon
+                            size={IconSize.XSmall}
+                            className="text-status-success"
+                          />
+                        )}
+                        {option}
+                      </span>
+                      {revealed && (
+                        <span className="sq-nums relative text-text-tertiary typo-footnote">
+                          {question.split[optionIndex]}%
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="truncate text-text-quaternary typo-caption1">
+                {revealed
+                  ? `From: ${question.source}`
+                  : viewer === Viewer.Visitor
+                  ? 'Join to play'
+                  : `${formatCount(quiz.played)} answered`}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </Column>
+  );
+};
+
 const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
 
 /**
@@ -1780,6 +1958,8 @@ const PageBody = ({
       return <ReviewsPage viewer={viewer} />;
     case PageType.Releases:
       return <ReleasesPage viewer={viewer} />;
+    case PageType.Quiz:
+      return <QuizPage viewer={viewer} />;
     case PageType.Chat:
       return <ChatPage />;
     case PageType.Doc:

@@ -749,3 +749,65 @@ export const ratingBreakdown: [number, number][] = [
   [2, 3],
   [1, 1],
 ];
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  answer: number;
+  /** How the squad answered, in percent, one per option. */
+  split: number[];
+  /** The release the question is generated from. */
+  source: string;
+}
+
+/** Illustrative. Generated from the changelog's own posts. */
+export const quiz = {
+  title: 'This month on daily.dev',
+  played: 2140,
+  questions: [
+    {
+      id: 'q1',
+      question:
+        'How many free requests a month does a non-Plus account get on the public API?',
+      options: ['50', '200', '1,000', 'Unlimited in beta'],
+      answer: 1,
+      split: [12, 61, 19, 8],
+      source: 'Public API access is now open for everyone',
+    },
+    {
+      id: 'q2',
+      question: 'In World, what does a district grow with?',
+      options: [
+        'Posts you write',
+        'Days in your streak',
+        'How much you read on that topic',
+        'Upvotes you receive',
+      ],
+      answer: 2,
+      split: [9, 23, 58, 10],
+      source: 'Meet World: the 3D place your reading builds',
+    },
+    {
+      id: 'q3',
+      question: 'How many streak freezes can you keep stashed at once?',
+      options: ['Two', 'Three', 'Five', 'Ten'],
+      answer: 2,
+      split: [14, 31, 47, 8],
+      source: 'Miss a day, keep your streak',
+    },
+    {
+      id: 'q4',
+      question: 'Which communities does Community Take pull discussion from?',
+      options: [
+        'Reddit and X',
+        'Hacker News and Lobsters',
+        'Discord and Slack',
+        'GitHub and Stack Overflow',
+      ],
+      answer: 1,
+      split: [22, 52, 11, 15],
+      source: 'Community take: see what other developers think about a post',
+    },
+  ] as QuizQuestion[],
+};
