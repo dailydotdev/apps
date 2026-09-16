@@ -20,7 +20,6 @@ import {
   SearchIcon,
   SettingsIcon,
   UpvoteIcon,
-  VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FreeformGrid } from '@dailydotdev/shared/src/components/cards/Freeform/FreeformGrid';
@@ -183,6 +182,37 @@ export const Logo = ({
   />
 );
 
+/**
+ * The verified seal: a scalloped badge with a check, the shape X, Instagram
+ * and LinkedIn all use for verified. daily.dev has no glyph for it yet (the
+ * profile's company badge is a text pill, the shields mean clickbait
+ * shield, the medals mean awards), so it is drawn here on the 24 grid.
+ */
+export const VerifiedSeal = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement => (
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden
+    className={classNames('size-4 shrink-0', className)}
+  >
+    <path
+      fill="currentColor"
+      d="M21.60 12.00 Q22.82 14.90 20.31 16.80 Q19.92 19.92 16.80 20.31 Q14.90 22.82 12.00 21.60 Q9.10 22.82 7.20 20.31 Q4.08 19.92 3.69 16.80 Q1.18 14.90 2.40 12.00 Q1.18 9.10 3.69 7.20 Q4.08 4.08 7.20 3.69 Q9.10 1.18 12.00 2.40 Q14.90 1.18 16.80 3.69 Q19.92 4.08 20.31 7.20 Q22.82 9.10 21.60 12.00Z"
+    />
+    <path
+      d="M7.6 12.3l3 3 5.8-6"
+      fill="none"
+      stroke="var(--theme-background-default)"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export const VerifiedMark = ({
   label = true,
   className,
@@ -199,11 +229,7 @@ export const VerifiedMark = ({
       className,
     )}
   >
-    {/* The check-in-a-circle every network uses for verified. Not the
-        shield: on daily.dev that glyph is the clickbait shield. */}
-    <span className="flex size-4 items-center justify-center rounded-full bg-accent-cabbage-default text-white">
-      <VIcon size={IconSize.XSmall} />
-    </span>
+    <VerifiedSeal />
     {label && 'Verified'}
   </span>
 );
