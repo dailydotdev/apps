@@ -27,10 +27,18 @@ type ProfileSkillsProps = {
 const skillsHint =
   'Add commas (,) to add multiple skills. Press Enter to submit them.';
 const limitHint = `You can add up to ${maxProfileSkills} skills.`;
+const maxLengthHint = `Skills can be up to ${maxProfileSkillLength} characters.`;
 
-// The API stores skills under slugify(value), so "React" and "react" are the
-// same skill to it but two entries here.
-const skillKey = (skill: string) => skill.trim().toLowerCase();
+// The API stores skills under slugify(value), so "React.js" and "react js"
+// are the same skill to it but two entries here.
+const skillKey = (skill: string): string =>
+  skill
+    .trim()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 /**
  * A rejected skill arrives either as an array-level issue (path `skills`) or as
@@ -38,19 +46,39 @@ const skillKey = (skill: string) => skill.trim().toLowerCase();
  * array with no message on the root. Reading `error.message` alone would render
  * nothing for the second shape.
  */
-const getSkillsError = (
-  error: FieldError | FieldError[] | undefined,
-): string | undefined => {
+const getSkillsError = (error: unknown): string | undefined => {
   if (!error) {
     return undefined;
   }
 
   if (Array.isArray(error)) {
-    return error.find((item) => item?.message)?.message ?? limitHint;
+    return error.map(getSkillsError).find(Boolean) ?? limitHint;
   }
 
-  return error.message ?? limitHint;
+  if (typeof error !== 'object') {
+    return undefined;
+  }
+
+  const fieldError = error as Partial<FieldError>;
+  if (typeof fieldError.message === 'string') {
+    return fieldError.message;
+  }
+
+  return (
+    Object.values(error as Record<string, unknown>)
+      .map(getSkillsError)
+      .find(Boolean) ?? limitHint
+  );
 };
+
+const getPathValue = (value: unknown, path: string): unknown =>
+  path.split('.').reduce<unknown>((acc, key) => {
+    if (!acc || typeof acc !== 'object') {
+      return undefined;
+    }
+
+    return (acc as Record<string, unknown>)[key];
+  }, value);
 
 const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
   const { control } = useFormContext();
@@ -94,9 +122,7 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
       render={({ field }) => {
         const skills = Array.isArray(field.value) ? field.value : [];
         const isAtLimit = skills.length >= maxProfileSkills;
-        const error = getSkillsError(
-          errors[name] as FieldError | FieldError[] | undefined,
-        );
+        const error = getSkillsError(getPathValue(errors, name));
 
         const addSkills = (candidates: string[]) => {
           const seen = new Set(skills.map(skillKey));
@@ -134,8 +160,7 @@ const ProfileSkills = ({ name }: ProfileSkillsProps): ReactElement => {
           if (rejected) {
             const reasons = [
               overLimit && limitHint,
-              tooLong &&
-                `Skills can be up to ${maxProfileSkillLength} characters.`,
+              tooLong && maxLengthHint,
             ].filter(Boolean);
 
             displayToast(

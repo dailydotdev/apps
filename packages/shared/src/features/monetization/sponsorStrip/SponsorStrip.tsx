@@ -67,23 +67,29 @@ const SponsorRow = ({
       <div
         className={classNames('flex h-10 items-center gap-5', feedFrameInsetX)}
       >
-        {gold && (
-          <div className="flex shrink-0 items-center gap-x-2.5">
-            <span className="whitespace-nowrap text-text-quaternary typo-caption2">
-              Made possible by
-            </span>
-            {/* The gold mark is the one slot that keeps its own inks and its
-              own size: one coloured mark at full height against a silhouetted
-              wall is the whole hierarchy of the row, without a hover effect
-              on top. */}
+        {/* The row's left zone, permanent the way the ticker's `Trending` is.
+          Both rows then open on the same column whatever the ad server
+          returns, so an unsold gold slot — or one still on the wire, under a
+          row already holding its height open — cannot change the shape of the
+          bar under the feed. It credits the row rather than the gold mark
+          alone, which is why it still reads with only the wall behind it. */}
+        <div className="flex shrink-0 items-center gap-x-2.5">
+          <span className="whitespace-nowrap text-text-quaternary typo-caption2">
+            Made possible by
+          </span>
+          {/* The gold mark is the one slot that keeps its own inks and its
+            own size: one coloured mark at full height against a silhouetted
+            wall is the whole hierarchy of the row, without a hover effect
+            on top. */}
+          {gold && (
             <SponsorLogo
               sponsor={gold}
               slotIndex={0}
               exactHeight={GOLD_HEIGHT}
               className="text-text-primary"
             />
-          </div>
-        )}
+          )}
+        </div>
         {gold && !!(premium.length || community.length) && (
           <span
             aria-hidden
@@ -194,6 +200,18 @@ export const SponsorStrip = ({
       data-testid="sponsorStrip"
       className={classNames(
         'sticky bottom-0 z-3 hidden w-full flex-col bg-background-default tablet:flex',
+        // `sticky bottom-0` pins the dock while the feed scrolls past it, but
+        // it only ever pulls the dock *up* out of the overflow — it cannot
+        // push one down. While the feed is loading the dock's flow position
+        // is directly under the skeleton cards, well above the window's
+        // bottom edge, so sticky does nothing and the bar rides mid-page
+        // until enough posts land to make the page scroll under it.
+        // `mt-auto` takes the free space above the dock instead, which is
+        // what actually holds it down on a short feed, and it is a no-op the
+        // moment there is no free space left: auto margin for the short feed,
+        // sticky for the long one. Both need a column reaching the window's
+        // bottom edge to work against — see `DOCK_CLASS` below.
+        'mt-auto',
         // `sticky bottom-0` reaches the viewport bottom only while its
         // containing block extends past that line, so the dock needs the v2
         // frame to run all the way down — see `DOCK_CLASS`, which is how the

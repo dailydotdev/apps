@@ -66,9 +66,9 @@ export const defaultFeatureList: Array<PlusItem> = [
 export const plusFeatureListControl: Array<PlusItem> = [
   {
     id: 'public-api',
-    label: 'Public API access',
+    label: 'Full public API access and higher rate limits',
     status: PlusItemStatus.Ready,
-    tooltip: `Build custom integrations and access your personalized feed programmatically. Full API access to feeds, bookmarks, search, and more.`,
+    tooltip: `Build custom integrations and access your personalized feed programmatically. Full API access to feeds, bookmarks, search, and more with higher rate limits.`,
   },
   {
     id: 'presidential-briefing',
@@ -242,10 +242,10 @@ const reframeControlItem = (
 export const plusFeatureListApiFirst: Array<PlusItem> = [
   {
     id: 'public-api',
-    label: 'Public API access',
+    label: 'Full public API access and higher rate limits',
     status: PlusItemStatus.Ready,
     highlight: true,
-    tooltip: `Endpoints for your feed, search, posts, and bookmarks. Plus pre-built integrations for Claude Code, Cursor, and Codex.`,
+    tooltip: `Full API access across your feed, search, posts, and bookmarks, with higher rate limits. Plus pre-built integrations for Claude Code, Cursor, and Codex.`,
   },
   reframeControlItem(
     'custom feeds',

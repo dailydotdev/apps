@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import {
+  getSearchContentCurationQueryParam,
+  getSearchPostTypesQueryParam,
   getSearchTimeQueryParam,
   SearchProviderEnum,
 } from '@dailydotdev/shared/src/graphql/search';
@@ -17,7 +19,8 @@ export default function RouterPostsSearch(
   props: Omit<PostsSearchProps, 'onSubmitQuery'>,
 ): ReactElement {
   const router = useRouter();
-  const { time, contentCurationFilter } = useSearchContextProvider();
+  const { time, contentCurationFilter, postTypesFilter } =
+    useSearchContextProvider();
   const { logEvent } = useLogContext();
   const { getFeatureValue } = useFeaturesReadyContext();
 
@@ -28,13 +31,22 @@ export default function RouterPostsSearch(
         query,
         provider: SearchProviderEnum.Posts,
         search_version: getFeatureValue(feature.searchVersion),
-        filters: { time, contentCuration: contentCurationFilter },
+        filters: {
+          time,
+          contentCuration: contentCurationFilter,
+          postTypes: postTypesFilter,
+        },
       }),
     });
 
     return router.replace({
       pathname: router?.pathname ? router?.pathname : '/search',
-      query: { q: query, ...getSearchTimeQueryParam(time) },
+      query: {
+        q: query,
+        ...getSearchTimeQueryParam(time),
+        ...getSearchContentCurationQueryParam(contentCurationFilter),
+        ...getSearchPostTypesQueryParam(postTypesFilter),
+      },
     });
   };
 

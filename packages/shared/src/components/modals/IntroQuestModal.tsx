@@ -25,7 +25,9 @@ import {
   type QuestRewardSource,
 } from '../quest/QuestRewardAnimations';
 import { ActionType } from '../../graphql/actions';
-import type { QuestType } from '../../graphql/quests';
+import type { QuestType, UserQuest } from '../../graphql/quests';
+import { QuestStatus } from '../../graphql/quests';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useActions } from '../../hooks';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
@@ -34,6 +36,11 @@ import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
 import { BrowserName, getCurrentBrowserName } from '../../lib/func';
 import { LogEvent, TargetType } from '../../lib/log';
+import {
+  formatCompletionDescription,
+  getCompletionItems,
+} from '../../lib/profileCompletion';
+import type { ProfileCompletion } from '../../lib/user';
 
 type IntroQuestFlightLayerState = {
   claimRotationId: string;
@@ -52,6 +59,14 @@ const introDestinationByEventType: Record<string, QuestDestination> = {
   profile_complete: {
     label: 'Profile',
     path: '/settings/profile',
+  },
+  api_token_create: {
+    label: 'API settings',
+    path: '/settings/api',
+  },
+  api_profile_fetch: {
+    label: 'API settings',
+    path: '/settings/api',
   },
 };
 
@@ -80,6 +95,52 @@ const getExtensionIntroDestination = (
 const padStep = (index: number): string =>
   `Step ${(index + 1).toString().padStart(2, '0')}`;
 
+const PUSH_REQUIREMENT_HINT =
+  'Needs browser push permission — the email and in-app toggles do not count.';
+
+const getProfileRequirementHint = (
+  profileCompletion?: ProfileCompletion,
+): string | null => {
+  if (!profileCompletion) {
+    return null;
+  }
+
+  const missingItems = getCompletionItems(profileCompletion).filter(
+    (item) => !item.completed,
+  );
+
+  if (!missingItems.length) {
+    return null;
+  }
+
+  return formatCompletionDescription(missingItems);
+};
+
+/**
+ * Tells the user what a still-open intro quest is actually waiting on, so a
+ * quest that looks done from the settings page it links to explains itself.
+ */
+const getIntroRequirementHint = ({
+  userQuest,
+  profileCompletion,
+}: {
+  userQuest: UserQuest;
+  profileCompletion?: ProfileCompletion;
+}): string | null => {
+  if (userQuest.status !== QuestStatus.InProgress) {
+    return null;
+  }
+
+  switch (userQuest.quest.eventType) {
+    case 'profile_complete':
+      return getProfileRequirementHint(profileCompletion);
+    case 'notifications_enable':
+      return PUSH_REQUIREMENT_HINT;
+    default:
+      return null;
+  }
+};
+
 export const IntroQuestModal = ({
   onRequestClose,
   ...props
@@ -87,6 +148,7 @@ export const IntroQuestModal = ({
   const router = useRouter();
   const browserName = getCurrentBrowserName();
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
   const { completeAction } = useActions();
   const { showPrompt } = usePrompt();
   const { data, isPending, isError } = useQuestDashboard();
@@ -401,6 +463,10 @@ export const IntroQuestModal = ({
                     userQuest.rotationId,
                   )}
                   eyebrow={padStep(index)}
+                  hint={getIntroRequirementHint({
+                    userQuest,
+                    profileCompletion: user?.profileCompletion,
+                  })}
                   showLockIcon={false}
                 />
               ))}

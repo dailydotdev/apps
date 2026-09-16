@@ -28,6 +28,7 @@ export interface SearchLogExtra {
 export interface SearchFilterLogExtra {
   time?: string;
   content_curation?: string[];
+  post_types?: string[];
 }
 
 export interface SearchResultsLogEventProps {

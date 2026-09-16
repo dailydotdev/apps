@@ -11,9 +11,9 @@ import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read
 import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
-  ADSENSE_SCRIPT_SRC,
-  hasLiveAdsenseUnits,
-} from '@dailydotdev/shared/src/features/monetization/adsense';
+  hasLiveAdSlots,
+  PREBID_SCRIPT_SRC,
+} from '@dailydotdev/shared/src/features/monetization/kueez';
 import {
   COMMENTS_PER_INTERLEAVED_AD,
   CONTENT_CHARS_PER_AD,
@@ -21,7 +21,7 @@ import {
   ORGANIC_SLOT,
 } from '@dailydotdev/shared/src/components/post/read/slots';
 import { splitTextForAds } from '@dailydotdev/shared/src/components/post/read/splitContentForAds';
-import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdsenseSlots';
+import { useOrganicAdSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdSlots';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -81,7 +81,7 @@ import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePo
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
-import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
+import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -237,12 +237,9 @@ export const PostPage = ({
   const showRedesign =
     isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
   // Empty for every logged-in visitor; the slot components check the same
-  // hook, so with it empty neither markup nor script exists. Gated on a unit
-  // id being present, not key presence — the map keeps placeholder entries
-  // with empty ids, and the script must not load for inventory that cannot
-  // fill.
-  const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
-  const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
+  // hook, so with it empty neither markup nor the Prebid bundle exists.
+  const adSlots = useOrganicAdSlots(!showRedesign);
+  const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
   // the organic page: the TLDR splits at the shared cadence with an MPU
   // between segments (phones keep only the first), an MPU sits above the
@@ -251,14 +248,14 @@ export const PostPage = ({
   // untouched production markup.
   const summarySegments = useMemo(
     () =>
-      adsenseActive && post?.summary
+      adsActive && post?.summary
         ? splitTextForAds(
             post.summary,
             CONTENT_CHARS_PER_AD,
             MAX_CONTENT_ADS_PER_SECTION + 1,
           )
         : null,
-    [adsenseActive, post?.summary],
+    [adsActive, post?.summary],
   );
   const renderSummarySegments = useMemo(() => {
     if (!summarySegments) {
@@ -301,7 +298,7 @@ export const PostPage = ({
   // destination carries its own slots — while any departure forces a full
   // page load that tears every Google global down.
   useEffect(() => {
-    if (!adsenseActive) {
+    if (!adsActive) {
       return undefined;
     }
     const forceHardNavigation = (
@@ -332,7 +329,7 @@ export const PostPage = ({
       router.events.off('routeChangeStart', forceHardNavigation);
       router.beforePopState(() => true);
     };
-  }, [adsenseActive, router]);
+  }, [adsActive, router]);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -414,14 +411,13 @@ export const PostPage = ({
           <Head>
             <link rel="preload" as="image" href={post?.image} />
           </Head>
-          {adsenseActive && (
+          {adsActive && (
             <>
-              <AdsenseHeadHints />
+              <AdHeadHints />
               <Script
-                id="adsbygoogle-loader"
-                src={ADSENSE_SCRIPT_SRC}
+                id="prebid-loader"
+                src={PREBID_SCRIPT_SRC}
                 strategy="afterInteractive"
-                crossOrigin="anonymous"
               />
             </>
           )}
@@ -441,7 +437,7 @@ export const PostPage = ({
               origin={Origin.ArticlePage}
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
               contentLeading={
-                adsenseActive ? (
+                adsActive ? (
                   <ReadTopLeaderboard
                     surface="organic"
                     slot={ORGANIC_SLOT.topLeaderboard}
@@ -453,7 +449,7 @@ export const PostPage = ({
               // changes rail spacing for members who never see one.
               renderSummarySegments={renderSummarySegments}
               aboveComments={
-                adsenseActive ? (
+                adsActive ? (
                   <ReadAdSlot
                     surface="organic"
                     slot={ORGANIC_SLOT.aboveCommentsMpu}
@@ -463,7 +459,7 @@ export const PostPage = ({
                 ) : undefined
               }
               commentAds={
-                adsenseActive
+                adsActive
                   ? {
                       interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
                       renderInterleaved: (occurrence) => (
@@ -479,7 +475,7 @@ export const PostPage = ({
                   : undefined
               }
               getWidgetRailAd={
-                adsenseActive
+                adsActive
                   ? (widgetPosition) =>
                       widgetPosition === PostWidgetPosition.DirectAd ? (
                         <ReadAdSlot
