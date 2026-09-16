@@ -224,6 +224,7 @@ export const PostPage = ({
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
   const showRedesign = usePostPageRedesign(post);
+  const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
   // Empty for every logged-in visitor; the slot components check the same
   // hook, so with it empty neither markup nor script exists. Gated on a unit
   // id being present, not key presence — the map keeps placeholder entries
@@ -415,7 +416,14 @@ export const PostPage = ({
           )}
           <PostSEOSchema post={post} topComments={topComments} />
           {showRedesign ? (
-            <div className="mx-auto w-full max-w-[63.75rem]">
+            <div
+              className={classNames(
+                'mx-auto w-full max-w-[63.75rem]',
+                // Clears the fixed signup banner so the thread's tail is
+                // reachable; the classic page ends in the footer instead.
+                showLaptopAuthBanner && 'laptop:pb-72',
+              )}
+            >
               <PostFocusCard post={post} origin={Origin.ArticlePage} />
             </div>
           ) : (
@@ -488,9 +496,7 @@ export const PostPage = ({
               }}
             />
           )}
-          {!showRedesign && shouldShowAuthBanner && isLaptop && (
-            <PostAuthBanner />
-          )}
+          {showLaptopAuthBanner && <PostAuthBanner />}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

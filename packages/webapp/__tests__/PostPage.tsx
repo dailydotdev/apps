@@ -1304,6 +1304,16 @@ describe('post redesign', () => {
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
   });
 
+  it('should show the signup banner to logged-out laptop visitors on the focus card', async () => {
+    mockRedesignOn = true;
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    renderPost({}, [createPostMock(), createCommentsMock()], undefined);
+    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Where developers suffer together'),
+    ).toBeInTheDocument();
+  });
+
   describe('phone ad strip', () => {
     const renderAnonymousPage = () =>
       renderPost(
