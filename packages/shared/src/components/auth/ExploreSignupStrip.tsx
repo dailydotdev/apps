@@ -88,22 +88,32 @@ export function ExploreSignupStrip({
   };
 
   return (
-    <HijackingCoverCard className={className}>
+    <HijackingCoverCard
+      className={className}
+      // Scaled up and shifted right so the dev and dog sit past the column,
+      // around two thirds across.
+      artClassName="origin-[50%_88%] translate-x-[15%] scale-[1.45]"
+    >
       <div className="cover-strip-blur-near pointer-events-none absolute inset-y-0 left-0 w-3/4" />
       <div className="cover-strip-blur-mid pointer-events-none absolute inset-y-0 left-0 w-3/4" />
       <div className="cover-strip-blur-far pointer-events-none absolute inset-y-0 left-0 w-3/4" />
       <div className="pointer-events-none absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-raw-pepper-90/[0.85] via-raw-pepper-90/[0.45] to-transparent" />
       <div
         className={classNames(
-          'dark relative z-1 flex flex-col items-start px-6 py-8 text-left laptop:px-8',
+          'dark relative z-1 flex flex-col items-start justify-center px-6 py-8 laptop:px-8',
           exploreSignupStripMinHeight,
         )}
       >
-        <div className="flex max-w-[28rem] flex-col gap-1">
-          <h3 className={hijackingCoverHeadingClassName}>{copy.heading}</h3>
+        <div className="flex w-full max-w-[26.25rem] flex-col items-center gap-1 text-center">
+          <h3
+            className={classNames(
+              'text-balance',
+              hijackingCoverHeadingClassName,
+            )}
+          >
+            {copy.heading}
+          </h3>
           <p className={hijackingCoverBodyClassName}>{copy.body}</p>
-        </div>
-        <div className="mt-5 w-full max-w-[28rem]">
           <AuthOptions
             ignoreMessages
             formRef={null as unknown as AuthOptionsProps['formRef']}
@@ -116,7 +126,7 @@ export function ExploreSignupStrip({
             inlineProviders
             preferGithub={false}
             onboardingSignupButton={{ size: ButtonSize.Medium }}
-            className={{ container: '!min-h-0 !overflow-visible' }}
+            className={{ container: 'mt-4 !min-h-0 !overflow-visible' }}
             onAuthStateUpdate={onAuthStateUpdate}
           />
         </div>

@@ -22,12 +22,15 @@ export const hijackingCoverStripMinHeight = 'min-h-[14rem]';
 interface HijackingCoverCardProps {
   children: ReactNode;
   className?: string;
+  // Reframes the art (scale, translate, origin) for the surface's layout.
+  artClassName?: string;
 }
 
 // The cover art card; children lay out the content over it.
 export function HijackingCoverCard({
   children,
   className,
+  artClassName,
 }: HijackingCoverCardProps): ReactElement {
   return (
     <section className={classNames('w-full', className)}>
@@ -39,7 +42,10 @@ export function HijackingCoverCard({
           role="presentation"
           fetchPriority="high"
           decoding="async"
-          className="pointer-events-none absolute inset-0 size-full object-cover"
+          className={classNames(
+            'pointer-events-none absolute inset-0 size-full object-cover',
+            artClassName,
+          )}
           style={coverArtPosition}
         />
         <div className="cover-hero-dome pointer-events-none absolute inset-0" />
