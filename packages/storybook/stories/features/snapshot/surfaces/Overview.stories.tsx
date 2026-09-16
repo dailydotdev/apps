@@ -71,13 +71,13 @@ const PAGES: React.ReactNode[][] = [
   ],
   [
     'Happening now',
-    '#6355',
-    'Page, topic and highlight level — and what a page-level snapshot actually looks like at thumbnail size',
+    '#6570',
+    'Shipped: the live Happening Now page is the reference, so it has no mockup here',
   ],
   [
     'Briefing',
-    '#6353',
-    'Whole briefing versus per item, plus a closing band at the end of the read',
+    '#6563',
+    'Shipped: the live briefing is the reference, so it has no mockup here',
   ],
   [
     'Profile',

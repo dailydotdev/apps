@@ -137,70 +137,74 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
 
     return (
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex shrink-0 flex-col gap-3 px-5 pb-3 pt-2">
-          <textarea
-            ref={titleRef}
-            name="title"
-            placeholder="Post title…"
-            maxLength={TITLE_MAX_LENGTH}
-            rows={1}
-            value={value.title}
-            onChange={(e) =>
-              onChange({
-                ...value,
-                title: normalizeSingleLineComposerText(e.currentTarget.value),
-              })
-            }
-            onKeyDown={onTitleKeyDown}
-            aria-label="Post title"
-            className="w-full resize-none overflow-hidden break-words bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
-          />
-          {cover ? (
-            <div className="group relative w-fit max-w-full">
-              <img
-                src={cover.preview}
-                alt="Post cover"
-                className={classNames(
-                  'block h-auto max-h-44 w-auto max-w-full rounded-16 object-contain transition-opacity',
-                  'group-hover:brightness-95',
-                  cover.isUploading && 'opacity-50',
-                )}
-              />
-              <Tooltip content="Remove cover">
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Primary}
-                  icon={<MiniCloseIcon />}
-                  onClick={() => onCoverChange?.(null)}
-                  aria-label="Remove cover"
-                  className="absolute right-3 top-3 z-1 !rounded-full !bg-surface-invert !text-text-primary !shadow-3 hover:!bg-text-primary hover:!text-surface-invert"
-                />
-              </Tooltip>
-            </div>
-          ) : (
-            onCoverChange && (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="inline-flex w-fit items-center gap-1.5 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-1.5 text-text-tertiary transition-colors typo-callout hover:border-border-subtlest-secondary hover:bg-surface-float hover:text-text-primary"
-                aria-label="Add a cover image"
-              >
-                <CameraIcon size={IconSize.Size16} />
-                Add cover
-              </button>
-            )
-          )}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={ACCEPTED_TYPES}
-            className="hidden"
-            onChange={onFileInputChange}
-          />
-        </div>
         <RichTextInput
           ref={editorRef}
+          inputPrefix={
+            <div className="flex shrink-0 flex-col gap-3 px-5 pb-3 pt-2">
+              <textarea
+                ref={titleRef}
+                name="title"
+                placeholder="Post title…"
+                maxLength={TITLE_MAX_LENGTH}
+                rows={1}
+                value={value.title}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    title: normalizeSingleLineComposerText(
+                      e.currentTarget.value,
+                    ),
+                  })
+                }
+                onKeyDown={onTitleKeyDown}
+                aria-label="Post title"
+                className="max-h-36 w-full resize-none overflow-y-auto break-words bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
+              />
+              {cover ? (
+                <div className="group relative w-fit max-w-full">
+                  <img
+                    src={cover.preview}
+                    alt="Post cover"
+                    className={classNames(
+                      'block h-auto max-h-44 w-auto max-w-full rounded-16 object-contain transition-opacity',
+                      'group-hover:brightness-95',
+                      cover.isUploading && 'opacity-50',
+                    )}
+                  />
+                  <Tooltip content="Remove cover">
+                    <Button
+                      type="button"
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Primary}
+                      icon={<MiniCloseIcon />}
+                      onClick={() => onCoverChange?.(null)}
+                      aria-label="Remove cover"
+                      className="absolute right-3 top-3 z-1 !rounded-full !bg-surface-invert !text-text-primary !shadow-3 hover:!bg-text-primary hover:!text-surface-invert"
+                    />
+                  </Tooltip>
+                </div>
+              ) : (
+                onCoverChange && (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex w-fit items-center gap-1.5 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-1.5 text-text-tertiary transition-colors typo-callout hover:border-border-subtlest-secondary hover:bg-surface-float hover:text-text-primary"
+                    aria-label="Add a cover image"
+                  >
+                    <CameraIcon size={IconSize.Size16} />
+                    Add cover
+                  </button>
+                )
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={ACCEPTED_TYPES}
+                className="hidden"
+                onChange={onFileInputChange}
+              />
+            </div>
+          }
           initialContent={value.body}
           onValueUpdate={(body) => onChange({ ...value, body })}
           sourceId={sourceId}

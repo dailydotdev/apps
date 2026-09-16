@@ -90,7 +90,7 @@ export const AccountPageContainer = ({
       {!isV2Laptop && (
         <AccountPageHeading
           className={classNames(
-            'sticky top-[var(--sticky-header-offset)] z-1 bg-background-default',
+            'sticky top-[var(--safe-area-top)] z-1 bg-background-default laptop:top-[var(--sticky-header-offset)]',
             className.heading,
           )}
         >

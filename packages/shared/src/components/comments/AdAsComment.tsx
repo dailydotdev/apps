@@ -85,19 +85,23 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     ad.impressionStatus = ImpressionStatus.LOGGED;
   }, [ad, onAdAction]);
 
-  if (!ad) {
-    return <></>;
+  if (isFetching && !isRefetching) {
+    return (
+      <div className="mt-6 min-h-48 rounded-16 border border-border-subtlest-tertiary p-4">
+        <PlaceholderCommentList placeholderAmount={1} className="!mt-0" />
+      </div>
+    );
   }
 
-  if (isFetching && !isRefetching) {
-    return <PlaceholderCommentList placeholderAmount={1} />;
+  if (!ad) {
+    return <></>;
   }
 
   const { providerId, source, image, description, pixel, company, tagLine } =
     ad;
 
   return (
-    <div className="relative mt-6 flex flex-wrap rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
+    <div className="relative mt-6 flex min-h-48 flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
       <AdLink ad={ad} onLinkClick={() => onAdAction(AdActions.Click)} />
       <ProfilePicture
         nativeLazyLoading

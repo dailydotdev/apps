@@ -100,6 +100,7 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -263,7 +264,8 @@ export default function MainFeedLayout({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
-  const { time, contentCurationFilter } = useSearchContextProvider();
+  const { time, contentCurationFilter, postTypesFilter } =
+    useSearchContextProvider();
   const isExtension = checkIsExtension();
   const isHomePage = router.pathname === webappUrl;
   const {
@@ -348,6 +350,7 @@ export default function MainFeedLayout({
           searchQuery,
           searchVersion,
           contentCurationFilter.join(','),
+          postTypesFilter.join(','),
           time,
         ].join('|')
       : '',
@@ -591,6 +594,7 @@ export default function MainFeedLayout({
           user,
           searchQuery,
           contentCurationFilter,
+          postTypesFilter,
           time,
         ),
         query: SEARCH_POSTS_QUERY,
@@ -598,6 +602,7 @@ export default function MainFeedLayout({
           query: searchQuery,
           version: searchVersion,
           contentCuration: contentCurationFilter,
+          postTypes: postTypesFilter,
           time,
         },
         searchId,
@@ -684,6 +689,7 @@ export default function MainFeedLayout({
     searchId,
     searchVersion,
     contentCurationFilter,
+    postTypesFilter,
     time,
     tab,
     router.pathname,
@@ -842,6 +848,17 @@ export default function MainFeedLayout({
         )}
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
+        {isSearchOn && !isSearchPageLaptop && (
+          <div
+            className={classNames(
+              'mb-3 flex justify-end px-4',
+              feedWidthClassName,
+            )}
+            style={feedWidthStyle}
+          >
+            <SearchMobileFiltersButton />
+          </div>
+        )}
         {isSearchOn && isFinder && !isSearchPageLaptop && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}

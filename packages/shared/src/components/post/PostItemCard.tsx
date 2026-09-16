@@ -6,6 +6,7 @@ import type { HidePostItemCardProps } from '../../graphql/users';
 import type { PostItem } from '../../graphql/posts';
 import { UserVote, isVideoPost } from '../../graphql/posts';
 import { MiniCloseIcon as XIcon, UpvoteIcon, DownvoteIcon } from '../icons';
+import { LinkIcon } from '../icons/Link';
 import classed from '../../lib/classed';
 import PostMetadata from '../cards/common/PostMetadata';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -13,7 +14,7 @@ import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useReadHistoryVotePost } from '../../hooks';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 import {
   Button,
   ButtonColor,
@@ -24,6 +25,13 @@ import { isSourceUserSource } from '../../graphql/sources';
 
 import { ReadingHistoryOptionsMenu } from '../history/ReadingHistoryOptionsMenu';
 import type { QueryIndexes } from '../../hooks/useReadingHistory';
+import { useCopyPostLink } from '../../hooks/useCopyPostLink';
+import { CopyStateIcon } from '../share/CopyStateIcon';
+import { Tooltip } from '../tooltip/Tooltip';
+import { useLogContext } from '../../contexts/LogContext';
+import { postLogEvent } from '../../lib/feed';
+import { ReferralCampaignKey } from '../../lib/referral';
+import { ShareProvider } from '../../lib/share';
 
 export interface PostItemCardProps {
   className?: string;
@@ -32,6 +40,7 @@ export interface PostItemCardProps {
   clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   showVoteActions?: boolean;
+  showCopyLink?: boolean;
   logOrigin?: Origin;
   indexes?: QueryIndexes;
 }
@@ -48,6 +57,7 @@ export default function PostItemCard({
   onHide,
   className,
   showVoteActions = false,
+  showCopyLink = false,
   logOrigin = Origin.Feed,
   indexes,
 }: PostItemCardProps): ReactElement {
@@ -66,6 +76,23 @@ export default function PostItemCard({
   const isUserSource = isSourceUserSource(source);
 
   const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost();
+  const [linkCopied, copyLink] = useCopyPostLink();
+  const { logEvent } = useLogContext();
+
+  const onCopyLink = (e: MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    logEvent(
+      postLogEvent(LogEvent.SharePost, post, {
+        extra: { provider: ShareProvider.CopyLink, origin: logOrigin },
+      }),
+    );
+    copyLink({
+      link: post.commentsPermalink,
+      shorten: true,
+      cid: ReferralCampaignKey.SharePost,
+    });
+  };
 
   const classes = classNames(
     'relative flex w-full flex-row py-3 pl-9 pr-5',
@@ -184,6 +211,17 @@ export default function PostItemCard({
                   icon={<XIcon />}
                   onClick={onHideClick}
                 />
+              )}
+              {showButtons && showCopyLink && (
+                <Tooltip content="Copy link">
+                  <Button
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    aria-label="Copy link"
+                    icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
+                    onClick={onCopyLink}
+                  />
+                </Tooltip>
               )}
               {showButtons && (
                 <ReadingHistoryOptionsMenu

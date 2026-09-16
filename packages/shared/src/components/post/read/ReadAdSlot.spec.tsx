@@ -12,9 +12,16 @@ import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { LogEvent } from '../../../lib/log';
 import { AdActions } from '../../../lib/ads';
-import type { AdsenseSlots } from '../../../features/monetization/adsense';
-import { ADSENSE_CLIENT_ID } from '../../../features/monetization/adsense';
-import { featureReadAdsense } from '../../../lib/featureManagement';
+import type { AdSlots } from '../../../features/monetization/kueez';
+import type {
+  AuctionResult,
+  PrebidBid,
+} from '../../../features/monetization/prebid';
+import {
+  renderPrebidBid,
+  requestKueezBid,
+} from '../../../features/monetization/prebid';
+import { featureReadAds } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
 import { ORGANIC_SLOT } from './slots';
 
@@ -31,25 +38,66 @@ jest.mock('../../../lib/constants', () => ({
   isDevelopment: false,
 }));
 
+// jsdom has no Prebid bundle, so the auction itself is the seam: every test
+// decides what the exchange answered rather than what the DOM looked like.
+jest.mock('../../../features/monetization/prebid', () => ({
+  configurePrebid: jest.fn(),
+  requestKueezBid: jest.fn(),
+  renderPrebidBid: jest.fn(),
+  pingViewable: jest.fn(),
+}));
+
 // The slot maps ship hardcoded; tests swap in fixtures via these mutable
-// module objects rather than asserting against production unit ids.
+// module objects rather than asserting against the production map.
 jest.mock('./slots', () => ({
   ...(jest.requireActual('./slots') as Record<string, unknown>),
-  READ_ADSENSE_SLOTS: {},
-  ORGANIC_ADSENSE_SLOTS: {},
+  READ_AD_SLOTS: {},
+  ORGANIC_AD_SLOTS: {},
 }));
 
 const mockConstants = jest.requireMock('../../../lib/constants') as {
   isDevelopment: boolean;
 };
 const mockSlotMaps = jest.requireMock('./slots') as {
-  READ_ADSENSE_SLOTS: AdsenseSlots;
-  ORGANIC_ADSENSE_SLOTS: AdsenseSlots;
+  READ_AD_SLOTS: AdSlots;
+  ORGANIC_AD_SLOTS: AdSlots;
 };
 
 const mockUseFeature = jest.mocked(useFeature);
+const mockRequestBid = jest.mocked(requestKueezBid);
+const mockRenderBid = jest.mocked(renderPrebidBid);
 
 const flags = { read: true };
+
+const BID: PrebidBid = {
+  adId: 'ad-1',
+  bidder: 'kueezrtb',
+  cpm: 2.5,
+  currency: 'USD',
+  width: 300,
+  height: 250,
+  creativeId: 'creative-1',
+};
+
+const answerWith = (result: AuctionResult): void => {
+  mockRequestBid.mockResolvedValue(result);
+};
+
+/**
+ * The default: an auction still out. Tests that care about the outcome say so
+ * with `answerWith`, and the rest never settle, so nothing resolves into a
+ * component after its test has finished.
+ */
+const leaveAuctionPending = (): void => {
+  mockRequestBid.mockReturnValue(new Promise<AuctionResult>(() => {}));
+};
+
+/** Lets the auction promise resolve and its state updates flush. */
+const settleAuction = async (): Promise<void> => {
+  await act(async () => {
+    await Promise.resolve();
+  });
+};
 
 // Both surfaces are anonymous-only and wait for boot, so the default render
 // is an anonymous visitor with auth resolved.
@@ -75,22 +123,28 @@ const renderLoggedIn = (ui: React.ReactElement) =>
     </AuthContext.Provider>,
   );
 
-/** Fills the /read map — the surface has no flag, the map alone decides. */
-const setSlots = (slots: AdsenseSlots): void => {
-  mockSlotMaps.READ_ADSENSE_SLOTS = slots;
+/** Fills the /read map: the surface has no flag beyond the kill switch. */
+const setSlots = (slots: AdSlots): void => {
+  mockSlotMaps.READ_AD_SLOTS = slots;
 };
 
-const setOrganicSlots = (slots: AdsenseSlots): void => {
-  mockSlotMaps.ORGANIC_ADSENSE_SLOTS = slots;
+const setOrganicSlots = (slots: AdSlots): void => {
+  mockSlotMaps.ORGANIC_AD_SLOTS = slots;
 };
 
 beforeEach(() => {
+  jest.clearAllMocks();
   mockConstants.isDevelopment = false;
   flags.read = true;
-  mockSlotMaps.READ_ADSENSE_SLOTS = {};
-  mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {};
+  mockSlotMaps.READ_AD_SLOTS = {};
+  mockSlotMaps.ORGANIC_AD_SLOTS = {};
+  leaveAuctionPending();
+  mockRenderBid.mockImplementation((container: HTMLElement) => {
+    container.appendChild(document.createElement('iframe'));
+    return true;
+  });
   mockUseFeature.mockImplementation((feature) =>
-    feature === featureReadAdsense ? flags.read : feature.defaultValue,
+    feature === featureReadAds ? flags.read : feature.defaultValue,
   );
 });
 
@@ -110,135 +164,107 @@ describe('ReadAdSlot', () => {
     render(<ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} />);
 
     expect(screen.getByTestId('read-ad-slot-3')).toBeInTheDocument();
-    expect(screen.queryByTestId('adsense-slot-3')).not.toBeInTheDocument();
-  });
-
-  it('restricts a responsive unit to its format shape', () => {
-    setSlots({ '3': { id: '1234567890', type: 'display' } });
-    render(<ReadAdSlot slot={3} format={ReadAdFormat.MediumRectangle} eager />);
-
-    // Left on `auto`, a 300px-wide slot is free to answer with a 300x600;
-    // left on the phone default, the ins stretches to the screen width and
-    // overflows the card.
-    const ins = screen.getByTestId('adsense-slot-3');
-    expect(ins).toHaveAttribute('data-ad-format', 'rectangle');
-    expect(ins).toHaveAttribute('data-full-width-responsive', 'false');
-  });
-
-  it('keeps banners horizontal so a rectangle cannot fill them', () => {
-    setSlots({ '2': { id: '1234567890', type: 'display' } });
-    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
-
-    expect(screen.getByTestId('adsense-slot-2')).toHaveAttribute(
-      'data-ad-format',
-      'horizontal',
-    );
+    expect(mockRequestBid).not.toHaveBeenCalled();
   });
 
   it('drops phone-hidden slots below the tablet breakpoint', () => {
-    setSlots({ '5': { id: '1234567890', type: 'inArticle' } });
+    setSlots({ '5': {} });
     render(
       <ReadAdSlot slot={5} format={ReadAdFormat.Rectangle} hideOnPhone eager />,
     );
 
-    expect(screen.getByTestId('adsense-slot-5').parentElement).toHaveClass(
+    expect(screen.getByTestId('ad-slot-5').parentElement).toHaveClass(
       'hidden',
       'tablet:block',
     );
   });
 
-  it('renders a live in-article unit when the slot is configured', () => {
-    setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
+  it('offers a format its whole size range when nothing is booked', () => {
+    setSlots({ '3': {} });
     render(<ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} eager />);
 
-    const ins = screen.getByTestId('adsense-slot-3');
-    expect(ins).toHaveClass('adsbygoogle');
-    expect(ins).toHaveAttribute('data-ad-client', ADSENSE_CLIENT_ID);
-    expect(ins).toHaveAttribute('data-ad-slot', '1234567890');
-    expect(ins).toHaveAttribute('data-ad-layout', 'in-article');
-    expect(ins).toHaveAttribute('data-ad-format', 'fluid');
-    expect(screen.queryByTestId('read-ad-slot-3')).not.toBeInTheDocument();
-  });
-
-  it('never hides a slot AdSense has not declined', async () => {
-    // Height and a missing iframe cannot tell a slow auction from a declined
-    // ad, and hiding is unrecoverable: display:none is not something Google
-    // renders into, so a slot hidden while waiting never fills at all. Only
-    // data-ad-status="unfilled" means no ad, and the wrapper's CSS rule
-    // handles that one.
-    jest.useFakeTimers();
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
-
-    await act(async () => {
-      jest.advanceTimersByTime(60_000);
-    });
-
-    expect(screen.getByTestId('adsense-slot-2').parentElement).not.toHaveClass(
-      '!hidden',
-    );
-    jest.useRealTimers();
-  });
-
-  it('mounts no <ins> before the slot becomes eligible', () => {
-    // adsbygoogle.push({}) binds to the first uninitialised ins in document
-    // order, not to the slot that pushed — so an ins that is not meant to be
-    // requested yet must not exist at all. The suite-wide IntersectionObserver
-    // mock never fires, which models exactly that state.
-    setSlots({ '3': { id: '1234567890', type: 'display' } });
-    render(<ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} />);
-
-    expect(screen.queryByTestId('adsense-slot-3')).not.toBeInTheDocument();
-  });
-
-  it('requests eager slots on mount without waiting for intersection', () => {
-    // The suite-wide IntersectionObserver mock never fires callbacks, so a
-    // push proves the eager path skipped the observer entirely.
-    window.adsbygoogle = [];
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
-
-    expect(window.adsbygoogle).toHaveLength(1);
-  });
-
-  it('serves test creatives on any host but production', () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
-
-    expect(screen.getByTestId('adsense-slot-2')).toHaveAttribute(
-      'data-adtest',
-      'on',
+    // An unlaid-out slot (jsdom has no layout) can still only be answered
+    // with a size that fits it, which is the narrowest one the format lists.
+    expect(mockRequestBid).toHaveBeenCalledWith(
+      expect.objectContaining({ sizes: [[300, 250]] }),
     );
   });
 
-  it('renders fixed-size units at exactly the configured size', () => {
+  it('asks for exactly the booked size on a fixed slot', () => {
     setOrganicSlots({
-      [ORGANIC_SLOT.railAfterDirectAd]: {
-        id: '3333333333',
-        type: 'display',
-        width: 300,
-        height: 250,
-      },
+      [ORGANIC_SLOT.topLeaderboardPhone]: { sizes: [[320, 50]] },
     });
     render(
       <ReadAdSlot
         surface="organic"
-        slot={ORGANIC_SLOT.railAfterDirectAd}
-        format={ReadAdFormat.MediumRectangle}
+        slot={ORGANIC_SLOT.topLeaderboardPhone}
+        format={ReadAdFormat.MobileBanner}
         eager
       />,
     );
 
-    const ins = screen.getByTestId(
-      `adsense-slot-${ORGANIC_SLOT.railAfterDirectAd}`,
+    expect(mockRequestBid).toHaveBeenCalledWith(
+      expect.objectContaining({ sizes: [[320, 50]] }),
     );
-    expect(ins).toHaveStyle({ width: '300px', height: '250px' });
-    expect(ins).not.toHaveAttribute('data-ad-format');
-    expect(ins).toHaveAttribute('data-full-width-responsive', 'false');
+  });
+
+  it('gives every mounted slot its own ad unit code', () => {
+    // The code is how a winning bid is found again, so two placements sharing
+    // a slot number must not share one.
+    setSlots({ '17': {} });
+    render(
+      <>
+        <ReadAdSlot slot={17} format={ReadAdFormat.MediumRectangle} eager />
+        <ReadAdSlot slot={17} format={ReadAdFormat.MediumRectangle} eager />
+      </>,
+    );
+
+    const [first, second] = mockRequestBid.mock.calls.map(
+      ([args]) => args.code,
+    );
+    expect(first).not.toEqual(second);
+  });
+
+  it('runs no auction before the slot becomes eligible', () => {
+    // The suite-wide IntersectionObserver mock never fires, which models a
+    // slot that has never come near the viewport.
+    setSlots({ '3': {} });
+    render(<ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} />);
+
+    expect(mockRequestBid).not.toHaveBeenCalled();
+  });
+
+  it('runs eager auctions on mount without waiting for intersection', () => {
+    setSlots({ '2': {} });
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
+
+    expect(mockRequestBid).toHaveBeenCalledTimes(1);
+  });
+
+  it('collapses the reservation when no bid comes back', async () => {
+    answerWith({ status: 'no_bid' });
+    setSlots({ '2': {} });
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
+    await settleAuction();
+
+    expect(screen.getByTestId('ad-slot-2').parentElement).toHaveClass(
+      '!hidden',
+    );
+  });
+
+  it('keeps the reservation standing while the auction is still out', () => {
+    // Hiding early is unrecoverable in the reader's eyes: the box would jump
+    // back in under them when a slow bid lands.
+    setSlots({ '2': {} });
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
+
+    expect(screen.getByTestId('ad-slot-2').parentElement).not.toHaveClass(
+      '!hidden',
+    );
   });
 
   it('never renders for logged-in users', () => {
-    setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
+    setSlots({ '3': {} });
     const { container } = renderLoggedIn(
       <ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} eager />,
     );
@@ -247,7 +273,7 @@ describe('ReadAdSlot', () => {
   });
 
   it('stays dark until auth resolves, so a logged-in boot never sees a flash', () => {
-    setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
+    setSlots({ '3': {} });
     const { container } = rtlRender(
       <AuthContext.Provider
         value={{ isAuthReady: false } as unknown as AuthContextData}
@@ -259,9 +285,9 @@ describe('ReadAdSlot', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('goes dark when the read_adsense kill switch is off', () => {
+  it('goes dark when the read_ads kill switch is off', () => {
     flags.read = false;
-    setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
+    setSlots({ '3': {} });
     const { container } = render(
       <ReadAdSlot slot={3} format={ReadAdFormat.Rectangle} eager />,
     );
@@ -269,16 +295,10 @@ describe('ReadAdSlot', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('collapses unconfigured and empty-id slots in live mode', () => {
-    setSlots({
-      '3': { id: '1234567890', type: 'inArticle' },
-      '12': { id: '', type: 'display' },
-    });
+  it('collapses slot numbers the surface does not carry', () => {
+    setSlots({ '3': {} });
     const { container } = render(
-      <>
-        <ReadAdSlot slot={4} format={ReadAdFormat.MediumRectangle} />
-        <ReadAdSlot slot={12} format={ReadAdFormat.MediumRectangle} />
-      </>,
+      <ReadAdSlot slot={4} format={ReadAdFormat.MediumRectangle} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -286,11 +306,11 @@ describe('ReadAdSlot', () => {
 });
 
 describe('ReadAdSlot on the organic surface', () => {
-  const organicFixture: AdsenseSlots = {
-    [ORGANIC_SLOT.topLeaderboard]: { id: '5555555555', type: 'display' },
+  const organicFixture: AdSlots = {
+    [ORGANIC_SLOT.topLeaderboard]: {},
   };
 
-  it('renders for an anonymous visitor when the unit is configured', () => {
+  it('renders for an anonymous visitor when the slot is configured', () => {
     setOrganicSlots(organicFixture);
     render(
       <ReadAdSlot
@@ -302,8 +322,8 @@ describe('ReadAdSlot on the organic surface', () => {
     );
 
     expect(
-      screen.getByTestId(`adsense-slot-${ORGANIC_SLOT.topLeaderboard}`),
-    ).toHaveAttribute('data-ad-slot', '5555555555');
+      screen.getByTestId(`ad-slot-${ORGANIC_SLOT.topLeaderboard}`),
+    ).toBeInTheDocument();
   });
 
   it('never renders for logged-in users', () => {
@@ -320,30 +340,12 @@ describe('ReadAdSlot on the organic surface', () => {
   });
 
   it('ignores the read flag and map entirely', () => {
-    setSlots({
-      [ORGANIC_SLOT.topLeaderboard]: { id: '9999999999', type: 'display' },
-    });
+    setSlots({ [ORGANIC_SLOT.topLeaderboard]: {} });
     const { container } = render(
       <ReadAdSlot
         surface="organic"
         slot={ORGANIC_SLOT.topLeaderboard}
         format={ReadAdFormat.Leaderboard}
-      />,
-    );
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it('collapses to nothing while no organic unit has an id', () => {
-    setOrganicSlots({
-      [ORGANIC_SLOT.topLeaderboard]: { id: '', type: 'display' },
-    });
-    const { container } = render(
-      <ReadAdSlot
-        surface="organic"
-        slot={ORGANIC_SLOT.topLeaderboard}
-        format={ReadAdFormat.Leaderboard}
-        eager
       />,
     );
 
@@ -383,78 +385,121 @@ describe('ProgrammaticAd telemetry', () => {
   const loggedEvents = (): string[] =>
     logEvent.mock.calls.map(([event]) => event.event_name);
 
+  /** The creative's own browsing context, once the bid has rendered. */
+  const creativeFrame = (): HTMLIFrameElement => {
+    const iframe = screen.getByTestId('ad-slot-2').querySelector('iframe');
+    if (!iframe) {
+      throw new Error('the creative iframe never rendered');
+    }
+    return iframe;
+  };
+
+  const renderLeaderboard = () => {
+    setSlots({ '2': {} });
+    return renderWithLog(
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
+    );
+  };
+
   beforeEach(() => {
     logEvent.mockClear();
   });
 
   it('logs the request exactly once with the standardized extras', () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    const { rerender } = renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
-    );
+    const { rerender } = renderLeaderboard();
     rerender(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
 
     const requests = logEvent.mock.calls.filter(
-      ([event]) => event.event_name === LogEvent.RequestAdsenseSlot,
+      ([event]) => event.event_name === LogEvent.RequestAdSlot,
     );
     expect(requests).toHaveLength(1);
     expect(JSON.parse(requests[0][0].extra)).toMatchObject({
       slot: 2,
-      unit: '2222222222',
-      unit_type: 'display',
       format: 'leaderboard',
       surface: 'read',
     });
   });
 
-  it('logs an empty slot when AdSense answers unfilled', async () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
-    );
+  it('logs an empty slot when the exchange does not bid', async () => {
+    answerWith({ status: 'no_bid' });
+    renderLeaderboard();
+    await settleAuction();
 
-    screen
-      .getByTestId('adsense-slot-2')
-      .setAttribute('data-ad-status', 'unfilled');
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    expect(loggedEvents()).toContain(LogEvent.EmptyAdsenseSlot);
-    expect(loggedEvents()).not.toContain(LogEvent.FillAdsenseSlot);
+    expect(loggedEvents()).toContain(LogEvent.EmptyAdSlot);
+    expect(loggedEvents()).not.toContain(LogEvent.FillAdSlot);
   });
 
-  it('logs a fill when the creative iframe lands', async () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
+  it('separates a blocked bundle from a genuine no bid', async () => {
+    // Both leave the slot empty, but only one of them is lost revenue.
+    answerWith({ status: 'unavailable' });
+    renderLeaderboard();
+    await settleAuction();
+
+    const empty = logEvent.mock.calls.find(
+      ([event]) => event.event_name === LogEvent.EmptyAdSlot,
     );
-
-    screen
-      .getByTestId('adsense-slot-2')
-      .appendChild(document.createElement('iframe'));
-    await act(async () => {
-      await Promise.resolve();
+    expect(JSON.parse(empty[0].extra)).toMatchObject({
+      reason: 'unavailable',
     });
+  });
 
-    expect(loggedEvents()).toContain(LogEvent.FillAdsenseSlot);
+  it('logs the winning price at fill, which is what the impression earned', async () => {
+    answerWith({ status: 'bid', bid: BID });
+    renderLeaderboard();
+    await settleAuction();
+
+    const fill = logEvent.mock.calls.find(
+      ([event]) => event.event_name === LogEvent.FillAdSlot,
+    );
+    expect(JSON.parse(fill[0].extra)).toMatchObject({
+      slot: 2,
+      cpm: 2.5,
+      currency: 'USD',
+      bidder: 'kueezrtb',
+      creative_id: 'creative-1',
+      creative_size: '300x250',
+    });
+  });
+
+  it('reports a render failure apart from an empty auction', async () => {
+    answerWith({ status: 'bid', bid: BID });
+    mockRenderBid.mockReturnValue(false);
+    renderLeaderboard();
+    await settleAuction();
+
+    expect(loggedEvents()).toContain(LogEvent.AdSlotError);
+    expect(loggedEvents()).not.toContain(LogEvent.FillAdSlot);
+    expect(screen.getByTestId('ad-slot-2').parentElement).toHaveClass(
+      '!hidden',
+    );
+  });
+
+  it('logs the loose impression at fill, in the internal ads shape', async () => {
+    answerWith({ status: 'bid', bid: BID });
+    renderLeaderboard();
+    await settleAuction();
+
+    const impressions = logEvent.mock.calls.filter(
+      ([event]) => event.event_name === AdActions.Impression,
+    );
+    expect(impressions).toHaveLength(1);
+    expect(impressions[0][0]).toMatchObject({
+      target_type: 'ad',
+      target_id: 'creative-1',
+      ad_provider_id: 'kueez',
+    });
+    // The strict name is reserved for the MRC measurement from useViewability.
+    expect(loggedEvents()).not.toContain(AdActions.Viewable);
   });
 
   it('logs a click once when focus moves into the filled creative', async () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
-    );
+    answerWith({ status: 'bid', bid: BID });
+    renderLeaderboard();
+    await settleAuction();
 
-    const iframe = document.createElement('iframe');
-    screen.getByTestId('adsense-slot-2').appendChild(iframe);
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    // A click on a cross-origin creative never bubbles here; the observable
-    // is focus landing on the iframe as the window blurs.
-    iframe.focus();
+    // A click on a creative in its own browsing context never bubbles here;
+    // the observable is focus landing on the iframe as the window blurs.
+    creativeFrame().focus();
     fireEvent.blur(window);
     fireEvent.blur(window);
 
@@ -464,56 +509,22 @@ describe('ProgrammaticAd telemetry', () => {
     );
     expect(clicks).toHaveLength(1);
     expect(clicks[0][0]).toMatchObject({
-      target_id: '2222222222',
-      ad_provider_id: 'adsense',
+      target_id: 'creative-1',
+      ad_provider_id: 'kueez',
     });
     expect(JSON.parse(clicks[0][0].extra)).toMatchObject({
       slot: 2,
-      unit: '2222222222',
       surface: 'read',
       signal: 'focus-blur',
     });
   });
 
-  it('logs the loose impression at fill, in the internal ads shape', async () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
-    );
-
-    screen
-      .getByTestId('adsense-slot-2')
-      .appendChild(document.createElement('iframe'));
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    const impressions = logEvent.mock.calls.filter(
-      ([event]) => event.event_name === AdActions.Impression,
-    );
-    expect(impressions).toHaveLength(1);
-    expect(impressions[0][0]).toMatchObject({
-      target_type: 'ad',
-      target_id: '2222222222',
-      ad_provider_id: 'adsense',
-    });
-    // The strict name is reserved for the MRC measurement from useViewability.
-    expect(loggedEvents()).not.toContain(AdActions.Viewable);
-  });
-
   it('logs a same-tab click-through on pagehide', async () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
-    );
+    answerWith({ status: 'bid', bid: BID });
+    renderLeaderboard();
+    await settleAuction();
 
-    const iframe = document.createElement('iframe');
-    screen.getByTestId('adsense-slot-2').appendChild(iframe);
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    iframe.focus();
+    creativeFrame().focus();
     fireEvent(window, new Event('pagehide'));
 
     const clicks = logEvent.mock.calls.filter(
@@ -526,20 +537,13 @@ describe('ProgrammaticAd telemetry', () => {
   });
 
   it('disarms a focused creative when the visitor returns without leaving', async () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
-    );
-
-    const iframe = document.createElement('iframe');
-    screen.getByTestId('adsense-slot-2').appendChild(iframe);
-    await act(async () => {
-      await Promise.resolve();
-    });
+    answerWith({ status: 'bid', bid: BID });
+    renderLeaderboard();
+    await settleAuction();
 
     // Tap focuses the creative; the visitor stays, the window regains focus,
     // and only minutes later blurs for an unrelated reason (alt-tab).
-    iframe.focus();
+    creativeFrame().focus();
     fireEvent.focus(window);
     fireEvent.blur(window);
 
@@ -547,36 +551,12 @@ describe('ProgrammaticAd telemetry', () => {
   });
 
   it('ignores window blur while focus is outside the creative', async () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
-    );
-
-    screen
-      .getByTestId('adsense-slot-2')
-      .appendChild(document.createElement('iframe'));
-    await act(async () => {
-      await Promise.resolve();
-    });
+    answerWith({ status: 'bid', bid: BID });
+    renderLeaderboard();
+    await settleAuction();
 
     fireEvent.blur(window);
 
     expect(loggedEvents()).not.toContain(AdActions.Click);
-  });
-
-  it('logs a push error when adsbygoogle rejects the request', () => {
-    // Simulates the tag being present but broken (partial ad-block).
-    window.adsbygoogle = {
-      push: () => {
-        throw new Error('adsbygoogle push blocked');
-      },
-    } as unknown as typeof window.adsbygoogle;
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    renderWithLog(
-      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
-    );
-    window.adsbygoogle = [];
-
-    expect(loggedEvents()).toContain(LogEvent.AdsenseSlotError);
   });
 });
