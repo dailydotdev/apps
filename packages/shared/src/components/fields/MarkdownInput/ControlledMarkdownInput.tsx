@@ -10,7 +10,7 @@ const ControlledMarkdownInput = ({
   name: string;
   rules?: Record<string, unknown>;
 } & React.ComponentProps<typeof MarkdownInput>) => {
-  const { control, setValue } = useFormContext();
+  const { control } = useFormContext();
   return (
     <Controller
       name={name}
@@ -21,7 +21,7 @@ const ControlledMarkdownInput = ({
           {...props}
           {...field}
           initialContent={field.value}
-          onValueUpdate={(value) => setValue(name, value)}
+          onValueUpdate={(value) => field.onChange(value)}
         />
       )}
     />
