@@ -1105,7 +1105,7 @@ const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
  * the card says how many already have.
  */
 const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
-  <Column width="max-w-[52rem]">
+  <Column width="max-w-[56rem]">
     {viewer === Viewer.Admin ? (
       <div className="flex flex-col gap-3 rounded-16 border border-dashed border-border-subtlest-secondary p-4">
         <div className="flex items-center justify-between">
@@ -1143,72 +1143,81 @@ const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
         shows on your profile.
       </p>
     )}
-    <div className="grid grid-cols-2 gap-3">
-      {products.map((product) => (
-        <div
+    {/* Product Hunt's list: logo, name and tagline on one line, chips under,
+        and the tall box on the right. Theirs counts upvotes; ours counts
+        stacks and is the Add button. */}
+    <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+      {products.map((product, index) => (
+        <li
           key={product.id}
-          className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+          className="group flex items-center gap-4 px-4 py-3 hover:bg-surface-float"
         >
-          <div className="flex items-start gap-3">
-            <img
-              src={product.image}
-              alt=""
-              className="size-12 shrink-0 rounded-12 bg-background-default object-cover p-1"
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="flex items-center gap-2">
-                <span className="truncate font-bold text-text-primary typo-callout">
-                  {product.name}
-                </span>
-                <span className="shrink-0 rounded-6 bg-background-default px-1.5 text-text-tertiary typo-caption2">
-                  {product.pricing}
-                </span>
+          <span className="sq-nums w-5 shrink-0 text-right text-text-quaternary typo-footnote">
+            {index + 1}.
+          </span>
+          <img
+            src={product.image}
+            alt=""
+            className="size-14 shrink-0 rounded-12 bg-background-default object-cover p-1"
+          />
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <span className="flex min-w-0 items-baseline gap-2">
+              <span className="truncate font-bold text-text-primary typo-callout">
+                {product.name}
               </span>
-              <span className="text-text-quaternary typo-caption1">
+              <span className="hidden text-text-quaternary laptop:inline">
+                ·
+              </span>
+              <span className="truncate text-text-secondary typo-callout">
+                {product.tagline}
+              </span>
+            </span>
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-caption1">
+              {product.rating && (
+                <span className="sq-nums flex items-center gap-1">
+                  <StarIcon
+                    size={IconSize.XSmall}
+                    secondary
+                    className="text-text-primary"
+                  />
+                  <span className="text-text-primary">
+                    {product.rating.toFixed(1)}
+                  </span>
+                  {formatCount(product.reviews ?? 0)} on {product.source}
+                </span>
+              )}
+              <span className="rounded-6 bg-surface-float px-1.5 py-0.5">
                 {product.category}
               </span>
-            </div>
-          </div>
-          <p className="line-clamp-2 text-text-secondary typo-footnote">
-            {product.tagline}
-          </p>
-          <div className="flex items-center gap-3 text-text-tertiary typo-caption1">
-            {product.rating && (
-              <span className="sq-nums flex items-center gap-1 text-text-primary">
-                <StarIcon size={IconSize.XSmall} secondary />
-                {product.rating.toFixed(1)}
-                <span className="text-text-quaternary">
-                  ({formatCount(product.reviews ?? 0)} on {product.source})
-                </span>
+              <span className="rounded-6 bg-surface-float px-1.5 py-0.5">
+                {product.pricing}
               </span>
-            )}
-            <span className="sq-nums ml-auto">
-              In {formatCount(product.inStacks)} stacks
+              {product.links.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-1 hover:text-text-primary"
+                >
+                  <OpenLinkIcon size={IconSize.XSmall} />
+                  {item.label}
+                </a>
+              ))}
             </span>
           </div>
-          <div className="mt-auto flex items-center gap-2 border-t border-border-subtlest-tertiary pt-3">
-            {product.links.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-1 text-text-tertiary typo-caption1 hover:text-text-primary"
-              >
-                <OpenLinkIcon size={IconSize.XSmall} />
-                {item.label}
-              </a>
-            ))}
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.XSmall}
-              className="ml-auto"
-              icon={<PlusIcon />}
-            >
-              Add to stack
-            </Button>
-          </div>
-        </div>
+          <button
+            type="button"
+            className="sq-nums flex w-16 shrink-0 flex-col items-center gap-0.5 rounded-12 border border-border-subtlest-tertiary bg-background-default py-2 text-text-primary transition-colors hover:border-accent-cabbage-default hover:text-accent-cabbage-default"
+            aria-label={`Add ${product.name} to your stack`}
+          >
+            <PlusIcon size={IconSize.Small} />
+            <span className="font-bold typo-callout">
+              {formatCount(product.inStacks)}
+            </span>
+            <span className="text-text-quaternary typo-caption2">stacks</span>
+          </button>
+        </li>
       ))}
-    </div>
+    </ol>
   </Column>
 );
 
