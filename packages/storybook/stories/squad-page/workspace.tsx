@@ -645,23 +645,6 @@ export const SquadSidebar = ({
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => onSelect(common.members)}
-          className={classNames(
-            'flex items-center gap-1 rounded-8 text-left text-text-tertiary typo-caption1 transition-colors hover:text-text-primary',
-            active.id === common.members.id && 'text-text-primary',
-          )}
-        >
-          <span className="sq-nums text-text-secondary">
-            {formatCount(squad.membersCount)}
-          </span>
-          members
-          <span className="mx-1 text-text-quaternary">·</span>
-          <span className="size-1.5 rounded-full bg-status-success" />
-          <span className="sq-nums text-text-secondary">38</span>
-          online
-        </button>
         {viewer === Viewer.Visitor && (
           <Button
             variant={ButtonVariant.Primary}
@@ -822,9 +805,13 @@ const Column = ({
 );
 
 /** Home is the profile page's skeleton, for a squad. See home.tsx. */
-const HomePage = ({ viewer }: { viewer: Viewer }): ReactElement => (
-  <SquadHome viewer={viewer} />
-);
+const HomePage = ({
+  viewer,
+  onOpenMembers,
+}: {
+  viewer: Viewer;
+  onOpenMembers: () => void;
+}): ReactElement => <SquadHome viewer={viewer} onOpenMembers={onOpenMembers} />;
 
 /**
  * A channel is the squad feed filtered to one flair, with a posting rule of
@@ -1439,13 +1426,20 @@ const AdminPlaceholder = ({ page }: { page: SquadPage }): ReactElement => (
 const PageBody = ({
   page: current,
   viewer,
+  onSelect,
 }: {
   page: SquadPage;
   viewer: Viewer;
+  onSelect: (page: SquadPage) => void;
 }): ReactElement => {
   switch (current.type) {
     case PageType.Home:
-      return <HomePage viewer={viewer} />;
+      return (
+        <HomePage
+          viewer={viewer}
+          onOpenMembers={() => onSelect(common.members)}
+        />
+      );
     case PageType.About:
       return (
         <Column width="max-w-[46rem]">
@@ -1561,7 +1555,7 @@ export const WorkspaceShell = ({
             active.type === PageType.Chat && 'flex min-h-0 flex-col',
           )}
         >
-          <PageBody page={active} viewer={viewer} />
+          <PageBody page={active} viewer={viewer} onSelect={onSelect} />
         </div>
       </main>
     </div>

@@ -18,7 +18,6 @@ import {
   LinkedInIcon,
   MenuIcon,
   PinIcon,
-  UserIcon,
   SearchIcon,
   TwitterIcon,
   VIcon,
@@ -71,9 +70,11 @@ export const Separator = (): ReactElement => (
 const SquadHeader = ({
   viewer,
   standalone,
+  onOpenMembers,
 }: {
   viewer: Viewer;
   standalone: boolean;
+  onOpenMembers?: () => void;
 }): ReactElement => (
   <div className="relative w-full overflow-hidden rounded-t-16">
     <div className="relative h-36">
@@ -82,8 +83,6 @@ const SquadHeader = ({
         alt="Cover"
         className="h-full w-full object-cover"
       />
-      {/* The cover dissolves into the card so the logo seat and the name
-          sit on a quiet ground, whatever the company uploads. */}
       <div
         className="absolute inset-x-0 bottom-0 h-20"
         style={{
@@ -92,15 +91,17 @@ const SquadHeader = ({
         }}
       />
     </div>
-    <img
-      src={squad.image}
-      alt="Logo"
-      className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 bg-background-default object-cover ring-4 ring-background-default"
-    />
-    <div className="flex flex-col gap-3 px-6">
-      <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
-        {viewer === Viewer.Admin && (
-          <>
+    <div className="flex flex-col px-6 pb-5">
+      {/* Logo and actions share one baseline, so the identity column below
+          is text only and every row starts at the same x. */}
+      <div className="-mt-12 flex items-end justify-between gap-4">
+        <img
+          src={squad.image}
+          alt="Logo"
+          className="relative size-[6.5rem] shrink-0 rounded-16 bg-background-default object-cover ring-4 ring-background-default"
+        />
+        <div className="flex items-center gap-2 pb-1">
+          {viewer === Viewer.Admin && (
             <Button
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
@@ -108,115 +109,103 @@ const SquadHeader = ({
             >
               Edit page
             </Button>
+          )}
+          {standalone && viewer === Viewer.Visitor && (
             <Button
-              variant={ButtonVariant.Float}
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
               size={ButtonSize.Small}
-              icon={<LinkIcon />}
-              aria-label="Copy link"
-            />
-          </>
-        )}
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="font-bold typo-title2">{squad.name}</span>
-        <VerifiedMark label={false} />
-      </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-text-primary typo-body">{squad.tagline}</span>
-        <div className="flex flex-wrap items-center text-text-secondary typo-subhead">
-          <span className="flex items-center gap-1.5">
-            <img src={squad.image} alt="" className="size-4 rounded-4" />
-            <span className="text-text-primary">{squad.company.website}</span>
-            <VerifiedMark label={false} className="scale-90" />
-            <span className="text-text-tertiary">Verified company</span>
-          </span>
-          <Separator />
-          <span>{squad.company.location}</span>
-          <Separator />
-          <span>Since {formatSince(squad.createdAt)}</span>
-        </div>
-        <div className="flex items-center gap-2 text-text-tertiary typo-subhead">
-          <Facepile members={team.slice(3)} max={3} size={1.25} />
-          <span>
-            Joined by <span className="text-text-primary">{team[3].name}</span>,{' '}
-            <span className="text-text-primary">{team[4].name}</span> and{' '}
-            {formatCount(squad.membersCount - 2)} others
-          </span>
-        </div>
-        {viewer !== Viewer.Admin && (
-          <div className="flex items-center gap-2 pt-1">
-            {standalone && viewer === Viewer.Visitor && (
-              <Button
-                variant={ButtonVariant.Primary}
-                color={ButtonColor.Cabbage}
-                size={ButtonSize.Small}
-              >
-                Join
-              </Button>
-            )}
-            {viewer === Viewer.Member && (
-              <>
-                <Button
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Small}
-                  icon={<VIcon />}
-                >
-                  Joined
-                </Button>
-                <Button
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  icon={<BellIcon />}
-                  aria-label="Notifications"
-                />
-              </>
-            )}
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<LinkIcon />}
             >
-              Share
+              Join
             </Button>
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<MenuIcon />}
-              aria-label="More"
-            />
-          </div>
-        )}
-        <SquadStats />
+          )}
+          {viewer === Viewer.Member && (
+            <>
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<VIcon />}
+              >
+                Joined
+              </Button>
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<BellIcon />}
+                aria-label="Notifications"
+              />
+            </>
+          )}
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<LinkIcon />}
+          >
+            Share
+          </Button>
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<MenuIcon />}
+            aria-label="More"
+          />
+        </div>
       </div>
+      <div className="mt-4 flex flex-col gap-1">
+        <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2">
+          {squad.name}
+          <VerifiedMark label={false} />
+        </h1>
+        <p className="text-text-secondary typo-body">{squad.tagline}</p>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-x-2 text-text-tertiary typo-footnote">
+        <span className="flex items-center gap-1.5 text-text-secondary">
+          <img src={squad.image} alt="" className="size-4 rounded-4" />
+          {squad.company.website}
+        </span>
+        <span className="text-text-quaternary">·</span>
+        <span>Verified company</span>
+        <span className="text-text-quaternary">·</span>
+        <span>{squad.company.location}</span>
+        <span className="text-text-quaternary">·</span>
+        <span>Since {formatSince(squad.createdAt)}</span>
+      </div>
+      <SquadStats onOpenMembers={onOpenMembers} />
     </div>
   </div>
 );
 
-/** UserStats, for a squad: the same 2x2 grid, members where reputation was. */
-const SquadStats = (): ReactElement => {
-  const Item = ({
-    amount,
-    title,
-    className,
-  }: {
-    amount: number;
-    title: string;
-    className?: string;
-  }) => (
-    <div className={classNames('flex items-center gap-1', className)}>
-      <b className="text-text-primary typo-subhead">{formatCount(amount)}</b>
-      <span>{title}</span>
-    </div>
+/**
+ * UserStats, straightened: one strip under a hairline, tabular figures, and
+ * the member faces on the Members figure so the social proof does not need
+ * a row of its own.
+ */
+const SquadStats = ({
+  onOpenMembers,
+}: {
+  onOpenMembers?: () => void;
+}): ReactElement => {
+  const Item = ({ amount, title }: { amount: number; title: string }) => (
+    <span className="flex items-baseline gap-1">
+      <b className="sq-nums text-text-primary typo-callout">
+        {formatCount(amount)}
+      </b>
+      <span className="text-text-tertiary typo-footnote">{title}</span>
+    </span>
   );
 
   return (
-    <div className="-ml-1 grid w-fit grid-cols-[auto_auto] gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
-      <div className="flex items-center gap-0.5">
-        <UserIcon className="text-text-tertiary" size={IconSize.Small} />
+    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
+      <button
+        type="button"
+        onClick={onOpenMembers}
+        className="flex items-center gap-2 rounded-8 text-left transition-opacity hover:opacity-80"
+      >
+        <Facepile members={team.slice(3)} max={3} size={1.25} />
         <Item amount={squad.membersCount} title="Members" />
-      </div>
+      </button>
       <Item amount={squad.totalPosts} title="Posts" />
-      <Item amount={squad.totalViews} title="Views" className="pl-6" />
+      <Item amount={squad.totalViews} title="Views" />
       <Item amount={squad.totalUpvotes} title="Upvotes" />
     </div>
   );
@@ -713,13 +702,21 @@ export const SquadWidgets = (): ReactElement => (
 export const SquadHome = ({
   viewer = Viewer.Visitor,
   standalone = false,
+  onOpenMembers,
 }: {
   viewer?: Viewer;
   /** Outside the workspace there is no sidebar to carry Join, so the header does. */
   standalone?: boolean;
+  onOpenMembers?: () => void;
 }): ReactElement => (
   <HomeFrame
-    header={<SquadHeader viewer={viewer} standalone={standalone} />}
+    header={
+      <SquadHeader
+        viewer={viewer}
+        standalone={standalone}
+        onOpenMembers={onOpenMembers}
+      />
+    }
     widgets={<SquadWidgets />}
   >
     <div className="border-t border-border-subtlest-tertiary">
