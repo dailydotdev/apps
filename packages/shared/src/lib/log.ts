@@ -134,6 +134,11 @@ export enum LogEvent {
   FillAdSlot = 'fill ad slot',
   EmptyAdSlot = 'empty ad slot',
   AdSlotError = 'ad slot error',
+  // Google Preferred Sources. Google reports nothing back — no read API, and no
+  // Search Console dimension — so these two events are the only measurement
+  // this feature will ever have.
+  ImpressionPreferredSource = 'impression preferred source',
+  ClickPreferredSource = 'click preferred source',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -579,6 +584,7 @@ export enum TargetType {
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
+  PreferredSource = 'preferred source',
   MarketingCtaPlus = 'promotion_plus',
   MarketingCtaBrief = 'promotion_briefing',
   MarketingCtaHelpGuide = 'promotion_help_guide',
