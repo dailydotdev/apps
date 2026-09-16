@@ -15,14 +15,18 @@ import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
 type Ink = 'white' | 'pepper' | 'invert' | 'theme';
 
-const inkClassNames: Record<Ink, { text: string; cta?: string }> = {
-  white: { text: 'text-white', cta: 'btn-on-fill-solid-white' },
-  pepper: { text: 'text-raw-pepper-90', cta: 'btn-on-fill-solid-pepper' },
-  invert: { text: 'text-surface-invert', cta: 'btn-on-fill-solid-invert' },
-  theme: { text: 'text-text-primary' },
+const inkClassNames: Record<Ink, string> = {
+  white: 'text-white',
+  pepper: 'text-raw-pepper-90',
+  invert: 'text-surface-invert',
+  theme: 'text-text-primary',
 };
 
-const stylesByTheme: Record<BannerTheme, { fill: string; ink: Ink }> = {
+type ThemeStyle = { fill: string; ink: Ink; invertedCta?: boolean };
+
+// The CTA is the theme's primary button; only the neutral fills that flip
+// with the theme (white in dark mode, dark in light mode) invert it.
+const stylesByTheme: Record<BannerTheme, ThemeStyle> = {
   [BannerCustomTheme.CabbageOnion]: {
     fill: 'from-accent-cabbage-subtler to-accent-onion-subtler bg-gradient-to-r',
     ink: 'invert',
@@ -30,6 +34,7 @@ const stylesByTheme: Record<BannerTheme, { fill: string; ink: Ink }> = {
   [BannerCustomTheme.WhitePepper]: {
     fill: 'bg-surface-primary',
     ink: 'invert',
+    invertedCta: true,
   },
   [Theme.Avocado]: { fill: 'bg-accent-avocado-default', ink: 'pepper' },
   [Theme.Bacon]: { fill: 'bg-accent-bacon-default', ink: 'pepper' },
@@ -42,7 +47,11 @@ const stylesByTheme: Record<BannerTheme, { fill: string; ink: Ink }> = {
   [Theme.Lettuce]: { fill: 'bg-accent-lettuce-default', ink: 'pepper' },
   [Theme.Onion]: { fill: 'bg-accent-onion-default', ink: 'white' },
   [Theme.Water]: { fill: 'bg-accent-water-default', ink: 'invert' },
-  [Theme.Salt]: { fill: 'bg-accent-salt-default', ink: 'invert' },
+  [Theme.Salt]: {
+    fill: 'bg-accent-salt-default',
+    ink: 'invert',
+    invertedCta: true,
+  },
   [Theme.Pepper]: { fill: 'bg-accent-pepper-default', ink: 'theme' },
   [Theme.Background]: { fill: 'bg-background-default', ink: 'theme' },
 };
@@ -60,10 +69,9 @@ export function PromotionalBannerView({
   onDismiss,
   className,
 }: PromotionalBannerViewProps): ReactElement {
-  const { fill, ink } =
+  const { fill, ink, invertedCta } =
     stylesByTheme[banner.theme] ??
     stylesByTheme[BannerCustomTheme.CabbageOnion];
-  const { text, cta } = inkClassNames[ink];
   const isLaptop = useViewSize(ViewSize.Laptop);
   const buttonSize = isLaptop ? ButtonSize.XSmall : ButtonSize.Small;
 
@@ -72,7 +80,7 @@ export function PromotionalBannerView({
       className={classNames(
         'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote tablet:pl-20 laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:px-10 laptop:py-0',
         fill,
-        text,
+        inkClassNames[ink],
         className,
       )}
     >
@@ -84,7 +92,10 @@ export function PromotionalBannerView({
         href={banner.url}
         size={buttonSize}
         variant={ButtonVariant.Primary}
-        className={classNames('mt-2 laptop:ml-4 laptop:mt-0', cta)}
+        className={classNames(
+          'mt-2 laptop:ml-4 laptop:mt-0',
+          invertedCta && 'btn-primary-inverted',
+        )}
         onClick={onCtaClick}
       >
         {banner.cta}

@@ -45,12 +45,12 @@ const themes: ThemeEntry[] = [
   {
     theme: BannerCustomTheme.WhitePepper,
     label: 'white-pepper',
-    note: 'CTA is now the neutral primary of the opposite theme: dark button on the white bar, white button on the dark one. Was the cabbage brand button.',
+    note: 'CTA is the neutral primary of the opposite theme: dark button on the white bar in dark mode, white button on the dark bar in light mode. Was the cabbage brand button.',
   },
   {
     theme: Theme.Avocado,
     label: 'avocado',
-    note: 'Ink unchanged. CTA is now always the dark button; the white one had 1.7:1 against the fill in dark theme.',
+    note: 'Ink unchanged. CTA follows the app theme: white in dark mode, dark in light mode.',
   },
   {
     theme: Theme.Bacon,
@@ -60,7 +60,7 @@ const themes: ThemeEntry[] = [
   {
     theme: Theme.BlueCheese,
     label: 'blue-cheese',
-    note: 'Ink unchanged. CTA is now always the dark button (was 1.7:1 in dark theme).',
+    note: 'Ink unchanged. CTA follows the app theme.',
   },
   {
     theme: Theme.Bun,
@@ -80,7 +80,7 @@ const themes: ThemeEntry[] = [
   {
     theme: Theme.Cheese,
     label: 'cheese',
-    note: 'Ink unchanged. CTA is now always the dark button (was 1.3:1 in dark theme).',
+    note: 'Ink unchanged. CTA follows the app theme.',
   },
   {
     theme: Theme.Ketchup,
@@ -90,7 +90,7 @@ const themes: ThemeEntry[] = [
   {
     theme: Theme.Lettuce,
     label: 'lettuce',
-    note: 'Ink unchanged. CTA is now always the dark button (was 1.3:1 in dark theme).',
+    note: 'Ink unchanged. CTA follows the app theme.',
   },
   {
     theme: Theme.Onion,
@@ -108,7 +108,7 @@ const themes: ThemeEntry[] = [
     theme: Theme.Salt,
     label: 'salt',
     isNew: true,
-    note: 'New neutral that stands out from the app: light gray in dark theme, dark gray in light theme, like white-pepper but softer.',
+    note: 'New neutral that stands out from the app: light gray in dark theme, dark gray in light theme, like white-pepper but softer, and the CTA inverts the same way.',
   },
   {
     theme: Theme.Pepper,
@@ -314,46 +314,49 @@ const contrast = (a: string, b: string): number => {
 type Swatch = { fills: string[]; ink: string; cta: string };
 
 // What each theme resolves to per app theme: bar fill, text ink, CTA fill.
+// The CTA is the theme's primary (white in dark, dark in light) except on
+// the neutral fills that flip with the theme, where it is inverted.
 const resolve = (theme: BannerTheme, mode: CanvasTheme): Swatch => {
   const shade = mode === 'dark' ? '40' : '60';
+  const themeCta = mode === 'dark' ? WHITE : PEPPER;
+  const invertedCta = mode === 'dark' ? PEPPER : WHITE;
   const white = (name: string): Swatch => ({
     fills: [palette[name][shade]],
     ink: WHITE,
-    cta: WHITE,
+    cta: themeCta,
   });
   const pepper = (name: string): Swatch => ({
     fills: [palette[name][shade]],
     ink: PEPPER,
-    cta: PEPPER,
+    cta: themeCta,
   });
   // Flipping ink: dark text in dark theme, white in light theme.
-  const invert = (fills: string[]): Swatch =>
-    mode === 'dark'
-      ? { fills, ink: PEPPER, cta: PEPPER }
-      : { fills, ink: WHITE, cta: WHITE };
+  const invert = (fills: string[], cta = themeCta): Swatch =>
+    mode === 'dark' ? { fills, ink: PEPPER, cta } : { fills, ink: WHITE, cta };
   switch (theme) {
     case BannerCustomTheme.CabbageOnion: {
       const subtler = mode === 'dark' ? '20' : '80';
       return invert([palette.cabbage[subtler], palette.onion[subtler]]);
     }
     case BannerCustomTheme.WhitePepper:
-      return invert([mode === 'dark' ? WHITE : PEPPER]);
+      return invert([mode === 'dark' ? WHITE : PEPPER], invertedCta);
     case Theme.Salt:
-      return invert([
-        mode === 'dark' ? palette.salt['90'] : palette.pepper['10'],
-      ]);
+      return invert(
+        [mode === 'dark' ? palette.salt['90'] : palette.pepper['10']],
+        invertedCta,
+      );
     case Theme.Cabbage:
     case Theme.Ketchup:
     case Theme.Water:
       return invert([palette[theme][shade]]);
     case Theme.Pepper:
       return mode === 'dark'
-        ? { fills: [palette.pepper['10']], ink: WHITE, cta: WHITE }
-        : { fills: [palette.salt['90']], ink: PEPPER, cta: PEPPER };
+        ? { fills: [palette.pepper['10']], ink: WHITE, cta: themeCta }
+        : { fills: [palette.salt['90']], ink: PEPPER, cta: themeCta };
     case Theme.Background:
       return mode === 'dark'
-        ? { fills: [PEPPER], ink: WHITE, cta: WHITE }
-        : { fills: [WHITE], ink: PEPPER, cta: PEPPER };
+        ? { fills: [PEPPER], ink: WHITE, cta: themeCta }
+        : { fills: [WHITE], ink: PEPPER, cta: themeCta };
     case Theme.BlueCheese:
       return pepper('blueCheese');
     case Theme.Avocado:
@@ -612,11 +615,11 @@ export const Brief: StoryObj = {
               fills. It now takes the bar&apos;s own text color on every theme.
             </li>
             <li>
-              <strong>CTA.</strong> It followed the app theme (white button in
-              dark, dark button in light), which put a white button on the white
-              bar and on the pale fills. It now follows the bar: pale bar, dark
-              button; deep bar, white button; white-pepper flips with the theme.
-              No more brand-colored button on white-pepper.
+              <strong>CTA.</strong> The theme&apos;s primary button on every
+              bar: white in dark mode, dark in light mode. The two neutral fills
+              that flip with the theme (white-pepper and salt) invert it so it
+              never matches the bar. No more brand-colored button on
+              white-pepper.
             </li>
             <li>
               <strong>Ink.</strong> Bun and bacon move to dark text, matching
@@ -686,7 +689,7 @@ export const BeforeAfter: StoryObj = {
     <Page>
       <Section
         title="Shipped vs proposed"
-        description="Top bar in each pair is what ships today, bottom is the proposal. Ratios are measured against the palette shade the fill resolves to in that theme. Hover the X and the CTA to check the tints."
+        description="Top bar in each pair is the bar before #6672, bottom is the current one. Ratios are measured against the palette shade the fill resolves to in that theme. Hover the X and the CTA to check the tints."
       >
         <BothThemes>
           {(mode) => (

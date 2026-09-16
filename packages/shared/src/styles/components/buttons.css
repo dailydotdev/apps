@@ -157,29 +157,12 @@
   }
 
   /*
-   * Solid CTA on a brand fill: the neutral primary of the theme the fill's
-   * ink implies, so a pale bar gets the dark button and a deep bar the
-   * white one whatever the app theme. `-invert` is for fills painted with
-   * `bg-surface-primary`, which flip with the theme.
+   * The neutral primary of the opposite theme, for a fill painted with
+   * `bg-surface-primary` (white in dark mode, dark in light mode) where the
+   * theme's own primary would match the fill.
    */
-  &.btn-on-fill-solid-white,
-  .invert &.btn-on-fill-solid-white {
-    --button-default-color: var(--btn-label-on-fill-dark);
-    --button-default-background: theme('colors.white');
-    --button-hover-background: theme('colors.raw.salt.30');
-    --button-active-background: theme('colors.raw.salt.50');
-  }
-
-  &.btn-on-fill-solid-pepper,
-  .invert &.btn-on-fill-solid-pepper {
-    --button-default-color: var(--btn-label-on-fill-light);
-    --button-default-background: theme('colors.raw.pepper.90');
-    --button-hover-background: theme('colors.raw.pepper.70');
-    --button-active-background: theme('colors.raw.pepper.50');
-  }
-
-  &.btn-on-fill-solid-invert,
-  .invert &.btn-on-fill-solid-invert {
+  &.btn-primary-inverted,
+  .invert &.btn-primary-inverted {
     --button-default-color: var(--theme-surface-primary);
     --button-default-background: var(--theme-surface-invert);
     --button-hover-background: color-mix(in srgb, var(--theme-surface-invert), var(--theme-surface-primary) 12%);
