@@ -73,6 +73,9 @@ export function SnapshotButton({
       // Every placement sits inside a clickable card, row or link.
       event.preventDefault();
       event.stopPropagation();
+      if (isCapturing) {
+        return;
+      }
       setIsFlashing(true);
       flashTimeout.current = setTimeout(
         () => setIsFlashing(false),
@@ -115,7 +118,15 @@ export function SnapshotButton({
         setIsCapturing(false);
       }
     },
-    [captureOptions, displayToast, filename, onCapture, onResult, target],
+    [
+      captureOptions,
+      displayToast,
+      filename,
+      isCapturing,
+      onCapture,
+      onResult,
+      target,
+    ],
   );
 
   return (
@@ -133,7 +144,6 @@ export function SnapshotButton({
         size={size}
         variant={variant}
         loading={isCapturing}
-        disabled={isCapturing}
         icon={<SnapshotIcon />}
         onClick={onSnapshot}
       >
