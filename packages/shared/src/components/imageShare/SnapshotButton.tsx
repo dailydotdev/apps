@@ -28,6 +28,12 @@ export interface SnapshotButtonProps {
   target: CaptureTarget;
   filename?: string;
   label?: string;
+  /**
+   * The name a screen reader announces, when the label alone does not say
+   * what this captures: a body with a control on every paragraph. The visible
+   * label and tooltip stay the label.
+   */
+  ariaLabel?: string;
   showLabel?: boolean;
   size?: ButtonSize;
   variant?: ButtonVariant;
@@ -46,6 +52,7 @@ export function SnapshotButton({
   target,
   filename = 'daily-snapshot',
   label = SNAPSHOT_LABEL,
+  ariaLabel,
   showLabel = true,
   captureOptions,
   onCapture,
@@ -73,6 +80,9 @@ export function SnapshotButton({
       // Every placement sits inside a clickable card, row or link.
       event.preventDefault();
       event.stopPropagation();
+      if (isCapturing) {
+        return;
+      }
       setIsFlashing(true);
       flashTimeout.current = setTimeout(
         () => setIsFlashing(false),
@@ -115,14 +125,22 @@ export function SnapshotButton({
         setIsCapturing(false);
       }
     },
-    [captureOptions, displayToast, filename, onCapture, onResult, target],
+    [
+      captureOptions,
+      displayToast,
+      filename,
+      isCapturing,
+      onCapture,
+      onResult,
+      target,
+    ],
   );
 
   return (
     <Tooltip content={label} visible={!showLabel}>
       <Button
         type="button"
-        aria-label={label}
+        aria-label={ariaLabel ?? label}
         className={classNames(
           'relative shrink-0 overflow-hidden',
           // A pseudo-element rather than a child: Button reads its children to
@@ -133,7 +151,6 @@ export function SnapshotButton({
         size={size}
         variant={variant}
         loading={isCapturing}
-        disabled={isCapturing}
         icon={<SnapshotIcon />}
         onClick={onSnapshot}
       >
