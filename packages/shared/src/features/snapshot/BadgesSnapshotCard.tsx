@@ -25,6 +25,7 @@ export interface AwardTally {
 
 export interface BadgesSnapshotCardProps {
   user: SnapshotIdentityProps;
+  /** Each tally and list is left out when it is zero or empty. */
   topReaderBadges: number;
   totalAwards: number;
   badges: TopReaderBadge[];
@@ -52,75 +53,87 @@ function BadgesSnapshotCardComponent(
       <div className="flex flex-1 flex-col gap-6">
         <SnapshotIdentity {...user} />
 
-        <div className="flex gap-4">
-          <SnapshotTile
-            label="Top reader badge"
-            value={`x${largeNumberFormat(topReaderBadges) ?? topReaderBadges}`}
-          />
-          <SnapshotTile
-            label="Total awards"
-            value={`x${largeNumberFormat(totalAwards) ?? totalAwards}`}
-          />
-        </div>
+        {(topReaderBadges > 0 || totalAwards > 0) && (
+          <div className="flex gap-4">
+            {topReaderBadges > 0 && (
+              <SnapshotTile
+                label="Top reader badge"
+                value={`x${
+                  largeNumberFormat(topReaderBadges) ?? topReaderBadges
+                }`}
+              />
+            )}
+            {totalAwards > 0 && (
+              <SnapshotTile
+                label="Total awards"
+                value={`x${largeNumberFormat(totalAwards) ?? totalAwards}`}
+              />
+            )}
+          </div>
+        )}
 
-        <div className="flex flex-col gap-2">
-          {badges.slice(0, 4).map((badge) => (
-            <div
-              key={`${badge.keyword}-${badge.earnedAt}`}
-              className="flex items-center gap-3"
-            >
-              <span
-                className="truncate rounded-10 text-white"
-                style={{
-                  padding: '6px 16px',
-                  fontSize: 24,
-                  border: `1px solid ${DIVIDER}`,
-                }}
+        {badges.length > 0 && (
+          <div className="flex flex-col gap-2">
+            {badges.slice(0, 4).map((badge) => (
+              <div
+                key={`${badge.keyword}-${badge.earnedAt}`}
+                className="flex items-center gap-3"
               >
-                {badge.keyword}
-              </span>
-              <span
-                className="ml-auto shrink-0"
-                style={{ color: MUTED, fontSize: 24 }}
-              >
-                {badge.earnedAt}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="mt-auto flex items-end justify-between"
-          style={{ borderTop: `1px solid ${DIVIDER}`, paddingTop: 26 }}
-        >
-          {awards.slice(0, 6).map((award) => (
-            <div
-              key={award.name}
-              className="flex flex-col items-center gap-2"
-              style={{ width: 92 }}
-            >
-              {award.image ? (
-                <img
-                  src={award.image}
-                  alt=""
-                  crossOrigin="anonymous"
-                  className="block object-contain"
-                  style={{ width: 58, height: 58 }}
-                />
-              ) : (
-                <span style={{ fontSize: 54, lineHeight: 1 }}>
-                  {award.emoji}
+                <span
+                  className="truncate rounded-10 text-white"
+                  style={{
+                    padding: '6px 16px',
+                    fontSize: 24,
+                    border: `1px solid ${DIVIDER}`,
+                  }}
+                >
+                  {badge.keyword}
                 </span>
-              )}
-              <span
-                className="font-bold text-white"
-                style={{ fontSize: 24, lineHeight: 1 }}
+                <span
+                  className="ml-auto shrink-0"
+                  style={{ color: MUTED, fontSize: 24 }}
+                >
+                  {badge.earnedAt}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {awards.length > 0 && (
+          <div
+            className="mt-auto flex items-end justify-between"
+            style={{ borderTop: `1px solid ${DIVIDER}`, paddingTop: 26 }}
+          >
+            {awards.slice(0, 6).map((award) => (
+              <div
+                key={award.name}
+                className="flex flex-col items-center gap-2"
+                style={{ width: 92 }}
               >
-                x{award.count}
-              </span>
-            </div>
-          ))}
-        </div>
+                {award.image ? (
+                  <img
+                    src={award.image}
+                    alt=""
+                    crossOrigin="anonymous"
+                    className="block object-contain"
+                    style={{ width: 58, height: 58 }}
+                  />
+                ) : (
+                  <span style={{ fontSize: 54, lineHeight: 1 }}>
+                    {award.emoji}
+                  </span>
+                )}
+                <span
+                  className="font-bold text-white"
+                  style={{ fontSize: 24, lineHeight: 1 }}
+                >
+                  x{award.count}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </SnapshotFrame>
   );

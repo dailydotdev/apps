@@ -1,4 +1,4 @@
-import type { ReactElement, RefObject } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -8,6 +8,7 @@ import {
 } from '../../components/buttons/Button';
 import { CopyIcon, LinkIcon } from '../../components/icons';
 import { CopyStateIcon } from '../../components/share/CopyStateIcon';
+import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
@@ -23,12 +24,19 @@ import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { snapshotSource } from './snapshotSource';
 import type { TextSelection } from './useTextSelection';
 import { useTextSelection } from './useTextSelection';
-import { useLogSnapshot } from './useLogSnapshot';
 
 const BAR_HEIGHT = 44;
 const GAP = 8;
 /** Keeps the bar off the viewport edges when the quote runs to the margin. */
 const EDGE = 96;
+/** Clears the drag handles Android hangs under the end of a selection. */
+const HANDLE = 32;
+
+// Android draws its own Copy/Share menu over the selection, above it whenever
+// there is room. Taking the other side leaves both readable: the platform menu
+// only moves below the quote in the case where we then sit above it.
+const prefersBelow = () =>
+  globalThis.matchMedia?.('(pointer: coarse)').matches ?? false;
 
 const clamp = (value: number, min: number, max: number) =>
   // A viewport shorter than the bar's own margins has no valid band, and
@@ -38,10 +46,12 @@ const clamp = (value: number, min: number, max: number) =>
 const position = (selection: TextSelection) => {
   const above = selection.top - BAR_HEIGHT - GAP;
   const center = selection.left + selection.width / 2;
+  const { innerHeight, innerWidth } = globalThis;
+  const below = selection.bottom + GAP + (prefersBelow() ? HANDLE : 0);
+  const fits = !innerHeight || below + BAR_HEIGHT + GAP <= innerHeight;
   // Below the quote when it starts at the top of the viewport, where there is
   // no room above it.
-  const top = above < GAP ? selection.bottom + GAP : above;
-  const { innerHeight, innerWidth } = globalThis;
+  const top = above < GAP || (prefersBelow() && fits) ? below : above;
 
   return {
     // Clamped to the viewport, not just flipped: in the post modal the quote
@@ -53,13 +63,27 @@ const position = (selection: TextSelection) => {
   };
 };
 
-export function SelectionSnapshotBar({
-  post,
-  containerRef,
-}: {
-  post: Post;
+export interface SelectionShareBarProps {
   containerRef: RefObject<HTMLElement>;
-}): ReactElement | null {
+  /** The post permalink a copied link points at. */
+  link: string;
+  /** Seeds the card's gradient and names the downloaded file. */
+  seed: string;
+  source?: { name: string; image?: string };
+  /** The surface's own label on the card's logo row. */
+  label?: ReactNode;
+  /** Called once per action, with how a snapshot ended, so the host logs it. */
+  onShare: (provider: ShareProvider, result?: SnapshotResult) => void;
+}
+
+export function SelectionShareBar({
+  containerRef,
+  link,
+  seed,
+  source,
+  label,
+  onShare,
+}: SelectionShareBarProps): ReactElement | null {
   const barRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const selection = useTextSelection(containerRef, true, barRef);
@@ -68,39 +92,29 @@ export function SelectionSnapshotBar({
   const [quote, setQuote] = useState<TextSelection | null>(null);
   const [linkCopied, copyLink] = useCopyPostLink();
   const [textCopied, copyText] = useCopyText(quote?.text);
-  const { logEvent } = useLogContext();
 
   const onCopyLink = useCallback(() => {
-    logEvent(
-      postLogEvent(LogEvent.SharePost, post, {
-        extra: {
-          provider: ShareProvider.CopyLink,
-          origin: Origin.TextSelection,
-        },
-      }),
-    );
+    onShare(ShareProvider.CopyLink);
     // `shorten`, not an awaited short URL: the write has to stay inside the
     // task that handled the click or Safari refuses it.
     copyLink({
-      link: post.commentsPermalink,
+      link,
       shorten: true,
       cid: ReferralCampaignKey.SharePost,
+      format: (url) => (quote?.text ? `"${quote.text}"\n\n${url}` : url),
+      message: '✅ Copied text and link',
     });
-  }, [copyLink, logEvent, post]);
+  }, [copyLink, link, onShare, quote]);
 
   const onCopyText = useCallback(() => {
-    logEvent(
-      postLogEvent(LogEvent.SharePost, post, {
-        extra: {
-          provider: ShareProvider.CopyText,
-          origin: Origin.TextSelection,
-        },
-      }),
-    );
+    onShare(ShareProvider.CopyText);
     copyText({ message: '✅ Copied text' });
-  }, [copyText, logEvent, post]);
+  }, [copyText, onShare]);
 
-  const logSnapshot = useLogSnapshot(post, Origin.TextSelection);
+  const onSnapshot = useCallback(
+    (result: SnapshotResult) => onShare(ShareProvider.Snapshot, result),
+    [onShare],
+  );
 
   useEffect(() => {
     if (selection) {
@@ -132,15 +146,15 @@ export function SelectionSnapshotBar({
           {/* Snapshot leads, labelled and solid: it is the reason the bar
               exists, and the two copies beside it are the familiar fallbacks. */}
           <SnapshotButton
-            onResult={logSnapshot}
+            onResult={onSnapshot}
             captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
-            filename={`daily-quote-${post.id}`}
+            filename={`daily-quote-${seed}`}
             target={cardRef}
             variant={ButtonVariant.Primary}
           />
-          <Tooltip content="Copy link">
+          <Tooltip content="Copy text and link">
             <Button
-              aria-label="Copy link"
+              aria-label="Copy text and link"
               icon={<CopyStateIcon copied={linkCopied} icon={LinkIcon} />}
               onClick={onCopyLink}
               size={ButtonSize.Small}
@@ -169,12 +183,50 @@ export function SelectionSnapshotBar({
         <HighlightTextSnapshotCard
           ref={cardRef}
           highlight={quote.highlight}
+          label={label}
           passage={quote.passage}
-          seed={post.id}
-          source={snapshotSource(post)}
+          seed={seed}
+          source={source}
         />
       </div>
     </>,
     document.body,
+  );
+}
+
+export function SelectionSnapshotBar({
+  post,
+  containerRef,
+  origin = Origin.TextSelection,
+}: {
+  post: Post;
+  containerRef: RefObject<HTMLElement>;
+  /** Which surface the bar is on, for its share events. */
+  origin?: Origin;
+}): ReactElement {
+  const { logEvent } = useLogContext();
+
+  const onShare = useCallback(
+    (provider: ShareProvider, result?: SnapshotResult) =>
+      logEvent(
+        postLogEvent(LogEvent.SharePost, post, {
+          extra: {
+            provider,
+            origin,
+            ...(result && { result }),
+          },
+        }),
+      ),
+    [logEvent, origin, post],
+  );
+
+  return (
+    <SelectionShareBar
+      containerRef={containerRef}
+      link={post.commentsPermalink}
+      onShare={onShare}
+      seed={post.id}
+      source={snapshotSource(post)}
+    />
   );
 }

@@ -128,3 +128,29 @@ describe('AchievementCard — stop tracking', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('AchievementCard snapshot', () => {
+  const unlocked = createLockedAchievement({
+    unlockedAt: '2025-05-21T12:00:00.000Z',
+    progress: 1,
+  });
+
+  it('is not offered when the card does not know whose achievement it is', () => {
+    renderCard({ userAchievement: unlocked });
+
+    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
+  });
+
+  it('names the owner and dates the unlock with its year', () => {
+    renderCard({
+      userAchievement: unlocked,
+      user: { id: 'u1', name: 'Ada Lovelace', username: 'ada', image: '' },
+    });
+
+    fireEvent.pointerEnter(screen.getByLabelText('Snapshot'));
+
+    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument();
+    expect(screen.getByText('@ada')).toBeInTheDocument();
+    expect(screen.getByText('Completed May 21, 2025')).toBeInTheDocument();
+  });
+});

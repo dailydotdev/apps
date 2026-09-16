@@ -29,6 +29,7 @@ const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   [ReferralCampaignKey.ShareTag]: Referral,
   [ReferralCampaignKey.ShareAgent]: Referral,
   [ReferralCampaignKey.ShareSlack]: Referral,
+  [ReferralCampaignKey.ShareHighlights]: Referral,
   [ReferralCampaignKey.ShareWorld]: Referral,
   [ReferralCampaignKey.ShareTool]: Referral,
 };
