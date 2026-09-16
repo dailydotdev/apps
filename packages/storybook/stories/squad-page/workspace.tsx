@@ -47,7 +47,7 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import type { TeamMember } from './data';
+import type { QuizQuestion, TeamMember } from './data';
 import {
   entriesByMonth,
   feedEntries,
@@ -67,6 +67,9 @@ import {
 } from './data';
 import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
 import { Composer, Kit2Styles } from './kit2';
+import { PollList } from '@dailydotdev/shared/src/components/cards/poll/PollList';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { PostsToolbar, SquadAbout, SquadHome } from './home';
 
 // Round three: the Whop mindset. A squad is not a page with widgets, it is a
@@ -1464,12 +1467,73 @@ const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   </Column>
 );
 
+const noop = () => undefined;
+const cardHandlers = {
+  onPostClick: noop,
+  onPostAuxClick: noop,
+  onUpvoteClick: noop,
+  onDownvoteClick: noop,
+  onCommentClick: noop,
+  onBookmarkClick: noop,
+  onCopyLinkClick: noop,
+  onShare: noop,
+  onReadArticleClick: noop,
+};
+
+const quizSource = {
+  id: squad.handle,
+  handle: squad.handle,
+  name: squad.name,
+  permalink: squad.permalink,
+  image: squad.image,
+  type: 'squad' as const,
+  active: true,
+  public: true,
+};
+
+/** A quiz question as a real poll post, so the production poll card renders it. */
+const toQuizPost = (question: QuizQuestion, picked?: number): Post =>
+  ({
+    id: question.id,
+    title: question.question,
+    permalink: `https://daily.dev/posts/${question.id}`,
+    commentsPermalink: `https://daily.dev/posts/${question.id}`,
+    createdAt: '2026-09-15T09:00:00.000Z',
+    endsAt: '2026-09-22T09:00:00.000Z',
+    type: PostType.Poll,
+    source: quizSource,
+    author: {
+      id: team[3].id,
+      name: team[3].name,
+      username: team[3].username,
+      image: team[3].image,
+      permalink: `https://daily.dev/${team[3].username}`,
+    },
+    numUpvotes: 24,
+    numComments: 6,
+    numPollVotes: quiz.played,
+    pollOptions: question.options.map((text, index) => ({
+      id: `${question.id}-${index}`,
+      text,
+      order: index + 1,
+      numVotes: Math.round((question.split[index] / 100) * quiz.played),
+    })),
+    tags: ['dailydev'],
+    userState: {
+      vote: UserVote.None,
+      flags: { feedbackDismiss: false },
+      ...(picked !== undefined && {
+        pollOption: { id: `${question.id}-${picked}` },
+      }),
+    },
+  } as unknown as Post);
+
 /**
- * The quiz is the poll card with a right answer. Each question is a card,
- * answered in place: the right option turns green, a wrong pick turns red,
- * and the squad's split shows on every bar. The set is generated from the
- * company's own posts, so the source sits under each question. A score
- * lands once every card is answered.
+ * The quiz is the poll post, exactly the production list card, one per
+ * question. The page owns the answer: an option click is caught before the
+ * card's own vote handler, the card re-renders in its results state, and a
+ * line under it says which option was right and where the question came
+ * from. A score lands once every card is answered.
  */
 const QuizPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -1481,7 +1545,7 @@ const QuizPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
   const done = answered === total;
 
   return (
-    <Column width="max-w-[52rem]" className="gap-5">
+    <Column className="gap-5">
       <div className="flex items-start justify-between gap-6">
         <div className="flex flex-col gap-1">
           <h1 className="font-bold text-text-primary typo-title3">
@@ -1542,96 +1606,67 @@ const QuizPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
         </div>
       )}
 
-      <div
-        className="grid gap-4"
-        style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
-      >
-        {quiz.questions.map((question, index) => {
+      <div className="flex flex-col gap-4">
+        {quiz.questions.map((question) => {
           const picked = answers[question.id];
           const revealed = picked !== undefined;
 
           return (
-            <div
-              key={question.id}
-              className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
-            >
-              <div className="flex items-start gap-3">
-                <span className="sq-nums flex size-6 shrink-0 items-center justify-center rounded-8 bg-background-default font-bold text-text-tertiary typo-caption1">
-                  {index + 1}
-                </span>
-                <span className="min-w-0 flex-1 font-bold text-text-primary typo-callout">
-                  {question.question}
-                </span>
+            <div key={question.id} className="flex flex-col gap-2">
+              <div
+                onClickCapture={(event) => {
+                  if (revealed || viewer === Viewer.Visitor) {
+                    return;
+                  }
+                  const option = (event.target as HTMLElement)
+                    .closest('button')
+                    ?.textContent?.trim();
+                  const index = question.options.indexOf(option ?? '');
+                  if (index === -1) {
+                    return;
+                  }
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setAnswers((current) => ({
+                    ...current,
+                    [question.id]: index,
+                  }));
+                }}
+              >
+                <PollList
+                  post={toQuizPost(question, picked)}
+                  {...cardHandlers}
+                />
               </div>
-              <div className="flex flex-col gap-2">
-                {question.options.map((option, optionIndex) => {
-                  const isAnswer = optionIndex === question.answer;
-                  const isPicked = optionIndex === picked;
-
-                  return (
-                    <button
-                      type="button"
-                      key={option}
-                      disabled={revealed || viewer === Viewer.Visitor}
-                      onClick={() =>
-                        setAnswers((current) => ({
-                          ...current,
-                          [question.id]: optionIndex,
-                        }))
-                      }
+              <div className="flex items-center gap-2 px-4 text-text-tertiary typo-caption1">
+                {revealed ? (
+                  <>
+                    <span
                       className={classNames(
-                        'relative flex items-center justify-between overflow-hidden rounded-12 border px-3 py-2 text-left typo-callout transition-colors',
-                        !revealed &&
-                          'border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-primary',
-                        revealed &&
-                          isAnswer &&
-                          'border-status-success text-text-primary',
-                        revealed &&
-                          isPicked &&
-                          !isAnswer &&
-                          'border-status-error text-text-primary',
-                        revealed &&
-                          !isAnswer &&
-                          !isPicked &&
-                          'border-border-subtlest-tertiary text-text-tertiary',
+                        'flex items-center gap-1 font-bold',
+                        picked === question.answer
+                          ? 'text-status-success'
+                          : 'text-status-error',
                       )}
                     >
-                      {revealed && (
-                        <span
-                          className="absolute inset-y-0 left-0"
-                          style={{
-                            width: `${question.split[optionIndex]}%`,
-                            background: isAnswer
-                              ? 'color-mix(in srgb, var(--status-success) 22%, transparent)'
-                              : 'color-mix(in srgb, var(--theme-text-quaternary) 18%, transparent)',
-                          }}
-                        />
+                      {picked === question.answer && (
+                        <VIcon size={IconSize.XSmall} />
                       )}
-                      <span className="relative flex items-center gap-2">
-                        {revealed && isAnswer && (
-                          <VIcon
-                            size={IconSize.XSmall}
-                            className="text-status-success"
-                          />
-                        )}
-                        {option}
-                      </span>
-                      {revealed && (
-                        <span className="sq-nums relative text-text-tertiary typo-footnote">
-                          {question.split[optionIndex]}%
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                      {picked === question.answer
+                        ? 'Right'
+                        : `Right answer: ${question.options[question.answer]}`}
+                    </span>
+                    <span className="text-text-quaternary">·</span>
+                    <span className="truncate">From: {question.source}</span>
+                  </>
+                ) : (
+                  <span>
+                    {viewer === Viewer.Visitor
+                      ? 'Join to play'
+                      : 'Pick an answer to see how the squad voted'}
+                  </span>
+                )}
               </div>
-              <span className="truncate text-text-quaternary typo-caption1">
-                {revealed
-                  ? `From: ${question.source}`
-                  : viewer === Viewer.Visitor
-                  ? 'Join to play'
-                  : `${formatCount(quiz.played)} answered`}
-              </span>
             </div>
           );
         })}
