@@ -14,6 +14,7 @@ const FEED_HEIGHT = 20000;
 
 let scrollTo: jest.Mock;
 let pageHeight: number;
+let notifyResize: (() => void) | undefined;
 // The hook keys positions by history entry, so a fresh key per test keeps its
 // module-level map from leaking between them.
 let historyKey: string;
@@ -21,6 +22,7 @@ let historyKeyCount = 0;
 
 const setPageHeight = (height: number) => {
   pageHeight = height;
+  notifyResize?.();
 };
 
 const setScrollY = (position: number) => {
@@ -45,6 +47,18 @@ const renderScrollRestoration = () => renderHook(() => useScrollRestoration());
 
 beforeEach(() => {
   jest.useFakeTimers();
+  notifyResize = undefined;
+  jest.mocked(ResizeObserver).mockImplementation((callback) => {
+    const observer = {
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(() => {
+        notifyResize = undefined;
+      }),
+    };
+    notifyResize = () => callback([], observer);
+    return observer;
+  });
 
   historyKeyCount += 1;
   historyKey = `feed-entry-${historyKeyCount}`;
@@ -93,10 +107,8 @@ describe('useScrollRestoration', () => {
 
     renderScrollRestoration();
 
-    // The previous 1s budget expired here and dropped the user at the bottom of
-    // the partially rendered feed.
     act(() => {
-      jest.advanceTimersByTime(1500);
+      jest.advanceTimersByTime(2500);
     });
     expect(scrollTo).not.toHaveBeenCalled();
 
@@ -106,7 +118,7 @@ describe('useScrollRestoration', () => {
     expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
   });
 
-  it('leaves the user at the top when the page never grows tall enough', () => {
+  it('waits without polling when the page is too short', () => {
     saveFeedPosition();
 
     renderScrollRestoration();
@@ -117,6 +129,11 @@ describe('useScrollRestoration', () => {
 
     expect(scrollTo).not.toHaveBeenCalled();
     expect(window.scrollY).toBe(0);
+    expect(jest.getTimerCount()).toBe(0);
+
+    setPageHeight(FEED_HEIGHT);
+    advanceFrames();
+    expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
   });
 
   it('keeps the saved position when the router resets the scroll to the top', () => {
@@ -163,7 +180,7 @@ describe('useScrollRestoration', () => {
   it('records the position again once the user takes over', () => {
     saveFeedPosition();
 
-    renderScrollRestoration();
+    const { unmount } = renderScrollRestoration();
 
     act(() => {
       window.dispatchEvent(new Event('touchmove'));
@@ -172,6 +189,7 @@ describe('useScrollRestoration', () => {
     scrollUserTo(1200);
 
     // Remounting is the next back navigation to the same history entry.
+    unmount();
     setPageHeight(VIEWPORT_HEIGHT);
     setScrollY(0);
     renderScrollRestoration();
@@ -188,5 +206,33 @@ describe('useScrollRestoration', () => {
     advanceFrames(2);
 
     expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('cancels a pending restoration when leaving the feed', () => {
+    saveFeedPosition();
+    const { unmount } = renderScrollRestoration();
+    advanceFrames();
+    setPageHeight(FEED_HEIGHT);
+    unmount();
+    advanceFrames();
+
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(notifyResize).toBeUndefined();
+  });
+
+  it('restores when the viewport shrinks enough to reach the saved position', () => {
+    saveFeedPosition();
+    setPageHeight(SAVED_POSITION + VIEWPORT_HEIGHT - 100);
+    renderScrollRestoration();
+    advanceFrames();
+    expect(scrollTo).not.toHaveBeenCalled();
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: VIEWPORT_HEIGHT - 100,
+    });
+    act(() => window.dispatchEvent(new Event('resize')));
+
+    expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
   });
 });

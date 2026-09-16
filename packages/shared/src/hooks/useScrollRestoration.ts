@@ -3,10 +3,6 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 
 const scrollPositions: Record<string, number> = {};
-// A feed restored from cache needs longer than a second to reconcile on a
-// mid-range phone. A shorter budget expires mid-render, which is exactly when
-// the page is still too short to hold the saved position.
-const RESTORE_TIMEOUT_MS = 2000;
 
 const getScrollKey = (asPath: string): string => {
   if (typeof window === 'undefined') {
@@ -46,19 +42,24 @@ export const useScrollRestoration = (): void => {
     }
 
     isRestoringRef.current = true;
-    const deadline = performance.now() + RESTORE_TIMEOUT_MS;
     let frame = 0;
+    let stopped = false;
+    let observer: ResizeObserver;
+    const controller = new AbortController();
 
     const stop = () => {
+      stopped = true;
       isRestoringRef.current = false;
       cancelAnimationFrame(frame);
-      window.removeEventListener('wheel', stop);
-      window.removeEventListener('touchmove', stop);
-      window.removeEventListener('keydown', stop);
-      window.removeEventListener('mousedown', stop);
+      observer.disconnect();
+      controller.abort();
     };
 
-    const tick = () => {
+    const restore = () => {
+      if (stopped) {
+        return;
+      }
+
       const maxScroll =
         document.documentElement.scrollHeight - window.innerHeight;
 
@@ -67,26 +68,26 @@ export const useScrollRestoration = (): void => {
       if (maxScroll >= target) {
         window.scrollTo(0, target);
         stop();
-        return;
       }
-
-      // Out of budget: the feed never got there, so leave the user at the top.
-      if (performance.now() >= deadline) {
-        stop();
-        return;
-      }
-
-      frame = requestAnimationFrame(tick);
     };
+
+    observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(restore);
+    });
 
     // Restoring must never fight the user, any real input ends the attempt.
     // `mousedown` covers scrollbar drags, which emit no wheel event.
-    window.addEventListener('wheel', stop, { passive: true });
-    window.addEventListener('touchmove', stop, { passive: true });
-    window.addEventListener('keydown', stop);
-    window.addEventListener('mousedown', stop);
+    const { signal } = controller;
+    window.addEventListener('wheel', stop, { passive: true, signal });
+    window.addEventListener('touchmove', stop, { passive: true, signal });
+    window.addEventListener('keydown', stop, { signal });
+    window.addEventListener('mousedown', stop, { signal });
 
-    frame = requestAnimationFrame(tick);
+    observer.observe(document.body);
+    observer.observe(document.documentElement);
+    window.addEventListener('resize', restore, { signal });
+    frame = requestAnimationFrame(restore);
 
     return stop;
   }, [asPath]);
