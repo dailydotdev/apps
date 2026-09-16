@@ -53,7 +53,7 @@ describe('ExploreSignupStrip', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Own your feed. Make it your dev briefing.',
+        name: 'Unlock the full daily.dev experience',
       }),
     ).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith(impression);
