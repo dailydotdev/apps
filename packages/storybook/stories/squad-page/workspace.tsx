@@ -54,6 +54,7 @@ import {
 } from './data';
 import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
 import { Composer, Kit2Styles, LeaderboardBody } from './kit2';
+import { SquadHome } from './home';
 
 // Round three: the Whop mindset. A squad is not a page with widgets, it is a
 // workspace. The owner composes a left column of pages (a feed, a chat, a
@@ -565,94 +566,9 @@ const Column = ({
   </div>
 );
 
-/**
- * Home is Whop's identity block in daily.dev's clothes: a short cover with
- * the logo at its foot, name, one line of meta, "joined by" as proof, then
- * the feed. It is the only page with an identity block; the sidebar carries
- * the name everywhere else.
- */
+/** Home is the profile page's skeleton, for a squad. See home.tsx. */
 const HomePage = ({ viewer }: { viewer: Viewer }): ReactElement => (
-  <Column>
-    <div className="flex flex-col gap-4">
-      <div className="ws-cover relative h-36 overflow-hidden rounded-16">
-        <img
-          src={squad.headerImage}
-          alt=""
-          className="h-full w-full object-cover"
-        />
-      </div>
-      <div className="-mt-12 flex items-end gap-4 px-4">
-        <img
-          src={squad.image}
-          alt=""
-          className="sq-elevated relative size-20 shrink-0 rounded-16 bg-background-default object-cover ring-4 ring-background-default"
-        />
-        <div className="relative flex min-w-0 flex-1 items-end justify-between gap-4 pb-1">
-          <div className="flex flex-col">
-            <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2">
-              {squad.name}
-              <VerifiedMark label={false} />
-            </h1>
-            <span className="text-text-tertiary typo-footnote">
-              @{squad.handle} ·{' '}
-              <span className="text-text-link">{squad.category}</span>
-              {' · '}Since {formatSince(squad.createdAt)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            {viewer === Viewer.Visitor ? (
-              <Button
-                variant={ButtonVariant.Primary}
-                color={ButtonColor.Cabbage}
-                size={ButtonSize.Medium}
-              >
-                Join squad
-              </Button>
-            ) : (
-              <>
-                <IconButton icon={<AddUserIcon />} label="Invite" />
-                <IconButton icon={<BellIcon />} label="Notifications" />
-              </>
-            )}
-            <IconButton icon={<MenuIcon />} label="More" />
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-3 px-4">
-        <p className="text-text-secondary typo-callout">{squad.tagline}</p>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-footnote">
-          <span>{squad.company.location}</span>
-          <span className="text-text-quaternary">·</span>
-          <span className="flex items-center gap-1">
-            Created by <Avatar member={team[0]} size={1.125} />
-            <span className="text-text-primary">{team[0].name}</span>
-          </span>
-          <span className="text-text-quaternary">·</span>
-          <span className="flex items-center gap-1 text-text-link">
-            <OpenLinkIcon size={IconSize.XSmall} /> daily.dev
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-text-tertiary typo-footnote">
-          <Facepile members={team} max={3} size={1.25} />
-          Joined by <span className="text-text-primary">
-            {team[3].name}
-          </span>, <span className="text-text-primary">{team[4].name}</span> and{' '}
-          {formatCount(squad.membersCount - 2)} others
-        </div>
-      </div>
-    </div>
-    <div className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 py-2.5">
-      <PinIcon size={IconSize.Small} className="text-text-tertiary" />
-      <span className="truncate text-text-primary typo-callout">
-        {pinnedEntry.title}
-      </span>
-      <span className="ml-auto whitespace-nowrap text-text-quaternary typo-footnote">
-        Pinned
-      </span>
-    </div>
-    {viewer !== Viewer.Visitor && <Composer />}
-    <CardList entries={feedEntries.slice(0, 4)} />
-  </Column>
+  <SquadHome viewer={viewer} />
 );
 
 const FeedPage = ({ viewer }: { viewer: Viewer }): ReactElement => (

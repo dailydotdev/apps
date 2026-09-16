@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import ExtensionProviders from '../extension/_providers';
 import { KitStyles, Viewer } from './kit';
+import { SquadHome } from './home';
 import {
   addPage,
   allPages,
@@ -187,6 +188,104 @@ export const Overview: StoryObj = {
           Recruiter. The links open outside.
         </Caption>
         <WorkspaceShell viewer={Viewer.Member} />
+      </Section>
+
+      <Section eyebrow="Parity" title="Home is the profile page, for a squad">
+        <Caption>
+          A person and a squad are the same kind of thing on daily.dev, so their
+          pages share one skeleton. Left: the live profile page. Right: the
+          squad&apos;s Home. Same card, same cover height, same avatar seat,
+          same name, meta, actions and stats stack, same divided sections
+          beneath, same widget column. Only the nouns change.
+        </Caption>
+        <div className="flex gap-6 overflow-x-auto">
+          {[
+            [
+              'Profile, as it ships today',
+              <img
+                key="profile"
+                src="/squad-page/profile-reference.png"
+                alt="The daily.dev profile page"
+                className="w-full rounded-16 border border-border-subtlest-tertiary"
+              />,
+            ],
+            [
+              'Squad Home, same skeleton',
+              <div
+                key="squad"
+                className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
+              >
+                <SquadHome viewer={Viewer.Visitor} />
+              </div>,
+            ],
+          ].map(([label, node]) => (
+            <div
+              key={label as string}
+              className="flex shrink-0 flex-col gap-2"
+              style={{ width: 1152, zoom: 0.62 }}
+            >
+              <span className="text-text-quaternary typo-callout">{label}</span>
+              {node}
+            </div>
+          ))}
+        </div>
+        <Table
+          head={['Profile', 'Squad Home', 'Note']}
+          rows={[
+            [
+              'Cover, avatar at the foot of it',
+              'Cover, logo in the same seat',
+              'Same sizes: h-36 cover, 7.5rem rounded-16 avatar at left-6 top-16.',
+            ],
+            [
+              'Name + Plus mark',
+              'Name + Verified mark',
+              "The verified mark is the squad's Plus mark: same seat, same size.",
+            ],
+            ['Bio', 'Tagline', 'One line. The long form lives in About.'],
+            [
+              'Company badge · location',
+              '"Verified company" · location',
+              'The company badge is what makes the page sellable, so it stays in the header.',
+            ],
+            ['@handle · Joined date', '@handle · Created date', ''],
+            [
+              'Follow, more',
+              'Join, notifications, more',
+              'Joined state uses the secondary button with a check, like Following.',
+            ],
+            [
+              'Reputation · Upvotes · Followers · Following',
+              'Members · Posts · Views · Upvotes',
+              'Same 2x2 grid; members take the reputation seat with the icon.',
+            ],
+            [
+              'About me: social links + readme',
+              'About: links + readme',
+              'A squad gets a readme. Companies will write one.',
+            ],
+            [
+              'Stack',
+              'Stack and tools',
+              "The source stack already exists; it moves into the profile's row style.",
+            ],
+            [
+              'Activity: Posts / Replies / Upvoted, card rail, Show more',
+              'Activity: Posts / Announcements / Polls, card rail, Show more',
+              'The pinned post leads the rail with its flag. Show more opens the Posts page.',
+            ],
+            [
+              'Work experience, education',
+              'Open roles',
+              'Recruiter listings in the experience row style.',
+            ],
+            [
+              'Reading overview, Active in squads, Badges',
+              'Squad overview, Team, Awards and milestones',
+              'Same widget frames. Reading heatmap becomes a posting heatmap.',
+            ],
+          ]}
+        />
       </Section>
 
       <Section eyebrow="Three columns" title="How it sits inside daily.dev">
