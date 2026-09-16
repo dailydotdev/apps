@@ -630,8 +630,8 @@ export const Overview: StoryObj = {
             />
           </Screen>
           <Screen
-            title="A channel: Reviews, as a member"
-            note="The feed filtered to one flair, with its description and posting rule in the strip. Post to Reviews lands the post in the right place without a picker."
+            title="Reviews, as a member"
+            note="Not a feed. Stars and a review from members with the team replying in line, and every rating the company has on the web (Trustpilot, G2, the stores, Product Hunt) pulled into one score beside the squad's own."
           >
             <WorkspaceShell
               viewer={Viewer.Member}
@@ -646,6 +646,16 @@ export const Overview: StoryObj = {
             <WorkspaceShell
               viewer={Viewer.Admin}
               initialPage={findPage('products')}
+              height={52}
+            />
+          </Screen>
+          <Screen
+            title="Releases"
+            note="The changelog as a log, not a feed: every release post grouped by month, newest first, filterable by kind. GitHub Releases' shape. Announcements is where a release is discussed; this is where it is found."
+          >
+            <WorkspaceShell
+              viewer={Viewer.Member}
+              initialPage={findPage('releases')}
               height={52}
             />
           </Screen>

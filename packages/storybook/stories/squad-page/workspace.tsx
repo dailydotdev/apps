@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -36,21 +37,28 @@ import {
   SearchIcon,
   SendAirplaneIcon,
   SettingsIcon,
+  SparkleIcon,
   SquadIcon,
   StarIcon,
   TimerIcon,
+  UpvoteIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import type { TeamMember } from './data';
 import {
+  entriesByMonth,
   feedEntries,
   formatCount,
+  formatDay,
   formatSince,
   jobs,
   pinnedEntry,
   products,
+  ratingBreakdown,
+  reviewSources,
+  reviews,
   rules,
   squad,
   team,
@@ -72,6 +80,8 @@ export enum PageType {
   About = 'about',
   /** A saved filter on the squad feed with its own posting rule. */
   Channel = 'channel',
+  Reviews = 'reviews',
+  Releases = 'releases',
   Doc = 'doc',
   Rules = 'rules',
   Recurring = 'recurring',
@@ -135,11 +145,7 @@ const channels = {
     description:
       'Questions, opinions, feedback, bug reports. If it needs an answer, it lives here.',
   }),
-  reviews: page('reviews', 'Reviews', PageType.Channel, {
-    badge: 4,
-    description:
-      'What members think of the product, with a rating on every post. The team replies.',
-  }),
+  reviews: page('reviews', 'Reviews', PageType.Reviews, { badge: 4 }),
   quiz: page('quiz', 'Quiz', PageType.Channel, {
     description:
       'A short quiz from the team each week. Answer in the thread, see who got it.',
@@ -163,6 +169,7 @@ const common = {
   members: page('members', 'Members', PageType.Members),
   jobs: page('jobs', 'Open roles', PageType.Jobs, { badge: 2 }),
   products: page('products', 'Products', PageType.Products),
+  releases: page('releases', 'Releases', PageType.Releases, { badge: 1 }),
 };
 
 const link = (id: string, label: string, href: string): SquadPage =>
@@ -190,7 +197,13 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
   [SidebarPreset.Company]: [
     {
       id: 'top',
-      pages: [common.home, common.about, common.products, common.jobs],
+      pages: [
+        common.home,
+        common.about,
+        common.releases,
+        common.products,
+        common.jobs,
+      ],
     },
     {
       id: 'channels',
@@ -272,6 +285,8 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
     [PageType.Home]: <HomeIcon size={size} />,
     [PageType.About]: <InfoIcon size={size} />,
     [PageType.Channel]: <MegaphoneIcon size={size} />,
+    [PageType.Reviews]: <StarIcon size={size} />,
+    [PageType.Releases]: <SparkleIcon size={size} secondary />,
     [PageType.Doc]: <DocsIcon size={size} />,
     [PageType.Rules]: <DocsIcon size={size} />,
     [PageType.Recurring]: <CalendarIcon size={size} />,
@@ -326,10 +341,10 @@ export const pageCatalogue: {
         exists: true,
       },
       {
-        type: PageType.Channel,
+        type: PageType.Reviews,
         title: 'Reviews',
         description:
-          'Posts with a rating. What members think of the product, in public.',
+          'Stars and a review from members, with every rating the company has on the web pulled into one score.',
         exists: false,
       },
       {
@@ -392,6 +407,13 @@ export const pageCatalogue: {
   {
     group: 'Company',
     items: [
+      {
+        type: PageType.Releases,
+        title: 'Releases',
+        description:
+          'Every release post as a log, grouped by month, filterable by kind. Reads like GitHub Releases.',
+        exists: false,
+      },
       {
         type: PageType.Products,
         title: 'Products',
@@ -1085,6 +1107,361 @@ const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
   </Column>
 );
 
+const Stars = ({
+  value,
+  size = IconSize.Small,
+  onPick,
+}: {
+  value: number;
+  size?: IconSize;
+  onPick?: (value: number) => void;
+}): ReactElement => (
+  <span className="flex items-center">
+    {[1, 2, 3, 4, 5].map((star) => (
+      <button
+        type="button"
+        key={star}
+        disabled={!onPick}
+        onClick={() => onPick?.(star)}
+        aria-label={`${star} star${star > 1 ? 's' : ''}`}
+        className={classNames(
+          'flex',
+          star <= Math.round(value)
+            ? 'text-accent-cheese-default'
+            : 'text-text-disabled',
+          onPick && 'transition-transform hover:scale-110',
+        )}
+      >
+        <StarIcon size={size} secondary={star <= Math.round(value)} />
+      </button>
+    ))}
+  </span>
+);
+
+const squadRating = 4.7;
+const squadReviewCount = 312;
+const webRatings = reviewSources.reduce((sum, item) => sum + item.count, 0);
+const webRating =
+  reviewSources.reduce((sum, item) => sum + item.rating * item.count, 0) /
+  webRatings;
+
+/**
+ * Reviews are not posts. Members pick stars and write, the team replies in
+ * line, and the top of the page pulls every rating the company has on the
+ * web into one number next to the squad's own. Trustpilot's page shape,
+ * with G2, the stores and Product Hunt beside it.
+ */
+const ReviewsPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const [draft, setDraft] = useState(0);
+
+  return (
+    <Column width="max-w-[52rem]" className="gap-6">
+      <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1.4fr' }}>
+        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5">
+          <span className="text-text-tertiary typo-footnote">On daily.dev</span>
+          <div className="flex items-end gap-3">
+            <span className="sq-nums font-bold leading-none text-text-primary typo-mega2">
+              {squadRating.toFixed(1)}
+            </span>
+            <div className="flex flex-col gap-1 pb-1">
+              <Stars value={squadRating} />
+              <span className="sq-nums text-text-tertiary typo-caption1">
+                {squadReviewCount} member reviews
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5 pt-1">
+            {ratingBreakdown.map(([stars, share]) => (
+              <div
+                key={stars}
+                className="flex items-center gap-2 typo-caption1"
+              >
+                <span className="sq-nums w-3 text-text-tertiary">{stars}</span>
+                <span className="h-1.5 flex-1 overflow-hidden rounded-6 bg-background-default">
+                  <span
+                    className="block h-full rounded-6 bg-accent-cheese-default"
+                    style={{ width: `${share}%` }}
+                  />
+                </span>
+                <span className="sq-nums w-8 text-right text-text-quaternary">
+                  {share}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5">
+          <div className="flex items-baseline justify-between">
+            <span className="text-text-tertiary typo-footnote">
+              Across the web
+            </span>
+            <span className="sq-nums text-text-tertiary typo-caption1">
+              <b className="text-text-primary typo-callout">
+                {webRating.toFixed(1)}
+              </b>{' '}
+              from {formatCount(webRatings)} ratings
+            </span>
+          </div>
+          <ul className="flex flex-col divide-y divide-border-subtlest-tertiary">
+            {reviewSources.map((source) => (
+              <li key={source.id}>
+                <a
+                  href={source.href}
+                  className="flex items-center gap-3 py-2 hover:text-text-primary"
+                >
+                  <img
+                    src={source.image}
+                    alt=""
+                    className="size-5 rounded-4 bg-background-default p-0.5"
+                  />
+                  <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
+                    {source.name}
+                  </span>
+                  <Stars value={source.rating} size={IconSize.XSmall} />
+                  <span className="sq-nums w-8 text-right font-bold text-text-primary typo-callout">
+                    {source.rating.toFixed(1)}
+                  </span>
+                  <span className="sq-nums w-12 text-right text-text-quaternary typo-caption1">
+                    {formatCount(source.count)}
+                  </span>
+                  <OpenLinkIcon
+                    size={IconSize.XSmall}
+                    className="text-text-quaternary"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {viewer === Viewer.Visitor ? (
+        <div className="flex items-center justify-between rounded-16 border border-border-subtlest-tertiary px-4 py-3 text-text-tertiary typo-footnote">
+          Join the squad to rate and review
+          <Stars value={0} size={IconSize.XSmall} />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar member={team[2]} size={2} />
+              <span className="font-bold text-text-primary typo-callout">
+                Rate daily.dev
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Stars value={draft} size={IconSize.Medium} onPick={setDraft} />
+              <span className="sq-nums w-14 text-text-tertiary typo-caption1">
+                {draft
+                  ? ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][draft]
+                  : ''}
+              </span>
+            </div>
+          </div>
+          <div className="min-h-[4.5rem] rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-quaternary typo-callout">
+            What works, what does not, what you would tell a friend.
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-text-quaternary typo-caption1">
+              Reviews are public and carry your profile.
+            </span>
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              disabled={!draft}
+            >
+              Post review
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between">
+        <span className="sq-nums text-text-tertiary typo-callout">
+          <b className="text-text-primary">{squadReviewCount}</b> reviews
+        </span>
+        <Button
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          icon={<ArrowIcon className="rotate-180" />}
+          iconPosition={ButtonIconPosition.Right}
+        >
+          Most helpful
+        </Button>
+      </div>
+      <ol className="flex flex-col divide-y divide-border-subtlest-tertiary">
+        {reviews.map((review) => (
+          <li key={review.id} className="flex flex-col gap-3 py-5 first:pt-0">
+            <div className="flex items-center gap-3">
+              <Avatar member={review.author} size={2.25} />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate font-bold text-text-primary typo-callout">
+                  {review.author.name}
+                </span>
+                <span className="text-text-quaternary typo-caption1">
+                  Member · {review.date}
+                </span>
+              </div>
+              <Stars value={review.rating} size={IconSize.XSmall} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="font-bold text-text-primary typo-callout">
+                {review.title}
+              </span>
+              <p className="text-text-secondary typo-callout">{review.body}</p>
+            </div>
+            <div className="flex items-center gap-3 text-text-tertiary typo-caption1">
+              <button
+                type="button"
+                className="flex items-center gap-1 hover:text-text-primary"
+              >
+                <UpvoteIcon size={IconSize.XSmall} />
+                Helpful · {review.helpful}
+              </button>
+              <button type="button" className="hover:text-text-primary">
+                Share
+              </button>
+            </div>
+            {review.reply && (
+              <div className="ml-4 flex gap-3 rounded-12 border-l-2 border-accent-cabbage-default bg-surface-float px-4 py-3">
+                <Avatar member={review.reply.author} size={1.75} />
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="flex items-center gap-2 typo-caption1">
+                    <span className="font-bold text-text-primary">
+                      {review.reply.author.name}
+                    </span>
+                    <span className="rounded-6 bg-accent-cabbage-flat px-1.5 text-accent-cabbage-default typo-caption2">
+                      Team
+                    </span>
+                    <span className="text-text-quaternary">
+                      {review.reply.date}
+                    </span>
+                  </span>
+                  <span className="text-text-secondary typo-footnote">
+                    {review.reply.body}
+                  </span>
+                </div>
+              </div>
+            )}
+          </li>
+        ))}
+      </ol>
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Medium}
+        className="w-full"
+      >
+        Load more
+      </Button>
+    </Column>
+  );
+};
+
+const releaseKinds = ['All', 'Features', 'Fixes', 'Betas'];
+
+/**
+ * The changelog as a log, not a feed: GitHub Releases' shape. Every post
+ * flaired as a release lands here grouped by month, newest first, with the
+ * kind as a filter. The Announcements channel is where they are discussed;
+ * this is where they are found.
+ */
+const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
+  <Column width="max-w-[52rem]" className="gap-6">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1">
+        {releaseKinds.map((kind, index) => (
+          <button
+            type="button"
+            key={kind}
+            className={classNames(
+              'rounded-10 px-3 py-1.5 typo-callout',
+              index === 0
+                ? 'bg-surface-float font-bold text-text-primary'
+                : 'text-text-tertiary hover:text-text-primary',
+            )}
+          >
+            {kind}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="sq-nums text-text-tertiary typo-footnote">
+          <b className="text-text-primary">{squad.totalPosts}</b> releases
+        </span>
+        {viewer === Viewer.Admin && (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+          >
+            New release
+          </Button>
+        )}
+      </div>
+    </div>
+    <div className="flex flex-col gap-8">
+      {entriesByMonth.map((group, groupIndex) => (
+        <section key={group.month} className="flex flex-col gap-3">
+          <h2 className="flex items-center gap-2 font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
+            {group.month}
+            {groupIndex === 0 && (
+              <span className="rounded-6 bg-accent-cabbage-flat px-1.5 normal-case tracking-normal text-accent-cabbage-default">
+                Latest
+              </span>
+            )}
+          </h2>
+          <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+            {group.items.map((entry) => (
+              <li
+                key={entry.id}
+                className="group flex gap-4 px-4 py-4 hover:bg-surface-float"
+              >
+                <time className="sq-nums w-14 shrink-0 pt-0.5 text-text-tertiary typo-footnote">
+                  {formatDay(entry.createdAt)}
+                </time>
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <span className="font-bold text-text-primary typo-callout">
+                    {entry.title}
+                  </span>
+                  <p className="line-clamp-2 text-text-secondary typo-footnote">
+                    {entry.summary}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-quaternary typo-caption1">
+                    <span className="flex items-center gap-1.5">
+                      <Avatar member={entry.author} size={1} />
+                      {entry.author.name}
+                    </span>
+                    {entry.tags.slice(0, 2).map((tag) => (
+                      <span key={tag}>#{tag}</span>
+                    ))}
+                    <span className="sq-nums ml-auto flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <UpvoteIcon size={IconSize.XSmall} />
+                        {entry.upvotes}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <DiscussIcon size={IconSize.XSmall} />
+                        {entry.comments}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                {entry.image && (
+                  <img
+                    src={entry.image}
+                    alt=""
+                    className="h-14 w-24 shrink-0 rounded-10 object-cover"
+                  />
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+  </Column>
+);
+
 const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
 
 /**
@@ -1399,6 +1776,10 @@ const PageBody = ({
       );
     case PageType.Channel:
       return <ChannelPage page={current} viewer={viewer} />;
+    case PageType.Reviews:
+      return <ReviewsPage viewer={viewer} />;
+    case PageType.Releases:
+      return <ReleasesPage viewer={viewer} />;
     case PageType.Chat:
       return <ChatPage />;
     case PageType.Doc:
@@ -1438,6 +1819,12 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
           <IconButton icon={<BellIcon />} label="Notifications" />
         </>
       );
+    case PageType.Reviews:
+      return viewer === Viewer.Admin ? (
+        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+          Sources
+        </Button>
+      ) : null;
     case PageType.Products:
       return viewer === Viewer.Admin ? (
         <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>

@@ -627,3 +627,125 @@ export const rules: [string, string][] = [
     'No vote brigading, no sockpuppets, no reposting removed content.',
   ],
 ];
+
+/** Illustrative. Ratings on the web, pulled into one place. */
+export interface ReviewSource {
+  id: string;
+  name: string;
+  image: string;
+  rating: number;
+  count: number;
+  href: string;
+}
+
+export const reviewSources: ReviewSource[] = [
+  {
+    id: 'trustpilot',
+    name: 'Trustpilot',
+    image: 'https://cdn.simpleicons.org/trustpilot',
+    rating: 4.5,
+    count: 1240,
+    href: 'https://www.trustpilot.com/review/daily.dev',
+  },
+  {
+    id: 'g2',
+    name: 'G2',
+    image: 'https://cdn.simpleicons.org/g2',
+    rating: 4.6,
+    count: 212,
+    href: 'https://www.g2.com/products/daily-dev',
+  },
+  {
+    id: 'chrome',
+    name: 'Chrome Web Store',
+    image: 'https://cdn.simpleicons.org/googlechrome',
+    rating: 4.7,
+    count: 3100,
+    href: 'https://daily.dev/extension',
+  },
+  {
+    id: 'appstore',
+    name: 'App Store',
+    image: 'https://cdn.simpleicons.org/appstore',
+    rating: 4.8,
+    count: 890,
+    href: 'https://daily.dev/ios',
+  },
+  {
+    id: 'producthunt',
+    name: 'Product Hunt',
+    image: 'https://cdn.simpleicons.org/producthunt',
+    rating: 4.9,
+    count: 1180,
+    href: 'https://www.producthunt.com/products/daily-dev',
+  },
+];
+
+export interface Review {
+  id: string;
+  author: TeamMember;
+  rating: number;
+  title: string;
+  body: string;
+  date: string;
+  helpful: number;
+  reply?: { author: TeamMember; body: string; date: string };
+}
+
+/** Illustrative. Authors are the team, standing in for members. */
+export const reviews: Review[] = [
+  {
+    id: 'r1',
+    author: team[6],
+    rating: 5,
+    title: 'Replaced three newsletters and a Slack channel',
+    body: 'The feed is the first thing I open. Custom feeds got good enough that I dropped my RSS reader, and the in-app reader means I stop tab hoarding. Squads are where the actual conversation is.',
+    date: 'Sep 12',
+    helpful: 41,
+    reply: {
+      author: team[3],
+      body: 'Thank you. The reader was the most requested thing this year, glad it landed for you.',
+      date: 'Sep 13',
+    },
+  },
+  {
+    id: 'r2',
+    author: team[5],
+    rating: 4,
+    title: 'Great on desktop, the mobile app is catching up',
+    body: 'Extension and web are excellent. The iOS app is fine for reading but posting from it is still clunky, and I want the same keyboard shortcuts.',
+    date: 'Sep 4',
+    helpful: 18,
+  },
+  {
+    id: 'r3',
+    author: team[7],
+    rating: 5,
+    title: 'The public API changed how I use it',
+    body: 'Morning briefing agent in Claude Code, bookmarks synced to Obsidian, all with a personal token. 200 free requests is enough for a daily digest.',
+    date: 'Aug 30',
+    helpful: 27,
+  },
+  {
+    id: 'r4',
+    author: team[4],
+    rating: 3,
+    title: 'Too many notifications by default',
+    body: 'Good product, but a new account gets a lot of streak and squad noise before it learns you. Turn it down out of the box.',
+    date: 'Aug 22',
+    helpful: 9,
+    reply: {
+      author: team[1],
+      body: 'Fair. Defaults are getting a pass this quarter; the streak ones are already quieter for new accounts.',
+      date: 'Aug 23',
+    },
+  },
+];
+
+export const ratingBreakdown: [number, number][] = [
+  [5, 68],
+  [4, 21],
+  [3, 7],
+  [2, 3],
+  [1, 1],
+];
