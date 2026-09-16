@@ -58,7 +58,7 @@ import {
 } from './data';
 import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
 import { Composer, Kit2Styles } from './kit2';
-import { SquadAbout, SquadHome } from './home';
+import { PostsToolbar, SquadAbout, SquadHome } from './home';
 
 // Round three: the Whop mindset. A squad is not a page with widgets, it is a
 // workspace. The owner composes a left column of pages (a feed, a chat, a
@@ -288,7 +288,7 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
     [PageType.Rules]: <DocsIcon size={size} />,
     [PageType.Recurring]: <CalendarIcon size={size} />,
     [PageType.Chat]: <DiscussIcon size={size} />,
-    [PageType.Link]: <OpenLinkIcon size={size} />,
+    [PageType.Link]: <LinkIcon size={size} />,
     [PageType.Jobs]: <JobIcon size={size} />,
     [PageType.Products]: <CardIcon size={size} />,
     [PageType.Members]: <UserIcon size={size} />,
@@ -470,6 +470,16 @@ export const pageCatalogue: {
 const shellCss = `
 .ws-scroll { scrollbar-width: thin; scrollbar-color: var(--theme-border-subtlest-tertiary) transparent; }
 .ws-item .ws-item-tools { opacity: 0; }
+.ws-active::before {
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--theme-accent-cabbage-default);
+}
 .ws-item:hover .ws-item-tools { opacity: 1; }
 .ws-cover::after {
   content: '';
@@ -553,18 +563,29 @@ const SidebarItem = ({
     type="button"
     onClick={() => onSelect(page)}
     className={classNames(
-      'ws-item group flex w-full items-center gap-2 rounded-10 px-2 py-1.5 text-left typo-callout',
+      'ws-item group relative flex w-full items-center gap-2.5 rounded-10 px-2.5 py-1.5 text-left typo-callout transition-colors',
       active
-        ? 'bg-surface-float font-bold text-text-primary'
+        ? 'ws-active bg-surface-float font-bold text-text-primary'
         : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
     )}
   >
     <span
-      className={classNames('flex shrink-0', active && 'text-text-primary')}
+      className={classNames(
+        'flex shrink-0',
+        active
+          ? 'text-text-primary'
+          : 'text-text-quaternary group-hover:text-text-primary',
+      )}
     >
       {iconFor(page)}
     </span>
     <span className="truncate">{page.label}</span>
+    {page.href && (
+      <OpenLinkIcon
+        size={IconSize.XSmall}
+        className="ml-auto shrink-0 text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
+      />
+    )}
     {page.restricted && (
       <LockIcon
         size={IconSize.XSmall}
@@ -609,26 +630,34 @@ export const SquadSidebar = ({
         className,
       )}
     >
-      <header className="flex items-center gap-3 border-b border-border-subtlest-tertiary px-4 py-3">
-        <img
-          src={squad.image}
-          alt=""
-          className="size-9 rounded-10 object-cover"
-        />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="flex items-center gap-1 truncate font-bold text-text-primary typo-callout">
-            {squad.name}
-            <VerifiedMark label={false} className="shrink-0" />
-          </span>
-          <span className="flex items-center gap-1 whitespace-nowrap text-text-tertiary typo-caption1">
-            {formatCount(squad.membersCount)} members
-            <span className="ml-1 size-1.5 rounded-full bg-status-success" />
-            38 online
-          </span>
+      <header className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={squad.image}
+            alt=""
+            className="size-10 rounded-12 bg-background-default object-cover ring-1 ring-border-subtlest-tertiary"
+          />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="flex items-center gap-1 truncate font-bold text-text-primary typo-callout">
+              {squad.name}
+              <VerifiedMark label={false} className="shrink-0" />
+            </span>
+            <span className="truncate text-text-tertiary typo-caption1">
+              Verified · {squad.company.website}
+            </span>
+          </div>
         </div>
-      </header>
-      {viewer === Viewer.Visitor && (
-        <div className="border-b border-border-subtlest-tertiary p-3">
+        <div className="flex items-center gap-1 text-text-tertiary typo-caption1">
+          <span className="sq-nums text-text-secondary">
+            {formatCount(squad.membersCount)}
+          </span>
+          members
+          <span className="mx-1 text-text-quaternary">·</span>
+          <span className="size-1.5 rounded-full bg-status-success" />
+          <span className="sq-nums text-text-secondary">38</span>
+          online
+        </div>
+        {viewer === Viewer.Visitor && (
           <Button
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
@@ -637,17 +666,35 @@ export const SquadSidebar = ({
           >
             Join squad
           </Button>
-        </div>
-      )}
-      {admin && (
-        <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-4 py-2 text-text-tertiary typo-caption1">
-          Preview as
-          <span className="flex items-center gap-1 rounded-8 bg-surface-float px-2 py-0.5 font-bold text-text-primary">
-            Admin
-            <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
-          </span>
-        </div>
-      )}
+        )}
+        {viewer === Viewer.Member && (
+          <div className="grid grid-cols-3 gap-1">
+            {[
+              [<BellIcon key="bell" size={IconSize.Small} />, 'Alerts'],
+              [<AddUserIcon key="invite" size={IconSize.Small} />, 'Invite'],
+              [<LinkIcon key="share" size={IconSize.Small} />, 'Share'],
+            ].map(([icon, label]) => (
+              <button
+                type="button"
+                key={label as string}
+                className="flex flex-col items-center gap-0.5 rounded-10 bg-surface-float py-2 text-text-tertiary typo-caption1 transition-colors hover:bg-surface-hover hover:text-text-primary"
+              >
+                {icon}
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+        {admin && (
+          <div className="flex items-center justify-between rounded-10 bg-surface-float px-3 py-1.5 text-text-tertiary typo-caption1">
+            Preview as
+            <span className="flex items-center gap-1 font-bold text-text-primary">
+              Admin
+              <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
+            </span>
+          </div>
+        )}
+      </header>
       <div className="flex flex-col gap-4 px-2 py-3">
         {sidebarSections
           .filter((section) => !section.admin || admin)
@@ -655,7 +702,7 @@ export const SquadSidebar = ({
             <div key={section.id} className="flex flex-col gap-0.5">
               {section.label && (
                 <div className="flex items-center justify-between px-2 pb-1">
-                  <span className="flex items-center gap-1 font-bold uppercase tracking-wide text-text-quaternary typo-caption2">
+                  <span className="flex items-center gap-1 font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
                     {section.label}
                     <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
                   </span>
@@ -725,7 +772,7 @@ const PageBar = ({
     {page.restricted && (
       <span className="ml-1 flex items-center gap-1 rounded-8 bg-surface-float px-2 py-0.5 text-text-tertiary typo-caption1">
         <LockIcon size={IconSize.XSmall} />
-        Admins and moderators post here
+        Team only
       </span>
     )}
     <div className="ml-auto flex items-center gap-1">{children}</div>
@@ -813,6 +860,7 @@ const ChannelPage = ({
           )}
         </div>
       )}
+      <PostsToolbar sort="Latest" />
       <CardList entries={feedEntries.slice(0, 5)} />
     </Column>
   );
@@ -1253,32 +1301,72 @@ const JobsPage = (): ReactElement => (
 
 const MembersPage = (): ReactElement => (
   <Column>
+    <div className="flex items-center justify-between">
+      <span className="flex items-center gap-1 text-text-tertiary typo-callout">
+        <span className="sq-nums font-bold text-text-primary">
+          {formatCount(squad.membersCount)}
+        </span>
+        members
+        <span className="mx-1 text-text-quaternary">·</span>
+        <span className="size-1.5 rounded-full bg-status-success" />
+        <span className="sq-nums text-text-secondary">38</span>
+        online
+      </span>
+      <div className="flex h-9 w-64 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-footnote">
+        <SearchIcon size={IconSize.Small} />
+        Search members
+      </div>
+    </div>
     <div className="flex flex-col gap-2">
-      <span className="font-bold uppercase tracking-wide text-text-quaternary typo-caption2">
+      <span className="font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
         Team
       </span>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         {team.map((member) => (
           <div
             key={member.id}
             className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
           >
             <Avatar member={member} size={2.5} />
-            <div className="flex min-w-0 flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
               <span className="truncate font-bold text-text-primary typo-callout">
                 {member.name}
               </span>
               <span className="truncate text-text-tertiary typo-footnote">
-                {member.title} · {member.role}
+                {member.title}
               </span>
             </div>
+            <span className="shrink-0 rounded-6 bg-background-default px-1.5 py-0.5 text-text-tertiary typo-caption2">
+              {member.role}
+            </span>
           </div>
         ))}
       </div>
     </div>
-    <span className="text-text-tertiary typo-footnote">
-      and {formatCount(squad.membersCount - team.length)} members
-    </span>
+    <div className="flex flex-col gap-2">
+      <span className="font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
+        Newest members
+      </span>
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-12 border border-border-subtlest-tertiary">
+        {[...team]
+          .reverse()
+          .slice(0, 4)
+          .map((member, index) => (
+            <div
+              key={member.id}
+              className="flex items-center gap-3 px-3 py-2.5"
+            >
+              <Avatar member={member} size={2} />
+              <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
+                {member.name}
+              </span>
+              <span className="text-text-quaternary typo-caption1">
+                Joined {index + 1}d ago
+              </span>
+            </div>
+          ))}
+      </div>
+    </div>
   </Column>
 );
 
@@ -1386,14 +1474,9 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
   switch (page.type) {
     case PageType.Home:
     case PageType.Channel:
-      return (
-        <>
-          <IconButton icon={<SearchIcon />} label="Search" />
-          {viewer === Viewer.Admin && (
-            <IconButton icon={<SettingsIcon />} label="Page settings" />
-          )}
-        </>
-      );
+      return viewer === Viewer.Admin ? (
+        <IconButton icon={<SettingsIcon />} label="Page settings" />
+      ) : null;
     case PageType.Chat:
       return (
         <>

@@ -18,7 +18,7 @@ import {
   LinkedInIcon,
   MenuIcon,
   PinIcon,
-  ReputationIcon,
+  UserIcon,
   SearchIcon,
   TwitterIcon,
   VIcon,
@@ -29,6 +29,7 @@ import type { Entry } from './data';
 import {
   feedEntries,
   formatCount,
+  formatSince,
   jobs,
   pinnedEntry,
   squad,
@@ -36,7 +37,8 @@ import {
   team,
   toPost,
 } from './data';
-import { Avatar, VerifiedMark, Viewer } from './kit';
+import { Avatar, Facepile, VerifiedMark, Viewer } from './kit';
+import { Composer } from './kit2';
 
 // The squad's Home, built on the profile page's skeleton so a person and a
 // squad read as the same kind of thing. Same card, same cover height, same
@@ -74,55 +76,75 @@ const SquadHeader = ({
   standalone: boolean;
 }): ReactElement => (
   <div className="relative w-full overflow-hidden rounded-t-16">
-    <div className="h-36">
+    <div className="relative h-36">
       <img
         src={squad.headerImage}
         alt="Cover"
         className="h-full w-full object-cover"
       />
+      {/* The cover dissolves into the card so the logo seat and the name
+          sit on a quiet ground, whatever the company uploads. */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-20"
+        style={{
+          background:
+            'linear-gradient(to top, var(--theme-background-default), transparent)',
+        }}
+      />
     </div>
     <img
       src={squad.image}
       alt="Logo"
-      className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
+      className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 bg-background-default object-cover ring-4 ring-background-default"
     />
     <div className="flex flex-col gap-3 px-6">
       <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
         {viewer === Viewer.Admin && (
-          <Button
-            className="text-text-secondary"
-            variant={ButtonVariant.Float}
-            icon={<EditIcon />}
-            aria-label="Edit squad"
-          />
+          <>
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<EditIcon />}
+            >
+              Edit page
+            </Button>
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<LinkIcon />}
+              aria-label="Copy link"
+            />
+          </>
         )}
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         <span className="font-bold typo-title2">{squad.name}</span>
         <VerifiedMark label={false} />
       </div>
       <div className="flex flex-col gap-2">
-        <span className="typo-body">{squad.tagline}</span>
-        <div className="flex items-center text-text-secondary typo-subhead">
-          <span className="flex items-center gap-1">
+        <span className="text-text-primary typo-body">{squad.tagline}</span>
+        <div className="flex flex-wrap items-center text-text-secondary typo-subhead">
+          <span className="flex items-center gap-1.5">
             <img src={squad.image} alt="" className="size-4 rounded-4" />
-            daily.dev
-            <VIcon
-              size={IconSize.XSmall}
-              className="text-accent-cabbage-default"
-            />
+            <span className="text-text-primary">{squad.company.website}</span>
+            <VerifiedMark label={false} className="scale-90" />
             <span className="text-text-tertiary">Verified company</span>
           </span>
           <Separator />
           <span>{squad.company.location}</span>
-        </div>
-        <div className="flex items-center text-text-secondary typo-subhead">
-          <span>@{squad.handle}</span>
           <Separator />
-          <span>Created Feb 6. 2023</span>
+          <span>Since {formatSince(squad.createdAt)}</span>
+        </div>
+        <div className="flex items-center gap-2 text-text-tertiary typo-subhead">
+          <Facepile members={team.slice(3)} max={3} size={1.25} />
+          <span>
+            Joined by <span className="text-text-primary">{team[3].name}</span>,{' '}
+            <span className="text-text-primary">{team[4].name}</span> and{' '}
+            {formatCount(squad.membersCount - 2)} others
+          </span>
         </div>
         {viewer !== Viewer.Admin && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pt-1">
             {standalone && viewer === Viewer.Visitor && (
               <Button
                 variant={ButtonVariant.Primary}
@@ -149,6 +171,13 @@ const SquadHeader = ({
                 />
               </>
             )}
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<LinkIcon />}
+            >
+              Share
+            </Button>
             <Button
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
@@ -182,11 +211,8 @@ const SquadStats = (): ReactElement => {
 
   return (
     <div className="-ml-1 grid w-fit grid-cols-[auto_auto] gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
-      <div className="flex">
-        <ReputationIcon
-          className="text-accent-onion-default"
-          size={IconSize.Small}
-        />
+      <div className="flex items-center gap-0.5">
+        <UserIcon className="text-text-tertiary" size={IconSize.Small} />
         <Item amount={squad.membersCount} title="Members" />
       </div>
       <Item amount={squad.totalPosts} title="Posts" />
@@ -403,8 +429,8 @@ export const PostsArea = ({
   toolbarChildren?: ReactNode;
 }): ReactElement => (
   <div className="flex flex-col gap-4 p-6">
-    <PostsToolbar sort={sort}>{toolbarChildren}</PostsToolbar>
     {composer}
+    <PostsToolbar sort={sort}>{toolbarChildren}</PostsToolbar>
     {pinned && <Highlight entry={pinned} />}
     <div
       className="grid gap-4"
@@ -424,37 +450,48 @@ export const PostsArea = ({
   </div>
 );
 
-/** ProfileUserExperiences, for a squad: the company's open roles. */
-const RolesSection = (): ReactElement => (
+const facts = [
+  ['Website', squad.company.website],
+  ['Headquarters', squad.company.location],
+  ['Company size', squad.company.size],
+  ['Founded', '2020'],
+  ['Category', squad.category],
+  ['Verified since', formatSince(squad.createdAt)],
+];
+
+/** LinkedIn's overview block and GitHub's verified-domain claim, as one list. */
+const CompanySection = (): ReactElement => (
   <div className="flex flex-col gap-4 py-4">
-    <SectionTitle>Open roles</SectionTitle>
-    <div className="flex flex-col gap-4">
-      {jobs.map((job) => (
-        <div key={job.title} className="flex gap-3">
-          <img src={squad.image} alt="" className="size-8 shrink-0 rounded-8" />
-          <div className="flex flex-col gap-1">
-            <span className="flex items-center gap-2">
-              <span className="font-bold text-text-primary typo-callout">
-                {job.title}
-              </span>
-              <span className="rounded-6 bg-surface-float px-1.5 text-text-tertiary typo-caption2">
-                {job.type}
-              </span>
+    <SectionTitle>Company</SectionTitle>
+    <dl className="grid grid-cols-2 gap-x-8 gap-y-3">
+      {facts.map(([label, value]) => (
+        <div key={label} className="flex flex-col gap-0.5">
+          <dt className="text-text-quaternary typo-caption1">{label}</dt>
+          <dd className="text-text-primary typo-callout">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+);
+
+const TeamSection = (): ReactElement => (
+  <div className="flex flex-col gap-4 py-4">
+    <SectionTitle>Team</SectionTitle>
+    <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+      {team.map((member) => (
+        <div key={member.id} className="flex items-center gap-3">
+          <Avatar member={member} size={2.25} />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate font-bold text-text-primary typo-callout">
+              {member.name}
             </span>
-            <span className="text-text-tertiary typo-footnote">
-              daily.dev · {job.location}
+            <span className="truncate text-text-tertiary typo-footnote">
+              {member.title}
             </span>
-            <div className="mt-1 flex gap-2">
-              {['TypeScript', 'React', 'Node.js'].map((skill) => (
-                <span
-                  key={skill}
-                  className="rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 text-text-secondary typo-caption1"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
           </div>
+          <span className="shrink-0 rounded-6 bg-surface-float px-1.5 py-0.5 text-text-tertiary typo-caption2">
+            {member.role}
+          </span>
         </div>
       ))}
     </div>
@@ -513,11 +550,10 @@ const weeks = Array.from({ length: 26 }, (_, week) =>
 
 /** ReadingOverview, for a squad: what it posts, how often, about what. */
 const OverviewWidget = (): ReactElement => (
-  <Widget title="Squad overview">
-    <span className="text-text-link typo-footnote">Learn more</span>
-    <div className="my-3 grid grid-cols-2 gap-2">
+  <Widget title="Activity">
+    <div className="mb-3 mt-4 grid grid-cols-2 gap-2">
       <Tile value="12" label="Posts this month" />
-      <Tile value={formatCount(squad.totalViews)} label="Total views" />
+      <Tile value={formatCount(squad.totalViews)} label="Views, all time" />
     </div>
     <span className="text-text-tertiary typo-subhead">Top tags by posts</span>
     <div className="my-3 grid grid-cols-2 gap-2">
@@ -572,21 +608,21 @@ const OverviewWidget = (): ReactElement => (
 /** ActiveOrRecommendedSquads, for a squad: the people behind it. */
 const TeamWidget = (): ReactElement => (
   <Widget title="Team">
-    <ul className="mt-4 flex flex-col gap-2">
+    <ul className="mt-4 flex flex-col gap-2.5">
       {team.slice(0, 5).map((member) => (
-        <li key={member.id} className="flex items-center gap-2">
+        <li key={member.id} className="flex items-center gap-2.5">
           <Avatar member={member} size={2} />
-          <div className="flex min-w-0 flex-col">
+          <div className="flex min-w-0 flex-1 flex-col">
             <span className="truncate font-bold text-text-primary typo-callout">
               {member.name}
             </span>
             <span className="truncate text-text-tertiary typo-footnote">
-              @{member.username}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
               {member.title}
             </span>
           </div>
+          <span className="shrink-0 text-text-quaternary typo-caption1">
+            {member.role}
+          </span>
         </li>
       ))}
     </ul>
@@ -596,7 +632,7 @@ const TeamWidget = (): ReactElement => (
         size={ButtonSize.Small}
         className="w-full"
       >
-        Show all team
+        See all {team.length}
       </Button>
     </div>
   </Widget>
@@ -611,9 +647,8 @@ const milestones = [
 
 /** BadgesAndAwards, for a squad. */
 const AwardsWidget = (): ReactElement => (
-  <Widget title="Awards and milestones">
-    <span className="text-text-link typo-footnote">Learn more</span>
-    <div className="my-3 grid grid-cols-2 gap-2">
+  <Widget title="Milestones">
+    <div className="mb-3 mt-4 grid grid-cols-2 gap-2">
       <Tile value={`x${squad.totalAwards}`} label="Awards received" />
       <Tile value="x4" label="Milestones" />
     </div>
@@ -661,8 +696,9 @@ export const SquadAbout = ({
 }): ReactElement => (
   <div className="flex flex-col divide-y divide-border-subtlest-tertiary">
     <AboutSection />
+    <CompanySection />
+    <TeamSection />
     <StackSection viewer={viewer} />
-    <RolesSection />
   </div>
 );
 
@@ -691,6 +727,7 @@ export const SquadHome = ({
         sort="Latest"
         entries={feedEntries.slice(0, 6)}
         pinned={pinnedEntry}
+        composer={viewer !== Viewer.Visitor && <Composer />}
       />
     </div>
   </HomeFrame>
