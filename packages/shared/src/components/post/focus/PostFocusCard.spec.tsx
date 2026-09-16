@@ -142,6 +142,8 @@ describe('PostFocusCard shared tweet', () => {
     expect(screen.queryByTestId('post-modal-title')).not.toBeInTheDocument();
     expect(screen.queryByTestId('tldr-container')).not.toBeInTheDocument();
     expect(screen.queryByTestId('post-cover-link')).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Read on/)).not.toBeInTheDocument();
+    expect(screen.queryByText('#backend')).not.toBeInTheDocument();
     expect(
       screen.getByText('Anyone excited by the new expansion?'),
     ).toBeInTheDocument();

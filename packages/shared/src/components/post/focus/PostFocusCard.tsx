@@ -702,20 +702,26 @@ const PostFocusCardRaw = ({
               reversing there would hand keyboard users the body before the CTA
               they see first. Article bodies are a plain <p>, so ordering the
               two is purely visual. */}
-          <div
-            className={classNames(
-              'flex flex-col gap-4',
-              !isVideoType && 'flex-col-reverse tablet:flex-col',
-            )}
-          >
-            {/* Must stay two children, or the reversal reorders the body too. */}
-            {postBody && !isSharedTweet && (
-              <div className="flex flex-col gap-4">{postBody}</div>
-            )}
-            {readCta}
-          </div>
+          {/* A shared tweet is whole inside its card: no body, no CTA, and no
+              tags, which the classic layout never shows on share posts. */}
+          {!isSharedTweet && (
+            <>
+              <div
+                className={classNames(
+                  'flex flex-col gap-4',
+                  !isVideoType && 'flex-col-reverse tablet:flex-col',
+                )}
+              >
+                {/* Must stay two children, or the reversal reorders the body too. */}
+                {postBody && (
+                  <div className="flex flex-col gap-4">{postBody}</div>
+                )}
+                {readCta}
+              </div>
 
-          <PostTagList post={article} />
+              <PostTagList post={article} />
+            </>
+          )}
 
           {showCommunitySentiment && (
             <CommunitySentiment data={communitySentimentData} />
