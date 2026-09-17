@@ -292,7 +292,7 @@ export const OnboardingRegistrationForm = ({
       aria-label="Login/Register options"
       className={classNames(
         'flex flex-col',
-        inlineProviders ? 'gap-1.5' : 'gap-4',
+        inlineProviders ? 'gap-2.5' : 'gap-4',
       )}
     >
       <ul
