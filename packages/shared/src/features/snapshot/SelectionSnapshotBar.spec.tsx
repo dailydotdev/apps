@@ -62,12 +62,12 @@ describe('SelectionSnapshotBar', () => {
     expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
   });
 
-  it('ignores a selection too short to be a quote', () => {
+  it('offers a snapshot of a selection of only a few words', () => {
     renderBar();
 
     select('body', 6);
 
-    expect(toolbar()).not.toBeInTheDocument();
+    expect(toolbar()).toBeInTheDocument();
   });
 
   it('leaves selections outside the post body alone', () => {

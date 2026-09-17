@@ -4,7 +4,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import ControlledTextField from '@dailydotdev/shared/src/components/fields/ControlledTextField';
 import ControlledTextarea from '@dailydotdev/shared/src/components/fields/ControlledTextarea';
 import {
@@ -28,6 +28,7 @@ import ControlledCoverUpload from '@dailydotdev/shared/src/components/profile/Co
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useUserInfoForm from '@dailydotdev/shared/src/hooks/useUserInfoForm';
 import ControlledSwitch from '@dailydotdev/shared/src/components/fields/ControlledSwitch';
+import type { SocialLinksInputHandle } from '@dailydotdev/shared/src/components/profile/SocialLinksInput';
 import { SocialLinksInput } from '@dailydotdev/shared/src/components/profile/SocialLinksInput';
 import { MarkdownCommand } from '@dailydotdev/shared/src/hooks/input/useMarkdownInput';
 import { AccountPageContainer } from '../AccountPageContainer';
@@ -36,9 +37,17 @@ const Section = classed('section', 'flex flex-col gap-7');
 
 const ProfileIndex = (): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { methods, save, isLoading } = useUserInfoForm();
+  const { methods, save, isLoading, isSocialLinksLoading, isSocialLinksError } =
+    useUserInfoForm();
+  const socialLinksRef = useRef<SocialLinksInputHandle>(null);
 
-  const handleSubmit = methods.handleSubmit(() => save());
+  const handleSubmit = methods.handleSubmit(() => {
+    if (socialLinksRef.current && !socialLinksRef.current.flushPendingUrl()) {
+      return;
+    }
+
+    save();
+  });
   return (
     <FormProvider {...methods}>
       <form className="flex flex-1" onSubmit={handleSubmit}>
@@ -131,9 +140,12 @@ const ProfileIndex = (): ReactElement => {
             <HorizontalSeparator />
             <Section>
               <SocialLinksInput
+                ref={socialLinksRef}
                 name="socialLinks"
                 label="Links"
                 hint="Paste any URL and we'll auto-detect the platform"
+                isLoading={isSocialLinksLoading}
+                isError={isSocialLinksError}
               />
             </Section>
           </div>

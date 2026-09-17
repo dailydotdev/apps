@@ -46,12 +46,23 @@ export const KUEEZ_PRECONNECT_ORIGINS = [
 ];
 
 /**
- * How long an auction may take before the slot is treated as unfilled. One
- * second is the usual publisher setting for a single-bidder setup: the
- * exchange round trip is a few hundred ms, and a slot that waits longer has
- * scrolled into view empty, which is worse than no ad.
+ * How long an auction may take before the slot is treated as unfilled. The
+ * exchange round trip measured from outside Europe is 1-1.5s, so the usual
+ * one-second single-bidder setting timed out the very requests it was meant
+ * to bound. Slots request a viewport ahead of the reader, which is what buys
+ * the auction this long without the box scrolling into view empty.
  */
-export const PREBID_AUCTION_TIMEOUT_MS = 1_000;
+export const PREBID_AUCTION_TIMEOUT_MS = 5_000;
+
+/**
+ * How long a consent-managed auction waits for the CMP's TCF stub to exist
+ * before running anyway. Prebid looks the CMP up synchronously when the
+ * auction starts and treats "not found" as fatal, unlike a CMP that is slow
+ * to answer, and the same-origin, preloaded bundle beats iubenda's CDN stub
+ * to execution on most loads. Past this the stub is not coming (blocked CDN)
+ * and Prebid's own cancel is the right outcome for a GDPR-covered visitor.
+ */
+export const PREBID_CMP_STUB_WAIT_MS = 2_000;
 
 /**
  * How long Prebid waits for the CMP to deliver a terminal answer before
