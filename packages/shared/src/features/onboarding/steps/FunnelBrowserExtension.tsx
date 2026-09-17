@@ -36,6 +36,16 @@ import {
 } from '../../../components/onboarding/common';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureOnboardingExtensionShowcase } from '../../../lib/featureManagement';
+import { ExtensionShowcase } from '../../../components/onboarding/ExtensionShowcase/ExtensionShowcase';
+
+// The showcase stage grows with the viewport height: never narrower than the
+// demo video (40rem), never wider than the homepage tour (64rem), and in
+// between sized so the step fits without scrolling. 30rem is everything else
+// on the step: top bar, headline, caption, tab carousel and the glass bar.
+const showcaseStageClassName =
+  'mx-auto max-w-[clamp(40rem,calc((100dvh-30rem)*2.04),64rem)]';
 
 const BROWSER_EXTENSION_DEFAULTS = {
   headline: 'Transform every new tab into a learning powerhouse',
@@ -63,6 +73,12 @@ const BrowserExtension = ({
   const isEdge = browserName === BrowserName.Edge;
   const browserLabel = isEdge ? 'Edge' : 'Chrome';
   const isOnboarding = useIsOnboardingFunnel();
+  // Unresolved reads as control: the step sits deep in the funnel, so the flags
+  // have long been ready by the time it renders.
+  const { value: hasShowcase } = useConditionalFeature({
+    feature: featureOnboardingExtensionShowcase,
+    shouldEvaluate: isOnboarding,
+  });
   // Only swap the default; a Freyja-provided cta wins.
   const ctaTemplate =
     isOnboarding && cta === BROWSER_EXTENSION_DEFAULTS.cta
@@ -174,29 +190,27 @@ const BrowserExtension = ({
     );
   }
 
-  return (
-    <FunnelStepCtaWrapper
-      isGlass
-      cta={{ label: ctaText }}
-      data-funnel-track={FunnelTargetId.DownloadExtension}
-      href={downloadBrowserExtension}
-      icon={
-        isEdge ? (
-          <EdgeIcon aria-hidden size={IconSize.Small} />
-        ) : (
-          <ChromeIcon aria-hidden size={IconSize.Small} />
-        )
-      }
-      onClick={onDownload}
-      rel={anchorDefaultRel}
-      skip={{
-        cta: 'Skip',
-        onClick: () => onTransition?.({ type: FunnelStepTransitionType.Skip }),
-      }}
-      tag="a"
-      target="_blank"
-      containerClassName="flex flex-col"
-    >
+  // The showcase replaces the explainer and the video: the per-feature caption
+  // does the explaining, right under the headline like the homepage tour.
+  const body = hasShowcase ? (
+    <>
+      <div
+        className={classNames(
+          funnelStepRail,
+          'flex flex-col items-center pb-4 pt-3 text-center',
+        )}
+      >
+        <OnboardingHeadline
+          dangerouslySetInnerHTML={{ __html: sanitizeMessage(headline) }}
+        />
+      </div>
+      <ExtensionShowcase
+        className="mx-auto mb-6 max-w-[64rem] px-4 laptop:px-6"
+        stageClassName={showcaseStageClassName}
+      />
+    </>
+  ) : (
+    <>
       <div
         className={classNames(
           funnelStepRail,
@@ -224,6 +238,33 @@ const BrowserExtension = ({
         />
       </div>
       {footage}
+    </>
+  );
+
+  return (
+    <FunnelStepCtaWrapper
+      isGlass
+      cta={{ label: ctaText }}
+      data-funnel-track={FunnelTargetId.DownloadExtension}
+      href={downloadBrowserExtension}
+      icon={
+        isEdge ? (
+          <EdgeIcon aria-hidden size={IconSize.Small} />
+        ) : (
+          <ChromeIcon aria-hidden size={IconSize.Small} />
+        )
+      }
+      onClick={onDownload}
+      rel={anchorDefaultRel}
+      skip={{
+        cta: 'Skip',
+        onClick: () => onTransition?.({ type: FunnelStepTransitionType.Skip }),
+      }}
+      tag="a"
+      target="_blank"
+      containerClassName="flex flex-col"
+    >
+      {body}
     </FunnelStepCtaWrapper>
   );
 };
