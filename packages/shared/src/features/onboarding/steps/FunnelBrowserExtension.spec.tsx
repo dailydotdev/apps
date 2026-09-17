@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { FunnelBrowserExtension } from './FunnelBrowserExtension';
 import { FunnelProgressContext } from '../shared/FunnelStepDots';
 import { FunnelStepType } from '../types/funnel';
@@ -34,7 +34,13 @@ const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 
 const explainer = 'Unlock the power of every new tab';
 
-const renderStep = ({ showcase }: { showcase: boolean }) => {
+const renderStep = ({
+  showcase,
+  isLoading = false,
+}: {
+  showcase: boolean;
+  isLoading?: boolean;
+}) => {
   mockUseConditionalFeature.mockImplementation(
     ({ feature }) =>
       ({
@@ -42,7 +48,8 @@ const renderStep = ({ showcase }: { showcase: boolean }) => {
           feature === featureOnboardingExtensionShowcase
             ? showcase
             : feature.defaultValue,
-        isLoading: false,
+        isLoading:
+          feature === featureOnboardingExtensionShowcase ? isLoading : false,
       } as never),
   );
 
@@ -99,5 +106,20 @@ describe('FunnelBrowserExtension', () => {
       screen.getByRole('button', { name: 'New tab feed' }),
     ).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('link', { name: 'Add to Chrome' })).toBeVisible();
+  });
+
+  it('holds the body while the flag loads, then gives up after the timeout', () => {
+    jest.useFakeTimers();
+    renderStep({ showcase: false, isLoading: true });
+
+    expect(screen.queryByText(explainer)).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Add to Chrome' })).toBeVisible();
+
+    act(() => {
+      jest.advanceTimersByTime(200);
+    });
+
+    expect(screen.getByText(explainer)).toBeVisible();
+    jest.useRealTimers();
   });
 });

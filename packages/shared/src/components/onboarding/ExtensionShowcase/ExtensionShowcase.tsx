@@ -70,34 +70,58 @@ export function ExtensionShowcase({
   onFeatureChange,
   className,
   stageClassName,
-}: ExtensionShowcaseProps): ReactElement {
+}: ExtensionShowcaseProps): ReactElement | null {
   const [activeId, setActiveId] = useState(defaultFeatureId);
   const activeFeature =
     features.find((feature) => feature.id === activeId) ?? features[0];
+  const activeFeatureId = activeFeature?.id;
   const scrollerRef = useRef<HTMLDivElement>(null);
   const hasCentered = useRef(false);
 
   // The selected tab sits in the middle and the rest fan out to both sides,
-  // like the product tour on the homepage. The first paint centers instantly;
-  // later selections glide.
+  // like the product tour on the homepage. The first paint centers instantly
+  // and again once web fonts settle the tab widths; later selections glide.
   useLayoutEffect(() => {
-    const scroller = scrollerRef.current;
-    const tab = scroller?.querySelector<HTMLElement>('[aria-pressed="true"]');
-    if (!scroller || !tab) {
-      return;
+    const centerActiveTab = (behavior: ScrollBehavior): void => {
+      const scroller = scrollerRef.current;
+      const tab = scroller?.querySelector<HTMLElement>('[aria-pressed="true"]');
+      if (!scroller || !tab) {
+        return;
+      }
+
+      const scrollerRect = scroller.getBoundingClientRect();
+      const tabRect = tab.getBoundingClientRect();
+      scroller.scrollTo({
+        left:
+          scroller.scrollLeft +
+          (tabRect.left - scrollerRect.left) -
+          (scroller.clientWidth - tabRect.width) / 2,
+        behavior,
+      });
+    };
+
+    if (hasCentered.current) {
+      centerActiveTab('smooth');
+      return undefined;
     }
 
-    const scrollerRect = scroller.getBoundingClientRect();
-    const tabRect = tab.getBoundingClientRect();
-    scroller.scrollTo({
-      left:
-        scroller.scrollLeft +
-        (tabRect.left - scrollerRect.left) -
-        (scroller.clientWidth - tabRect.width) / 2,
-      behavior: hasCentered.current ? 'smooth' : 'auto',
-    });
+    centerActiveTab('auto');
     hasCentered.current = true;
-  }, [activeFeature.id]);
+    let isCurrent = true;
+    document.fonts?.ready.then(() => {
+      if (isCurrent) {
+        centerActiveTab('auto');
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [activeFeatureId]);
+
+  if (!activeFeature) {
+    return null;
+  }
 
   const selectFeature = (featureId: string): void => {
     setActiveId(featureId);
