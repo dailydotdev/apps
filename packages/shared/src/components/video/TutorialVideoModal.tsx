@@ -2,14 +2,13 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { Modal } from '../modals/common/Modal';
 import CloseButton from '../CloseButton';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import {
   Typography,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import YoutubeVideo from './YoutubeVideo';
-import { anchorDefaultRel } from '../../lib/strings';
 
 export interface TutorialVideoModalProps {
   videoId: string;
@@ -65,8 +64,9 @@ export default function TutorialVideoModal({
           onClick={onClose}
         />
       </header>
-      <div className="w-full px-4 tablet:px-6">
+      <div className="w-full px-4 pb-4 tablet:px-6 tablet:pb-6">
         <YoutubeVideo
+          autoPlay
           videoId={videoId}
           placeholderProps={{
             post: { title, permalink: videoUrl },
@@ -74,18 +74,6 @@ export default function TutorialVideoModal({
           }}
         />
       </div>
-      <footer className="flex w-full justify-end p-4 tablet:px-6">
-        <Button
-          tag="a"
-          href={videoUrl}
-          target="_blank"
-          rel={anchorDefaultRel}
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-        >
-          Watch on YouTube
-        </Button>
-      </footer>
     </Modal>
   );
 }

@@ -49,11 +49,11 @@ it.each(['close button', 'Escape', 'backdrop'])(
     const video = await screen.findByRole('dialog', { name: title });
     expect(screen.getByTitle(title)).toHaveAttribute(
       'src',
-      'https://www.youtube-nocookie.com/embed/igZCEr3HwCg',
+      'https://www.youtube-nocookie.com/embed/igZCEr3HwCg?autoplay=1',
     );
     expect(
-      screen.getByRole('link', { name: 'Watch on YouTube' }),
-    ).toHaveAttribute('href', videoUrl);
+      screen.queryByRole('link', { name: 'Watch on YouTube' }),
+    ).not.toBeInTheDocument();
     onParentClick.mockClear();
     if (method === 'close button') {
       fireEvent.click(
@@ -91,6 +91,16 @@ it('uses the existing consent prompt before embedding a tutorial', async () => {
   expect(
     screen.getByRole('button', { name: 'Watch and accept cookies' }),
   ).toBeInTheDocument();
+  expect(
+    screen.getByRole('link', { name: 'Watch on YouTube' }),
+  ).toHaveAttribute('href', videoUrl);
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Watch and accept cookies' }),
+  );
+  expect(await screen.findByTitle(title)).toHaveAttribute(
+    'src',
+    'https://www.youtube-nocookie.com/embed/igZCEr3HwCg?autoplay=1',
+  );
 });
 
 it('does not offer an unavailable walkthrough before its video is configured', () => {
