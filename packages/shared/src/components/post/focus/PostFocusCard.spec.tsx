@@ -46,6 +46,25 @@ const sharedFreeformPost: Post = {
   },
 } as Post;
 
+const sharedTweetPost: Post = {
+  ...sharePost,
+  id: 'shared-tweet-id',
+  title: 'Anyone excited by the new expansion?',
+  sharedPost: {
+    ...sharePost.sharedPost,
+    type: PostType.SocialTwitter,
+    title: 'Carve A New Path In A Legendary World.',
+    summary: 'A new expansion is set to launch, promising a fresh path.',
+    creatorTwitterName: 'World of Warcraft',
+    creatorTwitter: 'warcraft',
+    domain: 'x.com',
+    // Tweets arrive under the unknown placeholder source, so the identity
+    // comes from the creator fields.
+    source: { ...sharePost.sharedPost?.source, id: 'unknown', name: 'unknown' },
+    author: undefined,
+  },
+} as Post;
+
 const renderCard = (
   postToRender: Post,
   options: {
@@ -109,6 +128,66 @@ describe('PostFocusCard opening the source article', () => {
     expect(
       screen.getByTestId('post-modal-title').querySelector('a'),
     ).toBeNull();
+  });
+});
+
+describe('PostFocusCard shared tweet', () => {
+  it('renders the tweet as an embedded tweet, not as an article', () => {
+    renderCard(sharedTweetPost);
+
+    expect(screen.getByText('World of Warcraft @warcraft')).toBeInTheDocument();
+    expect(
+      screen.getByText('Carve A New Path In A Legendary World.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('post-modal-title')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('tldr-container')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('post-cover-link')).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Read on/)).not.toBeInTheDocument();
+    expect(screen.queryByText('#backend')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Anyone excited by the new expansion?'),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('PostFocusCard tags', () => {
+  it('lists tags on a publication article', () => {
+    renderCard({ ...post, tags: ['backend', 'react'] });
+
+    expect(screen.getByText('#backend')).toBeInTheDocument();
+  });
+
+  it('lists no tags on squad posts, like the classic squad template', () => {
+    const { unmount } = renderCard({
+      ...freeformSquadPost,
+      tags: ['backend', 'react'],
+    });
+    expect(screen.queryByText('#backend')).not.toBeInTheDocument();
+    unmount();
+
+    renderCard(sharePost);
+    expect(screen.queryByText('#backend')).not.toBeInTheDocument();
+  });
+});
+
+describe('PostFocusCard shared video', () => {
+  it('keeps the embed and summary but no CTA or tags, like the classic share layout', () => {
+    renderCard({
+      ...sharePost,
+      id: 'shared-video-id',
+      sharedPost: {
+        ...sharePost.sharedPost,
+        type: PostType.VideoYouTube,
+        videoId: 'abc123',
+        summary: 'A short summary of the talk.',
+      },
+    } as Post);
+
+    expect(
+      screen.getByText('A short summary of the talk.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/^Watch/)).not.toBeInTheDocument();
+    expect(screen.queryByText('#backend')).not.toBeInTheDocument();
   });
 });
 
@@ -243,6 +322,19 @@ describe('PostFocusCard share commentary', () => {
     renderCard(sharePost);
 
     expect(screen.getByText(sharePost.title as string)).toBeInTheDocument();
+  });
+
+  it('keeps the commentary line breaks in body type, not as a title', () => {
+    renderCard({
+      ...sharePost,
+      title: 'Keep calm\n\nWrite accessible code',
+      titleHtml: '<p>Keep calm Write accessible code</p>',
+    } as Post);
+
+    const commentary = screen.getByText(/Keep calm/);
+    expect(commentary).toHaveClass('whitespace-pre-line', 'typo-body');
+    expect(commentary).not.toHaveClass('typo-title3');
+    expect(commentary).not.toHaveClass('font-bold');
   });
 });
 

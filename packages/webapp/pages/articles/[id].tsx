@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import type {
   GetStaticPathsResult,
@@ -23,6 +23,26 @@ import {
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ReadPostContent } from '@dailydotdev/shared/src/components/post/read/ReadPostContent';
+import type { PostFocusCardAds } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import {
+  ReadAdFormat,
+  ReadAdSlot,
+} from '@dailydotdev/shared/src/components/post/read/ReadAdSlot';
+import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read/ReadTopLeaderboard';
+import Markdown from '@dailydotdev/shared/src/components/Markdown';
+import {
+  COMMENTS_PER_INTERLEAVED_AD,
+  CONTENT_CHARS_PER_AD,
+  MAX_CONTENT_ADS_PER_SECTION,
+  READ_SLOT,
+} from '@dailydotdev/shared/src/components/post/read/slots';
+import {
+  splitContentForAds,
+  splitTextForAds,
+} from '@dailydotdev/shared/src/components/post/read/splitContentForAds';
+import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   hasLiveAdSlots,
   PREBID_SCRIPT_SRC,
@@ -65,8 +85,10 @@ export interface ReadPostPageProps extends DynamicSeoProps {
 /**
  * Ad-monetised post template for paid-acquisition and organic landing traffic.
  *
- * Lives on its own route so `/posts/[id]` and the focus-card redesign are
- * untouched. Differences from the standard template, all deliberate: no
+ * Lives on its own route so `/posts/[id]` is untouched; it follows the same
+ * `post_redesign` flag, rendering the focus card in the treatment arm with
+ * this template's slot map. Differences from the standard template, all
+ * deliberate: no
  * PostAuthBanner, no CustomAuthBanner (never passed in layoutProps), no
  * PostSignupWidget, and no sidebar at all — it carries no ad unit anymore,
  * and its post-boot mount was the page's last source of layout shift. The
@@ -89,6 +111,116 @@ const ReadPostPage = ({
     id,
     options: { initialData, retry: false },
   });
+  const { showRedesign } = usePostRedesign(post);
+  // Every slot self-gates on the read map, so the set is built whenever the
+  // card renders, like ReadPostContent's markup.
+  const readAds = useMemo<PostFocusCardAds | undefined>(() => {
+    if (!showRedesign) {
+      return undefined;
+    }
+    const inBodyUnit = (
+      section: 'summary' | 'body',
+      index: number,
+      hideOnPhone: boolean,
+    ) => (
+      <ReadAdSlot
+        slot={READ_SLOT.inBodyMpu}
+        format={ReadAdFormat.MediumRectangle}
+        className="my-2"
+        hideOnPhone={hideOnPhone}
+        logExtra={{ section, occurrence: index + 1 }}
+      />
+    );
+    const hasSummaryUnits =
+      !!post?.summary &&
+      splitTextForAds(
+        post.summary,
+        CONTENT_CHARS_PER_AD,
+        MAX_CONTENT_ADS_PER_SECTION + 1,
+      ).length > 1;
+    return {
+      withoutDirectSold: true,
+      contentLeading: <ReadTopLeaderboard />,
+      renderSummarySegments: (summary, trailing) =>
+        splitTextForAds(
+          summary,
+          CONTENT_CHARS_PER_AD,
+          MAX_CONTENT_ADS_PER_SECTION + 1,
+        ).map((part, index, parts) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <React.Fragment key={index}>
+            <p className="select-text break-words text-text-secondary typo-markdown">
+              {part}
+              {index === parts.length - 1 && trailing}
+            </p>
+            {index < parts.length - 1 &&
+              inBodyUnit('summary', index, index > 0)}
+          </React.Fragment>
+        )),
+      // Phone density policy, same as the classic template: only the page's
+      // first in-content unit keeps a phone placement.
+      renderBody: (contentHtml) =>
+        splitContentForAds(
+          contentHtml,
+          CONTENT_CHARS_PER_AD,
+          MAX_CONTENT_ADS_PER_SECTION + 1,
+        ).map((chunk, index, chunks) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <React.Fragment key={index}>
+            <Markdown
+              className="break-words"
+              content={chunk}
+              appendTooltipTo={() => globalThis?.document?.body}
+            />
+            {index < chunks.length - 1 &&
+              inBodyUnit('body', index, hasSummaryUnits || index > 0)}
+          </React.Fragment>
+        )),
+      // No phone placement for rail units: the phone's density budget is the
+      // strip, the first in-content unit and the above-comments MPU.
+      rail: [
+        <ReadAdSlot
+          key="after-source"
+          slot={READ_SLOT.railAfterSource}
+          format={ReadAdFormat.MediumRectangle}
+          hideOnPhone
+        />,
+        <ReadAdSlot
+          key="between-further-reading"
+          slot={READ_SLOT.railBetweenFurtherReading}
+          format={ReadAdFormat.MediumRectangle}
+          hideOnPhone
+        />,
+        <ReadAdSlot
+          key="bottom-sticky"
+          slot={READ_SLOT.railBottomSticky}
+          format={ReadAdFormat.HalfPage}
+          hideOnPhone
+        />,
+      ],
+      // Compliant as a publisher sticky at exactly 300px wide, desktop only,
+      // one per viewport, closing the rail where nothing follows.
+      railPinsLast: true,
+      aboveComments: (
+        <ReadAdSlot
+          slot={READ_SLOT.aboveCommentsMpu}
+          format={ReadAdFormat.MediumRectangle}
+          className="my-2"
+        />
+      ),
+      commentAds: {
+        interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
+        renderInterleaved: (occurrence) => (
+          <ReadAdSlot
+            slot={READ_SLOT.commentMpu}
+            format={ReadAdFormat.MediumRectangle}
+            hideOnPhone
+            logExtra={{ occurrence }}
+          />
+        ),
+      },
+    };
+  }, [showRedesign, post?.summary]);
 
   // Display-only override; the stored theme preference is untouched and
   // restored the moment the visitor leaves.
@@ -177,13 +309,23 @@ const ReadPostPage = ({
             />
           </>
         )}
-        <ReadPostContent
-          post={post}
-          // 72rem, wider than the standard template's 69.25rem: the main column
-          // has to clear 728px for a leaderboard to render at its full size, and
-          // at 69.25rem it only had 704px. 1152 - 340 rail - 64 padding = 748px.
-          className="min-h-page max-w-[72rem] pb-6"
-        />
+        {showRedesign ? (
+          <div className="mx-auto w-full max-w-[72rem]">
+            <PostFocusCard
+              post={post}
+              origin={Origin.ArticlePage}
+              ads={readAds}
+            />
+          </div>
+        ) : (
+          <ReadPostContent
+            post={post}
+            // 72rem, wider than the standard template's 69.25rem: the main column
+            // has to clear 728px for a leaderboard to render at its full size, and
+            // at 69.25rem it only had 704px. 1152 - 340 rail - 64 padding = 748px.
+            className="min-h-page max-w-[72rem] pb-6"
+          />
+        )}
       </FooterNavBarLayout>
     </ActivePostContextProvider>
   );

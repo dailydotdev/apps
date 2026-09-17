@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import type { ComponentProps, ReactElement, ReactNode, RefObject } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -7,6 +7,7 @@ import {
   getReadArticleHref,
   getReadPostButtonText,
   isInternalReadType,
+  isSocialTwitterPost,
   isVideoPost,
   PostType,
 } from '../../../graphql/posts';
@@ -60,6 +61,8 @@ import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostContentShare } from '../common/PostContentShare';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
+import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import {
   CommunitySentiment,
   mapCommunitySentimentPost,
@@ -74,10 +77,37 @@ const PostCodeSnippets = dynamic(() =>
 
 export type FocusCardLeftVariant = 'lean' | 'rich';
 
+/**
+ * The page's programmatic units. Only the webapp post pages pass it: post
+ * modals and the extension render the same card and must never carry ad
+ * markup.
+ */
+export interface PostFocusCardAds {
+  contentLeading?: ReactNode;
+  /** `trailing` rides the end of the last segment, like the plain TLDR's icon. */
+  renderSummarySegments?: (summary: string, trailing?: ReactNode) => ReactNode;
+  renderBody?: (contentHtml: string) => ReactNode;
+  withoutDirectSold?: boolean;
+  /**
+   * In rail order. Beside the column once there is room, as a second column
+   * on laptops, inline below that. Units carry no positioning of their own,
+   * so the same elements can serve the classic rail.
+   */
+  rail?: ReactNode[];
+  /** Pins the last rail unit under the header, like the classic rail's closing tower. */
+  railPinsLast?: boolean;
+  aboveComments?: ReactNode;
+  commentAds?: {
+    interleaveEvery: number;
+    renderInterleaved: (occurrence: number) => ReactNode;
+  };
+}
+
 interface PostFocusCardProps {
   post: Post;
   origin: PostOrigin;
   leftVariant?: FocusCardLeftVariant;
+  ads?: PostFocusCardAds;
   /**
    * Never invoked — nothing in the card calls it. Read only as an "am I in the
    * modal?" flag (clamped title, no answered-questions block).
@@ -112,6 +142,48 @@ const ArticleLink = ({
 };
 
 const SHOW_MORE_SUFFIX = '… Show more';
+
+const COLUMN_HALF_WIDTH = 384;
+const RAIL_WITH_GAP = 332;
+
+/**
+ * Whether a 300px rail fits to the right of the centred 768px column. Read
+ * from the card's own box rather than a viewport query: the room depends on
+ * the sidebar's width and the page wrapper, which a media query cannot see.
+ */
+const useHasRailRoom = (
+  cardRef: RefObject<HTMLElement>,
+  hasRail: boolean,
+): boolean => {
+  const [hasRoom, setHasRoom] = useState(false);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!hasRail || !card) {
+      return undefined;
+    }
+    const measure = (): void => {
+      const { left, width } = card.getBoundingClientRect();
+      const columnRight = left + width / 2 + COLUMN_HALF_WIDTH;
+      setHasRoom(
+        document.documentElement.clientWidth - columnRight >= RAIL_WITH_GAP,
+      );
+    };
+    measure();
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? undefined
+        : new ResizeObserver(measure);
+    observer?.observe(card);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [cardRef, hasRail]);
+
+  return hasRoom;
+};
 
 /**
  * Video TL;DR capped to four lines. When the text overflows we truncate it at a
@@ -235,6 +307,7 @@ const PostFocusCardRaw = ({
   origin,
   leftVariant,
   onClose,
+  ads,
 }: PostFocusCardProps): ReactElement => {
   // A shared post (someone reposting a post into a squad or onto their profile)
   // wraps an underlying post. Only true Share-type posts get the "Shared via"
@@ -250,12 +323,11 @@ const PostFocusCardRaw = ({
   // Posts authored by a user (shared, freeform, welcome) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
   // (article/video/collection) keep their source strip.
-  const author =
+  const isSquadPost =
     post.type === PostType.Share ||
     post.type === PostType.Freeform ||
-    post.type === PostType.Welcome
-      ? post.author
-      : undefined;
+    post.type === PostType.Welcome;
+  const author = isSquadPost ? post.author : undefined;
   // Author-led posts show the author in the header, so the squad needs naming
   // separately; publication-sourced posts already show their source strip.
   const squadAttribution =
@@ -263,6 +335,28 @@ const PostFocusCardRaw = ({
       ? { label: isShared ? 'Shared via' : 'Posted in', source: post.source }
       : undefined;
   const isVideoType = isVideoPost(article);
+  const isSharedTweet = isShared && isSocialTwitterPost(article);
+  const isSharedVideo = isShared && isVideoType;
+  const showTags = !isSquadPost;
+  // The rail floats beside the centred column when the space right of that
+  // column fits it, on a laptop the column and rail centre together as one
+  // block, and below laptop the units sit inline where the classic rail
+  // stacks under the article.
+  const hasRailRoom = useHasRailRoom(cardRef, !!ads?.rail);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const railPlacement = !ads?.rail
+    ? null
+    : (hasRailRoom && 'beside') || (isLaptop && 'block') || 'inline';
+  const railUnits = ads?.rail && (
+    <>
+      {ads.railPinsLast ? ads.rail.slice(0, -1) : ads.rail}
+      {ads.railPinsLast && (
+        <div className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1">
+          {ads.rail[ads.rail.length - 1]}
+        </div>
+      )}
+    </>
+  );
   const { title } = useSmartTitle(article);
   // A share post's own `title` is the sharer's commentary, not the article's
   // title — but it mirrors the article title when they wrote nothing.
@@ -341,40 +435,49 @@ const PostFocusCardRaw = ({
     ? `${readCtaLabel} on ${article.domain}`
     : readCtaLabel;
 
-  const postBody = article.contentHtml ? (
-    <div ref={bodyRef} className="flex flex-col gap-4">
-      <Markdown content={article.contentHtml} className="break-words" />
-      <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
-      <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
-    </div>
-  ) : (
-    article.summary &&
-    (isVideoType ? (
-      <VideoSummary
-        summary={article.summary}
-        trailing={
-          <TextSnapshotButton
-            filename={`daily-summary-${article.id}`}
-            origin={Origin.PostSummary}
-            post={article}
-            text={article.summary}
-          />
-        }
-      />
-    ) : (
+  const summarySnapshotButton = article.summary ? (
+    <TextSnapshotButton
+      filename={`daily-summary-${article.id}`}
+      origin={Origin.PostSummary}
+      post={article}
+      text={article.summary}
+    />
+  ) : null;
+  const renderSummary = (summary: string): ReactNode => {
+    if (ads?.renderSummarySegments) {
+      return ads.renderSummarySegments(summary, summarySnapshotButton);
+    }
+    if (isVideoType) {
+      return (
+        <VideoSummary summary={summary} trailing={summarySnapshotButton} />
+      );
+    }
+    return (
       <p
         className="select-text break-words text-text-secondary typo-markdown"
         data-testid="tldr-container"
       >
-        {article.summary}
-        <TextSnapshotButton
-          filename={`daily-summary-${article.id}`}
-          origin={Origin.PostSummary}
-          post={article}
-          text={article.summary}
-        />
+        {summary}
+        {summarySnapshotButton}
       </p>
-    ))
+    );
+  };
+
+  const postBody = article.contentHtml ? (
+    <div ref={bodyRef} className="flex flex-col gap-4">
+      {ads?.renderSummarySegments &&
+        article.summary &&
+        renderSummary(article.summary)}
+      {ads?.renderBody ? (
+        ads.renderBody(article.contentHtml)
+      ) : (
+        <Markdown content={article.contentHtml} className="break-words" />
+      )}
+      <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
+      <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
+    </div>
+  ) : (
+    article.summary && renderSummary(article.summary)
   );
 
   const readCta = canReadArticle ? (
@@ -420,8 +523,14 @@ const PostFocusCardRaw = ({
       data-testid="post-focus-card"
     >
       <SelectionSnapshotBar containerRef={cardRef} post={article} />
-      <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
-        <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
+      <div className="flex justify-center gap-8 px-4 tablet:px-6 laptop:px-8">
+        <div className="relative flex min-w-0 flex-1 flex-col gap-4 py-6 laptop:max-w-[768px]">
+          {railPlacement === 'beside' && (
+            <div className="absolute inset-y-0 left-full ml-8 flex w-[300px] flex-col gap-2 pt-6">
+              {railUnits}
+            </div>
+          )}
+          {ads?.contentLeading}
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
               <div className="flex min-w-0 items-center gap-3">
@@ -521,104 +630,117 @@ const PostFocusCardRaw = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
+            {/* titleHtml folds the author's line breaks into one paragraph;
+                the raw title keeps them. */}
             {commentary && (
-              <p className="whitespace-pre-line break-words font-bold text-text-primary typo-title3">
+              <p className="whitespace-pre-line break-words text-text-primary typo-body">
                 {commentary}
               </p>
             )}
+            {isSharedTweet && (
+              <EmbeddedTweetPreview
+                post={article}
+                className="w-full"
+                textClampClass=""
+                bodyClassName="typo-markdown"
+                showImage
+              />
+            )}
             {/* The cover keeps a fixed ratio so a short title can't squash it. */}
-            <div className="flex min-w-0 flex-row items-start gap-4">
-              <div className="flex min-w-0 flex-1 flex-col gap-4">
-                <h1
-                  className={classNames(
-                    'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
-                    // On the post page the reader came to read, so the title is
-                    // always shown in full and the button flows below it; only
-                    // the modal (a feed preview) clamps it.
-                    onClose && 'line-clamp-3',
-                  )}
-                  data-testid="post-modal-title"
-                >
-                  {canReadArticle ? (
+            {!isSharedTweet && (
+              <div className="flex min-w-0 flex-row items-start gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-4">
+                  <h1
+                    className={classNames(
+                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                      // On the post page the reader came to read, so the title is
+                      // always shown in full and the button flows below it; only
+                      // the modal (a feed preview) clamps it.
+                      onClose && 'line-clamp-3',
+                    )}
+                    data-testid="post-modal-title"
+                  >
+                    {canReadArticle ? (
+                      <a
+                        href={readHref}
+                        target="_blank"
+                        rel={anchorNofollowRel}
+                        {...combinedClicks<HTMLAnchorElement>(
+                          withSelectionGuard(handleReadClick),
+                        )}
+                        className="transition-colors hover:text-text-link"
+                      >
+                        {title}
+                      </a>
+                    ) : (
+                      title
+                    )}
+                  </h1>
+                  <PostMetadata
+                    // Wraps on mobile so a long domain stays whole (no ellipsis).
+                    className="flex-wrap !typo-callout tablet:flex-nowrap"
+                    createdAt={article.createdAt}
+                    domain={
+                      !isVideoType &&
+                      article.domain &&
+                      article.domain.length > 0 && (
+                        <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
+                          From{' '}
+                          <ArticleLink
+                            className="hover:text-text-link hover:underline"
+                            href={article.permalink}
+                            onClick={onReadArticle}
+                            title={article.domain}
+                          >
+                            {article.domain}
+                          </ArticleLink>
+                        </span>
+                      )
+                    }
+                    isVideoType={isVideoType}
+                    readTime={article.readTime}
+                  />
+                </div>
+                {/* Duplicates the title link, so it stays out of the tab order and
+                  the accessibility tree rather than adding an identical stop. */}
+                {coverImage &&
+                  (canReadArticle ? (
                     <a
                       href={readHref}
                       target="_blank"
                       rel={anchorNofollowRel}
-                      {...combinedClicks<HTMLAnchorElement>(
-                        withSelectionGuard(handleReadClick),
+                      {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
+                      aria-hidden
+                      tabIndex={-1}
+                      data-testid="post-cover-link"
+                      className={classNames(
+                        coverClassName,
+                        'cursor-pointer transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none',
                       )}
-                      className="transition-colors hover:text-text-link"
                     >
-                      {title}
+                      {coverImage}
                     </a>
                   ) : (
-                    title
-                  )}
-                </h1>
-                <PostMetadata
-                  // Wraps on mobile so a long domain stays whole (no ellipsis).
-                  className="flex-wrap !typo-callout tablet:flex-nowrap"
-                  createdAt={article.createdAt}
-                  domain={
-                    !isVideoType &&
-                    article.domain &&
-                    article.domain.length > 0 && (
-                      <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
-                        From{' '}
-                        <ArticleLink
-                          className="hover:text-text-link hover:underline"
-                          href={article.permalink}
-                          onClick={onReadArticle}
-                          title={article.domain}
-                        >
-                          {article.domain}
-                        </ArticleLink>
-                      </span>
-                    )
-                  }
-                  isVideoType={isVideoType}
-                  readTime={article.readTime}
-                />
+                    <button
+                      type="button"
+                      aria-label="View cover image"
+                      className={classNames(coverClassName, 'cursor-zoom-in')}
+                      onClick={(event) => {
+                        openModal({
+                          type: LazyModal.ImageView,
+                          props: {
+                            src: article.image as string,
+                            alt: 'Post cover image',
+                            originRect: getImageOriginRect(event.currentTarget),
+                          },
+                        });
+                      }}
+                    >
+                      {coverImage}
+                    </button>
+                  ))}
               </div>
-              {/* Duplicates the title link, so it stays out of the tab order and
-                  the accessibility tree rather than adding an identical stop. */}
-              {coverImage &&
-                (canReadArticle ? (
-                  <a
-                    href={readHref}
-                    target="_blank"
-                    rel={anchorNofollowRel}
-                    {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
-                    aria-hidden
-                    tabIndex={-1}
-                    data-testid="post-cover-link"
-                    className={classNames(
-                      coverClassName,
-                      'cursor-pointer transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none',
-                    )}
-                  >
-                    {coverImage}
-                  </a>
-                ) : (
-                  <button
-                    type="button"
-                    aria-label="View cover image"
-                    className={classNames(coverClassName, 'cursor-zoom-in')}
-                    onClick={(event) => {
-                      openModal({
-                        type: LazyModal.ImageView,
-                        props: {
-                          src: article.image as string,
-                          alt: 'Post cover image',
-                          originRect: getImageOriginRect(event.currentTarget),
-                        },
-                      });
-                    }}
-                  >
-                    {coverImage}
-                  </button>
-                ))}
-            </div>
+            )}
           </div>
 
           {isVideoType && (
@@ -654,18 +776,24 @@ const PostFocusCardRaw = ({
               reversing there would hand keyboard users the body before the CTA
               they see first. Article bodies are a plain <p>, so ordering the
               two is purely visual. */}
-          <div
-            className={classNames(
-              'flex flex-col gap-4',
-              !isVideoType && 'flex-col-reverse tablet:flex-col',
-            )}
-          >
-            {/* Must stay two children, or the reversal reorders the body too. */}
-            {postBody && <div className="flex flex-col gap-4">{postBody}</div>}
-            {readCta}
-          </div>
+          {!isSharedTweet && (
+            <>
+              <div
+                className={classNames(
+                  'flex flex-col gap-4',
+                  !isVideoType && 'flex-col-reverse tablet:flex-col',
+                )}
+              >
+                {/* Must stay two children, or the reversal reorders the body too. */}
+                {postBody && (
+                  <div className="flex flex-col gap-4">{postBody}</div>
+                )}
+                {!isSharedVideo && readCta}
+              </div>
 
-          <PostTagList post={article} />
+              {showTags && <PostTagList post={article} />}
+            </>
+          )}
 
           {showCommunitySentiment && (
             <CommunitySentiment data={communitySentimentData} />
@@ -679,7 +807,10 @@ const PostFocusCardRaw = ({
             </div>
           )}
 
-          <PostSidebarAdWidget postId={post.id} variant="inline" />
+          {!ads?.withoutDirectSold && (
+            <PostSidebarAdWidget postId={post.id} variant="inline" />
+          )}
+          {railPlacement === 'inline' && ads?.rail}
 
           <PostUpvotesCommentsCount
             post={post}
@@ -706,10 +837,14 @@ const PostFocusCardRaw = ({
 
           {!onClose && <PostAnsweredQuestions post={article} />}
 
+          {ads?.aboveComments}
+
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel
               showMetaBar={false}
               showSortHeader
+              interleaveEvery={ads?.commentAds?.interleaveEvery}
+              renderInterleaved={ads?.commentAds?.renderInterleaved}
               onRegisterFocusComment={(fn) => {
                 focusCommentRef.current = fn;
               }}
@@ -718,6 +853,11 @@ const PostFocusCardRaw = ({
             />
           </div>
         </div>
+        {railPlacement === 'block' && (
+          <div className="flex w-[300px] shrink-0 flex-col gap-2 pt-6">
+            {railUnits}
+          </div>
+        )}
       </div>
     </article>
   );

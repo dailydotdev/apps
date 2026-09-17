@@ -93,16 +93,20 @@ jest.mock('next/router', () => ({
 // Toggled per-test to exercise the redesigned post page (PostFocusCard); the
 // flag defaults off so the classic layout renders unless a test flips it on.
 let mockRedesignOn = false;
+// Evaluating the flag is what enrols a session, so tests can assert on it.
+let mockRedesignEvaluated = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
   useConditionalFeature: (args: {
     feature?: { id?: string; defaultValue?: unknown };
+    shouldEvaluate?: boolean;
   }) => {
     if (args?.feature?.id === 'reader_modal') {
       return { value: false, isLoading: false };
     }
     if (args?.feature?.id === 'post_redesign') {
+      mockRedesignEvaluated ||= args.shouldEvaluate !== false;
       return { value: mockRedesignOn, isLoading: false };
     }
     return { value: args?.feature?.defaultValue, isLoading: false };
@@ -300,11 +304,16 @@ function renderPost(
   props: Partial<Props> = {},
   mocks: MockedGraphQLResponse[] = [createPostMock(), createCommentsMock()],
   user?: LoggedUser,
+  // The page's own getLayout carries the layout banner (phone ad strip and
+  // auth banner); the bare main layout leaves it out.
+  withPageLayout = false,
 ): RenderResult {
   const resolvedUser = arguments.length < 3 ? defaultUser : user;
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
   };
+  const pageProps = { ...defaultProps, ...props };
+  const page = <PostPage {...pageProps} />;
 
   client = new QueryClient();
 
@@ -357,7 +366,9 @@ function renderPost(
           sendBeacon: jest.fn(),
         }}
       >
-        {getMainLayout(<PostPage {...defaultProps} {...props} />)}
+        {withPageLayout
+          ? PostPage.getLayout(page, pageProps, PostPage.layoutProps)
+          : getMainLayout(page)}
       </LogContext.Provider>
     </TestBootProvider>,
   );
@@ -1292,10 +1303,164 @@ describe('post redesign', () => {
 
   it('should keep the classic layout for author onboarding even when the flag is on', async () => {
     mockRedesignOn = true;
+    mockRedesignEvaluated = false;
     mockRouterQuery({ author: 'true' });
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+    // A session that can only see the classic layout is never enrolled.
+    expect(mockRedesignEvaluated).toBe(false);
+  });
+
+  it('should show the signup banner to logged-out laptop visitors on the focus card', async () => {
+    mockRedesignOn = true;
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    renderPost({}, [createPostMock(), createCommentsMock()], undefined);
+    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Where developers suffer together'),
+    ).toBeInTheDocument();
+  });
+
+  describe('organic ads', () => {
+    // Long enough to split at the in-content cadence, so the TLDR units
+    // render too.
+    const summary = Array.from(
+      { length: 12 },
+      (_, i) =>
+        `Sentence ${i} explains how traces surface breaking changes early.`,
+    ).join(' ');
+    const originalObserver = global.IntersectionObserver;
+
+    beforeEach(() => {
+      // The suite-wide mock never fires; units only mount their <ins> once
+      // they intersect, and the parity check needs every unit mounted.
+      global.IntersectionObserver = class {
+        constructor(private callback: IntersectionObserverCallback) {}
+
+        observe = (target: Element): void => {
+          this.callback(
+            [{ isIntersecting: true, target } as IntersectionObserverEntry],
+            this as unknown as IntersectionObserver,
+          );
+        };
+
+        disconnect = jest.fn();
+
+        unobserve = jest.fn();
+      } as unknown as typeof IntersectionObserver;
+    });
+
+    afterEach(() => {
+      global.IntersectionObserver = originalObserver;
+    });
+
+    const renderAnonymous = (
+      redesign: boolean,
+      overrides: Partial<Post> = {},
+    ) => {
+      mockRedesignOn = redesign;
+      const postMock = createPostMock({ summary, ...overrides });
+      return renderPost(
+        { initialData: { post: getPostFromMock(postMock) } },
+        [postMock, createCommentsMock()],
+        undefined,
+        true,
+      );
+    };
+    const mountedUnits = () =>
+      screen
+        .getAllByTestId(/^ad-slot-/)
+        .map((el) => el.getAttribute('data-testid'))
+        .sort();
+
+    it('carries the same units on the focus card as on the classic layout', async () => {
+      const { unmount } = renderAnonymous(false);
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      const classicUnits = mountedUnits();
+      expect(classicUnits).toEqual(
+        expect.arrayContaining([
+          'ad-slot-15',
+          'ad-slot-16',
+          'ad-slot-21',
+          'ad-slot-22',
+          'ad-slot-23',
+        ]),
+      );
+      expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
+      unmount();
+
+      renderAnonymous(true);
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(classicUnits);
+      expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
+    });
+
+    it('runs the summary snapshot into the last TLDR segment on the focus card', async () => {
+      renderAnonymous(true);
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      const segments = screen
+        .getAllByText(/Sentence \d+ explains/)
+        .map((el) => el.closest('p'));
+      expect(segments.length).toBeGreaterThan(1);
+      expect(segments[segments.length - 1]).toContainElement(
+        screen.getByLabelText('Snapshot'),
+      );
+    });
+
+    it('never pins the rail unit where it sits in flow', async () => {
+      // Below laptop on both layouts: the classic rail stacks under the
+      // article and the focus card keeps the unit inline.
+      jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+      const railBox = () =>
+        screen.getByTestId('ad-slot-16').parentElement as HTMLElement;
+
+      const { unmount } = renderAnonymous(false);
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      expect(railBox()).not.toHaveClass('sticky');
+      expect(railBox().parentElement).not.toHaveClass('sticky');
+      unmount();
+
+      renderAnonymous(true);
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(railBox()).not.toHaveClass('sticky');
+      expect(railBox().parentElement).not.toHaveClass('sticky');
+    });
+
+    it('gives the rail its own column on laptops', async () => {
+      jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+      renderAnonymous(true);
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      const rail = screen.getByTestId('ad-slot-16').closest('.w-\\[300px\\]');
+      expect(rail).not.toBeNull();
+      expect(rail).not.toContainElement(screen.getByTestId('post-modal-title'));
+    });
+
+    it('splits a long video summary on both layouts', async () => {
+      const { unmount } = renderAnonymous(false, {
+        type: PostType.VideoYouTube,
+        videoId: 'abc123',
+      });
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      const classicUnits = mountedUnits();
+      expect(classicUnits).toContain('ad-slot-22');
+      unmount();
+
+      renderAnonymous(true, { type: PostType.VideoYouTube, videoId: 'abc123' });
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(classicUnits);
+    });
+
+    it('keeps a collection to the phone strip on both layouts', async () => {
+      const { unmount } = renderAnonymous(false, { type: PostType.Collection });
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(['ad-slot-21']);
+      unmount();
+
+      renderAnonymous(true, { type: PostType.Collection });
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(['ad-slot-21']);
+    });
   });
 });
 
