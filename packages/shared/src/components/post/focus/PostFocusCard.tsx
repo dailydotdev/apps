@@ -589,11 +589,16 @@ const PostFocusCardRaw = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {commentary && (
-              <p className="whitespace-pre-line break-words font-bold text-text-primary typo-title3">
-                {commentary}
-              </p>
-            )}
+            {/* The sharer's words as the composer rendered them, like the
+                classic share layout; plain text only when no HTML exists. */}
+            {commentary &&
+              (post.titleHtml ? (
+                <Markdown className="break-words" content={post.titleHtml} />
+              ) : (
+                <p className="whitespace-pre-line break-words typo-title3">
+                  {commentary}
+                </p>
+              ))}
             {isSharedTweet && (
               <EmbeddedTweetPreview
                 post={article}

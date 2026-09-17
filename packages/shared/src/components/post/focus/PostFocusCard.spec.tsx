@@ -303,6 +303,18 @@ describe('PostFocusCard share commentary', () => {
 
     expect(screen.getByText(sharePost.title as string)).toBeInTheDocument();
   });
+
+  it('renders the commentary as the composer wrote it', () => {
+    renderCard({
+      ...sharePost,
+      title: 'Keep calm\n\nWrite **accessible** code',
+      titleHtml:
+        '<p>Keep calm</p><p>Write <strong>accessible</strong> code</p>',
+    } as Post);
+
+    expect(screen.getByText('accessible').tagName).toBe('STRONG');
+    expect(screen.getByText('Keep calm').tagName).toBe('P');
+  });
 });
 
 describe('PostFocusCard boost button', () => {
