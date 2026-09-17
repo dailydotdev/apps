@@ -148,7 +148,7 @@ export interface AuthOptionsProps {
   hideLoginLink?: boolean;
   compact?: boolean;
   signupStyle?: SignupStyle;
-  /** Lay the social providers out side by side instead of stacked. */
+  /** Social providers side by side, email and log in links flush left. */
   inlineProviders?: boolean;
   /** Order GitHub before Google in the OAuth provider list (developer-first). */
   preferGithub?: boolean;

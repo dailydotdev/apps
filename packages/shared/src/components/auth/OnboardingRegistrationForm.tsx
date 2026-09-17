@@ -213,7 +213,10 @@ export const OnboardingRegistrationForm = ({
     <button
       className={classNames(
         getEmailButtonClass(),
-        'mx-auto flex min-h-12 items-center justify-center px-3 text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-text-tertiary motion-reduce:transition-none',
+        inlineProviders
+          ? 'min-h-10 px-0'
+          : 'mx-auto min-h-12 justify-center px-3',
+        'flex items-center text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-text-tertiary motion-reduce:transition-none',
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
@@ -257,6 +260,9 @@ export const OnboardingRegistrationForm = ({
     // row on compact phones. Inert anywhere the hero's CSS is not present.
     // Centred on the buttons, not the left edge of the copy. mt-1 because the
     // email link's padded row already supplies most of the gap.
+    if (inlineProviders) {
+      return 'onb-split-login mt-2 text-text-tertiary typo-callout';
+    }
     if (isSinglePrimary) {
       return 'onb-split-login mx-auto mt-1 justify-center text-center text-text-tertiary typo-callout laptop:mt-2';
     }
@@ -338,7 +344,7 @@ export const OnboardingRegistrationForm = ({
         <div
           className={classNames(
             'flex flex-col',
-            isSplitLayout && !isSinglePrimary
+            inlineProviders || (isSplitLayout && !isSinglePrimary)
               ? 'items-start text-left'
               : 'text-center',
           )}
