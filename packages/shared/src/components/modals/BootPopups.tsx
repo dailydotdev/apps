@@ -20,6 +20,8 @@ import { ButtonVariant } from '../buttons/common';
 import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+// DEBUG ONLY - not for merge. See the `?debugAchievement` effect below.
+import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 
 const REP_TRESHOLD = 250;
 
@@ -85,6 +87,11 @@ export const BootPopups = (): ReactElement => {
   const marketingCtaPlus = getMarketingCta(MarketingCtaVariant.Plus);
 
   const { streak, isStreaksEnabled } = useReadingStreak();
+
+  // DEBUG ONLY - not for merge. Lets the achievement completion popup be
+  // opened on demand on a preview deploy, where waiting for the backend to
+  // set `showAchievementUnlock` on a real unlock is not practical.
+  const { achievements: debugAchievements } = useProfileAchievements(user);
 
   const isDisabledMilestone = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
@@ -332,6 +339,41 @@ export const BootPopups = (): ReactElement => {
     optOutAchievements,
     updateAlerts,
   ]);
+
+  /**
+   * DEBUG ONLY - not for merge.
+   *
+   * `?debugAchievement` opens the completion popup for the first unlocked
+   * achievement; `?debugAchievement=<id>` picks a specific one.
+   */
+  useEffect(() => {
+    if (typeof window === 'undefined' || !user?.id || !debugAchievements) {
+      return;
+    }
+
+    const requested = new URLSearchParams(window.location.search).get(
+      'debugAchievement',
+    );
+
+    if (requested === null) {
+      return;
+    }
+
+    const unlocked = debugAchievements.filter((item) => item.unlockedAt);
+    const picked = requested
+      ? unlocked.find((item) => item.achievement.id === requested)
+      : unlocked[0];
+
+    if (!picked) {
+      return;
+    }
+
+    addImmediatePopup({
+      type: LazyModal.AchievementCompletion,
+      props: { achievementId: picked.achievement.id },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debugAchievements, user?.id]);
 
   /**
    * Job opportunity modal
