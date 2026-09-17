@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { ExtensionShowcase } from './ExtensionShowcase';
 import { defaultExtensionShowcaseFeatures } from './defaultFeatures';
 
@@ -26,6 +26,19 @@ describe('ExtensionShowcase', () => {
     expect(
       screen.getByLabelText(featureById('newtab').media.alt),
     ).toBeVisible();
+  });
+
+  it('owns the tabs from the tablist and lets the keyboard reach the panel', () => {
+    render(<ExtensionShowcase />);
+    const tablist = screen.getByRole('tablist', { name: 'Extension features' });
+
+    expect(within(tablist).getAllByRole('tab')).toHaveLength(
+      defaultExtensionShowcaseFeatures.length,
+    );
+    expect(tablist.children).toHaveLength(
+      defaultExtensionShowcaseFeatures.length,
+    );
+    expect(screen.getByRole('tabpanel')).toHaveAttribute('tabindex', '0');
   });
 
   it('renders nothing without features', () => {
@@ -92,12 +105,14 @@ describe('ExtensionShowcase', () => {
   });
 
   it('moves the selection with the arrow, Home and End keys', () => {
+    const focus = jest.spyOn(HTMLElement.prototype, 'focus');
     render(<ExtensionShowcase />);
     const selected = () => screen.getByRole('tab', { selected: true });
 
     fireEvent.keyDown(selected(), { key: 'ArrowRight' });
     expect(selected()).toHaveTextContent('Companion');
     expect(selected()).toHaveFocus();
+    expect(focus).toHaveBeenLastCalledWith({ preventScroll: true });
 
     fireEvent.keyDown(selected(), { key: 'ArrowLeft' });
     fireEvent.keyDown(selected(), { key: 'ArrowLeft' });

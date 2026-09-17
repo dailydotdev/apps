@@ -111,7 +111,7 @@ export function ExtensionShowcase({
     features.find((feature) => feature.id === activeId) ?? features[0];
   const activeFeatureId = activeFeature?.id;
   const baseId = useId();
-  const tablistRef = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const hasCentered = useRef(false);
 
   // The selected tab sits in the middle and the rest fan out to both sides,
@@ -119,7 +119,7 @@ export function ExtensionShowcase({
   // and again once web fonts settle the tab widths; later selections glide.
   useLayoutEffect(() => {
     const centerActiveTab = (behavior: ScrollBehavior): void => {
-      tablistRef.current
+      scrollerRef.current
         ?.querySelector<HTMLElement>('[aria-selected="true"]')
         ?.scrollIntoView({ behavior, inline: 'center', block: 'nearest' });
     };
@@ -145,13 +145,16 @@ export function ExtensionShowcase({
 
   // Warm the illustrations up so the first click on a tab shows its stage
   // instead of the glows alone while the image lands.
+  const illustrationSources = features
+    .flatMap(({ media }) => (media.type === 'image' ? [media.src] : []))
+    .join(' ');
   useEffect(() => {
-    features.forEach(({ media }) => {
-      if (media.type === 'image') {
-        new Image().src = media.src;
+    illustrationSources.split(' ').forEach((src) => {
+      if (src) {
+        new Image().src = src;
       }
     });
-  }, [features]);
+  }, [illustrationSources]);
 
   if (!activeFeature) {
     return null;
@@ -178,30 +181,33 @@ export function ExtensionShowcase({
     event.preventDefault();
     const next = features[nextIndex];
     selectFeature(next.id);
-    document.getElementById(tabId(next.id))?.focus();
+    document.getElementById(tabId(next.id))?.focus({ preventScroll: true });
   };
 
   return (
     <section
       className={classNames('flex w-full flex-col items-center', className)}
     >
-      <Typography
-        key={activeFeature.id}
-        tag={TypographyTag.P}
-        type={TypographyType.Body}
-        color={TypographyColor.Secondary}
-        aria-live="polite"
-        className="animate-showcase-caption-in mx-auto min-h-[3.25rem] max-w-xl text-balance text-center"
-      >
-        {activeFeature.description}
-      </Typography>
+      <div aria-live="polite" className="w-full">
+        <Typography
+          key={activeFeature.id}
+          tag={TypographyTag.P}
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+          className="animate-showcase-caption-in mx-auto min-h-[3.25rem] max-w-xl text-balance text-center"
+        >
+          {activeFeature.description}
+        </Typography>
+      </div>
       <div
-        ref={tablistRef}
-        role="tablist"
-        aria-label="Extension features"
+        ref={scrollerRef}
         className="no-scrollbar showcase-carousel-mask mt-6 w-full overflow-x-auto"
       >
-        <div className="flex w-max items-center gap-2.5 px-[50%] py-3">
+        <div
+          role="tablist"
+          aria-label="Extension features"
+          className="flex w-max items-center gap-2.5 px-[50%] py-3"
+        >
           {features.map((feature) => (
             <ShowcaseTab
               key={feature.id}
@@ -219,6 +225,7 @@ export function ExtensionShowcase({
         id={panelId}
         role="tabpanel"
         aria-labelledby={tabId(activeFeature.id)}
+        tabIndex={0}
         className={classNames('mt-4 w-full', stageClassName)}
       >
         <ExtensionShowcaseStage feature={activeFeature} />
