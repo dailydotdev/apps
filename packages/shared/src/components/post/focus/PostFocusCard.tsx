@@ -305,6 +305,9 @@ const PostFocusCardRaw = ({
   // title, its summary is not a TLDR and its author is the handle on the
   // card, so it renders as the same embedded tweet the classic layout uses.
   const isSharedTweet = isShared && isSocialTwitterPost(article);
+  // A shared video plays in its embed, so like the classic share layout it
+  // carries no read CTA and no tags under it.
+  const isSharedVideo = isShared && isVideoType;
   // Room for a 300px unit beside the centred 768px column with a 2rem gap,
   // plus the sidebar: below this the unit stays inline. Evaluated client-side
   // only, which is also the only place ads ever exist.
@@ -744,10 +747,10 @@ const PostFocusCardRaw = ({
                 {postBody && (
                   <div className="flex flex-col gap-4">{postBody}</div>
                 )}
-                {readCta}
+                {!isSharedVideo && readCta}
               </div>
 
-              <PostTagList post={article} />
+              {!isSharedVideo && <PostTagList post={article} />}
             </>
           )}
 

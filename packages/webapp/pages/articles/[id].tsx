@@ -178,16 +178,21 @@ const ReadPostPage = ({
               inBodyUnit('body', index, hasSummaryUnits || index > 0)}
           </React.Fragment>
         )),
+      // No phone placement for any rail unit, as on the classic template:
+      // the phone's density budget is spent on the strip, the first
+      // in-content unit and the above-comments MPU.
       rail: [
         <ReadAdSlot
           key="after-source"
           slot={READ_SLOT.railAfterSource}
           format={ReadAdFormat.MediumRectangle}
+          hideOnPhone
         />,
         <ReadAdSlot
           key="between-further-reading"
           slot={READ_SLOT.railBetweenFurtherReading}
           format={ReadAdFormat.MediumRectangle}
+          hideOnPhone
         />,
         // Compliant as a publisher sticky at exactly 300px wide, desktop
         // only, one per viewport, closing the rail where nothing follows.
@@ -196,6 +201,7 @@ const ReadPostPage = ({
           slot={READ_SLOT.railBottomSticky}
           format={ReadAdFormat.HalfPage}
           className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1"
+          hideOnPhone
         />,
       ],
       aboveComments: (

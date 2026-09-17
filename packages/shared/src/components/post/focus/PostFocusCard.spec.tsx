@@ -150,6 +150,27 @@ describe('PostFocusCard shared tweet', () => {
   });
 });
 
+describe('PostFocusCard shared video', () => {
+  it('keeps the embed and summary but no CTA or tags, like the classic share layout', () => {
+    renderCard({
+      ...sharePost,
+      id: 'shared-video-id',
+      sharedPost: {
+        ...sharePost.sharedPost,
+        type: PostType.VideoYouTube,
+        videoId: 'abc123',
+        summary: 'A short summary of the talk.',
+      },
+    } as Post);
+
+    expect(
+      screen.getByText('A short summary of the talk.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/^Watch/)).not.toBeInTheDocument();
+    expect(screen.queryByText('#backend')).not.toBeInTheDocument();
+  });
+});
+
 describe('PostFocusCard community sentiment', () => {
   it('renders in the post modal when the post has a take', () => {
     renderCard(postWithCommunitySentiment, { onClose: jest.fn() });
