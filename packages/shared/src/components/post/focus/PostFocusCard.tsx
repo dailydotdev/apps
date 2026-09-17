@@ -479,11 +479,13 @@ const PostFocusCardRaw = ({
       data-testid="post-focus-card"
     >
       <SelectionSnapshotBar containerRef={cardRef} post={article} />
-      {/* Column and rail centre together as one block, so with a rail the
-          column shifts left by half the rail's width and without one it sits
-          exactly where it always has. */}
-      <div className="flex justify-center gap-8 px-4 tablet:px-6 laptop:px-8">
-        <div className="flex min-w-0 flex-1 flex-col gap-4 py-6 laptop:max-w-[768px]">
+      <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
+        <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
+          {hasRailRoom && ads?.rail && (
+            <div className="absolute inset-y-0 left-full ml-8 flex w-[300px] flex-col gap-2 pt-6">
+              {ads.rail}
+            </div>
+          )}
           {ads?.contentLeading}
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
@@ -807,11 +809,6 @@ const PostFocusCardRaw = ({
             />
           </div>
         </div>
-        {hasRailRoom && ads?.rail && (
-          <div className="flex w-[300px] shrink-0 flex-col gap-2 pt-6">
-            {ads.rail}
-          </div>
-        )}
       </div>
     </article>
   );
