@@ -91,8 +91,8 @@ export function ExploreSignupStrip({
     <HijackingCoverCard
       className={className}
       // Scaled up and shifted right so the dev and dog sit past the column,
-      // around two thirds across.
-      artClassName="origin-[50%_88%] translate-x-[15%] scale-[1.45]"
+      // around three quarters across.
+      artClassName="origin-[50%_88%] translate-x-[27%] scale-[1.45]"
     >
       <div className="cover-strip-blur-near pointer-events-none absolute inset-y-0 left-0 w-3/4" />
       <div className="cover-strip-blur-mid pointer-events-none absolute inset-y-0 left-0 w-3/4" />
@@ -104,15 +104,8 @@ export function ExploreSignupStrip({
           exploreSignupStripMinHeight,
         )}
       >
-        <div className="flex w-full max-w-[26.25rem] flex-col items-center gap-1 text-center">
-          <h3
-            className={classNames(
-              'text-balance',
-              hijackingCoverHeadingClassName,
-            )}
-          >
-            {copy.heading}
-          </h3>
+        <div className="flex w-full max-w-[26.25rem] flex-col items-start gap-1 text-left">
+          <h3 className={hijackingCoverHeadingClassName}>{copy.heading}</h3>
           <p className={hijackingCoverBodyClassName}>{copy.body}</p>
           <AuthOptions
             ignoreMessages
@@ -126,7 +119,7 @@ export function ExploreSignupStrip({
             inlineProviders
             preferGithub={false}
             onboardingSignupButton={{ size: ButtonSize.Medium }}
-            className={{ container: 'mt-4 !min-h-0 !overflow-visible' }}
+            className={{ container: 'mt-5 !min-h-0 !overflow-visible' }}
             onAuthStateUpdate={onAuthStateUpdate}
           />
         </div>
