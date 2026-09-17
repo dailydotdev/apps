@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import type { ComponentType, ReactElement } from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
@@ -30,8 +30,21 @@ import {
   CommunitySentiment,
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
+import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
 
-const ContentMap = {
+// The three bodies share one call site, so they share one props shape; each
+// takes the subset it needs.
+interface SquadContentProps {
+  post: Post;
+  onReadArticle: () => Promise<void>;
+  isCompactSpacing?: boolean;
+  isPostPage?: boolean;
+}
+
+const ContentMap: Record<
+  PostType.Freeform | PostType.Welcome | PostType.Share | PostType.VideoYouTube,
+  ComponentType<SquadContentProps>
+> = {
   [PostType.Freeform]: MarkdownPostContent,
   [PostType.Welcome]: MarkdownPostContent,
   [PostType.Share]: SharePostContent,
@@ -69,6 +82,7 @@ export function SquadPostContentRaw({
   isBannerVisible,
   isPostPage,
 }: SquadPostContentRawProps): ReactElement {
+  const contentRef = useRef<HTMLDivElement>(null);
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { checkHasCompleted, isActionsFetched } = useActions();
   const hasClosedBanner = checkHasCompleted(
@@ -114,10 +128,12 @@ export function SquadPostContentRaw({
     ? PostType.VideoYouTube
     : socialTwitterType || post?.type;
   const Content = getSquadContentComponent(finalType);
-  const communitySentimentPost =
+  // A share wraps the post it reposted, and the sentiment and the share card
+  // both describe that post rather than the repost.
+  const underlyingPost =
     post.type === PostType.Share && post.sharedPost ? post.sharedPost : post;
-  const communitySentimentData = communitySentimentPost.communitySentiment
-    ? mapCommunitySentimentPost(communitySentimentPost.communitySentiment)
+  const communitySentimentData = underlyingPost.communitySentiment
+    ? mapCommunitySentimentPost(underlyingPost.communitySentiment)
     : undefined;
   const showCommunitySentiment = !!communitySentimentData;
 
@@ -141,11 +157,15 @@ export function SquadPostContentRaw({
       }
     >
       <div
+        ref={contentRef}
         className={classNames(
           'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
           className?.content,
         )}
       >
+        {/* Scoped to the post column, so a quote can only come from the post
+            itself and not from the comments or the rail beside it. */}
+        <SelectionSnapshotBar containerRef={contentRef} post={underlyingPost} />
         <BasePostContent
           className={{
             ...className,
@@ -206,6 +226,7 @@ export function SquadPostContentRaw({
             post={post}
             onReadArticle={onReadArticle}
             isCompactSpacing={isCompactModalSpacing}
+            isPostPage={isPostPage}
           />
           {showCommunitySentiment && (
             <CommunitySentiment
