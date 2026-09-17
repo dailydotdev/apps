@@ -150,6 +150,26 @@ describe('PostFocusCard shared tweet', () => {
   });
 });
 
+describe('PostFocusCard tags', () => {
+  it('lists tags on a publication article', () => {
+    renderCard({ ...post, tags: ['backend', 'react'] });
+
+    expect(screen.getByText('#backend')).toBeInTheDocument();
+  });
+
+  it('lists no tags on squad posts, like the classic squad template', () => {
+    const { unmount } = renderCard({
+      ...freeformSquadPost,
+      tags: ['backend', 'react'],
+    });
+    expect(screen.queryByText('#backend')).not.toBeInTheDocument();
+    unmount();
+
+    renderCard(sharePost);
+    expect(screen.queryByText('#backend')).not.toBeInTheDocument();
+  });
+});
+
 describe('PostFocusCard shared video', () => {
   it('keeps the embed and summary but no CTA or tags, like the classic share layout', () => {
     renderCard({

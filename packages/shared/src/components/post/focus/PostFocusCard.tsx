@@ -289,12 +289,11 @@ const PostFocusCardRaw = ({
   // Posts authored by a user (shared, freeform, welcome) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
   // (article/video/collection) keep their source strip.
-  const author =
+  const isSquadPost =
     post.type === PostType.Share ||
     post.type === PostType.Freeform ||
-    post.type === PostType.Welcome
-      ? post.author
-      : undefined;
+    post.type === PostType.Welcome;
+  const author = isSquadPost ? post.author : undefined;
   // Author-led posts show the author in the header, so the squad needs naming
   // separately; publication-sourced posts already show their source strip.
   const squadAttribution =
@@ -309,6 +308,9 @@ const PostFocusCardRaw = ({
   // A shared video plays in its embed, so like the classic share layout it
   // carries no read CTA and no tags under it.
   const isSharedVideo = isShared && isVideoType;
+  // The classic squad template never lists tags; only the article, video
+  // and collection templates do.
+  const showTags = !isSquadPost;
   // Room for a 300px unit beside the centred 768px column with a 2rem gap,
   // plus the sidebar: below this the unit stays inline. Evaluated client-side
   // only, which is also the only place ads ever exist.
@@ -747,7 +749,7 @@ const PostFocusCardRaw = ({
                 {!isSharedVideo && readCta}
               </div>
 
-              {!isSharedVideo && <PostTagList post={article} />}
+              {showTags && <PostTagList post={article} />}
             </>
           )}
 
