@@ -304,16 +304,17 @@ describe('PostFocusCard share commentary', () => {
     expect(screen.getByText(sharePost.title as string)).toBeInTheDocument();
   });
 
-  it('renders the commentary as the composer wrote it', () => {
+  it('keeps the commentary line breaks in body type, not as a title', () => {
     renderCard({
       ...sharePost,
-      title: 'Keep calm\n\nWrite **accessible** code',
-      titleHtml:
-        '<p>Keep calm</p><p>Write <strong>accessible</strong> code</p>',
+      title: 'Keep calm\n\nWrite accessible code',
+      titleHtml: '<p>Keep calm Write accessible code</p>',
     } as Post);
 
-    expect(screen.getByText('accessible').tagName).toBe('STRONG');
-    expect(screen.getByText('Keep calm').tagName).toBe('P');
+    const commentary = screen.getByText(/Keep calm/);
+    expect(commentary).toHaveClass('whitespace-pre-line', 'typo-body');
+    expect(commentary).not.toHaveClass('typo-title3');
+    expect(commentary).not.toHaveClass('font-bold');
   });
 });
 

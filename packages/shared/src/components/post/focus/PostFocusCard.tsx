@@ -589,16 +589,14 @@ const PostFocusCardRaw = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* The sharer's words as the composer rendered them, like the
-                classic share layout; plain text only when no HTML exists. */}
-            {commentary &&
-              (post.titleHtml ? (
-                <Markdown className="break-words" content={post.titleHtml} />
-              ) : (
-                <p className="whitespace-pre-line break-words typo-title3">
-                  {commentary}
-                </p>
-              ))}
+            {/* The sharer's words with their own line breaks, in body type:
+                titleHtml collapses the breaks into one paragraph, so the raw
+                text is what the composer actually showed them. */}
+            {commentary && (
+              <p className="whitespace-pre-line break-words text-text-primary typo-body">
+                {commentary}
+              </p>
+            )}
             {isSharedTweet && (
               <EmbeddedTweetPreview
                 post={article}
