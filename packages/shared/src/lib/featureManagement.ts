@@ -248,6 +248,15 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 );
 
 /**
+ * Experiment: the onboarding extension step shows the feature showcase (tab
+ * carousel with a per-feature illustration) instead of the demo video.
+ */
+export const featureOnboardingExtensionShowcase = new Feature(
+  'onboarding_extension_showcase',
+  false,
+);
+
+/**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds with
  * a trending ticker under it. The ticker carries the popular half of
  * `statuslineFeed`; the feed keeps its own Happening Now card and owns the
