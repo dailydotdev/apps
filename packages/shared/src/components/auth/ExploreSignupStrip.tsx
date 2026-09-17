@@ -57,7 +57,12 @@ export function ExploreSignupStrip({
         aria-hidden
         className={classNames('hidden w-full tablet:block', className)}
       >
-        <div className={exploreSignupStripMinHeight} />
+        <div
+          className={classNames(
+            'rounded-16 border border-transparent',
+            exploreSignupStripMinHeight,
+          )}
+        />
       </section>
     );
   }
@@ -117,7 +122,9 @@ export function ExploreSignupStrip({
             inlineProviders
             preferGithub={false}
             onboardingSignupButton={{ size: ButtonSize.Medium }}
-            className={{ container: 'mt-4 !min-h-0 !overflow-visible' }}
+            className={{
+              container: 'mt-4 !min-h-[6.75rem] !overflow-visible',
+            }}
             onAuthStateUpdate={onAuthStateUpdate}
           />
         </div>
