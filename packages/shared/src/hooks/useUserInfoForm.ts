@@ -1,24 +1,21 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
-import { mutateUserInfo } from '../graphql/users';
+import { mutateUserInfo, parseProfileFormHint } from '../graphql/users';
 import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { getProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
+import { ApiError } from '../graphql/common';
 import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
-
-export interface ProfileFormHint {
-  username?: string;
-  name?: string;
-}
+import { isSameSocialLinkUrl } from '../lib/socialLink';
 
 export type UpdateProfileParameters = Partial<UserProfile> & {
   upload?: File;
@@ -29,6 +26,8 @@ interface UseUserInfoForm {
   methods: UseFormReturn<UserProfile>;
   save: () => void;
   isLoading: boolean;
+  isSocialLinksLoading: boolean;
+  isSocialLinksError: boolean;
 }
 
 const useUserInfoForm = (): UseUserInfoForm => {
@@ -43,13 +42,16 @@ const useUserInfoForm = (): UseUserInfoForm => {
   const userQueryKey = generateQueryKey(RequestKey.Profile, user, {
     id: userId,
   });
-  const { data: fullProfile } = useQuery({
+  const { data: fullProfile, isError: isProfileError } = useQuery({
     queryKey: userQueryKey,
     queryFn: () => getProfile(userId),
     ...disabledRefetch,
     staleTime: StaleTime.OneHour,
     enabled: !!userId,
   });
+
+  const hasInitializedSocialLinks =
+    !!fullProfile || Array.isArray(user?.socialLinks);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window?.location?.search);
@@ -73,19 +75,33 @@ const useUserInfoForm = (): UseUserInfoForm => {
       experienceLevel: user?.experienceLevel,
       hideExperience: user?.hideExperience,
       readme: user?.readme || '',
-      socialLinks: [],
+      socialLinks: user?.socialLinks || [],
     },
   });
 
-  // Update socialLinks when fullProfile loads (async fetch completes)
-  const hasUpdatedSocialLinks = useRef(false);
   useEffect(() => {
-    if (fullProfile && !hasUpdatedSocialLinks.current) {
-      hasUpdatedSocialLinks.current = true;
-      methods.setValue('socialLinks', fullProfile.socialLinks || [], {
-        shouldDirty: false,
-      });
+    if (!fullProfile) {
+      return;
     }
+
+    const serverLinks = fullProfile.socialLinks || [];
+
+    if (!methods.getFieldState('socialLinks').isDirty) {
+      methods.resetField('socialLinks', { defaultValue: serverLinks });
+      return;
+    }
+
+    const localLinks = methods.getValues('socialLinks') || [];
+    const addedLinks = localLinks.filter(
+      (local) =>
+        !serverLinks.some((server) =>
+          isSameSocialLinkUrl(server.url, local.url),
+        ),
+    );
+
+    methods.setValue('socialLinks', [...serverLinks, ...addedLinks], {
+      shouldDirty: true,
+    });
   }, [fullProfile, methods]);
 
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
@@ -119,27 +135,62 @@ const useUserInfoForm = (): UseUserInfoForm => {
     },
 
     onError: (err) => {
-      const errorMessage = err?.response?.errors?.[0]?.message;
+      const [responseError] = err?.response?.errors || [];
+      const errorMessage = responseError?.message;
+      const data = parseProfileFormHint(errorMessage);
 
-      if (errorMessage) {
-        const data: ProfileFormHint = JSON.parse(errorMessage);
+      if (!data) {
+        const isValidationError =
+          responseError?.extensions?.code === ApiError.GraphqlValidationFailed;
 
-        Object.entries(data).forEach(([key, value]) => {
+        displayToast(
+          isValidationError && errorMessage
+            ? errorMessage
+            : 'Failed to update profile',
+        );
+        return;
+      }
+
+      const toastMessages: string[] = [];
+      const formFields = methods.getValues();
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (!value) {
+          return;
+        }
+
+        if (key in formFields) {
           methods.setError(key as keyof UserProfile, {
             type: 'manual',
             message: value,
           });
-        });
-      } else {
+        } else {
+          toastMessages.push(value);
+        }
+      });
+
+      if (toastMessages.length) {
+        displayToast(toastMessages[0]);
+      } else if (!Object.keys(data).length) {
         displayToast('Failed to update profile');
       }
     },
   });
 
+  const getProfileUpdatePayload = useCallback((): UpdateProfileParameters => {
+    const formData = methods.getValues();
+
+    if (!hasInitializedSocialLinks) {
+      const { socialLinks, ...payload } = formData;
+      return payload;
+    }
+
+    return formData;
+  }, [hasInitializedSocialLinks, methods]);
+
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
     onSave: () => {
-      const formData = methods.getValues();
-      updateUserProfile(formData);
+      updateUserProfile(getProfileUpdatePayload());
     },
     onDiscard: () => {
       methods.reset();
@@ -152,6 +203,8 @@ const useUserInfoForm = (): UseUserInfoForm => {
     methods,
     save: dirtyForm.save,
     isLoading,
+    isSocialLinksLoading: !hasInitializedSocialLinks && !isProfileError,
+    isSocialLinksError: !hasInitializedSocialLinks && isProfileError,
   };
 };
 
