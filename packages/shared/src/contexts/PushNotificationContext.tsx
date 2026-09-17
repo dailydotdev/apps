@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useContext,
   useState,
+  useRef,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type OneSignal from 'react-onesignal';
@@ -63,11 +64,13 @@ type WebPushSubscriptionState = {
 };
 
 const webPushSyncStorageKey = 'web-push-subscription-synced';
+const nativePushStateTimeoutMs = 5000;
 
 function OneSignalSubProvider({
   children,
 }: PushNotificationContextProviderProps): ReactElement {
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const optInPromiseRef = useRef<Promise<boolean>>();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
 
@@ -118,7 +121,10 @@ function OneSignalSubProvider({
   const isPushSupported = OneSignalCache?.Notifications.isPushSupported();
 
   const syncCurrentWebPushSubscription = useCallback(
-    async (state?: WebPushSubscriptionState) => {
+    async (
+      state?: WebPushSubscriptionState,
+      { force = false }: { force?: boolean } = {},
+    ) => {
       if (!OneSignalCache || !user) {
         return;
       }
@@ -132,7 +138,7 @@ function OneSignalSubProvider({
       const marker =
         optedIn && subscriptionId ? `${user.id}:${subscriptionId}` : undefined;
 
-      if (!optedIn) {
+      if (!optedIn || force) {
         storageWrapper.removeItem(webPushSyncStorageKey);
       }
 
@@ -163,6 +169,29 @@ function OneSignalSubProvider({
     [OneSignalCache, logEvent, user],
   );
 
+  const optIn = useCallback((): Promise<boolean> => {
+    if (!OneSignalCache) {
+      return Promise.resolve(false);
+    }
+
+    if (!optInPromiseRef.current) {
+      optInPromiseRef.current = (async () => {
+        await OneSignalCache.User.PushSubscription.optIn();
+        const subscribed = !!OneSignalCache.User.PushSubscription.optedIn;
+        setIsSubscribed(subscribed);
+        await syncCurrentWebPushSubscription(
+          { optedIn: subscribed },
+          { force: true },
+        );
+        return subscribed;
+      })().finally(() => {
+        optInPromiseRef.current = undefined;
+      });
+    }
+
+    return optInPromiseRef.current;
+  }, [OneSignalCache, syncCurrentWebPushSubscription]);
+
   const subscribe = useCallback(
     async (source: NotificationPromptSource) => {
       if (!OneSignalCache) {
@@ -178,11 +207,7 @@ function OneSignalSubProvider({
         return false;
       }
 
-      storageWrapper.removeItem(webPushSyncStorageKey);
-      await OneSignalCache.User.PushSubscription.optIn();
-      const subscribed = !!OneSignalCache.User.PushSubscription.optedIn;
-      setIsSubscribed(subscribed);
-      await syncCurrentWebPushSubscription({ optedIn: subscribed });
+      const subscribed = await optIn();
 
       if (subscribed) {
         logEvent({
@@ -198,7 +223,7 @@ function OneSignalSubProvider({
 
       return subscribed;
     },
-    [OneSignalCache, logEvent, syncCurrentWebPushSubscription],
+    [OneSignalCache, logEvent, optIn],
   );
 
   const unsubscribe = useCallback(async () => {
@@ -216,9 +241,20 @@ function OneSignalSubProvider({
     }
 
     const onChange: ChangeEventHandler = (permission) => {
-      setIsSubscribed(
-        permission && !!OneSignalCache.User.PushSubscription.optedIn,
-      );
+      if (!permission) {
+        setIsSubscribed(false);
+        return;
+      }
+
+      optIn().catch((error: unknown) => {
+        logEvent({
+          event_name: LogEvent.GlobalError,
+          extra: JSON.stringify({
+            origin: 'web_push_permission_change',
+            error: error instanceof Error ? error.message : 'unknown',
+          }),
+        });
+      });
     };
     const onSubscriptionChange: PushSubscriptionChangeHandler = ({
       current,
@@ -245,7 +281,7 @@ function OneSignalSubProvider({
         onSubscriptionChange,
       );
     };
-  }, [OneSignalCache, syncCurrentWebPushSubscription]);
+  }, [OneSignalCache, logEvent, optIn, syncCurrentWebPushSubscription]);
 
   useEffect(() => {
     setIsSubscribed(!!OneSignalCache?.User.PushSubscription.optedIn);
@@ -279,13 +315,17 @@ function OneSignalSubProvider({
 function NativeAppleSubProvider({
   children,
 }: PushNotificationContextProviderProps): ReactElement {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const client = useQueryClient();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const isEnabled = !!user && !isTesting;
 
   const key = generateQueryKey(RequestKey.ApplePush, user);
-  const { isFetched, isLoading } = useQuery<boolean>({
+  const {
+    data: isSubscribed = false,
+    isFetched,
+    isLoading,
+  } = useQuery<boolean>({
     queryKey: key,
 
     queryFn: async () => {
@@ -293,14 +333,29 @@ function NativeAppleSubProvider({
         throw new Error('Cannot initialize native push without user');
       }
 
-      const promise = promisifyEventListener('push-state', (event) => {
-        const subscribed = !!event?.detail;
-        setIsSubscribed(subscribed);
-        return subscribed;
+      return new Promise<boolean>((resolve) => {
+        const controller = new AbortController();
+        let timeout: ReturnType<typeof setTimeout>;
+        const finish = (subscribed: boolean) => {
+          clearTimeout(timeout);
+          controller.abort();
+          resolve(subscribed);
+        };
+        timeout = setTimeout(() => finish(false), nativePushStateTimeoutMs);
+
+        globalThis.addEventListener(
+          'push-state',
+          (event) => finish(!!(event as CustomEvent<boolean>).detail),
+          { once: true, signal: controller.signal },
+        );
+
+        try {
+          postWebKitMessage(WebKitMessageHandlers.PushState, null);
+          postWebKitMessage(WebKitMessageHandlers.PushUserId, user.id);
+        } catch {
+          finish(false);
+        }
       });
-      postWebKitMessage(WebKitMessageHandlers.PushState, null);
-      postWebKitMessage(WebKitMessageHandlers.PushUserId, user.id);
-      return promise;
     },
     enabled: isEnabled,
     ...disabledRefetch,
@@ -310,7 +365,7 @@ function NativeAppleSubProvider({
     async (source: NotificationPromptSource) => {
       const promise = promisifyEventListener('push-subscribe', (event) => {
         const subscribed = !!event?.detail;
-        setIsSubscribed(subscribed);
+        client.setQueryData(key, subscribed);
         if (subscribed) {
           logEvent({
             event_name: LogEvent.ClickEnableNotification,
@@ -326,13 +381,13 @@ function NativeAppleSubProvider({
       postWebKitMessage(WebKitMessageHandlers.PushSubscribe, null);
       return promise;
     },
-    [logEvent],
+    [client, key, logEvent],
   );
 
   const unsubscribe = useCallback(async () => {
     postWebKitMessage(WebKitMessageHandlers.PushUnsubscribe, null);
-    setIsSubscribed(false);
-  }, []);
+    client.setQueryData(key, false);
+  }, [client, key]);
 
   return (
     <PushNotificationsContext.Provider

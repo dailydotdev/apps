@@ -8,7 +8,7 @@ import {
   usePushNotificationContext,
 } from './PushNotificationContext';
 import { syncWebPushSubscription } from '../graphql/notifications';
-import { NotificationPromptSource } from '../lib/log';
+import { LogEvent, NotificationPromptSource } from '../lib/log';
 import { storageWrapper } from '../lib/storageWrapper';
 import { isIOSNative } from '../lib/func';
 import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
@@ -101,6 +101,10 @@ beforeEach(() => {
   });
 });
 
+afterEach(() => {
+  jest.useRealTimers();
+});
+
 it('waits for the push SDK to initialize before reporting readiness', async () => {
   let finishInit: () => void = () => undefined;
   jest.mocked(OneSignal.init).mockImplementationOnce(
@@ -153,6 +157,95 @@ it('waits for the native push state before reporting readiness', async () => {
 
   await waitFor(() => expect(result.current.isInitialized).toBe(true));
   expect(result.current.isSubscribed).toBe(true);
+});
+
+it('restores native subscription state from the cache after remounting', async () => {
+  jest.mocked(isIOSNative).mockReturnValue(true);
+  const client = new QueryClient();
+  const { result: initialResult, unmount } = renderPushContext(client);
+
+  act(() => {
+    window.dispatchEvent(new CustomEvent('push-state', { detail: true }));
+  });
+  await waitFor(() => expect(initialResult.current.isSubscribed).toBe(true));
+  unmount();
+  jest.mocked(postWebKitMessage).mockClear();
+
+  const { result } = renderPushContext(client);
+
+  expect(result.current.isInitialized).toBe(true);
+  expect(result.current.isSubscribed).toBe(true);
+  expect(postWebKitMessage).not.toHaveBeenCalled();
+});
+
+it.each([true, false])(
+  'preserves native subscription changes (%s) on remount',
+  async (subscribed) => {
+    jest.mocked(isIOSNative).mockReturnValue(true);
+    const client = new QueryClient();
+    const { result: initialResult, unmount } = renderPushContext(client);
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent('push-state', { detail: !subscribed }),
+      );
+    });
+    await waitFor(() => expect(initialResult.current.isInitialized).toBe(true));
+
+    await act(async () => {
+      if (subscribed) {
+        const pending = initialResult.current.subscribe(source);
+        window.dispatchEvent(
+          new CustomEvent('push-subscribe', { detail: true }),
+        );
+        await pending;
+      } else {
+        await initialResult.current.unsubscribe(source);
+      }
+    });
+    await waitFor(() =>
+      expect(initialResult.current.isSubscribed).toBe(subscribed),
+    );
+    unmount();
+
+    const { result } = renderPushContext(client);
+    expect(result.current.isSubscribed).toBe(subscribed);
+  },
+);
+
+it('settles native initialization when the shell does not reply and ignores late state', async () => {
+  jest.useFakeTimers();
+  jest.mocked(isIOSNative).mockReturnValue(true);
+  const { result } = renderPushContext();
+  expect(result.current.isInitialized).toBe(false);
+
+  await act(async () => {
+    jest.advanceTimersByTime(5000);
+  });
+  await waitFor(() => expect(result.current.isInitialized).toBe(true));
+  expect(result.current.isSubscribed).toBe(false);
+
+  await act(async () => {
+    const pending = result.current.subscribe(source);
+    window.dispatchEvent(new CustomEvent('push-subscribe', { detail: true }));
+    expect(await pending).toBe(true);
+  });
+  await waitFor(() => expect(result.current.isSubscribed).toBe(true));
+
+  act(() => {
+    window.dispatchEvent(new CustomEvent('push-state', { detail: false }));
+  });
+  expect(result.current.isSubscribed).toBe(true);
+});
+
+it('settles native initialization when the push-state handler is unavailable', async () => {
+  jest.mocked(isIOSNative).mockReturnValue(true);
+  jest.mocked(postWebKitMessage).mockImplementationOnce(() => {
+    throw new Error('Message handler push-state does not exist');
+  });
+  const { result } = renderPushContext();
+
+  await waitFor(() => expect(result.current.isInitialized).toBe(true));
+  expect(result.current.isSubscribed).toBe(false);
 });
 
 it('waits for opt-in after browser permission is granted', async () => {
@@ -208,12 +301,15 @@ it('does not opt in when browser permission is denied', async () => {
 it('syncs the same subscription again after notifications are disabled and enabled', async () => {
   subscription.optedIn = true;
   const { result } = renderPushContext();
-  await waitFor(() => expect(syncWebPushSubscription).toHaveBeenCalledTimes(1));
+  await waitFor(() => expect(syncWebPushSubscription).toHaveBeenCalled());
 
   await act(async () => {
     await result.current.unsubscribe(source);
   });
   expect(result.current.isSubscribed).toBe(false);
+  expect(syncWebPushSubscription).toHaveBeenLastCalledWith(
+    expect.objectContaining({ optedIn: false }),
+  );
 
   await act(async () => {
     await result.current.subscribe(source);
@@ -225,7 +321,6 @@ it('syncs the same subscription again after notifications are disabled and enabl
       optedIn: true,
     }),
   );
-  expect(syncWebPushSubscription).toHaveBeenCalledTimes(3);
 });
 
 it('repairs a stale sync marker when explicitly enabling notifications', async () => {
@@ -259,4 +354,72 @@ it('updates the subscription when browser permission is revoked', async () => {
   });
 
   expect(result.current.isSubscribed).toBe(false);
+});
+
+it('opts in and syncs when permission is granted outside the current tab', async () => {
+  OneSignal.Notifications.permission = false;
+  const { result } = renderPushContext();
+  await waitFor(() => expect(result.current.isPushSupported).toBe(true));
+  const listener = jest
+    .mocked(OneSignal.Notifications.addEventListener)
+    .mock.calls.find(([event]) => event === 'permissionChange')?.[1];
+
+  act(() => {
+    OneSignal.Notifications.permission = true;
+    listener?.(true);
+  });
+
+  await waitFor(() => expect(result.current.isSubscribed).toBe(true));
+  expect(syncWebPushSubscription).toHaveBeenCalledWith(
+    expect.objectContaining({
+      subscriptionId: 'subscription-1',
+      optedIn: true,
+    }),
+  );
+  expect(mockLogEvent).not.toHaveBeenCalledWith(
+    expect.objectContaining({ event_name: LogEvent.ClickEnableNotification }),
+  );
+});
+
+it('shares pending opt-in with permission events without duplicating click analytics', async () => {
+  OneSignal.Notifications.permission = false;
+  const { result } = renderPushContext();
+  await waitFor(() => expect(result.current.isPushSupported).toBe(true));
+  const listener = jest
+    .mocked(OneSignal.Notifications.addEventListener)
+    .mock.calls.find(([event]) => event === 'permissionChange')?.[1];
+  let finishOptIn: () => void = () => undefined;
+  jest.mocked(subscription.optIn).mockImplementationOnce(
+    () =>
+      new Promise<void>((resolve) => {
+        finishOptIn = () => {
+          subscription.optedIn = true;
+          resolve();
+        };
+      }),
+  );
+  jest
+    .mocked(OneSignal.Notifications.requestPermission)
+    .mockImplementationOnce(async () => {
+      OneSignal.Notifications.permission = true;
+      listener?.(true);
+    });
+
+  let pending: Promise<boolean> = Promise.resolve(false);
+  await act(async () => {
+    pending = result.current.subscribe(source);
+  });
+  expect(result.current.isSubscribed).toBe(false);
+
+  await act(async () => {
+    finishOptIn();
+    expect(await pending).toBe(true);
+  });
+
+  expect(subscription.optIn).toHaveBeenCalledTimes(1);
+  expect(
+    mockLogEvent.mock.calls.filter(
+      ([event]) => event.event_name === LogEvent.ClickEnableNotification,
+    ),
+  ).toHaveLength(1);
 });
