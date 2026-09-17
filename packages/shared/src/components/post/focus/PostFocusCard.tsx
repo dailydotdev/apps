@@ -63,6 +63,7 @@ import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
 import { useMedia } from '../../../hooks/useMedia';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import {
   CommunitySentiment,
   mapCommunitySentimentPost,
@@ -297,7 +298,24 @@ const PostFocusCardRaw = ({
   const isSharedVideo = isShared && isVideoType;
   const showTags = !isSquadPost;
   // 768px column + 2rem gap + 300px unit, with room left for the sidebar.
+  // Wider than that the rail floats beside the centred column; on a laptop
+  // the column and rail centre together as one block instead; below laptop
+  // only the first unit has a home, inline.
   const hasRailRoom = useMedia(['(min-width: 92rem)'], [true], false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const railPlacement = !ads?.rail
+    ? null
+    : (hasRailRoom && 'beside') || (isLaptop && 'block') || 'inline';
+  const railUnits = ads?.rail && (
+    <>
+      {ads.railPinsLast ? ads.rail.slice(0, -1) : ads.rail}
+      {ads.railPinsLast && (
+        <div className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1">
+          {ads.rail[ads.rail.length - 1]}
+        </div>
+      )}
+    </>
+  );
   const { title } = useSmartTitle(article);
   // A share post's own `title` is the sharer's commentary, not the article's
   // title — but it mirrors the article title when they wrote nothing.
@@ -461,16 +479,11 @@ const PostFocusCardRaw = ({
       data-testid="post-focus-card"
     >
       <SelectionSnapshotBar containerRef={cardRef} post={article} />
-      <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
-        <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
-          {hasRailRoom && ads?.rail && (
+      <div className="flex justify-center gap-8 px-4 tablet:px-6 laptop:px-8">
+        <div className="relative flex min-w-0 flex-1 flex-col gap-4 py-6 laptop:max-w-[768px]">
+          {railPlacement === 'beside' && (
             <div className="absolute inset-y-0 left-full ml-8 flex w-[300px] flex-col gap-2 pt-6">
-              {ads.railPinsLast ? ads.rail.slice(0, -1) : ads.rail}
-              {ads.railPinsLast && (
-                <div className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1">
-                  {ads.rail[ads.rail.length - 1]}
-                </div>
-              )}
+              {railUnits}
             </div>
           )}
           {ads?.contentLeading}
@@ -753,7 +766,7 @@ const PostFocusCardRaw = ({
           {!ads?.withoutDirectSold && (
             <PostSidebarAdWidget postId={post.id} variant="inline" />
           )}
-          {!hasRailRoom && ads?.rail?.[0]}
+          {railPlacement === 'inline' && ads?.rail?.[0]}
 
           <PostUpvotesCommentsCount
             post={post}
@@ -796,6 +809,11 @@ const PostFocusCardRaw = ({
             />
           </div>
         </div>
+        {railPlacement === 'block' && (
+          <div className="flex w-[300px] shrink-0 flex-col gap-2 pt-6">
+            {railUnits}
+          </div>
+        )}
       </div>
     </article>
   );

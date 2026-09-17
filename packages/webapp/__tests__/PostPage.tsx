@@ -1418,6 +1418,15 @@ describe('post redesign', () => {
       expect(railBox().parentElement).not.toHaveClass('sticky');
     });
 
+    it('gives the rail its own column on laptops', async () => {
+      jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+      renderAnonymous(true);
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      const rail = screen.getByTestId('ad-slot-16').closest('.w-\\[300px\\]');
+      expect(rail).not.toBeNull();
+      expect(rail).not.toContainElement(screen.getByTestId('post-modal-title'));
+    });
+
     it('splits a long video summary on both layouts', async () => {
       const { unmount } = renderAnonymous(false, {
         type: PostType.VideoYouTube,
