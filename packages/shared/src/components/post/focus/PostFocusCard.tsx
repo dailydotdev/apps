@@ -90,10 +90,12 @@ export interface PostFocusCardAds {
   withoutDirectSold?: boolean;
   /**
    * In rail order. Beside the column once the viewport has room; until then
-   * only the first has a home, inline. A unit that should pin carries its
-   * own sticky classes.
+   * only the first has a home, inline. Units carry no positioning of their
+   * own, so the same elements can serve the classic rail.
    */
   rail?: ReactNode[];
+  /** Pins the last rail unit under the header, like the classic rail's closing tower. */
+  railPinsLast?: boolean;
   aboveComments?: ReactNode;
   commentAds?: {
     interleaveEvery: number;
@@ -383,13 +385,13 @@ const PostFocusCardRaw = ({
     />
   ) : null;
   const renderSummary = (summary: string): ReactNode => {
+    if (ads?.renderSummarySegments) {
+      return ads.renderSummarySegments(summary, summarySnapshotButton);
+    }
     if (isVideoType) {
       return (
         <VideoSummary summary={summary} trailing={summarySnapshotButton} />
       );
-    }
-    if (ads?.renderSummarySegments) {
-      return ads.renderSummarySegments(summary, summarySnapshotButton);
     }
     return (
       <p
@@ -463,7 +465,12 @@ const PostFocusCardRaw = ({
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           {hasRailRoom && ads?.rail && (
             <div className="absolute inset-y-0 left-full ml-8 flex w-[300px] flex-col gap-2 pt-6">
-              {ads.rail}
+              {ads.railPinsLast ? ads.rail.slice(0, -1) : ads.rail}
+              {ads.railPinsLast && (
+                <div className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1">
+                  {ads.rail[ads.rail.length - 1]}
+                </div>
+              )}
             </div>
           )}
           {ads?.contentLeading}

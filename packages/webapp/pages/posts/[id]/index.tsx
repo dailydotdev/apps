@@ -315,9 +315,9 @@ export const PostPage = ({
                 surface="organic"
                 slot={ORGANIC_SLOT.railAfterDirectAd}
                 format={ReadAdFormat.MediumRectangle}
-                className="sticky top-[calc(var(--sticky-header-offset,0px)+1.5rem)]"
               />,
             ],
+            railPinsLast: true,
             aboveComments: (
               <ReadAdSlot
                 surface="organic"

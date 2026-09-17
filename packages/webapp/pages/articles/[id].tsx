@@ -131,6 +131,7 @@ const ReadPostPage = ({
     );
     const hasSummaryUnits =
       !!post?.summary &&
+      !post.contentHtml &&
       splitTextForAds(
         post.summary,
         CONTENT_CHARS_PER_AD,
@@ -189,16 +190,16 @@ const ReadPostPage = ({
           format={ReadAdFormat.MediumRectangle}
           hideOnPhone
         />,
-        // Compliant as a publisher sticky at exactly 300px wide, desktop
-        // only, one per viewport, closing the rail where nothing follows.
         <ReadAdSlot
           key="bottom-sticky"
           slot={READ_SLOT.railBottomSticky}
           format={ReadAdFormat.HalfPage}
-          className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1"
           hideOnPhone
         />,
       ],
+      // Compliant as a publisher sticky at exactly 300px wide, desktop only,
+      // one per viewport, closing the rail where nothing follows.
+      railPinsLast: true,
       aboveComments: (
         <ReadAdSlot
           slot={READ_SLOT.aboveCommentsMpu}
@@ -218,7 +219,7 @@ const ReadPostPage = ({
         ),
       },
     };
-  }, [showRedesign, post?.summary]);
+  }, [showRedesign, post?.summary, post?.contentHtml]);
 
   // Display-only override; the stored theme preference is untouched and
   // restored the moment the visitor leaves.

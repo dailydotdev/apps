@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { useConditionalFeature } from '../useConditionalFeature';
@@ -17,10 +18,17 @@ export const postRedesignEligibleTypes: PostType[] = [
 ];
 
 // TEMP-REVIEW: the remote flag is off, so preview deployments force the
-// treatment for review. Revert before merge.
-export const isPreviewHost = (): boolean =>
-  typeof window !== 'undefined' &&
-  window.location.hostname.endsWith('.preview.app.daily.dev');
+// treatment for review. Revert before merge. Resolved after mount so the
+// server and the first client render agree.
+export const useIsPreviewHost = (): boolean => {
+  const [isPreviewHost, setIsPreviewHost] = useState(false);
+  useEffect(() => {
+    setIsPreviewHost(
+      window.location.hostname.endsWith('.preview.app.daily.dev'),
+    );
+  }, []);
+  return isPreviewHost;
+};
 
 export const isPostRedesignEligible = (
   post?: Pick<Post, 'type'> | null,
@@ -42,8 +50,10 @@ export const usePostRedesign = (post?: Post): UsePostRedesign => {
     shouldEvaluate: isEligible,
   });
 
+  const isPreviewHost = useIsPreviewHost();
+
   return {
     isEligible,
-    showRedesign: isEligible && (isFlagOn || isPreviewHost()),
+    showRedesign: isEligible && (isFlagOn || isPreviewHost),
   };
 };

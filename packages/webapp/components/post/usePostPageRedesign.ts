@@ -3,7 +3,7 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import {
   isPostRedesignEligible,
-  isPreviewHost,
+  useIsPreviewHost,
 } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 
@@ -21,6 +21,7 @@ export const usePostPageRedesign = (
     shouldEvaluate: isEligible,
   });
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
+  const isPreviewHost = useIsPreviewHost();
 
-  return isEligible && !requiresClassicLayout && (isFlagOn || isPreviewHost());
+  return isEligible && !requiresClassicLayout && (isFlagOn || isPreviewHost);
 };

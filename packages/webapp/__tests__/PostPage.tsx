@@ -1401,6 +1401,38 @@ describe('post redesign', () => {
       );
     });
 
+    it('never pins the rail unit where it sits in flow', async () => {
+      const railBox = () =>
+        screen.getByTestId('ad-slot-16').parentElement as HTMLElement;
+
+      const { unmount } = renderAnonymous(false);
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      expect(railBox()).not.toHaveClass('sticky');
+      expect(railBox().parentElement).not.toHaveClass('sticky');
+      unmount();
+
+      // jsdom is narrower than the rail breakpoint, so the unit sits inline.
+      renderAnonymous(true);
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(railBox()).not.toHaveClass('sticky');
+      expect(railBox().parentElement).not.toHaveClass('sticky');
+    });
+
+    it('splits a long video summary on both layouts', async () => {
+      const { unmount } = renderAnonymous(false, {
+        type: PostType.VideoYouTube,
+        videoId: 'abc123',
+      });
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      const classicUnits = mountedUnits();
+      expect(classicUnits).toContain('ad-slot-22');
+      unmount();
+
+      renderAnonymous(true, { type: PostType.VideoYouTube, videoId: 'abc123' });
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(classicUnits);
+    });
+
     it('keeps a collection to the phone strip on both layouts', async () => {
       const { unmount } = renderAnonymous(false, { type: PostType.Collection });
       expect(await screen.findByTestId('postContainer')).toBeInTheDocument();

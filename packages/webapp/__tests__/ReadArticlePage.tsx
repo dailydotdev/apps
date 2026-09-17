@@ -91,8 +91,9 @@ beforeEach(() => {
   );
 });
 
-const renderPage = () => {
-  mockGraphQL(postMock);
+const renderPage = (overrides: Partial<Post> = {}) => {
+  const page = { ...post, ...overrides };
+  mockGraphQL({ ...postMock, result: { data: { post: page } } });
   mockGraphQL(commentsMock);
   return render(
     <TestBootProvider
@@ -100,7 +101,7 @@ const renderPage = () => {
       auth={{ user: undefined, isLoggedIn: false, isAuthReady: true }}
       settings={createTestSettings()}
     >
-      <ReadPostPage id={postId} initialData={{ post }} />
+      <ReadPostPage id={postId} initialData={{ post: page }} />
     </TestBootProvider>,
   );
 };
@@ -118,5 +119,41 @@ describe('ReadPostPage under post_redesign', () => {
     expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
     expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
     expect(screen.queryByText(/Promoted by/)).not.toBeInTheDocument();
+  });
+
+  it('keeps the first body unit on phones when the card shows a body, not a summary', async () => {
+    mockRedesignOn = true;
+    // Units mount their slot node only once they intersect; the suite-wide
+    // observer mock never fires.
+    const originalObserver = global.IntersectionObserver;
+    global.IntersectionObserver = class {
+      constructor(private callback: IntersectionObserverCallback) {}
+
+      observe = (target: Element): void => {
+        this.callback(
+          [{ isIntersecting: true, target } as IntersectionObserverEntry],
+          this as unknown as IntersectionObserver,
+        );
+      };
+
+      disconnect = jest.fn();
+
+      unobserve = jest.fn();
+    } as unknown as typeof IntersectionObserver;
+    const paragraph = `<p>${'Body text that runs long enough to split. '.repeat(
+      8,
+    )}</p>`;
+    renderPage({
+      type: PostType.Collection,
+      contentHtml: paragraph.repeat(3),
+      summary:
+        'A summary long enough to have split into units on its own. '.repeat(6),
+    });
+    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+
+    const bodyUnits = screen.getAllByTestId('ad-slot-17');
+    expect(bodyUnits.length).toBeGreaterThan(0);
+    expect(bodyUnits[0].parentElement).not.toHaveClass('hidden');
+    global.IntersectionObserver = originalObserver;
   });
 });
