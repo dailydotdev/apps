@@ -8,15 +8,18 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import YoutubeVideo from './YoutubeVideo';
 import { anchorDefaultRel } from '../../lib/strings';
 
 export interface TutorialVideoModalProps {
+  videoId: string;
   videoUrl: string;
   title: string;
   onClose: () => void;
 }
 
 export default function TutorialVideoModal({
+  videoId,
   videoUrl,
   title,
   onClose,
@@ -63,15 +66,12 @@ export default function TutorialVideoModal({
         />
       </header>
       <div className="w-full px-4 tablet:px-6">
-        {/* Tutorial instructions are captioned in the video itself. */}
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-        <video
-          src={videoUrl}
-          aria-label={title}
-          className="aspect-video w-full rounded-12"
-          controls
-          playsInline
-          preload="metadata"
+        <YoutubeVideo
+          videoId={videoId}
+          placeholderProps={{
+            post: { title, permalink: videoUrl },
+            className: 'min-h-72',
+          }}
         />
       </div>
       <footer className="flex w-full justify-end p-4 tablet:px-6">
@@ -83,7 +83,7 @@ export default function TutorialVideoModal({
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
         >
-          Open video
+          Watch on YouTube
         </Button>
       </footer>
     </Modal>

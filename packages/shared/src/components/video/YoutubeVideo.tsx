@@ -14,7 +14,7 @@ interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
   className?: string;
   placeholderProps: Pick<
     YoutubeVideoWithoutConsentProps,
-    'post' | 'onWatchVideo'
+    'post' | 'onWatchVideo' | 'className'
   >;
 }
 
