@@ -2,14 +2,13 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Post } from '../../../graphql/posts';
-import type { Connection } from '../../../graphql/common';
 import { gqlClient } from '../../../graphql/common';
+import type { FeedHeroData } from '../../../graphql/feed';
 import {
-  FEED_BY_IDS_QUERY,
+  FEED_HERO_QUERY,
   supportedTypesForPrivateSources,
 } from '../../../graphql/feed';
 import type { PostHighlight } from '../../../graphql/highlights';
-import { majorHeadlinesQueryOptions } from '../../../graphql/highlights';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../../features/monetization/viewability';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -29,15 +28,14 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { FeedHeroSection } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
 
-const HIGHLIGHT_COUNT = 6;
-const FEATURED_POST_COUNT = 4;
 // Distinct from `Origin.Feed` so the experiment can tell the hero's clicks and
 // impressions apart from the grid's. Matches the ad events' own origin.
 const HERO_ORIGIN = 'feed hero';
 
 /**
- * The carousel and the Happening Now list are the same headlines: the top few
- * get their full post fetched for a card, the rest stay as rows.
+ * The carousel and the Happening Now list are two lists, not one: `feedHero`
+ * grades the cards across editorial highlights and lifecycle states, while the
+ * rows beside them stay major headlines. A post can be in both, or in one.
  */
 export const FeedHero = ({
   feedName,
@@ -66,51 +64,36 @@ export const FeedHero = ({
 
   const { ad, placement, shape } = useFeedHeroAd();
 
-  const { data: headlines } = useQuery({
-    ...majorHeadlinesQueryOptions({ first: HIGHLIGHT_COUNT }),
-    enabled: tokenRefreshed,
-  });
-  const highlights = useMemo(
-    () => headlines?.majorHeadlines?.edges?.map(({ node }) => node) ?? [],
-    [headlines],
-  );
-
-  const postIds = useMemo(
-    () => highlights.slice(0, FEATURED_POST_COUNT).map(({ post }) => post.id),
-    [highlights],
-  );
-
-  const { data: featured } = useQuery({
-    queryKey: generateQueryKey(RequestKey.FeedByIds, user, 'hero', ...postIds),
+  const { data: hero } = useQuery({
+    queryKey: generateQueryKey(RequestKey.FeedHero, user),
     queryFn: () =>
-      gqlClient.request<{ page: Connection<Post> }>(FEED_BY_IDS_QUERY, {
-        first: postIds.length,
-        postIds,
+      gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
         loggedIn: !!user,
         supportedTypes: supportedTypesForPrivateSources,
       }),
-    enabled: tokenRefreshed && postIds.length > 0,
+    enabled: tokenRefreshed,
     staleTime: StaleTime.Default,
   });
 
-  // `feedByIds` answers in its own order, so re-key by id to keep the carousel
-  // in the same order as the headlines beside it.
-  const posts = useMemo(() => {
-    const byId = new Map(
-      featured?.page?.edges?.map(({ node }) => [node.id, node]) ?? [],
-    );
-
-    return postIds.map((id) => byId.get(id)).filter(Boolean) as Post[];
-  }, [featured, postIds]);
+  const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
+  const posts: Post[] = useMemo(() => hero?.feedHero?.posts ?? [], [hero]);
 
   const isRendered = posts.length > 0;
   const adPlacement = isRendered ? placement : 'none';
   const isAdShown = adPlacement !== 'none';
 
   // Stacked, the lead story is already a card above the list, so drop it from
-  // the list rather than showing it twice a few pixels apart.
-  const railHighlights =
-    shape.layout === 'stacked' ? highlights.slice(1) : highlights;
+  // the list rather than showing it twice a few pixels apart. Matched on the
+  // post, not the position: the cards and the headlines are separate lists.
+  const railHighlights = useMemo(() => {
+    const leadPostId = posts[0]?.id;
+
+    if (shape.layout !== 'stacked' || !leadPostId) {
+      return highlights;
+    }
+
+    return highlights.filter(({ post }) => post.id !== leadPostId);
+  }, [highlights, posts, shape.layout]);
 
   const onAdAction = useCallback(
     (action: AdActions, extra?: Record<string, unknown>) => {

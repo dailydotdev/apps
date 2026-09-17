@@ -412,6 +412,31 @@ export const FEED_V2_QUERY = gql`
   ${POST_HIGHLIGHT_FRAGMENT}
 `;
 
+export interface FeedHeroData {
+  feedHero: {
+    posts: Post[];
+    highlights: PostHighlight[];
+  };
+}
+
+export const FEED_HERO_QUERY = gql`
+  query FeedHero($loggedIn: Boolean! = false, ${SUPPORTED_TYPES}) {
+    feedHero(supportedTypes: $supportedTypes) {
+      posts {
+        ...FeedPost
+        contentHtml
+        ...UserPost @include(if: $loggedIn)
+      }
+      highlights {
+        ...PostHighlightCard
+      }
+    }
+  }
+  ${FEED_POST_FRAGMENT}
+  ${USER_POST_FRAGMENT}
+  ${POST_HIGHLIGHT_FRAGMENT}
+`;
+
 export const MOST_UPVOTED_FEED_QUERY = gql`
   query MostUpvotedFeed(
     $loggedIn: Boolean! = false

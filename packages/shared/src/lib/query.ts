@@ -189,6 +189,7 @@ export enum RequestKey {
   FeedSettings = 'feedSettings',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
+  FeedHero = 'feedHero',
   SlackChannels = 'slack_channels',
   IntegrationRecentChannels = 'integration_recent_channels',
   UserIntegrations = 'user_integrations',
