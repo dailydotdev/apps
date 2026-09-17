@@ -144,7 +144,7 @@ const ReadPostPage = ({
     return {
       withoutDirectSold: true,
       contentLeading: <ReadTopLeaderboard />,
-      renderSummarySegments: (summary) =>
+      renderSummarySegments: (summary, trailing) =>
         splitTextForAds(
           summary,
           CONTENT_CHARS_PER_AD,
@@ -154,6 +154,7 @@ const ReadPostPage = ({
           <React.Fragment key={index}>
             <p className="select-text break-words text-text-secondary typo-markdown">
               {part}
+              {index === parts.length - 1 && trailing}
             </p>
             {index < parts.length - 1 &&
               inBodyUnit('summary', index, index > 0)}

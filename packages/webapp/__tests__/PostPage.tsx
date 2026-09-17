@@ -1389,6 +1389,18 @@ describe('post redesign', () => {
       expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
     });
 
+    it('runs the summary snapshot into the last TLDR segment on the focus card', async () => {
+      renderAnonymous(true);
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      const segments = screen
+        .getAllByText(/Sentence \d+ explains/)
+        .map((el) => el.closest('p'));
+      expect(segments.length).toBeGreaterThan(1);
+      expect(segments[segments.length - 1]).toContainElement(
+        screen.getByLabelText('Snapshot'),
+      );
+    });
+
     it('keeps a collection to the phone strip on both layouts', async () => {
       const { unmount } = renderAnonymous(false, { type: PostType.Collection });
       expect(await screen.findByTestId('postContainer')).toBeInTheDocument();

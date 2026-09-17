@@ -87,7 +87,8 @@ export type FocusCardLeftVariant = 'lean' | 'rich';
  */
 export interface PostFocusCardAds {
   contentLeading?: ReactNode;
-  renderSummarySegments?: (summary: string) => ReactNode;
+  /** `trailing` rides the end of the last segment's line, like the plain TLDR's icon. */
+  renderSummarySegments?: (summary: string, trailing?: ReactNode) => ReactNode;
   /** Replaces the markdown body so units can sit between its blocks. */
   renderBody?: (contentHtml: string) => ReactNode;
   /**
@@ -405,14 +406,7 @@ const PostFocusCardRaw = ({
       );
     }
     if (ads?.renderSummarySegments) {
-      return (
-        <>
-          {ads.renderSummarySegments(summary)}
-          {/* The segmented summary has ad slots between its parts, so the icon
-              cannot trail the last line the way it does below. */}
-          <div className="flex">{summarySnapshotButton}</div>
-        </>
-      );
+      return ads.renderSummarySegments(summary, summarySnapshotButton);
     }
     return (
       <p

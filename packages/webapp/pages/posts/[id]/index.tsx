@@ -1,4 +1,9 @@
-import type { ComponentType, CSSProperties, ReactElement } from 'react';
+import type {
+  ComponentType,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -254,7 +259,7 @@ export const PostPage = ({
     }
     // A render prop, not a component: PostContent calls it as a function.
     // eslint-disable-next-line react/display-name
-    return () => (
+    return (_summary: string, trailing?: ReactNode) => (
       <>
         {summarySegments.map((segment, index, segments) => (
           // eslint-disable-next-line react/no-array-index-key
@@ -272,6 +277,7 @@ export const PostPage = ({
                 data-testid={index === 0 ? 'tldr-container' : undefined}
               >
                 {segment}
+                {index === segments.length - 1 && trailing}
               </p>
             </div>
             {index < segments.length - 1 && (
