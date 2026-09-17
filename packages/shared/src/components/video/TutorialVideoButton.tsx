@@ -10,17 +10,17 @@ const TutorialVideoModal = dynamic(
 );
 
 export interface TutorialVideoButtonProps {
-  videoId?: string;
+  videoUrl?: string;
   title: string;
 }
 
 export function TutorialVideoButton({
-  videoId,
+  videoUrl,
   title,
 }: TutorialVideoButtonProps): ReactElement | null {
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!videoId) {
+  if (!videoUrl) {
     return null;
   }
 
@@ -39,7 +39,7 @@ export function TutorialVideoButton({
       </Button>
       {isOpen && (
         <TutorialVideoModal
-          videoId={videoId}
+          videoUrl={videoUrl}
           title={title}
           onClose={() => setIsOpen(false)}
         />

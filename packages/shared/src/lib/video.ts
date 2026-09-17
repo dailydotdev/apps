@@ -1,3 +1,6 @@
+export const feedTagsTutorialVideo =
+  'https://storage.googleapis.com/devkit-assets/tutorials/feed-tags-v1.mp4';
+
 const videoMimeTypes: Record<string, string> = {
   mp4: 'video/mp4',
   webm: 'video/webm',

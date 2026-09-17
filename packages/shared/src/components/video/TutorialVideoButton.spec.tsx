@@ -13,8 +13,10 @@ import { Modal } from '../modals/common/Modal';
 import { TutorialVideoButton } from './TutorialVideoButton';
 
 const title = 'Make your feed your own';
+const videoUrl =
+  'https://storage.googleapis.com/devkit-assets/tutorials/feed-tags-v1.mp4';
 
-function setup({ videoId = 'igZCEr3HwCg', isGdprCovered = false } = {}) {
+function setup({ url = videoUrl, isGdprCovered = false } = {}) {
   const onParentClose = jest.fn();
   const onParentClick = jest.fn();
   const app = document.createElement('div');
@@ -25,7 +27,7 @@ function setup({ videoId = 'igZCEr3HwCg', isGdprCovered = false } = {}) {
       <Modal isOpen contentLabel="Feed settings" onRequestClose={onParentClose}>
         <input aria-label="Search tags" defaultValue="react" />
         <div onClick={onParentClick} role="presentation">
-          <TutorialVideoButton videoId={videoId} title={title} />
+          <TutorialVideoButton videoUrl={url} title={title} />
         </div>
       </Modal>
     </TestBootProvider>,
@@ -42,9 +44,9 @@ it.each(['close button', 'Escape', 'backdrop'])(
     trigger.focus();
     fireEvent.click(trigger);
     const video = await screen.findByRole('dialog', { name: title });
-    expect(screen.getByTitle(title)).toHaveAttribute(
+    expect(screen.getByLabelText(title, { selector: 'video' })).toHaveAttribute(
       'src',
-      'https://www.youtube-nocookie.com/embed/igZCEr3HwCg',
+      videoUrl,
     );
     onParentClick.mockClear();
     if (method === 'close button') {
@@ -68,25 +70,39 @@ it.each(['close button', 'Escape', 'backdrop'])(
     expect(screen.getByRole('textbox', { name: 'Search tags' })).toHaveValue(
       'react',
     );
-    expect(screen.queryByTitle(title)).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(title, { selector: 'video' }),
+    ).not.toBeInTheDocument();
     expect(onParentClose).not.toHaveBeenCalled();
     expect(onParentClick).not.toHaveBeenCalled();
     expect(trigger).toHaveFocus();
   },
 );
 
-it('uses the existing consent prompt before embedding a tutorial', async () => {
+it('plays the hosted tutorial without requiring YouTube cookie consent', async () => {
   setup({ isGdprCovered: true });
   fireEvent.click(screen.getByRole('button', { name: 'Watch how it works' }));
   await screen.findByRole('dialog', { name: title });
-  expect(screen.queryByTitle(title)).not.toBeInTheDocument();
+  expect(screen.getByLabelText(title, { selector: 'video' })).toHaveAttribute(
+    'controls',
+  );
+  expect(screen.getByLabelText(title, { selector: 'video' })).toHaveAttribute(
+    'playsinline',
+  );
   expect(
-    screen.getByRole('button', { name: 'Watch and accept cookies' }),
-  ).toBeInTheDocument();
+    screen.getByLabelText(title, { selector: 'video' }),
+  ).not.toHaveAttribute('autoplay');
+  expect(screen.getByRole('link', { name: 'Open video' })).toHaveAttribute(
+    'href',
+    videoUrl,
+  );
+  expect(
+    screen.queryByRole('button', { name: 'Watch and accept cookies' }),
+  ).not.toBeInTheDocument();
 });
 
 it('does not offer an unavailable walkthrough before its video is configured', () => {
-  setup({ videoId: '' });
+  setup({ url: '' });
   expect(
     screen.queryByRole('button', { name: 'Watch how it works' }),
   ).not.toBeInTheDocument();

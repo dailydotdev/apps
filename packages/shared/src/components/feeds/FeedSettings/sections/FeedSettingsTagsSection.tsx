@@ -22,6 +22,7 @@ import { TagDirectoryListItem } from '../../../tags/TagDirectoryListItem';
 import { ClickableText } from '../../../buttons/ClickableText';
 import { Loader } from '../../../Loader';
 import { TutorialVideoButton } from '../../../video/TutorialVideoButton';
+import { feedTagsTutorialVideo } from '../../../../lib/video';
 
 const columns = 'columns-1 gap-x-6 @xs:columns-2 @xl:columns-3';
 
@@ -142,7 +143,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           favor of stronger signals based on your actual activity.
         </Typography>
         <TutorialVideoButton
-          videoId={process.env.NEXT_PUBLIC_FEED_TAGS_TUTORIAL_VIDEO_ID}
+          videoUrl={feedTagsTutorialVideo}
           title="Make your feed your own"
         />
       </div>

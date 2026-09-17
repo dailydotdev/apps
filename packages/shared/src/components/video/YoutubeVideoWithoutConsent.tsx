@@ -10,10 +10,9 @@ import type { Post } from '../../graphql/posts';
 import { anchorDefaultRel } from '../../lib/strings';
 
 export interface YoutubeVideoWithoutConsentProps {
-  post: Pick<Post, 'title' | 'permalink'> &
-    Partial<Pick<Post, 'image' | 'source'>>;
+  post: Post;
   className?: string;
-  onWatchVideo?: () => void;
+  onWatchVideo: () => void;
   onAcceptCookies: () => void;
 }
 
@@ -37,26 +36,22 @@ export function YoutubeVideoWithoutConsent({
 
   return (
     <Container className={classNames(className, 'relative')}>
-      {image && (
-        <img
-          src={image}
-          alt={title}
-          className="absolute inset-0 z-0 h-full w-full object-cover opacity-[0.08]"
-        />
-      )}
+      <img
+        src={image}
+        alt={title}
+        className="absolute inset-0 z-0 h-full w-full object-cover opacity-[0.08]"
+      />
       <Background>
-        {source && (
-          <span className="hidden flex-row items-center gap-3 tablet:flex">
-            <Image
-              src={source.image}
-              alt={source.name}
-              className="h-10 w-10 rounded-full"
-            />
-            <Typography type={TypographyType.Callout} bold>
-              {source.name}
-            </Typography>
-          </span>
-        )}
+        <span className="hidden flex-row items-center gap-3 tablet:flex">
+          <Image
+            src={source.image}
+            alt={source.name}
+            className="h-10 w-10 rounded-full"
+          />
+          <Typography type={TypographyType.Callout} bold>
+            {source.name}
+          </Typography>
+        </span>
         <div className="flex flex-1 flex-col items-center justify-center gap-6">
           <Typography type={TypographyType.Callout} className="text-center">
             To play this video here on daily.dev, you’ll need to enable
