@@ -34,7 +34,7 @@ interface UsePostModalNavigation {
   onCloseModal: (fromPopState?: boolean) => void;
   isFetchingNextPage?: boolean;
   selectedPost: Post | null;
-  selectedPostIndex: number;
+  selectedPostIndex: number | undefined;
   selectedPostIsAd: boolean;
 }
 
@@ -94,7 +94,9 @@ export const usePostModalNavigation = ({
         return item.post.slug === pmid || item.post.id === pmid;
       }
       if (isBoostedPostAd(item)) {
-        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
+        return (
+          item.ad.data.post?.slug === pmid || item.ad.data.post?.id === pmid
+        );
       }
 
       return false;
@@ -108,23 +110,25 @@ export const usePostModalNavigation = ({
   }, [items, pmid, isNavigationActive]);
 
   const getPostItem = useCallback(
-    (index: number) => {
-      if (index === null || !items[index]) {
+    (
+      index: number | undefined,
+    ): Pick<PostItem, 'post' | 'page' | 'index'> | null => {
+      if (index === undefined || !items[index]) {
         return null;
       }
 
       const item = items[index];
       if (item.type === 'post') {
-        return item as PostItem;
+        return item;
       }
-      if (isBoostedPostAd(item)) {
+      if (isBoostedPostAd(item) && item.ad.data.post) {
         // For Post Ads, we need to create a PostItem-like structure
         // Note: AdItem doesn't have a page property, so we'll use -1 as default
         return {
           post: item.ad.data.post,
           page: -1,
           index: item.index,
-        } as PostItem;
+        };
       }
 
       return null;
@@ -133,22 +137,9 @@ export const usePostModalNavigation = ({
   );
 
   const getPost = useCallback(
-    (index: number) => {
-      if (index === null || !items[index]) {
-        return null;
-      }
-
-      const item = items[index];
-      if (item.type === 'post') {
-        return item.post;
-      }
-      if (isBoostedPostAd(item)) {
-        return item.ad.data.post;
-      }
-
-      return null;
-    },
-    [items],
+    (index: number | undefined): Post | null =>
+      getPostItem(index)?.post ?? null,
+    [getPostItem],
   );
 
   const onChangeSelected = useCallback(
@@ -195,7 +186,9 @@ export const usePostModalNavigation = ({
       }
       if (post?.type === PostType.Share) {
         const item = getPostItem(index);
-        updatePost(item.page, item.index, { ...post, read: true });
+        if (item) {
+          updatePost(item.page, item.index, { ...post, read: true });
+        }
       }
     },
     [
@@ -254,7 +247,9 @@ export const usePostModalNavigation = ({
         return item.post.slug === pmid || item.post.id === pmid;
       }
       if (isBoostedPostAd(item)) {
-        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
+        return (
+          item.ad.data.post?.slug === pmid || item.ad.data.post?.id === pmid
+        );
       }
 
       return false;
@@ -265,7 +260,8 @@ export const usePostModalNavigation = ({
     }
   }, [openedPostIndex, pmid, items, onChangeSelected, isNavigationActive]);
 
-  const selectedPostIsAd = isBoostedPostAd(items[openedPostIndex]);
+  const selectedPostIsAd =
+    openedPostIndex !== undefined && isBoostedPostAd(items[openedPostIndex]);
   const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,
@@ -293,6 +289,9 @@ export const usePostModalNavigation = ({
     },
     onOpenModal,
     onPrevious: () => {
+      if (openedPostIndex === undefined) {
+        return;
+      }
       let index = openedPostIndex - 1;
       // look for the first post before the current one
       while (index > 0 && !isPostItem(items[index])) {
@@ -314,6 +313,9 @@ export const usePostModalNavigation = ({
       onChangeSelected(index);
     },
     onNext: async () => {
+      if (openedPostIndex === undefined) {
+        return;
+      }
       let index = openedPostIndex + 1;
       // eslint-disable-next-line no-empty
       for (; index < items.length && !isPostItem(items[index]); index += 1) {}
