@@ -1402,6 +1402,9 @@ describe('post redesign', () => {
     });
 
     it('never pins the rail unit where it sits in flow', async () => {
+      // Below laptop on both layouts: the classic rail stacks under the
+      // article and the focus card keeps the unit inline.
+      jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
       const railBox = () =>
         screen.getByTestId('ad-slot-16').parentElement as HTMLElement;
 
@@ -1411,7 +1414,6 @@ describe('post redesign', () => {
       expect(railBox().parentElement).not.toHaveClass('sticky');
       unmount();
 
-      // jsdom is narrower than the rail breakpoint, so the unit sits inline.
       renderAnonymous(true);
       expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
       expect(railBox()).not.toHaveClass('sticky');
