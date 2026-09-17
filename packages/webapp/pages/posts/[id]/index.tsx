@@ -240,8 +240,7 @@ export const PostPage = ({
   // between segments (phones keep only the first), an MPU sits above the
   // comments, and a long thread carries one per interval — all only while
   // ads are live, so members and modal/extension surfaces keep the
-  // untouched production markup. Both layouts take the same set, so the
-  // post_redesign arms differ in layout only, never in inventory.
+  // untouched production markup.
   const summarySegments = useMemo(
     () =>
       adsActive && post?.summary
@@ -295,10 +294,8 @@ export const PostPage = ({
       </>
     );
   }, [summarySegments, showRedesign]);
-  // One set for both layouts: the classic page spreads it over PostContent's
-  // props, the focus card takes it whole. Only the article and video
-  // templates carry in-page units on the classic layout; squad and
-  // collection posts keep the pinned phone strip alone.
+  // Only the article and video templates carry in-page units on the classic
+  // layout; squad and collection posts keep the pinned phone strip alone.
   const carriesInPageAds =
     post?.type === PostType.Article || post?.type === PostType.VideoYouTube;
   const organicAds = useMemo(

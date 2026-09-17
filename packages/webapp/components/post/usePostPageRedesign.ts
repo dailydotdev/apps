@@ -8,9 +8,6 @@ import {
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 
 /**
- * The post page's redesign decision, shared with the layout banner so the
- * phone ad strip and the page agree on whether ads exist at all.
- *
  * Entry-specific flows the focus card doesn't render (author onboarding via
  * `?author`, back-to-squad via `?squad`) stay on the classic layout.
  */

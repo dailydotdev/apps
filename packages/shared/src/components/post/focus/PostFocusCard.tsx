@@ -78,30 +78,20 @@ const PostCodeSnippets = dynamic(() =>
 export type FocusCardLeftVariant = 'lean' | 'rich';
 
 /**
- * The organic post page's programmatic units, mirroring PostContentProps so
- * both layouts carry the same placements: the leaderboard leads the column,
- * MPUs interleave the TLDR, one follows the direct-sold widget, one sits above
- * the discussion and the thread carries one per interval. Only the webapp
- * post page passes it — post modals and the extension render the same card
- * and must never carry ad markup.
+ * The page's programmatic units. Only the webapp post pages pass it: post
+ * modals and the extension render the same card and must never carry ad
+ * markup.
  */
 export interface PostFocusCardAds {
   contentLeading?: ReactNode;
-  /** `trailing` rides the end of the last segment's line, like the plain TLDR's icon. */
+  /** `trailing` rides the end of the last segment, like the plain TLDR's icon. */
   renderSummarySegments?: (summary: string, trailing?: ReactNode) => ReactNode;
-  /** Replaces the markdown body so units can sit between its blocks. */
   renderBody?: (contentHtml: string) => ReactNode;
-  /**
-   * Drops the direct-sold widget: the /articles template carries none, so a
-   * programmatic unit never stacks against it.
-   */
   withoutDirectSold?: boolean;
   /**
-   * The classic rail's units, in rail order. Stacked beside the column, in
-   * the gutter the centred layout leaves free, once the viewport has room
-   * for it; until then only the first has a home, inline under the
-   * direct-sold widget. The column itself never moves. A unit that should
-   * pin (the classic rail's closing tower) carries its own sticky classes.
+   * In rail order. Beside the column once the viewport has room; until then
+   * only the first has a home, inline. A unit that should pin carries its
+   * own sticky classes.
    */
   rail?: ReactNode[];
   aboveComments?: ReactNode;
@@ -301,19 +291,10 @@ const PostFocusCardRaw = ({
       ? { label: isShared ? 'Shared via' : 'Posted in', source: post.source }
       : undefined;
   const isVideoType = isVideoPost(article);
-  // A shared tweet is the tweet, not an article about one: its text is not a
-  // title, its summary is not a TLDR and its author is the handle on the
-  // card, so it renders as the same embedded tweet the classic layout uses.
   const isSharedTweet = isShared && isSocialTwitterPost(article);
-  // A shared video plays in its embed, so like the classic share layout it
-  // carries no read CTA and no tags under it.
   const isSharedVideo = isShared && isVideoType;
-  // The classic squad template never lists tags; only the article, video
-  // and collection templates do.
   const showTags = !isSquadPost;
-  // Room for a 300px unit beside the centred 768px column with a 2rem gap,
-  // plus the sidebar: below this the unit stays inline. Evaluated client-side
-  // only, which is also the only place ads ever exist.
+  // 768px column + 2rem gap + 300px unit, with room left for the sidebar.
   const hasRailRoom = useMedia(['(min-width: 92rem)'], [true], false);
   const { title } = useSmartTitle(article);
   // A share post's own `title` is the sharer's commentary, not the article's
@@ -585,9 +566,8 @@ const PostFocusCardRaw = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* The sharer's words with their own line breaks, in body type:
-                titleHtml collapses the breaks into one paragraph, so the raw
-                text is what the composer actually showed them. */}
+            {/* titleHtml folds the author's line breaks into one paragraph;
+                the raw title keeps them. */}
             {commentary && (
               <p className="whitespace-pre-line break-words text-text-primary typo-body">
                 {commentary}
@@ -732,8 +712,6 @@ const PostFocusCardRaw = ({
               reversing there would hand keyboard users the body before the CTA
               they see first. Article bodies are a plain <p>, so ordering the
               two is purely visual. */}
-          {/* A shared tweet is whole inside its card: no body, no CTA, and no
-              tags, which the classic layout never shows on share posts. */}
           {!isSharedTweet && (
             <>
               <div

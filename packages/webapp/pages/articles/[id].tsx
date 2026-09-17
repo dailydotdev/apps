@@ -109,14 +109,9 @@ const ReadPostPage = ({
     id,
     options: { initialData, retry: false },
   });
-  // The same flag and eligibility as the post page, so a visitor who lands
-  // here and one who lands on /posts see the same design in the same arm.
   const { showRedesign } = usePostRedesign(post);
-  // The template's own slot map on the focus card: the rail's three units
-  // stack beside the column in their classic order, the tower pinning last
-  // exactly as it does at the end of the widget column. Every slot self-gates
-  // on the read map, so the set is built whenever the card renders, like
-  // ReadPostContent's markup.
+  // Every slot self-gates on the read map, so the set is built whenever the
+  // card renders, like ReadPostContent's markup.
   const readAds = useMemo<PostFocusCardAds | undefined>(() => {
     if (!showRedesign) {
       return undefined;
@@ -179,9 +174,8 @@ const ReadPostPage = ({
               inBodyUnit('body', index, hasSummaryUnits || index > 0)}
           </React.Fragment>
         )),
-      // No phone placement for any rail unit, as on the classic template:
-      // the phone's density budget is spent on the strip, the first
-      // in-content unit and the above-comments MPU.
+      // No phone placement for rail units: the phone's density budget is the
+      // strip, the first in-content unit and the above-comments MPU.
       rail: [
         <ReadAdSlot
           key="after-source"
