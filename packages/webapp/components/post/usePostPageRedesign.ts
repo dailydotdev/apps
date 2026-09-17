@@ -1,7 +1,10 @@
 import { useRouter } from 'next/router';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
+import {
+  isPostRedesignEligible,
+  isPreviewHost,
+} from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 
 /**
@@ -22,5 +25,5 @@ export const usePostPageRedesign = (
   });
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
 
-  return isEligible && !requiresClassicLayout && isFlagOn;
+  return isEligible && !requiresClassicLayout && (isFlagOn || isPreviewHost());
 };

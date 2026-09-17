@@ -16,6 +16,12 @@ export const postRedesignEligibleTypes: PostType[] = [
   PostType.Welcome,
 ];
 
+// TEMP-REVIEW: the remote flag is off, so preview deployments force the
+// treatment for review. Revert before merge.
+export const isPreviewHost = (): boolean =>
+  typeof window !== 'undefined' &&
+  window.location.hostname.endsWith('.preview.app.daily.dev');
+
 export const isPostRedesignEligible = (
   post?: Pick<Post, 'type'> | null,
 ): boolean => !!post && postRedesignEligibleTypes.includes(post.type);
@@ -36,5 +42,8 @@ export const usePostRedesign = (post?: Post): UsePostRedesign => {
     shouldEvaluate: isEligible,
   });
 
-  return { isEligible, showRedesign: isEligible && isFlagOn };
+  return {
+    isEligible,
+    showRedesign: isEligible && (isFlagOn || isPreviewHost()),
+  };
 };
