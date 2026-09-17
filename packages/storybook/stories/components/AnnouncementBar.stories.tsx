@@ -40,75 +40,75 @@ const themes: ThemeEntry[] = [
   {
     theme: BannerCustomTheme.CabbageOnion,
     label: 'cabbage-onion (default)',
-    note: 'Moved from the -default to the -subtler shades with flipping ink: dark text on a lighter gradient in dark theme, white on a deeper one in light theme. At -default no ink passed AA at both ends in dark theme (white 3.8 at the cabbage end, dark 3.6 at the onion end).',
+    note: 'Moved from the -default to the -subtler shades with flipping ink: dark text on a lighter gradient in dark theme, white on a deeper one in light theme. At -default no ink passed AA at both ends in dark theme. White button in both modes (6.3 against the cabbage end in light mode).',
   },
   {
     theme: BannerCustomTheme.WhitePepper,
     label: 'white-pepper',
-    note: 'CTA is now the neutral primary of the opposite theme: dark button on the white bar, white button on the dark one. Was the cabbage brand button.',
+    note: 'CTA is the neutral primary of the opposite theme: dark button on the white bar in dark mode, white button on the dark bar in light mode. Was the cabbage brand button.',
   },
   {
     theme: Theme.Avocado,
     label: 'avocado',
-    note: 'Ink unchanged. CTA is now always the dark button; the white one had 1.7:1 against the fill in dark theme.',
+    note: 'Ink unchanged. CTA follows the app theme: white in dark mode, dark in light mode (white would be 2.0 against the fill there).',
   },
   {
     theme: Theme.Bacon,
     label: 'bacon',
-    note: 'Proposed: dark ink. White text was 3.2:1 in dark theme; the button system already puts a dark label on bacon fills.',
+    note: 'Proposed: dark ink. White text was 3.2:1 in dark theme; the button system already puts a dark label on bacon fills. CTA follows the app theme, matching the dark text in light mode.',
   },
   {
     theme: Theme.BlueCheese,
     label: 'blue-cheese',
-    note: 'Ink unchanged. CTA is now always the dark button (was 1.7:1 in dark theme).',
+    note: 'Ink unchanged. CTA follows the app theme (white would be 2.1 in light mode).',
   },
   {
     theme: Theme.Bun,
     label: 'bun',
-    note: 'Proposed: dark ink. White text was 2.2:1 in dark theme, the worst pair on the list; the button system already puts a dark label on bun fills.',
+    note: 'Proposed: dark ink. White text was 2.2:1 in dark theme, the worst pair on the list; the button system already puts a dark label on bun fills. CTA follows the app theme (white would be 2.9 in light mode).',
   },
   {
     theme: Theme.Burger,
     label: 'burger',
-    note: 'Unchanged. White passes in both themes (4.6 / 6.3); dark ink would drop to 4.1 in dark theme.',
+    note: 'Unchanged ink: white passes in both themes (4.6 / 6.3). White button in both modes.',
   },
   {
     theme: Theme.Cabbage,
     label: 'cabbage',
-    note: 'Flipping ink: dark text in dark theme, white in light. White text was 3.8:1 in dark theme and no dark-theme shade of cabbage reaches 4.5 with white; dark text on -default does (4.9).',
+    note: 'Flipping ink: dark text in dark theme, white in light. White text was 3.8:1 in dark theme and no dark-theme shade of cabbage reaches 4.5 with white; dark text on -default does (4.9). White button in both modes (4.9 in light).',
   },
   {
     theme: Theme.Cheese,
     label: 'cheese',
-    note: 'Ink unchanged. CTA is now always the dark button (was 1.3:1 in dark theme).',
+    note: 'Ink unchanged. CTA follows the app theme (white would be 1.4 in light mode).',
   },
   {
     theme: Theme.Ketchup,
     label: 'ketchup',
-    note: 'Flipping ink, same reasoning as cabbage: white text was 3.9:1 in dark theme; dark text on -default is 4.8.',
+    note: 'Flipping ink, same reasoning as cabbage: white text was 3.9:1 in dark theme; dark text on -default is 4.8. White button in both modes (5.1 in light).',
   },
   {
     theme: Theme.Lettuce,
     label: 'lettuce',
-    note: 'Ink unchanged. CTA is now always the dark button (was 1.3:1 in dark theme).',
+    note: 'Ink unchanged. CTA follows the app theme (white would be 1.5 in light mode).',
   },
   {
     theme: Theme.Onion,
     label: 'onion',
     isNew: true,
-    note: 'New. White ink passes in both themes (5.2 / 7.1), the strongest of the saturated set.',
+    note: 'New. White ink passes in both themes (5.2 / 7.1), the strongest of the saturated set. White button in both modes.',
   },
   {
     theme: Theme.Water,
     label: 'water',
     isNew: true,
-    note: 'New. Flipping ink like cabbage: white would be 3.8:1 in dark theme, dark text on -default is 4.9; light theme keeps white at 5.1.',
+    note: 'New. Flipping ink like cabbage: white would be 3.8:1 in dark theme, dark text on -default is 4.9; light theme keeps white at 5.1. White button in both modes.',
   },
   {
     theme: Theme.Salt,
     label: 'salt',
     isNew: true,
-    note: 'New neutral that stands out from the app: light gray in dark theme, dark gray in light theme, like white-pepper but softer.',
+    note: 'New neutral that stands out from the app: light gray in dark theme, dark gray in light theme, like white-pepper but softer, and the CTA inverts the same way.',
   },
   {
     theme: Theme.Pepper,
@@ -314,8 +314,13 @@ const contrast = (a: string, b: string): number => {
 type Swatch = { fills: string[]; ink: string; cta: string };
 
 // What each theme resolves to per app theme: bar fill, text ink, CTA fill.
+// The CTA is the theme's primary (white in dark, dark in light) on dark-ink
+// fills, always white on white-ink fills, and inverted on the neutral fills
+// that flip with the theme.
 const resolve = (theme: BannerTheme, mode: CanvasTheme): Swatch => {
   const shade = mode === 'dark' ? '40' : '60';
+  const themeCta = mode === 'dark' ? WHITE : PEPPER;
+  const invertedCta = mode === 'dark' ? PEPPER : WHITE;
   const white = (name: string): Swatch => ({
     fills: [palette[name][shade]],
     ink: WHITE,
@@ -324,36 +329,35 @@ const resolve = (theme: BannerTheme, mode: CanvasTheme): Swatch => {
   const pepper = (name: string): Swatch => ({
     fills: [palette[name][shade]],
     ink: PEPPER,
-    cta: PEPPER,
+    cta: themeCta,
   });
   // Flipping ink: dark text in dark theme, white in light theme.
-  const invert = (fills: string[]): Swatch =>
-    mode === 'dark'
-      ? { fills, ink: PEPPER, cta: PEPPER }
-      : { fills, ink: WHITE, cta: WHITE };
+  const invert = (fills: string[], cta = WHITE): Swatch =>
+    mode === 'dark' ? { fills, ink: PEPPER, cta } : { fills, ink: WHITE, cta };
   switch (theme) {
     case BannerCustomTheme.CabbageOnion: {
       const subtler = mode === 'dark' ? '20' : '80';
       return invert([palette.cabbage[subtler], palette.onion[subtler]]);
     }
     case BannerCustomTheme.WhitePepper:
-      return invert([mode === 'dark' ? WHITE : PEPPER]);
+      return invert([mode === 'dark' ? WHITE : PEPPER], invertedCta);
     case Theme.Salt:
-      return invert([
-        mode === 'dark' ? palette.salt['90'] : palette.pepper['10'],
-      ]);
+      return invert(
+        [mode === 'dark' ? palette.salt['90'] : palette.pepper['10']],
+        invertedCta,
+      );
     case Theme.Cabbage:
     case Theme.Ketchup:
     case Theme.Water:
       return invert([palette[theme][shade]]);
     case Theme.Pepper:
       return mode === 'dark'
-        ? { fills: [palette.pepper['10']], ink: WHITE, cta: WHITE }
-        : { fills: [palette.salt['90']], ink: PEPPER, cta: PEPPER };
+        ? { fills: [palette.pepper['10']], ink: WHITE, cta: themeCta }
+        : { fills: [palette.salt['90']], ink: PEPPER, cta: themeCta };
     case Theme.Background:
       return mode === 'dark'
-        ? { fills: [PEPPER], ink: WHITE, cta: WHITE }
-        : { fills: [WHITE], ink: PEPPER, cta: PEPPER };
+        ? { fills: [PEPPER], ink: WHITE, cta: themeCta }
+        : { fills: [WHITE], ink: PEPPER, cta: themeCta };
     case Theme.BlueCheese:
       return pepper('blueCheese');
     case Theme.Avocado:
@@ -612,11 +616,12 @@ export const Brief: StoryObj = {
               fills. It now takes the bar&apos;s own text color on every theme.
             </li>
             <li>
-              <strong>CTA.</strong> It followed the app theme (white button in
-              dark, dark button in light), which put a white button on the white
-              bar and on the pale fills. It now follows the bar: pale bar, dark
-              button; deep bar, white button; white-pepper flips with the theme.
-              No more brand-colored button on white-pepper.
+              <strong>CTA.</strong> White in dark mode on every bar. In light
+              mode it stays white on the bars whose text is white (the purples,
+              blue, red, brown) and goes dark on the pale bars whose text is
+              dark. The two neutral fills that flip with the theme (white-pepper
+              and salt) invert it so it never matches the bar. No more
+              brand-colored button on white-pepper.
             </li>
             <li>
               <strong>Ink.</strong> Bun and bacon move to dark text, matching
@@ -686,7 +691,7 @@ export const BeforeAfter: StoryObj = {
     <Page>
       <Section
         title="Shipped vs proposed"
-        description="Top bar in each pair is what ships today, bottom is the proposal. Ratios are measured against the palette shade the fill resolves to in that theme. Hover the X and the CTA to check the tints."
+        description="Top bar in each pair is the bar before #6672, bottom is the current one. Ratios are measured against the palette shade the fill resolves to in that theme. Hover the X and the CTA to check the tints."
       >
         <BothThemes>
           {(mode) => (

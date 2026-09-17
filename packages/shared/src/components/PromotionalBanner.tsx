@@ -15,36 +15,103 @@ import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
 type Ink = 'white' | 'pepper' | 'invert' | 'theme';
 
-const inkClassNames: Record<Ink, { text: string; cta?: string }> = {
-  white: { text: 'text-white', cta: 'btn-on-fill-solid-white' },
-  pepper: { text: 'text-raw-pepper-90', cta: 'btn-on-fill-solid-pepper' },
-  invert: { text: 'text-surface-invert', cta: 'btn-on-fill-solid-invert' },
-  theme: { text: 'text-text-primary' },
+const inkClassNames: Record<Ink, string> = {
+  white: 'text-white',
+  pepper: 'text-raw-pepper-90',
+  invert: 'text-surface-invert',
+  theme: 'text-text-primary',
 };
 
-const stylesByTheme: Record<BannerTheme, { fill: string; ink: Ink }> = {
+// `theme`: the app theme's primary. `white`: always the white primary, for
+// fills whose text is white in both modes. `inverted`: the opposite theme's
+// primary, for the neutral fills that flip with the theme.
+type Cta = 'theme' | 'white' | 'inverted';
+
+const ctaClassNames: Record<Cta, string | undefined> = {
+  theme: undefined,
+  white: 'btn-primary-white',
+  inverted: 'btn-primary-inverted',
+};
+
+type ThemeStyle = { fill: string; ink: Ink; cta: Cta };
+
+const stylesByTheme: Record<BannerTheme, ThemeStyle> = {
   [BannerCustomTheme.CabbageOnion]: {
     fill: 'from-accent-cabbage-subtler to-accent-onion-subtler bg-gradient-to-r',
     ink: 'invert',
+    cta: 'white',
   },
   [BannerCustomTheme.WhitePepper]: {
     fill: 'bg-surface-primary',
     ink: 'invert',
+    cta: 'inverted',
   },
-  [Theme.Avocado]: { fill: 'bg-accent-avocado-default', ink: 'pepper' },
-  [Theme.Bacon]: { fill: 'bg-accent-bacon-default', ink: 'pepper' },
-  [Theme.BlueCheese]: { fill: 'bg-accent-blueCheese-default', ink: 'pepper' },
-  [Theme.Bun]: { fill: 'bg-accent-bun-default', ink: 'pepper' },
-  [Theme.Burger]: { fill: 'bg-accent-burger-default', ink: 'white' },
-  [Theme.Cabbage]: { fill: 'bg-accent-cabbage-default', ink: 'invert' },
-  [Theme.Cheese]: { fill: 'bg-accent-cheese-default', ink: 'pepper' },
-  [Theme.Ketchup]: { fill: 'bg-accent-ketchup-default', ink: 'invert' },
-  [Theme.Lettuce]: { fill: 'bg-accent-lettuce-default', ink: 'pepper' },
-  [Theme.Onion]: { fill: 'bg-accent-onion-default', ink: 'white' },
-  [Theme.Water]: { fill: 'bg-accent-water-default', ink: 'invert' },
-  [Theme.Salt]: { fill: 'bg-accent-salt-default', ink: 'invert' },
-  [Theme.Pepper]: { fill: 'bg-accent-pepper-default', ink: 'theme' },
-  [Theme.Background]: { fill: 'bg-background-default', ink: 'theme' },
+  [Theme.Avocado]: {
+    fill: 'bg-accent-avocado-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.Bacon]: {
+    fill: 'bg-accent-bacon-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.BlueCheese]: {
+    fill: 'bg-accent-blueCheese-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.Bun]: { fill: 'bg-accent-bun-default', ink: 'pepper', cta: 'theme' },
+  [Theme.Burger]: {
+    fill: 'bg-accent-burger-default',
+    ink: 'white',
+    cta: 'white',
+  },
+  [Theme.Cabbage]: {
+    fill: 'bg-accent-cabbage-default',
+    ink: 'invert',
+    cta: 'white',
+  },
+  [Theme.Cheese]: {
+    fill: 'bg-accent-cheese-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.Ketchup]: {
+    fill: 'bg-accent-ketchup-default',
+    ink: 'invert',
+    cta: 'white',
+  },
+  [Theme.Lettuce]: {
+    fill: 'bg-accent-lettuce-default',
+    ink: 'pepper',
+    cta: 'theme',
+  },
+  [Theme.Onion]: {
+    fill: 'bg-accent-onion-default',
+    ink: 'white',
+    cta: 'white',
+  },
+  [Theme.Water]: {
+    fill: 'bg-accent-water-default',
+    ink: 'invert',
+    cta: 'white',
+  },
+  [Theme.Salt]: {
+    fill: 'bg-accent-salt-default',
+    ink: 'invert',
+    cta: 'inverted',
+  },
+  [Theme.Pepper]: {
+    fill: 'bg-accent-pepper-default',
+    ink: 'theme',
+    cta: 'theme',
+  },
+  [Theme.Background]: {
+    fill: 'bg-background-default',
+    ink: 'theme',
+    cta: 'theme',
+  },
 };
 
 export type PromotionalBannerViewProps = {
@@ -60,10 +127,9 @@ export function PromotionalBannerView({
   onDismiss,
   className,
 }: PromotionalBannerViewProps): ReactElement {
-  const { fill, ink } =
+  const { fill, ink, cta } =
     stylesByTheme[banner.theme] ??
     stylesByTheme[BannerCustomTheme.CabbageOnion];
-  const { text, cta } = inkClassNames[ink];
   const isLaptop = useViewSize(ViewSize.Laptop);
   const buttonSize = isLaptop ? ButtonSize.XSmall : ButtonSize.Small;
 
@@ -72,7 +138,7 @@ export function PromotionalBannerView({
       className={classNames(
         'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote tablet:pl-20 laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:px-10 laptop:py-0',
         fill,
-        text,
+        inkClassNames[ink],
         className,
       )}
     >
@@ -84,7 +150,10 @@ export function PromotionalBannerView({
         href={banner.url}
         size={buttonSize}
         variant={ButtonVariant.Primary}
-        className={classNames('mt-2 laptop:ml-4 laptop:mt-0', cta)}
+        className={classNames(
+          'mt-2 laptop:ml-4 laptop:mt-0',
+          ctaClassNames[cta],
+        )}
         onClick={onCtaClick}
       >
         {banner.cta}
