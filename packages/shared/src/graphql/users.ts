@@ -419,6 +419,38 @@ export const UPDATE_USER_INFO_MUTATION = gql`
   }
 `;
 
+// Field-keyed hints the profile mutations return as a JSON-encoded error message
+export interface ProfileFormHint extends Record<string, string | undefined> {
+  username?: string;
+  name?: string;
+}
+
+// Null unless the message parses into an object of strings; the same mutations
+// also throw plain-string ValidationErrors
+export const parseProfileFormHint = (
+  message?: string,
+): ProfileFormHint | null => {
+  if (!message) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(message);
+
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return null;
+    }
+
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        (entry): entry is [string, string] => typeof entry[1] === 'string',
+      ),
+    );
+  } catch {
+    return null;
+  }
+};
+
 export const mutateUserInfo = async (
   data: Partial<UserProfile>,
   upload?: File | null,
