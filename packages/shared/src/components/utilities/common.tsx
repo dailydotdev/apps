@@ -18,6 +18,11 @@ export enum Theme {
   Cheese = 'cheese',
   Ketchup = 'ketchup',
   Lettuce = 'lettuce',
+  Onion = 'onion',
+  Water = 'water',
+  Salt = 'salt',
+  Pepper = 'pepper',
+  Background = 'background',
 }
 
 export enum Justify {

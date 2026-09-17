@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { HotTake } from '../../../graphql/user/userHotTake';
 import { useDiscoverHotTakes } from '../../../hooks/useDiscoverHotTakes';
 import { useVoteHotTake } from '../../../hooks/vote/useVoteHotTake';
@@ -48,11 +49,13 @@ const createHotTake = (id = 'take-1'): HotTake => ({
 
 const renderComponent = (onRequestClose = jest.fn()) => {
   render(
-    <HotAndColdModal
-      isOpen
-      onRequestClose={onRequestClose}
-      ariaHideApp={false}
-    />,
+    <QueryClientProvider client={new QueryClient()}>
+      <HotAndColdModal
+        isOpen
+        onRequestClose={onRequestClose}
+        ariaHideApp={false}
+      />
+    </QueryClientProvider>,
   );
 
   return { onRequestClose };
@@ -251,6 +254,53 @@ describe('HotAndColdModal', () => {
     fireEvent.click(addButton);
 
     expect(onRequestClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should offer a snapshot on the top card only', () => {
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [createHotTake('top'), createHotTake('behind')],
+      currentTake: createHotTake('top'),
+      nextTake: createHotTake('behind'),
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    // The card behind is rendered too, and a second control would capture a
+    // take the reader has not reached yet.
+    expect(screen.getAllByLabelText('Snapshot')).toHaveLength(1);
+  });
+
+  it('should not swipe the card when a drag starts on the snapshot button', () => {
+    const currentTake = createHotTake('snapshot-drag');
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    const swipeRight = (from: Element) =>
+      act(() => {
+        fireEvent.touchStart(from, { touches: [{ clientX: 0, clientY: 0 }] });
+        fireEvent.touchMove(from, { touches: [{ clientX: 200, clientY: 0 }] });
+        fireEvent.touchEnd(from, { touches: [] });
+      });
+
+    swipeRight(screen.getByLabelText('Snapshot'));
+    expect(toggleUpvote).not.toHaveBeenCalled();
+
+    swipeRight(screen.getByText(currentTake.title));
+    expect(toggleUpvote).toHaveBeenCalledWith({
+      payload: currentTake,
+      origin: Origin.HotAndCold,
+    });
   });
 
   it('should keep subtitle visible even when title is very long', () => {
