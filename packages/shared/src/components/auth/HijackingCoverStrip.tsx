@@ -17,20 +17,17 @@ export interface HijackingCoverCopy {
 const coverArtPosition = { objectPosition: '50% 62%' };
 
 // The card's height without a sizer.
-export const hijackingCoverStripMinHeight = 'min-h-[14rem]';
+const hijackingCoverStripMinHeight = 'min-h-[14rem]';
 
 interface HijackingCoverCardProps {
   children: ReactNode;
   className?: string;
-  // Reframes the art (scale, translate, origin) for the surface's layout.
-  artClassName?: string;
 }
 
 // The cover art card; children lay out the content over it.
 export function HijackingCoverCard({
   children,
   className,
-  artClassName,
 }: HijackingCoverCardProps): ReactElement {
   return (
     <section className={classNames('w-full', className)}>
@@ -42,10 +39,7 @@ export function HijackingCoverCard({
           role="presentation"
           fetchPriority="high"
           decoding="async"
-          className={classNames(
-            'pointer-events-none absolute inset-0 size-full object-cover',
-            artClassName,
-          )}
+          className="pointer-events-none absolute inset-0 size-full object-cover"
           style={coverArtPosition}
         />
         <div className="cover-hero-dome pointer-events-none absolute inset-0" />
@@ -111,18 +105,5 @@ export function HijackingCoverStrip({
         </div>
       </div>
     </HijackingCoverCard>
-  );
-}
-
-// The same box as the strip without a sizer, empty: holds its slot.
-export function HijackingCoverStripPlaceholder({
-  className,
-}: {
-  className?: string;
-}): ReactElement {
-  return (
-    <section aria-hidden className={classNames('w-full', className)}>
-      <div className={hijackingCoverStripMinHeight} />
-    </section>
   );
 }
