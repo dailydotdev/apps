@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useImperativeHandle,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import type { ForwardedRef, ReactElement } from 'react';
@@ -19,37 +18,24 @@ import {
   detectUserPlatform,
   getPlatformIcon,
   getPlatformLabel,
+  isSameSocialLinkUrl,
+  normalizeSocialLinkUrl,
   PLATFORM_LABELS,
 } from '../../lib/socialLink';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 
 export interface SocialLinksInputProps {
   name: string;
   label?: string;
   hint?: string;
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
 export interface SocialLinksInputHandle {
   flushPendingUrl: () => boolean;
 }
-
-export const normalizeSocialLinkUrl = (rawUrl: string): string | null => {
-  const trimmedUrl = rawUrl.trim();
-
-  if (!trimmedUrl) {
-    return null;
-  }
-
-  try {
-    const parsedUrl = new URL(
-      /^https?:\/\//i.test(trimmedUrl) ? trimmedUrl : `https://${trimmedUrl}`,
-    );
-
-    return parsedUrl.href.replace(/\/$/, '');
-  } catch {
-    return null;
-  }
-};
 
 /**
  * Get display info for a social link
@@ -69,6 +55,8 @@ function SocialLinksInputComponent(
     name,
     label = 'Links',
     hint = "Paste any URL and we'll auto-detect the platform",
+    isLoading = false,
+    isError = false,
   }: SocialLinksInputProps,
   ref: ForwardedRef<SocialLinksInputHandle>,
 ): ReactElement {
@@ -83,13 +71,9 @@ function SocialLinksInputComponent(
   });
 
   const [url, setUrl] = useState('');
-  const pendingUrlRef = useRef('');
-  const linksRef = useRef<UserSocialLink[]>([]);
-  const skipBlurCommitRef = useRef(false);
   const { displayToast } = useToastNotification();
 
   const links: UserSocialLink[] = useMemo(() => value || [], [value]);
-  linksRef.current = links;
 
   // Detect platform as user types
   const detectedPlatform = detectUserPlatform(url);
@@ -99,7 +83,6 @@ function SocialLinksInputComponent(
 
   const updateUrl = useCallback(
     (nextUrl: string) => {
-      pendingUrlRef.current = nextUrl;
       setUrl(nextUrl);
       clearErrors(name);
     },
@@ -112,7 +95,7 @@ function SocialLinksInputComponent(
 
   const commitPendingUrl = useCallback(
     ({ allowDuplicate = false } = {}) => {
-      const trimmedUrl = pendingUrlRef.current.trim();
+      const trimmedUrl = url.trim();
 
       if (!trimmedUrl) {
         clearErrors(name);
@@ -128,11 +111,8 @@ function SocialLinksInputComponent(
         return false;
       }
 
-      const currentLinks = linksRef.current;
-      const isDuplicate = currentLinks.some(
-        (link) =>
-          link.url.toLowerCase().replace(/\/$/, '') ===
-          normalizedUrl.toLowerCase(),
+      const isDuplicate = links.some((link) =>
+        isSameSocialLinkUrl(link.url, normalizedUrl),
       );
 
       if (isDuplicate) {
@@ -146,22 +126,29 @@ function SocialLinksInputComponent(
       }
 
       const platform = detectUserPlatform(trimmedUrl);
-      const newLinks = [
-        ...currentLinks,
+
+      onChange([
+        ...links,
         {
           url: normalizedUrl,
           platform: platform || 'other',
         },
-      ];
-
-      linksRef.current = newLinks;
-      onChange(newLinks);
+      ]);
       updateUrl('');
       clearErrors(name);
 
       return true;
     },
-    [clearErrors, displayToast, name, onChange, setError, updateUrl],
+    [
+      clearErrors,
+      displayToast,
+      links,
+      name,
+      onChange,
+      setError,
+      updateUrl,
+      url,
+    ],
   );
 
   useImperativeHandle(
@@ -176,7 +163,6 @@ function SocialLinksInputComponent(
     (index: number) => {
       const newLinks = [...links];
       newLinks.splice(index, 1);
-      linksRef.current = newLinks;
       onChange(newLinks);
       clearErrors(name);
     },
@@ -202,21 +188,15 @@ function SocialLinksInputComponent(
 
       {/* URL input */}
       <TextField
-        type="url"
+        type="text"
+        inputMode="url"
         inputId="socialLinkUrl"
         label="Add link"
         placeholder="Paste a URL (e.g., github.com/username)"
         value={url}
         onChange={handleUrlChange}
-        onBlur={() => {
-          onBlur();
-
-          if (skipBlurCommitRef.current) {
-            return;
-          }
-
-          commitPendingUrl();
-        }}
+        onBlur={onBlur}
+        disabled={isLoading || isError}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -231,17 +211,8 @@ function SocialLinksInputComponent(
             variant={ButtonVariant.Secondary}
             size={ButtonSize.XSmall}
             icon={<PlusIcon />}
-            onMouseDown={() => {
-              skipBlurCommitRef.current = true;
-            }}
-            onMouseUp={() => {
-              skipBlurCommitRef.current = false;
-            }}
-            onClick={() => {
-              skipBlurCommitRef.current = false;
-              commitPendingUrl();
-            }}
-            disabled={!url.trim()}
+            onClick={() => commitPendingUrl()}
+            disabled={isLoading || isError || !url.trim()}
           >
             Add
           </Button>
@@ -258,12 +229,30 @@ function SocialLinksInputComponent(
         </div>
       )}
 
+      {/* Loading / failed to load */}
+      {isLoading && (
+        <div className="flex flex-col gap-2">
+          <ElementPlaceholder className="h-14 rounded-12" />
+          <ElementPlaceholder className="h-14 rounded-12" />
+        </div>
+      )}
+
+      {isError && (
+        <Typography
+          type={TypographyType.Footnote}
+          className="text-status-error"
+        >
+          We could not load your links. Refresh the page to try again.
+        </Typography>
+      )}
+
       {/* Link list */}
-      {displayLinks.length > 0 && (
+      {!isLoading && !isError && displayLinks.length > 0 && (
         <div className="flex flex-col gap-2">
           {displayLinks.map((link, index) => (
             <div
               key={link.url}
+              data-testid="social-link-row"
               className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-3"
             >
               {/* Platform icon */}

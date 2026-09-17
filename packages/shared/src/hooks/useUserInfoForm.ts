@@ -9,11 +9,13 @@ import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { getProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
 import type { ResponseError } from '../graphql/common';
+import { ApiError } from '../graphql/common';
 import { useDirtyForm } from './useDirtyForm';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
+import { isSameSocialLinkUrl } from '../lib/socialLink';
 
 export interface ProfileFormHint {
   [key: string]: string;
@@ -28,6 +30,8 @@ interface UseUserInfoForm {
   methods: UseFormReturn<UserProfile>;
   save: () => void;
   isLoading: boolean;
+  isSocialLinksLoading: boolean;
+  isSocialLinksError: boolean;
 }
 
 const renderedProfileFields = new Set<keyof UserProfile>([
@@ -78,13 +82,18 @@ const useUserInfoForm = (): UseUserInfoForm => {
   const userQueryKey = generateQueryKey(RequestKey.Profile, user, {
     id: userId,
   });
-  const { data: fullProfile } = useQuery({
+  const { data: fullProfile, isError: isProfileError } = useQuery({
     queryKey: userQueryKey,
     queryFn: () => getProfile(userId),
     ...disabledRefetch,
     staleTime: StaleTime.OneHour,
     enabled: !!userId,
   });
+
+  // Boot omits socialLinks, so until the profile query lands the form has no
+  // idea which links the server already holds.
+  const hasInitializedSocialLinks =
+    !!fullProfile || Array.isArray(user?.socialLinks);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window?.location?.search);
@@ -117,11 +126,26 @@ const useUserInfoForm = (): UseUserInfoForm => {
       return;
     }
 
+    const serverLinks = fullProfile.socialLinks || [];
+
     if (!methods.getFieldState('socialLinks').isDirty) {
-      methods.resetField('socialLinks', {
-        defaultValue: fullProfile.socialLinks || [],
-      });
+      methods.resetField('socialLinks', { defaultValue: serverLinks });
+      return;
     }
+
+    // Links edited before the query resolved only hold what was added locally,
+    // so saving them as-is would drop every link already on the server.
+    const localLinks = methods.getValues('socialLinks') || [];
+    const addedLinks = localLinks.filter(
+      (local) =>
+        !serverLinks.some((server) =>
+          isSameSocialLinkUrl(server.url, local.url),
+        ),
+    );
+
+    methods.setValue('socialLinks', [...serverLinks, ...addedLinks], {
+      shouldDirty: true,
+    });
   }, [fullProfile, methods]);
 
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
@@ -155,11 +179,21 @@ const useUserInfoForm = (): UseUserInfoForm => {
     },
 
     onError: (err) => {
-      const errorMessage = err?.response?.errors?.[0]?.message;
+      const [responseError] = err?.response?.errors || [];
+      const errorMessage = responseError?.message;
       const data = parseProfileFormHint(errorMessage);
 
       if (!data) {
-        displayToast('Failed to update profile');
+        // Validation errors carry a message written for the user (a blocked
+        // social link URL, for one); anything else is internal noise.
+        const isValidationError =
+          responseError?.extensions?.code === ApiError.GraphqlValidationFailed;
+
+        displayToast(
+          isValidationError && errorMessage
+            ? errorMessage
+            : 'Failed to update profile',
+        );
         return;
       }
 
@@ -186,17 +220,14 @@ const useUserInfoForm = (): UseUserInfoForm => {
 
   const getProfileUpdatePayload = useCallback((): UpdateProfileParameters => {
     const formData = methods.getValues();
-    const socialLinksTouched = methods.getFieldState('socialLinks').isDirty;
-    const hasInitializedSocialLinks =
-      !!fullProfile || Array.isArray(user?.socialLinks);
 
-    if (!hasInitializedSocialLinks && !socialLinksTouched) {
+    if (!hasInitializedSocialLinks) {
       const { socialLinks, ...payload } = formData;
       return payload;
     }
 
     return formData;
-  }, [fullProfile, methods, user?.socialLinks]);
+  }, [hasInitializedSocialLinks, methods]);
 
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
     onSave: () => {
@@ -213,6 +244,8 @@ const useUserInfoForm = (): UseUserInfoForm => {
     methods,
     save: dirtyForm.save,
     isLoading,
+    isSocialLinksLoading: !hasInitializedSocialLinks && !isProfileError,
+    isSocialLinksError: !hasInitializedSocialLinks && isProfileError,
   };
 };
 

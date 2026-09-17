@@ -37,7 +37,8 @@ const Section = classed('section', 'flex flex-col gap-7');
 
 const ProfileIndex = (): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { methods, save, isLoading } = useUserInfoForm();
+  const { methods, save, isLoading, isSocialLinksLoading, isSocialLinksError } =
+    useUserInfoForm();
   const socialLinksRef = useRef<SocialLinksInputHandle>(null);
 
   const handleSubmit = methods.handleSubmit(() => {
@@ -143,6 +144,8 @@ const ProfileIndex = (): ReactElement => {
                 name="socialLinks"
                 label="Links"
                 hint="Paste any URL and we'll auto-detect the platform"
+                isLoading={isSocialLinksLoading}
+                isError={isSocialLinksError}
               />
             </Section>
           </div>
