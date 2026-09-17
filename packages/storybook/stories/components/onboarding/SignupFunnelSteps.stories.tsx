@@ -172,7 +172,7 @@ export const ReadingReminder: Story = {
     };
 
     return (
-      <FunnelStepShell chrome={chrome} step={step} stepIndex={4}>
+      <FunnelStepShell chrome={chrome} step={step} stepIndex={4} fullWidth>
         <FunnelReadingReminder {...step} />
       </FunnelStepShell>
     );
