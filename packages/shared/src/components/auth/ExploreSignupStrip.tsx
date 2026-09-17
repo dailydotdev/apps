@@ -92,7 +92,7 @@ export function ExploreSignupStrip({
       className={className}
       // Scaled up and shifted right so the dev and dog sit past the column,
       // around three quarters across.
-      artClassName="origin-[50%_88%] translate-x-[27%] scale-[1.45]"
+      artClassName="origin-[50%_88%] translate-x-[27%] scale-[2.2]"
     >
       <div className="cover-strip-blur-near pointer-events-none absolute inset-y-0 left-0 w-3/4" />
       <div className="cover-strip-blur-mid pointer-events-none absolute inset-y-0 left-0 w-3/4" />
