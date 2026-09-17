@@ -1,14 +1,22 @@
 import type { ComponentType, ReactElement } from 'react';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
   FunnelJSON,
   FunnelStep,
+  FunnelStepShouldSkip,
   FunnelStepTransitionCallback,
 } from '../types/funnel';
 import {
+  resolveShouldSkip,
   stepsWithOnlySkipHeader,
   stepsFullWidth,
   stepsFullWidthOnboarding,
@@ -128,12 +136,21 @@ export const FunnelStepper = ({
     trackOnComplete,
     trackFunnelEvent,
   } = useFunnelTracking({ funnel, session });
-  const { back, chapters, navigate, position, skip, step, stepMap, isReady } =
-    useFunnelNavigation({
-      funnel,
-      initialStepId,
-      onNavigation: trackOnNavigate,
-    });
+  const {
+    back,
+    chapters,
+    navigate,
+    position,
+    skip,
+    step,
+    stepMap,
+    isReady,
+    isUrlSynced,
+  } = useFunnelNavigation({
+    funnel,
+    initialStepId,
+    onNavigation: trackOnNavigate,
+  });
   const { transition: sendTransition, isPending: isTransitioning } =
     useStepTransition(session.id);
   const isCookieBannerActive = !!funnel?.parameters?.cookieConsent?.show;
@@ -145,7 +162,12 @@ export const FunnelStepper = ({
     passive: true,
   });
 
-  const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
+  const shouldSkipRef = useRef<
+    Partial<Record<FunnelStepType, FunnelStepShouldSkip>>
+  >({});
+  // Bumped on every registration so the landing check below re-runs when a
+  // step's skip decision changes after mount (push support resolving, say).
+  const [skipVersion, bumpSkipVersion] = useReducer((n: number) => n + 1, 0);
   const funnelProgress = useMemo(
     () => ({ chapters, position, isOnboarding }),
     [chapters, position, isOnboarding],
@@ -253,6 +275,31 @@ export const FunnelStepper = ({
     funnel?.parameters?.banner?.stepsToDisplay,
   ]);
 
+  // Skips are normally resolved while transitioning into a step, so a session
+  // that resumes directly on a step it should skip (a mobile signup resumed on
+  // desktop, an experiment switched off) would otherwise show an empty funnel.
+  // Waits for the URL to carry the step: the initial router push otherwise
+  // lands after the transition and drags the position back. One attempt per
+  // landing, since registrations keep arriving while that push is in flight.
+  const autoSkippedStepRef = useRef<string>();
+  useEffect(() => {
+    if (autoSkippedStepRef.current !== step.id) {
+      autoSkippedStepRef.current = undefined;
+    }
+
+    if (
+      !isReady ||
+      !isUrlSynced ||
+      autoSkippedStepRef.current === step.id ||
+      !resolveShouldSkip(shouldSkipRef.current[step.type])
+    ) {
+      return;
+    }
+
+    autoSkippedStepRef.current = step.id;
+    onTransition({ type: FunnelStepTransitionType.Complete });
+  }, [isReady, isUrlSynced, onTransition, skipVersion, step.id, step.type]);
+
   if (!isReady) {
     return null;
   }
@@ -263,8 +310,12 @@ export const FunnelStepper = ({
     shouldShowHeaderSkip &&
     stepsWithOnlySkipHeader.some((type) => type === step.type);
 
-  const onRegisterStepToSkip = (type: FunnelStepType, shouldSkip: boolean) => {
+  const onRegisterStepToSkip = (
+    type: FunnelStepType,
+    shouldSkip: FunnelStepShouldSkip,
+  ) => {
     shouldSkipRef.current[type] = shouldSkip;
+    bumpSkipVersion();
   };
 
   return (

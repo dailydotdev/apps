@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { FunnelStepReadingReminder } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -11,7 +11,7 @@ import { usePushNotificationContext } from '../../../contexts/PushNotificationCo
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
 import { featureOnboardingReminderDesktop } from '../../../lib/featureManagement';
 
 function FunnelReadingReminderComponent({
@@ -56,14 +56,37 @@ function FunnelReadingReminderComponent({
 export const FunnelReadingReminder = withShouldSkipStepGuard(
   withIsActiveGuard(FunnelReadingReminderComponent),
   () => {
-    const { isPushSupported, isInitialized } = usePushNotificationContext();
+    const { isPushSupported, isInitialized, isLoading } =
+      usePushNotificationContext();
     const isMobile = useViewSize(ViewSize.MobileXL);
-    const { value: showOnDesktop } = useConditionalFeature({
-      feature: featureOnboardingReminderDesktop,
-      shouldEvaluate: !isMobile,
-    });
-    const shouldSkip =
-      (!isMobile && !showOnDesktop) || (isInitialized && !isPushSupported);
+    const isOnboarding = useIsOnboardingFunnel();
+    const { ready, getFeatureValue } = useFeaturesReadyContext();
+
+    const shouldSkip = useCallback(() => {
+      // `isInitialized` is also true while OneSignal is still loading; a
+      // session that lands here must not be skipped past on that transient.
+      if (!isLoading && isInitialized && !isPushSupported) {
+        return true;
+      }
+
+      if (isMobile) {
+        return false;
+      }
+
+      return !(
+        isOnboarding &&
+        ready &&
+        getFeatureValue(featureOnboardingReminderDesktop)
+      );
+    }, [
+      getFeatureValue,
+      isInitialized,
+      isLoading,
+      isMobile,
+      isOnboarding,
+      isPushSupported,
+      ready,
+    ]);
 
     return { shouldSkip };
   },

@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from 'react';
-import type { FunnelStep } from '../types/funnel';
+import type { FunnelStep, FunnelStepShouldSkip } from '../types/funnel';
 
 export const withShouldSkipStepGuard = <Step extends FunnelStep>(
   Component: React.FC<Step>,
-  useShouldSkipStep: () => { shouldSkip: boolean },
+  useShouldSkipStep: () => { shouldSkip: FunnelStepShouldSkip },
 ): React.FC<Step> => {
   return function GuardedStep(props: Step) {
-    const { type, onRegisterStepToSkip } = props;
+    const { type, isActive, onRegisterStepToSkip } = props;
     const callbackRef = useRef(onRegisterStepToSkip);
     callbackRef.current = onRegisterStepToSkip;
     const { shouldSkip } = useShouldSkipStep();
@@ -17,7 +17,14 @@ export const withShouldSkipStepGuard = <Step extends FunnelStep>(
       }
     }, [shouldSkip, type]);
 
-    if (shouldSkip) {
+    // A resolver is only consulted for the active step: every step is mounted
+    // from the first screen on, and resolving it there would defeat its point.
+    const isSkipped =
+      typeof shouldSkip === 'function'
+        ? !!isActive && shouldSkip()
+        : shouldSkip;
+
+    if (isSkipped) {
       return null;
     }
 

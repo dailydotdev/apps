@@ -283,6 +283,53 @@ describe('FunnelStepper component', () => {
     expect(steps.length).toBe(1);
   });
 
+  // Skips are resolved while transitioning, so a session that resumes on a
+  // step it should skip has to be moved along by the stepper itself.
+  it('should move past a landing step that registers itself as skipped', async () => {
+    // InstallPwa skips itself outside iOS, which jsdom is not.
+    const skippedStep: FunnelStep = {
+      id: 'step1',
+      type: FunnelStepType.InstallPwa,
+      parameters: { headline: 'Install PWA' },
+      transitions: [
+        { on: FunnelStepTransitionType.Complete, destination: 'step2' },
+      ],
+    } as FunnelStep;
+
+    const funnel: FunnelJSON = {
+      ...mockFunnel,
+      chapters: [{ id: 'chapter1', steps: [skippedStep, mockStep2] }],
+    };
+
+    (useFunnelNavigation as jest.Mock).mockReturnValue({
+      back: mockBack,
+      skip: mockSkip,
+      navigate: mockNavigate,
+      position: { chapter: 0, step: 0 },
+      chapters: [{ steps: 2 }],
+      step: skippedStep,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+      },
+      isReady: true,
+      isUrlSynced: true,
+    });
+
+    renderComponent(funnel);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockSendTransition).toHaveBeenCalledWith(
+      expect.objectContaining({ fromStep: 'step1', toStep: 'step2' }),
+    );
+    expect(mockNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({ to: 'step2' }),
+    );
+  });
+
   it('should handle NEXT_STEP_ID transitions correctly', async () => {
     // Test the edge case where transition uses NEXT_STEP_ID instead of explicit step ID
     const stepWithNextTransition: FunnelStepQuiz = {
