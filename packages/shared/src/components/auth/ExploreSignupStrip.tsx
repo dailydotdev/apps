@@ -89,9 +89,7 @@ export function ExploreSignupStrip({
 
   return (
     <HijackingCoverCard className={className}>
-      <div className="cover-strip-blur-near pointer-events-none absolute inset-0" />
-      <div className="cover-strip-blur-mid pointer-events-none absolute inset-0" />
-      <div className="cover-strip-blur-far pointer-events-none absolute inset-0" />
+      <div className="cover-strip-blur pointer-events-none absolute bottom-0 left-1/2 h-3/5 w-[24rem] -translate-x-1/2" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-raw-pepper-90/[0.9] via-raw-pepper-90/[0.55] to-transparent" />
       <div
         className={classNames(
