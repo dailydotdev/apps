@@ -56,6 +56,9 @@ const onTcData = (tcData: TcData, success: boolean): void => {
   listeners.forEach((listener) => listener());
 };
 
+export const hasTcfApi = (): boolean =>
+  typeof globalThis.window?.__tcfapi === 'function';
+
 export const startTcfSubscription = (): void => {
   if (subscribed || typeof globalThis.window?.__tcfapi !== 'function') {
     return;
