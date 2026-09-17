@@ -18,6 +18,7 @@ import type {
   PrebidBid,
 } from '../../../features/monetization/prebid';
 import {
+  configurePrebid,
   renderPrebidBid,
   requestKueezBid,
 } from '../../../features/monetization/prebid';
@@ -65,6 +66,7 @@ const mockSlotMaps = jest.requireMock('./slots') as {
 
 const mockUseFeature = jest.mocked(useFeature);
 const mockRequestBid = jest.mocked(requestKueezBid);
+const mockConfigurePrebid = jest.mocked(configurePrebid);
 const mockRenderBid = jest.mocked(renderPrebidBid);
 
 const flags = { read: true };
@@ -302,6 +304,32 @@ describe('ReadAdSlot', () => {
     );
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('waits on the CMP only where the TCF stub loads', () => {
+    setSlots({ '2': {} });
+    const renderFrom = (region: string) =>
+      rtlRender(
+        <AuthContext.Provider
+          value={
+            { isAuthReady: true, geo: { region } } as unknown as AuthContextData
+          }
+        >
+          <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />
+        </AuthContext.Provider>,
+      );
+
+    // Prebid cancels every auction where it expects a CMP and finds none, so
+    // the scope has to match Iubenda.tsx's, not the wider isGdprCovered.
+    renderFrom('IN');
+    expect(mockConfigurePrebid).toHaveBeenLastCalledWith(
+      expect.objectContaining({ withConsentManagement: false }),
+    );
+
+    renderFrom('GB');
+    expect(mockConfigurePrebid).toHaveBeenLastCalledWith(
+      expect.objectContaining({ withConsentManagement: true }),
+    );
   });
 });
 

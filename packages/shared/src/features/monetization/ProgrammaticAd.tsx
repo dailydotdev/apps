@@ -11,6 +11,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AdActions } from '../../lib/ads';
 import AuthContext from '../../contexts/AuthContext';
+import { requiresCertifiedCmp } from '../../lib/geo';
 import { useViewability } from './useViewability';
 import { viewabilityLogExtra } from './viewability';
 import type { AdSize, AdSlotConfig } from './kueez';
@@ -246,7 +247,11 @@ export function ProgrammaticAd({
   const { logEvent } = useLogContext();
   // Optional: a bare component test has no provider, and the context's
   // default is null rather than an empty object.
-  const isGdprCovered = !!useContext(AuthContext)?.isGdprCovered;
+  const geo = useContext(AuthContext)?.geo;
+  // The same predicate Iubenda.tsx loads the TCF stub on, not
+  // `isGdprCovered`: that one counts the whole world minus US/IL as covered,
+  // and Prebid cancels every auction where it expects a CMP and finds none.
+  const withConsentManagement = requiresCertifiedCmp(geo?.region);
   const utm = useAdUtm();
   const hasRequested = useRef(false);
   const hasLoggedClick = useRef(false);
@@ -385,7 +390,7 @@ export function ProgrammaticAd({
     }
     hasRequested.current = true;
 
-    configurePrebid({ withConsentManagement: isGdprCovered, utm });
+    configurePrebid({ withConsentManagement, utm });
     logSlotEvent(LogEvent.RequestAdSlot);
 
     const sizes = resolveAdSizes(
@@ -425,11 +430,11 @@ export function ProgrammaticAd({
   }, [
     adUnitCode,
     format,
-    isGdprCovered,
     isRequested,
     logAdInteraction,
     logSlotEvent,
     utm,
+    withConsentManagement,
   ]);
 
   // First-party click signal. The creative is a separate browsing context, so
