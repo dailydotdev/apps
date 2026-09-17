@@ -5,7 +5,6 @@ import type {
   FunnelJSON,
   FunnelPosition,
   FunnelStep,
-  FunnelStepShouldSkip,
   FunnelStepTransition,
   FunnelStepType,
 } from '../types/funnel';
@@ -13,7 +12,6 @@ import {
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
   NEXT_STEP_ID,
-  resolveShouldSkip,
 } from '../types/funnel';
 import type { TrackOnNavigate } from './useFunnelTracking';
 import {
@@ -22,7 +20,7 @@ import {
 } from '../store/funnel.store';
 import { useToggle } from '../../../hooks/useToggle';
 
-type ShouldSkipRef = Partial<Record<FunnelStepType, FunnelStepShouldSkip>>;
+type ShouldSkipRef = Partial<Record<FunnelStepType, boolean>>;
 
 interface UseFunnelNavigationProps {
   funnel: FunnelJSON;
@@ -152,7 +150,9 @@ export function getNextStep(params: {
     return resolvedDestination;
   }
 
-  if (!resolveShouldSkip(shouldSkipMap[next.type])) {
+  const shouldSkip = shouldSkipMap[next.type];
+
+  if (!shouldSkip) {
     return resolvedDestination;
   }
 

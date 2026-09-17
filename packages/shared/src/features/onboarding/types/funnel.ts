@@ -96,22 +96,12 @@ export type FunnelStepTransition = {
   placement?: 'default' | 'bottom' | 'top';
 };
 
-// A resolver defers the decision to the moment the funnel resolves the step,
-// so a step gated on an experiment only logs its exposure when it is reached.
-export type FunnelStepShouldSkip = boolean | (() => boolean);
-
-export const resolveShouldSkip = (shouldSkip?: FunnelStepShouldSkip): boolean =>
-  typeof shouldSkip === 'function' ? shouldSkip() : !!shouldSkip;
-
 interface FunnelStepCommon<T = FunnelStepParameters> {
   id: string;
   parameters: FunnelStepParameters<T>;
   transitions: FunnelStepTransition[];
   isActive?: boolean;
-  onRegisterStepToSkip?: (
-    type: FunnelStepType,
-    shouldSkip: FunnelStepShouldSkip,
-  ) => void;
+  onRegisterStepToSkip?: (type: FunnelStepType, shouldSkip: boolean) => void;
 }
 
 export interface FunnelChapter {

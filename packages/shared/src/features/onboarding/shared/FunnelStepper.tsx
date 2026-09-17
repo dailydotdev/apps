@@ -6,7 +6,6 @@ import { CheckoutEventNames } from '@paddle/paddle-js';
 import type {
   FunnelJSON,
   FunnelStep,
-  FunnelStepShouldSkip,
   FunnelStepTransitionCallback,
 } from '../types/funnel';
 import {
@@ -146,9 +145,7 @@ export const FunnelStepper = ({
     passive: true,
   });
 
-  const shouldSkipRef = useRef<
-    Partial<Record<FunnelStepType, FunnelStepShouldSkip>>
-  >({});
+  const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   const funnelProgress = useMemo(
     () => ({ chapters, position, isOnboarding }),
     [chapters, position, isOnboarding],
@@ -266,10 +263,7 @@ export const FunnelStepper = ({
     shouldShowHeaderSkip &&
     stepsWithOnlySkipHeader.some((type) => type === step.type);
 
-  const onRegisterStepToSkip = (
-    type: FunnelStepType,
-    shouldSkip: FunnelStepShouldSkip,
-  ) => {
+  const onRegisterStepToSkip = (type: FunnelStepType, shouldSkip: boolean) => {
     shouldSkipRef.current[type] = shouldSkip;
   };
 
