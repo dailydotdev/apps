@@ -24,7 +24,7 @@ const copy: HijackingCoverCopy = {
   body: 'Log in to pick up where you left off.',
 };
 
-// The card's height with the copy and auth stack in one left column.
+// The card's height with the copy and auth stack stacked in the centre.
 export const exploreSignupStripMinHeight = 'min-h-[18rem]';
 
 // The new tab's cover strip for anonymous visitors, tablet and up, with the
@@ -88,24 +88,26 @@ export function ExploreSignupStrip({
   };
 
   return (
-    <HijackingCoverCard
-      className={className}
-      // Scaled up and shifted right so the dev and dog sit past the column,
-      // around three quarters across.
-      artClassName="origin-[50%_88%] translate-x-[27%] scale-[2.2]"
-    >
-      <div className="cover-strip-blur-near pointer-events-none absolute inset-y-0 left-0 w-3/4" />
-      <div className="cover-strip-blur-mid pointer-events-none absolute inset-y-0 left-0 w-3/4" />
-      <div className="cover-strip-blur-far pointer-events-none absolute inset-y-0 left-0 w-3/4" />
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-raw-pepper-90/[0.85] via-raw-pepper-90/[0.45] to-transparent" />
+    <HijackingCoverCard className={className}>
+      <div className="cover-strip-blur-near pointer-events-none absolute inset-0" />
+      <div className="cover-strip-blur-mid pointer-events-none absolute inset-0" />
+      <div className="cover-strip-blur-far pointer-events-none absolute inset-0" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-raw-pepper-90/[0.9] via-raw-pepper-90/[0.55] to-transparent" />
       <div
         className={classNames(
-          'dark relative z-1 flex flex-col items-start justify-center px-6 py-8 laptop:px-8',
+          'dark relative z-1 flex flex-col items-center justify-center px-6 py-8 text-center',
           exploreSignupStripMinHeight,
         )}
       >
-        <div className="flex w-full max-w-[26.25rem] flex-col items-start gap-1 text-left">
-          <h3 className={hijackingCoverHeadingClassName}>{copy.heading}</h3>
+        <div className="flex w-full max-w-[26.25rem] flex-col items-center gap-1">
+          <h3
+            className={classNames(
+              'text-balance',
+              hijackingCoverHeadingClassName,
+            )}
+          >
+            {copy.heading}
+          </h3>
           <p className={hijackingCoverBodyClassName}>{copy.body}</p>
           <AuthOptions
             ignoreMessages

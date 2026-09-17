@@ -1126,41 +1126,43 @@ meter::-webkit-meter-bar {
   }
 
   /* Progressive blur: three backdrop layers, each blurrier and masked to a
-     narrower band, so the art sharpens gradually from left to right. */
+     narrower band, so the art sharpens gradually from the centre out. */
   .cover-strip-blur-near,
   .cover-strip-blur-mid,
   .cover-strip-blur-far {
     -webkit-mask-image: linear-gradient(
       to right,
-      black 0%,
-      black var(--cover-strip-blur-hold),
-      transparent var(--cover-strip-blur-end)
+      transparent calc(50% - var(--cover-strip-blur-end)),
+      black calc(50% - var(--cover-strip-blur-hold)),
+      black calc(50% + var(--cover-strip-blur-hold)),
+      transparent calc(50% + var(--cover-strip-blur-end))
     );
     mask-image: linear-gradient(
       to right,
-      black 0%,
-      black var(--cover-strip-blur-hold),
-      transparent var(--cover-strip-blur-end)
+      transparent calc(50% - var(--cover-strip-blur-end)),
+      black calc(50% - var(--cover-strip-blur-hold)),
+      black calc(50% + var(--cover-strip-blur-hold)),
+      transparent calc(50% + var(--cover-strip-blur-end))
     );
   }
 
   .cover-strip-blur-near {
-    --cover-strip-blur-hold: 44%;
-    --cover-strip-blur-end: 66%;
+    --cover-strip-blur-hold: 30%;
+    --cover-strip-blur-end: 50%;
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
   }
 
   .cover-strip-blur-mid {
-    --cover-strip-blur-hold: 30%;
-    --cover-strip-blur-end: 54%;
+    --cover-strip-blur-hold: 22%;
+    --cover-strip-blur-end: 40%;
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
   }
 
   .cover-strip-blur-far {
-    --cover-strip-blur-hold: 16%;
-    --cover-strip-blur-end: 42%;
+    --cover-strip-blur-hold: 14%;
+    --cover-strip-blur-end: 30%;
     -webkit-backdrop-filter: blur(28px);
     backdrop-filter: blur(28px);
   }
