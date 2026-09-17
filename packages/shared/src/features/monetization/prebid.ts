@@ -15,8 +15,10 @@ import {
   KUEEZ_CID,
   KUEEZ_PID,
   PREBID_AUCTION_TIMEOUT_MS,
+  PREBID_CMP_STUB_WAIT_MS,
   PREBID_CMP_TIMEOUT_MS,
 } from './kueez';
+import { hasTcfApi } from '../../lib/tcf';
 
 export type PrebidBid = {
   /** Prebid's handle on the creative, and the only thing `renderAd` needs. */
@@ -71,13 +73,15 @@ const getPbjs = (): Pbjs => {
 };
 
 let isConfigured = false;
+let awaitsCmp = false;
 
 export type PrebidConfigOptions = {
   /**
-   * Whether to wait on the IAB CMP before bidding. Scoped exactly like the
-   * TCF stub itself, which only loads for GDPR-covered visitors: configuring
-   * `consentManagement` for everyone would have every other visitor's auction
-   * wait out the CMP timeout for an API that is never going to appear.
+   * Whether to wait on the IAB CMP before bidding. Must be scoped exactly
+   * like the TCF stub itself (`requiresCertifiedCmp`, see Iubenda.tsx):
+   * Prebid cancels every auction outright when `consentManagement` is set
+   * and no CMP exists on the page, so configuring it for a visitor the stub
+   * never loads for is a page with no ads, not a page with unconsented ones.
    */
   withConsentManagement: boolean;
   utm?: AdUtm;
@@ -95,6 +99,7 @@ export const configurePrebid = ({
     return;
   }
   isConfigured = true;
+  awaitsCmp = withConsentManagement;
 
   const pbjs = getPbjs();
   pbjs.que.push(() => {
@@ -150,12 +155,41 @@ export type AuctionResult =
   | { status: 'unavailable' };
 
 /**
- * Grace on top of the auction timeout before a slot gives up entirely. Prebid
- * calls back at `bidderTimeout` on its own; this only catches the case where
- * the bundle is missing and the queued command never runs at all, which an
- * ad blocker makes the common case rather than the rare one.
+ * How long a queued command may sit unexecuted before the slot gives up on
+ * the bundle. Once the command runs Prebid owns the clock: it calls back at
+ * `bidderTimeout`, after the CMP timeout, and when it cancels an auction, so
+ * this only catches the bundle never executing at all, which an ad blocker
+ * makes the common case rather than the rare one.
  */
-const AUCTION_ABANDON_MS = PREBID_AUCTION_TIMEOUT_MS + 2_000;
+const BUNDLE_ABANDON_MS = 5_000;
+
+const CMP_POLL_MS = 50;
+
+/**
+ * Resolves once the CMP's `__tcfapi` exists, or right away when this page
+ * never gets one. The stub is injected in the same React commit as the
+ * bundle, so eager slots otherwise race it and lose (see
+ * PREBID_CMP_STUB_WAIT_MS). Resolves after the wait cap regardless: Prebid
+ * then cancels the auction itself, which for a GDPR-covered visitor without
+ * a CMP is the correct outcome.
+ */
+const whenCmpPresent = (): Promise<void> =>
+  new Promise((resolve) => {
+    if (!awaitsCmp || hasTcfApi()) {
+      resolve();
+      return;
+    }
+
+    const deadline = Date.now() + PREBID_CMP_STUB_WAIT_MS;
+    const poll = (): void => {
+      if (hasTcfApi() || Date.now() >= deadline) {
+        resolve();
+        return;
+      }
+      globalThis.setTimeout(poll, CMP_POLL_MS);
+    };
+    globalThis.setTimeout(poll, CMP_POLL_MS);
+  });
 
 export type BidRequestOptions = {
   /** Unique per mounted slot: it is how the winning bid is looked up again. */
@@ -186,30 +220,42 @@ export const requestKueezBid = ({
 
     const abandon = globalThis.setTimeout(
       () => settle({ status: 'unavailable' }),
-      AUCTION_ABANDON_MS,
+      BUNDLE_ABANDON_MS,
     );
 
     const pbjs = getPbjs();
     pbjs.que.push(() => {
-      pbjs.requestBids({
-        timeout: PREBID_AUCTION_TIMEOUT_MS,
-        adUnits: [
-          {
-            code,
-            mediaTypes: { banner: { sizes } },
-            bids: [
+      // The bundle is here, so from now on Prebid guarantees the callback.
+      globalThis.clearTimeout(abandon);
+
+      whenCmpPresent().then(() => {
+        if (isSettled) {
+          return;
+        }
+
+        try {
+          pbjs.requestBids({
+            timeout: PREBID_AUCTION_TIMEOUT_MS,
+            adUnits: [
               {
-                bidder: KUEEZ_BIDDER_CODE,
-                params: { cId: KUEEZ_CID, pId: KUEEZ_PID },
+                code,
+                mediaTypes: { banner: { sizes } },
+                bids: [
+                  {
+                    bidder: KUEEZ_BIDDER_CODE,
+                    params: { cId: KUEEZ_CID, pId: KUEEZ_PID },
+                  },
+                ],
               },
             ],
-          },
-        ],
-        bidsBackHandler: () => {
-          globalThis.clearTimeout(abandon);
-          const [bid] = pbjs.getHighestCpmBids(code) ?? [];
-          settle(bid ? { status: 'bid', bid } : { status: 'no_bid' });
-        },
+            bidsBackHandler: () => {
+              const [bid] = pbjs.getHighestCpmBids(code) ?? [];
+              settle(bid ? { status: 'bid', bid } : { status: 'no_bid' });
+            },
+          });
+        } catch {
+          settle({ status: 'unavailable' });
+        }
       });
     });
   });

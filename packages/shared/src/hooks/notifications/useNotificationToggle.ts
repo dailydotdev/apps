@@ -31,8 +31,14 @@ export const useNotificationToggle = ({
       return;
     }
 
-    const command = isEnabled ? onEnable : onDismiss;
-    await command();
+    // Only browser settings can undo a blocked permission, so enabling here
+    // would just open the permission popup on every comment. Take it as a no.
+    if (!isEnabled || isBrowserPermissionBlocked) {
+      onDismiss();
+      return;
+    }
+
+    await onEnable();
   };
 
   const onToggle = useCallback(() => setIsEnabled((state) => !state), []);

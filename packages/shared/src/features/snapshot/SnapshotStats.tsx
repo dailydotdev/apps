@@ -42,7 +42,7 @@ export const SnapshotStat = ({
       {value}
     </span>
     <span
-      className="uppercase"
+      className="text-center uppercase"
       style={{ color: MUTED, fontSize: 22, letterSpacing: 1.5 }}
     >
       {label}

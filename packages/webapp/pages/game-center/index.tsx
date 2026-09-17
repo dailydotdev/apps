@@ -486,6 +486,7 @@ function GameCenterPage({
           <AchievementCard
             key={achievement.achievement.id}
             userAchievement={achievement}
+            user={user}
             isOwner
             isTracked={
               trackedAchievementState.trackedAchievement?.achievement.id ===

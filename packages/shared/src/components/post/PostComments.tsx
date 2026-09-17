@@ -31,7 +31,6 @@ interface PostCommentsProps {
   origin: Origin;
   sortBy?: SortCommentsBy;
   isComposerOpen?: boolean;
-  permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement | null;
   onShare?: (comment: Comment) => void;
@@ -70,7 +69,6 @@ export function PostComments({
   onShare,
   onClickUpvote,
   modalParentSelector,
-  permissionNotificationCommentId,
   joinNotificationCommentId,
   className = {},
   onCommented,
@@ -178,9 +176,6 @@ export function PostComments({
                 postAuthorId={post.author?.id ?? null}
                 postScoutId={post.scout?.id ?? null}
                 appendTooltipTo={getAppendTooltipParent}
-                permissionNotificationCommentId={
-                  permissionNotificationCommentId
-                }
                 joinNotificationCommentId={joinNotificationCommentId}
                 onCommented={onCommented}
                 lazy={!commentHash && index >= lazyCommentThreshold}

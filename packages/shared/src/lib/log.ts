@@ -61,7 +61,23 @@ export enum Origin {
   PostParagraph = 'post paragraph',
   PollResults = 'poll results',
   PollVotePrompt = 'poll vote prompt',
+  BriefTextSelection = 'brief text selection',
+  BriefParagraph = 'brief paragraph',
+  BriefMustKnow = 'brief must know',
+  EndOfBriefing = 'end of briefing',
+  HappeningNow = 'happening now',
+  HappeningNowHighlight = 'happening now highlight',
+  HappeningNowSelection = 'happening now selection',
+  HighlightsCard = 'highlights card',
   // snapshot placements - end
+  // profile share placements - start
+  ProfileHeader = 'profile header',
+  ReadingOverview = 'reading overview',
+  BadgesAndAwards = 'badges and awards',
+  AchievementsWidget = 'achievements widget',
+  AchievementCard = 'achievement card',
+  DevCard = 'devcard',
+  // profile share placements - end
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -130,6 +146,12 @@ export enum LogEvent {
   FillAdSlot = 'fill ad slot',
   EmptyAdSlot = 'empty ad slot',
   AdSlotError = 'ad slot error',
+  // Google Preferred Sources. Google reports nothing back — no read API, and no
+  // Search Console dimension — so these events are the only measurement this
+  // feature will ever have, and the funnel ends at the click.
+  ImpressionPreferredSource = 'impression preferred source',
+  ClickPreferredSource = 'click preferred source',
+  PreferredSourceBlocked = 'preferred source blocked',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -367,6 +389,8 @@ export enum LogEvent {
   ShareLog = 'share log',
   ShareWorld = 'share world',
   ShareTool = 'share tool',
+  ShareHotTake = 'share hot take',
+  ShareHighlights = 'share highlights',
   ShareArchive = 'share archive',
   // End Share
   /* Start World
@@ -573,6 +597,7 @@ export enum TargetType {
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
+  PreferredSource = 'preferred source',
   MarketingCtaPlus = 'promotion_plus',
   MarketingCtaBrief = 'promotion_briefing',
   MarketingCtaHelpGuide = 'promotion_help_guide',
@@ -711,7 +736,6 @@ export enum NotificationTarget {
 
 export enum NotificationCtaPlacement {
   TopHero = 'top-hero',
-  CommentInline = 'comment-inline',
   UserCard = 'user-card',
   SourceCard = 'source-card',
   SquadCard = 'squad-card',

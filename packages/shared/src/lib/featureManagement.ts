@@ -232,7 +232,7 @@ export enum HijackingVariant {
   Cover = 'cover',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants3',
+  'hijacking_variants4',
   HijackingVariant.Default,
 );
 
@@ -339,11 +339,6 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAds = new Feature('read_ads', true);
-
-export const featureCommentFirstAction = new Feature(
-  'comment_first_action',
-  false,
-);
 
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.

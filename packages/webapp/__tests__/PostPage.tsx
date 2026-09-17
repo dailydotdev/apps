@@ -1167,12 +1167,13 @@ describe('article', () => {
   it('should log page view on initial load', async () => {
     renderPost();
     await screen.findAllByText('Towards Data Science');
-    expect(logEvent).toBeCalledTimes(1);
-    expect(logEvent).toBeCalledWith(
-      expect.objectContaining({
-        event_name: 'article page view',
-      }),
+    // Count the page view itself rather than every event on the page: this
+    // guards against logging the view twice, and widgets in the rail log their
+    // own impressions whenever their async gates happen to settle first.
+    const pageViews = logEvent.mock.calls.filter(
+      ([event]) => event.event_name === 'article page view',
     );
+    expect(pageViews).toHaveLength(1);
   });
 
   // Unified view logging: opening an article now logs a view on mount too,

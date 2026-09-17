@@ -18,6 +18,7 @@ interface TagDirectoryListItemProps {
   title?: string;
   isFollowed: boolean;
   onToggleFollow: (tag: string) => void;
+  selectable?: boolean;
 }
 
 // A directory row: the tag link plus a follow control on the right. Followed
@@ -28,7 +29,29 @@ export function TagDirectoryListItem({
   title,
   isFollowed,
   onToggleFollow,
+  selectable = false,
 }: TagDirectoryListItemProps): ReactElement {
+  if (selectable) {
+    return (
+      <li className="break-inside-avoid">
+        <button
+          type="button"
+          aria-label={isFollowed ? `Unfollow ${tag}` : `Follow ${tag}`}
+          aria-pressed={isFollowed}
+          onClick={() => onToggleFollow(tag)}
+          className="flex w-full items-center gap-2 rounded-10 px-2 py-1.5 text-left text-text-secondary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
+        >
+          <span className="min-w-0 flex-1 truncate">{title || tag}</span>
+          {isFollowed ? (
+            <VIcon aria-hidden className="shrink-0 text-brand-default" />
+          ) : (
+            <PlusIcon aria-hidden className="shrink-0 text-text-tertiary" />
+          )}
+        </button>
+      </li>
+    );
+  }
+
   return (
     <li className="group flex break-inside-avoid items-center gap-1 rounded-10 pr-1 transition-colors hover:bg-surface-hover">
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>

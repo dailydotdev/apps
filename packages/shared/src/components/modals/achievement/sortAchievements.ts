@@ -29,3 +29,34 @@ export const sortLockedAchievements = (
       return b.achievement.xp - a.achievement.xp;
     });
 };
+
+/**
+ * Rarest first, so the profile widget and the share card can never disagree
+ * about which achievements are the ones worth showing.
+ */
+export const sortRarestUnlockedAchievements = (
+  achievements: UserAchievement[],
+): UserAchievement[] => {
+  return achievements
+    .filter((achievement) => achievement.unlockedAt !== null)
+    .sort((a, b) => {
+      const rarityA = a.achievement.rarity ?? Infinity;
+      const rarityB = b.achievement.rarity ?? Infinity;
+      if (rarityA !== rarityB) {
+        return rarityA - rarityB;
+      }
+
+      const xpDelta = b.achievement.xp - a.achievement.xp;
+      if (xpDelta !== 0) {
+        return xpDelta;
+      }
+
+      const unlockedDateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;
+      const unlockedDateB = b.unlockedAt ? new Date(b.unlockedAt).getTime() : 0;
+      if (unlockedDateA !== unlockedDateB) {
+        return unlockedDateB - unlockedDateA;
+      }
+
+      return a.achievement.id.localeCompare(b.achievement.id);
+    });
+};
