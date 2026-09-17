@@ -4,7 +4,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import AuthContext from '../contexts/AuthContext';
-import { mutateUserInfo } from '../graphql/users';
+import { mutateUserInfo, parseProfileFormHint } from '../graphql/users';
 import type { LoggedUser, PublicProfile, UserProfile } from '../lib/user';
 import { getProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
@@ -16,10 +16,6 @@ import { LogEvent } from '../lib/log';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { disabledRefetch } from '../lib/func';
 import { isSameSocialLinkUrl } from '../lib/socialLink';
-
-export interface ProfileFormHint {
-  [key: string]: string;
-}
 
 export type UpdateProfileParameters = Partial<UserProfile> & {
   upload?: File;
@@ -33,42 +29,6 @@ interface UseUserInfoForm {
   isSocialLinksLoading: boolean;
   isSocialLinksError: boolean;
 }
-
-const renderedProfileFields = new Set<keyof UserProfile>([
-  'bio',
-  'experienceLevel',
-  'externalLocationId',
-  'hideExperience',
-  'name',
-  'readme',
-  'socialLinks',
-  'username',
-]);
-
-const isRenderedProfileField = (key: string): key is keyof UserProfile =>
-  renderedProfileFields.has(key as keyof UserProfile);
-
-const parseProfileFormHint = (message?: string): ProfileFormHint | null => {
-  if (!message) {
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(message);
-
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return null;
-    }
-
-    return Object.fromEntries(
-      Object.entries(parsed).filter(
-        (entry): entry is [string, string] => typeof entry[1] === 'string',
-      ),
-    );
-  } catch {
-    return null;
-  }
-};
 
 const useUserInfoForm = (): UseUserInfoForm => {
   const qc = useQueryClient();
@@ -90,8 +50,6 @@ const useUserInfoForm = (): UseUserInfoForm => {
     enabled: !!userId,
   });
 
-  // Boot omits socialLinks, so until the profile query lands the form has no
-  // idea which links the server already holds.
   const hasInitializedSocialLinks =
     !!fullProfile || Array.isArray(user?.socialLinks);
 
@@ -133,8 +91,6 @@ const useUserInfoForm = (): UseUserInfoForm => {
       return;
     }
 
-    // Links edited before the query resolved only hold what was added locally,
-    // so saving them as-is would drop every link already on the server.
     const localLinks = methods.getValues('socialLinks') || [];
     const addedLinks = localLinks.filter(
       (local) =>
@@ -184,8 +140,6 @@ const useUserInfoForm = (): UseUserInfoForm => {
       const data = parseProfileFormHint(errorMessage);
 
       if (!data) {
-        // Validation errors carry a message written for the user (a blocked
-        // social link URL, for one); anything else is internal noise.
         const isValidationError =
           responseError?.extensions?.code === ApiError.GraphqlValidationFailed;
 
@@ -198,9 +152,14 @@ const useUserInfoForm = (): UseUserInfoForm => {
       }
 
       const toastMessages: string[] = [];
+      const formFields = methods.getValues();
 
       Object.entries(data).forEach(([key, value]) => {
-        if (isRenderedProfileField(key)) {
+        if (!value) {
+          return;
+        }
+
+        if (key in formFields) {
           methods.setError(key as keyof UserProfile, {
             type: 'manual',
             message: value,
