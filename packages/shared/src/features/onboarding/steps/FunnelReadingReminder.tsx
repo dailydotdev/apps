@@ -11,6 +11,8 @@ import { usePushNotificationContext } from '../../../contexts/PushNotificationCo
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureOnboardingReminderDesktop } from '../../../lib/featureManagement';
 
 function FunnelReadingReminderComponent({
   parameters: { headline },
@@ -56,7 +58,12 @@ export const FunnelReadingReminder = withShouldSkipStepGuard(
   () => {
     const { isPushSupported, isInitialized } = usePushNotificationContext();
     const isMobile = useViewSize(ViewSize.MobileXL);
-    const shouldSkip = !isMobile || (isInitialized && !isPushSupported);
+    const { value: showOnDesktop } = useConditionalFeature({
+      feature: featureOnboardingReminderDesktop,
+      shouldEvaluate: !isMobile,
+    });
+    const shouldSkip =
+      (!isMobile && !showOnDesktop) || (isInitialized && !isPushSupported);
 
     return { shouldSkip };
   },
