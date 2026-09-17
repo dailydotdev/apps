@@ -488,41 +488,6 @@ describe('useFunnelNavigation', () => {
       expect(mockSetPosition).toHaveBeenCalledWith({ chapter: 0, step: 1 });
     });
 
-    it('should ignore stale URL values until the navigated step lands', () => {
-      const mockOnNavigation = jest.fn();
-      mockSearchParams.get.mockReturnValue('step1');
-
-      const { result, rerender } = renderHook(
-        (funnel: FunnelJSON) =>
-          useFunnelNavigation({
-            funnel,
-            initialStepId: null,
-            onNavigation: mockOnNavigation,
-          }),
-        { initialProps: createMockFunnel() },
-      );
-
-      act(() => {
-        result.current.navigate({ to: 'step2' });
-      });
-      expect(mockSetPosition).toHaveBeenLastCalledWith({ chapter: 0, step: 1 });
-      mockSetPosition.mockClear();
-
-      // The push refreshes the page props (a new funnel object) while the URL
-      // still carries the outgoing step.
-      rerender(createMockFunnel());
-      expect(mockSetPosition).not.toHaveBeenCalled();
-
-      mockSearchParams.get.mockReturnValue('step2');
-      rerender(createMockFunnel());
-      expect(mockSetPosition).toHaveBeenCalledWith({ chapter: 0, step: 1 });
-
-      // Once landed, the URL drives the position again (back/forward).
-      mockSearchParams.get.mockReturnValue('step1');
-      rerender(createMockFunnel());
-      expect(mockSetPosition).toHaveBeenLastCalledWith({ chapter: 0, step: 0 });
-    });
-
     it('should use initialStepId when provided', () => {
       const mockOnNavigation = jest.fn();
       const funnel = createMockFunnel();

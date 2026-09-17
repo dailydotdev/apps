@@ -56,16 +56,13 @@ function FunnelReadingReminderComponent({
 export const FunnelReadingReminder = withShouldSkipStepGuard(
   withIsActiveGuard(FunnelReadingReminderComponent),
   () => {
-    const { isPushSupported, isInitialized, isLoading } =
-      usePushNotificationContext();
+    const { isPushSupported, isInitialized } = usePushNotificationContext();
     const isMobile = useViewSize(ViewSize.MobileXL);
     const isOnboarding = useIsOnboardingFunnel();
     const { ready, getFeatureValue } = useFeaturesReadyContext();
 
     const shouldSkip = useCallback(() => {
-      // `isInitialized` is also true while OneSignal is still loading; a
-      // session that lands here must not be skipped past on that transient.
-      if (!isLoading && isInitialized && !isPushSupported) {
+      if (isInitialized && !isPushSupported) {
         return true;
       }
 
@@ -81,7 +78,6 @@ export const FunnelReadingReminder = withShouldSkipStepGuard(
     }, [
       getFeatureValue,
       isInitialized,
-      isLoading,
       isMobile,
       isOnboarding,
       isPushSupported,

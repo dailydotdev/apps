@@ -50,8 +50,6 @@ interface SkipNavigation
 export interface UseFunnelNavigationReturn {
   chapters: Chapters;
   isReady: boolean;
-  // The URL's stepId can trail `step` by a router push; true once they agree.
-  isUrlSynced: boolean;
   navigate: NavigateFunction;
   position: FunnelPosition;
   step: FunnelStep;
@@ -225,7 +223,6 @@ export const useFunnelNavigation = ({
   }, [funnel, position]);
   const navigationStateRef = useRef({ step, stepTimerStart });
   navigationStateRef.current = { step, stepTimerStart };
-  const pendingStepIdRef = useRef<string>();
 
   const navigate: NavigateFunction = useCallback(
     ({ to, type = FunnelStepTransitionType.Complete, details }) => {
@@ -244,7 +241,6 @@ export const useFunnelNavigation = ({
       }
 
       // update the position in the store
-      pendingStepIdRef.current = to;
       setPositionById(to);
 
       // track the navigation event
@@ -328,21 +324,10 @@ export const useFunnelNavigation = ({
     setIsReady,
   ]);
 
-  // After load: update the position when the URL's stepId changes. The push
-  // behind a navigation refreshes the page props, which re-runs this with the
-  // outgoing URL still in place; until the pending step's URL lands, any other
-  // value is stale and would drag the position back.
+  // After load: update the position when the URL's stepId changes
   useEffect(() => {
     if (!urlStepId || !isInitialized.current) {
       return;
-    }
-
-    if (pendingStepIdRef.current) {
-      if (urlStepId !== pendingStepIdRef.current) {
-        return;
-      }
-
-      pendingStepIdRef.current = undefined;
     }
 
     setPositionById(urlStepId);
@@ -357,6 +342,5 @@ export const useFunnelNavigation = ({
     step,
     stepMap,
     isReady,
-    isUrlSynced: urlStepId === step.id,
   };
 };

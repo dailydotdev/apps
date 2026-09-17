@@ -32,7 +32,6 @@ jest.mock('../../../contexts/PushNotificationContext', () => ({
   usePushNotificationContext: () => ({
     isPushSupported: true,
     isInitialized: true,
-    isLoading: false,
   }),
 }));
 
