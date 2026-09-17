@@ -473,7 +473,7 @@ export const PostPage = ({
           {showRedesign ? (
             <div
               className={classNames(
-                'mx-auto w-full max-w-[63.75rem]',
+                'mx-auto w-full max-w-[63.75rem] [@media(min-width:92rem)]:max-w-[72.75rem]',
                 // Clears the fixed signup banner so the thread's tail is
                 // reachable; the classic page ends in the footer instead.
                 showLaptopAuthBanner && 'laptop:pb-72',
