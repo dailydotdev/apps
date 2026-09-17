@@ -12,6 +12,7 @@ import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
+import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
@@ -62,6 +63,7 @@ export const CollectionPostContentRaw = ({
   const { createdAt, updatedAt, contentHtml, image, numCollectionSources } =
     post;
   const bodyRef = useRef<HTMLDivElement>(null);
+  const postContainerRef = useRef<HTMLDivElement>(null);
   const wasUpdated = isPostUpdated(post);
   const dateToShow = wasUpdated ? updatedAt : createdAt;
   const hasSources = !!numCollectionSources && numCollectionSources > 0;
@@ -112,9 +114,11 @@ export const CollectionPostContentRaw = ({
       }
     >
       <PostContainer
+        ref={postContainerRef}
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
+        <SelectionSnapshotBar containerRef={postContainerRef} post={post} />
         <BasePostContent
           className={{
             ...className,
