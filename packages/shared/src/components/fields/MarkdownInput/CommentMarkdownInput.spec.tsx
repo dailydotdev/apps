@@ -85,8 +85,15 @@ describe('CommentMarkdownInput', () => {
     expect(props.toolbarLeading).toBeTruthy();
   });
 
-  it('hides the notification opt-in on the inline composer', () => {
+  it('offers the notification opt-in on the inline composer too', () => {
     mockNotificationToggle.shouldShowCta = true;
+    renderComposer({ fills: false });
+
+    const props = mockRichTextProps.mock.calls.at(-1)[0];
+    expect(props.toolbarLeading).toBeTruthy();
+  });
+
+  it('hides the notification opt-in when the CTA is not due', () => {
     renderComposer({ fills: false });
 
     const props = mockRichTextProps.mock.calls.at(-1)[0];
