@@ -112,11 +112,11 @@ const ReadPostPage = ({
   // The same flag and eligibility as the post page, so a visitor who lands
   // here and one who lands on /posts see the same design in the same arm.
   const { showRedesign } = usePostRedesign(post);
-  // The template's own slot map on the focus card. The widget column is
-  // gone with the single-column design, so of the three rail units only the
-  // first (slot 11) has a home, beside the column; slots 12 and 19 stay with
-  // the classic template. Every slot self-gates on the read map, so the set
-  // is built whenever the card renders, like ReadPostContent's markup.
+  // The template's own slot map on the focus card: the rail's three units
+  // stack beside the column in their classic order, the tower pinning last
+  // exactly as it does at the end of the widget column. Every slot self-gates
+  // on the read map, so the set is built whenever the card renders, like
+  // ReadPostContent's markup.
   const readAds = useMemo<PostFocusCardAds | undefined>(() => {
     if (!showRedesign) {
       return undefined;
@@ -178,12 +178,26 @@ const ReadPostPage = ({
               inBodyUnit('body', index, hasSummaryUnits || index > 0)}
           </React.Fragment>
         )),
-      rail: (
+      rail: [
         <ReadAdSlot
+          key="after-source"
           slot={READ_SLOT.railAfterSource}
           format={ReadAdFormat.MediumRectangle}
-        />
-      ),
+        />,
+        <ReadAdSlot
+          key="between-further-reading"
+          slot={READ_SLOT.railBetweenFurtherReading}
+          format={ReadAdFormat.MediumRectangle}
+        />,
+        // Compliant as a publisher sticky at exactly 300px wide, desktop
+        // only, one per viewport, closing the rail where nothing follows.
+        <ReadAdSlot
+          key="bottom-sticky"
+          slot={READ_SLOT.railBottomSticky}
+          format={ReadAdFormat.HalfPage}
+          className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1"
+        />,
+      ],
       aboveComments: (
         <ReadAdSlot
           slot={READ_SLOT.aboveCommentsMpu}

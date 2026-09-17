@@ -92,7 +92,8 @@ beforeEach(() => {
 });
 
 const renderPage = () => {
-  [postMock, commentsMock].forEach(mockGraphQL);
+  mockGraphQL(postMock);
+  mockGraphQL(commentsMock);
   return render(
     <TestBootProvider
       client={new QueryClient()}

@@ -96,11 +96,13 @@ export interface PostFocusCardAds {
    */
   withoutDirectSold?: boolean;
   /**
-   * The classic rail's MPU. Beside the column, in the gutter the centred
-   * layout leaves free, once the viewport has room for it; inline under the
-   * direct-sold widget until then. The column itself never moves.
+   * The classic rail's units, in rail order. Stacked beside the column, in
+   * the gutter the centred layout leaves free, once the viewport has room
+   * for it; until then only the first has a home, inline under the
+   * direct-sold widget. The column itself never moves. A unit that should
+   * pin (the classic rail's closing tower) carries its own sticky classes.
    */
-  rail?: ReactNode;
+  rail?: ReactNode[];
   aboveComments?: ReactNode;
   commentAds?: {
     interleaveEvery: number;
@@ -480,10 +482,8 @@ const PostFocusCardRaw = ({
       <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
         <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
           {hasRailRoom && ads?.rail && (
-            <div className="absolute inset-y-0 left-full ml-8 w-[300px]">
-              <div className="sticky top-[calc(var(--sticky-header-offset,0px)+1.5rem)] pt-6">
-                {ads.rail}
-              </div>
+            <div className="absolute inset-y-0 left-full ml-8 flex w-[300px] flex-col gap-2 pt-6">
+              {ads.rail}
             </div>
           )}
           {ads?.contentLeading}
@@ -766,7 +766,7 @@ const PostFocusCardRaw = ({
           {!ads?.withoutDirectSold && (
             <PostSidebarAdWidget postId={post.id} variant="inline" />
           )}
-          {!hasRailRoom && ads?.rail}
+          {!hasRailRoom && ads?.rail?.[0]}
 
           <PostUpvotesCommentsCount
             post={post}

@@ -306,13 +306,15 @@ export const PostPage = ({
               />
             ),
             renderSummarySegments,
-            rail: (
+            rail: [
               <ReadAdSlot
+                key="rail"
                 surface="organic"
                 slot={ORGANIC_SLOT.railAfterDirectAd}
                 format={ReadAdFormat.MediumRectangle}
-              />
-            ),
+                className="sticky top-[calc(var(--sticky-header-offset,0px)+1.5rem)]"
+              />,
+            ],
             aboveComments: (
               <ReadAdSlot
                 surface="organic"
@@ -504,7 +506,7 @@ export const PostPage = ({
                 organicAds
                   ? (widgetPosition) =>
                       widgetPosition === PostWidgetPosition.DirectAd
-                        ? organicAds.rail
+                        ? organicAds.rail[0]
                         : null
                   : undefined
               }
