@@ -24,7 +24,7 @@ const copy: HijackingCoverCopy = {
   body: 'Log in to pick up where you left off.',
 };
 
-export const exploreSignupStripMinHeight = 'min-h-[18rem]';
+export const exploreSignupStripMinHeight = 'min-h-[14rem]';
 
 // The new tab's cover strip for anonymous visitors, tablet and up.
 export function ExploreSignupStrip({
@@ -91,7 +91,7 @@ export function ExploreSignupStrip({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-raw-pepper-90/[0.9] via-raw-pepper-90/[0.55] to-transparent" />
       <div
         className={classNames(
-          'dark relative z-1 flex flex-col items-center justify-center px-6 py-8 text-center',
+          'dark relative z-1 flex flex-col items-center justify-center px-6 py-5 text-center',
           exploreSignupStripMinHeight,
         )}
       >
