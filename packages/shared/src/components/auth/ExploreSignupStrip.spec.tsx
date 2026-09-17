@@ -115,9 +115,9 @@ describe('ExploreSignupStrip', () => {
     const { container } = renderComponent({ isAuthReady: false });
 
     expect(screen.queryByRole('heading')).not.toBeInTheDocument();
-    expect(container.firstElementChild?.firstElementChild).toHaveClass(
-      exploreSignupStripMinHeight,
-    );
+    expect(
+      container.firstElementChild?.firstElementChild?.firstElementChild,
+    ).toHaveClass(exploreSignupStripMinHeight);
     expect(logEvent).not.toHaveBeenCalled();
   });
 
