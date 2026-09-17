@@ -109,6 +109,7 @@ export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
 
 export enum ApiError {
   Forbidden = 'FORBIDDEN',
+  GraphqlValidationFailed = 'GRAPHQL_VALIDATION_FAILED',
   NotFound = 'NOT_FOUND',
   RateLimited = 'RATE_LIMITED',
   BalanceTransactionError = 'BALANCE_TRANSACTION_ERROR',

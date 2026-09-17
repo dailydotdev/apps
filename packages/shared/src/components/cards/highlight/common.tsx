@@ -2,9 +2,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { PostHighlight } from '../../../graphql/highlights';
-import { webappUrl } from '../../../lib/constants';
+import { getHighlightsUrl } from '../../../lib/links';
 import { RelativeTime } from '../../utilities/RelativeTime';
 import Link from '../../utilities/Link';
+import { ButtonSize } from '../../buttons/common';
+import { CopyHighlightsLink } from '../../highlights/CopyHighlightsLink';
+import { Origin } from '../../../lib/log';
 import { HighlightCardOptions } from './HighlightCardOptions';
 
 export interface HighlightCardProps {
@@ -15,11 +18,6 @@ export interface HighlightCardProps {
 
 export const highlightsTitleGradientClassName =
   'feed-highlights-title-gradient';
-
-const HIGHLIGHTS_URL = `${webappUrl}highlights`;
-
-export const getHighlightsUrl = (highlightId?: string): string =>
-  highlightId ? `${HIGHLIGHTS_URL}?highlight=${highlightId}` : HIGHLIGHTS_URL;
 
 const getHighlightUrl = (highlight: PostHighlight): string =>
   getHighlightsUrl(highlight.id);
@@ -77,13 +75,12 @@ const HighlightRow = ({
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
   compact?: boolean;
 }): ReactElement => {
-  const timestamp = (
-    <RelativeTime
-      dateTime={highlight.highlightedAt}
-      maxHoursAgo={72}
-      className={
-        compact ? undefined : 'mt-0.5 text-text-tertiary typo-footnote'
-      }
+  const copyLink = (
+    <CopyHighlightsLink
+      className="pointer-events-none opacity-0 transition-opacity group-focus-within/highlight:opacity-100 group-hover/highlight:pointer-events-auto group-hover/highlight:opacity-100"
+      highlight={highlight}
+      origin={Origin.HighlightsCard}
+      size={ButtonSize.XSmall}
     />
   );
 
@@ -91,7 +88,7 @@ const HighlightRow = ({
     <Link href={getHighlightUrl(highlight)}>
       <a
         className={classNames(
-          'flex w-full flex-col gap-0 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
+          'group/highlight flex w-full flex-col gap-0 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
           compact
             ? // Drawn, not bordered: a `border-b` follows the row's corner
               // radius and curves up at both ends.
@@ -108,11 +105,24 @@ const HighlightRow = ({
           {!!compact && (
             <span className="font-normal text-text-tertiary typo-footnote">
               <span aria-hidden> · </span>
-              {timestamp}
+              <RelativeTime
+                dateTime={highlight.highlightedAt}
+                maxHoursAgo={72}
+              />
+              {copyLink}
             </span>
           )}
         </span>
-        {!compact && timestamp}
+        {!compact && (
+          <span className="mt-0.5 flex items-center gap-1">
+            <RelativeTime
+              dateTime={highlight.highlightedAt}
+              maxHoursAgo={72}
+              className="text-text-tertiary typo-footnote"
+            />
+            {copyLink}
+          </span>
+        )}
       </a>
     </Link>
   );
@@ -163,7 +173,15 @@ export const HighlightCardContent = ({
         >
           Happening Now
         </h3>
-        <HighlightCardOptions className="ml-auto" />
+        <CopyHighlightsLink
+          className={classNames(
+            'pointer-events-none ml-auto opacity-0 transition-opacity group-hover:pointer-events-auto',
+            // Keyboard users never fire hover, so focus has to reveal it too.
+            'focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100',
+          )}
+          origin={Origin.HighlightsCard}
+        />
+        <HighlightCardOptions />
       </header>
       <div className={contentClassName}>
         {highlights.map((highlight, index) => (

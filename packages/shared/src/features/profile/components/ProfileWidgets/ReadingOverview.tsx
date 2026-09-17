@@ -1,12 +1,18 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import React, { forwardRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type {
   UserReadHistory,
   UserStreak,
   MostReadTag,
 } from '../../../../graphql/users';
+import { sumReadHistory } from '../../../../graphql/users';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
-import { CalendarHeatmap } from '../../../../components/CalendarHeatmap';
+import {
+  CalendarHeatmap,
+  getBin,
+  getBins,
+} from '../../../../components/CalendarHeatmap';
 import { migrateUserToStreaks } from '../../../../lib/constants';
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import {
@@ -22,7 +28,15 @@ import {
   ReadingOverviewSkeleton,
 } from './ReadingOverviewComponents';
 import { anchorDefaultRel, pluralize } from '../../../../lib/strings';
-import { largeNumberFormat } from '../../../../lib';
+import { largeNumberFormat } from '../../../../lib/numberFormat';
+import { ReadingOverviewSnapshotCard } from '../../../snapshot/ReadingOverviewSnapshotCard';
+import { ProfileSnapshotButton } from '../../../snapshot/ProfileSnapshotButton';
+import { tagTitlesQueryOptions } from '../../../../graphql/keywords';
+import type { PublicProfile } from '../../../../lib/user';
+import { Origin } from '../../../../lib/log';
+
+/** ReadingOverviewSnapshotCard's heatmap grid: four rows of twenty-two. */
+const SNAPSHOT_HEATMAP_CELLS = 88;
 
 // Utility functions
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
@@ -50,6 +64,7 @@ const readHistoryToTooltip = (
 };
 
 export interface ReadingOverviewProps {
+  user: PublicProfile;
   readHistory?: UserReadHistory[];
   before: Date;
   after: Date;
@@ -58,7 +73,60 @@ export interface ReadingOverviewProps {
   isLoading?: boolean;
 }
 
+type ReadingOverviewCardProps = Omit<ReadingOverviewProps, 'isLoading'>;
+
+const ReadingOverviewCard = forwardRef<
+  HTMLDivElement,
+  ReadingOverviewCardProps
+>(function ReadingOverviewCard(
+  { user, readHistory, before, after, streak, mostReadTags },
+  ref,
+): ReactElement {
+  const { data: tagTitles = {} } = useQuery(tagTitlesQueryOptions());
+
+  // The card draws one cell per bucket and stops at its grid, so the window
+  // is compressed into that many buckets rather than handed a day each: a
+  // day per cell would show the oldest weeks and drop everything since.
+  const start = after.getTime();
+  const span = Math.max(1, before.getTime() - start);
+  const buckets = new Array(SNAPSHOT_HEATMAP_CELLS).fill(0);
+
+  readHistory?.forEach((entry) => {
+    const offset = (new Date(entry.date).getTime() - start) / span;
+    const cell = Math.floor(offset * SNAPSHOT_HEATMAP_CELLS);
+
+    buckets[Math.min(SNAPSHOT_HEATMAP_CELLS - 1, Math.max(0, cell))] +=
+      readHistoryToValue(entry);
+  });
+
+  const bins = getBins(buckets);
+
+  return (
+    <ReadingOverviewSnapshotCard
+      heatmap={buckets.map((reads) => getBin(reads, bins))}
+      longestStreak={streak?.max}
+      monthsLabel="in the last months"
+      postsRead={sumReadHistory(readHistory)}
+      ref={ref}
+      seed={user.username ?? user.id}
+      topTags={
+        mostReadTags?.map((tag) => ({
+          name: tagTitles[tag.value] || tag.value,
+          percentage: Math.round((tag.percentage ?? 0) * 100),
+        })) ?? []
+      }
+      totalReadingDays={streak?.total}
+      user={{
+        handle: `@${user.username ?? user.id}`,
+        image: user.image,
+        name: user.name,
+      }}
+    />
+  );
+});
+
 export function ReadingOverview({
+  user,
   readHistory,
   before,
   after,
@@ -66,15 +134,14 @@ export function ReadingOverview({
   mostReadTags,
   isLoading = false,
 }: ReadingOverviewProps): ReactElement {
-  const totalReads = useMemo(() => {
-    if (!readHistory?.length) {
-      return 0;
-    }
-    return readHistory.reduce((acc, val) => {
-      const reads = val?.reads || 0;
-      return acc + (typeof reads === 'number' && reads >= 0 ? reads : 0);
-    }, 0);
-  }, [readHistory]);
+  const totalReads = sumReadHistory(readHistory);
+  // The card leaves out every section whose number is zero, so with no reads,
+  // no streak and no tags there would be nothing on it but the name.
+  const hasSnapshot =
+    totalReads > 0 ||
+    !!streak?.max ||
+    !!streak?.total ||
+    !!mostReadTags?.length;
 
   if (isLoading) {
     return <ReadingOverviewSkeleton />;
@@ -82,15 +149,35 @@ export function ReadingOverview({
 
   return (
     <ActivityContainer>
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.Callout}
-        color={TypographyColor.Primary}
-        bold
-        className="flex items-center"
-      >
-        Reading Overview
-      </Typography>
+      <div className="flex items-center justify-between gap-2">
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+          bold
+          className="flex items-center"
+        >
+          Reading Overview
+        </Typography>
+        {hasSnapshot && (
+          <ProfileSnapshotButton
+            filename={`daily-reading-overview-${user.username ?? user.id}`}
+            origin={Origin.ReadingOverview}
+            ownerId={user.id}
+            renderCard={(ref) => (
+              <ReadingOverviewCard
+                after={after}
+                before={before}
+                mostReadTags={mostReadTags}
+                readHistory={readHistory}
+                ref={ref}
+                streak={streak}
+                user={user}
+              />
+            )}
+          />
+        )}
+      </div>
       <ClickableText
         tag="a"
         target="_blank"

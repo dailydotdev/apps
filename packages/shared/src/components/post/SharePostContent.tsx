@@ -29,6 +29,8 @@ import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 import { SharedPostMetaInfo } from './common/SharedPostMetaInfo';
+import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
+import { Origin } from '../../lib/log';
 
 export interface CommonSharePostContentProps {
   sharedPost?: SharedPost;
@@ -36,6 +38,8 @@ export interface CommonSharePostContentProps {
   onReadArticle: () => Promise<void>;
   isCompactSpacing?: boolean;
   showTweetImage?: boolean;
+  /** Off where the preview is being reviewed rather than read, like moderation. */
+  showSummarySnapshot?: boolean;
 }
 
 const SharePostContentSkeleton = () => (
@@ -108,6 +112,7 @@ export function CommonSharePostContent({
   onReadArticle,
   isCompactSpacing,
   showTweetImage = false,
+  showSummarySnapshot = false,
 }: CommonSharePostContentProps): ReactElement {
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -182,6 +187,14 @@ export function CommonSharePostContent({
               data-testid="tldr-container"
             >
               {sharedPost.summary}
+              {showSummarySnapshot && (
+                <TextSnapshotButton
+                  filename={`daily-summary-${sharedPost.id}`}
+                  origin={Origin.PostSummary}
+                  post={sharedPost}
+                  text={sharedPost.summary}
+                />
+              )}
             </p>
           )}
         </div>
@@ -194,12 +207,14 @@ interface SharePostContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
   isCompactSpacing?: boolean;
+  isPostPage?: boolean;
 }
 
 const SharePostContent = ({
   post,
   onReadArticle,
   isCompactSpacing,
+  isPostPage,
 }: SharePostContentProps): ReactElement => {
   const isSharedTweet =
     !!post.sharedPost && isSocialTwitterPost(post.sharedPost);
@@ -219,6 +234,9 @@ const SharePostContent = ({
         sharedPost={post.sharedPost}
         isCompactSpacing={isCompactSpacing}
         showTweetImage
+        // Page only, like the article TLDR's own control: in the modal the
+        // page the snapshot credits is not the one open.
+        showSummarySnapshot={isPostPage}
       />
     </>
   );

@@ -13,8 +13,50 @@ export const hijackingGlassCta =
 export interface HijackingCoverCopy {
   heading: string;
   body: string;
+}
+
+interface HijackingCoverAuthActionsProps {
   signup: string;
   login: string;
+  onSignupClick: () => void;
+  onLoginClick: () => void;
+}
+
+// The sign up / log in pair for surfaces that offer both.
+export function HijackingCoverAuthActions({
+  signup,
+  login,
+  onSignupClick,
+  onLoginClick,
+}: HijackingCoverAuthActionsProps): ReactElement {
+  return (
+    <>
+      <Button
+        type="button"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Medium}
+        className={classNames(
+          'group/cta shadow-2 shadow-black/40',
+          hijackingPrimaryCta,
+        )}
+        onClick={onSignupClick}
+      >
+        {signup}
+        <span className="ml-1 inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5">
+          →
+        </span>
+      </Button>
+      <Button
+        type="button"
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Medium}
+        className={hijackingGlassCta}
+        onClick={onLoginClick}
+      >
+        {login}
+      </Button>
+    </>
+  );
 }
 
 const coverArtPosition = { objectPosition: '50% 62%' };
@@ -24,8 +66,8 @@ export const hijackingCoverStripMinHeight = 'min-h-[14rem]';
 
 interface HijackingCoverStripProps {
   copy: HijackingCoverCopy;
-  onSignupClick: () => void;
-  onLoginClick: () => void;
+  // The CTA row under the copy.
+  actions: ReactNode;
   // Invisible in-flow content that sets the card's height. The extension's
   // arm reserves the control strip's exact height with it; surfaces with no
   // control to match leave it out and the copy sizes the card.
@@ -35,8 +77,7 @@ interface HijackingCoverStripProps {
 
 export function HijackingCoverStrip({
   copy,
-  onSignupClick,
-  onLoginClick,
+  actions,
   sizer,
   className,
 }: HijackingCoverStripProps): ReactElement {
@@ -78,30 +119,7 @@ export function HijackingCoverStrip({
             {copy.body}
           </p>
           <div className="mt-4 flex flex-row justify-center gap-2.5">
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              className={classNames(
-                'group/cta shadow-2 shadow-black/40',
-                hijackingPrimaryCta,
-              )}
-              onClick={onSignupClick}
-            >
-              {copy.signup}
-              <span className="ml-1 inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5">
-                →
-              </span>
-            </Button>
-            <Button
-              type="button"
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Medium}
-              className={hijackingGlassCta}
-              onClick={onLoginClick}
-            >
-              {copy.login}
-            </Button>
+            {actions}
           </div>
         </div>
       </div>

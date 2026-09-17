@@ -1,6 +1,8 @@
 import { gql } from 'graphql-request';
 import type { Source } from './sources';
 import { SOURCE_SHORT_INFO_FRAGMENT } from './fragments';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { gqlBatchRequest } from './batch';
 
 export enum AdvancedSettingsGroup {
   Advanced = 'advanced',
@@ -187,6 +189,13 @@ export const GET_ONBOARDING_TAGS_QUERY = gql`
     }
   }
 `;
+
+export const suggestedTagsQueryOptions = () => ({
+  queryKey: generateQueryKey(RequestKey.Tags, undefined, 'suggestedTags'),
+  queryFn: () =>
+    gqlBatchRequest<{ onboardingTags: TagsData }>(GET_ONBOARDING_TAGS_QUERY),
+  staleTime: StaleTime.OneHour,
+});
 
 export const GET_RECOMMENDED_TAGS_QUERY = gql`
   query RecommendedTags($tags: [String]!, $excludedTags: [String]!) {

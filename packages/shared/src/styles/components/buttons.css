@@ -140,6 +140,48 @@
   }
 
   /*
+   * Ghost button sitting on a brand fill (promotional bar). The theme text
+   * ramp the ghost variants read from is tuned for app surfaces, so on a
+   * saturated or white fill the glyph all but disappears. This inherits the
+   * fill's own ink and tints hover / active with it, so it follows whatever
+   * text color the fill paints, per theme included. The `.invert` selector
+   * outranks the plugin's inverted-context rules.
+   */
+  &.btn-on-fill,
+  .invert &.btn-on-fill {
+    --button-default-color: currentColor;
+    --button-hover-color: currentColor;
+    --button-active-color: currentColor;
+    --button-hover-background: color-mix(in srgb, currentColor, transparent 82%);
+    --button-active-background: color-mix(in srgb, currentColor, transparent 72%);
+  }
+
+  /*
+   * The neutral primary pinned to its white form, for a brand fill whose
+   * text is white in both modes so the button stays on the same ink.
+   */
+  &.btn-primary-white,
+  .invert &.btn-primary-white {
+    --button-default-color: var(--btn-label-on-fill-dark);
+    --button-default-background: theme('colors.white');
+    --button-hover-background: theme('colors.raw.salt.30');
+    --button-active-background: theme('colors.raw.salt.50');
+  }
+
+  /*
+   * The neutral primary of the opposite theme, for a fill painted with
+   * `bg-surface-primary` (white in dark mode, dark in light mode) where the
+   * theme's own primary would match the fill.
+   */
+  &.btn-primary-inverted,
+  .invert &.btn-primary-inverted {
+    --button-default-color: var(--theme-surface-primary);
+    --button-default-background: var(--theme-surface-invert);
+    --button-hover-background: color-mix(in srgb, var(--theme-surface-invert), var(--theme-surface-primary) 12%);
+    --button-active-background: color-mix(in srgb, var(--theme-surface-invert), var(--theme-surface-primary) 20%);
+  }
+
+  /*
    * Icon margin reset — V1 used `-ml-2 mr-1` to negate the `px-2`
    * default; V2 dropped this in favour of parent `flex gap-X`. The
    * V1 React component (`Button.tsx`) is now updated to emit a per-size

@@ -7,14 +7,11 @@ import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
   AnalyticsIcon,
   DiscussIcon as CommentIcon,
-  DiscussIconV2 as CommentIconV2,
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
-import { useFeature } from '../../GrowthBookProvider';
-import { featureCommentFirstAction } from '../../../lib/featureManagement';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -92,8 +89,6 @@ const ActionButtonsV1 = ({
   const isFeedPreview = useFeedPreviewMode();
   const { buttonSize, iconSize } = config;
   const { getUpvoteAnimation } = useBrandSponsorship();
-  const isCommentFirst = useFeature(featureCommentFirstAction);
-  const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
 
   const {
     isUpvoteActive,
@@ -158,9 +153,7 @@ const ActionButtonsV1 = ({
         pressed={post.commented}
         variant={ButtonVariant.Tertiary}
         size={buttonSize}
-        icon={
-          <CommentIconComponent secondary={post.commented} size={iconSize} />
-        }
+        icon={<CommentIcon secondary={post.commented} size={iconSize} />}
         onClick={() => onCommentClick?.(post)}
       >
         {commentCount > 0 && (
@@ -179,9 +172,7 @@ const ActionButtonsV1 = ({
       <QuaternaryButton
         labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
-        icon={
-          <CommentIconComponent secondary={post.commented} size={iconSize} />
-        }
+        icon={<CommentIcon secondary={post.commented} size={iconSize} />}
         pressed={post.commented}
         onClick={() => onCommentClick?.(post)}
         size={buttonSize}
@@ -200,56 +191,6 @@ const ActionButtonsV1 = ({
     </Tooltip>
   );
 
-  const upvoteButton = (
-    <Tooltip
-      content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
-      side={variant === 'grid' ? 'bottom' : undefined}
-    >
-      <QuaternaryButton
-        labelClassName={counterLabelClassName}
-        className="btn-tertiary-avocado pointer-events-auto"
-        id={`post-${post.id}-upvote-btn`}
-        color={ButtonColor.Avocado}
-        pressed={isUpvoteActive}
-        onClick={onToggleUpvote}
-        variant={ButtonVariant.Tertiary}
-        size={buttonSize}
-        icon={
-          <UpvoteButtonIcon
-            secondary={isUpvoteActive}
-            size={iconSize}
-            brandAnimation={brandAnimation}
-          />
-        }
-      >
-        {upvoteCount > 0 && (
-          <InteractionCounter
-            className={counterClassName}
-            value={upvoteCount}
-          />
-        )}
-      </QuaternaryButton>
-    </Tooltip>
-  );
-
-  const downvoteButton = showDownvoteAction && (
-    <Tooltip
-      content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
-      side={variant === 'grid' ? 'bottom' : undefined}
-    >
-      <QuaternaryButton
-        className="pointer-events-auto"
-        id={`post-${post.id}-downvote-btn`}
-        color={ButtonColor.Ketchup}
-        icon={<DownvoteIcon secondary={isDownvoteActive} size={iconSize} />}
-        pressed={isDownvoteActive}
-        onClick={onToggleDownvote}
-        variant={ButtonVariant.Tertiary}
-        size={buttonSize}
-      />
-    </Tooltip>
-  );
-
   const buttons = (
     <div
       className={classNames(
@@ -259,18 +200,55 @@ const ActionButtonsV1 = ({
       )}
     >
       <div className="flex flex-1 items-center justify-between">
-        {isCommentFirst ? (
-          <>
-            {commentButton}
-            {upvoteButton}
-          </>
-        ) : (
-          <>
-            {upvoteButton}
-            {commentButton}
-          </>
+        <Tooltip
+          content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
+          side={variant === 'grid' ? 'bottom' : undefined}
+        >
+          <QuaternaryButton
+            labelClassName={counterLabelClassName}
+            className="btn-tertiary-avocado pointer-events-auto"
+            id={`post-${post.id}-upvote-btn`}
+            color={ButtonColor.Avocado}
+            pressed={isUpvoteActive}
+            onClick={onToggleUpvote}
+            variant={ButtonVariant.Tertiary}
+            size={buttonSize}
+            icon={
+              <UpvoteButtonIcon
+                secondary={isUpvoteActive}
+                size={iconSize}
+                brandAnimation={brandAnimation}
+              />
+            }
+          >
+            {upvoteCount > 0 && (
+              <InteractionCounter
+                className={counterClassName}
+                value={upvoteCount}
+              />
+            )}
+          </QuaternaryButton>
+        </Tooltip>
+        {commentButton}
+        {showDownvoteAction && (
+          <Tooltip
+            content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
+            side={variant === 'grid' ? 'bottom' : undefined}
+          >
+            <QuaternaryButton
+              className="pointer-events-auto"
+              id={`post-${post.id}-downvote-btn`}
+              color={ButtonColor.Ketchup}
+              icon={
+                <DownvoteIcon secondary={isDownvoteActive} size={iconSize} />
+              }
+              pressed={isDownvoteActive}
+              onClick={onToggleDownvote}
+              variant={ButtonVariant.Tertiary}
+              size={buttonSize}
+            />
+          </Tooltip>
         )}
-        {downvoteButton}
         {showAwardAction && !impressionsEnabled && (
           <PostAwardAction
             post={post}
