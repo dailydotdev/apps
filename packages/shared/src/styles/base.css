@@ -1147,24 +1147,24 @@ meter::-webkit-meter-bar {
   }
 
   .cover-strip-blur-near {
-    --cover-strip-blur-hold: 30%;
-    --cover-strip-blur-end: 50%;
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+    --cover-strip-blur-hold: 22%;
+    --cover-strip-blur-end: 36%;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
   }
 
   .cover-strip-blur-mid {
-    --cover-strip-blur-hold: 22%;
-    --cover-strip-blur-end: 40%;
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
+    --cover-strip-blur-hold: 16%;
+    --cover-strip-blur-end: 28%;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
   }
 
   .cover-strip-blur-far {
-    --cover-strip-blur-hold: 14%;
-    --cover-strip-blur-end: 30%;
-    -webkit-backdrop-filter: blur(28px);
-    backdrop-filter: blur(28px);
+    --cover-strip-blur-hold: 10%;
+    --cover-strip-blur-end: 20%;
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
   }
 
   .top-hero-stage {
