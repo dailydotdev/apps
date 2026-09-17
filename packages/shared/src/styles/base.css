@@ -1125,7 +1125,6 @@ meter::-webkit-meter-bar {
     );
   }
 
-  /* A feathered blur pocket behind the strip's bottom links. */
   .cover-strip-blur {
     -webkit-mask-image: radial-gradient(
       ellipse 50% 100% at 50% 100%,

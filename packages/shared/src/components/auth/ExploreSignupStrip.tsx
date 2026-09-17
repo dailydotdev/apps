@@ -24,11 +24,9 @@ const copy: HijackingCoverCopy = {
   body: 'Log in to pick up where you left off.',
 };
 
-// The card's height with the copy and auth stack stacked in the centre.
 export const exploreSignupStripMinHeight = 'min-h-[18rem]';
 
-// The new tab's cover strip for anonymous visitors, tablet and up, with the
-// sticky auth banner's signup stack in place of a sign up / log in pair.
+// The new tab's cover strip for anonymous visitors, tablet and up.
 export function ExploreSignupStrip({
   className,
 }: {

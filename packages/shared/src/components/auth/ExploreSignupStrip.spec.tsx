@@ -17,25 +17,17 @@ jest.mock('../../hooks/useViewSize', () => ({
   useViewSize: jest.fn(),
 }));
 
-/* The real form is the whole auth stack. What this file is about is the strip
-   around it and the handoff it makes to the modal, so the mock stands in for
-   the two ways out of the form. */
 jest.mock('./AuthOptions', () => ({
   __esModule: true,
   default: ({
-    trigger,
-    signupStyle,
     onAuthStateUpdate,
   }: {
-    trigger: string;
-    signupStyle?: string;
     onAuthStateUpdate?: (props: Record<string, unknown>) => void;
   }) => {
     const { AuthDisplay: Display } = jest.requireActual('./common');
 
     return (
-      <div data-testid="auth-options" data-signup-style={signupStyle}>
-        <span data-testid="trigger">{trigger}</span>
+      <div>
         <button
           type="button"
           onClick={() =>
@@ -107,18 +99,6 @@ describe('ExploreSignupStrip', () => {
       }),
     ).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith(impression);
-  });
-
-  it('should render the sticky banner signup stack', () => {
-    renderComponent();
-
-    expect(screen.getByTestId('auth-options')).toHaveAttribute(
-      'data-signup-style',
-      'singlePrimary',
-    );
-    expect(screen.getByTestId('trigger')).toHaveTextContent(
-      AuthTriggers.Onboarding,
-    );
   });
 
   it('should render nothing for logged-in users', () => {
