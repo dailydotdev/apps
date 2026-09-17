@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import type { ComponentProps, ReactElement, ReactNode, RefObject } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -62,7 +62,6 @@ import { PostContentShare } from '../common/PostContentShare';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
-import { useMedia } from '../../../hooks/useMedia';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import {
   CommunitySentiment,
@@ -90,9 +89,9 @@ export interface PostFocusCardAds {
   renderBody?: (contentHtml: string) => ReactNode;
   withoutDirectSold?: boolean;
   /**
-   * In rail order. Beside the column once the viewport has room; until then
-   * only the first has a home, inline. Units carry no positioning of their
-   * own, so the same elements can serve the classic rail.
+   * In rail order. Beside the column once there is room, as a second column
+   * on laptops, inline below that. Units carry no positioning of their own,
+   * so the same elements can serve the classic rail.
    */
   rail?: ReactNode[];
   /** Pins the last rail unit under the header, like the classic rail's closing tower. */
@@ -143,6 +142,48 @@ const ArticleLink = ({
 };
 
 const SHOW_MORE_SUFFIX = '… Show more';
+
+const COLUMN_HALF_WIDTH = 384;
+const RAIL_WITH_GAP = 332;
+
+/**
+ * Whether a 300px rail fits to the right of the centred 768px column. Read
+ * from the card's own box rather than a viewport query: the room depends on
+ * the sidebar's width and the page wrapper, which a media query cannot see.
+ */
+const useHasRailRoom = (
+  cardRef: RefObject<HTMLElement>,
+  hasRail: boolean,
+): boolean => {
+  const [hasRoom, setHasRoom] = useState(false);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!hasRail || !card) {
+      return undefined;
+    }
+    const measure = (): void => {
+      const { left, width } = card.getBoundingClientRect();
+      const columnRight = left + width / 2 + COLUMN_HALF_WIDTH;
+      setHasRoom(
+        document.documentElement.clientWidth - columnRight >= RAIL_WITH_GAP,
+      );
+    };
+    measure();
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? undefined
+        : new ResizeObserver(measure);
+    observer?.observe(card);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [cardRef, hasRail]);
+
+  return hasRoom;
+};
 
 /**
  * Video TL;DR capped to four lines. When the text overflows we truncate it at a
@@ -297,11 +338,11 @@ const PostFocusCardRaw = ({
   const isSharedTweet = isShared && isSocialTwitterPost(article);
   const isSharedVideo = isShared && isVideoType;
   const showTags = !isSquadPost;
-  // 768px column + 2rem gap + 300px unit, with room left for the sidebar.
-  // Wider than that the rail floats beside the centred column; on a laptop
-  // the column and rail centre together as one block instead; below laptop
-  // only the first unit has a home, inline.
-  const hasRailRoom = useMedia(['(min-width: 92rem)'], [true], false);
+  // The rail floats beside the centred column when the space right of that
+  // column fits it, on a laptop the column and rail centre together as one
+  // block, and below laptop the units sit inline where the classic rail
+  // stacks under the article.
+  const hasRailRoom = useHasRailRoom(cardRef, !!ads?.rail);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const railPlacement = !ads?.rail
     ? null
@@ -424,6 +465,9 @@ const PostFocusCardRaw = ({
 
   const postBody = article.contentHtml ? (
     <div ref={bodyRef} className="flex flex-col gap-4">
+      {ads?.renderSummarySegments &&
+        article.summary &&
+        renderSummary(article.summary)}
       {ads?.renderBody ? (
         ads.renderBody(article.contentHtml)
       ) : (
@@ -766,7 +810,7 @@ const PostFocusCardRaw = ({
           {!ads?.withoutDirectSold && (
             <PostSidebarAdWidget postId={post.id} variant="inline" />
           )}
-          {railPlacement === 'inline' && ads?.rail?.[0]}
+          {railPlacement === 'inline' && ads?.rail}
 
           <PostUpvotesCommentsCount
             post={post}

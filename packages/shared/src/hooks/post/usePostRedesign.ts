@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { useConditionalFeature } from '../useConditionalFeature';
@@ -17,19 +16,6 @@ export const postRedesignEligibleTypes: PostType[] = [
   PostType.Welcome,
 ];
 
-// TEMP-REVIEW: the remote flag is off, so preview deployments force the
-// treatment for review. Revert before merge. Resolved after mount so the
-// server and the first client render agree.
-export const useIsPreviewHost = (): boolean => {
-  const [isPreviewHost, setIsPreviewHost] = useState(false);
-  useEffect(() => {
-    setIsPreviewHost(
-      window.location.hostname.endsWith('.preview.app.daily.dev'),
-    );
-  }, []);
-  return isPreviewHost;
-};
-
 export const isPostRedesignEligible = (
   post?: Pick<Post, 'type'> | null,
 ): boolean => !!post && postRedesignEligibleTypes.includes(post.type);
@@ -39,21 +25,29 @@ interface UsePostRedesign {
   showRedesign: boolean;
 }
 
+interface UsePostRedesignOptions {
+  /**
+   * Whether the surface could render the redesign at all. False keeps the
+   * flag unevaluated, so a session that can only ever see the classic layout
+   * is never enrolled in the experiment.
+   */
+  canRender?: boolean;
+}
+
 /**
  * Single source of truth for whether a post should render with the redesign
- * layout, so the post page and the post modal stay in sync.
+ * layout, so the post page, the post modal and the /articles template stay
+ * in sync.
  */
-export const usePostRedesign = (post?: Post): UsePostRedesign => {
-  const isEligible = isPostRedesignEligible(post);
+export const usePostRedesign = (
+  post?: Post,
+  { canRender = true }: UsePostRedesignOptions = {},
+): UsePostRedesign => {
+  const isEligible = isPostRedesignEligible(post) && canRender;
   const { value: isFlagOn } = useConditionalFeature({
     feature: featurePostRedesign,
     shouldEvaluate: isEligible,
   });
 
-  const isPreviewHost = useIsPreviewHost();
-
-  return {
-    isEligible,
-    showRedesign: isEligible && (isFlagOn || isPreviewHost),
-  };
+  return { isEligible, showRedesign: isEligible && isFlagOn };
 };

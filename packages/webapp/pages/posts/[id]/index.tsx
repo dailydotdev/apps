@@ -83,8 +83,8 @@ import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
+import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { AdHeadHints } from '../../../components/AdHeadHints';
-import { usePostPageRedesign } from '../../../components/post/usePostPageRedesign';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -229,7 +229,11 @@ export const PostPage = ({
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
-  const showRedesign = usePostPageRedesign(post);
+  // Entry-specific flows the focus card doesn't render (author onboarding via
+  // `?author`, back-to-squad via `?squad`) stay on the classic layout.
+  const { showRedesign } = usePostRedesign(post, {
+    canRender: !router.query?.author && !router.query?.squad,
+  });
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
   // Empty for every logged-in visitor; the slot components check the same
   // hook, so with it empty neither markup nor the Prebid bundle exists.
@@ -476,7 +480,7 @@ export const PostPage = ({
           {showRedesign ? (
             <div
               className={classNames(
-                'mx-auto w-full max-w-[63.75rem]',
+                'mx-auto w-full max-w-[72rem]',
                 // Clears the fixed signup banner so the thread's tail is
                 // reachable; the classic page ends in the footer instead.
                 showLaptopAuthBanner && 'laptop:pb-72',

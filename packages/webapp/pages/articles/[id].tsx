@@ -85,8 +85,10 @@ export interface ReadPostPageProps extends DynamicSeoProps {
 /**
  * Ad-monetised post template for paid-acquisition and organic landing traffic.
  *
- * Lives on its own route so `/posts/[id]` and the focus-card redesign are
- * untouched. Differences from the standard template, all deliberate: no
+ * Lives on its own route so `/posts/[id]` is untouched; it follows the same
+ * `post_redesign` flag, rendering the focus card in the treatment arm with
+ * this template's slot map. Differences from the standard template, all
+ * deliberate: no
  * PostAuthBanner, no CustomAuthBanner (never passed in layoutProps), no
  * PostSignupWidget, and no sidebar at all — it carries no ad unit anymore,
  * and its post-boot mount was the page's last source of layout shift. The
@@ -131,7 +133,6 @@ const ReadPostPage = ({
     );
     const hasSummaryUnits =
       !!post?.summary &&
-      !post.contentHtml &&
       splitTextForAds(
         post.summary,
         CONTENT_CHARS_PER_AD,
@@ -219,7 +220,7 @@ const ReadPostPage = ({
         ),
       },
     };
-  }, [showRedesign, post?.summary, post?.contentHtml]);
+  }, [showRedesign, post?.summary]);
 
   // Display-only override; the stored theme preference is untouched and
   // restored the moment the visitor leaves.
@@ -309,7 +310,7 @@ const ReadPostPage = ({
           </>
         )}
         {showRedesign ? (
-          <div className="mx-auto w-full max-w-[63.75rem]">
+          <div className="mx-auto w-full max-w-[72rem]">
             <PostFocusCard
               post={post}
               origin={Origin.ArticlePage}

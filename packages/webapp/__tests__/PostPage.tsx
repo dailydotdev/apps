@@ -93,16 +93,20 @@ jest.mock('next/router', () => ({
 // Toggled per-test to exercise the redesigned post page (PostFocusCard); the
 // flag defaults off so the classic layout renders unless a test flips it on.
 let mockRedesignOn = false;
+// Evaluating the flag is what enrols a session, so tests can assert on it.
+let mockRedesignEvaluated = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
   useConditionalFeature: (args: {
     feature?: { id?: string; defaultValue?: unknown };
+    shouldEvaluate?: boolean;
   }) => {
     if (args?.feature?.id === 'reader_modal') {
       return { value: false, isLoading: false };
     }
     if (args?.feature?.id === 'post_redesign') {
+      mockRedesignEvaluated ||= args.shouldEvaluate !== false;
       return { value: mockRedesignOn, isLoading: false };
     }
     return { value: args?.feature?.defaultValue, isLoading: false };
@@ -1299,10 +1303,13 @@ describe('post redesign', () => {
 
   it('should keep the classic layout for author onboarding even when the flag is on', async () => {
     mockRedesignOn = true;
+    mockRedesignEvaluated = false;
     mockRouterQuery({ author: 'true' });
     renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+    // A session that can only see the classic layout is never enrolled.
+    expect(mockRedesignEvaluated).toBe(false);
   });
 
   it('should show the signup banner to logged-out laptop visitors on the focus card', async () => {

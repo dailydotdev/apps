@@ -106,6 +106,27 @@ const renderPage = (overrides: Partial<Post> = {}) => {
   );
 };
 
+const firingObserver = class {
+  constructor(private callback: IntersectionObserverCallback) {}
+
+  observe = (target: Element): void => {
+    this.callback(
+      [{ isIntersecting: true, target } as IntersectionObserverEntry],
+      this as unknown as IntersectionObserver,
+    );
+  };
+
+  disconnect = jest.fn();
+
+  unobserve = jest.fn();
+} as unknown as typeof IntersectionObserver;
+
+const mountedUnits = () =>
+  screen
+    .getAllByTestId(/^ad-slot-/)
+    .map((el) => el.getAttribute('data-testid'))
+    .sort();
+
 describe('ReadPostPage under post_redesign', () => {
   it('keeps the classic read template when the flag is off', async () => {
     renderPage();
@@ -121,39 +142,63 @@ describe('ReadPostPage under post_redesign', () => {
     expect(screen.queryByText(/Promoted by/)).not.toBeInTheDocument();
   });
 
-  it('keeps the first body unit on phones when the card shows a body, not a summary', async () => {
-    mockRedesignOn = true;
+  describe('ad units', () => {
     // Units mount their slot node only once they intersect; the suite-wide
     // observer mock never fires.
     const originalObserver = global.IntersectionObserver;
-    global.IntersectionObserver = class {
-      constructor(private callback: IntersectionObserverCallback) {}
-
-      observe = (target: Element): void => {
-        this.callback(
-          [{ isIntersecting: true, target } as IntersectionObserverEntry],
-          this as unknown as IntersectionObserver,
-        );
-      };
-
-      disconnect = jest.fn();
-
-      unobserve = jest.fn();
-    } as unknown as typeof IntersectionObserver;
-    const paragraph = `<p>${'Body text that runs long enough to split. '.repeat(
+    const longSummary = Array.from(
+      { length: 12 },
+      (_, i) => `Sentence ${i} explains how traces surface breaking changes.`,
+    ).join(' ');
+    const longBody = `<p>${'Body text that runs long enough to split. '.repeat(
       8,
-    )}</p>`;
-    renderPage({
-      type: PostType.Collection,
-      contentHtml: paragraph.repeat(3),
-      summary:
-        'A summary long enough to have split into units on its own. '.repeat(6),
-    });
-    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+    )}</p>`.repeat(3);
 
-    const bodyUnits = screen.getAllByTestId('ad-slot-17');
-    expect(bodyUnits.length).toBeGreaterThan(0);
-    expect(bodyUnits[0].parentElement).not.toHaveClass('hidden');
-    global.IntersectionObserver = originalObserver;
+    beforeEach(() => {
+      global.IntersectionObserver = firingObserver;
+    });
+
+    afterEach(() => {
+      global.IntersectionObserver = originalObserver;
+    });
+
+    it('carries the same units on the focus card as on the classic template', async () => {
+      const { unmount } = renderPage({ summary: longSummary });
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      const classicUnits = mountedUnits();
+      expect(classicUnits).toEqual(
+        expect.arrayContaining([
+          'ad-slot-2',
+          'ad-slot-11',
+          'ad-slot-12',
+          'ad-slot-17',
+          'ad-slot-18',
+          'ad-slot-19',
+        ]),
+      );
+      unmount();
+
+      mockRedesignOn = true;
+      renderPage({ summary: longSummary });
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(classicUnits);
+    });
+
+    it('carries the same units for a collection, summary and body included', async () => {
+      const collection = {
+        type: PostType.Collection,
+        contentHtml: longBody,
+        summary: longSummary,
+      };
+      const { unmount } = renderPage(collection);
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      const classicUnits = mountedUnits();
+      unmount();
+
+      mockRedesignOn = true;
+      renderPage(collection);
+      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+      expect(mountedUnits()).toEqual(classicUnits);
+    });
   });
 });
