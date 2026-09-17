@@ -13,8 +13,6 @@ import type { ViewabilityData } from '../../../features/monetization/viewability
 import { viewabilityLogExtra } from '../../../features/monetization/viewability';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useVotePost } from '../../../hooks';
-import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { ImpressionStatus } from '../../../hooks/feed/useLogImpression';
 import {
@@ -27,10 +25,7 @@ import { LogEvent, Origin } from '../../../lib/log';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { FeedHeroSection } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
-
-// Distinct from `Origin.Feed` so the experiment can tell the hero's clicks and
-// impressions apart from the grid's. Matches the ad events' own origin.
-const HERO_ORIGIN = 'feed hero';
+import { useFeedHeroPostActions } from './useFeedHeroPostActions';
 
 /**
  * The carousel and the Happening Now list are two lists, not one: `feedHero`
@@ -58,21 +53,31 @@ export const FeedHero = ({
   const { user, tokenRefreshed } = useAuthContext();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  const { toggleUpvote, toggleDownvote } = useVotePost();
-  const { toggleBookmark } = useBookmarkPost();
   const [, copyLink] = useCopyLink();
 
   const { ad, placement, shape } = useFeedHeroAd();
 
+  const queryKey = generateQueryKey(RequestKey.FeedHero, user);
+  // Vote and bookmark patch the hero's own query: the bare hooks only write the
+  // single-post key, which these cards never read.
+  const { toggleUpvote, toggleDownvote, toggleBookmark } =
+    useFeedHeroPostActions({
+      queryKey,
+      feedName,
+      origin: Origin.FeedHero,
+    });
+
   const { data: hero } = useQuery({
-    queryKey: generateQueryKey(RequestKey.FeedHero, user),
+    queryKey,
     queryFn: () =>
       gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
         loggedIn: !!user,
         supportedTypes: supportedTypesForPrivateSources,
       }),
     enabled: tokenRefreshed,
-    staleTime: StaleTime.Default,
+    // The same window `majorHeadlinesQueryOptions` gives the in-feed card, so
+    // the two surfaces the experiment compares are equally fresh.
+    staleTime: StaleTime.OneMinute,
   });
 
   const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
@@ -102,7 +107,9 @@ export const FeedHero = ({
       }
 
       logEvent(
-        adLogEvent(action, ad, { extra: { origin: HERO_ORIGIN, ...extra } }),
+        adLogEvent(action, ad, {
+          extra: { origin: Origin.FeedHero, ...extra },
+        }),
       );
     },
     [ad, logEvent],
@@ -149,14 +156,14 @@ export const FeedHero = ({
       onPostClick: (post: Post) =>
         logEvent(
           postLogEvent(LogEvent.Click, post, {
-            extra: { origin: HERO_ORIGIN },
+            extra: { origin: Origin.FeedHero },
           }),
         ),
-      onUpvoteClick: (post: Post, origin = Origin.Feed) =>
+      onUpvoteClick: (post: Post, origin = Origin.FeedHero) =>
         toggleUpvote({ payload: post, origin }),
-      onDownvoteClick: (post: Post, origin = Origin.Feed) =>
+      onDownvoteClick: (post: Post, origin = Origin.FeedHero) =>
         toggleDownvote({ payload: post, origin }),
-      onBookmarkClick: (post: Post, origin = Origin.Feed) =>
+      onBookmarkClick: (post: Post, origin = Origin.FeedHero) =>
         toggleBookmark({ post, origin }),
       onCopyLinkClick: (_: React.MouseEvent, post: Post) =>
         copyLink({ link: post.commentsPermalink }),
@@ -187,7 +194,7 @@ export const FeedHero = ({
       onPostImpression={(post) =>
         logEvent(
           postLogEvent(LogEvent.Impression, post, {
-            extra: { origin: HERO_ORIGIN },
+            extra: { origin: Origin.FeedHero },
           }),
         )
       }

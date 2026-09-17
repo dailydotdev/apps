@@ -1,12 +1,23 @@
 import React from 'react';
 import nock from 'nock';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import basePost from '../../../../__tests__/fixture/post';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import {
+  completeActionMock,
+  mockGraphQL,
+} from '../../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { ActionType } from '../../../graphql/actions';
+import { ADD_BOOKMARKS_MUTATION, UserVote } from '../../../graphql/posts';
+import { VOTE_MUTATION } from '../../../graphql/users';
+import { UserVoteEntity } from '../../../hooks/vote/types';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import type { FeedHeroData } from '../../../graphql/feed';
 import {
   FEED_HERO_QUERY,
   supportedTypesForPrivateSources,
@@ -55,24 +66,30 @@ beforeEach(() => {
   });
 });
 
-const mockHero = (data: {
-  posts: typeof posts;
-  highlights: typeof highlights;
-}) =>
+const mockHero = (
+  data: {
+    posts: typeof posts;
+    highlights: typeof highlights;
+  },
+  loggedIn = false,
+) =>
   mockGraphQL({
     request: {
       query: FEED_HERO_QUERY,
       variables: {
-        loggedIn: false,
+        loggedIn,
         supportedTypes: supportedTypesForPrivateSources,
       },
     },
     result: { data: { feedHero: data } },
   });
 
-const renderComponent = () =>
+const renderComponent = (
+  client = new QueryClient(),
+  user?: typeof loggedUser,
+) =>
   render(
-    <TestBootProvider client={new QueryClient()}>
+    <TestBootProvider client={client} auth={{ user }}>
       <FeedHero feedName="popular" />
     </TestBootProvider>,
   );
@@ -143,5 +160,76 @@ describe('FeedHero', () => {
 
     await waitFor(() => expect(nock.isDone()).toBe(true));
     expect(container).toBeEmptyDOMElement();
+  });
+
+  // The bare vote and bookmark hooks only write the single-post cache key,
+  // which the hero never reads, so a click used to succeed on the server and
+  // change nothing on screen. These pin that the hero patches its own query.
+  describe('engagement on its own cards', () => {
+    const [lead] = posts;
+    const heroPost = { ...lead, numUpvotes: 5, bookmarked: false };
+
+    it('should press the upvote and bump the count on the hero itself', async () => {
+      const client = new QueryClient();
+      mockHero({ posts: [heroPost], highlights }, true);
+      mockGraphQL({
+        request: {
+          query: VOTE_MUTATION,
+          variables: {
+            id: heroPost.id,
+            vote: UserVote.Up,
+            entity: UserVoteEntity.Post,
+          },
+        },
+        result: { data: { _: true } },
+      });
+      mockGraphQL(completeActionMock({ action: ActionType.VotePost }));
+
+      renderComponent(client, loggedUser);
+
+      const [upvote] = await screen.findAllByLabelText('Upvote');
+      fireEvent.click(upvote);
+
+      await waitFor(() =>
+        expect(upvote).toHaveAttribute('aria-pressed', 'true'),
+      );
+      await waitForNock();
+
+      const cached = client.getQueryData<FeedHeroData>(
+        generateQueryKey(RequestKey.FeedHero, loggedUser),
+      );
+      expect(cached?.feedHero.posts[0]).toMatchObject({
+        numUpvotes: 6,
+        userState: { vote: UserVote.Up },
+      });
+    });
+
+    it('should press the bookmark on the hero itself', async () => {
+      const client = new QueryClient();
+      mockHero({ posts: [heroPost], highlights }, true);
+      mockGraphQL({
+        request: {
+          query: ADD_BOOKMARKS_MUTATION,
+          variables: { data: { postIds: [heroPost.id] } },
+        },
+        result: { data: { _: true } },
+      });
+      mockGraphQL(completeActionMock({ action: ActionType.BookmarkPost }));
+
+      renderComponent(client, loggedUser);
+
+      const [bookmark] = await screen.findAllByLabelText('Bookmark');
+      fireEvent.click(bookmark);
+
+      await waitFor(() =>
+        expect(bookmark).toHaveAttribute('aria-pressed', 'true'),
+      );
+      await waitForNock();
+
+      const cached = client.getQueryData<FeedHeroData>(
+        generateQueryKey(RequestKey.FeedHero, loggedUser),
+      );
+      expect(cached?.feedHero.posts[0].bookmarked).toBe(true);
+    });
   });
 });
