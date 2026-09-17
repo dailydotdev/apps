@@ -27,7 +27,6 @@ export interface ProfileSnapshotButtonProps {
   renderCard: (ref: Ref<HTMLDivElement>) => ReactElement;
   /** A labelled button where the snapshot is a call to action, not an affordance. */
   showLabel?: boolean;
-  className?: string;
   size?: ButtonSize;
   variant?: ButtonVariant;
 }
@@ -49,7 +48,6 @@ function ArmedProfileSnapshotButton({
   targetType = TargetType.ProfilePage,
   renderCard,
   showLabel = false,
-  className,
   size = ButtonSize.XSmall,
   variant,
 }: ProfileSnapshotButtonProps): ReactElement {
@@ -77,7 +75,6 @@ function ArmedProfileSnapshotButton({
       <span className="contents" {...armProps}>
         <SnapshotButton
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
-          className={className}
           filename={filename}
           onResult={onResult}
           showLabel={showLabel}
