@@ -14,7 +14,10 @@ const illustration = (
 // Only what the extension adds on top of the web app, with the new-tab feed in
 // the middle so the carousel opens on it and fans out to both sides, like the
 // product tour on daily.dev's homepage (HomeProductTour in
-// dailydotdev/recruiter-landing), which also supplies the copy and glows.
+// dailydotdev/recruiter-landing). Copy, accents and glows are copied from that
+// tour by hand, so it and the illustrations need refreshing together whenever
+// either surface changes; if the variant ships, the tour content should move
+// to one shared source.
 export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
   {
     id: 'readmode',
@@ -38,7 +41,7 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
     id: 'brief',
     label: 'Daily brief',
     description:
-      'Your first tab of the day opens to an AI brief that compresses everything that matters into a two-minute read.',
+      'Skip the scrolling. An AI brief compresses everything that matters in your feed into a two-minute read.',
     media: illustration('brief', 'The presidential briefing'),
     accent: '#8b5cf6',
     glow: [

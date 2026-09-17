@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FunnelStepBrowserExtension } from '../types/funnel';
@@ -47,11 +47,6 @@ import { ExtensionShowcase } from '../../../components/onboarding/ExtensionShowc
 const showcaseStageClassName =
   'mx-auto max-w-[clamp(40rem,calc((100dvh-30rem)*2.04),64rem)]';
 
-// A safety net, not a budget: `ready` never flips when boot returns no
-// experiment features, and holding longer would blank the step for both arms
-// every time that happens.
-const FLAG_RESOLVE_TIMEOUT_MS = 200;
-
 const BROWSER_EXTENSION_DEFAULTS = {
   headline: 'Transform every new tab into a learning powerhouse',
   explainer:
@@ -78,26 +73,12 @@ const BrowserExtension = ({
   const isEdge = browserName === BrowserName.Edge;
   const browserLabel = isEdge ? 'Edge' : 'Chrome';
   const isOnboarding = useIsOnboardingFunnel();
-  const { value: hasShowcase, isLoading: isShowcaseFlagLoading } =
-    useConditionalFeature({
-      feature: featureOnboardingExtensionShowcase,
-      shouldEvaluate: isOnboarding,
-    });
-  const [hasWaitedForFlag, setHasWaitedForFlag] = useState(false);
-  useEffect(() => {
-    if (!isOnboarding) {
-      return undefined;
-    }
-    const timeout = setTimeout(
-      () => setHasWaitedForFlag(true),
-      FLAG_RESOLVE_TIMEOUT_MS,
-    );
-    return () => clearTimeout(timeout);
-  }, [isOnboarding]);
-  // Painting the video and swapping when the flag lands would show the control
-  // arm to treatment users first.
-  const isShowcasePending =
-    isOnboarding && isShowcaseFlagLoading && !hasWaitedForFlag;
+  // Unresolved reads as control: the step sits deep in the funnel, so the flags
+  // have long been ready by the time it renders.
+  const { value: hasShowcase } = useConditionalFeature({
+    feature: featureOnboardingExtensionShowcase,
+    shouldEvaluate: isOnboarding,
+  });
   // Only swap the default; a Freyja-provided cta wins.
   const ctaTemplate =
     isOnboarding && cta === BROWSER_EXTENSION_DEFAULTS.cta
@@ -283,7 +264,7 @@ const BrowserExtension = ({
       target="_blank"
       containerClassName="flex flex-col"
     >
-      {!isShowcasePending && body}
+      {body}
     </FunnelStepCtaWrapper>
   );
 };

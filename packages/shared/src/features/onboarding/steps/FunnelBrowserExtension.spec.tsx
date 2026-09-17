@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { FunnelBrowserExtension } from './FunnelBrowserExtension';
 import { FunnelProgressContext } from '../shared/FunnelStepDots';
 import { FunnelStepType } from '../types/funnel';
@@ -34,6 +34,26 @@ const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 
 const explainer = 'Unlock the power of every new tab';
 
+// A fresh element each time: React skips a subtree whose element is reused.
+const step = () => (
+  <FunnelProgressContext.Provider
+    value={{
+      chapters: [{ steps: 3 }],
+      position: { chapter: 0, step: 0 },
+      isOnboarding: true,
+    }}
+  >
+    <FunnelBrowserExtension
+      id="extension"
+      type={FunnelStepType.BrowserExtension}
+      transitions={[]}
+      isActive
+      onTransition={jest.fn()}
+      parameters={{ explainer }}
+    />
+  </FunnelProgressContext.Provider>
+);
+
 const renderStep = ({
   showcase,
   isLoading = false,
@@ -53,28 +73,11 @@ const renderStep = ({
       } as never),
   );
 
-  return render(
-    <FunnelProgressContext.Provider
-      value={{
-        chapters: [{ steps: 3 }],
-        position: { chapter: 0, step: 0 },
-        isOnboarding: true,
-      }}
-    >
-      <FunnelBrowserExtension
-        id="extension"
-        type={FunnelStepType.BrowserExtension}
-        transitions={[]}
-        isActive
-        onTransition={jest.fn()}
-        parameters={{ explainer }}
-      />
-    </FunnelProgressContext.Provider>,
-  );
+  return render(step());
 };
 
 beforeEach(() => {
-  Element.prototype.scrollTo = jest.fn();
+  Element.prototype.scrollIntoView = jest.fn();
 });
 
 describe('FunnelBrowserExtension', () => {
@@ -86,7 +89,7 @@ describe('FunnelBrowserExtension', () => {
       screen.getByLabelText('daily.dev feed running in a new tab on a laptop'),
     ).toBeVisible();
     expect(
-      screen.queryByRole('navigation', { name: 'Extension features' }),
+      screen.queryByRole('tablist', { name: 'Extension features' }),
     ).not.toBeInTheDocument();
   });
 
@@ -100,26 +103,32 @@ describe('FunnelBrowserExtension', () => {
     ).toBeVisible();
     expect(screen.queryByText(explainer)).not.toBeInTheDocument();
     expect(
-      screen.getByRole('navigation', { name: 'Extension features' }),
+      screen.getByRole('tablist', { name: 'Extension features' }),
     ).toBeVisible();
-    expect(
-      screen.getByRole('button', { name: 'New tab feed' }),
-    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('tab', { name: 'New tab feed' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     expect(screen.getByRole('link', { name: 'Add to Chrome' })).toBeVisible();
   });
 
-  it('holds the body while the flag loads, then gives up after the timeout', () => {
-    jest.useFakeTimers();
-    renderStep({ showcase: false, isLoading: true });
-
-    expect(screen.queryByText(explainer)).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Add to Chrome' })).toBeVisible();
-
-    act(() => {
-      jest.advanceTimersByTime(200);
-    });
+  it('shows control while the flag loads and the showcase once it resolves', () => {
+    const { rerender } = renderStep({ showcase: false, isLoading: true });
 
     expect(screen.getByText(explainer)).toBeVisible();
-    jest.useRealTimers();
+    expect(
+      screen.queryByRole('tablist', { name: 'Extension features' }),
+    ).not.toBeInTheDocument();
+
+    mockUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: false,
+    } as never);
+    rerender(step());
+
+    expect(screen.queryByText(explainer)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('tablist', { name: 'Extension features' }),
+    ).toBeVisible();
   });
 });
