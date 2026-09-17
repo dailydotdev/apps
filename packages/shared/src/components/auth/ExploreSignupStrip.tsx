@@ -97,7 +97,7 @@ export function ExploreSignupStrip({
           exploreSignupStripMinHeight,
         )}
       >
-        <div className="flex w-full max-w-[26.25rem] flex-col items-center gap-1">
+        <div className="flex w-full max-w-[26.25rem] flex-col items-center gap-3">
           <h3
             className={classNames(
               'text-balance',
@@ -119,7 +119,7 @@ export function ExploreSignupStrip({
             inlineProviders
             preferGithub={false}
             onboardingSignupButton={{ size: ButtonSize.Medium }}
-            className={{ container: 'mt-5 !min-h-0 !overflow-visible' }}
+            className={{ container: '!min-h-0 !overflow-visible' }}
             onAuthStateUpdate={onAuthStateUpdate}
           />
         </div>
