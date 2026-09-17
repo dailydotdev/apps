@@ -1125,6 +1125,21 @@ meter::-webkit-meter-bar {
     );
   }
 
+  .cover-strip-blur {
+    -webkit-mask-image: radial-gradient(
+      ellipse 50% 100% at 50% 100%,
+      black 45%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 50% 100% at 50% 100%,
+      black 45%,
+      transparent 100%
+    );
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
   .top-hero-stage {
     background:
       linear-gradient(
