@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -33,6 +33,7 @@ const denseContainer =
 interface SignupWidgetProps {
   title: string;
   description: string;
+  children?: ReactNode;
   /** Which surface is asking, for the analytics on the resulting signup. */
   trigger: AuthTriggersType;
   /**
@@ -58,6 +59,7 @@ export function SignupWidget({
   trigger,
   dense,
   className,
+  children,
 }: SignupWidgetProps): ReactElement {
   const { showLogin } = useAuthContext();
 
@@ -93,6 +95,7 @@ export function SignupWidget({
       >
         {description}
       </p>
+      {children}
       <div className={dense ? 'mt-3' : 'mt-4'}>
         <AuthOptions
           ignoreMessages
