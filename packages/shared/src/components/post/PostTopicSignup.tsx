@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import type { Post } from '../../graphql/posts';
@@ -63,13 +64,17 @@ export function PostTopicSignup({
     <div ref={ref} className={className}>
       <SignupWidget
         title={`Get more posts about ${topic}`}
-        description="Create a free account to follow the topics you care about and build your own developer feed."
+        description="Create a free account to follow your favorite topics and build your own developer feed."
         trigger={AuthTriggers.PostPage}
+        centered
       >
         {previews.length > 0 && (
           <ul
             aria-label={`More posts about ${topic}`}
-            className="mt-4 flex flex-col gap-3"
+            className={classNames(
+              'mt-6 grid w-full max-w-lg grid-cols-1 gap-3 text-left',
+              previews.length > 1 && 'tablet:grid-cols-2',
+            )}
           >
             {previews.map((preview) => (
               <li key={preview.id}>
@@ -80,7 +85,7 @@ export function PostTopicSignup({
                 >
                   <a
                     href={preview.commentsPermalink}
-                    className="block rounded-8 border border-border-subtlest-tertiary p-3 hover:bg-surface-hover"
+                    className="block h-full rounded-12 border border-border-subtlest-tertiary bg-background-default p-4 hover:bg-surface-hover"
                     onClick={() =>
                       logEvent({
                         event_name: LogEvent.Click,
