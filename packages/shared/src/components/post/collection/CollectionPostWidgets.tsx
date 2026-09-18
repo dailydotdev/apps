@@ -22,7 +22,7 @@ export const CollectionPostWidgets = ({
 }: PostWidgetsProps): ReactElement => {
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      <PostSignupWidget post={post} />
       <CollectionsIntro className="hidden laptop:flex" />
       <RelatedPostsWidget
         post={post}
