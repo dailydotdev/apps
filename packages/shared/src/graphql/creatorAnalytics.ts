@@ -65,6 +65,20 @@ export interface CreatorPerformanceCoverage {
   isPreviousPeriodComplete: boolean;
 }
 
+/**
+ * One day of the impressions chart.
+ *
+ * Only measured days are returned. Padding the axis is the client's job, and
+ * only between `coverage.coveredStartDate` and `coverage.endDate` — a zero
+ * drawn before that would claim a day nobody measured.
+ */
+export interface CreatorImpressionsPoint {
+  /** `YYYY-MM-DD`, UTC. */
+  date: string;
+  impressions: number;
+  impressionsAds: number;
+}
+
 export interface CreatorPerformance {
   period: CreatorPerformancePeriod;
   coverage: CreatorPerformanceCoverage;
@@ -73,6 +87,7 @@ export interface CreatorPerformance {
   outboundVisits: CreatorMetric;
   upvotes: CreatorMetric;
   comments: CreatorMetric;
+  impressionsSeries: CreatorImpressionsPoint[];
 }
 
 export interface CreatorPostPerformance {
@@ -126,6 +141,11 @@ export const CREATOR_PERFORMANCE_QUERY = gql`
       }
       comments {
         ...CreatorMetricFragment
+      }
+      impressionsSeries {
+        date
+        impressions
+        impressionsAds
       }
     }
   }
