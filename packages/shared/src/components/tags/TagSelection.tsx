@@ -3,25 +3,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { QueryFilters } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import useFeedSettings, {
-  getFeedSettingsQueryKey,
-} from '../../hooks/useFeedSettings';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';
-import type {
-  AllTagCategoriesData,
-  TagsData,
-} from '../../graphql/feedSettings';
-import { useAuthContext } from '../../contexts/AuthContext';
+import type { TagsData } from '../../graphql/feedSettings';
 import {
   GET_ONBOARDING_TAGS_QUERY,
   GET_RECOMMENDED_TAGS_QUERY,
-  ONBOARDING_RECOMMEND_TAGS_MUTATION,
 } from '../../graphql/feedSettings';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import {
-  featureOnboardingPersonas,
-  featureOnboardingTagRecommender,
-} from '../../lib/featureManagement';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
@@ -82,22 +70,10 @@ export function TagSelection({
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
-  const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId });
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
-  const { value: isTagRecommenderEnabled } = useConditionalFeature({
-    feature: featureOnboardingTagRecommender,
-    shouldEvaluate: origin === Origin.Onboarding,
-  });
-  // Personas always use the recswipe-backed recommender; ops doesn't need
-  // to enroll users in both experiments.
-  const { value: isPersonasEnabled } = useConditionalFeature({
-    feature: featureOnboardingPersonas,
-    shouldEvaluate: origin === Origin.Onboarding,
-  });
-  const shouldUseTagRecommender = isTagRecommenderEnabled || isPersonasEnabled;
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin,
     shouldUpdateAlerts,
@@ -185,40 +161,13 @@ export function TagSelection({
         return new Set<string>();
       }
 
-      let recommended: TagsData['tags'];
-
-      if (shouldUseTagRecommender) {
-        // Read the freshest selection from the cache rather than the closure-bound
-        // memo: collaborative-filtering quality depends on an accurate input set.
-        // onFollowTags runs after recommendTags, so the just-clicked tag isn't
-        // yet in the cache. Append it to satisfy the [String!]! min-1 constraint.
-        const cached = queryClient.getQueryData<AllTagCategoriesData>(
-          getFeedSettingsQueryKey(user, feedId),
-        );
-        const currentSelection = cached?.feedSettings?.includeTags ?? [];
-        const selectedForMutation = currentSelection.includes(tagName)
-          ? currentSelection
-          : [...currentSelection, tagName];
-
-        const result = await gqlClient.request<{
-          onboardingRecommendTags: { tags: string[] };
-        }>(ONBOARDING_RECOMMEND_TAGS_MUTATION, {
-          selectedTags: selectedForMutation,
-          n: 10,
-        });
-
-        recommended = result.onboardingRecommendTags.tags.map((name) => ({
-          name,
-        }));
-      } else {
-        const result = await gqlClient.request<{
-          recommendedTags: TagsData;
-        }>(GET_RECOMMENDED_TAGS_QUERY, {
-          tags: [tagName],
-          excludedTags,
-        });
-        recommended = result.recommendedTags.tags;
-      }
+      const result = await gqlClient.request<{
+        recommendedTags: TagsData;
+      }>(GET_RECOMMENDED_TAGS_QUERY, {
+        tags: [tagName],
+        excludedTags,
+      });
+      const recommended: TagsData['tags'] = result.recommendedTags.tags;
 
       const recommendedTagsSet = new Set(
         recommended

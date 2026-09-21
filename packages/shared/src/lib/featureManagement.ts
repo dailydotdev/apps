@@ -175,11 +175,6 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingTagRecommender = new Feature(
-  'onboarding_tag_recommender',
-  false,
-);
-
 export const featureOnboardingPersonas = new Feature(
   'onboarding_personas',
   false,
