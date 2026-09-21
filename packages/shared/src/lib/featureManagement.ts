@@ -175,11 +175,6 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingTagRecommender = new Feature(
-  'onboarding_tag_recommender',
-  false,
-);
-
 export const featureOnboardingPersonas = new Feature(
   'onboarding_personas',
   false,
@@ -222,7 +217,7 @@ export enum FeedChipsVariant {
 }
 export const featureFeedChips = new Feature<FeedChipsVariant>(
   'feed_chips',
-  FeedChipsVariant.V2,
+  FeedChipsVariant.V3,
 );
 
 export enum HijackingVariant {

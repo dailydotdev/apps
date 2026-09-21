@@ -63,7 +63,7 @@ const createWrapper = (variant?: FeedChipsVariant) => {
   return wrapper;
 };
 
-const Wrapper = createWrapper();
+const Wrapper = createWrapper(FeedChipsVariant.V3);
 
 const feeds = [
   {
@@ -108,6 +108,7 @@ describe('useFeeds hook', () => {
         query: FEED_LIST_QUERY,
         variables: {
           includeTagChipFeeds: true,
+          tagChipSeedStrategy: TagChipSeedStrategy.V3,
         },
       },
       result: () => {
@@ -300,37 +301,6 @@ describe('useFeeds hook', () => {
     renderHook(() => useFeeds(), { wrapper: Wrapper });
 
     await waitFor(() => expect(withoutChipsCalled).toBe(true));
-  });
-
-  it('should request the clustered seed strategy on the V3 variant', async () => {
-    let clusteredCalled = false;
-    mockGraphQL({
-      request: {
-        query: FEED_LIST_QUERY,
-        variables: {
-          includeTagChipFeeds: true,
-          tagChipSeedStrategy: TagChipSeedStrategy.V3,
-        },
-      },
-      result: () => {
-        clusteredCalled = true;
-
-        return {
-          data: {
-            feedList: {
-              pageInfo: { endCursor: expect.any(String), hasNextPage: false },
-              edges: feeds,
-            },
-          },
-        };
-      },
-    });
-
-    renderHook(() => useFeeds(), {
-      wrapper: createWrapper(FeedChipsVariant.V3),
-    });
-
-    await waitFor(() => expect(clusteredCalled).toBe(true));
   });
 
   it('should not request tag chip feeds on the control variant', async () => {
