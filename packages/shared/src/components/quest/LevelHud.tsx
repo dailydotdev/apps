@@ -78,7 +78,7 @@ export const LevelHud = ({
 
   const stats: HudStatProps[] = [
     {
-      label: 'Streak',
+      label: 'Quest streak',
       value: streakValue,
     },
     {
