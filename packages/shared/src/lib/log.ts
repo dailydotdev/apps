@@ -643,6 +643,7 @@ export enum TargetType {
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
   ProfileWorldToggle = 'profile world toggle',
+  PostTopicSignup = 'post topic signup',
 }
 
 export enum TargetId {
