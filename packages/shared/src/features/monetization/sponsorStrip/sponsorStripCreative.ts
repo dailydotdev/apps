@@ -91,11 +91,7 @@ export const parseSponsors = (raw: unknown): SponsorStripCreative[] => {
 };
 
 /**
- * The bar ships one flat asset per advertiser and no dimensions, so both the
- * themed pair and the measured ratio the row was built around are gone. The
- * wall masks its marks to the row's text colour, which is what lets one file
- * serve either ground; the gold slot keeps the file's own inks, so a mark drawn
- * for a single theme is on its own there.
+ * The bar ships one flat asset per advertiser and no dimensions.
  *
  * Every mark therefore takes the ratio the optical sizing is calibrated around,
  * which makes `opticalHeight` hand back the cap exactly and leaves `contain` to

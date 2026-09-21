@@ -77,16 +77,11 @@ const SponsorRow = ({
           <span className="whitespace-nowrap text-text-quaternary typo-caption2">
             Made possible by
           </span>
-          {/* The gold mark is the one slot that keeps its own inks and its
-            own size: one coloured mark at full height against a silhouetted
-            wall is the whole hierarchy of the row, without a hover effect
-            on top. */}
           {gold && (
             <SponsorLogo
               sponsor={gold}
               slotIndex={0}
               exactHeight={GOLD_HEIGHT}
-              className="text-text-primary"
             />
           )}
         </div>
@@ -114,8 +109,6 @@ const SponsorRow = ({
               cap={PREMIUM_CAP}
               boxWidth={SLOT_WIDTH}
               maxHeight={WALL_MAX_HEIGHT}
-              monochrome
-              className="text-text-secondary transition-colors hover:text-text-primary"
             />
           ))}
           {community.map((sponsor, index) => (
@@ -129,8 +122,6 @@ const SponsorRow = ({
               cap={COMMUNITY_CAP}
               boxWidth={SLOT_WIDTH}
               maxHeight={WALL_MAX_HEIGHT}
-              monochrome
-              className="text-text-tertiary transition-colors hover:text-text-primary"
             />
           ))}
         </div>

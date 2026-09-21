@@ -3,15 +3,14 @@
  * That normalising exists to stop a dozen unrelated wall marks fighting each
  * other, and it works by trading height for width, so it punishes exactly the
  * wide mark-plus-wordmark lockup a paid slot is most likely to supply: the
- * lockup came out shorter than the tallest silhouette beside it, which is the
+ * lockup came out shorter than the tallest mark beside it, which is the
  * opposite of what the slot is sold as. One known creative in one slot does
  * not need normalising, it needs to be the biggest thing on the row.
  *
  * It is the box height, not the cap height, and a lockup that is all wordmark
  * spends nearly all of that box on letterforms where a mark-plus-wordmark
  * spends it on the mark. Sized for the former: matching the wall's ceiling in
- * height, it still leads the row on width and on being the one slot in
- * colour.
+ * height, it still leads the row on width.
  */
 export const GOLD_HEIGHT = 20;
 /** The wall's two tiers differ by a hair of ink, not by a wash of opacity. */

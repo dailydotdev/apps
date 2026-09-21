@@ -238,11 +238,6 @@ it('should log an impression per logo with its tier and slot', async () => {
   );
 });
 
-// The wire sends no dimensions, so every mark carries the stand-in ratio. A
-// masked wall mark needs a box computed from it — a mask paints whatever box it
-// gets — but the gold slot is an `<img>` with its own ratio, and handing it the
-// stand-in width letterboxes a wide lockup to two thirds of the height the row
-// reserves for the one slot somebody paid for.
 it('should let the gold mark take its own width', async () => {
   renderStrip();
   await settle();
@@ -254,18 +249,27 @@ it('should let the gold mark take its own width', async () => {
   expect(gold).toHaveStyle({ height: '20px', width: 'auto' });
 });
 
-it('should give a masked wall mark a box to paint into', async () => {
-  renderStrip();
-  await settle();
+it.each([
+  { companies: PREMIUM, height: '17px', width: '60px' },
+  { companies: COMMUNITY, height: '15px', width: '53px' },
+])(
+  'should render a wall logo image at height $height',
+  async ({ companies, height, width }) => {
+    renderStrip();
+    await settle();
 
-  // Whichever premium mark the deck dealt, not a named one: the pool is
-  // shuffled per page load and holds more creatives than the row has slots,
-  // so naming one picks a mark that is only usually there.
-  const company = shownLogos().find((name) => PREMIUM.includes(name)) as string;
-  const wall = within(screen.getByTitle(company)).getByLabelText(company);
+    // Whichever mark the deck dealt, not a named one: the pool is
+    // shuffled per page load and holds more creatives than the row has slots,
+    // so naming one picks a mark that is only usually there.
+    const company = shownLogos().find((name) =>
+      companies.includes(name),
+    ) as string;
+    const wall = within(screen.getByTitle(company)).getByAltText(company);
 
-  expect(wall).toHaveStyle({ height: '17px', width: '60px' });
-});
+    expect(wall).toHaveAttribute('src', `icon-${company}`);
+    expect(wall).toHaveStyle({ height, width });
+  },
+);
 
 it('should open air time for every logo on the row', async () => {
   renderStrip();
