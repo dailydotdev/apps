@@ -8,6 +8,8 @@ import {
   StaleTime,
 } from '../lib/query';
 import type { LoggedUser } from '../lib/user';
+import type { UserPostsAnalytics } from './users';
+import { USER_POSTS_ANALYTICS_QUERY } from './users';
 
 export enum CreatorPerformancePeriod {
   Last30Days = 'LAST_30_DAYS',
@@ -65,6 +67,20 @@ export interface CreatorPerformanceCoverage {
   isPreviousPeriodComplete: boolean;
 }
 
+/**
+ * One day of the impressions chart.
+ *
+ * Only measured days are returned. Padding the axis is the client's job, and
+ * only between `coverage.coveredStartDate` and `coverage.endDate` — a zero
+ * drawn before that would claim a day nobody measured.
+ */
+export interface CreatorImpressionsPoint {
+  /** `YYYY-MM-DD`, UTC. */
+  date: string;
+  impressions: number;
+  impressionsAds: number;
+}
+
 export interface CreatorPerformance {
   period: CreatorPerformancePeriod;
   coverage: CreatorPerformanceCoverage;
@@ -73,6 +89,7 @@ export interface CreatorPerformance {
   outboundVisits: CreatorMetric;
   upvotes: CreatorMetric;
   comments: CreatorMetric;
+  impressionsSeries: CreatorImpressionsPoint[];
 }
 
 export interface CreatorPostPerformance {
@@ -126,6 +143,11 @@ export const CREATOR_PERFORMANCE_QUERY = gql`
       }
       comments {
         ...CreatorMetricFragment
+      }
+      impressionsSeries {
+        date
+        impressions
+        impressionsAds
       }
     }
   }
@@ -247,6 +269,32 @@ export const creatorPostPerformanceQueryOptions = ({
   initialPageParam: '',
   getNextPageParam: (lastPage: Connection<CreatorPostPerformance>) =>
     getNextPageParam(lastPage?.pageInfo),
+  enabled: !!user,
+  staleTime: StaleTime.Default,
+});
+
+/**
+ * Lifetime totals that the period-scoped contract deliberately does not carry.
+ *
+ * Followers and reputation have no daily grain and never will — they are
+ * running counters on the creator, not events inside a window. They are read
+ * from the existing `userPostsAnalytics` row rather than bolted onto
+ * `creatorPerformance`, so nothing in the period contract has to pretend they
+ * belong to the selected window.
+ */
+export const creatorLifetimeTotalsQueryOptions = ({
+  user,
+}: {
+  user: Pick<LoggedUser, 'id'> | null | undefined;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.UserPostsAnalytics, user ?? undefined),
+  queryFn: async () => {
+    const { userPostsAnalytics } = await gqlClient.request<{
+      userPostsAnalytics: UserPostsAnalytics;
+    }>(USER_POSTS_ANALYTICS_QUERY);
+
+    return userPostsAnalytics;
+  },
   enabled: !!user,
   staleTime: StaleTime.Default,
 });
