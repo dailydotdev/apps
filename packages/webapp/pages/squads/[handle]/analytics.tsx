@@ -215,20 +215,20 @@ const SquadAnalyticsPage = (): ReactElement => {
 
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>
-          <SectionHeader>Discovery (last 45 days)</SectionHeader>
+          <SectionHeader>Discovery</SectionHeader>
           <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
             <DataTile
-              label="Impressions"
+              label="Lifetime impressions"
               value={analytics?.impressions ?? 0}
-              info="The total number of times posts from this squad were shown to developers across the platform"
+              info="The total lifetime number of times posts from this squad were shown to developers across the platform"
               icon={
                 <EyeIcon size={IconSize.Small} className="text-text-tertiary" />
               }
             />
             <DataTile
-              label="Unique reach"
+              label="Lifetime reach"
               value={analytics?.reach ?? 0}
-              info="The estimated number of unique developers who viewed posts from this squad"
+              info="The estimated lifetime number of unique developers who viewed posts from this squad"
               icon={
                 <EyeIcon size={IconSize.Small} className="text-text-tertiary" />
               }
@@ -239,7 +239,7 @@ const SquadAnalyticsPage = (): ReactElement => {
         <Divider className={dividerClassName} />
 
         <SectionContainer>
-          <SectionHeader>Impressions over time</SectionHeader>
+          <SectionHeader>Impressions over time (last 45 days)</SectionHeader>
           {hasChartData ? (
             <CombinedImpressionsChart data={impressionsData} />
           ) : (
@@ -255,7 +255,7 @@ const SquadAnalyticsPage = (): ReactElement => {
         <Divider className={dividerClassName} />
 
         <SectionContainer>
-          <SectionHeader>Engagement (last 45 days)</SectionHeader>
+          <SectionHeader>Engagement</SectionHeader>
           <AnalyticsNumbersList data={engagementData} />
         </SectionContainer>
       </ResponsivePageContainer>
