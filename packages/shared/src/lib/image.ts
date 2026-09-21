@@ -1,5 +1,37 @@
 const DAILY_MEDIA_HOST = 'media.daily.dev';
 const PLACEHOLDER_IMAGE_PATTERN = /placeholder/i;
+const IMAGE_FILE_EXTENSION_PATTERN =
+  /\.(?:apng|avif|bmp|cur|gif|heic|heif|ico|jfif|jpe?g|pjp|pjpeg|png|svg|tiff?|webp)$/i;
+const CLOUDINARY_IMAGE_HOST_PATTERN = /(^|\.)cloudinary\.com$/;
+
+export const isImageUrl = (
+  url: string,
+  baseUrl = globalThis.location?.href ?? 'https://daily.dev',
+): boolean => {
+  if (!url) {
+    return false;
+  }
+
+  try {
+    const parsedUrl = new URL(url, baseUrl);
+    const host = parsedUrl.hostname.toLowerCase();
+
+    if (host === DAILY_MEDIA_HOST) {
+      return true;
+    }
+
+    if (
+      CLOUDINARY_IMAGE_HOST_PATTERN.test(host) &&
+      parsedUrl.pathname.includes('/image/')
+    ) {
+      return true;
+    }
+
+    return IMAGE_FILE_EXTENSION_PATTERN.test(parsedUrl.pathname);
+  } catch {
+    return false;
+  }
+};
 
 export const cloudinaryPostImageCoverPlaceholder =
   'https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001';
