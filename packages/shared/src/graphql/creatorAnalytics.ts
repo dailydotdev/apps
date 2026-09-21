@@ -8,6 +8,8 @@ import {
   StaleTime,
 } from '../lib/query';
 import type { LoggedUser } from '../lib/user';
+import type { UserPostsAnalytics } from './users';
+import { USER_POSTS_ANALYTICS_QUERY } from './users';
 
 export enum CreatorPerformancePeriod {
   Last30Days = 'LAST_30_DAYS',
@@ -267,6 +269,32 @@ export const creatorPostPerformanceQueryOptions = ({
   initialPageParam: '',
   getNextPageParam: (lastPage: Connection<CreatorPostPerformance>) =>
     getNextPageParam(lastPage?.pageInfo),
+  enabled: !!user,
+  staleTime: StaleTime.Default,
+});
+
+/**
+ * Lifetime totals that the period-scoped contract deliberately does not carry.
+ *
+ * Followers and reputation have no daily grain and never will — they are
+ * running counters on the creator, not events inside a window. They are read
+ * from the existing `userPostsAnalytics` row rather than bolted onto
+ * `creatorPerformance`, so nothing in the period contract has to pretend they
+ * belong to the selected window.
+ */
+export const creatorLifetimeTotalsQueryOptions = ({
+  user,
+}: {
+  user: Pick<LoggedUser, 'id'> | null | undefined;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.UserPostsAnalytics, user ?? undefined),
+  queryFn: async () => {
+    const { userPostsAnalytics } = await gqlClient.request<{
+      userPostsAnalytics: UserPostsAnalytics;
+    }>(USER_POSTS_ANALYTICS_QUERY);
+
+    return userPostsAnalytics;
+  },
   enabled: !!user,
   staleTime: StaleTime.Default,
 });

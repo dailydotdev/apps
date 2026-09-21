@@ -23,6 +23,7 @@ import {
   CreatorPerformancePeriod,
   CreatorPostSortBy,
   CreatorPostSortOrder,
+  creatorLifetimeTotalsQueryOptions,
   creatorPerformanceQueryOptions,
   creatorPostPerformanceQueryOptions,
 } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
@@ -78,6 +79,12 @@ const Analytics = (): ReactElement => {
     refetch: refetchPerformance,
   } = useQuery(creatorPerformanceQueryOptions({ user, period }));
 
+  // Followers and reputation have no daily grain, so they come from the
+  // lifetime row rather than the period contract.
+  const { data: lifetime, isPending: isLifetimePending } = useQuery(
+    creatorLifetimeTotalsQueryOptions({ user }),
+  );
+
   const {
     data: postsData,
     isPending: isPostsPending,
@@ -95,6 +102,10 @@ const Analytics = (): ReactElement => {
       order: sort.order,
     }),
   );
+
+  // Both feed the same grid of tiles, so it renders once rather than
+  // half-filling and then reflowing.
+  const isOverviewPending = isPerformancePending || isLifetimePending;
 
   const posts = useMemo(
     () =>
@@ -133,21 +144,22 @@ const Analytics = (): ReactElement => {
               <CreatorPeriodSelect
                 period={period}
                 onChange={setPeriod}
-                disabled={isPerformancePending}
+                disabled={isOverviewPending}
               />
             </div>
-            {isPerformancePending && <CreatorOverviewSkeleton />}
-            {!isPerformancePending && isPerformanceError && (
+            {isOverviewPending && <CreatorOverviewSkeleton />}
+            {!isOverviewPending && isPerformanceError && (
               <CreatorDashboardError
                 title="Could not load your overview"
                 onRetry={refetchPerformance}
                 isRetrying={isPerformanceFetching}
               />
             )}
-            {!!performance && !isPerformanceError && (
+            {!!performance && !isOverviewPending && !isPerformanceError && (
               <CreatorOverviewSection
                 performance={performance}
                 period={period}
+                lifetime={lifetime}
               />
             )}
           </SectionContainer>

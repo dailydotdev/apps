@@ -63,6 +63,20 @@ describe('CreatorMetricTile', () => {
     expect(screen.queryByText('Last 30 days')).not.toBeInTheDocument();
   });
 
+  it('should show the reason when a lifetime counter failed to load', () => {
+    // Followers and reputation come from a separate query; if it fails the
+    // tile must not settle on zero, which would read as "nobody follows you".
+    renderTile({
+      value: null,
+      previous: null,
+      semantics: CreatorMetricSemantics.Lifetime,
+    });
+
+    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.queryByText('0')).not.toBeInTheDocument();
+    expect(screen.getByText('All time')).toBeInTheDocument();
+  });
+
   it('should render a signed comparison when one is honest', () => {
     renderTile({
       value: 150,
