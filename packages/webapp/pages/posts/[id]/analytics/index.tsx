@@ -471,9 +471,9 @@ const PostAnalyticsPage = ({
           <SectionHeader>Discovery</SectionHeader>
           <div className="flex gap-4">
             <DataTile
-              label="Total impressions"
+              label="Lifetime impressions"
               value={postAnalytics?.impressions ?? 0}
-              info="The number of times your post appeared in front of developers across the platform."
+              info="The lifetime number of times your post appeared in front of developers across the platform."
               className={{
                 container: 'flex-1',
               }}
@@ -492,9 +492,9 @@ const PostAnalyticsPage = ({
               }
             />
             <DataTile
-              label="Unique reach"
+              label="Lifetime reach"
               value={postAnalytics?.reach ?? 0}
-              info="The number of distinct developers that saw your post. This number is an estimate and does not include repeat displays."
+              info="The lifetime number of distinct developers that saw your post. This number is an estimate and does not include repeat displays."
               className={{
                 container: 'flex-1',
               }}
