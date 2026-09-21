@@ -1,5 +1,5 @@
 export const feedTagsTutorialVideoId = 'A5z3m2W0JXo';
-export const feedBlockingTutorialVideoId = '';
+export const feedBlockingTutorialVideoId = 'wrTFf-oHO0I';
 
 const videoMimeTypes: Record<string, string> = {
   mp4: 'video/mp4',
