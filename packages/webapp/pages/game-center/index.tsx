@@ -53,6 +53,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
@@ -304,11 +305,17 @@ function GameCenterPage({
   let milestoneQuestContent: ReactElement;
 
   if (isQuestPending) {
+    // Same grid geometry as the loaded list, so the section below does not
+    // move when the cards arrive.
     milestoneQuestContent = (
-      <EmptyStateCard
-        title="Loading milestone quests"
-        description="Your longer-running quest progress is on the way."
-      />
+      <div
+        aria-busy
+        className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4"
+      >
+        {[0, 1, 2, 3].map((placeholder) => (
+          <ElementPlaceholder key={placeholder} className="h-44 rounded-14" />
+        ))}
+      </div>
     );
   } else if (milestoneQuests.length > 0) {
     milestoneQuestContent = (
@@ -332,10 +339,17 @@ function GameCenterPage({
 
   if (isAchievementsPending) {
     achievementShelfContent = (
-      <EmptyStateCard
-        title="Loading achievements"
-        description="Your unlock history is on the way."
-      />
+      <div
+        aria-busy
+        className="grid grid-cols-3 gap-2 tablet:gap-3 laptop:grid-cols-5"
+      >
+        {[0, 1, 2, 3, 4].map((placeholder) => (
+          <ElementPlaceholder
+            key={placeholder}
+            className="h-[10.5rem] rounded-16 tablet:h-[17rem]"
+          />
+        ))}
+      </div>
     );
   } else if (shelfAchievements.length > 0) {
     achievementShelfContent = (
@@ -388,10 +402,11 @@ function GameCenterPage({
 
   if (isBadgesPending) {
     badgeCaseContent = (
-      <EmptyStateCard
-        title="Loading badges"
-        description="We are pulling in your latest top-reader wins."
-      />
+      <div aria-busy className="flex flex-1 flex-col gap-2">
+        {[0, 1, 2, 3].map((placeholder) => (
+          <ElementPlaceholder key={placeholder} className="h-14 rounded-12" />
+        ))}
+      </div>
     );
   } else if (topReaderBadges.length > 0) {
     badgeCaseContent = <BadgePager badges={sortedBadges} />;
@@ -418,18 +433,28 @@ function GameCenterPage({
 
   let trophyCaseContent: ReactElement;
 
-  if (!hasCoresAccess) {
+  // While auth is still booting, hasCoresAccess reads false; hold the
+  // skeleton rather than flashing the no-Cores empty state.
+  if (!user || (hasCoresAccess && isAwardsPending)) {
+    trophyCaseContent = (
+      <div aria-busy className="flex flex-col gap-4">
+        <div className="grid gap-4 tablet:grid-cols-2">
+          {[0, 1].map((placeholder) => (
+            <ElementPlaceholder key={placeholder} className="h-24 rounded-14" />
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-x-2 gap-y-4 tablet:grid-cols-5">
+          {[0, 1, 2, 3, 4].map((placeholder) => (
+            <ElementPlaceholder key={placeholder} className="h-32 rounded-14" />
+          ))}
+        </div>
+      </div>
+    );
+  } else if (!hasCoresAccess) {
     trophyCaseContent = (
       <EmptyStateCard
         title="Awards are not available on this account yet"
         description="Once Cores access is enabled for your account, your earned awards will show up here."
-      />
-    );
-  } else if (isAwardsPending) {
-    trophyCaseContent = (
-      <EmptyStateCard
-        title="Loading awards"
-        description="We are gathering every award you have earned so far."
       />
     );
   } else if (awardsError) {
@@ -517,16 +542,16 @@ function GameCenterPage({
         )}
         <ResponsivePageContainer className="pointer-default !mx-0 !w-full !max-w-full gap-6 pb-10">
           <section className="-mx-4 -mt-6 flex flex-col tablet:-mx-8">
-            {questDashboard ? (
+            {questDashboard || isQuestPending ? (
               <LevelHud
                 name={firstName}
-                level={questDashboard.level.level}
+                level={questDashboard?.level.level ?? 0}
                 levelProgress={levelProgress}
-                totalXp={questDashboard.level.totalXp}
-                xpInLevel={questDashboard.level.xpInLevel}
-                xpToNextLevel={questDashboard.level.xpToNextLevel}
-                currentStreak={questDashboard.currentStreak}
-                longestStreak={questDashboard.longestStreak}
+                totalXp={questDashboard?.level.totalXp ?? 0}
+                xpInLevel={questDashboard?.level.xpInLevel ?? 0}
+                xpToNextLevel={questDashboard?.level.xpToNextLevel ?? 0}
+                currentStreak={questDashboard?.currentStreak ?? 0}
+                longestStreak={questDashboard?.longestStreak ?? 0}
                 badges={isBadgesPending ? undefined : topReaderBadges.length}
                 achievements={
                   showAchievements

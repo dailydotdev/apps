@@ -117,7 +117,7 @@ export const LevelHud = ({
             type={TypographyType.Title2}
             className="w-full text-center !font-black tabular-nums !leading-none"
           >
-            {level}
+            {isPending ? '\u2026' : level}
           </Typography>
         </div>
         <Typography
@@ -146,8 +146,11 @@ export const LevelHud = ({
             bold
             className="tabular-nums text-white"
           >
-            {xpInLevel.toLocaleString()} /{' '}
-            {(xpInLevel + xpToNextLevel).toLocaleString()}
+            {isPending
+              ? '...'
+              : `${xpInLevel.toLocaleString()} / ${(
+                  xpInLevel + xpToNextLevel
+                ).toLocaleString()}`}
           </Typography>
         </div>
       </div>
