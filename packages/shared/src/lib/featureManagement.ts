@@ -175,11 +175,6 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingTagRecommender = new Feature(
-  'onboarding_tag_recommender',
-  false,
-);
-
 export const featureOnboardingPersonas = new Feature(
   'onboarding_personas',
   false,
@@ -232,7 +227,7 @@ export enum HijackingVariant {
   Cover = 'cover',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants3',
+  'hijacking_variants4',
   HijackingVariant.Default,
 );
 
@@ -338,12 +333,7 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // reachable through paid placements), and the flag exists solely so a policy
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
-export const featureReadAdsense = new Feature('read_adsense', true);
-
-export const featureCommentFirstAction = new Feature(
-  'comment_first_action',
-  false,
-);
+export const featureReadAds = new Feature('read_ads', true);
 
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.

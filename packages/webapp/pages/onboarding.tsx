@@ -172,6 +172,15 @@ const isValidAction = (
 const isLoginOrSignupAction = (action?: string | string[]): boolean =>
   action === OnboardingActions.Login || action === OnboardingActions.Signup;
 
+// `signupEmail` opens the email registration form on this very page, so unlike
+// login/signup it is not a no-op once the visitor is authenticated: it has just
+// produced a brand-new user who still owes us the funnel. The query survives
+// the auth screen, so the action has to stop gating funnel initialisation,
+// otherwise the page renders neither the auth screen (auth is done) nor the
+// funnel (never initialised) and the user is left staring at a blank page.
+const isFunnelHandoffAction = (action?: string | string[]): boolean =>
+  action === OnboardingActions.SignupEmail;
+
 const useOnboardingAuth = () => {
   const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -362,8 +371,11 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
       return;
     }
 
+    const isActionPending =
+      !!action && !(isLoggedIn && isFunnelHandoffAction(action));
+
     if (
-      action ||
+      isActionPending ||
       isAuthenticating !== false || // also cover the case when auth is still undefined at load time
       isFunnelReady ||
       (isLoggedIn && !isOnboardingActionsReady)

@@ -17,6 +17,7 @@ import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { PostSignupWidget } from './PostSignupWidget';
+import { PreferGoogleSourceAction } from '../preferredSources/PreferGoogleSourceAction';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 export function SquadPostWidgets({
@@ -67,6 +68,7 @@ export function SquadPostWidgets({
         postId={post.id}
         className={{ container: cardClasses }}
       />
+      <PreferGoogleSourceAction placement="squad post widgets" />
       {canShare && (
         <>
           <ShareBar post={post} />

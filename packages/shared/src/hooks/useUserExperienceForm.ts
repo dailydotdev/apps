@@ -87,7 +87,7 @@ export const userExperienceInputBaseSchema = z
           .string()
           .trim()
           .normalize()
-          .nonempty()
+          .nonempty('Skills cannot be empty.')
           .max(
             maxProfileSkillLength,
             `Skills can be up to ${maxProfileSkillLength} characters.`,
@@ -237,6 +237,8 @@ const useUserExperienceForm = ({
     // subset of the form, so parsed values would drop fields like
     // employmentType or grade. trigger() gives us validation without that.
     onSave: async () => {
+      methods.setValue('type', type, { shouldDirty: false });
+
       const isValid = await methods.trigger();
 
       if (!isValid) {

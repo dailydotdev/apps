@@ -117,7 +117,7 @@ describe('Analytics button', () => {
 });
 
 describe('Link controls', () => {
-  it('should show only the invitation link to a member who can invite', () => {
+  it('should show the invitation link and the copy link to a member who can invite', () => {
     const squad = generateTestSquad({
       currentMember: {
         ...mock.squad.currentMember!,
@@ -130,8 +130,8 @@ describe('Link controls', () => {
       screen.getByRole('button', { name: 'Invitation link' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Copy link' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'Copy link' }),
+    ).toBeInTheDocument();
   });
 
   it('should show only the copy link to a non-member', () => {

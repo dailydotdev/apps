@@ -13,6 +13,7 @@ export const reputation = 'https://r.daily.dev/reputation';
 export const ownershipGuide = 'https://r.daily.dev/claim';
 export const contentGuidelines = 'https://r.daily.dev/content-guidelines';
 export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
+export const feedTagsTutorialVideo = 'https://r.daily.dev/feed-tags';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const recruiterScheduleUrl = 'https://recruiter.daily.dev/schedule';
@@ -63,6 +64,8 @@ export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
 export const gameCenterMilestoneSectionId = 'milestone-quests';
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
+export const plusApiCta = 'Full API access and higher rate limits';
+export const plusApiCtaShort = 'Full API access';
 export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
 export const plusSuccessUrl = `${plusUrl}/success`;

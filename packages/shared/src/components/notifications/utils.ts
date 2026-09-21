@@ -24,7 +24,6 @@ import {
   MegaphoneIcon,
   WorldIcon,
 } from '../icons';
-import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { AgentIcon } from '../icons/Agent';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
@@ -280,12 +279,6 @@ export const notificationMutingCopy: Partial<
     unmute: 'Unmute new member notifications',
   },
 };
-
-export type SubscriptionCallback = (
-  isSubscribed: boolean,
-  source?: NotificationPromptSource,
-  existing_permission?: boolean,
-) => unknown;
 
 export const FOLLOWING_KEYS = [
   NotificationType.SourcePostAdded,

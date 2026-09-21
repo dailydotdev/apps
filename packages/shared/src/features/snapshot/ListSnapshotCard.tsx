@@ -19,6 +19,11 @@ export interface ListSnapshotCardProps {
   items: SnapshotListItem[];
   footer?: string;
   seed?: string;
+  /**
+   * Size the image to the rows instead of the square, for a list that is
+   * often shorter than the five rows the square is laid out for.
+   */
+  grow?: boolean;
 }
 
 /**
@@ -26,13 +31,22 @@ export interface ListSnapshotCardProps {
  * archive, a feed digest — which are the same object with a different label.
  */
 function ListSnapshotCardComponent(
-  { eyebrow, title, subtitle, items, footer, seed }: ListSnapshotCardProps,
+  {
+    eyebrow,
+    title,
+    subtitle,
+    items,
+    footer,
+    seed,
+    grow,
+  }: ListSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   const visible = items.slice(0, 5);
 
   return (
     <SnapshotFrame
+      grow={grow}
       logoAside={<SnapshotEyebrow label={eyebrow} />}
       ref={ref}
       seed={seed ?? title}

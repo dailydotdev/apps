@@ -2,12 +2,9 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { isDevelopment } from '../../../lib/constants';
-import {
-  useOrganicAdsenseSlots,
-  useReadAdsenseSlots,
-} from './useReadAdsenseSlots';
-import type { AdsenseSlots } from '../../../features/monetization/adsense';
-import { hasLiveAdsenseUnits } from '../../../features/monetization/adsense';
+import { useOrganicAdSlots, useReadAdSlots } from './useReadAdSlots';
+import type { AdSlots } from '../../../features/monetization/kueez';
+import { hasLiveAdSlots } from '../../../features/monetization/kueez';
 import type { ProgrammaticAdFormat } from '../../../features/monetization/ProgrammaticAd';
 import {
   FORMAT_SPEC,
@@ -17,7 +14,7 @@ import {
 export type ReadAdSurface = 'read' | 'organic';
 
 export {
-  getAdsenseSlotLogExtra,
+  getAdSlotLogExtra,
   ProgrammaticAdFormat as ReadAdFormat,
 } from '../../../features/monetization/ProgrammaticAd';
 
@@ -28,10 +25,10 @@ export interface ReadAdSlotProps {
   /** Marks slots wired to a declared 30-60s in-view refresh once on Ad Manager. */
   refreshes?: boolean;
   /**
-   * Drops the slot below the tablet breakpoint — the Better Ads Standards cap
+   * Drops the slot below the tablet breakpoint. The Better Ads Standards cap
    * mobile ad density at 30% of page height, and Chrome's filter for a
    * violation applies to the whole domain. The unit is hidden rather than
-   * skipped so it also never requests: the ad only pushes on intersection,
+   * skipped so it also never bids: the auction only runs on intersection,
    * and a display:none box never intersects.
    */
   hideOnPhone?: boolean;
@@ -44,10 +41,10 @@ export interface ReadAdSlotProps {
    */
   surface?: ReadAdSurface;
   /**
-   * Requests the ad on mount instead of waiting to near the viewport. For
-   * slots visible at first paint the intersection wait only adds latency —
-   * and the adsbygoogle array queues pushes before the script has even
-   * arrived, so eager pushes ride its very first processing pass.
+   * Runs the auction on mount instead of waiting to near the viewport. For
+   * slots visible at first paint the intersection wait only adds latency, and
+   * pbjs queues commands before the bundle has even arrived, so eager slots
+   * ride its very first processing pass.
    */
   eager?: boolean;
   /** Per-instance extra for repeated placements — see ProgrammaticAd. */
@@ -67,24 +64,24 @@ function MappedAdSlot({
   surface,
   allowPlaceholder = false,
 }: ReadAdSlotProps & {
-  slots: AdsenseSlots;
+  slots: AdSlots;
   surface: ReadAdSurface;
   allowPlaceholder?: boolean;
 }): ReactElement | null {
-  const isLive = hasLiveAdsenseUnits(slots);
+  const isLive = hasLiveAdSlots(slots);
   const config = slots[String(slot)];
 
   if (isLive) {
-    if (!config?.id) {
+    if (!config) {
       return null;
     }
     return (
-      // An <ins> can only be initialised once, so any change to the unit's
-      // identity has to remount rather than re-render.
+      // A slot runs its auction once per mount, so a change of format or
+      // booked size has to remount rather than re-render.
       <ProgrammaticAd
-        key={`${surface}:${slot}:${format}:${config.id}:${config.type}:${
-          config.layoutKey ?? ''
-        }:${config.width ?? ''}:${config.height ?? ''}`}
+        key={`${surface}:${slot}:${format}:${JSON.stringify(
+          config.sizes ?? '',
+        )}`}
         slot={slot}
         config={config}
         format={format}
@@ -133,24 +130,24 @@ function MappedAdSlot({
 }
 
 function ReadSurfaceAdSlot(props: ReadAdSlotProps): ReactElement | null {
-  const slots = useReadAdsenseSlots();
+  const slots = useReadAdSlots();
   return (
     <MappedAdSlot {...props} slots={slots} surface="read" allowPlaceholder />
   );
 }
 
 function OrganicSurfaceAdSlot(props: ReadAdSlotProps): ReactElement | null {
-  const slots = useOrganicAdsenseSlots();
+  const slots = useOrganicAdSlots();
   return <MappedAdSlot {...props} slots={slots} surface="organic" />;
 }
 
 /**
- * A programmatic ad slot. Live only while its surface's hook says so — the
- * /read template sits behind the read_adsense kill switch, the organic post
- * page is anonymous-only — AND its hardcoded map (slots.ts) carries a unit id
- * for this slot number; everything else collapses to nothing — visitors get a
- * clean page. The dashed density-review placeholder only ever appears in
- * local development builds of the /read template.
+ * A programmatic ad slot. Live only while its surface's hook says so (the
+ * /read template sits behind the read_ads kill switch, the organic post page
+ * is anonymous-only) AND its hardcoded map (slots.ts) lists this slot number.
+ * Everything else collapses to nothing, so visitors get a clean page. The
+ * dashed density-review placeholder only ever appears in local development
+ * builds of the /read template.
  */
 export function ReadAdSlot({
   surface = 'read',

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
@@ -45,7 +45,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/Button';
-import { LogEvent, TargetId } from '../../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../../lib/log';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { LottieAnimation } from '../../LottieAnimation';
 import { briefFeatureList, PlusList } from '../../plus/PlusList';
@@ -65,6 +65,15 @@ import { getFirstName } from '../../../lib/user';
 import Link from '../../utilities/Link';
 import { ActionType } from '../../../graphql/actions';
 import { BriefUpgradeAlert } from '../../../features/briefing/components/BriefUpgradeAlert';
+import { BriefShareBand } from '../../../features/briefing/components/BriefShareBand';
+import { BriefMustKnowSnapshotButton } from '../../../features/briefing/components/BriefMustKnowSnapshotButton';
+import {
+  BRIEF_BLOCK_SELECTOR,
+  BRIEF_SOURCE_LINK_SELECTOR,
+  getBriefBlockLabel,
+} from '../../../features/briefing/briefBodyBlocks';
+import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapshotBar';
+import { ParagraphSnapshotButtons } from '../../../features/snapshot/ParagraphSnapshotButtons';
 import type { BriefPostHeaderProps } from '../../../features/briefing/components/BriefPostHeader';
 import { BriefPostHeader } from '../../../features/briefing/components/BriefPostHeader';
 import type { NotificationChannel } from '../../../hooks/notifications/useNotificationSettings';
@@ -135,6 +144,7 @@ const BriefPostContentRaw = ({
     unsubscribePersonalizedDigest,
   } = usePersonalizedDigest();
   const [digestTimeIndex, setDigestTimeIndex] = useState<number | undefined>(8);
+  const briefBodyRef = useRef<HTMLDivElement>(null);
 
   const briefDigest = getPersonalizedDigest(UserPersonalizedDigestType.Brief);
 
@@ -390,7 +400,27 @@ const BriefPostContentRaw = ({
                 </Typography>
               </div>
             </div>
-            <Markdown content={contentHtml} />
+            <div ref={briefBodyRef}>
+              <Markdown content={contentHtml} />
+            </div>
+            <SelectionSnapshotBar
+              containerRef={briefBodyRef}
+              origin={Origin.BriefTextSelection}
+              post={post}
+            />
+            <ParagraphSnapshotButtons
+              ariaLabel={getBriefBlockLabel}
+              containerRef={briefBodyRef}
+              omit={BRIEF_SOURCE_LINK_SELECTOR}
+              origin={Origin.BriefParagraph}
+              post={post}
+              selector={BRIEF_BLOCK_SELECTOR}
+            />
+            <BriefMustKnowSnapshotButton
+              containerRef={briefBodyRef}
+              post={post}
+            />
+            <BriefShareBand post={post} />
             {isNotPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div
