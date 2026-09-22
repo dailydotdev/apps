@@ -116,11 +116,16 @@ export const CreatorAchievementCard = ({
               >
                 ·
               </Typography>
+              {/* The one link on this card that is meant to be followed by
+                  someone else too, so it opens beside the dashboard rather
+                  than navigating the creator away from it. */}
               <Link href={achievement.evidenceUrl} passHref>
                 <Typography
                   tag={TypographyTag.Link}
                   type={TypographyType.Footnote}
                   color={TypographyColor.Link}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   See the ranking
                 </Typography>

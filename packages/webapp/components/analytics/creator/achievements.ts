@@ -1,5 +1,9 @@
 import type { CreatorAchievement } from '@dailydotdev/shared/src/graphql/creatorAchievements';
 import { CreatorAchievementType } from '@dailydotdev/shared/src/graphql/creatorAchievements';
+import {
+  getPlusMemberDateFormat,
+  getTopReaderBadgeDateFormat,
+} from '@dailydotdev/shared/src/lib/dateFormat';
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 
 /**
@@ -20,26 +24,14 @@ export const achievementCategoryLabel = (
  */
 export const achievementPeriodLabel = (
   achievement: Pick<CreatorAchievement, 'periodStart'>,
-): string | null => {
-  if (!achievement.periodStart) {
-    return null;
-  }
-
-  return new Date(achievement.periodStart).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
-};
+): string | null =>
+  achievement.periodStart
+    ? getTopReaderBadgeDateFormat(achievement.periodStart, { utc: true })
+    : null;
 
 export const achievementDateLabel = (
   achievement: Pick<CreatorAchievement, 'achievedAt'>,
-): string =>
-  new Date(achievement.achievedAt).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+): string => getPlusMemberDateFormat(achievement.achievedAt);
 
 /**
  * What the award says, built only from what the record holds.

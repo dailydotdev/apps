@@ -72,11 +72,16 @@ export const CreatorAchievementsSection = ({
     return <CreatorAchievementsSkeleton />;
   }
 
-  const describable = describableAchievements(achievements);
-
-  if (!describable.length) {
+  // The empty state answers "has this creator earned anything", which is the
+  // unfiltered count. Asking the filtered one would tell a creator whose first
+  // page happens to be types this build cannot describe that they have no
+  // recognition at all — and hide the button that would reach the awards it
+  // can describe.
+  if (!achievements.length) {
     return <EmptyState />;
   }
+
+  const describable = describableAchievements(achievements);
 
   return (
     <div className="flex flex-col gap-3">
@@ -86,6 +91,8 @@ export const CreatorAchievementsSection = ({
           achievement={achievement}
         />
       ))}
+      {/* Tied to `hasNextPage` alone, for the same reason: a page made
+          entirely of undescribable awards must still be pageable past. */}
       {hasNextPage && (
         <Button
           variant={ButtonVariant.Secondary}

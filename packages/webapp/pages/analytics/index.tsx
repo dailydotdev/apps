@@ -225,7 +225,10 @@ const Analytics = (): ReactElement => {
           <Divider className={dividerClassName} />
           <SectionContainer>
             <SectionHeader>Achievements</SectionHeader>
-            {isAchievementsError ? (
+            {/* A failed background refetch also sets `isError`, so awards that
+                are already on screen stay there rather than being replaced by
+                an error card for a request the creator never made. */}
+            {isAchievementsError && !achievements.length ? (
               <CreatorDashboardError
                 title="Could not load your achievements"
                 onRetry={refetchAchievements}

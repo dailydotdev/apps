@@ -114,6 +114,25 @@ describe('achievementSubtitle', () => {
 });
 
 describe('describableAchievements', () => {
+  it('should keep every award it can describe', () => {
+    const ranking = achievement();
+    const milestone = achievement({
+      id: 'ca3',
+      type: CreatorAchievementType.CreatorImpressionMilestone,
+      rank: null,
+      threshold: 100000,
+      post: null,
+      keyword: null,
+      periodStart: null,
+      periodEnd: null,
+    });
+
+    expect(describableAchievements([ranking, milestone])).toEqual([
+      ranking,
+      milestone,
+    ]);
+  });
+
   it('should drop awards this build cannot describe', () => {
     const known = achievement();
     const unknown = achievement({
