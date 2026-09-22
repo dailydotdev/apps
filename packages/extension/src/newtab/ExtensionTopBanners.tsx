@@ -1,14 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { TopHero } from '@dailydotdev/shared/src/components/marketing/banners/HeroBottomBanner';
-import { useReadingReminderHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderHero';
-import {
-  fileValidation,
-  uploadCvOpportunitySuccessContent,
-  uploadCvProfileSuccessContent,
-  useUploadCv,
-} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { CvTopHero } from '@dailydotdev/shared/src/components/marketing/banners/CvTopHero';
+import { useReadingReminderFeedHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderFeedHero';
+import { useCvTopBanner } from '@dailydotdev/shared/src/features/profile/hooks/useCvTopBanner';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -23,31 +19,13 @@ import {
   cloudinaryShortcutsIconsGmail,
   cloudinaryShortcutsIconsOpenai,
   cloudinaryShortcutsIconsReddit,
-  uploadCvBgMobile,
 } from '@dailydotdev/shared/src/lib/image';
-import { useJobsFeature } from '@dailydotdev/shared/src/hooks/useJobsFeature';
 
 // Bare-illustration frame matched across the three top cards so they
 // line up vertically. Slightly wider than tall to give the CV cluster
 // horizontal room without cropping.
 const illustrationFrameClass =
   '!m-0 flex h-24 w-32 shrink-0 items-center justify-center self-center tablet:h-28 tablet:w-36';
-
-const CvIllustration = (): ReactElement => (
-  <div
-    className={classNames(illustrationFrameClass, 'overflow-hidden')}
-    aria-hidden
-  >
-    <span
-      className="block size-full bg-no-repeat"
-      style={{
-        backgroundImage: `url(${uploadCvBgMobile})`,
-        backgroundPosition: 'center top',
-        backgroundSize: 'auto 220%',
-      }}
-    />
-  </div>
-);
 
 // Compact cat illustration scaled to match the CV / Shortcuts frames so
 // the three cards in the row share the same height.
@@ -133,20 +111,14 @@ const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
 };
 
 export const ExtensionTopBanners = (): ReactElement | null => {
-  // The extension's top hero row is the only place this card appears
-  // on the new tab, so we evaluate the reminder regardless of viewport
-  // (the webapp-only `requireMobile` heuristic would hide it on desktop
-  // new tabs, which is where the extension lives).
-  const reminder = useReadingReminderHero({ requireMobile: false });
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { isJobsEnabled } = useJobsFeature();
-  const { onUpload, shouldShow: shouldShowCv } = useUploadCv({
-    modalContent: isJobsEnabled
-      ? uploadCvOpportunitySuccessContent
-      : uploadCvProfileSuccessContent,
+  // The new tab is the home feed, and it has no Next router for the hook to
+  // read the route from.
+  const reminder = useReadingReminderFeedHero({
+    isHomeSurface: true,
+    enabled: isAuthReady && isLoggedIn,
   });
-  const { completeAction } = useActions();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cv = useCvTopBanner({ enabled: isAuthReady && isLoggedIn });
   const shortcuts = useShortcutsOnboarding();
 
   // Logged-out users get the dedicated sticky sign-in strip rendered
@@ -157,7 +129,7 @@ export const ExtensionTopBanners = (): ReactElement | null => {
 
   const cards: ReactElement[] = [];
 
-  if (reminder.shouldShow) {
+  if (reminder.shouldShowTopHero) {
     cards.push(
       <TopHero
         key="reminder"
@@ -165,28 +137,22 @@ export const ExtensionTopBanners = (): ReactElement | null => {
         subtitle={reminder.subtitle}
         illustration={<CompactReminderCat />}
         onCtaClick={() => {
-          reminder.onEnable();
+          reminder.onEnableHero();
         }}
         onClose={() => {
-          reminder.onDismiss();
+          reminder.onDismissHero();
         }}
       />,
     );
   }
 
-  if (shouldShowCv) {
+  if (cv.shouldShow) {
     cards.push(
-      <TopHero
+      <CvTopHero
         key="cv"
-        subtitle={
-          isJobsEnabled
-            ? 'Upload your CV and let your next job quietly come to you.'
-            : 'Upload your CV to autofill your profile in seconds.'
-        }
-        ctaLabel="Upload CV"
-        illustration={<CvIllustration />}
-        onCtaClick={() => fileInputRef.current?.click()}
-        onClose={() => completeAction(ActionType.ClosedProfileBanner)}
+        subtitle={cv.subtitle}
+        onUpload={cv.onUpload}
+        onClose={cv.onClose}
       />,
     );
   }
@@ -209,33 +175,14 @@ export const ExtensionTopBanners = (): ReactElement | null => {
   }
 
   return (
-    <>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={fileValidation.acceptedExtensions
-          .map((ext) => `.${ext}`)
-          .join(',')}
-        className="hidden"
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-          if (!file) {
-            return;
-          }
-          onUpload(file);
-          // eslint-disable-next-line no-param-reassign
-          event.target.value = '';
-        }}
-      />
-      <div
-        className={classNames(
-          'mx-4 mb-3 grid grid-cols-1 gap-3 laptop:mx-0',
-          cards.length === 2 && 'tablet:grid-cols-2',
-          cards.length === 3 && 'tablet:grid-cols-2 laptop:grid-cols-3',
-        )}
-      >
-        {cards}
-      </div>
-    </>
+    <div
+      className={classNames(
+        'mx-4 mb-3 grid grid-cols-1 gap-3 laptop:mx-0',
+        cards.length === 2 && 'tablet:grid-cols-2',
+        cards.length === 3 && 'tablet:grid-cols-2 laptop:grid-cols-3',
+      )}
+    >
+      {cards}
+    </div>
   );
 };

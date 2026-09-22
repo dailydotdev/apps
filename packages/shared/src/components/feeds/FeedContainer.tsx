@@ -213,8 +213,13 @@ export const FeedContainer = ({
       }
     },
   });
+  // v2 renders the same campaign as a compact card in the shell's top-hero
+  // strip, so only one of the two claims the impression.
   const shouldEvaluateBanner =
-    !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
+    !isV2 &&
+    !!marketingCta &&
+    shouldShow &&
+    activeFeedName === SharedFeedPage.MyFeed;
   const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBanner,
   });
