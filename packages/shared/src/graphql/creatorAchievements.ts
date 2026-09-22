@@ -30,7 +30,12 @@ export interface CreatorAchievement {
    * so it is what history should be ordered and labelled by.
    */
   achievedAt: string;
-  /** `null` for creator-wide awards, and for articles that are gone. */
+  /**
+   * `null` only for creator-wide types such as
+   * `CreatorImpressionMilestone`. A per-article award whose article is gone is
+   * withheld by the server rather than returned with a null `post`, so a null
+   * here on a per-article type is a bug, not a state to design a card for.
+   */
   post: {
     id: string;
     title: string | null;
