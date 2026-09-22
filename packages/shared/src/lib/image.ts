@@ -16,12 +16,8 @@ export const isImageUrl = (
     const parsedUrl = new URL(url, baseUrl);
     const host = parsedUrl.hostname.toLowerCase();
 
-    if (host === DAILY_MEDIA_HOST) {
-      return true;
-    }
-
     if (
-      CLOUDINARY_IMAGE_HOST_PATTERN.test(host) &&
+      (host === DAILY_MEDIA_HOST || CLOUDINARY_IMAGE_HOST_PATTERN.test(host)) &&
       parsedUrl.pathname.includes('/image/')
     ) {
       return true;

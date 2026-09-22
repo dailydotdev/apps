@@ -190,6 +190,10 @@ export default function Markdown({
 
   const onImageClick = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
+        return;
+      }
+
       const element = getTargetElement(e.target);
 
       if (!element) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import Markdown from './Markdown';
 import { LazyModal } from './modals/common/types';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
@@ -23,13 +23,14 @@ const mockUseRequestProtocol = useRequestProtocol as jest.MockedFunction<
   typeof useRequestProtocol
 >;
 
-const renderMarkdown = (content: string) => {
+const renderMarkdown = (content: string, container?: HTMLElement) => {
   const client = new QueryClient();
 
   return render(
     <QueryClientProvider client={client}>
       <Markdown content={content} />
     </QueryClientProvider>,
+    { container },
   );
 };
 
@@ -165,6 +166,47 @@ describe('Markdown image interactions', () => {
         }),
       }),
     );
+  });
+
+  it('allows text links to daily media videos to navigate', () => {
+    const { container } = renderMarkdown(
+      '<a href="https://media.daily.dev/video/upload/v1/posts/clip.mp4" target="_blank">Watch video</a>',
+      document.createElement('div'),
+    );
+    const { getByRole } = within(container);
+
+    expect(fireEvent.click(getByRole('link', { name: 'Watch video' }))).toBe(
+      true,
+    );
+    expect(mockOpenModal).not.toHaveBeenCalled();
+  });
+
+  describe.each(['image', 'text'])('%s links', (contentType) => {
+    it.each([
+      { metaKey: true },
+      { ctrlKey: true },
+      { shiftKey: true },
+      { altKey: true },
+      { button: 1 },
+    ])('preserves browser navigation for clicks with %j', (options) => {
+      const content =
+        contentType === 'image'
+          ? `<img src="${imageUrl}" alt="Screenshot" />`
+          : 'Screenshot';
+      const { container } = renderMarkdown(
+        `<a href="${imageUrl}" target="_blank">${content}</a>`,
+        document.createElement('div'),
+      );
+      const { getByRole } = within(container);
+
+      const target =
+        contentType === 'image'
+          ? getByRole('button', { name: 'Open image' })
+          : getByRole('link', { name: 'Screenshot' });
+
+      expect(fireEvent.click(target, options)).toBe(true);
+      expect(mockOpenModal).not.toHaveBeenCalled();
+    });
   });
 
   it('opens image links in a new tab for the companion', () => {

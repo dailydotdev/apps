@@ -76,4 +76,12 @@ describe('isImageUrl', () => {
       isImageUrl('https://res.cloudinary.com/daily-now/raw/upload/abc'),
     ).toBe(false);
   });
+
+  it.each([
+    'https://media.daily.dev/video/upload/v1/posts/clip.mp4',
+    'https://media.daily.dev/video/upload/v1/posts/clip',
+    'https://media.daily.dev/raw/upload/v1/posts/document',
+  ])('rejects non-image daily media URLs: %s', (url) => {
+    expect(isImageUrl(url)).toBe(false);
+  });
 });
