@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import type { LegacyRef, ReactElement } from 'react';
+import type { LegacyRef, ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -29,6 +29,8 @@ import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 import { EndOfThreadShare } from '../../../features/snapshot/EndOfThreadShare';
+import { AdAsComment } from '../../comments/AdAsComment';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 
 const CommentInput = dynamic(
   () =>
@@ -61,6 +63,12 @@ export interface PostDiscussionPanelProps {
    * panel root so modals stay scoped to this surface.
    */
   modalParentSelector?: () => HTMLElement;
+  /**
+   * Interleaves the thread with ad units — see PostComments. Replaces the
+   * internal AdAsComment, so two ad systems never share one thread.
+   */
+  interleaveEvery?: number;
+  renderInterleaved?: (occurrence: number) => ReactNode;
 }
 
 const noopFocus = (): void => {};
@@ -78,6 +86,8 @@ export const PostDiscussionPanel = ({
   showSortHeader = false,
   onRegisterFocusComment,
   modalParentSelector,
+  interleaveEvery,
+  renderInterleaved,
 }: PostDiscussionPanelProps): ReactElement => {
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
@@ -87,6 +97,7 @@ export const PostDiscussionPanel = ({
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(origin);
+  const { isPlus } = usePlusSubscription();
 
   useOpenPostCommentRequest(commentRef);
 
@@ -174,6 +185,7 @@ export const PostDiscussionPanel = ({
         />
       </div>
       <DiscussionShareRow post={post} withSquads />
+      {!isPlus && !renderInterleaved && <AdAsComment postId={post.id} />}
       {showSortHeader && commentsCount > 0 && (
         // A text link (not a button) so it aligns flush-left with the comments
         // below it; `mb-2` adds breathing room before the first comment.
@@ -207,6 +219,8 @@ export const PostDiscussionPanel = ({
           onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
           modalParentSelector={resolveModalParent}
           removeTopSpacing
+          interleaveEvery={interleaveEvery}
+          renderInterleaved={renderInterleaved}
         />
       </div>
       <EndOfThreadShare

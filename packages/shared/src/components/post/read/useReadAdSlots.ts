@@ -41,14 +41,10 @@ export const useReadAdSlots = (): AdSlots => {
 /**
  * The organic post page's slots, permanent since the post_adsense experiment
  * won: anonymous visitors only, so any logged-in user (member or Plus) never
- * sees programmatic ads on their post pages.
- *
- * `canRender` is the caller's own knowledge of whether its slots can appear
- * at all: the post page passes false in the focus-card redesign arm, whose
- * layout carries no slot markup.
+ * sees programmatic ads on their post pages. Both post layouts carry them.
  */
-export const useOrganicAdSlots = (canRender = true): AdSlots => {
+export const useOrganicAdSlots = (): AdSlots => {
   const isAnonymous = useIsAnonymous();
 
-  return isAnonymous && canRender ? ORGANIC_AD_SLOTS : NO_SLOTS;
+  return isAnonymous ? ORGANIC_AD_SLOTS : NO_SLOTS;
 };
