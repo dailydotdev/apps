@@ -243,6 +243,7 @@ export enum RequestKey {
   UserPostsAnalytics = 'user_posts_analytics',
   UserPostsAnalyticsHistory = 'user_posts_analytics_history',
   UserPostsWithAnalytics = 'user_posts_with_analytics',
+  CreatorAchievements = 'creator_achievements',
   CreatorPerformance = 'creator_performance',
   CreatorPostPerformance = 'creator_post_performance',
   SquadAnalytics = 'squad_analytics',
