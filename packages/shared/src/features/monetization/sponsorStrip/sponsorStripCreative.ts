@@ -112,3 +112,12 @@ export const resolveSponsor = (
   pixel: creative.pixels,
   tier: creative.tier,
 });
+
+export const getSponsorLogo = (
+  sponsor: ResolvedSponsor,
+  isLightTheme: boolean,
+): string =>
+  (isLightTheme ? sponsor.logoLight : sponsor.logoDark) ||
+  sponsor.logoLight ||
+  sponsor.logoDark ||
+  sponsor.logo;

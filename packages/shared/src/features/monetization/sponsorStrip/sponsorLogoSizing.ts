@@ -1,5 +1,5 @@
 /** The lead sponsor keeps a little more height than the partner row. */
-export const GOLD_HEIGHT = 20;
+export const GOLD_HEIGHT = 18;
 export const WALL_HEIGHT = 16;
 
 /** Fits wordmarks up to 8:1 at the shared height without shrinking them. */
@@ -16,18 +16,23 @@ export const boxedLogoHeight = (
   maxWidth: number,
 ): number => Math.min(height, maxWidth / ratio);
 
-/**
- * Conservatively budget each logo at its maximum width before images load.
- * Return `null` while the measured row cannot hold one maximum-width logo.
- */
+export const boxedLogoWidth = (
+  ratio: number,
+  height: number,
+  maxWidth: number,
+): number => Math.round(boxedLogoHeight(ratio, height, maxWidth) * ratio);
+
+/** Count only whole logos, including the minimum gap between them. */
 export const fittedSlotCount = (
   available: number,
-  slotWidth: number = WALL_MAX_WIDTH,
+  widths: readonly number[],
   gap: number = SLOT_GAP,
-): number | null => {
-  if (available < slotWidth) {
-    return null;
-  }
+): number => {
+  let used = 0;
+  const overflow = widths.findIndex((width, index) => {
+    used += width + (index ? gap : 0);
+    return used > available;
+  });
 
-  return Math.floor((available + gap) / (slotWidth + gap));
+  return overflow === -1 ? widths.length : overflow;
 };

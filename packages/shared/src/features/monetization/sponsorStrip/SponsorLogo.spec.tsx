@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 import { SponsorLogo } from './SponsorLogo';
 import { resolveSponsor, SponsorTier } from './sponsorStripCreative';
@@ -119,53 +119,25 @@ it.each(['logoLight', 'logoDark'] as const)(
 it.each([true, false])(
   'keeps square and wide wall marks at the same height with monochrome treatment %s',
   (monochrome) => {
-    const images: HTMLImageElement[] = [];
-    const imageConstructor = jest
-      .spyOn(window, 'Image')
-      .mockImplementation(() => {
-        const image = document.createElement('img');
-        images.push(image);
-        return image;
-      });
-    const renderLogo = (logo: string) => (
+    const renderLogo = (ratio: number) => (
       <SponsorLogo
-        sponsor={{
-          ...sponsor,
-          logo,
-          logoLight: undefined,
-          logoDark: undefined,
-        }}
+        sponsor={{ ...sponsor, ratio }}
         slotIndex={1}
         height={WALL_HEIGHT}
         maxWidth={WALL_MAX_WIDTH}
         monochrome={monochrome}
       />
     );
-    const { rerender } = render(renderLogo('square.svg'));
-    Object.defineProperties(images[0], {
-      naturalWidth: { value: 100 },
-      naturalHeight: { value: 100 },
-    });
-    act(() => images[0].dispatchEvent(new Event('load')));
+    const { rerender } = render(renderLogo(1));
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
       height: '16px',
       width: '16px',
     });
 
-    rerender(renderLogo('wide.svg'));
-    expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
-      height: '16px',
-      width: '56px',
-    });
-    Object.defineProperties(images[1], {
-      naturalWidth: { value: 600 },
-      naturalHeight: { value: 100 },
-    });
-    act(() => images[1].dispatchEvent(new Event('load')));
+    rerender(renderLogo(6));
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
       height: '16px',
       width: '96px',
     });
-    imageConstructor.mockRestore();
   },
 );

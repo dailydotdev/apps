@@ -149,6 +149,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.restoreAllMocks();
   jest.useRealTimers();
   document.documentElement.style.removeProperty('--sponsor-strip-height');
 });
@@ -256,7 +257,7 @@ it('should let the gold mark take its own width', async () => {
   // is an image too.
   const gold = within(screen.getByTitle('gold')).getByAltText('gold');
 
-  expect(gold).toHaveStyle({ height: '20px', width: 'auto' });
+  expect(gold).toHaveStyle({ height: '18px', width: 'auto' });
 });
 
 it('should give a masked wall mark a box to paint into', async () => {
@@ -544,4 +545,62 @@ it('should collapse the reserved row once the query answers empty', async () => 
 
   expect(screen.queryByTestId('sponsorStripHeadlines')).not.toBeInTheDocument();
   expect(publishedHeight()).toEqual('40px');
+});
+
+const mockLogoImages = () => {
+  const images: HTMLImageElement[] = [];
+  jest.spyOn(window, 'Image').mockImplementation(() => {
+    const image = document.createElement('img');
+    images.push(image);
+    return image;
+  });
+  return images;
+};
+
+const loadLogos = (images: HTMLImageElement[], ratio: number) => {
+  act(() => {
+    images.forEach((image) => {
+      Object.defineProperties(image, {
+        naturalWidth: { value: ratio * 100 },
+        naturalHeight: { value: 100 },
+      });
+      image.dispatchEvent(new Event('load'));
+    });
+  });
+};
+
+it('should fill unused row space after measuring all candidates without logging hidden ads', async () => {
+  const images = mockLogoImages();
+  setWallWidth(560);
+  renderStrip();
+  await settle();
+
+  expect(shownLogos()).toHaveLength(5);
+  expect(callsFor(AdActions.Impression)).toHaveLength(5);
+  expect(images).toHaveLength(4 + COMMUNITY.length);
+
+  loadLogos(images, 2);
+  await settle();
+
+  const logos = shownLogos();
+  expect(logos.filter((company) => PREMIUM.includes(company))).toHaveLength(4);
+  expect(logos.filter((company) => COMMUNITY.includes(company))).toHaveLength(
+    8,
+  );
+  expect(callsFor(AdActions.Impression)).toHaveLength(13);
+  expect(logEventStart).toHaveBeenCalledTimes(13);
+});
+
+it('should fit measured logos on a row narrower than the maximum logo width', async () => {
+  const images = mockLogoImages();
+  setWallWidth(48);
+  renderStrip();
+  await settle();
+
+  expect(shownLogos()).toEqual(['gold']);
+  loadLogos(images, 1);
+  await settle();
+
+  expect(shownLogos()).toHaveLength(3);
+  expect(callsFor(AdActions.Impression)).toHaveLength(3);
 });
