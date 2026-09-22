@@ -50,16 +50,22 @@ const SponsorRow = ({
   // feed's own edges, so the row reads as one bar under a column of cards.
   <div
     data-testid="sponsorStripRow"
-    className="w-full border-t border-border-subtlest-tertiary"
+    className="h-10 w-full border-t border-border-subtlest-tertiary"
   >
-    <div className={classNames(feedGutter, feedWidth)} style={widthStyle}>
+    <div
+      className={classNames('h-full', feedGutter, feedWidth)}
+      style={widthStyle}
+    >
       {/* The frame inset rides its own element rather than joining the two
         above: all three set horizontal padding, and stacking them on one
         element leaves which wins to the order Tailwind happens to emit
         them in. Nested, they compose — the gutter finds the frame, and this
         finds the cards inside it. */}
       <div
-        className={classNames('flex h-10 items-center gap-5', feedFrameInsetX)}
+        className={classNames(
+          'flex h-full items-center gap-5',
+          feedFrameInsetX,
+        )}
       >
         {/* The row's left zone, permanent the way the ticker's `Trending` is.
           Both rows then open on the same column whatever the ad server

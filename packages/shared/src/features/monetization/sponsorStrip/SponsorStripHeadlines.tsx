@@ -74,13 +74,19 @@ export const SponsorStripHeadlines = ({
   return (
     <div
       data-testid="sponsorStripHeadlines"
-      className="w-full border-t border-border-subtlest-tertiary bg-background-default"
+      className="h-8 w-full border-t border-border-subtlest-tertiary bg-background-default"
     >
-      <div className={classNames(feedGutter, feedWidth)} style={widthStyle}>
+      <div
+        className={classNames('h-full', feedGutter, feedWidth)}
+        style={widthStyle}
+      >
         {/* See the sponsor row: the frame inset is nested rather than stacked
           so the three horizontal paddings compose instead of racing. */}
         <div
-          className={classNames('flex h-8 items-center gap-4', feedFrameInsetX)}
+          className={classNames(
+            'flex h-full items-center gap-4',
+            feedFrameInsetX,
+          )}
         >
           {/* The sacrificial left zone, and the reason the strip has two rows
             at all: the browser paints its link-status bubble over this corner,
