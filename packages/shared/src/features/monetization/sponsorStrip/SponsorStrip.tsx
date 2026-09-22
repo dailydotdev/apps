@@ -1,5 +1,5 @@
-import type { CSSProperties, ReactElement } from 'react';
-import React, { useContext } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { GOLD_HEIGHT, WALL_HEIGHT, WALL_MAX_WIDTH } from './sponsorLogoSizing';
 import { SponsorLogo } from './SponsorLogo';
@@ -12,14 +12,8 @@ import {
   SPONSOR_ROW_HEIGHT,
   usePublishStripHeight,
 } from './sponsorStripOffset';
-import {
-  feedFrameInsetX,
-  feedGutter,
-  feedWidth,
-} from '../../../components/utilities/common';
 import { PREMIUM_SLOT_COUNT } from './sponsorStripSlots';
 import { useSponsorStripAds } from './useSponsorStripAds';
-import FeedContext from '../../../contexts/FeedContext';
 
 interface SponsorStripProps {
   /**
@@ -36,7 +30,6 @@ interface SponsorRowProps {
   premium: ResolvedSponsor[];
   community: ResolvedSponsor[];
   wallRef: (node: HTMLElement | null) => void;
-  widthStyle: CSSProperties;
 }
 
 const SponsorRow = ({
@@ -44,89 +37,69 @@ const SponsorRow = ({
   premium,
   community,
   wallRef,
-  widthStyle,
 }: SponsorRowProps): ReactElement => (
-  // The border and the ground span the dock; only the content is held to the
-  // feed's own edges, so the row reads as one bar under a column of cards.
   <div
     data-testid="sponsorStripRow"
-    className="h-10 w-full border-t border-border-subtlest-tertiary"
+    className="flex h-10 w-full items-center gap-5 border-t border-border-subtlest-tertiary px-4 tablet:px-8"
   >
+    {/* The row's left zone, permanent the way the ticker's `Trending` is.
+      Both rows then open on the same column whatever the ad server
+      returns, so an unsold gold slot — or one still on the wire, under a
+      row already holding its height open — cannot change the shape of the
+      bar under the feed. It credits the row rather than the gold mark
+      alone, which is why it still reads with only the wall behind it. */}
+    <div className="flex shrink-0 items-center gap-x-2.5">
+      <span className="whitespace-nowrap text-text-quaternary typo-caption2">
+        Made possible by
+      </span>
+      {/* The gold mark is the one slot that keeps its own inks and its
+        own size: one coloured mark at full height against a silhouetted
+        wall is the whole hierarchy of the row, without a hover effect
+        on top. */}
+      {gold && (
+        <SponsorLogo
+          sponsor={gold}
+          slotIndex={0}
+          height={GOLD_HEIGHT}
+          className="text-text-primary"
+        />
+      )}
+    </div>
+    {gold && !!(premium.length || community.length) && (
+      <span
+        aria-hidden
+        className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
+      />
+    )}
     <div
-      className={classNames('h-full', feedGutter, feedWidth)}
-      style={widthStyle}
+      ref={wallRef}
+      className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
     >
-      {/* The frame inset rides its own element rather than joining the two
-        above: all three set horizontal padding, and stacking them on one
-        element leaves which wins to the order Tailwind happens to emit
-        them in. Nested, they compose — the gutter finds the frame, and this
-        finds the cards inside it. */}
-      <div
-        className={classNames(
-          'flex h-full items-center gap-5',
-          feedFrameInsetX,
-        )}
-      >
-        {/* The row's left zone, permanent the way the ticker's `Trending` is.
-          Both rows then open on the same column whatever the ad server
-          returns, so an unsold gold slot — or one still on the wire, under a
-          row already holding its height open — cannot change the shape of the
-          bar under the feed. It credits the row rather than the gold mark
-          alone, which is why it still reads with only the wall behind it. */}
-        <div className="flex shrink-0 items-center gap-x-2.5">
-          <span className="whitespace-nowrap text-text-quaternary typo-caption2">
-            Made possible by
-          </span>
-          {/* The gold mark is the one slot that keeps its own inks and its
-            own size: one coloured mark at full height against a silhouetted
-            wall is the whole hierarchy of the row, without a hover effect
-            on top. */}
-          {gold && (
-            <SponsorLogo
-              sponsor={gold}
-              slotIndex={0}
-              height={GOLD_HEIGHT}
-              className="text-text-primary"
-            />
-          )}
-        </div>
-        {gold && !!(premium.length || community.length) && (
-          <span
-            aria-hidden
-            className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
-          />
-        )}
-        <div
-          ref={wallRef}
-          className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
-        >
-          {premium.map((sponsor, index) => (
-            <SponsorLogo
-              key={sponsor.genId}
-              sponsor={sponsor}
-              slotIndex={index + 1}
-              height={WALL_HEIGHT}
-              maxWidth={WALL_MAX_WIDTH}
-              monochrome
-              className="text-text-secondary transition-colors hover:text-text-primary"
-            />
-          ))}
-          {community.map((sponsor, index) => (
-            <SponsorLogo
-              key={sponsor.genId}
-              sponsor={sponsor}
-              // Offset by the full premium row rather than by how many premium
-              // creatives happened to fill it, so a slot index means the same
-              // position from one session to the next.
-              slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
-              height={WALL_HEIGHT}
-              maxWidth={WALL_MAX_WIDTH}
-              monochrome
-              className="text-text-secondary transition-colors hover:text-text-primary"
-            />
-          ))}
-        </div>
-      </div>
+      {premium.map((sponsor, index) => (
+        <SponsorLogo
+          key={sponsor.genId}
+          sponsor={sponsor}
+          slotIndex={index + 1}
+          height={WALL_HEIGHT}
+          maxWidth={WALL_MAX_WIDTH}
+          monochrome
+          className="text-text-secondary transition-colors hover:text-text-primary"
+        />
+      ))}
+      {community.map((sponsor, index) => (
+        <SponsorLogo
+          key={sponsor.genId}
+          sponsor={sponsor}
+          // Offset by the full premium row rather than by how many premium
+          // creatives happened to fill it, so a slot index means the same
+          // position from one session to the next.
+          slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
+          height={WALL_HEIGHT}
+          maxWidth={WALL_MAX_WIDTH}
+          monochrome
+          className="text-text-secondary transition-colors hover:text-text-primary"
+        />
+      ))}
     </div>
   </div>
 );
@@ -166,13 +139,6 @@ export const SponsorStrip = ({
     wallRef,
     isSettled: adsSettled,
   } = useSponsorStripAds();
-  // Read here rather than passed down: the dock is mounted inside the same
-  // providers as the feed, and the calc behind `feedWidth` needs these.
-  const { numCards } = useContext(FeedContext);
-  const widthStyle = {
-    '--num-cards': numCards.eco,
-    '--feed-gap': '2rem',
-  } as CSSProperties;
   const hasSponsors = !!gold || !!premium.length || !!community.length;
   const showSponsorRow = hasSponsors || !adsSettled;
   const showHeadlines = !!headlines.length || !headlinesSettled;
@@ -218,12 +184,9 @@ export const SponsorStrip = ({
           premium={premium}
           community={community}
           wallRef={wallRef}
-          widthStyle={widthStyle}
         />
       )}
-      {showHeadlines && (
-        <SponsorStripHeadlines headlines={headlines} widthStyle={widthStyle} />
-      )}
+      {showHeadlines && <SponsorStripHeadlines headlines={headlines} />}
     </div>
   );
 };
