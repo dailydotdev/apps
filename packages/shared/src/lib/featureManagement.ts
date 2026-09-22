@@ -180,6 +180,12 @@ export const featureOnboardingPersonas = new Feature(
   false,
 );
 
+// Experiment: the mobile-only reading reminder step offered on desktop too.
+export const featureOnboardingReminderDesktop = new Feature(
+  'onboarding_reminder_desktop',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
