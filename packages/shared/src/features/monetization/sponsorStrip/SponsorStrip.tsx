@@ -92,7 +92,7 @@ const SponsorRow = ({
         )}
         <div
           ref={wallRef}
-          className="flex min-w-0 flex-1 items-center gap-4 overflow-hidden"
+          className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
         >
           {premium.map((sponsor, index) => (
             <SponsorLogo
