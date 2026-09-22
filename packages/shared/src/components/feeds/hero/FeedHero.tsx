@@ -57,7 +57,10 @@ export const FeedHero = ({
 
   const { ad, placement, shape } = useFeedHeroAd();
 
-  const queryKey = generateQueryKey(RequestKey.FeedHero, user);
+  const queryKey = useMemo(
+    () => generateQueryKey(RequestKey.FeedHero, user),
+    [user],
+  );
   // Vote and bookmark patch the hero's own query: the bare hooks only write the
   // single-post key, which these cards never read.
   const { toggleUpvote, toggleDownvote, toggleBookmark } =

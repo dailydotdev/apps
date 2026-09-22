@@ -44,28 +44,48 @@ export const useFeedHeroPostActions = ({
   Pick<UseBookmarkPost, 'toggleBookmark'> => {
   const queryClient = useQueryClient();
 
+  const writeHeroPost = useCallback(
+    (id: string, patch: Partial<Post>) =>
+      queryClient.setQueryData<FeedHeroData>(
+        queryKey,
+        (current) =>
+          current && {
+            ...current,
+            feedHero: {
+              ...current.feedHero,
+              posts: current.feedHero.posts.map((item) =>
+                item.id === id ? { ...item, ...patch } : item,
+              ),
+            },
+          },
+      ),
+    [queryClient, queryKey],
+  );
+
+  // The rollback restores only the fields this patch touched, on this post.
+  // Restoring a whole snapshot would also undo a patch that landed in between —
+  // a bookmark on another card while an upvote is still in flight.
   const patchHeroPost = useCallback(
     (id: string, update: UpdateHeroPost): (() => void) | undefined => {
-      const previous = queryClient.getQueryData<FeedHeroData>(queryKey);
-      const post = previous?.feedHero.posts.find((item) => item.id === id);
+      const post = queryClient
+        .getQueryData<FeedHeroData>(queryKey)
+        ?.feedHero.posts.find((item) => item.id === id);
 
-      if (!previous || !post) {
+      if (!post) {
         return undefined;
       }
 
-      queryClient.setQueryData<FeedHeroData>(queryKey, {
-        ...previous,
-        feedHero: {
-          ...previous.feedHero,
-          posts: previous.feedHero.posts.map((item) =>
-            item.id === id ? { ...item, ...update(item) } : item,
-          ),
-        },
-      });
+      const patch = update(post);
+      const touched = Object.keys(patch) as (keyof Post)[];
+      const before = Object.fromEntries(
+        touched.map((key) => [key, post[key]]),
+      ) as Partial<Post>;
 
-      return () => queryClient.setQueryData<FeedHeroData>(queryKey, previous);
+      writeHeroPost(id, patch);
+
+      return () => writeHeroPost(id, before);
     },
-    [queryClient, queryKey],
+    [queryClient, queryKey, writeHeroPost],
   );
 
   const applyVote = useCallback(
