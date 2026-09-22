@@ -18,11 +18,60 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { getImageOriginRect } from './modals/ImageModal';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { isImageUrl } from '../lib/image';
 
 function isImageElement(
   element: Element | EventTarget,
 ): element is HTMLImageElement {
   return element instanceof HTMLImageElement;
+}
+
+function getTargetElement(target: EventTarget): Element | null {
+  if (target instanceof Element) {
+    return target;
+  }
+
+  if (target instanceof Node) {
+    return target.parentElement;
+  }
+
+  return null;
+}
+
+function getWrappingAnchor(
+  element: Element,
+  container: HTMLElement | null,
+): HTMLAnchorElement | null {
+  let currentElement: Element | null = element;
+
+  while (currentElement && currentElement !== container) {
+    if (currentElement instanceof HTMLAnchorElement) {
+      return currentElement;
+    }
+
+    currentElement = currentElement.parentElement;
+  }
+
+  return null;
+}
+
+function isSameUrl(url: string, otherUrl: string): boolean {
+  try {
+    return new URL(url).href === new URL(otherUrl).href;
+  } catch {
+    return url === otherUrl;
+  }
+}
+
+function shouldOpenAnchorImage(
+  anchor: HTMLAnchorElement | null,
+  imageSrc: string,
+): boolean {
+  if (!anchor?.href) {
+    return true;
+  }
+
+  return isImageUrl(anchor.href) || isSameUrl(anchor.href, imageSrc);
 }
 
 const UserEntityCard = dynamic(() => import('./cards/entity/UserEntityCard'), {
@@ -120,19 +169,19 @@ export default function Markdown({
   );
 
   const openImage = useCallback(
-    (element: HTMLImageElement) => {
+    (src: string, alt: string | undefined, originElement: Element) => {
       // The lazy-modal renderer isn't mounted in the extension companion, so
       // fall back to opening the image in a new tab there.
       if (isCompanion) {
-        window.open(element.src, '_blank', 'noopener,noreferrer');
+        window.open(src, '_blank', 'noopener,noreferrer');
         return;
       }
       openModal({
         type: LazyModal.ImageView,
         props: {
-          src: element.src,
-          alt: element.alt || undefined,
-          originRect: getImageOriginRect(element),
+          src,
+          alt,
+          originRect: getImageOriginRect(originElement),
         },
       });
     },
@@ -141,11 +190,38 @@ export default function Markdown({
 
   const onImageClick = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
-      const element = e.target;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
+        return;
+      }
+
+      const element = getTargetElement(e.target);
+
+      if (!element) {
+        return;
+      }
+
+      const anchor = getWrappingAnchor(element, containerRef.current);
 
       if (isImageElement(element) && element.src) {
         e.stopPropagation();
-        openImage(element);
+
+        if (!shouldOpenAnchorImage(anchor, element.src)) {
+          return;
+        }
+
+        e.preventDefault();
+        openImage(
+          anchor?.href || element.src,
+          element.alt || undefined,
+          element,
+        );
+        return;
+      }
+
+      if (anchor?.href && isImageUrl(anchor.href)) {
+        e.preventDefault();
+        e.stopPropagation();
+        openImage(anchor.href, anchor.textContent?.trim() || undefined, anchor);
       }
     },
     [openImage],
@@ -153,16 +229,30 @@ export default function Markdown({
 
   const onImageKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      const element = e.target;
+      const element = getTargetElement(e.target);
 
       if (
+        element &&
         isImageElement(element) &&
         element.src &&
         (e.key === 'Enter' || e.key === ' ')
       ) {
-        e.preventDefault();
+        const anchor = getWrappingAnchor(element, containerRef.current);
+
         e.stopPropagation();
-        openImage(element);
+
+        if (!shouldOpenAnchorImage(anchor, element.src)) {
+          e.preventDefault();
+          anchor?.click();
+          return;
+        }
+
+        e.preventDefault();
+        openImage(
+          anchor?.href || element.src,
+          element.alt || undefined,
+          element,
+        );
       }
     },
     [openImage],

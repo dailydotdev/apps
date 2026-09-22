@@ -37,7 +37,7 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      <PostSignupWidget post={post} />
       {!isUserSource &&
         (isSquadSource ? (
           <SquadEntityCard

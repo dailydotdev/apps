@@ -2,9 +2,16 @@ import { useCallback, useRef, useState } from 'react';
 import type { OnboardingSwipeCard } from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import type { PostSummary } from '../lib/swipingBackendApi';
-import { discoverPosts } from '../lib/swipingBackendApi';
 import { fetchSwipeOnboardingPopularDeck } from '../lib/swipeOnboardingPopularDeck';
+
+export interface PostSummary {
+  postId: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  url: string;
+  sourceId: string;
+}
 
 // Scoring constants.
 // Each tag is scored across swipes; once a tag has been seen
@@ -58,7 +65,6 @@ function postToSummary(post: Post): PostSummary {
 }
 
 interface StartDeckOptions {
-  prompt?: string;
   initialTags?: string[];
 }
 
@@ -70,7 +76,6 @@ interface AdaptiveSwipeDeck {
   handleSwipe: (direction: 'left' | 'right', cardId: string) => void;
   retryFetch: () => Promise<void>;
   selectedTags: string[];
-  appendSeedTags: (tags: string[]) => void;
 }
 
 export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
@@ -82,7 +87,6 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
   const tagScoresRef = useRef<Record<string, number>>({});
   const tagSeenCountRef = useRef<Record<string, number>>({});
   const seenIdsRef = useRef<Set<string>>(new Set());
-  const likedTitlesRef = useRef<string[]>([]);
   const startDeckOptionsRef = useRef<StartDeckOptions | undefined>(undefined);
   const prefetchedRef = useRef<PostSummary[] | null>(null);
   const swipesInBatchRef = useRef(0);
@@ -116,21 +120,8 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
     [],
   );
 
-  const fetchAdaptiveOrPopular = useCallback(
-    async (
-      fetchAdaptive: () => Promise<PostSummary[]>,
-      limit = BATCH_SIZE,
-    ): Promise<PostSummary[]> => {
-      try {
-        const adaptivePosts = await fetchAdaptive();
-        if (adaptivePosts.length > 0) {
-          registerPosts(adaptivePosts);
-          return adaptivePosts;
-        }
-      } catch {
-        // Fall through to the popular deck when adaptive discovery fails.
-      }
-
+  const doFetch = useCallback(
+    async (limit = BATCH_SIZE): Promise<PostSummary[]> => {
       try {
         const popularPosts = await fetchPopularPosts(limit);
         registerPosts(popularPosts);
@@ -140,21 +131,6 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
       }
     },
     [fetchPopularPosts, registerPosts],
-  );
-
-  const doFetch = useCallback(
-    async (n = BATCH_SIZE): Promise<PostSummary[]> => {
-      return fetchAdaptiveOrPopular(async () => {
-        const result = await discoverPosts({
-          selectedTags: selectedTagsRef.current,
-          likedTitles: likedTitlesRef.current,
-          excludeIds: [...seenIdsRef.current],
-          n,
-        });
-        return result.posts;
-      }, n);
-    },
-    [fetchAdaptiveOrPopular],
   );
 
   const getBookmarkablePost = useCallback(
@@ -191,23 +167,14 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
           selectedTagsRef.current = options.initialTags;
           tagScoresRef.current = {};
         }
-        const posts = await fetchAdaptiveOrPopular(async () => {
-          const result = await discoverPosts({
-            prompt: options?.prompt ?? '',
-            selectedTags: selectedTagsRef.current,
-            likedTitles: likedTitlesRef.current,
-            excludeIds: [...seenIdsRef.current],
-            n: BATCH_SIZE,
-          });
-          return result.posts;
-        });
+        const posts = await doFetch();
         loadBatch(posts);
       } finally {
         setIsLoading(false);
         isFetchingRef.current = false;
       }
     },
-    [fetchAdaptiveOrPopular, loadBatch],
+    [doFetch, loadBatch],
   );
 
   const retryFetch = useCallback(async () => {
@@ -258,11 +225,6 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
 
       const delta = direction === 'right' ? LIKE_SCORE : DISLIKE_SCORE;
       const { tags } = post;
-
-      // Track liked posts
-      if (direction === 'right') {
-        likedTitlesRef.current.push(post.title);
-      }
 
       // --- Tag scoring ---
       // Per tag on the swiped post: accumulate score across sightings; once
@@ -332,22 +294,6 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
     [triggerPrefetch, loadNextBatch],
   );
 
-  const appendSeedTags = useCallback((tags: string[]) => {
-    if (!tags.length) {
-      return;
-    }
-    const existing = new Set(selectedTagsRef.current);
-    const additions = tags.filter(
-      (tag) => !existing.has(tag) && !tagDecidedRef.current.has(tag),
-    );
-    if (!additions.length) {
-      return;
-    }
-    const nextTags = [...selectedTagsRef.current, ...additions];
-    selectedTagsRef.current = nextTags;
-    setSelectedTags(nextTags);
-  }, []);
-
   return {
     cards,
     getBookmarkablePost,
@@ -356,6 +302,5 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
     handleSwipe,
     retryFetch,
     selectedTags,
-    appendSeedTags,
   };
 }

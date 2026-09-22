@@ -60,7 +60,6 @@ export enum Origin {
   PostSummary = 'post summary',
   PostParagraph = 'post paragraph',
   PollResults = 'poll results',
-  PollVotePrompt = 'poll vote prompt',
   BriefTextSelection = 'brief text selection',
   BriefParagraph = 'brief paragraph',
   BriefMustKnow = 'brief must know',
@@ -643,6 +642,7 @@ export enum TargetType {
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
   ProfileWorldToggle = 'profile world toggle',
+  PostTopicSignup = 'post topic signup',
 }
 
 export enum TargetId {

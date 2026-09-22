@@ -86,6 +86,36 @@ describe('SocialLinksInput', () => {
     );
   });
 
+  it('stores unrecognized domains as generic links', async () => {
+    const onSubmit = jest.fn();
+    render(<TestForm onSubmit={onSubmit} />);
+
+    await userEvent.type(
+      screen.getByPlaceholderText('Paste a URL (e.g., github.com/username)'),
+      'https://dabworx.com',
+    );
+
+    expect(screen.queryByText('X detected')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(await screen.findByText('Link')).toBeVisible();
+    expect(screen.queryByText('X')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({
+        socialLinks: [
+          {
+            platform: 'other',
+            url: 'https://dabworx.com',
+          },
+        ],
+      }),
+    );
+  });
+
   it('blocks submit and renders an inline error for invalid pending text', async () => {
     const onSubmit = jest.fn();
     render(<TestForm onSubmit={onSubmit} />);
