@@ -12,17 +12,7 @@ import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 interface SponsorLogoProps {
   sponsor: ResolvedSponsor;
   slotIndex: number;
-  /**
-   * Cap height for the optical sizing that keeps a wall of unrelated marks
-   * looking like one row. Omitted by the slot that sets `exactHeight`.
-   */
-  cap?: number;
-  /**
-   * Draw the mark at exactly this height and let the file's own ratio set the
-   * width. The gold slot is meant to dominate, so trading its height away for
-   * width the way the wall does only makes it smaller.
-   */
-  exactHeight?: number;
+  height: number;
   /**
    * Fixed box the mark is drawn into. Wall slots use one so the row's width
    * cannot jump every time a rotation swaps a square mark for a long lockup;
@@ -37,19 +27,15 @@ interface SponsorLogoProps {
    * The gold slot is the exception: its brand colour is what was sold.
    */
   monochrome?: boolean;
-  /** Height ceiling in px, so a mark cannot outgrow the row it sits in. */
-  maxHeight?: number;
   className?: string;
 }
 
 export const SponsorLogo = ({
   sponsor,
   slotIndex,
-  cap,
-  exactHeight,
+  height,
   boxWidth,
   monochrome = false,
-  maxHeight,
   className,
 }: SponsorLogoProps): ReactElement => {
   const { ref, isViewable, onClick } = useSponsorSlotLog<HTMLAnchorElement>({
@@ -94,31 +80,15 @@ export const SponsorLogo = ({
     };
   }, [monochrome, boxWidth, logo]);
 
-  let height: number;
-
-  if (exactHeight !== undefined) {
-    height = exactHeight;
-  } else if (cap !== undefined) {
-    height = boxedLogoHeight(
-      ratio,
-      cap,
-      boxWidth ?? Number.POSITIVE_INFINITY,
-      maxHeight,
-    );
-  } else {
-    throw new Error('SponsorLogo needs either a cap or an exactHeight');
-  }
-
+  const fittedHeight = boxedLogoHeight(
+    ratio,
+    height,
+    boxWidth ?? Number.POSITIVE_INFINITY,
+  );
   const size: CSSProperties = {
-    height: `${height}px`,
-    // A mask paints whatever box it is handed, and a boxed wall slot has to
-    // stay a predictable width, so both take the width the ratio implies. A
-    // bare `<img>` carries its own ratio, and with no dimensions on the wire
-    // the file beats the stand-in: the gold slot is sized by height and lets
-    // the width follow, which is what the slot was sold as. Handing it the
-    // stand-in width instead would letterbox a wide lockup down to two thirds
-    // of the height the row reserves for it.
-    width: monochrome || boxWidth ? `${Math.round(height * ratio)}px` : 'auto',
+    height: `${fittedHeight}px`,
+    width:
+      monochrome || boxWidth ? `${Math.round(fittedHeight * ratio)}px` : 'auto',
   };
 
   return (

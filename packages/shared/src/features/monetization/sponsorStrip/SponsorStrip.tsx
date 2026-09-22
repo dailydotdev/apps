@@ -1,12 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import {
-  GOLD_HEIGHT,
-  WALL_CAP,
-  SLOT_WIDTH,
-  WALL_MAX_HEIGHT,
-} from './sponsorLogoSizing';
+import { GOLD_HEIGHT, WALL_HEIGHT, SLOT_WIDTH } from './sponsorLogoSizing';
 import { SponsorLogo } from './SponsorLogo';
 import { SponsorStripHeadlines } from './SponsorStripHeadlines';
 import type { StatuslineItem } from '../../../graphql/statusline';
@@ -84,7 +79,7 @@ const SponsorRow = ({
             <SponsorLogo
               sponsor={gold}
               slotIndex={0}
-              exactHeight={GOLD_HEIGHT}
+              height={GOLD_HEIGHT}
               className="text-text-primary"
             />
           )}
@@ -110,9 +105,8 @@ const SponsorRow = ({
               key={sponsor.genId}
               sponsor={sponsor}
               slotIndex={index + 1}
-              cap={WALL_CAP}
+              height={WALL_HEIGHT}
               boxWidth={SLOT_WIDTH}
-              maxHeight={WALL_MAX_HEIGHT}
               monochrome
               className="text-text-secondary transition-colors hover:text-text-primary"
             />
@@ -125,9 +119,8 @@ const SponsorRow = ({
               // creatives happened to fill it, so a slot index means the same
               // position from one session to the next.
               slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
-              cap={WALL_CAP}
+              height={WALL_HEIGHT}
               boxWidth={SLOT_WIDTH}
-              maxHeight={WALL_MAX_HEIGHT}
               monochrome
               className="text-text-secondary transition-colors hover:text-text-primary"
             />

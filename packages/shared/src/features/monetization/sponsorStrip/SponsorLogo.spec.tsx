@@ -3,12 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 import { SponsorLogo } from './SponsorLogo';
 import { resolveSponsor, SponsorTier } from './sponsorStripCreative';
-import {
-  GOLD_HEIGHT,
-  SLOT_WIDTH,
-  WALL_CAP,
-  WALL_MAX_HEIGHT,
-} from './sponsorLogoSizing';
+import { GOLD_HEIGHT, SLOT_WIDTH, WALL_HEIGHT } from './sponsorLogoSizing';
 
 jest.mock('../../../hooks/utils/useThemedAsset', () => ({
   useIsLightTheme: jest.fn(),
@@ -48,7 +43,7 @@ it.each([false, true])(
       <SponsorLogo
         sponsor={sponsor}
         slotIndex={0}
-        exactHeight={GOLD_HEIGHT}
+        height={GOLD_HEIGHT}
         monochrome={monochrome}
       />
     );
@@ -80,7 +75,7 @@ it.each([true, false])(
       <SponsorLogo
         sponsor={{ ...sponsor, logoLight: undefined, logoDark: undefined }}
         slotIndex={0}
-        exactHeight={GOLD_HEIGHT}
+        height={GOLD_HEIGHT}
       />,
     );
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveAttribute(
@@ -103,7 +98,7 @@ it.each(['logoLight', 'logoDark'] as const)(
       <SponsorLogo
         sponsor={singleThemeSponsor}
         slotIndex={0}
-        exactHeight={GOLD_HEIGHT}
+        height={GOLD_HEIGHT}
       />
     );
     const { rerender } = render(renderLogo());
@@ -122,7 +117,7 @@ it.each(['logoLight', 'logoDark'] as const)(
 );
 
 it.each([true, false])(
-  'sizes wall marks using loaded proportions with monochrome treatment %s',
+  'keeps square and wide wall marks at the same height with monochrome treatment %s',
   (monochrome) => {
     const images: HTMLImageElement[] = [];
     const imageConstructor = jest
@@ -141,8 +136,7 @@ it.each([true, false])(
           logoDark: undefined,
         }}
         slotIndex={1}
-        cap={WALL_CAP}
-        maxHeight={WALL_MAX_HEIGHT}
+        height={WALL_HEIGHT}
         boxWidth={SLOT_WIDTH}
         monochrome={monochrome}
       />
@@ -154,14 +148,14 @@ it.each([true, false])(
     });
     act(() => images[0].dispatchEvent(new Event('load')));
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
-      height: '20px',
-      width: '20px',
+      height: '16px',
+      width: '16px',
     });
 
     rerender(renderLogo('wide.svg'));
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
-      height: '17px',
-      width: '60px',
+      height: '16px',
+      width: '56px',
     });
     Object.defineProperties(images[1], {
       naturalWidth: { value: 600 },
@@ -169,8 +163,8 @@ it.each([true, false])(
     });
     act(() => images[1].dispatchEvent(new Event('load')));
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
-      height: '14px',
-      width: '84px',
+      height: '16px',
+      width: '96px',
     });
     imageConstructor.mockRestore();
   },
