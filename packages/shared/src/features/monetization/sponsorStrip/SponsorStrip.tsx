@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { GOLD_HEIGHT, WALL_HEIGHT, SLOT_WIDTH } from './sponsorLogoSizing';
+import { GOLD_HEIGHT, WALL_HEIGHT, WALL_MAX_WIDTH } from './sponsorLogoSizing';
 import { SponsorLogo } from './SponsorLogo';
 import { SponsorStripHeadlines } from './SponsorStripHeadlines';
 import type { StatuslineItem } from '../../../graphql/statusline';
@@ -90,15 +90,9 @@ const SponsorRow = ({
             className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
           />
         )}
-        {/* One run for both wall tiers, spread with `justify-between` the way
-          the broadcast bar this borrows from distributes its credits: the row
-          breathes on a wide window and tightens before it clips. Premium sits
-          left; the slots are a fixed width, so a
-          rotation swapping a square mark for a long lockup cannot make the
-          whole row shuffle sideways. */}
         <div
           ref={wallRef}
-          className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
+          className="flex min-w-0 flex-1 items-center gap-4 overflow-hidden"
         >
           {premium.map((sponsor, index) => (
             <SponsorLogo
@@ -106,7 +100,7 @@ const SponsorRow = ({
               sponsor={sponsor}
               slotIndex={index + 1}
               height={WALL_HEIGHT}
-              boxWidth={SLOT_WIDTH}
+              maxWidth={WALL_MAX_WIDTH}
               monochrome
               className="text-text-secondary transition-colors hover:text-text-primary"
             />
@@ -120,7 +114,7 @@ const SponsorRow = ({
               // position from one session to the next.
               slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
               height={WALL_HEIGHT}
-              boxWidth={SLOT_WIDTH}
+              maxWidth={WALL_MAX_WIDTH}
               monochrome
               className="text-text-secondary transition-colors hover:text-text-primary"
             />

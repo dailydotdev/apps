@@ -3,7 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 import { SponsorLogo } from './SponsorLogo';
 import { resolveSponsor, SponsorTier } from './sponsorStripCreative';
-import { GOLD_HEIGHT, SLOT_WIDTH, WALL_HEIGHT } from './sponsorLogoSizing';
+import { GOLD_HEIGHT, WALL_MAX_WIDTH, WALL_HEIGHT } from './sponsorLogoSizing';
 
 jest.mock('../../../hooks/utils/useThemedAsset', () => ({
   useIsLightTheme: jest.fn(),
@@ -137,7 +137,7 @@ it.each([true, false])(
         }}
         slotIndex={1}
         height={WALL_HEIGHT}
-        boxWidth={SLOT_WIDTH}
+        maxWidth={WALL_MAX_WIDTH}
         monochrome={monochrome}
       />
     );

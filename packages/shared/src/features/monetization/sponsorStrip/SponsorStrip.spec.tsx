@@ -11,7 +11,7 @@ import { LogEvent } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
-import { SLOT_GAP, SLOT_WIDTH } from './sponsorLogoSizing';
+import { SLOT_GAP, WALL_MAX_WIDTH } from './sponsorLogoSizing';
 
 jest.mock('./fetchSponsorStripAds', () => ({
   fetchSponsorStripAds: jest.fn(),
@@ -61,7 +61,7 @@ const COMMUNITY = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10'];
 // Wide enough for eight wall slots — four premium, four community — which
 // leaves the community deck bigger than the row it fills, the only state in
 // which a rotation has anywhere to go.
-const WALL_WIDTH = SLOT_WIDTH * 8 + SLOT_GAP * 7;
+const WALL_WIDTH = WALL_MAX_WIDTH * 8 + SLOT_GAP * 7;
 const COMMUNITY_SLOTS = 4;
 
 const ads = bar({
@@ -163,7 +163,7 @@ const publishedHeight = (): string =>
 // Fewer slots than the four premium marks the deck holds.
 const NARROW_WALL_SLOTS = 2;
 const NARROW_WALL_WIDTH =
-  SLOT_WIDTH * NARROW_WALL_SLOTS + SLOT_GAP * (NARROW_WALL_SLOTS - 1);
+  WALL_MAX_WIDTH * NARROW_WALL_SLOTS + SLOT_GAP * (NARROW_WALL_SLOTS - 1);
 
 const setWallWidth = (width: number) =>
   jest

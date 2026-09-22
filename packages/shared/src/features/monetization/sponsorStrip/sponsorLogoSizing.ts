@@ -3,7 +3,7 @@ export const GOLD_HEIGHT = 20;
 export const WALL_HEIGHT = 16;
 
 /** Fits wordmarks up to 8:1 at the shared height without shrinking them. */
-export const SLOT_WIDTH = 128;
+export const WALL_MAX_WIDTH = 128;
 export const SLOT_GAP = 16;
 
 /** Fallback until the logo's intrinsic dimensions have loaded. */
@@ -17,14 +17,12 @@ export const boxedLogoHeight = (
 ): number => Math.min(height, maxWidth / ratio);
 
 /**
- * How many fixed-width slots the measured row holds. `null` means "not
- * measured yet" rather than "nothing fits": a row narrower than a single slot
- * cannot have been laid out, and treating that as zero would empty the row
- * with nothing guaranteed to come along and correct it.
+ * Conservatively budget each logo at its maximum width before images load.
+ * Return `null` while the measured row cannot hold one maximum-width logo.
  */
 export const fittedSlotCount = (
   available: number,
-  slotWidth: number = SLOT_WIDTH,
+  slotWidth: number = WALL_MAX_WIDTH,
   gap: number = SLOT_GAP,
 ): number | null => {
   if (available < slotWidth) {

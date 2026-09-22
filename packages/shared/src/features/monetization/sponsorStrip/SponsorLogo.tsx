@@ -13,12 +13,8 @@ interface SponsorLogoProps {
   sponsor: ResolvedSponsor;
   slotIndex: number;
   height: number;
-  /**
-   * Fixed box the mark is drawn into. Wall slots use one so the row's width
-   * cannot jump every time a rotation swaps a square mark for a long lockup;
-   * the gold slot takes its natural width instead.
-   */
-  boxWidth?: number;
+  /** Width ceiling for long wordmarks; the link keeps the artwork's width. */
+  maxWidth?: number;
   /**
    * Draw the mark as a single-colour silhouette that takes the surrounding
    * text colour, instead of the file's own inks. This is what makes a wall of
@@ -34,7 +30,7 @@ export const SponsorLogo = ({
   sponsor,
   slotIndex,
   height,
-  boxWidth,
+  maxWidth,
   monochrome = false,
   className,
 }: SponsorLogoProps): ReactElement => {
@@ -60,7 +56,7 @@ export const SponsorLogo = ({
     (dimensions?.logo === logo && dimensions.ratio) || sponsor.ratio;
 
   useEffect(() => {
-    if (!monochrome && !boxWidth) {
+    if (!monochrome && !maxWidth) {
       return undefined;
     }
 
@@ -78,17 +74,17 @@ export const SponsorLogo = ({
     return () => {
       image.onload = null;
     };
-  }, [monochrome, boxWidth, logo]);
+  }, [monochrome, maxWidth, logo]);
 
   const fittedHeight = boxedLogoHeight(
     ratio,
     height,
-    boxWidth ?? Number.POSITIVE_INFINITY,
+    maxWidth ?? Number.POSITIVE_INFINITY,
   );
   const size: CSSProperties = {
     height: `${fittedHeight}px`,
     width:
-      monochrome || boxWidth ? `${Math.round(fittedHeight * ratio)}px` : 'auto',
+      monochrome || maxWidth ? `${Math.round(fittedHeight * ratio)}px` : 'auto',
   };
 
   return (
@@ -103,7 +99,6 @@ export const SponsorLogo = ({
         'relative flex shrink-0 items-center justify-center',
         className,
       )}
-      style={boxWidth ? { width: `${boxWidth}px` } : undefined}
     >
       {monochrome ? (
         <span
