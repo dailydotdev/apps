@@ -214,7 +214,8 @@ export const FeedContainer = ({
     },
   });
   // v2 renders the same campaign as a compact card in the shell's top-hero
-  // strip, so only one of the two claims the impression.
+  // strip, so only one of the two claims the impression. `isV2` reads as the
+  // control default until the flag resolves, hence the loading guard.
   const shouldEvaluateBanner =
     !isV2 &&
     !isLayoutVariantLoading &&

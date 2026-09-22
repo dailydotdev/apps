@@ -9,9 +9,6 @@ import {
 } from './useUploadCv';
 
 interface UseCvTopBannerProps {
-  // The surface decides whether it is the feed the banner belongs to;
-  // `FeedContainer` expresses the same thing as
-  // `activeFeedName === SharedFeedPage.MyFeed`.
   enabled?: boolean;
 }
 
@@ -27,10 +24,8 @@ const jobsSubtitle =
   'Upload your CV and let your next job quietly come to you.';
 
 /**
- * The compact top-hero rendition of the feed CV banner, held to the same
- * contract as `ProfileUploadBanner` in `FeedContainer`: it needs a live
- * `feed_banner` marketing CTA, it yields to intro quests, and dismissing or
- * uploading clears the campaign rather than completing a local action.
+ * Kept in lockstep with the `ProfileUploadBanner` gate in `FeedContainer`:
+ * the two render the same campaign, and only one of them may.
  */
 export const useCvTopBanner = ({
   enabled = true,

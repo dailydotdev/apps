@@ -20,15 +20,12 @@ export interface HomepageTopBannersState {
 
 interface UseHomepageTopBannersProps {
   enabled?: boolean;
-  // The CV card belongs to the same feed `FeedContainer` renders its banner
-  // on, so the shell passes the feed it is currently showing.
   isMyFeed?: boolean;
 }
 
 /**
- * Evaluated once by the shell and handed to `HomepageTopBanners`: both cards
- * log their impression from the condition that renders them, so a second
- * evaluation would double-count them.
+ * Call once per shell. Both cards log their impression from the condition
+ * that renders them, so a second evaluation double-counts them.
  */
 export const useHomepageTopBanners = ({
   enabled: isEnabled = true,
