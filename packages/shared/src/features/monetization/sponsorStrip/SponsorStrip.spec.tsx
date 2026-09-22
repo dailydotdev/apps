@@ -16,6 +16,10 @@ jest.mock('./fetchSponsorStripAds', () => ({
   fetchSponsorStripAds: jest.fn(),
 }));
 
+jest.mock('../../../hooks/utils/useThemedAsset', () => ({
+  useIsLightTheme: () => false,
+}));
+
 const mockFetch = jest.mocked(fetchSponsorStripAds);
 let headlines: StatuslineItem[] = [];
 let headlinesSettled = true;

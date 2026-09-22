@@ -2,9 +2,8 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import {
-  COMMUNITY_CAP,
   GOLD_HEIGHT,
-  PREMIUM_CAP,
+  WALL_CAP,
   SLOT_WIDTH,
   WALL_MAX_HEIGHT,
 } from './sponsorLogoSizing';
@@ -99,7 +98,7 @@ const SponsorRow = ({
         {/* One run for both wall tiers, spread with `justify-between` the way
           the broadcast bar this borrows from distributes its credits: the row
           breathes on a wide window and tightens before it clips. Premium sits
-          left and carries a hair more ink; the slots are a fixed width, so a
+          left; the slots are a fixed width, so a
           rotation swapping a square mark for a long lockup cannot make the
           whole row shuffle sideways. */}
         <div
@@ -111,7 +110,7 @@ const SponsorRow = ({
               key={sponsor.genId}
               sponsor={sponsor}
               slotIndex={index + 1}
-              cap={PREMIUM_CAP}
+              cap={WALL_CAP}
               boxWidth={SLOT_WIDTH}
               maxHeight={WALL_MAX_HEIGHT}
               monochrome
@@ -126,11 +125,11 @@ const SponsorRow = ({
               // creatives happened to fill it, so a slot index means the same
               // position from one session to the next.
               slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
-              cap={COMMUNITY_CAP}
+              cap={WALL_CAP}
               boxWidth={SLOT_WIDTH}
               maxHeight={WALL_MAX_HEIGHT}
               monochrome
-              className="text-text-tertiary transition-colors hover:text-text-primary"
+              className="text-text-secondary transition-colors hover:text-text-primary"
             />
           ))}
         </div>

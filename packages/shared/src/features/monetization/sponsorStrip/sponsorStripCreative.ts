@@ -14,13 +14,19 @@ export enum SponsorTier {
  * JSON). There is no tier field: an advertiser's tier is the group it arrives
  * in, which `parseSponsors` stamps on.
  */
-const advertiserSchema = z.object({
-  generation_id: z.string(),
-  company_name: z.string(),
-  icon: z.string(),
-  link: urlParseSchema,
-  pixels: z.array(z.string()).optional().default([]),
-});
+const advertiserSchema = z
+  .object({
+    generation_id: z.string(),
+    company_name: z.string(),
+    icon: z.string().optional(),
+    icon_light: z.string().optional(),
+    icon_dark: z.string().optional(),
+    link: urlParseSchema,
+    pixels: z.array(z.string()).optional().default([]),
+  })
+  .refine(({ icon, icon_light: light, icon_dark: dark }) =>
+    Boolean(icon || light || dark),
+  );
 
 /**
  * The placement's own envelope. Each group is optional so a bar sold with only
@@ -46,6 +52,8 @@ export interface ResolvedSponsor {
   genId: string;
   company: string;
   logo: string;
+  logoLight?: string;
+  logoDark?: string;
   ratio: number;
   link: string;
   pixel: string[];
@@ -90,24 +98,15 @@ export const parseSponsors = (raw: unknown): SponsorStripCreative[] => {
   ];
 };
 
-/**
- * The bar ships one flat asset per advertiser and no dimensions, so both the
- * themed pair and the measured ratio the row was built around are gone. The
- * wall masks its marks to the row's text colour, which is what lets one file
- * serve either ground; the gold slot keeps the file's own inks, so a mark drawn
- * for a single theme is on its own there.
- *
- * Every mark therefore takes the ratio the optical sizing is calibrated around,
- * which makes `opticalHeight` hand back the cap exactly and leaves `contain` to
- * letterbox the file inside it. The field stays on `ResolvedSponsor` so the day
- * the ad server sends dimensions, this is the only line that changes.
- */
+/** The image's intrinsic ratio replaces this fallback once it loads. */
 export const resolveSponsor = (
   creative: SponsorStripCreative,
 ): ResolvedSponsor => ({
   genId: creative.generation_id,
   company: creative.company_name,
-  logo: creative.icon,
+  logo: creative.icon || creative.icon_light || creative.icon_dark || '',
+  logoLight: creative.icon_light,
+  logoDark: creative.icon_dark,
   ratio: REFERENCE_RATIO,
   link: creative.link,
   pixel: creative.pixels,

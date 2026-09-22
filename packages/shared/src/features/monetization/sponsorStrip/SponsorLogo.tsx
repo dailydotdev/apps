@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { AdPixel } from '../../../components/cards/ad/common/AdPixel';
 import { getViewedPixels } from '../../../components/cards/ad/common/getViewedPixels';
@@ -7,6 +7,7 @@ import { anchorSponsoredRel } from '../../../lib/strings';
 import { boxedLogoHeight } from './sponsorLogoSizing';
 import type { ResolvedSponsor } from './sponsorStripCreative';
 import { useSponsorSlotLog } from './useSponsorSlotLog';
+import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 
 interface SponsorLogoProps {
   sponsor: ResolvedSponsor;
@@ -59,13 +60,47 @@ export const SponsorLogo = ({
     () => getViewedPixels(sponsor.pixel),
     [sponsor.pixel],
   );
+  const isLightTheme = useIsLightTheme();
+  const logo =
+    (isLightTheme ? sponsor.logoLight : sponsor.logoDark) ||
+    sponsor.logoLight ||
+    sponsor.logoDark ||
+    sponsor.logo;
+  const [dimensions, setDimensions] = useState<{
+    logo: string;
+    ratio: number;
+  }>();
+  const ratio =
+    (dimensions?.logo === logo && dimensions.ratio) || sponsor.ratio;
+
+  useEffect(() => {
+    if (!monochrome && !boxWidth) {
+      return undefined;
+    }
+
+    const image = new Image();
+    image.onload = () => {
+      if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+        setDimensions({
+          logo,
+          ratio: image.naturalWidth / image.naturalHeight,
+        });
+      }
+    };
+    image.src = logo;
+
+    return () => {
+      image.onload = null;
+    };
+  }, [monochrome, boxWidth, logo]);
+
   let height: number;
 
   if (exactHeight !== undefined) {
     height = exactHeight;
   } else if (cap !== undefined) {
     height = boxedLogoHeight(
-      sponsor.ratio,
+      ratio,
       cap,
       boxWidth ?? Number.POSITIVE_INFINITY,
       maxHeight,
@@ -83,10 +118,7 @@ export const SponsorLogo = ({
     // the width follow, which is what the slot was sold as. Handing it the
     // stand-in width instead would letterbox a wide lockup down to two thirds
     // of the height the row reserves for it.
-    width:
-      monochrome || boxWidth
-        ? `${Math.round(height * sponsor.ratio)}px`
-        : 'auto',
+    width: monochrome || boxWidth ? `${Math.round(height * ratio)}px` : 'auto',
   };
 
   return (
@@ -114,11 +146,11 @@ export const SponsorLogo = ({
             // the default colours — so the ink is painted directly and the
             // logo file is what shapes it.
             backgroundColor: 'currentColor',
-            maskImage: `url(${sponsor.logo})`,
+            maskImage: `url(${logo})`,
             maskRepeat: 'no-repeat',
             maskPosition: 'center',
             maskSize: 'contain',
-            WebkitMaskImage: `url(${sponsor.logo})`,
+            WebkitMaskImage: `url(${logo})`,
             WebkitMaskRepeat: 'no-repeat',
             WebkitMaskPosition: 'center',
             WebkitMaskSize: 'contain',
@@ -126,7 +158,7 @@ export const SponsorLogo = ({
         />
       ) : (
         <img
-          src={sponsor.logo}
+          src={logo}
           alt={sponsor.company}
           className="object-contain"
           style={size}

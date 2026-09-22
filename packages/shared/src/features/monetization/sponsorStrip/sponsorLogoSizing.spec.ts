@@ -1,5 +1,5 @@
 import {
-  COMMUNITY_CAP,
+  WALL_CAP,
   SLOT_GAP,
   SLOT_WIDTH,
   WALL_MAX_HEIGHT,
@@ -10,18 +10,14 @@ import {
 
 describe('opticalHeight', () => {
   it('should give a square mark more height than a long lockup', () => {
-    expect(opticalHeight(1, COMMUNITY_CAP)).toBeGreaterThan(
-      opticalHeight(6, COMMUNITY_CAP),
+    expect(opticalHeight(1, WALL_CAP)).toBeGreaterThan(
+      opticalHeight(6, WALL_CAP),
     );
   });
 
   it('should clamp both extremes so nothing blows out the row', () => {
-    expect(opticalHeight(0.1, COMMUNITY_CAP)).toEqual(
-      Math.round(COMMUNITY_CAP * 1.6),
-    );
-    expect(opticalHeight(20, COMMUNITY_CAP)).toEqual(
-      Math.round(COMMUNITY_CAP * 0.8),
-    );
+    expect(opticalHeight(0.1, WALL_CAP)).toEqual(Math.round(WALL_CAP * 1.6));
+    expect(opticalHeight(20, WALL_CAP)).toEqual(Math.round(WALL_CAP * 0.8));
   });
 });
 
@@ -30,13 +26,13 @@ describe('boxedLogoHeight', () => {
     const ratio = 12;
 
     expect(
-      boxedLogoHeight(ratio, COMMUNITY_CAP, SLOT_WIDTH) * ratio,
+      boxedLogoHeight(ratio, WALL_CAP, SLOT_WIDTH) * ratio,
     ).toBeLessThanOrEqual(SLOT_WIDTH);
   });
 
   it('should leave a mark that already fits at its optical height', () => {
-    expect(boxedLogoHeight(2, COMMUNITY_CAP, SLOT_WIDTH)).toEqual(
-      opticalHeight(2, COMMUNITY_CAP),
+    expect(boxedLogoHeight(2, WALL_CAP, SLOT_WIDTH)).toEqual(
+      opticalHeight(2, WALL_CAP),
     );
   });
 });
@@ -45,9 +41,9 @@ describe('boxedLogoHeight, row ceiling', () => {
   it('should hold a square mark down to the row it sits in', () => {
     // A 1:1 mark takes the tallest optical height there is, which is what
     // would otherwise push the row open.
-    expect(
-      boxedLogoHeight(1, COMMUNITY_CAP, SLOT_WIDTH, WALL_MAX_HEIGHT),
-    ).toEqual(WALL_MAX_HEIGHT);
+    expect(boxedLogoHeight(1, WALL_CAP, SLOT_WIDTH, WALL_MAX_HEIGHT)).toEqual(
+      WALL_MAX_HEIGHT,
+    );
   });
 });
 

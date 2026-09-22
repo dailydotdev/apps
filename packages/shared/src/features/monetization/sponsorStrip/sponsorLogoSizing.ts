@@ -14,9 +14,8 @@
  * colour.
  */
 export const GOLD_HEIGHT = 20;
-/** The wall's two tiers differ by a hair of ink, not by a wash of opacity. */
-export const PREMIUM_CAP = 17;
-export const COMMUNITY_CAP = 15;
+/** Both wall tiers share the same optical size. */
+export const WALL_CAP = 17;
 
 /**
  * Ceiling for the wall, which the optical sizing knows nothing about: a

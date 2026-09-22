@@ -1,0 +1,177 @@
+import React from 'react';
+import { act, render, screen } from '@testing-library/react';
+import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
+import { SponsorLogo } from './SponsorLogo';
+import { resolveSponsor, SponsorTier } from './sponsorStripCreative';
+import {
+  GOLD_HEIGHT,
+  SLOT_WIDTH,
+  WALL_CAP,
+  WALL_MAX_HEIGHT,
+} from './sponsorLogoSizing';
+
+jest.mock('../../../hooks/utils/useThemedAsset', () => ({
+  useIsLightTheme: jest.fn(),
+}));
+jest.mock('./useSponsorSlotLog', () => ({
+  useSponsorSlotLog: () => ({
+    ref: jest.fn(),
+    isViewable: false,
+    onClick: jest.fn(),
+  }),
+}));
+
+jest.mock('../../../components/cards/ad/common/AdPixel', () => ({
+  AdPixel: () => null,
+}));
+
+const mockIsLightTheme = jest.mocked(useIsLightTheme);
+const sponsor = resolveSponsor({
+  generation_id: 'google-cloud',
+  company_name: 'Google Cloud',
+  icon: 'https://cdn.daily.dev/google-cloud.svg',
+  icon_light: 'https://cdn.daily.dev/google-cloud-light.svg',
+  icon_dark: 'https://cdn.daily.dev/google-cloud-dark.svg',
+  link: 'https://cloud.google.com',
+  pixels: [],
+  tier: SponsorTier.Gold,
+});
+
+beforeEach(() => {
+  mockIsLightTheme.mockReturnValue(false);
+});
+
+it.each([false, true])(
+  'swaps themed logos with monochrome treatment %s',
+  (monochrome) => {
+    const renderLogo = () => (
+      <SponsorLogo
+        sponsor={sponsor}
+        slotIndex={0}
+        exactHeight={GOLD_HEIGHT}
+        monochrome={monochrome}
+      />
+    );
+    const expectLogo = (url: string | undefined) => {
+      const image = screen.getByRole('img', { name: sponsor.company });
+      if (monochrome) {
+        expect(image).toHaveStyle({
+          maskImage: `url(${url})`,
+          backgroundColor: 'currentColor',
+        });
+      } else {
+        expect(image).toHaveAttribute('src', url);
+      }
+    };
+    const { rerender } = render(renderLogo());
+    expectLogo(sponsor.logoDark);
+
+    mockIsLightTheme.mockReturnValue(true);
+    rerender(renderLogo());
+    expectLogo(sponsor.logoLight);
+  },
+);
+
+it.each([true, false])(
+  'keeps single-image creatives working in light mode %s',
+  (isLight) => {
+    mockIsLightTheme.mockReturnValue(isLight);
+    render(
+      <SponsorLogo
+        sponsor={{ ...sponsor, logoLight: undefined, logoDark: undefined }}
+        slotIndex={0}
+        exactHeight={GOLD_HEIGHT}
+      />,
+    );
+    expect(screen.getByRole('img', { name: sponsor.company })).toHaveAttribute(
+      'src',
+      sponsor.logo,
+    );
+  },
+);
+
+it.each(['logoLight', 'logoDark'] as const)(
+  'uses the available %s image in both themes before the legacy icon',
+  (availableLogo) => {
+    const singleThemeSponsor = {
+      ...sponsor,
+      logoLight: undefined,
+      logoDark: undefined,
+      [availableLogo]: sponsor[availableLogo],
+    };
+    const renderLogo = () => (
+      <SponsorLogo
+        sponsor={singleThemeSponsor}
+        slotIndex={0}
+        exactHeight={GOLD_HEIGHT}
+      />
+    );
+    const { rerender } = render(renderLogo());
+    expect(screen.getByRole('img', { name: sponsor.company })).toHaveAttribute(
+      'src',
+      sponsor[availableLogo],
+    );
+
+    mockIsLightTheme.mockReturnValue(true);
+    rerender(renderLogo());
+    expect(screen.getByRole('img', { name: sponsor.company })).toHaveAttribute(
+      'src',
+      sponsor[availableLogo],
+    );
+  },
+);
+
+it.each([true, false])(
+  'sizes wall marks using loaded proportions with monochrome treatment %s',
+  (monochrome) => {
+    const images: HTMLImageElement[] = [];
+    const imageConstructor = jest
+      .spyOn(window, 'Image')
+      .mockImplementation(() => {
+        const image = document.createElement('img');
+        images.push(image);
+        return image;
+      });
+    const renderLogo = (logo: string) => (
+      <SponsorLogo
+        sponsor={{
+          ...sponsor,
+          logo,
+          logoLight: undefined,
+          logoDark: undefined,
+        }}
+        slotIndex={1}
+        cap={WALL_CAP}
+        maxHeight={WALL_MAX_HEIGHT}
+        boxWidth={SLOT_WIDTH}
+        monochrome={monochrome}
+      />
+    );
+    const { rerender } = render(renderLogo('square.svg'));
+    Object.defineProperties(images[0], {
+      naturalWidth: { value: 100 },
+      naturalHeight: { value: 100 },
+    });
+    act(() => images[0].dispatchEvent(new Event('load')));
+    expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
+      height: '20px',
+      width: '20px',
+    });
+
+    rerender(renderLogo('wide.svg'));
+    expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
+      height: '17px',
+      width: '60px',
+    });
+    Object.defineProperties(images[1], {
+      naturalWidth: { value: 600 },
+      naturalHeight: { value: 100 },
+    });
+    act(() => images[1].dispatchEvent(new Event('load')));
+    expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
+      height: '14px',
+      width: '84px',
+    });
+    imageConstructor.mockRestore();
+  },
+);
