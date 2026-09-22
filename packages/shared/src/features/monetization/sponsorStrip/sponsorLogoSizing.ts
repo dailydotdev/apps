@@ -1,5 +1,5 @@
 /** The lead sponsor keeps a little more height than the partner row. */
-export const GOLD_HEIGHT = 20;
+export const GOLD_HEIGHT = 18;
 export const WALL_HEIGHT = 16;
 
 /** Fits wordmarks up to 8:1 at the shared height without shrinking them. */

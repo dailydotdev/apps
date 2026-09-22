@@ -257,7 +257,7 @@ it('should let the gold mark take its own width', async () => {
   // is an image too.
   const gold = within(screen.getByTitle('gold')).getByAltText('gold');
 
-  expect(gold).toHaveStyle({ height: '20px', width: 'auto' });
+  expect(gold).toHaveStyle({ height: '18px', width: 'auto' });
 });
 
 it('should give a masked wall mark a box to paint into', async () => {
