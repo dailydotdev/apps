@@ -146,15 +146,18 @@ describe('SearchControlHeader', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the intro quest button in both layout variants', () => {
+  it('renders the intro quest button in the control layout', () => {
     renderComponent();
 
     expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
+  });
 
+  it('renders the intro quest button in the v2 layout', () => {
     mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+
     renderComponent();
 
-    expect(screen.getAllByTestId('intro-quest-button')).toHaveLength(2);
+    expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
   });
 
   it('renders v2 feed actions icon-only below tablet without chips', () => {

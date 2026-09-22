@@ -36,7 +36,7 @@ export const useHomepageTopBanners = ({
 }: UseHomepageTopBannersProps = {}): HomepageTopBannersState => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const enabled = isEnabled && isAuthReady && isLoggedIn;
-  const reminder = useReadingReminderFeedHero({ enabled });
+  const reminder = useReadingReminderFeedHero({ enabled: enabled && isMyFeed });
   const cv = useCvTopBanner({ enabled: enabled && isMyFeed });
 
   return {

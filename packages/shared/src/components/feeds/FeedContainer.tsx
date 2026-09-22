@@ -151,7 +151,7 @@ export const FeedContainer = ({
   const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isV2 } = useLayoutVariant();
+  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
@@ -217,6 +217,7 @@ export const FeedContainer = ({
   // strip, so only one of the two claims the impression.
   const shouldEvaluateBanner =
     !isV2 &&
+    !isLayoutVariantLoading &&
     !!marketingCta &&
     shouldShow &&
     activeFeedName === SharedFeedPage.MyFeed;
