@@ -5,12 +5,17 @@ import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
 import { PlayIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import type { FeaturedWideColSpan } from './featuredWide';
-import { IMAGE_COL_SPAN } from './featuredWide';
+import { featuredWideImageColClass } from './featuredWide';
 
 export type FeaturedWideImageColumnProps = {
   image?: string;
   alt: string;
   wideColSpan: FeaturedWideColSpan;
+  /**
+   * Container-query spans, and the cover cropped to fill its column. Off keeps
+   * the letterboxed image over a blurred backdrop.
+   */
+  hero?: boolean;
   overlay?: ReactNode;
   isVideoType?: boolean;
   eagerLoadImage?: boolean;
@@ -23,14 +28,16 @@ export const FeaturedWideImageColumn = ({
   overlay,
   isVideoType,
   eagerLoadImage,
+  hero,
 }: FeaturedWideImageColumnProps): ReactElement => (
   <div
     className={classNames(
-      'relative flex h-full min-w-0 items-center justify-center overflow-hidden rounded-r-16',
-      IMAGE_COL_SPAN[wideColSpan],
+      'relative flex h-full min-w-0 items-center justify-center overflow-hidden',
+      hero ? 'p-2' : 'rounded-r-16',
+      featuredWideImageColClass({ wideColSpan, hero }),
     )}
   >
-    {!!image && (
+    {!!image && !hero && (
       <Image
         aria-hidden
         alt=""
@@ -60,7 +67,8 @@ export const FeaturedWideImageColumn = ({
         src={image}
         type={ImageType.Post}
         className={classNames(
-          'relative size-full object-contain',
+          'relative size-full',
+          hero ? 'rounded-12 object-cover' : 'object-contain',
           !!overlay && 'opacity-16',
         )}
         {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}

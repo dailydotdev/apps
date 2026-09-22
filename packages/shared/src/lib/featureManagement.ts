@@ -180,7 +180,14 @@ export const featureOnboardingPersonas = new Feature(
   false,
 );
 
+// Experiment: the mobile-only reading reminder step offered on desktop too.
+export const featureOnboardingReminderDesktop = new Feature(
+  'onboarding_reminder_desktop',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
@@ -216,7 +223,7 @@ export enum FeedChipsVariant {
 }
 export const featureFeedChips = new Feature<FeedChipsVariant>(
   'feed_chips',
-  FeedChipsVariant.V2,
+  FeedChipsVariant.V3,
 );
 
 export enum HijackingVariant {
@@ -278,6 +285,10 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
     [PostType.Collection]: false,
   },
 });
+
+// Experiment: a hero section above the feed — a carousel of the current
+// headlines, with the Happening Now list and a direct ad placement beside it.
+export const featureFeedHero = new Feature('feed_hero', false);
 
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.
