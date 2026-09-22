@@ -33,6 +33,7 @@ jest.mock('next/router', () => ({ useRouter: () => ({ query: {} }) }));
 const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 
 const explainer = 'Unlock the power of every new tab';
+const video = 'https://media.daily.dev/video/upload/custom.webm';
 
 // A fresh element each time: React skips a subtree whose element is reused.
 const step = () => (
@@ -49,7 +50,7 @@ const step = () => (
       transitions={[]}
       isActive
       onTransition={jest.fn()}
-      parameters={{ explainer }}
+      parameters={{ explainer, video }}
     />
   </FunnelProgressContext.Provider>
 );
@@ -109,6 +110,9 @@ describe('FunnelBrowserExtension', () => {
       'aria-selected',
       'true',
     );
+    expect(
+      screen.getByLabelText('A blank new tab turning into the daily.dev feed'),
+    ).toHaveAttribute('src', video);
     expect(screen.getByRole('link', { name: 'Add to Chrome' })).toBeVisible();
   });
 

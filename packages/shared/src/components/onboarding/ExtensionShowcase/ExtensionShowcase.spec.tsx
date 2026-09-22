@@ -7,10 +7,16 @@ const featureById = (id: string) =>
   defaultExtensionShowcaseFeatures.find((feature) => feature.id === id)!;
 
 const scrollIntoView = jest.fn();
+const { matchMedia } = window;
 
 beforeEach(() => {
   scrollIntoView.mockClear();
   Element.prototype.scrollIntoView = scrollIntoView;
+});
+
+afterEach(() => {
+  window.matchMedia = matchMedia;
+  jest.restoreAllMocks();
 });
 
 describe('ExtensionShowcase', () => {
@@ -104,15 +110,22 @@ describe('ExtensionShowcase', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('moves the selection with the arrow, Home and End keys', () => {
+  it('moves the selection with the arrow, Home and End keys through a click', () => {
     const focus = jest.spyOn(HTMLElement.prototype, 'focus');
-    render(<ExtensionShowcase />);
+    const onClickCapture = jest.fn();
+    render(
+      <div onClickCapture={onClickCapture}>
+        <ExtensionShowcase />
+      </div>,
+    );
     const selected = () => screen.getByRole('tab', { selected: true });
 
     fireEvent.keyDown(selected(), { key: 'ArrowRight' });
     expect(selected()).toHaveTextContent('Companion');
     expect(selected()).toHaveFocus();
     expect(focus).toHaveBeenLastCalledWith({ preventScroll: true });
+    expect(onClickCapture).toHaveBeenCalledTimes(1);
+    expect(onClickCapture.mock.calls[0][0].target).toBe(selected());
 
     fireEvent.keyDown(selected(), { key: 'ArrowLeft' });
     fireEvent.keyDown(selected(), { key: 'ArrowLeft' });

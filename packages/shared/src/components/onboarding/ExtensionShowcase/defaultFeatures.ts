@@ -173,3 +173,12 @@ export const defaultExtensionShowcaseFeatures: ExtensionShowcaseFeature[] = [
 ];
 
 export const defaultExtensionShowcaseFeatureId = 'newtab';
+
+export const extensionShowcaseFeaturesWithVideo = (
+  video: string,
+): ExtensionShowcaseFeature[] =>
+  defaultExtensionShowcaseFeatures.map((feature) =>
+    feature.id === defaultExtensionShowcaseFeatureId
+      ? { ...feature, media: { ...feature.media, src: video } }
+      : feature,
+  );

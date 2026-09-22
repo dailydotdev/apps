@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FunnelStepBrowserExtension } from '../types/funnel';
@@ -39,6 +39,7 @@ import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureOnboardingExtensionShowcase } from '../../../lib/featureManagement';
 import { ExtensionShowcase } from '../../../components/onboarding/ExtensionShowcase/ExtensionShowcase';
+import { extensionShowcaseFeaturesWithVideo } from '../../../components/onboarding/ExtensionShowcase/defaultFeatures';
 
 // The showcase stage grows with the viewport height: never narrower than the
 // demo video (40rem), never wider than the homepage tour (64rem), and in
@@ -79,6 +80,10 @@ const BrowserExtension = ({
     feature: featureOnboardingExtensionShowcase,
     shouldEvaluate: isOnboarding,
   });
+  const showcaseFeatures = useMemo(
+    () => extensionShowcaseFeaturesWithVideo(video),
+    [video],
+  );
   // Only swap the default; a Freyja-provided cta wins.
   const ctaTemplate =
     isOnboarding && cta === BROWSER_EXTENSION_DEFAULTS.cta
@@ -190,8 +195,9 @@ const BrowserExtension = ({
     );
   }
 
-  // The showcase replaces the explainer and the video: the per-feature caption
-  // does the explaining, right under the headline like the homepage tour.
+  // The showcase replaces the explainer, the skip nudge and the video: the
+  // per-feature caption does the explaining, right under the headline like the
+  // homepage tour, and the configured video plays on the feed tab.
   const body = hasShowcase ? (
     <>
       <div
@@ -206,6 +212,7 @@ const BrowserExtension = ({
       </div>
       <ExtensionShowcase
         className="mx-auto mb-6 max-w-[64rem] px-4 laptop:px-6"
+        features={showcaseFeatures}
         stageClassName={showcaseStageClassName}
       />
     </>

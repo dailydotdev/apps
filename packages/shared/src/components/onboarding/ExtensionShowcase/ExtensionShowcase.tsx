@@ -179,9 +179,11 @@ export function ExtensionShowcase({
     }
 
     event.preventDefault();
-    const next = features[nextIndex];
-    selectFeature(next.id);
-    document.getElementById(tabId(next.id))?.focus({ preventScroll: true });
+    // Clicking the tab (rather than selecting it directly) keeps keyboard
+    // selections on the same path the funnel's click capture logs.
+    const next = document.getElementById(tabId(features[nextIndex].id));
+    next?.focus({ preventScroll: true });
+    next?.click();
   };
 
   return (
