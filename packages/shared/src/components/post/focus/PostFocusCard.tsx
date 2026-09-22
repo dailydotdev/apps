@@ -40,6 +40,7 @@ import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
+import { PostSignupWidget } from '../PostSignupWidget';
 import { combinedClicks, withSelectionGuard } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { SourceStrip } from '../reader/SourceStrip';
@@ -794,6 +795,7 @@ const PostFocusCardRaw = ({
               {showTags && <PostTagList post={article} />}
             </>
           )}
+          <PostSignupWidget post={article} inline />
 
           {showCommunitySentiment && (
             <CommunitySentiment data={communitySentimentData} />

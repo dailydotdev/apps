@@ -14,13 +14,11 @@ import { useBookmarkPost } from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { GQLPersona } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { withIsActiveGuard } from '@dailydotdev/shared/src/features/onboarding/shared/withActiveGuard';
 import type { FunnelStepEditTags } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { FunnelStepTransitionType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { useAdaptiveSwipeDeck } from '../../hooks/useAdaptiveSwipeDeck';
-import { buildSwipePrompt } from '../../lib/buildSwipePrompt';
 import { SwipeOnboardingProgressHeader } from './SwipeOnboardingProgressHeader';
 import {
   SwipePersonaIntro,
@@ -30,11 +28,9 @@ import {
   SWIPE_ONBOARDING_MIN_TO_UNLOCK,
   SWIPE_ONBOARDING_REFINE_TARGET,
 } from '../../lib/swipeOnboardingGuidance';
-import { recommendOnboardingTags } from '../../lib/swipingBackendApi';
 import { roundRobinMerge } from '../../lib/roundRobinMerge';
 
 const SWIPE_ONBOARDING_TAG_SEED_MAX = 25;
-const SWIPE_ONBOARDING_RECOMMENDED_TAGS_COUNT = 10;
 const SWIPE_ONBOARDING_LOADING_LABELS = [
   'cooking',
   'optimizing',
@@ -226,7 +222,6 @@ function FunnelSwipeOnboardingStepComponent({
   onTransition,
 }: FunnelStepEditTags): ReactElement {
   const router = useRouter();
-  const { user } = useAuthContext();
   const [swipesCount, setSwipesCount] = useState(0);
   const [selectedPersonas, setSelectedPersonas] = useState<GQLPersona[]>([]);
   const [promptLoading, setPromptLoading] = useState(false);
@@ -250,7 +245,6 @@ function FunnelSwipeOnboardingStepComponent({
     handleSwipe: handleAdaptiveSwipe,
     retryFetch,
     selectedTags: adaptiveSelectedTags,
-    appendSeedTags,
   } = useAdaptiveSwipeDeck();
 
   const handleStartSwipe = useCallback(async () => {
@@ -260,63 +254,20 @@ function FunnelSwipeOnboardingStepComponent({
 
     setPromptLoading(true);
     try {
-      // Fan out recommendations per persona so a tag-dense persona (e.g.
-      // AI/ML) doesn't dominate the seed when the user picks several roles.
-      const perPersonaCount = Math.max(
-        1,
-        Math.ceil(
-          SWIPE_ONBOARDING_RECOMMENDED_TAGS_COUNT /
-            Math.max(selectedPersonas.length, 1),
-        ),
-      );
+      // Interleave persona tags so a tag-dense persona (e.g. AI/ML) doesn't
+      // dominate the seed when the user picks several roles.
       const personaTags = roundRobinMerge(
         selectedPersonas.map((persona) => persona.tags),
       );
-      const prompt = buildSwipePrompt({
-        personas: selectedPersonas,
-        experienceLevel: user?.experienceLevel,
-      });
 
-      // Kick off recommendations and the deck fetch in parallel — both are
-      // LLM calls. The deck seeds with persona tags only; once the
-      // recommendation call resolves we append the extra tags to the deck's
-      // seed so subsequent batches benefit from the broader signal.
-      const recommendationsPromise = Promise.all(
-        selectedPersonas.map((persona) =>
-          recommendOnboardingTags(persona.tags, perPersonaCount).catch(
-            () => [] as string[],
-          ),
-        ),
-      ).then((streams) =>
-        roundRobinMerge(streams).slice(
-          0,
-          SWIPE_ONBOARDING_RECOMMENDED_TAGS_COUNT,
-        ),
-      );
-      const deckPromise = startDeck({ prompt, initialTags: personaTags });
-
-      recommendationsPromise
-        .then((recommendedTags) => {
-          if (recommendedTags.length) {
-            appendSeedTags(recommendedTags);
-          }
-        })
-        .catch(() => null);
-
-      await deckPromise;
+      await startDeck({ initialTags: personaTags });
       setIsIntroExiting(true);
       await waitMs(SWIPE_ONBOARDING_TRANSITION_MS);
       setIsSwipeMode(true);
     } finally {
       setPromptLoading(false);
     }
-  }, [
-    appendSeedTags,
-    promptLoading,
-    selectedPersonas,
-    startDeck,
-    user?.experienceLevel,
-  ]);
+  }, [promptLoading, selectedPersonas, startDeck]);
 
   const bookmarkRightSwipePost = useCallback(
     (cardId: string) => {
