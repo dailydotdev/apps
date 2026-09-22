@@ -55,10 +55,7 @@ export function ExploreSignupStrip({
     return (
       <section
         aria-hidden
-        className={classNames(
-          'hidden w-full tablet:block [.cached-user_&]:hidden',
-          className,
-        )}
+        className={classNames('hidden w-full tablet:block', className)}
       >
         <div className="rounded-16 border border-transparent">
           <div className={exploreSignupStripMinHeight} />
