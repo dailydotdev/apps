@@ -14,22 +14,18 @@ import { LogEvent, Origin, TargetType } from '../lib/log';
 import type { SearchLogExtra } from '../lib/searchLog';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
-import { CollectionList } from './cards/collection/CollectionList';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { SignalAdList } from './cards/ad/SignalAdList';
 import type { AdCardProps } from './cards/ad/common/common';
-import { FreeformGrid } from './cards/Freeform/FreeformGrid';
-import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
+import { PostTypeToGridCard } from './cards/common/gridCards';
 import type { FeaturedWideColSpan } from './cards/common/featuredWide';
 import { PostTypeToWideCard } from './cards/common/wideCards';
-import { ShareGrid } from './cards/share/ShareGrid';
-import { ShareList } from './cards/share/ShareList';
-import { CollectionGrid } from './cards/collection';
+import { PostTypeToListCard } from './cards/common/listCards';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
@@ -38,7 +34,6 @@ import { AdMeasurement } from './cards/ad/common/AdMeasurement';
 import { AdViewability } from './cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../features/monetization/viewability';
 import { viewabilityLogExtra } from '../features/monetization/viewability';
-import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
@@ -50,10 +45,6 @@ import {
 } from '../lib/engagementAds';
 import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
-import PollGrid from './cards/poll/PollGrid';
-import { PollList } from './cards/poll/PollList';
-import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
-import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
 import { SignalList } from './cards/common/list/SignalList';
 import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
@@ -121,34 +112,6 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
-  [PostType.Article]: ArticleGrid,
-  [PostType.Share]: ShareGrid,
-  [PostType.Welcome]: FreeformGrid,
-  [PostType.Freeform]: FreeformGrid,
-  [PostType.VideoYouTube]: ArticleGrid,
-  [PostType.Collection]: CollectionGrid,
-  [PostType.Brief]: BriefCard,
-  [PostType.Poll]: PollGrid,
-  [PostType.SocialTwitter]: SocialTwitterGrid,
-  [PostType.Digest]: ArticleGrid,
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
-  [PostType.Article]: ArticleList,
-  [PostType.Share]: ShareList,
-  [PostType.Welcome]: FreeformList,
-  [PostType.Freeform]: FreeformList,
-  [PostType.VideoYouTube]: ArticleList,
-  [PostType.Collection]: CollectionList,
-  [PostType.Brief]: BriefCard,
-  [PostType.Poll]: PollList,
-  [PostType.SocialTwitter]: SocialTwitterList,
-  [PostType.Digest]: ArticleList,
-};
-
 const getPostTypeForCard = (post?: Post): PostType => {
   if (!post) {
     return PostType.Article;
@@ -176,7 +139,7 @@ const getTags = ({
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
   const isSignalFeed = feedName === OtherFeedPage.AgentsVibes;
-  const listPostTag = isSignalFeed ? SignalList : PostTypeToTagList[postType];
+  const listPostTag = isSignalFeed ? SignalList : PostTypeToListCard[postType];
   const listPlaceholderTag = isSignalFeed
     ? SignalPlaceholderList
     : PlaceholderList;
@@ -185,7 +148,7 @@ const getTags = ({
   return {
     PostTag: useListCards
       ? listPostTag ?? ArticleList
-      : PostTypeToTagCard[postType] ?? ArticleGrid,
+      : PostTypeToGridCard[postType] ?? ArticleGrid,
     AdTag: useListCards ? listAdTag : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,

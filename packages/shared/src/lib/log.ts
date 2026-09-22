@@ -9,6 +9,7 @@ export enum Origin {
   ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
+  FeedHero = 'feed hero',
   CommentFeed = 'comment feed',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
