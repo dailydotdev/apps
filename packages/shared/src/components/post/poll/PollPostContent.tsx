@@ -251,25 +251,15 @@ function PollPostContentRaw({
                     />
                     <Typography bold>Why did you vote this way?</Typography>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {hasPollResults && (
-                      <PollSnapshotButton
-                        origin={Origin.PollVotePrompt}
-                        post={post}
-                        size={ButtonSize.XSmall}
-                        variant={ButtonVariant.Primary}
-                      />
-                    )}
-                    <Button
-                      className="text-text-primary"
-                      variant={ButtonVariant.Subtle}
-                      size={ButtonSize.XSmall}
-                      type="button"
-                      onClick={handleCommentClick}
-                    >
-                      Comment
-                    </Button>
-                  </div>
+                  <Button
+                    className="text-text-primary"
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.XSmall}
+                    type="button"
+                    onClick={handleCommentClick}
+                  >
+                    Comment
+                  </Button>
                 </div>
               )}
             </div>
