@@ -18,6 +18,10 @@ jest.mock('../../../features/boost/useShowBoostButton', () => ({
   useShowBoostButton: jest.fn(() => true),
 }));
 
+jest.mock('../../comments/AdAsComment', () => ({
+  AdAsComment: () => <div data-testid="ad-as-comment" />,
+}));
+
 const freeformPost: Post = {
   ...post,
   id: 'freeform-post-id',
@@ -335,6 +339,31 @@ describe('PostFocusCard share commentary', () => {
     expect(commentary).toHaveClass('whitespace-pre-line', 'typo-body');
     expect(commentary).not.toHaveClass('typo-title3');
     expect(commentary).not.toHaveClass('font-bold');
+  });
+});
+
+describe('PostFocusCard internal comment ad', () => {
+  // The post modals pass no ads, so this is what feed readers get there.
+  it('renders the internal ad in the thread when no programmatic units are passed', () => {
+    renderCard(post, { onClose: jest.fn() });
+
+    expect(screen.getByTestId('ad-as-comment')).toBeInTheDocument();
+  });
+
+  it('yields to programmatic comment units', () => {
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <PostFocusCard
+          post={post}
+          origin={Origin.ArticlePage}
+          ads={{
+            commentAds: { interleaveEvery: 6, renderInterleaved: () => null },
+          }}
+        />
+      </TestBootProvider>,
+    );
+
+    expect(screen.queryByTestId('ad-as-comment')).not.toBeInTheDocument();
   });
 });
 

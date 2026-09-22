@@ -135,6 +135,9 @@ const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
+  // Spies keep their implementation across clearAllMocks; a viewport left
+  // behind by one test must not leak into the next.
+  jest.restoreAllMocks();
   mockRedesignOn = false;
   mockRouter();
 });
@@ -1312,6 +1315,25 @@ describe('post redesign', () => {
     expect(mockRedesignEvaluated).toBe(false);
   });
 
+  it('should not enrol before the router has parsed the query', async () => {
+    // A static page hydrates with an empty query and isReady false whenever
+    // the URL carries a search string; the params arrive one commit later.
+    mockRedesignOn = true;
+    mockRedesignEvaluated = false;
+    mockRouter({ isReady: false, query: {} });
+    renderPost();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(mockRedesignEvaluated).toBe(false);
+
+    mockRouter({ isReady: true, query: { author: 'true' } });
+    await act(async () => {
+      fireEvent(window, new Event('resize'));
+    });
+    expect(screen.getByTestId('postContainer')).toBeInTheDocument();
+    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+    expect(mockRedesignEvaluated).toBe(false);
+  });
+
   it('should show the signup banner to logged-out laptop visitors on the focus card', async () => {
     mockRedesignOn = true;
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
@@ -1374,27 +1396,36 @@ describe('post redesign', () => {
         .map((el) => el.getAttribute('data-testid'))
         .sort();
 
-    it('carries the same units on the focus card as on the classic layout', async () => {
-      const { unmount } = renderAnonymous(false);
-      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-      const classicUnits = mountedUnits();
-      expect(classicUnits).toEqual(
-        expect.arrayContaining([
-          'ad-slot-15',
-          'ad-slot-16',
-          'ad-slot-21',
-          'ad-slot-22',
-          'ad-slot-23',
-        ]),
-      );
-      expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
-      unmount();
+    it.each([
+      ['laptop', true],
+      ['tablet', false],
+    ])(
+      'carries the same units on the focus card as on the classic layout at %s',
+      async (_, isLaptop) => {
+        jest.spyOn(hooks, 'useViewSize').mockImplementation(() => isLaptop);
+        const { unmount } = renderAnonymous(false);
+        expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+        const classicUnits = mountedUnits();
+        expect(classicUnits).toEqual(
+          expect.arrayContaining([
+            'ad-slot-15',
+            'ad-slot-16',
+            'ad-slot-21',
+            'ad-slot-22',
+            'ad-slot-23',
+          ]),
+        );
+        expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
+        unmount();
 
-      renderAnonymous(true);
-      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      expect(mountedUnits()).toEqual(classicUnits);
-      expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
-    });
+        renderAnonymous(true);
+        expect(
+          await screen.findByTestId('post-focus-card'),
+        ).toBeInTheDocument();
+        expect(mountedUnits()).toEqual(classicUnits);
+        expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
+      },
+    );
 
     it('runs the summary snapshot into the last TLDR segment on the focus card', async () => {
       renderAnonymous(true);

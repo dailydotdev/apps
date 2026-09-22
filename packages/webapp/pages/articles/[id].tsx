@@ -310,7 +310,7 @@ const ReadPostPage = ({
           </>
         )}
         {showRedesign ? (
-          <div className="mx-auto w-full max-w-[72rem]">
+          <div className="mx-auto min-h-page w-full max-w-[72rem] pb-6">
             <PostFocusCard
               post={post}
               origin={Origin.ArticlePage}

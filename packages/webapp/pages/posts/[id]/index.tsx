@@ -230,9 +230,11 @@ export const PostPage = ({
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
   // Entry-specific flows the focus card doesn't render (author onboarding via
-  // `?author`, back-to-squad via `?squad`) stay on the classic layout.
+  // `?author`, back-to-squad via `?squad`) stay on the classic layout. The
+  // query is empty until the router is ready on this static page, so an
+  // unknown query counts as "cannot render" rather than enrolling early.
   const { showRedesign } = usePostRedesign(post, {
-    canRender: !router.query?.author && !router.query?.squad,
+    canRender: router.isReady && !router.query?.author && !router.query?.squad,
   });
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
   // Empty for every logged-in visitor; the slot components check the same
@@ -321,7 +323,6 @@ export const PostPage = ({
                 format={ReadAdFormat.MediumRectangle}
               />,
             ],
-            railPinsLast: true,
             aboveComments: (
               <ReadAdSlot
                 surface="organic"

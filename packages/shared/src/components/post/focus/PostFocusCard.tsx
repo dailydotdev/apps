@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import type { ComponentProps, ReactElement, ReactNode, RefObject } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import {
@@ -64,6 +64,7 @@ import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 import {
   CommunitySentiment,
   mapCommunitySentimentPost,
@@ -151,14 +152,18 @@ const RAIL_WITH_GAP = 332;
  * Whether a 300px rail fits to the right of the centred 768px column. Read
  * from the card's own box rather than a viewport query: the room depends on
  * the sidebar's width and the page wrapper, which a media query cannot see.
+ * Measured in a layout effect so the first paint already has the answer, and
+ * re-measured when the sidebar toggles, which moves the card without
+ * resizing it.
  */
 const useHasRailRoom = (
   cardRef: RefObject<HTMLElement>,
   hasRail: boolean,
+  sidebarExpanded: boolean,
 ): boolean => {
   const [hasRoom, setHasRoom] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const card = cardRef.current;
     if (!hasRail || !card) {
       return undefined;
@@ -181,9 +186,18 @@ const useHasRailRoom = (
       observer?.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [cardRef, hasRail]);
+  }, [cardRef, hasRail, sidebarExpanded]);
 
   return hasRoom;
+};
+
+const RAIL_PLACEMENT_CLASS = {
+  // Out of flow, at the centred column's right edge; the row is `relative`.
+  beside: 'absolute inset-y-0 left-[calc(50%+26rem)] w-[300px] pt-6',
+  // A second column beside the article, centred with it as one block.
+  block: 'w-[300px] shrink-0 pt-6',
+  // Stacked under the article, where the classic widget column goes.
+  stacked: 'w-full pt-2',
 };
 
 /**
@@ -339,25 +353,14 @@ const PostFocusCardRaw = ({
   const isSharedTweet = isShared && isSocialTwitterPost(article);
   const isSharedVideo = isShared && isVideoType;
   const showTags = !isSquadPost;
-  // The rail floats beside the centred column when the space right of that
-  // column fits it, on a laptop the column and rail centre together as one
-  // block, and below laptop the units sit inline where the classic rail
-  // stacks under the article.
-  const hasRailRoom = useHasRailRoom(cardRef, !!ads?.rail);
+  // One container in one place in the tree for every placement, so a
+  // placement change never remounts the ad units and their auctions.
+  const { sidebarExpanded } = useSettingsContext();
+  const hasRailRoom = useHasRailRoom(cardRef, !!ads?.rail, sidebarExpanded);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const railPlacement = !ads?.rail
     ? null
-    : (hasRailRoom && 'beside') || (isLaptop && 'block') || 'inline';
-  const railUnits = ads?.rail && (
-    <>
-      {ads.railPinsLast ? ads.rail.slice(0, -1) : ads.rail}
-      {ads.railPinsLast && (
-        <div className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1">
-          {ads.rail[ads.rail.length - 1]}
-        </div>
-      )}
-    </>
-  );
+    : (hasRailRoom && 'beside') || (isLaptop && 'block') || 'stacked';
   const { title } = useSmartTitle(article);
   // A share post's own `title` is the sharer's commentary, not the article's
   // title — but it mirrors the article title when they wrote nothing.
@@ -524,13 +527,8 @@ const PostFocusCardRaw = ({
       data-testid="post-focus-card"
     >
       <SelectionSnapshotBar containerRef={cardRef} post={article} />
-      <div className="flex justify-center gap-8 px-4 tablet:px-6 laptop:px-8">
-        <div className="relative flex min-w-0 flex-1 flex-col gap-4 py-6 laptop:max-w-[768px]">
-          {railPlacement === 'beside' && (
-            <div className="absolute inset-y-0 left-full ml-8 flex w-[300px] flex-col gap-2 pt-6">
-              {railUnits}
-            </div>
-          )}
+      <div className="relative flex flex-col justify-center gap-8 px-4 tablet:px-6 laptop:flex-row laptop:px-8">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 py-6 laptop:max-w-[768px]">
           {ads?.contentLeading}
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
@@ -812,7 +810,6 @@ const PostFocusCardRaw = ({
           {!ads?.withoutDirectSold && (
             <PostSidebarAdWidget postId={post.id} variant="inline" />
           )}
-          {railPlacement === 'inline' && ads?.rail}
 
           <PostUpvotesCommentsCount
             post={post}
@@ -855,9 +852,19 @@ const PostFocusCardRaw = ({
             />
           </div>
         </div>
-        {railPlacement === 'block' && (
-          <div className="flex w-[300px] shrink-0 flex-col gap-2 pt-6">
-            {railUnits}
+        {railPlacement && ads?.rail && (
+          <div
+            className={classNames(
+              'flex flex-col gap-2',
+              RAIL_PLACEMENT_CLASS[railPlacement],
+            )}
+          >
+            {ads.railPinsLast ? ads.rail.slice(0, -1) : ads.rail}
+            {ads.railPinsLast && (
+              <div className="sticky top-[calc(var(--sticky-header-offset,0px)+1rem)] z-1">
+                {ads.rail[ads.rail.length - 1]}
+              </div>
+            )}
           </div>
         )}
       </div>
