@@ -616,7 +616,7 @@ function GameCenterPage({
               awardStats={[
                 { label: 'Total awards', value: awardCountLabel },
                 {
-                  label: 'Total earned',
+                  label: 'Collection value',
                   value: awardValueLabel,
                   icon: (
                     <CoreIcon
