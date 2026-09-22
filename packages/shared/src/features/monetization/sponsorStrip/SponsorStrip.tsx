@@ -1,13 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import {
-  COMMUNITY_CAP,
-  GOLD_HEIGHT,
-  PREMIUM_CAP,
-  SLOT_WIDTH,
-  WALL_MAX_HEIGHT,
-} from './sponsorLogoSizing';
+import { GOLD_HEIGHT, WALL_HEIGHT, WALL_MAX_WIDTH } from './sponsorLogoSizing';
 import { SponsorLogo } from './SponsorLogo';
 import { SponsorStripHeadlines } from './SponsorStripHeadlines';
 import type { StatuslineItem } from '../../../graphql/statusline';
@@ -85,7 +79,7 @@ const SponsorRow = ({
             <SponsorLogo
               sponsor={gold}
               slotIndex={0}
-              exactHeight={GOLD_HEIGHT}
+              height={GOLD_HEIGHT}
               className="text-text-primary"
             />
           )}
@@ -96,12 +90,6 @@ const SponsorRow = ({
             className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
           />
         )}
-        {/* One run for both wall tiers, spread with `justify-between` the way
-          the broadcast bar this borrows from distributes its credits: the row
-          breathes on a wide window and tightens before it clips. Premium sits
-          left and carries a hair more ink; the slots are a fixed width, so a
-          rotation swapping a square mark for a long lockup cannot make the
-          whole row shuffle sideways. */}
         <div
           ref={wallRef}
           className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
@@ -111,9 +99,8 @@ const SponsorRow = ({
               key={sponsor.genId}
               sponsor={sponsor}
               slotIndex={index + 1}
-              cap={PREMIUM_CAP}
-              boxWidth={SLOT_WIDTH}
-              maxHeight={WALL_MAX_HEIGHT}
+              height={WALL_HEIGHT}
+              maxWidth={WALL_MAX_WIDTH}
               monochrome
               className="text-text-secondary transition-colors hover:text-text-primary"
             />
@@ -126,11 +113,10 @@ const SponsorRow = ({
               // creatives happened to fill it, so a slot index means the same
               // position from one session to the next.
               slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
-              cap={COMMUNITY_CAP}
-              boxWidth={SLOT_WIDTH}
-              maxHeight={WALL_MAX_HEIGHT}
+              height={WALL_HEIGHT}
+              maxWidth={WALL_MAX_WIDTH}
               monochrome
-              className="text-text-tertiary transition-colors hover:text-text-primary"
+              className="text-text-secondary transition-colors hover:text-text-primary"
             />
           ))}
         </div>

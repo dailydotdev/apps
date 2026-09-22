@@ -71,6 +71,37 @@ describe('parseSponsors', () => {
 });
 
 describe('resolveSponsor', () => {
+  it.each(['pinned', 'top_tier', 'community'])(
+    'should preserve both themed logos for %s advertisers',
+    (group) => {
+      const [creative] = parseSponsors(
+        bar({
+          [group]: [
+            advertiser({
+              icon: undefined,
+              icon_light: 'https://cdn.daily.dev/quantile-light.svg',
+              icon_dark: 'https://cdn.daily.dev/quantile-dark.svg',
+            }),
+          ],
+        }),
+      );
+
+      expect(resolveSponsor(creative)).toEqual(
+        expect.objectContaining({
+          logo: 'https://cdn.daily.dev/quantile-light.svg',
+          logoLight: 'https://cdn.daily.dev/quantile-light.svg',
+          logoDark: 'https://cdn.daily.dev/quantile-dark.svg',
+        }),
+      );
+    },
+  );
+
+  it('should reject a creative without any logo', () => {
+    expect(
+      parseSponsors(bar({ pinned: [advertiser({ icon: undefined })] })),
+    ).toEqual([]);
+  });
+
   // The wire carries no dimensions, so the optical sizing has to fall back to
   // the ratio it is calibrated around rather than to zero, which would divide
   // the mark's height away.

@@ -11,9 +11,14 @@ import { LogEvent } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
+import { SLOT_GAP, WALL_MAX_WIDTH } from './sponsorLogoSizing';
 
 jest.mock('./fetchSponsorStripAds', () => ({
   fetchSponsorStripAds: jest.fn(),
+}));
+
+jest.mock('../../../hooks/utils/useThemedAsset', () => ({
+  useIsLightTheme: () => false,
 }));
 
 const mockFetch = jest.mocked(fetchSponsorStripAds);
@@ -56,7 +61,7 @@ const COMMUNITY = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10'];
 // Wide enough for eight wall slots — four premium, four community — which
 // leaves the community deck bigger than the row it fills, the only state in
 // which a rotation has anywhere to go.
-const WALL_WIDTH = 900;
+const WALL_WIDTH = WALL_MAX_WIDTH * 8 + SLOT_GAP * 7;
 const COMMUNITY_SLOTS = 4;
 
 const ads = bar({
@@ -155,10 +160,10 @@ const setHeadlines = (next: StatuslineItem[]) => {
 const publishedHeight = (): string =>
   document.documentElement.style.getPropertyValue('--sponsor-strip-height');
 
-// SLOT_WIDTH 88 + SLOT_GAP 16: floor((200 + 16) / 104) === 2 wall slots, fewer
-// than the four premium marks the deck holds.
-const NARROW_WALL_WIDTH = 200;
+// Fewer slots than the four premium marks the deck holds.
 const NARROW_WALL_SLOTS = 2;
+const NARROW_WALL_WIDTH =
+  WALL_MAX_WIDTH * NARROW_WALL_SLOTS + SLOT_GAP * (NARROW_WALL_SLOTS - 1);
 
 const setWallWidth = (width: number) =>
   jest
@@ -264,7 +269,7 @@ it('should give a masked wall mark a box to paint into', async () => {
   const company = shownLogos().find((name) => PREMIUM.includes(name)) as string;
   const wall = within(screen.getByTitle(company)).getByLabelText(company);
 
-  expect(wall).toHaveStyle({ height: '17px', width: '60px' });
+  expect(wall).toHaveStyle({ height: '16px', width: '56px' });
 });
 
 it('should open air time for every logo on the row', async () => {

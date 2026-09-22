@@ -28,7 +28,7 @@ interface UseSponsorStripAds {
 }
 
 /**
- * How many fixed-width slots the wall holds.
+ * How many logos the wall can safely hold at their maximum width.
  *
  * Nothing is drawn until the row has been measured, which matters for money
  * rather than for looks: an optimistic first paint renders every creative in

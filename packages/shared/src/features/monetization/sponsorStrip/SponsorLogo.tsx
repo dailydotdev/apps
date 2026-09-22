@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { AdPixel } from '../../../components/cards/ad/common/AdPixel';
 import { getViewedPixels } from '../../../components/cards/ad/common/getViewedPixels';
@@ -7,27 +7,14 @@ import { anchorSponsoredRel } from '../../../lib/strings';
 import { boxedLogoHeight } from './sponsorLogoSizing';
 import type { ResolvedSponsor } from './sponsorStripCreative';
 import { useSponsorSlotLog } from './useSponsorSlotLog';
+import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 
 interface SponsorLogoProps {
   sponsor: ResolvedSponsor;
   slotIndex: number;
-  /**
-   * Cap height for the optical sizing that keeps a wall of unrelated marks
-   * looking like one row. Omitted by the slot that sets `exactHeight`.
-   */
-  cap?: number;
-  /**
-   * Draw the mark at exactly this height and let the file's own ratio set the
-   * width. The gold slot is meant to dominate, so trading its height away for
-   * width the way the wall does only makes it smaller.
-   */
-  exactHeight?: number;
-  /**
-   * Fixed box the mark is drawn into. Wall slots use one so the row's width
-   * cannot jump every time a rotation swaps a square mark for a long lockup;
-   * the gold slot takes its natural width instead.
-   */
-  boxWidth?: number;
+  height: number;
+  /** Width ceiling for long wordmarks; the link keeps the artwork's width. */
+  maxWidth?: number;
   /**
    * Draw the mark as a single-colour silhouette that takes the surrounding
    * text colour, instead of the file's own inks. This is what makes a wall of
@@ -36,19 +23,15 @@ interface SponsorLogoProps {
    * The gold slot is the exception: its brand colour is what was sold.
    */
   monochrome?: boolean;
-  /** Height ceiling in px, so a mark cannot outgrow the row it sits in. */
-  maxHeight?: number;
   className?: string;
 }
 
 export const SponsorLogo = ({
   sponsor,
   slotIndex,
-  cap,
-  exactHeight,
-  boxWidth,
+  height,
+  maxWidth,
   monochrome = false,
-  maxHeight,
   className,
 }: SponsorLogoProps): ReactElement => {
   const { ref, isViewable, onClick } = useSponsorSlotLog<HTMLAnchorElement>({
@@ -59,34 +42,49 @@ export const SponsorLogo = ({
     () => getViewedPixels(sponsor.pixel),
     [sponsor.pixel],
   );
-  let height: number;
+  const isLightTheme = useIsLightTheme();
+  const logo =
+    (isLightTheme ? sponsor.logoLight : sponsor.logoDark) ||
+    sponsor.logoLight ||
+    sponsor.logoDark ||
+    sponsor.logo;
+  const [dimensions, setDimensions] = useState<{
+    logo: string;
+    ratio: number;
+  }>();
+  const ratio =
+    (dimensions?.logo === logo && dimensions.ratio) || sponsor.ratio;
 
-  if (exactHeight !== undefined) {
-    height = exactHeight;
-  } else if (cap !== undefined) {
-    height = boxedLogoHeight(
-      sponsor.ratio,
-      cap,
-      boxWidth ?? Number.POSITIVE_INFINITY,
-      maxHeight,
-    );
-  } else {
-    throw new Error('SponsorLogo needs either a cap or an exactHeight');
-  }
+  useEffect(() => {
+    if (!monochrome && !maxWidth) {
+      return undefined;
+    }
 
+    const image = new Image();
+    image.onload = () => {
+      if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+        setDimensions({
+          logo,
+          ratio: image.naturalWidth / image.naturalHeight,
+        });
+      }
+    };
+    image.src = logo;
+
+    return () => {
+      image.onload = null;
+    };
+  }, [monochrome, maxWidth, logo]);
+
+  const fittedHeight = boxedLogoHeight(
+    ratio,
+    height,
+    maxWidth ?? Number.POSITIVE_INFINITY,
+  );
   const size: CSSProperties = {
-    height: `${height}px`,
-    // A mask paints whatever box it is handed, and a boxed wall slot has to
-    // stay a predictable width, so both take the width the ratio implies. A
-    // bare `<img>` carries its own ratio, and with no dimensions on the wire
-    // the file beats the stand-in: the gold slot is sized by height and lets
-    // the width follow, which is what the slot was sold as. Handing it the
-    // stand-in width instead would letterbox a wide lockup down to two thirds
-    // of the height the row reserves for it.
+    height: `${fittedHeight}px`,
     width:
-      monochrome || boxWidth
-        ? `${Math.round(height * sponsor.ratio)}px`
-        : 'auto',
+      monochrome || maxWidth ? `${Math.round(fittedHeight * ratio)}px` : 'auto',
   };
 
   return (
@@ -101,7 +99,6 @@ export const SponsorLogo = ({
         'relative flex shrink-0 items-center justify-center',
         className,
       )}
-      style={boxWidth ? { width: `${boxWidth}px` } : undefined}
     >
       {monochrome ? (
         <span
@@ -114,11 +111,11 @@ export const SponsorLogo = ({
             // the default colours — so the ink is painted directly and the
             // logo file is what shapes it.
             backgroundColor: 'currentColor',
-            maskImage: `url(${sponsor.logo})`,
+            maskImage: `url(${logo})`,
             maskRepeat: 'no-repeat',
             maskPosition: 'center',
             maskSize: 'contain',
-            WebkitMaskImage: `url(${sponsor.logo})`,
+            WebkitMaskImage: `url(${logo})`,
             WebkitMaskRepeat: 'no-repeat',
             WebkitMaskPosition: 'center',
             WebkitMaskSize: 'contain',
@@ -126,7 +123,7 @@ export const SponsorLogo = ({
         />
       ) : (
         <img
-          src={sponsor.logo}
+          src={logo}
           alt={sponsor.company}
           className="object-contain"
           style={size}
