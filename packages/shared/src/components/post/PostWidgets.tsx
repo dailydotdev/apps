@@ -164,7 +164,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {!hideSignupWidget && <PostSignupWidget />}
+      {!hideSignupWidget && <PostSignupWidget post={post} />}
       {withAd(PostWidgetPosition.Source, sourceCard)}
       {withAd(
         PostWidgetPosition.Creator,
