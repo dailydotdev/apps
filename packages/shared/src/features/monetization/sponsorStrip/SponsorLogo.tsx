@@ -1,11 +1,12 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { AdPixel } from '../../../components/cards/ad/common/AdPixel';
 import { getViewedPixels } from '../../../components/cards/ad/common/getViewedPixels';
 import { anchorSponsoredRel } from '../../../lib/strings';
-import { boxedLogoHeight } from './sponsorLogoSizing';
+import { boxedLogoHeight, boxedLogoWidth } from './sponsorLogoSizing';
 import type { ResolvedSponsor } from './sponsorStripCreative';
+import { getSponsorLogo } from './sponsorStripCreative';
 import { useSponsorSlotLog } from './useSponsorSlotLog';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 
@@ -43,38 +44,8 @@ export const SponsorLogo = ({
     [sponsor.pixel],
   );
   const isLightTheme = useIsLightTheme();
-  const logo =
-    (isLightTheme ? sponsor.logoLight : sponsor.logoDark) ||
-    sponsor.logoLight ||
-    sponsor.logoDark ||
-    sponsor.logo;
-  const [dimensions, setDimensions] = useState<{
-    logo: string;
-    ratio: number;
-  }>();
-  const ratio =
-    (dimensions?.logo === logo && dimensions.ratio) || sponsor.ratio;
-
-  useEffect(() => {
-    if (!monochrome && !maxWidth) {
-      return undefined;
-    }
-
-    const image = new Image();
-    image.onload = () => {
-      if (image.naturalWidth > 0 && image.naturalHeight > 0) {
-        setDimensions({
-          logo,
-          ratio: image.naturalWidth / image.naturalHeight,
-        });
-      }
-    };
-    image.src = logo;
-
-    return () => {
-      image.onload = null;
-    };
-  }, [monochrome, maxWidth, logo]);
+  const logo = getSponsorLogo(sponsor, isLightTheme);
+  const { ratio } = sponsor;
 
   const fittedHeight = boxedLogoHeight(
     ratio,
@@ -84,7 +55,13 @@ export const SponsorLogo = ({
   const size: CSSProperties = {
     height: `${fittedHeight}px`,
     width:
-      monochrome || maxWidth ? `${Math.round(fittedHeight * ratio)}px` : 'auto',
+      monochrome || maxWidth
+        ? `${boxedLogoWidth(
+            ratio,
+            height,
+            maxWidth ?? Number.POSITIVE_INFINITY,
+          )}px`
+        : 'auto',
   };
 
   return (

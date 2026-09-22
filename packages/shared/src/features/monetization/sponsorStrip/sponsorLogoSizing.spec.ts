@@ -1,6 +1,5 @@
 import {
   WALL_HEIGHT,
-  SLOT_GAP,
   WALL_MAX_WIDTH,
   boxedLogoHeight,
   fittedSlotCount,
@@ -26,15 +25,22 @@ describe('boxedLogoHeight', () => {
 });
 
 describe('fittedSlotCount', () => {
-  it('should count the slots that fit with their gaps', () => {
-    const three = WALL_MAX_WIDTH * 3 + SLOT_GAP * 2;
+  it('should use each logo width and include gaps only between logos', () => {
+    const widths = [20, 80, 40, 100];
 
-    expect(fittedSlotCount(three)).toEqual(3);
-    expect(fittedSlotCount(three + WALL_MAX_WIDTH - 1)).toEqual(3);
+    expect(fittedSlotCount(171, widths)).toEqual(2);
+    expect(fittedSlotCount(172, widths)).toEqual(3);
+    expect(fittedSlotCount(288, widths)).toEqual(4);
   });
 
-  it('should treat an unmeasurably narrow row as unmeasured', () => {
-    expect(fittedSlotCount(WALL_MAX_WIDTH - 1)).toBeNull();
-    expect(fittedSlotCount(0)).toBeNull();
+  it('should stop before a logo that would be clipped', () => {
+    expect(fittedSlotCount(127, [128, 16])).toEqual(0);
+    expect(fittedSlotCount(128, [128, 16])).toEqual(1);
+  });
+
+  it('should fit compact logos on a row narrower than the maximum logo width', () => {
+    expect(fittedSlotCount(48, [16, 16, 16])).toEqual(2);
+    expect(fittedSlotCount(0, [16])).toEqual(0);
+    expect(fittedSlotCount(500, [])).toEqual(0);
   });
 });

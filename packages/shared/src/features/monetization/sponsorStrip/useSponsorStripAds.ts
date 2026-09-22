@@ -6,12 +6,23 @@ import { RequestKey } from '../../../lib/query';
 import { ONE_HOUR } from '../../../lib/time';
 import { useAdMacroContext } from '../useAdMacroContext';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
-import { fittedSlotCount } from './sponsorLogoSizing';
+import {
+  boxedLogoWidth,
+  fittedSlotCount,
+  WALL_HEIGHT,
+  WALL_MAX_WIDTH,
+} from './sponsorLogoSizing';
+import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
+import { useSponsorLogoRatios } from './useSponsorLogoRatios';
 import type {
   ResolvedSponsor,
   SponsorStripCreative,
 } from './sponsorStripCreative';
-import { parseSponsors, resolveSponsor } from './sponsorStripCreative';
+import {
+  getSponsorLogo,
+  parseSponsors,
+  resolveSponsor,
+} from './sponsorStripCreative';
 import { PREMIUM_SLOT_COUNT, partitionByTier } from './sponsorStripSlots';
 
 interface UseSponsorStripAds {
@@ -27,21 +38,12 @@ interface UseSponsorStripAds {
   isSettled: boolean;
 }
 
-/**
- * How many logos the wall can safely hold at their maximum width.
- *
- * Nothing is drawn until the row has been measured, which matters for money
- * rather than for looks: an optimistic first paint renders every creative in
- * the pool, and each one that renders logs an impression and fires the ad
- * server's pixel before the row trims a frame later. Measuring in a layout
- * effect keeps the wall from ever showing a mark it is about to take away, and
- * the reader sees no empty frame because it runs before the browser paints.
- */
+/** Measure before mounting any ad links so clipped logos never log impressions. */
 const useFittedSlots = (
-  maxSlots: number,
+  widths: number[],
 ): { ref: (node: HTMLElement | null) => void; count: number } => {
   const [element, setElement] = useState<HTMLElement | null>(null);
-  const [fitted, setFitted] = useState<number | null>(null);
+  const [available, setAvailable] = useState(0);
   const ref = useCallback((node: HTMLElement | null) => setElement(node), []);
 
   useLayoutEffect(() => {
@@ -49,29 +51,21 @@ const useFittedSlots = (
       return undefined;
     }
 
-    const measure = (width: number) => {
-      const count = fittedSlotCount(width);
-
-      if (count !== null) {
-        setFitted(count);
-      }
-    };
-
-    measure(element.getBoundingClientRect().width);
+    setAvailable(element.getBoundingClientRect().width);
 
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
     const observer = new ResizeObserver(([entry]) =>
-      measure(entry.contentRect.width),
+      setAvailable(entry.contentRect.width),
     );
     observer.observe(element);
 
     return () => observer.disconnect();
   }, [element]);
 
-  return { ref, count: fitted === null ? 0 : Math.min(maxSlots, fitted) };
+  return { ref, count: fittedSlotCount(available, widths) };
 };
 
 /**
@@ -115,47 +109,54 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
   const premiumDeck = useDeck(pools.premium);
   const communityDeck = useDeck(pools.community);
 
-  // One gold, four premium, and community takes whatever the row has left —
-  // fewer premium slots than community by design. The two tiers share one
-  // measured run so they cannot argue over the same pixels, and the upper
-  // bound is the pool itself: a wider window shows more advertisers rather
-  // than the same few further apart.
-  const { ref: wallRef, count: wallSlots } = useFittedSlots(
-    PREMIUM_SLOT_COUNT + communityDeck.length,
+  const wallSponsors = useMemo(
+    () =>
+      [...premiumDeck.slice(0, PREMIUM_SLOT_COUNT), ...communityDeck].map(
+        resolveSponsor,
+      ),
+    [premiumDeck, communityDeck],
   );
-
-  // Bounded by the measured wall as well as the pool. The wall is
-  // `overflow-hidden` and a slot opens its impression and air time in a mount
-  // effect rather than on viewport, so a premium mark mounted past the fit
-  // books an impression it was never seen for — in the paid tier, at the
-  // narrowest width the strip supports. Reserved from the pool rather than
-  // counted off the rendered row, which fills a render later than the
-  // measurement; `useFittedSlots` measures in a layout effect, so this lands
-  // before paint rather than after a passive effect has already logged.
+  const isLightTheme = useIsLightTheme();
+  const logos = useMemo(
+    () => wallSponsors.map((sponsor) => getSponsorLogo(sponsor, isLightTheme)),
+    [wallSponsors, isLightTheme],
+  );
+  const ratios = useSponsorLogoRatios(logos);
+  const measuredSponsors = useMemo(
+    () =>
+      wallSponsors.map((sponsor, index) => ({
+        ...sponsor,
+        ratio: ratios[logos[index]] ?? sponsor.ratio,
+      })),
+    [wallSponsors, logos, ratios],
+  );
+  const widths = useMemo(
+    () =>
+      logos.map((logo) =>
+        ratios[logo]
+          ? boxedLogoWidth(ratios[logo], WALL_HEIGHT, WALL_MAX_WIDTH)
+          : WALL_MAX_WIDTH,
+      ),
+    [logos, ratios],
+  );
+  const { ref: wallRef, count: wallSlots } = useFittedSlots(widths);
   const premiumSlots = Math.min(
     PREMIUM_SLOT_COUNT,
     premiumDeck.length,
     wallSlots,
   );
-
-  return useMemo(
-    () => ({
-      gold: pools.gold ? resolveSponsor(pools.gold) : null,
-      premium: premiumDeck.slice(0, premiumSlots).map(resolveSponsor),
-      community: communityDeck
-        .slice(0, Math.max(0, wallSlots - premiumSlots))
-        .map(resolveSponsor),
-      wallRef,
-      isSettled: !isPending,
-    }),
-    [
-      pools.gold,
-      premiumDeck,
-      communityDeck,
-      premiumSlots,
-      wallSlots,
-      wallRef,
-      isPending,
-    ],
+  const premium = useMemo(
+    () => measuredSponsors.slice(0, premiumSlots),
+    [measuredSponsors, premiumSlots],
   );
+  const community = useMemo(
+    () => measuredSponsors.slice(premiumSlots, wallSlots),
+    [measuredSponsors, premiumSlots, wallSlots],
+  );
+  const gold = useMemo(
+    () => (pools.gold ? resolveSponsor(pools.gold) : null),
+    [pools.gold],
+  );
+
+  return { gold, premium, community, wallRef, isSettled: !isPending };
 };
