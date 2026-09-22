@@ -9,6 +9,7 @@ import {
   detectPlatformFromUrl,
   getPlatformIconElement,
   getPlatformLabel as getGenericPlatformLabel,
+  matchesDomain,
 } from '../../../lib/platforms';
 
 export type LinkItem = {
@@ -89,7 +90,7 @@ const isPressUrl = (url: string): boolean => {
   try {
     const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
     const hostname = parsed.hostname.replace(/^(www\.|m\.|mobile\.)/, '');
-    return PRESS_DOMAINS.some((domain) => hostname.includes(domain));
+    return PRESS_DOMAINS.some((domain) => matchesDomain(hostname, domain));
   } catch {
     return false;
   }

@@ -494,4 +494,5 @@ export const stepsFullWidth: Array<FunnelStepType> = [
 // column would clamp.
 export const stepsFullWidthOnboarding: Array<FunnelStepType> = [
   FunnelStepType.ProfileForm,
+  FunnelStepType.ReadingReminder,
 ];
