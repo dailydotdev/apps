@@ -17,6 +17,7 @@ const row = (
     id: 'p1',
     title: 'A post that exists',
     image: null,
+    sharedPost: null,
     createdAt: '2026-09-01T00:00:00.000Z',
     commentsPermalink: 'https://app.daily.dev/posts/p1',
   },
@@ -78,6 +79,41 @@ describe('CreatorPostPerformanceTable', () => {
         name: 'Open the discussion on A post that exists',
       }),
     ).toHaveAttribute('href', 'https://app.daily.dev/posts/p1');
+  });
+
+  it('should render shared post titles and images for share rows', () => {
+    renderTable({
+      posts: [
+        row({
+          id: 'share1',
+          post: {
+            id: 'share1',
+            title: null,
+            image: 'https://daily.dev/generated-placeholder.jpg',
+            sharedPost: {
+              id: 'original1',
+              title: 'Original article title',
+              image: 'https://daily.dev/original-cover.jpg',
+            },
+            createdAt: '2026-09-02T00:00:00.000Z',
+            commentsPermalink: 'https://app.daily.dev/posts/share1',
+          },
+        }),
+      ],
+    });
+
+    const rowLink = screen.getByText('Original article title').closest('a');
+
+    expect(rowLink).toHaveAttribute('href', '/posts/share1/analytics');
+    expect(rowLink?.querySelector('img')).toHaveAttribute(
+      'src',
+      'https://daily.dev/original-cover.jpg',
+    );
+    expect(
+      screen.getByRole('link', {
+        name: 'Open the discussion on Original article title',
+      }),
+    ).toHaveAttribute('href', 'https://app.daily.dev/posts/share1');
   });
 
   it('should announce which column is sorted and in which direction', () => {

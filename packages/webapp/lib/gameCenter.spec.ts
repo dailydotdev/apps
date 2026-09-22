@@ -2,7 +2,10 @@ import type {
   QuestDashboard,
   UserQuest,
 } from '@dailydotdev/shared/src/graphql/quests';
-import type { UserProductSummary } from '@dailydotdev/shared/src/graphql/njord';
+import type {
+  Product,
+  UserProductSummary,
+} from '@dailydotdev/shared/src/graphql/njord';
 import {
   QuestRewardType,
   QuestStatus,
@@ -15,9 +18,9 @@ import {
   getAchievementSummary,
   getAwardSummary,
   getBadgeSummary,
-  getMostProgressedQuest,
   getQuestSummary,
   getTopReaderTopicLabel,
+  sortMilestoneQuests,
 } from './gameCenter';
 
 const createQuest = (
@@ -145,68 +148,47 @@ describe('game center helpers', () => {
     expect(summary.highlightedQuest?.quest.id).toBe('daily-claimable');
   });
 
-  it('picks the most progressed upcoming quest while skipping claimable and claimed ones', () => {
-    const mostProgressedQuest = getMostProgressedQuest([
+  it('orders milestones claimable first, then closest to done, then claimed', () => {
+    const milestone = (
+      questId: string,
+      overrides: Partial<UserQuest>,
+      targetCount = 10,
+    ) =>
       createQuest({
-        questId: 'claimable-milestone',
-        name: 'Claimable milestone',
-        progress: 10,
-        claimable: true,
-        status: QuestStatus.Completed,
-        completedAt: new Date('2025-02-01T00:00:00.000Z'),
+        questId,
+        name: questId,
+        ...overrides,
         quest: {
-          id: 'claimable-milestone',
-          name: 'Claimable milestone',
-          description: 'Claimable milestone description',
+          id: questId,
+          name: questId,
+          description: `${questId} description`,
           type: QuestType.Milestone,
           eventType: 'read_post',
-          targetCount: 10,
+          targetCount,
         },
-      }),
-      createQuest({
-        questId: 'claimed-milestone',
-        name: 'Claimed milestone',
+      });
+
+    const ordered = sortMilestoneQuests([
+      milestone('claimed', {
         progress: 10,
         status: QuestStatus.Claimed,
         claimedAt: new Date('2025-02-01T00:00:00.000Z'),
-        quest: {
-          id: 'claimed-milestone',
-          name: 'Claimed milestone',
-          description: 'Claimed milestone description',
-          type: QuestType.Milestone,
-          eventType: 'read_post',
-          targetCount: 10,
-        },
       }),
-      createQuest({
-        questId: 'ratio-winner',
-        name: 'Ratio winner',
-        progress: 7,
-        quest: {
-          id: 'ratio-winner',
-          name: 'Ratio winner',
-          description: 'Ratio winner description',
-          type: QuestType.Milestone,
-          eventType: 'read_post',
-          targetCount: 8,
-        },
-      }),
-      createQuest({
-        questId: 'progress-loser',
-        name: 'Progress loser',
-        progress: 9,
-        quest: {
-          id: 'progress-loser',
-          name: 'Progress loser',
-          description: 'Progress loser description',
-          type: QuestType.Milestone,
-          eventType: 'read_post',
-          targetCount: 12,
-        },
+      milestone('barely-started', { progress: 1 }),
+      milestone('almost-done', { progress: 9 }),
+      milestone('claimable', {
+        progress: 10,
+        claimable: true,
+        status: QuestStatus.Completed,
       }),
     ]);
 
-    expect(mostProgressedQuest?.quest.id).toBe('ratio-winner');
+    expect(ordered.map((quest) => quest.quest.id)).toEqual([
+      'claimable',
+      'almost-done',
+      'barely-started',
+      'claimed',
+    ]);
   });
 
   it('builds achievement summaries with deduped featured cards', () => {
@@ -347,5 +329,27 @@ describe('game center helpers', () => {
       'award-1',
       'award-3',
     ]);
+  });
+
+  it('orders the trophy grid rarest-first by award value', () => {
+    const awards: UserProductSummary[] = [
+      { id: 'a', name: 'Cheap', image: 'a.png', count: 40 },
+      { id: 'b', name: 'Pricey', image: 'b.png', count: 1 },
+      { id: 'c', name: 'Mid', image: 'c.png', count: 5 },
+    ];
+    const catalog = [
+      { id: 'a', value: 10 },
+      { id: 'b', value: 500 },
+      { id: 'c', value: 100 },
+    ] as Product[];
+
+    const { awardsByRarity } = getAwardSummary(awards, catalog);
+
+    // rarest (highest value) first, regardless of how many were earned
+    expect(awardsByRarity.map((award) => award.id)).toEqual(['b', 'c', 'a']);
+  });
+
+  it('has an empty trophy grid when there are no awards', () => {
+    expect(getAwardSummary([], []).awardsByRarity).toEqual([]);
   });
 });

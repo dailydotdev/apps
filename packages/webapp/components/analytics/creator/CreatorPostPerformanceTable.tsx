@@ -20,6 +20,7 @@ import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
+import { getPostTitle } from '@dailydotdev/shared/src/graphql/posts';
 import {
   TimeFormatType,
   formatDate,
@@ -67,6 +68,16 @@ const columns: Column[] = [
 ];
 
 const cellClassName = 'px-2 py-3 align-middle';
+
+const getCreatorPostImage = ({
+  image,
+  sharedPost,
+}: CreatorPostPerformance['post']): string =>
+  sharedPost?.image || image || cloudinaryPostImageCoverPlaceholder;
+
+const getCreatorPostDisplayTitle = (
+  post: CreatorPostPerformance['post'],
+): string => getPostTitle(post) || 'Untitled';
 
 const sortState = (
   isActive: boolean,
@@ -225,81 +236,83 @@ export const CreatorPostPerformanceTable = ({
         <tbody>
           {isPending && <SkeletonRows />}
           {!isPending &&
-            posts.map((row) => (
-              <tr
-                key={row.id}
-                className="border-b border-border-subtlest-tertiary last:border-b-0"
-              >
-                <td className={classNames(cellClassName, 'min-w-0')}>
-                  <Link href={`${webappUrl}posts/${row.post.id}/analytics`}>
-                    <a className="focus-outline flex min-w-0 items-center gap-3 hover:underline">
-                      <LazyImage
-                        imgSrc={
-                          row.post.image || cloudinaryPostImageCoverPlaceholder
-                        }
-                        imgAlt=""
-                        ratio="52%"
-                        className="h-10 w-16 flex-shrink-0 rounded-8 object-cover"
-                        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                      />
-                      <Typography
-                        type={TypographyType.Callout}
-                        color={TypographyColor.Primary}
-                        className="min-w-0 flex-1"
-                        tag={TypographyTag.Span}
-                        truncate
-                      >
-                        {row.post.title || 'Untitled'}
-                      </Typography>
-                    </a>
-                  </Link>
-                </td>
-                <td className={classNames(cellClassName, 'whitespace-nowrap')}>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                    tag={TypographyTag.Span}
+            posts.map((row) => {
+              const title = getCreatorPostDisplayTitle(row.post);
+
+              return (
+                <tr
+                  key={row.id}
+                  className="border-b border-border-subtlest-tertiary last:border-b-0"
+                >
+                  <td className={classNames(cellClassName, 'min-w-0')}>
+                    <Link href={`${webappUrl}posts/${row.post.id}/analytics`}>
+                      <a className="focus-outline flex min-w-0 items-center gap-3 hover:underline">
+                        <LazyImage
+                          imgSrc={getCreatorPostImage(row.post)}
+                          imgAlt=""
+                          ratio="52%"
+                          className="h-10 w-16 flex-shrink-0 rounded-8 object-cover"
+                          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                        />
+                        <Typography
+                          type={TypographyType.Callout}
+                          color={TypographyColor.Primary}
+                          className="min-w-0 flex-1"
+                          tag={TypographyTag.Span}
+                          truncate
+                        >
+                          {title}
+                        </Typography>
+                      </a>
+                    </Link>
+                  </td>
+                  <td
+                    className={classNames(cellClassName, 'whitespace-nowrap')}
                   >
-                    {formatDate({
-                      value: row.post.createdAt,
-                      type: TimeFormatType.Post,
-                    })}
-                  </Typography>
-                </td>
-                <MetricCell
-                  value={row.impressions}
-                  unknownReason="This post predates daily impressions history, so its impressions for this period are unknown."
-                />
-                <MetricCell
-                  value={row.upvotes}
-                  unknownReason="Unknown for this period."
-                />
-                <td className={classNames(cellClassName, 'text-right')}>
-                  {/* The comment count is the way into the discussion, so it
-                      is the link rather than sitting next to one. */}
-                  <Link href={row.post.commentsPermalink}>
-                    <a
-                      className="focus-outline rounded-8 hover:underline"
-                      aria-label={`Open the discussion on ${
-                        row.post.title || 'this post'
-                      }`}
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                      tag={TypographyTag.Span}
                     >
-                      <Typography
-                        type={TypographyType.Callout}
-                        color={TypographyColor.Primary}
-                        tag={TypographyTag.Span}
+                      {formatDate({
+                        value: row.post.createdAt,
+                        type: TimeFormatType.Post,
+                      })}
+                    </Typography>
+                  </td>
+                  <MetricCell
+                    value={row.impressions}
+                    unknownReason="This post predates daily impressions history, so its impressions for this period are unknown."
+                  />
+                  <MetricCell
+                    value={row.upvotes}
+                    unknownReason="Unknown for this period."
+                  />
+                  <td className={classNames(cellClassName, 'text-right')}>
+                    {/* The comment count is the way into the discussion, so it
+                        is the link rather than sitting next to one. */}
+                    <Link href={row.post.commentsPermalink}>
+                      <a
+                        className="focus-outline rounded-8 hover:underline"
+                        aria-label={`Open the discussion on ${title}`}
                       >
-                        {largeNumberFormat(row.comments)}
-                      </Typography>
-                    </a>
-                  </Link>
-                </td>
-                <MetricCell
-                  value={row.outboundVisits}
-                  unknownReason="Unknown for this post."
-                />
-              </tr>
-            ))}
+                        <Typography
+                          type={TypographyType.Callout}
+                          color={TypographyColor.Primary}
+                          tag={TypographyTag.Span}
+                        >
+                          {largeNumberFormat(row.comments)}
+                        </Typography>
+                      </a>
+                    </Link>
+                  </td>
+                  <MetricCell
+                    value={row.outboundVisits}
+                    unknownReason="Unknown for this post."
+                  />
+                </tr>
+              );
+            })}
         </tbody>
       </table>
     </div>

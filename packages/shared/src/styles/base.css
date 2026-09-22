@@ -1075,6 +1075,126 @@ meter::-webkit-meter-bar {
     will-change: transform, opacity, filter;
   }
 
+  @keyframes quest-claim-shine {
+    0% {
+      left: -60%;
+    }
+
+    22% {
+      left: 130%;
+    }
+
+    100% {
+      left: 130%;
+    }
+  }
+
+  .quest-claim-shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .quest-claim-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -60%;
+    width: 45%;
+    transform: skewX(-18deg);
+    pointer-events: none;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgb(255 255 255 / 0.75),
+      transparent
+    );
+    animation: quest-claim-shine 2.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quest-claim-shine::after {
+      display: none;
+    }
+  }
+
+  /* Copy is not selectable content here, it is chrome: the I-beam over every
+     label reads as though the page were a document. */
+  .pointer-default,
+  .pointer-default * {
+    cursor: default;
+  }
+
+  .pointer-default :is(a, button, [role='button'], summary) {
+    cursor: pointer;
+  }
+
+  .pointer-default :is(input, textarea, [contenteditable='true']) {
+    cursor: text;
+  }
+
+  .pointer-default :is(:disabled, [aria-disabled='true']) {
+    cursor: not-allowed;
+  }
+
+  @keyframes level-badge-sheen {
+    from {
+      left: -80%;
+    }
+
+    to {
+      left: 160%;
+    }
+  }
+
+  .level-badge-glass {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 300ms ease, box-shadow 300ms ease;
+  }
+
+  .level-badge-glass:hover {
+    transform: translateY(-2px) scale(1.04) rotate(-2deg);
+  }
+
+  /* A single wipe across the glass on hover, rather than a loop that would
+     pull the eye while the page is being read. */
+  .level-badge-glass::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -80%;
+    width: 55%;
+    transform: skewX(-18deg);
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgb(255 255 255 / 0.7),
+      transparent
+    );
+  }
+
+  .level-badge-glass:hover::after {
+    opacity: 1;
+    animation: level-badge-sheen 900ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .level-badge-glass,
+    .level-badge-glass:hover {
+      transform: none;
+    }
+
+    .level-badge-glass::after {
+      display: none;
+    }
+  }
+
   @keyframes float {
     0%, 100% {
       transform: translateY(0);
