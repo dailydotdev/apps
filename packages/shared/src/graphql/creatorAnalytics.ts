@@ -98,6 +98,11 @@ export interface CreatorPostPerformance {
     id: string;
     title: string | null;
     image: string | null;
+    sharedPost: {
+      id: string;
+      title: string | null;
+      image: string | null;
+    } | null;
     createdAt: string;
     commentsPermalink: string;
   };
@@ -185,6 +190,11 @@ export const CREATOR_POST_PERFORMANCE_QUERY = gql`
             id
             title
             image
+            sharedPost {
+              id
+              title
+              image
+            }
             createdAt
             commentsPermalink
           }
