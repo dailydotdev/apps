@@ -331,7 +331,8 @@ export const purchaseCoinsCheckoutVideoPoster =
 
 // TODO: move to media.daily.dev before merge, like every other asset here.
 // Served from each surface's public/ so the preview build renders the art.
-export const gameCenterLevelBackground = '/images/game-center-hero.jpg';
+export const gameCenterLevelBackground =
+  'https://media.daily.dev/image/upload/s--F-IIwLeW--/f_auto,q_auto/covers/game-center-hero.jpg';
 
 export const featuredAwardImage =
   'https://media.daily.dev/image/upload/s--10Rf2kyK--/f_auto/v1743595864/public/Default';
