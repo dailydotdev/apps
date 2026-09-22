@@ -19,6 +19,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { creatorAchievementsQueryOptions } from '@dailydotdev/shared/src/graphql/creatorAchievements';
 import {
   CreatorPerformancePeriod,
   CreatorPostSortBy,
@@ -103,9 +104,28 @@ const Analytics = (): ReactElement => {
     }),
   );
 
+  const {
+    data: achievementsData,
+    isPending: isAchievementsPending,
+    isError: isAchievementsError,
+    isFetching: isAchievementsFetching,
+    refetch: refetchAchievements,
+    fetchNextPage: fetchNextAchievementsPage,
+    hasNextPage: hasNextAchievementsPage,
+    isFetchingNextPage: isFetchingNextAchievementsPage,
+  } = useInfiniteQuery(creatorAchievementsQueryOptions({ user }));
+
   // Both feed the same grid of tiles, so it renders once rather than
   // half-filling and then reflowing.
   const isOverviewPending = isPerformancePending || isLifetimePending;
+
+  const achievements = useMemo(
+    () =>
+      achievementsData?.pages.flatMap((page) =>
+        page.edges.map(({ node }) => node),
+      ) ?? [],
+    [achievementsData],
+  );
 
   const posts = useMemo(
     () =>
@@ -205,7 +225,21 @@ const Analytics = (): ReactElement => {
           <Divider className={dividerClassName} />
           <SectionContainer>
             <SectionHeader>Achievements</SectionHeader>
-            <CreatorAchievementsSection isEmpty />
+            {isAchievementsError ? (
+              <CreatorDashboardError
+                title="Could not load your achievements"
+                onRetry={refetchAchievements}
+                isRetrying={isAchievementsFetching}
+              />
+            ) : (
+              <CreatorAchievementsSection
+                achievements={achievements}
+                isPending={isAchievementsPending}
+                hasNextPage={hasNextAchievementsPage}
+                isFetchingNextPage={isFetchingNextAchievementsPage}
+                fetchNextPage={fetchNextAchievementsPage}
+              />
+            )}
           </SectionContainer>
         </ResponsivePageContainer>
       </div>
