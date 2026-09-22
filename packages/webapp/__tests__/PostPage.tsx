@@ -310,13 +310,12 @@ function renderPost(
   // The page's own getLayout carries the layout banner (phone ad strip and
   // auth banner); the bare main layout leaves it out.
   withPageLayout = false,
-): RenderResult {
+): RenderResult & { rerenderPost: () => void } {
   const resolvedUser = arguments.length < 3 ? defaultUser : user;
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
   };
   const pageProps = { ...defaultProps, ...props };
-  const page = <PostPage {...pageProps} />;
 
   client = new QueryClient();
 
@@ -344,37 +343,43 @@ function renderPost(
   ];
 
   defaultMocks.forEach(mockGraphQL);
-  return render(
-    <TestBootProvider
-      client={client}
-      auth={{
-        user: resolvedUser,
-        shouldShowLogin: !resolvedUser,
-        isLoggedIn: !!resolvedUser,
-        showLogin,
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-        tokenRefreshed: true,
-        getRedirectUri: jest.fn(),
-        closeLogin: jest.fn(),
-        isAuthReady: true,
-      }}
-      settings={createTestSettings()}
-    >
-      <LogContext.Provider
-        value={{
-          logEvent,
-          logEventStart: jest.fn(),
-          logEventEnd: jest.fn(),
-          sendBeacon: jest.fn(),
+  // Rebuilt on every render: React bails out of an identical element.
+  const tree = () => {
+    const page = <PostPage {...pageProps} />;
+    return (
+      <TestBootProvider
+        client={client}
+        auth={{
+          user: resolvedUser,
+          shouldShowLogin: !resolvedUser,
+          isLoggedIn: !!resolvedUser,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          isAuthReady: true,
         }}
+        settings={createTestSettings()}
       >
-        {withPageLayout
-          ? PostPage.getLayout(page, pageProps, PostPage.layoutProps)
-          : getMainLayout(page)}
-      </LogContext.Provider>
-    </TestBootProvider>,
-  );
+        <LogContext.Provider
+          value={{
+            logEvent,
+            logEventStart: jest.fn(),
+            logEventEnd: jest.fn(),
+            sendBeacon: jest.fn(),
+          }}
+        >
+          {withPageLayout
+            ? PostPage.getLayout(page, pageProps, PostPage.layoutProps)
+            : getMainLayout(page)}
+        </LogContext.Provider>
+      </TestBootProvider>
+    );
+  };
+  const view = render(tree());
+  return { ...view, rerenderPost: () => view.rerender(tree()) };
 }
 
 it('should show source name', async () => {
@@ -1321,13 +1326,13 @@ describe('post redesign', () => {
     mockRedesignOn = true;
     mockRedesignEvaluated = false;
     mockRouter({ isReady: false, query: {} });
-    renderPost();
+    const { rerenderPost } = renderPost();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(mockRedesignEvaluated).toBe(false);
 
     mockRouter({ isReady: true, query: { author: 'true' } });
     await act(async () => {
-      fireEvent(window, new Event('resize'));
+      rerenderPost();
     });
     expect(screen.getByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
@@ -1462,8 +1467,8 @@ describe('post redesign', () => {
       jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
       renderAnonymous(true);
       expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      const rail = screen.getByTestId('ad-slot-16').closest('.w-\\[300px\\]');
-      expect(rail).not.toBeNull();
+      const rail = screen.getByTestId('post-focus-rail');
+      expect(rail).toContainElement(screen.getByTestId('ad-slot-16'));
       expect(rail).not.toContainElement(screen.getByTestId('post-modal-title'));
     });
 

@@ -1,5 +1,11 @@
 import dynamic from 'next/dynamic';
-import type { ComponentProps, ReactElement, ReactNode, RefObject } from 'react';
+import type {
+  ComponentProps,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  RefObject,
+} from 'react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -90,6 +96,8 @@ export interface PostFocusCardAds {
   renderSummarySegments?: (summary: string, trailing?: ReactNode) => ReactNode;
   renderBody?: (contentHtml: string) => ReactNode;
   withoutDirectSold?: boolean;
+  /** Mirrors the classic read template's `hideSignupWidget`. */
+  withoutSignupWidget?: boolean;
   /**
    * In rail order. Beside the column once there is room, as a second column
    * on laptops, inline below that. Units carry no positioning of their own,
@@ -146,7 +154,26 @@ const ArticleLink = ({
 const SHOW_MORE_SUFFIX = '… Show more';
 
 const COLUMN_HALF_WIDTH = 384;
-const RAIL_WITH_GAP = 332;
+const RAIL_WIDTH = 300;
+// The row's own `gap-8`, which also separates the rail from the column.
+const RAIL_GAP = 32;
+const RAIL_WITH_GAP = RAIL_WIDTH + RAIL_GAP;
+
+/**
+ * The column width, the rail width and the rail's offset all have to agree
+ * with what the measurement below assumes, so the row publishes them once and
+ * every placement reads them back.
+ */
+const focusRowGeometry = {
+  '--focus-column': `${COLUMN_HALF_WIDTH * 2}px`,
+  '--focus-rail': `${RAIL_WIDTH}px`,
+  '--focus-rail-left': `${COLUMN_HALF_WIDTH + RAIL_GAP}px`,
+} as CSSProperties;
+
+// Both post pages are statically rendered, and a layout effect only warns
+// there; the measurement is a client concern anyway.
+const useClientLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 /**
  * Whether a 300px rail fits to the right of the centred 768px column. Read
@@ -163,7 +190,7 @@ const useHasRailRoom = (
 ): boolean => {
   const [hasRoom, setHasRoom] = useState(false);
 
-  useLayoutEffect(() => {
+  useClientLayoutEffect(() => {
     const card = cardRef.current;
     if (!hasRail || !card) {
       return undefined;
@@ -193,9 +220,10 @@ const useHasRailRoom = (
 
 const RAIL_PLACEMENT_CLASS = {
   // Out of flow, at the centred column's right edge; the row is `relative`.
-  beside: 'absolute inset-y-0 left-[calc(50%+26rem)] w-[300px] pt-6',
+  beside:
+    'absolute inset-y-0 left-[calc(50%+var(--focus-rail-left))] w-[var(--focus-rail)] pt-6',
   // A second column beside the article, centred with it as one block.
-  block: 'w-[300px] shrink-0 pt-6',
+  block: 'w-[var(--focus-rail)] shrink-0 pt-6',
   // Stacked under the article, where the classic widget column goes.
   stacked: 'w-full pt-2',
 };
@@ -527,8 +555,11 @@ const PostFocusCardRaw = ({
       data-testid="post-focus-card"
     >
       <SelectionSnapshotBar containerRef={cardRef} post={article} />
-      <div className="relative flex flex-col justify-center gap-8 px-4 tablet:px-6 laptop:flex-row laptop:px-8">
-        <div className="flex min-w-0 flex-1 flex-col gap-4 py-6 laptop:max-w-[768px]">
+      <div
+        className="relative flex flex-col justify-center gap-8 px-4 tablet:px-6 laptop:flex-row laptop:px-8"
+        style={focusRowGeometry}
+      >
+        <div className="flex min-w-0 flex-1 flex-col gap-4 py-6 laptop:max-w-[var(--focus-column)]">
           {ads?.contentLeading}
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
@@ -793,7 +824,9 @@ const PostFocusCardRaw = ({
               {showTags && <PostTagList post={article} />}
             </>
           )}
-          <PostSignupWidget post={article} inline />
+          {!ads?.withoutSignupWidget && (
+            <PostSignupWidget post={article} inline />
+          )}
 
           {showCommunitySentiment && (
             <CommunitySentiment data={communitySentimentData} />
@@ -854,6 +887,7 @@ const PostFocusCardRaw = ({
         </div>
         {railPlacement && ads?.rail && (
           <div
+            data-testid="post-focus-rail"
             className={classNames(
               'flex flex-col gap-2',
               RAIL_PLACEMENT_CLASS[railPlacement],

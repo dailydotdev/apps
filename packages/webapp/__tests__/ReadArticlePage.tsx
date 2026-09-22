@@ -23,14 +23,20 @@ jest.mock('next/router', () => ({
 }));
 
 let mockRedesignOn = false;
+let mockTopicSignupEvaluated = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
   useConditionalFeature: (args: {
     feature?: { id?: string; defaultValue?: unknown };
+    shouldEvaluate?: boolean;
   }) => {
     if (args?.feature?.id === 'post_redesign') {
       return { value: mockRedesignOn, isLoading: false };
+    }
+    if (args?.feature?.id === 'post_topic_signup') {
+      mockTopicSignupEvaluated ||= args?.shouldEvaluate !== false;
+      return { value: true, isLoading: false };
     }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
@@ -78,6 +84,7 @@ beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
   mockRedesignOn = false;
+  mockTopicSignupEvaluated = false;
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -140,6 +147,22 @@ describe('ReadPostPage under post_redesign', () => {
     expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
     expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
     expect(screen.queryByText(/Promoted by/)).not.toBeInTheDocument();
+  });
+
+  it('carries no signup surface in either arm', async () => {
+    const { unmount } = renderPage();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(screen.queryByText(/Get more posts about/)).not.toBeInTheDocument();
+    // Evaluating post_topic_signup would enrol read traffic in a second
+    // experiment, in this arm only.
+    expect(mockTopicSignupEvaluated).toBe(false);
+    unmount();
+
+    mockRedesignOn = true;
+    renderPage();
+    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+    expect(screen.queryByText(/Get more posts about/)).not.toBeInTheDocument();
+    expect(mockTopicSignupEvaluated).toBe(false);
   });
 
   describe('ad units', () => {

@@ -140,6 +140,7 @@ const ReadPostPage = ({
       ).length > 1;
     return {
       withoutDirectSold: true,
+      withoutSignupWidget: true,
       contentLeading: <ReadTopLeaderboard />,
       renderSummarySegments: (summary, trailing) =>
         splitTextForAds(
