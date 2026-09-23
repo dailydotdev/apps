@@ -93,6 +93,7 @@ jest.mock('next/router', () => ({
 // Toggled per-test to exercise the redesigned post page (PostFocusCard); the
 // flag defaults off so the classic layout renders unless a test flips it on.
 let mockRedesignOn = false;
+let mockSignupStripOn = false;
 // Evaluating the flag is what enrols a session, so tests can assert on it.
 let mockRedesignEvaluated = false;
 
@@ -108,6 +109,9 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     if (args?.feature?.id === 'post_redesign') {
       mockRedesignEvaluated ||= args.shouldEvaluate !== false;
       return { value: mockRedesignOn, isLoading: false };
+    }
+    if (args?.feature?.id === 'post_signup_strip') {
+      return { value: mockSignupStripOn, isLoading: false };
     }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
@@ -139,6 +143,7 @@ beforeEach(() => {
   // behind by one test must not leak into the next.
   jest.restoreAllMocks();
   mockRedesignOn = false;
+  mockSignupStripOn = false;
   mockRouter();
 });
 
@@ -1347,6 +1352,29 @@ describe('post redesign', () => {
     expect(
       await screen.findByText('Where developers suffer together'),
     ).toBeInTheDocument();
+  });
+
+  it('should swap the signup banner for the pinned card when the experiment is on', async () => {
+    const originalObserver = global.ResizeObserver;
+    global.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
+      unobserve: jest.fn(),
+    })) as unknown as typeof ResizeObserver;
+    mockRedesignOn = true;
+    mockSignupStripOn = true;
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    renderPost({}, [createPostMock(), createCommentsMock()], undefined);
+    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Unlock the full daily.dev experience',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Where developers suffer together'),
+    ).not.toBeInTheDocument();
+    global.ResizeObserver = originalObserver;
   });
 
   describe('organic ads', () => {
