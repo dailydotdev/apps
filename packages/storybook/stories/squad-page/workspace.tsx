@@ -141,7 +141,7 @@ const page = (
   extra: Partial<SquadPage> = {},
 ): SquadPage => ({ id, label, type, ...extra });
 
-const channels = {
+export const channels = {
   discussions: page('discussions', 'Discussions', PageType.Channel, {
     description:
       'Questions, opinions, feedback, bug reports. If it needs an answer, it lives here.',
@@ -149,12 +149,12 @@ const channels = {
   polls: page('polls', 'Polls', PageType.Polls, { badge: 1 }),
 };
 
-const docs = {
+export const docs = {
   rules: page('rules', 'Rules', PageType.Rules),
   faq: page('faq', 'FAQ', PageType.Doc),
 };
 
-const common = {
+export const common = {
   home: page('home', 'Home', PageType.Home),
   members: page('members', 'Members', PageType.Members),
   products: page('products', 'Products', PageType.Products),
@@ -164,7 +164,7 @@ const common = {
 const link = (id: string, label: string, href: string): SquadPage =>
   page(id, label, PageType.Link, { href });
 
-const manage: SidebarSection = {
+export const manage: SidebarSection = {
   id: 'manage',
   label: 'Manage',
   admin: true,
@@ -196,7 +196,7 @@ export interface WorkspaceState {
   isPrivate: boolean;
 }
 
-const WorkspaceContext = createContext<WorkspaceState>({
+export const WorkspaceContext = createContext<WorkspaceState>({
   viewer: Viewer.Member,
   source: ContentSource.Feed,
   empty: false,
@@ -389,7 +389,7 @@ const railTab =
   'flex w-full flex-col items-center gap-0.5 rounded-12 px-1 py-2 typo-caption2 text-text-tertiary hover:bg-surface-hover hover:text-text-primary';
 
 /** The v2 rail, as it is today. Nothing here changes for the workspace. */
-const Rail = (): ReactElement => (
+export const Rail = (): ReactElement => (
   <nav className="flex w-20 shrink-0 flex-col items-center gap-0.5 border-r border-border-subtlest-tertiary px-2 py-3">
     <a
       href="/"
@@ -661,14 +661,14 @@ export const SquadSidebar = ({
 };
 
 /** Every page's top strip: where you are, and what you can do here. */
-const PageBar = ({
+export const PageBar = ({
   page,
   children,
 }: {
   page: SquadPage;
   children?: ReactNode;
 }): ReactElement => (
-  <div className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-6">
+  <div className="sticky top-0 z-3 flex h-12 items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-6">
     <span className="text-text-tertiary">{iconFor(page)}</span>
     <span className="font-bold text-text-primary typo-callout">
       {page.label}
@@ -748,7 +748,7 @@ const HomePage = ({
  * its own. The strip under the bar says what belongs here and who may post,
  * the way a subreddit's flair description and posting rule do.
  */
-const ChannelPage = ({
+export const ChannelPage = ({
   page: channel,
   viewer,
 }: {
@@ -791,7 +791,7 @@ const ChannelPage = ({
 };
 
 /** Reddit's rules widget, as a page: numbered, one line each, with the why. */
-const RulesPage = (): ReactElement => (
+export const RulesPage = (): ReactElement => (
   <Column width="max-w-[44rem]" className="gap-6">
     <div className="flex flex-col gap-1">
       <h1 className="font-bold text-text-primary typo-large-title">Rules</h1>
@@ -818,7 +818,7 @@ const RulesPage = (): ReactElement => (
 );
 
 /** A freeform post, rendered as a page: the FAQ, or any document. */
-const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
+export const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
   <Column width="max-w-[44rem]" className="gap-6">
     <h1 className="font-bold text-text-primary typo-large-title">
       {page.id === 'start-here'
@@ -883,7 +883,7 @@ const releaseKinds = ['All', 'Features', 'Fixes', 'Betas'];
  * kind as a filter. The Announcements channel is where they are discussed;
  * this is where they are found.
  */
-const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+export const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
   const { source, empty } = useWorkspace();
 
   return (
@@ -1080,7 +1080,7 @@ const toPollPost = (poll: SquadPoll, picked?: number): Post =>
  * place, the card flips to its results. The click is caught before the
  * card's own vote mutation so the story stays offline.
  */
-const PollsPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+export const PollsPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
   const [votes, setVotes] = useState<Record<string, number>>({});
 
   return (
@@ -1145,7 +1145,7 @@ const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
  * daily.dev part is the stack: each product is a tool members can add, and
  * the card says how many already have.
  */
-const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
+export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column width="max-w-[56rem]">
     {isAdmin(viewer) ? (
       <div className="flex flex-col gap-3 rounded-16 border border-dashed border-border-subtlest-secondary p-4">
@@ -1262,7 +1262,7 @@ const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   </Column>
 );
 
-const MembersPage = (): ReactElement => (
+export const MembersPage = (): ReactElement => (
   <Column>
     <div className="flex items-center justify-between">
       <span className="flex items-center gap-1 text-text-tertiary typo-callout">
@@ -1380,7 +1380,7 @@ const AddPage = (): ReactElement => (
 const pendingPosts = feedEntries.slice(3, 6);
 
 /** The moderation queue: what members posted that waits for a moderator. */
-const ModerationPage = (): ReactElement => (
+export const ModerationPage = (): ReactElement => (
   <Column>
     <div className="flex items-center justify-between">
       <span className="text-text-secondary typo-callout">
@@ -1436,7 +1436,7 @@ const feedItems = feedEntries.slice(0, 4);
  * and the moderation, the company keeps the keys. This is the admin's view
  * of that arrangement.
  */
-const FeedSourcePage = (): ReactElement => (
+export const FeedSourcePage = (): ReactElement => (
   <Column width="max-w-[52rem]" className="gap-6">
     <div className="flex items-center gap-3 rounded-16 border border-accent-cabbage-default bg-accent-cabbage-flat px-4 py-3">
       <VerifiedMark label={false} />
@@ -1535,7 +1535,7 @@ const PrivateWall = ({ viewer }: { viewer: Viewer }): ReactElement => (
   </Column>
 );
 
-const AdminPlaceholder = ({ page }: { page: SquadPage }): ReactElement => (
+export const AdminPlaceholder = ({ page }: { page: SquadPage }): ReactElement => (
   <Column>
     <div className="flex flex-col items-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary p-10 text-center">
       <span className="text-text-tertiary">

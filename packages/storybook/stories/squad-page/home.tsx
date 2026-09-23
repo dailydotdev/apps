@@ -42,6 +42,7 @@ import {
   Facepile,
   isAdmin,
   isJoined,
+  isLoggedIn,
   isStaff,
   linkIcon,
   VerifiedMark,
@@ -65,14 +66,17 @@ export const Separator = (): ReactElement => (
 /* -------------------------------------------------------------- header */
 
 /** ProfileHeader, for a squad. */
-const SquadHeader = ({
+export const SquadHeader = ({
   viewer,
   standalone,
   onOpenMembers,
+  extra,
 }: {
   viewer: Viewer;
   standalone: boolean;
   onOpenMembers?: () => void;
+  /** Layouts without a sidebar seat their manage entry point here. */
+  extra?: ReactNode;
 }): ReactElement => (
   <div className="relative w-full overflow-hidden rounded-t-16">
     <div className="relative h-36">
@@ -114,9 +118,10 @@ const SquadHeader = ({
               color={ButtonColor.Cabbage}
               size={ButtonSize.Small}
             >
-              Join
+              {isLoggedIn(viewer) ? 'Join' : 'Sign up to join'}
             </Button>
           )}
+          {extra}
           {isJoined(viewer) && !isAdmin(viewer) && (
             <>
               <Button
@@ -529,7 +534,7 @@ const weeks = Array.from({ length: 26 }, (_, week) =>
 );
 
 /** ReadingOverview, for a squad: what it posts, how often, about what. */
-const OverviewWidget = (): ReactElement => (
+export const OverviewWidget = (): ReactElement => (
   <Widget title="Activity">
     <div className="mb-3 mt-4 grid grid-cols-2 gap-2">
       <Tile value="12" label="Posts this month" />
@@ -590,7 +595,7 @@ const OverviewWidget = (): ReactElement => (
  * a doorway to the Rules page. A visitor reads the contract before joining
  * without leaving the feed.
  */
-const RulesWidget = ({
+export const RulesWidget = ({
   onOpenRules,
   onOpenFaq,
 }: {
@@ -642,7 +647,7 @@ const RulesWidget = ({
 );
 
 /** ActiveOrRecommendedSquads, for a squad: the people behind it. */
-const TeamWidget = (): ReactElement => (
+export const TeamWidget = (): ReactElement => (
   <Widget title="Team">
     <ul className="mt-4 flex flex-col gap-2.5">
       {team.slice(0, 5).map((member) => (
@@ -675,7 +680,7 @@ const TeamWidget = (): ReactElement => (
 );
 
 /** The sidebar's links, in the column too: the company's places on the web. */
-const LinksWidget = (): ReactElement => (
+export const LinksWidget = (): ReactElement => (
   <Widget title="Links">
     <ul className="mt-3 grid grid-cols-2 gap-2">
       {companyLinks.map((item) => (
@@ -737,7 +742,7 @@ export const SquadAbout = ({
  * under frosted glass, one cabbage hairline, the seal in the brightest
  * spot. The landing page's light, in one row.
  */
-const VerifiedWidget = (): ReactElement => (
+export const VerifiedWidget = (): ReactElement => (
   <div
     className="relative flex items-center gap-3 overflow-hidden rounded-16 px-4 py-3"
     style={{
