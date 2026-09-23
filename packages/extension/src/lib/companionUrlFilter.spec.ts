@@ -1,12 +1,4 @@
-import type { Storage } from 'webextension-polyfill';
-import {
-  createNoPostCache,
-  NO_POST_CACHE_MAX_SIZE,
-  NO_POST_CACHE_TTL,
-  shouldSkipCompanionUrl,
-} from './companionFilter';
-
-jest.mock('webextension-polyfill', () => ({}));
+import { shouldSkipCompanionUrl } from './companionUrlFilter';
 
 const skips = (url: string) => shouldSkipCompanionUrl(new URL(url));
 
@@ -60,48 +52,5 @@ describe('shouldSkipCompanionUrl', () => {
     expect(skips('https://www.google.com/search?q=react')).toBe(true);
     expect(skips('https://app.daily.dev/posts/1')).toBe(true);
     expect(skips('https://stackoverflow.com/questions/1')).toBe(true);
-  });
-});
-
-describe('createNoPostCache', () => {
-  const url = 'https://example.com/post';
-
-  it('remembers a url until the ttl expires', async () => {
-    const cache = createNoPostCache();
-    await cache.add(url, 0);
-
-    expect(await cache.has(url, NO_POST_CACHE_TTL - 1)).toBe(true);
-    expect(await cache.has(url, NO_POST_CACHE_TTL)).toBe(false);
-    expect(await cache.has('https://example.com/other', 0)).toBe(false);
-  });
-
-  it('evicts the oldest entries beyond the max size', async () => {
-    const cache = createNoPostCache();
-    const urls = Array.from(
-      { length: NO_POST_CACHE_MAX_SIZE + 1 },
-      (_, i) => `https://example.com/${i}`,
-    );
-    await urls.reduce(
-      (prev, current) => prev.then(() => cache.add(current, 0)),
-      Promise.resolve(),
-    );
-
-    expect(await cache.has(urls[0], 1)).toBe(false);
-    expect(await cache.has(urls[1], 1)).toBe(true);
-    expect(await cache.has(urls[NO_POST_CACHE_MAX_SIZE], 1)).toBe(true);
-  });
-
-  it('restores entries from storage after a restart', async () => {
-    let stored: Record<string, unknown> = {};
-    const storage = {
-      get: jest.fn(async () => stored),
-      set: jest.fn(async (items: Record<string, unknown>) => {
-        stored = { ...stored, ...items };
-      }),
-    } as unknown as Storage.StorageArea;
-
-    await createNoPostCache(storage).add(url, 0);
-
-    expect(await createNoPostCache(storage).has(url, 1)).toBe(true);
   });
 });

@@ -1,7 +1,3 @@
-import type { Storage } from 'webextension-polyfill';
-import browser from 'webextension-polyfill';
-import { ONE_HOUR } from '@dailydotdev/shared/src/lib/time';
-
 const excludedCompanionOrigins = [
   'http://127.0.0.1:5002',
   'http://localhost',
@@ -20,7 +16,7 @@ const excludedCompanionOrigins = [
 
 // Popular hosts that never match a post, or only match junk homepages.
 // Subdomains are blocked too.
-export const blockedCompanionHosts = [
+const blockedCompanionHosts = new Set([
   'www.facebook.com',
   'web.facebook.com',
   'm.facebook.com',
@@ -122,23 +118,25 @@ export const blockedCompanionHosts = [
   'smartapply.indeed.com',
   'dribbble.com',
   'www.figma.com',
-];
+]);
 
 const localHostSuffixes = ['.local', '.localhost', '.test', '.internal'];
 const ipv4Regex = /^\d{1,3}(\.\d{1,3}){3}$/;
 
-export const isLocalHost = (hostname: string): boolean =>
+const isLocalHost = (hostname: string): boolean =>
   hostname === 'localhost' ||
   hostname.startsWith('[') ||
   ipv4Regex.test(hostname) ||
   localHostSuffixes.some((suffix) => hostname.endsWith(suffix));
 
-export const isBlockedHost = (hostname: string): boolean =>
-  blockedCompanionHosts.some(
-    (host) => hostname === host || hostname.endsWith(`.${host}`),
+const isBlockedHost = (hostname: string): boolean => {
+  const labels = hostname.split('.');
+  return labels.some((_, index) =>
+    blockedCompanionHosts.has(labels.slice(index).join('.')),
   );
+};
 
-export const isHttpUrl = (url: URL): boolean =>
+const isHttpUrl = (url: URL): boolean =>
   url.protocol === 'http:' || url.protocol === 'https:';
 
 export const shouldSkipCompanionUrl = (url: URL): boolean =>
@@ -146,61 +144,3 @@ export const shouldSkipCompanionUrl = (url: URL): boolean =>
   excludedCompanionOrigins.some((origin) => url.origin.includes(origin)) ||
   isLocalHost(url.hostname) ||
   isBlockedHost(url.hostname);
-
-export const NO_POST_CACHE_TTL = ONE_HOUR;
-export const NO_POST_CACHE_MAX_SIZE = 500;
-const NO_POST_CACHE_KEY = 'companion:no_post';
-
-export const createNoPostCache = (storage?: Storage.StorageArea) => {
-  let entries: Promise<Map<string, number>> | undefined;
-
-  const load = (): Promise<Map<string, number>> => {
-    if (!entries) {
-      entries = (async () => {
-        const stored: Record<string, Record<string, number>> = (await storage
-          ?.get(NO_POST_CACHE_KEY)
-          .catch(() => ({}))) ?? {};
-        return new Map(Object.entries(stored[NO_POST_CACHE_KEY] ?? {}));
-      })();
-    }
-
-    return entries;
-  };
-
-  const persist = (cache: Map<string, number>) =>
-    storage
-      ?.set({ [NO_POST_CACHE_KEY]: Object.fromEntries(cache) })
-      .catch(() => undefined);
-
-  const has = async (url: string, now = Date.now()): Promise<boolean> => {
-    const cache = await load();
-    const expiresAt = cache.get(url);
-    if (!expiresAt) {
-      return false;
-    }
-
-    if (expiresAt > now) {
-      return true;
-    }
-
-    cache.delete(url);
-    await persist(cache);
-    return false;
-  };
-
-  const add = async (url: string, now = Date.now()): Promise<void> => {
-    const cache = await load();
-    cache.delete(url);
-    cache.set(url, now + NO_POST_CACHE_TTL);
-    while (cache.size > NO_POST_CACHE_MAX_SIZE) {
-      cache.delete(cache.keys().next().value as string);
-    }
-    await persist(cache);
-  };
-
-  return { has, add };
-};
-
-// Session storage survives service worker restarts but needs the `storage`
-// permission, so builds without it keep the cache in memory.
-export const noPostCache = createNoPostCache(browser.storage?.session);

@@ -23,11 +23,8 @@ import {
   enableFrameEmbeddingForTab,
 } from '../lib/frameEmbedding';
 import { requestFrameEmbeddingPermissions } from '../lib/frameEmbeddingPermissions';
-import {
-  isHttpUrl,
-  noPostCache,
-  shouldSkipCompanionUrl,
-} from './companionFilter';
+import { shouldSkipCompanionUrl } from '../lib/companionUrlFilter';
+import { noPostCache } from './noPostCache';
 
 type ChromeRuntimeMessageSender = Runtime.MessageSender;
 type ChromeSendResponse = (response?: unknown) => void;
@@ -82,6 +79,10 @@ const client = new GraphQLClient(graphqlUrl, { fetch: globalThis.fetch });
 // it doesn't, the new tab simply falls back to its normal behavior.
 let activateOnboardingPending = false;
 
+// Tabs that were last sent post data, so skipped URLs only message tabs that
+// may still render a companion
+const companionTabs = new Set<number>();
+
 const sendBootData = async (_: unknown, tab?: Tabs.Tab) => {
   if (!tab?.url || !tab.id) {
     return;
@@ -93,13 +94,13 @@ const sendBootData = async (_: unknown, tab?: Tabs.Tab) => {
   }
 
   const url = new URL(tab.url);
-  if (!isHttpUrl(url)) {
-    return;
-  }
-
   const href = url.origin + url.pathname + url.search;
-  if (shouldSkipCompanionUrl(url) || (await noPostCache.has(href))) {
-    // Unmount a companion left over from a previous SPA route
+  if (shouldSkipCompanionUrl(url) || noPostCache.has(href)) {
+    if (!companionTabs.delete(tab.id)) {
+      return;
+    }
+
+    // Unmount the companion left over from a previous SPA route
     await browser.tabs
       .sendMessage(tab.id, { settings: cacheData?.settings ?? {}, url: href })
       .catch(() => undefined);
@@ -113,7 +114,13 @@ const sendBootData = async (_: unknown, tab?: Tabs.Tab) => {
 
   // Error responses carry no settings and must not be cached as misses
   if (boot.settings && !boot.postData) {
-    await noPostCache.add(href);
+    noPostCache.add(href);
+  }
+
+  if (boot.postData) {
+    companionTabs.add(tab.id);
+  } else {
+    companionTabs.delete(tab.id);
   }
 
   let settingsOutput = boot.settings;
@@ -383,6 +390,7 @@ browser.permissions.onRemoved.addListener(() => {
 });
 
 browser.tabs.onRemoved.addListener((tabId) => {
+  companionTabs.delete(tabId);
   disableFrameEmbeddingForTab(tabId).catch(() => undefined);
 });
 
