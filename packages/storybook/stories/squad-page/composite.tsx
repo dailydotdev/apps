@@ -589,7 +589,7 @@ const followers = Array.from(
 );
 
 /** Everything that is not a stream of posts, in one labelled place. */
-const AboutPage = ({
+export const AboutPage = ({
   viewer,
   onOpenMembers,
 }: {
