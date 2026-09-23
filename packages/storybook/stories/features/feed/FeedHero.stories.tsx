@@ -140,12 +140,12 @@ const FEED_STAGES = [
   {
     columns: 5,
     px: 1560,
-    note: 'the slack goes to the featured card',
+    note: 'the featured card stops at two columns, so the row ends a column short of the grid',
   },
   {
     columns: 6,
     px: 1880,
-    note: 'wide enough that the headline list earns a second column too',
+    note: 'the same four-column row, two columns short of the grid',
   },
 ];
 

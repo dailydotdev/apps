@@ -153,6 +153,32 @@ describe('FeedHero', () => {
     expect(screen.getByText('Third headline')).toBeInTheDocument();
   });
 
+  it('should open the post modal when a card is clicked', async () => {
+    const push = jest.fn().mockResolvedValue(true);
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          asPath: '/',
+          query: {},
+          push,
+        } as unknown as NextRouter),
+    );
+    mockHero({ posts, highlights });
+
+    renderComponent();
+
+    fireEvent.click(
+      await screen.findByRole('link', { name: 'First hero post' }),
+    );
+
+    await waitFor(() => expect(push).toHaveBeenCalled());
+    const [pathname, as] = push.mock.calls[0];
+    expect(pathname).toContain('pmid=hero-post-0');
+    expect(pathname).toContain('pmcid=popular-hero');
+    expect(as).toContain('posts/hero-post-0');
+  });
+
   it('should render nothing when the query returns no posts', async () => {
     mockHero({ posts: [], highlights: [] });
 

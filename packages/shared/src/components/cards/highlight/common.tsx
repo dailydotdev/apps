@@ -46,14 +46,15 @@ export const ReadAllHighlightsFooter = ({
           href={href}
           onClick={() => onClick?.()}
         >
-          <span className="typo-callout">
+          <span className={compact ? 'typo-footnote' : 'typo-callout'}>
             <span className={highlightsTitleGradientClassName}>Read all</span>
           </span>
           <span
             aria-hidden
             className={classNames(
               highlightsTitleGradientClassName,
-              'ml-auto select-none leading-none typo-title3',
+              'ml-auto select-none leading-none',
+              compact ? 'typo-body' : 'typo-title3',
             )}
           >
             →

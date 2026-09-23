@@ -823,17 +823,18 @@ export default function MainFeedLayout({
     ) : undefined;
   // The hero is a sibling of the v2 grid, so it repeats the grid's inset and
   // card border rules. No bottom margin from `tablet` up, where the grid
-  // already opens with that inset; mobile keeps one as the only separator.
+  // already opens with that inset, and on laptop the hero eats half of it;
+  // mobile keeps one as the only separator.
   const isV2Grid = isV2 && !shouldUseListFeedLayout;
   const heroClassName = classNames(
-    'w-full tablet:pt-6',
+    'w-full tablet:pt-1',
     isV2Grid
       ? classNames(
           v2FeedSideInsetClass,
-          'mb-8 tablet:mb-0',
+          'mb-4 tablet:mb-0 laptop:-mb-4',
           '[&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
         )
-      : 'mb-8',
+      : 'mb-4',
   );
   // Left undefined when the hero is off so `Feed` keeps its own top slot.
   const topContent = isFeedHeroEnabled ? (

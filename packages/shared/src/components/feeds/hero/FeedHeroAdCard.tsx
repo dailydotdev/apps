@@ -86,21 +86,21 @@ export const FeedHeroAdCard = ({
       </FlatCard>
       {/* Outside the card, so hovering them does not light the creative up as
           though it were the link. The negative margins cancel the padding
-          `ButtonSize.Small` adds, so the labels line up with the copy above. */}
+          `ButtonSize.XSmall` adds, so the labels line up with the copy above. */}
       <div className="flex min-w-0 shrink-0 items-center justify-between gap-2 px-4 pb-3 pt-2">
         {showAdvertiseLink && (
           <AdvertiseLink
             targetId={TargetId.AdCard}
             buttonStyle
-            size={ButtonSize.Small}
-            className="-ml-3"
+            size={ButtonSize.XSmall}
+            className="-ml-2"
           />
         )}
         {!isPlus && (
           <RemoveAd
             variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            className="!ml-0 -mr-3 !font-normal typo-footnote"
+            size={ButtonSize.XSmall}
+            className="!ml-0 -mr-2 !font-normal"
           />
         )}
       </div>
