@@ -730,19 +730,31 @@ export const SquadAbout = ({
 );
 
 /**
- * The badge. One compact row, the seal on a soft brand glow, nothing to
- * read past the label: this is the official one.
+ * The badge: Aurora. Two orbs of brand light, cabbage and onion, blurred
+ * under frosted glass, one cabbage hairline, the seal in the brightest
+ * spot. The landing page's light, in one row.
  */
 const VerifiedWidget = (): ReactElement => (
   <div
-    className="flex items-center gap-3 rounded-16 border border-accent-cabbage-default px-4 py-3"
+    className="relative flex items-center gap-3 overflow-hidden rounded-16 px-4 py-3"
     style={{
       background:
-        'linear-gradient(135deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent), color-mix(in srgb, var(--theme-accent-cabbage-default) 4%, transparent))',
+        'color-mix(in srgb, var(--theme-background-default) 58%, transparent)',
+      boxShadow:
+        'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent)',
     }}
   >
-    <VerifiedSeal className="size-6 text-accent-cabbage-default" />
-    <span className="font-bold text-text-primary typo-callout">
+    <div
+      aria-hidden
+      className="absolute inset-0"
+      style={{
+        background:
+          'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent), transparent 60%)',
+        filter: 'blur(16px)',
+      }}
+    />
+    <VerifiedSeal className="relative size-6 text-accent-cabbage-default" />
+    <span className="relative font-bold text-text-primary typo-callout">
       Official company page
     </span>
   </div>
