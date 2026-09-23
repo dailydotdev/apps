@@ -97,8 +97,8 @@ export const SquadHeader = ({
   const { config } = useWorkspace();
 
   return (
-    <div className="relative w-full rounded-t-16">
-      <div className="relative h-36">
+    <div className="relative w-full">
+      <div className="relative h-36 overflow-hidden rounded-t-[0.9375rem]">
         <img
           src={squad.headerImage}
           alt="Cover"
