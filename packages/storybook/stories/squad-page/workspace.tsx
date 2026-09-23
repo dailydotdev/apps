@@ -16,16 +16,19 @@ import {
   CalendarIcon,
   CardIcon,
   CompassIcon,
+  DiscordIcon,
   DiscussIcon,
   DocsIcon,
   DragIcon,
   EyeCancelIcon,
+  GitHubIcon,
   HelpIcon,
   HomeIcon,
   InfoIcon,
   HotIcon,
   JobIcon,
   LinkIcon,
+  LinkedInIcon,
   LockIcon,
   MegaphoneIcon,
   MenuIcon,
@@ -41,13 +44,15 @@ import {
   SquadIcon,
   StarIcon,
   TimerIcon,
+  TwitterIcon,
   UpvoteIcon,
   UserIcon,
   VIcon,
+  YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import type { QuizQuestion, TeamMember } from './data';
+import type { QuizQuestion, SquadPoll, TeamMember } from './data';
 import {
   entriesByMonth,
   feedEntries,
@@ -56,6 +61,7 @@ import {
   formatSince,
   jobs,
   pinnedEntry,
+  polls,
   products,
   quiz,
   ratingBreakdown,
@@ -88,6 +94,7 @@ export enum PageType {
   Reviews = 'reviews',
   Releases = 'releases',
   Quiz = 'quiz',
+  Polls = 'polls',
   Doc = 'doc',
   Rules = 'rules',
   Recurring = 'recurring',
@@ -156,7 +163,7 @@ const channels = {
   links: page('links', 'Links', PageType.Channel, {
     description: "Articles, videos and tools worth the squad's time.",
   }),
-  polls: page('polls', 'Polls', PageType.Channel),
+  polls: page('polls', 'Polls', PageType.Polls, { badge: 1 }),
 };
 
 const docs = {
@@ -194,6 +201,8 @@ export enum SidebarPreset {
   Company = 'company',
   /** A topic squad: Learn Python, DevOps, Go developers. */
   Community = 'community',
+  /** The company squad with everything not earning its row removed. */
+  Lean = 'lean',
 }
 
 export const presets: Record<SidebarPreset, SidebarSection[]> = {
@@ -269,6 +278,39 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
     },
     manage,
   ],
+  [SidebarPreset.Lean]: [
+    {
+      id: 'top',
+      pages: [common.home, common.releases, common.products],
+    },
+    {
+      id: 'channels',
+      label: 'Channels',
+      pages: [channels.discussions, channels.polls],
+    },
+    {
+      id: 'docs',
+      label: 'Documentation',
+      pages: [docs.rules, docs.faq],
+    },
+    {
+      id: 'links',
+      label: 'Links',
+      pages: [
+        link('docs', 'Docs', 'https://docs.daily.dev'),
+        link('github', 'GitHub', 'https://github.com/dailydotdev'),
+        link('x', 'X', 'https://x.com/dailydotdev'),
+        link('youtube', 'YouTube', 'https://youtube.com/@dailydotdev'),
+        link(
+          'linkedin',
+          'LinkedIn',
+          'https://linkedin.com/company/dailydotdev',
+        ),
+        link('discord', 'Discord', 'https://discord.gg/dailydev'),
+      ],
+    },
+    manage,
+  ],
 };
 
 export const sections = presets[SidebarPreset.Company];
@@ -291,6 +333,7 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
     [PageType.Reviews]: <StarIcon size={size} />,
     [PageType.Releases]: <SparkleIcon size={size} secondary />,
     [PageType.Quiz]: <HelpIcon size={size} />,
+    [PageType.Polls]: <PollIcon size={size} />,
     [PageType.Doc]: <DocsIcon size={size} />,
     [PageType.Rules]: <DocsIcon size={size} />,
     [PageType.Recurring]: <CalendarIcon size={size} />,
@@ -315,8 +358,16 @@ const channelIcons: Record<string, ReactElement> = {
   polls: <PollIcon size={IconSize.Small} />,
 };
 
+const linkIcons: Record<string, ReactElement> = {
+  github: <GitHubIcon size={IconSize.Small} />,
+  x: <TwitterIcon size={IconSize.Small} />,
+  youtube: <YoutubeIcon size={IconSize.Small} />,
+  linkedin: <LinkedInIcon size={IconSize.Small} />,
+  discord: <DiscordIcon size={IconSize.Small} />,
+};
+
 export const iconFor = (item: SquadPage): ReactElement =>
-  channelIcons[item.id] ?? pageIcon(item.type);
+  channelIcons[item.id] ?? linkIcons[item.id] ?? pageIcon(item.type);
 
 /** What an admin can add, grouped the way a community thinks about it. */
 export const pageCatalogue: {
@@ -1675,6 +1726,103 @@ const QuizPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
   );
 };
 
+const toPollPost = (poll: SquadPoll, picked?: number): Post =>
+  ({
+    id: poll.id,
+    title: poll.question,
+    permalink: `https://daily.dev/posts/${poll.id}`,
+    commentsPermalink: `https://daily.dev/posts/${poll.id}`,
+    createdAt: '2026-09-20T09:00:00.000Z',
+    endsAt: poll.endsAt,
+    type: PostType.Poll,
+    source: quizSource,
+    author: {
+      id: poll.author.id,
+      name: poll.author.name,
+      username: poll.author.username,
+      image: poll.author.image,
+      permalink: `https://daily.dev/${poll.author.username}`,
+    },
+    numUpvotes: 31,
+    numComments: 12,
+    numPollVotes: poll.votes,
+    pollOptions: poll.options.map((text, index) => ({
+      id: `${poll.id}-${index}`,
+      text,
+      order: index + 1,
+      numVotes: Math.round((poll.split[index] / 100) * poll.votes),
+    })),
+    tags: ['dailydev'],
+    userState: {
+      vote: UserVote.None,
+      flags: { feedbackDismiss: false },
+      ...(picked !== undefined && {
+        pollOption: { id: `${poll.id}-${picked}` },
+      }),
+    },
+  } as unknown as Post);
+
+/**
+ * Polls, on the production poll card. The company asks, members vote in
+ * place, the card flips to its results. The click is caught before the
+ * card's own vote mutation so the story stays offline.
+ */
+const PollsPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const [votes, setVotes] = useState<Record<string, number>>({});
+
+  return (
+    <Column className="gap-4">
+      <div className="flex items-center justify-between gap-4 rounded-12 bg-surface-float px-4 py-3">
+        <span className="text-text-secondary typo-footnote">
+          What the team wants to know from you. One vote each, results when you
+          vote.
+        </span>
+        {viewer === Viewer.Admin ? (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+          >
+            New poll
+          </Button>
+        ) : (
+          <span className="sq-nums shrink-0 text-text-quaternary typo-caption1">
+            {polls.length} open
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col gap-4">
+        {polls.map((poll) => {
+          const picked = votes[poll.id];
+
+          return (
+            <div
+              key={poll.id}
+              onClickCapture={(event) => {
+                if (picked !== undefined || viewer === Viewer.Visitor) {
+                  return;
+                }
+                const option = (event.target as HTMLElement)
+                  .closest('button')
+                  ?.textContent?.trim();
+                const index = poll.options.indexOf(option ?? '');
+                if (index === -1) {
+                  return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                setVotes((current) => ({ ...current, [poll.id]: index }));
+              }}
+            >
+              <PollList post={toPollPost(poll, picked)} {...cardHandlers} />
+            </div>
+          );
+        })}
+      </div>
+    </Column>
+  );
+};
+
 const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
 
 /**
@@ -1995,6 +2143,8 @@ const PageBody = ({
       return <ReleasesPage viewer={viewer} />;
     case PageType.Quiz:
       return <QuizPage viewer={viewer} />;
+    case PageType.Polls:
+      return <PollsPage viewer={viewer} />;
     case PageType.Chat:
       return <ChatPage />;
     case PageType.Doc:

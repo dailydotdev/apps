@@ -520,6 +520,42 @@ export const Overview: StoryObj = {
         />
       </Section>
 
+      <Section eyebrow="Lean" title="The same squad with less">
+        <Caption>
+          A third composition, from the second round of feedback: no
+          Announcements (Releases already is the team&apos;s voice), no Reviews,
+          Polls in place of the quiz, no Open roles and no About. Links carry
+          the company&apos;s social accounts beside its docs and code. Home,
+          Releases, Products, two channels, the documentation, the links.
+        </Caption>
+        <Pair
+          items={[
+            [
+              'Lean · Home',
+              <WorkspaceShell
+                key="lean-home"
+                viewer={Viewer.Member}
+                preset={SidebarPreset.Lean}
+                initialPage={findPage('home')}
+                height={50}
+                width={1152}
+              />,
+            ],
+            [
+              'Lean · Polls',
+              <WorkspaceShell
+                key="lean-polls"
+                viewer={Viewer.Member}
+                preset={SidebarPreset.Lean}
+                initialPage={findPage('polls')}
+                height={50}
+                width={1152}
+              />,
+            ],
+          ]}
+        />
+      </Section>
+
       <Section eyebrow="Catalogue" title="What a page can be">
         <Caption>
           Grouped the way a community thinks about it. Most channels are the
@@ -788,7 +824,11 @@ export const Playground: StoryObj<{
     },
     preset: {
       control: 'inline-radio' as const,
-      options: [SidebarPreset.Company, SidebarPreset.Community],
+      options: [
+        SidebarPreset.Company,
+        SidebarPreset.Community,
+        SidebarPreset.Lean,
+      ],
     },
   },
   render: (args) => (

@@ -811,3 +811,44 @@ export const quiz = {
     },
   ] as QuizQuestion[],
 };
+
+export interface SquadPoll {
+  id: string;
+  question: string;
+  options: string[];
+  split: number[];
+  votes: number;
+  author: TeamMember;
+  endsAt: string;
+}
+
+/** Illustrative. The polls a company squad runs: product decisions, not trivia. */
+export const polls: SquadPoll[] = [
+  {
+    id: 'p1',
+    question: 'Which integration should we ship next for the public API?',
+    options: ['Raycast', 'Obsidian', 'VS Code', 'Zapier'],
+    split: [18, 34, 41, 7],
+    votes: 1860,
+    author: team[3],
+    endsAt: '2026-09-30T09:00:00.000Z',
+  },
+  {
+    id: 'p2',
+    question: 'Where do you read daily.dev most?',
+    options: ['New tab', 'Web app', 'iOS or Android', 'Email digest'],
+    split: [52, 23, 19, 6],
+    votes: 2410,
+    author: team[1],
+    endsAt: '2026-09-26T09:00:00.000Z',
+  },
+  {
+    id: 'p3',
+    question: 'Streak freezes: what should the default stash be?',
+    options: ['Two', 'Three', 'Five', 'Let me choose'],
+    split: [11, 29, 38, 22],
+    votes: 1290,
+    author: team[2],
+    endsAt: '2026-09-24T09:00:00.000Z',
+  },
+];
