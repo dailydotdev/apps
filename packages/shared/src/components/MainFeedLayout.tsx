@@ -249,7 +249,7 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, tokenRefreshed, isAuthReady } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const feedWidthStyle = {
@@ -857,6 +857,9 @@ export default function MainFeedLayout({
     feedName,
     disableAds: feedProps?.disableAds,
   });
+  // The signup bar is fixed over the window's bottom edge, where the sponsor
+  // dock pins, so an anonymous visitor gets one or the other.
+  const showSignupStrip = !isExtension && isExploreHub && isAuthReady && !user;
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
     isV2 &&
@@ -943,14 +946,14 @@ export default function MainFeedLayout({
           )
         )}
         {children}
-        {!isExtension && isExploreHub && <ExploreSignupStrip />}
+        {showSignupStrip && <ExploreSignupStrip />}
       </FeedPageLayoutComponent>
       {/* Docked outside the page container so it spans the feed column and
           pins to the window, and mounted here rather than in each app's
           MainFeedPage because this is the one component both the webapp and
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
-      {sponsorStrip.isEnabled && (
+      {sponsorStrip.isEnabled && !showSignupStrip && (
         <SponsorStrip
           headlines={sponsorStrip.headlines}
           headlinesSettled={sponsorStrip.headlinesSettled}
