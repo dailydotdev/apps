@@ -1801,8 +1801,9 @@ export const Overview: StoryObj = {
           <p>
             Each is drawn as a schematic at desktop and phone width, with the
             colour telling what kind of thing each block is. The first five live
-            in the No sidebar story as working mock-ups; the rest are written
-            here so the comparison is complete before more is built.
+            in the No sidebar story as working mock-ups, and so does the
+            composite at the end; the rest are written here so the comparison is
+            complete.
           </p>
         </Prose>
         <Legend />
