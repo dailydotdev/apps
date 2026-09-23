@@ -77,21 +77,22 @@ export const Overview: StoryObj = {
       <header className="flex flex-col gap-3 border-b border-border-subtlest-tertiary pb-8">
         <Eyebrow>Squad page · Navigation</Eyebrow>
         <h1 className="max-w-[24ch] font-bold typo-mega3">
-          Ten ways to carry the pages, one idea each
+          The pages column, carried ten ways
         </h1>
         <div className="flex max-w-[76ch] flex-col gap-3 text-text-secondary typo-body">
           <p>
-            The same lean header on every one: cover, logo, name, one line of
-            tagline, one line of meta, Follow and three icons. What changes is
-            only how a visitor gets from the feed to Releases, Products,
-            Discussions, Polls and About, and what else is on screen while they
-            decide. Followers opens from the count. The team&apos;s Manage
-            section is the gear, except where a variant has a better seat for
-            it.
+            The squad&apos;s left column is gone. The profile header and the
+            profile&apos;s right column, Official company page, Rules, Team,
+            Stack and tools, Overview, Links, stay exactly as they are. What the
+            column carried besides those, the five pages and the team&apos;s
+            Manage section, has to live in the header or the centre. Ten ways to
+            do that, one idea each, on the same base.
           </p>
           <p>
-            Every shell is live: click through the pages, and use the Playground
-            to switch viewer and width.
+            Followers opens from the count, Rules and FAQ from their widget,
+            Manage from the gear beside the actions. Every shell is live: click
+            through the pages, and use the Playground to switch viewer and
+            width.
           </p>
         </div>
       </header>
@@ -116,7 +117,7 @@ export const Playground: StoryObj<{
   width: number;
 }> = {
   args: {
-    nav: Nav.Profile,
+    nav: Nav.Tabs,
     viewer: Viewer.Member,
     page: 'home',
     width: 1440,
