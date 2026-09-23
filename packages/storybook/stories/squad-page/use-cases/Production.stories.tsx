@@ -103,7 +103,7 @@ export const cases: UseCase[] = [
   },
   {
     id: 'members',
-    title: 'Members with the Blocked tab and the role menu',
+    title: 'Followers with the Blocked tab and the role menu',
     who: 'Admin',
     sees: 'Production’s SquadMemberModal as a page: three tabs, search, Copy invitation link first, Mod badges, and the member menu (Make admin, Promote, Demote, Report, Block, Gift Plus).',
     viewer: Viewer.Admin,
@@ -112,7 +112,7 @@ export const cases: UseCase[] = [
   },
   {
     id: 'members-member',
-    title: 'Members as a plain member',
+    title: 'Followers as a plain follower',
     who: 'Member, memberInviteRole = member',
     sees: 'Two tabs, Copy invitation link because members may invite, Follow on rows instead of the menu.',
     viewer: Viewer.Member,
@@ -203,14 +203,13 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Public squad, anonymous',
         production:
           'Full page, no Join (a quirk: the join button waits for a query that never runs logged out)',
-        design: 'Full page, Sign up to join in the sidebar and header',
+        design: 'Full page, Sign up to follow in the sidebar and header',
         status: 'Changed',
       },
       {
         surface: 'Public squad, logged in non-member',
         production: 'Join Squad in the bar, Invitation link in the menu',
-        design:
-          'Join squad in the sidebar or header, Invitation link in the menu',
+        design: 'Follow in the sidebar or header, Invitation link in the menu',
         status: 'Covered',
       },
       {
@@ -230,9 +229,9 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Blocked member',
         production:
-          'Join disabled, tooltip “You are not allowed to join the Squad”; still gets the bell and Leave',
+          'Join disabled, tooltip “You are not allowed to follow this Squad”; still gets the bell and Leave',
         design:
-          'Join disabled with the copy under it, lock card, no bell, no Leave',
+          'Follow disabled with the copy under it, lock card, no bell, no Unfollow',
         status: 'Changed',
       },
       {
@@ -266,7 +265,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production:
           'Follow, bell, block, related tags, similar sources, rails, archive',
         design:
-          'Becomes the squad: Follow is Join, the bell is Alerts, related tags are Activity’s top tags, the archive is Releases by month',
+          'Becomes the squad: Follow stays Follow, the bell is Alerts, related tags are Activity’s top tags, the archive is Releases by month',
         status: 'Changed',
       },
     ],
@@ -290,7 +289,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Stats',
         production:
           'Posts, Views, Upvotes, Awards when > 0 (opens the awards list)',
-        design: 'Members with faces, Posts, Views, Upvotes, Awards when > 0',
+        design: 'Followers with faces, Posts, Views, Upvotes, Awards when > 0',
         status: 'Covered',
       },
       {
@@ -309,14 +308,14 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Member short list',
         production: 'Avatars and count, opens the members modal',
-        design: 'Faces on the Members stat, opens the Members page',
+        design: 'Faces on the Followers stat, opens the Followers page',
         status: 'Covered',
       },
       {
         surface: 'Moderated by, Top members',
         production: 'Two avatar rows with +N modals',
         design:
-          'Team widget, Top members row for public squads, See all opens Members',
+          'Team widget, Top followers row for public squads, See all opens Followers',
         status: 'Covered',
       },
       {
@@ -329,7 +328,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Invitation link button',
         production: 'Invite permission (memberInviteRole)',
         design:
-          'Invite in the sidebar trio, hidden when members may not invite; Copy invitation link on Members',
+          'Invite in the sidebar trio, hidden when members may not invite; Copy invitation link on Followers',
         status: 'Covered',
       },
       {
@@ -399,7 +398,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Cannot post: not a member',
         production: '“Join the Squad to create new posts”',
-        design: 'Lock card, same copy',
+        design: 'Lock card, Follow instead of Join the Squad',
         status: 'Covered',
       },
       {
@@ -411,7 +410,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Cannot post: reputation',
         production: '“You need N reputation points to post”',
-        design: 'Lock card, same copy',
+        design: 'Lock card, Follow instead of Join the Squad',
         status: 'Covered',
       },
       {
@@ -483,8 +482,8 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Members modal',
         production:
-          'Squad members / Moderators / Blocked members, search, Copy invitation link, role menu, Unblock',
-        design: 'Members page, all of it',
+          'Followers / Moderators / Blocked members, search, Copy invitation link, role menu, Unblock',
+        design: 'Followers page, all of it',
         status: 'Covered',
       },
       {
@@ -509,7 +508,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Leave squad',
         production: 'Menu, prompt “Leave {name}”, toast',
-        design: 'Menu; prompt and toast unchanged',
+        design: 'Unfollow in the menu; prompt and toast unchanged',
         status: 'Covered',
       },
       {

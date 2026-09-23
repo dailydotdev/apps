@@ -28,14 +28,14 @@ export const cases: UseCase[] = [
     id: 'visitor',
     title: 'Logged in, not a member',
     who: 'A daily.dev user who has not joined',
-    sees: 'Join squad is the one primary button. Everything is readable; posting and voting say Join to post.',
+    sees: 'Follow is the one primary button, white like every primary. Everything is readable; posting and voting say Follow to post.',
     viewer: Viewer.Visitor,
   },
   {
     id: 'member',
     title: 'Member',
-    who: 'Joined',
-    sees: 'Joined and the bell in the header, Alerts / Invite / Share in the sidebar, the composer on Home, Post to Discussions, a vote in Polls.',
+    who: 'Following',
+    sees: 'Following and the bell in the header, Alerts / Invite / Share in the sidebar, the composer on Home, Post to Discussions, a vote in Polls.',
     viewer: Viewer.Member,
   },
   {
@@ -56,7 +56,7 @@ export const cases: UseCase[] = [
     id: 'blocked',
     title: 'Blocked',
     who: 'Removed by a moderator, still logged in',
-    sees: 'A public squad still reads. Join is disabled with “You are not allowed to join the Squad”, the composer is the lock card, no bell, no Leave. A private squad shows the wall.',
+    sees: 'A public squad still reads. Join is disabled with “You are not allowed to follow this Squad”, the composer is the lock card, no bell, no Leave. A private squad shows the wall.',
     viewer: Viewer.Blocked,
   },
 ];

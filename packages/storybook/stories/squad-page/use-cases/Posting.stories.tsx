@@ -32,7 +32,7 @@ export const cases: UseCase[] = [
     id: 'discussions-visitor',
     title: 'Discussions, not a member',
     who: 'Logged in, not joined',
-    sees: 'The strip says Join to post. Same feed.',
+    sees: 'The strip says Follow to post. Same feed.',
     viewer: Viewer.Visitor,
     page: 'discussions',
     height: 36,
@@ -104,7 +104,7 @@ export const Overview: StoryObj = {
         <>
           <p>
             A verified company page is a squad whose Releases are fed by the
-            company&apos;s RSS. Members still write in Discussions, vote in
+            company&apos;s RSS. Followers still write in Discussions, vote in
             Polls, and wait for a moderator when the squad asks for review. The
             rules are the squad&apos;s existing rules; only the source of the
             team&apos;s posts changes.

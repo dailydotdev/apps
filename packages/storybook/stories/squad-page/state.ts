@@ -112,7 +112,7 @@ export const postingState = (
     };
   }
   if (!isJoined(viewer)) {
-    return { canPost: false, reason: 'Join the Squad to create new posts' };
+    return { canPost: false, reason: 'Follow to create new posts' };
   }
   if (config.memberPostingRole === MemberRole.Moderator) {
     return { canPost: false, reason: 'Only admins and moderators can post' };

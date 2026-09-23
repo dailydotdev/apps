@@ -177,7 +177,7 @@ export const docs = {
 
 export const common = {
   home: page('home', 'Home', PageType.Home),
-  members: page('members', 'Members', PageType.Members),
+  members: page('members', 'Followers', PageType.Members),
   products: page('products', 'Products', PageType.Products),
   releases: page('releases', 'Releases', PageType.Releases, { badge: 1 }),
 };
@@ -362,7 +362,7 @@ export const pageCatalogue: {
       },
       {
         type: PageType.Members,
-        title: 'Members',
+        title: 'Followers',
         description: 'Everyone in the squad, with the team on top.',
         exists: true,
       },
@@ -556,11 +556,10 @@ export const SquadSidebar = ({
           <div className="flex flex-col gap-2">
             <Button
               variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
               size={ButtonSize.Medium}
               className="w-full"
             >
-              Sign up to join
+              Sign up to follow
             </Button>
             <span className="text-center text-text-tertiary typo-caption1">
               Already on daily.dev?{' '}
@@ -571,32 +570,30 @@ export const SquadSidebar = ({
         {viewer === Viewer.Visitor && config.isPublic && (
           <Button
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
             size={ButtonSize.Medium}
             className="w-full"
           >
-            Join squad
+            Follow
           </Button>
         )}
         {viewer === Viewer.Visitor && !config.isPublic && (
           <div className="flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2 text-text-tertiary typo-caption1">
             <LockIcon size={IconSize.Small} />
-            Private squad. Members join by invitation link.
+            Private squad. Followers join by invitation link.
           </div>
         )}
         {isBlocked(viewer) && (
           <div className="flex flex-col gap-2">
             <Button
               variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
               size={ButtonSize.Medium}
               className="w-full"
               disabled
             >
-              Join squad
+              Follow
             </Button>
             <span className="text-center text-text-tertiary typo-caption1">
-              You are not allowed to join the Squad
+              You are not allowed to follow this Squad
             </span>
           </div>
         )}
@@ -830,7 +827,7 @@ export const ChannelPage = ({
               {channel.restricted
                 ? 'Team only'
                 : isLoggedIn(viewer)
-                ? 'Join to post'
+                ? 'Follow to post'
                 : 'Sign up to post'}
             </span>
           )}
@@ -1315,14 +1312,14 @@ export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
 );
 
 enum MemberTab {
-  All = 'Squad members',
+  All = 'Followers',
   Moderators = 'Moderators',
-  Blocked = 'Blocked members',
+  Blocked = 'Blocked',
 }
 
 const roleActions: Record<string, string[]> = {
-  Admin: ['Demote to moderator', 'Demote to member'],
-  Moderator: ['Make admin', 'Demote to member'],
+  Admin: ['Demote to moderator', 'Demote to follower'],
+  Moderator: ['Make admin', 'Demote to follower'],
   Member: ['Make admin', 'Promote to moderator'],
 };
 
@@ -1378,7 +1375,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
         </div>
         <div className="flex h-9 w-56 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-footnote">
           <SearchIcon size={IconSize.Small} />
-          Search members
+          Search followers
         </div>
       </div>
       <span className="text-text-tertiary typo-footnote">
@@ -1393,7 +1390,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
       </span>
       {rows.length === 0 ? (
         <div className="rounded-16 border border-border-subtlest-tertiary px-6 py-10 text-center text-text-tertiary typo-callout">
-          No blocked members found
+          No blocked followers found
         </div>
       ) : (
         <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
@@ -1452,8 +1449,8 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
                     ...(isAdmin(viewer)
                       ? roleActions[roleOf(member)] ?? []
                       : []),
-                    'Report member',
-                    'Block member',
+                    'Report follower',
+                    'Block follower',
                     'Gift daily.dev Plus',
                   ].map((label) => (
                     <li key={label}>
@@ -1462,7 +1459,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
                         onClick={() => setMenu(null)}
                         className={classNames(
                           'flex w-full items-center rounded-8 px-2 py-1.5 text-left typo-callout hover:bg-surface-float',
-                          label === 'Block member'
+                          label === 'Block follower'
                             ? 'text-status-error'
                             : 'text-text-secondary hover:text-text-primary',
                         )}
@@ -1833,8 +1830,8 @@ export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
         You are invited to join {squad.name}
       </h1>
       <p className="text-text-tertiary typo-body">
-        {squad.name} is your place to stay up to date as a Squad. You and your
-        Squad members can share knowledge and content in one place. Join now to
+        {squad.name} is your place to stay up to date as a Squad. You and other
+        followers can share knowledge and content in one place. Follow now to
         start collaborating.
       </p>
       <div className="flex items-center gap-4 text-left">
@@ -1866,11 +1863,10 @@ export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
         ) : (
           <Button
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
             size={ButtonSize.Large}
             disabled={isBlocked(viewer)}
           >
-            Join Squad
+            Follow
           </Button>
         )}
       </div>
@@ -1881,7 +1877,7 @@ export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
       )}
       {isJoined(viewer) && (
         <span className="rounded-12 bg-surface-float px-4 py-2 text-text-secondary typo-callout">
-          You are already a member. Production sends you straight to the squad.
+          You already follow this page. Production sends you straight to it.
         </span>
       )}
       <p className="text-text-tertiary typo-body">
@@ -1891,7 +1887,7 @@ export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
       <Facepile members={others} max={8} size={2} />
       {!isLoggedIn(viewer) && (
         <span className="text-text-quaternary typo-caption1">
-          Join opens sign up first; the invitation is kept through it.
+          Follow opens sign up first; the invitation is kept through it.
         </span>
       )}
     </Column>

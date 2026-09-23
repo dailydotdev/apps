@@ -354,7 +354,7 @@ export const Stat = ({
 );
 
 export const stats = [
-  { value: squad.membersCount, label: 'Members' },
+  { value: squad.membersCount, label: 'Followers' },
   { value: squad.totalPosts, label: 'Posts' },
   { value: squad.totalViews, label: 'Views' },
   { value: squad.totalUpvotes, label: 'Upvotes' },
@@ -488,7 +488,7 @@ export const Actions = ({
         size={size}
         className="sq-press"
       >
-        Join squad
+        Follow
       </Button>
     )}
     {viewer !== Viewer.Visitor && (

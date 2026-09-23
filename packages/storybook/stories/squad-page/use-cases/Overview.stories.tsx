@@ -132,7 +132,7 @@ export const Overview: StoryObj = {
           rows={[
             ['Read a public squad', ...can(() => true)],
             [
-              'See Join',
+              'See Follow',
               ...can((viewer) => viewer === Viewer.Visitor).map((cell, index) =>
                 index === 5 ? (
                   <span className="text-text-tertiary">Disabled</span>
@@ -199,20 +199,20 @@ export const Overview: StoryObj = {
           rows={viewerCases.map((useCase) => [
             useCase.title,
             useCase.viewer === Viewer.Anonymous
-              ? 'Sign up to join, Log in'
+              ? 'Sign up to follow, Log in'
               : useCase.viewer === Viewer.Visitor
-              ? 'Join squad'
+              ? 'Follow'
               : useCase.viewer === Viewer.Admin
               ? 'Preview as Admin'
               : useCase.viewer === Viewer.Moderator
               ? 'Alerts / Invite / Share, Preview as Moderator'
               : useCase.viewer === Viewer.Blocked
-              ? 'Join squad disabled, You are not allowed to join the Squad'
+              ? 'Follow disabled, You are not allowed to follow this Squad'
               : 'Alerts / Invite / Share',
             useCase.viewer === Viewer.Admin
               ? 'Edit page, Share, more'
               : joined(useCase.viewer)
-              ? 'Joined, bell, Share, more'
+              ? 'Following, bell, Share, more'
               : 'Share, more',
             useCase.viewer === Viewer.Admin
               ? 'Manage: Content feed, Moderation, Analytics, Settings; Add a page'

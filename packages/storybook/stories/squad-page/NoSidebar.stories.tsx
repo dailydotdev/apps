@@ -164,14 +164,14 @@ const seats: Record<string, string[]> = {
     'Links widget',
     'Highlights, marked external',
   ],
-  Members: [
-    'Member count',
-    'Member count',
-    'Member count',
+  Followers: [
+    'Follower count',
+    'Follower count',
+    'Follower count',
     'Pages card and count',
-    'Member count',
+    'Follower count',
   ],
-  Join: ['Header', 'Header', 'Header', 'Header', 'Header'],
+  Follow: ['Header', 'Header', 'Header', 'Header', 'Header'],
   Manage: [
     'Header menu',
     'Header menu',
@@ -252,13 +252,13 @@ export const Overview: StoryObj = {
           <p>
             The workspace put the squad&apos;s pages in a column of their own.
             Take the column away and everything it carried has to find a seat in
-            the page: the pages, the two documents, the links, Join, and the
+            the page: the pages, the two documents, the links, Follow, and the
             manage entry for the team. Five ways to seat them, each after a
             product that never had a sidebar. Same header, same feed, same right
             column, same page bodies; only the navigation moves.
           </p>
           <p>
-            In every variant Join sits in the header with the name, Members
+            In every variant Follow sits in the header with the name, Followers
             opens from the member count, Rules and FAQ keep the Rules widget,
             and the team&apos;s Manage section is a menu on the header. What
             differs is where Releases, Products, Discussions and Polls live.

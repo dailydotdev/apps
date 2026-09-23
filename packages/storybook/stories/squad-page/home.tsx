@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
-  ButtonColor,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
@@ -148,20 +147,19 @@ export const SquadHeader = ({
             {standalone && !isJoined(viewer) && (
               <Button
                 variant={ButtonVariant.Primary}
-                color={ButtonColor.Cabbage}
                 size={ButtonSize.Small}
                 disabled={isBlocked(viewer) || !config.isPublic}
                 title={
                   isBlocked(viewer)
-                    ? 'You are not allowed to join the Squad'
+                    ? 'You are not allowed to follow this Squad'
                     : undefined
                 }
               >
                 {!config.isPublic
                   ? 'Invite only'
                   : isLoggedIn(viewer)
-                  ? 'Join'
-                  : 'Sign up to join'}
+                  ? 'Follow'
+                  : 'Sign up to follow'}
               </Button>
             )}
             {extra}
@@ -171,7 +169,7 @@ export const SquadHeader = ({
                 size={ButtonSize.Small}
                 icon={<VIcon />}
               >
-                Joined
+                Following
               </Button>
             )}
             {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}
@@ -353,7 +351,7 @@ const MoreMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
       ? [
           {
             icon: small(<ExitIcon size={IconSize.Small} />),
-            label: 'Leave Squad',
+            label: 'Unfollow',
           },
         ]
       : []),
@@ -388,7 +386,7 @@ const NotificationsMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
     ['feed', 'Show new posts on For You'],
     ['posts', 'Notify me about new posts'],
     ...(isAdmin(viewer)
-      ? ([['members', 'Notify me about new members']] as [
+      ? ([['members', 'Notify me about new followers']] as [
           keyof typeof state,
           string,
         ][])
@@ -467,7 +465,7 @@ const SquadStats = ({
         className="flex items-center gap-2 rounded-8 text-left transition-opacity hover:opacity-80"
       >
         <Facepile members={team.slice(3)} max={3} size={1.25} />
-        <Item amount={squad.membersCount} title="Members" />
+        <Item amount={squad.membersCount} title="Followers" />
       </button>
       <Item amount={squad.totalPosts} title="Posts" />
       <Item amount={squad.totalViews} title="Views" />
@@ -1040,7 +1038,7 @@ const TopMembers = (): ReactElement | null => {
 
   return (
     <div className="mt-4 flex items-center justify-between border-t border-border-subtlest-tertiary pt-3">
-      <span className="text-text-tertiary typo-footnote">Top members</span>
+      <span className="text-text-tertiary typo-footnote">Top followers</span>
       <Facepile members={[...team].reverse().slice(0, 5)} max={5} size={1.5} />
     </div>
   );
@@ -1267,8 +1265,8 @@ export const SquadHome = ({
             </span>
             <span className="max-w-[40ch] text-text-tertiary typo-footnote">
               {isStaff(viewer)
-                ? 'Connect the content feed or write the first post. Members see the rules, the team and the links until then.'
-                : 'The team has not posted yet. Join to hear when they do.'}
+                ? 'Connect the content feed or write the first post. Followers see the rules, the team and the links until then.'
+                : 'The team has not posted yet. Follow to hear when they do.'}
             </span>
           </div>
         </div>

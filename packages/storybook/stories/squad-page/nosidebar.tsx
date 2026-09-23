@@ -98,7 +98,7 @@ export const layouts: LayoutSpec[] = [
     title: 'Tabs',
     reference: 'X profile, GitHub organization, Reddit community',
     carries:
-      'One tab row under the identity block: Posts, Releases, Products, Discussions, Polls. The header stays on every tab. Rules and FAQ live in the Rules widget, Members behind the count, Manage in the header.',
+      'One tab row under the identity block: Posts, Releases, Products, Discussions, Polls. The header stays on every tab. Rules and FAQ live in the Rules widget, Followers behind the count, Manage in the header.',
     tradeoff:
       'The safest and the closest to the profile page. It only holds as long as the row holds: past six pages the tabs start scrolling.',
   },
@@ -125,7 +125,7 @@ export const layouts: LayoutSpec[] = [
     title: 'Bookmarks',
     reference: 'Reddit community bookmarks, the widget column of a subreddit',
     carries:
-      'The center is posts and nothing else. The right column carries a Pages card (Releases, Products, Discussions, Polls, Members) above Rules, Team and Links. A page opens in the center with a back button.',
+      'The center is posts and nothing else. The right column carries a Pages card (Releases, Products, Discussions, Polls, Followers) above Rules, Team and Links. A page opens in the center with a back button.',
     tradeoff:
       'The pages column moved to the right and got shorter. The cleanest center, the most invisible navigation.',
   },

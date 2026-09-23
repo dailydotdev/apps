@@ -444,7 +444,7 @@ export const Overview: StoryObj = {
               'Maintainers',
               'Member list, online',
               'Admins, moderators, top members',
-              'Members behind the count on Home; the team in its widget',
+              'Followers behind the count on Home; the team in its widget',
             ],
             [
               'Points and rewards',
@@ -576,7 +576,7 @@ export const Overview: StoryObj = {
             />
           </Screen>
           <Screen
-            title="Members"
+            title="Followers"
             note="Reached from the member count on Home. The team first, then everyone, with search and the newest members."
           >
             <WorkspaceShell
