@@ -6,7 +6,9 @@ import type {
   AnonymousUser,
   LoggedUser,
   ProfileExtraField,
+  UserExperienceLevel,
 } from '../../../lib/user';
+import type { AcquisitionChannel } from '../../../graphql/users';
 import type { BrowserName } from '../../../lib/func';
 import type {
   FunnelStepPricingParameters,
@@ -36,6 +38,8 @@ export enum FunnelStepType {
   HeroLanding = 'heroLanding',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
+  Acquisition = 'acquisition',
+  UserRole = 'userRole',
 }
 
 export enum FunnelBackgroundVariant {
@@ -281,6 +285,9 @@ export interface FunnelStepProfileForm
     // Extra profile fields to collect, set per funnel in Freyja (e.g. for an
     // Instagram/Facebook campaign). Omitted = default fields only.
     extraFields?: ProfileExtraField[];
+    // Drops the step for users whose profile already carries every field the
+    // form asks for — an OAuth signup that also answered the user-role step.
+    skipWhenComplete?: boolean;
   }> {
   type: FunnelStepType.ProfileForm;
   onTransition: FunnelStepTransitionCallback;
@@ -418,6 +425,48 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepAcquisition
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    cta?: string;
+    // Subset and ordering of the channels to offer; omitted = all of them.
+    options?: AcquisitionChannel[];
+    // The feed's acquisition card shuffles so the first option isn't favoured.
+    shuffle?: boolean;
+    skip?: string;
+  }> {
+  type: FunnelStepType.Acquisition;
+  onTransition: FunnelStepTransitionCallback<{
+    acquisitionChannel: AcquisitionChannel;
+  }>;
+}
+
+export interface FunnelUserRoleOption {
+  // Stored as the profile's job title.
+  value: string;
+  label: string;
+  // Engineering roles never pick "I'm not an engineer", so the follow-up drops
+  // that option for them.
+  isTechnical?: boolean;
+}
+
+export interface FunnelStepUserRole
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    cta?: string;
+    roles?: FunnelUserRoleOption[];
+    // The follow-up that replaces the account-details experience dropdown.
+    experience?: { headline?: string };
+  }> {
+  type: FunnelStepType.UserRole;
+  onTransition: FunnelStepTransitionCallback<{
+    role: string;
+    experienceLevel: keyof typeof UserExperienceLevel;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -439,7 +488,9 @@ export type FunnelStep =
   | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv;
+  | FunnelStepUploadCv
+  | FunnelStepAcquisition
+  | FunnelStepUserRole;
 
 export type FunnelPosition = {
   chapter: number;
@@ -495,4 +546,6 @@ export const stepsFullWidth: Array<FunnelStepType> = [
 export const stepsFullWidthOnboarding: Array<FunnelStepType> = [
   FunnelStepType.ProfileForm,
   FunnelStepType.ReadingReminder,
+  FunnelStepType.Acquisition,
+  FunnelStepType.UserRole,
 ];

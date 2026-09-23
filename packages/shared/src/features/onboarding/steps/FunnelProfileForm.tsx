@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import type { LoggedUser, ProfileExtraField } from '../../../lib/user';
 import { OnboardingHeadline } from '../../../components/onboarding/common';
 import {
   Typography,
@@ -13,6 +14,10 @@ import type { FunnelStepProfileForm } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import useProfileForm from '../../../hooks/useProfileForm';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
+import {
+  useDecidedOnArrival,
+  withShouldSkipStepGuard,
+} from '../shared/withShouldSkipStepGuard';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import {
   funnelStepRail,
@@ -67,6 +72,7 @@ function InnerFunnelProfileForm({
       errors={hint}
       onResetErrors={handleResetErrors}
       extraFields={extraFields}
+      withExperienceLevel={!user.experienceLevel}
     />
   );
 
@@ -114,4 +120,33 @@ function InnerFunnelProfileForm({
   );
 }
 
-export const FunnelProfileForm = withIsActiveGuard(InnerFunnelProfileForm);
+// `cloudProvider` is absent on purpose: boot does not carry it back, so a
+// funnel that asks for it can never prove the answer is already on file.
+const extraFieldToProfileField: Partial<
+  Record<ProfileExtraField, keyof LoggedUser>
+> = {
+  company: 'company',
+  jobTitle: 'title',
+};
+
+export const FunnelProfileForm = withShouldSkipStepGuard(
+  withIsActiveGuard(InnerFunnelProfileForm),
+  ({ isActive, parameters: { skipWhenComplete, extraFields = [] } }) => {
+    const { user } = useAuthContext();
+    const isComplete =
+      !!user?.email &&
+      !!user?.name &&
+      !!user?.username &&
+      !!user?.experienceLevel &&
+      extraFields.every((field) => {
+        const profileField = extraFieldToProfileField[field];
+
+        return !!profileField && !!user?.[profileField];
+      });
+    // Submitting the form completes the profile, which must not hide the step
+    // before its own transition runs.
+    const shouldSkip = useDecidedOnArrival(isActive, isComplete);
+
+    return { shouldSkip: !!skipWhenComplete && shouldSkip };
+  },
+);

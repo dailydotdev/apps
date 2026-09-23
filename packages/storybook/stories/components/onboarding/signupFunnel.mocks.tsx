@@ -31,6 +31,8 @@ import {
   GrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import feedFixture from '@dailydotdev/shared/__tests__/fixture/feed';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { defaultBootData, getBootMock } from '../../../mock/boot';
 import ExtensionProviders from '../../extension/_providers';
 import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 
@@ -257,7 +259,9 @@ const SeedFeedSettings = ({
  * to the class the toolbar actually applied keeps the two in sync, as they are
  * in the real app.
  */
-const ThemeModeSync = ({ children }: PropsWithChildren): ReactElement => {
+export const ThemeModeSync = ({
+  children,
+}: PropsWithChildren): ReactElement => {
   const settings = useSettingsContext();
   const [themeMode, setThemeMode] = useState(ThemeMode.Dark);
 
@@ -412,7 +416,7 @@ export const FUNNEL_STEP_COUNT = 9;
  * would otherwise always return the flag's default (the control arm) and the
  * aura arm would be unreachable.
  */
-const ChromeArm = ({
+export const ChromeArm = ({
   variant,
   children,
 }: PropsWithChildren<{ variant: OnboardingChromeVariant }>): ReactElement => {
@@ -502,3 +506,37 @@ export const FunnelStepShell = ({
     </FeatureOverrides>
   </ExtensionProviders>
 );
+
+/**
+ * The profile writes the identity steps make. `AddUserAcquisitionChannel` is
+ * fire-and-forget; `UpdateUserProfile` has to echo a user back, because
+ * `useProfileForm` merges the response into the auth context before the step
+ * transitions.
+ */
+export const PROFILE_HANDLERS = [
+  graphql.mutation('AddUserAcquisitionChannel', () =>
+    HttpResponse.json({ data: { addUserAcquisitionChannel: { _: true } } }),
+  ),
+  graphql.mutation('UpdateUserProfile', ({ variables }) =>
+    HttpResponse.json({
+      data: {
+        updateUserProfile: { ...defaultBootData.user, ...variables.data },
+      },
+    }),
+  ),
+];
+
+/**
+ * Pins the booted user for one story. Call it from `beforeEach` so Storybook's
+ * mock restore undoes it between stories — mutating during render leaks the
+ * user into every later story.
+ */
+export const bootAsUser = (user: Partial<LoggedUser>): void => {
+  getBootMock.mockReturnValue({
+    ...defaultBootData,
+    user: { ...defaultBootData.user, ...user } as LoggedUser,
+    accessToken: { token: '1', expiresIn: '1' },
+    visit: { sessionId: '1', visitId: '1' },
+    feeds: [],
+  });
+};

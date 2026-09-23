@@ -46,6 +46,12 @@ export interface RegistrationFieldsFormProps {
   extraFields?: ProfileExtraField[];
   /** Suppresses the form's own submit button, for a docked `<button form={id}>`. */
   formId?: string;
+  /**
+   * @default true
+   * Off once the experience level has already been collected — the onboarding
+   * user-role step asks it in the words of the role the user picked.
+   */
+  withExperienceLevel?: boolean;
 }
 
 const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
@@ -58,6 +64,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
   withPassword,
   extraFields = [],
   formId,
+  withExperienceLevel = true,
 }) => {
   const [values, setValues] = useState<FormValues>({
     email: initialValues.email || '',
@@ -113,7 +120,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
     if (!inputUsername) {
       errors.username = 'Username is required.';
     }
-    if (!values.experienceLevel) {
+    if (withExperienceLevel && !values.experienceLevel) {
       errors.experienceLevel = 'Experience level is required.';
     }
     return errors;
@@ -241,23 +248,25 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         className={{ container: 'w-full' }}
         rightIcon={isLoadingUsername ? <span className="loader" /> : undefined}
       />
-      <ExperienceLevelDropdown
-        name="experienceLevel"
-        className={{ container: 'w-full' }}
-        defaultValue={values.experienceLevel}
-        onChange={(val) => {
-          setValues((v) => ({ ...v, experienceLevel: val }));
-          setTouched((t) => ({ ...t, experienceLevel: true }));
-          onResetErrors?.('experienceLevel');
-        }}
-        hint={
-          serverErrors.experienceLevel ||
-          ((touched.experienceLevel || submitted) &&
-            localErrors.experienceLevel) ||
-          ''
-        }
-        saveHintSpace
-      />
+      {withExperienceLevel && (
+        <ExperienceLevelDropdown
+          name="experienceLevel"
+          className={{ container: 'w-full' }}
+          defaultValue={values.experienceLevel}
+          onChange={(val) => {
+            setValues((v) => ({ ...v, experienceLevel: val }));
+            setTouched((t) => ({ ...t, experienceLevel: true }));
+            onResetErrors?.('experienceLevel');
+          }}
+          hint={
+            serverErrors.experienceLevel ||
+            ((touched.experienceLevel || submitted) &&
+              localErrors.experienceLevel) ||
+            ''
+          }
+          saveHintSpace
+        />
+      )}
       {showCompany && (
         <TextField
           name="company"
