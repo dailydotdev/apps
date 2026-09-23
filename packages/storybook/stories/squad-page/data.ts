@@ -852,3 +852,23 @@ export const polls: SquadPoll[] = [
     endsAt: '2026-09-24T09:00:00.000Z',
   },
 ];
+
+export interface CompanyLink {
+  id: 'docs' | 'github' | 'x' | 'youtube' | 'linkedin' | 'discord';
+  label: string;
+  href: string;
+}
+
+/** Illustrative. The company's places on the web, in the order it wants them. */
+export const companyLinks: CompanyLink[] = [
+  { id: 'docs', label: 'Docs', href: 'https://docs.daily.dev' },
+  { id: 'github', label: 'GitHub', href: 'https://github.com/dailydotdev' },
+  { id: 'x', label: 'X', href: 'https://x.com/dailydotdev' },
+  { id: 'youtube', label: 'YouTube', href: 'https://youtube.com/@dailydotdev' },
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    href: 'https://linkedin.com/company/dailydotdev',
+  },
+  { id: 'discord', label: 'Discord', href: 'https://discord.gg/dailydev' },
+];

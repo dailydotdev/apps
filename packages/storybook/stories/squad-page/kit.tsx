@@ -9,6 +9,12 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   AddUserIcon,
+  DiscordIcon,
+  DocsIcon,
+  GitHubIcon,
+  LinkedInIcon,
+  TwitterIcon,
+  YoutubeIcon,
   AnalyticsIcon,
   BellIcon,
   DiscussIcon,
@@ -188,6 +194,19 @@ export const Logo = ({
  * profile's company badge is a text pill, the shields mean clickbait
  * shield, the medals mean awards), so it is drawn here on the 24 grid.
  */
+export const linkIcon = (
+  id: string,
+  size: IconSize = IconSize.Small,
+): ReactElement =>
+  ({
+    docs: <DocsIcon size={size} />,
+    github: <GitHubIcon size={size} />,
+    x: <TwitterIcon size={size} />,
+    youtube: <YoutubeIcon size={size} />,
+    linkedin: <LinkedInIcon size={size} />,
+    discord: <DiscordIcon size={size} />,
+  }[id] ?? <LinkIcon size={size} />);
+
 export const VerifiedSeal = ({
   className,
 }: {

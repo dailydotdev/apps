@@ -25,6 +25,7 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { Entry } from './data';
 import {
+  companyLinks,
   feedEntries,
   formatCount,
   formatSince,
@@ -39,6 +40,7 @@ import {
   Avatar,
   CardList,
   Facepile,
+  linkIcon,
   VerifiedMark,
   VerifiedSeal,
   Viewer,
@@ -587,8 +589,10 @@ const OverviewWidget = (): ReactElement => (
  */
 const RulesWidget = ({
   onOpenRules,
+  onOpenFaq,
 }: {
   onOpenRules?: () => void;
+  onOpenFaq?: () => void;
 }): ReactElement => (
   <Widget title="Rules">
     <ol className="mt-3 flex flex-col divide-y divide-border-subtlest-tertiary">
@@ -613,6 +617,24 @@ const RulesWidget = ({
         </li>
       ))}
     </ol>
+    {/* The profile's "Show all Squads" seat, twice: the full rules and the
+        FAQ are the two documents a newcomer reads before posting. */}
+    <div className="mt-3 grid grid-cols-2 gap-2">
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        onClick={onOpenRules}
+      >
+        All rules
+      </Button>
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        onClick={onOpenFaq}
+      >
+        FAQ
+      </Button>
+    </div>
   </Widget>
 );
 
@@ -649,27 +671,21 @@ const TeamWidget = (): ReactElement => (
   </Widget>
 );
 
-const milestones = [
-  ['10K members', 'June 2026'],
-  ['100 posts', 'March 2025'],
-  ['Featured squad', 'August 2024'],
-  ['Verified', 'February 2023'],
-];
-
-/** BadgesAndAwards, for a squad. */
-const AwardsWidget = (): ReactElement => (
-  <Widget title="Milestones">
-    <div className="mb-3 mt-4 grid grid-cols-2 gap-2">
-      <Tile value={`x${squad.totalAwards}`} label="Awards received" />
-      <Tile value="x4" label="Milestones" />
-    </div>
-    <ul className="flex flex-col gap-2">
-      {milestones.map(([label, date]) => (
-        <li key={label} className="flex items-center justify-between">
-          <span className="rounded-6 bg-surface-float px-1.5 py-0.5 text-text-primary typo-caption1">
-            {label}
-          </span>
-          <span className="text-text-quaternary typo-caption1">{date}</span>
+/** The sidebar's links, in the column too: the company's places on the web. */
+const LinksWidget = (): ReactElement => (
+  <Widget title="Links">
+    <ul className="mt-3 grid grid-cols-2 gap-2">
+      {companyLinks.map((item) => (
+        <li key={item.id}>
+          <a
+            href={item.href}
+            className="flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-3 py-2 text-text-secondary typo-footnote transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
+          >
+            <span className="text-text-tertiary">
+              {linkIcon(item.id, IconSize.XSmall)}
+            </span>
+            <span className="truncate">{item.label}</span>
+          </a>
         </li>
       ))}
     </ul>
@@ -714,53 +730,42 @@ export const SquadAbout = ({
 );
 
 /**
- * The badge, as a card: what "verified" means here, said once and plainly,
- * above the rules. X and LinkedIn put this behind a tap on the mark; on a
- * page a company pays for, it is worth a few lines in the open.
+ * The badge. One compact row, the seal on a soft brand glow, nothing to
+ * read past the label: this is the official one.
  */
 const VerifiedWidget = (): ReactElement => (
-  <section className="flex flex-col gap-3 rounded-16 border border-accent-cabbage-default p-4">
-    <div className="flex items-center gap-2">
-      <VerifiedSeal className="size-5 text-accent-cabbage-default" />
+  <div
+    className="flex items-center gap-3 rounded-16 border border-accent-cabbage-default px-4 py-3"
+    style={{
+      background:
+        'linear-gradient(135deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent), color-mix(in srgb, var(--theme-accent-cabbage-default) 4%, transparent))',
+    }}
+  >
+    <VerifiedSeal className="size-6 text-accent-cabbage-default" />
+    <div className="flex min-w-0 flex-col">
       <span className="font-bold text-text-primary typo-callout">
         Official company page
       </span>
+      <span className="text-text-tertiary typo-caption1">
+        Verified by daily.dev
+      </span>
     </div>
-    <p className="text-text-secondary typo-footnote">
-      This squad is run by {squad.company.website} and verified by daily.dev.
-      Posts in Releases come from the team.
-    </p>
-    <dl className="flex flex-col gap-1.5 border-t border-border-subtlest-tertiary pt-3 typo-caption1">
-      {[
-        ['Domain', squad.company.website],
-        ['Verified since', formatSince(squad.createdAt)],
-        [
-          'Admins',
-          `${
-            team.filter((member) => member.role === 'Admin').length
-          } verified employees`,
-        ],
-      ].map(([label, value]) => (
-        <div key={label} className="flex justify-between gap-4">
-          <dt className="text-text-quaternary">{label}</dt>
-          <dd className="text-text-primary">{value}</dd>
-        </div>
-      ))}
-    </dl>
-  </section>
+  </div>
 );
 
 export const SquadWidgets = ({
   onOpenRules,
+  onOpenFaq,
 }: {
   onOpenRules?: () => void;
+  onOpenFaq?: () => void;
 }): ReactElement => (
   <>
     <VerifiedWidget />
-    <RulesWidget onOpenRules={onOpenRules} />
+    <RulesWidget onOpenRules={onOpenRules} onOpenFaq={onOpenFaq} />
     <TeamWidget />
     <OverviewWidget />
-    <AwardsWidget />
+    <LinksWidget />
   </>
 );
 
@@ -769,12 +774,14 @@ export const SquadHome = ({
   standalone = false,
   onOpenMembers,
   onOpenRules,
+  onOpenFaq,
 }: {
   viewer?: Viewer;
   /** Outside the workspace there is no sidebar to carry Join, so the header does. */
   standalone?: boolean;
   onOpenMembers?: () => void;
   onOpenRules?: () => void;
+  onOpenFaq?: () => void;
 }): ReactElement => (
   <HomeFrame
     header={
@@ -784,7 +791,7 @@ export const SquadHome = ({
         onOpenMembers={onOpenMembers}
       />
     }
-    widgets={<SquadWidgets onOpenRules={onOpenRules} />}
+    widgets={<SquadWidgets onOpenRules={onOpenRules} onOpenFaq={onOpenFaq} />}
   >
     <div className="border-t border-border-subtlest-tertiary">
       <PostsArea

@@ -16,19 +16,16 @@ import {
   CalendarIcon,
   CardIcon,
   CompassIcon,
-  DiscordIcon,
   DiscussIcon,
   DocsIcon,
   DragIcon,
   EyeCancelIcon,
-  GitHubIcon,
   HelpIcon,
   HomeIcon,
   InfoIcon,
   HotIcon,
   JobIcon,
   LinkIcon,
-  LinkedInIcon,
   LockIcon,
   MegaphoneIcon,
   MenuIcon,
@@ -44,11 +41,9 @@ import {
   SquadIcon,
   StarIcon,
   TimerIcon,
-  TwitterIcon,
   UpvoteIcon,
   UserIcon,
   VIcon,
-  YoutubeIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
@@ -60,6 +55,7 @@ import {
   formatDay,
   formatSince,
   jobs,
+  companyLinks,
   pinnedEntry,
   polls,
   products,
@@ -71,7 +67,14 @@ import {
   squad,
   team,
 } from './data';
-import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
+import {
+  Avatar,
+  CardList,
+  Facepile,
+  linkIcon,
+  VerifiedMark,
+  Viewer,
+} from './kit';
 import { Composer, Kit2Styles } from './kit2';
 import { PollList } from '@dailydotdev/shared/src/components/cards/poll/PollList';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -235,12 +238,7 @@ export const presets: Record<SidebarPreset, SidebarSection[]> = {
     {
       id: 'links',
       label: 'Links',
-      pages: [
-        link('docs', 'Docs', 'https://docs.daily.dev'),
-        link('github', 'GitHub', 'https://github.com/dailydotdev'),
-        link('status', 'Status', 'https://status.daily.dev'),
-        link('discord', 'Discord', 'https://discord.gg/dailydev'),
-      ],
+      pages: companyLinks.map((item) => link(item.id, item.label, item.href)),
     },
     manage,
   ],
@@ -358,16 +356,9 @@ const channelIcons: Record<string, ReactElement> = {
   polls: <PollIcon size={IconSize.Small} />,
 };
 
-const linkIcons: Record<string, ReactElement> = {
-  github: <GitHubIcon size={IconSize.Small} />,
-  x: <TwitterIcon size={IconSize.Small} />,
-  youtube: <YoutubeIcon size={IconSize.Small} />,
-  linkedin: <LinkedInIcon size={IconSize.Small} />,
-  discord: <DiscordIcon size={IconSize.Small} />,
-};
-
 export const iconFor = (item: SquadPage): ReactElement =>
-  channelIcons[item.id] ?? linkIcons[item.id] ?? pageIcon(item.type);
+  channelIcons[item.id] ??
+  (item.type === PageType.Link ? linkIcon(item.id) : pageIcon(item.type));
 
 /** What an admin can add, grouped the way a community thinks about it. */
 export const pageCatalogue: {
@@ -856,15 +847,18 @@ const HomePage = ({
   viewer,
   onOpenMembers,
   onOpenRules,
+  onOpenFaq,
 }: {
   viewer: Viewer;
   onOpenMembers: () => void;
   onOpenRules: () => void;
+  onOpenFaq: () => void;
 }): ReactElement => (
   <SquadHome
     viewer={viewer}
     onOpenMembers={onOpenMembers}
     onOpenRules={onOpenRules}
+    onOpenFaq={onOpenFaq}
   />
 );
 
@@ -2127,6 +2121,7 @@ const PageBody = ({
           viewer={viewer}
           onOpenMembers={() => onSelect(common.members)}
           onOpenRules={() => onSelect(docs.rules)}
+          onOpenFaq={() => onSelect(docs.faq)}
         />
       );
     case PageType.About:
