@@ -46,11 +46,6 @@ export interface RegistrationFieldsFormProps {
   extraFields?: ProfileExtraField[];
   /** Suppresses the form's own submit button, for a docked `<button form={id}>`. */
   formId?: string;
-  /**
-   * @default true
-   * Off once the experience level has already been collected — the onboarding
-   * user-role step asks it in the words of the role the user picked.
-   */
   withExperienceLevel?: boolean;
 }
 

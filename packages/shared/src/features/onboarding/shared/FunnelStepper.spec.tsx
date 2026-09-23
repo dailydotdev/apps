@@ -416,8 +416,7 @@ describe('FunnelStepper component', () => {
   });
 
   it('should complete the active step when it reports it should be skipped', () => {
-    // Outside iOS the PWA step always asks to be skipped. Landing on it must
-    // move the funnel on instead of rendering an empty step.
+    // Outside iOS the PWA step always asks to be skipped.
     const skippableStep: FunnelStep = {
       id: 'step1',
       type: FunnelStepType.InstallPwa,
@@ -455,8 +454,6 @@ describe('FunnelStepper component', () => {
   });
 
   it('should complete a step that reported it should be skipped before the funnel reached it', () => {
-    // The skip map is only read when navigating, so a navigation that runs
-    // before a step's guard has reported lands on a step with nothing to ask.
     const firstStep = {
       ...mockStep,
       transitions: [

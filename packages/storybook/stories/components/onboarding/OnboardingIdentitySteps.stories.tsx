@@ -32,14 +32,14 @@ import {
  * 1. **How did you hear about us** — the acquisition question that today only
  *    appears as a feed card behind a `?ua=true` query param, moved to where
  *    every new user actually passes.
- * 2. **Who are you** — a role grid, and, once a role is picked, the experience
- *    question the account-details form asks. Between them they write `title`
+ * 2. **Who are you** — a list of roles, and, once a role is picked, the
+ *    experience question the account-details form asks. Between them they write `title`
  *    and `experienceLevel` to the profile.
  *
  * With those two on the profile, an OAuth signup (Google/GitHub, which supply
  * name, email and avatar) has nothing left for the account-details form to
  * ask, so that step can drop itself — `skipWhenComplete` on the profileForm
- * step. The last two stories show that side by side.
+ * step. The account-details stories show that side by side.
  *
  * Everything here renders the real step components; only auth, the GraphQL
  * writes and the funnel chrome are faked.

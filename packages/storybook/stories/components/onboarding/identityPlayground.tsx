@@ -149,7 +149,7 @@ export const PLAYGROUND_SCENARIOS = {
 } as const;
 
 export type PlaygroundScenario = keyof typeof PLAYGROUND_SCENARIOS;
-export type PlaygroundOrder = 'acquisitionFirst' | 'roleFirst';
+type PlaygroundOrder = 'acquisitionFirst' | 'roleFirst';
 
 export const getScenarioUser = (
   scenario: PlaygroundScenario,
@@ -222,7 +222,7 @@ const buildFunnel = ({
   };
 };
 
-export const getFunnelStepIds = (order: PlaygroundOrder): string[] =>
+const getFunnelStepIds = (order: PlaygroundOrder): string[] =>
   buildFunnel({ order } as PlaygroundSettings).chapters[0].steps.map(
     ({ id }) => id,
   );
@@ -354,10 +354,6 @@ export const PlaygroundFrame = (settings: PlaygroundSettings): ReactElement => {
     </ExtensionProviders>
   );
 };
-
-/* ------------------------------------------------------------------------ */
-/* The panel around the frame                                                */
-/* ------------------------------------------------------------------------ */
 
 type StepStatus =
   | 'waiting'

@@ -47,7 +47,7 @@ const DEFAULT_EXPERIENCE_HEADLINE = 'How long have you been doing this?';
 const NON_ENGINEER: UserExperienceLevelKey = 'NOT_ENGINEER';
 
 // `value` lands on the profile as the job title, so it is written as one.
-export const DEFAULT_USER_ROLES: FunnelUserRoleOption[] = [
+const DEFAULT_USER_ROLES: FunnelUserRoleOption[] = [
   { value: 'Developer', label: 'Developer', isTechnical: true },
   {
     value: 'Engineering leader',

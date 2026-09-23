@@ -3,7 +3,6 @@ import type { FunnelStep } from '../types/funnel';
 
 export const withShouldSkipStepGuard = <Step extends FunnelStep>(
   Component: React.FC<Step>,
-  // Takes the step so a guard can read its Freyja parameters.
   useShouldSkipStep: (props: Step) => { shouldSkip: boolean },
 ): React.FC<Step> => {
   return function GuardedStep(props: Step) {

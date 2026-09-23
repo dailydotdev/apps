@@ -146,8 +146,6 @@ export const FunnelProfileForm = withShouldSkipStepGuard(
 
         return !!profileField && !!user?.[profileField];
       });
-    // Submitting the form completes the profile, which must not hide the step
-    // before its own transition runs.
     const shouldSkip = useDecidedOnArrival(isActive, isComplete);
 
     return { shouldSkip: !!skipWhenComplete && shouldSkip };
