@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { createContext, useContext, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -18,6 +18,8 @@ import {
   DiscussIcon,
   DocsIcon,
   DragIcon,
+  EarthIcon,
+  EditIcon,
   EyeCancelIcon,
   HomeIcon,
   HotIcon,
@@ -31,12 +33,16 @@ import {
   PollIcon,
   SearchIcon,
   SettingsIcon,
+  SlackIcon,
   SparkleIcon,
   SquadIcon,
   StarIcon,
   TimerIcon,
+  TrashIcon,
   UpvoteIcon,
   UserIcon,
+  VIcon,
+  WarningIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
@@ -60,6 +66,7 @@ import {
   CardList,
   Facepile,
   isAdmin,
+  isBlocked,
   isJoined,
   isLoggedIn,
   isStaff,
@@ -72,6 +79,15 @@ import { PollList } from '@dailydotdev/shared/src/components/cards/poll/PollList
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { PostsToolbar, SquadHome } from './home';
+import type { SquadConfig, WorkspaceState } from './state';
+import {
+  ContentSource,
+  defaultConfig,
+  MemberRole,
+  PostingGate,
+  useWorkspace,
+  WorkspaceContext,
+} from './state';
 
 // Round three: the Whop mindset. A squad is not a page with widgets, it is a
 // workspace. The owner composes a left column of pages (a feed, a chat, a
@@ -98,6 +114,11 @@ export enum PageType {
   /** Where the content comes from: the RSS feed a company page is fed by. */
   Feed = 'feed',
   Add = 'add',
+  /** A member's own posts in the queue. */
+  Pending = 'pending',
+  /** The invitation link landing. */
+  Invite = 'invite',
+  NotFound = 'not-found',
 }
 
 export interface SquadPage {
@@ -161,6 +182,13 @@ export const common = {
   releases: page('releases', 'Releases', PageType.Releases, { badge: 1 }),
 };
 
+/** Pages with no sidebar row: reached from a strip, a link, or a bad URL. */
+export const hidden = {
+  pending: page('pending', 'Pending posts', PageType.Pending),
+  invite: page('invite', 'Invitation', PageType.Invite),
+  notFound: page('not-found', 'Not found', PageType.NotFound),
+};
+
 const link = (id: string, label: string, href: string): SquadPage =>
   page(id, label, PageType.Link, { href });
 
@@ -176,34 +204,16 @@ export const manage: SidebarSection = {
   ],
 };
 
-/**
- * How posts get in. A regular squad is written by hand. A verified company
- * page is fed: the company's RSS (releases, blog, changelog) lands in
- * Releases as posts, daily.dev runs the feed for them, and members still
- * write in Discussions and vote in Polls. Same squad underneath.
- */
-export enum ContentSource {
-  Manual = 'manual',
-  Feed = 'feed',
-}
-
-export interface WorkspaceState {
-  viewer: Viewer;
-  source: ContentSource;
-  /** No posts yet. */
-  empty: boolean;
-  /** Members only; everyone else sees the wall. */
-  isPrivate: boolean;
-}
-
-export const WorkspaceContext = createContext<WorkspaceState>({
-  viewer: Viewer.Member,
-  source: ContentSource.Feed,
-  empty: false,
-  isPrivate: false,
-});
-
-export const useWorkspace = (): WorkspaceState => useContext(WorkspaceContext);
+export {
+  ContentSource,
+  defaultConfig,
+  MemberRole,
+  PostingGate,
+  postingState,
+  useWorkspace,
+  WorkspaceContext,
+} from './state';
+export type { SquadConfig, WorkspaceState } from './state';
 
 export const sections: SidebarSection[] = [
   {
@@ -231,6 +241,7 @@ export const sections: SidebarSection[] = [
 export const allPages: SquadPage[] = [
   ...sections.flatMap((section) => section.pages),
   common.members,
+  ...Object.values(hidden),
 ].filter(
   (candidate, index, list) =>
     list.findIndex((other) => other.id === candidate.id) === index,
@@ -252,6 +263,9 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
     [PageType.Settings]: <SettingsIcon size={size} />,
     [PageType.Feed]: <MegaphoneIcon size={size} />,
     [PageType.Add]: <PlusIcon size={size} />,
+    [PageType.Pending]: <TimerIcon size={size} />,
+    [PageType.Invite]: <AddUserIcon size={size} />,
+    [PageType.NotFound]: <SearchIcon size={size} />,
   }[type]);
 
 /** Channels get their own glyphs; everything else keeps the type's. */
@@ -511,7 +525,8 @@ export const SquadSidebar = ({
 }): ReactElement => {
   const admin = isAdmin(viewer);
   const staff = isStaff(viewer);
-  const { source } = useWorkspace();
+  const { source, config } = useWorkspace();
+  const canInvite = staff || config.memberInviteRole === MemberRole.Member;
 
   return (
     <aside
@@ -553,7 +568,7 @@ export const SquadSidebar = ({
             </span>
           </div>
         )}
-        {viewer === Viewer.Visitor && (
+        {viewer === Viewer.Visitor && config.isPublic && (
           <Button
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
@@ -563,11 +578,45 @@ export const SquadSidebar = ({
             Join squad
           </Button>
         )}
+        {viewer === Viewer.Visitor && !config.isPublic && (
+          <div className="flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2 text-text-tertiary typo-caption1">
+            <LockIcon size={IconSize.Small} />
+            Private squad. Members join by invitation link.
+          </div>
+        )}
+        {isBlocked(viewer) && (
+          <div className="flex flex-col gap-2">
+            <Button
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
+              size={ButtonSize.Medium}
+              className="w-full"
+              disabled
+            >
+              Join squad
+            </Button>
+            <span className="text-center text-text-tertiary typo-caption1">
+              You are not allowed to join the Squad
+            </span>
+          </div>
+        )}
         {(viewer === Viewer.Member || viewer === Viewer.Moderator) && (
-          <div className="grid grid-cols-3 gap-1">
+          <div
+            className={classNames(
+              'grid gap-1',
+              canInvite ? 'grid-cols-3' : 'grid-cols-2',
+            )}
+          >
             {[
               [<BellIcon key="bell" size={IconSize.Small} />, 'Alerts'],
-              [<AddUserIcon key="invite" size={IconSize.Small} />, 'Invite'],
+              ...(canInvite
+                ? [
+                    [
+                      <AddUserIcon key="invite" size={IconSize.Small} />,
+                      'Invite',
+                    ],
+                  ]
+                : []),
               [<LinkIcon key="share" size={IconSize.Small} />, 'Share'],
             ].map(([icon, label]) => (
               <button
@@ -727,12 +776,14 @@ const HomePage = ({
   onOpenMembers,
   onOpenRules,
   onOpenFaq,
+  onOpenPending,
 }: {
   viewer: Viewer;
   empty: boolean;
   onOpenMembers: () => void;
   onOpenRules: () => void;
   onOpenFaq: () => void;
+  onOpenPending: () => void;
 }): ReactElement => (
   <SquadHome
     viewer={viewer}
@@ -740,6 +791,7 @@ const HomePage = ({
     onOpenMembers={onOpenMembers}
     onOpenRules={onOpenRules}
     onOpenFaq={onOpenFaq}
+    onOpenPending={onOpenPending}
   />
 );
 
@@ -1262,76 +1314,172 @@ export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   </Column>
 );
 
-export const MembersPage = (): ReactElement => (
-  <Column>
-    <div className="flex items-center justify-between">
-      <span className="flex items-center gap-1 text-text-tertiary typo-callout">
-        <span className="sq-nums font-bold text-text-primary">
-          {formatCount(squad.membersCount)}
-        </span>
-        members
-        <span className="mx-1 text-text-quaternary">·</span>
-        <span className="size-1.5 rounded-full bg-status-success" />
-        <span className="sq-nums text-text-secondary">38</span>
-        online
-      </span>
-      <div className="flex h-9 w-64 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-footnote">
-        <SearchIcon size={IconSize.Small} />
-        Search members
+enum MemberTab {
+  All = 'Squad members',
+  Moderators = 'Moderators',
+  Blocked = 'Blocked members',
+}
+
+const roleActions: Record<string, string[]> = {
+  Admin: ['Demote to moderator', 'Demote to member'],
+  Moderator: ['Make admin', 'Demote to member'],
+  Member: ['Make admin', 'Promote to moderator'],
+};
+
+/* The team snapshot is all admins and moderators; the tail plays members. */
+const roleOf = (member: (typeof team)[number]): string =>
+  team.indexOf(member) >= 5 ? 'Member' : member.role;
+
+/**
+ * Production's SquadMemberModal as a page: three tabs (Blocked for staff
+ * only), search, Copy invitation link first when the viewer may invite,
+ * a role badge on every row, and the per-member menu for staff.
+ */
+export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const { config } = useWorkspace();
+  const [tab, setTab] = useState<MemberTab>(MemberTab.All);
+  const [menu, setMenu] = useState<string | null>(null);
+  const staff = isStaff(viewer);
+  const canInvite =
+    isJoined(viewer) &&
+    (staff || config.memberInviteRole === MemberRole.Member);
+  const tabs = [
+    MemberTab.All,
+    MemberTab.Moderators,
+    ...(staff ? [MemberTab.Blocked] : []),
+  ];
+  const blocked = team.slice(6, 8);
+  const rows =
+    tab === MemberTab.Blocked
+      ? blocked
+      : tab === MemberTab.Moderators
+      ? team.filter((member) => roleOf(member) !== 'Member')
+      : team;
+
+  return (
+    <Column>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-1">
+          {tabs.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setTab(item)}
+              className={classNames(
+                'rounded-[999px] px-3 py-1 typo-callout transition-colors',
+                tab === item
+                  ? 'bg-surface-float font-bold text-text-primary'
+                  : 'text-text-tertiary hover:text-text-primary',
+              )}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+        <div className="flex h-9 w-56 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-footnote">
+          <SearchIcon size={IconSize.Small} />
+          Search members
+        </div>
       </div>
-    </div>
-    <div className="flex flex-col gap-2">
-      <span className="font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
-        Team
+      <span className="text-text-tertiary typo-footnote">
+        <b className="sq-nums text-text-primary">
+          {tab === MemberTab.Blocked
+            ? blocked.length
+            : tab === MemberTab.Moderators
+            ? rows.length
+            : formatCount(squad.membersCount)}
+        </b>{' '}
+        {tab.toLowerCase()}
       </span>
-      <div className="grid grid-cols-2 gap-2">
-        {team.map((member) => (
-          <div
-            key={member.id}
-            className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3"
-          >
-            <Avatar member={member} size={2.5} />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate font-bold text-text-primary typo-callout">
-                {member.name}
+      {rows.length === 0 ? (
+        <div className="rounded-16 border border-border-subtlest-tertiary px-6 py-10 text-center text-text-tertiary typo-callout">
+          No blocked members found
+        </div>
+      ) : (
+        <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+          {canInvite && tab !== MemberTab.Blocked && (
+            <button
+              type="button"
+              className="flex items-center gap-3 px-4 py-3 text-left text-text-primary typo-callout hover:bg-surface-float"
+            >
+              <span className="flex size-8 items-center justify-center rounded-[999px] bg-surface-float text-text-secondary">
+                <AddUserIcon size={IconSize.Small} />
               </span>
-              <span className="truncate text-text-tertiary typo-footnote">
-                {member.title}
-              </span>
-            </div>
-            <span className="shrink-0 rounded-6 bg-background-default px-1.5 py-0.5 text-text-tertiary typo-caption2">
-              {member.role}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-    <div className="flex flex-col gap-2">
-      <span className="font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
-        Newest members
-      </span>
-      <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-12 border border-border-subtlest-tertiary">
-        {[...team]
-          .reverse()
-          .slice(0, 4)
-          .map((member, index) => (
+              Copy invitation link
+            </button>
+          )}
+          {rows.map((member) => (
             <div
               key={member.id}
-              className="flex items-center gap-3 px-3 py-2.5"
+              className="relative flex items-center gap-3 px-4 py-2.5"
             >
               <Avatar member={member} size={2} />
-              <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
-                {member.name}
-              </span>
-              <span className="text-text-quaternary typo-caption1">
-                Joined {index + 1}d ago
-              </span>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="flex items-center gap-2 truncate font-bold text-text-primary typo-callout">
+                  {member.name}
+                  {tab !== MemberTab.Blocked && roleOf(member) !== 'Member' && (
+                    <span className="rounded-6 bg-surface-float px-1.5 py-0.5 font-normal text-text-tertiary typo-caption2">
+                      {roleOf(member) === 'Moderator' ? 'Mod' : roleOf(member)}
+                    </span>
+                  )}
+                </span>
+                <span className="truncate text-text-tertiary typo-footnote">
+                  @{member.username}
+                </span>
+              </div>
+              {tab === MemberTab.Blocked ? (
+                staff && (
+                  <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+                    Unblock
+                  </Button>
+                )
+              ) : staff ? (
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<MenuIcon />}
+                  aria-label="Member options"
+                  onClick={() => setMenu(menu === member.id ? null : member.id)}
+                />
+              ) : (
+                <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+                  Follow
+                </Button>
+              )}
+              {menu === member.id && (
+                <ul className="sq-elevated absolute right-4 top-full z-popup -mt-1 flex w-56 flex-col rounded-12 bg-background-default p-1">
+                  {[
+                    ...(isAdmin(viewer)
+                      ? roleActions[roleOf(member)] ?? []
+                      : []),
+                    'Report member',
+                    'Block member',
+                    'Gift daily.dev Plus',
+                  ].map((label) => (
+                    <li key={label}>
+                      <button
+                        type="button"
+                        onClick={() => setMenu(null)}
+                        className={classNames(
+                          'flex w-full items-center rounded-8 px-2 py-1.5 text-left typo-callout hover:bg-surface-float',
+                          label === 'Block member'
+                            ? 'text-status-error'
+                            : 'text-text-secondary hover:text-text-primary',
+                        )}
+                      >
+                        {label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
-      </div>
-    </div>
-  </Column>
-);
+        </div>
+      )}
+    </Column>
+  );
+};
 
 const AddPage = (): ReactElement => (
   <Column width="max-w-[52rem]" className="gap-8">
@@ -1379,54 +1527,151 @@ const AddPage = (): ReactElement => (
 
 const pendingPosts = feedEntries.slice(3, 6);
 
-/** The moderation queue: what members posted that waits for a moderator. */
-export const ModerationPage = (): ReactElement => (
-  <Column>
-    <div className="flex items-center justify-between">
-      <span className="text-text-secondary typo-callout">
-        <b className="sq-nums text-text-primary">{pendingPosts.length}</b> posts
-        waiting. Approve and they go live in Discussions; reject and the author
-        hears why.
-      </span>
-    </div>
-    <div className="flex flex-col gap-3">
-      {pendingPosts.map((entry) => (
-        <div
-          key={entry.id}
-          className="flex gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
-        >
-          {entry.image && (
-            <img
-              src={entry.image}
-              alt=""
-              className="h-16 w-28 shrink-0 rounded-10 object-cover"
-            />
-          )}
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="font-bold text-text-primary typo-callout">
-              {entry.title}
-            </span>
-            <span className="line-clamp-1 text-text-tertiary typo-footnote">
-              {entry.summary}
-            </span>
-            <span className="flex items-center gap-1.5 text-text-quaternary typo-caption1">
-              <Avatar member={entry.author} size={1} />
-              {entry.author.name} · to Discussions · 40 min ago
-            </span>
-          </div>
-          <div className="flex shrink-0 flex-col gap-2">
-            <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
-              Approve
-            </Button>
-            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
-              Reject
-            </Button>
-          </div>
+/**
+ * Production's moderation queue for a moderator: Approve all above two or
+ * more, spam warnings, the poll item, Decline with its reason list, and
+ * the all-done state.
+ */
+export const ModerationPage = (): ReactElement => {
+  const { empty } = useWorkspace();
+  const [declining, setDeclining] = useState<string | null>(null);
+
+  if (empty) {
+    return (
+      <Column>
+        <div className="flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-14 text-center">
+          <VIcon size={IconSize.Large} className="text-status-success" />
+          <span className="font-bold text-text-primary typo-title3">
+            All done!
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            All caught up! There are no posts waiting for your review right now.
+          </span>
         </div>
-      ))}
-    </div>
-  </Column>
-);
+      </Column>
+    );
+  }
+
+  return (
+    <Column>
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-text-secondary typo-callout">
+          <b className="sq-nums text-text-primary">{pendingPosts.length + 1}</b>{' '}
+          posts waiting. Approve and they go live; decline and the author hears
+          why.
+        </span>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<VIcon secondary />}
+        >
+          Approve all {pendingPosts.length + 1} posts
+        </Button>
+      </div>
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+        {[...pendingPosts, null].map((entry, index) => {
+          const key = entry?.id ?? 'poll';
+          const author = entry?.author ?? polls[1].author;
+          return (
+            <div key={key} className="flex flex-col gap-3 p-4">
+              {index === 0 && (
+                <span className="flex items-center gap-2 rounded-10 bg-accent-bun-subtlest px-3 py-1.5 text-text-primary typo-footnote">
+                  <WarningIcon size={IconSize.Small} />
+                  Shared in multiple Squads - Spam alert
+                </span>
+              )}
+              <div className="flex items-center gap-3">
+                <Avatar member={author} size={2} />
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="font-bold text-text-primary typo-footnote">
+                    {author.name}
+                  </span>
+                  <span className="text-text-tertiary typo-caption1">
+                    {entry ? formatDay(entry.createdAt) : 'Today'}
+                    {index === 2 && ' · Resubmitted Post'}
+                    {!entry && ' · Poll'}
+                  </span>
+                </div>
+              </div>
+              {entry ? (
+                <div className="flex gap-4">
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="font-bold text-text-primary typo-callout">
+                      {entry.title}
+                    </span>
+                    <span className="line-clamp-2 text-text-tertiary typo-footnote">
+                      {entry.summary}
+                    </span>
+                  </div>
+                  {entry.image && (
+                    <img
+                      src={entry.image}
+                      alt=""
+                      className="h-16 w-28 shrink-0 rounded-10 object-cover"
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <span className="font-bold text-text-primary typo-callout">
+                    {polls[1].question}
+                  </span>
+                  <ul className="flex flex-col gap-1">
+                    {polls[1].options.map((option) => (
+                      <li
+                        key={option}
+                        className="rounded-10 border border-border-subtlest-tertiary px-3 py-1.5 text-text-secondary typo-footnote"
+                      >
+                        {option}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {declining === key ? (
+                <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3">
+                  <span className="font-bold text-text-primary typo-footnote">
+                    Select a reason for declining
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {rejectReasons.map((reason) => (
+                      <button
+                        key={reason}
+                        type="button"
+                        onClick={() => setDeclining(null)}
+                        className="rounded-[999px] border border-border-subtlest-tertiary px-2.5 py-1 text-text-secondary typo-caption1 hover:border-border-subtlest-primary hover:text-text-primary"
+                      >
+                        {reason}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Small}
+                    className="flex-1"
+                    onClick={() => setDeclining(key)}
+                  >
+                    Decline
+                  </Button>
+                  <Button
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Small}
+                    className="flex-1"
+                  >
+                    Approve
+                  </Button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Column>
+  );
+};
 
 const feedItems = feedEntries.slice(0, 4);
 
@@ -1511,31 +1756,683 @@ export const FeedSourcePage = (): ReactElement => (
   </Column>
 );
 
-/** What a non-member sees on a private squad, on every page but Home. */
-const PrivateWall = ({ viewer }: { viewer: Viewer }): ReactElement => (
+/**
+ * Production's Unauthorized screen, word for word: a private squad has no
+ * request-to-join, the invitation link is the only door. Shown to every
+ * non-member on every page but Home.
+ */
+export const PrivateWall = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column>
     <div className="flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-6 py-14 text-center">
-      <LockIcon size={IconSize.Large} className="text-text-tertiary" />
+      <LockIcon
+        secondary
+        size={IconSize.XLarge}
+        className="text-text-secondary"
+      />
       <span className="font-bold text-text-primary typo-title3">
-        Members only
+        Oops! This link leads to a private discussion
       </span>
-      <span className="max-w-[40ch] text-text-tertiary typo-footnote">
-        {squad.name} is a private squad. Join to read the posts, vote in the
-        polls and see who is here.
+      <span className="max-w-[44ch] text-text-tertiary typo-footnote">
+        You don&apos;t seem to have access to this page. Try to ask the person
+        who shared this link with you for permissions.
       </span>
-      <Button
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.Cabbage}
-        size={ButtonSize.Medium}
-        className="mt-2"
-      >
-        {isLoggedIn(viewer) ? 'Request to join' : 'Sign up to join'}
-      </Button>
+      <div className="mt-2 flex gap-2">
+        <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
+          Back home
+        </Button>
+        {!isLoggedIn(viewer) && (
+          <Button variant={ButtonVariant.Float} size={ButtonSize.Medium}>
+            Log in
+          </Button>
+        )}
+      </div>
     </div>
   </Column>
 );
 
-export const AdminPlaceholder = ({ page }: { page: SquadPage }): ReactElement => (
+/** Production's Custom404: a deleted squad, a bad handle. */
+export const NotFoundPage = (): ReactElement => (
+  <Column>
+    <div className="flex flex-col items-center gap-3 px-6 py-20 text-center">
+      <span className="font-bold text-text-primary typo-mega3">
+        Why are you here?
+      </span>
+      <span className="text-text-tertiary typo-body">
+        You&apos;re not supposed to be here.
+      </span>
+      <div className="mt-3 flex gap-2">
+        <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
+          Go home
+        </Button>
+        <Button variant={ButtonVariant.Float} size={ButtonSize.Medium}>
+          Find Squads
+        </Button>
+      </div>
+    </div>
+  </Column>
+);
+
+/**
+ * Production's /squads/[handle]/[token], the invitation landing: the
+ * inviter, the squad card, Join, and who is waiting inside. A member is
+ * redirected past it; a blocked user is told at the door.
+ */
+export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const inviter = team[2];
+  const others = team.filter((member) => member.id !== inviter.id);
+
+  return (
+    <Column
+      width="max-w-[40rem]"
+      className="items-center gap-6 py-12 text-center"
+    >
+      <h1 className="font-bold text-text-primary typo-title1">
+        You are invited to join {squad.name}
+      </h1>
+      <p className="text-text-tertiary typo-body">
+        {squad.name} is your place to stay up to date as a Squad. You and your
+        Squad members can share knowledge and content in one place. Join now to
+        start collaborating.
+      </p>
+      <div className="flex items-center gap-4 text-left">
+        <Avatar member={inviter} size={2.5} />
+        <p className="text-text-tertiary typo-body">
+          <b className="text-text-primary">{inviter.name}</b>{' '}
+          <span className="text-text-link">(@{inviter.username})</span> has
+          invited you to <b className="text-text-primary">{squad.name}</b>
+        </p>
+      </div>
+      <div className="flex w-full items-center gap-4 rounded-24 border border-accent-cabbage-default p-6 text-left">
+        <img src={squad.image} alt="" className="size-16 shrink-0 rounded-16" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="flex items-center gap-1 font-bold text-text-primary typo-body">
+            {squad.name}
+            <VerifiedMark label={false} />
+          </span>
+          <span className="text-text-tertiary typo-callout">
+            @{squad.handle}
+          </span>
+          <span className="mt-2 text-text-tertiary typo-callout">
+            {squad.description}
+          </span>
+        </div>
+        {isJoined(viewer) ? (
+          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Large}>
+            Open Squad
+          </Button>
+        ) : (
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Large}
+            disabled={isBlocked(viewer)}
+          >
+            Join Squad
+          </Button>
+        )}
+      </div>
+      {isBlocked(viewer) && (
+        <span className="rounded-12 bg-surface-float px-4 py-2 text-text-secondary typo-callout">
+          🚫 You no longer have access to this Squad.
+        </span>
+      )}
+      {isJoined(viewer) && (
+        <span className="rounded-12 bg-surface-float px-4 py-2 text-text-secondary typo-callout">
+          You are already a member. Production sends you straight to the squad.
+        </span>
+      )}
+      <p className="text-text-tertiary typo-body">
+        {inviter.name} and {formatCount(squad.membersCount - 1)} others are
+        waiting for you inside. Join them now!
+      </p>
+      <Facepile members={others} max={8} size={2} />
+      {!isLoggedIn(viewer) && (
+        <span className="text-text-quaternary typo-caption1">
+          Join opens sign up first; the invitation is kept through it.
+        </span>
+      )}
+    </Column>
+  );
+};
+
+/* ------------------------------------------------------------- settings */
+
+const Radio = ({
+  options,
+  value,
+  onChange,
+  disabled = false,
+}: {
+  options: { value: string; label: string; hint?: string }[];
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}): ReactElement => (
+  <div className={classNames('flex flex-col gap-2', disabled && 'opacity-40')}>
+    {options.map((option) => (
+      <button
+        key={option.value}
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange(option.value)}
+        className="flex items-start gap-2.5 text-left"
+      >
+        <span
+          className={classNames(
+            'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-[999px] border',
+            value === option.value
+              ? 'border-accent-cabbage-default'
+              : 'border-border-subtlest-primary',
+          )}
+        >
+          {value === option.value && (
+            <span className="size-2 rounded-[999px] bg-accent-cabbage-default" />
+          )}
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-text-primary typo-callout">{option.label}</span>
+          {option.hint && (
+            <span className="text-text-tertiary typo-footnote">
+              {option.hint}
+            </span>
+          )}
+        </span>
+      </button>
+    ))}
+  </div>
+);
+
+const Field = ({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}): ReactElement => (
+  <label className="flex flex-col gap-1">
+    <span className="text-text-tertiary typo-caption1">{label}</span>
+    <span className="flex h-10 items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-primary typo-callout">
+      {value}
+    </span>
+    {hint && <span className="text-text-quaternary typo-caption1">{hint}</span>}
+  </label>
+);
+
+const SettingsSection = ({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}): ReactElement => (
+  <section className="flex flex-col gap-3">
+    <div className="flex flex-col gap-0.5">
+      <span className="font-bold text-text-primary typo-body">{title}</span>
+      {description && (
+        <span className="text-text-tertiary typo-footnote">{description}</span>
+      )}
+    </div>
+    {children}
+  </section>
+);
+
+/**
+ * Production's Squad settings (Details.tsx and the settings sections),
+ * section for section, inside the workspace instead of on /edit. The
+ * company page adds where the posts come from.
+ */
+export const SettingsPage = (): ReactElement => {
+  const { config, source } = useWorkspace();
+  const [state, setState] = useState(config);
+  const membersOnly = state.memberPostingRole === MemberRole.Moderator;
+  const roleOptions = [
+    { value: MemberRole.Member, label: 'All members (recommended)' },
+    { value: MemberRole.Moderator, label: 'Only moderators' },
+  ];
+
+  return (
+    <Column width="max-w-[44rem]" className="gap-8">
+      <SettingsSection title="Squad details">
+        <div className="flex items-center gap-4">
+          <img src={squad.image} alt="" className="size-16 rounded-16" />
+          <div className="flex gap-2">
+            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+              Change image
+            </Button>
+            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+              Upload cover
+            </Button>
+          </div>
+        </div>
+        <Field label="Squad name" value={squad.name} />
+        <Field
+          label="Squad handle"
+          value={`@${squad.handle}`}
+          hint="daily.dev/squads/daily_updates"
+        />
+        <Field
+          label="Squad description"
+          value={squad.description}
+          hint="250 characters"
+        />
+      </SettingsSection>
+
+      <SettingsSection title="Squad type">
+        <Radio
+          value={state.isPublic ? 'public' : 'private'}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              isPublic: value === 'public',
+            }))
+          }
+          options={[
+            {
+              value: 'public',
+              label: 'Public',
+              hint: 'Listed in the directory, open to anyone. Needs a category.',
+            },
+            {
+              value: 'private',
+              label: 'Private',
+              hint: 'Squad is invite-only, hidden from the directory, and perfect for teams and smaller groups of people who know each other and want to collaborate privately.',
+            },
+          ]}
+        />
+        {state.isPublic && (
+          <Field
+            label="Category"
+            value={state.category ?? 'Select a category'}
+          />
+        )}
+      </SettingsSection>
+
+      <SettingsSection
+        title="🔒 Moderation settings"
+        description="Choose who is allowed to post new content in this Squad, and whether their posts are reviewed first."
+      >
+        <SettingsSection title="Post content">
+          <Radio
+            value={state.memberPostingRole}
+            onChange={(value) =>
+              setState((current) => ({
+                ...current,
+                memberPostingRole: value as MemberRole,
+                postingGate:
+                  value === MemberRole.Moderator
+                    ? PostingGate.None
+                    : current.postingGate,
+              }))
+            }
+            options={roleOptions}
+          />
+        </SettingsSection>
+        <SettingsSection
+          title="Posting requirements"
+          description={
+            membersOnly
+              ? 'Only admins and moderators can post; their posts are auto-published.'
+              : undefined
+          }
+        >
+          <Radio
+            disabled={membersOnly}
+            value={state.postingGate}
+            onChange={(value) =>
+              setState((current) => ({
+                ...current,
+                postingGate: value as PostingGate,
+              }))
+            }
+            options={[
+              {
+                value: PostingGate.None,
+                label: 'Anyone can post',
+                hint: 'All members can post. No review.',
+              },
+              {
+                value: PostingGate.Moderation,
+                label: 'Require post approval',
+                hint: 'All members can post. Every post is reviewed.',
+              },
+              {
+                value: PostingGate.Reputation,
+                label: 'Require a minimum reputation',
+                hint: 'Only members with enough reputation can post. No review.',
+              },
+            ]}
+          />
+          {state.postingGate === PostingGate.Reputation && !membersOnly && (
+            <div className="max-w-60">
+              <Field
+                label="Minimum reputation"
+                value={String(state.postingMinReputation)}
+              />
+            </div>
+          )}
+        </SettingsSection>
+        <SettingsSection
+          title="Invitation permissions"
+          description="Choose who is allowed to invite new members to this Squad."
+        >
+          <Radio
+            value={state.memberInviteRole}
+            onChange={(value) =>
+              setState((current) => ({
+                ...current,
+                memberInviteRole: value as MemberRole,
+              }))
+            }
+            options={roleOptions}
+          />
+        </SettingsSection>
+      </SettingsSection>
+
+      <SettingsSection title="Integrations">
+        <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
+          <SlackIcon size={IconSize.Medium} />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="font-bold text-text-primary typo-callout">
+              Slack
+            </span>
+            <span className="text-text-tertiary typo-footnote">
+              {config.slack
+                ? 'Posting new posts to #product-updates'
+                : 'Post every new post to a channel.'}
+            </span>
+          </div>
+          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
+            {config.slack ? 'Manage' : 'Connect to Slack'}
+          </Button>
+        </div>
+        {source === ContentSource.Feed && (
+          <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
+            <MegaphoneIcon size={IconSize.Medium} />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="font-bold text-text-primary typo-callout">
+                Content feed
+              </span>
+              <span className="text-text-tertiary typo-footnote">
+                daily.dev/changelog/rss, checked every hour, managed by
+                daily.dev.
+              </span>
+            </div>
+            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+              Open
+            </Button>
+          </div>
+        )}
+      </SettingsSection>
+
+      <SettingsSection title="🚨 Danger zone">
+        <div className="flex flex-col gap-3 rounded-16 border border-status-error p-4">
+          <span className="font-bold text-text-primary typo-callout">
+            Deleting your Squad will:
+          </span>
+          <ul className="flex list-disc flex-col gap-1 pl-5 text-text-tertiary typo-footnote">
+            <li>Permanently delete your Squad.</li>
+            <li>
+              Permanently delete all Squad&apos;s content, including your posts
+              and others, comments, upvotes, etc
+            </li>
+            <li>Allow your Squad name to become available to anyone.</li>
+          </ul>
+          <span className="text-text-quaternary typo-caption1">
+            Important: deleting your Squad is unrecoverable and cannot be
+            undone. Feel free to contact support@daily.dev with any questions.
+          </span>
+          <div>
+            <Button
+              variant={ButtonVariant.Secondary}
+              color={ButtonColor.Ketchup}
+              size={ButtonSize.Small}
+              icon={<TrashIcon />}
+            >
+              Delete Squad
+            </Button>
+          </div>
+        </div>
+      </SettingsSection>
+      <div className="sticky bottom-0 flex justify-end border-t border-border-subtlest-tertiary bg-background-default py-3">
+        <Button
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          size={ButtonSize.Medium}
+        >
+          Save
+        </Button>
+      </div>
+    </Column>
+  );
+};
+
+/* ------------------------------------------------------------ analytics */
+
+const days = Array.from({ length: 45 }, (_, index) => {
+  const seed = (index * 7) % 13;
+  return { organic: 40 + seed * 9, boosted: index > 30 ? 60 + seed * 6 : 0 };
+});
+
+/** Production's /squads/[handle]/analytics: two tiles, the chart, the list. */
+export const AnalyticsPage = (): ReactElement => {
+  const { config, empty } = useWorkspace();
+  const max = Math.max(...days.map((day) => day.organic + day.boosted));
+
+  return (
+    <Column width="max-w-[52rem]" className="gap-6">
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          ['Impressions', formatCount(empty ? 0 : 184200)],
+          ['Unique reach', formatCount(empty ? 0 : 61400)],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-4"
+          >
+            <span className="text-text-tertiary typo-footnote">{label}</span>
+            <span className="sq-nums font-bold text-text-primary typo-title2">
+              {value}
+            </span>
+            <span className="text-text-quaternary typo-caption1">
+              Last 45 days
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+        <div className="flex items-center justify-between">
+          <span className="font-bold text-text-primary typo-callout">
+            Impressions per day
+          </span>
+          <span className="flex items-center gap-3 text-text-tertiary typo-caption1">
+            <span className="flex items-center gap-1">
+              <span className="size-2 rounded-2 bg-text-disabled" />
+              Organic
+            </span>
+            {config.campaign && (
+              <span className="flex items-center gap-1">
+                <span className="size-2 rounded-2 bg-accent-cabbage-default" />
+                Boosted
+              </span>
+            )}
+          </span>
+        </div>
+        {empty ? (
+          <div className="flex h-32 items-center justify-center text-text-tertiary typo-footnote">
+            No impressions data in the last 45 days.
+          </div>
+        ) : (
+          <div className="flex h-32 gap-0.5">
+            {days.map((day, index) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <div
+                key={index}
+                className="flex h-full flex-1 flex-col justify-end gap-px"
+              >
+                {config.campaign && day.boosted > 0 && (
+                  <span
+                    className="w-full rounded-t-2 bg-accent-cabbage-default"
+                    style={{ height: `${(day.boosted / max) * 100}%` }}
+                  />
+                )}
+                <span
+                  className="w-full rounded-t-2 bg-text-disabled"
+                  style={{ height: `${(day.organic / max) * 100}%` }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <dl className="grid grid-cols-4 gap-3">
+        {[
+          ['Upvotes', formatCount(squad.totalUpvotes)],
+          ['Upvotes ratio', '4.5%'],
+          ['Comments', '2.1K'],
+          ['Bookmarks', '3.8K'],
+          ['Awards', String(squad.totalAwards)],
+          ['Shares', '912'],
+          ['Clicks', '48.2K'],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary px-3 py-2.5"
+          >
+            <dt className="text-text-tertiary typo-caption1">{label}</dt>
+            <dd className="sq-nums font-bold text-text-primary typo-callout">
+              {empty ? '0' : value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </Column>
+  );
+};
+
+/* --------------------------------------------------------------- pending */
+
+const rejectReasons = [
+  'Off-topic post unrelated to the Squad',
+  "Violates the Squad's code of conduct",
+  'Too promotional without adding value',
+  'Duplicate or similar content already posted',
+  'Lacks quality or clarity',
+  'Inappropriate, NSFW or offensive post',
+  'Post is spam or scam',
+  'Misinformation or false claims',
+  'Copyright or legal issue',
+  'Other',
+];
+
+/**
+ * Production's /squads/moderate for the author: their own posts in the
+ * queue, Pending or Rejected, with the moderator's reason, and Edit or
+ * Delete on each. The moderator's queue is ModerationPage.
+ */
+export const PendingPostsPage = (): ReactElement => {
+  const { config } = useWorkspace();
+  const items = feedEntries.slice(3, 3 + Math.max(config.ownPending, 0));
+
+  if (items.length === 0) {
+    return (
+      <Column>
+        <div className="flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-14 text-center">
+          <VIcon size={IconSize.Large} className="text-status-success" />
+          <span className="font-bold text-text-primary typo-title3">
+            All done!
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            All caught up! No posts are pending
+          </span>
+        </div>
+      </Column>
+    );
+  }
+
+  return (
+    <Column>
+      <span className="text-text-secondary typo-callout">
+        Your posts waiting for a moderator of {squad.name}. You hear when they
+        are reviewed.
+      </span>
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+        {items.map((entry, index) => {
+          const rejected = index === 1;
+          return (
+            <div key={entry.id} className="flex flex-col gap-3 p-4">
+              <div className="flex items-center gap-3">
+                <Avatar member={entry.author} size={2} />
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="font-bold text-text-primary typo-footnote">
+                    {entry.author.name}
+                  </span>
+                  <span className="text-text-tertiary typo-caption1">
+                    {formatDay(entry.createdAt)}
+                    {index === 2 && ' · Resubmitted Post'}
+                  </span>
+                </div>
+                <Button
+                  variant={ButtonVariant.Secondary}
+                  size={ButtonSize.Small}
+                  icon={rejected ? <WarningIcon /> : <TimerIcon />}
+                  disabled
+                >
+                  {rejected ? 'Rejected' : 'Pending'}
+                </Button>
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<EditIcon />}
+                  aria-label="Edit post"
+                />
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<TrashIcon />}
+                  aria-label="Delete post"
+                />
+              </div>
+              <div className="flex gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <span className="font-bold text-text-primary typo-callout">
+                    {entry.title}
+                  </span>
+                  <span className="line-clamp-2 text-text-tertiary typo-footnote">
+                    {entry.summary}
+                  </span>
+                </div>
+                {entry.image && (
+                  <img
+                    src={entry.image}
+                    alt=""
+                    className="h-16 w-28 shrink-0 rounded-10 object-cover"
+                  />
+                )}
+              </div>
+              {rejected && (
+                <div className="rounded-12 bg-accent-bun-subtlest px-3 py-2 text-text-primary typo-footnote">
+                  Your post in {squad.name} was not approved for the following
+                  reason: {rejectReasons[2]}. Please review the feedback and
+                  consider making changes before resubmitting.
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Column>
+  );
+};
+
+export const AdminPlaceholder = ({
+  page,
+}: {
+  page: SquadPage;
+}): ReactElement => (
   <Column>
     <div className="flex flex-col items-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary p-10 text-center">
       <span className="text-text-tertiary">
@@ -1563,7 +2460,13 @@ const PageBody = ({
 }): ReactElement => {
   const { isPrivate, empty } = useWorkspace();
 
-  if (isPrivate && !isJoined(viewer) && current.type !== PageType.Home) {
+  if (
+    isPrivate &&
+    !isJoined(viewer) &&
+    current.type !== PageType.Home &&
+    current.type !== PageType.Invite &&
+    current.type !== PageType.NotFound
+  ) {
     return <PrivateWall viewer={viewer} />;
   }
 
@@ -1576,10 +2479,21 @@ const PageBody = ({
           onOpenMembers={() => onSelect(common.members)}
           onOpenRules={() => onSelect(docs.rules)}
           onOpenFaq={() => onSelect(docs.faq)}
+          onOpenPending={() => onSelect(hidden.pending)}
         />
       );
     case PageType.Moderation:
       return <ModerationPage />;
+    case PageType.Pending:
+      return <PendingPostsPage />;
+    case PageType.Settings:
+      return <SettingsPage />;
+    case PageType.Analytics:
+      return <AnalyticsPage />;
+    case PageType.Invite:
+      return <InvitePage viewer={viewer} />;
+    case PageType.NotFound:
+      return <NotFoundPage />;
     case PageType.Feed:
       return <FeedSourcePage />;
     case PageType.Channel:
@@ -1595,7 +2509,7 @@ const PageBody = ({
     case PageType.Products:
       return <ProductsPage viewer={viewer} />;
     case PageType.Members:
-      return <MembersPage />;
+      return <MembersPage viewer={viewer} />;
     case PageType.Add:
       return <AddPage />;
     default:
@@ -1637,6 +2551,7 @@ export const WorkspaceShell = ({
   source = ContentSource.Feed,
   empty = false,
   isPrivate = false,
+  config,
   height = 56,
   width = 1440,
 }: {
@@ -1645,12 +2560,22 @@ export const WorkspaceShell = ({
   source?: ContentSource;
   empty?: boolean;
   isPrivate?: boolean;
+  config?: Partial<SquadConfig>;
   /** rem */
   height?: number;
   width?: number;
 }): ReactElement => {
   const [active, setActive] = useState<SquadPage>(initialPage);
-  const state: WorkspaceState = { viewer, source, empty, isPrivate };
+  const state: WorkspaceState = {
+    viewer,
+    source,
+    empty,
+    isPrivate,
+    config: { ...defaultConfig, isPublic: !isPrivate, ...config },
+  };
+
+  const standalonePage =
+    active.type === PageType.Invite || active.type === PageType.NotFound;
 
   const onSelect = (page: SquadPage) => {
     if (page.href) {
@@ -1668,9 +2593,11 @@ export const WorkspaceShell = ({
         <WorkspaceStyles />
         <Kit2Styles />
         <Rail />
-        <SquadSidebar active={active} viewer={viewer} onSelect={onSelect} />
+        {!standalonePage && (
+          <SquadSidebar active={active} viewer={viewer} onSelect={onSelect} />
+        )}
         <main className="ws-scroll flex min-w-0 flex-1 flex-col overflow-y-auto">
-          {active.type !== PageType.Home && (
+          {active.type !== PageType.Home && !standalonePage && (
             <PageBar page={active}>{pageBarTools(active, viewer)}</PageBar>
           )}
           <div className="flex-1">

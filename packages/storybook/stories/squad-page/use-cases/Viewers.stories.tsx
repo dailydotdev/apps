@@ -12,7 +12,7 @@ const meta: Meta = {
 
 export default meta;
 
-// Five people open the same Home. What each of them can do decides what
+// Six people open the same Home. What each of them can do decides what
 // they see: the primary button, the composer, the manage section, the
 // preview switch.
 
@@ -52,13 +52,20 @@ export const cases: UseCase[] = [
     sees: 'Edit page on Home, the full Manage section including the Content feed, Add a page, drag and hide on every row, page settings in every bar.',
     viewer: Viewer.Admin,
   },
+  {
+    id: 'blocked',
+    title: 'Blocked',
+    who: 'Removed by a moderator, still logged in',
+    sees: 'A public squad still reads. Join is disabled with “You are not allowed to join the Squad”, the composer is the lock card, no bell, no Leave. A private squad shows the wall.',
+    viewer: Viewer.Blocked,
+  },
 ];
 
 export const Overview: StoryObj = {
   render: () => (
     <Page
       eyebrow="Use cases · Viewers"
-      title="Five people, one Home"
+      title="Six people, one Home"
       intro={
         <p>
           The same page for everyone who can open it. What changes is only what

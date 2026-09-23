@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -9,16 +9,31 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  AddUserIcon,
   ArrowIcon,
   BellIcon,
   CardLayout,
+  EarthIcon,
   EditIcon,
+  ExitIcon,
+  FeedbackIcon,
+  FlagIcon,
+  HashtagIcon,
+  LockIcon,
   GitHubIcon,
   LinkIcon,
   LinkedInIcon,
+  MedalBadgeIcon,
   MenuIcon,
   PinIcon,
+  PlusIcon,
   SearchIcon,
+  SettingsIcon,
+  SourceIcon,
+  SparkleIcon,
+  TimerIcon,
+  TourIcon,
+  TrashIcon,
   TwitterIcon,
   VIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -41,6 +56,7 @@ import {
   CardList,
   Facepile,
   isAdmin,
+  isBlocked,
   isJoined,
   isLoggedIn,
   isStaff,
@@ -50,6 +66,7 @@ import {
   Viewer,
 } from './kit';
 import { Composer } from './kit2';
+import { MemberRole, PostingGate, postingState, useWorkspace } from './state';
 
 // The squad's Home, built on the profile page's skeleton so a person and a
 // squad read as the same kind of thing. Same card, same cover height, same
@@ -77,53 +94,74 @@ export const SquadHeader = ({
   onOpenMembers?: () => void;
   /** Layouts without a sidebar seat their manage entry point here. */
   extra?: ReactNode;
-}): ReactElement => (
-  <div className="relative w-full overflow-hidden rounded-t-16">
-    <div className="relative h-36">
-      <img
-        src={squad.headerImage}
-        alt="Cover"
-        className="h-full w-full object-cover"
-      />
-      <div
-        className="absolute inset-x-0 bottom-0 h-20"
-        style={{
-          background:
-            'linear-gradient(to top, var(--theme-background-default), transparent)',
-        }}
-      />
-    </div>
-    <div className="flex flex-col px-6 pb-5">
-      {/* Logo and actions share one baseline, so the identity column below
-          is text only and every row starts at the same x. */}
-      <div className="-mt-12 flex items-end justify-between gap-4">
+}): ReactElement => {
+  const { config } = useWorkspace();
+
+  return (
+    <div className="relative w-full rounded-t-16">
+      <div className="relative h-36">
         <img
-          src={squad.image}
-          alt="Logo"
-          className="relative size-[6.5rem] shrink-0 rounded-16 bg-background-default object-cover ring-4 ring-background-default"
+          src={squad.headerImage}
+          alt="Cover"
+          className="h-full w-full object-cover"
         />
-        <div className="flex items-center gap-2 pb-1">
-          {isAdmin(viewer) && (
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<EditIcon />}
-            >
-              Edit page
-            </Button>
-          )}
-          {standalone && !isJoined(viewer) && (
-            <Button
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
-              size={ButtonSize.Small}
-            >
-              {isLoggedIn(viewer) ? 'Join' : 'Sign up to join'}
-            </Button>
-          )}
-          {extra}
-          {isJoined(viewer) && !isAdmin(viewer) && (
-            <>
+        <div
+          className="absolute inset-x-0 bottom-0 h-20"
+          style={{
+            background:
+              'linear-gradient(to top, var(--theme-background-default), transparent)',
+          }}
+        />
+      </div>
+      <div className="flex flex-col px-6 pb-5">
+        {/* Logo and actions share one baseline, so the identity column below
+          is text only and every row starts at the same x. */}
+        <div className="-mt-12 flex items-end justify-between gap-4">
+          <img
+            src={squad.image}
+            alt="Logo"
+            className="relative size-[6.5rem] shrink-0 rounded-16 bg-background-default object-cover ring-4 ring-background-default"
+          />
+          <div className="flex items-center gap-2 pb-1">
+            {isAdmin(viewer) && (
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<EditIcon />}
+              >
+                Edit page
+              </Button>
+            )}
+            {isAdmin(viewer) && config.isPublic && (
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<SparkleIcon secondary />}
+              >
+                {config.campaign ? 'View boost' : 'Boost'}
+              </Button>
+            )}
+            {standalone && !isJoined(viewer) && (
+              <Button
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Cabbage}
+                size={ButtonSize.Small}
+                disabled={isBlocked(viewer) || !config.isPublic}
+                title={
+                  isBlocked(viewer)
+                    ? 'You are not allowed to join the Squad'
+                    : undefined
+                }
+              >
+                {!config.isPublic
+                  ? 'Invite only'
+                  : isLoggedIn(viewer)
+                  ? 'Join'
+                  : 'Sign up to join'}
+              </Button>
+            )}
+            {extra}
+            {isJoined(viewer) && !isAdmin(viewer) && (
               <Button
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Small}
@@ -131,52 +169,272 @@ export const SquadHeader = ({
               >
                 Joined
               </Button>
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<BellIcon />}
-                aria-label="Notifications"
-              />
+            )}
+            {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<LinkIcon />}
+            >
+              Share
+            </Button>
+            <MoreMenu viewer={viewer} />
+          </div>
+        </div>
+        {isBlocked(viewer) && (
+          <div className="mt-4 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-tertiary typo-footnote">
+            <LockIcon size={IconSize.Small} />
+            You no longer have access to this Squad. Contact a moderator if you
+            think this is a mistake.
+          </div>
+        )}
+        <div className="mt-4 flex flex-col gap-1">
+          <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2">
+            {squad.name}
+            <VerifiedMark label={false} />
+          </h1>
+          <p className="text-text-secondary typo-body">{squad.tagline}</p>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-x-2 text-text-tertiary typo-footnote">
+          <span className="flex items-center gap-1.5 text-text-secondary">
+            <img src={squad.image} alt="" className="size-4 rounded-4" />
+            {squad.company.website}
+          </span>
+          <span className="text-text-quaternary">·</span>
+          <span>Verified company</span>
+          <span className="text-text-quaternary">·</span>
+          <PrivacyChip />
+          {config.isPublic && config.category && (
+            <>
+              <span className="text-text-quaternary">·</span>
+              <a
+                href="/squads/discover"
+                className="text-text-link hover:underline"
+                title={`View all squads in ${config.category}`}
+              >
+                {config.category}
+              </a>
             </>
           )}
-          <Button
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            icon={<LinkIcon />}
-          >
-            Share
-          </Button>
-          <Button
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            icon={<MenuIcon />}
-            aria-label="More"
-          />
+          <span className="text-text-quaternary">·</span>
+          <span>{squad.company.location}</span>
+          <span className="text-text-quaternary">·</span>
+          <span>Since {formatSince(squad.createdAt)}</span>
         </div>
+        <SquadStats onOpenMembers={onOpenMembers} />
       </div>
-      <div className="mt-4 flex flex-col gap-1">
-        <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2">
-          {squad.name}
-          <VerifiedMark label={false} />
-        </h1>
-        <p className="text-text-secondary typo-body">{squad.tagline}</p>
-      </div>
-      <div className="mt-3 flex flex-wrap items-center gap-x-2 text-text-tertiary typo-footnote">
-        <span className="flex items-center gap-1.5 text-text-secondary">
-          <img src={squad.image} alt="" className="size-4 rounded-4" />
-          {squad.company.website}
-        </span>
-        <span className="text-text-quaternary">·</span>
-        <span>Verified company</span>
-        <span className="text-text-quaternary">·</span>
-        <span>{squad.company.location}</span>
-        <span className="text-text-quaternary">·</span>
-        <span>Since {formatSince(squad.createdAt)}</span>
-      </div>
-      <SquadStats onOpenMembers={onOpenMembers} />
     </div>
-  </div>
+  );
+};
+
+/**
+ * Production's SquadPrivacyState, as a word in the meta line instead of a
+ * button: Featured outranks Public outranks Private.
+ */
+const PrivacyChip = (): ReactElement => {
+  const { config } = useWorkspace();
+  const [icon, label] = config.featured
+    ? [<SourceIcon key="f" size={IconSize.XSmall} secondary />, 'Featured']
+    : config.isPublic
+    ? [<EarthIcon key="p" size={IconSize.XSmall} />, 'Public']
+    : [<LockIcon key="l" size={IconSize.XSmall} />, 'Private'];
+
+  return (
+    <span
+      className={classNames(
+        'flex items-center gap-1',
+        config.featured && 'font-bold text-accent-cabbage-default',
+      )}
+    >
+      {icon}
+      {label} squad
+    </span>
+  );
+};
+
+const MenuList = ({
+  items,
+  onClose,
+}: {
+  items: { icon: ReactElement; label: string; danger?: boolean }[];
+  onClose: () => void;
+}): ReactElement => (
+  <ul className="sq-elevated absolute right-0 top-full z-popup mt-1 flex w-60 flex-col rounded-12 bg-background-default p-1">
+    {items.map((item) => (
+      <li key={item.label}>
+        <button
+          type="button"
+          onClick={onClose}
+          className={classNames(
+            'flex w-full items-center gap-2 rounded-8 px-2 py-1.5 text-left typo-callout hover:bg-surface-float',
+            item.danger
+              ? 'text-status-error'
+              : 'text-text-secondary hover:text-text-primary',
+          )}
+        >
+          {item.icon}
+          {item.label}
+        </button>
+      </li>
+    ))}
+  </ul>
 );
+
+/**
+ * Production's SquadHeaderMenu, item for item, gated the same way: Add to
+ * custom feed, Squad settings (Edit), Invitation link (public, logged in,
+ * not a member), Learn how Squads work, Feedback (members), Report Squad,
+ * Delete Squad (Delete), Leave Squad (members who are not the admin). Award
+ * moved here from the bar.
+ */
+const MoreMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const [open, setOpen] = useState(false);
+  const { config } = useWorkspace();
+  const small = (icon: ReactElement) => icon;
+  const items = [
+    {
+      icon: small(<HashtagIcon size={IconSize.Small} />),
+      label: 'Add to custom feed',
+    },
+    ...(isAdmin(viewer)
+      ? [
+          {
+            icon: small(<SettingsIcon size={IconSize.Small} />),
+            label: 'Squad settings',
+          },
+        ]
+      : []),
+    ...(!isJoined(viewer) &&
+    isLoggedIn(viewer) &&
+    !isBlocked(viewer) &&
+    config.isPublic
+      ? [
+          {
+            icon: small(<AddUserIcon size={IconSize.Small} />),
+            label: 'Invitation link',
+          },
+        ]
+      : []),
+    ...(isLoggedIn(viewer) && !isAdmin(viewer)
+      ? [
+          {
+            icon: small(<MedalBadgeIcon size={IconSize.Small} />),
+            label: 'Award the squad',
+          },
+        ]
+      : []),
+    {
+      icon: small(<TourIcon size={IconSize.Small} />),
+      label: 'Learn how Squads work',
+    },
+    ...(isJoined(viewer)
+      ? [
+          {
+            icon: small(<FeedbackIcon size={IconSize.Small} />),
+            label: 'Feedback',
+          },
+        ]
+      : []),
+    { icon: small(<FlagIcon size={IconSize.Small} />), label: 'Report Squad' },
+    ...(isAdmin(viewer)
+      ? [
+          {
+            icon: small(<TrashIcon size={IconSize.Small} />),
+            label: 'Delete Squad',
+            danger: true,
+          },
+        ]
+      : []),
+    ...(isJoined(viewer) && !isAdmin(viewer)
+      ? [
+          {
+            icon: small(<ExitIcon size={IconSize.Small} />),
+            label: 'Leave Squad',
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <div className="relative">
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<MenuIcon />}
+        aria-label="Squad options"
+        onClick={() => setOpen((value) => !value)}
+      />
+      {open && <MenuList items={items} onClose={() => setOpen(false)} />}
+    </div>
+  );
+};
+
+/**
+ * Production's SquadNotificationsModal behind the bell: three switches,
+ * the third for the admin only.
+ */
+const NotificationsMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const [open, setOpen] = useState(false);
+  const [state, setState] = useState({
+    feed: true,
+    posts: true,
+    members: false,
+  });
+  const rows: [keyof typeof state, string][] = [
+    ['feed', 'Show new posts on For You'],
+    ['posts', 'Notify me about new posts'],
+    ...(isAdmin(viewer)
+      ? ([['members', 'Notify me about new members']] as [
+          keyof typeof state,
+          string,
+        ][])
+      : []),
+  ];
+
+  return (
+    <div className="relative">
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<BellIcon secondary={open} />}
+        aria-label="Squad notifications settings"
+        onClick={() => setOpen((value) => !value)}
+      />
+      {open && (
+        <div className="sq-elevated absolute right-0 top-full z-popup mt-1 flex w-72 flex-col gap-1 rounded-12 bg-background-default p-2">
+          <span className="px-2 py-1 font-bold text-text-primary typo-callout">
+            Notifications
+          </span>
+          {rows.map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() =>
+                setState((value) => ({ ...value, [key]: !value[key] }))
+              }
+              className="flex items-center justify-between gap-3 rounded-8 px-2 py-1.5 text-left text-text-secondary typo-callout hover:bg-surface-float"
+            >
+              {label}
+              <span
+                className={classNames(
+                  'relative h-4 w-7 shrink-0 rounded-[999px] transition-colors',
+                  state[key] ? 'bg-accent-cabbage-default' : 'bg-surface-hover',
+                )}
+              >
+                <span
+                  className={classNames(
+                    'absolute top-0.5 size-3 rounded-[999px] bg-text-primary transition-transform',
+                    state[key] ? 'translate-x-3.5' : 'translate-x-0.5',
+                  )}
+                />
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 /**
  * UserStats, straightened: one strip under a hairline, tabular figures, and
@@ -210,6 +468,15 @@ const SquadStats = ({
       <Item amount={squad.totalPosts} title="Posts" />
       <Item amount={squad.totalViews} title="Views" />
       <Item amount={squad.totalUpvotes} title="Upvotes" />
+      {squad.totalAwards > 0 && (
+        <button
+          type="button"
+          className="rounded-8 text-left transition-opacity hover:opacity-80"
+          title="See awards"
+        >
+          <Item amount={squad.totalAwards} title="Awards" />
+        </button>
+      )}
     </div>
   );
 };
@@ -405,6 +672,86 @@ export const Highlight = ({ entry }: { entry: Entry }): ReactElement => (
     </div>
   </div>
 );
+
+/**
+ * Production's SharePostBar, both halves: the composer when the viewer may
+ * post, the lock card with its exact copy when not. A review note when the
+ * squad approves member posts first, and the member's own queue above it.
+ */
+export const SquadComposer = ({
+  viewer,
+  onOpenPending,
+}: {
+  viewer: Viewer;
+  onOpenPending?: () => void;
+}): ReactElement => {
+  const { config } = useWorkspace();
+  const state = postingState(viewer, config);
+
+  return (
+    <div className="flex flex-col gap-3">
+      {isJoined(viewer) && config.ownPending > 0 && (
+        <button
+          type="button"
+          onClick={onOpenPending}
+          className="flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-left text-text-secondary typo-footnote hover:text-text-primary"
+        >
+          <TimerIcon size={IconSize.Small} className="text-text-tertiary" />
+          <span className="min-w-0 flex-1">
+            <b className="sq-nums text-text-primary">{config.ownPending}</b> of
+            your posts {config.ownPending === 1 ? 'is' : 'are'} waiting for a
+            moderator
+          </span>
+          <ArrowIcon size={IconSize.XSmall} className="rotate-90" />
+        </button>
+      )}
+      {state.canPost ? (
+        <>
+          <Composer />
+          {state.reviewed && (
+            <span className="flex items-center gap-1.5 px-1 text-text-quaternary typo-caption1">
+              <TimerIcon size={IconSize.XSmall} />
+              Posts are reviewed by a moderator before they go live.
+            </span>
+          )}
+        </>
+      ) : (
+        <div className="flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-4 py-4 text-text-quaternary typo-callout">
+          <LockIcon size={IconSize.Small} />
+          {state.reason}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
+ * Production's SquadFeedHeading toggle, members only: pinned posts fold
+ * away per member and the button says how many are hidden.
+ */
+export const PinnedToggle = ({
+  viewer,
+}: {
+  viewer: Viewer;
+}): ReactElement | null => {
+  const { config } = useWorkspace();
+  const [collapsed, setCollapsed] = useState(config.pinnedCollapsed);
+
+  if (!isJoined(viewer)) {
+    return null;
+  }
+
+  return (
+    <Button
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      icon={<PinIcon secondary={!collapsed} />}
+      onClick={() => setCollapsed((value) => !value)}
+    >
+      {collapsed ? 'Show pinned posts (1)' : 'Hide pinned posts'}
+    </Button>
+  );
+};
 
 /** The posts, as the page. */
 export const PostsArea = ({
@@ -667,6 +1014,7 @@ export const TeamWidget = (): ReactElement => (
         </li>
       ))}
     </ul>
+    <TopMembers />
     <div className="mt-auto pt-3">
       <Button
         variant={ButtonVariant.Float}
@@ -678,6 +1026,90 @@ export const TeamWidget = (): ReactElement => (
     </div>
   </Widget>
 );
+
+/** Production's "Top members" row (last 30 days), public squads only. */
+const TopMembers = (): ReactElement | null => {
+  const { config } = useWorkspace();
+
+  if (!config.isPublic) {
+    return null;
+  }
+
+  return (
+    <div className="mt-4 flex items-center justify-between border-t border-border-subtlest-tertiary pt-3">
+      <span className="text-text-tertiary typo-footnote">Top members</span>
+      <Facepile members={[...team].reverse().slice(0, 5)} max={5} size={1.5} />
+    </div>
+  );
+};
+
+/**
+ * Production's SquadStack: the tools the squad builds with. Hidden when
+ * empty unless the admin can fill it, then a dashed invitation to.
+ */
+export const StackWidget = ({
+  viewer,
+}: {
+  viewer: Viewer;
+}): ReactElement | null => {
+  const { empty } = useWorkspace();
+  const canEdit = isAdmin(viewer);
+  const items = empty ? [] : stack;
+
+  if (items.length === 0 && !canEdit) {
+    return null;
+  }
+
+  return (
+    <Widget
+      title="Stack & Tools"
+      action={
+        canEdit &&
+        items.length > 0 && (
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.XSmall}
+            icon={<PlusIcon />}
+          >
+            Add
+          </Button>
+        )
+      }
+    >
+      {items.length > 0 ? (
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {items.slice(0, 4).map((item) => (
+            <li
+              key={item.name}
+              className="flex items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary py-1 pl-1 pr-2.5 text-text-secondary typo-footnote hover:border-border-subtlest-secondary hover:text-text-primary"
+            >
+              <img src={item.image} alt="" className="size-5 rounded-6" />
+              {item.name}
+            </li>
+          ))}
+          {items.length > 4 && (
+            <li className="flex items-center rounded-10 border border-border-subtlest-tertiary px-2.5 py-1 text-text-tertiary typo-footnote">
+              +{items.length - 4}
+            </li>
+          )}
+        </ul>
+      ) : (
+        <div className="mt-3 flex flex-col items-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary p-4 text-center">
+          <span className="text-text-tertiary typo-footnote">
+            Share your squad&apos;s stack &amp; tools
+          </span>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.XSmall}
+            icon={<PlusIcon />}
+          >
+            Add your first item
+          </Button>
+        </div>
+      )}
+    </Widget>
+  );
+};
 
 /** The sidebar's links, in the column too: the company's places on the web. */
 export const LinksWidget = (): ReactElement => (
@@ -769,9 +1201,11 @@ export const VerifiedWidget = (): ReactElement => (
 );
 
 export const SquadWidgets = ({
+  viewer = Viewer.Visitor,
   onOpenRules,
   onOpenFaq,
 }: {
+  viewer?: Viewer;
   onOpenRules?: () => void;
   onOpenFaq?: () => void;
 }): ReactElement => (
@@ -779,6 +1213,7 @@ export const SquadWidgets = ({
     <VerifiedWidget />
     <RulesWidget onOpenRules={onOpenRules} onOpenFaq={onOpenFaq} />
     <TeamWidget />
+    <StackWidget viewer={viewer} />
     <OverviewWidget />
     <LinksWidget />
   </>
@@ -790,6 +1225,7 @@ export const SquadHome = ({
   onOpenMembers,
   onOpenRules,
   onOpenFaq,
+  onOpenPending,
   empty = false,
 }: {
   viewer?: Viewer;
@@ -798,6 +1234,7 @@ export const SquadHome = ({
   onOpenMembers?: () => void;
   onOpenRules?: () => void;
   onOpenFaq?: () => void;
+  onOpenPending?: () => void;
   /** A squad that has not posted yet. */
   empty?: boolean;
 }): ReactElement => (
@@ -809,12 +1246,18 @@ export const SquadHome = ({
         onOpenMembers={onOpenMembers}
       />
     }
-    widgets={<SquadWidgets onOpenRules={onOpenRules} onOpenFaq={onOpenFaq} />}
+    widgets={
+      <SquadWidgets
+        viewer={viewer}
+        onOpenRules={onOpenRules}
+        onOpenFaq={onOpenFaq}
+      />
+    }
   >
     <div className="border-t border-border-subtlest-tertiary">
       {empty ? (
         <div className="flex flex-col gap-4 p-6">
-          {isJoined(viewer) && <Composer />}
+          <SquadComposer viewer={viewer} onOpenPending={onOpenPending} />
           <div className="flex flex-col items-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary px-6 py-12 text-center">
             <span className="font-bold text-text-primary typo-callout">
               Nothing posted yet
@@ -831,7 +1274,10 @@ export const SquadHome = ({
           sort="Latest"
           entries={feedEntries.slice(0, 6)}
           pinned={pinnedEntry}
-          composer={isJoined(viewer) && <Composer />}
+          composer={
+            <SquadComposer viewer={viewer} onOpenPending={onOpenPending} />
+          }
+          toolbarChildren={<PinnedToggle viewer={viewer} />}
         />
       )}
     </div>

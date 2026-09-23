@@ -49,6 +49,7 @@ import {
   channels,
   common,
   ContentSource,
+  defaultConfig,
   DocPage,
   docs,
   FeedSourcePage,
@@ -191,7 +192,7 @@ const PageContent = ({
     case 'faq':
       return <DocPage page={docs.faq} />;
     case 'members':
-      return <MembersPage />;
+      return <MembersPage viewer={viewer} />;
     case 'moderation':
       return <ModerationPage />;
     case 'feed':
@@ -996,6 +997,7 @@ export const NoSidebarShell = ({
         source: ContentSource.Feed,
         empty: false,
         isPrivate: false,
+        config: defaultConfig,
       }}
     >
       <div

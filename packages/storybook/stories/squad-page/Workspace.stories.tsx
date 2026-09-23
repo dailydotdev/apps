@@ -11,8 +11,10 @@ import {
   ContentSource,
   allPages,
   findPage,
+  MemberRole,
   pageCatalogue,
   pageIcon,
+  PostingGate,
   WorkspaceShell,
   WorkspaceStyles,
 } from './workspace';
@@ -676,6 +678,14 @@ export const Playground: StoryObj<{
   source: ContentSource;
   empty: boolean;
   isPrivate: boolean;
+  featured: boolean;
+  memberPostingRole: MemberRole;
+  postingGate: PostingGate;
+  viewerReputation: number;
+  memberInviteRole: MemberRole;
+  campaign: boolean;
+  slack: boolean;
+  ownPending: number;
 }> = {
   args: {
     viewer: Viewer.Member,
@@ -683,17 +693,19 @@ export const Playground: StoryObj<{
     source: ContentSource.Feed,
     empty: false,
     isPrivate: false,
+    featured: false,
+    memberPostingRole: MemberRole.Member,
+    postingGate: PostingGate.Moderation,
+    viewerReputation: 1200,
+    memberInviteRole: MemberRole.Member,
+    campaign: false,
+    slack: false,
+    ownPending: 0,
   },
   argTypes: {
     viewer: {
       control: 'inline-radio' as const,
-      options: [
-        Viewer.Anonymous,
-        Viewer.Visitor,
-        Viewer.Member,
-        Viewer.Moderator,
-        Viewer.Admin,
-      ],
+      options: Object.values(Viewer),
     },
     page: {
       control: 'select' as const,
@@ -703,15 +715,37 @@ export const Playground: StoryObj<{
       control: 'inline-radio' as const,
       options: [ContentSource.Feed, ContentSource.Manual],
     },
+    memberPostingRole: {
+      control: 'inline-radio' as const,
+      options: Object.values(MemberRole),
+    },
+    postingGate: {
+      control: 'inline-radio' as const,
+      options: Object.values(PostingGate),
+    },
+    memberInviteRole: {
+      control: 'inline-radio' as const,
+      options: Object.values(MemberRole),
+    },
   },
   render: (args) => (
     <Full>
       <WorkspaceShell
-        key={`${args.viewer}-${args.page}-${args.source}-${args.empty}-${args.isPrivate}`}
+        key={JSON.stringify(args)}
         viewer={args.viewer}
         source={args.source}
         empty={args.empty}
         isPrivate={args.isPrivate}
+        config={{
+          featured: args.featured,
+          memberPostingRole: args.memberPostingRole,
+          postingGate: args.postingGate,
+          viewerReputation: args.viewerReputation,
+          memberInviteRole: args.memberInviteRole,
+          campaign: args.campaign,
+          slack: args.slack,
+          ownPending: args.ownPending,
+        }}
         initialPage={args.page === 'add' ? addPage : findPage(args.page)}
         height={60}
       />

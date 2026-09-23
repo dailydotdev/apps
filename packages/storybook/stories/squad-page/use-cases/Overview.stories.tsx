@@ -9,6 +9,7 @@ import { cases as viewerCases } from './Viewers.stories';
 import { cases as postingCases } from './Posting.stories';
 import { cases as contentCases } from './Content.stories';
 import { cases as stateCases } from './States.stories';
+import { cases as productionCases } from './Production.stories';
 
 const meta: Meta = {
   title: 'Squad Page/5. Use cases/Overview',
@@ -74,6 +75,7 @@ const viewers = [
   Viewer.Member,
   Viewer.Moderator,
   Viewer.Admin,
+  Viewer.Blocked,
 ];
 
 const can = (predicate: (viewer: Viewer) => boolean): ReactNode[] =>
@@ -115,9 +117,11 @@ export const Overview: StoryObj = {
             below is the squad&apos;s existing model, with those three added.
           </p>
           <p>
-            Four story files cover it: Viewers (who opens the page), Posting
-            (who publishes where), Content source (fed or hand-written), and
-            States (empty, private). The matrices here are the index.
+            Five story files cover it: Viewers (who opens the page), Posting
+            (who publishes where), Content source (fed or hand-written), States
+            (empty, private), and Production parity (every state the production
+            page has today, audited, with a coverage matrix). The matrices here
+            are the index.
           </p>
         </>
       }
@@ -127,12 +131,23 @@ export const Overview: StoryObj = {
           head={['Can they…', ...viewers.map((viewer) => viewerLabel[viewer])]}
           rows={[
             ['Read a public squad', ...can(() => true)],
+            [
+              'See Join',
+              ...can((viewer) => viewer === Viewer.Visitor).map((cell, index) =>
+                index === 5 ? (
+                  <span className="text-text-tertiary">Disabled</span>
+                ) : (
+                  cell
+                ),
+              ),
+            ],
             ['Read a private squad', ...can(joined)],
-            ['Join', ...can((viewer) => viewer === Viewer.Visitor)],
             ['Post in Discussions', ...can(joined)],
             ['Vote in Polls', ...can(joined)],
             ['Ask a poll', ...can(staff)],
             ['Post a release (plain squad)', ...can(staff)],
+            ['Post in Discussions (moderators only setting)', ...can(staff)],
+            ['Post in Discussions (below the reputation gate)', ...can(staff)],
             [
               'Post a release (fed page)',
               ...can(() => false).map((cell, index) =>
@@ -159,7 +174,21 @@ export const Overview: StoryObj = {
               'See analytics and settings',
               ...can((viewer) => viewer === Viewer.Admin),
             ],
-            ['Invite', ...can(joined)],
+            ['Invite (members may invite setting)', ...can(joined)],
+            ['Invite (moderators only setting)', ...can(staff)],
+            ['See the notifications bell', ...can(joined)],
+            [
+              'Leave',
+              ...can((viewer) => joined(viewer) && viewer !== Viewer.Admin),
+            ],
+            [
+              'Award the squad',
+              ...can(
+                (viewer) =>
+                  viewer !== Viewer.Anonymous && viewer !== Viewer.Admin,
+              ),
+            ],
+            ['Boost', ...can((viewer) => viewer === Viewer.Admin)],
           ]}
         />
       </Section>
@@ -177,6 +206,8 @@ export const Overview: StoryObj = {
               ? 'Preview as Admin'
               : useCase.viewer === Viewer.Moderator
               ? 'Alerts / Invite / Share, Preview as Moderator'
+              : useCase.viewer === Viewer.Blocked
+              ? 'Join squad disabled, You are not allowed to join the Squad'
               : 'Alerts / Invite / Share',
             useCase.viewer === Viewer.Admin
               ? 'Edit page, Share, more'
@@ -261,6 +292,20 @@ export const Overview: StoryObj = {
               useCase.page ?? 'home',
               useCase.source === ContentSource.Manual ? 'Hand-written' : 'Fed',
               useCase.isPrivate ? 'Private' : useCase.empty ? 'Empty' : '',
+            ]),
+            ...productionCases.map((useCase) => [
+              'Production parity',
+              useCase.title,
+              viewerLabel[useCase.viewer],
+              useCase.page ?? 'home',
+              'Fed',
+              useCase.isPrivate
+                ? 'Private'
+                : useCase.empty
+                ? 'Empty'
+                : useCase.config
+                ? Object.keys(useCase.config).join(', ')
+                : '',
             ]),
           ]}
         />

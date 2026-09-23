@@ -452,6 +452,8 @@ export enum Viewer {
   /** A member who moderates: approves, removes, pins. */
   Moderator = 'moderator',
   Admin = 'admin',
+  /** Removed by a moderator. Logged in, can read a public squad, cannot rejoin. */
+  Blocked = 'blocked',
 }
 
 export const isLoggedIn = (viewer: Viewer): boolean =>
@@ -463,6 +465,7 @@ export const isJoined = (viewer: Viewer): boolean =>
 export const isStaff = (viewer: Viewer): boolean =>
   viewer === Viewer.Moderator || viewer === Viewer.Admin;
 export const isAdmin = (viewer: Viewer): boolean => viewer === Viewer.Admin;
+export const isBlocked = (viewer: Viewer): boolean => viewer === Viewer.Blocked;
 
 /**
  * One primary action per viewer. Everything else is an icon, and the admin

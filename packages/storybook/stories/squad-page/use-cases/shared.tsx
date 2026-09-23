@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import ExtensionProviders from '../../extension/_providers';
 import { KitStyles, Viewer } from '../kit';
-import type { SquadPage } from '../workspace';
+import type { SquadConfig, SquadPage } from '../workspace';
 import {
   addPage,
   ContentSource,
@@ -24,6 +24,7 @@ export interface UseCase {
   source?: ContentSource;
   empty?: boolean;
   isPrivate?: boolean;
+  config?: Partial<SquadConfig>;
   height?: number;
 }
 
@@ -33,6 +34,7 @@ export const viewerLabel: Record<Viewer, string> = {
   [Viewer.Member]: 'Member',
   [Viewer.Moderator]: 'Moderator',
   [Viewer.Admin]: 'Admin',
+  [Viewer.Blocked]: 'Blocked',
 };
 
 export const Case = ({ useCase }: { useCase: UseCase }): ReactElement => (
@@ -53,6 +55,7 @@ export const Case = ({ useCase }: { useCase: UseCase }): ReactElement => (
       source={useCase.source ?? ContentSource.Feed}
       empty={useCase.empty}
       isPrivate={useCase.isPrivate}
+      config={useCase.config}
       height={useCase.height ?? 44}
     />
   </div>
