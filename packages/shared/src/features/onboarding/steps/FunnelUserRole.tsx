@@ -10,9 +10,10 @@ import {
 import {
   FunnelStepCtaWrapper,
   funnelStepRail,
-  sanitizeMessage,
-} from '../shared';
+} from '../shared/FunnelStepCtaWrapper';
+import { sanitizeMessage } from '../lib/utils';
 import { FunnelStepTopBar } from '../shared/FunnelStepTopBar';
+import { FunnelStepDots } from '../shared/FunnelStepDots';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import {
   useDecidedOnArrival,
@@ -103,6 +104,9 @@ function FunnelUserRoleComponent({
     [headline],
   );
   const { updateUserProfile, isLoading } = useProfileForm();
+  // Email signups already picked a level on the registration form, so for them
+  // the role is the only new question.
+  const [levelOnFile] = useState(() => user?.experienceLevel);
 
   // Each pane is a screen of its own, so it opens where the first one did
   // rather than at whatever offset the roles were scrolled to.
@@ -110,30 +114,45 @@ function FunnelUserRoleComponent({
     globalThis.scrollTo?.({ top: 0 });
   }, [role]);
 
+  const complete = useCallback(
+    (picked: FunnelUserRoleOption, pickedLevel: UserExperienceLevelKey) => {
+      updateUserProfile({
+        title: picked.value,
+        ...(!levelOnFile && {
+          experienceLevel: getProfileExperienceLevel(picked, pickedLevel),
+        }),
+        // No `refetchBoot`: the hook already merges these fields into the boot
+        // cache, and a refetch would only delay the transition.
+        onUpdateSuccess: () =>
+          onTransition({
+            type: FunnelStepTransitionType.Complete,
+            details: { role: picked.value, experienceLevel: pickedLevel },
+          }),
+      });
+    },
+    [levelOnFile, onTransition, updateUserProfile],
+  );
+
   const onPickRole = useCallback(
     (input: string[]) => {
-      setRole(options.find(({ value }) => value === input.at(-1)));
+      const picked = options.find(({ value }) => value === input.at(-1));
+
+      if (picked && levelOnFile) {
+        complete(picked, levelOnFile);
+        return;
+      }
+
+      setRole(picked);
       setLevel(undefined);
     },
-    [options],
+    [complete, levelOnFile, options],
   );
 
   const onSubmit = useCallback(() => {
-    if (!role || !level) {
-      return;
+    if (role && level) {
+      complete(role, level);
     }
-
-    const details = { role: role.value, experienceLevel: level };
-
-    updateUserProfile({
-      title: role.value,
-      experienceLevel: getProfileExperienceLevel(role, level),
-      // No `refetchBoot`: the hook already merges these two fields into the
-      // boot cache, and a refetch would only delay the transition.
-      onUpdateSuccess: () =>
-        onTransition({ type: FunnelStepTransitionType.Complete, details }),
-    });
-  }, [level, onTransition, role, updateUserProfile]);
+  }, [complete, level, role]);
 
   if (!user) {
     return null;
@@ -166,6 +185,10 @@ function FunnelUserRoleComponent({
               options={options}
             />
           </div>
+        </div>
+        {/* The CTA wrapper carries these on every other step. */}
+        <div className="sticky bottom-0 pb-safe-or-6">
+          <FunnelStepDots />
         </div>
       </div>
     );

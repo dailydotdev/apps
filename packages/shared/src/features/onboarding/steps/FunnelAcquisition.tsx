@@ -11,8 +11,8 @@ import {
 import {
   FunnelStepCtaWrapper,
   funnelStepRail,
-  sanitizeMessage,
-} from '../shared';
+} from '../shared/FunnelStepCtaWrapper';
+import { sanitizeMessage } from '../lib/utils';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import {

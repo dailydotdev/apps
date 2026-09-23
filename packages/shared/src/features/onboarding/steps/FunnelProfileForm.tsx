@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import type { LoggedUser, ProfileExtraField } from '../../../lib/user';
@@ -34,6 +34,9 @@ function InnerFunnelProfileForm({
   const isOnboarding = useIsOnboardingFunnel();
   const headlineHtml = useMemo(() => sanitizeMessage(headline), [headline]);
   const { user, refetchBoot } = useAuthContext();
+  // Decided on arrival: saving the form puts the level on the profile, which
+  // would otherwise pull the dropdown out from under the user mid-submit.
+  const [withExperienceLevel] = useState(() => !user?.experienceLevel);
   const { updateUserProfile, hint, onUpdateHint } = useProfileForm({
     onSuccess: async () => {
       await refetchBoot?.();
@@ -72,7 +75,7 @@ function InnerFunnelProfileForm({
       errors={hint}
       onResetErrors={handleResetErrors}
       extraFields={extraFields}
-      withExperienceLevel={!user.experienceLevel}
+      withExperienceLevel={withExperienceLevel}
     />
   );
 
