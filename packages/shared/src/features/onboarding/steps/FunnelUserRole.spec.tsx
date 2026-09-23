@@ -42,6 +42,8 @@ const pick = (name: string) =>
 describe('FunnelUserRole', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // jsdom does not implement scrolling.
+    jest.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
   });
 
   it('should store the picked experience level for an engineering role', () => {

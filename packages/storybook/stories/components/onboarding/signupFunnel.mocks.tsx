@@ -26,10 +26,6 @@ import {
   featureOnboardingReminderDesktop,
   OnboardingChromeVariant,
 } from '@dailydotdev/shared/src/lib/featureManagement';
-import {
-  FeaturesReadyContext,
-  GrowthBookContext,
-} from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import feedFixture from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
@@ -410,41 +406,17 @@ export const fakeIOSUserAgent = (): void => {
 export const FUNNEL_STEP_COUNT = 9;
 
 /**
- * Pins the onboarding-chrome experiment to one arm.
- *
- * There is no GrowthBook instance in Storybook, so `useConditionalFeature`
- * would otherwise always return the flag's default (the control arm) and the
- * aura arm would be unreachable.
+ * Pins the onboarding-chrome experiment to one arm. Storybook swaps
+ * `useConditionalFeature` for a mock that only reads `FeatureOverrides`.
  */
 export const ChromeArm = ({
   variant,
   children,
-}: PropsWithChildren<{ variant: OnboardingChromeVariant }>): ReactElement => {
-  const growthbook = useMemo(
-    () =>
-      ({
-        getFeatureValue: (id: string, fallback: unknown) =>
-          id === featureOnboardingChrome.id ? variant : fallback,
-      } as never),
-    [variant],
-  );
-
-  return (
-    <GrowthBookContext.Provider value={{ growthbook }}>
-      <FeaturesReadyContext.Provider
-        value={{
-          ready: true,
-          getFeatureValue: (feature) =>
-            (feature.id === featureOnboardingChrome.id
-              ? variant
-              : feature.defaultValue) as never,
-        }}
-      >
-        {children}
-      </FeaturesReadyContext.Provider>
-    </GrowthBookContext.Provider>
-  );
-};
+}: PropsWithChildren<{ variant: OnboardingChromeVariant }>): ReactElement => (
+  <FeatureOverrides values={{ [featureOnboardingChrome.id]: variant }}>
+    {children}
+  </FeatureOverrides>
+);
 
 export interface FunnelStepShellProps extends PropsWithChildren {
   // Zero-based index of this step, used only to light the progress dots.

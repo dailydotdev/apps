@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { FunnelStepUserRole, FunnelUserRoleOption } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -110,9 +110,11 @@ function FunnelUserRoleComponent({
 
   // Each pane is a screen of its own, so it opens where the first one did
   // rather than at whatever offset the roles were scrolled to.
-  useEffect(() => {
+  const showPane = useCallback((nextRole?: FunnelUserRoleOption) => {
+    setRole(nextRole);
+    setLevel(undefined);
     globalThis.scrollTo?.({ top: 0 });
-  }, [role]);
+  }, []);
 
   const complete = useCallback(
     (picked: FunnelUserRoleOption, pickedLevel: UserExperienceLevelKey) => {
@@ -142,10 +144,9 @@ function FunnelUserRoleComponent({
         return;
       }
 
-      setRole(picked);
-      setLevel(undefined);
+      showPane(picked);
     },
-    [complete, levelOnFile, options],
+    [complete, levelOnFile, options, showPane],
   );
 
   const onSubmit = useCallback(() => {
@@ -220,7 +221,7 @@ function FunnelUserRoleComponent({
             {role.label}
           </Typography>
           <Button
-            onClick={() => setRole(undefined)}
+            onClick={() => showPane()}
             size={ButtonSize.XSmall}
             type="button"
             variant={ButtonVariant.Subtle}
