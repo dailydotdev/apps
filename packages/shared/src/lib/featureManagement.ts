@@ -306,11 +306,6 @@ export const featureFeedContentVisibility = new Feature(
   false,
 );
 
-export const featurePublicSignupBanner = new Feature(
-  'public_signup_banner',
-  false,
-);
-
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
 // field. Control hides it entirely. Keep the default `false` — GrowthBook

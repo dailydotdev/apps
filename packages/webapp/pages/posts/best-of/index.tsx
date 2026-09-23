@@ -80,7 +80,6 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
-        <ExploreSignupStrip className="mb-6" />
         {!isV2 && (
           <ArchiveBreadcrumbs
             items={[{ label: 'Explore', href: '/posts' }, { label: 'Best of' }]}
@@ -92,6 +91,7 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
           scopeName={scopeName}
         />
       </PageWrapperLayout>
+      <ExploreSignupStrip />
     </>
   );
 };

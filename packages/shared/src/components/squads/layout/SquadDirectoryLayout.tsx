@@ -110,8 +110,6 @@ export const SquadDirectoryLayout = (
         {isDiscover && (
           <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
         )}
-        <ExploreSignupStrip className="mb-4" />
-
         <header
           className={classNames(
             'flex w-full flex-col gap-2',
@@ -147,6 +145,7 @@ export const SquadDirectoryLayout = (
         >
           {children}
         </section>
+        <ExploreSignupStrip />
       </BaseFeedPage>
     </>
   );

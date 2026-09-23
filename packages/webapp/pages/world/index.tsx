@@ -371,7 +371,6 @@ function WorldIndexPage(): ReactElement {
     <>
       {isV2 && <PageHeader title="Worlds" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        <ExploreSignupStrip className="p-4" />
         {!isV2 && (
           <LayoutHeader
             className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
@@ -633,6 +632,7 @@ function WorldIndexPage(): ReactElement {
           )}
         </ResponsivePageContainer>
       </div>
+      <ExploreSignupStrip />
     </>
   );
 }

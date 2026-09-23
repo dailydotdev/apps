@@ -6,7 +6,6 @@ import type {
 import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import classNames from 'classnames';
 import React, { useContext, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
@@ -280,9 +279,6 @@ const SourcePage = ({
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
-        <ExploreSignupStrip
-          className={classNames(pageSectionAutoWidthClassName, 'mb-4')}
-        />
         <ArchiveBreadcrumbs
           items={[
             { label: 'Sources', href: '/sources' },
@@ -405,6 +401,7 @@ const SourcePage = ({
             className={pageFeedClassName}
           />
         </div>
+        <ExploreSignupStrip />
       </FeedPageLayoutComponent>
     </>
   );

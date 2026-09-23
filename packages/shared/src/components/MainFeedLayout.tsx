@@ -887,16 +887,6 @@ export default function MainFeedLayout({
       <FeedPageLayoutComponent
         className={classNames('relative', disableTopPadding && '!pt-0')}
       >
-        {!isExtension && isExploreHub && (
-          <div className={feedWidthClassName} style={feedWidthStyle}>
-            <ExploreSignupStrip
-              className={classNames(
-                'mb-4',
-                !shouldUseCommentFeedLayout && feedGutter,
-              )}
-            />
-          </div>
-        )}
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
         {isSearchOn && !isSearchPageLaptop && (
@@ -953,6 +943,7 @@ export default function MainFeedLayout({
           )
         )}
         {children}
+        {!isExtension && isExploreHub && <ExploreSignupStrip />}
       </FeedPageLayoutComponent>
       {/* Docked outside the page container so it spans the feed column and
           pins to the window, and mounted here rather than in each app's

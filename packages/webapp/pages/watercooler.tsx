@@ -90,7 +90,6 @@ const WatercoolerPage = (): ReactElement => {
   return (
     <FeedPageLayoutList>
       <div className="mb-4 flex w-full flex-col gap-4 px-4 laptop:px-0">
-        <ExploreSignupStrip />
         <div className="flex min-w-0 flex-col">
           <Typography bold tag={TypographyTag.H1} type={TypographyType.Title2}>
             {squad.name}
@@ -126,6 +125,7 @@ const WatercoolerPage = (): ReactElement => {
         hideTags
         disableListFrame
       />
+      <ExploreSignupStrip />
     </FeedPageLayoutList>
   );
 };

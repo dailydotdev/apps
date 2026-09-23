@@ -21,7 +21,6 @@ import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -158,7 +157,6 @@ export default function ProfileLayout({
       )}
       <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
         <main className="relative flex flex-1 flex-col laptop:max-w-2xl laptopL:max-w-3xl">
-          <ExploreSignupStrip className="p-4 laptop:mb-4 laptop:p-0" />
           {children}
         </main>
         <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">
@@ -172,7 +170,7 @@ export default function ProfileLayout({
           )}
         </aside>
       </div>
-      <PublicPageSignupBanner />
+      <ExploreSignupStrip />
     </div>
   );
 }

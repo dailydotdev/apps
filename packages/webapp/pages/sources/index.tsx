@@ -24,7 +24,6 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -133,7 +132,6 @@ const SourcesPage = ({
             }}
           />
         </Head>
-        <ExploreSignupStrip className="mb-6" />
         {!isV2Laptop && (
           <div className="flex justify-between">
             <BreadCrumbs>
@@ -165,7 +163,7 @@ const SourcesPage = ({
           />
         </div>
       </PageWrapperLayout>
-      <PublicPageSignupBanner />
+      <ExploreSignupStrip />
     </>
   );
 };

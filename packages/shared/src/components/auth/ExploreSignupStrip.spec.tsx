@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { ExploreSignupStrip } from './ExploreSignupStrip';
-import { hijackingCoverStripMinHeight } from './HijackingCoverStrip';
+import { AuthDisplay } from './common';
 import { useViewSize } from '../../hooks/useViewSize';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
@@ -12,6 +12,45 @@ import { LogEvent, TargetId, TargetType } from '../../lib/log';
 jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
   useViewSize: jest.fn(),
+}));
+
+jest.mock('./AuthOptions', () => ({
+  __esModule: true,
+  default: ({
+    onAuthStateUpdate,
+  }: {
+    onAuthStateUpdate?: (props: Record<string, unknown>) => void;
+  }) => {
+    const { AuthDisplay: Display } = jest.requireActual('./common');
+
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() =>
+            onAuthStateUpdate?.({
+              isAuthenticating: true,
+              defaultDisplay: Display.Registration,
+            })
+          }
+        >
+          Continue with email
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            onAuthStateUpdate?.({
+              isAuthenticating: true,
+              isLoginFlow: true,
+              email: '',
+            })
+          }
+        >
+          Log in
+        </button>
+      </div>
+    );
+  },
 }));
 
 const mockUseViewSize = useViewSize as jest.Mock;
@@ -69,23 +108,11 @@ describe('ExploreSignupStrip', () => {
     expect(logEvent).not.toHaveBeenCalled();
   });
 
-  it('should hold the slot at the strip height until boot answers', () => {
+  it('should render nothing until boot answers', () => {
     const { container } = renderComponent({ isAuthReady: false });
 
-    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
-    expect(container.firstElementChild?.firstElementChild).toHaveClass(
-      hijackingCoverStripMinHeight,
-    );
-    expect(logEvent).not.toHaveBeenCalled();
-  });
-
-  it('should not hold the slot for a member known from the boot cache', () => {
-    const { container } = renderComponent({
-      isAuthReady: false,
-      user: { id: 'u1' },
-    });
-
     expect(container).toBeEmptyDOMElement();
+    expect(logEvent).not.toHaveBeenCalled();
   });
 
   it('should render nothing and log nothing below the tablet breakpoint', () => {
@@ -108,20 +135,24 @@ describe('ExploreSignupStrip', () => {
     expect(logEvent).toHaveBeenCalledWith(impression);
   });
 
-  it('should open signup inline and log the click', async () => {
+  it('should hand the email signup off to the modal', async () => {
     renderComponent();
 
-    await userEvent.click(screen.getByRole('button', { name: /Sign up/ }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Continue with email' }),
+    );
 
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.Click,
-      target_type: TargetType.SignupButton,
-      target_id: TargetId.ExploreStrip,
-    });
     expect(showLogin).toHaveBeenCalledWith({
       trigger: AuthTriggers.Onboarding,
-      options: { isLogin: false },
+      options: {
+        isLogin: false,
+        defaultDisplay: AuthDisplay.Registration,
+        formValues: undefined,
+      },
     });
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.Click }),
+    );
   });
 
   it('should open login inline and log the click', async () => {
@@ -136,7 +167,11 @@ describe('ExploreSignupStrip', () => {
     });
     expect(showLogin).toHaveBeenCalledWith({
       trigger: AuthTriggers.Onboarding,
-      options: { isLogin: true },
+      options: {
+        isLogin: true,
+        defaultDisplay: undefined,
+        formValues: undefined,
+      },
     });
   });
 });
