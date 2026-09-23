@@ -295,10 +295,7 @@ export const badgeVariantsRoundTwo: BadgeVariant[] = [
     from: 'A hallmark on silver, Apple Developer certificates',
     note: 'A serial makes it rare: the order in which the company was verified. Copy does the work; the fill is almost nothing.',
     render: () => (
-      <Card
-        className="border border-border-subtlest-secondary"
-        style={{ background: gold(14, 6) }}
-      >
+      <Card style={{ background: gold(14, 6), boxShadow: goldEdge }}>
         <VerifiedSeal className="size-5 text-accent-cheese-default" />
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="font-bold text-text-primary typo-footnote">
@@ -458,10 +455,10 @@ export const badgeVariantsRoundTwo: BadgeVariant[] = [
           style={{
             background: gold(30, 14),
             boxShadow: goldEdge,
-            clipPath: 'polygon(0 50%, 10px 0, 100% 0, 100% 100%, 10px 100%)',
+            clipPath: 'polygon(0 50%, 14px 0, 100% 0, 100% 100%, 14px 100%)',
           }}
         >
-          <span className="ml-2 size-1.5 rounded-full bg-background-default ring-1 ring-accent-cheese-default" />
+          <span className="ml-3 size-1.5 rounded-full bg-background-default ring-1 ring-accent-cheese-default" />
           <VerifiedSeal className="size-4 text-accent-cheese-default" />
           <span className="font-bold uppercase tracking-[0.16em] text-text-primary typo-caption1">
             Official
