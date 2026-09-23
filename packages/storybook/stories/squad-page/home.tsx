@@ -35,7 +35,14 @@ import {
   rules,
   team,
 } from './data';
-import { Avatar, CardList, Facepile, VerifiedMark, Viewer } from './kit';
+import {
+  Avatar,
+  CardList,
+  Facepile,
+  VerifiedMark,
+  VerifiedSeal,
+  Viewer,
+} from './kit';
 import { Composer } from './kit2';
 
 // The squad's Home, built on the profile page's skeleton so a person and a
@@ -706,12 +713,50 @@ export const SquadAbout = ({
   </div>
 );
 
+/**
+ * The badge, as a card: what "verified" means here, said once and plainly,
+ * above the rules. X and LinkedIn put this behind a tap on the mark; on a
+ * page a company pays for, it is worth a few lines in the open.
+ */
+const VerifiedWidget = (): ReactElement => (
+  <section className="flex flex-col gap-3 rounded-16 border border-accent-cabbage-default p-4">
+    <div className="flex items-center gap-2">
+      <VerifiedSeal className="size-5 text-accent-cabbage-default" />
+      <span className="font-bold text-text-primary typo-callout">
+        Official company page
+      </span>
+    </div>
+    <p className="text-text-secondary typo-footnote">
+      This squad is run by {squad.company.website} and verified by daily.dev.
+      Posts in Releases come from the team.
+    </p>
+    <dl className="flex flex-col gap-1.5 border-t border-border-subtlest-tertiary pt-3 typo-caption1">
+      {[
+        ['Domain', squad.company.website],
+        ['Verified since', formatSince(squad.createdAt)],
+        [
+          'Admins',
+          `${
+            team.filter((member) => member.role === 'Admin').length
+          } verified employees`,
+        ],
+      ].map(([label, value]) => (
+        <div key={label} className="flex justify-between gap-4">
+          <dt className="text-text-quaternary">{label}</dt>
+          <dd className="text-text-primary">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+);
+
 export const SquadWidgets = ({
   onOpenRules,
 }: {
   onOpenRules?: () => void;
 }): ReactElement => (
   <>
+    <VerifiedWidget />
     <RulesWidget onOpenRules={onOpenRules} />
     <TeamWidget />
     <OverviewWidget />
