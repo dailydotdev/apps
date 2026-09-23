@@ -63,7 +63,7 @@ export interface SquadConfig {
 export const defaultConfig: SquadConfig = {
   isPublic: true,
   featured: false,
-  category: 'DevRel',
+  category: 'Developer tools',
   memberPostingRole: MemberRole.Member,
   postingGate: PostingGate.Moderation,
   postingMinReputation: 250,

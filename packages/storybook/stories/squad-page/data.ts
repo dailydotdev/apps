@@ -1,7 +1,11 @@
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 
-// The daily.dev Changelog squad (@daily_updates), snapshotted from the public
+// CodeRabbit as a verified company page, the prospect the mock is built for.
+// Posts are CodeRabbit's real blog and changelog entries (coderabbit.ai/blog,
+// docs.coderabbit.ai/changelog, 23 Sep 2026); the team is the company's public
+// GitHub org; counts, ratings and polls are illustrative. Formerly the daily.dev
+// Changelog squad (@daily_updates), snapshotted from the public
 // API on 15 Sep 2026: identity, stats, the admin/moderator list and the last
 // 14 posts are real. Everything marked "illustrative" is what a verified
 // company page would add on top and does not exist on the API yet.
@@ -29,6 +33,8 @@ export interface SquadData {
   totalAwards: number;
   /** Illustrative: the badge is the thing being sold. */
   verified: boolean;
+  /** The RSS the page is fed by. */
+  feedUrl: string;
   /** Illustrative. */
   links: SquadLink[];
   /** Illustrative. Company location and size the way LinkedIn shows them. */
@@ -36,33 +42,36 @@ export interface SquadData {
 }
 
 export const squad: SquadData = {
-  handle: 'daily_updates',
-  name: 'daily.dev Changelog',
-  tagline: 'Every product update and announcement from the daily.dev team.',
-  description:
-    'Get the latest product updates and announcements about daily.dev',
-  image:
-    'https://media.daily.dev/image/upload/s--COeiQtov--/f_auto/v1704465510/squads/daily_updates',
+  handle: 'coderabbit',
+  name: 'CodeRabbit',
+  tagline:
+    'Every release, benchmark and changelog entry from the team behind CodeRabbit.',
+  description: 'AI-powered platform revolutionizing code reviews.',
+  image: 'https://www.coderabbit.ai/images/CR_mark_orange.png',
   headerImage:
-    'https://daily-now-res.cloudinary.com/image/upload/s--DZ2olKlo--/f_auto,q_auto/v1704465234/squads/dailv.dev_background_1',
-  permalink: 'https://daily.dev/squads/daily_updates',
-  category: 'DevRel',
-  createdAt: '2023-02-06T14:24:34.644Z',
-  membersCount: 11499,
-  totalPosts: 151,
-  totalViews: 652515,
-  totalUpvotes: 29314,
-  totalAwards: 1,
+    'https://www.coderabbit.ai/content/assets/rethinking-pr-triage-from-first-principles/hero.png',
+  permalink: 'https://daily.dev/squads/coderabbit',
+  category: 'Developer tools',
+  createdAt: '2024-03-12T10:00:00.000Z',
+  membersCount: 6120,
+  totalPosts: 184,
+  totalViews: 418230,
+  totalUpvotes: 12340,
+  totalAwards: 3,
   verified: true,
+  feedUrl: 'docs.coderabbit.ai/changelog/rss.xml',
   links: [
-    { label: 'daily.dev', href: 'https://daily.dev' },
-    { label: 'github.com/dailydotdev', href: 'https://github.com/dailydotdev' },
-    { label: 'x.com/dailydotdev', href: 'https://x.com/dailydotdev' },
+    { label: 'coderabbit.ai', href: 'https://www.coderabbit.ai' },
+    {
+      label: 'github.com/coderabbitai',
+      href: 'https://github.com/coderabbitai',
+    },
+    { label: 'x.com/coderabbitai', href: 'https://x.com/coderabbitai' },
   ],
   company: {
-    location: 'Tel Aviv, Israel',
-    size: '11-50 employees',
-    website: 'daily.dev',
+    location: 'San Francisco, California',
+    size: '51-200 employees',
+    website: 'coderabbit.ai',
   },
 };
 
@@ -83,84 +92,76 @@ export interface TeamMember {
 
 export const team: TeamMember[] = [
   {
-    id: 'kramer',
-    name: 'Nimrod Kramer',
-    username: 'kramer',
-    image:
-      'https://media.daily.dev/image/upload/v1682322243/avatars/avatar_1d339aa5b85c4e0ba85fdedb523c48d4.jpg',
+    id: 'harjotgill',
+    name: 'Harjot Gill',
+    username: 'harjotgill',
+    image: 'https://avatars.githubusercontent.com/u/18579817?v=4',
     role: TeamRole.Admin,
     title: 'Co-founder & CEO',
-    reputation: 130145,
+    reputation: 48120,
   },
   {
-    id: 'idoshamun',
-    name: 'Ido Shamun',
-    username: 'idoshamun',
-    image:
-      'https://media.daily.dev/image/upload/s---xy_OAwk--/f_auto,q_auto/v1703781380/avatars/avatar_28849d86070e4c099c877ab6837c61f0',
+    id: 'hasit',
+    name: 'Hasit Mistry',
+    username: 'hasit',
+    image: 'https://avatars.githubusercontent.com/u/1553055?v=4',
     role: TeamRole.Admin,
-    title: 'Co-founder & CTO',
-    reputation: 183690,
+    title: 'Engineering',
+    reputation: 36400,
   },
   {
-    id: 'tsahimatsliah',
-    name: 'Tsahi Matsliah',
-    username: 'tsahimatsliah',
-    image:
-      'https://media.daily.dev/image/upload/s--k80T3WJe--/f_auto,q_auto/v1703793130/avatars/avatar_5e0af68445e04c02b0656c3530664aff',
+    id: 'santoshyadavdev',
+    name: 'Santosh Yadav',
+    username: 'santoshyadavdev',
+    image: 'https://avatars.githubusercontent.com/u/11923975?v=4',
     role: TeamRole.Moderator,
-    title: 'Co-founder & CDO',
+    title: 'Principal Developer Advocate',
     reputation: 92100,
   },
   {
-    id: 'dailydevtips',
-    name: 'Chris Bongers',
-    username: 'dailydevtips',
-    image:
-      'https://media.daily.dev/image/upload/s--9gxFz1e7--/f_auto/v1705902590/avatars/avatar_JUNiIGCV-?_a=BAMAMiZW0',
+    id: 'helizaga',
+    name: 'Tom Elizaga',
+    username: 'helizaga',
+    image: 'https://avatars.githubusercontent.com/u/22605247?v=4',
     role: TeamRole.Moderator,
-    title: 'Web team lead',
-    reputation: 210430,
+    title: 'Software engineer',
+    reputation: 21430,
   },
   {
-    id: 'capjavert',
-    name: 'Ante Barić',
-    username: 'capjavert',
-    image:
-      'https://media.daily.dev/image/upload/v1679300599/avatars/avatar_LJSkpBexOSCWc8INyu3Eu.jpg',
+    id: 'dundeezhang',
+    name: 'Dundee Zhang',
+    username: 'dundeezhang',
+    image: 'https://avatars.githubusercontent.com/u/60833894?v=4',
     role: TeamRole.Moderator,
     title: 'Engineer',
-    reputation: 88240,
+    reputation: 18240,
   },
   {
-    id: 'amar',
-    name: 'Amar',
-    username: 'amar',
-    image:
-      'https://media.daily.dev/image/upload/s--W1oZyHsz--/f_auto/v1719829173/avatars/avatar_0pjeBcFKQqsnU97ZOj9EW',
+    id: 'recrsn',
+    name: 'Amitosh Swain Mahapatra',
+    username: 'recrsn',
+    image: 'https://avatars.githubusercontent.com/u/16816719?v=4',
     role: TeamRole.Moderator,
     title: 'Engineer',
-    reputation: 64010,
+    reputation: 14010,
   },
   {
-    id: 'davidecruz',
-    name: 'Davide Cruz',
-    username: 'davidecruz',
-    image:
-      'https://media.daily.dev/image/upload/s--3UsMy--X--/f_auto/v1785312754/avatars/avatar_C2COXE8XbFvGuOxiki3Po?_a=BAMAMicg0',
+    id: 'ahmetskilinc',
+    name: 'Ahmet Kilinc',
+    username: 'ahmetskilinc',
+    image: 'https://avatars.githubusercontent.com/u/37756565?v=4',
     role: TeamRole.Moderator,
-    title: 'Data scientist',
-    reputation: 31200,
+    title: 'Engineer',
+    reputation: 9200,
   },
   {
-    id: 'vasn',
-    name: 'Vas N',
-    username: 'vasn',
-    image:
-      'https://lh3.googleusercontent.com/a-/AOh14GhZpI6rlti8BFP-fzWGDxrFlAmSfb72Vd6u7XS5=s100',
+    id: 'averyjennings',
+    name: 'Avery Jennings',
+    username: 'averyjennings',
+    image: 'https://avatars.githubusercontent.com/u/14079159?v=4',
     role: TeamRole.Moderator,
-    title: 'Growth',
-    reputation: 18700,
+    title: 'Engineer',
+    reputation: 7700,
   },
 ];
 
@@ -182,200 +183,309 @@ export interface Entry {
 
 export const entries: Entry[] = [
   {
-    id: 'JP5X9El1T',
-    title: 'Release notes (updates live)',
-    image: null,
+    id: 'coderabbit-triage',
+    title: 'CodeRabbit Triage: know which pull request to review next',
+    image: 'https://www.coderabbit.ai/content/assets/triage-pr-queue/hero.png',
     summary:
-      'Ongoing release notes for daily.dev covering updates from March through June 2026. UI redesigns, new features, bug fixes across mobile, PWA and the extension, and gamification additions like streaks and quest achievements.',
-    createdAt: '2026-03-16T12:17:15.138Z',
-    upvotes: 30,
-    comments: 11,
-    awards: 1,
-    tags: ['dailydev'],
-    author: teamById.dailydevtips,
+      'CodeRabbit Triage scores and explains pull request priorities so reviewers can focus their attention, route work, and identify the next action. One queue across every repository your organization tracks.',
+    createdAt: '2026-09-15T16:00:00.000Z',
+    upvotes: 412,
+    comments: 58,
+    awards: 2,
+    tags: ['code-review', 'devtools', 'coderabbit'],
+    author: teamById.harjotgill,
     pinned: true,
   },
   {
-    id: 'Ljj8kH9SA',
-    title: 'Public API access is now open for everyone',
+    id: 'do-you-understand-what-youre-about-to-merge',
+    title: 'Do you understand what you are about to merge?',
     image:
-      'https://media.daily.dev/image/upload/s--A-Poy1Mx--/f_auto/v1789395874/posts/Ljj8kH9SA?_a=BAMAMicg0',
+      'https://www.coderabbit.ai/content/assets/change-stack-understanding/hero.png',
     summary:
-      'Every account can now create a personal access token from Settings, with 200 free requests per month and higher limits for Plus. Ships with integrations for Claude Code, Cursor, Codex and OpenClaw, plus five step-by-step guides.',
-    createdAt: '2026-09-14T14:24:34.118Z',
-    upvotes: 116,
-    comments: 16,
-    awards: 9,
-    tags: ['devtools', 'architecture', 'dailydev'],
-    author: teamById.capjavert,
-  },
-  {
-    id: 'W3ts5p7yS',
-    title: 'Meet World: the 3D place your reading builds',
-    image:
-      'https://media.daily.dev/image/upload/s--EGXE4BEM--/f_auto/v1788170246/posts/W3ts5p7yS?_a=BAMAMicg0',
-    summary:
-      'World turns your reading history into an explorable 3D city. Topics become districts grouped into six realms, and districts grow as you read more on a topic. Customise the sky, lighting and crest, or redesign buildings with a coding agent.',
-    createdAt: '2026-08-31T09:57:25.108Z',
-    upvotes: 153,
-    comments: 45,
+      'Five questions every reviewer should answer before approving a pull request, and how Change Stack ties intent, behavior, dependencies, and risk back to the code.',
+    createdAt: '2026-09-23T15:00:00.000Z',
+    upvotes: 186,
+    comments: 24,
     awards: 0,
-    tags: ['devtools', 'dailydev'],
-    author: teamById.idoshamun,
+    tags: ['code-review', 'coderabbit'],
+    author: teamById.santoshyadavdev,
   },
   {
-    id: 'gSWhwq5qh',
-    title: 'Headlines in your Claude statusline',
-    image:
-      'https://media.daily.dev/image/upload/s--7au3vpvS--/f_auto/v1787732248/posts/gSWhwq5qh?_a=BAMAMicg0',
+    id: 'opus-5-5-model-review',
+    title: 'Claude Opus 5.5 code review benchmarks',
+    image: 'https://www.coderabbit.ai/content/assets/opus-5-5-header.png',
     summary:
-      'A daily.dev plugin for Claude Code surfaces top developer news headlines in the terminal statusline while Claude runs. Curated top stories mixed with the day’s most-upvoted community posts, refreshed every 10 minutes.',
-    createdAt: '2026-08-26T08:17:28.006Z',
-    upvotes: 115,
-    comments: 20,
-    awards: 2,
-    tags: ['devtools', 'claude-code', 'dailydev'],
-    author: teamById.dailydevtips,
+      "We benchmarked Anthropic's Claude Opus 5.5 for AI code review against our production reviewer: which bugs it catches, which it misses, and whether higher effort helps.",
+    createdAt: '2026-09-22T14:00:00.000Z',
+    upvotes: 341,
+    comments: 47,
+    awards: 1,
+    tags: ['ai', 'llm', 'code-review'],
+    author: teamById.hasit,
   },
   {
-    id: 'BkDuK0um3',
-    title: 'Community take: see what other developers think about a post',
+    id: 'rethinking-pr-triage-from-first-principles',
+    title: 'Rethinking PR triage from first principles',
     image:
-      'https://media.daily.dev/image/upload/s--tdsrO-LY--/f_auto/v1787148852/posts/BkDuK0um3?_a=BAMAMicg0',
+      'https://www.coderabbit.ai/content/assets/rethinking-pr-triage-from-first-principles/hero.png',
     summary:
-      'Community Take aggregates developer discussion from Hacker News and Lobsters into a summary attached to each post: a TL;DR, a sentiment breakdown, arguments for and against, and standout quotes linked to the original threads.',
-    createdAt: '2026-08-19T14:14:12.195Z',
-    upvotes: 78,
-    comments: 22,
-    awards: 7,
-    tags: ['dailydev'],
-    author: teamById.dailydevtips,
-  },
-  {
-    id: 'Wlycvd5Ce',
-    title: 'The Watercooler feed is here',
-    image:
-      'https://media.daily.dev/image/upload/s--vNh_4FJj--/f_auto/v1785854446/posts/Wlycvd5Ce?_a=BAMAMicg0',
-    summary:
-      'Watercooler is a new opt-in feed, separate from the main tech news feed, for shower thoughts, hot takes, cursed screenshots and developer banter. Posts stay out of the regular feed unless you go looking for them.',
-    createdAt: '2026-08-04T14:40:45.576Z',
-    upvotes: 136,
-    comments: 15,
-    awards: 7,
-    tags: ['community', 'dailydev'],
-    author: teamById.idoshamun,
-  },
-  {
-    id: 'MdJHk19ga',
-    title: 'Read articles inside daily.dev',
-    image:
-      'https://media.daily.dev/image/upload/s--9fo21NFF--/f_auto/v1785742885/posts/MdJHk19ga?_a=BAMAMicg0',
-    summary:
-      'An in-app reader opens articles, videos and digests directly inside daily.dev with the discussion panel alongside. Requires the browser extension; enable it from the first-use prompt or in Settings → Appearance.',
-    createdAt: '2026-08-03T07:41:24.521Z',
-    upvotes: 176,
-    comments: 27,
-    awards: 13,
-    tags: ['devtools', 'dailydev'],
-    author: teamById.dailydevtips,
-  },
-  {
-    id: 'b7IaAiDo9',
-    title: 'Notifications, cleaned up',
-    image:
-      'https://media.daily.dev/image/upload/s--HO7Vo_mk--/f_auto/v1785483605/posts/b7IaAiDo9?_a=BAMAMicg0',
-    summary:
-      'The notifications page was rebuilt around category filters, time grouping, rows that lead with the actor’s name, aligned post covers, stacked avatars for repeated interactions and a one-tap thank-you for Awards.',
-    createdAt: '2026-07-31T07:40:04.207Z',
-    upvotes: 146,
+      'Why a blocked pull request is not automatically an urgent one, and how a priority should weigh risk, reward, effort and activity instead of age.',
+    createdAt: '2026-09-18T14:00:00.000Z',
+    upvotes: 158,
     comments: 19,
-    awards: 1,
-    tags: ['ui-ux'],
-    author: teamById.dailydevtips,
+    awards: 0,
+    tags: ['code-review', 'engineering-management'],
+    author: teamById.harjotgill,
   },
   {
-    id: 'VzLdLBbCl',
-    title: 'Trends are here!',
+    id: 'software-factory-review-gate',
+    title: 'A software factory needs a review gate it can trust',
     image:
-      'https://media.daily.dev/image/upload/s--6UEmCkDN--/f_auto/v1785165533/posts/VzLdLBbCl?_a=BAMAMicg0',
+      'https://www.coderabbit.ai/content/assets/software-factory-review-gate/consequential-change.png',
     summary:
-      'Trends aggregate posts around one trending topic into a single view with a TL;DR that updates as new content arrives. Like Collections, but for the day-to-day discussions, hot takes and controversies.',
-    createdAt: '2026-07-29T07:00:00.207Z',
+      'Agents can write, test, and revise code across much of the delivery process. Teams still need a reliable way to decide which changes can move automatically and which require accountable human review.',
+    createdAt: '2026-09-10T14:00:00.000Z',
+    upvotes: 229,
+    comments: 31,
+    awards: 1,
+    tags: ['ai', 'code-review'],
+    author: teamById.harjotgill,
+  },
+  {
+    id: 'taste-decides-what-should-ship',
+    title: 'Whose taste is shaping your agentic SDLC?',
+    image:
+      'https://www.coderabbit.ai/content/assets/taste-decides-what-should-ship/cover.png',
+    summary:
+      'Engineering taste develops through experience, exploring alternatives, and learning from use. How can teams preserve those opportunities in an agentic SDLC?',
+    createdAt: '2026-09-09T14:00:00.000Z',
+    upvotes: 121,
+    comments: 14,
+    awards: 0,
+    tags: ['ai', 'engineering-management'],
+    author: teamById.santoshyadavdev,
+  },
+  {
+    id: 'gpt-6-astra-code-review-evaluation',
+    title: 'GPT-6 Astra review: code review gains, privacy, and cost',
+    image: 'https://www.coderabbit.ai/content/assets/gpt-6-astra/header.png',
+    summary:
+      "CodeRabbit's early GPT-6 Astra evaluation covers cross-file bug detection, customer data protection, public API pricing, and building NIGHTSHIFT.",
+    createdAt: '2026-09-04T14:00:00.000Z',
+    upvotes: 298,
+    comments: 39,
+    awards: 1,
+    tags: ['ai', 'llm', 'code-review'],
+    author: teamById.hasit,
+  },
+  {
+    id: 'the-last-software-engineer-knows-what-to-build',
+    title: 'What would the last software engineer still need to do?',
+    image:
+      'https://www.coderabbit.ai/content/assets/last-software-engineer-cover.png',
+    summary:
+      'Kent C. Dodds explains why knowing what to build, understanding the system, and owning outcomes matter as AI agents take on implementation.',
+    createdAt: '2026-09-03T14:00:00.000Z',
+    upvotes: 402,
+    comments: 63,
+    awards: 2,
+    tags: ['ai', 'career'],
+    author: teamById.santoshyadavdev,
+  },
+  {
+    id: 'fable-5-1-model-review',
+    title: 'Fable 5.1 model review and code review results',
+    image: 'https://www.coderabbit.ai/content/assets/fable-5-1.png',
+    summary:
+      'Fable 5.1 feels fast on small coding tasks and produces fewer review comments than Fable 5, but it needs clear instructions and careful use in code review.',
+    createdAt: '2026-09-01T14:00:00.000Z',
+    upvotes: 276,
+    comments: 35,
+    awards: 0,
+    tags: ['ai', 'llm', 'code-review'],
+    author: teamById.hasit,
+  },
+  {
+    id: 'metrics-api-retry-guidance',
+    title: 'Metrics API retry guidance',
+    image: null,
+    summary:
+      'Build more reliable metrics integrations by reading the Retry-After response header when the metrics endpoints return 503 while isolated metrics prepare, then retry the same request.',
+    createdAt: '2026-09-20T10:00:00.000Z',
+    upvotes: 44,
+    comments: 3,
+    awards: 0,
+    tags: ['api', 'coderabbit'],
+    author: teamById.helizaga,
+  },
+  {
+    id: 'cli-0-7-8',
+    title: 'CLI v0.7.8',
+    image: null,
+    summary:
+      'More reliable large reviews: reviews avoid duplicate file content and report oversized requests with guidance to reduce the scope. Git branch detection avoids interactive credential prompts that can stall reviews.',
+    createdAt: '2026-09-16T10:00:00.000Z',
+    upvotes: 97,
+    comments: 11,
+    awards: 0,
+    tags: ['cli', 'coderabbit'],
+    author: teamById.dundeezhang,
+  },
+  {
+    id: 'metrics-api-retries',
+    title: 'Metrics API retries',
+    image: null,
+    summary:
+      'The MCP server usage and review comment metrics endpoints return 503 while isolated metrics are preparing and include a Retry-After header.',
+    createdAt: '2026-09-16T09:00:00.000Z',
+    upvotes: 31,
+    comments: 2,
+    awards: 0,
+    tags: ['api', 'coderabbit'],
+    author: teamById.helizaga,
+  },
+  {
+    id: 'dynamic-configuration-typescript',
+    title: 'Dynamic CodeRabbit configuration with TypeScript',
+    image: null,
+    summary:
+      'Define CodeRabbit settings in a programmatic .coderabbit.config.ts, with PR-aware conditions, reusable merged fragments, local TypeScript or YAML includes, and shared includes from the organization config repository.',
+    createdAt: '2026-09-15T10:00:00.000Z',
+    upvotes: 213,
+    comments: 29,
+    awards: 0,
+    tags: ['typescript', 'devtools', 'coderabbit'],
+    author: teamById.recrsn,
+  },
+  {
+    id: 'cli-0-7-7',
+    title: 'CLI v0.7.7',
+    image: null,
+    summary:
+      'Review without a local clone: cr review --remote owner/repo reviews an installed GitHub repository from any directory. Configure reviews from the CLI with cr config.',
+    createdAt: '2026-09-10T10:00:00.000Z',
+    upvotes: 142,
+    comments: 17,
+    awards: 0,
+    tags: ['cli', 'coderabbit'],
+    author: teamById.dundeezhang,
+  },
+  {
+    id: 'requested-team-overrides',
+    title: 'Requested team overrides',
+    image: null,
+    summary:
+      'When pre-merge check override access is restricted to requested reviewers, members of a requested GitHub reviewer team can now ignore failing checks.',
+    createdAt: '2026-09-10T09:00:00.000Z',
+    upvotes: 38,
+    comments: 4,
+    awards: 0,
+    tags: ['github', 'coderabbit'],
+    author: teamById.ahmetskilinc,
+  },
+  {
+    id: 'connections-and-scopes',
+    title: 'Connections and scopes',
+    image: null,
+    summary:
+      'Connecting CodeRabbit to issue trackers, documentation systems and analytics tools used to mean setting up each service separately for reviews, the Slack agent and the Discord agent. That setup is now unified.',
+    createdAt: '2026-09-10T08:00:00.000Z',
+    upvotes: 76,
+    comments: 9,
+    awards: 0,
+    tags: ['integrations', 'coderabbit'],
+    author: teamById.helizaga,
+  },
+  {
+    id: 'custom-jira-issue-templates',
+    title: 'Custom Jira issue templates',
+    image: null,
+    summary:
+      'Let CodeRabbit create Jira issues that follow your team standards. Configure chat.integrations.jira.issue_template to define the structure of issue descriptions created from chat.',
+    createdAt: '2026-09-09T10:00:00.000Z',
+    upvotes: 54,
+    comments: 6,
+    awards: 0,
+    tags: ['jira', 'coderabbit'],
+    author: teamById.ahmetskilinc,
+  },
+  {
+    id: 'review-comment-metrics-api',
+    title: 'Review comment metrics API',
+    image: null,
+    summary:
+      'Enterprise organizations can retrieve finding-level metadata for review comments on merged pull requests: severity, category, stored resolution outcome and comment URL.',
+    createdAt: '2026-09-09T09:00:00.000Z',
+    upvotes: 63,
+    comments: 5,
+    awards: 0,
+    tags: ['api', 'coderabbit'],
+    author: teamById.recrsn,
+  },
+  {
+    id: 'project-vocabulary',
+    title: 'Project vocabulary',
+    image: null,
+    summary:
+      'Comment @coderabbitai generate project vocabulary on a pull request to receive an alphabetized list of up to 50 terms specific to that repository, drawn from source, docs and configuration.',
+    createdAt: '2026-09-04T10:00:00.000Z',
+    upvotes: 88,
+    comments: 12,
+    awards: 0,
+    tags: ['coderabbit'],
+    author: teamById.averyjennings,
+  },
+  {
+    id: 'cli-0-7-6',
+    title: 'CLI v0.7.6',
+    image: null,
+    summary:
+      'Improves large-review handling, expands security finding output, and makes usage reporting more accurate. Large reviews send smaller requests and report oversized payloads directly.',
+    createdAt: '2026-09-04T09:00:00.000Z',
     upvotes: 71,
-    comments: 18,
-    awards: 1,
-    tags: [],
-    author: teamById.davidecruz,
+    comments: 8,
+    awards: 0,
+    tags: ['cli', 'coderabbit'],
+    author: teamById.dundeezhang,
   },
   {
-    id: 'YaeS3yS0T',
-    title: 'Miss a day, keep your streak',
-    image:
-      'https://media.daily.dev/image/upload/s--SqpaPl57--/f_auto/v1785152078/posts/YaeS3yS0T?_a=BAMAMicg0',
+    id: 'attack-surface-map',
+    title: 'Attack surface map',
+    image: null,
     summary:
-      'Streak freezes automatically cover missed days. Buy them in 3-packs or 5-packs from the streak popover, stash up to five, and get notified when one is used or supplies run low.',
-    createdAt: '2026-07-27T11:34:37.753Z',
-    upvotes: 145,
-    comments: 86,
-    awards: 1,
-    tags: ['dailydev'],
-    author: teamById.dailydevtips,
+      'A living view of the security-relevant parts of a repository: mapped code locations grouped into subsystems and sorted into lanes, from entry points and trust boundaries to sinks and security configuration.',
+    createdAt: '2026-09-02T10:00:00.000Z',
+    upvotes: 167,
+    comments: 21,
+    awards: 0,
+    tags: ['security', 'coderabbit'],
+    author: teamById.recrsn,
   },
   {
-    id: 'htlRrNKKr',
-    title: 'Post now, publish later',
-    image:
-      'https://media.daily.dev/image/upload/s--bJxfpOGd--/f_auto/v1783245829/posts/htlRrNKKr?_a=BAMAMicg0',
+    id: 'cross-repository-targeted-guidelines',
+    title: 'Cross-repository targeted guidelines',
+    image: null,
     summary:
-      'Creators can schedule posts up to 14 days ahead. Scheduled posts can be edited any time or published immediately from the queue, and a notification goes out when one goes live.',
-    createdAt: '2026-07-05T10:03:48.515Z',
-    upvotes: 91,
-    comments: 20,
-    awards: 2,
-    tags: ['content-creation'],
-    author: teamById.idoshamun,
+      'Path-scoped review guidelines that apply across repositories, so a rule written once for a shared library follows it everywhere it is used.',
+    createdAt: '2026-08-28T10:00:00.000Z',
+    upvotes: 59,
+    comments: 7,
+    awards: 0,
+    tags: ['code-review', 'coderabbit'],
+    author: teamById.ahmetskilinc,
   },
   {
-    id: 'JTxqzE58A',
-    title: 'Just add daily.dev/ in front of any link',
-    image:
-      'https://media.daily.dev/image/upload/s--X_PzYEGB--/f_auto/v1782110425/posts/JTxqzE58A?_a=BAMAMiWQ0',
+    id: 'rate-limit-observability',
+    title: 'Rate limit observability and control',
+    image: null,
     summary:
-      'Prepend daily.dev/ to any article URL to jump to its daily.dev page. If the post exists you land on it; if not, submit it as a shared post in one step. Works in any browser, no extension needed.',
-    createdAt: '2026-06-22T06:40:25.426Z',
-    upvotes: 164,
-    comments: 40,
-    awards: 7,
-    tags: ['dailydev'],
-    author: teamById.idoshamun,
-  },
-  {
-    id: 'jT5FLZJL5',
-    title: 'We squashed and merged our domains',
-    image:
-      'https://media.daily.dev/image/upload/s--GeH9hxyp--/f_auto/v1782034924/posts/jT5FLZJL5?_a=BAMAMiWQ0',
-    summary:
-      'The marketing site and the web app now live under one domain. app.daily.dev redirects to daily.dev and logged-in users are routed to the app automatically.',
-    createdAt: '2026-06-21T09:42:04.385Z',
-    upvotes: 62,
-    comments: 20,
-    awards: 2,
-    tags: ['dailydev'],
-    author: teamById.idoshamun,
-  },
-  {
-    id: 'RZoF7hogy',
-    title: 'Happening Now just got better',
-    image:
-      'https://media.daily.dev/image/upload/s--DSFz8w_0--/f_auto/v1780055325/posts/RZoF7hogy?_a=BAMAMiWQ0',
-    summary:
-      'A Security section with its own digest for breaches, CVEs and vulnerabilities, an All section without filters, a redesigned layout for topical digests and deduplication across issues.',
-    createdAt: '2026-05-29T11:48:45.576Z',
+      'See how close each organization is to its review rate limits, and set per-repository controls so a noisy repository cannot starve the rest.',
+    createdAt: '2026-08-26T10:00:00.000Z',
     upvotes: 47,
-    comments: 25,
-    awards: 2,
-    tags: [],
-    author: teamById.idoshamun,
+    comments: 5,
+    awards: 0,
+    tags: ['api', 'coderabbit'],
+    author: teamById.averyjennings,
   },
 ];
 
@@ -383,24 +493,24 @@ export const pinnedEntry = entries.find((entry) => entry.pinned) as Entry;
 export const latestEntry = entries.find((entry) => !entry.pinned) as Entry;
 export const feedEntries = entries.filter((entry) => !entry.pinned);
 
-/** Illustrative. The real stack on this squad holds one item, daily.dev. */
+/** Illustrative. What a CodeRabbit-shaped stack would list. */
 export const stack = [
-  { name: 'Next.js', image: 'https://cdn.simpleicons.org/nextdotjs/white' },
   { name: 'TypeScript', image: 'https://cdn.simpleicons.org/typescript' },
-  { name: 'Node.js', image: 'https://cdn.simpleicons.org/nodedotjs' },
-  { name: 'GraphQL', image: 'https://cdn.simpleicons.org/graphql' },
+  { name: 'Go', image: 'https://cdn.simpleicons.org/go' },
+  { name: 'Python', image: 'https://cdn.simpleicons.org/python' },
   { name: 'PostgreSQL', image: 'https://cdn.simpleicons.org/postgresql' },
-  { name: 'Google Cloud', image: 'https://cdn.simpleicons.org/googlecloud' },
+  { name: 'Kubernetes', image: 'https://cdn.simpleicons.org/kubernetes' },
+  { name: 'GitHub', image: 'https://cdn.simpleicons.org/github/white' },
 ];
 
 /** Illustrative. Recruiter already exists; a company page would surface it. */
 export const jobs = [
   {
-    title: 'Senior Frontend Engineer',
-    location: 'Remote (EU)',
+    title: 'Senior Software Engineer, Agents',
+    location: 'San Francisco',
     type: 'Full-time',
   },
-  { title: 'Developer Advocate', location: 'Remote', type: 'Full-time' },
+  { title: 'Developer Advocate', location: 'Remote (US)', type: 'Full-time' },
 ];
 
 const source = {
@@ -508,95 +618,108 @@ export interface Product {
   links: { label: string; href: string }[];
 }
 
-/** Illustrative. Real products, ratings and counts are placeholders. */
+/** Illustrative. Real products; ratings and counts are placeholders. */
 export const products: Product[] = [
   {
-    id: 'app',
-    name: 'daily.dev',
+    id: 'reviews',
+    name: 'CodeRabbit',
     tagline:
-      'The professional network for developers to learn, grow and stay updated.',
+      'AI code reviews on every pull request, in GitHub, GitLab, Azure DevOps and Bitbucket.',
     image: squad.image,
-    category: 'Developer news',
-    pricing: 'Free',
+    category: 'Code review',
+    pricing: 'Freemium',
     source: 'Product Hunt',
     rating: 4.9,
-    reviews: 1240,
-    inStacks: 8420,
+    reviews: 640,
+    inStacks: 12400,
     links: [
-      { label: 'Website', href: 'https://daily.dev' },
+      { label: 'Website', href: 'https://www.coderabbit.ai' },
       {
         label: 'Product Hunt',
-        href: 'https://www.producthunt.com/products/daily-dev',
+        href: 'https://www.producthunt.com/products/coderabbit',
       },
     ],
   },
   {
-    id: 'extension',
-    name: 'daily.dev browser extension',
-    tagline: 'Your feed in every new tab. Chrome, Edge, Firefox and Opera.',
-    image: 'https://cdn.simpleicons.org/googlechrome',
-    category: 'Browser extension',
+    id: 'triage',
+    name: 'CodeRabbit Triage',
+    tagline:
+      'One cross-repository queue of open pull requests, ranked by what each one needs next.',
+    image: squad.image,
+    category: 'Developer productivity',
+    pricing: 'Paid',
+    source: 'Website',
+    inStacks: 2100,
+    links: [{ label: 'Website', href: 'https://www.coderabbit.ai/triage' }],
+  },
+  {
+    id: 'cli',
+    name: 'CodeRabbit CLI',
+    tagline:
+      'Review your changes before you push, from the terminal or inside any coding agent.',
+    image: squad.image,
+    category: 'CLI',
+    pricing: 'Free',
+    source: 'GitHub',
+    rating: 4.7,
+    reviews: 310,
+    inStacks: 5300,
+    links: [
+      {
+        label: 'Docs',
+        href: 'https://docs.coderabbit.ai/overview/ide-cli-review',
+      },
+      { label: 'GitHub', href: 'https://github.com/coderabbitai' },
+    ],
+  },
+  {
+    id: 'ide',
+    name: 'CodeRabbit for VS Code',
+    tagline: 'Reviews in the IDE, before the pull request exists.',
+    image: squad.image,
+    category: 'IDE extension',
     pricing: 'Free',
     source: 'Website',
-    rating: 4.7,
-    reviews: 3100,
-    inStacks: 5210,
-    links: [{ label: 'Chrome Web Store', href: 'https://daily.dev/extension' }],
-  },
-  {
-    id: 'plus',
-    name: 'daily.dev Plus',
-    tagline: 'Smart briefings, clickbait shield, custom feeds and more.',
-    image: squad.image,
-    category: 'Subscription',
-    pricing: 'Paid',
-    source: 'G2',
     rating: 4.6,
-    reviews: 212,
-    inStacks: 1930,
+    reviews: 1180,
+    inStacks: 4800,
     links: [
-      { label: 'Website', href: 'https://daily.dev/plus' },
-      { label: 'G2', href: 'https://www.g2.com/products/daily-dev' },
+      {
+        label: 'Marketplace',
+        href: 'https://marketplace.visualstudio.com/items?itemName=CodeRabbit.coderabbit-vscode',
+      },
     ],
   },
   {
-    id: 'recruiter',
-    name: 'daily.dev Recruiter',
-    tagline: 'Hire developers where they already read.',
+    id: 'change-stack',
+    name: 'Change Stack',
+    tagline:
+      'Intent, behavior, dependencies and risk, tied back to the code you are about to merge.',
     image: squad.image,
-    category: 'Hiring',
+    category: 'Code review',
     pricing: 'Paid',
     source: 'Website',
-    inStacks: 140,
-    links: [{ label: 'Website', href: 'https://daily.dev/recruiter' }],
-  },
-  {
-    id: 'api',
-    name: 'Public API',
-    tagline:
-      'Personal access tokens, 200 free requests a month, guides for agents.',
-    image: 'https://cdn.simpleicons.org/graphql',
-    category: 'API',
-    pricing: 'Freemium',
-    source: 'GitHub',
-    inStacks: 610,
+    inStacks: 1900,
     links: [
-      { label: 'Docs', href: 'https://docs.daily.dev/api' },
-      { label: 'GitHub', href: 'https://github.com/dailydotdev' },
+      { label: 'Website', href: 'https://www.coderabbit.ai/change-stack' },
     ],
   },
   {
-    id: 'claude-plugin',
-    name: 'Claude Code plugin',
-    tagline: 'Developer headlines in your terminal statusline.',
-    image: 'https://cdn.simpleicons.org/anthropic',
-    category: 'Integration',
-    pricing: 'Open source',
-    source: 'GitHub',
-    rating: 4.8,
-    reviews: 96,
-    inStacks: 880,
-    links: [{ label: 'GitHub', href: 'https://github.com/dailydotdev' }],
+    id: 'slack-agent',
+    name: 'Agent for Slack',
+    tagline:
+      'Investigation, planning and code edits from Slack, with shared context and governed access.',
+    image: squad.image,
+    category: 'Integrations',
+    pricing: 'Paid',
+    source: 'Website',
+    inStacks: 860,
+    links: [
+      {
+        label: 'Docs',
+        href: 'https://docs.coderabbit.ai/overview/slack-agent',
+      },
+    ],
   },
 ];
 
@@ -604,7 +727,7 @@ export const products: Product[] = [
 export const rules: [string, string][] = [
   [
     'Stay on topic',
-    'Posts are about daily.dev: releases, questions, feedback, bugs.',
+    'Posts are about CodeRabbit: releases, questions, feedback, bugs.',
   ],
   [
     'Search before you ask',
@@ -616,7 +739,7 @@ export const rules: [string, string][] = [
   ],
   [
     'Bugs get a template',
-    'Steps, expected and actual, browser or app version, a screenshot.',
+    'Repository host, plan, the pull request if you can share it, a screenshot.',
   ],
   [
     'Be useful',
@@ -826,29 +949,29 @@ export interface SquadPoll {
 export const polls: SquadPoll[] = [
   {
     id: 'p1',
-    question: 'Which integration should we ship next for the public API?',
-    options: ['Raycast', 'Obsidian', 'VS Code', 'Zapier'],
-    split: [18, 34, 41, 7],
+    question: 'Which coding agent do you pair CodeRabbit with most?',
+    options: ['Claude Code', 'Cursor', 'Codex', 'GitHub Copilot'],
+    split: [44, 27, 18, 11],
     votes: 1860,
-    author: team[3],
+    author: team[2],
     endsAt: '2026-09-30T09:00:00.000Z',
   },
   {
     id: 'p2',
-    question: 'Where do you read daily.dev most?',
-    options: ['New tab', 'Web app', 'iOS or Android', 'Email digest'],
-    split: [52, 23, 19, 6],
-    votes: 2410,
-    author: team[1],
+    question: 'Where should Triage go next?',
+    options: ['GitLab', 'Azure DevOps', 'Bitbucket', 'A CLI view'],
+    split: [41, 22, 15, 22],
+    votes: 1130,
+    author: team[0],
     endsAt: '2026-09-26T09:00:00.000Z',
   },
   {
     id: 'p3',
-    question: 'Streak freezes: what should the default stash be?',
-    options: ['Two', 'Three', 'Five', 'Let me choose'],
-    split: [11, 29, 38, 22],
-    votes: 1290,
-    author: team[2],
+    question: 'How many pull requests does your team open a day?',
+    options: ['Under 10', '10 to 50', '50 to 200', '200 or more'],
+    split: [34, 38, 19, 9],
+    votes: 990,
+    author: team[1],
     endsAt: '2026-09-24T09:00:00.000Z',
   },
 ];
@@ -859,16 +982,20 @@ export interface CompanyLink {
   href: string;
 }
 
-/** Illustrative. The company's places on the web, in the order it wants them. */
+/** The company's places on the web, in the order it wants them. */
 export const companyLinks: CompanyLink[] = [
-  { id: 'docs', label: 'Docs', href: 'https://docs.daily.dev' },
-  { id: 'github', label: 'GitHub', href: 'https://github.com/dailydotdev' },
-  { id: 'x', label: 'X', href: 'https://x.com/dailydotdev' },
-  { id: 'youtube', label: 'YouTube', href: 'https://youtube.com/@dailydotdev' },
+  { id: 'docs', label: 'Docs', href: 'https://docs.coderabbit.ai' },
+  { id: 'github', label: 'GitHub', href: 'https://github.com/coderabbitai' },
+  { id: 'x', label: 'X', href: 'https://x.com/coderabbitai' },
+  {
+    id: 'youtube',
+    label: 'YouTube',
+    href: 'https://www.youtube.com/@coderabbitai',
+  },
   {
     id: 'linkedin',
     label: 'LinkedIn',
-    href: 'https://linkedin.com/company/dailydotdev',
+    href: 'https://www.linkedin.com/company/coderabbitai',
   },
-  { id: 'discord', label: 'Discord', href: 'https://discord.gg/dailydev' },
+  { id: 'discord', label: 'Discord', href: 'https://discord.gg/coderabbit' },
 ];

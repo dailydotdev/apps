@@ -500,7 +500,7 @@ const social = [
   {
     id: 'website',
     icon: <LinkIcon size={IconSize.XSmall} />,
-    label: 'daily.dev',
+    label: squad.company.website,
   },
   {
     id: 'github',
@@ -535,10 +535,9 @@ const AboutSection = (): ReactElement => (
         Every release, explained by the people who built it. 👋
       </p>
       <p>
-        This is where the daily.dev team announces what shipped, what is in
+        This is where the {squad.name} team announces what shipped, what is in
         beta, and why we changed something. Every post is written by the
-        engineer or designer behind it, and the comments are where we take the
-        bug reports.
+        engineer behind it, and the comments are where we take the bug reports.
       </p>
       <p>What you will find here</p>
       <p>
@@ -864,12 +863,12 @@ export const Tile = ({
 );
 
 const topTags = [
-  ['dailydev', 62],
-  ['devtools', 38],
-  ['claude-code', 21],
-  ['community', 17],
-  ['ui-ux', 14],
-  ['architecture', 9],
+  ['coderabbit', 62],
+  ['code-review', 38],
+  ['ai', 21],
+  ['cli', 17],
+  ['security', 14],
+  ['devtools', 9],
 ] as const;
 
 /* Posts per week, 26 weeks. Real cadence: a handful a month. */

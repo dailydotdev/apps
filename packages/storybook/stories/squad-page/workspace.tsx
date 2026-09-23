@@ -881,7 +881,7 @@ export const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
     </h1>
     <p className="text-text-secondary typo-body">
       {page.id === 'start-here'
-        ? 'Everything the daily.dev team ships, announced here first. Releases, betas, the reasoning behind changes, and a place to tell us what broke.'
+        ? `Everything the ${squad.name} team ships, announced here first. Releases, betas, the reasoning behind changes, and a place to tell us what broke.`
         : page.id === 'rules'
         ? 'This squad is a changelog. Posts from the team are announcements; posts from members are questions, bug reports and feedback about a release.'
         : 'Answers to the questions we get every week, kept current by the team.'}
@@ -912,12 +912,12 @@ export const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
     <h2 className="font-bold text-text-primary typo-title3">Get involved</h2>
     <ul className="flex list-disc flex-col gap-1.5 pl-5 text-text-secondary typo-body">
       <li>
-        Earn Cores on the <span className="text-text-link">Bounties</span>{' '}
-        board.
+        Ask in <span className="text-text-link">Discussions</span>; the team
+        answers there.
       </li>
       <li>
         The public API is open:{' '}
-        <span className="text-text-link">docs.daily.dev/api</span>.
+        <span className="text-text-link">docs.coderabbit.ai</span>.
       </li>
     </ul>
     <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary pt-4 text-text-quaternary typo-footnote">
@@ -945,8 +945,8 @@ export const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
           <MegaphoneIcon size={IconSize.Small} />
           <span className="min-w-0 flex-1">
             Published from the company&apos;s feed,{' '}
-            <span className="text-text-secondary">daily.dev/changelog/rss</span>
-            . Every item becomes a post here the hour it goes live.
+            <span className="text-text-secondary">{squad.feedUrl}</span>. Every
+            item becomes a post here the hour it goes live.
           </span>
           <span className="sq-nums shrink-0 text-text-quaternary typo-caption1">
             Synced 2h ago
@@ -1117,7 +1117,7 @@ const toPollPost = (poll: SquadPoll, picked?: number): Post =>
       order: index + 1,
       numVotes: Math.round((poll.split[index] / 100) * poll.votes),
     })),
-    tags: ['dailydev'],
+    tags: ['coderabbit'],
     userState: {
       vote: UserVote.None,
       flags: { feedbackDismiss: false },
@@ -1232,8 +1232,8 @@ export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
       </div>
     ) : (
       <p className="max-w-[52ch] text-text-secondary typo-callout">
-        Everything {squad.company.website} makes. Add one to your stack and it
-        shows on your profile.
+        Everything {squad.name} makes. Add one to your stack and it shows on
+        your profile.
       </p>
     )}
     {/* Product Hunt's list: logo, name and tagline on one line, chips under,
@@ -1708,10 +1708,13 @@ export const FeedSourcePage = (): ReactElement => (
       </div>
       <dl className="grid grid-cols-2 gap-x-8 gap-y-3">
         {[
-          ['Feed', 'daily.dev/changelog/rss'],
+          ['Feed', squad.feedUrl],
           ['Publishes to', 'Releases'],
           ['Checked', 'Every hour · last 2h ago'],
-          ['Imported', '151 items since Feb 2023'],
+          [
+            'Imported',
+            `${squad.totalPosts} items since ${formatSince(squad.createdAt)}`,
+          ],
           ['Author on posts', 'The team member in the item, or the squad'],
           ['Auto-publish', 'On · new items go live without review'],
         ].map(([label, value]) => (
@@ -2012,7 +2015,7 @@ export const SettingsPage = (): ReactElement => {
         <Field
           label="Squad handle"
           value={`@${squad.handle}`}
-          hint="daily.dev/squads/daily_updates"
+          hint={`daily.dev/squads/${squad.handle}`}
         />
         <Field
           label="Squad description"
@@ -2157,8 +2160,7 @@ export const SettingsPage = (): ReactElement => {
                 Content feed
               </span>
               <span className="text-text-tertiary typo-footnote">
-                daily.dev/changelog/rss, checked every hour, managed by
-                daily.dev.
+                {squad.feedUrl}, checked every hour, managed by daily.dev.
               </span>
             </div>
             <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
