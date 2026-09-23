@@ -90,8 +90,8 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
           scopeType={ArchiveScopeType.Global}
           scopeName={scopeName}
         />
+        <ExploreSignupStrip />
       </PageWrapperLayout>
-      <ExploreSignupStrip />
     </>
   );
 };

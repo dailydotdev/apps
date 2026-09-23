@@ -125,7 +125,7 @@ const WatercoolerPage = (): ReactElement => {
         hideTags
         disableListFrame
       />
-      <ExploreSignupStrip />
+      <ExploreSignupStrip className="px-4 laptop:px-0" />
     </FeedPageLayoutList>
   );
 };

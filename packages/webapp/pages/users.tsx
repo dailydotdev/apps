@@ -179,8 +179,8 @@ const LeaderboardPage = ({
             isLoading={isLoading}
           />
         </div>
+        <ExploreSignupStrip />
       </PageWrapperLayout>
-      <ExploreSignupStrip />
     </>
   );
 };

@@ -401,7 +401,7 @@ const SourcePage = ({
             className={pageFeedClassName}
           />
         </div>
-        <ExploreSignupStrip />
+        <ExploreSignupStrip className={pageSectionAutoWidthClassName} />
       </FeedPageLayoutComponent>
     </>
   );

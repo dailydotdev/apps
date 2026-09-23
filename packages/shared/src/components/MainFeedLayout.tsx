@@ -946,7 +946,13 @@ export default function MainFeedLayout({
           )
         )}
         {children}
-        {showSignupStrip && <ExploreSignupStrip />}
+        {showSignupStrip && (
+          <div className={feedWidthClassName} style={feedWidthStyle}>
+            <ExploreSignupStrip
+              className={classNames(!shouldUseCommentFeedLayout && feedGutter)}
+            />
+          </div>
+        )}
       </FeedPageLayoutComponent>
       {/* Docked outside the page container so it spans the feed column and
           pins to the window, and mounted here rather than in each app's

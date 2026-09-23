@@ -162,8 +162,8 @@ const SourcesPage = ({
             isLoading={isLoading}
           />
         </div>
+        <ExploreSignupStrip />
       </PageWrapperLayout>
-      <ExploreSignupStrip />
     </>
   );
 };

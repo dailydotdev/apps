@@ -643,8 +643,8 @@ export const TagTopicPage = ({
             variables={mainFeedQueryVariables}
             className="!mx-0 !w-auto"
           />
+          <ExploreSignupStrip />
         </div>
-        <ExploreSignupStrip />
       </FeedPageLayoutComponent>
     </>
   );

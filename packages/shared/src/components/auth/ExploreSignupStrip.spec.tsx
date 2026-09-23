@@ -81,6 +81,16 @@ const impression = {
   target_id: TargetId.ExploreStrip,
 };
 
+beforeAll(() => {
+  Object.defineProperty(global, 'ResizeObserver', {
+    writable: true,
+    value: jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
+    })),
+  });
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseViewSize.mockReturnValue(true);
@@ -96,6 +106,21 @@ describe('ExploreSignupStrip', () => {
       }),
     ).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith(impression);
+  });
+
+  it("should pin the card at the slot's box", () => {
+    jest
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ left: 120, width: 900 } as DOMRect);
+    renderComponent();
+
+    const heading = screen.getByRole('heading', {
+      name: 'Unlock the full daily.dev experience',
+    });
+    expect(heading.closest('.fixed')).toHaveStyle({
+      left: '120px',
+      width: '900px',
+    });
   });
 
   it('should render nothing for logged-in users', () => {

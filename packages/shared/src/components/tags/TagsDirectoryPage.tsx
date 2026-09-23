@@ -174,8 +174,8 @@ export function TagsDirectoryPage({
             )}
           </TagDirectory>
         </div>
+        <ExploreSignupStrip />
       </div>
-      <ExploreSignupStrip />
     </>
   );
 }

@@ -631,8 +631,8 @@ function WorldIndexPage(): ReactElement {
             </section>
           )}
         </ResponsivePageContainer>
+        <ExploreSignupStrip className="px-4" />
       </div>
-      <ExploreSignupStrip />
     </>
   );
 }

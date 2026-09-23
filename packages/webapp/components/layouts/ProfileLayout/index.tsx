@@ -158,6 +158,7 @@ export default function ProfileLayout({
       <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
         <main className="relative flex flex-1 flex-col laptop:max-w-2xl laptopL:max-w-3xl">
           {children}
+          <ExploreSignupStrip className="px-4 laptop:px-0" />
         </main>
         <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">
           {userStats && sources && (
@@ -170,7 +171,6 @@ export default function ProfileLayout({
           )}
         </aside>
       </div>
-      <ExploreSignupStrip />
     </div>
   );
 }
