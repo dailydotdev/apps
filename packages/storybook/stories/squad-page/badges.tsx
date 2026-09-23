@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { VerifiedSeal } from './kit';
+import { squad, team } from './data';
+import { Avatar, VerifiedSeal } from './kit';
 
 // The official badge, eight ways. Every one is the width of Home's widget
 // column and one row tall, because that is where it sits. The references
@@ -193,6 +194,301 @@ export const badgeVariants: BadgeVariant[] = [
           </span>
         </div>
       </div>
+    ),
+  },
+];
+
+/* ------------------------------------------------------------ round two */
+
+// Between Foil and Glass: light, warmth, depth. The references this time
+// are the marks developers meet outside the big networks: Docker's Verified
+// Publisher, npm provenance, the VS Code marketplace tick, Hugging Face's
+// verified org, Stack Overflow Collectives, Twitch and Discord partners,
+// Spotify's Verified Artist, Airbnb's Superhost, an Apple Developer
+// certificate, a hallmark, a wax seal, a holographic sticker, a swing tag.
+
+const gold = (a: number, b: number): string =>
+  `linear-gradient(120deg, color-mix(in srgb, var(--theme-accent-cheese-default) ${a}%, transparent), color-mix(in srgb, var(--theme-accent-bun-default) ${Math.round(
+    a / 3,
+  )}%, transparent) 55%, color-mix(in srgb, var(--theme-accent-cheese-default) ${b}%, transparent))`;
+
+const goldEdge =
+  'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-cheese-default) 55%, transparent)';
+
+const holo =
+  'conic-gradient(from 200deg at 30% 50%, color-mix(in srgb, var(--theme-accent-cabbage-default) 40%, transparent), color-mix(in srgb, var(--theme-accent-blueCheese-default) 40%, transparent), color-mix(in srgb, var(--theme-accent-cheese-default) 40%, transparent), color-mix(in srgb, var(--theme-accent-avocado-default) 30%, transparent), color-mix(in srgb, var(--theme-accent-cabbage-default) 40%, transparent))';
+
+const frost =
+  'color-mix(in srgb, var(--theme-background-default) 58%, transparent)';
+
+const Haze = ({ background }: { background: string }): ReactElement => (
+  <div
+    aria-hidden
+    className="absolute inset-0"
+    style={{ background, filter: 'blur(16px)' }}
+  />
+);
+
+const Card = ({
+  children,
+  className,
+  style,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'relative flex items-center gap-3 overflow-hidden rounded-16 px-4 py-3',
+      className,
+    )}
+    style={style}
+  >
+    {children}
+  </div>
+);
+
+export const badgeVariantsRoundTwo: BadgeVariant[] = [
+  {
+    id: 'foil-glass',
+    title: 'Foil glass',
+    from: 'Foil and Glass, together',
+    note: 'Gold haze under frosted glass. The warmth of foil, the depth of glass, one hairline of gold.',
+    render: () => (
+      <Card style={{ boxShadow: goldEdge, background: frost }}>
+        <Haze background={gold(60, 30)} />
+        <VerifiedSeal className="relative size-6 text-accent-cheese-default" />
+        <span className="relative font-bold text-text-primary typo-callout">
+          Official company page
+        </span>
+      </Card>
+    ),
+  },
+  {
+    id: 'holo',
+    title: 'Holographic',
+    from: 'A holo sticker, Hugging Face verified org',
+    note: 'Every accent in one conic sweep behind the glass. The seal stays white so it reads as the stable thing.',
+    render: () => (
+      <Card
+        style={{
+          background: frost,
+          boxShadow:
+            'inset 0 0 0 1px color-mix(in srgb, var(--theme-text-primary) 16%, transparent)',
+        }}
+      >
+        <Haze background={holo} />
+        <VerifiedSeal className="relative size-6 text-text-primary [&_path:last-child]:stroke-background-default" />
+        <span className="relative font-bold text-text-primary typo-callout">
+          Official
+        </span>
+        <span className="relative ml-auto text-text-tertiary typo-caption1">
+          Verified publisher
+        </span>
+      </Card>
+    ),
+  },
+  {
+    id: 'hallmark',
+    title: 'Hallmark',
+    from: 'A hallmark on silver, Apple Developer certificates',
+    note: 'A serial makes it rare: the order in which the company was verified. Copy does the work; the fill is almost nothing.',
+    render: () => (
+      <Card
+        className="border border-border-subtlest-secondary"
+        style={{ background: gold(14, 6) }}
+      >
+        <VerifiedSeal className="size-5 text-accent-cheese-default" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="font-bold text-text-primary typo-footnote">
+            Official company page
+          </span>
+          <span className="sq-nums text-text-tertiary typo-caption2">
+            Verified No. 0041 · Since Feb 2023
+          </span>
+        </div>
+      </Card>
+    ),
+  },
+  {
+    id: 'wax',
+    title: 'Wax seal',
+    from: 'A wax seal, Stack Overflow Collectives',
+    note: 'The company logo inside the seal, so the badge is theirs and not ours. Gold ring, deep fill.',
+    render: () => (
+      <Card style={{ background: gold(22, 10), boxShadow: goldEdge }}>
+        <span className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cheese-default p-[2px]">
+          <img
+            src={squad.image}
+            alt=""
+            className="size-full rounded-full object-cover ring-2 ring-background-default"
+          />
+          <VerifiedSeal className="absolute -bottom-0.5 -right-0.5 size-4 text-accent-cheese-default [&_path:last-child]:stroke-background-default" />
+        </span>
+        <div className="flex min-w-0 flex-col">
+          <span className="font-bold text-text-primary typo-callout">
+            Official page
+          </span>
+          <span className="text-text-tertiary typo-caption1">
+            of {squad.company.website}
+          </span>
+        </div>
+      </Card>
+    ),
+  },
+  {
+    id: 'ribbon',
+    title: 'Ribbon',
+    from: 'An award ribbon, Airbnb Superhost',
+    note: 'A gold band across the top of the column instead of a card. The column itself becomes the badge.',
+    render: () => (
+      <div className="flex flex-col gap-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+        <div
+          className="flex items-center justify-center gap-2 px-4 py-1.5 text-background-default"
+          style={{
+            background:
+              'linear-gradient(90deg, var(--theme-accent-bun-default), var(--theme-accent-cheese-default) 50%, var(--theme-accent-bun-default))',
+          }}
+        >
+          <VerifiedSeal className="size-4 text-background-default [&_path:last-child]:stroke-accent-cheese-default" />
+          <span className="font-bold uppercase tracking-[0.16em] typo-caption2">
+            Official company page
+          </span>
+        </div>
+        <div className="flex items-center gap-3 bg-surface-float px-4 py-2.5">
+          <img src={squad.image} alt="" className="size-6 rounded-6" />
+          <span className="text-text-secondary typo-footnote">
+            Run by the {squad.company.website} team
+          </span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'partner',
+    title: 'Partner',
+    from: 'Twitch and Discord partners',
+    note: 'Copy change: partner, not page. Says the relationship, not the object. Purple glass, gold seal.',
+    render: () => (
+      <Card
+        style={{
+          background: frost,
+          boxShadow:
+            'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-cabbage-default) 40%, transparent)',
+        }}
+      >
+        <Haze background={glow(50)} />
+        <VerifiedSeal className="relative size-6 text-accent-cheese-default" />
+        <div className="relative flex min-w-0 flex-col">
+          <span className="font-bold text-text-primary typo-callout">
+            daily.dev partner
+          </span>
+          <span className="text-text-tertiary typo-caption1">
+            Official company page
+          </span>
+        </div>
+      </Card>
+    ),
+  },
+  {
+    id: 'team',
+    title: 'Faces',
+    from: 'Spotify Verified Artist, Product Hunt makers',
+    note: 'The proof is people. The seal, the words, and the verified employees who run it.',
+    render: () => (
+      <Card style={{ background: frost, boxShadow: goldEdge }}>
+        <Haze background={gold(40, 16)} />
+        <VerifiedSeal className="relative size-6 text-accent-cheese-default" />
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          <span className="font-bold text-text-primary typo-callout">
+            Official company page
+          </span>
+          <span className="text-text-tertiary typo-caption1">
+            Run by verified employees
+          </span>
+        </div>
+        <span className="relative flex">
+          {team.slice(0, 3).map((member, index) => (
+            <Avatar
+              key={member.id}
+              member={member}
+              size={1.5}
+              className={classNames(
+                'ring-2 ring-background-default',
+                index > 0 && '-ml-1.5',
+              )}
+            />
+          ))}
+        </span>
+      </Card>
+    ),
+  },
+  {
+    id: 'edge',
+    title: 'Gold edge',
+    from: 'A gilt page edge, VS Code verified publisher',
+    note: 'No card at all: a gold rule along the top of the column and one small line. The most restrained luxury there is.',
+    render: () => (
+      <div className="flex flex-col gap-2">
+        <div
+          className="h-[3px] rounded-[999px]"
+          style={{
+            background:
+              'linear-gradient(90deg, transparent, var(--theme-accent-cheese-default) 20%, var(--theme-accent-cheese-default) 80%, transparent)',
+          }}
+        />
+        <div className="flex items-center justify-center gap-1.5 text-text-tertiary typo-caption1">
+          <VerifiedSeal className="size-4 text-accent-cheese-default" />
+          <span className="font-bold text-text-primary">Official</span>
+          <span>company page</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'tag',
+    title: 'Swing tag',
+    from: 'A luxury product tag, Docker Verified Publisher',
+    note: 'A tag with its hole, the label stamped in small caps. Playful, still gold.',
+    render: () => (
+      <div className="flex">
+        <div
+          className="relative flex items-center gap-2.5 rounded-10 py-2 pl-3 pr-4"
+          style={{
+            background: gold(30, 14),
+            boxShadow: goldEdge,
+            clipPath: 'polygon(0 50%, 10px 0, 100% 0, 100% 100%, 10px 100%)',
+          }}
+        >
+          <span className="ml-2 size-1.5 rounded-full bg-background-default ring-1 ring-accent-cheese-default" />
+          <VerifiedSeal className="size-4 text-accent-cheese-default" />
+          <span className="font-bold uppercase tracking-[0.16em] text-text-primary typo-caption1">
+            Official
+          </span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'live',
+    title: 'Presence',
+    from: 'Twitch, Intercom',
+    note: 'Copy plays with time: official, and here now. The green dot is the only non-gold colour.',
+    render: () => (
+      <Card style={{ background: frost, boxShadow: goldEdge }}>
+        <Haze background={gold(48, 20)} />
+        <VerifiedSeal className="relative size-6 text-accent-cheese-default" />
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          <span className="font-bold text-text-primary typo-callout">
+            Official company page
+          </span>
+          <span className="flex items-center gap-1.5 text-text-tertiary typo-caption1">
+            <span className="size-1.5 rounded-full bg-status-success" />
+            Team online now
+          </span>
+        </div>
+      </Card>
     ),
   },
 ];

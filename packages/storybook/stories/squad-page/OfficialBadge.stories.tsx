@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { KitStyles } from './kit';
-import { badgeVariants } from './badges';
+import { badgeVariants, badgeVariantsRoundTwo } from './badges';
 
 const meta: Meta = {
   title: 'Squad Page/4. Official badge',
@@ -66,6 +66,38 @@ export const Overview: StoryObj = {
               <div className="flex flex-col gap-1">
                 <Eyebrow>
                   0{index + 1} · {variant.title}
+                </Eyebrow>
+                <span className="text-text-tertiary typo-footnote">
+                  From {variant.from}
+                </span>
+                <span className="max-w-[36ch] text-text-secondary typo-callout">
+                  {variant.note}
+                </span>
+              </div>
+              <ColumnFrame>{variant.render()}</ColumnFrame>
+            </div>
+          ))}
+        </div>
+        <header className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-10">
+          <Eyebrow>Round two · Between Foil and Glass</Eyebrow>
+          <h2 className="font-bold typo-title1">Ten more, in gold and glass</h2>
+          <p className="max-w-[76ch] text-text-secondary typo-body">
+            Light, warmth, depth. The references this time are the marks a
+            developer meets outside the big networks: Docker&apos;s Verified
+            Publisher, the VS Code marketplace tick, Hugging Face&apos;s
+            verified organisation, Stack Overflow Collectives, Twitch and
+            Discord partners, Spotify&apos;s Verified Artist, Airbnb&apos;s
+            Superhost, an Apple Developer certificate; and the physical ones, a
+            hallmark, a wax seal, a holographic sticker, a swing tag. The copy
+            moves too: page, partner, publisher, a serial, the people.
+          </p>
+        </header>
+        <div className="grid grid-cols-4 gap-x-8 gap-y-12">
+          {badgeVariantsRoundTwo.map((variant, index) => (
+            <div key={variant.id} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <Eyebrow>
+                  {String(index + 9).padStart(2, '0')} · {variant.title}
                 </Eyebrow>
                 <span className="text-text-tertiary typo-footnote">
                   From {variant.from}
