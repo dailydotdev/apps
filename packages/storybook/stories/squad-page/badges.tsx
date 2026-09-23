@@ -489,3 +489,264 @@ export const badgeVariantsRoundTwo: BadgeVariant[] = [
     ),
   },
 ];
+
+/* ---------------------------------------------------------- round three */
+
+// Foil glass and Holographic, in brand purple. Ten ways to hold the same
+// idea: light under glass, one edge, the seal, four words. What moves is
+// where the light sits, how the edge is drawn, and what the second line
+// says, if there is one.
+
+const c = (token: string, pct: number): string =>
+  `color-mix(in srgb, var(--theme-accent-${token}-default) ${pct}%, transparent)`;
+
+const purpleEdge = `inset 0 0 0 1px ${c('cabbage', 55)}`;
+const purpleHaze = `linear-gradient(120deg, ${c('cabbage', 60)}, ${c(
+  'onion',
+  22,
+)} 55%, ${c('cabbage', 32)})`;
+const purpleHolo = `conic-gradient(from 200deg at 30% 50%, ${c(
+  'cabbage',
+  48,
+)}, ${c('onion', 42)}, ${c('blueCheese', 34)}, ${c('cabbage', 48)})`;
+
+const Label = ({
+  title = 'Official company page',
+  sub,
+  className,
+}: {
+  title?: string;
+  sub?: string;
+  className?: string;
+}): ReactElement => (
+  <div
+    className={classNames('relative flex min-w-0 flex-1 flex-col', className)}
+  >
+    <span className="font-bold text-text-primary typo-callout">{title}</span>
+    {sub && <span className="text-text-tertiary typo-caption1">{sub}</span>}
+  </div>
+);
+
+const Seal = ({ className }: { className?: string }): ReactElement => (
+  <VerifiedSeal
+    className={classNames(
+      'relative size-6 text-accent-cabbage-default',
+      className,
+    )}
+  />
+);
+
+export const badgeVariantsRoundThree: BadgeVariant[] = [
+  {
+    id: 'p-foil',
+    title: 'Purple foil glass',
+    from: '09, in brand',
+    note: 'The gold one, recoloured. Cabbage haze under frost, one cabbage hairline.',
+    render: () => (
+      <Card style={{ background: frost, boxShadow: purpleEdge }}>
+        <Haze background={purpleHaze} />
+        <Seal />
+        <Label />
+      </Card>
+    ),
+  },
+  {
+    id: 'p-holo',
+    title: 'Purple holographic',
+    from: '10, in brand',
+    note: 'Cabbage, onion and a breath of blue in one conic sweep. White seal, second line for the publisher.',
+    render: () => (
+      <Card
+        style={{
+          background: frost,
+          boxShadow:
+            'inset 0 0 0 1px color-mix(in srgb, var(--theme-text-primary) 16%, transparent)',
+        }}
+      >
+        <Haze background={purpleHolo} />
+        <Seal className="text-text-primary [&_path:last-child]:stroke-background-default" />
+        <Label title="Official" />
+        <span className="relative text-text-tertiary typo-caption1">
+          Verified publisher
+        </span>
+      </Card>
+    ),
+  },
+  {
+    id: 'p-aurora',
+    title: 'Aurora',
+    from: 'The landing page aurora',
+    note: 'Two orbs, cabbage top-left and onion bottom-right, blurred under the glass. The seal sits in the brightest spot.',
+    render: () => (
+      <Card style={{ background: frost, boxShadow: purpleEdge }}>
+        <Haze
+          background={`radial-gradient(70% 120% at 12% 20%, ${c(
+            'cabbage',
+            70,
+          )}, transparent 60%), radial-gradient(70% 120% at 95% 110%, ${c(
+            'onion',
+            55,
+          )}, transparent 60%)`}
+        />
+        <Seal />
+        <Label />
+      </Card>
+    ),
+  },
+  {
+    id: 'p-sheen',
+    title: 'Sheen',
+    from: 'Light on a lacquered surface',
+    note: 'Flat purple glass with one diagonal highlight, the way light crosses a card. Nothing else.',
+    render: () => (
+      <Card style={{ background: c('cabbage', 16), boxShadow: purpleEdge }}>
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(115deg, transparent 30%, color-mix(in srgb, var(--theme-text-primary) 14%, transparent) 50%, transparent 62%)',
+          }}
+        />
+        <Seal />
+        <Label />
+      </Card>
+    ),
+  },
+  {
+    id: 'p-frame',
+    title: 'Gradient frame',
+    from: 'A gilt frame, in purple',
+    note: 'The edge is the gradient, cabbage to onion, one pixel wide. The inside is dark glass.',
+    render: () => (
+      <div
+        className="rounded-16 p-px"
+        style={{
+          background: `linear-gradient(120deg, var(--theme-accent-cabbage-default), ${c(
+            'onion',
+            70,
+          )})`,
+        }}
+      >
+        <Card
+          className="rounded-[15px]"
+          style={{ background: 'var(--theme-background-default)' }}
+        >
+          <Haze
+            background={`radial-gradient(80% 100% at 0% 50%, ${c(
+              'cabbage',
+              30,
+            )}, transparent 70%)`}
+          />
+          <Seal />
+          <Label />
+        </Card>
+      </div>
+    ),
+  },
+  {
+    id: 'p-emblem',
+    title: 'Emblem',
+    from: 'A crest on a blazer',
+    note: 'The seal grows and gets its own disc; the words go small caps. The badge is the seal, the label is the caption.',
+    render: () => (
+      <Card style={{ background: frost, boxShadow: purpleEdge }}>
+        <Haze background={purpleHaze} />
+        <span
+          className="relative flex size-10 shrink-0 items-center justify-center rounded-full"
+          style={{ background: c('cabbage', 22), boxShadow: purpleEdge }}
+        >
+          <Seal className="size-6" />
+        </span>
+        <div className="relative flex min-w-0 flex-col">
+          <span className="font-bold uppercase tracking-[0.18em] text-text-primary typo-caption1">
+            Official
+          </span>
+          <span className="text-text-tertiary typo-caption1">Company page</span>
+        </div>
+      </Card>
+    ),
+  },
+  {
+    id: 'p-duotone',
+    title: 'Duotone',
+    from: 'The holographic, calmed',
+    note: 'Purple on the left, blue on the right, meeting under the words. Seal in onion so it reads against both.',
+    render: () => (
+      <Card style={{ background: frost, boxShadow: purpleEdge }}>
+        <Haze
+          background={`linear-gradient(90deg, ${c('cabbage', 60)}, ${c(
+            'blueCheese',
+            36,
+          )})`}
+        />
+        <Seal className="text-accent-onion-default" />
+        <Label title="Official" sub="Verified company page" />
+      </Card>
+    ),
+  },
+  {
+    id: 'p-spotlight',
+    title: 'Spotlight',
+    from: 'A vitrine',
+    note: 'Dark glass; the only light is a purple pool behind the seal. The rest of the card is night.',
+    render: () => (
+      <Card
+        style={{
+          background: 'var(--theme-background-default)',
+          boxShadow:
+            'inset 0 0 0 1px color-mix(in srgb, var(--theme-text-primary) 10%, transparent)',
+        }}
+      >
+        <Haze
+          background={`radial-gradient(40% 140% at 8% 50%, ${c(
+            'cabbage',
+            75,
+          )}, transparent 70%)`}
+        />
+        <Seal />
+        <Label />
+      </Card>
+    ),
+  },
+  {
+    id: 'p-serial',
+    title: 'Serial glass',
+    from: '09 with the hallmark copy',
+    note: 'Purple foil glass, and the second line is the number. The one that reads rare.',
+    render: () => (
+      <Card style={{ background: frost, boxShadow: purpleEdge }}>
+        <Haze background={purpleHaze} />
+        <Seal />
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          <span className="font-bold text-text-primary typo-callout">
+            Official company page
+          </span>
+          <span className="sq-nums text-text-tertiary typo-caption1">
+            Verified No. 0041 · Since Feb 2023
+          </span>
+        </div>
+      </Card>
+    ),
+  },
+  {
+    id: 'p-mark',
+    title: 'Company mark',
+    from: '12, in glass',
+    note: "The company's own logo in the seal's ring, the seal on its corner, purple glass behind. Theirs, verified by us.",
+    render: () => (
+      <Card style={{ background: frost, boxShadow: purpleEdge }}>
+        <Haze background={purpleHaze} />
+        <span className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-default p-[2px]">
+          <img
+            src={squad.image}
+            alt=""
+            className="size-full rounded-full object-cover ring-2 ring-background-default"
+          />
+          <VerifiedSeal className="absolute -bottom-0.5 -right-0.5 size-4 text-accent-cabbage-default [&_path:last-child]:stroke-background-default" />
+        </span>
+        <Label title="Official page" sub={`of ${squad.company.website}`} />
+      </Card>
+    ),
+  },
+];

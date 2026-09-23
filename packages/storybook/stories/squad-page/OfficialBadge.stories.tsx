@@ -2,7 +2,11 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { KitStyles } from './kit';
-import { badgeVariants, badgeVariantsRoundTwo } from './badges';
+import {
+  badgeVariants,
+  badgeVariantsRoundThree,
+  badgeVariantsRoundTwo,
+} from './badges';
 
 const meta: Meta = {
   title: 'Squad Page/4. Official badge',
@@ -98,6 +102,37 @@ export const Overview: StoryObj = {
               <div className="flex flex-col gap-1">
                 <Eyebrow>
                   {String(index + 9).padStart(2, '0')} · {variant.title}
+                </Eyebrow>
+                <span className="text-text-tertiary typo-footnote">
+                  From {variant.from}
+                </span>
+                <span className="max-w-[36ch] text-text-secondary typo-callout">
+                  {variant.note}
+                </span>
+              </div>
+              <ColumnFrame>{variant.render()}</ColumnFrame>
+            </div>
+          ))}
+        </div>
+        <header className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-10">
+          <Eyebrow>
+            Round three · Foil glass and Holographic, in brand purple
+          </Eyebrow>
+          <h2 className="font-bold typo-title1">Ten in cabbage</h2>
+          <p className="max-w-[76ch] text-text-secondary typo-body">
+            The same idea held ten ways: light under glass, one edge, the seal,
+            four words. What moves is where the light sits (a haze, two orbs, a
+            sheen, a spotlight), how the edge is drawn (a hairline, a gradient
+            frame, none), and the second line, if there is one: the publisher,
+            the serial, the company&apos;s own domain.
+          </p>
+        </header>
+        <div className="grid grid-cols-4 gap-x-8 gap-y-12">
+          {badgeVariantsRoundThree.map((variant, index) => (
+            <div key={variant.id} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <Eyebrow>
+                  {index + 19} · {variant.title}
                 </Eyebrow>
                 <span className="text-text-tertiary typo-footnote">
                   From {variant.from}
