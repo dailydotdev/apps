@@ -444,10 +444,25 @@ export const TeamRow = ({
 /* ---------------------------------------------------------------- actions */
 
 export enum Viewer {
+  /** Logged out. Can read a public squad, cannot do anything else. */
+  Anonymous = 'anonymous',
+  /** Logged in, not a member. */
   Visitor = 'visitor',
   Member = 'member',
+  /** A member who moderates: approves, removes, pins. */
+  Moderator = 'moderator',
   Admin = 'admin',
 }
+
+export const isLoggedIn = (viewer: Viewer): boolean =>
+  viewer !== Viewer.Anonymous;
+export const isJoined = (viewer: Viewer): boolean =>
+  viewer === Viewer.Member ||
+  viewer === Viewer.Moderator ||
+  viewer === Viewer.Admin;
+export const isStaff = (viewer: Viewer): boolean =>
+  viewer === Viewer.Moderator || viewer === Viewer.Admin;
+export const isAdmin = (viewer: Viewer): boolean => viewer === Viewer.Admin;
 
 /**
  * One primary action per viewer. Everything else is an icon, and the admin

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -59,6 +59,10 @@ import {
   Avatar,
   CardList,
   Facepile,
+  isAdmin,
+  isJoined,
+  isLoggedIn,
+  isStaff,
   linkIcon,
   VerifiedMark,
   Viewer,
@@ -91,6 +95,8 @@ export enum PageType {
   Analytics = 'analytics',
   Moderation = 'moderation',
   Settings = 'settings',
+  /** Where the content comes from: the RSS feed a company page is fed by. */
+  Feed = 'feed',
   Add = 'add',
 }
 
@@ -106,6 +112,8 @@ export interface SquadPage {
   href?: string;
   /** One line under the channel name on its page. */
   description?: string;
+  /** Moderators do not see it; only admins. */
+  adminOnly?: boolean;
 }
 
 export interface SidebarSection {
@@ -161,11 +169,41 @@ const manage: SidebarSection = {
   label: 'Manage',
   admin: true,
   pages: [
-    page('analytics', 'Analytics', PageType.Analytics),
+    page('feed', 'Content feed', PageType.Feed, { adminOnly: true }),
     page('moderation', 'Moderation', PageType.Moderation, { badge: 3 }),
-    page('settings', 'Settings', PageType.Settings),
+    page('analytics', 'Analytics', PageType.Analytics, { adminOnly: true }),
+    page('settings', 'Settings', PageType.Settings, { adminOnly: true }),
   ],
 };
+
+/**
+ * How posts get in. A regular squad is written by hand. A verified company
+ * page is fed: the company's RSS (releases, blog, changelog) lands in
+ * Releases as posts, daily.dev runs the feed for them, and members still
+ * write in Discussions and vote in Polls. Same squad underneath.
+ */
+export enum ContentSource {
+  Manual = 'manual',
+  Feed = 'feed',
+}
+
+export interface WorkspaceState {
+  viewer: Viewer;
+  source: ContentSource;
+  /** No posts yet. */
+  empty: boolean;
+  /** Members only; everyone else sees the wall. */
+  isPrivate: boolean;
+}
+
+const WorkspaceContext = createContext<WorkspaceState>({
+  viewer: Viewer.Member,
+  source: ContentSource.Feed,
+  empty: false,
+  isPrivate: false,
+});
+
+export const useWorkspace = (): WorkspaceState => useContext(WorkspaceContext);
 
 export const sections: SidebarSection[] = [
   {
@@ -212,6 +250,7 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
     [PageType.Analytics]: <AnalyticsIcon size={size} />,
     [PageType.Moderation]: <TimerIcon size={size} />,
     [PageType.Settings]: <SettingsIcon size={size} />,
+    [PageType.Feed]: <MegaphoneIcon size={size} />,
     [PageType.Add]: <PlusIcon size={size} />,
   }[type]);
 
@@ -470,7 +509,9 @@ export const SquadSidebar = ({
   onSelect: (page: SquadPage) => void;
   className?: string;
 }): ReactElement => {
-  const admin = viewer === Viewer.Admin;
+  const admin = isAdmin(viewer);
+  const staff = isStaff(viewer);
+  const { source } = useWorkspace();
 
   return (
     <aside
@@ -496,6 +537,22 @@ export const SquadSidebar = ({
             </span>
           </div>
         </div>
+        {viewer === Viewer.Anonymous && (
+          <div className="flex flex-col gap-2">
+            <Button
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
+              size={ButtonSize.Medium}
+              className="w-full"
+            >
+              Sign up to join
+            </Button>
+            <span className="text-center text-text-tertiary typo-caption1">
+              Already on daily.dev?{' '}
+              <span className="text-text-link">Log in</span>
+            </span>
+          </div>
+        )}
         {viewer === Viewer.Visitor && (
           <Button
             variant={ButtonVariant.Primary}
@@ -506,7 +563,7 @@ export const SquadSidebar = ({
             Join squad
           </Button>
         )}
-        {viewer === Viewer.Member && (
+        {(viewer === Viewer.Member || viewer === Viewer.Moderator) && (
           <div className="grid grid-cols-3 gap-1">
             {[
               [<BellIcon key="bell" size={IconSize.Small} />, 'Alerts'],
@@ -524,11 +581,11 @@ export const SquadSidebar = ({
             ))}
           </div>
         )}
-        {admin && (
+        {staff && (
           <div className="flex items-center justify-between rounded-10 bg-surface-float px-3 py-1.5 text-text-tertiary typo-caption1">
             Preview as
             <span className="flex items-center gap-1 font-bold text-text-primary">
-              Admin
+              {admin ? 'Admin' : 'Moderator'}
               <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
             </span>
           </div>
@@ -536,7 +593,15 @@ export const SquadSidebar = ({
       </header>
       <div className="flex flex-col gap-4 px-2 py-3">
         {sections
-          .filter((section) => !section.admin || admin)
+          .filter((section) => !section.admin || staff)
+          .map((section) => ({
+            ...section,
+            pages: section.pages.filter(
+              (item) =>
+                (!item.adminOnly || admin) &&
+                (item.type !== PageType.Feed || source === ContentSource.Feed),
+            ),
+          }))
           .map((section) => (
             <div key={section.id} className="flex flex-col gap-0.5">
               {section.label && (
@@ -658,17 +723,20 @@ const Column = ({
 /** Home is the profile page's skeleton, for a squad. See home.tsx. */
 const HomePage = ({
   viewer,
+  empty,
   onOpenMembers,
   onOpenRules,
   onOpenFaq,
 }: {
   viewer: Viewer;
+  empty: boolean;
   onOpenMembers: () => void;
   onOpenRules: () => void;
   onOpenFaq: () => void;
 }): ReactElement => (
   <SquadHome
     viewer={viewer}
+    empty={empty}
     onOpenMembers={onOpenMembers}
     onOpenRules={onOpenRules}
     onOpenFaq={onOpenFaq}
@@ -687,9 +755,7 @@ const ChannelPage = ({
   page: SquadPage;
   viewer: Viewer;
 }): ReactElement => {
-  const canPost =
-    viewer === Viewer.Admin ||
-    (viewer === Viewer.Member && !channel.restricted);
+  const canPost = isStaff(viewer) || (isJoined(viewer) && !channel.restricted);
 
   return (
     <Column>
@@ -709,7 +775,11 @@ const ChannelPage = ({
           ) : (
             <span className="flex shrink-0 items-center gap-1 text-text-quaternary typo-caption1">
               <LockIcon size={IconSize.XSmall} />
-              {channel.restricted ? 'Team only' : 'Join to post'}
+              {channel.restricted
+                ? 'Team only'
+                : isLoggedIn(viewer)
+                ? 'Join to post'
+                : 'Sign up to post'}
             </span>
           )}
         </div>
@@ -813,102 +883,136 @@ const releaseKinds = ['All', 'Features', 'Fixes', 'Betas'];
  * kind as a filter. The Announcements channel is where they are discussed;
  * this is where they are found.
  */
-const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
-  <Column width="max-w-[52rem]" className="gap-6">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-1">
-        {releaseKinds.map((kind, index) => (
-          <button
-            type="button"
-            key={kind}
-            className={classNames(
-              'rounded-10 px-3 py-1.5 typo-callout',
-              index === 0
-                ? 'bg-surface-float font-bold text-text-primary'
-                : 'text-text-tertiary hover:text-text-primary',
-            )}
-          >
-            {kind}
-          </button>
+const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const { source, empty } = useWorkspace();
+
+  return (
+    <Column width="max-w-[52rem]" className="gap-6">
+      {source === ContentSource.Feed && (
+        <div className="flex items-center gap-3 rounded-12 bg-surface-float px-4 py-2.5 text-text-tertiary typo-footnote">
+          <MegaphoneIcon size={IconSize.Small} />
+          <span className="min-w-0 flex-1">
+            Published from the company&apos;s feed,{' '}
+            <span className="text-text-secondary">daily.dev/changelog/rss</span>
+            . Every item becomes a post here the hour it goes live.
+          </span>
+          <span className="sq-nums shrink-0 text-text-quaternary typo-caption1">
+            Synced 2h ago
+          </span>
+        </div>
+      )}
+      {empty && (
+        <div className="flex flex-col items-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary px-6 py-12 text-center">
+          <span className="font-bold text-text-primary typo-callout">
+            No releases yet
+          </span>
+          <span className="max-w-[40ch] text-text-tertiary typo-footnote">
+            {source === ContentSource.Feed
+              ? 'The feed is connected. The first item lands here the hour it is published.'
+              : 'Post the first release and it starts the log.'}
+          </span>
+        </div>
+      )}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          {releaseKinds.map((kind, index) => (
+            <button
+              type="button"
+              key={kind}
+              className={classNames(
+                'rounded-10 px-3 py-1.5 typo-callout',
+                index === 0
+                  ? 'bg-surface-float font-bold text-text-primary'
+                  : 'text-text-tertiary hover:text-text-primary',
+              )}
+            >
+              {kind}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="sq-nums text-text-tertiary typo-footnote">
+            <b className="text-text-primary">{squad.totalPosts}</b> releases
+          </span>
+          {isStaff(viewer) && source === ContentSource.Manual && (
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+            >
+              New release
+            </Button>
+          )}
+          {isAdmin(viewer) && source === ContentSource.Feed && (
+            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+              Feed settings
+            </Button>
+          )}
+        </div>
+      </div>
+      <div className={classNames('flex flex-col gap-8', empty && 'hidden')}>
+        {entriesByMonth.map((group, groupIndex) => (
+          <section key={group.month} className="flex flex-col gap-3">
+            <h2 className="flex items-center gap-2 font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
+              {group.month}
+              {groupIndex === 0 && (
+                <span className="rounded-6 bg-accent-cabbage-flat px-1.5 normal-case tracking-normal text-accent-cabbage-default">
+                  Latest
+                </span>
+              )}
+            </h2>
+            <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+              {group.items.map((entry) => (
+                <li
+                  key={entry.id}
+                  className="group flex gap-4 px-4 py-4 hover:bg-surface-float"
+                >
+                  <time className="sq-nums w-14 shrink-0 pt-0.5 text-text-tertiary typo-footnote">
+                    {formatDay(entry.createdAt)}
+                  </time>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                    <span className="font-bold text-text-primary typo-callout">
+                      {entry.title}
+                    </span>
+                    <p className="line-clamp-2 text-text-secondary typo-footnote">
+                      {entry.summary}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-quaternary typo-caption1">
+                      <span className="flex items-center gap-1.5">
+                        <Avatar member={entry.author} size={1} />
+                        {entry.author.name}
+                      </span>
+                      {entry.tags.slice(0, 2).map((tag) => (
+                        <span key={tag}>#{tag}</span>
+                      ))}
+                      <span className="sq-nums ml-auto flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <UpvoteIcon size={IconSize.XSmall} />
+                          {entry.upvotes}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <DiscussIcon size={IconSize.XSmall} />
+                          {entry.comments}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  {entry.image && (
+                    <img
+                      src={entry.image}
+                      alt=""
+                      className="h-14 w-24 shrink-0 rounded-10 object-cover"
+                    />
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
         ))}
       </div>
-      <div className="flex items-center gap-2">
-        <span className="sq-nums text-text-tertiary typo-footnote">
-          <b className="text-text-primary">{squad.totalPosts}</b> releases
-        </span>
-        {viewer === Viewer.Admin && (
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-          >
-            New release
-          </Button>
-        )}
-      </div>
-    </div>
-    <div className="flex flex-col gap-8">
-      {entriesByMonth.map((group, groupIndex) => (
-        <section key={group.month} className="flex flex-col gap-3">
-          <h2 className="flex items-center gap-2 font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
-            {group.month}
-            {groupIndex === 0 && (
-              <span className="rounded-6 bg-accent-cabbage-flat px-1.5 normal-case tracking-normal text-accent-cabbage-default">
-                Latest
-              </span>
-            )}
-          </h2>
-          <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
-            {group.items.map((entry) => (
-              <li
-                key={entry.id}
-                className="group flex gap-4 px-4 py-4 hover:bg-surface-float"
-              >
-                <time className="sq-nums w-14 shrink-0 pt-0.5 text-text-tertiary typo-footnote">
-                  {formatDay(entry.createdAt)}
-                </time>
-                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                  <span className="font-bold text-text-primary typo-callout">
-                    {entry.title}
-                  </span>
-                  <p className="line-clamp-2 text-text-secondary typo-footnote">
-                    {entry.summary}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-quaternary typo-caption1">
-                    <span className="flex items-center gap-1.5">
-                      <Avatar member={entry.author} size={1} />
-                      {entry.author.name}
-                    </span>
-                    {entry.tags.slice(0, 2).map((tag) => (
-                      <span key={tag}>#{tag}</span>
-                    ))}
-                    <span className="sq-nums ml-auto flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        <UpvoteIcon size={IconSize.XSmall} />
-                        {entry.upvotes}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <DiscussIcon size={IconSize.XSmall} />
-                        {entry.comments}
-                      </span>
-                    </span>
-                  </div>
-                </div>
-                {entry.image && (
-                  <img
-                    src={entry.image}
-                    alt=""
-                    className="h-14 w-24 shrink-0 rounded-10 object-cover"
-                  />
-                )}
-              </li>
-            ))}
-          </ol>
-        </section>
-      ))}
-    </div>
-  </Column>
-);
+    </Column>
+  );
+};
 
 const noop = () => undefined;
 const cardHandlers = {
@@ -986,7 +1090,7 @@ const PollsPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
           What the team wants to know from you. One vote each, results when you
           vote.
         </span>
-        {viewer === Viewer.Admin ? (
+        {isStaff(viewer) ? (
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
@@ -1008,7 +1112,7 @@ const PollsPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
             <div
               key={poll.id}
               onClickCapture={(event) => {
-                if (picked !== undefined || viewer === Viewer.Visitor) {
+                if (picked !== undefined || !isJoined(viewer)) {
                   return;
                 }
                 const option = (event.target as HTMLElement)
@@ -1043,7 +1147,7 @@ const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
  */
 const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column width="max-w-[56rem]">
-    {viewer === Viewer.Admin ? (
+    {isAdmin(viewer) ? (
       <div className="flex flex-col gap-3 rounded-16 border border-dashed border-border-subtlest-secondary p-4">
         <div className="flex items-center justify-between">
           <span className="font-bold text-text-primary typo-callout">
@@ -1273,6 +1377,164 @@ const AddPage = (): ReactElement => (
   </Column>
 );
 
+const pendingPosts = feedEntries.slice(3, 6);
+
+/** The moderation queue: what members posted that waits for a moderator. */
+const ModerationPage = (): ReactElement => (
+  <Column>
+    <div className="flex items-center justify-between">
+      <span className="text-text-secondary typo-callout">
+        <b className="sq-nums text-text-primary">{pendingPosts.length}</b> posts
+        waiting. Approve and they go live in Discussions; reject and the author
+        hears why.
+      </span>
+    </div>
+    <div className="flex flex-col gap-3">
+      {pendingPosts.map((entry) => (
+        <div
+          key={entry.id}
+          className="flex gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+        >
+          {entry.image && (
+            <img
+              src={entry.image}
+              alt=""
+              className="h-16 w-28 shrink-0 rounded-10 object-cover"
+            />
+          )}
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="font-bold text-text-primary typo-callout">
+              {entry.title}
+            </span>
+            <span className="line-clamp-1 text-text-tertiary typo-footnote">
+              {entry.summary}
+            </span>
+            <span className="flex items-center gap-1.5 text-text-quaternary typo-caption1">
+              <Avatar member={entry.author} size={1} />
+              {entry.author.name} · to Discussions · 40 min ago
+            </span>
+          </div>
+          <div className="flex shrink-0 flex-col gap-2">
+            <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
+              Approve
+            </Button>
+            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+              Reject
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </Column>
+);
+
+const feedItems = feedEntries.slice(0, 4);
+
+/**
+ * The company page's engine. A verified page is a squad fed by the
+ * company's RSS: items land in Releases as posts, daily.dev runs the feed
+ * and the moderation, the company keeps the keys. This is the admin's view
+ * of that arrangement.
+ */
+const FeedSourcePage = (): ReactElement => (
+  <Column width="max-w-[52rem]" className="gap-6">
+    <div className="flex items-center gap-3 rounded-16 border border-accent-cabbage-default bg-accent-cabbage-flat px-4 py-3">
+      <VerifiedMark label={false} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="font-bold text-text-primary typo-callout">
+          Managed by daily.dev
+        </span>
+        <span className="text-text-tertiary typo-footnote">
+          Your feed is imported, moderated and kept in sync by our team. You
+          keep the keys: pause, edit any post, or write your own.
+        </span>
+      </div>
+      <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
+        Contact your manager
+      </Button>
+    </div>
+    <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-text-primary typo-callout">Source</span>
+        <span className="flex items-center gap-1.5 text-status-success typo-caption1">
+          <span className="size-1.5 rounded-full bg-status-success" />
+          Healthy
+        </span>
+      </div>
+      <dl className="grid grid-cols-2 gap-x-8 gap-y-3">
+        {[
+          ['Feed', 'daily.dev/changelog/rss'],
+          ['Publishes to', 'Releases'],
+          ['Checked', 'Every hour · last 2h ago'],
+          ['Imported', '151 items since Feb 2023'],
+          ['Author on posts', 'The team member in the item, or the squad'],
+          ['Auto-publish', 'On · new items go live without review'],
+        ].map(([label, value]) => (
+          <div key={label} className="flex flex-col gap-0.5">
+            <dt className="text-text-quaternary typo-caption1">{label}</dt>
+            <dd className="text-text-primary typo-callout">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="flex gap-2 border-t border-border-subtlest-tertiary pt-3">
+        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+          Sync now
+        </Button>
+        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+          Pause feed
+        </Button>
+        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+          Add a feed
+        </Button>
+      </div>
+    </div>
+    <div className="flex flex-col gap-2">
+      <span className="font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
+        Recent imports
+      </span>
+      <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+        {feedItems.map((entry) => (
+          <li key={entry.id} className="flex items-center gap-3 px-4 py-2.5">
+            <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
+              {entry.title}
+            </span>
+            <span className="sq-nums shrink-0 text-text-quaternary typo-caption1">
+              {formatDay(entry.createdAt)}
+            </span>
+            <span className="shrink-0 rounded-6 bg-surface-float px-1.5 py-0.5 text-text-tertiary typo-caption2">
+              Published
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </Column>
+);
+
+/** What a non-member sees on a private squad, on every page but Home. */
+const PrivateWall = ({ viewer }: { viewer: Viewer }): ReactElement => (
+  <Column>
+    <div className="flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-6 py-14 text-center">
+      <LockIcon size={IconSize.Large} className="text-text-tertiary" />
+      <span className="font-bold text-text-primary typo-title3">
+        Members only
+      </span>
+      <span className="max-w-[40ch] text-text-tertiary typo-footnote">
+        {squad.name} is a private squad. Join to read the posts, vote in the
+        polls and see who is here.
+      </span>
+      <Button
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Cabbage}
+        size={ButtonSize.Medium}
+        className="mt-2"
+      >
+        {isLoggedIn(viewer) ? 'Request to join' : 'Sign up to join'}
+      </Button>
+    </div>
+  </Column>
+);
+
 const AdminPlaceholder = ({ page }: { page: SquadPage }): ReactElement => (
   <Column>
     <div className="flex flex-col items-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary p-10 text-center">
@@ -1299,16 +1561,27 @@ const PageBody = ({
   viewer: Viewer;
   onSelect: (page: SquadPage) => void;
 }): ReactElement => {
+  const { isPrivate, empty } = useWorkspace();
+
+  if (isPrivate && !isJoined(viewer) && current.type !== PageType.Home) {
+    return <PrivateWall viewer={viewer} />;
+  }
+
   switch (current.type) {
     case PageType.Home:
       return (
         <HomePage
           viewer={viewer}
+          empty={empty}
           onOpenMembers={() => onSelect(common.members)}
           onOpenRules={() => onSelect(docs.rules)}
           onOpenFaq={() => onSelect(docs.faq)}
         />
       );
+    case PageType.Moderation:
+      return <ModerationPage />;
+    case PageType.Feed:
+      return <FeedSourcePage />;
     case PageType.Channel:
       return <ChannelPage page={current} viewer={viewer} />;
     case PageType.Releases:
@@ -1334,17 +1607,17 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
   switch (page.type) {
     case PageType.Home:
     case PageType.Channel:
-      return viewer === Viewer.Admin ? (
+      return isAdmin(viewer) ? (
         <IconButton icon={<SettingsIcon />} label="Page settings" />
       ) : null;
     case PageType.Products:
-      return viewer === Viewer.Admin ? (
+      return isAdmin(viewer) ? (
         <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
           Sync now
         </Button>
       ) : null;
     case PageType.Doc:
-      return viewer === Viewer.Admin ? (
+      return isStaff(viewer) ? (
         <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
           Edit page
         </Button>
@@ -1361,16 +1634,23 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
 export const WorkspaceShell = ({
   viewer = Viewer.Member,
   initialPage = allPages[0],
+  source = ContentSource.Feed,
+  empty = false,
+  isPrivate = false,
   height = 56,
   width = 1440,
 }: {
   viewer?: Viewer;
   initialPage?: SquadPage;
+  source?: ContentSource;
+  empty?: boolean;
+  isPrivate?: boolean;
   /** rem */
   height?: number;
   width?: number;
 }): ReactElement => {
   const [active, setActive] = useState<SquadPage>(initialPage);
+  const state: WorkspaceState = { viewer, source, empty, isPrivate };
 
   const onSelect = (page: SquadPage) => {
     if (page.href) {
@@ -1380,23 +1660,25 @@ export const WorkspaceShell = ({
   };
 
   return (
-    <div
-      style={{ width, maxWidth: '100%', height: `${height}rem` }}
-      className="sq-elevated flex overflow-hidden rounded-16 bg-background-default text-text-primary"
-    >
-      <WorkspaceStyles />
-      <Kit2Styles />
-      <Rail />
-      <SquadSidebar active={active} viewer={viewer} onSelect={onSelect} />
-      <main className="ws-scroll flex min-w-0 flex-1 flex-col overflow-y-auto">
-        {active.type !== PageType.Home && (
-          <PageBar page={active}>{pageBarTools(active, viewer)}</PageBar>
-        )}
-        <div className="flex-1">
-          <PageBody page={active} viewer={viewer} onSelect={onSelect} />
-        </div>
-      </main>
-    </div>
+    <WorkspaceContext.Provider value={state}>
+      <div
+        style={{ width, maxWidth: '100%', height: `${height}rem` }}
+        className="sq-elevated flex overflow-hidden rounded-16 bg-background-default text-text-primary"
+      >
+        <WorkspaceStyles />
+        <Kit2Styles />
+        <Rail />
+        <SquadSidebar active={active} viewer={viewer} onSelect={onSelect} />
+        <main className="ws-scroll flex min-w-0 flex-1 flex-col overflow-y-auto">
+          {active.type !== PageType.Home && (
+            <PageBar page={active}>{pageBarTools(active, viewer)}</PageBar>
+          )}
+          <div className="flex-1">
+            <PageBody page={active} viewer={viewer} onSelect={onSelect} />
+          </div>
+        </main>
+      </div>
+    </WorkspaceContext.Provider>
   );
 };
 

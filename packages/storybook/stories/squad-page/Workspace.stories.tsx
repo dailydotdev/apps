@@ -8,6 +8,7 @@ import { SquadHome } from './home';
 import { ProfileHome, ProfileTab } from './profile';
 import {
   addPage,
+  ContentSource,
   allPages,
   findPage,
   pageCatalogue,
@@ -669,23 +670,48 @@ const Full = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-export const Playground: StoryObj<{ viewer: Viewer; page: string }> = {
-  args: { viewer: Viewer.Member, page: 'home' },
+export const Playground: StoryObj<{
+  viewer: Viewer;
+  page: string;
+  source: ContentSource;
+  empty: boolean;
+  isPrivate: boolean;
+}> = {
+  args: {
+    viewer: Viewer.Member,
+    page: 'home',
+    source: ContentSource.Feed,
+    empty: false,
+    isPrivate: false,
+  },
   argTypes: {
     viewer: {
       control: 'inline-radio' as const,
-      options: [Viewer.Visitor, Viewer.Member, Viewer.Admin],
+      options: [
+        Viewer.Anonymous,
+        Viewer.Visitor,
+        Viewer.Member,
+        Viewer.Moderator,
+        Viewer.Admin,
+      ],
     },
     page: {
       control: 'select' as const,
       options: [...allPages.map((page) => page.id), 'add'],
     },
+    source: {
+      control: 'inline-radio' as const,
+      options: [ContentSource.Feed, ContentSource.Manual],
+    },
   },
   render: (args) => (
     <Full>
       <WorkspaceShell
-        key={`${args.viewer}-${args.page}`}
+        key={`${args.viewer}-${args.page}-${args.source}-${args.empty}-${args.isPrivate}`}
         viewer={args.viewer}
+        source={args.source}
+        empty={args.empty}
+        isPrivate={args.isPrivate}
         initialPage={args.page === 'add' ? addPage : findPage(args.page)}
         height={60}
       />

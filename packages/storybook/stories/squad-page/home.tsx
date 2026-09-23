@@ -40,6 +40,9 @@ import {
   Avatar,
   CardList,
   Facepile,
+  isAdmin,
+  isJoined,
+  isStaff,
   linkIcon,
   VerifiedMark,
   VerifiedSeal,
@@ -96,7 +99,7 @@ const SquadHeader = ({
           className="relative size-[6.5rem] shrink-0 rounded-16 bg-background-default object-cover ring-4 ring-background-default"
         />
         <div className="flex items-center gap-2 pb-1">
-          {viewer === Viewer.Admin && (
+          {isAdmin(viewer) && (
             <Button
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
@@ -105,7 +108,7 @@ const SquadHeader = ({
               Edit page
             </Button>
           )}
-          {standalone && viewer === Viewer.Visitor && (
+          {standalone && !isJoined(viewer) && (
             <Button
               variant={ButtonVariant.Primary}
               color={ButtonColor.Cabbage}
@@ -114,7 +117,7 @@ const SquadHeader = ({
               Join
             </Button>
           )}
-          {viewer === Viewer.Member && (
+          {isJoined(viewer) && !isAdmin(viewer) && (
             <>
               <Button
                 variant={ButtonVariant.Secondary}
@@ -288,7 +291,7 @@ const StackSection = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <div className="flex flex-col gap-4 py-4">
     <SectionTitle
       action={
-        viewer === Viewer.Admin && (
+        isStaff(viewer) && (
           <Button
             variant={ButtonVariant.Float}
             size={ButtonSize.XSmall}
@@ -782,6 +785,7 @@ export const SquadHome = ({
   onOpenMembers,
   onOpenRules,
   onOpenFaq,
+  empty = false,
 }: {
   viewer?: Viewer;
   /** Outside the workspace there is no sidebar to carry Join, so the header does. */
@@ -789,6 +793,8 @@ export const SquadHome = ({
   onOpenMembers?: () => void;
   onOpenRules?: () => void;
   onOpenFaq?: () => void;
+  /** A squad that has not posted yet. */
+  empty?: boolean;
 }): ReactElement => (
   <HomeFrame
     header={
@@ -801,12 +807,28 @@ export const SquadHome = ({
     widgets={<SquadWidgets onOpenRules={onOpenRules} onOpenFaq={onOpenFaq} />}
   >
     <div className="border-t border-border-subtlest-tertiary">
-      <PostsArea
-        sort="Latest"
-        entries={feedEntries.slice(0, 6)}
-        pinned={pinnedEntry}
-        composer={viewer !== Viewer.Visitor && <Composer />}
-      />
+      {empty ? (
+        <div className="flex flex-col gap-4 p-6">
+          {isJoined(viewer) && <Composer />}
+          <div className="flex flex-col items-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary px-6 py-12 text-center">
+            <span className="font-bold text-text-primary typo-callout">
+              Nothing posted yet
+            </span>
+            <span className="max-w-[40ch] text-text-tertiary typo-footnote">
+              {isStaff(viewer)
+                ? 'Connect the content feed or write the first post. Members see the rules, the team and the links until then.'
+                : 'The team has not posted yet. Join to hear when they do.'}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <PostsArea
+          sort="Latest"
+          entries={feedEntries.slice(0, 6)}
+          pinned={pinnedEntry}
+          composer={isJoined(viewer) && <Composer />}
+        />
+      )}
     </div>
   </HomeFrame>
 );
