@@ -103,7 +103,11 @@ export const SquadHeader = ({
         <img
           src={squad.headerImage}
           alt="Cover"
-          className="h-full w-full object-cover"
+          className={classNames(
+            'h-full w-full object-cover',
+            squad.headerImagePosition === 'top' && 'object-top',
+            squad.headerImagePosition === 'bottom' && 'object-bottom',
+          )}
         />
         <div
           className="absolute inset-x-0 bottom-0 h-20"

@@ -3,8 +3,8 @@ import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 
 // CodeRabbit as a verified company page, the prospect the mock is built for.
 // Posts are CodeRabbit's real blog and changelog entries (coderabbit.ai/blog,
-// docs.coderabbit.ai/changelog, 23 Sep 2026); the team is the company's public
-// GitHub org; counts, ratings and polls are illustrative. Formerly the daily.dev
+// docs.coderabbit.ai/changelog, 23 Sep 2026); the bio, avatar and banner are
+// from x.com/coderabbitai; the team is the company's public GitHub org; counts, ratings and polls are illustrative. Formerly the daily.dev
 // Changelog squad (@daily_updates), snapshotted from the public
 // API on 15 Sep 2026: identity, stats, the admin/moderator list and the last
 // 14 posts are real. Everything marked "illustrative" is what a verified
@@ -23,6 +23,8 @@ export interface SquadData {
   tagline: string;
   image: string;
   headerImage: string;
+  /** Which part of the cover survives the crop. Banners carry their message at the top. */
+  headerImagePosition?: 'top' | 'center' | 'bottom';
   permalink: string;
   category: string;
   createdAt: string;
@@ -45,14 +47,15 @@ export const squad: SquadData = {
   handle: 'coderabbit',
   name: 'CodeRabbit',
   tagline:
-    'Every release, benchmark and changelog entry from the team behind CodeRabbit.',
-  description: 'AI-powered platform revolutionizing code reviews.',
-  image: 'https://www.coderabbit.ai/images/CR_mark_orange.png',
-  headerImage:
-    'https://www.coderabbit.ai/content/assets/rethinking-pr-triage-from-first-principles/hero.png',
+    'CodeRabbit helps teams review, understand, govern, and trust agent-generated code.',
+  description:
+    'CodeRabbit helps teams review, understand, govern, and trust agent-generated code.',
+  image: '/squad-page/coderabbit-avatar.jpg',
+  headerImage: '/squad-page/coderabbit-banner.jpg',
+  headerImagePosition: 'top',
   permalink: 'https://daily.dev/squads/coderabbit',
   category: 'Developer tools',
-  createdAt: '2024-03-12T10:00:00.000Z',
+  createdAt: '2023-04-28T10:00:00.000Z',
   membersCount: 6120,
   totalPosts: 184,
   totalViews: 418230,
@@ -69,7 +72,7 @@ export const squad: SquadData = {
     { label: 'x.com/coderabbitai', href: 'https://x.com/coderabbitai' },
   ],
   company: {
-    location: 'San Francisco, California',
+    location: 'San Francisco, CA',
     size: '51-200 employees',
     website: 'coderabbit.ai',
   },
