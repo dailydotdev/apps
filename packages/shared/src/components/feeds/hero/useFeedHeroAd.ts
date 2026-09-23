@@ -32,16 +32,20 @@ export const useFeedHeroAd = (): FeedHeroAdSlot => {
   // with — see `FeedContainer`.
   const shape = feedHeroShape(numCards.eco, shouldUseListFeedLayout);
 
-  const { data: ad } = useAdQuery({
+  const enabled = tokenRefreshed && !isPlus && shape.adPlacement !== 'none';
+  const { data: ad, isPending } = useAdQuery({
     placement: AdPlacement.Feed,
     queryKey: generateQueryKey(RequestKey.Ads, user, 'feed-hero'),
-    enabled: tokenRefreshed && !isPlus && shape.adPlacement !== 'none',
+    enabled,
     staleTime: StaleTime.OneHour,
   });
+  const isAdPending = enabled && isPending;
 
   return {
     ad: ad ?? undefined,
-    placement: ad ? shape.adPlacement : 'none',
+    // Held while the ad is in flight, so its column does not open late and
+    // push a card out of the row.
+    placement: ad || isAdPending ? shape.adPlacement : 'none',
     shape,
   };
 };

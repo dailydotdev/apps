@@ -82,7 +82,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
         overlayAriaLabel={title}
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked}
-        significance={significance}
+        significance={hero ? undefined : significance}
       >
         <div
           className={classNames(

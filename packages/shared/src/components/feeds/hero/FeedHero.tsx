@@ -27,7 +27,7 @@ import {
 import { AdActions } from '../../../lib/ads';
 import { LogEvent, Origin } from '../../../lib/log';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { FeedHeroSection } from './FeedHeroSection';
+import { FeedHeroSection, FeedHeroSkeleton } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
 import { useFeedHeroPostActions } from './useFeedHeroPostActions';
 
@@ -75,7 +75,7 @@ export const FeedHero = ({
       origin: Origin.FeedHero,
     });
 
-  const { data: hero } = useQuery({
+  const { data: hero, isPending } = useQuery({
     queryKey,
     queryFn: () =>
       gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
@@ -146,8 +146,12 @@ export const FeedHero = ({
   useEffect(() => () => document.body.classList.remove('hidden-scrollbar'), []);
 
   const isRendered = posts.length > 0;
+  // The skeleton stands in while the query is in flight, so the feed lays out
+  // around the hero from its first paint instead of reflowing when it lands.
+  const isHeld = isRendered || isPending;
   const adPlacement = isRendered ? placement : 'none';
   const isAdShown = adPlacement !== 'none';
+  const isAdHeld = isHeld && placement !== 'none';
 
   // Stacked, the lead story is already a card above the list, so drop it from
   // the list rather than showing it twice a few pixels apart. Matched on the
@@ -194,12 +198,12 @@ export const FeedHero = ({
   );
 
   useEffect(() => {
-    onAdVisibleChange?.(isAdShown);
-  }, [isAdShown, onAdVisibleChange]);
+    onAdVisibleChange?.(isAdHeld);
+  }, [isAdHeld, onAdVisibleChange]);
 
   useEffect(() => {
-    onRenderedChange?.(isRendered);
-  }, [isRendered, onRenderedChange]);
+    onRenderedChange?.(isHeld);
+  }, [isHeld, onRenderedChange]);
 
   useEffect(() => {
     // Gated on `isAdShown`, not just on the ad existing: logging here while the
@@ -254,6 +258,10 @@ export const FeedHero = ({
       toggleUpvote,
     ],
   );
+
+  if (isPending) {
+    return <FeedHeroSkeleton className={className} shape={shape} />;
+  }
 
   if (!isRendered) {
     return null;

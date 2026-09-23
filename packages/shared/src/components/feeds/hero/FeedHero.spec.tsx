@@ -179,6 +179,42 @@ describe('FeedHero', () => {
     expect(as).toContain('posts/hero-post-0');
   });
 
+  it('should hold its place while loading and stand down once empty', async () => {
+    const onRenderedChange = jest.fn();
+    mockHero({ posts: [], highlights: [] });
+
+    const { container } = render(
+      <TestBootProvider client={new QueryClient()}>
+        <FeedHero feedName="popular" onRenderedChange={onRenderedChange} />
+      </TestBootProvider>,
+    );
+
+    expect(onRenderedChange).toHaveBeenLastCalledWith(true);
+
+    await waitFor(() =>
+      expect(onRenderedChange).toHaveBeenLastCalledWith(false),
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('should give a column the ad leaves empty to the next story', async () => {
+    jest.mocked(useFeedHeroAd).mockReturnValue({
+      ad: undefined,
+      placement: 'none',
+      shape: feedHeroShape(4),
+    });
+    mockHero({ posts, highlights });
+
+    renderComponent();
+
+    expect(
+      await screen.findByRole('link', { name: 'Second hero post' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Show featured post 2'),
+    ).not.toBeInTheDocument();
+  });
+
   it('should render nothing when the query returns no posts', async () => {
     mockHero({ posts: [], highlights: [] });
 
