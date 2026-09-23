@@ -201,7 +201,7 @@ const descriptions: Record<string, string> = {
 
 /* ------------------------------------------------------------- furniture */
 
-const ManageButton = ({
+export const ManageButton = ({
   viewer,
   onSelect,
   align = 'right',
@@ -262,7 +262,7 @@ const ManageButton = ({
   );
 };
 
-const FollowButton = ({
+export const FollowButton = ({
   viewer,
   size = ButtonSize.Small,
 }: {

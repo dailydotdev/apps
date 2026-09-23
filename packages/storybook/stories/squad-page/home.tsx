@@ -21,6 +21,7 @@ import {
   LockIcon,
   GitHubIcon,
   LinkIcon,
+  OpenLinkIcon,
   LinkedInIcon,
   MedalBadgeIcon,
   MenuIcon,
@@ -1116,19 +1117,32 @@ export const StackWidget = ({
 };
 
 /** The sidebar's links, in the column too: the company's places on the web. */
+const hostOf = (href: string): string =>
+  href
+    .replace(/^https?:\/\//, '')
+    .replace(/^www\./, '')
+    .replace(/\/$/, '');
+
+/** GitHub's organization links: one row per link, the address as the text. */
 export const LinksWidget = (): ReactElement => (
   <Widget title="Links">
-    <ul className="mt-3 grid grid-cols-2 gap-2">
+    <ul className="mt-1 flex flex-col">
       {companyLinks.map((item) => (
         <li key={item.id}>
           <a
             href={item.href}
-            className="flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-3 py-2 text-text-secondary typo-footnote transition-colors hover:border-border-subtlest-secondary hover:text-text-primary"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-3 py-2 text-text-secondary typo-footnote transition-colors hover:text-text-primary"
           >
             <span className="text-text-tertiary">
-              {linkIcon(item.id, IconSize.XSmall)}
+              {linkIcon(item.id, IconSize.Small)}
             </span>
-            <span className="truncate">{item.label}</span>
+            <span className="min-w-0 flex-1 truncate">{hostOf(item.href)}</span>
+            <OpenLinkIcon
+              size={IconSize.XSmall}
+              className="text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
+            />
           </a>
         </li>
       ))}
