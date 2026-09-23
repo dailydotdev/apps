@@ -129,6 +129,18 @@ describe('ExploreSignupStrip', () => {
     });
   });
 
+  it('should pin the card once boot answers after mount', () => {
+    const { rerender } = renderComponent({ isAuthReady: false });
+
+    rerender(tree());
+
+    expect(
+      screen
+        .getByRole('heading', { name: 'Unlock the full daily.dev experience' })
+        .closest('.fixed'),
+    ).toBeInTheDocument();
+  });
+
   it('should render nothing for logged-in users', () => {
     const { container } = renderComponent({
       isLoggedIn: true,

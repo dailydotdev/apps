@@ -29,13 +29,18 @@ const stripMinHeight = 'min-h-[14.5rem]';
 type SlotBox = Pick<CSSProperties, 'left' | 'width'>;
 
 // The slot's box in the window, kept current as the page's column resizes.
-const useSlotBox = (ref: RefObject<HTMLElement>): SlotBox | undefined => {
+// `mounted` is when the slot is in the DOM: the strip renders nothing until
+// boot answers, so the ref is empty on mount and the effect has to re-run.
+const useSlotBox = (
+  ref: RefObject<HTMLElement>,
+  mounted: boolean,
+): SlotBox | undefined => {
   const [box, setBox] = useState<SlotBox>();
 
   useEffect(() => {
     const slot = ref.current;
 
-    if (!slot || typeof ResizeObserver === 'undefined') {
+    if (!mounted || !slot || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
@@ -53,7 +58,7 @@ const useSlotBox = (ref: RefObject<HTMLElement>): SlotBox | undefined => {
       observer.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [ref]);
+  }, [ref, mounted]);
 
   return box;
 };
@@ -73,8 +78,9 @@ export function ExploreSignupStrip({
   const { logEvent } = useLogContext();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isAnonymous = isAuthReady && !user;
+  const shouldRender = isAnonymous && isTablet;
   const slotRef = useRef<HTMLDivElement>(null);
-  const slotBox = useSlotBox(slotRef);
+  const slotBox = useSlotBox(slotRef, shouldRender);
 
   useLogEventOnce(
     () => ({
@@ -85,7 +91,7 @@ export function ExploreSignupStrip({
     { condition: isAnonymous && isTablet },
   );
 
-  if (!isAnonymous || !isTablet) {
+  if (!shouldRender) {
     return null;
   }
 
