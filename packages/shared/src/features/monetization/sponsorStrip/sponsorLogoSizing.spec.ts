@@ -1,66 +1,46 @@
 import {
-  COMMUNITY_CAP,
-  SLOT_GAP,
-  SLOT_WIDTH,
-  WALL_MAX_HEIGHT,
+  WALL_HEIGHT,
+  WALL_MAX_WIDTH,
   boxedLogoHeight,
   fittedSlotCount,
-  opticalHeight,
 } from './sponsorLogoSizing';
 
-describe('opticalHeight', () => {
-  it('should give a square mark more height than a long lockup', () => {
-    expect(opticalHeight(1, COMMUNITY_CAP)).toBeGreaterThan(
-      opticalHeight(6, COMMUNITY_CAP),
-    );
-  });
-
-  it('should clamp both extremes so nothing blows out the row', () => {
-    expect(opticalHeight(0.1, COMMUNITY_CAP)).toEqual(
-      Math.round(COMMUNITY_CAP * 1.6),
-    );
-    expect(opticalHeight(20, COMMUNITY_CAP)).toEqual(
-      Math.round(COMMUNITY_CAP * 0.8),
-    );
-  });
-});
-
 describe('boxedLogoHeight', () => {
-  it('should hold a wide lockup down to what the box can show', () => {
+  it.each([1, 2, 3.5, 6, 8])(
+    'should keep a %s:1 mark at the shared height',
+    (ratio) => {
+      expect(boxedLogoHeight(ratio, WALL_HEIGHT, WALL_MAX_WIDTH)).toEqual(
+        WALL_HEIGHT,
+      );
+    },
+  );
+
+  it('should fit an unusually wide lockup without overflowing its slot', () => {
     const ratio = 12;
+    const height = boxedLogoHeight(ratio, WALL_HEIGHT, WALL_MAX_WIDTH);
 
-    expect(
-      boxedLogoHeight(ratio, COMMUNITY_CAP, SLOT_WIDTH) * ratio,
-    ).toBeLessThanOrEqual(SLOT_WIDTH);
-  });
-
-  it('should leave a mark that already fits at its optical height', () => {
-    expect(boxedLogoHeight(2, COMMUNITY_CAP, SLOT_WIDTH)).toEqual(
-      opticalHeight(2, COMMUNITY_CAP),
-    );
-  });
-});
-
-describe('boxedLogoHeight, row ceiling', () => {
-  it('should hold a square mark down to the row it sits in', () => {
-    // A 1:1 mark takes the tallest optical height there is, which is what
-    // would otherwise push the row open.
-    expect(
-      boxedLogoHeight(1, COMMUNITY_CAP, SLOT_WIDTH, WALL_MAX_HEIGHT),
-    ).toEqual(WALL_MAX_HEIGHT);
+    expect(height).toBeLessThan(WALL_HEIGHT);
+    expect(height * ratio).toEqual(WALL_MAX_WIDTH);
   });
 });
 
 describe('fittedSlotCount', () => {
-  it('should count the slots that fit with their gaps', () => {
-    const three = SLOT_WIDTH * 3 + SLOT_GAP * 2;
+  it('should use each logo width and include gaps only between logos', () => {
+    const widths = [20, 80, 40, 100];
 
-    expect(fittedSlotCount(three)).toEqual(3);
-    expect(fittedSlotCount(three + SLOT_WIDTH - 1)).toEqual(3);
+    expect(fittedSlotCount(171, widths)).toEqual(2);
+    expect(fittedSlotCount(172, widths)).toEqual(3);
+    expect(fittedSlotCount(288, widths)).toEqual(4);
   });
 
-  it('should treat an unmeasurably narrow row as unmeasured', () => {
-    expect(fittedSlotCount(SLOT_WIDTH - 1)).toBeNull();
-    expect(fittedSlotCount(0)).toBeNull();
+  it('should stop before a logo that would be clipped', () => {
+    expect(fittedSlotCount(127, [128, 16])).toEqual(0);
+    expect(fittedSlotCount(128, [128, 16])).toEqual(1);
+  });
+
+  it('should fit compact logos on a row narrower than the maximum logo width', () => {
+    expect(fittedSlotCount(48, [16, 16, 16])).toEqual(2);
+    expect(fittedSlotCount(0, [16])).toEqual(0);
+    expect(fittedSlotCount(500, [])).toEqual(0);
   });
 });
