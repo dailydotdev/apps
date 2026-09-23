@@ -7,7 +7,7 @@ import type { AuthOptionsProps } from './common';
 import { AuthDisplay } from './common';
 import type { HijackingCoverCopy } from './HijackingCoverStrip';
 import {
-  HijackingCoverArt,
+  HijackingCoverCard,
   hijackingCoverBodyClassName,
   hijackingCoverHeadingClassName,
 } from './HijackingCoverStrip';
@@ -26,8 +26,8 @@ const copy: HijackingCoverCopy = {
 
 export const exploreSignupStripMinHeight = 'min-h-[14.5rem]';
 
-// The public pages' signup bar for anonymous visitors, tablet and up: pinned
-// to the bottom of the window, so it goes at the end of the page where its
+// The public pages' signup card for anonymous visitors, tablet and up: pinned
+// over the bottom of the window, so it goes at the end of the page where its
 // spacer keeps the last of the content reachable above it.
 export function ExploreSignupStrip(): ReactElement | null {
   const { isAuthReady, user, showLogin } = useAuthContext();
@@ -71,11 +71,10 @@ export function ExploreSignupStrip(): ReactElement | null {
     <>
       <div
         aria-hidden
-        className={classNames('w-full', exploreSignupStripMinHeight)}
+        className={classNames('mb-4 w-full', exploreSignupStripMinHeight)}
       />
-      <section className="fixed bottom-0 left-0 z-modal w-full">
-        <div className="relative overflow-hidden border-t border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
-          <HijackingCoverArt />
+      <div className="fixed inset-x-0 bottom-4 z-modal mx-auto w-full max-w-screen-laptop px-4 tablet:px-6">
+        <HijackingCoverCard>
           <div className="cover-strip-blur pointer-events-none absolute bottom-0 left-1/2 h-3/5 w-[24rem] -translate-x-1/2" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-raw-pepper-90/[0.9] via-raw-pepper-90/[0.55] to-transparent" />
           <div
@@ -113,8 +112,8 @@ export function ExploreSignupStrip(): ReactElement | null {
               />
             </div>
           </div>
-        </div>
-      </section>
+        </HijackingCoverCard>
+      </div>
     </>
   );
 }
