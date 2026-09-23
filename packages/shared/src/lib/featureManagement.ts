@@ -311,6 +311,10 @@ export const featurePublicSignupBanner = new Feature(
   false,
 );
 
+// Experiment: the post page's full-width signup banner against the cover
+// card pinned over the bottom of the window at the content's width.
+export const featurePostSignupStrip = new Feature('post_signup_strip', false);
+
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
 // field. Control hides it entirely. Keep the default `false` — GrowthBook

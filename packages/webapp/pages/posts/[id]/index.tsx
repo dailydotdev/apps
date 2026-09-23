@@ -49,7 +49,14 @@ import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
-import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import {
+  LogEvent,
+  Origin,
+  TargetId,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/log';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useEventListener,
   useJoinReferral,
@@ -134,6 +141,12 @@ const PostAuthBanner = dynamic(() =>
   import(
     /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
   ).then((module) => module.PostAuthBanner),
+);
+
+const PinnedSignupStrip = dynamic(() =>
+  import(
+    /* webpackChunkName: "pinnedSignupStrip" */ '@dailydotdev/shared/src/components/auth/PinnedSignupStrip'
+  ).then((module) => module.PinnedSignupStrip),
 );
 
 const BriefPostContent = dynamic(() =>
@@ -237,6 +250,15 @@ export const PostPage = ({
     canRender: router.isReady && !router.query?.author && !router.query?.squad,
   });
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
+  const { value: isSignupStripOn, isLoading: isSignupStripLoading } =
+    useConditionalFeature({
+      feature: featurePostSignupStrip,
+      shouldEvaluate: showLaptopAuthBanner,
+    });
+  const showPostAuthBanner =
+    showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
+  const showSignupStrip =
+    showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
   // Empty for every logged-in visitor; the slot components check the same
   // hook, so with it empty neither markup nor the Prebid bundle exists.
   const adSlots = useOrganicAdSlots();
@@ -484,7 +506,7 @@ export const PostPage = ({
                 'mx-auto w-full max-w-[72rem]',
                 // Clears the fixed signup banner so the thread's tail is
                 // reachable; the classic page ends in the footer instead.
-                showLaptopAuthBanner && 'laptop:pb-72',
+                showPostAuthBanner && 'laptop:pb-72',
               )}
             >
               <PostFocusCard
@@ -492,6 +514,9 @@ export const PostPage = ({
                 origin={Origin.ArticlePage}
                 ads={organicAds}
               />
+              {showSignupStrip && (
+                <PinnedSignupStrip targetId={TargetId.PostStrip} />
+              )}
             </div>
           ) : (
             <Content
@@ -528,7 +553,12 @@ export const PostPage = ({
               }}
             />
           )}
-          {showLaptopAuthBanner && <PostAuthBanner />}
+          {!showRedesign && showSignupStrip && (
+            <div className="m-auto w-full max-w-[69.25rem]">
+              <PinnedSignupStrip targetId={TargetId.PostStrip} />
+            </div>
+          )}
+          {showPostAuthBanner && <PostAuthBanner />}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>
