@@ -19,6 +19,7 @@ import {
   RedditIcon,
   RoadmapIcon,
   StackOverflowIcon,
+  TikTokIcon,
   ThreadsIcon,
   TwitterIcon,
   YoutubeIcon,
@@ -225,6 +226,13 @@ export const ORG_ONLY_PLATFORMS = {
  * User profile-specific platforms (extends core)
  */
 export const USER_ONLY_PLATFORMS = {
+  tiktok: {
+    id: 'tiktok',
+    label: 'TikTok',
+    domains: ['tiktok.com'],
+    icon: TikTokIcon,
+    urlBuilder: (u: string) => `https://tiktok.com/@${u}`,
+  },
   discord: {
     id: 'discord',
     label: 'Discord',
@@ -267,32 +275,47 @@ export type CorePlatformId = keyof typeof CORE_PLATFORMS;
 export type OrgPlatformId = keyof typeof ORG_PLATFORMS;
 export type UserPlatformId = keyof typeof USER_PLATFORMS;
 
+// Keep the Mastodon heuristic mirrored with daily-api/src/common/schema/socials.ts.
+const NON_FEDIVERSE_PROFILE_DOMAINS = ['producthunt.com'];
+
+const parseSocialUrl = (url: string): URL | null => {
+  try {
+    return new URL(url.startsWith('http') ? url : `https://${url}`);
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Normalize URL hostname for matching
  */
 const normalizeHostname = (url: string): string => {
-  try {
-    const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
-    return parsed.hostname.replace(/^(www\.|m\.|mobile\.)/, '');
-  } catch {
-    return url.toLowerCase();
-  }
+  const parsed = parseSocialUrl(url);
+  return parsed
+    ? parsed.hostname.toLowerCase().replace(/^(www\.|m\.|mobile\.)/, '')
+    : url.toLowerCase();
 };
 
 export const matchesDomain = (hostname: string, domain: string): boolean =>
   hostname === domain || hostname.endsWith(`.${domain}`);
 
+const isHostnameLikeDomain = (hostname: string): boolean =>
+  /^(?:[a-z0-9-]+\.)+[a-z]{2,}$/.test(hostname);
+
 /**
- * Check if URL matches Mastodon pattern (/@username)
+ * Check if URL matches Mastodon profile path patterns.
  */
-const isMastodonUrl = (url: string): boolean => {
-  try {
-    const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
-    return parsed.pathname.includes('/@');
-  } catch {
-    return false;
-  }
+const isMastodonProfilePath = (pathname: string): boolean => {
+  const segments = pathname.split('/').filter(Boolean);
+  const handle = segments[0] === 'web' ? segments[1] : segments[0];
+
+  return /^@[\w-]{2,}$/.test(handle || '');
 };
+
+const isNonFediverseProfileDomain = (hostname: string): boolean =>
+  NON_FEDIVERSE_PROFILE_DOMAINS.some((domain) =>
+    matchesDomain(hostname, domain),
+  );
 
 /**
  * Detect platform from URL using provided platform config
@@ -317,9 +340,16 @@ export function detectPlatformFromUrl<T extends Record<string, PlatformConfig>>(
   }
 
   // Special case: Mastodon detection by URL pattern
-  // Only apply if no domain matched AND URL has /@username pattern
+  // Only apply if no domain matched AND URL has /@username or /web/@username
   // This is a heuristic for federated Mastodon instances not in our known list
-  if ('mastodon' in platforms && isMastodonUrl(url)) {
+  const parsedUrl = parseSocialUrl(url);
+  if (
+    'mastodon' in platforms &&
+    parsedUrl &&
+    isHostnameLikeDomain(hostname) &&
+    isMastodonProfilePath(parsedUrl.pathname) &&
+    !isNonFediverseProfileDomain(hostname)
+  ) {
     // Don't detect as Mastodon if hostname matches any known platform's domain
     // (even if that platform isn't in the current platforms config)
     const allKnownDomains = [

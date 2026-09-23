@@ -116,6 +116,35 @@ describe('SocialLinksInput', () => {
     );
   });
 
+  it('previews and stores tiktok links', async () => {
+    const onSubmit = jest.fn();
+    render(<TestForm onSubmit={onSubmit} />);
+
+    await userEvent.type(
+      screen.getByPlaceholderText('Paste a URL (e.g., github.com/username)'),
+      'https://tiktok.com/@dailydev',
+    );
+
+    expect(screen.getByText('TikTok detected')).toBeVisible();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(await screen.findByText('TikTok')).toBeVisible();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith({
+        socialLinks: [
+          {
+            platform: 'tiktok',
+            url: 'https://tiktok.com/@dailydev',
+          },
+        ],
+      }),
+    );
+  });
+
   it('blocks submit and renders an inline error for invalid pending text', async () => {
     const onSubmit = jest.fn();
     render(<TestForm onSubmit={onSubmit} />);

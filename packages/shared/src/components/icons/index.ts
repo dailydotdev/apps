@@ -165,6 +165,7 @@ export * from './Terminal';
 export * from './ThemeAuto';
 export * from './Thread';
 export * from './Threads';
+export * from './TikTok';
 export * from './Timer';
 export * from './TimeZone';
 export * from './Tip';
