@@ -742,14 +742,9 @@ const VerifiedWidget = (): ReactElement => (
     }}
   >
     <VerifiedSeal className="size-6 text-accent-cabbage-default" />
-    <div className="flex min-w-0 flex-col">
-      <span className="font-bold text-text-primary typo-callout">
-        Official company page
-      </span>
-      <span className="text-text-tertiary typo-caption1">
-        Verified by daily.dev
-      </span>
-    </div>
+    <span className="font-bold text-text-primary typo-callout">
+      Official company page
+    </span>
   </div>
 );
 
