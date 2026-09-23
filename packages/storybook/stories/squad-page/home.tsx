@@ -810,7 +810,7 @@ const CompanySection = (): ReactElement => (
   </div>
 );
 
-const TeamSection = (): ReactElement => (
+export const TeamSection = (): ReactElement => (
   <div className="flex flex-col gap-4 py-4">
     <SectionTitle>Team</SectionTitle>
     <div className="grid grid-cols-2 gap-x-6 gap-y-3">
@@ -1146,7 +1146,7 @@ export const HomeFrame = ({
 }: {
   header: ReactNode;
   children: ReactNode;
-  widgets: ReactNode;
+  widgets?: ReactNode;
 }): ReactElement => (
   <div className="m-auto flex w-full max-w-[72rem] gap-4 p-4 pb-6">
     <main className="flex min-w-0 flex-1 flex-col">
@@ -1155,7 +1155,9 @@ export const HomeFrame = ({
         {children}
       </div>
     </main>
-    <aside className="flex w-80 shrink-0 flex-col gap-4">{widgets}</aside>
+    {widgets && (
+      <aside className="flex w-80 shrink-0 flex-col gap-4">{widgets}</aside>
+    )}
   </div>
 );
 

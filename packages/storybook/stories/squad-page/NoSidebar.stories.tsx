@@ -117,12 +117,14 @@ const Table = ({
 const seats: Record<string, string[]> = {
   'Home / posts': [
     'Posts tab',
+    'Posts tab',
     'The feed, All chip',
     'Latest posts shelf, See all',
     'The center',
     'The center',
   ],
   Releases: [
+    'Tab, count 14',
     'Tab',
     'Chip on the feed',
     'Shelf, See all',
@@ -131,12 +133,14 @@ const seats: Record<string, string[]> = {
   ],
   Products: [
     'Tab',
+    'Tab',
     'Widget, See all',
     'Shelf, See all',
     'Pages card',
     'Highlight',
   ],
   Discussions: [
+    'Tab, count 38',
     'Tab',
     'Chip on the feed',
     'Posts shelf',
@@ -144,6 +148,7 @@ const seats: Record<string, string[]> = {
     'Highlight',
   ],
   Polls: [
+    'Tab, new dot',
     'Tab',
     'Chip on the feed',
     'Shelf, See all',
@@ -151,6 +156,7 @@ const seats: Record<string, string[]> = {
     'Highlight',
   ],
   'Rules, FAQ': [
+    'About accordions, card on Posts',
     'Rules widget',
     'Rules widget',
     'Rules widget',
@@ -158,6 +164,7 @@ const seats: Record<string, string[]> = {
     'Highlights',
   ],
   Links: [
+    'Header row, About',
     'Links widget',
     'Links widget',
     'Links widget',
@@ -165,22 +172,39 @@ const seats: Record<string, string[]> = {
     'Highlights, marked external',
   ],
   Followers: [
+    'More, count',
     'Follower count',
     'Follower count',
     'Follower count',
     'Pages card and count',
     'Follower count',
   ],
-  Follow: ['Header', 'Header', 'Header', 'Header', 'Header'],
+  Follow: [
+    'Header, then the bar',
+    'Header',
+    'Header',
+    'Header',
+    'Header',
+    'Header',
+  ],
   Manage: [
+    'Appended tab, second row',
     'Header menu',
     'Header menu',
     'Header menu',
     'Header menu',
     'Header menu',
   ],
-  'Feed dominates Home': ['Yes', 'Yes', 'No, one click away', 'Yes', 'Yes'],
+  'Feed dominates Home': [
+    'Yes',
+    'Yes',
+    'Yes',
+    'No, one click away',
+    'Yes',
+    'Yes',
+  ],
   'Pages a visitor can see at once': [
+    '6, More',
     '5',
     '4 kinds',
     'All',
@@ -188,6 +212,7 @@ const seats: Record<string, string[]> = {
     'All, plus links',
   ],
   'Room to grow': [
+    'Unlimited via More',
     'To about 6 tabs',
     'To about 5 chips',
     'Unlimited shelves',
@@ -195,6 +220,7 @@ const seats: Record<string, string[]> = {
     'Scrolls',
   ],
   Mobile: [
+    'Row folds, About',
     'Tabs scroll',
     'Chips scroll',
     'Jump row scrolls',
@@ -273,7 +299,7 @@ export const Overview: StoryObj = {
             spec={spec}
             index={index}
             viewer={Viewer.Member}
-            height={index === 2 ? 56 : 48}
+            height={index === 0 || index === 3 ? 60 : 48}
           />
         ))}
       </div>
@@ -323,30 +349,39 @@ export const Playground: StoryObj<{
   layout: Layout;
   viewer: Viewer;
   page: string;
+  width: number;
 }> = {
   args: {
-    layout: Layout.Tabs,
+    layout: Layout.Composite,
     viewer: Viewer.Member,
     page: 'home',
+    width: 1440,
   },
   argTypes: {
     layout: { control: 'select', options: Object.values(Layout) },
     viewer: { control: 'select', options: Object.values(Viewer) },
     page: {
       control: 'select',
-      options: ['home', 'posts', ...pageIds.filter((id) => id !== 'home')],
+      options: [
+        'home',
+        'posts',
+        'about',
+        ...pageIds.filter((id) => id !== 'home'),
+      ],
     },
+    width: { control: { type: 'range', min: 720, max: 1600, step: 20 } },
   },
-  render: ({ layout, viewer, page }) => (
+  render: ({ layout, viewer, page, width }) => (
     <div className="flex min-h-screen items-start justify-center bg-background-subtle p-8">
       <KitStyles />
       <WorkspaceStyles />
       <NoSidebarShell
-        key={`${layout}-${viewer}-${page}`}
+        key={`${layout}-${viewer}-${page}-${width}`}
         layout={layout}
         viewer={viewer}
         initialPage={page}
         height={52}
+        width={width}
       />
     </div>
   ),

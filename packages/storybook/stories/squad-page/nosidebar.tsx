@@ -42,6 +42,7 @@ import {
   VerifiedWidget,
   Widget,
 } from './home';
+import { CompositeView } from './composite';
 import type { SquadPage } from './workspace';
 import {
   AdminPlaceholder,
@@ -75,6 +76,7 @@ import {
 /* ------------------------------------------------------------------ model */
 
 export enum Layout {
+  Composite = 'composite',
   Tabs = 'tabs',
   Chips = 'chips',
   Overview = 'overview',
@@ -93,6 +95,16 @@ export interface LayoutSpec {
 }
 
 export const layouts: LayoutSpec[] = [
+  {
+    id: Layout.Composite,
+    title: 'The composite',
+    reference:
+      'the research page: counted tabs, a condensing header, an About tab',
+    carries:
+      'One counted row: Posts, Releases 14, Products, Discussions 38, Polls, About, and More holding Followers plus whatever the width folds away. Manage 3 is appended for staff with its own second-level row inside. The header collapses into the row when it sticks. About holds the description, facts, links, Rules and FAQ as accordions, the team and a followers preview; on Posts the desktop keeps support cards beside the feed.',
+    tradeoff:
+      'The most parts. The row must be styled so the team tab reads as a different kind of thing, and More must stay a word, since a glyph gets overlooked.',
+  },
   {
     id: Layout.Tabs,
     title: 'Tabs',
@@ -167,6 +179,7 @@ interface View {
   viewer: Viewer;
   active: string;
   onSelect: (id: string) => void;
+  width?: number;
 }
 
 /* --------------------------------------------------------------- pieces */
@@ -966,6 +979,7 @@ const HighlightsView = (view: View): ReactElement => {
 /* ---------------------------------------------------------------- shell */
 
 const views: Record<Layout, (view: View) => ReactElement> = {
+  [Layout.Composite]: CompositeView,
   [Layout.Tabs]: TabsView,
   [Layout.Chips]: ChipsView,
   [Layout.Overview]: OverviewView,
@@ -1008,7 +1022,12 @@ export const NoSidebarShell = ({
         <Kit2Styles />
         <Rail />
         <main className="ws-scroll flex min-w-0 flex-1 flex-col overflow-y-auto">
-          <View viewer={viewer} active={active} onSelect={setActive} />
+          <View
+            viewer={viewer}
+            active={active}
+            onSelect={setActive}
+            width={width}
+          />
         </main>
       </div>
     </WorkspaceContext.Provider>
