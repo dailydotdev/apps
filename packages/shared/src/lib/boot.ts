@@ -82,7 +82,6 @@ export type Boot = {
     region?: string;
     continent?: Continent;
   };
-  isAndroidApp?: boolean;
   engagementCreatives?: EngagementCreative[];
 };
 
