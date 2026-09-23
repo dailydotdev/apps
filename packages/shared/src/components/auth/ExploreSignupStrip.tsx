@@ -28,9 +28,8 @@ const stripMinHeight = 'min-h-[14.5rem]';
 
 type SlotBox = Pick<CSSProperties, 'left' | 'width'>;
 
-// The slot's box in the window, kept current as the page's column resizes.
-// `mounted` is when the slot is in the DOM: the strip renders nothing until
-// boot answers, so the ref is empty on mount and the effect has to re-run.
+// Re-runs when the slot mounts: the strip renders nothing until boot answers,
+// so the ref is still empty on the component's first mount.
 const useSlotBox = (
   ref: RefObject<HTMLElement>,
   mounted: boolean,
@@ -88,7 +87,7 @@ export function ExploreSignupStrip({
       target_type: TargetType.SignupButton,
       target_id: TargetId.ExploreStrip,
     }),
-    { condition: isAnonymous && isTablet },
+    { condition: shouldRender },
   );
 
   if (!shouldRender) {
