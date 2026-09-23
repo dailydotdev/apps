@@ -202,10 +202,12 @@ export const SquadHeader = ({
             <img src={squad.image} alt="" className="size-4 rounded-4" />
             {squad.company.website}
           </span>
-          <span className="text-text-quaternary">·</span>
-          <span>Verified company</span>
-          <span className="text-text-quaternary">·</span>
-          <PrivacyChip />
+          {(config.featured || !config.isPublic) && (
+            <>
+              <span className="text-text-quaternary">·</span>
+              <PrivacyChip />
+            </>
+          )}
           {config.isPublic && config.category && (
             <>
               <span className="text-text-quaternary">·</span>
@@ -231,7 +233,8 @@ export const SquadHeader = ({
 
 /**
  * Production's SquadPrivacyState, as a word in the meta line instead of a
- * button: Featured outranks Public outranks Private.
+ * button, and only when it says something: Featured or Private. A plain
+ * public page is the default and does not announce it.
  */
 const PrivacyChip = (): ReactElement => {
   const { config } = useWorkspace();
