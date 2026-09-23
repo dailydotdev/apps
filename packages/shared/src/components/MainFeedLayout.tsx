@@ -853,13 +853,13 @@ export default function MainFeedLayout({
   // Read here rather than inside the feed or the strip: this is the one place
   // that owns both, so the card can only ever go missing on a surface that is
   // mounting the strip — with headlines in it — in the card's place.
+  // The signup card is pinned over the window's bottom edge, where the
+  // sponsor dock pins, so an anonymous visitor gets one or the other.
+  const showSignupStrip = !isExtension && isExploreHub && isAuthReady && !user;
   const sponsorStrip = useSponsorStripFeed({
     feedName,
-    disableAds: feedProps?.disableAds,
+    disableAds: feedProps?.disableAds || showSignupStrip,
   });
-  // The signup bar is fixed over the window's bottom edge, where the sponsor
-  // dock pins, so an anonymous visitor gets one or the other.
-  const showSignupStrip = !isExtension && isExploreHub && isAuthReady && !user;
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
     isV2 &&
@@ -959,7 +959,7 @@ export default function MainFeedLayout({
           MainFeedPage because this is the one component both the webapp and
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
-      {sponsorStrip.isEnabled && !showSignupStrip && (
+      {sponsorStrip.isEnabled && (
         <SponsorStrip
           headlines={sponsorStrip.headlines}
           headlinesSettled={sponsorStrip.headlinesSettled}

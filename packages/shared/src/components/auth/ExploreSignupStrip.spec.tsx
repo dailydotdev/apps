@@ -48,6 +48,12 @@ jest.mock('./AuthOptions', () => ({
         >
           Log in
         </button>
+        <button
+          type="button"
+          onClick={() => onAuthStateUpdate?.({ isLoading: true })}
+        >
+          Continue with Google
+        </button>
       </div>
     );
   },
@@ -178,6 +184,16 @@ describe('ExploreSignupStrip', () => {
     expect(logEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({ event_name: LogEvent.Click }),
     );
+  });
+
+  it('should keep a social login in the strip', async () => {
+    renderComponent();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    );
+
+    expect(showLogin).not.toHaveBeenCalled();
   });
 
   it('should open login inline and log the click', async () => {

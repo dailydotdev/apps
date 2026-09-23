@@ -89,7 +89,13 @@ export function ExploreSignupStrip({
     return null;
   }
 
+  // Only a step change moves to the modal; the loading pings around a social
+  // popup stay in the strip, or the modal would open behind the popup.
   const onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'] = (props) => {
+    if (!props.isLoginFlow && !props.defaultDisplay && !props.email) {
+      return;
+    }
+
     if (props.isLoginFlow) {
       logEvent({
         event_name: LogEvent.Click,
@@ -114,7 +120,7 @@ export function ExploreSignupStrip({
         <div ref={slotRef} className={stripMinHeight} />
       </div>
       {!!slotBox && (
-        <div className="fixed bottom-4 z-modal" style={slotBox}>
+        <div className="fixed bottom-4 z-3" style={slotBox}>
           <HijackingCoverCard>
             <div className="cover-strip-blur pointer-events-none absolute bottom-0 left-1/2 h-3/5 w-[24rem] -translate-x-1/2" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-raw-pepper-90/[0.9] via-raw-pepper-90/[0.55] to-transparent" />

@@ -213,7 +213,7 @@ export const OnboardingRegistrationForm = ({
     <button
       className={classNames(
         getEmailButtonClass(),
-        inlineProviders ? 'py-1.5' : 'min-h-12',
+        inlineProviders ? '-my-1.5 min-h-11' : 'min-h-12',
         'mx-auto flex items-center justify-center px-3 text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-text-tertiary motion-reduce:transition-none',
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}

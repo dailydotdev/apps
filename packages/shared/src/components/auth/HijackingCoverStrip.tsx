@@ -24,26 +24,6 @@ interface HijackingCoverCardProps {
   className?: string;
 }
 
-// The cover art layers; the parent positions and clips them.
-export function HijackingCoverArt(): ReactElement {
-  return (
-    <>
-      <img
-        src={cloudinaryHijackingCoverArt}
-        alt=""
-        aria-hidden
-        role="presentation"
-        fetchPriority="high"
-        decoding="async"
-        className="pointer-events-none absolute inset-0 size-full object-cover"
-        style={coverArtPosition}
-      />
-      <div className="cover-hero-dome pointer-events-none absolute inset-0" />
-      <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
-    </>
-  );
-}
-
 // The cover art card; children lay out the content over it.
 export function HijackingCoverCard({
   children,
@@ -52,7 +32,18 @@ export function HijackingCoverCard({
   return (
     <section className={classNames('w-full', className)}>
       <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
-        <HijackingCoverArt />
+        <img
+          src={cloudinaryHijackingCoverArt}
+          alt=""
+          aria-hidden
+          role="presentation"
+          fetchPriority="high"
+          decoding="async"
+          className="pointer-events-none absolute inset-0 size-full object-cover"
+          style={coverArtPosition}
+        />
+        <div className="cover-hero-dome pointer-events-none absolute inset-0" />
+        <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
         {children}
       </div>
     </section>
