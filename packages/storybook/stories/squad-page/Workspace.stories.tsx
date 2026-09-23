@@ -12,7 +12,6 @@ import {
   findPage,
   pageCatalogue,
   pageIcon,
-  SidebarPreset,
   WorkspaceShell,
   WorkspaceStyles,
 } from './workspace';
@@ -171,7 +170,7 @@ export const Overview: StoryObj = {
   render: () => (
     <Page>
       <header className="flex flex-col gap-4 border-b border-border-subtlest-tertiary pb-10">
-        <Eyebrow>Squad page · Round three</Eyebrow>
+        <Eyebrow>Squad page · The workspace</Eyebrow>
         <h1 className="max-w-[22ch] font-bold typo-giga3">
           A squad is a workspace, not a page.
         </h1>
@@ -193,9 +192,9 @@ export const Overview: StoryObj = {
             where you are.
           </p>
           <p className="text-text-quaternary typo-callout">
-            Real squad, real posts, real team. Chat, Bounties, Leaderboard,
-            Events, the online count and the Verified mark are illustrative.
-            Click around in the playground below; it is live.
+            Real squad, real posts, real team. Products, the polls, the rules,
+            the links and the verified badge are illustrative. Click around in
+            the playground below; it is live.
           </p>
         </Prose>
       </header>
@@ -203,11 +202,10 @@ export const Overview: StoryObj = {
       <Section eyebrow="Try it" title="The workspace, as a member">
         <Caption>
           Click the pages in the second column. Home is the identity block plus
-          the feed. Channels are the feed filtered to one flair, each with its
-          own posting rule; Announcements is the one only the team posts to,
-          Reviews carries a rating, Quiz is poll cards with a right answer.
-          Rules and FAQ are pages, and the rules sit in a widget on Home too.
-          Open roles is Recruiter. The links open outside.
+          the feed. Releases is the changelog as a log, Products the list of
+          what the company makes. Discussions is the feed with a posting rule;
+          Polls is the poll card, one vote each. Rules and FAQ are pages, and
+          the rules sit in a widget on Home too. The links open outside.
         </Caption>
         <WorkspaceShell viewer={Viewer.Member} />
       </Section>
@@ -228,28 +226,6 @@ export const Overview: StoryObj = {
             [
               'Squad Home, same frame',
               <SquadHome key="squad" viewer={Viewer.Visitor} standalone />,
-            ],
-          ]}
-        />
-        <Caption>
-          Where the long content went: the profile keeps an About tab because it
-          has no sidebar; the squad gets an About page in its sidebar.
-        </Caption>
-        <Pair
-          items={[
-            [
-              'Profile · About',
-              <ProfileHome key="profile-about" initialTab={ProfileTab.About} />,
-            ],
-            [
-              'Squad · About page',
-              <WorkspaceShell
-                key="squad-about"
-                viewer={Viewer.Visitor}
-                initialPage={findPage('about')}
-                height={44}
-                width={1152}
-              />,
             ],
           ]}
         />
@@ -356,12 +332,12 @@ export const Overview: StoryObj = {
             [
               'Announcements app',
               'Any post; pinned posts',
-              'A channel with the posting gate set to team',
+              "Releases: the team's posts as a log, grouped by month",
             ],
             [
               'Chat app',
               'Nothing. Slack integration posts out, not in',
-              'Chat page. New. The biggest build here',
+              'Not carried over. Discussions and Polls are where members talk',
             ],
             [
               '"Start here" document',
@@ -376,7 +352,7 @@ export const Overview: StoryObj = {
             [
               'Products, Reviews tabs',
               'Plus, Recruiter, the source stack',
-              "Products page imported from Product Hunt, G2, Trustpilot, GitHub or a URL, with the source's rating and a link into the member stack. Open roles from Recruiter",
+              "Products page imported from Product Hunt, G2, Trustpilot, GitHub or a URL, with the source's rating and a link into the member stack",
             ],
             [
               'Links, "Our website"',
@@ -433,7 +409,7 @@ export const Overview: StoryObj = {
               'Announcements category, maintainers only',
               '#announcements, locked',
               'Pinned posts; posting gate is squad-wide',
-              'Announcements channel with the gate set to team',
+              "Releases, the team's log, beside Discussions with a posting rule",
             ],
             [
               'Threads on a schedule',
@@ -441,7 +417,7 @@ export const Overview: StoryObj = {
               'Pinned discussions',
               'Scheduled events',
               'Scheduled posts (14 days), pinning',
-              'Recurring threads: a scheduled post that pins itself while live',
+              'Not carried over. Polls carry the scheduled question instead',
             ],
             [
               'Read before you post',
@@ -465,7 +441,7 @@ export const Overview: StoryObj = {
               'Maintainers',
               'Member list, online',
               'Admins, moderators, top members',
-              'Members behind the count in the header; the team on About. Open roles beside Products at the top for a company',
+              'Members behind the count on Home; the team in its widget',
             ],
             [
               'Points and rewards',
@@ -479,89 +455,11 @@ export const Overview: StoryObj = {
         />
       </Section>
 
-      <Section
-        eyebrow="Two squads"
-        title="The same sidebar, composed differently"
-      >
-        <Caption>
-          A company squad and a topic squad want different pages. Left, the
-          daily.dev changelog: products and open roles up top, team-only
-          announcements, discussions, reviews and a quiz, the documentation,
-          product links. Right, a topic community like Learn Python: a chat,
-          show and tell and links, the recurring threads Reddit taught everyone,
-          official docs and related squads. Same page types, different order and
-          selection.
-        </Caption>
-        <Pair
-          items={[
-            [
-              'Company squad · daily.dev Changelog',
-              <WorkspaceShell
-                key="company"
-                viewer={Viewer.Member}
-                preset={SidebarPreset.Company}
-                initialPage={findPage('reviews')}
-                height={50}
-                width={1152}
-              />,
-            ],
-            [
-              'Topic squad · a community preset',
-              <WorkspaceShell
-                key="community"
-                viewer={Viewer.Member}
-                preset={SidebarPreset.Community}
-                initialPage={findPage('recurring')}
-                height={50}
-                width={1152}
-              />,
-            ],
-          ]}
-        />
-      </Section>
-
-      <Section eyebrow="Lean" title="The same squad with less">
-        <Caption>
-          A third composition, from the second round of feedback: no
-          Announcements (Releases already is the team&apos;s voice), no Reviews,
-          Polls in place of the quiz, no Open roles and no About. Links carry
-          the company&apos;s social accounts beside its docs and code. Home,
-          Releases, Products, two channels, the documentation, the links.
-        </Caption>
-        <Pair
-          items={[
-            [
-              'Lean · Home',
-              <WorkspaceShell
-                key="lean-home"
-                viewer={Viewer.Member}
-                preset={SidebarPreset.Lean}
-                initialPage={findPage('home')}
-                height={50}
-                width={1152}
-              />,
-            ],
-            [
-              'Lean · Polls',
-              <WorkspaceShell
-                key="lean-polls"
-                viewer={Viewer.Member}
-                preset={SidebarPreset.Lean}
-                initialPage={findPage('polls')}
-                height={50}
-                width={1152}
-              />,
-            ],
-          ]}
-        />
-      </Section>
-
       <Section eyebrow="Catalogue" title="What a page can be">
         <Caption>
-          Grouped the way a community thinks about it. Most channels are the
-          feed with a flair and a rule; the two that need new work are Reviews
-          (a rating on a post) and Quiz (a poll with a right answer). Rules and
-          recurring threads are the two things Reddit has that we do not.
+          Grouped the way a company thinks about it. Discussions and Polls are
+          the feed and the poll post with a rule each; Rules, Releases and
+          Products are the three pages that need new work.
         </Caption>
         <div className="flex flex-col gap-6">
           {pageCatalogue.map((group) => (
@@ -606,7 +504,7 @@ export const Overview: StoryObj = {
         <div className="flex flex-col gap-10">
           <Screen
             title="Home, as a visitor"
-            note="The only page with an identity block. Join is in the sidebar and in the header; the pinned post and the feed follow."
+            note="The only page with an identity block. Join is in the sidebar; the official badge, the rules, the team, activity and links fill the column."
           >
             <WorkspaceShell
               viewer={Viewer.Visitor}
@@ -615,33 +513,43 @@ export const Overview: StoryObj = {
             />
           </Screen>
           <Screen
-            title="Announcements, as an admin"
-            note="A channel with the posting gate set to team. The lock in the sidebar and the page bar say so; a member sees Team only where an admin sees Post to Announcements."
+            title="Discussions, as an admin"
+            note="The feed with its posting rule in the strip and the same sort, layout and search row as Home. Post to Discussions lands the post in the right place without a picker."
           >
             <WorkspaceShell
               viewer={Viewer.Admin}
-              initialPage={findPage('announcements')}
+              initialPage={findPage('discussions')}
               height={44}
             />
           </Screen>
           <Screen
-            title="Chat"
-            note="A room. Members only, online count in the page bar. New for daily.dev and deliberately last on the build list."
+            title="Polls, as a member"
+            note="The production poll card, one per question. The team asks, members vote in place, the card flips to its results."
           >
             <WorkspaceShell
               viewer={Viewer.Member}
-              initialPage={findPage('chat')}
+              initialPage={findPage('polls')}
               height={44}
             />
           </Screen>
           <Screen
-            title="FAQ, a document page"
-            note="A freeform post rendered as a page: title, a video, headings, links. Admins get Edit page in the bar. This is where a company puts the answers it repeats."
+            title="Releases"
+            note="The changelog as a log, not a feed: every release post grouped by month, newest first, filterable by kind. GitHub Releases' shape."
+          >
+            <WorkspaceShell
+              viewer={Viewer.Member}
+              initialPage={findPage('releases')}
+              height={52}
+            />
+          </Screen>
+          <Screen
+            title="Products, as an admin"
+            note="Everything the company makes, imported from a Product Hunt, G2, Trustpilot, GitHub or website link, as a Product Hunt style list. The box on the right counts stacks and is the add button."
           >
             <WorkspaceShell
               viewer={Viewer.Admin}
-              initialPage={findPage('faq')}
-              height={48}
+              initialPage={findPage('products')}
+              height={52}
             />
           </Screen>
           <Screen
@@ -655,64 +563,23 @@ export const Overview: StoryObj = {
             />
           </Screen>
           <Screen
-            title="Recurring threads"
-            note="Who's hiring monthly, easy questions weekly, Showoff Saturday. Each is a scheduled post that pins itself in its channel while live; this page is where members find the open one and admins set the cadence."
+            title="FAQ, a document page"
+            note="A freeform post rendered as a page. Admins get Edit page in the bar."
           >
             <WorkspaceShell
               viewer={Viewer.Admin}
-              preset={SidebarPreset.Community}
-              initialPage={findPage('recurring')}
+              initialPage={findPage('faq')}
+              height={44}
+            />
+          </Screen>
+          <Screen
+            title="Members"
+            note="Reached from the member count on Home. The team first, then everyone, with search and the newest members."
+          >
+            <WorkspaceShell
+              viewer={Viewer.Member}
+              initialPage={findPage('members')}
               height={40}
-            />
-          </Screen>
-          <Screen
-            title="Reviews, as a member"
-            note="Not a feed. Stars and a review from members with the team replying in line, and every rating the company has on the web (Trustpilot, G2, the stores, Product Hunt) pulled into one score beside the squad's own."
-          >
-            <WorkspaceShell
-              viewer={Viewer.Member}
-              initialPage={findPage('reviews')}
-              height={40}
-            />
-          </Screen>
-          <Screen
-            title="Products, as an admin"
-            note="Everything the company makes, imported rather than typed: paste a Product Hunt, G2, Trustpilot, GitHub or website link and the card arrives with logo, tagline, category and the source's rating, synced weekly. The daily.dev part is the stack: each product is a tool a member can add, and the card says how many already have."
-          >
-            <WorkspaceShell
-              viewer={Viewer.Admin}
-              initialPage={findPage('products')}
-              height={52}
-            />
-          </Screen>
-          <Screen
-            title="Quiz, as a member"
-            note="Poll cards with a right answer, generated from the company's own posts. Answer in place: the right option turns green, a wrong pick red, the squad's split on every bar, a score when the set is done."
-          >
-            <WorkspaceShell
-              viewer={Viewer.Member}
-              initialPage={findPage('quiz')}
-              height={46}
-            />
-          </Screen>
-          <Screen
-            title="Releases"
-            note="The changelog as a log, not a feed: every release post grouped by month, newest first, filterable by kind. GitHub Releases' shape. Announcements is where a release is discussed; this is where it is found."
-          >
-            <WorkspaceShell
-              viewer={Viewer.Member}
-              initialPage={findPage('releases')}
-              height={52}
-            />
-          </Screen>
-          <Screen
-            title="Open roles"
-            note="Recruiter listings inside the squad. Exists today as a product; here it is a page the company switches on."
-          >
-            <WorkspaceShell
-              viewer={Viewer.Member}
-              initialPage={findPage('jobs')}
-              height={32}
             />
           </Screen>
           <Screen
@@ -732,7 +599,7 @@ export const Overview: StoryObj = {
         <Prose>
           <p>
             On a phone the pages column folds into a horizontal strip of chips
-            under the squad name (Home, Announcements, Chat, Start here, and so
+            under the squad name (Home, Releases, Products, Discussions, and so
             on, in the owner&apos;s order) and the page fills the screen. The
             squad name opens the full list as a sheet. Nothing is lost, and the
             owner&apos;s order decides what is visible without scrolling, the
@@ -747,28 +614,23 @@ export const Overview: StoryObj = {
           rows={[
             [
               '1',
-              'The pages column with Home, Feed, Page (document) and Link. Sections, order, hide.',
+              'The pages column with Home, Discussions, FAQ (a document) and Links. Sections, order, hide.',
               'Every one of these is an existing primitive: the feed, a freeform post, a URL. The column is the whole shift; the pages are already here.',
             ],
             [
               '2',
-              'Add a page, Preview as, page settings.',
+              'The official badge, Add a page, Preview as, page settings.',
               'Turns the column from a layout into a product the owner shapes. This is what a verified company page is sold on.',
             ],
             [
               '3',
-              'Channels: a flair on every post, a posting rule per channel, Announcements as the team-only one.',
-              'The Reddit and GitHub shape. One new field on a post and the existing gate, applied per channel.',
+              'Polls and Rules as pages.',
+              'The poll post already exists; Rules is a page type with a widget on Home.',
             ],
             [
               '4',
-              'Rules and Recurring threads.',
-              'The two things Reddit has that we do not. Rules is a page type; recurring is a scheduled post that pins itself.',
-            ],
-            [
-              '5',
-              'Chat.',
-              'Real-time, retention, moderation. Worth doing, not worth blocking the rest on.',
+              'Releases and Products.',
+              'Releases is a flair on a post plus a grouped view; Products needs the import and the stack link.',
             ],
           ]}
         />
@@ -807,12 +669,8 @@ const Full = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-export const Playground: StoryObj<{
-  viewer: Viewer;
-  page: string;
-  preset: SidebarPreset;
-}> = {
-  args: { viewer: Viewer.Member, page: 'home', preset: SidebarPreset.Company },
+export const Playground: StoryObj<{ viewer: Viewer; page: string }> = {
+  args: { viewer: Viewer.Member, page: 'home' },
   argTypes: {
     viewer: {
       control: 'inline-radio' as const,
@@ -822,21 +680,12 @@ export const Playground: StoryObj<{
       control: 'select' as const,
       options: [...allPages.map((page) => page.id), 'add'],
     },
-    preset: {
-      control: 'inline-radio' as const,
-      options: [
-        SidebarPreset.Company,
-        SidebarPreset.Community,
-        SidebarPreset.Lean,
-      ],
-    },
   },
   render: (args) => (
     <Full>
       <WorkspaceShell
-        key={`${args.viewer}-${args.page}-${args.preset}`}
+        key={`${args.viewer}-${args.page}`}
         viewer={args.viewer}
-        preset={args.preset}
         initialPage={args.page === 'add' ? addPage : findPage(args.page)}
         height={60}
       />

@@ -13,29 +13,23 @@ import {
   AnalyticsIcon,
   ArrowIcon,
   BellIcon,
-  CalendarIcon,
   CardIcon,
   CompassIcon,
   DiscussIcon,
   DocsIcon,
   DragIcon,
   EyeCancelIcon,
-  HelpIcon,
   HomeIcon,
-  InfoIcon,
   HotIcon,
-  JobIcon,
   LinkIcon,
   LockIcon,
   MegaphoneIcon,
   MenuIcon,
   OpenLinkIcon,
-  PinIcon,
   PlayIcon,
   PlusIcon,
   PollIcon,
   SearchIcon,
-  SendAirplaneIcon,
   SettingsIcon,
   SparkleIcon,
   SquadIcon,
@@ -43,26 +37,20 @@ import {
   TimerIcon,
   UpvoteIcon,
   UserIcon,
-  VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import type { QuizQuestion, SquadPoll, TeamMember } from './data';
+import type { SquadPoll } from './data';
 import {
   entriesByMonth,
   feedEntries,
   formatCount,
   formatDay,
   formatSince,
-  jobs,
   companyLinks,
   pinnedEntry,
   polls,
   products,
-  quiz,
-  ratingBreakdown,
-  reviewSources,
-  reviews,
   rules,
   squad,
   team,
@@ -79,7 +67,7 @@ import { Composer, Kit2Styles } from './kit2';
 import { PollList } from '@dailydotdev/shared/src/components/cards/poll/PollList';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
-import { PostsToolbar, SquadAbout, SquadHome } from './home';
+import { PostsToolbar, SquadHome } from './home';
 
 // Round three: the Whop mindset. A squad is not a page with widgets, it is a
 // workspace. The owner composes a left column of pages (a feed, a chat, a
@@ -91,19 +79,13 @@ import { PostsToolbar, SquadAbout, SquadHome } from './home';
 
 export enum PageType {
   Home = 'home',
-  About = 'about',
   /** A saved filter on the squad feed with its own posting rule. */
   Channel = 'channel',
-  Reviews = 'reviews',
   Releases = 'releases',
-  Quiz = 'quiz',
   Polls = 'polls',
   Doc = 'doc',
   Rules = 'rules',
-  Recurring = 'recurring',
-  Chat = 'chat',
   Link = 'link',
-  Jobs = 'jobs',
   Products = 'products',
   Members = 'members',
   Analytics = 'analytics',
@@ -152,19 +134,9 @@ const page = (
 ): SquadPage => ({ id, label, type, ...extra });
 
 const channels = {
-  announcements: page('announcements', 'Announcements', PageType.Channel, {
-    restricted: true,
-    badge: 2,
-    description: 'Releases and news from the team. Only the team posts here.',
-  }),
   discussions: page('discussions', 'Discussions', PageType.Channel, {
     description:
       'Questions, opinions, feedback, bug reports. If it needs an answer, it lives here.',
-  }),
-  reviews: page('reviews', 'Reviews', PageType.Reviews, { badge: 4 }),
-  quiz: page('quiz', 'Quiz', PageType.Quiz),
-  links: page('links', 'Links', PageType.Channel, {
-    description: "Articles, videos and tools worth the squad's time.",
   }),
   polls: page('polls', 'Polls', PageType.Polls, { badge: 1 }),
 };
@@ -176,11 +148,7 @@ const docs = {
 
 const common = {
   home: page('home', 'Home', PageType.Home),
-  about: page('about', 'About', PageType.About),
-  chat: page('chat', 'Chat', PageType.Chat, { badge: 14 }),
-  recurring: page('recurring', 'Recurring threads', PageType.Recurring),
   members: page('members', 'Members', PageType.Members),
-  jobs: page('jobs', 'Open roles', PageType.Jobs, { badge: 2 }),
   products: page('products', 'Products', PageType.Products),
   releases: page('releases', 'Releases', PageType.Releases, { badge: 1 }),
 };
@@ -199,124 +167,31 @@ const manage: SidebarSection = {
   ],
 };
 
-export enum SidebarPreset {
-  /** A company squad: the changelog, a product community, a DevRel team. */
-  Company = 'company',
-  /** A topic squad: Learn Python, DevOps, Go developers. */
-  Community = 'community',
-  /** The company squad with everything not earning its row removed. */
-  Lean = 'lean',
-}
-
-export const presets: Record<SidebarPreset, SidebarSection[]> = {
-  [SidebarPreset.Company]: [
-    {
-      id: 'top',
-      pages: [
-        common.home,
-        common.about,
-        common.releases,
-        common.products,
-        common.jobs,
-      ],
-    },
-    {
-      id: 'channels',
-      label: 'Channels',
-      pages: [
-        channels.announcements,
-        channels.discussions,
-        channels.reviews,
-        channels.quiz,
-      ],
-    },
-    {
-      id: 'docs',
-      label: 'Documentation',
-      pages: [docs.rules, docs.faq],
-    },
-    {
-      id: 'links',
-      label: 'Links',
-      pages: companyLinks.map((item) => link(item.id, item.label, item.href)),
-    },
-    manage,
-  ],
-  [SidebarPreset.Community]: [
-    { id: 'top', pages: [common.home, common.about, common.chat] },
-    {
-      id: 'channels',
-      label: 'Channels',
-      pages: [
-        channels.announcements,
-        channels.discussions,
-        channels.links,
-        channels.polls,
-        channels.quiz,
-      ],
-    },
-    {
-      id: 'recurring',
-      label: 'Recurring',
-      pages: [common.recurring],
-    },
-    {
-      id: 'docs',
-      label: 'Documentation',
-      pages: [docs.rules, docs.faq],
-    },
-    {
-      id: 'links',
-      label: 'Links',
-      pages: [
-        link('official-docs', 'Official docs', 'https://docs.python.org'),
-        link('discord', 'Discord', 'https://discord.gg/python'),
-        link('related', 'Related squads', 'https://daily.dev/squads/discover'),
-      ],
-    },
-    manage,
-  ],
-  [SidebarPreset.Lean]: [
-    {
-      id: 'top',
-      pages: [common.home, common.releases, common.products],
-    },
-    {
-      id: 'channels',
-      label: 'Channels',
-      pages: [channels.discussions, channels.polls],
-    },
-    {
-      id: 'docs',
-      label: 'Documentation',
-      pages: [docs.rules, docs.faq],
-    },
-    {
-      id: 'links',
-      label: 'Links',
-      pages: [
-        link('docs', 'Docs', 'https://docs.daily.dev'),
-        link('github', 'GitHub', 'https://github.com/dailydotdev'),
-        link('x', 'X', 'https://x.com/dailydotdev'),
-        link('youtube', 'YouTube', 'https://youtube.com/@dailydotdev'),
-        link(
-          'linkedin',
-          'LinkedIn',
-          'https://linkedin.com/company/dailydotdev',
-        ),
-        link('discord', 'Discord', 'https://discord.gg/dailydev'),
-      ],
-    },
-    manage,
-  ],
-};
-
-export const sections = presets[SidebarPreset.Company];
+export const sections: SidebarSection[] = [
+  {
+    id: 'top',
+    pages: [common.home, common.releases, common.products],
+  },
+  {
+    id: 'channels',
+    label: 'Channels',
+    pages: [channels.discussions, channels.polls],
+  },
+  {
+    id: 'docs',
+    label: 'Documentation',
+    pages: [docs.rules, docs.faq],
+  },
+  {
+    id: 'links',
+    label: 'Links',
+    pages: companyLinks.map((item) => link(item.id, item.label, item.href)),
+  },
+  manage,
+];
 
 export const allPages: SquadPage[] = [
-  ...Object.values(presets)
-    .flat()
-    .flatMap((section) => section.pages),
+  ...sections.flatMap((section) => section.pages),
   common.members,
 ].filter(
   (candidate, index, list) =>
@@ -326,18 +201,12 @@ export const allPages: SquadPage[] = [
 export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
   ({
     [PageType.Home]: <HomeIcon size={size} />,
-    [PageType.About]: <InfoIcon size={size} />,
     [PageType.Channel]: <MegaphoneIcon size={size} />,
-    [PageType.Reviews]: <StarIcon size={size} />,
     [PageType.Releases]: <SparkleIcon size={size} secondary />,
-    [PageType.Quiz]: <HelpIcon size={size} />,
     [PageType.Polls]: <PollIcon size={size} />,
     [PageType.Doc]: <DocsIcon size={size} />,
     [PageType.Rules]: <DocsIcon size={size} />,
-    [PageType.Recurring]: <CalendarIcon size={size} />,
-    [PageType.Chat]: <DiscussIcon size={size} />,
     [PageType.Link]: <LinkIcon size={size} />,
-    [PageType.Jobs]: <JobIcon size={size} />,
     [PageType.Products]: <CardIcon size={size} />,
     [PageType.Members]: <UserIcon size={size} />,
     [PageType.Analytics]: <AnalyticsIcon size={size} />,
@@ -348,11 +217,7 @@ export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
 
 /** Channels get their own glyphs; everything else keeps the type's. */
 const channelIcons: Record<string, ReactElement> = {
-  announcements: <MegaphoneIcon size={IconSize.Small} />,
   discussions: <DiscussIcon size={IconSize.Small} />,
-  reviews: <StarIcon size={IconSize.Small} />,
-  quiz: <HelpIcon size={IconSize.Small} />,
-  links: <LinkIcon size={IconSize.Small} />,
   polls: <PollIcon size={IconSize.Small} />,
 };
 
@@ -375,42 +240,16 @@ export const pageCatalogue: {
     items: [
       {
         type: PageType.Channel,
-        title: 'Announcements',
-        description: 'Team only. Releases, news, the pinned monthly notes.',
-        exists: true,
-      },
-      {
-        type: PageType.Channel,
         title: 'Discussions',
         description:
-          'General. Questions, feedback and bug reports live here too.',
+          'The feed, with a posting rule. Questions, feedback and bug reports live here too.',
         exists: true,
       },
       {
-        type: PageType.Reviews,
-        title: 'Reviews',
-        description:
-          'Stars and a review from members, with every rating the company has on the web pulled into one score.',
-        exists: false,
-      },
-      {
-        type: PageType.Quiz,
-        title: 'Quiz',
-        description:
-          'Poll cards with a right answer, generated from your docs, releases and products. A score at the end.',
-        exists: false,
-      },
-      {
-        type: PageType.Channel,
-        title: 'Links',
-        description:
-          'Shared articles, videos and tools. The post type daily.dev is built on.',
-        exists: true,
-      },
-      {
-        type: PageType.Channel,
+        type: PageType.Polls,
         title: 'Polls',
-        description: 'The poll post type, on its own.',
+        description:
+          'The poll post type, on its own page. The team asks, members vote.',
         exists: true,
       },
     ],
@@ -440,18 +279,6 @@ export const pageCatalogue: {
     ],
   },
   {
-    group: 'Recurring',
-    items: [
-      {
-        type: PageType.Recurring,
-        title: 'Recurring thread',
-        description:
-          "Who's hiring monthly, an easy-questions weekly, a showoff day. A scheduled post that pins itself when live.",
-        exists: false,
-      },
-    ],
-  },
-  {
     group: 'Company',
     items: [
       {
@@ -465,14 +292,8 @@ export const pageCatalogue: {
         type: PageType.Products,
         title: 'Products',
         description:
-          'Everything the company makes. Imported from Product Hunt, G2, GitHub or a URL; each card links to the member stack.',
+          'Everything the company makes. Imported from Product Hunt, G2, GitHub or a URL; each row links to the member stack.',
         exists: false,
-      },
-      {
-        type: PageType.Jobs,
-        title: 'Open roles',
-        description: 'Recruiter listings, inside the squad.',
-        exists: true,
       },
     ],
   },
@@ -482,7 +303,8 @@ export const pageCatalogue: {
       {
         type: PageType.Link,
         title: 'Link',
-        description: 'Docs, GitHub, Discord, status page, a related squad.',
+        description:
+          'Docs, GitHub, X, YouTube, LinkedIn, Discord. Opens in a new tab.',
         exists: true,
       },
       {
@@ -490,12 +312,6 @@ export const pageCatalogue: {
         title: 'Members',
         description: 'Everyone in the squad, with the team on top.',
         exists: true,
-      },
-      {
-        type: PageType.Chat,
-        title: 'Chat',
-        description: 'A real-time room. New for daily.dev, last on the list.',
-        exists: false,
       },
     ],
   },
@@ -647,17 +463,14 @@ export const SquadSidebar = ({
   active,
   viewer,
   onSelect,
-  preset = SidebarPreset.Company,
   className,
 }: {
   active: SquadPage;
   viewer: Viewer;
   onSelect: (page: SquadPage) => void;
-  preset?: SidebarPreset;
   className?: string;
 }): ReactElement => {
   const admin = viewer === Viewer.Admin;
-  const sidebarSections = presets[preset];
 
   return (
     <aside
@@ -722,7 +535,7 @@ export const SquadSidebar = ({
         )}
       </header>
       <div className="flex flex-col gap-4 px-2 py-3">
-        {sidebarSections
+        {sections
           .filter((section) => !section.admin || admin)
           .map((section) => (
             <div key={section.id} className="flex flex-col gap-0.5">
@@ -934,172 +747,7 @@ const RulesPage = (): ReactElement => (
   </Column>
 );
 
-const recurring = [
-  {
-    title: "Who's hiring",
-    cadence: 'Monthly, first Monday',
-    channel: 'Discussions',
-    status: 'Live now · 41 comments',
-    live: true,
-  },
-  {
-    title: 'Easy questions thread',
-    cadence: 'Weekly, Monday',
-    channel: 'Discussions',
-    status: 'Live now · 12 comments',
-    live: true,
-  },
-  {
-    title: 'Weekly quiz',
-    cadence: 'Weekly, Friday',
-    channel: 'Quiz',
-    status: 'Next in 3 days',
-    live: false,
-  },
-  {
-    title: 'Release notes',
-    cadence: 'Monthly, last Friday',
-    channel: 'Announcements',
-    status: 'Next in 12 days',
-    live: false,
-  },
-];
-
-/**
- * The threads a community runs on a schedule. Each is a scheduled post
- * that pins itself while live; the page is where members find the open
- * one and admins set the cadence.
- */
-const RecurringPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
-  <Column>
-    <div className="flex items-center justify-between">
-      <p className="max-w-[52ch] text-text-secondary typo-callout">
-        Threads that come back on a schedule. The live one is pinned in its
-        channel until the next one opens.
-      </p>
-      {viewer === Viewer.Admin && (
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<PlusIcon />}
-        >
-          New recurring thread
-        </Button>
-      )}
-    </div>
-    <div className="flex flex-col gap-3">
-      {recurring.map((thread) => (
-        <div
-          key={thread.title}
-          className="flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
-        >
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-10 bg-background-default text-text-tertiary">
-            <CalendarIcon size={IconSize.Small} />
-          </span>
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span className="font-bold text-text-primary typo-callout">
-              {thread.title}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              {thread.cadence} · in {thread.channel}
-            </span>
-          </div>
-          <span
-            className={classNames(
-              'flex items-center gap-1.5 whitespace-nowrap typo-footnote',
-              thread.live ? 'text-text-primary' : 'text-text-quaternary',
-            )}
-          >
-            {thread.live && (
-              <span className="size-1.5 rounded-full bg-status-success" />
-            )}
-            {thread.status}
-          </span>
-          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
-            {thread.live ? 'Open' : 'Remind me'}
-          </Button>
-        </div>
-      ))}
-    </div>
-  </Column>
-);
-
-const chat: { member: TeamMember; text: string; time: string }[] = [
-  {
-    member: team[3],
-    text: 'API tokens are live for everyone. Non-Plus limits are 200 req/month for now, tell me if that feels tight.',
-    time: '09:12',
-  },
-  {
-    member: team[4],
-    text: 'Claude Code integration guide is up, statusline plugin uses the same token.',
-    time: '09:15',
-  },
-  {
-    member: team[6],
-    text: 'Seeing a spike in token creation already. 340 in the first hour.',
-    time: '09:41',
-  },
-  {
-    member: team[1],
-    text: 'World redesign with a coding agent: anyone tried it with Cursor yet? Curious how the preview behaves.',
-    time: '10:03',
-  },
-  {
-    member: team[2],
-    text: 'Cursor works. The preview is local first, then publish. I will post a short clip in Announcements.',
-    time: '10:06',
-  },
-];
-
-const ChatPage = (): ReactElement => (
-  <div className="flex h-full flex-col">
-    <div className="ws-scroll flex flex-1 flex-col justify-end gap-1 overflow-y-auto px-6 py-6">
-      <div className="mx-auto mb-6 flex flex-col items-center gap-2 text-center">
-        <img src={squad.image} alt="" className="size-14 rounded-16" />
-        <span className="font-bold text-text-primary typo-title3">#chat</span>
-        <span className="max-w-[40ch] text-text-tertiary typo-footnote">
-          The room for {squad.name}. Members only, kept for 30 days.
-        </span>
-      </div>
-      {chat.map((message, index) => (
-        <div
-          // eslint-disable-next-line react/no-array-index-key
-          key={index}
-          className="flex gap-3 rounded-12 px-3 py-2 hover:bg-surface-float"
-        >
-          <Avatar member={message.member} size={2.25} />
-          <div className="flex min-w-0 flex-col">
-            <span className="flex items-baseline gap-2">
-              <span className="font-bold text-text-primary typo-callout">
-                {message.member.name}
-              </span>
-              <span className="text-text-quaternary typo-caption1">
-                {message.time}
-              </span>
-            </span>
-            <span className="text-text-secondary typo-callout">
-              {message.text}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-    <div className="border-t border-border-subtlest-tertiary px-6 py-4">
-      <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 py-3">
-        <span className="flex-1 text-text-quaternary typo-callout">
-          Message #chat
-        </span>
-        <SendAirplaneIcon
-          size={IconSize.Small}
-          className="text-text-tertiary"
-        />
-      </div>
-    </div>
-  </div>
-);
-
-/** A freeform post, rendered as a page. Whop's "Start here", in our reader. */
+/** A freeform post, rendered as a page: the FAQ, or any document. */
 const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
   <Column width="max-w-[44rem]" className="gap-6">
     <h1 className="font-bold text-text-primary typo-large-title">
@@ -1156,256 +804,6 @@ const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
     </div>
   </Column>
 );
-
-const Stars = ({
-  value,
-  size = IconSize.Small,
-  onPick,
-}: {
-  value: number;
-  size?: IconSize;
-  onPick?: (value: number) => void;
-}): ReactElement => (
-  <span className="flex items-center">
-    {[1, 2, 3, 4, 5].map((star) => (
-      <button
-        type="button"
-        key={star}
-        disabled={!onPick}
-        onClick={() => onPick?.(star)}
-        aria-label={`${star} star${star > 1 ? 's' : ''}`}
-        className={classNames(
-          'flex',
-          star <= Math.round(value)
-            ? 'text-accent-cheese-default'
-            : 'text-text-disabled',
-          onPick && 'transition-transform hover:scale-110',
-        )}
-      >
-        <StarIcon size={size} secondary={star <= Math.round(value)} />
-      </button>
-    ))}
-  </span>
-);
-
-const squadRating = 4.7;
-const squadReviewCount = 312;
-const webRatings = reviewSources.reduce((sum, item) => sum + item.count, 0);
-const webRating =
-  reviewSources.reduce((sum, item) => sum + item.rating * item.count, 0) /
-  webRatings;
-
-/**
- * Reviews are not posts. Members pick stars and write, the team replies in
- * line, and the top of the page pulls every rating the company has on the
- * web into one number next to the squad's own. Trustpilot's page shape,
- * with G2, the stores and Product Hunt beside it.
- */
-const ReviewsPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
-  const [draft, setDraft] = useState(0);
-
-  return (
-    <Column width="max-w-[52rem]" className="gap-6">
-      <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1.4fr' }}>
-        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5">
-          <span className="text-text-tertiary typo-footnote">On daily.dev</span>
-          <div className="flex items-end gap-3">
-            <span className="sq-nums font-bold leading-none text-text-primary typo-mega2">
-              {squadRating.toFixed(1)}
-            </span>
-            <div className="flex flex-col gap-1 pb-1">
-              <Stars value={squadRating} />
-              <span className="sq-nums text-text-tertiary typo-caption1">
-                {squadReviewCount} member reviews
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1.5 pt-1">
-            {ratingBreakdown.map(([stars, share]) => (
-              <div
-                key={stars}
-                className="flex items-center gap-2 typo-caption1"
-              >
-                <span className="sq-nums w-3 text-text-tertiary">{stars}</span>
-                <span className="h-1.5 flex-1 overflow-hidden rounded-6 bg-background-default">
-                  <span
-                    className="block h-full rounded-6 bg-accent-cheese-default"
-                    style={{ width: `${share}%` }}
-                  />
-                </span>
-                <span className="sq-nums w-8 text-right text-text-quaternary">
-                  {share}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5">
-          <div className="flex items-baseline justify-between">
-            <span className="text-text-tertiary typo-footnote">
-              Across the web
-            </span>
-            <span className="sq-nums text-text-tertiary typo-caption1">
-              <b className="text-text-primary typo-callout">
-                {webRating.toFixed(1)}
-              </b>{' '}
-              from {formatCount(webRatings)} ratings
-            </span>
-          </div>
-          <ul className="flex flex-col divide-y divide-border-subtlest-tertiary">
-            {reviewSources.map((source) => (
-              <li key={source.id}>
-                <a
-                  href={source.href}
-                  className="flex items-center gap-3 py-2 hover:text-text-primary"
-                >
-                  <img
-                    src={source.image}
-                    alt=""
-                    className="size-5 rounded-4 bg-background-default p-0.5"
-                  />
-                  <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
-                    {source.name}
-                  </span>
-                  <Stars value={source.rating} size={IconSize.XSmall} />
-                  <span className="sq-nums w-8 text-right font-bold text-text-primary typo-callout">
-                    {source.rating.toFixed(1)}
-                  </span>
-                  <span className="sq-nums w-12 text-right text-text-quaternary typo-caption1">
-                    {formatCount(source.count)}
-                  </span>
-                  <OpenLinkIcon
-                    size={IconSize.XSmall}
-                    className="text-text-quaternary"
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {viewer === Viewer.Visitor ? (
-        <div className="flex items-center justify-between rounded-16 border border-border-subtlest-tertiary px-4 py-3 text-text-tertiary typo-footnote">
-          Join the squad to rate and review
-          <Stars value={0} size={IconSize.XSmall} />
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar member={team[2]} size={2} />
-              <span className="font-bold text-text-primary typo-callout">
-                Rate daily.dev
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Stars value={draft} size={IconSize.Medium} onPick={setDraft} />
-              <span className="sq-nums w-14 text-text-tertiary typo-caption1">
-                {draft
-                  ? ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][draft]
-                  : ''}
-              </span>
-            </div>
-          </div>
-          <div className="min-h-[4.5rem] rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-quaternary typo-callout">
-            What works, what does not, what you would tell a friend.
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-text-quaternary typo-caption1">
-              Reviews are public and carry your profile.
-            </span>
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              disabled={!draft}
-            >
-              Post review
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between">
-        <span className="sq-nums text-text-tertiary typo-callout">
-          <b className="text-text-primary">{squadReviewCount}</b> reviews
-        </span>
-        <Button
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          icon={<ArrowIcon className="rotate-180" />}
-          iconPosition={ButtonIconPosition.Right}
-        >
-          Most helpful
-        </Button>
-      </div>
-      <ol className="flex flex-col divide-y divide-border-subtlest-tertiary">
-        {reviews.map((review) => (
-          <li key={review.id} className="flex flex-col gap-3 py-5 first:pt-0">
-            <div className="flex items-center gap-3">
-              <Avatar member={review.author} size={2.25} />
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate font-bold text-text-primary typo-callout">
-                  {review.author.name}
-                </span>
-                <span className="text-text-quaternary typo-caption1">
-                  Member · {review.date}
-                </span>
-              </div>
-              <Stars value={review.rating} size={IconSize.XSmall} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="font-bold text-text-primary typo-callout">
-                {review.title}
-              </span>
-              <p className="text-text-secondary typo-callout">{review.body}</p>
-            </div>
-            <div className="flex items-center gap-3 text-text-tertiary typo-caption1">
-              <button
-                type="button"
-                className="flex items-center gap-1 hover:text-text-primary"
-              >
-                <UpvoteIcon size={IconSize.XSmall} />
-                Helpful · {review.helpful}
-              </button>
-              <button type="button" className="hover:text-text-primary">
-                Share
-              </button>
-            </div>
-            {review.reply && (
-              <div className="ml-4 flex gap-3 rounded-12 border-l-2 border-accent-cabbage-default bg-surface-float px-4 py-3">
-                <Avatar member={review.reply.author} size={1.75} />
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="flex items-center gap-2 typo-caption1">
-                    <span className="font-bold text-text-primary">
-                      {review.reply.author.name}
-                    </span>
-                    <span className="rounded-6 bg-accent-cabbage-flat px-1.5 text-accent-cabbage-default typo-caption2">
-                      Team
-                    </span>
-                    <span className="text-text-quaternary">
-                      {review.reply.date}
-                    </span>
-                  </span>
-                  <span className="text-text-secondary typo-footnote">
-                    {review.reply.body}
-                  </span>
-                </div>
-              </div>
-            )}
-          </li>
-        ))}
-      </ol>
-      <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Medium}
-        className="w-full"
-      >
-        Load more
-      </Button>
-    </Column>
-  );
-};
 
 const releaseKinds = ['All', 'Features', 'Fixes', 'Betas'];
 
@@ -1525,7 +923,7 @@ const cardHandlers = {
   onReadArticleClick: noop,
 };
 
-const quizSource = {
+const pollSource = {
   id: squad.handle,
   handle: squad.handle,
   name: squad.name,
@@ -1537,189 +935,6 @@ const quizSource = {
 };
 
 /** A quiz question as a real poll post, so the production poll card renders it. */
-const toQuizPost = (question: QuizQuestion, picked?: number): Post =>
-  ({
-    id: question.id,
-    title: question.question,
-    permalink: `https://daily.dev/posts/${question.id}`,
-    commentsPermalink: `https://daily.dev/posts/${question.id}`,
-    createdAt: '2026-09-15T09:00:00.000Z',
-    endsAt: '2026-09-22T09:00:00.000Z',
-    type: PostType.Poll,
-    source: quizSource,
-    author: {
-      id: team[3].id,
-      name: team[3].name,
-      username: team[3].username,
-      image: team[3].image,
-      permalink: `https://daily.dev/${team[3].username}`,
-    },
-    numUpvotes: 24,
-    numComments: 6,
-    numPollVotes: quiz.played,
-    pollOptions: question.options.map((text, index) => ({
-      id: `${question.id}-${index}`,
-      text,
-      order: index + 1,
-      numVotes: Math.round((question.split[index] / 100) * quiz.played),
-    })),
-    tags: ['dailydev'],
-    userState: {
-      vote: UserVote.None,
-      flags: { feedbackDismiss: false },
-      ...(picked !== undefined && {
-        pollOption: { id: `${question.id}-${picked}` },
-      }),
-    },
-  } as unknown as Post);
-
-/**
- * The quiz is the poll post, exactly the production list card, one per
- * question. The page owns the answer: an option click is caught before the
- * card's own vote handler, the card re-renders in its results state, and a
- * line under it says which option was right and where the question came
- * from. A score lands once every card is answered.
- */
-const QuizPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const answered = Object.keys(answers).length;
-  const total = quiz.questions.length;
-  const correct = quiz.questions.filter(
-    (question) => answers[question.id] === question.answer,
-  ).length;
-  const done = answered === total;
-
-  return (
-    <Column className="gap-5">
-      <div className="flex items-start justify-between gap-6">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-bold text-text-primary typo-title3">
-            {quiz.title}
-          </h1>
-          <span className="sq-nums text-text-tertiary typo-footnote">
-            {total} questions · {formatCount(quiz.played)} played · generated
-            from this month&apos;s releases
-          </span>
-        </div>
-        {viewer === Viewer.Admin ? (
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            icon={<SparkleIcon secondary />}
-          >
-            Generate a quiz
-          </Button>
-        ) : (
-          <div className="flex flex-col items-end gap-1">
-            <span className="sq-nums text-text-tertiary typo-caption1">
-              {answered} of {total} answered
-            </span>
-            <span className="h-1.5 w-32 overflow-hidden rounded-6 bg-surface-float">
-              <span
-                className="block h-full rounded-6 bg-accent-cabbage-default transition-[width]"
-                style={{ width: `${(answered / total) * 100}%` }}
-              />
-            </span>
-          </div>
-        )}
-      </div>
-
-      {done && (
-        <div className="flex items-center gap-4 rounded-16 border border-accent-cabbage-default bg-accent-cabbage-flat p-4">
-          <span className="sq-nums font-bold leading-none text-text-primary typo-mega3">
-            {correct}/{total}
-          </span>
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="font-bold text-text-primary typo-callout">
-              {correct === total
-                ? 'Perfect.'
-                : correct >= total / 2
-                ? 'Nice.'
-                : 'Next week.'}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              Better than {Math.min(98, 30 + correct * 17)}% of the squad.
-            </span>
-          </div>
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            icon={<LinkIcon />}
-          >
-            Share result
-          </Button>
-        </div>
-      )}
-
-      <div className="flex flex-col gap-4">
-        {quiz.questions.map((question) => {
-          const picked = answers[question.id];
-          const revealed = picked !== undefined;
-
-          return (
-            <div key={question.id} className="flex flex-col gap-2">
-              <div
-                onClickCapture={(event) => {
-                  if (revealed || viewer === Viewer.Visitor) {
-                    return;
-                  }
-                  const option = (event.target as HTMLElement)
-                    .closest('button')
-                    ?.textContent?.trim();
-                  const index = question.options.indexOf(option ?? '');
-                  if (index === -1) {
-                    return;
-                  }
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setAnswers((current) => ({
-                    ...current,
-                    [question.id]: index,
-                  }));
-                }}
-              >
-                <PollList
-                  post={toQuizPost(question, picked)}
-                  {...cardHandlers}
-                />
-              </div>
-              <div className="flex items-center gap-2 px-4 text-text-tertiary typo-caption1">
-                {revealed ? (
-                  <>
-                    <span
-                      className={classNames(
-                        'flex items-center gap-1 font-bold',
-                        picked === question.answer
-                          ? 'text-status-success'
-                          : 'text-status-error',
-                      )}
-                    >
-                      {picked === question.answer && (
-                        <VIcon size={IconSize.XSmall} />
-                      )}
-                      {picked === question.answer
-                        ? 'Right'
-                        : `Right answer: ${question.options[question.answer]}`}
-                    </span>
-                    <span className="text-text-quaternary">·</span>
-                    <span className="truncate">From: {question.source}</span>
-                  </>
-                ) : (
-                  <span>
-                    {viewer === Viewer.Visitor
-                      ? 'Join to play'
-                      : 'Pick an answer to see how the squad voted'}
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </Column>
-  );
-};
-
 const toPollPost = (poll: SquadPoll, picked?: number): Post =>
   ({
     id: poll.id,
@@ -1729,7 +944,7 @@ const toPollPost = (poll: SquadPoll, picked?: number): Post =>
     createdAt: '2026-09-20T09:00:00.000Z',
     endsAt: poll.endsAt,
     type: PostType.Poll,
-    source: quizSource,
+    source: pollSource,
     author: {
       id: poll.author.id,
       name: poll.author.name,
@@ -1943,36 +1158,6 @@ const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   </Column>
 );
 
-const JobsPage = (): ReactElement => (
-  <Column>
-    <p className="max-w-[52ch] text-text-secondary typo-callout">
-      Open roles at daily.dev, from Recruiter. Apply with your daily.dev
-      profile.
-    </p>
-    <div className="flex flex-col gap-3">
-      {jobs.map((job) => (
-        <div
-          key={job.title}
-          className="flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
-        >
-          <img src={squad.image} alt="" className="size-10 rounded-10" />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="font-bold text-text-primary typo-callout">
-              {job.title}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              {job.location} · {job.type}
-            </span>
-          </div>
-          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
-            View role
-          </Button>
-        </div>
-      ))}
-    </div>
-  </Column>
-);
-
 const MembersPage = (): ReactElement => (
   <Column>
     <div className="flex items-center justify-between">
@@ -2124,32 +1309,16 @@ const PageBody = ({
           onOpenFaq={() => onSelect(docs.faq)}
         />
       );
-    case PageType.About:
-      return (
-        <Column width="max-w-[46rem]">
-          <SquadAbout viewer={viewer} />
-        </Column>
-      );
     case PageType.Channel:
       return <ChannelPage page={current} viewer={viewer} />;
-    case PageType.Reviews:
-      return <ReviewsPage viewer={viewer} />;
     case PageType.Releases:
       return <ReleasesPage viewer={viewer} />;
-    case PageType.Quiz:
-      return <QuizPage viewer={viewer} />;
     case PageType.Polls:
       return <PollsPage viewer={viewer} />;
-    case PageType.Chat:
-      return <ChatPage />;
     case PageType.Doc:
       return <DocPage page={current} />;
     case PageType.Rules:
       return <RulesPage />;
-    case PageType.Recurring:
-      return <RecurringPage viewer={viewer} />;
-    case PageType.Jobs:
-      return <JobsPage />;
     case PageType.Products:
       return <ProductsPage viewer={viewer} />;
     case PageType.Members:
@@ -2167,23 +1336,6 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
     case PageType.Channel:
       return viewer === Viewer.Admin ? (
         <IconButton icon={<SettingsIcon />} label="Page settings" />
-      ) : null;
-    case PageType.Chat:
-      return (
-        <>
-          <span className="mr-2 flex items-center gap-1 text-text-tertiary typo-caption1">
-            <span className="size-1.5 rounded-full bg-status-success" />
-            38 online
-          </span>
-          <IconButton icon={<UserIcon />} label="Members" />
-          <IconButton icon={<BellIcon />} label="Notifications" />
-        </>
-      );
-    case PageType.Reviews:
-      return viewer === Viewer.Admin ? (
-        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
-          Sources
-        </Button>
       ) : null;
     case PageType.Products:
       return viewer === Viewer.Admin ? (
@@ -2209,13 +1361,11 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
 export const WorkspaceShell = ({
   viewer = Viewer.Member,
   initialPage = allPages[0],
-  preset = SidebarPreset.Company,
   height = 56,
   width = 1440,
 }: {
   viewer?: Viewer;
   initialPage?: SquadPage;
-  preset?: SidebarPreset;
   /** rem */
   height?: number;
   width?: number;
@@ -2237,22 +1387,12 @@ export const WorkspaceShell = ({
       <WorkspaceStyles />
       <Kit2Styles />
       <Rail />
-      <SquadSidebar
-        active={active}
-        viewer={viewer}
-        onSelect={onSelect}
-        preset={preset}
-      />
+      <SquadSidebar active={active} viewer={viewer} onSelect={onSelect} />
       <main className="ws-scroll flex min-w-0 flex-1 flex-col overflow-y-auto">
         {active.type !== PageType.Home && (
           <PageBar page={active}>{pageBarTools(active, viewer)}</PageBar>
         )}
-        <div
-          className={classNames(
-            'flex-1',
-            active.type === PageType.Chat && 'flex min-h-0 flex-col',
-          )}
-        >
+        <div className="flex-1">
           <PageBody page={active} viewer={viewer} onSelect={onSelect} />
         </div>
       </main>
