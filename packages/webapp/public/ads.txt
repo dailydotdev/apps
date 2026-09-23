@@ -178,3 +178,33 @@ adelement.com, 48431, RESELLER
 openx.com, 557564833, RESELLER, 6a698e2ec38604c6
 appnexus.com,8826,RESELLER,f5ab79cb980f11d1
 start.io, 185522363, RESELLER
+
+taboola.com, 2106975, DIRECT, c228e6794e811952
+pubmatic.com, 156307, RESELLER, 5d62403b186f2ace
+appnexus.com, 3364, RESELLER
+indexexchange.com, 183756, RESELLER
+contextweb.com, 560382, RESELLER
+rubiconproject.com, 16698, RESELLER, 0bfd66d529a55807
+openx.com, 539154393, RESELLER
+smartadserver.com, 3563, RESELLER
+improvedigital.com, 1577, RESELLER
+video.unrulymedia.com, 1166984029, RESELLER
+inmobi.com, a985e39014a94721a8e97c929d32ef9d, RESELLER, 83e75a7ae333ca9d
+smaato.com, 1100047487, RESELLER, 07bcf65f187117b4
+sonobi.com, 9a1db44c9c, RESELLER, d1a215d9eb5aee9e
+sharethrough.com, RVhuFS44, RESELLER, d53b998a7bd4ecd2
+amxrtb.com, 105199725, RESELLER
+media.net, 8CU292ZDI, RESELLER
+yieldmo.com, 3357506016601120771, RESELLER
+triplelift.com, 14073, RESELLER, 6c33edb13117fd86
+google.com, pub-3677668629134422, RESELLER, f08c47fec0942fa0
+themediagrid.com, I2G5ZV, RESELLER, 35d5010d7789b49d
+freewheel.tv, 536174-r-524565, RESELLER
+freewheel.tv, 799921, RESELLER
+freewheel.tv, 536174-r-523319, RESELLER
+copper6.com, 764120, RESELLER
+aps.amazon.com, ec4e8edf-c46b-44a1-bcab-17b3a4420b9a, RESELLER
+seedtag.com, 69d68d4be8be020007d0b62c, RESELLER
+sharethrough.com, 3563, RESELLER, d53b998a7bd4ecd2
+insticator.com, 23674d5f-87ef-4a55-bc90-324263d3e005, RESELLER, b3511ffcafb23a32
+ssp.cadent.com, 1643, RESELLER, 1e1d41537f7cad7f

@@ -124,7 +124,8 @@ export const BootDataProvider = ({
   const queryClient = useQueryClient();
 
   const [initialLoad, setInitialLoad] = useState<boolean>();
-  const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>();
+  const [cachedBootData, setCachedBootData] =
+    useState<Partial<BootCacheData>>();
 
   useEffect(() => {
     if (localBootData) {
