@@ -10,12 +10,13 @@ import {
 import {
   ArrowIcon,
   UpvoteIcon,
+  SearchIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { feedEntries, formatCount, pinnedEntry, products, squad } from './data';
-import { VerifiedMark, Viewer } from './kit';
+import { CardList, VerifiedMark, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
-import { PostsArea, SquadComposer, SquadHeader, SquadWidgets } from './home';
+import { Highlight, SquadComposer, SquadHeader, SquadWidgets } from './home';
 import { FollowButton, ManageButton } from './navigation';
 import {
   AnalyticsPage,
@@ -102,68 +103,93 @@ const chips = [
   { id: 'polls', label: 'Polls' },
 ];
 
-const releaseEntries = feedEntries.filter((entry) => entry.image === null);
 const discussionEntries = feedEntries.filter((_, index) => index % 3 === 2);
 
-const ChipRow = ({
-  active,
-  onSelect,
+/**
+ * One row: the kinds on the left as chips, the sort and search on the
+ * right as quiet text. The active chip and the sort share one weight so
+ * the row reads as a single control.
+ */
+const FeedToolbar = ({
+  chip,
+  onChip,
 }: {
-  active: string;
-  onSelect: (id: string) => void;
+  chip: string;
+  onChip: (id: string) => void;
 }): ReactElement => (
   <div className="flex items-center gap-1">
-    {chips.map((chip) => (
+    {chips.map((item) => (
       <button
-        key={chip.id}
+        key={item.id}
         type="button"
-        onClick={() => onSelect(chip.id)}
+        onClick={() => onChip(item.id)}
         className={classNames(
-          'rounded-[999px] px-3 py-1 typo-callout transition-colors',
-          active === chip.id
-            ? 'bg-text-primary font-bold text-background-default'
-            : 'bg-surface-float text-text-secondary hover:text-text-primary',
+          'rounded-[999px] px-3 py-1.5 typo-callout transition-colors',
+          chip === item.id
+            ? 'bg-surface-float font-bold text-text-primary'
+            : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
         )}
       >
-        {chip.label}
+        {item.label}
       </button>
     ))}
+    <div className="ml-auto flex items-center gap-1">
+      <button
+        type="button"
+        className="flex items-center gap-1 rounded-[999px] px-3 py-1.5 text-text-tertiary typo-callout transition-colors hover:bg-surface-float hover:text-text-primary"
+      >
+        Latest
+        <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
+      </button>
+      <button
+        type="button"
+        aria-label="Search posts"
+        className="flex size-8 items-center justify-center rounded-[999px] text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
+      >
+        <SearchIcon size={IconSize.Small} />
+      </button>
+    </div>
   </div>
 );
 
 const Feed = ({ viewer }: { viewer: Viewer }): ReactElement => {
   const [chip, setChip] = useState('all');
-  const row = <ChipRow active={chip} onSelect={setChip} />;
+  const toolbar = <FeedToolbar chip={chip} onChip={setChip} />;
 
-  if (chip === 'polls') {
+  if (chip === 'polls' || chip === 'releases') {
     return (
       <div className="flex flex-col gap-4 p-6 pb-0">
-        <div className="flex items-center gap-2">{row}</div>
-        <PollsPage viewer={viewer} />
-      </div>
-    );
-  }
-  if (chip === 'releases') {
-    return (
-      <div className="flex flex-col gap-4 p-6 pb-0">
-        <div className="flex items-center gap-2">{row}</div>
-        <ReleasesPage viewer={viewer} />
+        <SquadComposer viewer={viewer} />
+        {toolbar}
+        {chip === 'polls' ? (
+          <PollsPage viewer={viewer} />
+        ) : (
+          <ReleasesPage viewer={viewer} />
+        )}
       </div>
     );
   }
 
   return (
-    <PostsArea
-      sort="Latest"
-      entries={
-        chip === 'discussions'
-          ? discussionEntries.slice(0, 6)
-          : feedEntries.slice(0, 6)
-      }
-      pinned={chip === 'all' ? pinnedEntry : undefined}
-      composer={<SquadComposer viewer={viewer} />}
-      toolbarChildren={row}
-    />
+    <div className="flex flex-col gap-4 p-6">
+      <SquadComposer viewer={viewer} />
+      {toolbar}
+      {chip === 'all' && <Highlight entry={pinnedEntry} />}
+      <CardList
+        entries={
+          chip === 'discussions'
+            ? discussionEntries.slice(0, 6)
+            : feedEntries.slice(0, 6)
+        }
+      />
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Medium}
+        className="w-full"
+      >
+        Load more
+      </Button>
+    </div>
   );
 };
 

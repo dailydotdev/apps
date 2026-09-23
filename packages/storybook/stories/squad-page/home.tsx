@@ -178,9 +178,9 @@ export const SquadHeader = ({
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               icon={<LinkIcon />}
-            >
-              Share
-            </Button>
+              aria-label="Share"
+              title="Share"
+            />
             <MoreMenu viewer={viewer} />
           </div>
         </div>
