@@ -4,6 +4,8 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generateTestSquad } from '../../__tests__/fixture/squads';
 import type { Squad } from '../graphql/sources';
+import AuthContext from '../contexts/AuthContext';
+import type { AuthContextData } from '../contexts/AuthContext';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import type { Boot } from '../lib/boot';
 import { TOAST_NOTIF_KEY } from './useToastNotification';
@@ -74,7 +76,9 @@ const renderDeleteSquad = (squad: Squad, callback = jest.fn()) => {
 
   render(
     <QueryClientProvider client={queryClient}>
-      <TestComponent />
+      <AuthContext.Provider value={{} as AuthContextData}>
+        <TestComponent />
+      </AuthContext.Provider>
     </QueryClientProvider>,
   );
 

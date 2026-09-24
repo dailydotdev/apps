@@ -127,7 +127,6 @@ export const GrowthBookProvider = ({
       });
       updateExperimentation?.({
         // default values in case of experimentation missing
-        f: '{}',
         a: [],
         ...experimentation,
         e: [...(experimentation?.e ?? []), key],
