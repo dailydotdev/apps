@@ -10,18 +10,20 @@ import {
 import {
   ArrowIcon,
   MoveToIcon,
+  PlusIcon,
   EyeIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { feedEntries, formatCount, products, squad } from './data';
-import { CardList, isStaff, VerifiedMark, Viewer } from './kit';
+import { CardList, isAdmin, isStaff, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
 import { MobileFooterNav, TabletSidebar } from './rail';
 import { PreviewModeToggle, SharePageWidget } from './owner';
+import { AddProductPage, SaveProductButton } from './productForm';
 import { PinnedArea, PinStyle, feedUnder } from './pins';
 import { SquadComposer, SquadHeader, SquadWidgets } from './home';
-import { FollowButton, ManageButton } from './navigation';
+import { ManageButton } from './navigation';
 import {
   AnalyticsPage,
   ColumnFitContext,
@@ -218,6 +220,7 @@ const titles: Record<string, string> = {
   faq: 'FAQ',
   members: 'Followers',
   products: 'Products',
+  'add-product': 'Add product',
   moderation: 'Moderation',
   feed: 'Content feed',
   analytics: 'Analytics',
@@ -229,48 +232,31 @@ const titles: Record<string, string> = {
  * back, the logo, the name. The page below carries its own title.
  */
 /**
- * X's sub-page header: back, then the page as the title with the squad
- * under it, so the page has a name without a second heading below.
+ * The sub-page header, the way a profile's Add experience page does it:
+ * back, the page's title, and the page's one action on the right.
  */
 const SubHeader = ({
-  viewer,
   id,
   onBack,
+  action,
 }: {
-  viewer: Viewer;
   id: string;
   onBack: () => void;
+  action?: ReactNode;
 }): ReactElement => (
-  <div className="flex items-center gap-3 border-b border-border-subtlest-tertiary px-4 py-2">
+  <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-4 py-3">
     <Button
-      variant={ButtonVariant.Float}
+      variant={ButtonVariant.Tertiary}
       size={ButtonSize.Small}
       icon={<MoveToIcon className="rotate-180" />}
-      aria-label={`Back to ${squad.name}`}
-      title={`Back to ${squad.name}`}
+      aria-label="Back"
+      title="Back"
       onClick={onBack}
     />
-    <div className="flex min-w-0 flex-1 flex-col">
-      <span className="truncate font-bold text-text-primary typo-body">
-        {titles[id] ?? id}
-      </span>
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex items-center gap-1 self-start text-text-tertiary typo-caption1 hover:text-text-primary"
-      >
-        <img
-          src={squad.image}
-          alt=""
-          className="size-4 rounded-4 object-cover"
-        />
-        {squad.name}
-        <VerifiedMark label={false} />
-      </button>
-    </div>
-    <div className="shrink-0">
-      <FollowButton viewer={viewer} size={ButtonSize.XSmall} />
-    </div>
+    <h1 className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body">
+      {titles[id] ?? id}
+    </h1>
+    {action && <div className="shrink-0">{action}</div>}
   </div>
 );
 
@@ -290,6 +276,8 @@ const SubPage = ({
       return <MembersPage viewer={viewer} />;
     case 'products':
       return <ProductsPage viewer={viewer} />;
+    case 'add-product':
+      return <AddProductPage />;
     case 'moderation':
       return <ModerationPage />;
     case 'feed':
@@ -381,8 +369,8 @@ export const DirectionPage = ({
               onToggle={() => setPreviewing((value) => !value)}
             />
           )}
-          {runsPage && !previewing && <SharePageWidget />}
           <SquadWidgets
+            afterVerified={runsPage && !previewing && <SharePageWidget />}
             viewer={viewer}
             onOpenRules={() => onSelect('rules')}
             onOpenFaq={() => onSelect('faq')}
@@ -412,9 +400,26 @@ export const DirectionPage = ({
       ) : (
         <>
           <SubHeader
-            viewer={viewer}
             id={active}
-            onBack={() => onSelect('home')}
+            onBack={() =>
+              onSelect(active === 'add-product' ? 'products' : 'home')
+            }
+            action={
+              (active === 'products' && isAdmin(viewer) && (
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<PlusIcon />}
+                  onClick={() => onSelect('add-product')}
+                >
+                  Add product
+                </Button>
+              )) ||
+              (active === 'add-product' && (
+                <SaveProductButton onSave={() => onSelect('products')} />
+              )) ||
+              undefined
+            }
           />
           <ColumnFitContext.Provider value>
             <SubPage id={active} viewer={viewer} />
@@ -427,6 +432,7 @@ export const DirectionPage = ({
 
 export const directionPageIds = [
   'home',
+  'add-product',
   'rules',
   'faq',
   'members',

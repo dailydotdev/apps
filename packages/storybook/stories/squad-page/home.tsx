@@ -1350,14 +1350,18 @@ export const SquadWidgets = ({
   onOpenRules,
   onOpenFaq,
   onOpenAnalytics,
+  afterVerified,
 }: {
   viewer?: Viewer;
   onOpenRules?: () => void;
   onOpenFaq?: () => void;
   onOpenAnalytics?: () => void;
+  /** Sits right under the Official company page card. */
+  afterVerified?: ReactNode;
 }): ReactElement => (
   <>
     <VerifiedWidget />
+    {afterVerified}
     <RulesWidget onOpenRules={onOpenRules} onOpenFaq={onOpenFaq} />
     <TeamWidget />
     <AnalyticsWidget viewer={viewer} onOpen={onOpenAnalytics} />

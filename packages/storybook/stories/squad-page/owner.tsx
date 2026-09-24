@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
@@ -33,7 +34,10 @@ import { squad } from './data';
 export const squadPermalink = `https://app.daily.dev/squads/${squad.handle}`;
 const shareText = `Check out ${squad.name} on daily.dev!`;
 
-/** ProfilePreviewToggle: the page as a follower-to-be sees it. */
+/**
+ * ProfilePreviewToggle, compacted to one row the height of the Official
+ * company page card: the switch says it all, the line under it is gone.
+ */
 export const PreviewModeToggle = ({
   checked,
   onToggle,
@@ -41,29 +45,28 @@ export const PreviewModeToggle = ({
   checked: boolean;
   onToggle: () => void;
 }): ReactElement => (
-  <div className="flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-    <div className="flex min-w-0 flex-1 items-center gap-3">
-      <EyeIcon
-        size={IconSize.Medium}
-        className="shrink-0 text-text-tertiary"
-        secondary
-      />
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold text-text-primary typo-body">
-          Preview mode
-        </span>
-        <span className="break-words text-text-tertiary typo-footnote">
-          See how your page looks to others
-        </span>
-      </div>
-    </div>
+  <div
+    title="See how your page looks to others"
+    className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-4 py-3"
+  >
+    <EyeIcon
+      size={IconSize.Small}
+      secondary={checked}
+      className={classNames(
+        'shrink-0',
+        checked ? 'text-text-primary' : 'text-text-tertiary',
+      )}
+    />
+    <span className="min-w-0 flex-1 font-bold text-text-primary typo-callout">
+      Preview mode
+    </span>
     <Switch
       inputId="squad-preview-toggle"
       name="squadPreview"
       checked={checked}
       onToggle={onToggle}
-      compact={false}
-      className="shrink-0 self-center"
+      compact
+      className="shrink-0"
       aria-label="Preview mode"
     />
   </div>

@@ -827,12 +827,9 @@ export const RulesPage = (): ReactElement => {
           Shown once before your first post. Moderators remove what breaks them.
         </p>
       </div>
-      <ol className="flex flex-col divide-y divide-border-subtlest-tertiary">
+      <ol className="flex flex-col gap-5">
         {rules.map(([title, body], index) => (
-          <li
-            key={title}
-            className="flex gap-4 rounded-12 px-4 py-4 hover:bg-surface-float"
-          >
+          <li key={title} className="flex gap-4">
             <span className="sq-nums w-5 shrink-0 font-bold text-text-quaternary typo-callout">
               {index + 1}
             </span>
@@ -969,19 +966,11 @@ export const ReleasesPage = ({
           )}
         </div>
       )}
-      <ol
-        className={classNames(
-          'flex flex-col divide-y divide-border-subtlest-tertiary',
-          empty && 'hidden',
-        )}
-      >
+      <ol className={classNames('flex flex-col gap-6', empty && 'hidden')}>
         {entriesByMonth
           .flatMap((group) => group.items)
           .map((entry) => (
-            <li
-              key={entry.id}
-              className="group flex gap-4 rounded-12 px-4 py-4 hover:bg-surface-float"
-            >
+            <li key={entry.id} className="group flex gap-4">
               {' '}
               <time className="sq-nums w-14 shrink-0 pt-0.5 text-text-tertiary typo-footnote">
                 {formatDay(entry.createdAt)}
@@ -1166,52 +1155,16 @@ const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
  */
 export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column width="max-w-[56rem]">
-    {isAdmin(viewer) ? (
-      <div className="flex flex-col gap-3 rounded-16 bg-surface-float p-4">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <span className="font-bold text-text-primary typo-callout">
-            Import a product
-          </span>
-          <span className="text-text-quaternary typo-caption1">
-            Synced weekly. Edit anything after import.
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 flex-1 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-callout">
-            <LinkIcon size={IconSize.Small} />
-            Paste a Product Hunt, G2, Trustpilot, GitHub or website link
-          </div>
-          <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
-            Import
-          </Button>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5 text-text-tertiary typo-caption1">
-          <span className="mr-1">Or connect</span>
-          {importSources.map((source) => (
-            <span
-              key={source}
-              className="rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 text-text-secondary"
-            >
-              {source}
-            </span>
-          ))}
-        </div>
-      </div>
-    ) : (
-      <p className="max-w-[52ch] text-text-secondary typo-callout">
-        Everything {squad.name} makes. Add one to your stack and it shows on
-        your profile.
-      </p>
-    )}
+    <p className="max-w-[52ch] text-text-secondary typo-callout">
+      Everything {squad.name} makes. Add one to your stack and it shows on your
+      profile.
+    </p>
     {/* Product Hunt's list: logo, name and tagline on one line, chips under,
         and the tall box on the right. Theirs counts upvotes; ours counts
         stacks and is the Add button. */}
-    <ol className="flex flex-col divide-y divide-border-subtlest-tertiary">
+    <ol className="flex flex-col gap-6">
       {products.map((product) => (
-        <li
-          key={product.id}
-          className="group flex items-start gap-4 rounded-12 px-4 py-4 hover:bg-surface-float"
-        >
+        <li key={product.id} className="group flex items-start gap-4">
           <img
             src={product.image}
             alt=""
@@ -1355,11 +1308,11 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
           No blocked followers found
         </div>
       ) : (
-        <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+        <div className="flex flex-col gap-4">
           {canInvite && tab !== MemberTab.Blocked && (
             <button
               type="button"
-              className="flex items-center gap-3 px-4 py-3 text-left text-text-primary typo-callout hover:bg-surface-float"
+              className="flex items-center gap-3 text-left text-text-primary typo-callout hover:text-text-secondary"
             >
               <span className="flex size-8 items-center justify-center rounded-[999px] bg-surface-float text-text-secondary">
                 <AddUserIcon size={IconSize.Small} />
@@ -1368,10 +1321,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
             </button>
           )}
           {rows.map((member) => (
-            <div
-              key={member.id}
-              className="relative flex items-center gap-3 px-4 py-2.5"
-            >
+            <div key={member.id} className="relative flex items-center gap-3">
               <Avatar member={member} size={2} />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="flex items-center gap-2 truncate font-bold text-text-primary typo-callout">
@@ -1527,12 +1477,12 @@ export const ModerationPage = (): ReactElement => {
           Approve all {pendingPosts.length + 1} posts
         </Button>
       </div>
-      <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+      <div className="flex flex-col gap-8">
         {[...pendingPosts, null].map((entry, index) => {
           const key = entry?.id ?? 'poll';
           const author = entry?.author ?? polls[1].author;
           return (
-            <div key={key} className="flex flex-col gap-3 p-4">
+            <div key={key} className="flex flex-col gap-3">
               {index === 0 && (
                 <span className="flex items-center gap-2 rounded-10 bg-accent-bun-subtlest px-3 py-1.5 text-text-primary typo-footnote">
                   <WarningIcon size={IconSize.Small} />
@@ -1699,9 +1649,9 @@ export const FeedSourcePage = (): ReactElement => (
       <span className="font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
         Recent imports
       </span>
-      <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+      <ol className="flex flex-col gap-3">
         {feedItems.map((entry) => (
-          <li key={entry.id} className="flex items-center gap-3 px-4 py-2.5">
+          <li key={entry.id} className="flex items-center gap-3">
             <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
               {entry.title}
             </span>
@@ -2307,11 +2257,11 @@ export const PendingPostsPage = (): ReactElement => {
         Your posts waiting for a moderator of {squad.name}. You hear when they
         are reviewed.
       </span>
-      <div className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
+      <div className="flex flex-col gap-8">
         {items.map((entry, index) => {
           const rejected = index === 1;
           return (
-            <div key={entry.id} className="flex flex-col gap-3 p-4">
+            <div key={entry.id} className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <Avatar member={entry.author} size={2} />
                 <div className="flex min-w-0 flex-1 flex-col">
