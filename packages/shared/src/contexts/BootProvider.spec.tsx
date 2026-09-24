@@ -138,6 +138,29 @@ const renderComponent = (
   );
 };
 
+it('should pass the cached exp to the first boot fetch', async () => {
+  const exp: BootCacheData['exp'] = {
+    f: 'cached-f',
+    fv: 'v1',
+    e: [],
+    a: [],
+    features: { cached_flag: { defaultValue: true } },
+  };
+  localStorage.setItem(
+    BOOT_LOCAL_KEY,
+    JSON.stringify({ ...defaultBootData, exp }),
+  );
+  jest.mocked(getBootData).mockClear();
+
+  renderComponent(<></>);
+
+  await waitFor(() => expect(getBootData).toHaveBeenCalled());
+  expect(getBootData).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining({ cachedExp: exp }),
+  );
+});
+
 const mockSettingsMutation = (params: Partial<RemoteSettings>) =>
   mockGraphQL({
     request: {

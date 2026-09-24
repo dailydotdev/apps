@@ -124,8 +124,16 @@ export const BootDataProvider = ({
   const queryClient = useQueryClient();
 
   const [initialLoad, setInitialLoad] = useState<boolean>();
-  const [cachedBootData, setCachedBootData] =
+  const [cachedBootData, setCachedBootDataState] =
     useState<Partial<BootCacheData>>();
+  const cachedBootDataRef = useRef<Partial<BootCacheData>>();
+  const setCachedBootData = useCallback(
+    (data: Partial<BootCacheData> | undefined) => {
+      cachedBootDataRef.current = data;
+      setCachedBootDataState(data);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (localBootData) {
@@ -147,7 +155,7 @@ export const BootDataProvider = ({
     }
 
     setCachedBootData(boot);
-  }, [localBootData]);
+  }, [localBootData, setCachedBootData]);
 
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
@@ -166,7 +174,11 @@ export const BootDataProvider = ({
     queryKey: BOOT_QUERY_KEY,
     queryFn: async () => {
       const pathname = globalThis?.location?.pathname;
-      const result = await getBootData({ app, pathname });
+      const result = await getBootData({
+        app,
+        pathname,
+        cachedExp: cachedBootDataRef.current?.exp,
+      });
 
       return result;
     },
@@ -254,7 +266,7 @@ export const BootDataProvider = ({
       const updated = updateLocalBootData(cachedData, updatedData);
       setCachedBootData(updated);
     },
-    [],
+    [setCachedBootData],
   );
 
   const updateUser = useCallback(

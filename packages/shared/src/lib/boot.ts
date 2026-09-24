@@ -14,8 +14,6 @@ import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
 import type { EngagementCreative } from './engagementAds';
 import { getStoredTcString } from './tcf';
-import { storageWrapper as storage } from './storageWrapper';
-import { BOOT_LOCAL_KEY } from '../contexts/common';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -152,22 +150,12 @@ const enrichBootWithFeatures = async (boot: Boot): Promise<Boot> => {
   return { ...boot, exp: { ...boot.exp, features: JSON.parse(features) } };
 };
 
-const getCachedExp = (): Boot['exp'] => {
-  try {
-    const local = JSON.parse(
-      storage.getItem(BOOT_LOCAL_KEY) as string,
-    ) as BootCacheData | null;
-    return local?.exp;
-  } catch (err) {
-    return undefined;
-  }
-};
-
 interface GetBootDataParams {
   app: string;
   url?: string;
   cookies?: string;
   pathname?: string;
+  cachedExp?: Boot['exp'];
 }
 
 const fetchBoot = async (
@@ -197,8 +185,8 @@ export async function getBootData({
   url,
   cookies,
   pathname,
+  cachedExp,
 }: GetBootDataParams): Promise<Boot> {
-  const cachedExp = app !== BootApp.Companion ? getCachedExp() : undefined;
   const cached =
     cachedExp?.fv && Object.keys(cachedExp.features ?? {}).length
       ? cachedExp
