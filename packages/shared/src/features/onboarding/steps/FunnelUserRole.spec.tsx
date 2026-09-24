@@ -120,8 +120,6 @@ describe('FunnelUserRole', () => {
   });
 
   it('should carry the answers forward when the profile cannot be saved yet', () => {
-    // A user with no username can only be saved together with one, which
-    // account details asks for.
     let onError: (() => void) | undefined;
     (useProfileForm as jest.Mock).mockImplementation((options) => {
       onError = options?.onError;

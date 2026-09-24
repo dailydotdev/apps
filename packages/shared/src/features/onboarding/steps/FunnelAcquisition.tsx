@@ -108,7 +108,6 @@ const faviconMark = (BrandIcon: Icon): ChannelMark => ({
   ),
 });
 
-// Channels with no brand of their own: the filled icon in an accent colour.
 const accentMark = (
   AccentIcon: Icon,
   colorVariable: string,
