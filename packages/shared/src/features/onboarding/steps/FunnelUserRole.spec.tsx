@@ -39,6 +39,9 @@ const renderStep = (user: Record<string, unknown> = {}) => {
 const pick = (name: string) =>
   fireEvent.click(screen.getByRole('checkbox', { name }));
 
+const next = () =>
+  fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
 describe('FunnelUserRole', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -46,12 +49,24 @@ describe('FunnelUserRole', () => {
     jest.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
   });
 
+  it('should wait for Continue after a role is picked', () => {
+    renderStep();
+
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    pick('Developer');
+
+    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
+    expect(screen.getByText('Who are you?')).toBeInTheDocument();
+    expect(updateUserProfile).not.toHaveBeenCalled();
+  });
+
   it('should store the picked experience level for an engineering role', () => {
     renderStep();
 
     pick('Developer');
-    pick('Experienced (4-5 years)');
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    next();
+    pick('Experienced, 4-5 years');
+    next();
 
     expect(updateUserProfile).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -71,11 +86,9 @@ describe('FunnelUserRole', () => {
     renderStep();
 
     pick('Designer');
-    expect(
-      screen.queryByRole('checkbox', { name: 'Aspiring engineer (<1 year)' }),
-    ).not.toBeInTheDocument();
-    pick('4-5 years');
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    next();
+    pick('Experienced, 4-5 years');
+    next();
 
     expect(updateUserProfile).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -93,6 +106,7 @@ describe('FunnelUserRole', () => {
     renderStep({ experienceLevel: 'MORE_THAN_2_YEARS' });
 
     pick('Founder');
+    next();
 
     const [[params]] = updateUserProfile.mock.calls;
     expect(params.title).toBe('Founder');

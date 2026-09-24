@@ -1,4 +1,9 @@
-import type { ComponentProps, PropsWithChildren, ReactElement } from 'react';
+import type {
+  ComponentProps,
+  PropsWithChildren,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
@@ -14,7 +19,10 @@ type CheckboxValues = string[];
 
 export interface CheckboxItem {
   image?: ComponentProps<'img'>;
+  icon?: ReactNode;
   label: string;
+  /** Secondary detail, set apart at the end of the row. */
+  hint?: string;
   value: CheckboxValue;
 }
 
@@ -88,7 +96,7 @@ const FormInputCheckbox = ({
   return (
     <Button
       aria-checked={isSelected}
-      aria-label={item.label}
+      aria-label={item.hint ? `${item.label}, ${item.hint}` : item.label}
       className={classNames(isVertical ? '!h-auto typo-subhead' : 'typo-body', {
         simplified: optionStyle === 'simplified',
       })}
@@ -108,14 +116,16 @@ const FormInputCheckbox = ({
             : 'flex-row justify-start text-left',
         )}
       >
-        {(isVertical || item.image) && (
+        {(isVertical || item.image || item.icon) && (
           <div
             className={classNames(
               'relative',
               isVertical ? 'size-14' : 'size-6',
+              !!item.icon && 'flex items-center justify-center',
             )}
           >
-            {!!item.image && (
+            {item.icon}
+            {!item.icon && !!item.image && (
               <img
                 alt={item.label}
                 className="absolute left-0 top-0 h-full w-full object-contain object-center"
@@ -132,6 +142,11 @@ const FormInputCheckbox = ({
         >
           {item.label}
         </span>
+        {!!item.hint && (
+          <span className="shrink-0 text-text-tertiary typo-callout">
+            {item.hint}
+          </span>
+        )}
       </div>
     </Button>
   );
@@ -148,9 +163,8 @@ export const FormInputCheckboxGroup = ({
   variant = CheckboxGroupVariant.Horizontal,
   optionStyle,
 }: FormInputCheckboxGroupProps): ReactElement => {
-  const [checkedValue, setCheckedValue] = useState<CheckboxValues | undefined>(
-    defaultValue,
-  );
+  const [checkedValue, setCheckedValue] =
+    useState<CheckboxValues>(defaultValue);
   const isControlledInput = value !== undefined;
   const inputValue = isControlledInput ? value : checkedValue;
   const isVertical = variant === CheckboxGroupVariant.Vertical;

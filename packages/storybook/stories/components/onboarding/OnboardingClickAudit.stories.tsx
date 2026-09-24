@@ -82,14 +82,9 @@ const STEPS: AuditStep[] = [
     storyId: 'components-onboarding-identity-steps--hear-about-us',
     isNew: true,
     shownTo: 'Everyone who has not answered it before',
-    verdict: 'drop',
+    verdict: 'keep',
     today: ['Tap a channel', 'Tap Continue'],
-    suggested: ['Tap a channel'],
-    why: 'One question, one answer, nothing to review. Continue only asks the user to confirm the channel they just tapped.',
-    watchOut:
-      'A mis-tap now advances. Hold the selected state for a beat (around 300ms) so the tap reads as registered before the step changes. Skip stays in the top bar.',
-    engineering:
-      'FunnelAcquisition: submit from onChange, and render FunnelStepTopBar with the skip instead of the CTA wrapper, the way the role pane of FunnelUserRole already does. The paid funnel quiz (FunnelQuiz) already advances on a single-choice tap.',
+    why: 'Decided: keep Continue, so the three new questions behave the same way. Tapping an option selects it, and Continue moves on.',
   },
   {
     id: 'who-are-you',
@@ -97,14 +92,9 @@ const STEPS: AuditStep[] = [
     storyId: 'components-onboarding-identity-steps--who-are-you',
     isNew: true,
     shownTo: 'Everyone without a role and experience on file',
-    verdict: 'drop',
-    today: ['Tap a role', 'Tap a range', 'Tap Continue'],
-    suggested: ['Tap a role', 'Tap a range'],
-    why: 'Picking a role already moves to the experience question. The range is the last input on the step, so it can save and move on in the same tap.',
-    watchOut:
-      'This one saves to the profile before moving on. Keep the tapped range highlighted with a spinner while it saves, and keep Change so a wrong role is still one tap to fix.',
-    engineering:
-      'FunnelUserRole: call onSubmit from the experience group’s onValueChange. The experience pane then needs no CTA wrapper either.',
+    verdict: 'keep',
+    today: ['Tap a role', 'Tap Continue', 'Tap a level', 'Tap Continue'],
+    why: 'Decided: keep Continue on both questions, matching How did you hear about us. Email signups, who already gave a level at registration, see only the role question.',
   },
   {
     id: 'account-details',
@@ -411,9 +401,6 @@ const ClickAudit = (): ReactElement => {
   }, [mounted, previewCount]);
 
   const dropCount = STEPS.filter(({ verdict }) => verdict === 'drop').length;
-  const alwaysSaved = STEPS.filter(
-    ({ verdict, isNew }) => verdict === 'drop' && isNew,
-  ).reduce((sum, step) => sum + tapsSaved(step), 0);
   const upToSaved = STEPS.filter(({ verdict }) =>
     ['drop', 'consider'].includes(verdict),
   ).reduce((sum, step) => sum + tapsSaved(step), 0);
@@ -424,7 +411,6 @@ const ClickAudit = (): ReactElement => {
 
   const stats = [
     { value: dropCount, label: 'steps can drop Continue' },
-    { value: alwaysSaved, label: 'taps saved on every signup' },
     { value: upToSaved, label: 'taps saved at most, per signup' },
     { value: alreadyDone, label: 'steps are already one tap' },
   ];

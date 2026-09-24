@@ -434,6 +434,8 @@ export interface FunnelStepAcquisition
     options?: AcquisitionChannel[];
     // The feed's acquisition card shuffles so the first option isn't favoured.
     shuffle?: boolean;
+    // 'tile' puts every mark in the same favicon-style rounded square.
+    iconStyle?: 'logo' | 'tile';
     skip?: string;
   }> {
   type: FunnelStepType.Acquisition;
@@ -446,8 +448,8 @@ export interface FunnelUserRoleOption {
   // Stored as the profile's job title.
   value: string;
   label: string;
-  // Engineering roles never pick "I'm not an engineer", so the follow-up drops
-  // that option for them.
+  // Other roles are stored as `NOT_ENGINEER`, which keeps them out of the
+  // engineer_signup conversion events.
   isTechnical?: boolean;
 }
 

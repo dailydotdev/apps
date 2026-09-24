@@ -28,8 +28,149 @@ import {
 } from '../../../graphql/users';
 import { ACQUISITION_FORM_OPTIONS } from '../../../components/cards/AcquisitionForm/common/common';
 import { shuffleArray } from '../../../lib/func';
+import { cloudinaryShortcutsIconsOpenai } from '../../../lib/image';
+import { IconSize } from '../../../components/Icon';
+import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
+import { FacebookIcon } from '../../../components/icons/Facebook';
+import { GoogleIcon } from '../../../components/icons/Google';
+import { InviteIcon } from '../../../components/icons/Invite';
+import { LinkedInIcon } from '../../../components/icons/LinkedIn';
+import { MailIcon } from '../../../components/icons/Mail';
+import { MegaphoneIcon } from '../../../components/icons/Megaphone';
+import { MenuIcon } from '../../../components/icons/Menu';
+import { RedditIcon } from '../../../components/icons/Reddit';
+import { TikTokIcon } from '../../../components/icons/TikTok';
+import { TwitterIcon } from '../../../components/icons/Twitter';
+import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
+
+// Brand colours come from each logo's own `secondary` art. X stays on its
+// theme-following art, since its colour file is near-black and vanishes on
+// the dark theme. Hacker News is drawn the way the post page's community
+// sentiment draws it; ChatGPT reuses the shortcut tile already on our CDN.
+// Channels with no brand of their own get their filled icon in an accent tint.
+const channelIcons: Record<AcquisitionChannel, ReactElement> = {
+  [AcquisitionChannel.Friend]: (
+    <InviteIcon secondary className="text-brand-default" />
+  ),
+  [AcquisitionChannel.X]: <TwitterIcon />,
+  [AcquisitionChannel.Reddit]: <RedditIcon secondary />,
+  [AcquisitionChannel.LinkedIn]: <LinkedInIcon secondary />,
+  [AcquisitionChannel.InstagramFacebook]: <FacebookIcon secondary />,
+  [AcquisitionChannel.YouTube]: <YoutubeIcon secondary />,
+  [AcquisitionChannel.TikTok]: <TikTokIcon />,
+  [AcquisitionChannel.HackerNews]: (
+    <span
+      className="grid size-5 place-items-center font-bold text-white typo-footnote"
+      style={{ backgroundColor: '#FF6600' }}
+    >
+      Y
+    </span>
+  ),
+  [AcquisitionChannel.SearchEngine]: <GoogleIcon secondary />,
+  [AcquisitionChannel.AI]: (
+    <img
+      alt=""
+      className="size-5 rounded-6"
+      src={cloudinaryShortcutsIconsOpenai}
+    />
+  ),
+  [AcquisitionChannel.ExtensionStore]: <ChromeIcon />,
+  [AcquisitionChannel.NewsletterBlog]: (
+    <MailIcon secondary className="text-accent-water-default" />
+  ),
+  [AcquisitionChannel.Advertisement]: (
+    <MegaphoneIcon secondary className="text-accent-ketchup-default" />
+  ),
+  [AcquisitionChannel.Other]: (
+    <MenuIcon secondary className="text-text-tertiary" />
+  ),
+};
+
+// The same marks as favicon-style tiles: one shape for every channel, the
+// brand's colour behind a white glyph. Google and Chrome keep their colour art
+// on white, the way their own favicons do. The hairline keeps the white and
+// black tiles square against either theme.
+const tile = (glyph: ReactElement, tone: string, color?: string) => (
+  <span
+    className={classNames(
+      'flex size-6 items-center justify-center overflow-hidden rounded-6 border border-border-subtlest-tertiary',
+      tone,
+    )}
+    style={color ? { backgroundColor: color } : undefined}
+  >
+    {glyph}
+  </span>
+);
+
+const channelTiles: Record<AcquisitionChannel, ReactElement> = {
+  [AcquisitionChannel.Friend]: tile(
+    <InviteIcon secondary size={IconSize.Size16} />,
+    'bg-brand-default text-white',
+  ),
+  [AcquisitionChannel.X]: tile(
+    <TwitterIcon size={IconSize.Size16} />,
+    'text-white',
+    '#000000',
+  ),
+  [AcquisitionChannel.Reddit]: tile(
+    <RedditIcon size={IconSize.Size16} />,
+    'text-white',
+    '#FF4500',
+  ),
+  [AcquisitionChannel.LinkedIn]: tile(
+    <LinkedInIcon size={IconSize.Size16} />,
+    'text-white',
+    '#0A66C2',
+  ),
+  [AcquisitionChannel.InstagramFacebook]: tile(
+    <FacebookIcon size={IconSize.Size16} />,
+    'text-white',
+    '#1877F2',
+  ),
+  [AcquisitionChannel.YouTube]: tile(
+    <YoutubeIcon size={IconSize.Size16} />,
+    'text-white',
+    '#FF0000',
+  ),
+  [AcquisitionChannel.TikTok]: tile(
+    <TikTokIcon size={IconSize.Size16} />,
+    'text-white',
+    '#000000',
+  ),
+  [AcquisitionChannel.HackerNews]: tile(
+    <span className="font-bold typo-footnote">Y</span>,
+    'text-white',
+    '#FF6600',
+  ),
+  [AcquisitionChannel.SearchEngine]: tile(
+    <GoogleIcon secondary size={IconSize.Size16} />,
+    '',
+    '#FFFFFF',
+  ),
+  [AcquisitionChannel.AI]: tile(
+    <img alt="" className="size-full" src={cloudinaryShortcutsIconsOpenai} />,
+    '',
+  ),
+  [AcquisitionChannel.ExtensionStore]: tile(
+    <ChromeIcon size={IconSize.Size16} />,
+    '',
+    '#FFFFFF',
+  ),
+  [AcquisitionChannel.NewsletterBlog]: tile(
+    <MailIcon secondary size={IconSize.Size16} />,
+    'bg-accent-water-default text-white',
+  ),
+  [AcquisitionChannel.Advertisement]: tile(
+    <MegaphoneIcon secondary size={IconSize.Size16} />,
+    'bg-accent-ketchup-default text-white',
+  ),
+  [AcquisitionChannel.Other]: tile(
+    <MenuIcon secondary size={IconSize.Size16} />,
+    'bg-background-default text-text-tertiary',
+  ),
+};
 
 // "Other" is a catch-all, so it stays last however the rest are ordered.
 const orderOptions = (
@@ -53,14 +194,27 @@ const orderOptions = (
 
 function FunnelAcquisitionComponent({
   id,
-  parameters: { headline, explainer, cta, options, shuffle = true, skip },
+  parameters: {
+    headline,
+    explainer,
+    cta,
+    options,
+    shuffle = true,
+    skip,
+    iconStyle = 'logo',
+  },
   onTransition,
 }: FunnelStepAcquisition): ReactElement {
   const { logEvent } = useLogContext();
   const [value, setValue] = useState<AcquisitionChannel>();
   // Shuffled once per mount: re-ordering the list under a user who is halfway
   // through reading it is worse than the position bias it corrects.
-  const [inputOptions] = useState(() => orderOptions(options, shuffle));
+  const [inputOptions] = useState(() =>
+    orderOptions(options, shuffle).map((option) => ({
+      ...option,
+      icon: (iconStyle === 'tile' ? channelTiles : channelIcons)[option.value],
+    })),
+  );
   const headlineHtml = useMemo(
     () => sanitizeMessage(headline || DEFAULT_HEADLINE),
     [headline],

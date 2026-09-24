@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { FunnelStepUserRole, FunnelUserRoleOption } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
+import type { CheckboxItem } from '../../common/components/FormInputCheckboxGroup';
 import {
   CheckboxGroupBehaviour,
   FormInputCheckboxGroup,
@@ -12,8 +13,6 @@ import {
   funnelStepRail,
 } from '../shared/FunnelStepCtaWrapper';
 import { sanitizeMessage } from '../lib/utils';
-import { FunnelStepTopBar } from '../shared/FunnelStepTopBar';
-import { FunnelStepDots } from '../shared/FunnelStepDots';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import {
   useDecidedOnArrival,
@@ -36,10 +35,7 @@ import {
 import type { UserExperienceLevelKey } from '../../../components/auth/RegistrationFieldsForm';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useProfileForm from '../../../hooks/useProfileForm';
-import {
-  RecruiterUserExperienceLevel,
-  UserExperienceLevel,
-} from '../../../lib/user';
+import { RecruiterUserExperienceLevel } from '../../../lib/user';
 
 const DEFAULT_HEADLINE = 'Who are you?';
 const DEFAULT_EXPERIENCE_HEADLINE = 'How long have you been doing this?';
@@ -63,21 +59,27 @@ const DEFAULT_USER_ROLES: FunnelUserRoleOption[] = [
   { value: 'Other', label: 'Something else' },
 ];
 
-/**
- * `UserExperienceLevel`'s labels are written for engineers — "Aspiring
- * engineer", "I've suffered enough" — so a designer is asked a question about
- * a job they don't have. Non-engineering roles get the neutral year labels the
- * recruiter platform already uses for the same keys.
- */
-const getExperienceOptions = (role: FunnelUserRoleOption) => {
-  const labels = role.isTechnical
-    ? UserExperienceLevel
-    : RecruiterUserExperienceLevel;
+// One set for every role: the level names without the engineering wording,
+// and the years set apart so the rows scan by level.
+const EXPERIENCE_LEVELS: Array<{
+  value: UserExperienceLevelKey;
+  label: string;
+}> = [
+  { value: 'LESS_THAN_1_YEAR', label: 'Aspiring' },
+  { value: 'MORE_THAN_1_YEAR', label: 'Entry-level' },
+  { value: 'MORE_THAN_2_YEARS', label: 'Mid-level' },
+  { value: 'MORE_THAN_4_YEARS', label: 'Experienced' },
+  { value: 'MORE_THAN_6_YEARS', label: 'Highly experienced' },
+  { value: 'MORE_THAN_10_YEARS', label: "I've suffered enough" },
+];
 
-  return Object.entries(labels)
-    .filter(([value]) => value !== NON_ENGINEER)
-    .map(([value, label]) => ({ label, value }));
-};
+const EXPERIENCE_OPTIONS: CheckboxItem[] = EXPERIENCE_LEVELS.map(
+  ({ value, label }) => ({
+    value,
+    label,
+    hint: RecruiterUserExperienceLevel[value],
+  }),
+);
 
 /**
  * `experienceLevel` means *engineering* experience: `NOT_ENGINEER` is what
@@ -96,6 +98,7 @@ function FunnelUserRoleComponent({
   onTransition,
 }: FunnelStepUserRole): ReactElement | null {
   const { user } = useAuthContext();
+  const [selectedRole, setSelectedRole] = useState<FunnelUserRoleOption>();
   const [role, setRole] = useState<FunnelUserRoleOption>();
   const [level, setLevel] = useState<UserExperienceLevelKey>();
   const options = roles?.length ? roles : DEFAULT_USER_ROLES;
@@ -135,64 +138,28 @@ function FunnelUserRoleComponent({
     [levelOnFile, onTransition, updateUserProfile],
   );
 
-  const onPickRole = useCallback(
-    (input: string[]) => {
-      const picked = options.find(({ value }) => value === input.at(-1));
-
-      if (picked && levelOnFile) {
-        complete(picked, levelOnFile);
-        return;
+  const onContinue = useCallback(() => {
+    if (role) {
+      if (level) {
+        complete(role, level);
       }
-
-      showPane(picked);
-    },
-    [complete, levelOnFile, options, showPane],
-  );
-
-  const onSubmit = useCallback(() => {
-    if (role && level) {
-      complete(role, level);
+      return;
     }
-  }, [complete, level, role]);
+
+    if (!selectedRole) {
+      return;
+    }
+
+    if (levelOnFile) {
+      complete(selectedRole, levelOnFile);
+      return;
+    }
+
+    showPane(selectedRole);
+  }, [complete, level, levelOnFile, role, selectedRole, showPane]);
 
   if (!user) {
     return null;
-  }
-
-  // Picking a role is the transition, so there is nothing for a CTA to do and
-  // the top bar is rendered on its own — the same shape `FunnelQuiz` takes for
-  // a single-choice question.
-  if (!role) {
-    return (
-      <div className="relative flex flex-1 flex-col gap-4">
-        <FunnelStepTopBar />
-        <div
-          className={classNames(
-            funnelStepRail,
-            'z-1 flex flex-1 flex-col items-center gap-6 py-6 pt-3',
-          )}
-        >
-          <OnboardingHeadline
-            dangerouslySetInnerHTML={{ __html: headlineHtml }}
-          />
-          {!!explainer && (
-            <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
-          )}
-          <div className="w-full">
-            <FormInputCheckboxGroup
-              behaviour={CheckboxGroupBehaviour.Radio}
-              name={id}
-              onValueChange={onPickRole}
-              options={options}
-            />
-          </div>
-        </div>
-        {/* The CTA wrapper carries these on every other step. */}
-        <div className="sticky bottom-0 pb-safe-or-6">
-          <FunnelStepDots />
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -200,9 +167,9 @@ function FunnelUserRoleComponent({
       isGlass
       containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
       cta={{ label: cta }}
-      disabled={!level}
+      disabled={role ? !level : !selectedRole}
       loading={isLoading}
-      onClick={onSubmit}
+      onClick={onContinue}
     >
       <div
         className={classNames(
@@ -210,35 +177,63 @@ function FunnelUserRoleComponent({
           'z-1 flex flex-col items-center gap-6 py-6 pt-3',
         )}
       >
-        <OnboardingHeadline>
-          {experience?.headline || DEFAULT_EXPERIENCE_HEADLINE}
-        </OnboardingHeadline>
-        <div className="flex items-center gap-1">
-          <Typography
-            color={TypographyColor.Secondary}
-            type={TypographyType.Body}
-          >
-            {role.label}
-          </Typography>
-          <Button
-            onClick={() => showPane()}
-            size={ButtonSize.XSmall}
-            type="button"
-            variant={ButtonVariant.Subtle}
-          >
-            Change
-          </Button>
-        </div>
-        <div className="w-full">
-          <FormInputCheckboxGroup
-            behaviour={CheckboxGroupBehaviour.Radio}
-            name={`${id}-experience`}
-            onValueChange={(input) =>
-              setLevel(input.at(-1) as UserExperienceLevelKey)
-            }
-            options={getExperienceOptions(role)}
-          />
-        </div>
+        {role ? (
+          <>
+            <OnboardingHeadline>
+              {experience?.headline || DEFAULT_EXPERIENCE_HEADLINE}
+            </OnboardingHeadline>
+            <div className="flex items-center gap-1">
+              <Typography
+                color={TypographyColor.Secondary}
+                type={TypographyType.Body}
+              >
+                {role.label}
+              </Typography>
+              <Button
+                onClick={() => showPane()}
+                size={ButtonSize.XSmall}
+                type="button"
+                variant={ButtonVariant.Subtle}
+              >
+                Change
+              </Button>
+            </div>
+            <div className="w-full">
+              <FormInputCheckboxGroup
+                behaviour={CheckboxGroupBehaviour.Radio}
+                key="experience"
+                name={`${id}-experience`}
+                onValueChange={(input) =>
+                  setLevel(input.at(-1) as UserExperienceLevelKey)
+                }
+                options={EXPERIENCE_OPTIONS}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <OnboardingHeadline
+              dangerouslySetInnerHTML={{ __html: headlineHtml }}
+            />
+            {!!explainer && (
+              <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
+            )}
+            <div className="w-full">
+              <FormInputCheckboxGroup
+                behaviour={CheckboxGroupBehaviour.Radio}
+                defaultValue={selectedRole ? [selectedRole.value] : []}
+                key="roles"
+                name={id}
+                onValueChange={(input) =>
+                  setSelectedRole(
+                    options.find(({ value }) => value === input.at(-1)),
+                  )
+                }
+                options={options}
+              />
+            </div>
+          </>
+        )}
       </div>
     </FunnelStepCtaWrapper>
   );

@@ -120,32 +120,46 @@ const SkipReport = ({
   );
 };
 
-export const HearAboutUs: Story = {
-  name: '1. How did you hear about us',
-  argTypes: {
-    ...chromeArgTypes,
-    shuffle: { control: 'boolean' },
-    explainer: { control: 'text' },
-    skip: { control: 'text' },
+const hearAboutUsArgTypes: Meta['argTypes'] = {
+  ...chromeArgTypes,
+  iconStyle: {
+    control: { type: 'inline-radio' },
+    options: ['logo', 'tile'],
   },
-  args: {
-    shuffle: false,
-    explainer: '',
-    skip: '',
-  },
-  beforeEach: () => bootAsUser(oauthUser),
-  render: ({
-    chrome,
-    explainer,
-    shuffle,
-    skip,
-  }: StepArgs & { explainer?: string; shuffle?: boolean; skip?: string }) => {
+  shuffle: { control: 'boolean' },
+  explainer: { control: 'text' },
+  skip: { control: 'text' },
+};
+
+interface HearAboutUsArgs extends StepArgs {
+  iconStyle?: 'logo' | 'tile';
+  explainer?: string;
+  shuffle?: boolean;
+  skip?: string;
+}
+
+// The six channels most likely to lead, plus Other.
+const COMPACT_CHANNELS = [
+  AcquisitionChannel.SearchEngine,
+  AcquisitionChannel.AI,
+  AcquisitionChannel.Friend,
+  AcquisitionChannel.YouTube,
+  AcquisitionChannel.X,
+  AcquisitionChannel.Reddit,
+  AcquisitionChannel.Other,
+];
+
+const renderHearAboutUs =
+  (options?: AcquisitionChannel[]) =>
+  ({ chrome, iconStyle, explainer, shuffle, skip }: HearAboutUsArgs) => {
     const step = {
       ...baseStep,
       id: 'acquisition',
       type: FunnelStepType.Acquisition,
       parameters: {
         headline: 'How did you hear about us?',
+        options,
+        iconStyle,
         explainer,
         shuffle,
         skip,
@@ -157,49 +171,57 @@ export const HearAboutUs: Story = {
         <FunnelAcquisition {...step} />
       </FunnelStepShell>
     );
-  },
+  };
+
+const hearAboutUsArgs: HearAboutUsArgs = {
+  iconStyle: 'logo',
+  shuffle: false,
+  explainer: '',
+  skip: '',
 };
 
-export const HearAboutUsTrimmed: Story = {
-  name: '1b. Trimmed option set',
+export const HearAboutUs: Story = {
+  name: '1. How did you hear about us · all 14',
+  argTypes: hearAboutUsArgTypes,
+  args: hearAboutUsArgs,
+  beforeEach: () => bootAsUser(oauthUser),
+  render: renderHearAboutUs(),
+};
+
+export const HearAboutUsCompact: Story = {
+  name: '1b. How did you hear about us · compact 7',
+  argTypes: hearAboutUsArgTypes,
+  args: hearAboutUsArgs,
   parameters: {
     docs: {
       description: {
         story:
-          'A campaign funnel that already knows most of the answer can cut the list down in Freyja. "Other" always stays last, whatever the order or the shuffle.',
+          'The same step with the six channels most likely to lead, plus Other. Everything else matches the full list, so the two can be compared on length alone. The set is the `options` parameter, so a campaign funnel can pick its own (Instagram or Facebook for a Meta campaign, for example).',
       },
     },
   },
   beforeEach: () => bootAsUser(oauthUser),
-  render: ({ chrome }: StepArgs) => {
-    const step = {
-      ...baseStep,
-      id: 'acquisition-trimmed',
-      type: FunnelStepType.Acquisition,
-      parameters: {
-        headline: 'Where did you find us?',
-        explainer: 'It helps us stop wasting money in the wrong places.',
-        options: [
-          AcquisitionChannel.Friend,
-          AcquisitionChannel.YouTube,
-          AcquisitionChannel.SearchEngine,
-          AcquisitionChannel.Other,
-        ],
-        shuffle: false,
-        skip: 'Skip',
-      },
-    };
+  render: renderHearAboutUs(COMPACT_CHANNELS),
+};
 
-    return (
-      <FunnelStepShell chrome={chrome} step={step} stepIndex={1} fullWidth>
-        <FunnelAcquisition {...step} />
-      </FunnelStepShell>
-    );
+export const HearAboutUsTiles: Story = {
+  name: '1c. How did you hear about us · tile icons',
+  argTypes: hearAboutUsArgTypes,
+  args: { ...hearAboutUsArgs, iconStyle: 'tile' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Every mark in the same favicon-style rounded square: the brand colour behind a white glyph, with Google and Chrome on white the way their own favicons are. Set by `iconStyle: "tile"`; the other stories switch to it from the controls.',
+      },
+    },
   },
+  beforeEach: () => bootAsUser(oauthUser),
+  render: renderHearAboutUs(),
 };
 
 export const HearAboutUsAnswered: Story = {
-  name: '1c. Already answered — step skips',
+  name: '1d. Already answered — step skips',
   parameters: {
     docs: {
       description: {
@@ -258,7 +280,7 @@ export const WhoAreYou: Story = {
     docs: {
       description: {
         story:
-          'Picking a role opens the experience question underneath and scrolls it into view; the roles stay on screen, so changing your mind is one tap. The CTA stays disabled until both are answered, and an engineering role drops the "I\'m not an engineer" option.',
+          'Tap a role, then Continue, then tap a level, then Continue: the same select-then-Continue rhythm as "How did you hear about us". Continue stays disabled until something is selected. The experience question opens with its title on top and a Change link back to the roles, which keeps your pick selected. Every role sees the same levels, with the years in gray on the right.',
       },
     },
   },
@@ -294,7 +316,7 @@ export const WhoAreYouNonTechnical: Story = {
     docs: {
       description: {
         story:
-          'A trimmed role list, and a non-engineering role — which keeps "I\'m not an engineer" in the follow-up, exactly as the account-details dropdown offers it.',
+          'A trimmed role list. A non-engineering role sees the same levels as everyone, and is saved to the profile as NOT_ENGINEER so it stays out of the engineer_signup conversion events; the years it picked travel in the funnel details.',
       },
     },
   },
