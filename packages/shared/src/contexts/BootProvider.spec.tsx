@@ -161,6 +161,20 @@ it('should pass the cached exp to the first boot fetch', async () => {
   );
 });
 
+it('should persist the remote exp without the encrypted features', async () => {
+  const features = { remote_flag: { defaultValue: true } };
+  renderComponent(<></>, {
+    ...defaultBootData,
+    exp: { f: 'remote-f', fv: 'v2', e: [], a: [], features },
+  });
+
+  await waitFor(() =>
+    expect(
+      JSON.parse(localStorage.getItem(BOOT_LOCAL_KEY) as string)?.exp,
+    ).toEqual({ fv: 'v2', e: [], a: [], features }),
+  );
+});
+
 const mockSettingsMutation = (params: Partial<RemoteSettings>) =>
   mockGraphQL({
     request: {
