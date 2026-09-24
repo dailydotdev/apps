@@ -767,14 +767,37 @@ export const CardGrid = ({
   </div>
 );
 
+/**
+ * X's pinned post: the same card as every other post, with a quiet
+ * "Pinned" line above the author, the pin under the avatar column.
+ */
+export const PinnedCard = ({ entry }: { entry: Entry }): ReactElement => (
+  <div className="relative">
+    <span className="pointer-events-none absolute left-4 top-4 z-1 flex items-center text-text-tertiary typo-footnote">
+      <span className="flex w-[3.75rem] justify-end pr-4">
+        <PinIcon size={IconSize.Size16} secondary />
+      </span>
+      <span className="font-bold">Pinned</span>
+    </span>
+    <FreeformList
+      post={{ ...toPost(entry), pinnedAt: undefined }}
+      domProps={{ className: '!pt-11' }}
+      {...cardHandlers}
+    />
+  </div>
+);
+
 export const CardList = ({
   entries,
+  pinned,
   className,
 }: {
   entries: Entry[];
+  pinned?: Entry;
   className?: string;
 }): ReactElement => (
   <div className={classNames('flex flex-col gap-3', className)}>
+    {pinned && <PinnedCard entry={pinned} />}
     {entries.map((entry) => (
       <FreeformList key={entry.id} post={toPost(entry)} {...cardHandlers} />
     ))}

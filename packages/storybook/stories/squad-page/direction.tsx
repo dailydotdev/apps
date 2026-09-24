@@ -17,7 +17,7 @@ import { feedEntries, formatCount, pinnedEntry, products, squad } from './data';
 import { CardList, VerifiedMark, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
 import { railBackgroundClass } from './rail';
-import { Highlight, SquadComposer, SquadHeader, SquadWidgets } from './home';
+import { SquadComposer, SquadHeader, SquadWidgets } from './home';
 import { FollowButton, ManageButton } from './navigation';
 import {
   AnalyticsPage,
@@ -175,8 +175,8 @@ const Feed = ({ viewer }: { viewer: Viewer }): ReactElement => {
     <div className="flex flex-col gap-4 p-6">
       <SquadComposer viewer={viewer} />
       {toolbar}
-      {chip === 'all' && <Highlight entry={pinnedEntry} />}
       <CardList
+        pinned={chip === 'all' ? pinnedEntry : undefined}
         entries={
           chip === 'discussions'
             ? discussionEntries.slice(0, 6)
