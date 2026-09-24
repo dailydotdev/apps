@@ -34,7 +34,6 @@ import {
   TourIcon,
   TrashIcon,
   TwitterIcon,
-  VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { Entry } from './data';
@@ -95,10 +94,46 @@ export const SquadHeader = ({
   extra?: ReactNode;
 }): ReactElement => {
   const { config } = useWorkspace();
+  const following = isJoined(viewer) && !isAdmin(viewer);
+  const canFollow = standalone && !isJoined(viewer);
+  // X's rule: one text-only button at the end of the row, Follow until you
+  // do, Following after. On phones it leaves the row for a full-width
+  // button under the stats.
+  const follow =
+    following || canFollow
+      ? (size: ButtonSize, className?: string): ReactElement =>
+          following ? (
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={size}
+              className={className}
+            >
+              Following
+            </Button>
+          ) : (
+            <Button
+              variant={ButtonVariant.Primary}
+              size={size}
+              className={className}
+              disabled={isBlocked(viewer) || !config.isPublic}
+              title={
+                isBlocked(viewer)
+                  ? 'You are not allowed to follow this Squad'
+                  : undefined
+              }
+            >
+              {!config.isPublic
+                ? 'Invite only'
+                : isLoggedIn(viewer)
+                ? 'Follow'
+                : 'Sign up to follow'}
+            </Button>
+          )
+      : null;
 
   return (
     <div className="relative w-full">
-      <div className="relative h-36 overflow-hidden rounded-t-[0.9375rem]">
+      <div className="relative h-28 overflow-hidden tablet:h-36 laptop:rounded-t-[0.9375rem]">
         <img
           src={squad.headerImage}
           alt="Cover"
@@ -116,62 +151,50 @@ export const SquadHeader = ({
           }}
         />
       </div>
-      <div className="flex flex-col px-6 pb-5">
+      <div className="flex flex-col px-4 pb-5 tablet:px-6">
         {/* Logo and actions share one baseline, so the identity column below
           is text only and every row starts at the same x. */}
         <div className="-mt-12 flex items-end justify-between gap-4">
           <img
             src={squad.image}
             alt="Logo"
-            className="relative size-[6.5rem] shrink-0 rounded-16 bg-background-default object-cover ring-4 ring-background-default"
+            className="relative size-20 shrink-0 rounded-16 bg-background-default object-cover ring-4 ring-background-default tablet:size-[6.5rem]"
           />
           <div className="flex items-center gap-2 pb-1">
             {isAdmin(viewer) && (
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<EditIcon />}
-              >
-                Edit page
-              </Button>
+              <>
+                <span className="flex tablet:hidden">
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Small}
+                    icon={<EditIcon />}
+                    aria-label="Edit page"
+                    title="Edit page"
+                  />
+                </span>
+                <span className="hidden tablet:flex">
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Small}
+                    icon={<EditIcon />}
+                  >
+                    Edit page
+                  </Button>
+                </span>
+              </>
             )}
             {isAdmin(viewer) && config.isPublic && (
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<SparkleIcon secondary />}
-              >
-                {config.campaign ? 'View boost' : 'Boost'}
-              </Button>
-            )}
-            {standalone && !isJoined(viewer) && (
-              <Button
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                disabled={isBlocked(viewer) || !config.isPublic}
-                title={
-                  isBlocked(viewer)
-                    ? 'You are not allowed to follow this Squad'
-                    : undefined
-                }
-              >
-                {!config.isPublic
-                  ? 'Invite only'
-                  : isLoggedIn(viewer)
-                  ? 'Follow'
-                  : 'Sign up to follow'}
-              </Button>
+              <span className="hidden tablet:flex">
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<SparkleIcon secondary />}
+                >
+                  {config.campaign ? 'View boost' : 'Boost'}
+                </Button>
+              </span>
             )}
             {extra}
-            {isJoined(viewer) && !isAdmin(viewer) && (
-              <Button
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Small}
-                icon={<VIcon />}
-              >
-                Following
-              </Button>
-            )}
             {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}
             <Button
               variant={ButtonVariant.Float}
@@ -181,6 +204,11 @@ export const SquadHeader = ({
               title="Share"
             />
             <MoreMenu viewer={viewer} />
+            {follow && (
+              <span className="hidden tablet:flex">
+                {follow(ButtonSize.Small)}
+              </span>
+            )}
           </div>
         </div>
         {isBlocked(viewer) && (
@@ -226,6 +254,11 @@ export const SquadHeader = ({
           <span>Since {formatSince(squad.createdAt)}</span>
         </div>
         <SquadStats onOpenMembers={onOpenMembers} />
+        {follow && (
+          <div className="mt-4 flex tablet:hidden">
+            {follow(ButtonSize.Medium, 'w-full')}
+          </div>
+        )}
       </div>
     </div>
   );

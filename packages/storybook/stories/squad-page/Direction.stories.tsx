@@ -117,33 +117,26 @@ export const Overview: StoryObj = {
 export const Playground: StoryObj<{
   viewer: Viewer;
   page: string;
-  width: number;
   pin: PinStyle;
 }> = {
-  args: {
-    viewer: Viewer.Member,
-    page: 'home',
-    width: 1440,
-    pin: PinStyle.Reddit,
-  },
+  parameters: { layout: 'fullscreen' },
+  args: { viewer: Viewer.Member, page: 'home', pin: PinStyle.Reddit },
   argTypes: {
-    pin: { control: 'select', options: pinStyles },
     viewer: { control: 'select', options: Object.values(Viewer) },
     page: { control: 'select', options: directionPageIds },
-    width: { control: { type: 'range', min: 720, max: 1600, step: 20 } },
+    pin: { control: 'select', options: pinStyles },
   },
-  render: ({ viewer, page, width, pin }) => (
-    <div className="flex min-h-screen items-start justify-center bg-background-subtle p-8">
+  render: ({ viewer, page, pin }) => (
+    <>
       <KitStyles />
       <WorkspaceStyles />
       <DirectionShell
-        key={`${viewer}-${page}-${width}-${pin}`}
+        key={`${viewer}-${page}-${pin}`}
         viewer={viewer}
         initialPage={page}
-        height={52}
-        width={width}
         pinStyle={pin}
+        fluid
       />
-    </div>
+    </>
   ),
 };

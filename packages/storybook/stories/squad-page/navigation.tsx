@@ -273,7 +273,7 @@ export const FollowButton = ({
 
   if (isJoined(viewer)) {
     return (
-      <Button variant={ButtonVariant.Secondary} size={size} icon={<VIcon />}>
+      <Button variant={ButtonVariant.Secondary} size={size}>
         Following
       </Button>
     );

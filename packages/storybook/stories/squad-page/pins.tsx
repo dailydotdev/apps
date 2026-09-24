@@ -70,7 +70,7 @@ const RedditHighlights = (): ReactElement => {
         />
       </button>
       {open && (
-        <div className="-mx-6 flex gap-3 overflow-x-auto px-6 pb-1 [scrollbar-width:none]">
+        <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] tablet:-mx-6 tablet:px-6">
           {pins.map((entry, index) => (
             <a
               key={entry.id}

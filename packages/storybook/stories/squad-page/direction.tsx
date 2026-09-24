@@ -17,6 +17,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { feedEntries, formatCount, pinnedEntry, products, squad } from './data';
 import { CardList, VerifiedMark, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
+import { MobileFooterNav, TabletSidebar } from './rail';
 import { PinnedArea, PinStyle, feedUnder } from './pins';
 import { SquadComposer, SquadHeader, SquadWidgets } from './home';
 import { FollowButton, ManageButton } from './navigation';
@@ -51,7 +52,7 @@ import {
 /* -------------------------------------------------------------- products */
 
 const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
-  <section className="flex flex-col gap-3 border-t border-border-subtlest-tertiary px-6 py-4">
+  <section className="flex flex-col gap-3 border-t border-border-subtlest-tertiary px-4 py-4 tablet:px-6">
     <div className="flex items-center justify-between">
       <span className="font-bold text-text-primary typo-callout">Products</span>
       <Button
@@ -65,13 +66,13 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
       </Button>
     </div>
     <ul
-      className="-mx-6 flex gap-3 overflow-x-auto px-6"
+      className="-mx-4 flex gap-3 overflow-x-auto px-4 tablet:-mx-6 tablet:px-6"
       style={{ scrollbarWidth: 'none' }}
     >
       {products.map((product) => (
         <li
           key={product.id}
-          className="flex w-56 shrink-0 items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-3 transition-colors hover:border-border-subtlest-secondary"
+          className="flex w-56 shrink-0 items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-3 transition-colors hover:border-border-subtlest-secondary"
         >
           <img
             src={product.image}
@@ -103,6 +104,8 @@ const chips = [
   { id: 'releases', label: 'Releases' },
   { id: 'discussions', label: 'Discussions' },
   { id: 'polls', label: 'Polls' },
+  /** Below laptop the right column is gone; its widgets live here. */
+  { id: 'about', label: 'About', compactOnly: true },
 ];
 
 const discussionEntries = feedEntries.filter((_, index) => index % 3 === 2);
@@ -161,25 +164,28 @@ const FeedToolbar = ({
 
   return (
     <div className="flex h-9 items-center gap-1">
-      {chips.map((item) => (
+      <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+        {chips.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onChip(item.id)}
+            className={classNames(
+              'shrink-0 rounded-[999px] px-3 py-1.5 typo-callout transition-colors',
+              item.compactOnly && 'laptop:hidden',
+              chip === item.id
+                ? 'bg-surface-float font-bold text-text-primary'
+                : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
+            )}
+          >
+            <SteadyLabel>{item.label}</SteadyLabel>
+          </button>
+        ))}
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
         <button
-          key={item.id}
           type="button"
-          onClick={() => onChip(item.id)}
-          className={classNames(
-            'rounded-[999px] px-3 py-1.5 typo-callout transition-colors',
-            chip === item.id
-              ? 'bg-surface-float font-bold text-text-primary'
-              : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
-          )}
-        >
-          <SteadyLabel>{item.label}</SteadyLabel>
-        </button>
-      ))}
-      <div className="ml-auto flex items-center gap-1">
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded-[999px] px-3 py-1.5 text-text-tertiary typo-callout transition-colors hover:bg-surface-float hover:text-text-primary"
+          className="hidden items-center gap-1 rounded-[999px] px-3 py-1.5 tablet:flex text-text-tertiary typo-callout transition-colors hover:bg-surface-float hover:text-text-primary"
         >
           Latest
           <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
@@ -238,9 +244,11 @@ const SearchResults = ({ query }: { query: string }): ReactElement => {
 const Feed = ({
   viewer,
   pinStyle,
+  onSelect,
 }: {
   viewer: Viewer;
   pinStyle: PinStyle;
+  onSelect: (id: string) => void;
 }): ReactElement => {
   const [chip, setChip] = useState('all');
   const [query, setQuery] = useState<string | null>(null);
@@ -249,6 +257,16 @@ const Feed = ({
   let body: ReactElement;
   if (searching) {
     body = <SearchResults query={query} />;
+  } else if (chip === 'about') {
+    body = (
+      <div className="flex flex-col gap-4 laptop:hidden">
+        <SquadWidgets
+          viewer={viewer}
+          onOpenRules={() => onSelect('rules')}
+          onOpenFaq={() => onSelect('faq')}
+        />
+      </div>
+    );
   } else if (chip === 'polls') {
     body = <PollsPage viewer={viewer} bare />;
   } else if (chip === 'releases') {
@@ -276,7 +294,7 @@ const Feed = ({
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6">
+    <div className="flex flex-col gap-4 p-4 tablet:p-6">
       <SquadComposer viewer={viewer} />
       <FeedToolbar
         chip={chip}
@@ -329,14 +347,18 @@ const SubHeader = ({
       className="flex items-center gap-2 rounded-10 py-1 pl-1 pr-2 transition-colors hover:bg-surface-float"
     >
       <img src={squad.image} alt="" className="size-7 rounded-8 object-cover" />
-      <span className="flex items-center gap-1 font-bold text-text-primary typo-callout">
+      <span className="hidden items-center gap-1 font-bold text-text-primary typo-callout tablet:flex">
         {squad.name}
         <VerifiedMark label={false} />
       </span>
     </button>
-    <span className="text-text-quaternary typo-callout">/</span>
-    <span className="text-text-tertiary typo-callout">{titles[id] ?? id}</span>
-    <div className="ml-auto">
+    <span className="hidden text-text-quaternary typo-callout tablet:inline">
+      /
+    </span>
+    <span className="min-w-0 flex-1 truncate text-text-tertiary typo-callout">
+      {titles[id] ?? id}
+    </span>
+    <div className="shrink-0">
       <FollowButton viewer={viewer} size={ButtonSize.XSmall} />
     </div>
   </div>
@@ -380,13 +402,15 @@ const Frame = ({
   children: ReactNode;
   aside: ReactNode;
 }): ReactElement => (
-  <div className="m-auto flex w-full max-w-[72rem] gap-4 p-4 pb-6">
+  <div className="m-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
     <main className="flex min-w-0 flex-1 flex-col">
-      <div className="rounded-16 border border-border-subtlest-tertiary">
+      <div className="border-border-subtlest-tertiary laptop:rounded-16 laptop:border">
         {children}
       </div>
     </main>
-    <aside className="flex w-80 shrink-0 flex-col gap-4">{aside}</aside>
+    <aside className="hidden w-80 shrink-0 flex-col gap-4 laptop:flex">
+      {aside}
+    </aside>
   </div>
 );
 
@@ -420,7 +444,7 @@ export const DirectionPage = ({
         />
         <ProductsShelf onOpen={() => onSelect('products')} />
         <div className="border-t border-border-subtlest-tertiary">
-          <Feed viewer={viewer} pinStyle={pinStyle} />
+          <Feed viewer={viewer} pinStyle={pinStyle} onSelect={onSelect} />
         </div>
       </>
     ) : (
@@ -451,15 +475,33 @@ export const DirectionShell = ({
   height = 48,
   width = 1440,
   pinStyle,
+  fluid = false,
 }: {
   viewer?: Viewer;
   initialPage?: string;
-  pinStyle?: PinStyle;
   /** rem */
   height?: number;
   width?: number;
+  pinStyle?: PinStyle;
+  /**
+   * Fill the viewport and let its breakpoints decide the layout, the way
+   * the app does: the classic sidebar from laptop, the tablet column from
+   * 656px, the floating tab bar on phones.
+   */
+  fluid?: boolean;
 }): ReactElement => {
   const [active, setActive] = useState(initialPage);
+  const loggedIn = viewer !== Viewer.Anonymous;
+  const page = (
+    <main className="ws-scroll flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
+      <DirectionPage
+        viewer={viewer}
+        active={active}
+        onSelect={setActive}
+        pinStyle={pinStyle}
+      />
+    </main>
+  );
 
   return (
     <WorkspaceContext.Provider
@@ -471,22 +513,30 @@ export const DirectionShell = ({
         config: defaultConfig,
       }}
     >
-      <div
-        style={{ width, maxWidth: '100%', height: `${height}rem` }}
-        className="sq-elevated flex overflow-hidden rounded-16 bg-background-default text-text-primary"
-      >
-        <WorkspaceStyles />
-        <Kit2Styles />
-        <Rail loggedIn={viewer !== Viewer.Anonymous} />
-        <main className="ws-scroll flex min-w-0 flex-1 flex-col overflow-y-auto">
-          <DirectionPage
-            viewer={viewer}
-            active={active}
-            onSelect={setActive}
-            pinStyle={pinStyle}
-          />
-        </main>
-      </div>
+      <WorkspaceStyles />
+      <Kit2Styles />
+      {fluid ? (
+        <div className="flex h-dvh w-full flex-col bg-background-default text-text-primary tablet:flex-row">
+          <div className="hidden laptop:flex">
+            <Rail loggedIn={loggedIn} />
+          </div>
+          <div className="hidden tablet:flex laptop:hidden">
+            <TabletSidebar />
+          </div>
+          {page}
+          <div className="tablet:hidden">
+            <MobileFooterNav />
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{ width, maxWidth: '100%', height: `${height}rem` }}
+          className="sq-elevated flex overflow-hidden rounded-16 bg-background-default text-text-primary"
+        >
+          <Rail loggedIn={loggedIn} />
+          {page}
+        </div>
+      )}
     </WorkspaceContext.Provider>
   );
 };

@@ -812,7 +812,7 @@ export const RulesPage = (): ReactElement => (
           <span className="sq-nums w-5 shrink-0 font-bold text-text-quaternary typo-callout">
             {index + 1}
           </span>
-          <div className="flex flex-col gap-0.5">
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="font-bold text-text-primary typo-callout">
               {title}
             </span>
@@ -926,7 +926,7 @@ export const ReleasesPage = ({
           </span>
         </div>
       )}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
           {releaseKinds.map((kind, index) => (
             <button
@@ -1104,8 +1104,8 @@ export const PollsPage = ({
 
   return (
     <Column bare={bare} className="gap-4">
-      <div className="flex items-center justify-between gap-4 rounded-12 bg-surface-float px-4 py-3">
-        <span className="text-text-secondary typo-footnote">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-12 bg-surface-float px-4 py-3">
+        <span className="min-w-0 flex-1 text-text-secondary typo-footnote">
           What the team wants to know from you. One vote each, results when you
           vote.
         </span>
@@ -1168,7 +1168,7 @@ export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column width="max-w-[56rem]">
     {isAdmin(viewer) ? (
       <div className="flex flex-col gap-3 rounded-16 border border-dashed border-border-subtlest-secondary p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <span className="font-bold text-text-primary typo-callout">
             Import a product
           </span>
@@ -1222,13 +1222,13 @@ export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <span className="flex min-w-0 items-baseline gap-2">
-              <span className="truncate font-bold text-text-primary typo-callout">
+              <span className="min-w-0 shrink truncate font-bold text-text-primary typo-callout">
                 {product.name}
               </span>
               <span className="hidden text-text-quaternary laptop:inline">
                 ·
               </span>
-              <span className="truncate text-text-secondary typo-callout">
+              <span className="min-w-0 shrink truncate text-text-secondary typo-callout">
                 {product.tagline}
               </span>
             </span>
@@ -1325,7 +1325,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
 
   return (
     <Column>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
           {tabs.map((item) => (
             <button
@@ -1343,7 +1343,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
             </button>
           ))}
         </div>
-        <div className="flex h-9 w-56 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-footnote">
+        <div className="flex h-9 w-full items-center gap-2 rounded-12 border tablet:w-56 border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-footnote">
           <SearchIcon size={IconSize.Small} />
           Search followers
         </div>
@@ -1521,8 +1521,8 @@ export const ModerationPage = (): ReactElement => {
 
   return (
     <Column>
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-text-secondary typo-callout">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="min-w-0 flex-1 basis-60 text-text-secondary typo-callout">
           <b className="sq-nums text-text-primary">{pendingPosts.length + 1}</b>{' '}
           posts waiting. Approve and they go live; decline and the author hears
           why.

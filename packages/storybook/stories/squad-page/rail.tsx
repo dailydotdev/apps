@@ -7,6 +7,9 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  AiIcon,
+  JobIcon,
+  UserIcon,
   BellIcon,
   BookmarkIcon,
   DevPlusIcon,
@@ -438,4 +441,68 @@ export const ClassicSidebar = ({
       ]}
     />
   </aside>
+);
+
+/* ------------------------------------------------------ tablet, phone */
+
+// Production's chrome below laptop: SidebarTablet (a 64px column of
+// labelled icons) from 656px, MobileFooterNavbar (a floating tab bar)
+// under it. Squads is the active destination on a squad page.
+
+const smallNav = [
+  { label: 'Home', icon: HomeIcon },
+  { label: 'Explore', icon: AiIcon },
+  { label: 'Headlines', icon: MegaphoneIcon },
+  { label: 'Activity', icon: BellIcon },
+  { label: 'Squads', icon: SourceIcon, active: true },
+];
+
+export const TabletSidebar = (): ReactElement => (
+  <aside className="flex w-16 shrink-0 flex-col items-center gap-4 border-r border-border-subtlest-tertiary bg-background-default">
+    <a href="/" aria-label="daily.dev" className="flex h-10 items-end pt-4">
+      <LogoIcon className={{ container: 'h-5 w-auto' }} />
+    </a>
+    {[
+      ...smallNav,
+      { label: 'Jobs', icon: JobIcon },
+      { label: 'Profile', icon: UserIcon },
+    ].map(({ label, icon: Icon, active }) => (
+      <a
+        key={label}
+        href="#"
+        className={classNames(
+          'flex w-full flex-col items-center gap-1 typo-caption1',
+          active
+            ? 'text-text-primary'
+            : 'text-text-tertiary hover:text-text-primary',
+        )}
+      >
+        <Icon secondary={active} size={IconSize.Medium} />
+        {label}
+      </a>
+    ))}
+  </aside>
+);
+
+export const MobileFooterNav = (): ReactElement => (
+  <div className="w-full shrink-0 px-2 pb-2">
+    <nav className="grid auto-cols-fr grid-flow-col items-center rounded-16 border-t border-border-subtlest-tertiary bg-background-subtle shadow-2">
+      {smallNav.map(({ label, icon: Icon, active }) => (
+        <a
+          key={label}
+          href="#"
+          className={classNames(
+            'relative flex flex-col items-center justify-center py-2',
+            active ? 'text-text-primary' : 'text-text-tertiary',
+          )}
+        >
+          {active && (
+            <span className="absolute -top-0.5 h-0.5 w-6 rounded-[999px] bg-text-primary" />
+          )}
+          <Icon secondary={active} size={IconSize.Medium} />
+          <span className="typo-caption2">{label}</span>
+        </a>
+      ))}
+    </nav>
+  </div>
 );

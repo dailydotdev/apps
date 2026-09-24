@@ -244,7 +244,7 @@ export const ComposerEntry = ({
           What&apos;s on your mind?
         </span>
       </button>
-      <div className="flex items-center gap-1 px-3 pb-2 pl-[3.75rem]">
+      <div className="flex items-center gap-1 px-3 pb-2 tablet:pl-[3.75rem]">
         {shown.map(({ kind, label, icon }) => (
           <Button
             key={kind}
@@ -261,7 +261,7 @@ export const ComposerEntry = ({
         {reviewed && (
           <span
             title="Posts are reviewed by a moderator before they go live."
-            className="ml-auto flex items-center gap-1.5 pr-1 text-text-quaternary typo-caption1"
+            className="ml-auto hidden items-center gap-1.5 pr-1 text-text-quaternary typo-caption1 tablet:flex"
           >
             <TimerIcon size={IconSize.Size16} />
             Reviewed before it goes live
