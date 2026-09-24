@@ -1,5 +1,5 @@
 name: release extension
-run-name: "release extension ${{ inputs.version || 'bump' }} by `@${{ github.actor }}`"
+run-name: "${{ inputs.version && format('bump extension {0}', inputs.version) || 'release extension' }} by `@${{ github.actor }}`"
 
 on:
   workflow_dispatch:
@@ -24,25 +24,21 @@ on:
       - .github/workflows/release-extension.yml
 
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('release-extension-{0}', github.ref) || 'release-extension' }}
+  group: ${{ github.event_name == 'push' && 'release-extension' || format('release-extension-{0}-{1}', github.event_name, github.ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
 
 jobs:
-  # main requires a PR with passing checks, so the bump lands through an
-  # auto-merged PR. A merge made with GITHUB_TOKEN does not trigger the push
-  # event, so this run waits for the merge and releases the merge commit itself.
+  # main requires a PR with passing checks, so a manual run opens the bump PR
+  # and merging it releases through the push trigger.
   bump:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
     permissions:
       contents: write
       pull-requests: write
-    outputs:
-      sha: ${{ steps.merge.outputs.sha }}
     steps:
       - name: Verify release branch
         env:
@@ -60,7 +56,6 @@ jobs:
           node-version-file: .nvmrc
 
       - name: Open version bump PR
-        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
           BUMP: ${{ inputs.version }}
@@ -75,58 +70,21 @@ jobs:
           git push origin "$BRANCH"
           gh pr create --head "$BRANCH" \
             --title "build(extension): version ${VERSION}" \
-            --body "Bumps the extension to v${VERSION}. The [release run](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) publishes it to the Chrome and Edge stores once this merges."
-          gh pr merge "$BRANCH" --auto --squash
-          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
-
-      - name: Wait for merge
-        id: merge
-        env:
-          GH_TOKEN: ${{ github.token }}
-          BRANCH: ${{ steps.pr.outputs.branch }}
-        run: |
-          for attempt in {1..120}; do
-            PR=$(gh pr view "$BRANCH" --json state,mergeStateStatus,mergeCommit,statusCheckRollup)
-            case $(jq -r '.state' <<< "$PR") in
-              MERGED)
-                echo "sha=$(jq -r '.mergeCommit.oid' <<< "$PR")" >> "$GITHUB_OUTPUT"
-                exit 0
-                ;;
-              CLOSED)
-                echo "::error::${BRANCH} was closed without merging."
-                exit 1
-                ;;
-            esac
-            if jq -e '[.statusCheckRollup[] | .conclusion // .state] | any(. == "FAILURE" or . == "ERROR")' <<< "$PR" > /dev/null; then
-              echo "::error::Checks failed on ${BRANCH}. Fix and merge the PR to release through the push trigger."
-              exit 1
-            fi
-            if [ "$(jq -r '.mergeStateStatus' <<< "$PR")" = "BEHIND" ]; then
-              gh pr update-branch "$BRANCH"
-            fi
-            sleep 30
-          done
-          echo "::error::${BRANCH} did not merge within an hour."
-          exit 1
+            --body "Bumps the extension to v${VERSION}. Merging it releases the extension to the Chrome and Edge stores."
 
   build:
-    needs: bump
-    if: ${{ !cancelled() && (needs.bump.result == 'success' || needs.bump.result == 'skipped') }}
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
-      sha: ${{ steps.version.outputs.sha }}
       version: ${{ steps.version.outputs.version }}
       release: ${{ steps.version.outputs.release }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.bump.outputs.sha || github.sha }}
 
       - name: Detect new version
         id: version
         run: |
           VERSION=$(node -p "require('./packages/extension/package.json').version")
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             echo "release=false" >> "$GITHUB_OUTPUT"
@@ -297,12 +255,11 @@ jobs:
       - name: Tag and create release
         env:
           GH_TOKEN: ${{ github.token }}
-          SHA: ${{ needs.build.outputs.sha }}
           VERSION: ${{ needs.build.outputs.version }}
         run: |
           mv chrome.zip "daily-extension-v${VERSION}.zip"
           gh release create "v${VERSION}" "daily-extension-v${VERSION}.zip" \
             --repo "$GITHUB_REPOSITORY" \
-            --target "$SHA" \
+            --target "$GITHUB_SHA" \
             --title "Extension v${VERSION}" \
             --generate-notes
