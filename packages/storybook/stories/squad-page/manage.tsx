@@ -36,7 +36,6 @@ import {
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
 import {
   companyLinks,
-  formatCount,
   moderationQueueCount,
   products,
   rules,
@@ -337,8 +336,7 @@ const ProductsManage = (): ReactElement => (
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              {product.category} · {product.pricing} ·{' '}
-              {formatCount(product.inStacks)} stacks
+              {product.category} · {product.pricing}
             </Typography>
           </div>
           <EditRowButton label={product.name} />

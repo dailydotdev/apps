@@ -19,7 +19,13 @@ export default meta;
 // packages/shared/src/components/squads/** on 23 Sep 2026. Copy in the
 // cases is production's, word for word, unless a row says it changed.
 
-type Status = 'Covered' | 'Added' | 'Changed' | 'Elsewhere' | 'Dropped';
+type Status =
+  | 'Covered'
+  | 'Added'
+  | 'Changed'
+  | 'Elsewhere'
+  | 'Dropped'
+  | 'Neither';
 
 interface Row {
   surface: string;
@@ -155,7 +161,8 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Stack & Tools',
         production: 'Chips, +N, Add for editors, dashed empty state',
-        design: 'Right column under Team, the same chips, +N, Add and empty state',
+        design:
+          'Right column under Team, the same chips, +N, Add and empty state',
         status: 'Covered',
       },
       {
@@ -400,10 +407,10 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Elsewhere',
       },
       {
-        surface: 'Bounties, leaderboard, checklist',
-        production: 'None (the checklist is dead code)',
+        surface: 'Bounties, leaderboard',
+        production: 'None',
         design: 'None',
-        status: 'Dropped',
+        status: 'Neither',
       },
     ],
   },
@@ -462,6 +469,16 @@ const tone: Record<Status, string> = {
   Changed: 'text-accent-cheese-default',
   Elsewhere: 'text-text-tertiary',
   Dropped: 'text-text-quaternary',
+  Neither: 'text-text-quaternary',
+};
+
+const statusLabel: Record<Status, string> = {
+  Covered: 'Covered',
+  Added: 'Added',
+  Changed: 'Changed',
+  Elsewhere: 'Elsewhere',
+  Dropped: 'Dropped',
+  Neither: 'Not in production, not in the design',
 };
 
 const CoverageTable = ({ rows }: { rows: Row[] }): ReactElement => (
@@ -502,7 +519,7 @@ const CoverageTable = ({ rows }: { rows: Row[] }): ReactElement => (
                 tone[row.status],
               )}
             >
-              {row.status}
+              {statusLabel[row.status]}
             </td>
           </tr>
         ))}
@@ -528,7 +545,7 @@ const counts = coverage
   .flatMap((group) => group.rows)
   .reduce<Record<Status, number>>(
     (acc, row) => ({ ...acc, [row.status]: (acc[row.status] ?? 0) + 1 }),
-    { Covered: 0, Added: 0, Changed: 0, Elsewhere: 0, Dropped: 0 },
+    { Covered: 0, Added: 0, Changed: 0, Elsewhere: 0, Dropped: 0, Neither: 0 },
   );
 
 export const Overview: StoryObj = {
@@ -551,7 +568,10 @@ export const Overview: StoryObj = {
             design, <b className={tone.Changed}>Changed</b> is a deliberate
             difference, <b className={tone.Elsewhere}>Elsewhere</b> is a surface
             outside this page that stays as it is,{' '}
-            <b className={tone.Dropped}>Dropped</b> is gone on purpose.
+            <b className={tone.Dropped}>Dropped</b> is gone on purpose, and{' '}
+            <b className={tone.Neither}>{statusLabel.Neither}</b> is a pattern
+            other platforms have that squads never had and the design does not
+            add.
           </p>
           <p className="flex flex-wrap gap-x-4 gap-y-1 typo-callout">
             {(Object.keys(counts) as Status[]).map((status) => (
@@ -559,7 +579,7 @@ export const Overview: StoryObj = {
                 key={status}
                 className={classNames('font-bold', tone[status])}
               >
-                {counts[status]} {status}
+                {counts[status]} {statusLabel[status]}
               </span>
             ))}
           </p>

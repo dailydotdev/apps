@@ -163,6 +163,11 @@ export const Overview: StoryObj = {
                 Changed: <span className="text-status-success">✓ Changed</span>,
                 Elsewhere: <span className="text-text-quaternary">–</span>,
                 Dropped: <span className="text-status-error">✕ Dropped</span>,
+                Neither: (
+                  <span className="text-text-quaternary">
+                    – Not in production, not in the design
+                  </span>
+                ),
               }[row.status],
               row.design,
             ]),

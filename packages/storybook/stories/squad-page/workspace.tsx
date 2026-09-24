@@ -754,19 +754,14 @@ const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
 /**
  * Everything the company makes, on one page. Listings are imported, not
  * typed: paste a Product Hunt, G2, Trustpilot or GitHub link and the card
- * arrives with the logo, tagline, category and the source's rating. The
- * daily.dev part is the stack: each product is a tool members can add, and
- * the card says how many already have.
+ * arrives with the logo, tagline, category and the source's rating.
  */
 export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column width="max-w-[56rem]">
     <p className="max-w-[52ch] text-text-secondary typo-callout">
-      Everything {squad.name} makes. Add one to your stack and it shows on your
-      profile.
+      Everything {squad.name} makes.
     </p>
-    {/* Product Hunt's list: logo, name and tagline on one line, chips under,
-        and the tall box on the right. Theirs counts upvotes; ours counts
-        stacks and is the Add button. */}
+    {/* Product Hunt's list: logo, name and tagline, then the chips. */}
     <ol className="flex flex-col gap-6">
       {products.map((product) => (
         <li key={product.id} className="group flex items-start gap-4">
@@ -814,17 +809,6 @@ export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
               ))}
             </span>
           </div>
-          <button
-            type="button"
-            className="sq-nums flex w-16 shrink-0 flex-col items-center gap-0.5 rounded-12 bg-surface-float py-2 text-text-primary transition-colors hover:bg-surface-hover hover:text-accent-cabbage-default"
-            aria-label={`Add ${product.name} to your stack`}
-          >
-            <PlusIcon size={IconSize.Small} />
-            <span className="font-bold typo-callout">
-              {formatCount(product.inStacks)}
-            </span>
-            <span className="text-text-quaternary typo-caption2">stacks</span>
-          </button>
         </li>
       ))}
     </ol>
