@@ -12,19 +12,27 @@ import {
   ArrowIcon,
   DocsIcon,
   EditIcon,
+  EmbedIcon,
   HelpIcon,
   LinkIcon,
   LockIcon,
   MegaphoneIcon,
   MenuIcon,
   MoveToIcon,
+  OpenLinkIcon,
   PlusIcon,
-  SlackIcon,
   TimerIcon,
   TrashIcon,
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
 import { companyLinks, squad } from './data';
 import { isAdmin, linkIcon, VerifiedMark, Viewer } from './kit';
 import { ContentSource, useWorkspace } from './state';
@@ -106,7 +114,7 @@ const groups: { title: string; items: ManageItem[] }[] = [
         feedOnly: true,
       },
       { id: 'analytics', label: 'Analytics', icon: <AnalyticsIcon /> },
-      { id: 'integrations', label: 'Integrations', icon: <SlackIcon /> },
+      { id: 'integrations', label: 'Integrations', icon: <EmbedIcon /> },
       { id: 'danger', label: 'Danger zone', icon: <TrashIcon /> },
     ],
   },
@@ -145,17 +153,36 @@ const useGroups = (viewer: Viewer) => {
     .filter((group) => group.items.length);
 };
 
-const MenuHeader = (): ReactElement => (
-  <div className="flex items-center gap-3 px-2 py-2">
+const MenuHeader = ({ onOpen }: { onOpen: () => void }): ReactElement => (
+  <button
+    type="button"
+    onClick={onOpen}
+    className="relative flex items-center gap-2 rounded-10 px-1 text-left hover:bg-theme-active"
+  >
     <img src={squad.image} alt="" className="size-8 rounded-full" />
-    <div className="flex min-w-0 flex-1 flex-col">
-      <span className="flex items-center gap-1 font-bold text-text-primary typo-callout">
-        {squad.name}
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <div className="flex items-center gap-1">
+        <Typography
+          type={TypographyType.Subhead}
+          color={TypographyColor.Primary}
+          bold
+          truncate
+          className="min-w-0"
+        >
+          {squad.name}
+        </Typography>
         <VerifiedMark label={false} />
-      </span>
-      <span className="text-text-tertiary typo-caption1">Manage page</span>
+      </div>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        truncate
+      >
+        @{squad.handle}
+      </Typography>
     </div>
-  </div>
+    <OpenLinkIcon className="text-text-quaternary" size={IconSize.Size16} />
+  </button>
 );
 
 const ManageMenu = ({
@@ -167,57 +194,72 @@ const ManageMenu = ({
   viewer: Viewer;
   active?: ManageSection;
   onSection: (id: ManageSection) => void;
-  /** The phone list: bigger rows, a chevron on each. */
+  /** The phone list: body type, a chevron on each row. */
   large?: boolean;
-}): ReactElement => (
-  <nav className="flex flex-col gap-2">
-    {useGroups(viewer).map((group, index) => (
-      <div
-        key={group.title}
-        className={classNames(
-          'flex flex-col',
-          index > 0 && 'border-t border-border-subtlest-tertiary pt-2',
-        )}
-      >
-        <span className="px-2 py-1.5 text-text-quaternary typo-footnote">
-          {group.title}
-        </span>
-        {group.items.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSection(item.id)}
-            aria-current={active === item.id ? 'page' : undefined}
-            className={classNames(
-              'flex items-center gap-3 rounded-10 px-2 text-left transition-colors',
-              large ? 'py-3 typo-body' : 'py-1.5 typo-callout',
-              active === item.id
-                ? 'bg-surface-float text-text-primary'
-                : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
-            )}
-          >
-            {React.cloneElement(item.icon, {
-              size: IconSize.Small,
-              className: 'shrink-0',
+}): ReactElement => {
+  const shownGroups = useGroups(viewer);
+
+  return (
+    <nav className="flex flex-col gap-2">
+      {shownGroups.map((group, index) => (
+        <React.Fragment key={group.title}>
+          <section className="flex flex-col">
+            <Typography
+              bold
+              color={TypographyColor.Quaternary}
+              type={TypographyType.Footnote}
+              className="p-1"
+            >
+              {group.title}
+            </Typography>
+            {group.items.map((item) => {
+              const isActive = active === item.id;
+
+              return (
+                <Typography
+                  key={item.id}
+                  tag={TypographyTag.Button}
+                  type={large ? TypographyType.Body : TypographyType.Subhead}
+                  color={
+                    large ? TypographyColor.Secondary : TypographyColor.Tertiary
+                  }
+                  onClick={() => onSection(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={classNames(
+                    'group flex h-10 cursor-pointer items-center gap-2 rounded-10 px-1 hover:bg-surface-float',
+                    !large && 'tablet:h-8',
+                    isActive && 'bg-surface-active',
+                  )}
+                >
+                  {React.cloneElement(item.icon, {
+                    secondary: isActive,
+                    size: large ? IconSize.Small : IconSize.XSmall,
+                  })}
+                  <span>{item.label}</span>
+                  {!!item.badge && (
+                    <span className="sq-nums ml-auto text-text-quaternary typo-footnote">
+                      {item.badge}
+                    </span>
+                  )}
+                  {large && (
+                    <ArrowIcon
+                      className={classNames(
+                        'rotate-90 text-text-quaternary',
+                        !item.badge && 'ml-auto',
+                      )}
+                      size={IconSize.Size16}
+                    />
+                  )}
+                </Typography>
+              );
             })}
-            <span className="min-w-0 flex-1 truncate">{item.label}</span>
-            {!!item.badge && (
-              <span className="sq-nums rounded-8 bg-surface-float px-1.5 font-bold text-text-tertiary typo-caption2">
-                {item.badge}
-              </span>
-            )}
-            {large && (
-              <ArrowIcon
-                size={IconSize.Small}
-                className="rotate-90 text-text-quaternary"
-              />
-            )}
-          </button>
-        ))}
-      </div>
-    ))}
-  </nav>
-);
+          </section>
+          {index < shownGroups.length - 1 && <HorizontalSeparator />}
+        </React.Fragment>
+      ))}
+    </nav>
+  );
+};
 
 const LinksManage = (): ReactElement => (
   <ul className="flex flex-col gap-4">
@@ -380,15 +422,8 @@ export const ManageView = ({
   return (
     <div className="mx-auto flex w-full gap-4 laptop:max-w-5xl laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
       <aside className="hidden w-64 shrink-0 flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 laptop:flex">
-        <button
-          type="button"
-          onClick={onExit}
-          className="flex items-center gap-2 rounded-10 px-2 py-1.5 text-text-tertiary typo-footnote transition-colors hover:bg-surface-hover hover:text-text-primary"
-        >
-          <MoveToIcon size={IconSize.Size16} className="rotate-180" />
-          Back to the page
-        </button>
-        <MenuHeader />
+        <MenuHeader onOpen={onExit} />
+        <HorizontalSeparator />
         <ManageMenu viewer={viewer} active={shown} onSection={setSection} />
       </aside>
 
@@ -420,8 +455,9 @@ export const ManageView = ({
             backLabel={`Back to ${squad.name}`}
             backOnLaptop
           />
-          <div className="px-2 py-3 tablet:px-4">
-            <MenuHeader />
+          <div className="flex flex-col gap-2 p-4">
+            <MenuHeader onOpen={onExit} />
+            <HorizontalSeparator />
             <ManageMenu viewer={viewer} onSection={setSection} large />
           </div>
         </div>

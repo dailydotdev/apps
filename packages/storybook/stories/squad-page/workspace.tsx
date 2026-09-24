@@ -44,6 +44,13 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
 import type { SquadPoll } from './data';
 import {
   analyticsDays,
@@ -1818,67 +1825,56 @@ export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
 
 /* ------------------------------------------------------------- settings */
 
-const Radio = ({
+interface SettingsOption {
+  value: string;
+  label: string;
+  hint?: string;
+}
+
+const SettingsRadio = ({
+  name,
   options,
   value,
   onChange,
   disabled = false,
 }: {
-  options: { value: string; label: string; hint?: string }[];
+  name: string;
+  options: SettingsOption[];
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
 }): ReactElement => (
-  <div className={classNames('flex flex-col gap-2', disabled && 'opacity-40')}>
-    {options.map((option) => (
-      <button
-        key={option.value}
-        type="button"
-        disabled={disabled}
-        onClick={() => onChange(option.value)}
-        className="flex items-start gap-2.5 text-left"
-      >
-        <span
-          className={classNames(
-            'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-[999px] border',
-            value === option.value
-              ? 'border-accent-cabbage-default'
-              : 'border-border-subtlest-primary',
-          )}
-        >
-          {value === option.value && (
-            <span className="size-2 rounded-[999px] bg-accent-cabbage-default" />
-          )}
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="text-text-primary typo-callout">{option.label}</span>
+  <Radio
+    name={name}
+    value={value}
+    onChange={onChange}
+    disabled={disabled}
+    className={{
+      container: '!gap-3',
+      content: '!items-start !whitespace-normal !pr-0',
+      label: 'min-w-0 flex-1',
+    }}
+    options={options.map((option) => ({
+      value: option.value,
+      label: (
+        <span className="flex flex-col gap-0.5 pt-1.5">
+          <span
+            className={classNames(
+              'typo-callout',
+              disabled ? 'text-text-disabled' : 'text-text-primary',
+            )}
+          >
+            {option.label}
+          </span>
           {option.hint && (
             <span className="text-text-tertiary typo-footnote">
               {option.hint}
             </span>
           )}
         </span>
-      </button>
-    ))}
-  </div>
-);
-
-const Field = ({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-}): ReactElement => (
-  <label className="flex flex-col gap-1">
-    <span className="text-text-tertiary typo-caption1">{label}</span>
-    <span className="flex h-10 items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-primary typo-callout">
-      {value}
-    </span>
-    {hint && <span className="text-text-quaternary typo-caption1">{hint}</span>}
-  </label>
+      ),
+    }))}
+  />
 );
 
 const SettingsSection = ({
@@ -1890,21 +1886,59 @@ const SettingsSection = ({
   description?: string;
   children: ReactNode;
 }): ReactElement => (
-  <section className="flex flex-col gap-3">
-    <div className="flex flex-col gap-0.5">
-      <span className="font-bold text-text-primary typo-body">{title}</span>
+  <section className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1">
+      <Typography type={TypographyType.Body} bold>
+        {title}
+      </Typography>
       {description && (
-        <span className="text-text-tertiary typo-footnote">{description}</span>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {description}
+        </Typography>
       )}
     </div>
     {children}
   </section>
 );
 
+const SettingsRow = ({
+  icon,
+  title,
+  description,
+  action,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  action: ReactNode;
+}): ReactElement => (
+  <div className="flex items-center gap-4">
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float">
+      {icon}
+    </span>
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <Typography type={TypographyType.Callout} bold>
+        {title}
+      </Typography>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        className="[overflow-wrap:anywhere]"
+      >
+        {description}
+      </Typography>
+    </div>
+    {action}
+  </div>
+);
+
 /**
  * Production's Squad settings (Details.tsx and the settings sections),
- * section for section, inside the workspace instead of on /edit. The
- * company page adds where the posts come from.
+ * laid out like the profile settings pages: a bold title and a short
+ * description per section, separators between them.
  */
 export type SettingsPart = 'details' | 'posting' | 'integrations' | 'danger';
 
@@ -1922,22 +1956,27 @@ export const SettingsPage = ({
     { value: MemberRole.Member, label: 'All members (recommended)' },
     { value: MemberRole.Moderator, label: 'Only moderators' },
   ];
+  const parts: ReactNode[] = [];
 
-  return (
-    <Column width="max-w-[44rem]" className="gap-8">
-      {shows('details') && (
-        <SettingsSection title="Squad details">
-          <div className="flex items-center gap-4">
-            <img src={squad.image} alt="" className="size-16 rounded-full" />
-            <div className="flex flex-wrap gap-2">
-              <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
-                Change image
-              </Button>
-              <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
-                Upload cover
-              </Button>
-            </div>
+  if (shows('details')) {
+    parts.push(
+      <SettingsSection
+        key="identity"
+        title="Image and name"
+        description="How the page shows up in the feed, search and the squads directory."
+      >
+        <div className="flex items-center gap-4">
+          <img src={squad.image} alt="" className="size-16 rounded-full" />
+          <div className="flex flex-wrap gap-2">
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+              Change image
+            </Button>
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+              Upload cover
+            </Button>
           </div>
+        </div>
+        <div className="flex flex-col gap-4">
           <TextField
             inputId="squad-name"
             name="name"
@@ -1961,201 +2000,222 @@ export const SettingsPage = ({
             rows={3}
             maxLength={250}
           />
-        </SettingsSection>
-      )}
+        </div>
+      </SettingsSection>,
+      <SettingsSection
+        key="type"
+        title="Squad type"
+        description="Who can find the page and read it."
+      >
+        <SettingsRadio
+          name="squad-type"
+          value={state.isPublic ? 'public' : 'private'}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              isPublic: value === 'public',
+            }))
+          }
+          options={[
+            {
+              value: 'public',
+              label: 'Public',
+              hint: 'Listed in the directory and open to anyone.',
+            },
+            {
+              value: 'private',
+              label: 'Private',
+              hint: 'Invite only and hidden from the directory.',
+            },
+          ]}
+        />
+        {state.isPublic && (
+          <TextField
+            inputId="squad-category"
+            name="category"
+            label="Category"
+            defaultValue={state.category ?? ''}
+            className={{ container: 'w-full' }}
+          />
+        )}
+      </SettingsSection>,
+    );
+  }
 
-      {shows('details') && (
-        <>
-          <SettingsSection title="Squad type">
-            <Radio
-              value={state.isPublic ? 'public' : 'private'}
-              onChange={(value) =>
-                setState((current) => ({
-                  ...current,
-                  isPublic: value === 'public',
-                }))
-              }
-              options={[
-                {
-                  value: 'public',
-                  label: 'Public',
-                  hint: 'Listed in the directory, open to anyone. Needs a category.',
-                },
-                {
-                  value: 'private',
-                  label: 'Private',
-                  hint: 'Squad is invite-only, hidden from the directory, and perfect for teams and smaller groups of people who know each other and want to collaborate privately.',
-                },
-              ]}
-            />
-            {state.isPublic && (
-              <Field
-                label="Category"
-                value={state.category ?? 'Select a category'}
-              />
-            )}
-          </SettingsSection>
-        </>
-      )}
+  if (shows('posting')) {
+    parts.push(
+      <SettingsSection
+        key="post"
+        title="Who can post"
+        description="Admins and moderators can always post."
+      >
+        <SettingsRadio
+          name="post-role"
+          value={state.memberPostingRole}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              memberPostingRole: value as MemberRole,
+              postingGate:
+                value === MemberRole.Moderator
+                  ? PostingGate.None
+                  : current.postingGate,
+            }))
+          }
+          options={roleOptions}
+        />
+      </SettingsSection>,
+      <SettingsSection
+        key="requirements"
+        title="Posting requirements"
+        description={
+          membersOnly
+            ? 'Only admins and moderators can post, so their posts publish right away.'
+            : 'Whether a member’s post is reviewed before it goes live.'
+        }
+      >
+        <SettingsRadio
+          name="post-gate"
+          disabled={membersOnly}
+          value={state.postingGate}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              postingGate: value as PostingGate,
+            }))
+          }
+          options={[
+            {
+              value: PostingGate.None,
+              label: 'Anyone can post',
+              hint: 'All members can post. No review.',
+            },
+            {
+              value: PostingGate.Moderation,
+              label: 'Require post approval',
+              hint: 'All members can post. Every post is reviewed.',
+            },
+            {
+              value: PostingGate.Reputation,
+              label: 'Require a minimum reputation',
+              hint: 'Only members with enough reputation can post. No review.',
+            },
+          ]}
+        />
+        {state.postingGate === PostingGate.Reputation && !membersOnly && (
+          <TextField
+            inputId="squad-min-reputation"
+            name="minReputation"
+            label="Minimum reputation"
+            type="number"
+            defaultValue={String(state.postingMinReputation)}
+            className={{ container: 'max-w-60' }}
+          />
+        )}
+      </SettingsSection>,
+      <SettingsSection
+        key="invite"
+        title="Who can invite"
+        description="Who can send invitation links to the page."
+      >
+        <SettingsRadio
+          name="invite-role"
+          value={state.memberInviteRole}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              memberInviteRole: value as MemberRole,
+            }))
+          }
+          options={roleOptions}
+        />
+      </SettingsSection>,
+    );
+  }
 
-      {shows('posting') && (
-        <>
-          <SettingsSection
-            title="🔒 Moderation settings"
-            description="Choose who is allowed to post new content in this Squad, and whether their posts are reviewed first."
-          >
-            <SettingsSection title="Post content">
-              <Radio
-                value={state.memberPostingRole}
-                onChange={(value) =>
-                  setState((current) => ({
-                    ...current,
-                    memberPostingRole: value as MemberRole,
-                    postingGate:
-                      value === MemberRole.Moderator
-                        ? PostingGate.None
-                        : current.postingGate,
-                  }))
-                }
-                options={roleOptions}
-              />
-            </SettingsSection>
-            <SettingsSection
-              title="Posting requirements"
-              description={
-                membersOnly
-                  ? 'Only admins and moderators can post; their posts are auto-published.'
-                  : undefined
-              }
-            >
-              <Radio
-                disabled={membersOnly}
-                value={state.postingGate}
-                onChange={(value) =>
-                  setState((current) => ({
-                    ...current,
-                    postingGate: value as PostingGate,
-                  }))
-                }
-                options={[
-                  {
-                    value: PostingGate.None,
-                    label: 'Anyone can post',
-                    hint: 'All members can post. No review.',
-                  },
-                  {
-                    value: PostingGate.Moderation,
-                    label: 'Require post approval',
-                    hint: 'All members can post. Every post is reviewed.',
-                  },
-                  {
-                    value: PostingGate.Reputation,
-                    label: 'Require a minimum reputation',
-                    hint: 'Only members with enough reputation can post. No review.',
-                  },
-                ]}
-              />
-              {state.postingGate === PostingGate.Reputation && !membersOnly && (
-                <div className="max-w-60">
-                  <Field
-                    label="Minimum reputation"
-                    value={String(state.postingMinReputation)}
-                  />
-                </div>
-              )}
-            </SettingsSection>
-            <SettingsSection
-              title="Invitation permissions"
-              description="Choose who is allowed to invite new members to this Squad."
-            >
-              <Radio
-                value={state.memberInviteRole}
-                onChange={(value) =>
-                  setState((current) => ({
-                    ...current,
-                    memberInviteRole: value as MemberRole,
-                  }))
-                }
-                options={roleOptions}
-              />
-            </SettingsSection>
-          </SettingsSection>
-        </>
-      )}
-
-      {shows('integrations') && (
-        <>
-          <SettingsSection title="Integrations">
-            <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
-              <SlackIcon size={IconSize.Medium} />
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="font-bold text-text-primary typo-callout">
-                  Slack
-                </span>
-                <span className="text-text-tertiary typo-footnote">
-                  {config.slack
-                    ? 'Posting new posts to #product-updates'
-                    : 'Post every new post to a channel.'}
-                </span>
-              </div>
-              <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
-                {config.slack ? 'Manage' : 'Connect to Slack'}
+  if (shows('integrations')) {
+    parts.push(
+      <SettingsSection
+        key="integrations"
+        title="Connected apps"
+        description="Send the page’s new posts to the tools your team already uses."
+      >
+        <div className="flex flex-col gap-6">
+          <SettingsRow
+            icon={<SlackIcon size={IconSize.Small} />}
+            title="Slack"
+            description={
+              config.slack
+                ? 'Posting new posts to #product-updates'
+                : 'Post every new post to a channel.'
+            }
+            action={
+              <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                {config.slack ? 'Manage' : 'Connect'}
               </Button>
-            </div>
-            {source === ContentSource.Feed && (
-              <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
-                <MegaphoneIcon size={IconSize.Medium} />
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-bold text-text-primary typo-callout">
-                    Content feed
-                  </span>
-                  <span className="[overflow-wrap:anywhere] text-text-tertiary typo-footnote">
-                    {squad.feedUrl}, checked every hour, managed by daily.dev.
-                  </span>
-                </div>
+            }
+          />
+          {source === ContentSource.Feed && (
+            <SettingsRow
+              icon={<MegaphoneIcon size={IconSize.Small} />}
+              title="Content feed"
+              description="Your changelog RSS, checked every hour by daily.dev."
+              action={
                 <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
                   Open
                 </Button>
-              </div>
-            )}
-          </SettingsSection>
-        </>
-      )}
+              }
+            />
+          )}
+        </div>
+      </SettingsSection>,
+    );
+  }
 
-      {shows('danger') && (
-        <>
-          <SettingsSection title="🚨 Danger zone">
-            <div className="flex flex-col gap-3 rounded-16 border border-status-error p-4">
-              <span className="font-bold text-text-primary typo-callout">
-                Deleting your Squad will:
-              </span>
-              <ul className="flex list-disc flex-col gap-1 pl-5 text-text-tertiary typo-footnote">
-                <li>Permanently delete your Squad.</li>
-                <li>
-                  Permanently delete all Squad&apos;s content, including your
-                  posts and others, comments, upvotes, etc
-                </li>
-                <li>Allow your Squad name to become available to anyone.</li>
-              </ul>
-              <span className="text-text-quaternary typo-caption1">
-                Important: deleting your Squad is unrecoverable and cannot be
-                undone. Feel free to contact support@daily.dev with any
-                questions.
-              </span>
-              <div>
-                <Button
-                  variant={ButtonVariant.Secondary}
-                  color={ButtonColor.Ketchup}
-                  size={ButtonSize.Small}
-                  icon={<TrashIcon />}
-                >
-                  Delete Squad
-                </Button>
-              </div>
-            </div>
-          </SettingsSection>
-        </>
-      )}
+  if (shows('danger')) {
+    parts.push(
+      <SettingsSection
+        key="danger"
+        title="Delete the squad"
+        description="Deleting a squad is permanent and can’t be undone."
+      >
+        <ul className="flex list-disc flex-col gap-2 pl-5 text-text-tertiary typo-callout">
+          <li>The squad and its page are deleted.</li>
+          <li>
+            Every post, comment and upvote in it is deleted, yours and
+            everyone else&apos;s.
+          </li>
+          <li>The handle becomes free for anyone to take.</li>
+        </ul>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Questions first? Write to{' '}
+          <a className="text-text-link" href="mailto:support@daily.dev">
+            support@daily.dev
+          </a>
+          .
+        </Typography>
+        <Button
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Ketchup}
+          className="self-start"
+        >
+          Delete squad
+        </Button>
+      </SettingsSection>,
+    );
+  }
+
+  return (
+    <Column width="max-w-[44rem]" className="gap-6">
+      {parts.map((part, index) => (
+        <React.Fragment key={(part as ReactElement).key}>
+          {index > 0 && <HorizontalSeparator />}
+          {part}
+        </React.Fragment>
+      ))}
 
       {!only && (
         <div className="sticky bottom-0 flex justify-end border-t border-border-subtlest-tertiary bg-background-default py-3">
