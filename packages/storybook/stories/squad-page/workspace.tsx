@@ -13,7 +13,9 @@ import {
   AnalyticsIcon,
   ArrowIcon,
   BellIcon,
+  CameraIcon,
   CardIcon,
+  ClearIcon,
   DiscussIcon,
   DocsIcon,
   DragIcon,
@@ -1904,6 +1906,33 @@ const SettingsSection = ({
   </section>
 );
 
+const ImageActions = ({
+  label,
+  className,
+}: {
+  label: string;
+  className?: string;
+}): ReactElement => (
+  <div className={classNames('flex gap-2', className)}>
+    <Button
+      type="button"
+      className="bg-shadow-shadow3"
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      icon={<CameraIcon size={IconSize.Medium} />}
+      aria-label={`Upload ${label}`}
+    />
+    <Button
+      type="button"
+      className="bg-shadow-shadow3"
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      icon={<ClearIcon size={IconSize.Medium} />}
+      aria-label={`Remove ${label}`}
+    />
+  </div>
+);
+
 const SettingsRow = ({
   icon,
   title,
@@ -1960,23 +1989,40 @@ export const SettingsPage = ({
 
   if (shows('details')) {
     parts.push(
-      <SettingsSection
-        key="identity"
-        title="Image and name"
-        description="How the page shows up in the feed, search and the squads directory."
-      >
-        <div className="flex items-center gap-4">
-          <img src={squad.image} alt="" className="size-16 rounded-full" />
-          <div className="flex flex-wrap gap-2">
-            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
-              Change image
-            </Button>
-            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
-              Upload cover
-            </Button>
+      <div key="identity" className="flex flex-col gap-6">
+        <div className="relative mb-10">
+          <div className="group relative h-24 w-full">
+            <div className="relative h-full w-full overflow-hidden rounded-16">
+              <img
+                src={squad.headerImage}
+                alt="Squad cover"
+                className={classNames(
+                  'h-full w-full object-cover',
+                  squad.headerImagePosition === 'top' && 'object-top',
+                  squad.headerImagePosition === 'bottom' && 'object-bottom',
+                )}
+              />
+            </div>
+            <ImageActions
+              label="cover"
+              className="absolute right-6 top-1/2 -translate-y-1/2"
+            />
+          </div>
+          <div className="absolute bottom-0 left-6 size-[7.5rem] translate-y-1/2">
+            <div className="size-full overflow-hidden rounded-full bg-background-default">
+              <img
+                src={squad.image}
+                alt="Squad image"
+                className="size-full object-cover"
+              />
+            </div>
+            <ImageActions
+              label="image"
+              className="absolute inset-0 items-center justify-center"
+            />
           </div>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="mt-6 flex flex-col gap-4">
           <TextField
             inputId="squad-name"
             name="name"
@@ -2001,7 +2047,7 @@ export const SettingsPage = ({
             maxLength={250}
           />
         </div>
-      </SettingsSection>,
+      </div>,
       <SettingsSection
         key="type"
         title="Squad type"
