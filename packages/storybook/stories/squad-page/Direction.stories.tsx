@@ -8,7 +8,7 @@ import { directionPageIds, DirectionShell } from './direction';
 import { PinStyle, pinStyles } from './pins';
 
 const meta: Meta = {
-  title: 'Squad Page/9. Direction',
+  title: 'Squad Page/1. Direction',
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (

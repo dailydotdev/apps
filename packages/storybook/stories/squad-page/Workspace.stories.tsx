@@ -21,7 +21,7 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 const meta: Meta = {
-  title: 'Squad Page/3. Workspace',
+  title: 'Squad Page/Archive/Workspace (earlier direction)',
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (

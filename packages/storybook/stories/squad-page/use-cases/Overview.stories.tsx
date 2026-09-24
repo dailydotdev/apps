@@ -12,7 +12,7 @@ import { cases as stateCases } from './States.stories';
 import { cases as productionCases } from './Production.stories';
 
 const meta: Meta = {
-  title: 'Squad Page/5. Use cases/Overview',
+  title: 'Squad Page/2. Use cases/Overview',
   parameters: { layout: 'fullscreen' },
 };
 

@@ -8,7 +8,7 @@ import type { UseCase } from './shared';
 import { Case, Page } from './shared';
 
 const meta: Meta = {
-  title: 'Squad Page/5. Use cases/Production parity',
+  title: 'Squad Page/2. Use cases/Production parity',
   parameters: { layout: 'fullscreen' },
   excludeStories: ['cases', 'coverage'],
 };

@@ -7,7 +7,7 @@ import { WorkspaceStyles } from './workspace';
 import { Nav, navPageIds, NavShell, specs } from './navigation';
 
 const meta: Meta = {
-  title: 'Squad Page/8. Navigation',
+  title: 'Squad Page/3. Navigation',
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (
@@ -77,22 +77,15 @@ export const Overview: StoryObj = {
       <header className="flex flex-col gap-3 border-b border-border-subtlest-tertiary pb-8">
         <Eyebrow>Squad page · Navigation</Eyebrow>
         <h1 className="max-w-[24ch] font-bold typo-mega3">
-          The pages column, carried ten ways
+          The two picks: Chips, and Shelves
         </h1>
         <div className="flex max-w-[76ch] flex-col gap-3 text-text-secondary typo-body">
           <p>
-            The squad&apos;s left column is gone. The profile header and the
-            profile&apos;s right column, Official company page, Rules, Team,
-            Stack and tools, Overview, Links, stay exactly as they are. What the
-            column carried besides those, the five pages and the team&apos;s
-            Manage section, has to live in the header or the centre. Ten ways to
-            do that, one idea each, on the same base.
-          </p>
-          <p>
-            Followers opens from the count, Rules and FAQ from their widget,
-            Manage from the gear beside the actions. Every shell is live: click
-            through the pages, and use the Playground to switch viewer and
-            width.
+            Of ten ways to carry the old pages column, these two were picked.
+            Chips filter one feed by kind; Shelves stack the latest release, the
+            products, the open poll and the latest posts. The direction combines
+            them: the chips on the feed, and the products shelf above it. See
+            Squad Page, 1. Direction.
           </p>
         </div>
       </header>
@@ -117,7 +110,7 @@ export const Playground: StoryObj<{
   width: number;
 }> = {
   args: {
-    nav: Nav.Tabs,
+    nav: Nav.Chips,
     viewer: Viewer.Member,
     page: 'home',
     width: 1440,

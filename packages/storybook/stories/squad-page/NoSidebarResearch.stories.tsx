@@ -6,7 +6,7 @@ import ExtensionProviders from '../extension/_providers';
 import { KitStyles } from './kit';
 
 const meta: Meta = {
-  title: 'Squad Page/7. No sidebar research',
+  title: 'Squad Page/5. Research',
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (
@@ -1800,10 +1800,8 @@ export const Overview: StoryObj = {
         <Prose>
           <p>
             Each is drawn as a schematic at desktop and phone width, with the
-            colour telling what kind of thing each block is. The first five live
-            in the No sidebar story as working mock-ups, and so does the
-            composite at the end; the rest are written here so the comparison is
-            complete.
+            colour telling what kind of thing each block is. The research led to
+            the chosen direction, which lives in Squad Page, 1. Direction.
           </p>
         </Prose>
         <Legend />

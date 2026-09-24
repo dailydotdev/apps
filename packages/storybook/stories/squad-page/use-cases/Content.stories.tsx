@@ -6,7 +6,7 @@ import type { UseCase } from './shared';
 import { Case, Page } from './shared';
 
 const meta: Meta = {
-  title: 'Squad Page/5. Use cases/Content source',
+  title: 'Squad Page/2. Use cases/Content source',
   parameters: { layout: 'fullscreen' },
   excludeStories: ['cases'],
 };
