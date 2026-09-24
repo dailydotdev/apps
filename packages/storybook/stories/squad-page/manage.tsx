@@ -97,7 +97,7 @@ const groups: { title: string; items: ManageItem[] }[] = [
     ],
   },
   {
-    title: 'Content',
+    title: 'Tools',
     items: [
       {
         id: 'feed',
@@ -105,15 +105,7 @@ const groups: { title: string; items: ManageItem[] }[] = [
         icon: <MegaphoneIcon />,
         feedOnly: true,
       },
-    ],
-  },
-  {
-    title: 'Insights',
-    items: [{ id: 'analytics', label: 'Analytics', icon: <AnalyticsIcon /> }],
-  },
-  {
-    title: 'Advanced',
-    items: [
+      { id: 'analytics', label: 'Analytics', icon: <AnalyticsIcon /> },
       { id: 'integrations', label: 'Integrations', icon: <SlackIcon /> },
       { id: 'danger', label: 'Danger zone', icon: <TrashIcon /> },
     ],

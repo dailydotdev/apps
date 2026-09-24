@@ -422,7 +422,7 @@ export const manageCases: UseCase[] = [
     id: 'manage-admin',
     title: 'Manage, opened from Edit page',
     who: 'Admin',
-    sees: 'The profile’s settings pattern: on laptop a grouped menu (Page, Community, Content, Insights, Advanced) beside Details; on a phone the menu is a list and each item opens its own page with a back button.',
+    sees: 'The profile’s settings pattern: on laptop a grouped menu (Page, Community, Tools) beside Details; on a phone the menu is a list and each item opens its own page with a back button.',
     viewer: Viewer.Admin,
     page: 'manage',
     height: 52,
