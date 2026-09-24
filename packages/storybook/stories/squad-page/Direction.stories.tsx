@@ -106,7 +106,7 @@ export const Overview: StoryObj = {
         />
         <Case
           title="Moderation, as an admin"
-          body="The gear beside the actions opens the team's pages; each replaces the centre under the strip like any other page."
+          body="The options menu opens with Manage for the team; each page replaces the centre under the strip like any other page."
           viewer={Viewer.Admin}
           page="moderation"
         />

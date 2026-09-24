@@ -1,7 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { DeviceFrame, Page } from './shared';
+import { Viewer } from '../kit';
+import { DirectionShell } from '../direction';
+import { Page, ViewportFrame } from './shared';
 
 const meta: Meta = {
   title: 'Squad Page/2. Use cases/Breakpoints',
@@ -11,8 +13,8 @@ const meta: Meta = {
 export default meta;
 
 // The direction at the app's breakpoints (tablet 656px, laptop 1020px,
-// laptopL 1360px). Each device is a frame of the Direction playground at
-// its real width, so Tailwind's breakpoints apply as they would live.
+// laptopL 1360px). Each device is a frame of its real width, so
+// Tailwind's breakpoints apply as they would live.
 
 const devices = [
   { label: 'Phone, 375px', width: 375, height: 812, scale: 1 },
@@ -23,16 +25,18 @@ const devices = [
 
 const Row = ({
   title,
-  args,
+  viewer,
 }: {
   title: string;
-  args: string;
+  viewer: Viewer;
 }): ReactElement => (
   <section className="flex flex-col gap-4">
     <h2 className="font-bold typo-title3">{title}</h2>
     <div className="flex flex-wrap items-start gap-6">
       {devices.map((device) => (
-        <DeviceFrame key={device.label} args={args} {...device} />
+        <ViewportFrame key={device.label} {...device}>
+          <DirectionShell viewer={viewer} fluid />
+        </ViewportFrame>
       ))}
     </div>
   </section>
@@ -53,8 +57,8 @@ export const Overview: StoryObj = {
         </p>
       }
     >
-      <Row title="Home, as a member" args="viewer:member;page:home" />
-      <Row title="Home, as an admin" args="viewer:admin;page:home" />
+      <Row title="Home, as a member" viewer={Viewer.Member} />
+      <Row title="Home, as an admin" viewer={Viewer.Admin} />
     </Page>
   ),
 };

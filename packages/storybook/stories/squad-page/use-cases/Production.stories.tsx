@@ -100,7 +100,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production:
           'Follow, bell, block, related tags, similar sources, rails, archive',
         design:
-          'Becomes the squad: Follow stays Follow, the bell is Alerts, related tags are Activity’s top tags, the archive is Releases by month',
+          'Becomes the squad: Follow stays Follow, the bell keeps its switches, the archive is the Releases chip, newest first',
         status: 'Changed',
       },
     ],
@@ -136,8 +136,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Description',
         production: 'One paragraph',
-        design:
-          'The tagline; the paragraph moved to About in earlier rounds and was dropped in Lean',
+        design: 'The tagline under the name; the long paragraph is not shown',
         status: 'Changed',
       },
       {
@@ -211,15 +210,16 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Analytics button',
         production: 'ViewAnalytics',
         design:
-          'Analytics widget in the right column for admins, and under Manage',
+          'Analytics widget in the right column for admins, and Analytics under Manage in the options menu',
         status: 'Covered',
       },
       {
         surface: 'Options menu',
         production:
           'Add to custom feed, Squad settings, Invitation link, Learn how Squads work, Feedback, Report Squad, Delete Squad, Leave Squad',
-        design: 'Same items, same gates',
-        status: 'Covered',
+        design:
+          'Same items and gates, opened by Manage for the team (Moderation, Content feed, Analytics, Settings); Squad settings is Settings there, and the separate gear is gone',
+        status: 'Changed',
       },
     ],
   },
@@ -409,7 +409,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
     rows: [
       {
         surface: 'Kind chips on the feed',
-        production: 'One feed, no filters',
+        production: 'None (one feed, no filters)',
         design:
           'All, Releases, Discussions, Polls; About joins them below laptop width',
         status: 'Added',

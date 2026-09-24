@@ -122,71 +122,6 @@ const pages: SquadPage[] = [
 
 /* ------------------------------------------------------------- furniture */
 
-export const ManageButton = ({
-  viewer,
-  onSelect,
-  align = 'right',
-}: {
-  viewer: Viewer;
-  onSelect: (id: string) => void;
-  align?: 'right' | 'left';
-}): ReactElement | null => {
-  const [open, setOpen] = useState(false);
-  const { source } = useWorkspace();
-
-  if (!isStaff(viewer)) {
-    return null;
-  }
-  // Content feed exists only once a feed is connected.
-  const items = manage.pages.filter(
-    (item) =>
-      (isAdmin(viewer) || !item.adminOnly) &&
-      (item.id !== 'feed' || source === ContentSource.Feed),
-  );
-
-  return (
-    <div className="relative">
-      <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={<SettingsIcon />}
-        aria-label="Manage"
-        title="Manage"
-        onClick={() => setOpen((value) => !value)}
-      />
-      {open && (
-        <ul
-          className={classNames(
-            'sq-elevated absolute top-full z-popup mt-1 flex w-52 flex-col rounded-12 bg-background-default p-1',
-            align === 'right' ? 'right-0' : 'left-0',
-          )}
-        >
-          {items.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                onClick={() => {
-                  onSelect(item.id);
-                  setOpen(false);
-                }}
-                className="flex w-full items-center gap-2 rounded-8 px-2 py-1.5 text-left text-text-secondary typo-callout hover:bg-surface-float hover:text-text-primary"
-              >
-                {iconFor(item)}
-                {item.label}
-                {item.badge && (
-                  <span className="sq-nums ml-auto rounded-8 bg-surface-float px-1.5 font-bold text-text-tertiary typo-caption2">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
-
 export const FollowButton = ({
   viewer,
   size = ButtonSize.Small,
@@ -219,13 +154,13 @@ export const FollowButton = ({
   );
 };
 
-/** The profile header, with the team's gear beside the actions. */
+/** The profile header; the team's pages open from its options menu. */
 const Header = ({ viewer, onSelect }: View): ReactElement => (
   <SquadHeader
     viewer={viewer}
     standalone
     onOpenMembers={() => onSelect('members')}
-    extra={<ManageButton viewer={viewer} onSelect={onSelect} />}
+    onManage={onSelect}
   />
 );
 
@@ -457,7 +392,7 @@ const Shelf = ({
       <Button
         variant={ButtonVariant.Float}
         size={ButtonSize.XSmall}
-        icon={<ArrowIcon className="rotate-90" />}
+        icon={<ArrowIcon size={IconSize.Size16} className="rotate-90" />}
         iconPosition={ButtonIconPosition.Right}
         onClick={onOpen}
       >

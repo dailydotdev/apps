@@ -25,7 +25,6 @@ import { PreviewModeToggle, SharePageWidget } from './owner';
 import { AddProductPage, SaveProductButton } from './productForm';
 import { PinnedArea, PinStyle, feedUnder } from './pins';
 import { SquadComposer, SquadHeader, SquadWidgets } from './home';
-import { ManageButton } from './navigation';
 import {
   AnalyticsPage,
   InvitePage,
@@ -68,7 +67,7 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
       <Button
         variant={ButtonVariant.Float}
         size={ButtonSize.XSmall}
-        icon={<ArrowIcon className="rotate-90" />}
+        icon={<ArrowIcon size={IconSize.Size16} className="rotate-90" />}
         iconPosition={ButtonIconPosition.Right}
         onClick={onOpen}
       >
@@ -439,7 +438,7 @@ export const DirectionPage = ({
             viewer={viewer}
             standalone
             onOpenMembers={() => onSelect('members')}
-            extra={<ManageButton viewer={viewer} onSelect={onSelect} />}
+            onManage={onSelect}
           />
           {walled ? (
             <div className="border-t border-border-subtlest-tertiary">

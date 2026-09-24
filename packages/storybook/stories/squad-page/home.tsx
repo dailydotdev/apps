@@ -29,13 +29,15 @@ import {
   SearchIcon,
   SettingsIcon,
   SourceIcon,
-  SparkleIcon,
   TimerIcon,
   TourIcon,
   TrashIcon,
   TwitterIcon,
+  AnalyticsIcon,
+  MegaphoneIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import type { Entry } from './data';
 import {
   companyLinks,
@@ -67,7 +69,13 @@ import {
   Viewer,
 } from './kit';
 import { ComposerEntry } from './composer';
-import { MemberRole, PostingGate, postingState, useWorkspace } from './state';
+import {
+  ContentSource,
+  MemberRole,
+  PostingGate,
+  postingState,
+  useWorkspace,
+} from './state';
 
 // The squad's Home, built on the profile page's skeleton so a person and a
 // squad read as the same kind of thing. Same card, same cover height, same
@@ -89,12 +97,14 @@ export const SquadHeader = ({
   standalone,
   onOpenMembers,
   extra,
+  onManage,
 }: {
   viewer: Viewer;
   standalone: boolean;
   onOpenMembers?: () => void;
-  /** Layouts without a sidebar seat their manage entry point here. */
   extra?: ReactNode;
+  /** Opens a Manage page from the options menu (moderators and admins). */
+  onManage?: (id: string) => void;
 }): ReactElement => {
   const { config } = useWorkspace();
   const following = isJoined(viewer) && !isAdmin(viewer);
@@ -165,48 +175,42 @@ export const SquadHeader = ({
           />
           <div className="flex items-center gap-2 pb-1">
             {isAdmin(viewer) && (
-              <>
-                <span className="flex tablet:hidden">
-                  <Button
-                    variant={ButtonVariant.Float}
-                    size={ButtonSize.Small}
-                    icon={<EditIcon />}
-                    aria-label="Edit page"
-                    title="Edit page"
-                  />
-                </span>
-                <span className="hidden tablet:flex">
-                  <Button
-                    variant={ButtonVariant.Float}
-                    size={ButtonSize.Small}
-                    icon={<EditIcon />}
-                  >
-                    Edit page
-                  </Button>
-                </span>
-              </>
-            )}
-            {isAdmin(viewer) && config.isPublic && (
               <span className="hidden tablet:flex">
                 <Button
                   variant={ButtonVariant.Float}
                   size={ButtonSize.Small}
-                  icon={<SparkleIcon secondary />}
+                  icon={<EditIcon />}
                 >
-                  {config.campaign ? 'View boost' : 'Boost'}
+                  Edit page
                 </Button>
               </span>
             )}
+            {isAdmin(viewer) && config.isPublic && (
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<BoostIcon secondary />}
+              >
+                {config.campaign ? 'View boost' : 'Boost'}
+              </Button>
+            )}
             {extra}
             {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<LinkIcon />}
-              aria-label="Share"
-              title="Share"
-            />
-            <MoreMenu viewer={viewer} />
+            <span
+              className={classNames(
+                'flex',
+                isAdmin(viewer) && 'hidden tablet:flex',
+              )}
+            >
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<LinkIcon />}
+                aria-label="Share"
+                title="Share"
+              />
+            </span>
+            <MoreMenu viewer={viewer} onManage={onManage} />
             {follow && (
               <span className="hidden tablet:flex">
                 {follow(ButtonSize.Small)}
@@ -262,6 +266,16 @@ export const SquadHeader = ({
             {follow(ButtonSize.Medium, 'w-full')}
           </div>
         )}
+        {isAdmin(viewer) && (
+          <div className="mt-4 grid grid-cols-2 gap-2 tablet:hidden">
+            <Button variant={ButtonVariant.Float} size={ButtonSize.Medium}>
+              Edit page
+            </Button>
+            <Button variant={ButtonVariant.Float} size={ButtonSize.Medium}>
+              Share page
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -293,31 +307,72 @@ const PrivacyChip = (): ReactElement => {
   );
 };
 
+type MenuEntry =
+  | {
+      icon: ReactElement;
+      label: string;
+      danger?: boolean;
+      badge?: number;
+      onSelect?: () => void;
+    }
+  | { section: string }
+  | { divider: true };
+
 const MenuList = ({
   items,
   onClose,
 }: {
-  items: { icon: ReactElement; label: string; danger?: boolean }[];
+  items: MenuEntry[];
   onClose: () => void;
 }): ReactElement => (
-  <ul className="sq-elevated absolute right-0 top-full z-popup mt-1 flex w-60 flex-col rounded-12 bg-background-default p-1">
-    {items.map((item) => (
-      <li key={item.label}>
-        <button
-          type="button"
-          onClick={onClose}
-          className={classNames(
-            'flex w-full items-center gap-2 rounded-8 px-2 py-1.5 text-left typo-callout hover:bg-surface-float',
-            item.danger
-              ? 'text-status-error'
-              : 'text-text-secondary hover:text-text-primary',
-          )}
-        >
-          {item.icon}
-          {item.label}
-        </button>
-      </li>
-    ))}
+  <ul className="sq-elevated absolute right-0 top-full z-popup mt-1 flex w-64 flex-col rounded-12 bg-background-default p-1">
+    {items.map((item, index) => {
+      if ('divider' in item) {
+        return (
+          <li
+            // eslint-disable-next-line react/no-array-index-key
+            key={`divider-${index}`}
+            aria-hidden
+            className="my-1 h-px bg-border-subtlest-tertiary"
+          />
+        );
+      }
+      if ('section' in item) {
+        return (
+          <li
+            key={item.section}
+            className="px-2 pb-1 pt-2 font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2"
+          >
+            {item.section}
+          </li>
+        );
+      }
+      return (
+        <li key={item.label}>
+          <button
+            type="button"
+            onClick={() => {
+              item.onSelect?.();
+              onClose();
+            }}
+            className={classNames(
+              'flex w-full items-center gap-2 rounded-8 px-2 py-1.5 text-left typo-callout hover:bg-surface-float',
+              item.danger
+                ? 'text-status-error'
+                : 'text-text-secondary hover:text-text-primary',
+            )}
+          >
+            {item.icon}
+            <span className="min-w-0 flex-1">{item.label}</span>
+            {!!item.badge && (
+              <span className="sq-nums rounded-8 bg-surface-float px-1.5 font-bold text-text-tertiary typo-caption2">
+                {item.badge}
+              </span>
+            )}
+          </button>
+        </li>
+      );
+    })}
   </ul>
 );
 
@@ -328,23 +383,59 @@ const MenuList = ({
  * Delete Squad (Delete), Leave Squad (members who are not the admin). Award
  * moved here from the bar.
  */
-const MoreMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
+const MoreMenu = ({
+  viewer,
+  onManage,
+}: {
+  viewer: Viewer;
+  onManage?: (id: string) => void;
+}): ReactElement => {
   const [open, setOpen] = useState(false);
-  const { config } = useWorkspace();
+  const { config, source } = useWorkspace();
   const small = (icon: ReactElement) => icon;
-  const items = [
+  // The team's pages and production's Squad settings in one place: the
+  // options menu opens with Manage for moderators and admins.
+  const manageItems: MenuEntry[] = isStaff(viewer)
+    ? [
+        { section: 'Manage' },
+        {
+          icon: <TimerIcon size={IconSize.Small} />,
+          label: 'Moderation',
+          badge: 3,
+          onSelect: () => onManage?.('moderation'),
+        },
+        ...(isAdmin(viewer) && source === ContentSource.Feed
+          ? [
+              {
+                icon: <MegaphoneIcon size={IconSize.Small} />,
+                label: 'Content feed',
+                onSelect: () => onManage?.('feed'),
+              },
+            ]
+          : []),
+        ...(isAdmin(viewer)
+          ? [
+              {
+                icon: <AnalyticsIcon size={IconSize.Small} />,
+                label: 'Analytics',
+                onSelect: () => onManage?.('analytics'),
+              },
+              {
+                icon: <SettingsIcon size={IconSize.Small} />,
+                label: 'Settings',
+                onSelect: () => onManage?.('settings'),
+              },
+            ]
+          : []),
+        { divider: true },
+      ]
+    : [];
+  const items: MenuEntry[] = [
+    ...manageItems,
     {
       icon: small(<HashtagIcon size={IconSize.Small} />),
       label: 'Add to custom feed',
     },
-    ...(isAdmin(viewer)
-      ? [
-          {
-            icon: small(<SettingsIcon size={IconSize.Small} />),
-            label: 'Squad settings',
-          },
-        ]
-      : []),
     ...(!isJoined(viewer) &&
     isLoggedIn(viewer) &&
     !isBlocked(viewer) &&
@@ -403,6 +494,7 @@ const MoreMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
         size={ButtonSize.Small}
         icon={<MenuIcon />}
         aria-label="Squad options"
+        title={isStaff(viewer) ? 'Manage and options' : 'Squad options'}
         onClick={() => setOpen((value) => !value)}
       />
       {open && <MenuList items={items} onClose={() => setOpen(false)} />}

@@ -54,14 +54,9 @@ export const PreviewModeToggle = ({
         checked ? 'text-text-primary' : 'text-text-tertiary',
       )}
     />
-    <div className="flex min-w-0 flex-1 flex-col">
-      <span className="font-bold text-text-primary typo-callout">
-        View as a visitor
-      </span>
-      <span className="truncate text-text-tertiary typo-caption1">
-        See what non-followers see
-      </span>
-    </div>
+    <span className="min-w-0 flex-1 font-bold text-text-primary typo-callout">
+      View as a visitor
+    </span>
     <Switch
       inputId="squad-preview-toggle"
       name="squadPreview"

@@ -12,6 +12,7 @@ import {
   stateCases,
   viewerCases,
 } from './cases';
+import { coverage } from './Production.stories';
 
 const meta: Meta = {
   title: 'Squad Page/2. Use cases/Overview',
@@ -130,6 +131,43 @@ export const Overview: StoryObj = {
         </>
       }
     >
+      <Section title="Summary: today versus the new design">
+        <p className="max-w-[76ch] text-text-tertiary typo-footnote">
+          Every surface of the production squad page, audited in Production
+          parity, and what the direction adds. ✓ exists or is supported, ✕ does
+          not, – stays outside the page and is unchanged.
+        </p>
+        <Table
+          head={[
+            'Area',
+            'Surface',
+            'In squads today',
+            'In the new design',
+            'How',
+          ]}
+          rows={coverage.flatMap((group) =>
+            group.rows.map((row) => [
+              group.group,
+              row.surface,
+              row.production === 'None' ||
+              row.production.startsWith('None ') ? (
+                <span className="text-text-quaternary">✕</span>
+              ) : (
+                <span className="text-status-success">✓</span>
+              ),
+              {
+                Covered: <span className="text-status-success">✓</span>,
+                Added: <span className="text-status-success">✓ New</span>,
+                Changed: <span className="text-status-success">✓ Changed</span>,
+                Elsewhere: <span className="text-text-quaternary">–</span>,
+                Dropped: <span className="text-status-error">✕ Dropped</span>,
+              }[row.status],
+              row.design,
+            ]),
+          )}
+        />
+      </Section>
+
       <Section title="Permissions">
         <Table
           head={['Can they…', ...viewers.map((viewer) => viewerLabel[viewer])]}
@@ -167,9 +205,10 @@ export const Overview: StoryObj = {
             ['Approve or reject posts', ...can(staff)],
             ['Edit documents', ...can(staff)],
             [
-              'Edit the page, pages, sections',
+              'Edit the page and products',
               ...can((viewer) => viewer === Viewer.Admin),
             ],
+            ['View as a visitor, share card', ...can(staff)],
             [
               'See the content feed',
               ...can((viewer) => viewer === Viewer.Admin),
@@ -209,9 +248,9 @@ export const Overview: StoryObj = {
               : useCase.viewer === Viewer.Blocked
               ? 'Share, more, Follow disabled'
               : useCase.viewer === Viewer.Admin
-              ? 'Edit page, Boost, gear, bell, Share, more'
+              ? 'Edit page, Boost, bell, Share, more (with Manage); on phones Edit page and Share page under the stats'
               : useCase.viewer === Viewer.Moderator
-              ? 'Gear, bell, Share, more, Following'
+              ? 'Bell, Share, more (with Manage), Following'
               : 'Bell, Share, more, Following',
             useCase.viewer === Viewer.Admin
               ? 'View as a visitor, Official, share card, Rules, Team, Analytics, Links'

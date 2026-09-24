@@ -1,5 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+// @ts-expect-error react-dom ships no types in this package
+import { createRoot } from 'react-dom/client';
 import ExtensionProviders from '../../extension/_providers';
 import { KitStyles, Viewer } from '../kit';
 import { WorkspaceStyles } from '../workspace';
@@ -10,7 +12,7 @@ export type { UseCase } from './cases';
 
 // Shared furniture for the use-case stories: every case drawn twice, on
 // the direction, at desktop width and on a 375px phone. The phone is a
-// frame of the Direction playground, so its breakpoints are real.
+// frame of its own width, so its breakpoints are real.
 
 export const viewerLabel: Record<Viewer, string> = {
   [Viewer.Anonymous]: 'Anonymous',
@@ -21,44 +23,98 @@ export const viewerLabel: Record<Viewer, string> = {
   [Viewer.Blocked]: 'Blocked',
 };
 
-const playground = 'squad-page-1-direction--playground';
-
-/** The Direction playground in a frame of its own width, so phone rules apply. */
-export const DeviceFrame = ({
-  args,
+/**
+ * A device of its own width: a blank frame the page renders straight into,
+ * with this document's styles and theme copied in. Its media queries see
+ * the frame's width, so the app's breakpoints apply as they would live,
+ * without booting a second Storybook in every frame.
+ */
+export const ViewportFrame = ({
   width,
   height,
   label,
   scale = 1,
+  children,
 }: {
-  args: string;
   width: number;
   /** px */
   height: number;
   label: string;
   /** Draw a wide device smaller without changing its viewport. */
   scale?: number;
-}): ReactElement => (
-  <div className="flex shrink-0 flex-col gap-2">
-    <span className="text-text-quaternary typo-caption1">{label}</span>
-    <div
-      style={{ width: width * scale, height: height * scale }}
-      className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
-    >
-      <iframe
-        title={label}
-        loading="lazy"
-        src={`iframe.html?id=${playground}&globals=theme:dark&args=${args}`}
-        style={{
-          width,
-          height,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top left',
-        }}
-      />
+  children: ReactNode;
+}): ReactElement => {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const rootRef = useRef<{
+    render: (node: ReactNode) => void;
+    unmount: () => void;
+  } | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const doc = frameRef.current?.contentDocument;
+    if (!doc) {
+      return undefined;
+    }
+    doc.open();
+    doc.write('<!doctype html><html><head></head><body></body></html>');
+    doc.close();
+    doc.documentElement.className = document.documentElement.className;
+    document.head
+      .querySelectorAll('style, link[rel="stylesheet"]')
+      .forEach((node) => doc.head.appendChild(node.cloneNode(true)));
+    doc.body.style.margin = '0';
+    const mount = doc.createElement('div');
+    doc.body.appendChild(mount);
+    rootRef.current = createRoot(mount);
+    setReady(true);
+
+    const theme = new MutationObserver(() => {
+      doc.documentElement.className = document.documentElement.className;
+    });
+    theme.observe(document.documentElement, { attributes: true });
+
+    return () => {
+      theme.disconnect();
+      const root = rootRef.current;
+      rootRef.current = null;
+      setTimeout(() => root?.unmount());
+    };
+  }, []);
+
+  useEffect(() => {
+    if (ready) {
+      rootRef.current?.render(
+        <ExtensionProviders>
+          <KitStyles />
+          <WorkspaceStyles />
+          {children}
+        </ExtensionProviders>,
+      );
+    }
+  }, [ready, children]);
+
+  return (
+    <div className="flex shrink-0 flex-col gap-2">
+      <span className="text-text-quaternary typo-caption1">{label}</span>
+      <div
+        style={{ width: width * scale, height: height * scale }}
+        className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
+      >
+        <iframe
+          ref={frameRef}
+          title={label}
+          style={{
+            width,
+            height,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+          }}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const Case = ({ useCase }: { useCase: UseCase }): ReactElement => {
   const height = useCase.height ?? 44;
@@ -87,12 +143,17 @@ export const Case = ({ useCase }: { useCase: UseCase }): ReactElement => {
             height={height}
           />
         </div>
-        <DeviceFrame
-          args={`case:${useCase.id}`}
-          width={375}
-          height={height * 16}
-          label="Phone, 375px"
-        />
+        <ViewportFrame width={375} height={height * 16} label="Phone, 375px">
+          <DirectionShell
+            viewer={useCase.viewer}
+            initialPage={useCase.page ?? 'home'}
+            source={useCase.source}
+            empty={useCase.empty}
+            isPrivate={useCase.isPrivate}
+            config={useCase.config}
+            fluid
+          />
+        </ViewportFrame>
       </div>
     </div>
   );
