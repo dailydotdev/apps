@@ -10,13 +10,15 @@ import {
 import {
   ArrowIcon,
   MoveToIcon,
+  EyeIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { feedEntries, formatCount, products, squad } from './data';
-import { CardList, VerifiedMark, Viewer } from './kit';
+import { CardList, isStaff, VerifiedMark, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
 import { MobileFooterNav, TabletSidebar } from './rail';
+import { PreviewModeToggle, SharePageWidget } from './owner';
 import { PinnedArea, PinStyle, feedUnder } from './pins';
 import { SquadComposer, SquadHeader, SquadWidgets } from './home';
 import { FollowButton, ManageButton } from './navigation';
@@ -306,12 +308,16 @@ const SubPage = ({
 const Frame = ({
   children,
   aside,
+  notice,
 }: {
   children: ReactNode;
   aside: ReactNode;
+  /** Above the page card, outside it: the preview strip. */
+  notice?: ReactNode;
 }): ReactElement => (
   <div className="m-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
     <main className="flex min-w-0 flex-1 flex-col">
+      {notice}
       <div className="border-border-subtlest-tertiary laptop:rounded-16 laptop:border">
         {children}
       </div>
@@ -322,8 +328,29 @@ const Frame = ({
   </div>
 );
 
+const PreviewNotice = ({ onExit }: { onExit: () => void }): ReactElement => (
+  <div className="flex items-center gap-3 bg-surface-float px-4 py-2.5 laptop:mb-3 laptop:rounded-16">
+    <EyeIcon
+      size={IconSize.Small}
+      secondary
+      className="shrink-0 text-text-tertiary"
+    />
+    <span className="min-w-0 flex-1 text-text-secondary typo-footnote">
+      <b className="text-text-primary">Preview mode.</b> This is the page as
+      someone who does not follow {squad.name} sees it.
+    </span>
+    <Button
+      variant={ButtonVariant.Float}
+      size={ButtonSize.XSmall}
+      onClick={onExit}
+    >
+      Exit preview
+    </Button>
+  </div>
+);
+
 export const DirectionPage = ({
-  viewer,
+  viewer: realViewer,
   active,
   onSelect,
   pinStyle = PinStyle.Reddit,
@@ -332,44 +359,71 @@ export const DirectionPage = ({
   active: string;
   onSelect: (id: string) => void;
   pinStyle?: PinStyle;
-}): ReactElement => (
-  <Frame
-    aside={
-      <SquadWidgets
-        viewer={viewer}
-        onOpenRules={() => onSelect('rules')}
-        onOpenFaq={() => onSelect('faq')}
-        onOpenAnalytics={() => onSelect('analytics')}
-      />
-    }
-  >
-    {active === 'home' ? (
-      <>
-        <SquadHeader
-          viewer={viewer}
-          standalone
-          onOpenMembers={() => onSelect('members')}
-          extra={<ManageButton viewer={viewer} onSelect={onSelect} />}
-        />
-        <ProductsShelf onOpen={() => onSelect('products')} />
-        <div className="border-t border-border-subtlest-tertiary">
-          <Feed viewer={viewer} pinStyle={pinStyle} onSelect={onSelect} />
-        </div>
-      </>
-    ) : (
-      <>
-        <SubHeader
-          viewer={viewer}
-          id={active}
-          onBack={() => onSelect('home')}
-        />
-        <ColumnFitContext.Provider value>
-          <SubPage id={active} viewer={viewer} />
-        </ColumnFitContext.Provider>
-      </>
-    )}
-  </Frame>
-);
+}): ReactElement => {
+  const [previewing, setPreviewing] = useState(false);
+  const runsPage = isStaff(realViewer);
+  // Preview renders the page for a logged-in visitor who has not followed:
+  // the public page, without any of the team's controls.
+  const viewer = previewing && runsPage ? Viewer.Visitor : realViewer;
+
+  return (
+    <Frame
+      notice={
+        previewing ? (
+          <PreviewNotice onExit={() => setPreviewing(false)} />
+        ) : undefined
+      }
+      aside={
+        <>
+          {runsPage && (
+            <PreviewModeToggle
+              checked={previewing}
+              onToggle={() => setPreviewing((value) => !value)}
+            />
+          )}
+          {runsPage && !previewing && <SharePageWidget />}
+          <SquadWidgets
+            viewer={viewer}
+            onOpenRules={() => onSelect('rules')}
+            onOpenFaq={() => onSelect('faq')}
+            onOpenAnalytics={() => onSelect('analytics')}
+          />
+        </>
+      }
+    >
+      {active === 'home' ? (
+        <>
+          <SquadHeader
+            viewer={viewer}
+            standalone
+            onOpenMembers={() => onSelect('members')}
+            extra={<ManageButton viewer={viewer} onSelect={onSelect} />}
+          />
+          <ProductsShelf onOpen={() => onSelect('products')} />
+          <div className="border-t border-border-subtlest-tertiary">
+            <Feed
+              key={viewer}
+              viewer={viewer}
+              pinStyle={pinStyle}
+              onSelect={onSelect}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <SubHeader
+            viewer={viewer}
+            id={active}
+            onBack={() => onSelect('home')}
+          />
+          <ColumnFitContext.Provider value>
+            <SubPage id={active} viewer={viewer} />
+          </ColumnFitContext.Provider>
+        </>
+      )}
+    </Frame>
+  );
+};
 
 export const directionPageIds = [
   'home',

@@ -12,7 +12,6 @@ import {
   ArrowIcon,
   BellIcon,
   CardLayout,
-  AnalyticsIcon,
   EarthIcon,
   EditIcon,
   ExitIcon,
@@ -980,7 +979,6 @@ export const AnalyticsWidget = ({
       <Button
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
-        icon={<AnalyticsIcon />}
         className="mt-3 w-full"
         onClick={onOpen}
       >
