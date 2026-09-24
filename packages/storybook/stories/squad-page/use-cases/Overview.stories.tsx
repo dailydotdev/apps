@@ -115,17 +115,18 @@ export const Overview: StoryObj = {
           <p>
             The verified company page is a squad. Same roles, same channels,
             same moderation, same rules and pages. The package a customer buys
-            is three things on top: the badge that marks the page as official,
+            is three things on top: the badge that marks the page as verified,
             the feed that fills Releases from their RSS without anyone posting
             by hand, and the daily.dev manager who runs it for them. Everything
             below is the squad&apos;s existing model, with those three added.
           </p>
           <p>
             Every case is drawn on the chosen direction (Squad Page, 1.
-            Direction), at desktop width and on a 375px phone. Five story files
+            Direction), at desktop width and on a 375px phone. Seven story files
             cover it: Viewers (who opens the page), Posting (who publishes
             where), Content source (fed or hand-written), States (empty,
-            private), and Production parity (every state the production page has
+            private), Manage (the settings area), Breakpoints (every device
+            width), and Production parity (every state the production page has
             today, audited, with a coverage matrix). The matrices here are the
             index.
           </p>

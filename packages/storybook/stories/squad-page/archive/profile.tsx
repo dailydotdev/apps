@@ -17,8 +17,8 @@ import {
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import type { Entry } from './data';
-import { feedEntries, formatCount, team } from './data';
+import type { Entry } from '../data';
+import { feedEntries, formatCount, team } from '../data';
 import {
   HomeFrame,
   PostsArea,
@@ -26,7 +26,7 @@ import {
   Separator,
   Tile,
   Widget,
-} from './home';
+} from '../home';
 
 // The profile page, rebuilt on the same frame as the squad Home, with the
 // same change: Activity becomes the Posts tab and is the page; the CV and

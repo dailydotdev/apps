@@ -66,49 +66,61 @@ export const Overview: StoryObj = {
       <header className="flex flex-col gap-3 border-b border-border-subtlest-tertiary pb-8">
         <Eyebrow>Squad page · Direction</Eyebrow>
         <h1 className="max-w-[24ch] font-bold typo-mega3">
-          Chips on the feed, products on top, pages under a strip
+          The profile page, for a company
         </h1>
         <div className="flex max-w-[76ch] flex-col gap-3 text-text-secondary typo-body">
           <p>
-            The profile header and the profile&apos;s right column stay. Home is
-            one feed with kind chips on its toolbar, All, Releases, Discussions,
-            Polls, and the products as a shelf between the header and the feed
-            with See all. Everything that is not the feed, Rules, FAQ,
-            Followers, Products and the team&apos;s pages, replaces the whole
-            centre card with the page under a compact strip: back, the logo, the
-            name, the page&apos;s name. The right column keeps the visitor
-            oriented while they are there.
+            The profile&apos;s header and right column, for a squad. The header
+            carries the cover, the round logo, the name with the verified badge,
+            one meta line and the stats, with every action as a Subtle button
+            and Follow last. Home is the products shelf, the composer, pinned
+            posts and one feed filtered by chips: All, Releases, Discussions,
+            Polls, and About on smaller screens.
           </p>
           <p>
-            The Links widget is now a list, one row per link with the address as
-            the text, the way GitHub lists an organization&apos;s links.
+            Rules, FAQ, Followers, Products and the other pages replace the
+            centre card under a back button and the page title. Edit page opens
+            the Manage area, laid out like profile settings: a grouped menu on
+            laptop, a list and then one page at a time on phones.
+          </p>
+          <p>
+            The right column holds the Verified company page card, View as a
+            visitor and the share card for the team, Rules, Team, Stack &amp;
+            Tools, Analytics for admins, and Links. Below 1020px it moves behind
+            the About chip.
           </p>
         </div>
       </header>
       <div className="flex flex-col gap-12">
         <Case
           title="Home, as a follower"
-          body="Header, the products shelf, the composer, then the feed with its chips. The shelf shows three products and clips the fourth so it reads as scrollable; See all opens the catalogue."
+          body="Header, the products shelf, the composer, pinned posts, then the feed with its chips. The shelf clips the last product so it reads as scrollable; See all opens Products."
           viewer={Viewer.Member}
           page="home"
         />
         <Case
+          title="Home, as an admin"
+          body="Edit page, Boost, the bell, Share and the options menu with Manage. The right column opens with View as a visitor and the share card, and adds Analytics."
+          viewer={Viewer.Admin}
+          page="home"
+        />
+        <Case
           title="Rules, from the widget"
-          body="All rules in the right column replaces the centre with the Rules page under the strip. Back, or the name, returns to Home. Follow stays in reach at the right of the strip."
+          body="All rules replaces the centre with the Rules page under a back button and the title. The right column stays."
           viewer={Viewer.Visitor}
           page="rules"
         />
         <Case
           title="Followers, from the count"
-          body="The same strip over the followers list with its tabs and search. The right column is unchanged."
+          body="The followers list with its tabs and search, under the same back button and title."
           viewer={Viewer.Member}
           page="members"
         />
         <Case
-          title="Moderation, as an admin"
-          body="The options menu opens with Manage for the team; each page replaces the centre under the strip like any other page."
+          title="Manage, from Edit page"
+          body="The settings area: the grouped menu beside the page, Details first. Moderation, Content feed, Analytics and Settings in the options menu open their section here."
           viewer={Viewer.Admin}
-          page="moderation"
+          page="manage-details"
         />
       </div>
     </Page>

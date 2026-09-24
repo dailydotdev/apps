@@ -1,13 +1,13 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import ExtensionProviders from '../extension/_providers';
-import { KitStyles, Viewer } from './kit';
-import { WorkspaceStyles } from './workspace';
+import ExtensionProviders from '../../extension/_providers';
+import { KitStyles, Viewer } from '../kit';
+import { WorkspaceStyles } from '../workspace';
 import { Nav, navPageIds, NavShell, specs } from './navigation';
 
 const meta: Meta = {
-  title: 'Squad Page/3. Navigation',
+  title: 'Squad Page/Archive/Navigation picks',
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (

@@ -2,22 +2,24 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
-import ExtensionProviders from '../extension/_providers';
-import { KitStyles, Viewer } from './kit';
-import { SquadHome } from './home';
+import ExtensionProviders from '../../extension/_providers';
+import { KitStyles, Viewer } from '../kit';
+import { SquadHome } from '../home';
 import { ProfileHome, ProfileTab } from './profile';
 import {
-  addPage,
   ContentSource,
-  allPages,
-  findPage,
   MemberRole,
-  pageCatalogue,
   pageIcon,
   PostingGate,
-  WorkspaceShell,
   WorkspaceStyles,
-} from './workspace';
+} from '../workspace';
+import {
+  addPage,
+  allPages,
+  findPage,
+  pageCatalogue,
+  WorkspaceShell,
+} from './workspaceShell';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 const meta: Meta = {

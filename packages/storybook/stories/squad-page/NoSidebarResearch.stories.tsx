@@ -6,7 +6,7 @@ import ExtensionProviders from '../extension/_providers';
 import { KitStyles } from './kit';
 
 const meta: Meta = {
-  title: 'Squad Page/5. Research',
+  title: 'Squad Page/4. Research',
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (

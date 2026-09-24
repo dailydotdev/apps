@@ -618,7 +618,7 @@ export const Overview: StoryObj = {
       <Section title="What the fed company page adds on top">
         <p className="max-w-[76ch] text-text-secondary typo-callout">
           Nothing above changes for a verified company page. It is a squad with
-          three additions: the official badge, the content feed that fills
+          three additions: the verified badge, the content feed that fills
           Releases from the company&apos;s RSS (with Feed settings in place of
           New release, and the feed listed under Integrations), and the
           daily.dev manager on the Content feed page. Every gate, role, state

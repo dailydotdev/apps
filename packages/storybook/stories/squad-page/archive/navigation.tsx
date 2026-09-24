@@ -25,7 +25,7 @@ import {
   polls,
   products,
   squad,
-} from './data';
+} from '../data';
 import {
   Avatar,
   CardList,
@@ -37,10 +37,10 @@ import {
   linkIcon,
   VerifiedMark,
   Viewer,
-} from './kit';
-import { Kit2Styles } from './kit2';
-import { PostsArea, SquadComposer, SquadHeader, SquadWidgets } from './home';
-import type { SquadPage } from './workspace';
+} from '../kit';
+import { Kit2Styles } from '../kit2';
+import { PostsArea, SquadComposer, SquadHeader, SquadWidgets } from '../home';
+import type { SquadPage } from '../workspace';
 import {
   AnalyticsPage,
   ChannelPage,
@@ -64,7 +64,7 @@ import {
   useWorkspace,
   WorkspaceContext,
   WorkspaceStyles,
-} from './workspace';
+} from '../workspace';
 
 // The squad's left column is gone. The profile header and the profile's
 // right column (Verified company page, Rules, Team, Stack and tools,

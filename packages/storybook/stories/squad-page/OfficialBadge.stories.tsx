@@ -6,7 +6,7 @@ import { KitStyles } from './kit';
 import { RulesWidget, VerifiedWidget } from './home';
 
 const meta: Meta = {
-  title: 'Squad Page/4. Verified badge',
+  title: 'Squad Page/3. Verified badge',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -26,13 +26,15 @@ export const Overview: StoryObj = {
         <KitStyles />
         <div className="mx-auto flex w-full max-w-[60rem] flex-col gap-10">
           <header className="flex flex-col gap-4 border-b border-border-subtlest-tertiary pb-8">
-            <Eyebrow>Squad page · The official badge</Eyebrow>
+            <Eyebrow>Squad page · The verified badge</Eyebrow>
             <h1 className="max-w-[24ch] font-bold typo-giga3">Aurora</h1>
             <p className="max-w-[64ch] text-text-secondary typo-body">
               Frosted glass with a brand-purple hairline and two soft light
               sources, cabbage and onion, behind the seal and four words. Picked
               from 28 explorations; it is the Verified company page card at the
-              top of the right column.
+              top of the right column. On phones, where the right column sits
+              behind the About chip, the page shows the verified badge beside
+              the name only.
             </p>
           </header>
           <div className="flex w-80 flex-col gap-4">
