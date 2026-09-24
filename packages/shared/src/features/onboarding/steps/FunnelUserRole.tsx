@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { FunnelStepUserRole, FunnelUserRoleOption } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -35,6 +35,7 @@ import {
 import type { UserExperienceLevelKey } from '../../../components/auth/RegistrationFieldsForm';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useProfileForm from '../../../hooks/useProfileForm';
+import type { LoggedUser } from '../../../lib/user';
 import { RecruiterUserExperienceLevel } from '../../../lib/user';
 
 const DEFAULT_HEADLINE = 'Who are you?';
@@ -97,7 +98,7 @@ function FunnelUserRoleComponent({
   parameters: { headline, explainer, cta, roles, experience },
   onTransition,
 }: FunnelStepUserRole): ReactElement | null {
-  const { user } = useAuthContext();
+  const { user, updateUser } = useAuthContext();
   const [selectedRole, setSelectedRole] = useState<FunnelUserRoleOption>();
   const [role, setRole] = useState<FunnelUserRoleOption>();
   const [level, setLevel] = useState<UserExperienceLevelKey>();
@@ -106,7 +107,29 @@ function FunnelUserRoleComponent({
     () => sanitizeMessage(headline || DEFAULT_HEADLINE),
     [headline],
   );
-  const { updateUserProfile, isLoading } = useProfileForm();
+  const pendingAnswerRef = useRef<{
+    profile: Pick<LoggedUser, 'title' | 'experienceLevel'>;
+    details: { role: string; experienceLevel: UserExperienceLevelKey };
+  }>();
+  // The API rejects a profile update from a user with no username or name
+  // unless the same request supplies them, which only account details asks
+  // for. Keep the answers on the local profile, so that step saves them along
+  // with the username, rather than stranding the user here.
+  const { updateUserProfile, isLoading } = useProfileForm({
+    onError: () => {
+      const pending = pendingAnswerRef.current;
+
+      if (!user || !pending) {
+        return;
+      }
+
+      updateUser({ ...user, ...pending.profile });
+      onTransition({
+        type: FunnelStepTransitionType.Complete,
+        details: pending.details,
+      });
+    },
+  });
   // Email signups already picked a level on the registration form, so for them
   // the role is the only new question.
   const [levelOnFile] = useState(() => user?.experienceLevel);
@@ -121,18 +144,21 @@ function FunnelUserRoleComponent({
 
   const complete = useCallback(
     (picked: FunnelUserRoleOption, pickedLevel: UserExperienceLevelKey) => {
-      updateUserProfile({
+      const profile = {
         title: picked.value,
         ...(!levelOnFile && {
           experienceLevel: getProfileExperienceLevel(picked, pickedLevel),
         }),
+      };
+      const details = { role: picked.value, experienceLevel: pickedLevel };
+      pendingAnswerRef.current = { profile, details };
+
+      updateUserProfile({
+        ...profile,
         // No `refetchBoot`: the hook already merges these fields into the boot
         // cache, and a refetch would only delay the transition.
         onUpdateSuccess: () =>
-          onTransition({
-            type: FunnelStepTransitionType.Complete,
-            details: { role: picked.value, experienceLevel: pickedLevel },
-          }),
+          onTransition({ type: FunnelStepTransitionType.Complete, details }),
       });
     },
     [levelOnFile, onTransition, updateUserProfile],

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
@@ -26,9 +26,11 @@ import {
   AcquisitionChannel,
   updateUserAcquisition,
 } from '../../../graphql/users';
-import { ACQUISITION_FORM_OPTIONS } from '../../../components/cards/AcquisitionForm/common/common';
 import { shuffleArray } from '../../../lib/func';
+import { acquisitionBrandColors } from '../../../styles/custom';
+import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
+import { SourceBadge } from '../../../components/post/focus/CommunitySentimentBreakdown';
 import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
 import { FacebookIcon } from '../../../components/icons/Facebook';
 import { GoogleIcon } from '../../../components/icons/Google';
@@ -45,131 +47,182 @@ import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
 
-// Brand colours come from each logo's own `secondary` art. X stays on its
-// theme-following art, since its colour file is near-black and vanishes on
-// the dark theme. Hacker News is drawn the way the post page's community
-// sentiment draws it, and ChatGPT as its app icon: the mark on black.
-// Channels with no brand of their own get their filled icon in an accent tint.
-const channelIcons: Record<AcquisitionChannel, ReactElement> = {
-  [AcquisitionChannel.Friend]: (
-    <InviteIcon secondary className="text-brand-default" />
-  ),
-  [AcquisitionChannel.X]: <TwitterIcon />,
-  [AcquisitionChannel.Reddit]: <RedditIcon secondary />,
-  [AcquisitionChannel.LinkedIn]: <LinkedInIcon secondary />,
-  [AcquisitionChannel.InstagramFacebook]: <FacebookIcon secondary />,
-  [AcquisitionChannel.YouTube]: <YoutubeIcon secondary />,
-  [AcquisitionChannel.TikTok]: <TikTokIcon />,
-  [AcquisitionChannel.HackerNews]: (
-    <span
-      className="grid size-5 place-items-center font-bold text-white typo-footnote"
-      style={{ backgroundColor: '#FF6600' }}
-    >
-      Y
-    </span>
-  ),
-  [AcquisitionChannel.SearchEngine]: <GoogleIcon secondary />,
-  [AcquisitionChannel.AI]: (
-    <span className="flex size-5 items-center justify-center rounded-6 border border-border-subtlest-tertiary bg-black text-white">
-      <OpenAIIcon size={IconSize.XXSmall} />
-    </span>
-  ),
-  [AcquisitionChannel.ExtensionStore]: <ChromeIcon />,
-  [AcquisitionChannel.NewsletterBlog]: (
-    <MailIcon secondary className="text-accent-water-default" />
-  ),
-  [AcquisitionChannel.Advertisement]: (
-    <MegaphoneIcon secondary className="text-accent-ketchup-default" />
-  ),
-  [AcquisitionChannel.Other]: (
-    <MenuIcon secondary className="text-text-tertiary" />
-  ),
-};
+type Icon = (props: IconProps) => ReactElement;
 
-// The same marks as favicon-style tiles: one shape for every channel, the
-// brand's colour behind a white glyph. Google and Chrome keep their colour art
-// on white, the way their own favicons do. The hairline keeps the white and
-// black tiles square against either theme.
-const tile = (glyph: ReactElement, tone: string, color?: string) => (
+// Each channel's mark in both styles: the logo on its own, or the same mark in
+// a favicon-style tile. The hairline keeps white and black tiles square
+// against either theme.
+interface ChannelMark {
+  logo: ReactElement;
+  tile: ReactElement;
+}
+
+const Tile = ({
+  children,
+  className,
+  style,
+}: {
+  children: ReactElement;
+  className?: string;
+  style?: CSSProperties;
+}): ReactElement => (
   <span
     className={classNames(
       'flex size-6 items-center justify-center overflow-hidden rounded-6 border border-border-subtlest-tertiary',
-      tone,
+      className,
     )}
-    style={color ? { backgroundColor: color } : undefined}
+    style={style}
   >
-    {glyph}
+    {children}
   </span>
 );
 
-const channelTiles: Record<AcquisitionChannel, ReactElement> = {
-  [AcquisitionChannel.Friend]: tile(
-    <InviteIcon secondary size={IconSize.Size16} />,
-    'bg-brand-default text-white',
+const onColor = (backgroundColor: string): CSSProperties => ({
+  backgroundColor,
+  color: acquisitionBrandColors.glyph,
+});
+
+// The logo is the brand's own colour art; the tile puts its white art on the
+// brand colour. X's colour art is near-black and vanishes on the dark theme,
+// so its logo stays on the theme-following art.
+const brandMark = (
+  BrandIcon: Icon,
+  color: string,
+  logo: ReactElement = <BrandIcon secondary />,
+): ChannelMark => ({
+  logo,
+  tile: (
+    <Tile style={onColor(color)}>
+      <BrandIcon size={IconSize.Size16} />
+    </Tile>
   ),
-  [AcquisitionChannel.X]: tile(
-    <TwitterIcon size={IconSize.Size16} />,
-    'text-white',
-    '#000000',
+});
+
+// Google and Chrome keep their colour art on white, as their own favicons do.
+const faviconMark = (BrandIcon: Icon): ChannelMark => ({
+  logo: <BrandIcon secondary />,
+  tile: (
+    <Tile style={{ backgroundColor: acquisitionBrandColors.favicon }}>
+      <BrandIcon secondary size={IconSize.Size16} />
+    </Tile>
   ),
-  [AcquisitionChannel.Reddit]: tile(
-    <RedditIcon size={IconSize.Size16} />,
-    'text-white',
-    '#FF4500',
+});
+
+// Channels with no brand of their own: the filled icon in an accent colour.
+const accentMark = (
+  AccentIcon: Icon,
+  colorVariable: string,
+  textClassName: string,
+): ChannelMark => ({
+  logo: <AccentIcon secondary className={textClassName} />,
+  tile: (
+    <Tile style={onColor(`var(${colorVariable})`)}>
+      <AccentIcon secondary size={IconSize.Size16} />
+    </Tile>
   ),
-  [AcquisitionChannel.LinkedIn]: tile(
-    <LinkedInIcon size={IconSize.Size16} />,
-    'text-white',
-    '#0A66C2',
-  ),
-  [AcquisitionChannel.InstagramFacebook]: tile(
-    <FacebookIcon size={IconSize.Size16} />,
-    'text-white',
-    '#1877F2',
-  ),
-  [AcquisitionChannel.YouTube]: tile(
-    <YoutubeIcon size={IconSize.Size16} />,
-    'text-white',
-    '#FF0000',
-  ),
-  [AcquisitionChannel.TikTok]: tile(
-    <TikTokIcon size={IconSize.Size16} />,
-    'text-white',
-    '#000000',
-  ),
-  [AcquisitionChannel.HackerNews]: tile(
-    <span className="font-bold typo-footnote">Y</span>,
-    'text-white',
-    '#FF6600',
-  ),
-  [AcquisitionChannel.SearchEngine]: tile(
-    <GoogleIcon secondary size={IconSize.Size16} />,
-    '',
-    '#FFFFFF',
-  ),
-  [AcquisitionChannel.AI]: tile(
-    <OpenAIIcon size={IconSize.Size16} />,
-    'text-white',
-    '#000000',
-  ),
-  [AcquisitionChannel.ExtensionStore]: tile(
-    <ChromeIcon size={IconSize.Size16} />,
-    '',
-    '#FFFFFF',
-  ),
-  [AcquisitionChannel.NewsletterBlog]: tile(
-    <MailIcon secondary size={IconSize.Size16} />,
-    'bg-accent-water-default text-white',
-  ),
-  [AcquisitionChannel.Advertisement]: tile(
-    <MegaphoneIcon secondary size={IconSize.Size16} />,
-    'bg-accent-ketchup-default text-white',
-  ),
-  [AcquisitionChannel.Other]: tile(
-    <MenuIcon secondary size={IconSize.Size16} />,
-    'bg-background-default text-text-tertiary',
-  ),
-};
+});
+
+const CHANNEL_OPTIONS: Array<
+  { value: AcquisitionChannel; label: string } & ChannelMark
+> = [
+  {
+    value: AcquisitionChannel.Friend,
+    label: 'Referred by a friend or colleague',
+    ...accentMark(InviteIcon, '--theme-brand-default', 'text-brand-default'),
+  },
+  {
+    value: AcquisitionChannel.X,
+    label: 'X (Twitter)',
+    ...brandMark(TwitterIcon, acquisitionBrandColors.x, <TwitterIcon />),
+  },
+  {
+    value: AcquisitionChannel.Reddit,
+    label: 'Reddit',
+    ...brandMark(RedditIcon, acquisitionBrandColors.reddit),
+  },
+  {
+    value: AcquisitionChannel.LinkedIn,
+    label: 'LinkedIn',
+    ...brandMark(LinkedInIcon, acquisitionBrandColors.linkedIn),
+  },
+  {
+    value: AcquisitionChannel.InstagramFacebook,
+    label: 'Instagram or Facebook',
+    ...brandMark(FacebookIcon, acquisitionBrandColors.facebook),
+  },
+  {
+    value: AcquisitionChannel.YouTube,
+    label: 'YouTube',
+    ...brandMark(YoutubeIcon, acquisitionBrandColors.youTube),
+  },
+  {
+    value: AcquisitionChannel.TikTok,
+    label: 'TikTok',
+    ...brandMark(TikTokIcon, acquisitionBrandColors.tikTok),
+  },
+  {
+    value: AcquisitionChannel.HackerNews,
+    label: 'Hacker News',
+    logo: <SourceBadge className="size-5 typo-footnote" source="hackernews" />,
+    tile: (
+      <Tile>
+        <SourceBadge className="size-full typo-footnote" source="hackernews" />
+      </Tile>
+    ),
+  },
+  {
+    value: AcquisitionChannel.SearchEngine,
+    label: 'Search engine',
+    ...faviconMark(GoogleIcon),
+  },
+  {
+    value: AcquisitionChannel.AI,
+    label: 'AI search or chat, like ChatGPT',
+    ...brandMark(
+      OpenAIIcon,
+      acquisitionBrandColors.openAI,
+      <span
+        className="flex size-5 items-center justify-center rounded-6 border border-border-subtlest-tertiary"
+        style={onColor(acquisitionBrandColors.openAI)}
+      >
+        <OpenAIIcon size={IconSize.XXSmall} />
+      </span>,
+    ),
+  },
+  {
+    value: AcquisitionChannel.ExtensionStore,
+    label: 'Browser extension store',
+    ...faviconMark(ChromeIcon),
+  },
+  {
+    value: AcquisitionChannel.NewsletterBlog,
+    label: 'A newsletter or blog',
+    ...accentMark(
+      MailIcon,
+      '--theme-accent-water-default',
+      'text-accent-water-default',
+    ),
+  },
+  {
+    value: AcquisitionChannel.Advertisement,
+    label: 'Advertisement or sponsorship',
+    ...accentMark(
+      MegaphoneIcon,
+      '--theme-accent-ketchup-default',
+      'text-accent-ketchup-default',
+    ),
+  },
+  {
+    value: AcquisitionChannel.Other,
+    label: 'Other',
+    logo: <MenuIcon secondary className="text-text-tertiary" />,
+    tile: (
+      <Tile className="bg-background-default text-text-tertiary">
+        <MenuIcon secondary size={IconSize.Size16} />
+      </Tile>
+    ),
+  },
+];
 
 // "Other" is a catch-all, so it stays last however the rest are ordered.
 const orderOptions = (
@@ -177,10 +230,10 @@ const orderOptions = (
   shuffle: boolean,
 ) => {
   const selected = options?.length
-    ? ACQUISITION_FORM_OPTIONS.filter(({ value }) => options.includes(value))
+    ? CHANNEL_OPTIONS.filter(({ value }) => options.includes(value))
         // Config order, not the constant's.
         .sort((a, b) => options.indexOf(a.value) - options.indexOf(b.value))
-    : ACQUISITION_FORM_OPTIONS;
+    : CHANNEL_OPTIONS;
   const other = selected.filter(
     ({ value }) => value === AcquisitionChannel.Other,
   );
@@ -206,13 +259,20 @@ function FunnelAcquisitionComponent({
 }: FunnelStepAcquisition): ReactElement {
   const { logEvent } = useLogContext();
   const [value, setValue] = useState<AcquisitionChannel>();
-  // Shuffled once per mount: re-ordering the list under a user who is halfway
-  // through reading it is worse than the position bias it corrects.
-  const [inputOptions] = useState(() =>
-    orderOptions(options, shuffle).map((option) => ({
-      ...option,
-      icon: (iconStyle === 'tile' ? channelTiles : channelIcons)[option.value],
-    })),
+  // Shuffled once per option set: re-ordering the list under a user who is
+  // halfway through reading it is worse than the position bias it corrects.
+  const order = useMemo(
+    () => orderOptions(options, shuffle),
+    [options, shuffle],
+  );
+  const inputOptions = useMemo(
+    () =>
+      order.map(({ value: channel, label, ...marks }) => ({
+        value: channel,
+        label,
+        icon: marks[iconStyle],
+      })),
+    [iconStyle, order],
   );
   const headlineHtml = useMemo(
     () => sanitizeMessage(headline || DEFAULT_HEADLINE),

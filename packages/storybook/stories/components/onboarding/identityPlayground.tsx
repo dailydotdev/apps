@@ -271,10 +271,10 @@ const session = { id: 'playground', steps: {} } as unknown as FunnelSession;
 
 /**
  * In a nested iframe the MSW service worker can start answering a beat after
- * the story renders. The stepper transitions on its very first render when the
- * entry step skips itself, so that request would slip past the mocks. Wait
- * until a probe comes back from the mock layer — an unmocked probe gets Vite's
- * HTML fallback, which fails to parse — before mounting the funnel.
+ * the story renders, so requests the steps make on their first render would
+ * slip past the mocks. Wait until a probe comes back from the mock layer — an
+ * unmocked probe gets Vite's HTML fallback, which fails to parse — before
+ * mounting the funnel.
  */
 const useMocksReady = (): boolean => {
   const [isReady, setIsReady] = useState(false);

@@ -36,9 +36,9 @@ import {
   FunnelHeroLanding,
   FunnelBrowserExtension,
   FunnelUploadCv,
-  FunnelAcquisition,
-  FunnelUserRole,
 } from '../steps';
+import { FunnelAcquisition } from '../steps/FunnelAcquisition';
+import { FunnelUserRole } from '../steps/FunnelUserRole';
 import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
@@ -229,22 +229,55 @@ export const FunnelStepper = ({
   // navigating, so the funnel can land on a step that turns out to have
   // nothing to ask: the entry step, one whose guard reported after the
   // navigation that reached it, or one whose answer the previous step just
-  // saved. It would render nothing; complete it the way `getNextStep`
-  // completes a step it skips over.
+  // saved. It would render nothing; move past it the way `getNextStep` skips
+  // a step, without reporting a completion the user never made.
   const completeActiveStepIfSkipped = useCallback(() => {
-    const { step: activeStep } = currentNavigationRef.current;
+    const { step: activeStep, position: activePosition } =
+      currentNavigationRef.current;
     const { visit } = stepVisitRef.current;
+    const completeTransition = activeStep.transitions.find(
+      ({ on }) => on === FunnelStepTransitionType.Complete,
+    );
 
     if (
       !shouldSkipRef.current[activeStep.type] ||
+      !completeTransition ||
       completedVisitRef.current === visit
     ) {
       return;
     }
 
     completedVisitRef.current = visit;
-    onTransition({ type: FunnelStepTransitionType.Complete });
-  }, [onTransition]);
+    const targetStepId = getNextStep({
+      destination: completeTransition.destination,
+      steps,
+      shouldSkipMap: shouldSkipRef.current,
+      chapters,
+      position: activePosition,
+      funnelChapters: funnel.chapters,
+      stepMap,
+    });
+
+    if (targetStepId === COMPLETED_STEP_ID) {
+      trackOnComplete();
+      onComplete?.();
+      return;
+    }
+
+    navigate({
+      to: targetStepId,
+      type: FunnelStepTransitionType.Skip,
+      details: {},
+    });
+  }, [
+    chapters,
+    funnel.chapters,
+    navigate,
+    onComplete,
+    stepMap,
+    steps,
+    trackOnComplete,
+  ]);
 
   useEffect(() => {
     completeActiveStepIfSkipped();

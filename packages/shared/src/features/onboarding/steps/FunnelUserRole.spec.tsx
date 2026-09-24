@@ -13,11 +13,13 @@ jest.mock('../../../hooks/useProfileForm');
 const updateUserProfile = jest.fn((params: UpdateProfileParameters) =>
   params.onUpdateSuccess?.(),
 );
+const updateUser = jest.fn();
 const onTransition = jest.fn();
 
 const renderStep = (user: Record<string, unknown> = {}) => {
   (useAuthContext as jest.Mock).mockReturnValue({
     user: { id: 'u1', name: 'Ido', ...user },
+    updateUser,
   });
   (useProfileForm as jest.Mock).mockReturnValue({
     updateUserProfile,
@@ -114,6 +116,45 @@ describe('FunnelUserRole', () => {
     expect(onTransition).toHaveBeenCalledWith({
       type: FunnelStepTransitionType.Complete,
       details: { role: 'Founder', experienceLevel: 'MORE_THAN_2_YEARS' },
+    });
+  });
+
+  it('should carry the answers forward when the profile cannot be saved yet', () => {
+    // A user with no username can only be saved together with one, which
+    // account details asks for.
+    let onError: (() => void) | undefined;
+    (useProfileForm as jest.Mock).mockImplementation((options) => {
+      onError = options?.onError;
+      return { updateUserProfile: () => onError?.(), isLoading: false };
+    });
+    (useAuthContext as jest.Mock).mockReturnValue({
+      user: { id: 'u1', name: 'Ido' },
+      updateUser,
+    });
+    const step = {
+      id: 'user-role',
+      type: FunnelStepType.UserRole,
+      isActive: true,
+      parameters: {},
+      transitions: [],
+      onTransition,
+    } as unknown as FunnelStepUserRole;
+    render(<FunnelUserRole {...step} />);
+
+    pick('Designer');
+    next();
+    pick('Experienced, 4-5 years');
+    next();
+
+    expect(updateUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Designer',
+        experienceLevel: 'NOT_ENGINEER',
+      }),
+    );
+    expect(onTransition).toHaveBeenCalledWith({
+      type: FunnelStepTransitionType.Complete,
+      details: { role: 'Designer', experienceLevel: 'MORE_THAN_4_YEARS' },
     });
   });
 });

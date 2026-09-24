@@ -61,6 +61,9 @@ function InnerFunnelProfileForm({
   }: Omit<RegistrationFieldsFormValues, 'image'>) => {
     updateUserProfile({
       ...profile,
+      // The user-role step leaves its answer here when it could not save it
+      // before a username existed; the form only submits a title it renders.
+      title: profile.title ?? user.title,
       acceptedMarketing: !optOutMarketing,
     });
   };

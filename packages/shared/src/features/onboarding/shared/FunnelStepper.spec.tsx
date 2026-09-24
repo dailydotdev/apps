@@ -448,9 +448,10 @@ describe('FunnelStepper component', () => {
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith({
       to: 'step2',
-      type: FunnelStepTransitionType.Complete,
+      type: FunnelStepTransitionType.Skip,
       details: {},
     });
+    expect(mockSendTransition).not.toHaveBeenCalled();
   });
 
   it('should complete a step that reported it should be skipped before the funnel reached it', () => {
@@ -512,9 +513,10 @@ describe('FunnelStepper component', () => {
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith({
       to: 'step3',
-      type: FunnelStepTransitionType.Complete,
+      type: FunnelStepTransitionType.Skip,
       details: {},
     });
+    expect(mockSendTransition).not.toHaveBeenCalled();
   });
 
   it('should use complete transition when step is automatically skipped', () => {
