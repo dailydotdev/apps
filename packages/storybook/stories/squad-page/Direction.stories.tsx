@@ -6,6 +6,7 @@ import { KitStyles, Viewer } from './kit';
 import { WorkspaceStyles } from './workspace';
 import { directionPageIds, DirectionShell } from './direction';
 import { PinStyle, pinStyles } from './pins';
+import { allCases, caseById } from './use-cases/cases';
 
 const meta: Meta = {
   title: 'Squad Page/1. Direction',
@@ -118,25 +119,55 @@ export const Playground: StoryObj<{
   viewer: Viewer;
   page: string;
   pin: PinStyle;
+  case: string;
 }> = {
   parameters: { layout: 'fullscreen' },
-  args: { viewer: Viewer.Member, page: 'home', pin: PinStyle.Reddit },
+  args: {
+    viewer: Viewer.Member,
+    page: 'home',
+    pin: PinStyle.Reddit,
+    case: 'none',
+  },
   argTypes: {
     viewer: { control: 'select', options: Object.values(Viewer) },
     page: { control: 'select', options: directionPageIds },
     pin: { control: 'select', options: pinStyles },
+    case: {
+      control: 'select',
+      options: ['none', ...allCases.map((useCase) => useCase.id)],
+      description:
+        'Open a use case by id (Squad Page, 2. Use cases); it overrides viewer and page.',
+    },
   },
-  render: ({ viewer, page, pin }) => (
-    <>
-      <KitStyles />
-      <WorkspaceStyles />
-      <DirectionShell
-        key={`${viewer}-${page}-${pin}`}
-        viewer={viewer}
-        initialPage={page}
-        pinStyle={pin}
-        fluid
-      />
-    </>
-  ),
+  render: ({ viewer, page, pin, case: caseId }) => {
+    const useCase = caseById[caseId];
+
+    return (
+      <>
+        <KitStyles />
+        <WorkspaceStyles />
+        {useCase ? (
+          <DirectionShell
+            key={useCase.id}
+            viewer={useCase.viewer}
+            initialPage={useCase.page ?? 'home'}
+            source={useCase.source}
+            empty={useCase.empty}
+            isPrivate={useCase.isPrivate}
+            config={useCase.config}
+            pinStyle={pin}
+            fluid
+          />
+        ) : (
+          <DirectionShell
+            key={`${viewer}-${page}-${pin}`}
+            viewer={viewer}
+            initialPage={page}
+            pinStyle={pin}
+            fluid
+          />
+        )}
+      </>
+    );
+  },
 };

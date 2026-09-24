@@ -16,9 +16,11 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { feedEntries, formatCount, products, squad } from './data';
-import { CardList, isAdmin, isStaff, Viewer } from './kit';
+import { CardList, isAdmin, isJoined, isStaff, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
 import { MobileFooterNav, TabletSidebar } from './rail';
+import type { SquadConfig } from './state';
+import { useWorkspace } from './state';
 import { PreviewModeToggle, SharePageWidget } from './owner';
 import { AddProductPage, SaveProductButton } from './productForm';
 import { PinnedArea, PinStyle, feedUnder } from './pins';
@@ -26,6 +28,10 @@ import { SquadComposer, SquadHeader, SquadWidgets } from './home';
 import { ManageButton } from './navigation';
 import {
   AnalyticsPage,
+  InvitePage,
+  NotFoundPage,
+  PendingPostsPage,
+  PrivateWall,
   ColumnFitContext,
   ContentSource,
   defaultConfig,
@@ -160,12 +166,15 @@ const Feed = ({
   viewer,
   pinStyle,
   onSelect,
+  initialChip = 'all',
 }: {
   viewer: Viewer;
   pinStyle: PinStyle;
   onSelect: (id: string) => void;
+  initialChip?: string;
 }): ReactElement => {
-  const [chip, setChip] = useState('all');
+  const { empty } = useWorkspace();
+  const [chip, setChip] = useState(initialChip);
   let body: ReactElement;
   if (chip === 'about') {
     body = (
@@ -182,6 +191,19 @@ const Feed = ({
     body = <PollsPage viewer={viewer} bare />;
   } else if (chip === 'releases') {
     body = <ReleasesPage viewer={viewer} bare />;
+  } else if (empty) {
+    body = (
+      <div className="flex flex-col items-center gap-1 py-12 text-center">
+        <span className="font-bold text-text-primary typo-callout">
+          Nothing posted yet
+        </span>
+        <span className="max-w-[44ch] text-text-tertiary typo-footnote">
+          {isStaff(viewer)
+            ? 'Connect the content feed or write the first post. Followers see the rules, the team and the links until then.'
+            : 'The team has not posted yet. Follow to hear when they do.'}
+        </span>
+      </div>
+    );
   } else {
     body = (
       <>
@@ -225,12 +247,9 @@ const titles: Record<string, string> = {
   feed: 'Content feed',
   analytics: 'Analytics',
   settings: 'Settings',
+  pending: 'Pending posts',
 };
 
-/**
- * LinkedIn's company sub-pages keep a strip of the company above the page:
- * back, the logo, the name. The page below carries its own title.
- */
 /**
  * The sub-page header, the way a profile's Add experience page does it:
  * back, the page's title, and the page's one action on the right.
@@ -278,6 +297,8 @@ const SubPage = ({
       return <ProductsPage viewer={viewer} />;
     case 'add-product':
       return <AddProductPage />;
+    case 'pending':
+      return <PendingPostsPage />;
     case 'moderation':
       return <ModerationPage />;
     case 'feed':
@@ -299,7 +320,7 @@ const Frame = ({
   notice,
 }: {
   children: ReactNode;
-  aside: ReactNode;
+  aside?: ReactNode;
   /** Above the page card, outside it: the preview strip. */
   notice?: ReactNode;
 }): ReactElement => (
@@ -310,13 +331,21 @@ const Frame = ({
         {children}
       </div>
     </main>
-    <aside className="hidden w-80 shrink-0 flex-col gap-4 laptop:flex">
-      {aside}
-    </aside>
+    {aside && (
+      <aside className="hidden w-80 shrink-0 flex-col gap-4 laptop:flex">
+        {aside}
+      </aside>
+    )}
   </div>
 );
 
-const PreviewNotice = ({ onExit }: { onExit: () => void }): ReactElement => (
+const PreviewNotice = ({
+  onExit,
+  asAdmin,
+}: {
+  onExit: () => void;
+  asAdmin: boolean;
+}): ReactElement => (
   <div className="flex items-center gap-3 bg-surface-float px-4 py-2.5 laptop:mb-3 laptop:rounded-16">
     <EyeIcon
       size={IconSize.Small}
@@ -324,15 +353,17 @@ const PreviewNotice = ({ onExit }: { onExit: () => void }): ReactElement => (
       className="shrink-0 text-text-tertiary"
     />
     <span className="min-w-0 flex-1 text-text-secondary typo-footnote">
-      <b className="text-text-primary">Preview mode.</b> This is the page as
-      someone who does not follow {squad.name} sees it.
+      <b className="text-text-primary">
+        You&apos;re viewing the page as a visitor.
+      </b>{' '}
+      Team tools are hidden.
     </span>
     <Button
       variant={ButtonVariant.Float}
       size={ButtonSize.XSmall}
       onClick={onExit}
     >
-      Exit preview
+      {asAdmin ? 'Back to admin view' : 'Back to your view'}
     </Button>
   </div>
 );
@@ -342,23 +373,46 @@ export const DirectionPage = ({
   active,
   onSelect,
   pinStyle = PinStyle.Reddit,
+  initialChip,
 }: {
   viewer: Viewer;
   active: string;
   onSelect: (id: string) => void;
   pinStyle?: PinStyle;
+  initialChip?: string;
 }): ReactElement => {
+  const { empty, isPrivate } = useWorkspace();
   const [previewing, setPreviewing] = useState(false);
   const runsPage = isStaff(realViewer);
   // Preview renders the page for a logged-in visitor who has not followed:
   // the public page, without any of the team's controls.
   const viewer = previewing && runsPage ? Viewer.Visitor : realViewer;
+  // Production gates a private squad behind its Unauthorized copy; the
+  // identity, rules and team stay readable so the door explains itself.
+  const walled = isPrivate && !isJoined(viewer);
+
+  if (active === 'invite' || active === 'not-found') {
+    return (
+      <Frame>
+        <ColumnFitContext.Provider value>
+          {active === 'invite' ? (
+            <InvitePage viewer={viewer} />
+          ) : (
+            <NotFoundPage />
+          )}
+        </ColumnFitContext.Provider>
+      </Frame>
+    );
+  }
 
   return (
     <Frame
       notice={
         previewing ? (
-          <PreviewNotice onExit={() => setPreviewing(false)} />
+          <PreviewNotice
+            onExit={() => setPreviewing(false)}
+            asAdmin={isAdmin(realViewer)}
+          />
         ) : undefined
       }
       aside={
@@ -387,15 +441,26 @@ export const DirectionPage = ({
             onOpenMembers={() => onSelect('members')}
             extra={<ManageButton viewer={viewer} onSelect={onSelect} />}
           />
-          <ProductsShelf onOpen={() => onSelect('products')} />
-          <div className="border-t border-border-subtlest-tertiary">
-            <Feed
-              key={viewer}
-              viewer={viewer}
-              pinStyle={pinStyle}
-              onSelect={onSelect}
-            />
-          </div>
+          {walled ? (
+            <div className="border-t border-border-subtlest-tertiary">
+              <ColumnFitContext.Provider value>
+                <PrivateWall viewer={viewer} />
+              </ColumnFitContext.Provider>
+            </div>
+          ) : (
+            <>
+              {!empty && <ProductsShelf onOpen={() => onSelect('products')} />}
+              <div className="border-t border-border-subtlest-tertiary">
+                <Feed
+                  key={viewer}
+                  viewer={viewer}
+                  pinStyle={pinStyle}
+                  onSelect={onSelect}
+                  initialChip={initialChip}
+                />
+              </div>
+            </>
+          )}
         </>
       ) : (
         <>
@@ -422,7 +487,11 @@ export const DirectionPage = ({
             }
           />
           <ColumnFitContext.Provider value>
-            <SubPage id={active} viewer={viewer} />
+            {walled ? (
+              <PrivateWall viewer={viewer} />
+            ) : (
+              <SubPage id={active} viewer={viewer} />
+            )}
           </ColumnFitContext.Provider>
         </>
       )}
@@ -430,14 +499,21 @@ export const DirectionPage = ({
   );
 };
 
+/** Feed chips an initial page may name; they open Home on that chip. */
+export const feedChipIds = ['releases', 'discussions', 'polls', 'about'];
+
 export const directionPageIds = [
   'home',
+  ...feedChipIds,
   'add-product',
   'rules',
   'faq',
   'members',
   'products',
   ...manage.pages.map((page) => page.id),
+  'pending',
+  'invite',
+  'not-found',
 ];
 
 export const DirectionShell = ({
@@ -447,13 +523,22 @@ export const DirectionShell = ({
   width = 1440,
   pinStyle,
   fluid = false,
+  source = ContentSource.Feed,
+  empty = false,
+  isPrivate = false,
+  config,
 }: {
   viewer?: Viewer;
+  /** A page id, or a feed chip (releases, discussions, polls, about). */
   initialPage?: string;
   /** rem */
   height?: number;
   width?: number;
   pinStyle?: PinStyle;
+  source?: ContentSource;
+  empty?: boolean;
+  isPrivate?: boolean;
+  config?: Partial<SquadConfig>;
   /**
    * Fill the viewport and let its breakpoints decide the layout, the way
    * the app does: the classic sidebar from laptop, the tablet column from
@@ -461,7 +546,8 @@ export const DirectionShell = ({
    */
   fluid?: boolean;
 }): ReactElement => {
-  const [active, setActive] = useState(initialPage);
+  const chipPage = feedChipIds.includes(initialPage);
+  const [active, setActive] = useState(chipPage ? 'home' : initialPage);
   const loggedIn = viewer !== Viewer.Anonymous;
   const page = (
     <main className="ws-scroll flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
@@ -470,6 +556,7 @@ export const DirectionShell = ({
         active={active}
         onSelect={setActive}
         pinStyle={pinStyle}
+        initialChip={chipPage ? initialPage : undefined}
       />
     </main>
   );
@@ -478,10 +565,10 @@ export const DirectionShell = ({
     <WorkspaceContext.Provider
       value={{
         viewer,
-        source: ContentSource.Feed,
-        empty: false,
-        isPrivate: false,
-        config: defaultConfig,
+        source,
+        empty,
+        isPrivate,
+        config: { ...defaultConfig, ...config },
       }}
     >
       <WorkspaceStyles />

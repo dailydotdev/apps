@@ -35,8 +35,8 @@ export const squadPermalink = `https://app.daily.dev/squads/${squad.handle}`;
 const shareText = `Check out ${squad.name} on daily.dev!`;
 
 /**
- * ProfilePreviewToggle, compacted to one row the height of the Official
- * company page card: the switch says it all, the line under it is gone.
+ * ProfilePreviewToggle for the team, worded like LinkedIn's "View as
+ * member": it names who you will see the page as, and says it in one line.
  */
 export const PreviewModeToggle = ({
   checked,
@@ -45,10 +45,7 @@ export const PreviewModeToggle = ({
   checked: boolean;
   onToggle: () => void;
 }): ReactElement => (
-  <div
-    title="See how your page looks to others"
-    className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-4 py-3"
-  >
+  <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-4 py-3">
     <EyeIcon
       size={IconSize.Small}
       secondary={checked}
@@ -57,9 +54,14 @@ export const PreviewModeToggle = ({
         checked ? 'text-text-primary' : 'text-text-tertiary',
       )}
     />
-    <span className="min-w-0 flex-1 font-bold text-text-primary typo-callout">
-      Preview mode
-    </span>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <span className="font-bold text-text-primary typo-callout">
+        View as a visitor
+      </span>
+      <span className="truncate text-text-tertiary typo-caption1">
+        See what non-followers see
+      </span>
+    </div>
     <Switch
       inputId="squad-preview-toggle"
       name="squadPreview"
@@ -67,7 +69,7 @@ export const PreviewModeToggle = ({
       onToggle={onToggle}
       compact
       className="shrink-0"
-      aria-label="Preview mode"
+      aria-label="View as a visitor"
     />
   </div>
 );

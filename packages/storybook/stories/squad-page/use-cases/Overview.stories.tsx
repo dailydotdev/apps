@@ -5,11 +5,13 @@ import classNames from 'classnames';
 import { Viewer } from '../kit';
 import { ContentSource } from '../workspace';
 import { Page, viewerLabel } from './shared';
-import { cases as viewerCases } from './Viewers.stories';
-import { cases as postingCases } from './Posting.stories';
-import { cases as contentCases } from './Content.stories';
-import { cases as stateCases } from './States.stories';
-import { cases as productionCases } from './Production.stories';
+import {
+  contentCases,
+  postingCases,
+  productionCases,
+  stateCases,
+  viewerCases,
+} from './cases';
 
 const meta: Meta = {
   title: 'Squad Page/2. Use cases/Overview',
@@ -117,11 +119,13 @@ export const Overview: StoryObj = {
             below is the squad&apos;s existing model, with those three added.
           </p>
           <p>
-            Five story files cover it: Viewers (who opens the page), Posting
-            (who publishes where), Content source (fed or hand-written), States
-            (empty, private), and Production parity (every state the production
-            page has today, audited, with a coverage matrix). The matrices here
-            are the index.
+            Every case is drawn on the chosen direction (Squad Page, 1.
+            Direction), at desktop width and on a 375px phone. Five story files
+            cover it: Viewers (who opens the page), Posting (who publishes
+            where), Content source (fed or hand-written), States (empty,
+            private), and Production parity (every state the production page has
+            today, audited, with a coverage matrix). The matrices here are the
+            index.
           </p>
         </>
       }
@@ -195,31 +199,80 @@ export const Overview: StoryObj = {
 
       <Section title="What changes per viewer">
         <Table
-          head={['Viewer', 'Sidebar header', 'Home header', 'Extra pages']}
+          head={['Viewer', 'Header', 'Right column', 'Manage']}
           rows={viewerCases.map((useCase) => [
             useCase.title,
             useCase.viewer === Viewer.Anonymous
-              ? 'Sign up to follow, Log in'
+              ? 'Share, more, Sign up to follow'
               : useCase.viewer === Viewer.Visitor
-              ? 'Follow'
-              : useCase.viewer === Viewer.Admin
-              ? 'Preview as Admin'
-              : useCase.viewer === Viewer.Moderator
-              ? 'Alerts / Invite / Share, Preview as Moderator'
+              ? 'Share, more, Follow'
               : useCase.viewer === Viewer.Blocked
-              ? 'Follow disabled, You are not allowed to follow this Squad'
-              : 'Alerts / Invite / Share',
-            useCase.viewer === Viewer.Admin
-              ? 'Edit page, Share, more'
-              : joined(useCase.viewer)
-              ? 'Following, bell, Share, more'
-              : 'Share, more',
-            useCase.viewer === Viewer.Admin
-              ? 'Manage: Content feed, Moderation, Analytics, Settings; Add a page'
+              ? 'Share, more, Follow disabled'
+              : useCase.viewer === Viewer.Admin
+              ? 'Edit page, Boost, gear, bell, Share, more'
               : useCase.viewer === Viewer.Moderator
-              ? 'Manage: Moderation'
+              ? 'Gear, bell, Share, more, Following'
+              : 'Bell, Share, more, Following',
+            useCase.viewer === Viewer.Admin
+              ? 'View as a visitor, Official, share card, Rules, Team, Analytics, Links'
+              : useCase.viewer === Viewer.Moderator
+              ? 'View as a visitor, Official, share card, Rules, Team, Links'
+              : 'Official, Rules, Team, Links',
+            useCase.viewer === Viewer.Admin
+              ? 'Content feed, Moderation, Analytics, Settings'
+              : useCase.viewer === Viewer.Moderator
+              ? 'Moderation'
               : 'None',
           ])}
+        />
+      </Section>
+
+      <Section title="Breakpoints">
+        <Table
+          head={[
+            '',
+            'Phone, under 656px',
+            'Tablet, 656 to 1019px',
+            'Laptop, 1020px and up',
+          ]}
+          rows={[
+            [
+              'App chrome',
+              'Floating tab bar at the bottom',
+              'The 64px labelled sidebar',
+              'The classic sidebar, collapsed to icons',
+            ],
+            [
+              'Layout',
+              'One full-bleed column, 16px gutters',
+              'One column',
+              'The page card beside the 320px right column',
+            ],
+            [
+              'Header',
+              '80px logo, Edit page as an icon, no Boost; Follow full width under the stats',
+              'Full header, Follow last in the row',
+              'Full header, Follow last in the row',
+            ],
+            [
+              'Right column',
+              'Behind the About chip',
+              'Behind the About chip',
+              'Beside the page',
+            ],
+            [
+              'Chips',
+              'Scroll sideways',
+              'All in a row',
+              'All in a row, no About',
+            ],
+            [
+              'Team tools',
+              'View as a visitor and the share card live in the right column, so not on phones; Share in the header',
+              'As on phones',
+              'Top of the right column',
+            ],
+          ]}
         />
       </Section>
 

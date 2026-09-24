@@ -2,15 +2,14 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
-import { Viewer } from '../kit';
-import { ContentSource, MemberRole, PostingGate } from '../workspace';
-import type { UseCase } from './shared';
+import { ContentSource } from '../workspace';
 import { Case, Page } from './shared';
+import { productionCases } from './cases';
 
 const meta: Meta = {
   title: 'Squad Page/2. Use cases/Production parity',
   parameters: { layout: 'fullscreen' },
-  excludeStories: ['cases', 'coverage'],
+  excludeStories: ['coverage'],
 };
 
 export default meta;
@@ -19,172 +18,6 @@ export default meta;
 // the new design. Audited from packages/webapp/pages/squads/** and
 // packages/shared/src/components/squads/** on 23 Sep 2026. Copy in the
 // cases is production's, word for word, unless a row says it changed.
-
-export const cases: UseCase[] = [
-  {
-    id: 'blocked',
-    title: 'Blocked member',
-    who: 'SourceMemberRole.Blocked',
-    sees: 'Join is disabled with production’s tooltip copy under it, the composer is the lock card, the bell and Leave are gone (production still shows them, a quirk). The page reads in full because the squad is public.',
-    viewer: Viewer.Blocked,
-    height: 44,
-  },
-  {
-    id: 'featured',
-    title: 'Featured public squad with a category',
-    who: 'Visitor',
-    sees: 'The meta line carries production’s SquadPrivacyState (Featured outranks Public outranks Private) and the category link to the directory. Awards appear in the stats strip when the squad has any.',
-    viewer: Viewer.Visitor,
-    config: { featured: true, category: 'DevRel' },
-    height: 40,
-  },
-  {
-    id: 'mods-only',
-    title: 'Only moderators can post',
-    who: 'Member, memberPostingRole = moderator',
-    sees: 'The lock card says “Only admins and moderators can post”. Discussions says Team only.',
-    viewer: Viewer.Member,
-    config: {
-      memberPostingRole: MemberRole.Moderator,
-      postingGate: PostingGate.None,
-    },
-    height: 40,
-  },
-  {
-    id: 'reputation',
-    title: 'Reputation gate, member below it',
-    who: 'Member with 120 reputation, threshold 250',
-    sees: '“You need 250 reputation points to post”. A member above the threshold posts without review.',
-    viewer: Viewer.Member,
-    config: {
-      postingGate: PostingGate.Reputation,
-      postingMinReputation: 250,
-      viewerReputation: 120,
-    },
-    height: 40,
-  },
-  {
-    id: 'moderated',
-    title: 'Post approval on, member with posts in the queue',
-    who: 'Member, moderationRequired',
-    sees: 'The composer works and says posts are reviewed first. Above it, the member’s own queue: two waiting, opens the Pending posts page.',
-    viewer: Viewer.Member,
-    config: { postingGate: PostingGate.Moderation, ownPending: 2 },
-    height: 44,
-  },
-  {
-    id: 'pending',
-    title: 'Pending posts, the author’s view',
-    who: 'Member',
-    sees: 'Production’s /squads/moderate for a non-moderator: Pending and Rejected items, the rejection reason in the Bun alert, Resubmitted Post, Edit and Delete.',
-    viewer: Viewer.Member,
-    page: 'pending',
-    config: { ownPending: 3 },
-    height: 44,
-  },
-  {
-    id: 'queue',
-    title: 'The moderation queue',
-    who: 'Moderator',
-    sees: 'Approve all N posts, the spam warning, a poll item, Decline opening the ten production reasons, Approve.',
-    viewer: Viewer.Moderator,
-    page: 'moderation',
-    height: 48,
-  },
-  {
-    id: 'queue-empty',
-    title: 'The queue, all done',
-    who: 'Moderator',
-    sees: 'Production’s empty copy. Authors get theirs on Pending posts (production shows skeletons forever there, a bug).',
-    viewer: Viewer.Moderator,
-    page: 'moderation',
-    empty: true,
-    height: 32,
-  },
-  {
-    id: 'members',
-    title: 'Followers with the Blocked tab and the role menu',
-    who: 'Admin',
-    sees: 'Production’s SquadMemberModal as a page: three tabs, search, Copy invitation link first, Mod badges, and the member menu (Make admin, Promote, Demote, Report, Block, Gift Plus).',
-    viewer: Viewer.Admin,
-    page: 'members',
-    height: 44,
-  },
-  {
-    id: 'members-member',
-    title: 'Followers as a plain follower',
-    who: 'Member, memberInviteRole = member',
-    sees: 'Two tabs, Copy invitation link because members may invite, Follow on rows instead of the menu.',
-    viewer: Viewer.Member,
-    page: 'members',
-    height: 40,
-  },
-  {
-    id: 'settings',
-    title: 'Squad settings',
-    who: 'Admin',
-    sees: 'Production’s Details form and its sections: details with cover upload, Squad type with the category, Moderation settings (post content, posting requirements with the reputation field, invitation permissions), Integrations (Slack, plus the content feed on a fed page), Danger zone.',
-    viewer: Viewer.Admin,
-    page: 'settings',
-    height: 56,
-  },
-  {
-    id: 'analytics',
-    title: 'Squad analytics with a boost running',
-    who: 'Admin, ViewAnalytics, campaign active',
-    sees: 'Impressions and unique reach, the 45-day chart with boosted days in cabbage, the numbers list. The header says View boost instead of Boost.',
-    viewer: Viewer.Admin,
-    page: 'analytics',
-    config: { campaign: true },
-    height: 44,
-  },
-  {
-    id: 'invite-anonymous',
-    title: 'Invitation link, logged out',
-    who: 'Anonymous on /squads/[handle]/[token]',
-    sees: 'Production’s landing: who invited you, the squad card, Join Squad (sign up first), who is waiting inside.',
-    viewer: Viewer.Anonymous,
-    page: 'invite',
-    height: 44,
-  },
-  {
-    id: 'invite-blocked',
-    title: 'Invitation link, blocked',
-    who: 'Blocked',
-    sees: 'Join is disabled and the forbidden label shows. Production shows it as a toast on click.',
-    viewer: Viewer.Blocked,
-    page: 'invite',
-    height: 44,
-  },
-  {
-    id: 'private-wall',
-    title: 'Private squad, not a member',
-    who: 'Logged in, not a member',
-    sees: 'Production’s Unauthorized screen, word for word. There is no request-to-join in production; the invitation link is the only door. The earlier Request to join button is gone.',
-    viewer: Viewer.Visitor,
-    page: 'releases',
-    isPrivate: true,
-    height: 36,
-  },
-  {
-    id: 'not-found',
-    title: 'Deleted squad or bad handle',
-    who: 'Anyone',
-    sees: 'Production’s Custom404 copy, plus a Find Squads door it does not have.',
-    viewer: Viewer.Visitor,
-    page: 'not-found',
-    height: 32,
-  },
-  {
-    id: 'admin-stack-empty',
-    title: 'Admin with an empty stack',
-    who: 'Admin, no posts, no stack',
-    sees: 'The Stack & Tools widget shows production’s dashed invitation to add the first item. Everyone else does not see the widget until it has items.',
-    viewer: Viewer.Admin,
-    empty: true,
-    height: 44,
-  },
-];
 
 type Status = 'Covered' | 'Added' | 'Changed' | 'Elsewhere' | 'Dropped';
 
@@ -203,13 +36,15 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Public squad, anonymous',
         production:
           'Full page, no Join (a quirk: the join button waits for a query that never runs logged out)',
-        design: 'Full page, Sign up to follow in the sidebar and header',
+        design:
+          'Full page, Sign up to follow last in the header; full width under the stats on a phone',
         status: 'Changed',
       },
       {
         surface: 'Public squad, logged in non-member',
         production: 'Join Squad in the bar, Invitation link in the menu',
-        design: 'Follow in the sidebar or header, Invitation link in the menu',
+        design:
+          'Follow, text only, last in the header row; Invitation link in the menu',
         status: 'Covered',
       },
       {
@@ -217,7 +52,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production:
           'Unauthorized: “Oops! This link leads to a private discussion”',
         design:
-          'Home reads (identity, rules, team), every other page is the same Unauthorized copy',
+          'The header, rules and team read; the feed and every page are the same Unauthorized copy',
         status: 'Changed',
       },
       {
@@ -321,20 +156,21 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Stack & Tools',
         production: 'Chips, +N, Add for editors, dashed empty state',
-        design: 'Stack & Tools widget, same states',
-        status: 'Covered',
+        design: 'Removed from the right column',
+        status: 'Dropped',
       },
       {
         surface: 'Invitation link button',
         production: 'Invite permission (memberInviteRole)',
         design:
-          'Invite in the sidebar trio, hidden when members may not invite; Copy invitation link on Followers',
+          'Copy invitation link on Followers and in the options menu, hidden when members may not invite',
         status: 'Covered',
       },
       {
         surface: 'Share squad',
         production: 'Copy link when the user cannot invite',
-        design: 'Share, always',
+        design:
+          'Share icon in the header for everyone; the Public page & URL card for the team',
         status: 'Covered',
       },
       {
@@ -374,7 +210,8 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Analytics button',
         production: 'ViewAnalytics',
-        design: 'Analytics under Manage',
+        design:
+          'Analytics widget in the right column for admins, and under Manage',
         status: 'Covered',
       },
       {
@@ -438,21 +275,21 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production:
           'Pin to top, Bring forward, Send backward; members collapse them',
         design:
-          'Highlight card for the pinned post; Hide / Show pinned posts in the toolbar',
+          'Pinned posts row above the feed (Reddit’s highlights); X’s single pinned post kept as a test variant',
         status: 'Covered',
       },
       {
         surface: 'Welcome post',
         production: 'PostType.Welcome, editable by WelcomePostEdit',
         design:
-          'The pinned Highlight; on a fed page the feed strip explains the source',
+          'The first pinned post; on a fed page the feed strip explains the source',
         status: 'Covered',
       },
       {
         surface: 'Search this squad',
         production: 'PostsSearch in the feed heading',
-        design: 'Search in the toolbar',
-        status: 'Covered',
+        design: 'Not on the page for now; the toolbar is the chips only',
+        status: 'Dropped',
       },
       {
         surface: 'Empty feed',
@@ -520,7 +357,8 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Preview as',
         production: 'None',
-        design: 'Preview as Admin / Moderator in the sidebar',
+        design:
+          'View as a visitor, a switch at the top of the right column; the page renders as a non-follower sees it',
         status: 'Added',
       },
     ],
@@ -563,6 +401,45 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production: 'None (the checklist is dead code)',
         design: 'None',
         status: 'Dropped',
+      },
+    ],
+  },
+  {
+    group: 'New in the direction',
+    rows: [
+      {
+        surface: 'Kind chips on the feed',
+        production: 'One feed, no filters',
+        design:
+          'All, Releases, Discussions, Polls; About joins them below laptop width',
+        status: 'Added',
+      },
+      {
+        surface: 'Products',
+        production: 'None',
+        design:
+          'A shelf above the feed, a Products page, Add product for admins',
+        status: 'Added',
+      },
+      {
+        surface: 'Official company page badge',
+        production: 'None (VerifiedCompanyUserBadge is user-only)',
+        design: 'Aurora card at the top of the right column',
+        status: 'Added',
+      },
+      {
+        surface: 'Composer',
+        production: 'Share post bar: URL field and reading history',
+        design:
+          'The box opens the new composer in free form; Share a link and Poll as shortcuts',
+        status: 'Changed',
+      },
+      {
+        surface: 'Sub-pages',
+        production: 'Modals and separate routes',
+        design:
+          'They replace the centre card under one header: back, the title, one action',
+        status: 'Changed',
       },
     ],
   },
@@ -680,7 +557,7 @@ export const Overview: StoryObj = {
     >
       <Section title="Cases added in this pass">
         <div className="flex flex-col gap-12">
-          {cases.map((useCase) => (
+          {productionCases.map((useCase) => (
             <Case key={useCase.id} useCase={useCase} />
           ))}
         </div>

@@ -2,31 +2,15 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import ExtensionProviders from '../../extension/_providers';
 import { KitStyles, Viewer } from '../kit';
-import type { SquadConfig, SquadPage } from '../workspace';
-import {
-  addPage,
-  ContentSource,
-  findPage,
-  WorkspaceShell,
-  WorkspaceStyles,
-} from '../workspace';
+import { WorkspaceStyles } from '../workspace';
+import { DirectionShell } from '../direction';
+import type { UseCase } from './cases';
 
-// Shared furniture for the use-case stories: one frame, one caption
-// shape, and the case model every file draws from.
+export type { UseCase } from './cases';
 
-export interface UseCase {
-  id: string;
-  title: string;
-  who: string;
-  sees: string;
-  viewer: Viewer;
-  page?: string;
-  source?: ContentSource;
-  empty?: boolean;
-  isPrivate?: boolean;
-  config?: Partial<SquadConfig>;
-  height?: number;
-}
+// Shared furniture for the use-case stories: every case drawn twice, on
+// the direction, at desktop width and on a 375px phone. The phone is a
+// frame of the Direction playground, so its breakpoints are real.
 
 export const viewerLabel: Record<Viewer, string> = {
   [Viewer.Anonymous]: 'Anonymous',
@@ -37,29 +21,82 @@ export const viewerLabel: Record<Viewer, string> = {
   [Viewer.Blocked]: 'Blocked',
 };
 
-export const Case = ({ useCase }: { useCase: UseCase }): ReactElement => (
-  <div className="flex flex-col gap-3">
-    <div className="flex flex-col gap-1">
-      <span className="font-bold text-text-primary typo-callout">
-        {useCase.title}
-      </span>
-      <span className="text-text-tertiary typo-footnote">
-        <b className="text-text-secondary">{useCase.who}.</b> {useCase.sees}
-      </span>
+const playground = 'squad-page-1-direction--playground';
+
+/** The Direction playground in a frame of its own width, so phone rules apply. */
+export const DeviceFrame = ({
+  args,
+  width,
+  height,
+  label,
+  scale = 1,
+}: {
+  args: string;
+  width: number;
+  /** px */
+  height: number;
+  label: string;
+  /** Draw a wide device smaller without changing its viewport. */
+  scale?: number;
+}): ReactElement => (
+  <div className="flex shrink-0 flex-col gap-2">
+    <span className="text-text-quaternary typo-caption1">{label}</span>
+    <div
+      style={{ width: width * scale, height: height * scale }}
+      className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
+    >
+      <iframe
+        title={label}
+        loading="lazy"
+        src={`iframe.html?id=${playground}&globals=theme:dark&args=${args}`}
+        style={{
+          width,
+          height,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+        }}
+      />
     </div>
-    <WorkspaceShell
-      viewer={useCase.viewer}
-      initialPage={
-        useCase.page === 'add' ? addPage : findPage(useCase.page ?? 'home')
-      }
-      source={useCase.source ?? ContentSource.Feed}
-      empty={useCase.empty}
-      isPrivate={useCase.isPrivate}
-      config={useCase.config}
-      height={useCase.height ?? 44}
-    />
   </div>
 );
+
+export const Case = ({ useCase }: { useCase: UseCase }): ReactElement => {
+  const height = useCase.height ?? 44;
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <span className="font-bold text-text-primary typo-callout">
+          {useCase.title}
+        </span>
+        <span className="max-w-[100ch] text-text-tertiary typo-footnote">
+          <b className="text-text-secondary">{useCase.who}.</b> {useCase.sees}
+        </span>
+      </div>
+      <div className="flex items-start gap-6">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <span className="text-text-quaternary typo-caption1">Desktop</span>
+          <DirectionShell
+            viewer={useCase.viewer}
+            initialPage={useCase.page ?? 'home'}
+            source={useCase.source}
+            empty={useCase.empty}
+            isPrivate={useCase.isPrivate}
+            config={useCase.config}
+            width={1060}
+            height={height}
+          />
+        </div>
+        <DeviceFrame
+          args={`case:${useCase.id}`}
+          width={375}
+          height={height * 16}
+          label="Phone, 375px"
+        />
+      </div>
+    </div>
+  );
+};
 
 export const Page = ({
   eyebrow,
@@ -101,6 +138,3 @@ export const Full = ({ children }: { children: ReactNode }): ReactElement => (
     </div>
   </ExtensionProviders>
 );
-
-export const pageOf = (id: string): SquadPage =>
-  id === 'add' ? addPage : findPage(id);

@@ -1748,13 +1748,13 @@ export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
       </p>
       <div className="flex items-center gap-4 text-left">
         <Avatar member={inviter} size={2.5} />
-        <p className="text-text-tertiary typo-body">
+        <p className="min-w-0 flex-1 text-text-tertiary typo-body">
           <b className="text-text-primary">{inviter.name}</b>{' '}
           <span className="text-text-link">(@{inviter.username})</span> has
           invited you to <b className="text-text-primary">{squad.name}</b>
         </p>
       </div>
-      <div className="flex w-full items-center gap-4 rounded-24 border border-accent-cabbage-default p-6 text-left">
+      <div className="flex w-full flex-col items-center gap-4 rounded-24 border border-accent-cabbage-default p-6 text-center tablet:flex-row tablet:text-left">
         <img src={squad.image} alt="" className="size-16 shrink-0 rounded-16" />
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="flex items-center gap-1 font-bold text-text-primary typo-body">

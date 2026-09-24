@@ -132,12 +132,16 @@ export const ManageButton = ({
   align?: 'right' | 'left';
 }): ReactElement | null => {
   const [open, setOpen] = useState(false);
+  const { source } = useWorkspace();
 
   if (!isStaff(viewer)) {
     return null;
   }
+  // Content feed exists only once a feed is connected.
   const items = manage.pages.filter(
-    (item) => isAdmin(viewer) || !item.adminOnly,
+    (item) =>
+      (isAdmin(viewer) || !item.adminOnly) &&
+      (item.id !== 'feed' || source === ContentSource.Feed),
   );
 
   return (
