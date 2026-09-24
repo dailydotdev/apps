@@ -72,6 +72,13 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     trailing?: ReactNode;
     /** Drops the internal sidebar ad — for templates carrying their own. */
     hideAdWidget?: boolean;
+    /** Drops the source and creator cards, whose links lead off the post. */
+    hideEntityCards?: boolean;
+    /**
+     * Drops further reading, the archives, the Google preferred-source prompt
+     * and the footer links: the widgets whose job is sending readers on.
+     */
+    hideDiscovery?: boolean;
   };
 
 /**
@@ -106,6 +113,8 @@ export function PostWidgets({
   getRailAd,
   trailing,
   hideAdWidget,
+  hideEntityCards,
+  hideDiscovery,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -165,18 +174,24 @@ export function PostWidgets({
   return (
     <PageWidgets className={className}>
       {!hideSignupWidget && <PostSignupWidget post={post} />}
-      {withAd(PostWidgetPosition.Source, sourceCard)}
-      {withAd(
-        PostWidgetPosition.Creator,
-        creator && (
-          <UserEntityCard
-            className={{
-              container: cardClasses,
-            }}
-            user={creator as UserShortProfile}
-            postId={post.id}
-          />
-        ),
+      {hideEntityCards ? (
+        getRailAd?.(PostWidgetPosition.Source)
+      ) : (
+        <>
+          {withAd(PostWidgetPosition.Source, sourceCard)}
+          {withAd(
+            PostWidgetPosition.Creator,
+            creator && (
+              <UserEntityCard
+                className={{
+                  container: cardClasses,
+                }}
+                user={creator as UserShortProfile}
+                postId={post.id}
+              />
+            ),
+          )}
+        </>
       )}
       {!hideAdWidget &&
         withAd(
@@ -187,7 +202,7 @@ export function PostWidgets({
           />,
         )}
       <MentionedToolsWidget postTags={post.tags || []} />
-      <PreferGoogleSourceAction />
+      {!hideDiscovery && <PreferGoogleSourceAction />}
       {withAd(
         PostWidgetPosition.Share,
         <>
@@ -201,15 +216,19 @@ export function PostWidgets({
         </>,
       )}
       {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
-      {tokenRefreshed && (
+      {tokenRefreshed && !hideDiscovery && (
         <FurtherReading
           currentPost={post}
           hideToc={hideToc}
           betweenSections={getRailAd?.(PostWidgetPosition.SimilarPosts)}
         />
       )}
-      <FeaturedArchives postId={post.id} />
-      <FooterLinks />
+      {!hideDiscovery && (
+        <>
+          <FeaturedArchives postId={post.id} />
+          <FooterLinks />
+        </>
+      )}
       {trailing}
     </PageWidgets>
   );

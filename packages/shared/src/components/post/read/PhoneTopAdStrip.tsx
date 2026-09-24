@@ -31,14 +31,10 @@ export interface PhoneTopAdStripProps {
  * element; ReadTopLeaderboard carries only the tablet-and-up unit, so the
  * twin requests exactly once.
  */
-export function PhoneTopAdStrip({
+function PhoneTopAdStripUnit({
   surface,
-}: PhoneTopAdStripProps): ReactElement | null {
-  const readSlots = useReadAdSlots();
-  const organicSlots = useOrganicAdSlots();
-  const isActive = hasLiveAdSlots(
-    surface === 'organic' ? organicSlots : readSlots,
-  );
+  isActive,
+}: PhoneTopAdStripProps & { isActive: boolean }): ReactElement | null {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,4 +84,25 @@ export function PhoneTopAdStrip({
       />
     </div>
   );
+}
+
+// Each surface reads only its own slot map, so the organic post page never
+// evaluates the /read template's flags.
+function ReadPhoneTopAdStrip(): ReactElement | null {
+  const isActive = hasLiveAdSlots(useReadAdSlots());
+  return <PhoneTopAdStripUnit surface="read" isActive={isActive} />;
+}
+
+function OrganicPhoneTopAdStrip(): ReactElement | null {
+  const isActive = hasLiveAdSlots(useOrganicAdSlots());
+  return <PhoneTopAdStripUnit surface="organic" isActive={isActive} />;
+}
+
+export function PhoneTopAdStrip({
+  surface,
+}: PhoneTopAdStripProps): ReactElement | null {
+  if (surface === 'organic') {
+    return <OrganicPhoneTopAdStrip />;
+  }
+  return <ReadPhoneTopAdStrip />;
 }

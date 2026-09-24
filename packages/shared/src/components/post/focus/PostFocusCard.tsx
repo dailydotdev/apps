@@ -99,6 +99,11 @@ export interface PostFocusCardAds {
   /** Mirrors the classic read template's `hideSignupWidget`. */
   withoutSignupWidget?: boolean;
   /**
+   * Leaves the card only through the read CTA: no author or source row, no
+   * tags, and a title, cover and domain that stay plain.
+   */
+  contained?: boolean;
+  /**
    * In rail order. Beside the column once there is room, as a second column
    * on laptops, inline below that. Units carry no positioning of their own,
    * so the same elements can serve the classic rail.
@@ -107,6 +112,8 @@ export interface PostFocusCardAds {
   /** Pins the last rail unit under the header, like the classic rail's closing tower. */
   railPinsLast?: boolean;
   aboveComments?: ReactNode;
+  /** Closes the column, after the whole discussion. */
+  belowComments?: ReactNode;
   commentAds?: {
     interleaveEvery: number;
     renderInterleaved: (occurrence: number) => ReactNode;
@@ -380,7 +387,8 @@ const PostFocusCardRaw = ({
   const isVideoType = isVideoPost(article);
   const isSharedTweet = isShared && isSocialTwitterPost(article);
   const isSharedVideo = isShared && isVideoType;
-  const showTags = !isSquadPost;
+  const contained = !!ads?.contained;
+  const showTags = !isSquadPost && !contained;
   // One container in one place in the tree for every placement, so a
   // placement change never remounts the ad units and their auctions.
   const { sidebarExpanded } = useSettingsContext();
@@ -562,44 +570,45 @@ const PostFocusCardRaw = ({
         <div className="flex min-w-0 flex-1 flex-col gap-4 py-6 laptop:max-w-[var(--focus-column)]">
           {ads?.contentLeading}
           <div className="flex min-h-8 min-w-0 items-center gap-2">
-            {author ? (
-              <div className="flex min-w-0 items-center gap-3">
-                <Link href={author.permalink} passHref prefetch={false}>
-                  <UserShortInfo
-                    tag="a"
-                    href={author.permalink}
-                    user={author as unknown as UserShortProfile}
-                    imageSize={ProfileImageSize.Large}
-                    showDescription={false}
-                    transformUsername={() => null}
-                    className={{
-                      container:
-                        'min-w-0 cursor-pointer !p-0 hover:bg-transparent',
-                      textWrapper: 'min-w-0',
-                    }}
+            {!contained &&
+              (author ? (
+                <div className="flex min-w-0 items-center gap-3">
+                  <Link href={author.permalink} passHref prefetch={false}>
+                    <UserShortInfo
+                      tag="a"
+                      href={author.permalink}
+                      user={author as unknown as UserShortProfile}
+                      imageSize={ProfileImageSize.Large}
+                      showDescription={false}
+                      transformUsername={() => null}
+                      className={{
+                        container:
+                          'min-w-0 cursor-pointer !p-0 hover:bg-transparent',
+                        textWrapper: 'min-w-0',
+                      }}
+                    />
+                  </Link>
+                  <FollowButton
+                    className="shrink-0"
+                    entityId={author.id}
+                    entityName={`@${author.username}`}
+                    type={ContentPreferenceType.User}
+                    status={author.contentPreference?.status}
+                    variant={ButtonVariant.Subtle}
+                    showSubscribe={false}
+                    buttonClassName="!h-7 !px-2"
                   />
-                </Link>
-                <FollowButton
-                  className="shrink-0"
-                  entityId={author.id}
-                  entityName={`@${author.username}`}
-                  type={ContentPreferenceType.User}
-                  status={author.contentPreference?.status}
-                  variant={ButtonVariant.Subtle}
-                  showSubscribe={false}
-                  buttonClassName="!h-7 !px-2"
-                />
-              </div>
-            ) : (
-              article.source && (
-                <SourceStrip
-                  compact
-                  className="min-w-0 shrink"
-                  followButtonVariant={ButtonVariant.Subtle}
-                  source={article.source as SourceTooltip}
-                />
-              )
-            )}
+                </div>
+              ) : (
+                article.source && (
+                  <SourceStrip
+                    compact
+                    className="min-w-0 shrink"
+                    followButtonVariant={ButtonVariant.Subtle}
+                    source={article.source as SourceTooltip}
+                  />
+                )
+              ))}
             <div className="ml-auto flex shrink-0 items-center gap-2">
               {showBoostButton && (
                 <BoostPostButton
@@ -690,7 +699,7 @@ const PostFocusCardRaw = ({
                     )}
                     data-testid="post-modal-title"
                   >
-                    {canReadArticle ? (
+                    {canReadArticle && !contained ? (
                       <a
                         href={readHref}
                         target="_blank"
@@ -716,14 +725,18 @@ const PostFocusCardRaw = ({
                       article.domain.length > 0 && (
                         <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
                           From{' '}
-                          <ArticleLink
-                            className="hover:text-text-link hover:underline"
-                            href={article.permalink}
-                            onClick={onReadArticle}
-                            title={article.domain}
-                          >
-                            {article.domain}
-                          </ArticleLink>
+                          {contained ? (
+                            article.domain
+                          ) : (
+                            <ArticleLink
+                              className="hover:text-text-link hover:underline"
+                              href={article.permalink}
+                              onClick={onReadArticle}
+                              title={article.domain}
+                            >
+                              {article.domain}
+                            </ArticleLink>
+                          )}
                         </span>
                       )
                     }
@@ -734,7 +747,7 @@ const PostFocusCardRaw = ({
                 {/* Duplicates the title link, so it stays out of the tab order and
                   the accessibility tree rather than adding an identical stop. */}
                 {coverImage &&
-                  (canReadArticle ? (
+                  (canReadArticle && !contained ? (
                     <a
                       href={readHref}
                       target="_blank"
@@ -884,6 +897,8 @@ const PostFocusCardRaw = ({
               origin={origin}
             />
           </div>
+
+          {ads?.belowComments}
         </div>
         {railPlacement && ads?.rail && (
           <div
