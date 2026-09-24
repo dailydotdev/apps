@@ -196,14 +196,53 @@ export const markdownToHtmlBasic = (markdown: string): string => {
   return htmlParts.join('');
 };
 
+type InlineMarker = '**' | '*' | '_' | '~~';
+
+const wordCharRegex = /[\p{L}\p{N}]/u;
+
+const isWordChar = (value: string | undefined): boolean =>
+  !!value && wordCharRegex.test(value);
+
+const isItalicElement = (node: Node): node is Element =>
+  node instanceof Element && ['em', 'i'].includes(node.tagName.toLowerCase());
+
+const wrapLines = (value: string, marker: InlineMarker): string =>
+  value
+    .split('\n')
+    .map((line) => {
+      const content = line.trim();
+
+      if (!content) {
+        return line;
+      }
+
+      const leading = line.slice(0, line.indexOf(content));
+      const trailing = line.slice(leading.length + content.length);
+
+      return `${leading}${marker}${content}${marker}${trailing}`;
+    })
+    .join('\n');
+
 // Mutually recursive functions for inline serialization
 function serializeChildren(node: Element): string {
-  return (
-    Array.from(node.childNodes)
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      .map((child) => serializeInline(child))
-      .join('')
-  );
+  const children = Array.from(node.childNodes);
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  const parts = children.map((child) => serializeInline(child));
+
+  return parts
+    .map((part, index) => {
+      const child = children[index];
+      const isIntraword =
+        (isWordChar(parts[index - 1]?.slice(-1)) && !/^\s/.test(part)) ||
+        (isWordChar(parts[index + 1]?.charAt(0)) && !/\s$/.test(part));
+
+      if (!isItalicElement(child) || !isIntraword) {
+        return part;
+      }
+
+      return wrapLines(serializeChildren(child), '*');
+    })
+    .join('');
 }
 
 function serializeInline(node: Node): string {
@@ -216,16 +255,6 @@ function serializeInline(node: Node): string {
   }
 
   const tagName = node.tagName.toLowerCase();
-  const wrapLines = (value: string, marker: '**' | '_' | '~~') => {
-    if (!value.includes('\n')) {
-      return `${marker}${value}${marker}`;
-    }
-
-    return value
-      .split('\n')
-      .map((line) => (line ? `${marker}${line}${marker}` : ''))
-      .join('\n');
-  };
 
   switch (tagName) {
     case 'strong':
