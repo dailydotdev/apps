@@ -16,6 +16,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { feedEntries, formatCount, pinnedEntry, products, squad } from './data';
 import { CardList, VerifiedMark, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
+import { railBackgroundClass } from './rail';
 import { Highlight, SquadComposer, SquadHeader, SquadWidgets } from './home';
 import { FollowButton, ManageButton } from './navigation';
 import {
@@ -373,11 +374,14 @@ export const DirectionShell = ({
     >
       <div
         style={{ width, maxWidth: '100%', height: `${height}rem` }}
-        className="sq-elevated flex overflow-hidden rounded-16 bg-background-default text-text-primary"
+        className={classNames(
+          'sq-elevated flex overflow-hidden rounded-16 text-text-primary',
+          railBackgroundClass,
+        )}
       >
         <WorkspaceStyles />
         <Kit2Styles />
-        <Rail />
+        <Rail loggedIn={viewer !== Viewer.Anonymous} />
         <main className="ws-scroll flex min-w-0 flex-1 flex-col overflow-y-auto">
           <DirectionPage viewer={viewer} active={active} onSelect={setActive} />
         </main>

@@ -982,23 +982,47 @@ export const polls: SquadPoll[] = [
 export interface CompanyLink {
   id: 'docs' | 'github' | 'x' | 'youtube' | 'linkedin' | 'discord';
   label: string;
+  /** What the link reads as in a list: the handle, not the URL. */
+  handle: string;
   href: string;
 }
 
 /** The company's places on the web, in the order it wants them. */
 export const companyLinks: CompanyLink[] = [
-  { id: 'docs', label: 'Docs', href: 'https://docs.coderabbit.ai' },
-  { id: 'github', label: 'GitHub', href: 'https://github.com/coderabbitai' },
-  { id: 'x', label: 'X', href: 'https://x.com/coderabbitai' },
+  {
+    id: 'docs',
+    label: 'Docs',
+    handle: 'docs.coderabbit.ai',
+    href: 'https://docs.coderabbit.ai',
+  },
+  {
+    id: 'github',
+    label: 'GitHub',
+    handle: 'coderabbitai',
+    href: 'https://github.com/coderabbitai',
+  },
+  {
+    id: 'x',
+    label: 'X',
+    handle: '@coderabbitai',
+    href: 'https://x.com/coderabbitai',
+  },
   {
     id: 'youtube',
     label: 'YouTube',
+    handle: '@coderabbitai',
     href: 'https://www.youtube.com/@coderabbitai',
   },
   {
     id: 'linkedin',
     label: 'LinkedIn',
+    handle: 'in/coderabbitai',
     href: 'https://www.linkedin.com/company/coderabbitai',
   },
-  { id: 'discord', label: 'Discord', href: 'https://discord.gg/coderabbit' },
+  {
+    id: 'discord',
+    label: 'Discord',
+    handle: 'discord.gg/coderabbit',
+    href: 'https://discord.gg/coderabbit',
+  },
 ];

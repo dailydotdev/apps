@@ -14,7 +14,6 @@ import {
   ArrowIcon,
   BellIcon,
   CardIcon,
-  CompassIcon,
   DiscussIcon,
   DocsIcon,
   DragIcon,
@@ -22,7 +21,6 @@ import {
   EditIcon,
   EyeCancelIcon,
   HomeIcon,
-  HotIcon,
   LinkIcon,
   LockIcon,
   MegaphoneIcon,
@@ -35,7 +33,6 @@ import {
   SettingsIcon,
   SlackIcon,
   SparkleIcon,
-  SquadIcon,
   StarIcon,
   TimerIcon,
   TrashIcon,
@@ -45,7 +42,6 @@ import {
   WarningIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import type { SquadPoll } from './data';
 import {
   entriesByMonth,
@@ -79,6 +75,7 @@ import { PollList } from '@dailydotdev/shared/src/components/cards/poll/PollList
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { PostsToolbar, SquadHome } from './home';
+import { ProductionRail } from './rail';
 import type { SquadConfig, WorkspaceState } from './state';
 import {
   ContentSource,
@@ -399,53 +396,12 @@ export const WorkspaceStyles = (): ReactElement => (
   <style dangerouslySetInnerHTML={{ __html: shellCss }} />
 );
 
-const railTab =
-  'flex w-full flex-col items-center gap-0.5 rounded-12 px-1 py-2 typo-caption2 text-text-tertiary hover:bg-surface-hover hover:text-text-primary';
-
 /** The v2 rail, as it is today. Nothing here changes for the workspace. */
-export const Rail = (): ReactElement => (
-  <nav className="flex w-20 shrink-0 flex-col items-center gap-0.5 border-r border-border-subtlest-tertiary px-2 py-3">
-    <a
-      href="/"
-      aria-label="Home"
-      className="mb-2 flex size-10 items-center justify-center"
-    >
-      <LogoIcon className={{ container: 'h-6 w-6' }} />
-    </a>
-    <button
-      type="button"
-      className="mb-2 flex size-9 items-center justify-center rounded-12 bg-text-primary text-background-default"
-      aria-label="New post"
-    >
-      <PlusIcon size={IconSize.Medium} />
-    </button>
-    <button type="button" className={railTab}>
-      <SearchIcon size={IconSize.Medium} />
-      Search
-    </button>
-    <button type="button" className={railTab}>
-      <CompassIcon size={IconSize.Medium} className="scale-105" />
-      Explore
-    </button>
-    <button
-      type="button"
-      className={classNames(railTab, 'bg-surface-float !text-text-primary')}
-    >
-      <SquadIcon size={IconSize.Medium} secondary />
-      Squads
-    </button>
-    <button type="button" className={railTab}>
-      <HotIcon size={IconSize.Medium} />
-      Streak
-    </button>
-    <div className="mt-auto flex flex-col items-center gap-2">
-      <button type="button" className={railTab}>
-        <BellIcon size={IconSize.Medium} />
-      </button>
-      <Avatar member={team[2]} size={2} />
-    </div>
-  </nav>
-);
+export const Rail = ({
+  loggedIn,
+}: {
+  loggedIn?: boolean;
+}): ReactElement => <ProductionRail loggedIn={loggedIn} />;
 
 const Badge = ({ value }: { value: number }): ReactElement => (
   <span className="sq-nums ml-auto rounded-8 bg-surface-float px-1.5 font-bold text-text-tertiary typo-caption2">

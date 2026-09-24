@@ -21,7 +21,6 @@ import {
   LockIcon,
   GitHubIcon,
   LinkIcon,
-  OpenLinkIcon,
   LinkedInIcon,
   MedalBadgeIcon,
   MenuIcon,
@@ -1116,35 +1115,58 @@ export const StackWidget = ({
   );
 };
 
-/** The sidebar's links, in the column too: the company's places on the web. */
-const hostOf = (href: string): string =>
-  href
-    .replace(/^https?:\/\//, '')
-    .replace(/^www\./, '')
-    .replace(/\/$/, '');
+const LinkRow = ({
+  href,
+  icon,
+  text,
+}: {
+  href: string;
+  icon: ReactNode;
+  text: string;
+}): ReactElement => (
+  <li>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group flex items-center gap-2 py-1 text-text-secondary typo-callout transition-colors hover:text-text-primary"
+    >
+      <span className="flex size-4 items-center justify-center text-text-tertiary transition-colors group-hover:text-text-primary">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1 truncate">{text}</span>
+    </a>
+  </li>
+);
 
-/** GitHub's organization links: one row per link, the address as the text. */
+/**
+ * GitHub's profile links: the website first as a bare domain, then each
+ * place as its handle beside a small brand mark.
+ */
 export const LinksWidget = (): ReactElement => (
   <Widget title="Links">
-    <ul className="mt-1 flex flex-col">
+    <ul className="mt-2 flex flex-col gap-1">
+      <LinkRow
+        href={`https://${squad.company.website}`}
+        icon={<LinkIcon size={IconSize.Size16} />}
+        text={squad.company.website}
+      />
       {companyLinks.map((item) => (
-        <li key={item.id}>
-          <a
-            href={item.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-3 py-2 text-text-secondary typo-footnote transition-colors hover:text-text-primary"
-          >
-            <span className="text-text-tertiary">
-              {linkIcon(item.id, IconSize.Small)}
+        <LinkRow
+          key={item.id}
+          href={item.href}
+          icon={
+            <span
+              className={classNames(
+                'flex',
+                item.id === 'discord' && '[&_path]:[fill:currentColor]',
+              )}
+            >
+              {linkIcon(item.id, IconSize.Size16)}
             </span>
-            <span className="min-w-0 flex-1 truncate">{hostOf(item.href)}</span>
-            <OpenLinkIcon
-              size={IconSize.XSmall}
-              className="text-text-quaternary opacity-0 transition-opacity group-hover:opacity-100"
-            />
-          </a>
-        </li>
+          }
+          text={item.handle}
+        />
       ))}
     </ul>
   </Widget>
