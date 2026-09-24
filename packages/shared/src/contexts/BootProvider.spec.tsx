@@ -138,6 +138,43 @@ const renderComponent = (
   );
 };
 
+it('should pass the cached exp to the first boot fetch', async () => {
+  const exp: BootCacheData['exp'] = {
+    f: 'cached-f',
+    fv: 'v1',
+    e: [],
+    a: [],
+    features: { cached_flag: { defaultValue: true } },
+  };
+  localStorage.setItem(
+    BOOT_LOCAL_KEY,
+    JSON.stringify({ ...defaultBootData, exp }),
+  );
+  jest.mocked(getBootData).mockClear();
+
+  renderComponent(<></>);
+
+  await waitFor(() => expect(getBootData).toHaveBeenCalled());
+  expect(getBootData).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining({ cachedExp: exp }),
+  );
+});
+
+it('should persist the remote exp without the encrypted features', async () => {
+  const features = { remote_flag: { defaultValue: true } };
+  renderComponent(<></>, {
+    ...defaultBootData,
+    exp: { f: 'remote-f', fv: 'v2', e: [], a: [], features },
+  });
+
+  await waitFor(() =>
+    expect(
+      JSON.parse(localStorage.getItem(BOOT_LOCAL_KEY) as string)?.exp,
+    ).toEqual({ fv: 'v2', e: [], a: [], features }),
+  );
+});
+
 const mockSettingsMutation = (params: Partial<RemoteSettings>) =>
   mockGraphQL({
     request: {

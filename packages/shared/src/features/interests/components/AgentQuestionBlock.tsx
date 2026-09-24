@@ -32,8 +32,7 @@ export const AgentQuestionBlock = ({
     togglePendingAnswer,
   } = useAgent();
   const isLive = activeQuestion?.questionId === block.questionId;
-  // An answered question keeps showing what was chosen, not the live selection.
-  const selected = isLive ? pendingAnswer : block.selected ?? [];
+  const selected = isLive ? pendingAnswer : [];
 
   const labelsFor = (values: string[]): string =>
     (block.choices ?? [])

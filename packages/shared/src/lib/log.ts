@@ -654,6 +654,7 @@ export enum TargetId {
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   ExploreStrip = 'explore strip',
+  PostStrip = 'post strip',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign
