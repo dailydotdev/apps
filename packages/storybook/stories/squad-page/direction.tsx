@@ -10,11 +10,9 @@ import {
 import {
   ArrowIcon,
   UpvoteIcon,
-  SearchIcon,
-  MiniCloseIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { feedEntries, formatCount, pinnedEntry, products, squad } from './data';
+import { feedEntries, formatCount, products, squad } from './data';
 import { CardList, VerifiedMark, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
 import { MobileFooterNav, TabletSidebar } from './rail';
@@ -120,48 +118,14 @@ const SteadyLabel = ({ children }: { children: string }): ReactElement => (
   </span>
 );
 
-/**
- * One row. At rest: the kinds as chips, the sort and a search button.
- * Searching: the same row becomes the field, so nothing below moves, and
- * Escape or the close button puts the chips back.
- */
+/** One row: the kinds as chips on the left, the sort on the right. */
 const FeedToolbar = ({
   chip,
   onChip,
-  query,
-  onQuery,
 }: {
   chip: string;
   onChip: (id: string) => void;
-  query: string | null;
-  onQuery: (query: string | null) => void;
 }): ReactElement => {
-  if (query !== null) {
-    return (
-      <div className="flex h-9 items-center gap-2 rounded-[999px] bg-surface-float pl-3 pr-1">
-        <SearchIcon size={IconSize.Small} className="text-text-tertiary" />
-        <input
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-          value={query}
-          onChange={(event) => onQuery(event.target.value)}
-          onKeyDown={(event) => event.key === 'Escape' && onQuery(null)}
-          placeholder={`Search ${squad.name} posts`}
-          aria-label={`Search ${squad.name} posts`}
-          className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
-        />
-        <button
-          type="button"
-          aria-label="Close search"
-          onClick={() => onQuery(null)}
-          className="flex size-7 items-center justify-center rounded-[999px] text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-        >
-          <MiniCloseIcon size={IconSize.Small} />
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-9 items-center gap-1">
       <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
@@ -190,53 +154,7 @@ const FeedToolbar = ({
           Latest
           <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
         </button>
-        <button
-          type="button"
-          aria-label="Search posts"
-          title="Search posts"
-          onClick={() => onQuery('')}
-          className="flex size-8 items-center justify-center rounded-[999px] text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
-        >
-          <SearchIcon size={IconSize.Small} />
-        </button>
       </div>
-    </div>
-  );
-};
-
-const searchable = [pinnedEntry, ...feedEntries];
-
-const SearchResults = ({ query }: { query: string }): ReactElement => {
-  const needle = query.trim().toLowerCase();
-  const matches = searchable.filter((entry) =>
-    [entry.title, entry.summary, ...entry.tags]
-      .join(' ')
-      .toLowerCase()
-      .includes(needle),
-  );
-
-  if (!matches.length) {
-    return (
-      <div className="flex flex-col items-center gap-1 py-12 text-center">
-        <span className="font-bold text-text-primary typo-callout">
-          No posts match “{query.trim()}”
-        </span>
-        <span className="text-text-tertiary typo-footnote">
-          Try a product name, a tag, or fewer words.
-        </span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-3">
-      <span className="text-text-tertiary typo-footnote">
-        {matches.length} {matches.length === 1 ? 'post' : 'posts'} in{' '}
-        {squad.name} match “{query.trim()}”
-      </span>
-      <CardList
-        entries={matches.map((entry) => ({ ...entry, pinned: false }))}
-      />
     </div>
   );
 };
@@ -251,13 +169,8 @@ const Feed = ({
   onSelect: (id: string) => void;
 }): ReactElement => {
   const [chip, setChip] = useState('all');
-  const [query, setQuery] = useState<string | null>(null);
-  const searching = query !== null && query.trim().length > 0;
-
   let body: ReactElement;
-  if (searching) {
-    body = <SearchResults query={query} />;
-  } else if (chip === 'about') {
+  if (chip === 'about') {
     body = (
       <div className="flex flex-col gap-4 laptop:hidden">
         <SquadWidgets
@@ -296,12 +209,7 @@ const Feed = ({
   return (
     <div className="flex flex-col gap-4 p-4 tablet:p-6">
       <SquadComposer viewer={viewer} />
-      <FeedToolbar
-        chip={chip}
-        onChip={setChip}
-        query={query}
-        onQuery={setQuery}
-      />
+      <FeedToolbar chip={chip} onChip={setChip} />
       {body}
     </div>
   );
