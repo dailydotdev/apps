@@ -17,12 +17,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { feedEntries, formatCount, pinnedEntry, products, squad } from './data';
 import { CardList, VerifiedMark, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
-import {
-  DiscordPinsButton,
-  PinnedArea,
-  PinStyle,
-  unpinnedEntries,
-} from './pins';
+import { PinnedArea, PinStyle, feedUnder } from './pins';
 import { SquadComposer, SquadHeader, SquadWidgets } from './home';
 import { FollowButton, ManageButton } from './navigation';
 import {
@@ -132,13 +127,11 @@ const FeedToolbar = ({
   onChip,
   query,
   onQuery,
-  extra,
 }: {
   chip: string;
   onChip: (id: string) => void;
   query: string | null;
   onQuery: (query: string | null) => void;
-  extra?: ReactElement;
 }): ReactElement => {
   if (query !== null) {
     return (
@@ -184,7 +177,6 @@ const FeedToolbar = ({
         </button>
       ))}
       <div className="ml-auto flex items-center gap-1">
-        {extra}
         <button
           type="button"
           className="flex items-center gap-1 rounded-[999px] px-3 py-1.5 text-text-tertiary typo-callout transition-colors hover:bg-surface-float hover:text-text-primary"
@@ -269,7 +261,7 @@ const Feed = ({
           entries={
             chip === 'discussions'
               ? discussionEntries.slice(0, 6)
-              : unpinnedEntries.slice(0, 6)
+              : feedUnder(pinStyle).slice(0, 6)
           }
         />
         <Button
@@ -291,9 +283,6 @@ const Feed = ({
         onChip={setChip}
         query={query}
         onQuery={setQuery}
-        extra={
-          pinStyle === PinStyle.Discord ? <DiscordPinsButton /> : undefined
-        }
       />
       {body}
     </div>
@@ -405,7 +394,7 @@ export const DirectionPage = ({
   viewer,
   active,
   onSelect,
-  pinStyle = PinStyle.Stack,
+  pinStyle = PinStyle.Reddit,
 }: {
   viewer: Viewer;
   active: string;

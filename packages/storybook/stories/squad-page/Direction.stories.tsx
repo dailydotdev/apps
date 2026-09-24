@@ -124,7 +124,7 @@ export const Playground: StoryObj<{
     viewer: Viewer.Member,
     page: 'home',
     width: 1440,
-    pin: PinStyle.Stack,
+    pin: PinStyle.Reddit,
   },
   argTypes: {
     pin: { control: 'select', options: pinStyles },
