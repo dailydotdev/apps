@@ -65,7 +65,7 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
     <div className="flex items-center justify-between">
       <span className="font-bold text-text-primary typo-callout">Products</span>
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.XSmall}
         icon={<ArrowIcon size={IconSize.Size16} className="rotate-90" />}
         iconPosition={ButtonIconPosition.Right}
@@ -215,7 +215,7 @@ const Feed = ({
           }
         />
         <Button
-          variant={ButtonVariant.Float}
+          variant={ButtonVariant.Subtle}
           size={ButtonSize.Medium}
           className="w-full"
         >
@@ -358,7 +358,7 @@ const PreviewNotice = ({
       Team tools are hidden.
     </span>
     <Button
-      variant={ButtonVariant.Float}
+      variant={ButtonVariant.Subtle}
       size={ButtonSize.XSmall}
       onClick={onExit}
     >
@@ -471,7 +471,7 @@ export const DirectionPage = ({
             action={
               (active === 'products' && isAdmin(viewer) && (
                 <Button
-                  variant={ButtonVariant.Float}
+                  variant={ButtonVariant.Subtle}
                   size={ButtonSize.Small}
                   icon={<PlusIcon />}
                   onClick={() => onSelect('add-product')}

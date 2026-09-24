@@ -390,7 +390,7 @@ const Shelf = ({
     <div className="flex items-center justify-between">
       <span className="font-bold text-text-primary typo-body">{title}</span>
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.XSmall}
         icon={<ArrowIcon size={IconSize.Size16} className="rotate-90" />}
         iconPosition={ButtonIconPosition.Right}

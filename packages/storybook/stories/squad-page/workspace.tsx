@@ -960,7 +960,7 @@ export const ReleasesPage = ({
               New release
             </Button>
           ) : (
-            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
               Feed settings
             </Button>
           )}
@@ -1338,7 +1338,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
               </div>
               {tab === MemberTab.Blocked ? (
                 staff && (
-                  <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+                  <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
                     Unblock
                   </Button>
                 )
@@ -1351,7 +1351,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
                   onClick={() => setMenu(menu === member.id ? null : member.id)}
                 />
               ) : (
-                <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+                <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
                   Follow
                 </Button>
               )}
@@ -1558,7 +1558,7 @@ export const ModerationPage = (): ReactElement => {
               ) : (
                 <div className="flex gap-2">
                   <Button
-                    variant={ButtonVariant.Float}
+                    variant={ButtonVariant.Subtle}
                     size={ButtonSize.Small}
                     className="flex-1"
                     onClick={() => setDeclining(key)}
@@ -1634,13 +1634,13 @@ export const FeedSourcePage = (): ReactElement => (
         ))}
       </dl>
       <div className="flex gap-2 border-t border-border-subtlest-tertiary pt-3">
-        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
           Sync now
         </Button>
-        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
           Pause feed
         </Button>
-        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
           Add a feed
         </Button>
       </div>
@@ -1693,7 +1693,7 @@ export const PrivateWall = ({ viewer }: { viewer: Viewer }): ReactElement => (
           Back home
         </Button>
         {!isLoggedIn(viewer) && (
-          <Button variant={ButtonVariant.Float} size={ButtonSize.Medium}>
+          <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
             Log in
           </Button>
         )}
@@ -1716,7 +1716,7 @@ export const NotFoundPage = (): ReactElement => (
         <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
           Go home
         </Button>
-        <Button variant={ButtonVariant.Float} size={ButtonSize.Medium}>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
           Find Squads
         </Button>
       </div>
@@ -1911,10 +1911,10 @@ export const SettingsPage = (): ReactElement => {
         <div className="flex items-center gap-4">
           <img src={squad.image} alt="" className="size-16 rounded-16" />
           <div className="flex gap-2">
-            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
               Change image
             </Button>
-            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
               Upload cover
             </Button>
           </div>
@@ -2071,7 +2071,7 @@ export const SettingsPage = (): ReactElement => {
                 {squad.feedUrl}, checked every hour, managed by daily.dev.
               </span>
             </div>
-            <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
               Open
             </Button>
           </div>
@@ -2424,13 +2424,13 @@ const pageBarTools = (page: SquadPage, viewer: Viewer): ReactNode => {
       ) : null;
     case PageType.Products:
       return isAdmin(viewer) ? (
-        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
           Sync now
         </Button>
       ) : null;
     case PageType.Doc:
       return isStaff(viewer) ? (
-        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
           Edit page
         </Button>
       ) : (

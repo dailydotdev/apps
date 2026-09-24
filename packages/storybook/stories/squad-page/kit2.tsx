@@ -175,7 +175,7 @@ export const PrimaryActions = ({
       )}
       {viewer === Viewer.Admin && (
         <Button
-          variant={ButtonVariant.Float}
+          variant={ButtonVariant.Subtle}
           size={buttonSize}
           icon={<AddUserIcon />}
         >
@@ -570,7 +570,7 @@ export const Composer = ({
       Share a link or write something for the squad
     </span>
     <Button
-      variant={ButtonVariant.Float}
+      variant={ButtonVariant.Subtle}
       size={ButtonSize.Small}
       icon={<LinkIcon />}
     >

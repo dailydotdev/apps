@@ -504,7 +504,7 @@ export const Actions = ({
     {viewer === Viewer.Admin && (
       <>
         <Button
-          variant={ButtonVariant.Float}
+          variant={ButtonVariant.Subtle}
           size={size}
           icon={<AddUserIcon />}
         >

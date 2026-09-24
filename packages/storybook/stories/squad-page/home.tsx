@@ -177,7 +177,7 @@ export const SquadHeader = ({
             {isAdmin(viewer) && (
               <span className="hidden tablet:flex">
                 <Button
-                  variant={ButtonVariant.Float}
+                  variant={ButtonVariant.Subtle}
                   size={ButtonSize.Small}
                   icon={<EditIcon />}
                 >
@@ -187,7 +187,7 @@ export const SquadHeader = ({
             )}
             {isAdmin(viewer) && config.isPublic && (
               <Button
-                variant={ButtonVariant.Float}
+                variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}
                 icon={<BoostIcon secondary />}
               >
@@ -268,10 +268,10 @@ export const SquadHeader = ({
         )}
         {isAdmin(viewer) && (
           <div className="mt-4 grid grid-cols-2 gap-2 tablet:hidden">
-            <Button variant={ButtonVariant.Float} size={ButtonSize.Medium}>
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
               Edit page
             </Button>
-            <Button variant={ButtonVariant.Float} size={ButtonSize.Medium}>
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
               Share page
             </Button>
           </div>
@@ -748,7 +748,7 @@ export const PostsToolbar = ({
 }): ReactElement => (
   <div className="flex items-center gap-2">
     <Button
-      variant={ButtonVariant.Float}
+      variant={ButtonVariant.Subtle}
       size={ButtonSize.Small}
       icon={<ArrowIcon className="rotate-180" />}
       iconPosition={ButtonIconPosition.Right}
@@ -867,7 +867,7 @@ export const PinnedToggle = ({
 
   return (
     <Button
-      variant={ButtonVariant.Float}
+      variant={ButtonVariant.Subtle}
       size={ButtonSize.Small}
       icon={<PinIcon secondary={!collapsed} />}
       onClick={() => setCollapsed((value) => !value)}
@@ -897,7 +897,7 @@ export const PostsArea = ({
     {pinned && <Highlight entry={pinned} />}
     <CardList entries={list} />
     <Button
-      variant={ButtonVariant.Float}
+      variant={ButtonVariant.Subtle}
       size={ButtonSize.Medium}
       className="w-full"
     >
@@ -1069,7 +1069,7 @@ export const AnalyticsWidget = ({
         ))}
       </dl>
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         className="mt-3 w-full"
         onClick={onOpen}
@@ -1175,14 +1175,14 @@ export const RulesWidget = ({
         FAQ are the two documents a newcomer reads before posting. */}
     <div className="mt-3 grid grid-cols-2 gap-2">
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         onClick={onOpenRules}
       >
         All rules
       </Button>
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         onClick={onOpenFaq}
       >
@@ -1216,7 +1216,7 @@ export const TeamWidget = (): ReactElement => (
     <TopMembers />
     <div className="mt-auto pt-3">
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         className="w-full"
       >
@@ -1266,7 +1266,7 @@ export const StackWidget = ({
         canEdit &&
         items.length > 0 && (
           <Button
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Subtle}
             size={ButtonSize.XSmall}
             icon={<PlusIcon />}
           >
