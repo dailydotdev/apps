@@ -121,6 +121,28 @@ describe('markdownConversion', () => {
     expect(markdown).toBe('**_line1_**\n**_line2_**');
   });
 
+  it('should keep surrounding whitespace outside of formatting markers', () => {
+    const markdown = htmlToMarkdownBasic(
+      '<p>an <em>italic </em>and<strong> bold</strong><s> strike </s>text</p>',
+    );
+
+    expect(markdown).toBe('an _italic_ and **bold** ~~strike~~ text');
+  });
+
+  it('should not wrap whitespace-only formatting in markers', () => {
+    const markdown = htmlToMarkdownBasic('<p>a<em> </em>b</p>');
+
+    expect(markdown).toBe('a b');
+  });
+
+  it('should use asterisks for italic text inside a word', () => {
+    const markdown = htmlToMarkdownBasic(
+      '<p>un<em>believ</em>able and <em>it</em>s</p>',
+    );
+
+    expect(markdown).toBe('un*believ*able and *it*s');
+  });
+
   it('should keep simple bold in markdown round-trip', () => {
     const initialMarkdown = '**bold**';
     const html = markdownToHtmlBasic(initialMarkdown);
