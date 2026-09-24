@@ -64,7 +64,7 @@ import {
   VerifiedSeal,
   Viewer,
 } from './kit';
-import { Composer } from './kit2';
+import { ComposerEntry } from './composer';
 import { MemberRole, PostingGate, postingState, useWorkspace } from './state';
 
 // The squad's Home, built on the profile page's skeleton so a person and a
@@ -710,15 +710,7 @@ export const SquadComposer = ({
         </button>
       )}
       {state.canPost ? (
-        <>
-          <Composer />
-          {state.reviewed && (
-            <span className="flex items-center gap-1.5 px-1 text-text-quaternary typo-caption1">
-              <TimerIcon size={IconSize.XSmall} />
-              Posts are reviewed by a moderator before they go live.
-            </span>
-          )}
-        </>
+        <ComposerEntry canPoll={isStaff(viewer)} reviewed={state.reviewed} />
       ) : (
         <div className="flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-4 py-4 text-text-quaternary typo-callout">
           <LockIcon size={IconSize.Small} />
