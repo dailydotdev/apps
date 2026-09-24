@@ -12,7 +12,6 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { funnelPositionAtom } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
 import { FunnelAcquisition } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelAcquisition';
 import { FunnelUserRole } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelUserRole';
-import { FunnelProfileForm } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelProfileForm';
 import type {
   FunnelJSON,
   FunnelStep,
@@ -34,6 +33,7 @@ import {
 import { defaultBootData } from '../../../mock/boot';
 import ExtensionProviders from '../../extension/_providers';
 import { ChromeArm, ThemeModeSync } from './signupFunnel.mocks';
+import { ProposedFunnelProfileForm } from './accountDetailsProposal';
 
 /**
  * The identity-steps playground: the real `FunnelStepper` running the proposed
@@ -45,6 +45,10 @@ import { ChromeArm, ThemeModeSync } from './signupFunnel.mocks';
  * - every guard decision, via the stepper's own `stepComponentOverrides`
  * - every Freyja transition, by intercepting the POST the stepper makes
  * - every profile write, by intercepting the GraphQL mutations
+ *
+ * Two behaviours are proposals simulated here rather than shipped in shared
+ * code: account details dropping itself (`accountDetailsProposal.tsx`), and
+ * moving past a step that has nothing to ask on arrival (`withGuardReport`).
  */
 
 const MESSAGE_SOURCE = 'identity-steps-playground';
@@ -181,6 +185,7 @@ const buildFunnel = ({
 }: PlaygroundSettings): FunnelJSON => {
   const next = [
     { on: FunnelStepTransitionType.Complete, destination: NEXT_STEP_ID },
+    { on: FunnelStepTransitionType.Skip, destination: NEXT_STEP_ID },
   ];
   const acquisition = {
     id: 'acquisition',
@@ -189,10 +194,7 @@ const buildFunnel = ({
       headline: 'How did you hear about us?',
       skip: acquisitionSkip ? 'Skip' : undefined,
     },
-    transitions: [
-      ...next,
-      { on: FunnelStepTransitionType.Skip, destination: NEXT_STEP_ID },
-    ],
+    transitions: next,
   };
   const role = {
     id: 'user-role',
@@ -230,20 +232,37 @@ const getFunnelStepIds = (order: PlaygroundOrder): string[] =>
 // Wraps a step so its guard decision reaches the playground on its way to the
 // stepper. Built once per type: a new component per render would remount the
 // step and throw away its state.
+//
+// The stepper only reads guards when it navigates, so a step that has nothing
+// to ask once it is on screen (the entry step, or one whose answer the previous
+// step just saved) would render blank. The wrapper moves past it with a Skip
+// transition; in production that belongs in `FunnelStepper`.
 const withGuardReport = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- steps are selected by type at runtime, as the stepper does
   Step: ComponentType<any>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): ComponentType<any> =>
   function ReportingStep(props) {
-    const { id, onRegisterStepToSkip } = props;
+    const { id, isActive, onRegisterStepToSkip, onTransition } = props;
+    const shouldSkipRef = useRef(false);
+    const wasActiveRef = useRef(false);
     const onReport = useCallback(
       (type: FunnelStepType, shouldSkip: boolean) => {
+        shouldSkipRef.current = shouldSkip;
         report({ kind: 'guard', stepId: id, shouldSkip });
         onRegisterStepToSkip?.(type, shouldSkip);
       },
       [id, onRegisterStepToSkip],
     );
+
+    useEffect(() => {
+      const isArrival = isActive && !wasActiveRef.current;
+      wasActiveRef.current = !!isActive;
+
+      if (isArrival && shouldSkipRef.current) {
+        onTransition({ type: FunnelStepTransitionType.Skip, details: {} });
+      }
+    }, [isActive, onTransition]);
 
     return <Step {...props} onRegisterStepToSkip={onReport} />;
   };
@@ -251,7 +270,7 @@ const withGuardReport = (
 const STEP_OVERRIDES = {
   [FunnelStepType.Acquisition]: withGuardReport(FunnelAcquisition),
   [FunnelStepType.UserRole]: withGuardReport(FunnelUserRole),
-  [FunnelStepType.ProfileForm]: withGuardReport(FunnelProfileForm),
+  [FunnelStepType.ProfileForm]: withGuardReport(ProposedFunnelProfileForm),
 };
 
 const PositionReport = ({ funnel }: { funnel: FunnelJSON }): null => {

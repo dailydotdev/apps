@@ -14,10 +14,7 @@ import {
 } from '../shared/FunnelStepCtaWrapper';
 import { sanitizeMessage } from '../lib/utils';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
-import {
-  useDecidedOnArrival,
-  withShouldSkipStepGuard,
-} from '../shared/withShouldSkipStepGuard';
+import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import {
   OnboardingHeadline,
   OnboardingSubheadline,
@@ -267,13 +264,9 @@ function FunnelUserRoleComponent({
 
 export const FunnelUserRole = withShouldSkipStepGuard(
   withIsActiveGuard(FunnelUserRoleComponent),
-  ({ isActive }) => {
+  () => {
     const { user } = useAuthContext();
-    const shouldSkip = useDecidedOnArrival(
-      isActive,
-      !!user?.experienceLevel && !!user?.title,
-    );
 
-    return { shouldSkip };
+    return { shouldSkip: !!user?.experienceLevel && !!user?.title };
   },
 );

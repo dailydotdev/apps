@@ -285,9 +285,6 @@ export interface FunnelStepProfileForm
     // Extra profile fields to collect, set per funnel in Freyja (e.g. for an
     // Instagram/Facebook campaign). Omitted = default fields only.
     extraFields?: ProfileExtraField[];
-    // Drops the step for users whose profile already carries every field the
-    // form asks for — an OAuth signup that also answered the user-role step.
-    skipWhenComplete?: boolean;
   }> {
   type: FunnelStepType.ProfileForm;
   onTransition: FunnelStepTransitionCallback;

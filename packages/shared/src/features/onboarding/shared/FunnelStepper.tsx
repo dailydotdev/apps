@@ -1,5 +1,5 @@
 import type { ComponentType, ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { PaddleEventData } from '@paddle/paddle-js';
 import { CheckoutEventNames } from '@paddle/paddle-js';
@@ -37,8 +37,6 @@ import {
   FunnelBrowserExtension,
   FunnelUploadCv,
 } from '../steps';
-import { FunnelAcquisition } from '../steps/FunnelAcquisition';
-import { FunnelUserRole } from '../steps/FunnelUserRole';
 import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
@@ -86,8 +84,6 @@ const stepComponentMap = {
   [FunnelStepType.PlusCards]: FunnelPlusCards,
   [FunnelStepType.BrowserExtension]: FunnelBrowserExtension,
   [FunnelStepType.UploadCv]: FunnelUploadCv,
-  [FunnelStepType.Acquisition]: FunnelAcquisition,
-  [FunnelStepType.UserRole]: FunnelUserRole,
 } as const;
 
 function FunnelStepComponent(props: {
@@ -157,16 +153,6 @@ export const FunnelStepper = ({
 
   const currentNavigationRef = useRef({ step, position });
   currentNavigationRef.current = { step, position };
-  // Counts arrivals rather than step ids, so a step reached again through Back
-  // can still be completed when it has nothing to ask.
-  const stepVisitRef = useRef({ stepId: step?.id, visit: 0 });
-  if (stepVisitRef.current.stepId !== step?.id) {
-    stepVisitRef.current = {
-      stepId: step?.id,
-      visit: stepVisitRef.current.visit + 1,
-    };
-  }
-  const completedVisitRef = useRef<number>();
 
   const onTransition: FunnelStepTransitionCallback = useCallback(
     ({ type, details }) => {
@@ -225,64 +211,6 @@ export const FunnelStepper = ({
     ],
   );
 
-  // The skip map is filled by each step's guard in an effect and only read when
-  // navigating, so the funnel can land on a step that turns out to have
-  // nothing to ask: the entry step, one whose guard reported after the
-  // navigation that reached it, or one whose answer the previous step just
-  // saved. It would render nothing; move past it the way `getNextStep` skips
-  // a step, without reporting a completion the user never made.
-  const completeActiveStepIfSkipped = useCallback(() => {
-    const { step: activeStep, position: activePosition } =
-      currentNavigationRef.current;
-    const { visit } = stepVisitRef.current;
-    const completeTransition = activeStep.transitions.find(
-      ({ on }) => on === FunnelStepTransitionType.Complete,
-    );
-
-    if (
-      !shouldSkipRef.current[activeStep.type] ||
-      !completeTransition ||
-      completedVisitRef.current === visit
-    ) {
-      return;
-    }
-
-    completedVisitRef.current = visit;
-    const targetStepId = getNextStep({
-      destination: completeTransition.destination,
-      steps,
-      shouldSkipMap: shouldSkipRef.current,
-      chapters,
-      position: activePosition,
-      funnelChapters: funnel.chapters,
-      stepMap,
-    });
-
-    if (targetStepId === COMPLETED_STEP_ID) {
-      trackOnComplete();
-      onComplete?.();
-      return;
-    }
-
-    navigate({
-      to: targetStepId,
-      type: FunnelStepTransitionType.Skip,
-      details: {},
-    });
-  }, [
-    chapters,
-    funnel.chapters,
-    navigate,
-    onComplete,
-    stepMap,
-    steps,
-    trackOnComplete,
-  ]);
-
-  useEffect(() => {
-    completeActiveStepIfSkipped();
-  }, [step?.id, isReady, completeActiveStepIfSkipped]);
-
   const successCallback = useCallback(
     (event: unknown) =>
       onTransition({
@@ -337,7 +265,6 @@ export const FunnelStepper = ({
 
   const onRegisterStepToSkip = (type: FunnelStepType, shouldSkip: boolean) => {
     shouldSkipRef.current[type] = shouldSkip;
-    completeActiveStepIfSkipped();
   };
 
   return (

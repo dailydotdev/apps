@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import type { LoggedUser, ProfileExtraField } from '../../../lib/user';
 import { OnboardingHeadline } from '../../../components/onboarding/common';
 import {
   Typography,
@@ -14,10 +13,6 @@ import type { FunnelStepProfileForm } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import useProfileForm from '../../../hooks/useProfileForm';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
-import {
-  useDecidedOnArrival,
-  withShouldSkipStepGuard,
-} from '../shared/withShouldSkipStepGuard';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import {
   funnelStepRail,
@@ -34,9 +29,6 @@ function InnerFunnelProfileForm({
   const isOnboarding = useIsOnboardingFunnel();
   const headlineHtml = useMemo(() => sanitizeMessage(headline), [headline]);
   const { user, refetchBoot } = useAuthContext();
-  // Decided on arrival: saving the form puts the level on the profile, which
-  // would otherwise pull the dropdown out from under the user mid-submit.
-  const [withExperienceLevel] = useState(() => !user?.experienceLevel);
   const { updateUserProfile, hint, onUpdateHint } = useProfileForm({
     onSuccess: async () => {
       await refetchBoot?.();
@@ -61,9 +53,6 @@ function InnerFunnelProfileForm({
   }: Omit<RegistrationFieldsFormValues, 'image'>) => {
     updateUserProfile({
       ...profile,
-      // The user-role step leaves its answer here when it could not save it
-      // before a username existed; the form only submits a title it renders.
-      title: profile.title ?? user.title,
       acceptedMarketing: !optOutMarketing,
     });
   };
@@ -78,7 +67,6 @@ function InnerFunnelProfileForm({
       errors={hint}
       onResetErrors={handleResetErrors}
       extraFields={extraFields}
-      withExperienceLevel={withExperienceLevel}
     />
   );
 
@@ -126,31 +114,4 @@ function InnerFunnelProfileForm({
   );
 }
 
-// `cloudProvider` is absent on purpose: boot does not carry it back, so a
-// funnel that asks for it can never prove the answer is already on file.
-const extraFieldToProfileField: Partial<
-  Record<ProfileExtraField, keyof LoggedUser>
-> = {
-  company: 'company',
-  jobTitle: 'title',
-};
-
-export const FunnelProfileForm = withShouldSkipStepGuard(
-  withIsActiveGuard(InnerFunnelProfileForm),
-  ({ isActive, parameters: { skipWhenComplete, extraFields = [] } }) => {
-    const { user } = useAuthContext();
-    const isComplete =
-      !!user?.email &&
-      !!user?.name &&
-      !!user?.username &&
-      !!user?.experienceLevel &&
-      extraFields.every((field) => {
-        const profileField = extraFieldToProfileField[field];
-
-        return !!profileField && !!user?.[profileField];
-      });
-    const shouldSkip = useDecidedOnArrival(isActive, isComplete);
-
-    return { shouldSkip: !!skipWhenComplete && shouldSkip };
-  },
-);
+export const FunnelProfileForm = withIsActiveGuard(InnerFunnelProfileForm);

@@ -5,6 +5,7 @@ import { fn } from 'storybook/test';
 import { FunnelAcquisition } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelAcquisition';
 import { FunnelUserRole } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelUserRole';
 import { FunnelProfileForm } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelProfileForm';
+import { ProposedFunnelProfileForm } from './accountDetailsProposal';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { AcquisitionChannel } from '@dailydotdev/shared/src/graphql/users';
 import { OnboardingChromeVariant } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -39,7 +40,9 @@ import {
  * With those two on the profile, an OAuth signup (Google/GitHub, which supply
  * name, email and avatar) has nothing left for the account-details form to
  * ask, so that step can drop itself — `skipWhenComplete` on the profileForm
- * step. The account-details stories show that side by side.
+ * step. The account-details stories show that side by side. That part is a
+ * proposal simulated in Storybook (`accountDetailsProposal.tsx`); the shared
+ * account-details step is unchanged.
  *
  * Everything here renders the real step components; only auth, the GraphQL
  * writes and the funnel chrome are faked.
@@ -378,7 +381,7 @@ export const AccountDetailsWithoutExperience: Story = {
     docs: {
       description: {
         story:
-          'An email signup who answered the user-role step: the form still has a username to confirm, but the experience dropdown is gone, because the role step already asked it in the words of the role they picked. `RegistrationFieldsForm` drops the field and its validation with it.',
+          'An email signup who answered the user-role step: the form still has a username to confirm, but the experience dropdown is gone, because the role step already asked it in the words of the role they picked. A Storybook-only wrapper hides it here (`accountDetailsProposal.tsx`); engineering builds it into `RegistrationFieldsForm`.',
       },
     },
   },
@@ -400,7 +403,7 @@ export const AccountDetailsWithoutExperience: Story = {
 
     return (
       <FunnelStepShell chrome={chrome} step={step} stepIndex={3} fullWidth>
-        <FunnelProfileForm {...step} />
+        <ProposedFunnelProfileForm {...step} />
       </FunnelStepShell>
     );
   },
@@ -412,7 +415,7 @@ export const AccountDetailsSkipped: Story = {
     docs: {
       description: {
         story:
-          'The same user after the role step wrote `title` and `experienceLevel`. With `skipWhenComplete` set on the profileForm step, the form has nothing left to ask and takes itself out of the funnel.',
+          'The same user after the role step wrote `title` and `experienceLevel`. With `skipWhenComplete` set on the profileForm step, the form has nothing left to ask and takes itself out of the funnel. Proposed behaviour, simulated in Storybook (`accountDetailsProposal.tsx`); engineering builds it into `FunnelProfileForm`.',
       },
     },
   },
@@ -437,7 +440,7 @@ export const AccountDetailsSkipped: Story = {
       <SkipReport label="profileForm">
         {(onRegisterStepToSkip) => (
           <FunnelStepShell chrome={chrome} step={step} stepIndex={3} fullWidth>
-            <FunnelProfileForm
+            <ProposedFunnelProfileForm
               {...step}
               onRegisterStepToSkip={onRegisterStepToSkip}
             />
