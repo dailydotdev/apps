@@ -1,0 +1,308 @@
+name: release extension
+run-name: "release extension ${{ inputs.version || 'bump' }} by `@${{ github.actor }}`"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version
+        required: true
+        default: patch
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+  push:
+    branches:
+      - main
+    paths:
+      - packages/extension/package.json
+  # Builds the zip without releasing, to check the workflow's output.
+  pull_request:
+    paths:
+      - .github/workflows/release-extension.yml
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('release-extension-{0}', github.ref) || 'release-extension' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # main requires a PR with passing checks, so the bump lands through an
+  # auto-merged PR. A merge made with GITHUB_TOKEN does not trigger the push
+  # event, so this run waits for the merge and releases the merge commit itself.
+  bump:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      sha: ${{ steps.merge.outputs.sha }}
+    steps:
+      - name: Verify release branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "$GITHUB_REF_NAME" != "$DEFAULT_BRANCH" ]; then
+            echo "Release from ${DEFAULT_BRANCH}, not ${GITHUB_REF_NAME}." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Open version bump PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUMP: ${{ inputs.version }}
+        run: |
+          NEXT_VERSION=$(npm version "$BUMP" --no-git-tag-version --prefix packages/extension)
+          VERSION=${NEXT_VERSION#v}
+          BRANCH="release/extension-v${VERSION}"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+          git switch --create "$BRANCH"
+          git commit --all --message "build(extension): version ${VERSION}"
+          git push origin "$BRANCH"
+          gh pr create --head "$BRANCH" \
+            --title "build(extension): version ${VERSION}" \
+            --body "Bumps the extension to v${VERSION}. The [release run](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) publishes it to the Chrome and Edge stores once this merges."
+          gh pr merge "$BRANCH" --auto --squash
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for merge
+        id: merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.pr.outputs.branch }}
+        run: |
+          for attempt in {1..120}; do
+            PR=$(gh pr view "$BRANCH" --json state,mergeStateStatus,mergeCommit,statusCheckRollup)
+            case $(jq -r '.state' <<< "$PR") in
+              MERGED)
+                echo "sha=$(jq -r '.mergeCommit.oid' <<< "$PR")" >> "$GITHUB_OUTPUT"
+                exit 0
+                ;;
+              CLOSED)
+                echo "::error::${BRANCH} was closed without merging."
+                exit 1
+                ;;
+            esac
+            if jq -e '[.statusCheckRollup[] | .conclusion // .state] | any(. == "FAILURE" or . == "ERROR")' <<< "$PR" > /dev/null; then
+              echo "::error::Checks failed on ${BRANCH}. Fix and merge the PR to release through the push trigger."
+              exit 1
+            fi
+            if [ "$(jq -r '.mergeStateStatus' <<< "$PR")" = "BEHIND" ]; then
+              gh pr update-branch "$BRANCH"
+            fi
+            sleep 30
+          done
+          echo "::error::${BRANCH} did not merge within an hour."
+          exit 1
+
+  build:
+    needs: bump
+    if: ${{ !cancelled() && (needs.bump.result == 'success' || needs.bump.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.version.outputs.sha }}
+      version: ${{ steps.version.outputs.version }}
+      release: ${{ steps.version.outputs.release }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.sha || github.sha }}
+
+      - name: Detect new version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./packages/extension/package.json').version")
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          elif git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" > /dev/null; then
+            echo "v${VERSION} is already tagged, nothing to release."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: pnpm/action-setup@v4
+        if: steps.version.outputs.build == 'true'
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        if: steps.version.outputs.build == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.version.outputs.build == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Build extension
+        if: steps.version.outputs.build == 'true'
+        run: pnpm --filter extension build
+
+      - name: Verify package version
+        if: steps.version.outputs.build == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          MANIFEST_VERSION=$(unzip -p packages/extension/dist/chrome.zip manifest.json \
+            | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+          test "$MANIFEST_VERSION" = "$VERSION"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.version.outputs.build == 'true'
+        with:
+          name: extension
+          path: packages/extension/dist/chrome.zip
+          if-no-files-found: error
+
+  chrome:
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.release == 'true' }}
+    runs-on: ubuntu-latest
+    environment: extension-stores
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.CHROME_WEB_STORE_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+
+      - name: Upload and submit for review
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+          ITEM: https://chromewebstore.googleapis.com/v2/publishers/${{ vars.CHROME_WEB_STORE_PUBLISHER_ID }}/items/${{ vars.CHROME_WEB_STORE_ITEM_ID }}
+          UPLOAD: https://chromewebstore.googleapis.com/upload/v2/publishers/${{ vars.CHROME_WEB_STORE_PUBLISHER_ID }}/items/${{ vars.CHROME_WEB_STORE_ITEM_ID }}
+        run: |
+          store() {
+            local response
+            response=$(curl --silent --show-error --fail-with-body \
+              -H "Authorization: Bearer $TOKEN" "$@") || { echo "$response" >&2; return 1; }
+            echo "$response"
+          }
+
+          STATE=$(store -X POST -T chrome.zip "${UPLOAD}:upload" | jq -r '.uploadState')
+          for attempt in {1..30}; do
+            [ "$STATE" != "IN_PROGRESS" ] && break
+            sleep 10
+            STATE=$(store "${ITEM}:fetchStatus" | jq -r '.lastAsyncUploadState')
+          done
+          if [ "$STATE" != "SUCCEEDED" ]; then
+            echo "::error::Chrome Web Store upload ended in state ${STATE}."
+            exit 1
+          fi
+
+          store -X POST -H "Content-Type: application/json" \
+            -d '{ "publishType": "DEFAULT_PUBLISH" }' "${ITEM}:publish"
+
+  edge:
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.release == 'true' }}
+    runs-on: ubuntu-latest
+    environment: extension-stores
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension
+
+      - name: Upload and submit for review
+        env:
+          API: https://api.addons.microsoftedge.microsoft.com/v1/products/${{ vars.EDGE_PRODUCT_ID }}/submissions
+          API_KEY: ${{ secrets.EDGE_API_KEY }}
+          CLIENT_ID: ${{ vars.EDGE_CLIENT_ID }}
+          NOTES: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.build.outputs.version }}
+        run: |
+          store() {
+            local response
+            response=$(curl --silent --show-error --fail-with-body \
+              -H "Authorization: ApiKey $API_KEY" \
+              -H "X-ClientID: $CLIENT_ID" "$@") || { echo "$response" >&2; return 1; }
+            echo "$response"
+          }
+
+          # Both calls answer 202 with the operation id in the Location header,
+          # then the operation is polled until it leaves InProgress.
+          start_operation() {
+            store --dump-header headers.txt "$@" > /dev/null
+            grep -i '^location:' headers.txt | tr -d '\r' | awk '{print $2}' | xargs basename
+          }
+
+          wait_for_operation() {
+            local response status
+            for attempt in {1..30}; do
+              sleep 10
+              response=$(store "$1")
+              status=$(echo "$response" | jq -r '.status')
+              [ "$status" != "InProgress" ] && break
+            done
+            echo "$response"
+            if [ "$status" != "Succeeded" ]; then
+              echo "::error::Edge operation ended in status ${status}."
+              return 1
+            fi
+          }
+
+          OPERATION=$(start_operation -X POST -H "Content-Type: application/zip" -T chrome.zip "$API/draft/package")
+          wait_for_operation "$API/draft/package/operations/$OPERATION"
+
+          OPERATION=$(start_operation -X POST -H "Content-Type: application/json" \
+            -d "$(jq -n --arg notes "$NOTES" '{ notes: $notes }')" "$API")
+          wait_for_operation "$API/operations/$OPERATION"
+
+  github-release:
+    needs: [build, chrome, edge]
+    if: ${{ !cancelled() && needs.chrome.result == 'success' && needs.edge.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension
+
+      - name: Tag and create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ needs.build.outputs.sha }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          mv chrome.zip "daily-extension-v${VERSION}.zip"
+          gh release create "v${VERSION}" "daily-extension-v${VERSION}.zip" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$SHA" \
+            --title "Extension v${VERSION}" \
+            --generate-notes
