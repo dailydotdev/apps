@@ -204,7 +204,7 @@ export async function getBootData({
   if (cached && cached.fv === result.exp.fv) {
     return {
       ...result,
-      exp: { ...result.exp, f: cached.f, features: cached.features },
+      exp: { ...result.exp, features: cached.features },
     };
   }
 

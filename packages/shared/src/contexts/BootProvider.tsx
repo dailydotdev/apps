@@ -85,6 +85,10 @@ const updateLocalBootData = (
   boot: Partial<BootCacheData>,
 ) => {
   const localData = { ...current, ...boot, lastModifier: 'extension' };
+  if (localData.exp) {
+    const { f, ...exp } = localData.exp;
+    localData.exp = exp;
+  }
   const result = filteredProps(localData, [
     'alerts',
     'settings',
