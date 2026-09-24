@@ -203,7 +203,7 @@ export const SquadHeader = ({
               )}
             >
               <Button
-                variant={ButtonVariant.Float}
+                variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}
                 icon={<LinkIcon />}
                 aria-label="Share"
@@ -490,7 +490,7 @@ const MoreMenu = ({
   return (
     <div className="relative">
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         icon={<MenuIcon />}
         aria-label="Squad options"
@@ -527,7 +527,7 @@ const NotificationsMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
   return (
     <div className="relative">
       <Button
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         icon={<BellIcon secondary={open} />}
         aria-label="Squad notifications settings"
