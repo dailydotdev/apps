@@ -110,7 +110,8 @@ const FormInputCheckbox = ({
     >
       <div
         className={classNames(
-          'flex min-h-12 flex-1 items-center gap-2',
+          'flex min-h-12 flex-1 items-center',
+          item.icon ? 'gap-3' : 'gap-2',
           isVertical
             ? 'min-w-full flex-col justify-center py-2'
             : 'flex-row justify-start text-left',

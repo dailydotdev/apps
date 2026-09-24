@@ -28,7 +28,6 @@ import {
 } from '../../../graphql/users';
 import { ACQUISITION_FORM_OPTIONS } from '../../../components/cards/AcquisitionForm/common/common';
 import { shuffleArray } from '../../../lib/func';
-import { cloudinaryShortcutsIconsOpenai } from '../../../lib/image';
 import { IconSize } from '../../../components/Icon';
 import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
 import { FacebookIcon } from '../../../components/icons/Facebook';
@@ -38,6 +37,7 @@ import { LinkedInIcon } from '../../../components/icons/LinkedIn';
 import { MailIcon } from '../../../components/icons/Mail';
 import { MegaphoneIcon } from '../../../components/icons/Megaphone';
 import { MenuIcon } from '../../../components/icons/Menu';
+import { OpenAIIcon } from '../../../components/icons/OpenAI';
 import { RedditIcon } from '../../../components/icons/Reddit';
 import { TikTokIcon } from '../../../components/icons/TikTok';
 import { TwitterIcon } from '../../../components/icons/Twitter';
@@ -48,7 +48,7 @@ const DEFAULT_HEADLINE = 'How did you hear about us?';
 // Brand colours come from each logo's own `secondary` art. X stays on its
 // theme-following art, since its colour file is near-black and vanishes on
 // the dark theme. Hacker News is drawn the way the post page's community
-// sentiment draws it; ChatGPT reuses the shortcut tile already on our CDN.
+// sentiment draws it, and ChatGPT as its app icon: the mark on black.
 // Channels with no brand of their own get their filled icon in an accent tint.
 const channelIcons: Record<AcquisitionChannel, ReactElement> = {
   [AcquisitionChannel.Friend]: (
@@ -70,11 +70,9 @@ const channelIcons: Record<AcquisitionChannel, ReactElement> = {
   ),
   [AcquisitionChannel.SearchEngine]: <GoogleIcon secondary />,
   [AcquisitionChannel.AI]: (
-    <img
-      alt=""
-      className="size-5 rounded-6"
-      src={cloudinaryShortcutsIconsOpenai}
-    />
+    <span className="flex size-5 items-center justify-center rounded-6 border border-border-subtlest-tertiary bg-black text-white">
+      <OpenAIIcon size={IconSize.XXSmall} />
+    </span>
   ),
   [AcquisitionChannel.ExtensionStore]: <ChromeIcon />,
   [AcquisitionChannel.NewsletterBlog]: (
@@ -150,8 +148,9 @@ const channelTiles: Record<AcquisitionChannel, ReactElement> = {
     '#FFFFFF',
   ),
   [AcquisitionChannel.AI]: tile(
-    <img alt="" className="size-full" src={cloudinaryShortcutsIconsOpenai} />,
-    '',
+    <OpenAIIcon size={IconSize.Size16} />,
+    'text-white',
+    '#000000',
   ),
   [AcquisitionChannel.ExtensionStore]: tile(
     <ChromeIcon size={IconSize.Size16} />,
