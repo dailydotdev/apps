@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -44,6 +44,9 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { SquadPoll } from './data';
 import {
+  analyticsDays,
+  analyticsDiscovery,
+  analyticsEngagement,
   entriesByMonth,
   feedEntries,
   formatCount,
@@ -700,6 +703,13 @@ const IconButton = ({
 
 /* ------------------------------------------------------------------ pages */
 
+/**
+ * Set by a page that already sizes its content column (the direction's
+ * sub-pages): every page then fills it with the same padding instead of
+ * its own width cap.
+ */
+export const ColumnFitContext = createContext(false);
+
 const Column = ({
   children,
   width = 'max-w-[46rem]',
@@ -711,18 +721,22 @@ const Column = ({
   /** Inside another page's column: no width cap or padding of its own. */
   bare?: boolean;
   className?: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'flex w-full flex-col gap-5',
-      !bare && 'mx-auto px-6 py-6',
-      !bare && width,
-      className,
-    )}
-  >
-    {children}
-  </div>
-);
+}): ReactElement => {
+  const fit = useContext(ColumnFitContext);
+
+  return (
+    <div
+      className={classNames(
+        'flex w-full flex-col gap-5',
+        !bare && 'mx-auto px-4 py-6 tablet:px-6',
+        !bare && !fit && width,
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+};
 
 /** Home is the profile page's skeleton, for a squad. See home.tsx. */
 const HomePage = ({
@@ -798,31 +812,42 @@ export const ChannelPage = ({
 };
 
 /** Reddit's rules widget, as a page: numbered, one line each, with the why. */
-export const RulesPage = (): ReactElement => (
-  <Column width="max-w-[44rem]" className="gap-6">
-    <div className="flex flex-col gap-1">
-      <h1 className="font-bold text-text-primary typo-large-title">Rules</h1>
-      <p className="text-text-tertiary typo-callout">
-        Shown once before your first post. Moderators remove what breaks them.
-      </p>
-    </div>
-    <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
-      {rules.map(([title, body], index) => (
-        <li key={title} className="flex gap-4 px-5 py-4">
-          <span className="sq-nums w-5 shrink-0 font-bold text-text-quaternary typo-callout">
-            {index + 1}
-          </span>
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span className="font-bold text-text-primary typo-callout">
-              {title}
+export const RulesPage = (): ReactElement => {
+  const fit = useContext(ColumnFitContext);
+
+  return (
+    <Column width="max-w-[44rem]" className="gap-6">
+      <div className="flex flex-col gap-1">
+        {!fit && (
+          <h1 className="font-bold text-text-primary typo-large-title">
+            Rules
+          </h1>
+        )}
+        <p className="text-text-tertiary typo-callout">
+          Shown once before your first post. Moderators remove what breaks them.
+        </p>
+      </div>
+      <ol className="flex flex-col divide-y divide-border-subtlest-tertiary">
+        {rules.map(([title, body], index) => (
+          <li
+            key={title}
+            className="flex gap-4 rounded-12 px-4 py-4 hover:bg-surface-float"
+          >
+            <span className="sq-nums w-5 shrink-0 font-bold text-text-quaternary typo-callout">
+              {index + 1}
             </span>
-            <span className="text-text-tertiary typo-footnote">{body}</span>
-          </div>
-        </li>
-      ))}
-    </ol>
-  </Column>
-);
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="font-bold text-text-primary typo-callout">
+                {title}
+              </span>
+              <span className="text-text-tertiary typo-footnote">{body}</span>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Column>
+  );
+};
 
 /** A freeform post, rendered as a page: the FAQ, or any document. */
 export const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
@@ -882,8 +907,6 @@ export const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
   </Column>
 );
 
-const releaseKinds = ['All', 'Features', 'Fixes', 'Betas'];
-
 /**
  * The changelog as a log, not a feed: GitHub Releases' shape. Every post
  * flaired as a release lands here grouped by month, newest first, with the
@@ -906,10 +929,12 @@ export const ReleasesPage = ({
           <MegaphoneIcon size={IconSize.Small} />
           <span className="min-w-0 flex-1">
             Published from the company&apos;s feed,{' '}
-            <span className="text-text-secondary">{squad.feedUrl}</span>. Every
-            item becomes a post here the hour it goes live.
+            <span className="break-all text-text-secondary">
+              {squad.feedUrl}
+            </span>
+            . Every item becomes a post here the hour it goes live.
           </span>
-          <span className="sq-nums shrink-0 text-text-quaternary typo-caption1">
+          <span className="sq-nums hidden shrink-0 text-text-quaternary typo-caption1 tablet:inline">
             Synced 2h ago
           </span>
         </div>
@@ -926,28 +951,10 @@ export const ReleasesPage = ({
           </span>
         </div>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1">
-          {releaseKinds.map((kind, index) => (
-            <button
-              type="button"
-              key={kind}
-              className={classNames(
-                'rounded-10 px-3 py-1.5 typo-callout',
-                index === 0
-                  ? 'bg-surface-float font-bold text-text-primary'
-                  : 'text-text-tertiary hover:text-text-primary',
-              )}
-            >
-              {kind}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="sq-nums text-text-tertiary typo-footnote">
-            <b className="text-text-primary">{squad.totalPosts}</b> releases
-          </span>
-          {isStaff(viewer) && source === ContentSource.Manual && (
+      {((isStaff(viewer) && source === ContentSource.Manual) ||
+        (isAdmin(viewer) && source === ContentSource.Feed)) && (
+        <div className="flex justify-end">
+          {source === ContentSource.Manual ? (
             <Button
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
@@ -955,74 +962,67 @@ export const ReleasesPage = ({
             >
               New release
             </Button>
-          )}
-          {isAdmin(viewer) && source === ContentSource.Feed && (
+          ) : (
             <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
               Feed settings
             </Button>
           )}
         </div>
-      </div>
-      <div className={classNames('flex flex-col gap-8', empty && 'hidden')}>
-        {entriesByMonth.map((group, groupIndex) => (
-          <section key={group.month} className="flex flex-col gap-3">
-            <h2 className="flex items-center gap-2 font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
-              {group.month}
-              {groupIndex === 0 && (
-                <span className="rounded-6 bg-accent-cabbage-flat px-1.5 normal-case tracking-normal text-accent-cabbage-default">
-                  Latest
+      )}
+      <ol
+        className={classNames(
+          'flex flex-col divide-y divide-border-subtlest-tertiary',
+          empty && 'hidden',
+        )}
+      >
+        {entriesByMonth
+          .flatMap((group) => group.items)
+          .map((entry) => (
+            <li
+              key={entry.id}
+              className="group flex gap-4 rounded-12 px-4 py-4 hover:bg-surface-float"
+            >
+              {' '}
+              <time className="sq-nums w-14 shrink-0 pt-0.5 text-text-tertiary typo-footnote">
+                {formatDay(entry.createdAt)}
+              </time>
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <span className="font-bold text-text-primary typo-callout">
+                  {entry.title}
                 </span>
-              )}
-            </h2>
-            <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
-              {group.items.map((entry) => (
-                <li
-                  key={entry.id}
-                  className="group flex gap-4 px-4 py-4 hover:bg-surface-float"
-                >
-                  <time className="sq-nums w-14 shrink-0 pt-0.5 text-text-tertiary typo-footnote">
-                    {formatDay(entry.createdAt)}
-                  </time>
-                  <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                    <span className="font-bold text-text-primary typo-callout">
-                      {entry.title}
+                <p className="line-clamp-2 text-text-secondary typo-footnote">
+                  {entry.summary}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-quaternary typo-caption1">
+                  <span className="flex items-center gap-1.5">
+                    <Avatar member={entry.author} size={1} />
+                    {entry.author.name}
+                  </span>
+                  {entry.tags.slice(0, 2).map((tag) => (
+                    <span key={tag}>#{tag}</span>
+                  ))}
+                  <span className="sq-nums ml-auto flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <UpvoteIcon size={IconSize.XSmall} />
+                      {entry.upvotes}
                     </span>
-                    <p className="line-clamp-2 text-text-secondary typo-footnote">
-                      {entry.summary}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-quaternary typo-caption1">
-                      <span className="flex items-center gap-1.5">
-                        <Avatar member={entry.author} size={1} />
-                        {entry.author.name}
-                      </span>
-                      {entry.tags.slice(0, 2).map((tag) => (
-                        <span key={tag}>#{tag}</span>
-                      ))}
-                      <span className="sq-nums ml-auto flex items-center gap-3">
-                        <span className="flex items-center gap-1">
-                          <UpvoteIcon size={IconSize.XSmall} />
-                          {entry.upvotes}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <DiscussIcon size={IconSize.XSmall} />
-                          {entry.comments}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                  {entry.image && (
-                    <img
-                      src={entry.image}
-                      alt=""
-                      className="h-14 w-24 shrink-0 rounded-10 object-cover"
-                    />
-                  )}
-                </li>
-              ))}
-            </ol>
-          </section>
-        ))}
-      </div>
+                    <span className="flex items-center gap-1">
+                      <DiscussIcon size={IconSize.XSmall} />
+                      {entry.comments}
+                    </span>
+                  </span>
+                </div>
+              </div>
+              {entry.image && (
+                <img
+                  src={entry.image}
+                  alt=""
+                  className="hidden h-14 w-24 shrink-0 rounded-10 object-cover tablet:block"
+                />
+              )}
+            </li>
+          ))}
+      </ol>
     </Column>
   );
 };
@@ -1167,7 +1167,7 @@ const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
 export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column width="max-w-[56rem]">
     {isAdmin(viewer) ? (
-      <div className="flex flex-col gap-3 rounded-16 border border-dashed border-border-subtlest-secondary p-4">
+      <div className="flex flex-col gap-3 rounded-16 bg-surface-float p-4">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <span className="font-bold text-text-primary typo-callout">
             Import a product
@@ -1206,33 +1206,25 @@ export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
     {/* Product Hunt's list: logo, name and tagline on one line, chips under,
         and the tall box on the right. Theirs counts upvotes; ours counts
         stacks and is the Add button. */}
-    <ol className="flex flex-col divide-y divide-border-subtlest-tertiary rounded-16 border border-border-subtlest-tertiary">
-      {products.map((product, index) => (
+    <ol className="flex flex-col divide-y divide-border-subtlest-tertiary">
+      {products.map((product) => (
         <li
           key={product.id}
-          className="group flex items-center gap-4 px-4 py-3 hover:bg-surface-float"
+          className="group flex items-start gap-4 rounded-12 px-4 py-4 hover:bg-surface-float"
         >
-          <span className="sq-nums w-5 shrink-0 text-right text-text-quaternary typo-footnote">
-            {index + 1}.
-          </span>
           <img
             src={product.image}
             alt=""
-            className="size-14 shrink-0 rounded-12 bg-background-default object-cover p-1"
+            className="size-12 shrink-0 self-start rounded-12 bg-background-default object-cover"
           />
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <span className="flex min-w-0 items-baseline gap-2">
-              <span className="min-w-0 shrink truncate font-bold text-text-primary typo-callout">
-                {product.name}
-              </span>
-              <span className="hidden text-text-quaternary laptop:inline">
-                ·
-              </span>
-              <span className="min-w-0 shrink truncate text-text-secondary typo-callout">
-                {product.tagline}
-              </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="font-bold text-text-primary typo-callout">
+              {product.name}
             </span>
-            <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-caption1">
+            <span className="line-clamp-2 text-text-secondary typo-footnote">
+              {product.tagline}
+            </span>
+            <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-caption1">
               {product.rating && (
                 <span className="sq-nums flex items-center gap-1">
                   <StarIcon
@@ -1266,7 +1258,7 @@ export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
           </div>
           <button
             type="button"
-            className="sq-nums flex w-16 shrink-0 flex-col items-center gap-0.5 rounded-12 border border-border-subtlest-tertiary bg-background-default py-2 text-text-primary transition-colors hover:border-accent-cabbage-default hover:text-accent-cabbage-default"
+            className="sq-nums flex w-16 shrink-0 flex-col items-center gap-0.5 rounded-12 bg-surface-float py-2 text-text-primary transition-colors hover:bg-surface-hover hover:text-accent-cabbage-default"
             aria-label={`Add ${product.name} to your stack`}
           >
             <PlusIcon size={IconSize.Small} />
@@ -2180,10 +2172,7 @@ export const SettingsPage = (): ReactElement => {
 
 /* ------------------------------------------------------------ analytics */
 
-const days = Array.from({ length: 45 }, (_, index) => {
-  const seed = (index * 7) % 13;
-  return { organic: 40 + seed * 9, boosted: index > 30 ? 60 + seed * 6 : 0 };
-});
+const days = analyticsDays;
 
 /** Production's /squads/[handle]/analytics: two tiles, the chart, the list. */
 export const AnalyticsPage = (): ReactElement => {
@@ -2193,23 +2182,22 @@ export const AnalyticsPage = (): ReactElement => {
   return (
     <Column width="max-w-[52rem]" className="gap-6">
       <div className="grid grid-cols-2 gap-3">
-        {[
-          ['Impressions', formatCount(empty ? 0 : 184200)],
-          ['Unique reach', formatCount(empty ? 0 : 61400)],
-        ].map(([label, value]) => (
-          <div
-            key={label}
-            className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-4"
-          >
-            <span className="text-text-tertiary typo-footnote">{label}</span>
-            <span className="sq-nums font-bold text-text-primary typo-title2">
-              {value}
-            </span>
-            <span className="text-text-quaternary typo-caption1">
-              Last 45 days
-            </span>
-          </div>
-        ))}
+        {analyticsDiscovery
+          .map(([label, amount]) => [label, formatCount(empty ? 0 : amount)])
+          .map(([label, value]) => (
+            <div
+              key={label}
+              className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-4"
+            >
+              <span className="text-text-tertiary typo-footnote">{label}</span>
+              <span className="sq-nums font-bold text-text-primary typo-title2">
+                {value}
+              </span>
+              <span className="text-text-quaternary typo-caption1">
+                Last 45 days
+              </span>
+            </div>
+          ))}
       </div>
       <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
         <div className="flex items-center justify-between">
@@ -2257,15 +2245,7 @@ export const AnalyticsPage = (): ReactElement => {
         )}
       </div>
       <dl className="grid grid-cols-4 gap-3">
-        {[
-          ['Upvotes', formatCount(squad.totalUpvotes)],
-          ['Upvotes ratio', '4.5%'],
-          ['Comments', '2.1K'],
-          ['Bookmarks', '3.8K'],
-          ['Awards', String(squad.totalAwards)],
-          ['Shares', '912'],
-          ['Clicks', '48.2K'],
-        ].map(([label, value]) => (
+        {analyticsEngagement.map(([label, value]) => (
           <div
             key={label}
             className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary px-3 py-2.5"

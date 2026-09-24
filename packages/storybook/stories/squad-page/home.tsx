@@ -12,6 +12,7 @@ import {
   ArrowIcon,
   BellIcon,
   CardLayout,
+  AnalyticsIcon,
   EarthIcon,
   EditIcon,
   ExitIcon,
@@ -40,6 +41,9 @@ import type { Entry } from './data';
 import {
   companyLinks,
   feedEntries,
+  analyticsDays,
+  analyticsDiscovery,
+  analyticsEngagement,
   formatCount,
   formatSince,
   jobs,
@@ -104,7 +108,7 @@ export const SquadHeader = ({
       ? (size: ButtonSize, className?: string): ReactElement =>
           following ? (
             <Button
-              variant={ButtonVariant.Secondary}
+              variant={ButtonVariant.Subtle}
               size={size}
               className={className}
             >
@@ -910,6 +914,82 @@ const weeks = Array.from({ length: 26 }, (_, week) =>
 );
 
 /** ReadingOverview, for a squad: what it posts, how often, about what. */
+/**
+ * Production's squad analytics, in the column: the two discovery numbers,
+ * the impressions trend, the engagement that matters most, and the way to
+ * the full page. Only for whoever holds the view-analytics permission.
+ */
+export const AnalyticsWidget = ({
+  viewer,
+  onOpen,
+}: {
+  viewer: Viewer;
+  onOpen?: () => void;
+}): ReactElement | null => {
+  if (!isAdmin(viewer)) {
+    return null;
+  }
+
+  const max = Math.max(
+    ...analyticsDays.map((day) => day.organic + day.boosted),
+  );
+
+  return (
+    <Widget
+      title="Analytics"
+      action={
+        <span className="font-normal text-text-quaternary typo-caption1">
+          Last 45 days
+        </span>
+      }
+    >
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        {analyticsDiscovery.map(([label, value]) => (
+          <Tile key={label} value={formatCount(value)} label={label} />
+        ))}
+      </div>
+      <div
+        aria-label="Impressions per day"
+        className="mt-4 flex h-12 items-end gap-px"
+      >
+        {analyticsDays.map((day, index) => (
+          <span
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            className={classNames(
+              'min-w-0 flex-1 rounded-t-[0.125rem]',
+              day.boosted ? 'bg-accent-cabbage-default' : 'bg-text-disabled',
+            )}
+            style={{
+              height: `${((day.organic + day.boosted) / max) * 100}%`,
+            }}
+          />
+        ))}
+      </div>
+      <dl className="mt-4 flex flex-col">
+        {analyticsEngagement.slice(0, 4).map(([label, value]) => (
+          <div
+            key={label}
+            className="flex items-center justify-between py-1.5 typo-footnote"
+          >
+            <dt className="text-text-tertiary">{label}</dt>
+            <dd className="sq-nums font-bold text-text-primary">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<AnalyticsIcon />}
+        className="mt-3 w-full"
+        onClick={onOpen}
+      >
+        View analytics
+      </Button>
+    </Widget>
+  );
+};
+
 export const OverviewWidget = (): ReactElement => (
   <Widget title="Activity">
     <div className="mb-3 mt-4 grid grid-cols-2 gap-2">
@@ -1271,17 +1351,18 @@ export const SquadWidgets = ({
   viewer = Viewer.Visitor,
   onOpenRules,
   onOpenFaq,
+  onOpenAnalytics,
 }: {
   viewer?: Viewer;
   onOpenRules?: () => void;
   onOpenFaq?: () => void;
+  onOpenAnalytics?: () => void;
 }): ReactElement => (
   <>
     <VerifiedWidget />
     <RulesWidget onOpenRules={onOpenRules} onOpenFaq={onOpenFaq} />
     <TeamWidget />
-    <StackWidget viewer={viewer} />
-    <OverviewWidget />
+    <AnalyticsWidget viewer={viewer} onOpen={onOpenAnalytics} />
     <LinksWidget />
   </>
 );

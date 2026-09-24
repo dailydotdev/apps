@@ -1026,3 +1026,27 @@ export const companyLinks: CompanyLink[] = [
     href: 'https://discord.gg/coderabbit',
   },
 ];
+
+/**
+ * Squad analytics, the metrics production's /squads/[handle]/analytics
+ * shows for the last 45 days. Illustrative numbers.
+ */
+export const analyticsDays = Array.from({ length: 45 }, (_, index) => {
+  const seed = (index * 7) % 13;
+  return { organic: 40 + seed * 9, boosted: index > 30 ? 60 + seed * 6 : 0 };
+});
+
+export const analyticsDiscovery: [string, number][] = [
+  ['Impressions', 184200],
+  ['Unique reach', 61400],
+];
+
+export const analyticsEngagement: [string, string][] = [
+  ['Upvotes', formatCount(squad.totalUpvotes)],
+  ['Upvotes ratio', '4.5%'],
+  ['Comments', '2.1K'],
+  ['Bookmarks', '3.8K'],
+  ['Awards', String(squad.totalAwards)],
+  ['Shares', '912'],
+  ['Clicks', '48.2K'],
+];

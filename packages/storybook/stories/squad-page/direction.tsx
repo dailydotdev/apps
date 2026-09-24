@@ -9,6 +9,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ArrowIcon,
+  MoveToIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -21,6 +22,7 @@ import { SquadComposer, SquadHeader, SquadWidgets } from './home';
 import { FollowButton, ManageButton } from './navigation';
 import {
   AnalyticsPage,
+  ColumnFitContext,
   ContentSource,
   defaultConfig,
   docs,
@@ -168,6 +170,7 @@ const Feed = ({
           viewer={viewer}
           onOpenRules={() => onSelect('rules')}
           onOpenFaq={() => onSelect('faq')}
+          onOpenAnalytics={() => onSelect('analytics')}
         />
       </div>
     );
@@ -223,6 +226,10 @@ const titles: Record<string, string> = {
  * LinkedIn's company sub-pages keep a strip of the company above the page:
  * back, the logo, the name. The page below carries its own title.
  */
+/**
+ * X's sub-page header: back, then the page as the title with the squad
+ * under it, so the page has a name without a second heading below.
+ */
 const SubHeader = ({
   viewer,
   id,
@@ -232,31 +239,33 @@ const SubHeader = ({
   id: string;
   onBack: () => void;
 }): ReactElement => (
-  <div className="flex items-center gap-3 border-b border-border-subtlest-tertiary px-4 py-3">
+  <div className="flex items-center gap-3 border-b border-border-subtlest-tertiary px-4 py-2">
     <Button
       variant={ButtonVariant.Float}
       size={ButtonSize.Small}
-      icon={<ArrowIcon className="-rotate-90" />}
-      aria-label="Back to CodeRabbit"
+      icon={<MoveToIcon className="rotate-180" />}
+      aria-label={`Back to ${squad.name}`}
+      title={`Back to ${squad.name}`}
       onClick={onBack}
     />
-    <button
-      type="button"
-      onClick={onBack}
-      className="flex items-center gap-2 rounded-10 py-1 pl-1 pr-2 transition-colors hover:bg-surface-float"
-    >
-      <img src={squad.image} alt="" className="size-7 rounded-8 object-cover" />
-      <span className="hidden items-center gap-1 font-bold text-text-primary typo-callout tablet:flex">
+    <div className="flex min-w-0 flex-1 flex-col">
+      <span className="truncate font-bold text-text-primary typo-body">
+        {titles[id] ?? id}
+      </span>
+      <button
+        type="button"
+        onClick={onBack}
+        className="flex items-center gap-1 self-start text-text-tertiary typo-caption1 hover:text-text-primary"
+      >
+        <img
+          src={squad.image}
+          alt=""
+          className="size-4 rounded-4 object-cover"
+        />
         {squad.name}
         <VerifiedMark label={false} />
-      </span>
-    </button>
-    <span className="hidden text-text-quaternary typo-callout tablet:inline">
-      /
-    </span>
-    <span className="min-w-0 flex-1 truncate text-text-tertiary typo-callout">
-      {titles[id] ?? id}
-    </span>
+      </button>
+    </div>
     <div className="shrink-0">
       <FollowButton viewer={viewer} size={ButtonSize.XSmall} />
     </div>
@@ -330,6 +339,7 @@ export const DirectionPage = ({
         viewer={viewer}
         onOpenRules={() => onSelect('rules')}
         onOpenFaq={() => onSelect('faq')}
+        onOpenAnalytics={() => onSelect('analytics')}
       />
     }
   >
@@ -353,7 +363,9 @@ export const DirectionPage = ({
           id={active}
           onBack={() => onSelect('home')}
         />
-        <SubPage id={active} viewer={viewer} />
+        <ColumnFitContext.Provider value>
+          <SubPage id={active} viewer={viewer} />
+        </ColumnFitContext.Provider>
       </>
     )}
   </Frame>

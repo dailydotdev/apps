@@ -6,7 +6,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  EditIcon,
   LinkIcon,
   MaximizeIcon,
   MiniCloseIcon,
@@ -29,7 +28,6 @@ import { Avatar } from './kit';
 // already set to that kind with this squad as the audience.
 
 const kinds: { kind: ComposerKind; label: string; icon: ReactElement }[] = [
-  { kind: 'text', label: 'Free form', icon: <EditIcon /> },
   { kind: 'link', label: 'Share a link', icon: <LinkIcon /> },
   { kind: 'poll', label: 'Poll', icon: <PollIcon /> },
 ];
@@ -221,7 +219,10 @@ export const ComposerPreview = ({
   );
 };
 
-/** The bar on the squad: the prompt opens Free form, each kind opens itself. */
+/**
+ * The bar on the squad. The whole box opens the composer in free form,
+ * its default; the shortcuts under the prompt open the other kinds.
+ */
 export const ComposerEntry = ({
   canPoll,
   reviewed,
@@ -233,42 +234,50 @@ export const ComposerEntry = ({
   const shown = kinds.filter(({ kind }) => canPoll || kind !== 'poll');
 
   return (
-    <div className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-colors focus-within:border-border-subtlest-secondary hover:border-border-subtlest-secondary">
-      <button
-        type="button"
+    <>
+      <div
+        role="presentation"
         onClick={() => setOpen('text')}
-        className="flex items-center gap-3 px-4 pb-2 pt-3 text-left"
+        className="flex cursor-text flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-colors focus-within:border-border-subtlest-secondary hover:border-border-subtlest-secondary"
       >
-        <Avatar member={me} size={2} />
-        <span className="min-w-0 flex-1 truncate text-text-quaternary typo-body">
-          What&apos;s on your mind?
-        </span>
-      </button>
-      <div className="flex items-center gap-1 px-3 pb-2 tablet:pl-[3.75rem]">
-        {shown.map(({ kind, label, icon }) => (
-          <Button
-            key={kind}
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={React.cloneElement(icon, { size: IconSize.Size16 })}
-            onClick={() => setOpen(kind)}
-            className="!px-2 text-text-tertiary"
-          >
-            {label}
-          </Button>
-        ))}
-        {reviewed && (
-          <span
-            title="Posts are reviewed by a moderator before they go live."
-            className="ml-auto hidden items-center gap-1.5 pr-1 text-text-quaternary typo-caption1 tablet:flex"
-          >
-            <TimerIcon size={IconSize.Size16} />
-            Reviewed before it goes live
+        <button
+          type="button"
+          className="flex items-center gap-3 px-4 pb-2 pt-3 text-left"
+        >
+          <Avatar member={me} size={2} />
+          <span className="min-w-0 flex-1 truncate text-text-quaternary typo-body">
+            What&apos;s on your mind?
           </span>
-        )}
+        </button>
+        <div className="flex items-center gap-1 px-3 pb-2 tablet:pl-[3.75rem]">
+          {shown.map(({ kind, label, icon }) => (
+            <Button
+              key={kind}
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={React.cloneElement(icon, { size: IconSize.Size16 })}
+              onClick={(event: React.MouseEvent) => {
+                event.stopPropagation();
+                setOpen(kind);
+              }}
+              className="!px-2 text-text-tertiary"
+            >
+              {label}
+            </Button>
+          ))}
+          {reviewed && (
+            <span
+              title="Posts are reviewed by a moderator before they go live."
+              className="ml-auto hidden items-center gap-1.5 pr-1 text-text-quaternary typo-caption1 tablet:flex"
+            >
+              <TimerIcon size={IconSize.Size16} />
+              Reviewed before it goes live
+            </span>
+          )}
+        </div>
       </div>
       {open && <ComposerPreview kind={open} onClose={() => setOpen(null)} />}
-    </div>
+    </>
   );
 };

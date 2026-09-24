@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   ArrowIcon,
+  DiscussIcon,
   PinIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -15,7 +16,7 @@ import { PinnedCard } from './kit';
 // default; X's single pinned post stays switchable for testing.
 
 export enum PinStyle {
-  /** Reddit Community highlights: a row of compact cards above the feed. */
+  /** Reddit's Community highlights, as Pinned posts: a row of cards above the feed. */
   Reddit = 'reddit',
   /** X profile: the first post, full size, a quiet Pinned line. One pin. */
   X = 'x',
@@ -36,8 +37,6 @@ export const feedUnder = (style: PinStyle): Entry[] => {
 
   return feedEntries.filter((entry) => !shown.has(entry.id));
 };
-
-const labels = ['Announcement', 'Launch', 'Guide'];
 
 const Stat = ({
   icon,
@@ -63,7 +62,7 @@ const RedditHighlights = (): ReactElement => {
         className="flex items-center gap-1.5 self-start text-text-secondary typo-footnote hover:text-text-primary"
       >
         <PinIcon size={IconSize.Size16} secondary />
-        <span className="font-bold">Community highlights</span>
+        <span className="font-bold">Pinned posts</span>
         <ArrowIcon
           size={IconSize.Size16}
           className={classNames('transition-transform', !open && 'rotate-180')}
@@ -71,7 +70,7 @@ const RedditHighlights = (): ReactElement => {
       </button>
       {open && (
         <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] tablet:-mx-6 tablet:px-6">
-          {pins.map((entry, index) => (
+          {pins.map((entry) => (
             <a
               key={entry.id}
               href="#"
@@ -89,13 +88,14 @@ const RedditHighlights = (): ReactElement => {
                 <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
                   {entry.title}
                 </span>
-                <span className="flex items-center gap-2 text-text-tertiary typo-caption1">
-                  <span className="rounded-6 bg-surface-float px-1.5 py-0.5 text-text-secondary">
-                    {labels[index]}
-                  </span>
+                <span className="flex items-center gap-3 text-text-tertiary typo-caption1">
                   <Stat
                     icon={<UpvoteIcon size={IconSize.Size16} />}
                     value={entry.upvotes}
+                  />
+                  <Stat
+                    icon={<DiscussIcon size={IconSize.Size16} />}
+                    value={entry.comments}
                   />
                 </span>
               </span>
