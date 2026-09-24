@@ -118,7 +118,7 @@ const SteadyLabel = ({ children }: { children: string }): ReactElement => (
   </span>
 );
 
-/** One row: the kinds as chips on the left, the sort on the right. */
+/** One row: the kinds as chips. */
 const FeedToolbar = ({
   chip,
   onChip,
@@ -145,15 +145,6 @@ const FeedToolbar = ({
             <SteadyLabel>{item.label}</SteadyLabel>
           </button>
         ))}
-      </div>
-      <div className="flex shrink-0 items-center gap-1">
-        <button
-          type="button"
-          className="hidden items-center gap-1 rounded-[999px] px-3 py-1.5 tablet:flex text-text-tertiary typo-callout transition-colors hover:bg-surface-float hover:text-text-primary"
-        >
-          Latest
-          <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
-        </button>
       </div>
     </div>
   );
