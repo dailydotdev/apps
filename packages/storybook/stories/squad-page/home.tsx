@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { createContext, useContext, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -114,28 +114,6 @@ const MetaItem = ({
 );
 
 
-/**
- * Where the Official company page badge sits on phones, where the right
- * column (and its Aurora card) is behind the About chip. Unset keeps the
- * seal next to the name only.
- */
-export enum OfficialSpot {
-  UnderUrl = 'under-url',
-  MetaLead = 'meta-lead',
-  UnderName = 'under-name',
-  NameChip = 'name-chip',
-  InfoRow = 'info-row',
-  StripAboveFollow = 'strip-above-follow',
-  StripTop = 'strip-top',
-  CoverPill = 'cover-pill',
-  LogoPill = 'logo-pill',
-  StatsLead = 'stats-lead',
-}
-
-export const OfficialSpotContext = createContext<OfficialSpot | undefined>(
-  undefined,
-);
-
 const auroraStyle = {
   background:
     'color-mix(in srgb, var(--theme-background-default) 58%, transparent)',
@@ -155,9 +133,13 @@ const AuroraGlow = (): ReactElement => (
   />
 );
 
-/** Aurora at pill size: the right column's card, shrunk to one chip. */
-export const OfficialPill = ({
-  label = 'Official company page',
+/**
+ * Aurora at pill size: the right column's card, shrunk to one chip. On
+ * phones, where the right column is behind the About chip, it replaces
+ * the seal beside the name.
+ */
+export const VerifiedPill = ({
+  label = 'Verified company page',
   className,
 }: {
   label?: string;
@@ -178,45 +160,6 @@ export const OfficialPill = ({
   </span>
 );
 
-/** Aurora at strip size: the card, one line, full width. */
-const OfficialStrip = ({ className }: { className?: string }): ReactElement => (
-  <div
-    className={classNames(
-      'relative flex h-10 items-center gap-2 overflow-hidden rounded-12 px-3',
-      className,
-    )}
-    style={auroraStyle}
-  >
-    <AuroraGlow />
-    <VerifiedSeal className="relative size-5 text-accent-cabbage-default" />
-    <span className="relative font-bold text-text-primary typo-callout">
-      Official company page
-    </span>
-    <span className="relative ml-auto text-text-tertiary typo-caption1">
-      Verified by daily.dev
-    </span>
-  </div>
-);
-
-/** Plain text: the seal and the words in brand purple, no surface. */
-const OfficialText = ({
-  label = 'Official company page',
-  className,
-}: {
-  label?: string;
-  className?: string;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'flex items-center gap-1 whitespace-nowrap font-bold text-accent-cabbage-default',
-      className,
-    )}
-  >
-    <VerifiedSeal className="size-4" />
-    {label}
-  </span>
-);
-
 export const SquadHeader = ({
   viewer,
   standalone,
@@ -232,7 +175,6 @@ export const SquadHeader = ({
   onManage?: (id: string) => void;
 }): ReactElement => {
   const { config } = useWorkspace();
-  const spot = useContext(OfficialSpotContext);
   const following = isJoined(viewer) && !isAdmin(viewer);
   const canFollow = standalone && !isJoined(viewer);
   // X's rule: one text-only button at the end of the row, Follow until you
@@ -282,30 +224,16 @@ export const SquadHeader = ({
             squad.headerImagePosition === 'bottom' && 'object-bottom',
           )}
         />
-        {spot === OfficialSpot.CoverPill && (
-          <OfficialPill
-            label="Official"
-            className="!absolute left-3 top-3 tablet:hidden"
-          />
-        )}
       </div>
       <div className="flex flex-col px-4 pb-5 tablet:px-6">
         {/* Logo and actions share one baseline, so the identity column below
           is text only and every row starts at the same x. */}
         <div className="-mt-8 flex items-end justify-between gap-4 tablet:-mt-12">
-          <span className="relative flex shrink-0 flex-col items-center">
-            <img
-              src={squad.image}
-              alt="Logo"
-              className="relative size-20 shrink-0 rounded-full bg-background-default object-cover ring-4 ring-background-default tablet:size-[6.5rem]"
-            />
-            {spot === OfficialSpot.LogoPill && (
-              <OfficialPill
-                label="Official"
-                className="!absolute -bottom-2 ring-2 ring-background-default tablet:hidden"
-              />
-            )}
-          </span>
+          <img
+            src={squad.image}
+            alt="Logo"
+            className="relative size-20 shrink-0 rounded-full bg-background-default object-cover ring-4 ring-background-default tablet:size-[6.5rem]"
+          />
           <div className="flex items-center gap-2 pb-1">
             {isAdmin(viewer) && (
               <span className="hidden tablet:flex">
@@ -359,41 +287,15 @@ export const SquadHeader = ({
             think this is a mistake.
           </div>
         )}
-        {spot === OfficialSpot.StripTop && (
-          <OfficialStrip className="mt-4 tablet:hidden" />
-        )}
         <div className="mt-4 flex flex-col gap-1">
-          <h1 className="flex items-center gap-2 font-bold text-text-primary typo-title2">
+          <h1 className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2">
             {squad.name}
-            {spot === OfficialSpot.NameChip ? (
-              <>
-                <VerifiedMark label={false} className="hidden tablet:flex" />
-                <OfficialPill label="Official" className="tablet:hidden" />
-              </>
-            ) : (
-              <VerifiedMark label={false} />
-            )}
+            <VerifiedMark label={false} className="hidden tablet:flex" />
+            <VerifiedPill className="tablet:hidden" />
           </h1>
-          {spot === OfficialSpot.UnderName && (
-            <span className="flex items-center gap-1 text-text-tertiary typo-footnote tablet:hidden">
-              <OfficialText />
-              <span aria-hidden className="text-text-quaternary">
-                ·
-              </span>
-              Verified by daily.dev
-            </span>
-          )}
           <p className="text-text-secondary typo-body">{squad.tagline}</p>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
-          {spot === OfficialSpot.MetaLead && (
-            <span className="flex items-center gap-2 tablet:hidden">
-              <OfficialText label="Official page" />
-              <span aria-hidden className="text-text-quaternary">
-                ·
-              </span>
-            </span>
-          )}
           <span className="flex items-center gap-1.5 text-text-secondary">
             <img src={squad.image} alt="" className="size-4 rounded-full" />
             {squad.company.website}
@@ -421,40 +323,7 @@ export const SquadHeader = ({
             Since {formatSince(squad.createdAt)}
           </MetaItem>
         </div>
-        {spot === OfficialSpot.UnderUrl && (
-          <OfficialPill className="mt-3 self-start tablet:hidden" />
-        )}
-        {spot === OfficialSpot.InfoRow && (
-          <button
-            type="button"
-            className="mt-3 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-left tablet:hidden"
-          >
-            <VerifiedSeal className="size-5 text-accent-cabbage-default" />
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="font-bold text-text-primary typo-footnote">
-                Official company page
-              </span>
-              <span className="text-text-tertiary typo-caption1">
-                Run by {squad.name}, verified by daily.dev
-              </span>
-            </span>
-            <ArrowIcon
-              size={IconSize.Small}
-              className="rotate-90 text-text-quaternary"
-            />
-          </button>
-        )}
-        <SquadStats
-          onOpenMembers={onOpenMembers}
-          lead={
-            spot === OfficialSpot.StatsLead ? (
-              <OfficialText className="tablet:hidden" />
-            ) : undefined
-          }
-        />
-        {spot === OfficialSpot.StripAboveFollow && (
-          <OfficialStrip className="mt-4 tablet:hidden" />
-        )}
+        <SquadStats onOpenMembers={onOpenMembers} />
         {follow && (
           <div className="mt-4 flex tablet:hidden">
             {follow(ButtonSize.Medium, 'w-full')}
@@ -774,11 +643,8 @@ const NotificationsMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
  */
 const SquadStats = ({
   onOpenMembers,
-  lead,
 }: {
   onOpenMembers?: () => void;
-  /** Sits first in the row. */
-  lead?: ReactNode;
 }): ReactElement => {
   const Item = ({ amount, title }: { amount: number; title: string }) => (
     <span className="flex items-baseline gap-1">
@@ -791,7 +657,6 @@ const SquadStats = ({
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
-      {lead}
       <button
         type="button"
         onClick={onOpenMembers}
@@ -1634,7 +1499,7 @@ export const VerifiedWidget = (): ReactElement => (
     />
     <VerifiedSeal className="relative size-6 text-accent-cabbage-default" />
     <span className="relative font-bold text-text-primary typo-callout">
-      Official company page
+      Verified company page
     </span>
   </div>
 );
@@ -1650,7 +1515,7 @@ export const SquadWidgets = ({
   onOpenRules?: () => void;
   onOpenFaq?: () => void;
   onOpenAnalytics?: () => void;
-  /** Sits right under the Official company page card. */
+  /** Sits right under the Verified company page card. */
   afterVerified?: ReactNode;
 }): ReactElement => (
   <>
@@ -1658,6 +1523,7 @@ export const SquadWidgets = ({
     {afterVerified}
     <RulesWidget onOpenRules={onOpenRules} onOpenFaq={onOpenFaq} />
     <TeamWidget />
+    <StackWidget viewer={viewer} />
     <AnalyticsWidget viewer={viewer} onOpen={onOpenAnalytics} />
     <LinksWidget />
   </>

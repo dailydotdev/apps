@@ -155,8 +155,8 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Stack & Tools',
         production: 'Chips, +N, Add for editors, dashed empty state',
-        design: 'Removed from the right column',
-        status: 'Dropped',
+        design: 'Right column under Team, the same chips, +N, Add and empty state',
+        status: 'Covered',
       },
       {
         surface: 'Invitation link button',
@@ -425,7 +425,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Added',
       },
       {
-        surface: 'Official company page badge',
+        surface: 'Verified company page badge',
         production: 'None (VerifiedCompanyUserBadge is user-only)',
         design: 'Aurora card at the top of the right column',
         status: 'Added',

@@ -254,10 +254,10 @@ export const Overview: StoryObj = {
               ? 'Bell, Share, more (with Manage), Following'
               : 'Bell, Share, more, Following',
             useCase.viewer === Viewer.Admin
-              ? 'View as a visitor, Official, share card, Rules, Team, Analytics, Links'
+              ? 'View as a visitor, Verified, share card, Rules, Team, Stack & Tools, Analytics, Links'
               : useCase.viewer === Viewer.Moderator
-              ? 'View as a visitor, Official, share card, Rules, Team, Links'
-              : 'Official, Rules, Team, Links',
+              ? 'View as a visitor, Verified, share card, Rules, Team, Stack & Tools, Links'
+              : 'Verified, Rules, Team, Stack & Tools, Links',
             useCase.viewer === Viewer.Admin
               ? 'The Manage area, every section (Edit page opens Details)'
               : useCase.viewer === Viewer.Moderator
@@ -339,7 +339,7 @@ export const Overview: StoryObj = {
               'Content feed, Moderation, Analytics, Settings',
               'Moderation, Analytics, Settings',
             ],
-            ['Badge', 'Official company page', 'None'],
+            ['Badge', 'Verified company page', 'None'],
             [
               'Who runs it',
               'daily.dev, with the company keeping the keys',

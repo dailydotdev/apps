@@ -12,14 +12,13 @@ import {
   MoveToIcon,
   PlusIcon,
   EyeIcon,
-  UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   SquadDirectoryNavbar,
   SquadDirectoryNavbarItem,
 } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
-import { feedEntries, formatCount, products, squad } from './data';
+import { feedEntries, products, squad } from './data';
 import { CardList, isAdmin, isJoined, isStaff, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
 import { MobileFooterNav, TabletSidebar } from './rail';
@@ -98,12 +97,8 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
             <span className="truncate font-bold text-text-primary typo-callout">
               {product.name}
             </span>
-            <span className="truncate text-text-tertiary typo-footnote">
+            <span className="line-clamp-2 text-text-tertiary typo-footnote">
               {product.tagline}
-            </span>
-            <span className="sq-nums mt-0.5 flex items-center gap-0.5 text-text-quaternary typo-caption1">
-              <UpvoteIcon size={IconSize.XSmall} />
-              {formatCount(product.inStacks)}
             </span>
           </div>
         </li>

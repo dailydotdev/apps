@@ -67,7 +67,7 @@ import {
 } from './workspace';
 
 // The squad's left column is gone. The profile header and the profile's
-// right column (Official company page, Rules, Team, Stack and tools,
+// right column (Verified company page, Rules, Team, Stack and tools,
 // Overview, Links) stay exactly as they are. What the column carried
 // besides those, the pages (Home, Releases, Products, Discussions, Polls)
 // and the team's Manage section, has to live in the header or the centre.
