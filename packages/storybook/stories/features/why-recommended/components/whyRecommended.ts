@@ -31,6 +31,8 @@ export enum RecommendationMatchOrigin {
 }
 
 export interface RecommendationMatch {
+  /** Tag name, source id or user id: joins the match to its row. */
+  id: string;
   label: string;
   kind: RecommendationMatchKind;
   origin: RecommendationMatchOrigin;
@@ -53,21 +55,10 @@ export interface RecommendationExplanation {
   finalScore?: number;
 }
 
-const recommendationFeeds: string[] = [
-  SharedFeedPage.MyFeed,
-  SharedFeedPage.Custom,
-  SharedFeedPage.Popular,
-  OtherFeedPage.Explore,
-  OtherFeedPage.Following,
-];
-
 const trendingFeeds: string[] = [SharedFeedPage.Popular, OtherFeedPage.Explore];
 
 export const isTrendingFeed = (feedName: string): boolean =>
   trendingFeeds.includes(feedName);
-
-export const isRecommendationFeed = (feedName?: string): boolean =>
-  !!feedName && recommendationFeeds.includes(feedName);
 
 interface RecommendationSignals {
   feedName: string;
@@ -110,8 +101,8 @@ export const getRecommendationReason = ({
 };
 
 interface SignalMatchesProps {
-  authorName: string | null;
-  sourceName: string;
+  author?: { id: string; name: string | null };
+  source: { id?: string; name?: string };
   isFollowingAuthor: boolean;
   isFollowingSource: boolean;
   isSquadMember: boolean;
@@ -119,78 +110,86 @@ interface SignalMatchesProps {
 }
 
 export const getSignalMatches = ({
-  authorName,
-  sourceName,
+  author,
+  source,
   isFollowingAuthor,
   isFollowingSource,
   isSquadMember,
   followedTags,
 }: SignalMatchesProps): RecommendationMatch[] => [
-  ...(isFollowingAuthor && authorName
+  ...(isFollowingAuthor && author?.name
     ? [
         {
-          label: authorName,
+          id: author.id,
+          label: author.name,
           kind: RecommendationMatchKind.Author,
           origin: RecommendationMatchOrigin.Following,
         },
       ]
     : []),
-  ...(isFollowingSource
+  ...(isFollowingSource && source.id && source.name
     ? [
         {
-          label: sourceName,
+          id: source.id,
+          label: source.name,
           kind: RecommendationMatchKind.Source,
           origin: RecommendationMatchOrigin.Following,
         },
       ]
     : []),
-  ...(isSquadMember
+  ...(isSquadMember && source.id && source.name
     ? [
         {
-          label: sourceName,
+          id: source.id,
+          label: source.name,
           kind: RecommendationMatchKind.Squad,
           origin: RecommendationMatchOrigin.Member,
         },
       ]
     : []),
   ...followedTags.map((tag) => ({
+    id: tag,
     label: tag,
     kind: RecommendationMatchKind.Topic,
     origin: RecommendationMatchOrigin.Selected,
   })),
 ];
 
-const matchRoleLabel: Record<RecommendationMatchRole, string> = {
-  [RecommendationMatchRole.Main]: 'main topic',
-  [RecommendationMatchRole.Supporting]: 'supporting topic',
-  [RecommendationMatchRole.Related]: 'closely related topic',
+interface MatchLabels {
+  sentence: string;
+  short: string;
+}
+
+const matchRoleLabels: Record<RecommendationMatchRole, MatchLabels> = {
+  [RecommendationMatchRole.Main]: { sentence: 'main topic', short: 'Main' },
+  [RecommendationMatchRole.Supporting]: {
+    sentence: 'supporting topic',
+    short: 'Supporting',
+  },
+  [RecommendationMatchRole.Related]: {
+    sentence: 'closely related topic',
+    short: 'Related',
+  },
 };
 
-const matchKindLabel: Record<RecommendationMatchKind, string> = {
-  [RecommendationMatchKind.Topic]: 'topic',
-  [RecommendationMatchKind.Source]: 'source',
-  [RecommendationMatchKind.Squad]: 'squad',
-  [RecommendationMatchKind.Author]: 'author',
+const matchKindLabels: Record<RecommendationMatchKind, MatchLabels> = {
+  [RecommendationMatchKind.Topic]: { sentence: 'topic', short: 'Topic' },
+  [RecommendationMatchKind.Source]: { sentence: 'source', short: 'Source' },
+  [RecommendationMatchKind.Squad]: {
+    sentence: 'squad',
+    short: "Squad you're in",
+  },
+  [RecommendationMatchKind.Author]: { sentence: 'author', short: 'Author' },
 };
+
+const getMatchLabels = (match: RecommendationMatch): MatchLabels =>
+  match.role ? matchRoleLabels[match.role] : matchKindLabels[match.kind];
 
 export const getMatchKindLabel = (match: RecommendationMatch): string =>
-  match.role ? matchRoleLabel[match.role] : matchKindLabel[match.kind];
-
-const matchMetaLabel: Record<RecommendationMatchRole, string> = {
-  [RecommendationMatchRole.Main]: 'Main',
-  [RecommendationMatchRole.Supporting]: 'Supporting',
-  [RecommendationMatchRole.Related]: 'Related',
-};
-
-const matchKindMetaLabel: Record<RecommendationMatchKind, string> = {
-  [RecommendationMatchKind.Topic]: 'Topic',
-  [RecommendationMatchKind.Source]: 'Source',
-  [RecommendationMatchKind.Squad]: "Squad you're in",
-  [RecommendationMatchKind.Author]: 'Author',
-};
+  getMatchLabels(match).sentence;
 
 export const getMatchMeta = (match: RecommendationMatch): string =>
-  match.role ? matchMetaLabel[match.role] : matchKindMetaLabel[match.kind];
+  getMatchLabels(match).short;
 
 const feedLabels: Record<string, string> = {
   [SharedFeedPage.MyFeed]: 'For You',

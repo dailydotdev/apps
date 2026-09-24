@@ -1,18 +1,16 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  BlockIcon,
-  EyeCancelIcon,
-  HashtagIcon,
-  PlusIcon,
-  VIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
+import { EyeCancelIcon } from '@dailydotdev/shared/src/components/icons/EyeCancel';
+import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   Typography,
@@ -37,7 +35,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { usePostById } from '@dailydotdev/shared/src/hooks/usePostById';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
-import { useSourceActionsFollow } from '@dailydotdev/shared/src/hooks/source/useSourceActionsFollow';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { isFollowingContent } from '@dailydotdev/shared/src/hooks/contentPreference/types';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
@@ -99,12 +96,12 @@ const getMatchName = (match: RecommendationMatch): string =>
 const getMatchArticle = (match: RecommendationMatch): string =>
   match.role ? 'a' : 'the';
 
-const getMatchKey = (kind: RecommendationMatchKind, label: string): string =>
+const getMatchKey = (kind: RecommendationMatchKind, id: string): string =>
   `${
     kind === RecommendationMatchKind.Squad
       ? RecommendationMatchKind.Source
       : kind
-  }:${label}`;
+  }:${id}`;
 
 const ExplainedReason = ({
   matches,
@@ -325,7 +322,9 @@ export function WhyRecommendedContent({
     throw new Error('WhyRecommendedContent requires post.source');
   }
   const isCustomFeed = !!customFeedId;
-  const { feedSettings } = useFeedSettings({ feedId: customFeedId });
+  const { feedSettings, isLoading: isFeedSettingsLoading } = useFeedSettings({
+    feedId: customFeedId,
+  });
   const {
     onFollowTags,
     onUnfollowTags,
@@ -333,14 +332,14 @@ export function WhyRecommendedContent({
     onUnblockTags,
     onBlockSource,
     onUnblockSource,
+    onFollowSource,
+    onUnfollowSource,
   } = useTagAndSource({
     origin: Origin.PostContextMenu,
     postId: post.id,
     shouldInvalidateQueries: false,
     feedId: customFeedId,
   });
-  const { isFollowing: isFollowingSource, toggleFollow: toggleSourceFollow } =
-    useSourceActionsFollow({ source });
   const { follow, unfollow, block, unblock } = useContentPreference();
   const [isScoreMathOpen, setIsScoreMathOpen] = useState(false);
 
@@ -357,12 +356,16 @@ export function WhyRecommendedContent({
   const isFollowingAuthor = isFollowingContent(author?.contentPreference);
   const isBlockedAuthor =
     author?.contentPreference?.status === ContentPreferenceStatus.Blocked;
+  const isFollowingSource = !!feedSettings?.includeSources?.some(
+    ({ id }) => id === source.id,
+  );
   const isSourceBlocked = !!feedSettings?.excludeSources?.some(
     ({ id }) => id === source.id,
   );
 
-  // Frozen on open so following something here doesn't reshuffle the list.
-  const [snapshot] = useState(() => ({
+  // Frozen once feed settings load so following something here doesn't
+  // reshuffle the list.
+  const buildSnapshot = () => ({
     reason: getRecommendationReason({
       feedName,
       isFollowingAuthor,
@@ -375,14 +378,19 @@ export function WhyRecommendedContent({
     matches: explanation?.matches.length
       ? sortMatchesByPoints(explanation.matches)
       : getSignalMatches({
-          authorName,
-          sourceName: source.name,
+          author: author && { id: author.id, name: authorName },
+          source,
           isFollowingAuthor,
           isFollowingSource,
           isSquadMember,
           followedTags,
         }),
-  }));
+  });
+  const snapshotRef = useRef<ReturnType<typeof buildSnapshot>>();
+  if (!snapshotRef.current && !isFeedSettingsLoading) {
+    snapshotRef.current = buildSnapshot();
+  }
+  const snapshot = snapshotRef.current ?? buildSnapshot();
 
   const reasonCopy: Record<RecommendationReason, ReactNode> = {
     [RecommendationReason.FollowedAuthor]: (
@@ -418,10 +426,7 @@ export function WhyRecommendedContent({
     isCustomFeed ? `Remove ${name} from this feed` : `Block ${name}`;
   const blockedMeta = isCustomFeed ? 'Removed from this feed' : 'Blocked';
   const matchByKey = new Map(
-    snapshot.matches.map((match) => [
-      getMatchKey(match.kind, match.label),
-      match,
-    ]),
+    snapshot.matches.map((match) => [getMatchKey(match.kind, match.id), match]),
   );
   const getMeta = (key: string, fallback: string, isBlocked: boolean) => {
     if (isBlocked) {
@@ -445,7 +450,7 @@ export function WhyRecommendedContent({
       ...(customFeedId && { feedId: customFeedId }),
       opts: { extra: { origin: Origin.PostContextMenu, post_id: post.id } },
     };
-    const key = getMatchKey(RecommendationMatchKind.Author, authorName);
+    const key = getMatchKey(RecommendationMatchKind.Author, author.id);
     rows.push({
       key,
       title: authorName,
@@ -466,8 +471,8 @@ export function WhyRecommendedContent({
     });
   }
 
-  if (source.name && !isSourceUserSource(source)) {
-    const key = getMatchKey(RecommendationMatchKind.Source, source.name);
+  if (source.id && source.name && !isSourceUserSource(source)) {
+    const key = getMatchKey(RecommendationMatchKind.Source, source.id);
     rows.push({
       key,
       title: source.name,
@@ -483,7 +488,12 @@ export function WhyRecommendedContent({
       isFollowing: isFollowingSource,
       blockLabel: getBlockLabel(source.name),
       onToggleFollow:
-        source.type === SourceType.Machine ? toggleSourceFollow : undefined,
+        source.type === SourceType.Machine
+          ? () =>
+              isFollowingSource
+                ? onUnfollowSource({ source, requireLogin: true })
+                : onFollowSource({ source, requireLogin: true })
+          : undefined,
       onToggleBlock: () =>
         isSourceBlocked
           ? onUnblockSource({ source, requireLogin: true })
@@ -493,7 +503,7 @@ export function WhyRecommendedContent({
 
   const matchedTopics = snapshot.matches
     .filter(({ kind }) => kind === RecommendationMatchKind.Topic)
-    .map(({ label }) => label);
+    .map(({ id }) => id);
   const tags = [...new Set([...matchedTopics, ...postTags])];
 
   tags.forEach((tag) => {
@@ -520,9 +530,17 @@ export function WhyRecommendedContent({
   });
 
   const rowByKey = new Map(rows.map((row) => [row.key, row]));
-  const matchedRows = snapshot.matches
-    .map((match) => rowByKey.get(getMatchKey(match.kind, match.label)))
-    .filter((row): row is EntityRow => !!row);
+  const matchedRows = snapshot.matches.map(
+    (match): EntityRow =>
+      rowByKey.get(getMatchKey(match.kind, match.id)) ?? {
+        key: getMatchKey(match.kind, match.id),
+        title: match.label,
+        meta: getMatchMeta(match),
+        leading: <span className="size-6 rounded-max bg-surface-float" />,
+        isBlocked: false,
+        blockLabel: '',
+      },
+  );
   const otherRows = rows.filter((row) => !matchByKey.has(row.key));
   const maxPoints = Math.max(
     1,

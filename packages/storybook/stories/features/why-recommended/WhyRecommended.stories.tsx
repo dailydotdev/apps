@@ -15,16 +15,14 @@ import {
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import type { MenuItemProps } from '@dailydotdev/shared/src/components/dropdown/common';
 import { MenuIcon } from '@dailydotdev/shared/src/components/MenuIcon';
-import {
-  BlockIcon,
-  DownvoteIcon,
-  EyeIcon,
-  FlagIcon,
-  InfoIcon,
-  MenuIcon as RawMenuIcon,
-  PlusIcon,
-  ShareIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
+import { DownvoteIcon } from '@dailydotdev/shared/src/components/icons/Downvote';
+import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
+import { FlagIcon } from '@dailydotdev/shared/src/components/icons/Flag';
+import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
+import { MenuIcon as RawMenuIcon } from '@dailydotdev/shared/src/components/icons/Menu';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { ShareIcon } from '@dailydotdev/shared/src/components/icons/Share';
 import WhyRecommendedModal from './components/WhyRecommendedModal';
 import type { Scenario } from './whyRecommended.mocks';
 import {
@@ -32,13 +30,14 @@ import {
   feeds,
   ModalScenario,
   posts,
+  providerHandlers,
   ScenarioGrid,
   ScenarioProviders,
 } from './whyRecommended.mocks';
 
 const meta: Meta = {
   title: 'Features/Why Recommended',
-  parameters: { layout: 'fullscreen' },
+  parameters: { layout: 'fullscreen', msw: { handlers: providerHandlers } },
   globals: { theme: 'dark' },
 };
 

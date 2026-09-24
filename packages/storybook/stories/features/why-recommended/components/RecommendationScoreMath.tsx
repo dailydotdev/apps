@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   Button,
@@ -36,7 +36,7 @@ const ScoreBar = ({ value, zero, span }: ScoreBarProps): ReactElement => {
           value < 0 ? 'bg-accent-ketchup-default' : 'bg-accent-avocado-default',
         )}
         style={{
-          left: `${value < 0 ? zero - width : zero}%`,
+          ...(value < 0 ? { right: `${100 - zero}%` } : { left: `${zero}%` }),
           width: `${width}%`,
           minWidth: '0.25rem',
         }}

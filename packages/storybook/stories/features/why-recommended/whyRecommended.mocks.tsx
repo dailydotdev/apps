@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fn } from 'storybook/test';
+import { graphql, http, HttpResponse } from 'msw';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { getPostByIdKey } from '@dailydotdev/shared/src/lib/query';
@@ -210,6 +211,7 @@ export const explanations = {
   full: {
     matches: [
       {
+        id: 'genai',
         label: 'genai',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Main,
@@ -217,6 +219,7 @@ export const explanations = {
         points: 140,
       },
       {
+        id: 'mcp',
         label: 'mcp',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Main,
@@ -224,6 +227,7 @@ export const explanations = {
         points: 96,
       },
       {
+        id: 'ai-agents',
         label: 'ai-agents',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Supporting,
@@ -231,6 +235,7 @@ export const explanations = {
         points: 78,
       },
       {
+        id: 'architecture',
         label: 'architecture',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Supporting,
@@ -238,6 +243,7 @@ export const explanations = {
         points: 68,
       },
       {
+        id: 'llm',
         label: 'llm',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Related,
@@ -245,12 +251,14 @@ export const explanations = {
         points: 42,
       },
       {
+        id: 'tds',
         label: 'Towards Data Science',
         kind: RecommendationMatchKind.Source,
         origin: RecommendationMatchOrigin.Following,
         points: 54,
       },
       {
+        id: 'author-1',
         label: 'Nimrod Kramer',
         kind: RecommendationMatchKind.Author,
         origin: RecommendationMatchOrigin.Reading,
@@ -277,12 +285,14 @@ export const explanations = {
   sourceLed: {
     matches: [
       {
+        id: 'tds',
         label: 'Towards Data Science',
         kind: RecommendationMatchKind.Source,
         origin: RecommendationMatchOrigin.Following,
         points: 120,
       },
       {
+        id: 'genai',
         label: 'genai',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Main,
@@ -301,6 +311,7 @@ export const explanations = {
   readingOnly: {
     matches: [
       {
+        id: 'mcp',
         label: 'mcp',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Main,
@@ -308,6 +319,7 @@ export const explanations = {
         points: 58,
       },
       {
+        id: 'llm',
         label: 'llm',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Related,
@@ -327,6 +339,7 @@ export const explanations = {
   matchesOnly: {
     matches: [
       {
+        id: 'genai',
         label: 'genai',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Main,
@@ -334,6 +347,7 @@ export const explanations = {
         points: 140,
       },
       {
+        id: 'ai-agents',
         label: 'ai-agents',
         kind: RecommendationMatchKind.Topic,
         role: RecommendationMatchRole.Supporting,
@@ -343,6 +357,21 @@ export const explanations = {
     ],
   },
 } satisfies Record<string, RecommendationExplanation>;
+
+// Providers each panel mounts fetch these on load and log analytics; answer
+// them so the gallery doesn't fire dozens of unhandled requests.
+export const providerHandlers = [
+  graphql.query('CompletedUserActions', () =>
+    HttpResponse.json({ data: { actions: [] } }),
+  ),
+  graphql.query('PersonalizedDigest', () =>
+    HttpResponse.json({ data: { personalizedDigest: [] } }),
+  ),
+  graphql.query('NotificationPreferences', () =>
+    HttpResponse.json({ data: { notificationPreferences: [] } }),
+  ),
+  http.post('*/e', () => new HttpResponse(null, { status: 204 })),
+];
 
 export interface Scenario {
   title: string;
