@@ -17,7 +17,7 @@ import {
   LinkIcon,
   LockIcon,
   MegaphoneIcon,
-  MenuIcon,
+  MiniCloseIcon,
   MoveToIcon,
   OpenLinkIcon,
   PlusIcon,
@@ -26,6 +26,7 @@ import {
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import {
   Typography,
   TypographyColor,
@@ -33,7 +34,14 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
-import { companyLinks, squad } from './data';
+import {
+  companyLinks,
+  formatCount,
+  moderationQueueCount,
+  products,
+  rules,
+  squad,
+} from './data';
 import { isAdmin, linkIcon, VerifiedMark, Viewer } from './kit';
 import { ContentSource, useWorkspace } from './state';
 import {
@@ -44,8 +52,6 @@ import {
   FeedSourcePage,
   MembersPage,
   ModerationPage,
-  ProductsPage,
-  RulesPage,
   SettingsPage,
 } from './workspace';
 import { AddProductPage, SaveProductButton } from './productForm';
@@ -99,7 +105,7 @@ const groups: { title: string; items: ManageItem[] }[] = [
         label: 'Moderation',
         icon: <TimerIcon />,
         team: true,
-        badge: 3,
+        badge: moderationQueueCount,
       },
       { id: 'posting', label: 'Posting and invitations', icon: <LockIcon /> },
     ],
@@ -261,30 +267,138 @@ const ManageMenu = ({
   );
 };
 
+const EditRowButton = ({ label }: { label: string }): ReactElement => (
+  <Button
+    variant={ButtonVariant.Tertiary}
+    size={ButtonSize.XSmall}
+    icon={<EditIcon />}
+    aria-label={`Edit ${label}`}
+    title={`Edit ${label}`}
+    className="absolute right-0 top-0"
+  />
+);
+
+const RulesManage = (): ReactElement => (
+  <div className="flex flex-col gap-4 px-4 py-6 tablet:px-6">
+    <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+      Shown once before a member&apos;s first post. Moderators remove what
+      breaks them.
+    </Typography>
+    <ol className="flex flex-col gap-4">
+      {rules.map(([title, body], index) => (
+        <li key={title} className="relative flex gap-3">
+          <Typography
+            type={TypographyType.Subhead}
+            color={TypographyColor.Quaternary}
+            bold
+            className="sq-nums w-4 shrink-0"
+          >
+            {index + 1}
+          </Typography>
+          <div className="flex min-w-0 max-w-[calc(100%-3.5rem)] flex-1 flex-col gap-0.5">
+            <Typography type={TypographyType.Subhead} bold>
+              {title}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {body}
+            </Typography>
+          </div>
+          <EditRowButton label={title} />
+        </li>
+      ))}
+    </ol>
+  </div>
+);
+
+const ProductsManage = (): ReactElement => (
+  <div className="flex flex-col gap-4 px-4 py-6 tablet:px-6">
+    <ul className="flex flex-col gap-4">
+      {products.map((product) => (
+        <li key={product.id} className="relative flex gap-3">
+          <img
+            src={product.image}
+            alt=""
+            className="size-10 shrink-0 rounded-12 object-cover"
+          />
+          <div className="flex min-w-0 max-w-[calc(100%-5rem)] flex-1 flex-col gap-0.5">
+            <Typography type={TypographyType.Subhead} bold>
+              {product.name}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+            >
+              {product.tagline}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {product.category} · {product.pricing} ·{' '}
+              {formatCount(product.inStacks)} stacks
+            </Typography>
+          </div>
+          <EditRowButton label={product.name} />
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
 const LinksManage = (): ReactElement => (
-  <ul className="flex flex-col gap-4">
-    {companyLinks.map((item) => (
-      <li key={item.id} className="flex items-center gap-3">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float text-text-secondary">
-          {linkIcon(item.id, IconSize.Size16)}
-        </span>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="font-bold text-text-primary typo-callout">
-            {item.label}
-          </span>
-          <span className="truncate text-text-tertiary typo-footnote">
-            {item.href.replace(/^https?:\/\//, '')}
-          </span>
-        </div>
+  <div className="flex flex-col gap-4 px-4 py-6 tablet:px-6">
+    <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+      Shown in the Links widget on the page, in this order.
+    </Typography>
+    <TextField
+      type="url"
+      inputId="squad-link-url"
+      label="Add link"
+      placeholder="Paste a URL (e.g., github.com/coderabbitai)"
+      fieldType="secondary"
+      actionButton={
         <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<MenuIcon />}
-          aria-label={`${item.label} options`}
-        />
-      </li>
-    ))}
-  </ul>
+          type="button"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.XSmall}
+          icon={<PlusIcon />}
+        >
+          Add
+        </Button>
+      }
+    />
+    <ul className="flex flex-col gap-4">
+      {companyLinks.map((item) => (
+        <li key={item.id} className="flex items-center gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
+            {linkIcon(item.id, IconSize.Small)}
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <Typography type={TypographyType.Subhead} bold>
+              {item.label}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              truncate
+            >
+              {item.href.replace(/^https?:\/\//, '')}
+            </Typography>
+          </div>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
+            icon={<MiniCloseIcon />}
+            aria-label={`Remove ${item.label}`}
+            title="Remove link"
+          />
+        </li>
+      ))}
+    </ul>
+  </div>
 );
 
 const Section = ({
@@ -296,19 +410,15 @@ const Section = ({
 }): ReactElement => {
   switch (id) {
     case 'rules':
-      return <RulesPage />;
+      return <RulesManage />;
     case 'faq':
       return <DocPage page={docs.faq} />;
     case 'products':
-      return <ProductsPage viewer={viewer} />;
+      return <ProductsManage />;
     case 'add-product':
       return <AddProductPage />;
     case 'links':
-      return (
-        <div className="px-4 py-6 tablet:px-6">
-          <LinksManage />
-        </div>
-      );
+      return <LinksManage />;
     case 'followers':
       return <MembersPage viewer={viewer} />;
     case 'moderation':
@@ -352,7 +462,7 @@ const PageHeader = ({
   action?: ReactNode;
   backOnLaptop?: boolean;
 }): ReactElement => (
-  <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-4 py-3">
+  <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-4 tablet:px-6">
     <span className={classNames('flex', !backOnLaptop && 'laptop:hidden')}>
       <Button
         variant={ButtonVariant.Tertiary}
@@ -363,7 +473,7 @@ const PageHeader = ({
         onClick={onBack}
       />
     </span>
-    <h1 className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body laptop:pl-2">
+    <h1 className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body tablet:typo-title3">
       {title}
     </h1>
     {action && <div className="shrink-0">{action}</div>}
@@ -400,7 +510,7 @@ export const ManageView = ({
       </Button>
     );
   } else if (shown === 'rules') {
-    action = addButton('Add rule');
+    action = addButton('Add');
   } else if (shown === 'faq') {
     action = (
       <Button
@@ -412,11 +522,15 @@ export const ManageView = ({
       </Button>
     );
   } else if (shown === 'products') {
-    action = addButton('Add product', () => setSection('add-product'));
+    action = addButton('Add', () => setSection('add-product'));
   } else if (shown === 'add-product') {
     action = <SaveProductButton onSave={() => setSection('products')} />;
   } else if (shown === 'links') {
-    action = addButton('Add link');
+    action = (
+      <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
+        Save
+      </Button>
+    );
   }
 
   return (

@@ -12,29 +12,38 @@ import {
   AddUserIcon,
   AnalyticsIcon,
   ArrowIcon,
+  AtIcon,
   BellIcon,
+  BlockIcon,
+  BookmarkIcon,
   CameraIcon,
   CardIcon,
   ClearIcon,
+  ClickIcon,
   DiscussIcon,
   DocsIcon,
   DragIcon,
   EarthIcon,
   EditIcon,
   EyeCancelIcon,
+  EyeIcon,
   HomeIcon,
   LinkIcon,
   LockIcon,
+  MedalBadgeIcon,
   MegaphoneIcon,
   MenuIcon,
+  MergeIcon,
   OpenLinkIcon,
   PlayIcon,
   PlusIcon,
   PollIcon,
   SearchIcon,
   SettingsIcon,
+  ShareIcon,
   SlackIcon,
   SparkleIcon,
+  SquadIcon,
   StarIcon,
   TimerIcon,
   TrashIcon,
@@ -47,6 +56,19 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
+import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
+import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
+import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
+import { SquadEmptyScreen } from '@dailydotdev/shared/src/components/squads/moderation/SquadEmptyScreen';
+import { BlockedMembersPlaceholder } from '@dailydotdev/shared/src/components/squads/Members/BlockedMembersPlaceholder';
+import { AnalyticsNumbersList } from '@dailydotdev/shared/src/components/analytics/AnalyticsNumbersList';
+import { CombinedImpressionsChart } from '@dailydotdev/shared/src/components/analytics/CombinedImpressionsChart';
+import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
 import {
   Typography,
   TypographyColor,
@@ -60,6 +82,8 @@ import {
   analyticsEngagement,
   entriesByMonth,
   feedEntries,
+  moderationQueueCount,
+  pendingQueue,
   formatCount,
   formatDay,
   formatSince,
@@ -858,62 +882,70 @@ export const RulesPage = (): ReactElement => {
 };
 
 /** A freeform post, rendered as a page: the FAQ, or any document. */
-export const DocPage = ({ page }: { page: SquadPage }): ReactElement => (
-  <Column width="max-w-[44rem]" className="gap-6">
-    <h1 className="font-bold text-text-primary typo-large-title">
-      {page.id === 'start-here'
-        ? `Welcome to ${squad.name}`
-        : page.id === 'rules'
-        ? 'Rules and how to post'
-        : 'Frequently asked questions'}
-    </h1>
-    <p className="text-text-secondary typo-body">
-      {page.id === 'start-here'
-        ? `Everything the ${squad.name} team ships, announced here first. Releases, betas, the reasoning behind changes, and a place to tell us what broke.`
-        : page.id === 'rules'
-        ? 'This squad is a changelog. Posts from the team are announcements; posts from members are questions, bug reports and feedback about a release.'
-        : 'Answers to the questions we get every week, kept current by the team.'}
-    </p>
-    <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-16 bg-surface-float">
-      <img
-        src={feedEntries[0].image ?? ''}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover opacity-60"
-      />
-      <span className="sq-elevated relative flex size-14 items-center justify-center rounded-full bg-background-default text-text-primary">
-        <PlayIcon size={IconSize.Medium} />
-      </span>
-    </div>
-    <h2 className="font-bold text-text-primary typo-title3">Where to start</h2>
-    <ul className="flex list-disc flex-col gap-1.5 pl-5 text-text-secondary typo-body">
-      <li>
-        Read <span className="text-text-link">Announcements</span> for what
-        shipped this week.
-      </li>
-      <li>Turn on notifications for the squad so a release finds you.</li>
-      <li>
-        Something broke? Post it to Home with the{' '}
-        <span className="font-bold">#bug</span> tag and a team member picks it
-        up.
-      </li>
-    </ul>
-    <h2 className="font-bold text-text-primary typo-title3">Get involved</h2>
-    <ul className="flex list-disc flex-col gap-1.5 pl-5 text-text-secondary typo-body">
-      <li>
-        Ask in <span className="text-text-link">Discussions</span>; the team
-        answers there.
-      </li>
-      <li>
-        The public API is open:{' '}
-        <span className="text-text-link">docs.coderabbit.ai</span>.
-      </li>
-    </ul>
-    <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary pt-4 text-text-quaternary typo-footnote">
-      <Avatar member={team[3]} size={1.25} />
-      Maintained by {team[3].name} · Updated 2 days ago
-    </div>
-  </Column>
-);
+export const DocPage = ({ page }: { page: SquadPage }): ReactElement => {
+  const fit = useContext(ColumnFitContext);
+
+  return (
+    <Column width="max-w-[44rem]" className="gap-6">
+      {!fit && (
+        <h1 className="font-bold text-text-primary typo-large-title">
+          {page.id === 'start-here'
+            ? `Welcome to ${squad.name}`
+            : page.id === 'rules'
+            ? 'Rules and how to post'
+            : 'Frequently asked questions'}
+        </h1>
+      )}
+      <p className="text-text-secondary typo-body">
+        {page.id === 'start-here'
+          ? `Everything the ${squad.name} team ships, announced here first. Releases, betas, the reasoning behind changes, and a place to tell us what broke.`
+          : page.id === 'rules'
+          ? 'This squad is a changelog. Posts from the team are announcements; posts from members are questions, bug reports and feedback about a release.'
+          : 'Answers to the questions we get every week, kept current by the team.'}
+      </p>
+      <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-16 bg-surface-float">
+        <img
+          src={feedEntries[0].image ?? ''}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
+        />
+        <span className="sq-elevated relative flex size-14 items-center justify-center rounded-full bg-background-default text-text-primary">
+          <PlayIcon size={IconSize.Medium} />
+        </span>
+      </div>
+      <h2 className="font-bold text-text-primary typo-title3">
+        Where to start
+      </h2>
+      <ul className="flex list-disc flex-col gap-1.5 pl-5 text-text-secondary typo-body">
+        <li>
+          Read <span className="text-text-link">Announcements</span> for what
+          shipped this week.
+        </li>
+        <li>Turn on notifications for the squad so a release finds you.</li>
+        <li>
+          Something broke? Post it to Home with the{' '}
+          <span className="font-bold">#bug</span> tag and a team member picks it
+          up.
+        </li>
+      </ul>
+      <h2 className="font-bold text-text-primary typo-title3">Get involved</h2>
+      <ul className="flex list-disc flex-col gap-1.5 pl-5 text-text-secondary typo-body">
+        <li>
+          Ask in <span className="text-text-link">Discussions</span>; the team
+          answers there.
+        </li>
+        <li>
+          The public API is open:{' '}
+          <span className="text-text-link">docs.coderabbit.ai</span>.
+        </li>
+      </ul>
+      <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary pt-4 text-text-quaternary typo-footnote">
+        <Avatar member={team[3]} size={1.25} />
+        Maintained by {team[3].name} · Updated 2 days ago
+      </div>
+    </Column>
+  );
+};
 
 /**
  * The changelog as a log, not a feed: GitHub Releases' shape. Every post
@@ -1275,29 +1307,26 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
 
   return (
     <Column>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1">
-          {tabs.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setTab(item)}
-              className={classNames(
-                'rounded-[999px] px-3 py-1 typo-callout transition-colors',
-                tab === item
-                  ? 'bg-surface-float font-bold text-text-primary'
-                  : 'text-text-tertiary hover:text-text-primary',
-              )}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-        <div className="flex h-9 w-full items-center gap-2 rounded-12 border tablet:w-56 border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-footnote">
-          <SearchIcon size={IconSize.Small} />
-          Search followers
-        </div>
-      </div>
+      <SquadDirectoryNavbar
+        aria-label="Followers filters"
+        className="!mx-0 !border-0 !px-0"
+      >
+        {tabs.map((item) => (
+          <SquadDirectoryNavbarItem
+            key={item}
+            buttonSize={ButtonSize.Small}
+            isActive={tab === item}
+            label={item}
+            ariaLabel={item}
+            onClick={() => setTab(item)}
+          />
+        ))}
+      </SquadDirectoryNavbar>
+      <SearchField
+        inputId="followers-search"
+        placeholder={`Search ${tab.toLowerCase()}`}
+        aria-label={`Search ${tab.toLowerCase()}`}
+      />
       <span className="text-text-tertiary typo-footnote">
         <b className="sq-nums text-text-primary">
           {tab === MemberTab.Blocked
@@ -1309,9 +1338,7 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
         {tab.toLowerCase()}
       </span>
       {rows.length === 0 ? (
-        <div className="rounded-16 border border-border-subtlest-tertiary px-6 py-10 text-center text-text-tertiary typo-callout">
-          No blocked followers found
-        </div>
+        <BlockedMembersPlaceholder />
       ) : (
         <div className="flex flex-col gap-4">
           {canInvite && tab !== MemberTab.Blocked && (
@@ -1319,22 +1346,29 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
               type="button"
               className="flex items-center gap-3 text-left text-text-primary typo-callout hover:text-text-secondary"
             >
-              <span className="flex size-8 items-center justify-center rounded-[999px] bg-surface-float text-text-secondary">
-                <AddUserIcon size={IconSize.Small} />
+              <span className="flex size-10 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
+                <AddUserIcon size={IconSize.Medium} />
               </span>
               Copy invitation link
             </button>
           )}
           {rows.map((member) => (
             <div key={member.id} className="relative flex items-center gap-3">
-              <Avatar member={member} size={2} />
+              <Avatar member={member} size={2.5} />
               <div className="flex min-w-0 flex-1 flex-col">
-                <span className="flex items-center gap-2 truncate font-bold text-text-primary typo-callout">
-                  {member.name}
+                <span className="flex min-w-0 items-center gap-2 font-bold text-text-primary typo-callout">
+                  <span className="truncate">{member.name}</span>
                   {tab !== MemberTab.Blocked && roleOf(member) !== 'Member' && (
-                    <span className="rounded-6 bg-surface-float px-1.5 py-0.5 font-normal text-text-tertiary typo-caption2">
-                      {roleOf(member) === 'Moderator' ? 'Mod' : roleOf(member)}
-                    </span>
+                    <UserBadge
+                      role={
+                        roleOf(member) === 'Admin'
+                          ? SourceMemberRole.Admin
+                          : SourceMemberRole.Moderator
+                      }
+                      className="font-normal"
+                    >
+                      {roleOf(member).toLowerCase()}
+                    </UserBadge>
                   )}
                 </span>
                 <span className="truncate text-text-tertiary typo-footnote">
@@ -1344,11 +1378,12 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
               {tab === MemberTab.Blocked ? (
                 staff && (
                   <Button
-                    variant={ButtonVariant.Subtle}
+                    variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
-                  >
-                    Unblock
-                  </Button>
+                    icon={<BlockIcon />}
+                    aria-label="Unblock"
+                    title="Unblock"
+                  />
                 )
               ) : staff ? (
                 <Button
@@ -1442,7 +1477,7 @@ const AddPage = (): ReactElement => (
   </Column>
 );
 
-const pendingPosts = feedEntries.slice(3, 6);
+const pendingPosts = pendingQueue;
 
 /**
  * Production's moderation queue for a moderator: Approve all above two or
@@ -1456,15 +1491,11 @@ export const ModerationPage = (): ReactElement => {
   if (empty) {
     return (
       <Column>
-        <div className="flex flex-col items-center gap-2 px-2 py-14 text-center">
-          <VIcon size={IconSize.Large} className="text-status-success" />
-          <span className="font-bold text-text-primary typo-title3">
-            All done!
-          </span>
-          <span className="text-text-tertiary typo-footnote">
-            All caught up! There are no posts waiting for your review right now.
-          </span>
-        </div>
+        <SquadEmptyScreen
+          Icon={VIcon}
+          title="All done!"
+          description="All caught up! There are no posts waiting for your review right now."
+        />
       </Column>
     );
   }
@@ -1473,7 +1504,7 @@ export const ModerationPage = (): ReactElement => {
     <Column>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="min-w-0 flex-1 basis-60 text-text-secondary typo-callout">
-          <b className="sq-nums text-text-primary">{pendingPosts.length + 1}</b>{' '}
+          <b className="sq-nums text-text-primary">{moderationQueueCount}</b>{' '}
           posts waiting. Approve and they go live; decline and the author hears
           why.
         </span>
@@ -1482,7 +1513,7 @@ export const ModerationPage = (): ReactElement => {
           size={ButtonSize.Small}
           icon={<VIcon secondary />}
         >
-          Approve all {pendingPosts.length + 1} posts
+          Approve all {moderationQueueCount} posts
         </Button>
       </div>
       <div className="flex flex-col gap-8">
@@ -1501,7 +1532,7 @@ export const ModerationPage = (): ReactElement => {
                 </span>
               )}
               <div className="flex items-center gap-3">
-                <Avatar member={author} size={2} />
+                <Avatar member={author} size={2.5} />
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="font-bold text-text-primary typo-footnote">
                     {author.name}
@@ -1571,6 +1602,7 @@ export const ModerationPage = (): ReactElement => {
                   <Button
                     variant={ButtonVariant.Subtle}
                     size={ButtonSize.Small}
+                    icon={<BlockIcon />}
                     className="flex-1"
                     onClick={() => setDeclining(key)}
                   >
@@ -1579,6 +1611,7 @@ export const ModerationPage = (): ReactElement => {
                   <Button
                     variant={ButtonVariant.Primary}
                     size={ButtonSize.Small}
+                    icon={<VIcon secondary />}
                     className="flex-1"
                   >
                     Approve
@@ -1831,6 +1864,8 @@ interface SettingsOption {
   value: string;
   label: string;
   hint?: string;
+  /** Shown under the option while it is picked, like the category under Public. */
+  after?: ReactNode;
 }
 
 const SettingsRadio = ({
@@ -1858,6 +1893,9 @@ const SettingsRadio = ({
     }}
     options={options.map((option) => ({
       value: option.value,
+      afterElement: option.after && value === option.value && (
+        <div className="ml-9 mt-2">{option.after}</div>
+      ),
       label: (
         <span className="flex flex-col gap-0.5 pt-1.5">
           <span
@@ -1906,12 +1944,15 @@ const SettingsSection = ({
   </section>
 );
 
-const ImageActions = ({
+export const ImageActions = ({
   label,
   className,
+  removable = true,
 }: {
   label: string;
   className?: string;
+  /** False while nothing is uploaded yet. */
+  removable?: boolean;
 }): ReactElement => (
   <div className={classNames('flex gap-2', className)}>
     <Button
@@ -1922,14 +1963,16 @@ const ImageActions = ({
       icon={<CameraIcon size={IconSize.Medium} />}
       aria-label={`Upload ${label}`}
     />
-    <Button
-      type="button"
-      className="bg-shadow-shadow3"
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Small}
-      icon={<ClearIcon size={IconSize.Medium} />}
-      aria-label={`Remove ${label}`}
-    />
+    {removable && (
+      <Button
+        type="button"
+        className="bg-shadow-shadow3"
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<ClearIcon size={IconSize.Medium} />}
+        aria-label={`Remove ${label}`}
+      />
+    )}
   </div>
 );
 
@@ -1963,6 +2006,17 @@ const SettingsRow = ({
     {action}
   </div>
 );
+
+const squadCategories = [
+  'Developer tools',
+  'Web development',
+  'DevOps and cloud',
+  'AI and machine learning',
+  'Mobile',
+  'Open source',
+  'Career',
+  'Fun',
+];
 
 /**
  * Production's Squad settings (Details.tsx and the settings sections),
@@ -2027,6 +2081,7 @@ export const SettingsPage = ({
             inputId="squad-name"
             name="name"
             label="Squad name"
+            leftIcon={<SquadIcon />}
             defaultValue={squad.name}
             className={{ container: 'w-full' }}
           />
@@ -2034,6 +2089,7 @@ export const SettingsPage = ({
             inputId="squad-handle"
             name="handle"
             label="Squad handle"
+            leftIcon={<AtIcon />}
             defaultValue={squad.handle}
             hint={`daily.dev/squads/${squad.handle}`}
             className={{ container: 'w-full' }}
@@ -2067,6 +2123,19 @@ export const SettingsPage = ({
               value: 'public',
               label: 'Public',
               hint: 'Listed in the directory and open to anyone.',
+              after: (
+                <Dropdown
+                  placeholder="Select category"
+                  className={{ container: 'w-56' }}
+                  options={squadCategories}
+                  selectedIndex={squadCategories.indexOf(
+                    state.category ?? '',
+                  )}
+                  onChange={(value) =>
+                    setState((current) => ({ ...current, category: value }))
+                  }
+                />
+              ),
             },
             {
               value: 'private',
@@ -2075,15 +2144,6 @@ export const SettingsPage = ({
             },
           ]}
         />
-        {state.isPublic && (
-          <TextField
-            inputId="squad-category"
-            name="category"
-            label="Category"
-            defaultValue={state.category ?? ''}
-            className={{ container: 'w-full' }}
-          />
-        )}
       </SettingsSection>,
     );
   }
@@ -2228,8 +2288,8 @@ export const SettingsPage = ({
         <ul className="flex list-disc flex-col gap-2 pl-5 text-text-tertiary typo-callout">
           <li>The squad and its page are deleted.</li>
           <li>
-            Every post, comment and upvote in it is deleted, yours and
-            everyone else&apos;s.
+            Every post, comment and upvote in it is deleted, yours and everyone
+            else&apos;s.
           </li>
           <li>The handle becomes free for anyone to take.</li>
         </ul>
@@ -2285,85 +2345,85 @@ const days = analyticsDays;
 /** Production's /squads/[handle]/analytics: two tiles, the chart, the list. */
 export const AnalyticsPage = (): ReactElement => {
   const { config, empty } = useWorkspace();
-  const max = Math.max(...days.map((day) => day.organic + day.boosted));
+  const engagementIcons: Record<string, ReactElement> = {
+    Upvotes: <UpvoteIcon />,
+    'Upvotes ratio': <MergeIcon />,
+    Comments: <DiscussIcon />,
+    Bookmarks: <BookmarkIcon />,
+    Awards: <MedalBadgeIcon secondary />,
+    Shares: <ShareIcon />,
+    Clicks: <ClickIcon />,
+  };
+  const start = new Date(2026, 7, 11);
+  const impressions = days.map((day, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return {
+      name: date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }),
+      value: day.organic + (config.campaign ? day.boosted : 0),
+      isBoosted: !!config.campaign && day.boosted > 0,
+    };
+  });
 
   return (
-    <Column width="max-w-[52rem]" className="gap-6">
-      <span className="font-bold text-text-primary typo-body">
-        Discovery (last 45 days)
-      </span>
-      <div className="grid grid-cols-2 gap-6">
-        {analyticsDiscovery
-          .map(([label, amount]) => [label, formatCount(empty ? 0 : amount)])
-          .map(([label, value]) => (
-            <div key={label} className="flex flex-col gap-1">
-              <span className="text-text-tertiary typo-footnote">{label}</span>
-              <span className="sq-nums font-bold text-text-primary typo-title2">
-                {value}
-              </span>
-            </div>
+    <Column width="max-w-[48rem]" className="gap-6">
+      <section className="flex flex-col gap-4">
+        <Typography type={TypographyType.Body} bold>
+          Discovery (last 45 days)
+        </Typography>
+        <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
+          {analyticsDiscovery.map(([label, amount]) => (
+            <DataTile
+              key={label}
+              label={label}
+              value={empty ? 0 : amount}
+              info={
+                label === 'Impressions'
+                  ? 'The total number of times posts from this squad were shown to developers across the platform'
+                  : 'The estimated number of unique developers who viewed posts from this squad'
+              }
+              icon={
+                <EyeIcon size={IconSize.Small} className="text-text-tertiary" />
+              }
+            />
           ))}
-      </div>
-      <div className="h-px w-full bg-border-subtlest-tertiary" />
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-bold text-text-primary typo-body">
-            Impressions per day
-          </span>
-          <span className="flex items-center gap-3 text-text-tertiary typo-caption1">
-            <span className="flex items-center gap-1">
-              <span className="size-2 rounded-2 bg-text-disabled" />
-              Organic
-            </span>
-            {config.campaign && (
-              <span className="flex items-center gap-1">
-                <span className="size-2 rounded-2 bg-accent-cabbage-default" />
-                Boosted
-              </span>
-            )}
-          </span>
         </div>
+      </section>
+      <HorizontalSeparator />
+      <section className="flex flex-col gap-4">
+        <Typography type={TypographyType.Body} bold>
+          Impressions over time
+        </Typography>
         {empty ? (
-          <div className="flex h-32 items-center justify-center text-text-tertiary typo-footnote">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
             No impressions data in the last 45 days.
-          </div>
+          </Typography>
         ) : (
-          <div className="flex h-32 gap-0.5">
-            {days.map((day, index) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <div
-                key={index}
-                className="flex h-full flex-1 flex-col justify-end gap-px"
-              >
-                {config.campaign && day.boosted > 0 && (
-                  <span
-                    className="w-full rounded-t-2 bg-accent-cabbage-default"
-                    style={{ height: `${(day.boosted / max) * 100}%` }}
-                  />
-                )}
-                <span
-                  className="w-full rounded-t-2 bg-text-disabled"
-                  style={{ height: `${(day.organic / max) * 100}%` }}
-                />
-              </div>
-            ))}
-          </div>
+          <CombinedImpressionsChart data={impressions} />
         )}
-      </div>
-      <div className="h-px w-full bg-border-subtlest-tertiary" />
-      <span className="font-bold text-text-primary typo-body">
-        Engagement (last 45 days)
-      </span>
-      <dl className="flex flex-col gap-3">
-        {analyticsEngagement.map(([label, value]) => (
-          <div key={label} className="flex items-center justify-between gap-4">
-            <dt className="text-text-tertiary typo-callout">{label}</dt>
-            <dd className="sq-nums font-bold text-text-primary typo-callout">
-              {empty ? '0' : value}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      </section>
+      <HorizontalSeparator />
+      <section className="flex flex-col gap-4">
+        <Typography type={TypographyType.Body} bold>
+          Engagement (last 45 days)
+        </Typography>
+        <AnalyticsNumbersList
+          data={analyticsEngagement.map(([label, value]) => ({
+            icon: engagementIcons[label],
+            label,
+            value: empty ? 0 : value,
+            ...(label === 'Upvotes ratio' && {
+              tooltip: 'The percentage of upvotes out of total votes.',
+            }),
+          }))}
+        />
+      </section>
     </Column>
   );
 };

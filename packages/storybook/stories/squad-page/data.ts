@@ -496,6 +496,10 @@ export const pinnedEntry = entries.find((entry) => entry.pinned) as Entry;
 export const latestEntry = entries.find((entry) => !entry.pinned) as Entry;
 export const feedEntries = entries.filter((entry) => !entry.pinned);
 
+/** The moderation queue: three posts and a poll. */
+export const pendingQueue = feedEntries.slice(3, 6);
+export const moderationQueueCount = pendingQueue.length + 1;
+
 /** Illustrative. What a CodeRabbit-shaped stack would list. */
 export const stack = [
   { name: 'TypeScript', image: 'https://cdn.simpleicons.org/typescript' },

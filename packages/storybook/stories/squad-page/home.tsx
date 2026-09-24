@@ -53,6 +53,7 @@ import {
   stack,
   rules,
   team,
+  moderationQueueCount,
 } from './data';
 import {
   Avatar,
@@ -419,7 +420,7 @@ const MoreMenu = ({
         {
           icon: <TimerIcon size={IconSize.Small} />,
           label: 'Moderation',
-          badge: 3,
+          badge: moderationQueueCount,
           onSelect: () => onManage?.('moderation'),
         },
         ...(isAdmin(viewer) && source === ContentSource.Feed
