@@ -113,53 +113,6 @@ const MetaItem = ({
   </span>
 );
 
-
-const auroraStyle = {
-  background:
-    'color-mix(in srgb, var(--theme-background-default) 58%, transparent)',
-  boxShadow:
-    'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent)',
-};
-
-const AuroraGlow = (): ReactElement => (
-  <span
-    aria-hidden
-    className="absolute inset-0"
-    style={{
-      background:
-        'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent), transparent 60%)',
-      filter: 'blur(12px)',
-    }}
-  />
-);
-
-/**
- * Aurora at pill size: the right column's card, shrunk to one chip. On
- * phones, where the right column is behind the About chip, it replaces
- * the seal beside the name.
- */
-export const VerifiedPill = ({
-  label = 'Verified company page',
-  className,
-}: {
-  label?: string;
-  className?: string;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'relative inline-flex h-7 items-center gap-1.5 overflow-hidden rounded-10 px-2.5',
-      className,
-    )}
-    style={auroraStyle}
-  >
-    <AuroraGlow />
-    <VerifiedSeal className="relative size-4 text-accent-cabbage-default" />
-    <span className="relative whitespace-nowrap font-bold text-text-primary typo-footnote">
-      {label}
-    </span>
-  </span>
-);
-
 export const SquadHeader = ({
   viewer,
   standalone,
@@ -290,8 +243,7 @@ export const SquadHeader = ({
         <div className="mt-4 flex flex-col gap-1">
           <h1 className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2">
             {squad.name}
-            <VerifiedMark label={false} className="hidden tablet:flex" />
-            <VerifiedPill className="tablet:hidden" />
+            <VerifiedMark label={false} />
           </h1>
           <p className="text-text-secondary typo-body">{squad.tagline}</p>
         </div>
