@@ -44,7 +44,6 @@ describe('getBootData', () => {
     const result = await getBootData({
       app: BootApp.Webapp,
       cachedExp: {
-        f: 'cached-f',
         fv: 'v1',
         e: [],
         a: [],
@@ -54,7 +53,6 @@ describe('getBootData', () => {
 
     expect(getRequestedFv(fetchMock)).toEqual('v1');
     expect(result.exp).toEqual({
-      f: 'cached-f',
       fv: 'v1',
       e: ['e'],
       a: ['a'],
@@ -70,7 +68,7 @@ describe('getBootData', () => {
 
     const result = await getBootData({
       app: BootApp.Webapp,
-      cachedExp: { f: 'cached-f', fv: 'v1', e: [], a: [] },
+      cachedExp: { fv: 'v1', e: [], a: [] },
     });
 
     expect(getRequestedFv(fetchMock)).toBeNull();
@@ -87,7 +85,6 @@ describe('getBootData', () => {
     const result = await getBootData({
       app: BootApp.Webapp,
       cachedExp: {
-        f: 'cached-f',
         fv: 'v1',
         e: [],
         a: [],
