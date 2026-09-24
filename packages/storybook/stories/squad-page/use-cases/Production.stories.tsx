@@ -313,27 +313,30 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Moderation queue',
         production:
           'Approve all, spam warnings, poll item, Decline with ten reasons, all-done state',
-        design: 'Moderation page, all of it',
+        design:
+          'Moderation in the Manage area, all of it, with the queue count in the menu',
         status: 'Covered',
       },
       {
         surface: 'Members modal',
         production:
           'Followers / Moderators / Blocked members, search, Copy invitation link, role menu, Unblock',
-        design: 'Followers page, all of it',
+        design: 'Followers page from the count, and in the Manage area',
         status: 'Covered',
       },
       {
         surface: 'Squad settings',
         production:
           'Details, Squad type, Moderation settings, Integrations, Danger zone',
-        design: 'Settings page, all sections',
+        design:
+          'The Manage area: Details, Posting and invitations, Integrations, Danger zone, under a grouped menu like profile settings',
         status: 'Covered',
       },
       {
         surface: 'Analytics',
         production: 'Impressions, Unique reach, 45-day chart, numbers list',
-        design: 'Analytics page, same shape',
+        design:
+          'Analytics in the Manage area, same sections; a summary widget in the right column for admins',
         status: 'Covered',
       },
       {
@@ -433,6 +436,14 @@ export const coverage: { group: string; rows: Row[] }[] = [
         design:
           'The box opens the new composer in free form; Share a link and Poll as shortcuts',
         status: 'Changed',
+      },
+      {
+        surface: 'Manage area',
+        production:
+          'None (settings, moderation and analytics are separate routes and a modal)',
+        design:
+          'One settings area opened by Edit page, like Edit profile: grouped menu beside the page on laptop, list then page on phones',
+        status: 'Added',
       },
       {
         surface: 'Sub-pages',

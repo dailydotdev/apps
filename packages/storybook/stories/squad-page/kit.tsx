@@ -362,6 +362,29 @@ export const stats = [
 
 /* ----------------------------------------------------------------- people */
 
+/** People are rounded squares, the way ProfilePicture rounds each size. */
+const avatarRadius = (size: number): string => {
+  if (size <= 1) {
+    return 'rounded-4';
+  }
+  if (size <= 1.25) {
+    return 'rounded-6';
+  }
+  if (size <= 1.5) {
+    return 'rounded-8';
+  }
+  if (size <= 2) {
+    return 'rounded-10';
+  }
+  if (size <= 2.5) {
+    return 'rounded-12';
+  }
+  if (size <= 3) {
+    return 'rounded-14';
+  }
+  return 'rounded-16';
+};
+
 export const Avatar = ({
   member,
   size = 2.5,
@@ -378,7 +401,8 @@ export const Avatar = ({
     title={member.name}
     style={{ width: `${size}rem`, height: `${size}rem` }}
     className={classNames(
-      'shrink-0 rounded-full bg-surface-hover object-cover',
+      'shrink-0 bg-surface-hover object-cover',
+      avatarRadius(size),
       className,
     )}
   />

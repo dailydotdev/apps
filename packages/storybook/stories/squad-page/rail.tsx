@@ -233,7 +233,7 @@ export const ProductionRail = ({
               <img
                 src={squad.image}
                 alt=""
-                className="size-6 rounded-8 object-cover"
+                className="size-6 rounded-full object-cover"
               />
             </a>
             <a

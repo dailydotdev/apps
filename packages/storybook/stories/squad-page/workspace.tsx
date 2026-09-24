@@ -42,6 +42,8 @@ import {
   WarningIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import type { SquadPoll } from './data';
 import {
   analyticsDays,
@@ -497,7 +499,7 @@ export const SquadSidebar = ({
           <img
             src={squad.image}
             alt=""
-            className="size-10 rounded-12 bg-background-default object-cover ring-1 ring-border-subtlest-tertiary"
+            className="size-10 rounded-full bg-background-default object-cover ring-1 ring-border-subtlest-tertiary"
           />
           <div className="flex min-w-0 flex-1 flex-col">
             <span className="flex items-center gap-1 truncate font-bold text-text-primary typo-callout">
@@ -971,10 +973,6 @@ export const ReleasesPage = ({
           .flatMap((group) => group.items)
           .map((entry) => (
             <li key={entry.id} className="group flex gap-4">
-              {' '}
-              <time className="sq-nums w-14 shrink-0 pt-0.5 text-text-tertiary typo-footnote">
-                {formatDay(entry.createdAt)}
-              </time>
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <span className="font-bold text-text-primary typo-callout">
                   {entry.title}
@@ -983,14 +981,12 @@ export const ReleasesPage = ({
                   {entry.summary}
                 </p>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-quaternary typo-caption1">
+                  <time className="sq-nums">{formatDay(entry.createdAt)}</time>
                   <span className="flex items-center gap-1.5">
                     <Avatar member={entry.author} size={1} />
                     {entry.author.name}
                   </span>
-                  {entry.tags.slice(0, 2).map((tag) => (
-                    <span key={tag}>#{tag}</span>
-                  ))}
-                  <span className="sq-nums ml-auto flex items-center gap-3">
+                  <span className="sq-nums flex items-center gap-3">
                     <span className="flex items-center gap-1">
                       <UpvoteIcon size={IconSize.XSmall} />
                       {entry.upvotes}
@@ -1006,7 +1002,7 @@ export const ReleasesPage = ({
                 <img
                   src={entry.image}
                   alt=""
-                  className="hidden h-14 w-24 shrink-0 rounded-10 object-cover tablet:block"
+                  className="h-16 w-24 shrink-0 rounded-12 object-cover tablet:h-20 tablet:w-32"
                 />
               )}
             </li>
@@ -1093,8 +1089,8 @@ export const PollsPage = ({
 
   return (
     <Column bare={bare} className="gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-12 bg-surface-float px-4 py-3">
-        <span className="min-w-0 flex-1 text-text-secondary typo-footnote">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <span className="min-w-0 flex-1 basis-56 text-text-tertiary typo-footnote">
           What the team wants to know from you. One vote each, results when you
           vote.
         </span>
@@ -1338,13 +1334,16 @@ export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
               </div>
               {tab === MemberTab.Blocked ? (
                 staff && (
-                  <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                  <Button
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                  >
                     Unblock
                   </Button>
                 )
               ) : staff ? (
                 <Button
-                  variant={ButtonVariant.Float}
+                  variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
                   icon={<MenuIcon />}
                   aria-label="Member options"
@@ -1448,7 +1447,7 @@ export const ModerationPage = (): ReactElement => {
   if (empty) {
     return (
       <Column>
-        <div className="flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-14 text-center">
+        <div className="flex flex-col items-center gap-2 px-2 py-14 text-center">
           <VIcon size={IconSize.Large} className="text-status-success" />
           <span className="font-bold text-text-primary typo-title3">
             All done!
@@ -1484,9 +1483,12 @@ export const ModerationPage = (): ReactElement => {
           return (
             <div key={key} className="flex flex-col gap-3">
               {index === 0 && (
-                <span className="flex items-center gap-2 rounded-10 bg-accent-bun-subtlest px-3 py-1.5 text-text-primary typo-footnote">
-                  <WarningIcon size={IconSize.Small} />
-                  Shared in multiple Squads - Spam alert
+                <span className="flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-secondary typo-footnote">
+                  <WarningIcon
+                    size={IconSize.Small}
+                    className="shrink-0 text-status-warning"
+                  />
+                  Shared in multiple Squads · Spam alert
                 </span>
               )}
               <div className="flex items-center gap-3">
@@ -1592,9 +1594,9 @@ const feedItems = feedEntries.slice(0, 4);
  */
 export const FeedSourcePage = (): ReactElement => (
   <Column width="max-w-[52rem]" className="gap-6">
-    <div className="flex items-center gap-3 rounded-16 border border-accent-cabbage-default bg-accent-cabbage-flat px-4 py-3">
+    <div className="flex flex-wrap items-start gap-x-3 gap-y-3">
       <VerifiedMark label={false} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 basis-56 flex-col">
         <span className="font-bold text-text-primary typo-callout">
           Managed by daily.dev
         </span>
@@ -1603,19 +1605,20 @@ export const FeedSourcePage = (): ReactElement => (
           keep the keys: pause, edit any post, or write your own.
         </span>
       </div>
-      <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
+      <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
         Contact your manager
       </Button>
     </div>
-    <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+    <div className="h-px w-full bg-border-subtlest-tertiary" />
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="font-bold text-text-primary typo-callout">Source</span>
+        <span className="font-bold text-text-primary typo-body">Source</span>
         <span className="flex items-center gap-1.5 text-status-success typo-caption1">
           <span className="size-1.5 rounded-full bg-status-success" />
           Healthy
         </span>
       </div>
-      <dl className="grid grid-cols-2 gap-x-8 gap-y-3">
+      <dl className="grid grid-cols-1 gap-x-8 gap-y-3 tablet:grid-cols-2">
         {[
           ['Feed', squad.feedUrl],
           ['Publishes to', 'Releases'],
@@ -1629,11 +1632,13 @@ export const FeedSourcePage = (): ReactElement => (
         ].map(([label, value]) => (
           <div key={label} className="flex flex-col gap-0.5">
             <dt className="text-text-quaternary typo-caption1">{label}</dt>
-            <dd className="text-text-primary typo-callout">{value}</dd>
+            <dd className="break-words text-text-primary typo-callout [overflow-wrap:anywhere]">
+              {value}
+            </dd>
           </div>
         ))}
       </dl>
-      <div className="flex gap-2 border-t border-border-subtlest-tertiary pt-3">
+      <div className="flex flex-wrap gap-2">
         <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
           Sync now
         </Button>
@@ -1645,8 +1650,9 @@ export const FeedSourcePage = (): ReactElement => (
         </Button>
       </div>
     </div>
-    <div className="flex flex-col gap-2">
-      <span className="font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
+    <div className="h-px w-full bg-border-subtlest-tertiary" />
+    <div className="flex flex-col gap-3">
+      <span className="font-bold text-text-primary typo-body">
         Recent imports
       </span>
       <ol className="flex flex-col gap-3">
@@ -1675,7 +1681,7 @@ export const FeedSourcePage = (): ReactElement => (
  */
 export const PrivateWall = ({ viewer }: { viewer: Viewer }): ReactElement => (
   <Column>
-    <div className="flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-6 py-14 text-center">
+    <div className="flex flex-col items-center gap-3 px-2 py-14 text-center">
       <LockIcon
         secondary
         size={IconSize.XLarge}
@@ -1755,7 +1761,11 @@ export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
         </p>
       </div>
       <div className="flex w-full flex-col items-center gap-4 rounded-24 border border-accent-cabbage-default p-6 text-center tablet:flex-row tablet:text-left">
-        <img src={squad.image} alt="" className="size-16 shrink-0 rounded-16" />
+        <img
+          src={squad.image}
+          alt=""
+          className="size-16 shrink-0 rounded-full"
+        />
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="flex items-center gap-1 font-bold text-text-primary typo-body">
             {squad.name}
@@ -1896,7 +1906,15 @@ const SettingsSection = ({
  * section for section, inside the workspace instead of on /edit. The
  * company page adds where the posts come from.
  */
-export const SettingsPage = (): ReactElement => {
+export type SettingsPart = 'details' | 'posting' | 'integrations' | 'danger';
+
+export const SettingsPage = ({
+  only,
+}: {
+  /** One part of the settings, for the Manage area; all of them otherwise. */
+  only?: SettingsPart;
+} = {}): ReactElement => {
+  const shows = (part: SettingsPart): boolean => !only || only === part;
   const { config, source } = useWorkspace();
   const [state, setState] = useState(config);
   const membersOnly = state.memberPostingRole === MemberRole.Moderator;
@@ -1907,215 +1925,249 @@ export const SettingsPage = (): ReactElement => {
 
   return (
     <Column width="max-w-[44rem]" className="gap-8">
-      <SettingsSection title="Squad details">
-        <div className="flex items-center gap-4">
-          <img src={squad.image} alt="" className="size-16 rounded-16" />
-          <div className="flex gap-2">
-            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
-              Change image
-            </Button>
-            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
-              Upload cover
-            </Button>
-          </div>
-        </div>
-        <Field label="Squad name" value={squad.name} />
-        <Field
-          label="Squad handle"
-          value={`@${squad.handle}`}
-          hint={`daily.dev/squads/${squad.handle}`}
-        />
-        <Field
-          label="Squad description"
-          value={squad.description}
-          hint="250 characters"
-        />
-      </SettingsSection>
-
-      <SettingsSection title="Squad type">
-        <Radio
-          value={state.isPublic ? 'public' : 'private'}
-          onChange={(value) =>
-            setState((current) => ({
-              ...current,
-              isPublic: value === 'public',
-            }))
-          }
-          options={[
-            {
-              value: 'public',
-              label: 'Public',
-              hint: 'Listed in the directory, open to anyone. Needs a category.',
-            },
-            {
-              value: 'private',
-              label: 'Private',
-              hint: 'Squad is invite-only, hidden from the directory, and perfect for teams and smaller groups of people who know each other and want to collaborate privately.',
-            },
-          ]}
-        />
-        {state.isPublic && (
-          <Field
-            label="Category"
-            value={state.category ?? 'Select a category'}
-          />
-        )}
-      </SettingsSection>
-
-      <SettingsSection
-        title="🔒 Moderation settings"
-        description="Choose who is allowed to post new content in this Squad, and whether their posts are reviewed first."
-      >
-        <SettingsSection title="Post content">
-          <Radio
-            value={state.memberPostingRole}
-            onChange={(value) =>
-              setState((current) => ({
-                ...current,
-                memberPostingRole: value as MemberRole,
-                postingGate:
-                  value === MemberRole.Moderator
-                    ? PostingGate.None
-                    : current.postingGate,
-              }))
-            }
-            options={roleOptions}
-          />
-        </SettingsSection>
-        <SettingsSection
-          title="Posting requirements"
-          description={
-            membersOnly
-              ? 'Only admins and moderators can post; their posts are auto-published.'
-              : undefined
-          }
-        >
-          <Radio
-            disabled={membersOnly}
-            value={state.postingGate}
-            onChange={(value) =>
-              setState((current) => ({
-                ...current,
-                postingGate: value as PostingGate,
-              }))
-            }
-            options={[
-              {
-                value: PostingGate.None,
-                label: 'Anyone can post',
-                hint: 'All members can post. No review.',
-              },
-              {
-                value: PostingGate.Moderation,
-                label: 'Require post approval',
-                hint: 'All members can post. Every post is reviewed.',
-              },
-              {
-                value: PostingGate.Reputation,
-                label: 'Require a minimum reputation',
-                hint: 'Only members with enough reputation can post. No review.',
-              },
-            ]}
-          />
-          {state.postingGate === PostingGate.Reputation && !membersOnly && (
-            <div className="max-w-60">
-              <Field
-                label="Minimum reputation"
-                value={String(state.postingMinReputation)}
-              />
+      {shows('details') && (
+        <SettingsSection title="Squad details">
+          <div className="flex items-center gap-4">
+            <img src={squad.image} alt="" className="size-16 rounded-full" />
+            <div className="flex flex-wrap gap-2">
+              <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                Change image
+              </Button>
+              <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                Upload cover
+              </Button>
             </div>
-          )}
-        </SettingsSection>
-        <SettingsSection
-          title="Invitation permissions"
-          description="Choose who is allowed to invite new members to this Squad."
-        >
-          <Radio
-            value={state.memberInviteRole}
-            onChange={(value) =>
-              setState((current) => ({
-                ...current,
-                memberInviteRole: value as MemberRole,
-              }))
-            }
-            options={roleOptions}
+          </div>
+          <TextField
+            inputId="squad-name"
+            name="name"
+            label="Squad name"
+            defaultValue={squad.name}
+            className={{ container: 'w-full' }}
+          />
+          <TextField
+            inputId="squad-handle"
+            name="handle"
+            label="Squad handle"
+            defaultValue={squad.handle}
+            hint={`daily.dev/squads/${squad.handle}`}
+            className={{ container: 'w-full' }}
+          />
+          <Textarea
+            inputId="squad-description"
+            name="description"
+            label="Squad description"
+            defaultValue={squad.description}
+            rows={3}
+            maxLength={250}
           />
         </SettingsSection>
-      </SettingsSection>
+      )}
 
-      <SettingsSection title="Integrations">
-        <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
-          <SlackIcon size={IconSize.Medium} />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="font-bold text-text-primary typo-callout">
-              Slack
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              {config.slack
-                ? 'Posting new posts to #product-updates'
-                : 'Post every new post to a channel.'}
-            </span>
-          </div>
-          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
-            {config.slack ? 'Manage' : 'Connect to Slack'}
+      {shows('details') && (
+        <>
+          <SettingsSection title="Squad type">
+            <Radio
+              value={state.isPublic ? 'public' : 'private'}
+              onChange={(value) =>
+                setState((current) => ({
+                  ...current,
+                  isPublic: value === 'public',
+                }))
+              }
+              options={[
+                {
+                  value: 'public',
+                  label: 'Public',
+                  hint: 'Listed in the directory, open to anyone. Needs a category.',
+                },
+                {
+                  value: 'private',
+                  label: 'Private',
+                  hint: 'Squad is invite-only, hidden from the directory, and perfect for teams and smaller groups of people who know each other and want to collaborate privately.',
+                },
+              ]}
+            />
+            {state.isPublic && (
+              <Field
+                label="Category"
+                value={state.category ?? 'Select a category'}
+              />
+            )}
+          </SettingsSection>
+        </>
+      )}
+
+      {shows('posting') && (
+        <>
+          <SettingsSection
+            title="🔒 Moderation settings"
+            description="Choose who is allowed to post new content in this Squad, and whether their posts are reviewed first."
+          >
+            <SettingsSection title="Post content">
+              <Radio
+                value={state.memberPostingRole}
+                onChange={(value) =>
+                  setState((current) => ({
+                    ...current,
+                    memberPostingRole: value as MemberRole,
+                    postingGate:
+                      value === MemberRole.Moderator
+                        ? PostingGate.None
+                        : current.postingGate,
+                  }))
+                }
+                options={roleOptions}
+              />
+            </SettingsSection>
+            <SettingsSection
+              title="Posting requirements"
+              description={
+                membersOnly
+                  ? 'Only admins and moderators can post; their posts are auto-published.'
+                  : undefined
+              }
+            >
+              <Radio
+                disabled={membersOnly}
+                value={state.postingGate}
+                onChange={(value) =>
+                  setState((current) => ({
+                    ...current,
+                    postingGate: value as PostingGate,
+                  }))
+                }
+                options={[
+                  {
+                    value: PostingGate.None,
+                    label: 'Anyone can post',
+                    hint: 'All members can post. No review.',
+                  },
+                  {
+                    value: PostingGate.Moderation,
+                    label: 'Require post approval',
+                    hint: 'All members can post. Every post is reviewed.',
+                  },
+                  {
+                    value: PostingGate.Reputation,
+                    label: 'Require a minimum reputation',
+                    hint: 'Only members with enough reputation can post. No review.',
+                  },
+                ]}
+              />
+              {state.postingGate === PostingGate.Reputation && !membersOnly && (
+                <div className="max-w-60">
+                  <Field
+                    label="Minimum reputation"
+                    value={String(state.postingMinReputation)}
+                  />
+                </div>
+              )}
+            </SettingsSection>
+            <SettingsSection
+              title="Invitation permissions"
+              description="Choose who is allowed to invite new members to this Squad."
+            >
+              <Radio
+                value={state.memberInviteRole}
+                onChange={(value) =>
+                  setState((current) => ({
+                    ...current,
+                    memberInviteRole: value as MemberRole,
+                  }))
+                }
+                options={roleOptions}
+              />
+            </SettingsSection>
+          </SettingsSection>
+        </>
+      )}
+
+      {shows('integrations') && (
+        <>
+          <SettingsSection title="Integrations">
+            <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
+              <SlackIcon size={IconSize.Medium} />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="font-bold text-text-primary typo-callout">
+                  Slack
+                </span>
+                <span className="text-text-tertiary typo-footnote">
+                  {config.slack
+                    ? 'Posting new posts to #product-updates'
+                    : 'Post every new post to a channel.'}
+                </span>
+              </div>
+              <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
+                {config.slack ? 'Manage' : 'Connect to Slack'}
+              </Button>
+            </div>
+            {source === ContentSource.Feed && (
+              <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
+                <MegaphoneIcon size={IconSize.Medium} />
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="font-bold text-text-primary typo-callout">
+                    Content feed
+                  </span>
+                  <span className="[overflow-wrap:anywhere] text-text-tertiary typo-footnote">
+                    {squad.feedUrl}, checked every hour, managed by daily.dev.
+                  </span>
+                </div>
+                <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                  Open
+                </Button>
+              </div>
+            )}
+          </SettingsSection>
+        </>
+      )}
+
+      {shows('danger') && (
+        <>
+          <SettingsSection title="🚨 Danger zone">
+            <div className="flex flex-col gap-3 rounded-16 border border-status-error p-4">
+              <span className="font-bold text-text-primary typo-callout">
+                Deleting your Squad will:
+              </span>
+              <ul className="flex list-disc flex-col gap-1 pl-5 text-text-tertiary typo-footnote">
+                <li>Permanently delete your Squad.</li>
+                <li>
+                  Permanently delete all Squad&apos;s content, including your
+                  posts and others, comments, upvotes, etc
+                </li>
+                <li>Allow your Squad name to become available to anyone.</li>
+              </ul>
+              <span className="text-text-quaternary typo-caption1">
+                Important: deleting your Squad is unrecoverable and cannot be
+                undone. Feel free to contact support@daily.dev with any
+                questions.
+              </span>
+              <div>
+                <Button
+                  variant={ButtonVariant.Secondary}
+                  color={ButtonColor.Ketchup}
+                  size={ButtonSize.Small}
+                  icon={<TrashIcon />}
+                >
+                  Delete Squad
+                </Button>
+              </div>
+            </div>
+          </SettingsSection>
+        </>
+      )}
+
+      {!only && (
+        <div className="sticky bottom-0 flex justify-end border-t border-border-subtlest-tertiary bg-background-default py-3">
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Medium}
+          >
+            Save
           </Button>
         </div>
-        {source === ContentSource.Feed && (
-          <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-4 py-3">
-            <MegaphoneIcon size={IconSize.Medium} />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="font-bold text-text-primary typo-callout">
-                Content feed
-              </span>
-              <span className="text-text-tertiary typo-footnote">
-                {squad.feedUrl}, checked every hour, managed by daily.dev.
-              </span>
-            </div>
-            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
-              Open
-            </Button>
-          </div>
-        )}
-      </SettingsSection>
-
-      <SettingsSection title="🚨 Danger zone">
-        <div className="flex flex-col gap-3 rounded-16 border border-status-error p-4">
-          <span className="font-bold text-text-primary typo-callout">
-            Deleting your Squad will:
-          </span>
-          <ul className="flex list-disc flex-col gap-1 pl-5 text-text-tertiary typo-footnote">
-            <li>Permanently delete your Squad.</li>
-            <li>
-              Permanently delete all Squad&apos;s content, including your posts
-              and others, comments, upvotes, etc
-            </li>
-            <li>Allow your Squad name to become available to anyone.</li>
-          </ul>
-          <span className="text-text-quaternary typo-caption1">
-            Important: deleting your Squad is unrecoverable and cannot be
-            undone. Feel free to contact support@daily.dev with any questions.
-          </span>
-          <div>
-            <Button
-              variant={ButtonVariant.Secondary}
-              color={ButtonColor.Ketchup}
-              size={ButtonSize.Small}
-              icon={<TrashIcon />}
-            >
-              Delete Squad
-            </Button>
-          </div>
-        </div>
-      </SettingsSection>
-      <div className="sticky bottom-0 flex justify-end border-t border-border-subtlest-tertiary bg-background-default py-3">
-        <Button
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Cabbage}
-          size={ButtonSize.Medium}
-        >
-          Save
-        </Button>
-      </div>
+      )}
     </Column>
   );
 };
@@ -2131,27 +2183,25 @@ export const AnalyticsPage = (): ReactElement => {
 
   return (
     <Column width="max-w-[52rem]" className="gap-6">
-      <div className="grid grid-cols-2 gap-3">
+      <span className="font-bold text-text-primary typo-body">
+        Discovery (last 45 days)
+      </span>
+      <div className="grid grid-cols-2 gap-6">
         {analyticsDiscovery
           .map(([label, amount]) => [label, formatCount(empty ? 0 : amount)])
           .map(([label, value]) => (
-            <div
-              key={label}
-              className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-4"
-            >
+            <div key={label} className="flex flex-col gap-1">
               <span className="text-text-tertiary typo-footnote">{label}</span>
               <span className="sq-nums font-bold text-text-primary typo-title2">
                 {value}
               </span>
-              <span className="text-text-quaternary typo-caption1">
-                Last 45 days
-              </span>
             </div>
           ))}
       </div>
-      <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-text-primary typo-callout">
+      <div className="h-px w-full bg-border-subtlest-tertiary" />
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="font-bold text-text-primary typo-body">
             Impressions per day
           </span>
           <span className="flex items-center gap-3 text-text-tertiary typo-caption1">
@@ -2194,13 +2244,14 @@ export const AnalyticsPage = (): ReactElement => {
           </div>
         )}
       </div>
-      <dl className="grid grid-cols-4 gap-3">
+      <div className="h-px w-full bg-border-subtlest-tertiary" />
+      <span className="font-bold text-text-primary typo-body">
+        Engagement (last 45 days)
+      </span>
+      <dl className="flex flex-col gap-3">
         {analyticsEngagement.map(([label, value]) => (
-          <div
-            key={label}
-            className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary px-3 py-2.5"
-          >
-            <dt className="text-text-tertiary typo-caption1">{label}</dt>
+          <div key={label} className="flex items-center justify-between gap-4">
+            <dt className="text-text-tertiary typo-callout">{label}</dt>
             <dd className="sq-nums font-bold text-text-primary typo-callout">
               {empty ? '0' : value}
             </dd>
@@ -2238,7 +2289,7 @@ export const PendingPostsPage = (): ReactElement => {
   if (items.length === 0) {
     return (
       <Column>
-        <div className="flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-14 text-center">
+        <div className="flex flex-col items-center gap-2 px-2 py-14 text-center">
           <VIcon size={IconSize.Large} className="text-status-success" />
           <span className="font-bold text-text-primary typo-title3">
             All done!
@@ -2268,31 +2319,25 @@ export const PendingPostsPage = (): ReactElement => {
                   <span className="font-bold text-text-primary typo-footnote">
                     {entry.author.name}
                   </span>
-                  <span className="text-text-tertiary typo-caption1">
+                  <span className="flex flex-wrap items-center gap-x-1.5 text-text-tertiary typo-caption1">
                     {formatDay(entry.createdAt)}
-                    {index === 2 && ' · Resubmitted Post'}
+                    {index === 2 && <span>· Resubmitted</span>}
+                    <span
+                      className={classNames(
+                        'flex items-center gap-1 font-bold',
+                        rejected ? 'text-status-error' : 'text-text-secondary',
+                      )}
+                    >
+                      ·{' '}
+                      {rejected ? (
+                        <WarningIcon size={IconSize.XSmall} />
+                      ) : (
+                        <TimerIcon size={IconSize.XSmall} />
+                      )}
+                      {rejected ? 'Rejected' : 'Pending review'}
+                    </span>
                   </span>
                 </div>
-                <Button
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Small}
-                  icon={rejected ? <WarningIcon /> : <TimerIcon />}
-                  disabled
-                >
-                  {rejected ? 'Rejected' : 'Pending'}
-                </Button>
-                <Button
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  icon={<EditIcon />}
-                  aria-label="Edit post"
-                />
-                <Button
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  icon={<TrashIcon />}
-                  aria-label="Delete post"
-                />
               </div>
               <div className="flex gap-4">
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -2312,12 +2357,36 @@ export const PendingPostsPage = (): ReactElement => {
                 )}
               </div>
               {rejected && (
-                <div className="rounded-12 bg-accent-bun-subtlest px-3 py-2 text-text-primary typo-footnote">
-                  Your post in {squad.name} was not approved for the following
-                  reason: {rejectReasons[2]}. Please review the feedback and
-                  consider making changes before resubmitting.
+                <div className="flex gap-2 rounded-12 bg-surface-float px-3 py-2.5 text-text-secondary typo-footnote">
+                  <WarningIcon
+                    size={IconSize.Small}
+                    className="shrink-0 text-status-error"
+                  />
+                  <span className="min-w-0 flex-1">
+                    Your post in {squad.name} was not approved for the following
+                    reason:{' '}
+                    <b className="text-text-primary">{rejectReasons[2]}</b>.
+                    Please review the feedback and consider making changes
+                    before resubmitting.
+                  </span>
                 </div>
               )}
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  icon={<EditIcon />}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  icon={<TrashIcon />}
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           );
         })}

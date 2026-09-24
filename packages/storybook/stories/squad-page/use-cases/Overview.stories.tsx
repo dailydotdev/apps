@@ -7,6 +7,7 @@ import { ContentSource } from '../workspace';
 import { Page, viewerLabel } from './shared';
 import {
   contentCases,
+  manageCases,
   postingCases,
   productionCases,
   stateCases,
@@ -258,9 +259,9 @@ export const Overview: StoryObj = {
               ? 'View as a visitor, Official, share card, Rules, Team, Links'
               : 'Official, Rules, Team, Links',
             useCase.viewer === Viewer.Admin
-              ? 'Content feed, Moderation, Analytics, Settings'
+              ? 'The Manage area, every section (Edit page opens Details)'
               : useCase.viewer === Viewer.Moderator
-              ? 'Moderation'
+              ? 'The Manage area: Rules, FAQ, Followers, Moderation'
               : 'None',
           ])}
         />
@@ -384,6 +385,14 @@ export const Overview: StoryObj = {
               useCase.page ?? 'home',
               useCase.source === ContentSource.Manual ? 'Hand-written' : 'Fed',
               useCase.isPrivate ? 'Private' : useCase.empty ? 'Empty' : '',
+            ]),
+            ...manageCases.map((useCase) => [
+              'Manage',
+              useCase.title,
+              viewerLabel[useCase.viewer],
+              useCase.page ?? 'manage',
+              'Fed',
+              '',
             ]),
             ...productionCases.map((useCase) => [
               'Production parity',

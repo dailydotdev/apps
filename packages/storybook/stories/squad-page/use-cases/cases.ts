@@ -354,7 +354,7 @@ export const productionCases: UseCase[] = [
     id: 'settings',
     title: 'Squad settings',
     who: 'Admin',
-    sees: 'Production’s Details form and its sections: details with cover upload, Squad type with the category, Moderation settings, Integrations (Slack, plus the content feed on a fed page), Danger zone.',
+    sees: 'Settings opens the Manage area on Details. Production’s one long form is split across Details, Posting and invitations, Integrations and Danger zone in the menu.',
     viewer: Viewer.Admin,
     page: 'settings',
     height: 56,
@@ -417,12 +417,70 @@ export const productionCases: UseCase[] = [
   },
 ];
 
+export const manageCases: UseCase[] = [
+  {
+    id: 'manage-admin',
+    title: 'Manage, opened from Edit page',
+    who: 'Admin',
+    sees: 'The profile’s settings pattern: on laptop a grouped menu (Page, Community, Content, Insights, Advanced) beside Details; on a phone the menu is a list and each item opens its own page with a back button.',
+    viewer: Viewer.Admin,
+    page: 'manage',
+    height: 52,
+  },
+  {
+    id: 'manage-details',
+    title: 'Details',
+    who: 'Admin',
+    sees: 'Logo, cover, name, handle and description in the product’s own fields, then the squad type and category. Save sits in the page header.',
+    viewer: Viewer.Admin,
+    page: 'manage-details',
+    height: 56,
+  },
+  {
+    id: 'manage-moderator',
+    title: 'Manage, as a moderator',
+    who: 'Moderator',
+    sees: 'Only what a moderator may touch: Rules, FAQ, Followers, Moderation. It opens on Rules.',
+    viewer: Viewer.Moderator,
+    page: 'manage',
+    height: 48,
+  },
+  {
+    id: 'manage-posting',
+    title: 'Posting and invitations',
+    who: 'Admin',
+    sees: 'Who may post, whether posts are reviewed or gated by reputation, and who may invite, split out of production’s one long settings form.',
+    viewer: Viewer.Admin,
+    page: 'manage-posting',
+    height: 52,
+  },
+  {
+    id: 'manage-products',
+    title: 'Products, managed',
+    who: 'Admin',
+    sees: 'The products list with Add product in the header; Add product opens the form with Save, and back returns to the list.',
+    viewer: Viewer.Admin,
+    page: 'manage-products',
+    height: 52,
+  },
+  {
+    id: 'manage-links',
+    title: 'Links',
+    who: 'Admin',
+    sees: 'The links the right column shows, each with its mark and address, a row menu, and Add link in the header.',
+    viewer: Viewer.Admin,
+    page: 'manage-links',
+    height: 44,
+  },
+];
+
 export const allCases: UseCase[] = [
   ...viewerCases,
   ...postingCases,
   ...contentCases,
   ...stateCases,
   ...productionCases,
+  ...manageCases,
 ];
 
 export const caseById = Object.fromEntries(

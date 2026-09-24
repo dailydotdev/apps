@@ -92,6 +92,26 @@ export const Separator = (): ReactElement => (
 /* -------------------------------------------------------------- header */
 
 /** ProfileHeader, for a squad. */
+const MetaItem = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'flex items-center gap-2 whitespace-nowrap',
+      className,
+    )}
+  >
+    <span aria-hidden className="text-text-quaternary">
+      ·
+    </span>
+    {children}
+  </span>
+);
+
 export const SquadHeader = ({
   viewer,
   standalone,
@@ -156,22 +176,15 @@ export const SquadHeader = ({
             squad.headerImagePosition === 'bottom' && 'object-bottom',
           )}
         />
-        <div
-          className="absolute inset-x-0 bottom-0 h-20"
-          style={{
-            background:
-              'linear-gradient(to top, var(--theme-background-default), transparent)',
-          }}
-        />
       </div>
       <div className="flex flex-col px-4 pb-5 tablet:px-6">
         {/* Logo and actions share one baseline, so the identity column below
           is text only and every row starts at the same x. */}
-        <div className="-mt-12 flex items-end justify-between gap-4">
+        <div className="-mt-8 flex items-end justify-between gap-4 tablet:-mt-12">
           <img
             src={squad.image}
             alt="Logo"
-            className="relative size-20 shrink-0 rounded-16 bg-background-default object-cover ring-4 ring-background-default tablet:size-[6.5rem]"
+            className="relative size-20 shrink-0 rounded-full bg-background-default object-cover ring-4 ring-background-default tablet:size-[6.5rem]"
           />
           <div className="flex items-center gap-2 pb-1">
             {isAdmin(viewer) && (
@@ -180,6 +193,7 @@ export const SquadHeader = ({
                   variant={ButtonVariant.Subtle}
                   size={ButtonSize.Small}
                   icon={<EditIcon />}
+                  onClick={() => onManage?.('manage-details')}
                 >
                   Edit page
                 </Button>
@@ -232,20 +246,18 @@ export const SquadHeader = ({
           </h1>
           <p className="text-text-secondary typo-body">{squad.tagline}</p>
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-x-2 text-text-tertiary typo-footnote">
+        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
           <span className="flex items-center gap-1.5 text-text-secondary">
-            <img src={squad.image} alt="" className="size-4 rounded-4" />
+            <img src={squad.image} alt="" className="size-4 rounded-full" />
             {squad.company.website}
           </span>
           {(config.featured || !config.isPublic) && (
-            <>
-              <span className="text-text-quaternary">·</span>
+            <MetaItem>
               <PrivacyChip />
-            </>
+            </MetaItem>
           )}
           {config.isPublic && config.category && (
-            <>
-              <span className="text-text-quaternary">·</span>
+            <MetaItem>
               <a
                 href="/squads/discover"
                 className="text-text-link hover:underline"
@@ -253,12 +265,14 @@ export const SquadHeader = ({
               >
                 {config.category}
               </a>
-            </>
+            </MetaItem>
           )}
-          <span className="text-text-quaternary">·</span>
-          <span>{squad.company.location}</span>
-          <span className="text-text-quaternary">·</span>
-          <span>Since {formatSince(squad.createdAt)}</span>
+          <MetaItem className="hidden tablet:flex">
+            {squad.company.location}
+          </MetaItem>
+          <MetaItem className="hidden tablet:flex">
+            Since {formatSince(squad.createdAt)}
+          </MetaItem>
         </div>
         <SquadStats onOpenMembers={onOpenMembers} />
         {follow && (
@@ -268,7 +282,11 @@ export const SquadHeader = ({
         )}
         {isAdmin(viewer) && (
           <div className="mt-4 grid grid-cols-2 gap-2 tablet:hidden">
-            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
+            <Button
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Medium}
+              onClick={() => onManage?.('manage-details')}
+            >
               Edit page
             </Button>
             <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
@@ -826,7 +844,7 @@ export const SquadComposer = ({
         <button
           type="button"
           onClick={onOpenPending}
-          className="flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-left text-text-secondary typo-footnote hover:text-text-primary"
+          className="mx-4 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-left text-text-secondary typo-footnote hover:text-text-primary tablet:mx-0"
         >
           <TimerIcon size={IconSize.Small} className="text-text-tertiary" />
           <span className="min-w-0 flex-1">
@@ -840,7 +858,7 @@ export const SquadComposer = ({
       {state.canPost ? (
         <ComposerEntry canPoll={isStaff(viewer)} reviewed={state.reviewed} />
       ) : (
-        <div className="flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-4 py-4 text-text-quaternary typo-callout">
+        <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-4 py-4 text-text-quaternary typo-callout tablet:rounded-16 tablet:border">
           <LockIcon size={IconSize.Small} />
           {state.reason}
         </div>

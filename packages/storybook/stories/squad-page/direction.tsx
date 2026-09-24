@@ -15,6 +15,10 @@ import {
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
 import { feedEntries, formatCount, products, squad } from './data';
 import { CardList, isAdmin, isJoined, isStaff, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
@@ -22,6 +26,8 @@ import { MobileFooterNav, TabletSidebar } from './rail';
 import type { SquadConfig } from './state';
 import { useWorkspace } from './state';
 import { PreviewModeToggle, SharePageWidget } from './owner';
+import type { ManageSection } from './manage';
+import { manageSectionIds, ManageView } from './manage';
 import { AddProductPage, SaveProductButton } from './productForm';
 import { PinnedArea, PinStyle, feedUnder } from './pins';
 import { SquadComposer, SquadHeader, SquadWidgets } from './home';
@@ -119,47 +125,38 @@ const chips = [
 
 const discussionEntries = feedEntries.filter((_, index) => index % 3 === 2);
 
-/** A label that keeps its bold width, so selecting it moves nothing. */
-const SteadyLabel = ({ children }: { children: string }): ReactElement => (
-  <span className="grid justify-items-center">
-    <span aria-hidden className="invisible col-start-1 row-start-1 font-bold">
-      {children}
-    </span>
-    <span className="col-start-1 row-start-1">{children}</span>
-  </span>
-);
-
 /** One row: the kinds as chips. */
+/**
+ * The kinds as the tags directory draws its tabs: the shared
+ * SquadDirectoryNavbar, Float for the active one with the underline,
+ * Tertiary for the rest, scrolling with arrows when it overflows.
+ */
 const FeedToolbar = ({
   chip,
   onChip,
 }: {
   chip: string;
   onChip: (id: string) => void;
-}): ReactElement => {
-  return (
-    <div className="flex h-9 items-center gap-1">
-      <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
-        {chips.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onChip(item.id)}
-            className={classNames(
-              'shrink-0 rounded-[999px] px-3 py-1.5 typo-callout transition-colors',
-              item.compactOnly && 'laptop:hidden',
-              chip === item.id
-                ? 'bg-surface-float font-bold text-text-primary'
-                : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
-            )}
-          >
-            <SteadyLabel>{item.label}</SteadyLabel>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
+}): ReactElement => (
+  <SquadDirectoryNavbar
+    aria-label="Feed filters"
+    className="!mx-0 !border-0 px-4 tablet:!px-0"
+  >
+    {chips.map((item) => (
+      <SquadDirectoryNavbarItem
+        key={item.id}
+        buttonSize={ButtonSize.Small}
+        isActive={chip === item.id}
+        label={item.label}
+        ariaLabel={item.label}
+        onClick={() => onChip(item.id)}
+        elementProps={
+          item.compactOnly ? { className: 'laptop:hidden' } : undefined
+        }
+      />
+    ))}
+  </SquadDirectoryNavbar>
+);
 
 const Feed = ({
   viewer,
@@ -177,7 +174,7 @@ const Feed = ({
   let body: ReactElement;
   if (chip === 'about') {
     body = (
-      <div className="flex flex-col gap-4 laptop:hidden">
+      <div className="flex flex-col gap-4 px-4 tablet:px-0 laptop:hidden">
         <SquadWidgets
           viewer={viewer}
           onOpenRules={() => onSelect('rules')}
@@ -187,12 +184,20 @@ const Feed = ({
       </div>
     );
   } else if (chip === 'polls') {
-    body = <PollsPage viewer={viewer} bare />;
+    body = (
+      <div className="px-4 tablet:px-0">
+        <PollsPage viewer={viewer} bare />
+      </div>
+    );
   } else if (chip === 'releases') {
-    body = <ReleasesPage viewer={viewer} bare />;
+    body = (
+      <div className="px-4 tablet:px-0">
+        <ReleasesPage viewer={viewer} bare />
+      </div>
+    );
   } else if (empty) {
     body = (
-      <div className="flex flex-col items-center gap-1 py-12 text-center">
+      <div className="flex flex-col items-center gap-1 px-4 py-12 text-center">
         <span className="font-bold text-text-primary typo-callout">
           Nothing posted yet
         </span>
@@ -206,7 +211,11 @@ const Feed = ({
   } else {
     body = (
       <>
-        {chip === 'all' && <PinnedArea style={pinStyle} />}
+        {chip === 'all' && (
+          <div className="px-4 tablet:px-0">
+            <PinnedArea style={pinStyle} />
+          </div>
+        )}
         <CardList
           entries={
             chip === 'discussions'
@@ -214,19 +223,21 @@ const Feed = ({
               : feedUnder(pinStyle).slice(0, 6)
           }
         />
-        <Button
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Medium}
-          className="w-full"
-        >
-          Load more
-        </Button>
+        <div className="px-4 tablet:px-0">
+          <Button
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Medium}
+            className="w-full"
+          >
+            Load more
+          </Button>
+        </div>
       </>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 tablet:p-6">
+    <div className="flex flex-col gap-4 pb-4 tablet:p-6">
       <SquadComposer viewer={viewer} />
       <FeedToolbar chip={chip} onChip={setChip} />
       {body}
@@ -323,7 +334,7 @@ const Frame = ({
   /** Above the page card, outside it: the preview strip. */
   notice?: ReactNode;
 }): ReactElement => (
-  <div className="m-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
+  <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
     <main className="flex min-w-0 flex-1 flex-col">
       {notice}
       <div className="border-border-subtlest-tertiary laptop:rounded-16 laptop:border">
@@ -389,6 +400,20 @@ export const DirectionPage = ({
   // Production gates a private squad behind its Unauthorized copy; the
   // identity, rules and team stay readable so the door explains itself.
   const walled = isPrivate && !isJoined(viewer);
+
+  if (active.startsWith('manage') && isStaff(viewer)) {
+    const section = active.startsWith('manage-')
+      ? active.slice('manage-'.length)
+      : undefined;
+    return (
+      <ManageView
+        key={active}
+        viewer={viewer}
+        initialSection={section as ManageSection | undefined}
+        onExit={() => onSelect('home')}
+      />
+    );
+  }
 
   if (active === 'invite' || active === 'not-found') {
     return (
@@ -498,6 +523,14 @@ export const DirectionPage = ({
   );
 };
 
+/** The team's pages live in the Manage area; Settings opens its Details. */
+const toManage: Record<string, string> = {
+  moderation: 'manage-moderation',
+  feed: 'manage-feed',
+  analytics: 'manage-analytics',
+  settings: 'manage-details',
+};
+
 /** Feed chips an initial page may name; they open Home on that chip. */
 export const feedChipIds = ['releases', 'discussions', 'polls', 'about'];
 
@@ -513,6 +546,8 @@ export const directionPageIds = [
   'pending',
   'invite',
   'not-found',
+  'manage',
+  ...manageSectionIds.map((id) => `manage-${id}`),
 ];
 
 export const DirectionShell = ({
@@ -546,7 +581,10 @@ export const DirectionShell = ({
   fluid?: boolean;
 }): ReactElement => {
   const chipPage = feedChipIds.includes(initialPage);
-  const [active, setActive] = useState(chipPage ? 'home' : initialPage);
+  const [active, setPage] = useState(
+    chipPage ? 'home' : toManage[initialPage] ?? initialPage,
+  );
+  const setActive = (id: string) => setPage(toManage[id] ?? id);
   const loggedIn = viewer !== Viewer.Anonymous;
   const page = (
     <main className="ws-scroll flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
