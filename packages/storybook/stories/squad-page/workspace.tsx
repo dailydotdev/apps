@@ -75,7 +75,7 @@ import { PollList } from '@dailydotdev/shared/src/components/cards/poll/PollList
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { PostsToolbar, SquadHome } from './home';
-import { ProductionRail } from './rail';
+import { ClassicSidebar } from './rail';
 import type { SquadConfig, WorkspaceState } from './state';
 import {
   ContentSource,
@@ -396,12 +396,10 @@ export const WorkspaceStyles = (): ReactElement => (
   <style dangerouslySetInnerHTML={{ __html: shellCss }} />
 );
 
-/** The v2 rail, as it is today. Nothing here changes for the workspace. */
-export const Rail = ({
-  loggedIn,
-}: {
-  loggedIn?: boolean;
-}): ReactElement => <ProductionRail loggedIn={loggedIn} />;
+/** Production's sidebar outside layout v2, collapsed to its icons. */
+export const Rail = ({ loggedIn }: { loggedIn?: boolean }): ReactElement => (
+  <ClassicSidebar loggedIn={loggedIn} />
+);
 
 const Badge = ({ value }: { value: number }): ReactElement => (
   <span className="sq-nums ml-auto rounded-8 bg-surface-float px-1.5 font-bold text-text-tertiary typo-caption2">
@@ -705,16 +703,20 @@ const IconButton = ({
 const Column = ({
   children,
   width = 'max-w-[46rem]',
+  bare = false,
   className,
 }: {
   children: ReactNode;
   width?: string;
+  /** Inside another page's column: no width cap or padding of its own. */
+  bare?: boolean;
   className?: string;
 }): ReactElement => (
   <div
     className={classNames(
-      'mx-auto flex w-full flex-col gap-5 px-6 py-6',
-      width,
+      'flex w-full flex-col gap-5',
+      !bare && 'mx-auto px-6 py-6',
+      !bare && width,
       className,
     )}
   >
@@ -888,11 +890,17 @@ const releaseKinds = ['All', 'Features', 'Fixes', 'Betas'];
  * kind as a filter. The Announcements channel is where they are discussed;
  * this is where they are found.
  */
-export const ReleasesPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+export const ReleasesPage = ({
+  viewer,
+  bare,
+}: {
+  viewer: Viewer;
+  bare?: boolean;
+}): ReactElement => {
   const { source, empty } = useWorkspace();
 
   return (
-    <Column width="max-w-[52rem]" className="gap-6">
+    <Column width="max-w-[52rem]" bare={bare} className="gap-6">
       {source === ContentSource.Feed && (
         <div className="flex items-center gap-3 rounded-12 bg-surface-float px-4 py-2.5 text-text-tertiary typo-footnote">
           <MegaphoneIcon size={IconSize.Small} />
@@ -1085,11 +1093,17 @@ const toPollPost = (poll: SquadPoll, picked?: number): Post =>
  * place, the card flips to its results. The click is caught before the
  * card's own vote mutation so the story stays offline.
  */
-export const PollsPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+export const PollsPage = ({
+  viewer,
+  bare,
+}: {
+  viewer: Viewer;
+  bare?: boolean;
+}): ReactElement => {
   const [votes, setVotes] = useState<Record<string, number>>({});
 
   return (
-    <Column className="gap-4">
+    <Column bare={bare} className="gap-4">
       <div className="flex items-center justify-between gap-4 rounded-12 bg-surface-float px-4 py-3">
         <span className="text-text-secondary typo-footnote">
           What the team wants to know from you. One vote each, results when you

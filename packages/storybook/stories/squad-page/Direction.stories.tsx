@@ -5,6 +5,7 @@ import ExtensionProviders from '../extension/_providers';
 import { KitStyles, Viewer } from './kit';
 import { WorkspaceStyles } from './workspace';
 import { directionPageIds, DirectionShell } from './direction';
+import { PinStyle, pinStyles } from './pins';
 
 const meta: Meta = {
   title: 'Squad Page/9. Direction',
@@ -117,23 +118,31 @@ export const Playground: StoryObj<{
   viewer: Viewer;
   page: string;
   width: number;
+  pin: PinStyle;
 }> = {
-  args: { viewer: Viewer.Member, page: 'home', width: 1440 },
+  args: {
+    viewer: Viewer.Member,
+    page: 'home',
+    width: 1440,
+    pin: PinStyle.Stack,
+  },
   argTypes: {
+    pin: { control: 'select', options: pinStyles },
     viewer: { control: 'select', options: Object.values(Viewer) },
     page: { control: 'select', options: directionPageIds },
     width: { control: { type: 'range', min: 720, max: 1600, step: 20 } },
   },
-  render: ({ viewer, page, width }) => (
+  render: ({ viewer, page, width, pin }) => (
     <div className="flex min-h-screen items-start justify-center bg-background-subtle p-8">
       <KitStyles />
       <WorkspaceStyles />
       <DirectionShell
-        key={`${viewer}-${page}-${width}`}
+        key={`${viewer}-${page}-${width}-${pin}`}
         viewer={viewer}
         initialPage={page}
         height={52}
         width={width}
+        pinStyle={pin}
       />
     </div>
   ),
