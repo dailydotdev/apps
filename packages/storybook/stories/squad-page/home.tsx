@@ -301,7 +301,6 @@ export const SquadHeader = ({
             <Button
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Medium}
-              icon={<LinkIcon />}
               className="flex-1"
               onClick={onShare}
             >
