@@ -204,28 +204,14 @@ export const SquadHeader = ({
           />
           <div className="flex items-center gap-2 pb-1">
             {isAdmin(viewer) && (
-              <>
-                <span className="hidden tablet:flex">
-                  <Button
-                    variant={ButtonVariant.Subtle}
-                    size={ButtonSize.Small}
-                    icon={<EditIcon />}
-                    onClick={() => onManage?.('manage-details')}
-                  >
-                    Edit page
-                  </Button>
-                </span>
-                <span className="flex tablet:hidden">
-                  <Button
-                    variant={ButtonVariant.Subtle}
-                    size={ButtonSize.Small}
-                    icon={<EditIcon />}
-                    aria-label="Edit page"
-                    title="Edit page"
-                    onClick={() => onManage?.('manage-details')}
-                  />
-                </span>
-              </>
+              <Button
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                icon={<EditIcon />}
+                aria-label="Edit page"
+                title="Edit page"
+                onClick={() => onManage?.('manage-details')}
+              />
             )}
             {extra}
             {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}

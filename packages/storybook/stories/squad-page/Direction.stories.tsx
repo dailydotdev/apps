@@ -100,7 +100,7 @@ export const Overview: StoryObj = {
         />
         <Case
           title="Home, as an admin"
-          body="Edit page, the bell, Share, the options menu with Manage, and Boost last where Follow sits for everyone else. The right column opens with View as a visitor and the share card, and adds Analytics."
+          body="Edit page as a pen icon, the bell, Share, the options menu with Manage, and Boost last where Follow sits for everyone else. The right column opens with View as a visitor and the share card, and adds Analytics."
           viewer={Viewer.Admin}
           page="home"
         />
