@@ -133,8 +133,8 @@ export const SquadHeader = ({
   // X's rule: one text-only button at the end of the row, Follow until you
   // do, Following after. On phones it leaves the row for a full-width
   // button under the stats.
-  // Boost is the admin's Follow: last in the row on larger screens, full
-  // width under the stats on phones.
+  // Boost is the admin's Follow: last in the row on larger screens, and
+  // beside Share page under the stats on phones.
   const boost =
     isAdmin(viewer) && config.isPublic
       ? (size = ButtonSize.Small, className?: string): ReactElement => (
@@ -229,13 +229,20 @@ export const SquadHeader = ({
             )}
             {extra}
             {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}
-            <Button
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              icon={<LinkIcon />}
-              aria-label="Share"
-              title="Share"
-            />
+            <span
+              className={classNames(
+                'flex',
+                isAdmin(viewer) && 'hidden tablet:flex',
+              )}
+            >
+              <Button
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                icon={<LinkIcon />}
+                aria-label="Share"
+                title="Share"
+              />
+            </span>
             <MoreMenu viewer={viewer} onManage={onManage} />
             {boost && <span className="hidden tablet:flex">{boost()}</span>}
             {follow && (
@@ -293,9 +300,17 @@ export const SquadHeader = ({
             {follow(ButtonSize.Medium, 'w-full')}
           </div>
         )}
-        {boost && (
-          <div className="mt-4 flex tablet:hidden">
-            {boost(ButtonSize.Medium, 'w-full')}
+        {isAdmin(viewer) && (
+          <div className="mt-4 flex gap-2 tablet:hidden">
+            {boost?.(ButtonSize.Medium, 'flex-1')}
+            <Button
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Medium}
+              icon={<LinkIcon />}
+              className="flex-1"
+            >
+              Share page
+            </Button>
           </div>
         )}
       </div>
