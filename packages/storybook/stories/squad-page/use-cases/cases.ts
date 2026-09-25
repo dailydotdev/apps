@@ -55,7 +55,7 @@ export const viewerCases: UseCase[] = [
     id: 'admin',
     title: 'Admin',
     who: 'The company, or the daily.dev manager acting for them',
-    sees: 'Edit page and Boost in the header, Manage at the top of the options menu, View as a visitor and the share card, the Analytics widget, Poll in the composer, Add product on Products.',
+    sees: 'Edit page in the header and Boost last, like Follow (full width under the stats on a phone), Manage at the top of the options menu, View as a visitor and the share card, the Analytics widget, Poll in the composer, Add product on Products.',
     viewer: Viewer.Admin,
   },
   {

@@ -133,6 +133,21 @@ export const SquadHeader = ({
   // X's rule: one text-only button at the end of the row, Follow until you
   // do, Following after. On phones it leaves the row for a full-width
   // button under the stats.
+  // Boost is the admin's Follow: last in the row on larger screens, full
+  // width under the stats on phones.
+  const boost =
+    isAdmin(viewer) && config.isPublic
+      ? (size = ButtonSize.Small, className?: string): ReactElement => (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={size}
+            icon={<BoostIcon secondary />}
+            className={className}
+          >
+            {config.campaign ? 'View boost' : 'Boost'}
+          </Button>
+        )
+      : null;
   const follow =
     following || canFollow
       ? (size: ButtonSize, className?: string): ReactElement =>
@@ -189,43 +204,40 @@ export const SquadHeader = ({
           />
           <div className="flex items-center gap-2 pb-1">
             {isAdmin(viewer) && (
-              <span className="hidden tablet:flex">
-                <Button
-                  variant={ButtonVariant.Subtle}
-                  size={ButtonSize.Small}
-                  icon={<EditIcon />}
-                  onClick={() => onManage?.('manage-details')}
-                >
-                  Edit page
-                </Button>
-              </span>
-            )}
-            {isAdmin(viewer) && config.isPublic && (
-              <Button
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                icon={<BoostIcon secondary />}
-              >
-                {config.campaign ? 'View boost' : 'Boost'}
-              </Button>
+              <>
+                <span className="hidden tablet:flex">
+                  <Button
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                    icon={<EditIcon />}
+                    onClick={() => onManage?.('manage-details')}
+                  >
+                    Edit page
+                  </Button>
+                </span>
+                <span className="flex tablet:hidden">
+                  <Button
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                    icon={<EditIcon />}
+                    aria-label="Edit page"
+                    title="Edit page"
+                    onClick={() => onManage?.('manage-details')}
+                  />
+                </span>
+              </>
             )}
             {extra}
             {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}
-            <span
-              className={classNames(
-                'flex',
-                isAdmin(viewer) && 'hidden tablet:flex',
-              )}
-            >
-              <Button
-                variant={ButtonVariant.Subtle}
-                size={ButtonSize.Small}
-                icon={<LinkIcon />}
-                aria-label="Share"
-                title="Share"
-              />
-            </span>
+            <Button
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              icon={<LinkIcon />}
+              aria-label="Share"
+              title="Share"
+            />
             <MoreMenu viewer={viewer} onManage={onManage} />
+            {boost && <span className="hidden tablet:flex">{boost()}</span>}
             {follow && (
               <span className="hidden tablet:flex">
                 {follow(ButtonSize.Small)}
@@ -281,18 +293,9 @@ export const SquadHeader = ({
             {follow(ButtonSize.Medium, 'w-full')}
           </div>
         )}
-        {isAdmin(viewer) && (
-          <div className="mt-4 grid grid-cols-2 gap-2 tablet:hidden">
-            <Button
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Medium}
-              onClick={() => onManage?.('manage-details')}
-            >
-              Edit page
-            </Button>
-            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
-              Share page
-            </Button>
+        {boost && (
+          <div className="mt-4 flex tablet:hidden">
+            {boost(ButtonSize.Medium, 'w-full')}
           </div>
         )}
       </div>

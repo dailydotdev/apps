@@ -255,7 +255,7 @@ export const Overview: StoryObj = {
               : useCase.viewer === Viewer.Blocked
               ? 'Share, more, Follow disabled'
               : useCase.viewer === Viewer.Admin
-              ? 'Edit page, Boost, bell, Share, more (with Manage); on phones Edit page and Share page under the stats'
+              ? 'Edit page, bell, Share, more (with Manage), Boost last as the Primary button; on phones Edit page is a pen icon and Boost is full width under the stats'
               : useCase.viewer === Viewer.Moderator
               ? 'Bell, Share, more (with Manage), Following'
               : 'Bell, Share, more, Following',
@@ -296,9 +296,9 @@ export const Overview: StoryObj = {
             ],
             [
               'Header',
-              '80px logo, Edit page as an icon, no Boost; Follow full width under the stats',
-              'Full header, Follow last in the row',
-              'Full header, Follow last in the row',
+              '80px logo, Edit page as a pen icon; Follow, or Boost for admins, full width under the stats',
+              'Full header, Follow (or Boost for admins) last in the row',
+              'Full header, Follow (or Boost for admins) last in the row',
             ],
             [
               'Right column',
