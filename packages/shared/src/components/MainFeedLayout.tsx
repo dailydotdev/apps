@@ -838,9 +838,13 @@ export default function MainFeedLayout({
         )
       : 'mb-4',
   );
+  // The extension's shortcuts otherwise render in the feed's header, which
+  // comes after its top slot, so the hero would sit between them and the page.
+  const isShortcutsAboveHero = isFeedHeroEnabled && isExtension;
   // Left undefined when the hero is off so `Feed` keeps its own top slot.
   const topContent = isFeedHeroEnabled ? (
     <>
+      {isShortcutsAboveHero && shortcuts}
       <FeedHero
         feedName={feedName}
         className={heroClassName}
@@ -940,7 +944,7 @@ export default function MainFeedLayout({
           feedProps && (
             <Feed
               {...feedProps}
-              shortcuts={shortcuts}
+              shortcuts={isShortcutsAboveHero ? undefined : shortcuts}
               topContent={topContent}
               // The flag, not the hero's render: this placement logs an
               // impression, so it has to be suppressed from the first paint
