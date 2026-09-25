@@ -653,8 +653,8 @@ export enum TargetId {
   FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
-  ExploreStrip = 'explore strip',
   PostStrip = 'post strip',
+  PublicPageSignupBanner = 'public page signup banner',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign

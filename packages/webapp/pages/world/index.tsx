@@ -9,7 +9,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {
@@ -371,7 +371,6 @@ function WorldIndexPage(): ReactElement {
     <>
       {isV2 && <PageHeader title="Worlds" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        <ExploreSignupStrip className="p-4" />
         {!isV2 && (
           <LayoutHeader
             className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
@@ -633,6 +632,7 @@ function WorldIndexPage(): ReactElement {
           )}
         </ResponsivePageContainer>
       </div>
+      <PublicPageSignupBanner />
     </>
   );
 }
