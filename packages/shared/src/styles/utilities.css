@@ -340,6 +340,70 @@
   }
 }
 
+@keyframes feed-hero-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes feed-hero-slide-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.feed-hero-slide-in {
+  animation: feed-hero-slide-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.feed-hero-slide-out {
+  animation: feed-hero-slide-out 320ms ease-out both;
+}
+
+/* Near-zero rather than `none`: the outgoing slide is unmounted on its own
+   `animationend`, which never arrives if the animation is removed outright. */
+@media (prefers-reduced-motion: reduce) {
+  .feed-hero-slide-in,
+  .feed-hero-slide-out {
+    animation-duration: 1ms;
+  }
+}
+
+@keyframes feed-hero-carousel-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* The slide advances on this animation's `animationend`, so pausing it also
+   pauses the rotation and reduced motion stops the carousel altogether. */
+.feed-hero-carousel-progress {
+  transform-origin: left center;
+  animation: feed-hero-carousel-progress
+    var(--feed-hero-carousel-duration, 6s) linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-hero-carousel-progress {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
 .feed-highlights-new-item-border-bottom {
   border-style: solid;
   border-width: 0 0 0.0625rem;
@@ -1238,4 +1302,95 @@ img.agent-media-ring {
   text-wrap: balance;
   overflow-wrap: anywhere;
   hyphens: none;
+}
+
+/*
+ * Extension showcase stage: the two ambient glows drift slowly at rest and
+ * the illustration and caption slide in on every feature switch, matching the
+ * product tour on the daily.dev homepage.
+ */
+@keyframes showcase-glow-a {
+  from {
+    transform: translate(-14px, -10px) scale(1);
+  }
+
+  to {
+    transform: translate(16px, 12px) scale(1.09);
+  }
+}
+
+@keyframes showcase-glow-b {
+  from {
+    transform: translate(12px, 14px) scale(1.06);
+  }
+
+  to {
+    transform: translate(-16px, -12px) scale(1);
+  }
+}
+
+@keyframes showcase-media-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes showcase-caption-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.showcase-carousel-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 14%,
+    black 86%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 14%,
+    black 86%,
+    transparent
+  );
+}
+
+.animate-showcase-glow-a {
+  animation: showcase-glow-a 9s ease-in-out infinite alternate;
+}
+
+.animate-showcase-glow-b {
+  animation: showcase-glow-b 12s ease-in-out infinite alternate;
+}
+
+.animate-showcase-media-in {
+  animation: showcase-media-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-showcase-caption-in {
+  animation: showcase-caption-in 220ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-showcase-glow-a,
+  .animate-showcase-glow-b,
+  .animate-showcase-media-in,
+  .animate-showcase-caption-in {
+    animation: none;
+  }
 }

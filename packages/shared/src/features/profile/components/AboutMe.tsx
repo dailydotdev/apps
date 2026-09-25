@@ -61,7 +61,7 @@ export function AboutMe({
       {shouldShowSocialLinks && (
         <div className="flex flex-wrap items-center gap-2">
           {socialLinks.map((link) => (
-            <SimpleTooltip key={link.id} content={link.label}>
+            <SimpleTooltip key={link.url} content={link.label}>
               <Button
                 variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}

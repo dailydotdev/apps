@@ -66,6 +66,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     turbopackFileSystemCacheForDev: false,
+    useTypeScriptCli: false, // to not clash with our strict ts setup
   },
   ...withBundleAnalyzer({
     compiler: {

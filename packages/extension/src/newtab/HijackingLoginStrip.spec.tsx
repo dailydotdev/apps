@@ -116,6 +116,7 @@ const defaultAuthContext = {
   loadingUser: false,
   isFetched: true,
   tokenRefreshed: false,
+  isTokenValid: false,
   loadedUserFromCache: false,
   getRedirectUri: jest.fn(),
   anonymous: undefined,
@@ -126,6 +127,7 @@ const defaultAuthContext = {
   accessToken: undefined,
   squads: [],
   isAuthReady: true,
+  isAuthReadyOrCached: true,
   geo: undefined,
   isAndroidApp: false,
   isGdprCovered: false,
@@ -197,8 +199,8 @@ beforeEach(() => {
   });
 });
 
+const CONTROL_HEADING = 'Unlock the full daily.dev experience';
 const CONTROL_LOGGED_OUT_BODY = 'Log in to pick up where you left off.';
-const LIVE_HEADING = 'Own your new tab. Make it your dev briefing.';
 
 describe('HijackingLoginStrip', () => {
   // v2 drops the slot the control renders through, so enrolling those users
@@ -256,24 +258,30 @@ describe('HijackingLoginStrip', () => {
     setVariant(HijackingVariant.Cover);
     renderComponent();
 
-    // the cover arm reserves it invisibly rather than showing it
-    expect(screen.getByText(CONTROL_LOGGED_OUT_BODY)).toBeInTheDocument();
+    // once visible, once reserved invisibly for the control's height
+    expect(screen.getAllByText(CONTROL_LOGGED_OUT_BODY)).toHaveLength(2);
   });
 
-  // These cards are ~460px against the control's ~178px; reserving the
-  // control's geometry clips them rather than matching it.
-  it('does not force the control geometry on the onboarding state', () => {
+  it('shows the control onboarding copy on the cover card', () => {
     setVariant(HijackingVariant.Cover);
 
     renderComponent({ user: loggedUser, isLoggedIn: true });
 
     expect(
-      screen.getByRole('heading', { name: /jump back in/i }),
+      screen.getByRole('heading', { name: CONTROL_HEADING }),
     ).toBeVisible();
-    expect(screen.queryByText(CONTROL_LOGGED_OUT_BODY)).not.toBeInTheDocument();
     expect(
-      screen.queryByText(/You still have a few onboarding steps left/),
+      screen.queryByRole('heading', { name: /jump back in/i }),
     ).not.toBeInTheDocument();
+    const cta = screen.getByRole('link', { name: 'Continue onboarding' });
+    expect(cta).toHaveAttribute('href', signupHref);
+
+    fireEvent.click(cta);
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Click,
+      target_type: TargetType.LoginButton,
+      target_id: 'hijacking',
+    });
   });
 
   it('renders nothing while the experiment is loading', () => {
@@ -381,24 +389,19 @@ describe('HijackingLoginStrip', () => {
       setVariant(HijackingVariant.Cover);
     });
 
-    it('redirects to the webapp onboarding from the cover CTAs', () => {
+    it('redirects to the webapp login from the single cover CTA', () => {
       renderComponent();
 
       expect(
-        screen.getByRole('heading', {
-          name: LIVE_HEADING,
-        }),
+        screen.getByRole('heading', { name: CONTROL_HEADING }),
       ).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: /Sign up/ }),
+      ).not.toBeInTheDocument();
 
-      fireEvent.click(screen.getByRole('button', { name: /Sign up/ }));
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.SignupButton,
-        target_id: 'hijacking',
-      });
-      expect(assignMock).toHaveBeenCalledWith(signupHref);
-
-      fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Log in to continue' }),
+      );
       expect(logEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Click,
         target_type: TargetType.LoginButton,
@@ -407,12 +410,13 @@ describe('HijackingLoginStrip', () => {
       expect(assignMock).toHaveBeenCalledWith(loginHref);
     });
 
-    it('logs a signup impression for new visitors', () => {
+    // Its only CTA is the login button, so the impression must match the click.
+    it('logs a login impression for new visitors', () => {
       renderComponent();
 
       expect(logEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Impression,
-        target_type: TargetType.SignupButton,
+        target_type: TargetType.LoginButton,
         target_id: 'hijacking',
       });
     });
@@ -438,26 +442,26 @@ describe('HijackingLoginStrip', () => {
   });
 
   // The cover arm is a design change, not a copy change: it must render the
-  // same words as the arm that is live today.
-  it('renders the same visible copy as the live cta arm', () => {
+  // same words as the control.
+  it('renders the same visible copy as the control', () => {
     const visibleCopy = (): string => {
-      const heading = screen.getByRole('heading', { name: LIVE_HEADING });
+      const heading = screen.getByRole('heading', { name: CONTROL_HEADING });
       // eslint-disable-next-line testing-library/no-node-access -- comparing
       // the whole rendered block, which has no queryable role
       const block = heading.parentElement as HTMLElement;
 
-      return (block.textContent ?? '').replace(/\u2192/g, '').trim();
+      return (block.textContent ?? '').trim();
     };
 
-    setVariant(HijackingVariant.CTA);
+    setVariant(HijackingVariant.Default);
     const { unmount } = renderComponent();
-    const live = visibleCopy();
+    const control = visibleCopy();
     unmount();
 
     setVariant(HijackingVariant.Cover);
     renderComponent();
 
-    expect(visibleCopy()).toBe(live);
+    expect(visibleCopy()).toBe(control);
   });
 
   describe('auth variant', () => {

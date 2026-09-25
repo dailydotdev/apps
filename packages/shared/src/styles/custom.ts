@@ -56,3 +56,16 @@ export const plusSaleSunStripes =
 
 export const plusSaleLabelBg =
   'linear-gradient(90deg, #F4A83A 0%, #E05C4B 100%)';
+
+// Third-party brand colours for the onboarding acquisition channel marks.
+export const acquisitionBrandColors = {
+  x: '#000000',
+  reddit: '#FF4500',
+  linkedIn: '#0A66C2',
+  facebook: '#1877F2',
+  youTube: '#FF0000',
+  tikTok: '#000000',
+  openAI: '#000000',
+  favicon: '#FFFFFF',
+  glyph: '#FFFFFF',
+} as const;

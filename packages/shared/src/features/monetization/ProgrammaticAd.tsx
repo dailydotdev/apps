@@ -1,17 +1,29 @@
-import type { CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AdActions } from '../../lib/ads';
+import AuthContext from '../../contexts/AuthContext';
+import { requiresCertifiedCmp } from '../../lib/geo';
 import { useViewability } from './useViewability';
 import { viewabilityLogExtra } from './viewability';
-import type { AdsenseSlotConfig } from './adsense';
-import { ADSENSE_CLIENT_ID, isAdsenseProductionHost } from './adsense';
-import { useAdsenseUtmChannel } from './useAdsenseUtmChannel';
-
-// Module-level, not per-slot: one warning per page load says everything.
-let hasLoggedTestMode = false;
+import type { AdSize, AdSlotConfig } from './kueez';
+import { KUEEZ_PID } from './kueez';
+import type { PrebidBid } from './prebid';
+import {
+  configurePrebid,
+  pingViewable,
+  renderPrebidBid,
+  requestKueezBid,
+} from './prebid';
+import { useAdUtm } from './useAdUtm';
 
 /** Names the page/context a unit serves on, for per-surface reporting. */
 export type ProgrammaticAdSurface = string;
@@ -22,40 +34,30 @@ export enum ProgrammaticAdFormat {
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
   MobileBanner = 'mobileBanner',
-  Native = 'native',
 }
 
 type FormatSpec = {
   label: string;
   size: string;
   /**
-   * Reserves the creative's height PLUS the chrome that renders with it —
-   * the label row (1rem line + pb-1) and the wrapper's py-2, 36px in all —
-   * so the box never grows under the reader when the request lands
-   * in-viewport.
+   * Every size the exchange may answer this format with, widest first. The
+   * ones that do not fit the slot's measured width are dropped at request
+   * time, which is how a format gets its mobile variant: a leaderboard on a
+   * phone can only come back as the banner, because 728x90 was never offered.
+   */
+  sizes: AdSize[];
+  /**
+   * Reserves the creative's height PLUS the chrome that renders with it:
+   * the label row (1rem line + pb-1) and the wrapper's py-2, 36px in all,
+   * so the box never grows under the reader when the bid lands in-viewport.
    */
   minHeight: string;
   /**
    * Caps the slot at its standard IAB width so every creative in a given
-   * format renders the same size. Without this the unit is responsive and
-   * Google picks whatever creative fits the container, so two slots side by
-   * side come back different widths.
-   *
-   * The cap is also how a format gets its mobile variant. AdSense sizes a
-   * responsive unit from the space it is given, so a leaderboard left
-   * uncapped on a phone comes back as whatever else fits — a rectangle, not a
-   * banner. Capping at the phone width in the IAB portfolio makes the mobile
-   * sizes the only ones that can serve.
+   * format renders the same size, and so the width the sizes are filtered
+   * against is the one the creative will actually occupy.
    */
   maxWidth?: string;
-  /**
-   * Restricts which shapes AdSense may return. A width cap alone does not:
-   * left on `auto`, a 300px-wide slot is just as free to answer with a 300x600
-   * half page as with a 300x250, and it did. Naming the shape keeps the unit
-   * responsive across breakpoints while ruling the wrong orientations out,
-   * which a fixed pixel size could not do without breaking one of them.
-   */
-  shape?: 'rectangle' | 'horizontal' | 'vertical';
   /**
    * The reservation for the compact wrapper: creative height plus py-1, no
    * label row. Only formats that render compact anywhere declare it.
@@ -70,9 +72,12 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   [ProgrammaticAdFormat.Leaderboard]: {
     label: 'Leaderboard',
     size: '728x90 · 320x100 mobile',
+    sizes: [
+      [728, 90],
+      [320, 100],
+    ],
     minHeight: 'min-h-[136px] tablet:min-h-[126px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
-    shape: 'horizontal',
   },
   // The IAB medium rectangle. Reserves its exact height rather than the
   // shorter guess the in-content unit makes, because it is booked at a fixed
@@ -80,48 +85,69 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   [ProgrammaticAdFormat.MediumRectangle]: {
     label: 'Medium rectangle',
     size: '300x250',
+    sizes: [[300, 250]],
     minHeight: 'min-h-[286px]',
     maxWidth: 'max-w-[300px]',
-    shape: 'rectangle',
   },
   // 336x280 is a Google size rather than an IAB one, so on a phone this drops
   // to the medium rectangle, which is what the portfolio actually lists.
   [ProgrammaticAdFormat.Rectangle]: {
     label: 'In-content',
     size: '336x280 · 300x250 mobile',
+    sizes: [
+      [336, 280],
+      [300, 250],
+    ],
     minHeight: 'min-h-[286px] tablet:min-h-[216px]',
     maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
-    shape: 'rectangle',
   },
   [ProgrammaticAdFormat.HalfPage]: {
     label: 'Sticky rail',
     size: '300x600',
+    sizes: [[300, 600]],
     minHeight: 'min-h-[356px]',
     maxWidth: 'max-w-[300px]',
-    shape: 'vertical',
   },
   // The phone header unit, booked at the fixed 320x50: the smallest standard
-  // size, so the pinned header block takes the least of a phone screen, and a
-  // fixed request can only return its exact size — no expandable or video
-  // creative can answer it, which a responsive request could not rule out.
+  // size, so the pinned header block takes the least of a phone screen, and
+  // the only size offered, so no expandable creative can answer it.
   [ProgrammaticAdFormat.MobileBanner]: {
     label: 'Mobile banner',
     size: '320x50',
+    sizes: [[320, 50]],
     minHeight: 'min-h-[86px]',
     compactMinHeight: 'min-h-[3.625rem]',
     maxWidth: 'max-w-[320px]',
-    shape: 'horizontal',
   },
-  [ProgrammaticAdFormat.Native]: {
-    label: 'Native',
-    size: 'fluid',
-    minHeight: 'min-h-[132px]',
-  },
+};
+
+/**
+ * The sizes this slot may be answered with. A slot booked at a fixed size
+ * says so in its config; everything else offers the format's sizes that fit
+ * the space the slot actually has. Nothing fitting means the slot is
+ * narrower than the format's smallest size (a phone below 320px, a test
+ * environment with no layout), where the narrowest size is the only sensible
+ * ask: the alternative is bidding on a size that cannot be displayed.
+ */
+export const resolveAdSizes = (
+  spec: FormatSpec,
+  config: AdSlotConfig,
+  availableWidth: number,
+): AdSize[] => {
+  if (config.sizes?.length) {
+    return config.sizes;
+  }
+
+  const fitting = spec.sizes.filter(([width]) => width <= availableWidth);
+  if (fitting.length) {
+    return fitting;
+  }
+
+  return [spec.sizes.reduce((a, b) => (b[0] < a[0] ? b : a))];
 };
 
 type ProgrammaticAdLogExtraProps = {
   slot: number;
-  config?: AdsenseSlotConfig;
   format: ProgrammaticAdFormat;
   surface: ProgrammaticAdSurface;
   refreshes?: boolean;
@@ -132,122 +158,75 @@ type ProgrammaticAdLogExtraProps = {
  * One shape for every slot event, so ClickHouse queries never have to guess
  * which fields a given surface remembered to include.
  */
-export const getAdsenseSlotLogExtra = ({
+export const getAdSlotLogExtra = ({
   slot,
-  config,
   format,
   surface,
   refreshes,
   extra,
 }: ProgrammaticAdLogExtraProps): Record<string, unknown> => ({
   slot,
-  unit: config?.id,
-  unit_type: config?.type,
   format,
   surface,
   refreshes: refreshes || undefined,
   ...extra,
 });
 
-type InsAttributes = {
-  style: CSSProperties;
-  'data-ad-format'?: string;
-  'data-ad-layout'?: string;
-  'data-ad-layout-key'?: string;
-  'data-full-width-responsive'?: string;
-};
+/**
+ * What the auction actually returned. The cpm is the point of the whole
+ * migration: with a tag we only ever learned that a slot filled, while a bid
+ * says what the impression was worth, so per-placement RPM is a query rather
+ * than a quarterly statement from the network.
+ */
+const bidLogExtra = (bid: PrebidBid): Record<string, unknown> => ({
+  cpm: bid.cpm,
+  currency: bid.currency,
+  bidder: bid.bidder,
+  creative_id: bid.creativeId,
+  creative_size: `${bid.width}x${bid.height}`,
+  advertiser_domains: bid.meta?.advertiserDomains,
+});
 
-function getInsAttributes(
-  config: AdsenseSlotConfig,
-  shape?: FormatSpec['shape'],
-): InsAttributes {
-  if (config.type === 'inArticle') {
-    return {
-      style: { display: 'block', textAlign: 'center' },
-      'data-ad-layout': 'in-article',
-      'data-ad-format': 'fluid',
-    };
-  }
+type SlotOutcome = 'pending' | 'filled' | 'unfilled';
 
-  if (config.type === 'inFeed') {
-    return {
-      style: { display: 'block' },
-      'data-ad-format': 'fluid',
-      'data-ad-layout-key': config.layoutKey,
-    };
-  }
-
-  if (config.width && config.height) {
-    // The opt-out applies here too: the units are responsive on the AdSense
-    // side, and without it a phone user agent had the tag rewrite a fixed
-    // 320x50 into a 390x390 with a negative margin, the same full-width
-    // expansion as below.
-    return {
-      style: {
-        display: 'inline-block',
-        width: config.width,
-        height: config.height,
-      },
-      'data-full-width-responsive': 'false',
-    };
-  }
-
-  if (shape) {
-    // Off explicitly: for a phone user agent AdSense defaults full-width
-    // responsive ON and stretches the ins to the screen width, past the
-    // wrapper's IAB cap — a 390px ins overflowing a 300px card, and a 390x390
-    // request for a horizontal unit that nothing fills. Off, the ins takes
-    // the wrapper's width and the shape decides the height.
-    return {
-      style: { display: 'block' },
-      'data-ad-format': shape,
-      'data-full-width-responsive': 'false',
-    };
-  }
-
-  return {
-    style: { display: 'block' },
-    'data-ad-format': 'auto',
-    'data-full-width-responsive': 'true',
-  };
-}
+// Ad unit codes must be unique per mounted slot: the code is how the winning
+// bid is looked up again, and repeated placements (in-body, comment
+// interleave) share a slot number. Module-level so remounts never collide.
+let adUnitSequence = 0;
 
 export interface ProgrammaticAdProps {
   slot: number;
-  config: AdsenseSlotConfig;
+  config: AdSlotConfig;
   format: ProgrammaticAdFormat;
   surface: ProgrammaticAdSurface;
   className?: string;
-  /** Marks slots wired to a declared 30-60s in-view refresh once on Ad Manager. */
+  /** Marks slots wired to a declared 30-60s in-view refresh. Not live yet. */
   refreshes?: boolean;
-  /** Drops the slot below the tablet breakpoint (and its request with it). */
+  /** Drops the slot below the tablet breakpoint (and its auction with it). */
   hideOnPhone?: boolean;
   /**
    * The bare unit: no "Advertisements" row and the tighter padding, for a
    * placement pinned on screen where every pixel of chrome is permanent.
-   * AdSense treats the label as optional, so nothing is owed here.
    */
   compact?: boolean;
   /**
-   * Requests the ad on mount instead of waiting to near the viewport. For
-   * slots visible at first paint the intersection wait only adds latency —
-   * and the adsbygoogle array queues pushes before the script has even
-   * arrived, so eager pushes ride its very first processing pass.
+   * Runs the auction on mount instead of waiting to near the viewport. For
+   * slots visible at first paint the intersection wait only adds latency, and
+   * pbjs queues commands before the bundle has even arrived, so eager slots
+   * ride its very first processing pass.
    */
   eager?: boolean;
   /**
-   * Merged into every event's extra. Repeated placements (in-body, comment
-   * interleave) share a slot number, so this is how the first occurrence
-   * stays distinguishable from the sixth in analytics.
+   * Merged into every event's extra. Repeated placements share a slot number,
+   * so this is how the first occurrence stays distinguishable from the sixth.
    */
   logExtra?: Record<string, unknown>;
 }
 
 /**
- * One AdSense unit, with the full lifecycle in telemetry: request, fill,
- * unfilled, push error, test mode and an IAB viewable impression. Callers own
- * the audience/flag gating and pass a remount `key` when the unit identity
- * changes — an <ins> can only ever be initialised once.
+ * One Kueez slot, with the full lifecycle in telemetry: auction, fill (with
+ * the winning price), no bid, render failure and an IAB viewable impression.
+ * Callers own the audience/flag gating.
  */
 export function ProgrammaticAd({
   slot,
@@ -262,25 +241,42 @@ export function ProgrammaticAd({
   logExtra,
 }: ProgrammaticAdProps): ReactElement {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const insRef = useRef<HTMLModElement>(null);
+  const creativeRef = useRef<HTMLDivElement>(null);
   const [isRequested, setIsRequested] = useState(eager ?? false);
-  const [isFilled, setIsFilled] = useState(false);
+  const [outcome, setOutcome] = useState<SlotOutcome>('pending');
   const { logEvent } = useLogContext();
-  const hasPushed = useRef(false);
-  const hasLoggedFill = useRef(false);
-  const hasLoggedEmpty = useRef(false);
-  // Once-per-slot latches. A `refreshes` slot rotating creatives would need
-  // per-creative keys here and in the viewability trackingKey — deliberately
-  // out of scope: AdSense never refreshes a unit, so today the flag is only a
-  // forward-marker for the Ad Manager migration, where this must be revisited
-  // before declared refresh goes live.
+  // Optional: a bare component test has no provider, and the context's
+  // default is null rather than an empty object.
+  const geo = useContext(AuthContext)?.geo;
+  // The same predicate Iubenda.tsx loads the TCF stub on, not
+  // `isGdprCovered`: that one counts the whole world minus US/IL as covered,
+  // and Prebid cancels every auction where it expects a CMP and finds none.
+  const withConsentManagement = requiresCertifiedCmp(geo?.region);
+  const utm = useAdUtm();
+  const hasRequested = useRef(false);
   const hasLoggedClick = useRef(false);
+  const isMounted = useRef(true);
+  const bidRef = useRef<PrebidBid | null>(null);
+  const [adUnitCode] = useState(() => {
+    adUnitSequence += 1;
+    return `${surface}-${slot}-${adUnitSequence}`;
+  });
   // Ref, not dependency: callers pass inline objects whose identity changes
   // every render, and the ad effects must not re-run for that.
   const logExtraRef = useRef(logExtra);
   logExtraRef.current = logExtra;
-  const { id: unitId, type: unitType, layoutKey: unitLayoutKey } = config;
-  const { channel: adChannel, utm } = useAdsenseUtmChannel();
+  const configRef = useRef(config);
+  configRef.current = config;
+
+  // Set on mount as well as cleared on unmount: a remount reuses the same ref
+  // object, and a slot that only ever cleared it would drop the results of
+  // every auction after the first.
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const logSlotEvent = useCallback(
     (
@@ -292,17 +288,16 @@ export function ProgrammaticAd({
         event_name: eventName,
         // Analytics interactions use the exact shape of the internal ads'
         // events (adLogEvent): same names and target_type, the provider in
-        // ad_provider_id and the unit as the target — one query covers every
-        // ad on the platform, GROUP BY ad_provider_id splits the demand.
+        // ad_provider_id and the creative as the target, so one query covers
+        // every ad on the platform and GROUP BY ad_provider_id splits demand.
         ...(asAdEvent && {
           target_type: 'ad',
-          target_id: unitId,
-          ad_provider_id: 'adsense',
+          target_id: bidRef.current?.creativeId ?? KUEEZ_PID,
+          ad_provider_id: 'kueez',
         }),
         extra: JSON.stringify(
-          getAdsenseSlotLogExtra({
+          getAdSlotLogExtra({
             slot,
-            config: { id: unitId, type: unitType, layoutKey: unitLayoutKey },
             format,
             surface,
             refreshes,
@@ -311,7 +306,7 @@ export function ProgrammaticAd({
               utm_medium: utm?.medium,
               utm_campaign: utm?.campaign,
               utm_content: utm?.content,
-              ad_channel: adChannel,
+              ad_unit_code: adUnitCode,
               ...logExtraRef.current,
               ...extra,
             },
@@ -319,18 +314,7 @@ export function ProgrammaticAd({
         ),
       });
     },
-    [
-      adChannel,
-      format,
-      logEvent,
-      refreshes,
-      slot,
-      surface,
-      unitId,
-      unitLayoutKey,
-      unitType,
-      utm,
-    ],
+    [adUnitCode, format, logEvent, refreshes, slot, surface, utm],
   );
 
   const logAdInteraction = useCallback(
@@ -339,16 +323,21 @@ export function ProgrammaticAd({
     [logSlotEvent],
   );
 
-  // The strict MRC measurement files under the strict name: internal ads log
+  // The strict MRC measurement under the strict name: internal ads log
   // AdActions.Impression when a creative merely reaches the viewport and
-  // AdActions.Viewable for IAB-viewable, and mixing the two would make
-  // AdSense CTR read systematically higher than internal inventory in any
+  // AdActions.Viewable for IAB-viewable, and mixing the two would make this
+  // provider's CTR read systematically higher than internal inventory in any
   // cross-provider query. The loose impression is emitted at fill below.
   const { ref: setViewabilityRef } = useViewability<HTMLDivElement>({
-    enabled: isFilled,
-    trackingKey: `${surface}:${slot}:${unitId}:${format}`,
+    enabled: outcome === 'filled',
+    trackingKey: `${surface}:${slot}:${adUnitCode}:${format}`,
     onViewable: (data) => {
       logAdInteraction(AdActions.Viewable, viewabilityLogExtra(data));
+      // Kueez prices future bids on what it can prove was seen, so the pixel
+      // matters to revenue and not only to our own reporting.
+      if (bidRef.current) {
+        pingViewable(bidRef.current);
+      }
     },
   });
 
@@ -360,28 +349,18 @@ export function ProgrammaticAd({
     [setViewabilityRef],
   );
 
-  // The <ins> below only mounts once the slot is eligible, because
-  // adsbygoogle.push({}) does not bind to a specific element: the tag
-  // processes the first uninitialised ins.adsbygoogle in document order. With
-  // every ins mounted up front and per-slot pushes firing in intersection
-  // order, a push from a slot low on the page initialises an earlier,
-  // never-pushed slot instead — wrong placement gets the request, the
-  // triggering slot stays unprocessed and collapses as empty. Mounting the
-  // ins at eligibility keeps the invariant that every uninitialised ins in
-  // the document is one that should be processed right now, which makes the
-  // pushes interchangeable. The wrapper keeps the format's min-height, so the
-  // page reserves the same space either way.
   useEffect(() => {
     const element = wrapperRef.current;
     if (eager || !element) {
       return undefined;
     }
 
-    // Request the ad only near the viewport: viewability drives AdSense CPMs,
-    // and never-seen impressions depress the whole page's pricing. The margin
-    // is roughly a viewport of scroll — enough for the auction round-trip to
-    // finish before the slot scrolls into view at reading speed. Eager slots
-    // are visible at first paint, where the wait only adds latency.
+    // Run the auction only near the viewport: viewability drives what the
+    // exchange pays, and never-seen impressions depress the whole page's
+    // pricing. The margin is roughly a viewport of scroll, enough for the
+    // auction round trip to finish before the slot scrolls into view at
+    // reading speed. Eager slots are visible at first paint, where the wait
+    // only adds latency.
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) {
@@ -390,11 +369,9 @@ export function ProgrammaticAd({
         observer.disconnect();
         setIsRequested(true);
       },
-      // A compromise between the expert's ask (~50px: viewability over
-      // prefetch) and two behaviours that need the verdict to land while the
-      // box is still off screen: the auction round-trip (~300-800ms) and the
-      // CSS collapse of an unfilled slot, which at 50px would happen in front
-      // of the reader as a visible jump instead of invisibly below the fold.
+      // Enough that the verdict lands while the box is still off screen: both
+      // the auction round trip and the collapse of an unfilled slot, which
+      // closer in would happen in front of the reader as a visible jump.
       { rootMargin: '250px' },
     );
     observer.observe(element);
@@ -402,108 +379,74 @@ export function ProgrammaticAd({
     return () => observer.disconnect();
   }, [eager]);
 
-  // Fires once the ins exists: stamps the test attribute and pushes the
-  // request. Nothing here decides the slot is empty on a timer — the wrapper's
-  // CSS rule collapses it on data-ad-status="unfilled", which is the only
-  // signal that actually means "no ad". Guessing from height or from a missing
-  // iframe cannot tell a slow auction from a declined one, and guessing wrong
-  // is unrecoverable: a collapsed slot is display:none, and Google does not
-  // render into one, so the ad never arrives at all.
+  // The auction, once and only once per mounted slot. Unlike a tag, nothing
+  // here is bound to a global queue position: the ad unit code ties the
+  // request and its winning bid together, so slots are free to run their
+  // auctions in whatever order they become eligible.
   useEffect(() => {
-    const element = insRef.current;
-    if (!isRequested || !element) {
-      return undefined;
+    const element = creativeRef.current;
+    if (!isRequested || !element || hasRequested.current) {
+      return;
     }
+    hasRequested.current = true;
 
-    // Any host but the production ones serves test creatives. Preview
-    // deployments are production *builds*, so a build-time flag can't make
-    // this call — it has to happen here, before the request.
-    if (!isAdsenseProductionHost(window.location.hostname)) {
-      element.setAttribute('data-adtest', 'on');
-      // Test mode pays nothing, so it engaging where it should not — a
-      // production host missing from the list — must be visible in telemetry
-      // rather than silently zeroing revenue. Once per page is enough.
-      if (!hasLoggedTestMode) {
-        hasLoggedTestMode = true;
-        logSlotEvent(LogEvent.AdsenseTestMode, {
-          host: window.location.hostname,
+    configurePrebid({ withConsentManagement, utm });
+    logSlotEvent(LogEvent.RequestAdSlot);
+
+    const sizes = resolveAdSizes(
+      FORMAT_SPEC[format],
+      configRef.current,
+      wrapperRef.current?.clientWidth ?? 0,
+    );
+
+    requestKueezBid({ code: adUnitCode, sizes }).then((result) => {
+      if (!isMounted.current) {
+        return;
+      }
+
+      if (result.status !== 'bid') {
+        setOutcome('unfilled');
+        logSlotEvent(LogEvent.EmptyAdSlot, { reason: result.status });
+        return;
+      }
+
+      if (!renderPrebidBid(element, result.bid)) {
+        setOutcome('unfilled');
+        logSlotEvent(LogEvent.AdSlotError, {
+          error_type: 'render_failed',
+          ...bidLogExtra(result.bid),
         });
+        return;
       }
-    }
 
-    // Logs the terminal answer, watching mutations rather than polling — and
-    // never hiding the slot on the strength of it: the CSS rule owns layout.
-    // A fill (the iframe landing) and an unfilled verdict are each logged
-    // once; a refreshing unit mutates forever, so the observer disconnects as
-    // soon as both outcomes are settled or impossible.
-    const reportOutcome = (): boolean => {
-      if (!hasLoggedFill.current && element.querySelector('iframe')) {
-        hasLoggedFill.current = true;
-        setIsFilled(true);
-        logSlotEvent(LogEvent.FillAdsenseSlot);
-        // The loose impression, in the internal ads' meaning: the creative
-        // rendered in/near the viewport (requests fire on intersection, so
-        // fill implies it). AdActions.Viewable above carries the strict one.
-        logAdInteraction(AdActions.Impression);
-      }
-      if (
-        !hasLoggedEmpty.current &&
-        element.getAttribute('data-ad-status') === 'unfilled'
-      ) {
-        hasLoggedEmpty.current = true;
-        logSlotEvent(LogEvent.EmptyAdsenseSlot, { reason: 'unfilled' });
-      }
-      return hasLoggedFill.current || hasLoggedEmpty.current;
-    };
-    const observer = new MutationObserver(() => {
-      if (reportOutcome()) {
-        observer.disconnect();
-      }
+      bidRef.current = result.bid;
+      setOutcome('filled');
+      logSlotEvent(LogEvent.FillAdSlot, bidLogExtra(result.bid));
+      // The loose impression, in the internal ads' meaning: the creative
+      // rendered in or near the viewport (auctions run on intersection, so a
+      // fill implies it). AdActions.Viewable above carries the strict one.
+      logAdInteraction(AdActions.Impression, bidLogExtra(result.bid));
     });
-    if (!reportOutcome()) {
-      observer.observe(element, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['data-ad-status'],
-      });
-    }
+  }, [
+    adUnitCode,
+    format,
+    isRequested,
+    logAdInteraction,
+    logSlotEvent,
+    utm,
+    withConsentManagement,
+  ]);
 
-    // This push is only safe because of the mount-at-eligibility invariant
-    // above: it binds to the first uninitialised ins in document order, not
-    // to this element. Adding `eager` to a slot (or any change that mounts an
-    // ins before it should be requested) re-opens the mis-binding race — an
-    // eager slot must be one that is genuinely requested at mount. The ref
-    // guard keeps a dependency change from ever pushing the same ins twice.
-    if (!hasPushed.current) {
-      hasPushed.current = true;
-      logSlotEvent(LogEvent.RequestAdsenseSlot);
-      try {
-        window.adsbygoogle = window.adsbygoogle || [];
-        window.adsbygoogle.push({});
-      } catch (error) {
-        // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
-        logSlotEvent(LogEvent.AdsenseSlotError, {
-          error_type: 'push_failed',
-          message: error instanceof Error ? error.message : undefined,
-        });
-      }
-    }
-
-    return () => observer.disconnect();
-  }, [isRequested, logAdInteraction, logSlotEvent]);
-
-  // First-party click signal. The creative is a cross-origin iframe, so no
-  // click event ever reaches this document — but engaging it moves focus:
-  // the window blurs and document.activeElement becomes the iframe. That
-  // inference is the industry-standard AdSense click proxy; it can overcount
-  // the rare tap that focuses without completing the click-through, so
-  // AdSense's own reporting stays the exact source of truth while this event
-  // gives the per-user join our internal ads have. Logged once per slot: a
-  // second click on the same creative is the same user leaving again.
+  // First-party click signal. The creative is a separate browsing context, so
+  // no click event reaches this document, but engaging it moves focus: the
+  // window blurs and document.activeElement becomes the iframe. That
+  // inference can overcount the rare tap that focuses without completing the
+  // click-through, so the exchange's own reporting stays the source of truth
+  // for billing while this event gives the per-user join internal ads have.
+  // Logged once per slot: a second click is the same user leaving again.
   useEffect(() => {
     const element = wrapperRef.current;
-    if (!isFilled || !element) {
+    if (outcome !== 'filled' || !element) {
       return undefined;
     }
 
@@ -525,8 +468,8 @@ export function ProgrammaticAd({
     // Click-throughs that open a new tab/window blur this one with focus on
     // the creative's iframe.
     const onWindowBlur = (): void => logClick('focus-blur');
-    // Same-tab click-throughs unload the document without a window blur —
-    // the most valuable click would otherwise be the one missed.
+    // Same-tab click-throughs unload the document without a window blur, and
+    // that is the most valuable click to miss.
     const onPageHide = (): void => logClick('pagehide');
     // If the visitor comes back with the creative still holding focus, they
     // tapped it without leaving. Dropping that focus means a later unrelated
@@ -541,36 +484,36 @@ export function ProgrammaticAd({
       window.removeEventListener('focus', onWindowFocus);
       window.removeEventListener('pagehide', onPageHide);
     };
-  }, [isFilled, logAdInteraction]);
+  }, [logAdInteraction, outcome]);
 
   return (
     // Square-cornered and unclipped: the box only centres the unit and
     // reserves its request-time height against layout shift. No overflow
     // clipping, so a creative that comes back taller than the reservation
-    // grows the container instead of being cut off, which AdSense forbids.
+    // grows the container instead of being cut off.
     <div
       ref={setWrapperRef}
+      // Read by the containers that have to disappear along with the slot,
+      // which cannot know the outcome any other way: PhoneTopAdStrip pins its
+      // own chrome around this box.
+      data-ad-status={outcome}
       className={classNames(
         // A constant light island, deliberately NOT a theme token: display
         // creatives are designed against light backgrounds, and on a dark
         // page a white-bodied ad floating on the theme surface reads as a
         // hole punched in the UI. The white card makes the unit an
-        // intentional object in both themes — the standard dark-mode ad
-        // treatment — without touching the visitor's theme.
+        // intentional object in both themes without touching the theme.
         // Vertical padding only: these boxes are border-box, so horizontal
         // padding would shrink the usable width below the IAB cap the
-        // FORMAT_SPEC widths exist to guarantee (300x250 no longer fits a
-        // padded max-w-[300px]).
+        // FORMAT_SPEC widths exist to guarantee.
         'mx-auto w-full rounded-8 bg-white text-center',
         compact ? 'py-1' : 'py-2',
-        // AdSense stamps data-ad-status="unfilled" when no creative was
-        // returned. Without collapsing, the reserved min-height stays behind as
-        // a block of empty page — most visible in the comment thread, where an
-        // unfilled slot leaves a gap between the heading and the first comment.
-        // Important because `tablet:block` below sits in a media query, which
-        // the generated stylesheet emits after this plain rule — without it an
-        // unfilled phone-hidden slot would stay visible from tablet up.
-        'has-[>ins[data-ad-status="unfilled"]]:!hidden',
+        // Without collapsing, the reserved min-height stays behind as a block
+        // of empty page, most visible in the comment thread where it leaves a
+        // gap between the heading and the first comment. Important because
+        // `tablet:block` below sits in a media query, which the generated
+        // stylesheet emits after this plain rule.
+        outcome === 'unfilled' && '!hidden',
         hideOnPhone && 'hidden tablet:block',
         (compact && FORMAT_SPEC[format].compactMinHeight) ||
           FORMAT_SPEC[format].minHeight,
@@ -578,10 +521,9 @@ export function ProgrammaticAd({
         className,
       )}
     >
-      {/* Every unit is labeled so none can be confused with site content —
-          "Advertisements" is one of the two label strings AdSense permits
-          (a bare "Advertisement" is not). Inside the wrapper, so an unfilled
-          slot's collapse takes the label down with it. */}
+      {/* Every unit is labeled so none can be confused with site content.
+          Inside the wrapper, so an unfilled slot's collapse takes the label
+          down with it. */}
       {/* Constant gray, not a theme token: the label sits on the card's
           constant white, where a dark-theme quaternary would vanish. */}
       {isRequested && !compact && (
@@ -589,17 +531,10 @@ export function ProgrammaticAd({
           Advertisements
         </span>
       )}
-      {isRequested && (
-        <ins
-          ref={insRef}
-          className="adsbygoogle"
-          data-testid={`adsense-slot-${slot}`}
-          data-ad-client={ADSENSE_CLIENT_ID}
-          data-ad-slot={config.id}
-          data-ad-channel={adChannel}
-          {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
-        />
-      )}
+      {/* Always mounted once requested: the auction resolves into this node,
+          and a ref that only exists after the bid lands would have nowhere to
+          render it. */}
+      {isRequested && <div ref={creativeRef} data-testid={`ad-slot-${slot}`} />}
     </div>
   );
 }

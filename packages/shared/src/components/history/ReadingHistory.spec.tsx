@@ -1,7 +1,7 @@
 import React from 'react';
 import { subDays } from 'date-fns';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { PostItemCardProps } from '../post/PostItemCard';
@@ -15,6 +15,9 @@ import user from '../../../__tests__/fixture/loggedUser';
 import { getLabel } from '../../lib/dateFormat.spec';
 import post from '../../../__tests__/fixture/post';
 import { SourceType } from '../../graphql/sources';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { LogEvent, Origin } from '../../lib/log';
+import { ShareProvider } from '../../lib/share';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -70,8 +73,10 @@ describe('ReadingHistoryList component', () => {
             logout: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
+            isTokenValid: true,
             getRedirectUri: jest.fn(),
             isAuthReady: true,
+            isAuthReadyOrCached: true,
           }}
         >
           <ReadHistoryList {...props} />
@@ -144,10 +149,12 @@ describe('PostItemCard component', () => {
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           isLoggedIn: true,
           closeLogin: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <QueryClientProvider client={new QueryClient()}>
@@ -199,6 +206,42 @@ describe('PostItemCard component', () => {
     );
   });
 
+  it('should copy the post link and log it as a share from history', async () => {
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    const logEvent = jest.fn();
+    const onRowClick = jest.fn();
+
+    render(
+      <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+        <div onClick={onRowClick}>
+          <PostItemCard
+            postItem={defaultHistory}
+            logOrigin={Origin.History}
+            showCopyLink
+          />
+        </div>
+      </TestBootProvider>,
+    );
+
+    fireEvent.click(await screen.findByLabelText('Copy link'));
+
+    await waitFor(() =>
+      expect(writeText).toHaveBeenCalledWith(post.commentsPermalink),
+    );
+    expect(onRowClick).not.toHaveBeenCalled();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.SharePost,
+        target_id: post.id,
+        extra: expect.stringContaining(
+          `"provider":"${ShareProvider.CopyLink}","origin":"${Origin.History}"`,
+        ),
+      }),
+    );
+  });
+
   it('should call onHide on close button clicked', async () => {
     renderCard({ onHide });
     const button = (await screen.findAllByRole('button'))[0];
@@ -234,10 +277,12 @@ describe('PostItemCard component', () => {
               logout: jest.fn(),
               updateUser: jest.fn(),
               tokenRefreshed: true,
+              isTokenValid: true,
               getRedirectUri: jest.fn(),
               isLoggedIn: true,
               closeLogin: jest.fn(),
               isAuthReady: true,
+              isAuthReadyOrCached: true,
             }}
           >
             <QueryClientProvider client={new QueryClient()}>

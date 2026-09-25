@@ -1,5 +1,6 @@
 import type {
   ChangeEventHandler,
+  ForwardedRef,
   MouseEventHandler,
   MutableRefObject,
   ReactElement,
@@ -118,14 +119,18 @@ function MarkdownInput(
     editCommentId,
     parentCommentId,
   }: MarkdownInputProps,
-  ref: MutableRefObject<MarkdownRef>,
+  ref: ForwardedRef<MarkdownRef>,
 ): ReactElement {
   const shouldShowSubmit = !!submitCopy;
   const { user } = useAuthContext();
   const { parentSelector } = usePopupSelector();
   const { sidebarRendered } = useSidebarRendered();
-  const textareaRef = useRef<HTMLTextAreaElement>();
-  const uploadRef = useRef<HTMLInputElement>();
+  const textareaRef = useRef<HTMLTextAreaElement>(
+    null,
+  ) as MutableRefObject<HTMLTextAreaElement>;
+  const uploadRef = useRef<HTMLInputElement>(
+    null,
+  ) as MutableRefObject<HTMLInputElement>;
   const [active, setActive] = useState(CommentTab.Write);
   const {
     input,
@@ -170,8 +175,13 @@ function MarkdownInput(
     clearDraft,
   }));
 
-  const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
+  const onUpload: ChangeEventHandler<HTMLInputElement> = (e) => {
+    if (!onUploadCommand || !e.currentTarget.files) {
+      return;
+    }
+
     onUploadCommand(e.currentTarget.files);
+  };
 
   const actionButtonSizes = shouldShowSubmit
     ? ButtonSize.Small
@@ -186,7 +196,6 @@ function MarkdownInput(
         innerClassName="before:border-t-accent-cabbage-default after:border-accent-cabbage-default"
       />
     );
-
   const onInputClick: MouseEventHandler<HTMLTextAreaElement> = () => {
     if (checkMention) {
       checkMention();
@@ -195,6 +204,14 @@ function MarkdownInput(
       checkEmoji();
     }
   };
+  const tooltipElementRef = textareaRef as MutableRefObject<HTMLElement>;
+  const uploadButtonLabel =
+    !sidebarRendered || shouldShowSubmit ? null : (
+      <MarkdownUploadLabel
+        uploadingCount={uploadingCount}
+        uploadedCount={uploadedCount}
+      />
+    );
 
   useEffect(() => {
     const content = textareaRef?.current?.value;
@@ -243,7 +260,7 @@ function MarkdownInput(
             <Tab label={CommentTab.Preview} className="min-h-[11.125rem] p-4">
               <MarkdownPreview
                 input={input}
-                sourceId={sourceId}
+                sourceId={sourceId ?? ''}
                 parentSelector={parentSelector}
                 enabled={allowPreview && CommentTab.Preview === active}
               />
@@ -263,13 +280,13 @@ function MarkdownInput(
           )}
         >
           <ConditionalWrapper
-            condition={showUserAvatar ?? false}
+            condition={!!showUserAvatar && !!user}
             wrapper={(component) => (
               <span className="flex w-full flex-row">
                 <ProfilePicture
                   size={ProfileImageSize.Large}
                   className={classNames('ml-3 mt-3', className?.profile)}
-                  user={user}
+                  user={user!}
                   nativeLazyLoading
                   fetchPriority="low"
                 />
@@ -304,7 +321,7 @@ function MarkdownInput(
         </ConditionalWrapper>
       </ConditionalWrapper>
       <RecommendedMentionTooltip
-        elementRef={textareaRef}
+        elementRef={tooltipElementRef}
         offset={offset}
         mentions={mentions}
         selected={selected}
@@ -314,37 +331,41 @@ function MarkdownInput(
         appendTo={parentSelector}
       />
       <RecommendedEmojiTooltip
-        elementRef={textareaRef}
+        elementRef={tooltipElementRef}
         search={emojiQuery}
         emojiData={emojiData}
         offset={offset}
         selected={selectedEmoji}
-        onSelect={onApplyEmoji}
+        onSelect={(emoji) => onApplyEmoji?.(emoji)}
         onClickOutside={onCloseEmoji}
       />
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
-          {!!onUploadCommand && (
-            <Button
-              size={actionButtonSizes}
-              variant={ButtonVariant.Tertiary}
-              color={uploadingCount ? ButtonColor.Cabbage : undefined}
-              className={classNames(
-                'font-normal',
-                uploadingCount && 'mr-auto text-brand-default',
-              )}
-              icon={icon}
-              onClick={() => uploadRef?.current?.click()}
-              type="button"
-            >
-              {!sidebarRendered || shouldShowSubmit ? null : (
-                <MarkdownUploadLabel
-                  uploadingCount={uploadingCount}
-                  uploadedCount={uploadedCount}
-                />
-              )}
-            </Button>
-          )}
+          {!!onUploadCommand &&
+            (uploadingCount ? (
+              <Button
+                size={actionButtonSizes}
+                variant={ButtonVariant.Tertiary}
+                color={ButtonColor.Cabbage}
+                className="mr-auto font-normal text-brand-default"
+                icon={icon}
+                onClick={() => uploadRef.current.click()}
+                type="button"
+              >
+                {uploadButtonLabel}
+              </Button>
+            ) : (
+              <Button
+                size={actionButtonSizes}
+                variant={ButtonVariant.Tertiary}
+                className="font-normal"
+                icon={icon}
+                onClick={() => uploadRef.current.click()}
+                type="button"
+              >
+                {uploadButtonLabel}
+              </Button>
+            ))}
           <input
             type="file"
             className="hidden"
@@ -396,15 +417,17 @@ function MarkdownInput(
               />
             )}
           </ConditionalWrapper>
-          <GifPopover
-            buttonProps={{
-              size: actionButtonSizes,
-              variant: ButtonVariant.Tertiary,
-              icon: <GifIcon />,
-            }}
-            onGifCommand={onGifCommand}
-            textareaRef={textareaRef}
-          />
+          {!!onGifCommand && (
+            <GifPopover
+              buttonProps={{
+                size: actionButtonSizes,
+                variant: ButtonVariant.Tertiary,
+                icon: <GifIcon />,
+              }}
+              onGifCommand={onGifCommand}
+              textareaRef={textareaRef}
+            />
+          )}
           {shouldShowSubmit && (
             <Button
               className="ml-auto"

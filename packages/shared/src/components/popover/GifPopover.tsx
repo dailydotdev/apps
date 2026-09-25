@@ -33,7 +33,7 @@ const searchSuggestions = [
 
 type GifPopoverProps = {
   buttonProps: Pick<ButtonProps<'button'>, 'size' | 'variant' | 'icon'>;
-  onGifCommand?: (gifUrl: string, altText: string) => Promise<void>;
+  onGifCommand: (gifUrl: string, altText: string) => Promise<void>;
   textareaRef?: React.MutableRefObject<HTMLTextAreaElement>;
 };
 
@@ -206,7 +206,7 @@ const GifPopover = ({
       currentTextarea.selectionEnd = selectionEnd;
     }
 
-    await onGifCommand?.(gif.url, 'GIF');
+    await onGifCommand(gif.url, 'GIF');
     setOpen(false);
     setQuery('');
   };
@@ -236,6 +236,7 @@ const GifPopover = ({
           {...buttonProps}
           type="button"
           onClick={() => handleOpenChange(true)}
+          aria-label="Add GIF"
         />
         <Drawer
           isOpen={open}
@@ -262,7 +263,7 @@ const GifPopover = ({
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button {...buttonProps} />
+        <Button {...buttonProps} type="button" aria-label="Add GIF" />
       </PopoverTrigger>
       <PopoverContent
         side="top"

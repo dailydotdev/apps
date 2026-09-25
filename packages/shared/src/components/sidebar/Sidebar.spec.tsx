@@ -96,6 +96,7 @@ const renderComponent = (
           value={{
             user: resolvedUser,
             isAuthReady: true,
+            isAuthReadyOrCached: true,
             isFetched: true,
             isLoggedIn: !!resolvedUser?.id,
             shouldShowLogin: false,
@@ -103,6 +104,7 @@ const renderComponent = (
             logout: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
+            isTokenValid: true,
             getRedirectUri: jest.fn(),
             closeLogin: jest.fn(),
             feeds: options.feeds,

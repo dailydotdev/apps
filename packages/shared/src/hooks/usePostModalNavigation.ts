@@ -13,6 +13,11 @@ import { useKeyboardNavigation } from './useKeyboardNavigation';
 import { isExtension } from '../lib/func';
 import type { UseRouterMemory as UsePostModalRouter } from './useRouterMemory';
 import { useRouterMemory } from './useRouterMemory';
+import {
+  getScrollPosition,
+  saveScrollPosition,
+  restoreScrollPosition,
+} from '../lib/scrollRestoration';
 
 export enum PostPosition {
   First = 'first',
@@ -29,7 +34,7 @@ interface UsePostModalNavigation {
   onCloseModal: (fromPopState?: boolean) => void;
   isFetchingNextPage?: boolean;
   selectedPost: Post | null;
-  selectedPostIndex: number;
+  selectedPostIndex: number | undefined;
   selectedPostIsAd: boolean;
 }
 
@@ -63,7 +68,10 @@ export const usePostModalNavigation = ({
   const pmid = router.query?.pmid as string;
   const { logEvent } = useLogContext();
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-  const scrollPositionOnFeed = useRef(0);
+  const scrollPositionOnFeed = useRef<number>();
+  const cancelRestore = useRef<() => void>();
+
+  useEffect(() => () => cancelRestore.current?.(), []);
 
   // if multiple feeds/hooks are rendered prevent effects from running while other modal is open
   const isNavigationActive = feedName === activeFeedName;
@@ -86,7 +94,9 @@ export const usePostModalNavigation = ({
         return item.post.slug === pmid || item.post.id === pmid;
       }
       if (isBoostedPostAd(item)) {
-        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
+        return (
+          item.ad.data.post?.slug === pmid || item.ad.data.post?.id === pmid
+        );
       }
 
       return false;
@@ -100,23 +110,25 @@ export const usePostModalNavigation = ({
   }, [items, pmid, isNavigationActive]);
 
   const getPostItem = useCallback(
-    (index: number) => {
-      if (index === null || !items[index]) {
+    (
+      index: number | undefined,
+    ): Pick<PostItem, 'post' | 'page' | 'index'> | null => {
+      if (index === undefined || !items[index]) {
         return null;
       }
 
       const item = items[index];
       if (item.type === 'post') {
-        return item as PostItem;
+        return item;
       }
-      if (isBoostedPostAd(item)) {
+      if (isBoostedPostAd(item) && item.ad.data.post) {
         // For Post Ads, we need to create a PostItem-like structure
         // Note: AdItem doesn't have a page property, so we'll use -1 as default
         return {
           post: item.ad.data.post,
           page: -1,
           index: item.index,
-        } as PostItem;
+        };
       }
 
       return null;
@@ -125,22 +137,9 @@ export const usePostModalNavigation = ({
   );
 
   const getPost = useCallback(
-    (index: number) => {
-      if (index === null || !items[index]) {
-        return null;
-      }
-
-      const item = items[index];
-      if (item.type === 'post') {
-        return item.post;
-      }
-      if (isBoostedPostAd(item)) {
-        return item.ad.data.post;
-      }
-
-      return null;
-    },
-    [items],
+    (index: number | undefined): Post | null =>
+      getPostItem(index)?.post ?? null,
+    [getPostItem],
   );
 
   const onChangeSelected = useCallback(
@@ -149,6 +148,11 @@ export const usePostModalNavigation = ({
 
       if (post) {
         const postId = post.slug || post.id;
+        const feedScrollPosition =
+          pmid && !isExtension
+            ? getScrollPosition(router.asPath, 'post-modal')
+            : scrollPositionOnFeed.current;
+        cancelRestore.current?.();
 
         const newPathname = getPathnameWithQuery(
           basePathname,
@@ -164,14 +168,27 @@ export const usePostModalNavigation = ({
         // shallow keeps the feed route: the masked `/posts/:id` URL matches the
         // markdown middleware matcher, and a non-shallow push lets the server
         // resolve it into a real post-page navigation instead of the modal
-        await router.push(newPathname, `${webappUrl}posts/${postId}`, {
-          scroll: false,
-          shallow: true,
-        });
+        const navigated = await router.push(
+          newPathname,
+          `${webappUrl}posts/${postId}`,
+          {
+            scroll: false,
+            shallow: true,
+          },
+        );
+        if (navigated && !isExtension && feedScrollPosition !== undefined) {
+          saveScrollPosition(
+            `${webappUrl}posts/${postId}`,
+            feedScrollPosition,
+            'post-modal',
+          );
+        }
       }
       if (post?.type === PostType.Share) {
         const item = getPostItem(index);
-        updatePost(item.page, item.index, { ...post, read: true });
+        if (item) {
+          updatePost(item.page, item.index, { ...post, read: true });
+        }
       }
     },
     [
@@ -182,10 +199,12 @@ export const usePostModalNavigation = ({
       router,
       updatePost,
       feedName,
+      pmid,
     ],
   );
 
   const onOpenModal = (index: number) => {
+    cancelRestore.current?.();
     if (!pmid) {
       scrollPositionOnFeed.current = window.scrollY;
     }
@@ -228,7 +247,9 @@ export const usePostModalNavigation = ({
         return item.post.slug === pmid || item.post.id === pmid;
       }
       if (isBoostedPostAd(item)) {
-        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
+        return (
+          item.ad.data.post?.slug === pmid || item.ad.data.post?.id === pmid
+        );
       }
 
       return false;
@@ -239,17 +260,21 @@ export const usePostModalNavigation = ({
     }
   }, [openedPostIndex, pmid, items, onChangeSelected, isNavigationActive]);
 
-  const selectedPostIsAd = isBoostedPostAd(items[openedPostIndex]);
+  const selectedPostIsAd =
+    openedPostIndex !== undefined && isBoostedPostAd(items[openedPostIndex]);
   const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,
     selectedPostIsAd,
     onCloseModal: async () => {
+      const feedScrollPosition = isExtension
+        ? scrollPositionOnFeed.current
+        : getScrollPosition(router.asPath, 'post-modal');
       // Extract query params from baseAsPath to preserve original params like 'id'
       const baseUrl = new URL(baseAsPath, window.location.origin);
       const searchParams = new URLSearchParams(baseUrl.search);
 
-      await router.push(
+      const navigated = await router.push(
         getPathnameWithQuery(basePathname, searchParams),
         baseAsPath,
         {
@@ -257,12 +282,16 @@ export const usePostModalNavigation = ({
         },
       );
 
-      window.scrollTo(0, scrollPositionOnFeed.current);
-
-      scrollPositionOnFeed.current = 0;
+      if (navigated && feedScrollPosition !== undefined) {
+        saveScrollPosition(baseAsPath, feedScrollPosition);
+        cancelRestore.current = restoreScrollPosition(feedScrollPosition);
+      }
     },
     onOpenModal,
     onPrevious: () => {
+      if (openedPostIndex === undefined) {
+        return;
+      }
       let index = openedPostIndex - 1;
       // look for the first post before the current one
       while (index > 0 && !isPostItem(items[index])) {
@@ -284,6 +313,9 @@ export const usePostModalNavigation = ({
       onChangeSelected(index);
     },
     onNext: async () => {
+      if (openedPostIndex === undefined) {
+        return;
+      }
       let index = openedPostIndex + 1;
       // eslint-disable-next-line no-empty
       for (; index < items.length && !isPostItem(items[index]); index += 1) {}

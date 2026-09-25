@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import React, {
-  useRef,
   useEffect,
   createContext,
   useCallback,
   useContext,
   useState,
+  useRef,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type OneSignal from 'react-onesignal';
@@ -21,7 +21,6 @@ import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
 import { useLogContext } from './LogContext';
-import type { SubscriptionCallback } from '../components/notifications/utils';
 import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
 import { syncWebPushSubscription } from '../graphql/notifications';
 import { storageWrapper } from '../lib/storageWrapper';
@@ -65,15 +64,15 @@ type WebPushSubscriptionState = {
 };
 
 const webPushSyncStorageKey = 'web-push-subscription-synced';
+const nativePushStateTimeoutMs = 5000;
 
 function OneSignalSubProvider({
   children,
 }: PushNotificationContextProviderProps): ReactElement {
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const optInPromiseRef = useRef<Promise<boolean>>();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const sourceRef = useRef<string>();
-  const subscriptionCallbackRef = useRef<SubscriptionCallback>();
 
   const isEnabled = !!user && !isTesting;
 
@@ -113,8 +112,6 @@ function OneSignalSubProvider({
 
       await OneSignalImport.login(user.id);
 
-      setIsSubscribed(!!OneSignalImport.User.PushSubscription.optedIn);
-
       return OneSignalImport;
     },
     enabled: isEnabled,
@@ -124,7 +121,10 @@ function OneSignalSubProvider({
   const isPushSupported = OneSignalCache?.Notifications.isPushSupported();
 
   const syncCurrentWebPushSubscription = useCallback(
-    async (state?: WebPushSubscriptionState) => {
+    async (
+      state?: WebPushSubscriptionState,
+      { force = false }: { force?: boolean } = {},
+    ) => {
       if (!OneSignalCache || !user) {
         return;
       }
@@ -137,6 +137,10 @@ function OneSignalSubProvider({
         state?.optedIn ?? OneSignalCache.User.PushSubscription.optedIn ?? false;
       const marker =
         optedIn && subscriptionId ? `${user.id}:${subscriptionId}` : undefined;
+
+      if (!optedIn || force) {
+        storageWrapper.removeItem(webPushSyncStorageKey);
+      }
 
       if (marker && storageWrapper.getItem(webPushSyncStorageKey) === marker) {
         return;
@@ -165,29 +169,28 @@ function OneSignalSubProvider({
     [OneSignalCache, logEvent, user],
   );
 
-  subscriptionCallbackRef.current = async (
-    newPermission,
-    source,
-    existingPermission,
-  ) => {
-    if (newPermission) {
-      await OneSignalCache?.User.PushSubscription.optIn();
-      setIsSubscribed(true);
-      await syncCurrentWebPushSubscription({ optedIn: true });
+  const optIn = useCallback((): Promise<boolean> => {
+    if (!OneSignalCache) {
+      return Promise.resolve(false);
+    }
 
-      logEvent({
-        event_name: LogEvent.ClickEnableNotification,
-        extra: JSON.stringify({
-          origin: source || sourceRef.current,
-          provider: 'web',
-          permission: 'granted',
-          ...(existingPermission && {
-            existing_permission: existingPermission,
-          }),
-        }),
+    if (!optInPromiseRef.current) {
+      optInPromiseRef.current = (async () => {
+        await OneSignalCache.User.PushSubscription.optIn();
+        const subscribed = !!OneSignalCache.User.PushSubscription.optedIn;
+        setIsSubscribed(subscribed);
+        await syncCurrentWebPushSubscription(
+          { optedIn: subscribed },
+          { force: true },
+        );
+        return subscribed;
+      })().finally(() => {
+        optInPromiseRef.current = undefined;
       });
     }
-  };
+
+    return optInPromiseRef.current;
+  }, [OneSignalCache, syncCurrentWebPushSubscription]);
 
   const subscribe = useCallback(
     async (source: NotificationPromptSource) => {
@@ -195,16 +198,32 @@ function OneSignalSubProvider({
         return false;
       }
 
-      sourceRef.current = source;
       const { permission } = OneSignalCache.Notifications;
       if (!permission) {
         await OneSignalCache.Notifications.requestPermission();
-      } else {
-        await subscriptionCallbackRef.current?.(true, source, true);
       }
-      return OneSignalCache.Notifications.permission;
+
+      if (!OneSignalCache.Notifications.permission) {
+        return false;
+      }
+
+      const subscribed = await optIn();
+
+      if (subscribed) {
+        logEvent({
+          event_name: LogEvent.ClickEnableNotification,
+          extra: JSON.stringify({
+            origin: source,
+            provider: 'web',
+            permission: 'granted',
+            ...(permission && { existing_permission: permission }),
+          }),
+        });
+      }
+
+      return subscribed;
     },
-    [OneSignalCache],
+    [OneSignalCache, logEvent, optIn],
   );
 
   const unsubscribe = useCallback(async () => {
@@ -222,7 +241,20 @@ function OneSignalSubProvider({
     }
 
     const onChange: ChangeEventHandler = (permission) => {
-      subscriptionCallbackRef.current?.(permission);
+      if (!permission) {
+        setIsSubscribed(false);
+        return;
+      }
+
+      optIn().catch((error: unknown) => {
+        logEvent({
+          event_name: LogEvent.GlobalError,
+          extra: JSON.stringify({
+            origin: 'web_push_permission_change',
+            error: error instanceof Error ? error.message : 'unknown',
+          }),
+        });
+      });
     };
     const onSubscriptionChange: PushSubscriptionChangeHandler = ({
       current,
@@ -249,9 +281,10 @@ function OneSignalSubProvider({
         onSubscriptionChange,
       );
     };
-  }, [OneSignalCache, syncCurrentWebPushSubscription]);
+  }, [OneSignalCache, logEvent, optIn, syncCurrentWebPushSubscription]);
 
   useEffect(() => {
+    setIsSubscribed(!!OneSignalCache?.User.PushSubscription.optedIn);
     if (!OneSignalCache?.User.PushSubscription.optedIn) {
       return;
     }
@@ -262,7 +295,7 @@ function OneSignalSubProvider({
   return (
     <PushNotificationsContext.Provider
       value={{
-        isInitialized: !isEnabled || isFetched || !isSuccess,
+        isInitialized: !isEnabled || isFetched,
         isLoading,
         isSubscribed,
         isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
@@ -282,13 +315,17 @@ function OneSignalSubProvider({
 function NativeAppleSubProvider({
   children,
 }: PushNotificationContextProviderProps): ReactElement {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const client = useQueryClient();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const isEnabled = !!user && !isTesting;
 
   const key = generateQueryKey(RequestKey.ApplePush, user);
-  const { isFetched, isLoading, isSuccess } = useQuery<void>({
+  const {
+    data: isSubscribed = false,
+    isFetched,
+    isLoading,
+  } = useQuery<boolean>({
     queryKey: key,
 
     queryFn: async () => {
@@ -296,12 +333,29 @@ function NativeAppleSubProvider({
         throw new Error('Cannot initialize native push without user');
       }
 
-      const promise = promisifyEventListener('push-state', (event) => {
-        setIsSubscribed(!!event?.detail);
+      return new Promise<boolean>((resolve) => {
+        const controller = new AbortController();
+        let timeout: ReturnType<typeof setTimeout>;
+        const finish = (subscribed: boolean) => {
+          clearTimeout(timeout);
+          controller.abort();
+          resolve(subscribed);
+        };
+        timeout = setTimeout(() => finish(false), nativePushStateTimeoutMs);
+
+        globalThis.addEventListener(
+          'push-state',
+          (event) => finish(!!(event as CustomEvent<boolean>).detail),
+          { once: true, signal: controller.signal },
+        );
+
+        try {
+          postWebKitMessage(WebKitMessageHandlers.PushState, null);
+          postWebKitMessage(WebKitMessageHandlers.PushUserId, user.id);
+        } catch {
+          finish(false);
+        }
       });
-      postWebKitMessage(WebKitMessageHandlers.PushState, null);
-      postWebKitMessage(WebKitMessageHandlers.PushUserId, user.id);
-      return promise;
     },
     enabled: isEnabled,
     ...disabledRefetch,
@@ -311,7 +365,7 @@ function NativeAppleSubProvider({
     async (source: NotificationPromptSource) => {
       const promise = promisifyEventListener('push-subscribe', (event) => {
         const subscribed = !!event?.detail;
-        setIsSubscribed(subscribed);
+        client.setQueryData(key, subscribed);
         if (subscribed) {
           logEvent({
             event_name: LogEvent.ClickEnableNotification,
@@ -327,18 +381,18 @@ function NativeAppleSubProvider({
       postWebKitMessage(WebKitMessageHandlers.PushSubscribe, null);
       return promise;
     },
-    [logEvent],
+    [client, key, logEvent],
   );
 
   const unsubscribe = useCallback(async () => {
     postWebKitMessage(WebKitMessageHandlers.PushUnsubscribe, null);
-    setIsSubscribed(false);
-  }, []);
+    client.setQueryData(key, false);
+  }, [client, key]);
 
   return (
     <PushNotificationsContext.Provider
       value={{
-        isInitialized: isFetched || !isSuccess,
+        isInitialized: !isEnabled || isFetched,
         isLoading,
         isSubscribed,
         isPushSupported: true,

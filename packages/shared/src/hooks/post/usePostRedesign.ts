@@ -25,12 +25,25 @@ interface UsePostRedesign {
   showRedesign: boolean;
 }
 
+interface UsePostRedesignOptions {
+  /**
+   * Whether the surface could render the redesign at all. False keeps the
+   * flag unevaluated, so a session that can only ever see the classic layout
+   * is never enrolled in the experiment.
+   */
+  canRender?: boolean;
+}
+
 /**
  * Single source of truth for whether a post should render with the redesign
- * layout, so the post page and the post modal stay in sync.
+ * layout, so the post page, the post modal and the /articles template stay
+ * in sync.
  */
-export const usePostRedesign = (post?: Post): UsePostRedesign => {
-  const isEligible = isPostRedesignEligible(post);
+export const usePostRedesign = (
+  post?: Post,
+  { canRender = true }: UsePostRedesignOptions = {},
+): UsePostRedesign => {
+  const isEligible = isPostRedesignEligible(post) && canRender;
   const { value: isFlagOn } = useConditionalFeature({
     feature: featurePostRedesign,
     shouldEvaluate: isEligible,
