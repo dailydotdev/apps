@@ -16,7 +16,7 @@ import {
 import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
 import {
-  plusApiCta,
+  plusCta,
   plusUrl,
   settingsUrl,
   webappUrl,
@@ -95,10 +95,10 @@ export const ProfilePanelSection = ({
             <ListIcon Icon={() => <FilterIcon secondary={active} />} />
           ),
         },
-        // Non-Plus only: a purple upgrade CTA for the higher API rate limits
-        // Plus carries. Plus users already have them, so it's hidden for them.
+        // Non-Plus only: a purple upgrade CTA for the Plus perks.
+        // Plus users already have them, so it's hidden for them.
         !isPlus && {
-          title: plusApiCta,
+          title: plusCta,
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,

@@ -5,7 +5,7 @@ import type { ButtonSize } from './buttons/Button';
 import { ButtonColor, Button, ButtonVariant } from './buttons/Button';
 import { DevPlusIcon } from './icons';
 import Link from './utilities/Link';
-import { plusApiCta, plusApiCtaShort, plusUrl } from '../lib/constants';
+import { plusCta, plusCtaShort, plusUrl } from '../lib/constants';
 import { useViewSize, ViewSize } from '../hooks';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { usePlusSale } from '../hooks/usePlusSale';
@@ -39,7 +39,7 @@ export const UpgradeToPlus = ({
   const isFullCTAText = !isLaptop || isLaptopXL;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { isActive: isSaleActive } = usePlusSale();
-  const ctaCopy = { full: plusApiCta, short: plusApiCtaShort };
+  const ctaCopy = { full: plusCta, short: plusCtaShort };
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
   const showSaleLabel = isSaleActive && !iconOnly;
   const defaultColor = ButtonColor.Bacon;
