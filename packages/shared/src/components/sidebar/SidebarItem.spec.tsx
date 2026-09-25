@@ -19,6 +19,7 @@ const renderComponent = (shouldShowLabel: boolean) =>
       value={{
         user: undefined,
         isAuthReady: true,
+        isAuthReadyOrCached: true,
         isFetched: true,
         isLoggedIn: false,
         shouldShowLogin: false,

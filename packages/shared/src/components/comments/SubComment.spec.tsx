@@ -67,6 +67,7 @@ const renderLayout = (
           tokenRefreshed: true,
           isTokenValid: true,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <PaymentContextProvider>

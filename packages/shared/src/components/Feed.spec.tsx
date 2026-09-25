@@ -276,6 +276,7 @@ function renderComponent(
           trackingId: resolvedUser?.id,
           loginState: undefined,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <LazyModalElement />
@@ -2055,6 +2056,7 @@ const renderWithHighlightLayout = ({
           trackingId: user.id,
           loginState: undefined,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <GrowthBookProvider growthbook={gb}>

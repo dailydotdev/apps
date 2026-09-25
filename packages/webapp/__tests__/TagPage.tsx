@@ -271,6 +271,7 @@ const renderComponent = (
           isTokenValid: true,
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <AlertContextProvider alerts={{}} updateAlerts={jest.fn()} loadedAlerts>

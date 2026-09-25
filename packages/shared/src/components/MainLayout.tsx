@@ -112,7 +112,8 @@ function MainLayoutComponent({
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, isAuthReady, isLoggedIn, showLogin } = useAuthContext();
+  const { user, isAuthReady, isAuthReadyOrCached, isLoggedIn, showLogin } =
+    useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
@@ -162,7 +163,7 @@ function MainLayoutComponent({
   // ready, so it also covers the window where `isV2` hasn't reached its
   // final value yet).
   const layoutSettled =
-    isAuthReady && loadedSettings && !isLayoutVariantLoading;
+    isAuthReadyOrCached && loadedSettings && !isLayoutVariantLoading;
   const [contentTransitionsEnabled, setContentTransitionsEnabled] =
     useState(false);
   useEffect(() => {
@@ -191,16 +192,20 @@ function MainLayoutComponent({
 
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
+  // A still-valid cached session paints the page before boot; the onboarding
+  // and login decisions below still wait for boot.
+  const isPaintReady =
+    (growthbook?.ready && router?.isReady && isAuthReadyOrCached) || isTesting;
 
   // Everything that isn't feed-shaped (post, tag, source, profile) prerenders
-  // real data through `getStaticProps`, but `isPageReady` can never be true on
+  // real data through `getStaticProps`, but `isPaintReady` can never be true on
   // the server. Unmounting the layout until boot therefore shipped an empty
   // `<div id="__next">`, so every crawler that doesn't run JS (including the
   // answer engines `PostSEOSchema` targets) saw nothing but meta tags.
   //
   // Keep variant-specific chrome hidden until boot resolves, while allowing
   // the prerendered page content itself to paint immediately.
-  const isHoldingChrome = !isPageReady && showSidebar;
+  const isHoldingChrome = !isPaintReady && showSidebar;
 
   // On laptop the v1 and v2 chrome (sidebar + global header) look different,
   // so rendering before the experiment resolves makes v2 users flash the v1
@@ -226,14 +231,14 @@ function MainLayoutComponent({
   //
   // `isLoggedIn` and `sidebarRendered` are client-only, so until boot lands
   // they would suppress the shell the server just painted.
-  const ownsHeaderAudience = isAuthReady
+  const ownsHeaderAudience = isAuthReadyOrCached
     ? isLoggedIn || isExtension
     : hasServerShell;
   const sidebarOwnsHeader =
     isV2 &&
     ownsHeaderAudience &&
     showSidebar &&
-    (isAuthReady ? sidebarRendered : hasServerShell);
+    (isAuthReadyOrCached ? sidebarRendered : hasServerShell);
 
   // Extension new tab mounts its own `ExtensionTopBanners` strip, so
   // the webapp strip is suppressed there to avoid duplicate cards. The strip
@@ -268,8 +273,8 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasLoggedImpression]);
 
-  // Feed-shaped pages hold their paint until boot so the resolved chrome
-  // renders once. Broader than the onboarding gate below on purpose: this is
+  // Feed-shaped pages hold their paint until boot, or a still-valid cached
+  // session, so the resolved chrome renders once. Broader than the onboarding gate below on purpose: this is
   // about layout stability, not about forcing onboarding.
   const isFeedShapedPage =
     !page || feeds.includes(page) || isCustomFeed || isExploreTag;
@@ -330,7 +335,7 @@ function MainLayoutComponent({
   // Feed-shaped pages have nothing prerendered worth showing (the feed is
   // fetched on the client) and anonymous visitors may still bounce to
   // onboarding, so they keep bailing out entirely.
-  if (shouldRedirectOnboarding || (!isPageReady && isFeedShapedPage)) {
+  if (shouldRedirectOnboarding || (!isPaintReady && isFeedShapedPage)) {
     return null;
   }
 
@@ -384,7 +389,7 @@ function MainLayoutComponent({
           showSidebar &&
             (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
           className,
-          isAuthReady &&
+          isAuthReadyOrCached &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
@@ -420,7 +425,7 @@ function MainLayoutComponent({
           'has-[.feed-dock]:min-h-screen',
         )}
       >
-        {isAuthReady && isLayoutChromeResolved && showSidebar && (
+        {isAuthReadyOrCached && isLayoutChromeResolved && showSidebar && (
           <Sidebar
             additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}

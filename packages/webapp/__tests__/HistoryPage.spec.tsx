@@ -85,6 +85,7 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <SearchProvider>

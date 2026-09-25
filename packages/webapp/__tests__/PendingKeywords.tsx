@@ -79,6 +79,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <PendingKeywords />

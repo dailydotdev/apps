@@ -127,6 +127,7 @@ const defaultAuthContext = {
   accessToken: undefined,
   squads: [],
   isAuthReady: true,
+  isAuthReadyOrCached: true,
   geo: undefined,
   isAndroidApp: false,
   isGdprCovered: false,
