@@ -10,16 +10,20 @@ const FeatureOverridesContext = createContext<FeatureOverrideValues>({});
 /**
  * Pins specific flags for one subtree, so a single story can render several
  * experiment arms next to each other. Flags left out keep the `control` value
- * every other story relies on.
+ * every other story relies on. Nested overrides add to the outer ones.
  */
 export const FeatureOverrides = ({
   values,
   children,
-}: PropsWithChildren<{ values: FeatureOverrideValues }>): ReactElement => (
-  <FeatureOverridesContext.Provider value={values}>
-    {children}
-  </FeatureOverridesContext.Provider>
-);
+}: PropsWithChildren<{ values: FeatureOverrideValues }>): ReactElement => {
+  const outer = useContext(FeatureOverridesContext);
+
+  return (
+    <FeatureOverridesContext.Provider value={{ ...outer, ...values }}>
+      {children}
+    </FeatureOverridesContext.Provider>
+  );
+};
 
 /** Returns the story-pinned value for a flag, or undefined when unpinned. */
 export const useFeatureOverride = (feature?: FeatureLike): unknown => {
