@@ -1,22 +1,30 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useConditionalFeature, useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import { useOnboardingActions } from '../../hooks/auth';
-import { featurePublicSignupBanner } from '../../lib/featureManagement';
 import { PostAuthBanner } from './PostAuthBanner';
 
-export function PublicPageSignupBanner(): ReactElement | null {
+export const usePublicPageSignupBanner = (): boolean => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboardingActions();
-  const shouldEvaluate = shouldShowAuthBanner && isLaptop;
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featurePublicSignupBanner,
-    shouldEvaluate,
-  });
 
-  if (!shouldEvaluate || !isEnabled) {
+  return shouldShowAuthBanner && isLaptop;
+};
+
+// The post page's bottom banner on the public pages. It pins to the window,
+// so it goes at the end of the page where its spacer keeps the last of the
+// content reachable above it.
+export function PublicPageSignupBanner(): ReactElement | null {
+  const shouldShow = usePublicPageSignupBanner();
+
+  if (!shouldShow) {
     return null;
   }
 
-  return <PostAuthBanner />;
+  return (
+    <>
+      <div aria-hidden className="h-72" />
+      <PostAuthBanner />
+    </>
+  );
 }

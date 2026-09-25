@@ -30,7 +30,10 @@ import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
-import { ExploreSignupStrip } from './auth/ExploreSignupStrip';
+import {
+  PublicPageSignupBanner,
+  usePublicPageSignupBanner,
+} from './auth/PublicPageSignupBanner';
 import FeedContext from '../contexts/FeedContext';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -853,9 +856,14 @@ export default function MainFeedLayout({
   // Read here rather than inside the feed or the strip: this is the one place
   // that owns both, so the card can only ever go missing on a surface that is
   // mounting the strip — with headlines in it — in the card's place.
+  // Both pin to the window's bottom edge, so an anonymous visitor gets the
+  // signup banner or the sponsor dock, never both.
+  const isSignupBannerVisible = usePublicPageSignupBanner();
+  const showSignupBanner =
+    !isExtension && isExploreHub && isSignupBannerVisible;
   const sponsorStrip = useSponsorStripFeed({
     feedName,
-    disableAds: feedProps?.disableAds,
+    disableAds: feedProps?.disableAds || showSignupBanner,
   });
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
@@ -887,16 +895,6 @@ export default function MainFeedLayout({
       <FeedPageLayoutComponent
         className={classNames('relative', disableTopPadding && '!pt-0')}
       >
-        {!isExtension && isExploreHub && (
-          <div className={feedWidthClassName} style={feedWidthStyle}>
-            <ExploreSignupStrip
-              className={classNames(
-                'mb-4',
-                !shouldUseCommentFeedLayout && feedGutter,
-              )}
-            />
-          </div>
-        )}
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
         {isSearchOn && !isSearchPageLaptop && (
@@ -953,6 +951,7 @@ export default function MainFeedLayout({
           )
         )}
         {children}
+        {showSignupBanner && <PublicPageSignupBanner />}
       </FeedPageLayoutComponent>
       {/* Docked outside the page container so it spans the feed column and
           pins to the window, and mounted here rather than in each app's
