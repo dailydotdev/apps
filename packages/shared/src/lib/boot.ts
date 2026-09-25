@@ -97,7 +97,11 @@ export type BootCacheData = Pick<
   | 'exp'
   | 'feeds'
   | 'geo'
-> & { lastModifier?: string; isAndroidApp?: boolean };
+> & {
+  lastModifier?: string;
+  isAndroidApp?: boolean;
+  accessTokenExpiresIn?: AccessToken['expiresIn'];
+};
 
 /**
  * Get normalized referrer type from pathname

@@ -109,6 +109,7 @@ export const TestBootProvider = ({
             logout: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
+            isTokenValid: auth.tokenRefreshed ?? true,
             getRedirectUri: jest.fn(),
             isFetched: true,
             isAuthReady: true,

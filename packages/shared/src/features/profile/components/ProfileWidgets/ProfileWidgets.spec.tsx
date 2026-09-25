@@ -215,6 +215,7 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed,
+          isTokenValid: tokenRefreshed,
           isLoggedIn: true,
           isAuthReady: true,
           closeLogin: jest.fn(),

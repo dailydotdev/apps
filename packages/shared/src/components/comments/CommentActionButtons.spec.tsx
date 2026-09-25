@@ -73,6 +73,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           isAuthReady: true,
         }}
       >

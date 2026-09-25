@@ -23,7 +23,7 @@ export type FeedHeroAdSlot = {
  * load that painted straight at its final size and so never fired a resize.
  */
 export const useFeedHeroAd = (): FeedHeroAdSlot => {
-  const { user, tokenRefreshed } = useAuthContext();
+  const { user, isTokenValid } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { numCards } = useContext(FeedContext);
   // The same call the feed makes, so the two agree on what a list is.
@@ -35,7 +35,7 @@ export const useFeedHeroAd = (): FeedHeroAdSlot => {
   const { data: ad } = useAdQuery({
     placement: AdPlacement.Feed,
     queryKey: generateQueryKey(RequestKey.Ads, user, 'feed-hero'),
-    enabled: tokenRefreshed && !isPlus && shape.adPlacement !== 'none',
+    enabled: isTokenValid && !isPlus && shape.adPlacement !== 'none',
     staleTime: StaleTime.OneHour,
   });
 

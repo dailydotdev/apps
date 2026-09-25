@@ -37,6 +37,7 @@ const renderInvite = (viewer?: LoggedUser) =>
           getRedirectUri: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           trackingId: '',
           isLoggedIn: !!viewer,
         }}

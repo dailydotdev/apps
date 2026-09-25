@@ -4,7 +4,13 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
@@ -871,3 +877,93 @@ it('should unset the content language header when user language is cleared', asy
   ).not.toHaveProperty('content-language');
   unsetHeaderSpy.mockRestore();
 });
+
+const inMinutes = (minutes: number): string =>
+  new Date(Date.now() + minutes * 60 * 1000).toISOString();
+
+it('should persist the access token expiry but never the token', async () => {
+  const accessToken = {
+    token: 'secret-access-token',
+    expiresIn: inMinutes(10),
+  };
+  jest.mocked(getBootData).mockResolvedValueOnce({
+    ...getBootMock(defaultBootData),
+    accessToken,
+  });
+  renderComponent(<AuthMock updatedUser={{ ...defaultUser, name: 'Lee' }} />);
+
+  await waitFor(() =>
+    expect(getStoredBootData().accessTokenExpiresIn).toEqual(
+      accessToken.expiresIn,
+    ),
+  );
+  expect(localStorage.getItem(BOOT_LOCAL_KEY)).not.toContain(accessToken.token);
+
+  const user = await screen.findByText('User');
+  fireEvent.click(user);
+  await expectToHaveTestValue(user, 'Lee');
+  expect(getStoredBootData().accessTokenExpiresIn).toEqual(
+    accessToken.expiresIn,
+  );
+});
+
+const TokenMock = () => {
+  const { isTokenValid } = useContext(AuthContext);
+
+  return <span data-test-value={isTokenValid}>Token</span>;
+};
+
+it.each([
+  { name: 'a session with time left', cache: {}, isReady: true, before: true },
+  {
+    name: 'a session expiring within a minute',
+    cache: { accessTokenExpiresIn: inMinutes(0.5) },
+    isReady: true,
+    before: false,
+  },
+  {
+    name: 'an anonymous user',
+    cache: { user: defaultAnonymousUser },
+    isReady: true,
+    before: false,
+  },
+  {
+    name: 'features not cached yet',
+    cache: { exp: undefined },
+    isReady: true,
+    before: false,
+  },
+  { name: 'a route not ready yet', cache: {}, isReady: false, before: false },
+])(
+  'should trust the cached token before boot only for $name',
+  async ({ cache, isReady, before }) => {
+    localStorage.setItem(
+      BOOT_LOCAL_KEY,
+      JSON.stringify({
+        ...defaultBootData,
+        exp: {
+          fv: 'v1',
+          e: [],
+          a: [],
+          features: { flag: { defaultValue: 1 } },
+        },
+        accessTokenExpiresIn: inMinutes(10),
+        ...cache,
+      }),
+    );
+    mockUseRouter({ isReady });
+    let resolveBoot: (boot: Boot) => void = () => undefined;
+    jest.mocked(getBootData).mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveBoot = resolve;
+      }),
+    );
+    renderComponent(<TokenMock />);
+
+    const token = await screen.findByText('Token');
+    await expectToHaveTestValue(token, before.toString());
+
+    await act(async () => resolveBoot(getBootMock(defaultBootData)));
+    await expectToHaveTestValue(token, 'true');
+  },
+);

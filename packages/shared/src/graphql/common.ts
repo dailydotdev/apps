@@ -108,6 +108,7 @@ export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
 };
 
 export enum ApiError {
+  Unauthenticated = 'UNAUTHENTICATED',
   Forbidden = 'FORBIDDEN',
   GraphqlValidationFailed = 'GRAPHQL_VALIDATION_FAILED',
   GraphqlRemovedField = 'GRAPHQL_REMOVED_FIELD',

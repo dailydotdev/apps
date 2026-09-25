@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import type {
   InfiniteData,
   QueryKey,
@@ -26,7 +26,13 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
-import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import type { ApiErrorResult } from '../graphql/common';
+import {
+  ApiError,
+  GARMR_ERROR,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
@@ -305,7 +311,7 @@ export default function useFeed<T>(
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, tokenRefreshed, isTokenValid } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
@@ -421,7 +427,7 @@ export default function useFeed<T>(
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
     ...options,
-    enabled: !!query && tokenRefreshed,
+    enabled: !!query && isTokenValid,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: avoidRetry ? false : 3,
@@ -430,6 +436,20 @@ export default function useFeed<T>(
   });
 
   const clientError = feedQuery?.error as ClientError;
+  const isUnauthenticated = !!getApiError(
+    feedQuery.error as ApiErrorResult,
+    ApiError.Unauthenticated,
+  );
+  const { refetch: refetchFeed } = feedQuery;
+
+  // A feed requested with the cached session can hit an expired cookie; boot
+  // refreshes it, so try again once it lands
+  useEffect(() => {
+    if (tokenRefreshed && isUnauthenticated) {
+      refetchFeed();
+    }
+  }, [tokenRefreshed, isUnauthenticated, refetchFeed]);
+
   const adPostLength = settings?.adPostLength;
   const firstPagePostsCount = feedQuery.data?.pages[0]?.page.edges.length ?? 0;
   const meetsAdPostLength = !adPostLength || firstPagePostsCount > adPostLength;
@@ -439,7 +459,7 @@ export default function useFeed<T>(
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
       query &&
-      tokenRefreshed &&
+      isTokenValid &&
       !isFeedPreview &&
       (!adPostLength ||
         (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&

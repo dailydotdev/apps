@@ -100,6 +100,7 @@ const updateLocalBootData = (
     'feeds',
     'geo',
     'isAndroidApp',
+    'accessTokenExpiresIn',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -114,6 +115,23 @@ const getCachedOrNull = () => {
   } catch (err) {
     return null;
   }
+};
+
+const CACHED_TOKEN_EXPIRY_MARGIN = 60 * 1000;
+
+const isCachedTokenValid = ({
+  user,
+  accessTokenExpiresIn,
+}: Partial<BootCacheData>): boolean => {
+  const logged = user as LoggedUser;
+
+  return (
+    !!logged?.providers &&
+    !!logged?.id &&
+    !!accessTokenExpiresIn &&
+    new Date(accessTokenExpiresIn).getTime() - Date.now() >
+      CACHED_TOKEN_EXPIRY_MARGIN
+  );
 };
 
 export const BootDataProvider = ({
@@ -131,6 +149,9 @@ export const BootDataProvider = ({
   const [cachedBootData, setCachedBootDataState] =
     useState<Partial<BootCacheData>>();
   const cachedBootDataRef = useRef<Partial<BootCacheData>>();
+  // Checked once on load, so the feed doesn't lose its query as the cached
+  // token nears expiry while boot is in flight
+  const [hasValidCachedToken, setHasValidCachedToken] = useState(false);
   const setCachedBootData = useCallback(
     (data: Partial<BootCacheData> | undefined) => {
       cachedBootDataRef.current = data;
@@ -142,6 +163,7 @@ export const BootDataProvider = ({
   useEffect(() => {
     if (localBootData) {
       setCachedBootData(localBootData);
+      setHasValidCachedToken(isCachedTokenValid(localBootData));
 
       return;
     }
@@ -159,6 +181,7 @@ export const BootDataProvider = ({
     }
 
     setCachedBootData(boot);
+    setHasValidCachedToken(isCachedTokenValid(boot));
   }, [localBootData, setCachedBootData]);
 
   const { hostGranted } = useHostStatus();
@@ -321,7 +344,10 @@ export const BootDataProvider = ({
   useEffect(() => {
     if (remoteData) {
       setInitialLoad(typeof initialLoad === 'undefined');
-      updateBootData(remoteData);
+      updateBootData({
+        ...remoteData,
+        accessTokenExpiresIn: remoteData.accessToken?.expiresIn,
+      });
       setRemoteBootApplied({
         dataUpdatedAt,
         userId: remoteData.user?.id,
@@ -399,6 +425,7 @@ export const BootDataProvider = ({
         user={user}
         updateUser={updateUser}
         tokenRefreshed={updatedAtActive > 0}
+        hasValidCachedToken={hasValidCachedToken}
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}

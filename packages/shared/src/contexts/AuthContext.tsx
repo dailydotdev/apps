@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import { useGrowthBook } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
@@ -64,6 +65,8 @@ export interface AuthContextData {
   loadingUser?: boolean;
   isFetched?: boolean;
   tokenRefreshed: boolean;
+  /** `tokenRefreshed`, or a still-valid cached session before boot lands */
+  isTokenValid: boolean;
   loadedUserFromCache?: boolean;
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
@@ -127,6 +130,7 @@ export type AuthContextProviderProps = {
   isFetched?: boolean;
   children?: ReactNode;
   firstLoad?: boolean;
+  hasValidCachedToken?: boolean;
 } & Pick<
   AuthContextData,
   | 'getRedirectUri'
@@ -150,6 +154,7 @@ export const AuthContextProvider = ({
   isFetched,
   loadingUser,
   tokenRefreshed,
+  hasValidCachedToken,
   loadedUserFromCache,
   getRedirectUri,
   refetchBoot,
@@ -171,6 +176,12 @@ export const AuthContextProvider = ({
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
   );
+  const growthbook = useGrowthBook();
+  // Before boot, wait until the flags and route params that feed query keys
+  // are built from have settled, or the feed would be requested twice
+  const isTokenValid =
+    tokenRefreshed ||
+    (!!hasValidCachedToken && !!growthbook?.ready && !!router?.isReady);
 
   const showLogin = useCallback(
     ({ trigger, options = {} }) => {
@@ -215,6 +226,7 @@ export const AuthContextProvider = ({
       logout,
       loadingUser,
       tokenRefreshed,
+      isTokenValid,
       loadedUserFromCache,
       getRedirectUri,
       anonymous: user,
@@ -242,6 +254,7 @@ export const AuthContextProvider = ({
       updateUser,
       loadingUser,
       tokenRefreshed,
+      isTokenValid,
       loadedUserFromCache,
       getRedirectUri,
       visit,
