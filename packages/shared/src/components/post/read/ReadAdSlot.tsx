@@ -3,6 +3,8 @@ import React from 'react';
 import classNames from 'classnames';
 import { isDevelopment } from '../../../lib/constants';
 import { useOrganicAdSlots, useReadAdSlots } from './useReadAdSlots';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureReadTaboola } from '../../../lib/featureManagement';
 import type { AdSlots } from '../../../features/monetization/kueez';
 import { hasLiveAdSlots } from '../../../features/monetization/kueez';
 import type { ProgrammaticAdFormat } from '../../../features/monetization/ProgrammaticAd';
@@ -131,6 +133,14 @@ function MappedAdSlot({
 
 function ReadSurfaceAdSlot(props: ReadAdSlotProps): ReactElement | null {
   const slots = useReadAdSlots();
+  // Off from the first render, not once boot resolves, so neither a unit
+  // nor a development placeholder flashes before Taboola takes over.
+  const taboola = useFeature(featureReadTaboola);
+
+  if (taboola) {
+    return null;
+  }
+
   return (
     <MappedAdSlot {...props} slots={slots} surface="read" allowPlaceholder />
   );

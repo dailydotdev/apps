@@ -83,7 +83,10 @@ export const GoBackButton = ({
 export function GoBackHeaderMobile({
   children,
   className,
-}: PropsWithChildren<WithClassNameProps>): ReactElement | null {
+  showLogo,
+}: PropsWithChildren<
+  WithClassNameProps & { showLogo?: boolean }
+>): ReactElement | null {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const featureTheme = useFeatureTheme();
@@ -101,7 +104,7 @@ export function GoBackHeaderMobile({
         className,
       )}
     >
-      <GoBackButton />
+      <GoBackButton showLogo={showLogo} />
       {children}
     </span>
   );

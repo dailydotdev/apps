@@ -1,5 +1,8 @@
 import { useContext } from 'react';
-import { featureReadAds } from '../../../lib/featureManagement';
+import {
+  featureReadAds,
+  featureReadTaboola,
+} from '../../../lib/featureManagement';
 import AuthContext from '../../../contexts/AuthContext';
 import { isDevelopment } from '../../../lib/constants';
 import { useFeature } from '../../GrowthBookProvider';
@@ -21,6 +24,30 @@ const useIsAnonymous = (): boolean => {
 };
 
 /**
+ * Whether the /read template serves Taboola's widgets instead of its Kueez
+ * units. Same audience as the Kueez slots, anonymous visitors only, except
+ * in development, where the flag is on and any session renders live widgets
+ * for testing. Either way only once boot resolves, so widgets never render
+ * on the server.
+ */
+export const useReadTaboola = (): boolean => {
+  const auth = useContext(AuthContext);
+  const enabled = useFeature(featureReadTaboola);
+
+  return !!enabled && !!auth?.isAuthReady && (!auth.user || isDevelopment);
+};
+
+/**
+ * Whether the /read template keeps its visitors on it: every way off the page
+ * is dropped or leads to another /articles page, bar the one read CTA to the
+ * original. Rides the Taboola flag, without its auth wait. The page is static
+ * and flags resolve after boot, so outside development the chrome still
+ * renders in full on the server and drops once features load.
+ */
+export const useArticlesContained = (): boolean =>
+  !!useFeature(featureReadTaboola);
+
+/**
  * The /read template's slots. Anonymous visitors only: the page exists for
  * paid-acquisition traffic, and ad-free is part of what Plus members pay for.
  * The `read_ads` flag is an emergency kill switch, on by default; there is no
@@ -30,8 +57,9 @@ const useIsAnonymous = (): boolean => {
 export const useReadAdSlots = (): AdSlots => {
   const isAnonymous = useIsAnonymous();
   const enabled = useFeature(featureReadAds);
+  const taboola = useFeature(featureReadTaboola);
 
-  if (isDevelopment) {
+  if (isDevelopment || taboola) {
     return NO_SLOTS;
   }
 

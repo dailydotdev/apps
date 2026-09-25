@@ -1,0 +1,61 @@
+/*
+ * Taboola renders its widgets as plain DOM inside our container, styled by
+ * its own stylesheet (Helvetica, fixed colors tuned for one theme, square
+ * thumbnails). These overrides map that markup onto our tokens and type
+ * scale so the widgets read like the cards around them, in both themes.
+ * Taboola's selectors are specific, hence the !important throughout.
+ */
+.taboola-slot {
+  & * {
+    font-family: inherit !important;
+  }
+
+  & .video-title {
+    @apply !text-text-primary !typo-callout !font-bold;
+  }
+
+  & .video-description {
+    @apply !text-text-tertiary !typo-footnote;
+  }
+
+  & .branding,
+  & .branding *,
+  & .logoDiv,
+  & .logoDiv a,
+  & .trc_desktop_disclosure_link {
+    @apply !text-text-quaternary !typo-caption1 !font-normal;
+  }
+
+  & a:hover .video-title,
+  & a:hover .video-description,
+  & .item-label-href:hover {
+    @apply !no-underline;
+  }
+
+  & .thumbBlock,
+  & .thumbBlock_holder,
+  & .videoCube_aspect {
+    @apply !rounded-12 overflow-hidden;
+  }
+
+  & .tbl-feed-card {
+    box-shadow: 0 1px 0 0 var(--theme-border-subtlest-tertiary) !important;
+  }
+
+  & .videoCube,
+  & .trc_rbox_border_elm {
+    @apply !border-border-subtlest-tertiary;
+  }
+
+  & .videoCube.thumbnail_start {
+    @apply !rounded-16 !bg-transparent;
+  }
+
+  & .video-cta-button {
+    @apply !rounded-10 !border !border-border-subtlest-secondary !bg-transparent !text-text-primary !typo-footnote !font-bold;
+
+    &:hover {
+      @apply !bg-surface-hover;
+    }
+  }
+}

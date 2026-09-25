@@ -359,6 +359,10 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAds = new Feature('read_ads', true);
 
+// Serves Taboola's article widgets on the /read template in place of its
+// Kueez units, which stay in code, only switched off while this is on.
+export const featureReadTaboola = new Feature('read_taboola', isDevelopment);
+
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);

@@ -11,6 +11,7 @@ export type FurtherReadingData = {
 const FURTHER_READING_FRAGMENT = gql`
   fragment FurtherReading on Post {
     id
+    type
     title
     permalink
     commentsPermalink
