@@ -399,10 +399,12 @@ export default function MainFeedLayout({
     shouldEvaluate: isMainFeedPage,
   });
   // The hero reports back rather than being asked: it only has a placement once
-  // its column exists and an ad has come back for it, and it renders nothing at
-  // all until its headlines resolve.
+  // its column exists and an ad is coming for it, and it stands down only once
+  // its headlines resolve empty. Assumed present until then, so the grid never
+  // paints the highlights card only to pull it out a moment later.
   const [isHeroAdVisible, setIsHeroAdVisible] = useState(false);
-  const [isHeroRendered, setIsHeroRendered] = useState(false);
+  const [isHeroRendered, setIsHeroRendered] = useState(true);
+  const isHeroShown = !!isFeedHeroEnabled && isHeroRendered;
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -823,17 +825,18 @@ export default function MainFeedLayout({
     ) : undefined;
   // The hero is a sibling of the v2 grid, so it repeats the grid's inset and
   // card border rules. No bottom margin from `tablet` up, where the grid
-  // already opens with that inset; mobile keeps one as the only separator.
+  // already opens with that inset, and on laptop the hero eats half of it;
+  // mobile keeps one as the only separator.
   const isV2Grid = isV2 && !shouldUseListFeedLayout;
   const heroClassName = classNames(
-    'w-full tablet:pt-6',
+    'w-full tablet:pt-1',
     isV2Grid
       ? classNames(
           v2FeedSideInsetClass,
-          'mb-8 tablet:mb-0',
+          'mb-4 tablet:mb-0 laptop:-mb-4',
           '[&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
         )
-      : 'mb-8',
+      : 'mb-4',
   );
   // Left undefined when the hero is off so `Feed` keeps its own top slot.
   const topContent = isFeedHeroEnabled ? (
@@ -945,9 +948,9 @@ export default function MainFeedLayout({
               disableTopHero={isFeedHeroEnabled}
               // The render, so a hero that finds no headlines hands the
               // highlights card and row one back to the grid.
-              disableHighlightCards={isHeroRendered}
+              disableHighlightCards={isHeroShown}
               skipFirstAd={isHeroAdVisible}
-              deferWideCards={isHeroRendered}
+              deferWideCards={isHeroShown}
               className={classNames(!isFinder && feedGutter)}
             />
           )

@@ -189,7 +189,7 @@ export const FeedHeroCarousel = ({
       </div>
       {total > 1 && (
         <div className="flex items-center gap-3">
-          <div className="flex flex-1 items-center gap-1.5">
+          <div className="flex flex-1 items-center gap-1">
             {posts.map((item, position) => (
               <button
                 key={item.id}
@@ -198,10 +198,8 @@ export const FeedHeroCarousel = ({
                 aria-current={position === active}
                 onClick={() => goTo(position)}
                 className={classNames(
-                  'h-1.5 overflow-hidden rounded-max bg-border-subtlest-primary transition-all',
-                  position === active
-                    ? 'w-6'
-                    : 'w-1.5 hover:bg-text-quaternary',
+                  'h-1 overflow-hidden rounded-max bg-border-subtlest-primary transition-all',
+                  position === active ? 'w-5' : 'w-1 hover:bg-text-quaternary',
                 )}
               >
                 {position === active && (
@@ -231,7 +229,7 @@ export const FeedHeroCarousel = ({
               <Button
                 type="button"
                 variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
+                size={ButtonSize.XSmall}
                 icon={<ArrowIcon className="-rotate-90" />}
                 onClick={() => goTo(active - 1)}
                 aria-label={`Previous: ${previous.title}`}
@@ -241,7 +239,7 @@ export const FeedHeroCarousel = ({
               <Button
                 type="button"
                 variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
+                size={ButtonSize.XSmall}
                 icon={<ArrowIcon className="rotate-90" />}
                 onClick={() => goTo(active + 1)}
                 aria-label={`Next: ${next.title}`}

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Post } from '../../../graphql/posts';
 import { gqlClient } from '../../../graphql/common';
 import type { FeedHeroData } from '../../../graphql/feed';
@@ -14,6 +14,10 @@ import { viewabilityLogExtra } from '../../../features/monetization/viewability'
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useCopyLink } from '../../../hooks/useCopy';
+import type { FeedItem, UpdateFeedPost } from '../../../hooks/useFeed';
+import { usePostModalNavigation } from '../../../hooks/usePostModalNavigation';
+import { FeedItemType } from '../../cards/common/common';
+import { PostModalMap } from '../../Feed';
 import { ImpressionStatus } from '../../../hooks/feed/useLogImpression';
 import {
   adLogEvent,
@@ -23,7 +27,7 @@ import {
 import { AdActions } from '../../../lib/ads';
 import { LogEvent, Origin } from '../../../lib/log';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { FeedHeroSection } from './FeedHeroSection';
+import { FeedHeroSection, FeedHeroSkeleton } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
 import { useFeedHeroPostActions } from './useFeedHeroPostActions';
 
@@ -54,6 +58,7 @@ export const FeedHero = ({
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const [, copyLink] = useCopyLink();
+  const queryClient = useQueryClient();
 
   const { ad, placement, shape } = useFeedHeroAd();
 
@@ -70,7 +75,7 @@ export const FeedHero = ({
       origin: Origin.FeedHero,
     });
 
-  const { data: hero } = useQuery({
+  const { data: hero, isPending } = useQuery({
     queryKey,
     queryFn: () =>
       gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
@@ -86,9 +91,67 @@ export const FeedHero = ({
   const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
   const posts: Post[] = useMemo(() => hero?.feedHero?.posts ?? [], [hero]);
 
+  const modalItems: FeedItem[] = useMemo(
+    () =>
+      posts.map((post, index) => ({
+        type: FeedItemType.Post,
+        post,
+        page: 0,
+        index,
+        dataUpdatedAt: 0,
+      })),
+    [posts],
+  );
+
+  const updateModalPost: UpdateFeedPost = useCallback(
+    (_, index, post) =>
+      queryClient.setQueryData<FeedHeroData>(
+        queryKey,
+        (current) =>
+          current && {
+            ...current,
+            feedHero: {
+              ...current.feedHero,
+              posts: current.feedHero.posts.map((item, position) =>
+                position === index ? post : item,
+              ),
+            },
+          },
+      ),
+    [queryClient, queryKey],
+  );
+
+  const {
+    onOpenModal,
+    onCloseModal,
+    onPrevious,
+    onNext,
+    postPosition,
+    selectedPost,
+  } = usePostModalNavigation({
+    items: modalItems,
+    fetchPage: async () => undefined,
+    updatePost: updateModalPost,
+    canFetchMore: false,
+    feedName: `${feedName}-hero`,
+  });
+  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
+
+  useEffect(() => {
+    if (!selectedPost) {
+      document.body.classList.remove('hidden-scrollbar');
+    }
+  }, [selectedPost]);
+
+  useEffect(() => () => document.body.classList.remove('hidden-scrollbar'), []);
+
   const isRendered = posts.length > 0;
+  // The skeleton stands in while the query is in flight, so the feed lays out
+  // around the hero from its first paint instead of reflowing when it lands.
+  const isHeld = isRendered || isPending;
   const adPlacement = isRendered ? placement : 'none';
   const isAdShown = adPlacement !== 'none';
+  const isAdHeld = isHeld && placement !== 'none';
 
   // Stacked, the lead story is already a card above the list, so drop it from
   // the list rather than showing it twice a few pixels apart. Matched on the
@@ -135,12 +198,12 @@ export const FeedHero = ({
   );
 
   useEffect(() => {
-    onAdVisibleChange?.(isAdShown);
-  }, [isAdShown, onAdVisibleChange]);
+    onAdVisibleChange?.(isAdHeld);
+  }, [isAdHeld, onAdVisibleChange]);
 
   useEffect(() => {
-    onRenderedChange?.(isRendered);
-  }, [isRendered, onRenderedChange]);
+    onRenderedChange?.(isHeld);
+  }, [isHeld, onRenderedChange]);
 
   useEffect(() => {
     // Gated on `isAdShown`, not just on the ad existing: logging here while the
@@ -156,12 +219,24 @@ export const FeedHero = ({
 
   const cardProps = useMemo(
     () => ({
-      onPostClick: (post: Post) =>
+      onPostClick: (post: Post) => {
         logEvent(
           postLogEvent(LogEvent.Click, post, {
             extra: { origin: Origin.FeedHero },
           }),
-        ),
+        );
+
+        if (shape.layout === 'stacked') {
+          return;
+        }
+
+        const index = posts.findIndex(({ id }) => id === post.id);
+
+        if (index !== -1) {
+          document.body.classList.add('hidden-scrollbar');
+          onOpenModal(index);
+        }
+      },
       onUpvoteClick: (post: Post, origin = Origin.FeedHero) =>
         toggleUpvote({ payload: post, origin }),
       onDownvoteClick: (post: Post, origin = Origin.FeedHero) =>
@@ -174,41 +249,61 @@ export const FeedHero = ({
     [
       copyLink,
       logEvent,
+      onOpenModal,
       postLogEvent,
+      posts,
+      shape.layout,
       toggleBookmark,
       toggleDownvote,
       toggleUpvote,
     ],
   );
 
+  if (isPending) {
+    return <FeedHeroSkeleton className={className} shape={shape} />;
+  }
+
   if (!isRendered) {
     return null;
   }
 
   return (
-    <FeedHeroSection
-      className={className}
-      posts={posts}
-      highlights={railHighlights}
-      ad={isAdShown ? ad : undefined}
-      adPlacement={adPlacement}
-      shape={shape}
-      cardProps={cardProps}
-      onPostImpression={(post) =>
-        logEvent(
-          postLogEvent(LogEvent.Impression, post, {
-            extra: { origin: Origin.FeedHero },
-          }),
-        )
-      }
-      onHighlightClick={(highlight, position) =>
-        logHighlightsClick('highlight_click', highlight, position)
-      }
-      onReadAllClick={() => logHighlightsClick('read_all_click')}
-      onAdLinkClick={() => onAdAction(AdActions.Click)}
-      onAdViewable={(_, data: ViewabilityData) =>
-        onAdAction(AdActions.Viewable, viewabilityLogExtra(data))
-      }
-    />
+    <>
+      <FeedHeroSection
+        className={className}
+        posts={posts}
+        highlights={railHighlights}
+        ad={isAdShown ? ad : undefined}
+        adPlacement={adPlacement}
+        shape={shape}
+        cardProps={cardProps}
+        onPostImpression={(post) =>
+          logEvent(
+            postLogEvent(LogEvent.Impression, post, {
+              extra: { origin: Origin.FeedHero },
+            }),
+          )
+        }
+        onHighlightClick={(highlight, position) =>
+          logHighlightsClick('highlight_click', highlight, position)
+        }
+        onReadAllClick={() => logHighlightsClick('read_all_click')}
+        onAdLinkClick={() => onAdAction(AdActions.Click)}
+        onAdViewable={(_, data: ViewabilityData) =>
+          onAdAction(AdActions.Viewable, viewabilityLogExtra(data))
+        }
+      />
+      {!!selectedPost && !!PostModal && (
+        <PostModal
+          isOpen
+          id={selectedPost.id}
+          onRequestClose={() => onCloseModal()}
+          onPreviousPost={onPrevious}
+          onNextPost={onNext}
+          postPosition={postPosition}
+          post={selectedPost}
+        />
+      )}
+    </>
   );
 };

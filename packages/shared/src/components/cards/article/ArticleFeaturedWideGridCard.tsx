@@ -175,7 +175,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
         onPostAuxClick={onPostAuxClick}
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked && !showFeedback}
-        significance={significance}
+        significance={hero ? undefined : significance}
       >
         <div
           className={classNames(

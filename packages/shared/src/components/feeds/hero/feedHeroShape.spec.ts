@@ -2,7 +2,7 @@ import { feedHeroShape, MAX_HERO_COLUMNS } from './feedHeroShape';
 
 describe('feedHeroShape', () => {
   // One column is excluded: it stacks rather than laying out on a grid.
-  it.each([2, 3, 4, 5, 6])('fills all %i columns', (columns) => {
+  it.each([2, 3, 4])('fills all %i columns', (columns) => {
     const { featuredSpan, railSpan, adSpan } = feedHeroShape(columns);
 
     expect(featuredSpan + railSpan + adSpan).toBe(columns);
@@ -59,9 +59,14 @@ describe('feedHeroShape', () => {
     });
   });
 
-  it('widens the featured card, then the rail', () => {
-    expect(feedHeroShape(4)).toMatchObject({ featuredSpan: 2, railSpan: 1 });
-    expect(feedHeroShape(5)).toMatchObject({ featuredSpan: 3, railSpan: 1 });
-    expect(feedHeroShape(6)).toMatchObject({ featuredSpan: 3, railSpan: 2 });
-  });
+  it.each([4, 5, 6])(
+    'caps the featured card at two columns and the rail at one on %i',
+    (columns) => {
+      expect(feedHeroShape(columns)).toMatchObject({
+        featuredSpan: 2,
+        railSpan: 1,
+        adSpan: 1,
+      });
+    },
+  );
 });

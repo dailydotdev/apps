@@ -153,6 +153,68 @@ describe('FeedHero', () => {
     expect(screen.getByText('Third headline')).toBeInTheDocument();
   });
 
+  it('should open the post modal when a card is clicked', async () => {
+    const push = jest.fn().mockResolvedValue(true);
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          asPath: '/',
+          query: {},
+          push,
+        } as unknown as NextRouter),
+    );
+    mockHero({ posts, highlights });
+
+    renderComponent();
+
+    fireEvent.click(
+      await screen.findByRole('link', { name: 'First hero post' }),
+    );
+
+    await waitFor(() => expect(push).toHaveBeenCalled());
+    const [pathname, as] = push.mock.calls[0];
+    expect(pathname).toContain('pmid=hero-post-0');
+    expect(pathname).toContain('pmcid=popular-hero');
+    expect(as).toContain('posts/hero-post-0');
+  });
+
+  it('should hold its place while loading and stand down once empty', async () => {
+    const onRenderedChange = jest.fn();
+    mockHero({ posts: [], highlights: [] });
+
+    const { container } = render(
+      <TestBootProvider client={new QueryClient()}>
+        <FeedHero feedName="popular" onRenderedChange={onRenderedChange} />
+      </TestBootProvider>,
+    );
+
+    expect(onRenderedChange).toHaveBeenLastCalledWith(true);
+
+    await waitFor(() =>
+      expect(onRenderedChange).toHaveBeenLastCalledWith(false),
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('should give a column the ad leaves empty to the next story', async () => {
+    jest.mocked(useFeedHeroAd).mockReturnValue({
+      ad: undefined,
+      placement: 'none',
+      shape: feedHeroShape(4),
+    });
+    mockHero({ posts, highlights });
+
+    renderComponent();
+
+    expect(
+      await screen.findByRole('link', { name: 'Second hero post' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Show featured post 2'),
+    ).not.toBeInTheDocument();
+  });
+
   it('should render nothing when the query returns no posts', async () => {
     mockHero({ posts: [], highlights: [] });
 
