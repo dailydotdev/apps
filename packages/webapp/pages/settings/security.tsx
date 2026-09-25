@@ -117,7 +117,10 @@ const AccountSecurityPage = (): ReactElement => {
         window.open(url);
       }
     } else if ('unlink' in postData && postData.unlink) {
-      const result = await unlinkBetterAuthAccount(postData.unlink);
+      const result = await unlinkBetterAuthAccount(
+        postData.unlink,
+        userProviders?.accounts,
+      );
       if (result.status) {
         await client.invalidateQueries({ queryKey: providersKey });
         if (postData.unlink === provider) {
