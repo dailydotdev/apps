@@ -1,8 +1,16 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useViewSize, ViewSize } from '../../hooks';
-import { useOnboardingActions } from '../../hooks/auth';
-import { PostAuthBanner } from './PostAuthBanner';
+import dynamic from 'next/dynamic';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useOnboardingActions } from '../../hooks/auth/useOnboardingActions';
+import useLogEventOnce from '../../hooks/log/useLogEventOnce';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
+
+const PostAuthBanner = dynamic(() =>
+  import(/* webpackChunkName: "postAuthBanner" */ './PostAuthBanner').then(
+    (mod) => mod.PostAuthBanner,
+  ),
+);
 
 export const usePublicPageSignupBanner = (): boolean => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -16,6 +24,15 @@ export const usePublicPageSignupBanner = (): boolean => {
 // content reachable above it.
 export function PublicPageSignupBanner(): ReactElement | null {
   const shouldShow = usePublicPageSignupBanner();
+
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.SignupButton,
+      target_id: TargetId.PublicPageSignupBanner,
+    }),
+    { condition: shouldShow },
+  );
 
   if (!shouldShow) {
     return null;

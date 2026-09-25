@@ -853,14 +853,14 @@ export default function MainFeedLayout({
     chipsTopContent
   );
 
-  // Read here rather than inside the feed or the strip: this is the one place
-  // that owns both, so the card can only ever go missing on a surface that is
-  // mounting the strip — with headlines in it — in the card's place.
   // Both pin to the window's bottom edge, so an anonymous visitor gets the
   // signup banner or the sponsor dock, never both.
   const isSignupBannerVisible = usePublicPageSignupBanner();
   const showSignupBanner =
     !isExtension && isExploreHub && isSignupBannerVisible;
+  // Read here rather than inside the feed or the strip: this is the one place
+  // that owns both, so the card can only ever go missing on a surface that is
+  // mounting the strip — with headlines in it — in the card's place.
   const sponsorStrip = useSponsorStripFeed({
     feedName,
     disableAds: feedProps?.disableAds || showSignupBanner,
