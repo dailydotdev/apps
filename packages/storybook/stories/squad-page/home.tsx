@@ -202,7 +202,7 @@ export const SquadHeader = ({
             )}
             {isAdmin(viewer) && config.isPublic && (
               <Button
-                variant={ButtonVariant.Subtle}
+                variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
                 icon={<BoostIcon secondary />}
               >
