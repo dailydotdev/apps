@@ -1,6 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import {
   Button,
   ButtonIconPosition,
@@ -128,6 +130,12 @@ export const SquadHeader = ({
   onManage?: (id: string) => void;
 }): ReactElement => {
   const { config } = useWorkspace();
+  // Native share sheet on phones, copy link elsewhere, as SquadOptionsButton.
+  const [, onShare] = useShareOrCopyLink({
+    link: squad.permalink,
+    text: `Check out ${squad.name} on daily.dev`,
+    logObject: () => ({ event_name: LogEvent.ShareSource }),
+  });
   const following = isJoined(viewer) && !isAdmin(viewer);
   const canFollow = standalone && !isJoined(viewer);
   // X's rule: one text-only button at the end of the row, Follow until you
@@ -227,6 +235,7 @@ export const SquadHeader = ({
                 icon={<LinkIcon />}
                 aria-label="Share"
                 title="Share"
+                onClick={onShare}
               />
             </span>
             <MoreMenu viewer={viewer} onManage={onManage} />
@@ -294,6 +303,7 @@ export const SquadHeader = ({
               size={ButtonSize.Medium}
               icon={<LinkIcon />}
               className="flex-1"
+              onClick={onShare}
             >
               Share page
             </Button>

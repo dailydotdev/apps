@@ -176,7 +176,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Share squad',
         production: 'Copy link when the user cannot invite',
         design:
-          'Share icon in the header for everyone; the Public page & URL card for the team',
+          'Share icon in the header for everyone, Share page beside Boost for admins on phones. Both use useShareOrCopyLink: the native share sheet on phones, copy link elsewhere. The Public page & URL card for the team',
         status: 'Covered',
       },
       {
