@@ -270,11 +270,13 @@ function renderComponent(
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           trackingId: resolvedUser?.id,
           loginState: undefined,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <LazyModalElement />
@@ -2048,11 +2050,13 @@ const renderWithHighlightLayout = ({
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           trackingId: user.id,
           loginState: undefined,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <GrowthBookProvider growthbook={gb}>
