@@ -7,6 +7,7 @@ import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostAnsweredQuestions } from './PostAnsweredQuestions';
 import { ButtonSize } from '../buttons/common';
+import { PostSignupWidget } from './PostSignupWidget';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -65,6 +66,7 @@ export function BasePostContent({
         </GoBackHeaderMobile>
       )}
       {children}
+      {!!post?.id && <PostSignupWidget post={post} inline className="my-6" />}
       {isPostPage && <PostAnsweredQuestions post={post} className="mt-6" />}
       {aboveComments}
       {!!engagementProps && (

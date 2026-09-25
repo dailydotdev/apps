@@ -153,8 +153,15 @@ export const ContentTypes: Story = {
 export const ReadingReminder: Story = {
   name: '5. Reading reminder',
   parameters: {
-    // The step renders on mobile only (`ViewSize.MobileXL` is true below 500px).
-    docs: { description: { story: 'Renders below 500px viewport width.' } },
+    // Mobile only in production (`ViewSize.MobileXL` is true below 500px)
+    // unless the `onboarding_reminder_desktop` experiment is on; the shell pins
+    // it on so the desktop arm can be reviewed here.
+    docs: {
+      description: {
+        story:
+          'Renders below 500px viewport width, and on desktop under the onboarding_reminder_desktop experiment.',
+      },
+    },
   },
   render: ({ chrome }: StepArgs) => {
     const step = {
@@ -165,7 +172,7 @@ export const ReadingReminder: Story = {
     };
 
     return (
-      <FunnelStepShell chrome={chrome} step={step} stepIndex={4}>
+      <FunnelStepShell chrome={chrome} step={step} stepIndex={4} fullWidth>
         <FunnelReadingReminder {...step} />
       </FunnelStepShell>
     );
@@ -317,9 +324,11 @@ const OVERVIEW_STEPS = [
   { id: 'verify-email', label: '2. Verify email' },
   { id: 'pick-tags', label: '3. Pick tags' },
   { id: 'content-types', label: '4. Content types' },
-  // Both of these render on mobile only in the real funnel, so their desktop
-  // frames are legitimately empty.
-  { id: 'reading-reminder', label: '5. Reading reminder', isMobileOnly: true },
+  // Desktop only sees this under the onboarding_reminder_desktop experiment,
+  // which the step shell pins on.
+  { id: 'reading-reminder', label: '5. Reading reminder' },
+  // Renders on mobile only in the real funnel, so its desktop frame is
+  // legitimately empty.
   { id: 'install-pwa', label: '6. Install PWA', isMobileOnly: true },
   { id: 'upload-cv', label: '7. Upload CV' },
   { id: 'plus-cards', label: '8. Plus' },

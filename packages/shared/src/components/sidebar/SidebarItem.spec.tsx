@@ -19,6 +19,7 @@ const renderComponent = (shouldShowLabel: boolean) =>
       value={{
         user: undefined,
         isAuthReady: true,
+        isAuthReadyOrCached: true,
         isFetched: true,
         isLoggedIn: false,
         shouldShowLogin: false,
@@ -26,6 +27,7 @@ const renderComponent = (shouldShowLabel: boolean) =>
         logout: jest.fn(),
         updateUser: jest.fn(),
         tokenRefreshed: true,
+        isTokenValid: true,
         getRedirectUri: jest.fn(),
         closeLogin: jest.fn(),
       }}

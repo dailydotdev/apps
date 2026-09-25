@@ -175,17 +175,19 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingTagRecommender = new Feature(
-  'onboarding_tag_recommender',
-  false,
-);
-
 export const featureOnboardingPersonas = new Feature(
   'onboarding_personas',
   false,
 );
 
+// Experiment: the mobile-only reading reminder step offered on desktop too.
+export const featureOnboardingReminderDesktop = new Feature(
+  'onboarding_reminder_desktop',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
@@ -221,7 +223,7 @@ export enum FeedChipsVariant {
 }
 export const featureFeedChips = new Feature<FeedChipsVariant>(
   'feed_chips',
-  FeedChipsVariant.V2,
+  FeedChipsVariant.V3,
 );
 
 export enum HijackingVariant {
@@ -232,7 +234,7 @@ export enum HijackingVariant {
   Cover = 'cover',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants3',
+  'hijacking_variants4',
   HijackingVariant.Default,
 );
 
@@ -245,6 +247,15 @@ export enum OnboardingChromeVariant {
 export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
   'onboarding_chrome',
   OnboardingChromeVariant.Control,
+);
+
+/**
+ * Experiment: the onboarding extension step shows the feature showcase (tab
+ * carousel with a per-feature illustration) instead of the demo video.
+ */
+export const featureOnboardingExtensionShowcase = new Feature(
+  'onboarding_extension_showcase',
+  false,
 );
 
 /**
@@ -284,6 +295,10 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   },
 });
 
+// Experiment: a hero section above the feed — a carousel of the current
+// headlines, with the Happening Now list and a direct ad placement beside it.
+export const featureFeedHero = new Feature('feed_hero', false);
+
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.
 export const featureFeedContentVisibility = new Feature(
@@ -295,6 +310,10 @@ export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
 );
+
+// Experiment: the post page's full-width signup banner against the cover
+// card pinned over the bottom of the window at the content's width.
+export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
@@ -338,12 +357,7 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // reachable through paid placements), and the flag exists solely so a policy
 // warning, bad creative or revenue anomaly can be stopped without a deploy
 // and an ISR revalidation cycle. Never ramp or target with this flag.
-export const featureReadAdsense = new Feature('read_adsense', true);
-
-export const featureCommentFirstAction = new Feature(
-  'comment_first_action',
-  false,
-);
+export const featureReadAds = new Feature('read_ads', true);
 
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.

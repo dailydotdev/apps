@@ -7,7 +7,7 @@ import { TestBootProvider } from '../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import loggedUser from '../../__tests__/fixture/loggedUser';
 import { ActionType, COMPLETED_USER_ACTIONS } from '../graphql/actions';
-import { FEED_LIST_QUERY } from '../graphql/feed';
+import { FEED_LIST_QUERY, TagChipSeedStrategy } from '../graphql/feed';
 import { SHELL_STATE_QUERY } from '../graphql/shellState';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { useActions } from '../hooks/useActions';
@@ -17,6 +17,10 @@ import { ShellStateProvider } from './ShellStateProvider';
 let queryClient: QueryClient;
 
 const feedListVariables = { includeTagChipFeeds: false };
+const chipFeedVariables = {
+  includeTagChipFeeds: true,
+  tagChipSeedStrategy: TagChipSeedStrategy.V3,
+};
 
 const shellStateData = {
   actions: [{ type: 'my_feed', completedAt: '2024-01-01T00:00:00.000Z' }],
@@ -125,10 +129,7 @@ describe('ShellStateProvider', () => {
       }),
     });
     mockGraphQL({
-      request: {
-        query: FEED_LIST_QUERY,
-        variables: { includeTagChipFeeds: true },
-      },
+      request: { query: FEED_LIST_QUERY, variables: chipFeedVariables },
       result: () => {
         feedListRequests += 1;
         return { data: { feedList: settledFeedList } };
@@ -152,15 +153,14 @@ describe('ShellStateProvider', () => {
       ...loggedUser,
       flags: { tagChipFeedsSeededAt: '2026-01-01T00:00:00.000Z' },
     };
-    const seededVariables = { includeTagChipFeeds: true };
     let feedListRequests = 0;
 
     mockGraphQL({
-      request: { query: SHELL_STATE_QUERY, variables: seededVariables },
+      request: { query: SHELL_STATE_QUERY, variables: chipFeedVariables },
       result: () => ({ data: shellStateData }),
     });
     mockGraphQL({
-      request: { query: FEED_LIST_QUERY, variables: seededVariables },
+      request: { query: FEED_LIST_QUERY, variables: chipFeedVariables },
       result: () => {
         feedListRequests += 1;
         return { data: { feedList: shellStateData.feedList } };
@@ -181,7 +181,7 @@ describe('ShellStateProvider', () => {
 
     expect(
       queryClient.getQueryData(
-        generateQueryKey(RequestKey.Feeds, seededUser, seededVariables),
+        generateQueryKey(RequestKey.Feeds, seededUser, chipFeedVariables),
       ),
     ).toEqual(shellStateData.feedList);
     expect(feedListRequests).toEqual(0);

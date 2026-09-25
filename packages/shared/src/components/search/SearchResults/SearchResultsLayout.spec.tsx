@@ -34,6 +34,7 @@ jest.mock('./SearchResultsSources', () => ({
 jest.mock('./SearchResultsUsers', () => ({ SearchResultsUsers: () => null }));
 jest.mock('../SearchFilterTimeButton', () => () => null);
 jest.mock('../SearchFilterPostTypeButton', () => () => null);
+jest.mock('../SearchFilterContentCurationButton', () => () => null);
 jest.mock('../../marketing/banners/AskSearchBanner', () => ({
   AskSearchBanner: () => null,
 }));

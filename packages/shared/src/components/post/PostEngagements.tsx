@@ -79,8 +79,6 @@ function PostEngagements({
   const { isPlus } = usePlusSubscription();
   const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
-  const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
-    useState<string>();
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
     useState<string>();
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -101,8 +99,6 @@ function PostEngagements({
     if (!isNew) {
       return;
     }
-
-    setPermissionNotificationCommentId(comment.id);
 
     if (
       isSourcePublicSquad(post.source) &&
@@ -197,7 +193,6 @@ function PostEngagements({
         isComposerOpen={isComposerOpen}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
-        permissionNotificationCommentId={permissionNotificationCommentId}
         joinNotificationCommentId={joinNotificationCommentId}
         onCommented={onCommented}
       />

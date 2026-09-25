@@ -1,4 +1,9 @@
-import type { ComponentType, CSSProperties, ReactElement } from 'react';
+import type {
+  ComponentType,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -11,9 +16,9 @@ import { ReadTopLeaderboard } from '@dailydotdev/shared/src/components/post/read
 import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
-  ADSENSE_SCRIPT_SRC,
-  hasLiveAdsenseUnits,
-} from '@dailydotdev/shared/src/features/monetization/adsense';
+  hasLiveAdSlots,
+  PREBID_SCRIPT_SRC,
+} from '@dailydotdev/shared/src/features/monetization/kueez';
 import {
   COMMENTS_PER_INTERLEAVED_AD,
   CONTENT_CHARS_PER_AD,
@@ -21,7 +26,7 @@ import {
   ORGANIC_SLOT,
 } from '@dailydotdev/shared/src/components/post/read/slots';
 import { splitTextForAds } from '@dailydotdev/shared/src/components/post/read/splitContentForAds';
-import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdsenseSlots';
+import { useOrganicAdSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdSlots';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -44,7 +49,14 @@ import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
-import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import {
+  LogEvent,
+  Origin,
+  TargetId,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/log';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useEventListener,
   useJoinReferral,
@@ -76,12 +88,10 @@ import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
-import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
-import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
+import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
+import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -131,6 +141,12 @@ const PostAuthBanner = dynamic(() =>
   import(
     /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
   ).then((module) => module.PostAuthBanner),
+);
+
+const PinnedSignupStrip = dynamic(() =>
+  import(
+    /* webpackChunkName: "pinnedSignupStrip" */ '@dailydotdev/shared/src/components/auth/PinnedSignupStrip'
+  ).then((module) => module.PinnedSignupStrip),
 );
 
 const BriefPostContent = dynamic(() =>
@@ -226,23 +242,27 @@ export const PostPage = ({
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
-  const isRedesignEligible = isPostRedesignEligible(post);
-  const { value: isRedesignFlagOn } = useConditionalFeature({
-    feature: featurePostRedesign,
-    shouldEvaluate: isRedesignEligible,
-  });
   // Entry-specific flows the focus card doesn't render (author onboarding via
-  // `?author`, back-to-squad via `?squad`) stay on the classic layout.
-  const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
-  const showRedesign =
-    isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
+  // `?author`, back-to-squad via `?squad`) stay on the classic layout. The
+  // query is empty until the router is ready on this static page, so an
+  // unknown query counts as "cannot render" rather than enrolling early.
+  const { showRedesign } = usePostRedesign(post, {
+    canRender: router.isReady && !router.query?.author && !router.query?.squad,
+  });
+  const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
+  const { value: isSignupStripOn, isLoading: isSignupStripLoading } =
+    useConditionalFeature({
+      feature: featurePostSignupStrip,
+      shouldEvaluate: showLaptopAuthBanner,
+    });
+  const showPostAuthBanner =
+    showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
+  const showSignupStrip =
+    showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
   // Empty for every logged-in visitor; the slot components check the same
-  // hook, so with it empty neither markup nor script exists. Gated on a unit
-  // id being present, not key presence — the map keeps placeholder entries
-  // with empty ids, and the script must not load for inventory that cannot
-  // fill.
-  const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
-  const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
+  // hook, so with it empty neither markup nor the Prebid bundle exists.
+  const adSlots = useOrganicAdSlots();
+  const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
   // the organic page: the TLDR splits at the shared cadence with an MPU
   // between segments (phones keep only the first), an MPU sits above the
@@ -251,14 +271,14 @@ export const PostPage = ({
   // untouched production markup.
   const summarySegments = useMemo(
     () =>
-      adsenseActive && post?.summary
+      adsActive && post?.summary
         ? splitTextForAds(
             post.summary,
             CONTENT_CHARS_PER_AD,
             MAX_CONTENT_ADS_PER_SECTION + 1,
           )
         : null,
-    [adsenseActive, post?.summary],
+    [adsActive, post?.summary],
   );
   const renderSummarySegments = useMemo(() => {
     if (!summarySegments) {
@@ -266,17 +286,25 @@ export const PostPage = ({
     }
     // A render prop, not a component: PostContent calls it as a function.
     // eslint-disable-next-line react/display-name
-    return () => (
+    return (_summary: string, trailing?: ReactNode) => (
       <>
         {summarySegments.map((segment, index, segments) => (
           // eslint-disable-next-line react/no-array-index-key
           <React.Fragment key={index}>
-            <div className="mb-6 overflow-hidden text-text-secondary">
+            <div
+              className={classNames(
+                'overflow-hidden text-text-secondary',
+                // The focus card spaces its column with gap-4; the classic
+                // TLDR carries its own margin.
+                !showRedesign && 'mb-6',
+              )}
+            >
               <p
                 className="select-text break-words typo-markdown"
                 data-testid={index === 0 ? 'tldr-container' : undefined}
               >
                 {segment}
+                {index === segments.length - 1 && trailing}
               </p>
             </div>
             {index < segments.length - 1 && (
@@ -284,7 +312,7 @@ export const PostPage = ({
                 surface="organic"
                 slot={ORGANIC_SLOT.inContentMpu}
                 format={ReadAdFormat.MediumRectangle}
-                className="my-6"
+                className={showRedesign ? 'my-2' : 'my-6'}
                 hideOnPhone={index > 0}
                 logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
@@ -293,7 +321,54 @@ export const PostPage = ({
         ))}
       </>
     );
-  }, [summarySegments]);
+  }, [summarySegments, showRedesign]);
+  // Only the article and video templates carry in-page units on the classic
+  // layout; squad and collection posts keep the pinned phone strip alone.
+  const carriesInPageAds =
+    post?.type === PostType.Article || post?.type === PostType.VideoYouTube;
+  const organicAds = useMemo(
+    () =>
+      adsActive && carriesInPageAds
+        ? {
+            contentLeading: (
+              <ReadTopLeaderboard
+                surface="organic"
+                slot={ORGANIC_SLOT.topLeaderboard}
+              />
+            ),
+            renderSummarySegments,
+            rail: [
+              <ReadAdSlot
+                key="rail"
+                surface="organic"
+                slot={ORGANIC_SLOT.railAfterDirectAd}
+                format={ReadAdFormat.MediumRectangle}
+              />,
+            ],
+            aboveComments: (
+              <ReadAdSlot
+                surface="organic"
+                slot={ORGANIC_SLOT.aboveCommentsMpu}
+                format={ReadAdFormat.MediumRectangle}
+                className="my-6"
+              />
+            ),
+            commentAds: {
+              interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
+              renderInterleaved: (occurrence: number) => (
+                <ReadAdSlot
+                  surface="organic"
+                  slot={ORGANIC_SLOT.commentMpu}
+                  format={ReadAdFormat.MediumRectangle}
+                  hideOnPhone
+                  logExtra={{ occurrence }}
+                />
+              ),
+            },
+          }
+        : undefined,
+    [adsActive, carriesInPageAds, renderSummarySegments],
+  );
 
   // Same boundary the /read template draws: adsbygoogle must never follow a
   // client-side navigation off the post pages, because its Auto ads overlays
@@ -301,7 +376,7 @@ export const PostPage = ({
   // destination carries its own slots — while any departure forces a full
   // page load that tears every Google global down.
   useEffect(() => {
-    if (!adsenseActive) {
+    if (!adsActive) {
       return undefined;
     }
     const forceHardNavigation = (
@@ -332,7 +407,7 @@ export const PostPage = ({
       router.events.off('routeChangeStart', forceHardNavigation);
       router.beforePopState(() => true);
     };
-  }, [adsenseActive, router]);
+  }, [adsActive, router]);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -414,21 +489,34 @@ export const PostPage = ({
           <Head>
             <link rel="preload" as="image" href={post?.image} />
           </Head>
-          {adsenseActive && (
+          {adsActive && (
             <>
-              <AdsenseHeadHints />
+              <AdHeadHints />
               <Script
-                id="adsbygoogle-loader"
-                src={ADSENSE_SCRIPT_SRC}
+                id="prebid-loader"
+                src={PREBID_SCRIPT_SRC}
                 strategy="afterInteractive"
-                crossOrigin="anonymous"
               />
             </>
           )}
           <PostSEOSchema post={post} topComments={topComments} />
           {showRedesign ? (
-            <div className="mx-auto w-full max-w-[63.75rem]">
-              <PostFocusCard post={post} origin={Origin.ArticlePage} />
+            <div
+              className={classNames(
+                'mx-auto w-full max-w-[72rem]',
+                // Clears the fixed signup banner so the thread's tail is
+                // reachable; the classic page ends in the footer instead.
+                showPostAuthBanner && 'laptop:pb-72',
+              )}
+            >
+              <PostFocusCard
+                post={post}
+                origin={Origin.ArticlePage}
+                ads={organicAds}
+              />
+              {showSignupStrip && (
+                <PinnedSignupStrip targetId={TargetId.PostStrip} />
+              )}
             </div>
           ) : (
             <Content
@@ -440,54 +528,19 @@ export const PostPage = ({
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
-              contentLeading={
-                adsenseActive ? (
-                  <ReadTopLeaderboard
-                    surface="organic"
-                    slot={ORGANIC_SLOT.topLeaderboard}
-                  />
-                ) : undefined
-              }
+              contentLeading={organicAds?.contentLeading}
+              renderSummarySegments={organicAds?.renderSummarySegments}
+              aboveComments={organicAds?.aboveComments}
+              commentAds={organicAds?.commentAds}
               // Only while ads are actually live: a truthy hook flattens the
               // further-reading widget around the slot, and without an ad that
               // changes rail spacing for members who never see one.
-              renderSummarySegments={renderSummarySegments}
-              aboveComments={
-                adsenseActive ? (
-                  <ReadAdSlot
-                    surface="organic"
-                    slot={ORGANIC_SLOT.aboveCommentsMpu}
-                    format={ReadAdFormat.MediumRectangle}
-                    className="my-6"
-                  />
-                ) : undefined
-              }
-              commentAds={
-                adsenseActive
-                  ? {
-                      interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
-                      renderInterleaved: (occurrence) => (
-                        <ReadAdSlot
-                          surface="organic"
-                          slot={ORGANIC_SLOT.commentMpu}
-                          format={ReadAdFormat.MediumRectangle}
-                          hideOnPhone
-                          logExtra={{ occurrence }}
-                        />
-                      ),
-                    }
-                  : undefined
-              }
               getWidgetRailAd={
-                adsenseActive
+                organicAds
                   ? (widgetPosition) =>
-                      widgetPosition === PostWidgetPosition.DirectAd ? (
-                        <ReadAdSlot
-                          surface="organic"
-                          slot={ORGANIC_SLOT.railAfterDirectAd}
-                          format={ReadAdFormat.MediumRectangle}
-                        />
-                      ) : null
+                      widgetPosition === PostWidgetPosition.DirectAd
+                        ? organicAds.rail[0]
+                        : null
                   : undefined
               }
               className={{
@@ -500,9 +553,12 @@ export const PostPage = ({
               }}
             />
           )}
-          {!showRedesign && shouldShowAuthBanner && isLaptop && (
-            <PostAuthBanner />
+          {!showRedesign && showSignupStrip && (
+            <div className="m-auto w-full max-w-[69.25rem]">
+              <PinnedSignupStrip targetId={TargetId.PostStrip} />
+            </div>
           )}
+          {showPostAuthBanner && <PostAuthBanner />}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

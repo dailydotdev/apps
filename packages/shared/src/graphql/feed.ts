@@ -296,6 +296,17 @@ export const USER_POST_FRAGMENT = gql`
   }
 `;
 
+/**
+ * The selection every feed card renders from. One place, so a surface that
+ * lists posts outside a connection (the feed hero) gets the same payload as
+ * the grid and cannot silently fall a field behind it.
+ */
+const feedPostNodeSelection = (fields = '') => `
+  ...FeedPost
+  ${fields}
+  ...UserPost @include(if: $loggedIn)
+`;
+
 const getFeedPostFragment = (fields = '') => gql`
   fragment FeedPostConnection on PostConnection {
     pageInfo {
@@ -304,9 +315,7 @@ const getFeedPostFragment = (fields = '') => gql`
     }
     edges {
       node {
-        ...FeedPost
-        ${fields}
-        ...UserPost @include(if: $loggedIn)
+        ${feedPostNodeSelection(fields)}
       }
     }
   }
@@ -404,6 +413,29 @@ export const FEED_V2_QUERY = gql`
             }
           }
         }
+      }
+    }
+  }
+  ${FEED_POST_FRAGMENT}
+  ${USER_POST_FRAGMENT}
+  ${POST_HIGHLIGHT_FRAGMENT}
+`;
+
+export interface FeedHeroData {
+  feedHero: {
+    posts: Post[];
+    highlights: PostHighlight[];
+  };
+}
+
+export const FEED_HERO_QUERY = gql`
+  query FeedHero($loggedIn: Boolean! = false, ${SUPPORTED_TYPES}) {
+    feedHero(supportedTypes: $supportedTypes) {
+      posts {
+        ${feedPostNodeSelection('contentHtml')}
+      }
+      highlights {
+        ...PostHighlightCard
       }
     }
   }
@@ -551,7 +583,17 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('pinnedAt contentHtml')}
+  ${getFeedPostFragment(`
+    pinnedAt
+    contentHtml
+    source {
+      currentMember {
+        flags {
+          collapsePinnedPosts
+        }
+      }
+    }
+  `)}
 `;
 
 export const CHANNEL_FEED_QUERY = gql`
@@ -670,6 +712,7 @@ export const SEARCH_SOURCE_POSTS_QUERY = gql`
     $source: ID!
     $query: String!
     $supportedTypes: [String!]
+    $postTypes: [String!]
     $version: Int
   ) {
     page: searchSourcePosts(
@@ -678,6 +721,7 @@ export const SEARCH_SOURCE_POSTS_QUERY = gql`
       source: $source
       query: $query
       supportedTypes: $supportedTypes
+      postTypes: $postTypes
       version: $version
     ) {
       ...FeedPostConnection
@@ -704,6 +748,7 @@ export const SEARCH_POSTS_QUERY = gql`
     $query: String!
     ${SUPPORTED_TYPES}
     $contentCuration: [String]
+    $postTypes: [String!]
     $time: SearchTime
     $version: Int
     $columns: Int
@@ -714,6 +759,7 @@ export const SEARCH_POSTS_QUERY = gql`
       query: $query,
       supportedTypes: $supportedTypes,
       contentCuration: $contentCuration,
+      postTypes: $postTypes,
       time: $time,
       version: $version,
       columns: $columns

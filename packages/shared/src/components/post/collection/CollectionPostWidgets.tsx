@@ -8,6 +8,7 @@ import { RelatedPostsWidget } from '../RelatedPostsWidget';
 import { PostRelationType } from '../../../graphql/posts';
 import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
+import { PreferGoogleSourceAction } from '../../preferredSources/PreferGoogleSourceAction';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { FeaturedArchives } from '../../widgets/FeaturedArchives';
 import { PostSignupWidget } from '../PostSignupWidget';
@@ -21,7 +22,7 @@ export const CollectionPostWidgets = ({
 }: PostWidgetsProps): ReactElement => {
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      <PostSignupWidget post={post} />
       <CollectionsIntro className="hidden laptop:flex" />
       <RelatedPostsWidget
         post={post}
@@ -31,6 +32,7 @@ export const CollectionPostWidgets = ({
         postId={post.id}
         className={{ container: 'w-full bg-transparent' }}
       />
+      <PreferGoogleSourceAction placement="collection post widgets" />
       <ShareBar post={post} />
       <ShareMobile
         post={post}

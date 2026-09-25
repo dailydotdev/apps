@@ -52,6 +52,7 @@ pnpm monorepo for the daily.dev app suite:
 - Shared sections render on several surfaces (header popover and standalone page, regular and Plus); apply changes to every instance.
 - Activity list modals (reposts, upvotes, history) reuse feed card primitives (`FeedItemContainer`, `PostCardHeader`): compact rows, no dominating images.
 - User-facing limits get helper copy, not `3/5` counters, unless product asks for progress UI.
+- Client-side mirrors of backend validation limits should use named constants shared by the schema, UI, and tests; don't repeat numeric limits inline.
 - Render what the query returns; backend access control decides visibility, not client heuristics like `source.public`.
 - On search pages `MainFeedLayout` renders page `children` after the `<Feed>`; content above results goes through `searchChildren` in `layoutProps`.
 - Tag labels render the backend `flags.title` or the raw value (`#react`), never client-derived casing; bare tag strings get titles from `tagTitlesQueryOptions`. A keyword's own page title (`<title>`, H1, JSON-LD) keeps the `formatKeyword` fallback for SEO.

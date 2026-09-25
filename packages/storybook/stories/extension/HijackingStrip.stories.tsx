@@ -10,12 +10,12 @@ const ARM_NOTES: Record<HijackingVariant, string> = {
   [HijackingVariant.Default]: 'control — left-aligned, cat',
   [HijackingVariant.CTA]: 'cat stage hero — dual CTA, hands off to webapp',
   [HijackingVariant.Auth]: 'previous winner — centered, inline auth',
-  [HijackingVariant.Cover]: 'new — homepage cover art, centered copy',
+  [HijackingVariant.Cover]: 'new — homepage cover art, control copy and CTA',
 };
 
 const Strip = ({ variant }: { variant: HijackingVariant }): ReactElement => (
   <ExtensionProviders>
-    <FeatureOverrides values={{ hijacking_variants3: variant }}>
+    <FeatureOverrides values={{ hijacking_variants4: variant }}>
       <div className="dark min-h-dvh bg-background-default p-6">
         <p className="mb-4 text-text-tertiary typo-footnote">
           <strong className="text-text-secondary">{variant}</strong> —{' '}
