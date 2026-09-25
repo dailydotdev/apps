@@ -96,6 +96,7 @@ const renderComponent = (
           value={{
             user: resolvedUser,
             isAuthReady: true,
+            isAuthReadyOrCached: true,
             isFetched: true,
             isLoggedIn: !!resolvedUser?.id,
             shouldShowLogin: false,

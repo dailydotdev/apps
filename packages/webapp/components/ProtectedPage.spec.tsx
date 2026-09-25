@@ -24,6 +24,7 @@ describe('ProtectedPage', () => {
         value={{
           user: undefined,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
           isFetched: true,
           isLoggedIn: false,
           shouldShowLogin: false,

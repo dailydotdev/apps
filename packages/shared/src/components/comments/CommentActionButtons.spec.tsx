@@ -75,6 +75,7 @@ const renderComponent = (
           tokenRefreshed: true,
           isTokenValid: true,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <LogContext.Provider

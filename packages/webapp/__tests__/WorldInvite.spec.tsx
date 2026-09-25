@@ -30,6 +30,7 @@ const renderInvite = (viewer?: LoggedUser) =>
         value={{
           user: viewer,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
