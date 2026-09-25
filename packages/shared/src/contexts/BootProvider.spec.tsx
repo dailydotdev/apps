@@ -4,7 +4,13 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
@@ -32,7 +38,7 @@ import type {
   Spaciness,
 } from '../graphql/settings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
-import { BootDataProvider } from './BootProvider';
+import { BOOT_FOCUS_REFETCH_INTERVAL, BootDataProvider } from './BootProvider';
 import { BOOT_LOCAL_KEY } from './common';
 import type { Boot, BootCacheData } from '../lib/boot';
 import { BootApp, getBootData } from '../lib/boot';
@@ -41,6 +47,7 @@ import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
 import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { SortCommentsBy } from '../graphql/comments';
+import { ONE_MINUTE } from '../lib/time';
 
 jest.mock('../lib/boot', () => {
   const actual = jest.requireActual('../lib/boot');
@@ -870,4 +877,55 @@ it('should unset the content language header when user language is cleared', asy
     Reflect.get(Reflect.get(gqlClient, 'options'), 'headers'),
   ).not.toHaveProperty('content-language');
   unsetHeaderSpy.mockRestore();
+});
+
+describe('boot refetch on window focus', () => {
+  const renderLoggedIn = async () => {
+    jest.mocked(getBootData).mockClear();
+    renderComponent(<AuthMock />);
+    const user = await screen.findByText('User');
+    await expectToHaveTestValue(user, defaultUser.name);
+    expect(getBootData).toHaveBeenCalledTimes(1);
+  };
+
+  const focusWindowAfter = async (elapsed: number) => {
+    const dateNow = jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.now() + elapsed);
+    fireEvent(window, new Event('visibilitychange'));
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve);
+      });
+    });
+    dateNow.mockRestore();
+  };
+
+  it('should not refetch boot on focus within the interval', async () => {
+    await renderLoggedIn();
+    await focusWindowAfter(ONE_MINUTE);
+    expect(getBootData).toHaveBeenCalledTimes(1);
+  });
+
+  it('should refetch boot on focus after the interval', async () => {
+    await renderLoggedIn();
+    await focusWindowAfter(BOOT_FOCUS_REFETCH_INTERVAL);
+    expect(getBootData).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    { changed: 'user', user: { ...defaultUser, id: 'u2' } },
+    { changed: 'Plus status', user: { ...defaultUser, isPlus: true } },
+  ])(
+    'should refetch boot on focus within the interval when another tab changed the $changed',
+    async ({ user }) => {
+      await renderLoggedIn();
+      localStorage.setItem(
+        BOOT_LOCAL_KEY,
+        JSON.stringify({ ...getStoredBootData(), user }),
+      );
+      await focusWindowAfter(ONE_MINUTE);
+      expect(getBootData).toHaveBeenCalledTimes(2);
+    },
+  );
 });
