@@ -37,6 +37,9 @@ import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
 import { isConnectionError } from '../lib/errors';
 import { EngagementAdsProvider } from './EngagementAdsContext';
+import { FIVE_MINUTES } from '../lib/time';
+
+export const BOOT_FOCUS_REFETCH_INTERVAL = FIVE_MINUTES;
 
 const ServerError = dynamic(
   () =>
@@ -186,7 +189,26 @@ export const BootDataProvider = ({
 
       return result;
     },
-    refetchOnWindowFocus: shouldRefetch,
+    refetchOnWindowFocus: (query) => {
+      if (!shouldRefetch) {
+        return false;
+      }
+
+      if (
+        Date.now() - query.state.dataUpdatedAt >=
+        BOOT_FOCUS_REFETCH_INTERVAL
+      ) {
+        return true;
+      }
+
+      // another tab may have logged out, switched account or bought Plus
+      const current = cachedBootDataRef.current?.user as LoggedUser;
+      const persisted = getCachedOrNull()?.user;
+
+      return (
+        persisted?.id !== current?.id || persisted?.isPlus !== current?.isPlus
+      );
+    },
     staleTime: STALE_TIME,
     enabled: !isExtension || !!hostGranted,
   });
