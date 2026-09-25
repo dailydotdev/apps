@@ -67,6 +67,8 @@ export interface AuthContextData {
   tokenRefreshed: boolean;
   /** `tokenRefreshed`, or a still-valid cached session before boot lands */
   isTokenValid: boolean;
+  /** Boot replaced the cached session's token, so early requests may be anonymous */
+  cachedTokenWasInvalid?: boolean;
   loadedUserFromCache?: boolean;
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
@@ -137,6 +139,7 @@ export type AuthContextProviderProps = {
   | 'updateUser'
   | 'loadingUser'
   | 'tokenRefreshed'
+  | 'cachedTokenWasInvalid'
   | 'loadedUserFromCache'
   | 'visit'
   | 'accessToken'
@@ -155,6 +158,7 @@ export const AuthContextProvider = ({
   loadingUser,
   tokenRefreshed,
   hasValidCachedToken,
+  cachedTokenWasInvalid,
   loadedUserFromCache,
   getRedirectUri,
   refetchBoot,
@@ -227,6 +231,7 @@ export const AuthContextProvider = ({
       loadingUser,
       tokenRefreshed,
       isTokenValid,
+      cachedTokenWasInvalid,
       loadedUserFromCache,
       getRedirectUri,
       anonymous: user,
@@ -255,6 +260,7 @@ export const AuthContextProvider = ({
       loadingUser,
       tokenRefreshed,
       isTokenValid,
+      cachedTokenWasInvalid,
       loadedUserFromCache,
       getRedirectUri,
       visit,

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import type {
   InfiniteData,
   QueryKey,
@@ -70,6 +70,7 @@ import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
 import type { Squad } from '../graphql/sources';
+import { useCachedTokenRecovery } from './useCachedTokenRecovery';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -311,7 +312,7 @@ export default function useFeed<T>(
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
-  const { user, tokenRefreshed, isTokenValid } = useContext(AuthContext);
+  const { user, isTokenValid } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
@@ -336,6 +337,7 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
+  const isFeedQueryEnabled = !!query && isTokenValid;
   const feedQuery = useInfiniteQuery<
     FeedItemData,
     ClientError,
@@ -427,7 +429,7 @@ export default function useFeed<T>(
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
     ...options,
-    enabled: !!query && isTokenValid,
+    enabled: isFeedQueryEnabled,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: avoidRetry ? false : 3,
@@ -436,19 +438,14 @@ export default function useFeed<T>(
   });
 
   const clientError = feedQuery?.error as ClientError;
-  const isUnauthenticated = !!getApiError(
-    feedQuery.error as ApiErrorResult,
-    ApiError.Unauthenticated,
-  );
-  const { refetch: refetchFeed } = feedQuery;
-
-  // A feed requested with the cached session can hit an expired cookie; boot
-  // refreshes it, so try again once it lands
-  useEffect(() => {
-    if (tokenRefreshed && isUnauthenticated) {
-      refetchFeed();
-    }
-  }, [tokenRefreshed, isUnauthenticated, refetchFeed]);
+  useCachedTokenRecovery({
+    queryKey: feedQueryKey,
+    enabled: isFeedQueryEnabled,
+    isUnauthenticated: !!getApiError(
+      feedQuery.error as ApiErrorResult,
+      ApiError.Unauthenticated,
+    ),
+  });
 
   const adPostLength = settings?.adPostLength;
   const firstPagePostsCount = feedQuery.data?.pages[0]?.page.edges.length ?? 0;
@@ -547,6 +544,11 @@ export default function useFeed<T>(
   if (!adJitterSeedRef.current) {
     adJitterSeedRef.current = Math.random().toString(36).slice(2);
   }
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  useCachedTokenRecovery({
+    queryKey: adsQueryKey,
+    enabled: isAdsQueryEnabled,
+  });
   const adsQuery = useInfiniteQuery<
     Ad,
     ClientError,
@@ -554,7 +556,7 @@ export default function useFeed<T>(
     QueryKey,
     string | number
   >({
-    queryKey: [RequestKey.Ads, ...feedQueryKey],
+    queryKey: adsQueryKey,
     queryFn: async ({ pageParam }) => {
       const ad = await fetchAd({
         placement: AdPlacement.Feed,

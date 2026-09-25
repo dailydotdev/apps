@@ -117,7 +117,9 @@ const getCachedOrNull = () => {
   }
 };
 
-const CACHED_TOKEN_EXPIRY_MARGIN = 60 * 1000;
+// /boot only reissues a token with under 4 minutes left, so past this margin a
+// reissued token means the cached expiry was wrong
+const CACHED_TOKEN_EXPIRY_MARGIN = 5 * 60 * 1000;
 
 const isCachedTokenValid = ({
   user,
@@ -151,7 +153,9 @@ export const BootDataProvider = ({
   const cachedBootDataRef = useRef<Partial<BootCacheData>>();
   // Checked once on load, so the feed doesn't lose its query as the cached
   // token nears expiry while boot is in flight
-  const [hasValidCachedToken, setHasValidCachedToken] = useState(false);
+  const [validTokenCache, setValidTokenCache] =
+    useState<Partial<BootCacheData>>();
+  const [cachedTokenWasInvalid, setCachedTokenWasInvalid] = useState(false);
   const setCachedBootData = useCallback(
     (data: Partial<BootCacheData> | undefined) => {
       cachedBootDataRef.current = data;
@@ -163,7 +167,9 @@ export const BootDataProvider = ({
   useEffect(() => {
     if (localBootData) {
       setCachedBootData(localBootData);
-      setHasValidCachedToken(isCachedTokenValid(localBootData));
+      setValidTokenCache(
+        isCachedTokenValid(localBootData) ? localBootData : undefined,
+      );
 
       return;
     }
@@ -181,7 +187,7 @@ export const BootDataProvider = ({
     }
 
     setCachedBootData(boot);
-    setHasValidCachedToken(isCachedTokenValid(boot));
+    setValidTokenCache(isCachedTokenValid(boot) ? boot : undefined);
   }, [localBootData, setCachedBootData]);
 
   const { hostGranted } = useHostStatus();
@@ -343,7 +349,17 @@ export const BootDataProvider = ({
 
   useEffect(() => {
     if (remoteData) {
-      setInitialLoad(typeof initialLoad === 'undefined');
+      const isFirstLoad = typeof initialLoad === 'undefined';
+      setInitialLoad(isFirstLoad);
+      if (
+        isFirstLoad &&
+        !!validTokenCache &&
+        validTokenCache.user?.id === remoteData.user?.id &&
+        validTokenCache.accessTokenExpiresIn !==
+          remoteData.accessToken?.expiresIn
+      ) {
+        setCachedTokenWasInvalid(true);
+      }
       updateBootData({
         ...remoteData,
         accessTokenExpiresIn: remoteData.accessToken?.expiresIn,
@@ -425,7 +441,8 @@ export const BootDataProvider = ({
         user={user}
         updateUser={updateUser}
         tokenRefreshed={updatedAtActive > 0}
-        hasValidCachedToken={hasValidCachedToken}
+        hasValidCachedToken={!!validTokenCache}
+        cachedTokenWasInvalid={cachedTokenWasInvalid}
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}

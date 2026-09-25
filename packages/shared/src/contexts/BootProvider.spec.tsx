@@ -916,8 +916,8 @@ const TokenMock = () => {
 it.each([
   { name: 'a session with time left', cache: {}, isReady: true, before: true },
   {
-    name: 'a session expiring within a minute',
-    cache: { accessTokenExpiresIn: inMinutes(0.5) },
+    name: 'a session expiring within five minutes',
+    cache: { accessTokenExpiresIn: inMinutes(4) },
     isReady: true,
     before: false,
   },

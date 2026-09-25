@@ -26,6 +26,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { FeedHeroSection } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
 import { useFeedHeroPostActions } from './useFeedHeroPostActions';
+import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
 
 /**
  * The carousel and the Happening Now list are two lists, not one: `feedHero`
@@ -82,6 +83,7 @@ export const FeedHero = ({
     // the two surfaces the experiment compares are equally fresh.
     staleTime: StaleTime.OneMinute,
   });
+  useCachedTokenRecovery({ queryKey, enabled: isTokenValid });
 
   const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
   const posts: Post[] = useMemo(() => hero?.feedHero?.posts ?? [], [hero]);
