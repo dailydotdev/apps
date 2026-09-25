@@ -814,10 +814,17 @@ export const DEV_CARD_QUERY = gql`
 
 export enum AcquisitionChannel {
   Friend = 'friend',
+  X = 'x',
+  Reddit = 'reddit',
+  LinkedIn = 'linkedin',
   InstagramFacebook = 'instagram_facebook',
   YouTube = 'youtube',
   TikTok = 'tiktok',
+  HackerNews = 'hacker_news',
   SearchEngine = 'search_engine',
+  AI = 'ai',
+  ExtensionStore = 'extension_store',
+  NewsletterBlog = 'newsletter_blog',
   Advertisement = 'ad',
   Other = 'other',
 }

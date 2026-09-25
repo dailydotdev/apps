@@ -6,7 +6,9 @@ import type {
   AnonymousUser,
   LoggedUser,
   ProfileExtraField,
+  UserExperienceLevel,
 } from '../../../lib/user';
+import type { AcquisitionChannel } from '../../../graphql/users';
 import type { BrowserName } from '../../../lib/func';
 import type {
   FunnelStepPricingParameters,
@@ -36,6 +38,8 @@ export enum FunnelStepType {
   HeroLanding = 'heroLanding',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
+  Acquisition = 'acquisition',
+  UserRole = 'userRole',
 }
 
 export enum FunnelBackgroundVariant {
@@ -418,6 +422,50 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepAcquisition
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    cta?: string;
+    // Subset and ordering of the channels to offer; omitted = all of them.
+    options?: AcquisitionChannel[];
+    // The feed's acquisition card shuffles so the first option isn't favoured.
+    shuffle?: boolean;
+    // 'tile' puts every mark in the same favicon-style rounded square.
+    iconStyle?: 'logo' | 'tile';
+    skip?: string;
+  }> {
+  type: FunnelStepType.Acquisition;
+  onTransition: FunnelStepTransitionCallback<{
+    acquisitionChannel: AcquisitionChannel;
+  }>;
+}
+
+export interface FunnelUserRoleOption {
+  // Stored as the profile's job title.
+  value: string;
+  label: string;
+  // Other roles are stored as `NOT_ENGINEER`, which keeps them out of the
+  // engineer_signup conversion events.
+  isTechnical?: boolean;
+}
+
+export interface FunnelStepUserRole
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    cta?: string;
+    roles?: FunnelUserRoleOption[];
+    // The follow-up that replaces the account-details experience dropdown.
+    experience?: { headline?: string };
+  }> {
+  type: FunnelStepType.UserRole;
+  onTransition: FunnelStepTransitionCallback<{
+    role: string;
+    experienceLevel: keyof typeof UserExperienceLevel;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -439,7 +487,9 @@ export type FunnelStep =
   | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv;
+  | FunnelStepUploadCv
+  | FunnelStepAcquisition
+  | FunnelStepUserRole;
 
 export type FunnelPosition = {
   chapter: number;
@@ -495,4 +545,6 @@ export const stepsFullWidth: Array<FunnelStepType> = [
 export const stepsFullWidthOnboarding: Array<FunnelStepType> = [
   FunnelStepType.ProfileForm,
   FunnelStepType.ReadingReminder,
+  FunnelStepType.Acquisition,
+  FunnelStepType.UserRole,
 ];
