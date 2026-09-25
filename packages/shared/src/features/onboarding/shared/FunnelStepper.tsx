@@ -39,6 +39,8 @@ import {
 } from '../steps';
 import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
+import { FunnelAcquisition } from '../steps/FunnelAcquisition';
+import { FunnelUserRole } from '../steps/FunnelUserRole';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
 import { FunnelProgressContext } from './FunnelStepDots';
@@ -84,6 +86,8 @@ const stepComponentMap = {
   [FunnelStepType.PlusCards]: FunnelPlusCards,
   [FunnelStepType.BrowserExtension]: FunnelBrowserExtension,
   [FunnelStepType.UploadCv]: FunnelUploadCv,
+  [FunnelStepType.Acquisition]: FunnelAcquisition,
+  [FunnelStepType.UserRole]: FunnelUserRole,
 } as const;
 
 function FunnelStepComponent(props: {

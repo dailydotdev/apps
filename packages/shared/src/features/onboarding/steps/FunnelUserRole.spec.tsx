@@ -13,17 +13,11 @@ jest.mock('../../../hooks/useProfileForm');
 const updateUserProfile = jest.fn((params: UpdateProfileParameters) =>
   params.onUpdateSuccess?.(),
 );
-const updateUser = jest.fn();
 const onTransition = jest.fn();
 
 const renderStep = (user: Record<string, unknown> = {}) => {
   (useAuthContext as jest.Mock).mockReturnValue({
     user: { id: 'u1', name: 'Ido', ...user },
-    updateUser,
-  });
-  (useProfileForm as jest.Mock).mockReturnValue({
-    updateUserProfile,
-    isLoading: false,
   });
 
   const step = {
@@ -47,112 +41,57 @@ const next = () =>
 describe('FunnelUserRole', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // jsdom does not implement scrolling.
-    jest.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    (useProfileForm as jest.Mock).mockReturnValue({
+      updateUserProfile,
+      isLoading: false,
+    });
   });
 
-  it('should wait for Continue after a role is picked', () => {
+  it('should store the picked role as the job title', () => {
     renderStep();
 
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
-    pick('Developer');
+    pick('AI engineer');
+    next();
 
-    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
-    expect(screen.getByText('Who are you?')).toBeInTheDocument();
+    expect(updateUserProfile).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'AI engineer' }),
+    );
+    expect(updateUserProfile.mock.calls[0][0]).not.toHaveProperty(
+      'experienceLevel',
+    );
+    expect(onTransition).toHaveBeenCalledWith({
+      type: FunnelStepTransitionType.Complete,
+      details: { role: 'AI engineer' },
+    });
+  });
+
+  it('should not put "Other" on the profile as a job title', () => {
+    renderStep();
+
+    pick('Something else');
+    next();
+
     expect(updateUserProfile).not.toHaveBeenCalled();
-  });
-
-  it('should store the picked experience level for an engineering role', () => {
-    renderStep();
-
-    pick('Developer');
-    next();
-    pick('Experienced, 4-5 years');
-    next();
-
-    expect(updateUserProfile).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Developer',
-        experienceLevel: 'MORE_THAN_4_YEARS',
-      }),
-    );
     expect(onTransition).toHaveBeenCalledWith({
       type: FunnelStepTransitionType.Complete,
-      details: { role: 'Developer', experienceLevel: 'MORE_THAN_4_YEARS' },
+      details: { role: 'Other' },
     });
   });
 
-  it('should keep a non-engineering role out of the engineer signup conversions', () => {
-    // `NOT_ENGINEER` is what PixelsContext reads to leave a signup out of the
-    // engineer_signup events; the years answer goes to the funnel instead.
+  it('should move on when the title cannot be saved', () => {
+    (useProfileForm as jest.Mock).mockImplementation((options) => ({
+      updateUserProfile: () => options?.onError?.(),
+      isLoading: false,
+    }));
     renderStep();
 
     pick('Designer');
     next();
-    pick('Experienced, 4-5 years');
-    next();
 
-    expect(updateUserProfile).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Designer',
-        experienceLevel: 'NOT_ENGINEER',
-      }),
-    );
     expect(onTransition).toHaveBeenCalledWith({
       type: FunnelStepTransitionType.Complete,
-      details: { role: 'Designer', experienceLevel: 'MORE_THAN_4_YEARS' },
-    });
-  });
-
-  it('should only ask for the role when the experience level is already on file', () => {
-    renderStep({ experienceLevel: 'MORE_THAN_2_YEARS' });
-
-    pick('Founder');
-    next();
-
-    const [[params]] = updateUserProfile.mock.calls;
-    expect(params.title).toBe('Founder');
-    expect(params).not.toHaveProperty('experienceLevel');
-    expect(onTransition).toHaveBeenCalledWith({
-      type: FunnelStepTransitionType.Complete,
-      details: { role: 'Founder', experienceLevel: 'MORE_THAN_2_YEARS' },
-    });
-  });
-
-  it('should carry the answers forward when the profile cannot be saved yet', () => {
-    let onError: (() => void) | undefined;
-    (useProfileForm as jest.Mock).mockImplementation((options) => {
-      onError = options?.onError;
-      return { updateUserProfile: () => onError?.(), isLoading: false };
-    });
-    (useAuthContext as jest.Mock).mockReturnValue({
-      user: { id: 'u1', name: 'Ido' },
-      updateUser,
-    });
-    const step = {
-      id: 'user-role',
-      type: FunnelStepType.UserRole,
-      isActive: true,
-      parameters: {},
-      transitions: [],
-      onTransition,
-    } as unknown as FunnelStepUserRole;
-    render(<FunnelUserRole {...step} />);
-
-    pick('Designer');
-    next();
-    pick('Experienced, 4-5 years');
-    next();
-
-    expect(updateUser).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Designer',
-        experienceLevel: 'NOT_ENGINEER',
-      }),
-    );
-    expect(onTransition).toHaveBeenCalledWith({
-      type: FunnelStepTransitionType.Complete,
-      details: { role: 'Designer', experienceLevel: 'MORE_THAN_4_YEARS' },
+      details: { role: 'Designer' },
     });
   });
 });

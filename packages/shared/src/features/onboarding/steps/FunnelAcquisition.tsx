@@ -30,18 +30,15 @@ import { shuffleArray } from '../../../lib/func';
 import { acquisitionBrandColors } from '../../../styles/custom';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
-import { SourceBadge } from '../../../components/post/focus/CommunitySentimentBreakdown';
-import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
-import { FacebookIcon } from '../../../components/icons/Facebook';
+import { AppIcon } from '../../../components/icons/App';
+import { GitHubIcon } from '../../../components/icons/GitHub';
 import { GoogleIcon } from '../../../components/icons/Google';
 import { InviteIcon } from '../../../components/icons/Invite';
 import { LinkedInIcon } from '../../../components/icons/LinkedIn';
 import { MailIcon } from '../../../components/icons/Mail';
-import { MegaphoneIcon } from '../../../components/icons/Megaphone';
 import { MenuIcon } from '../../../components/icons/Menu';
 import { OpenAIIcon } from '../../../components/icons/OpenAI';
 import { RedditIcon } from '../../../components/icons/Reddit';
-import { TikTokIcon } from '../../../components/icons/TikTok';
 import { TwitterIcon } from '../../../components/icons/Twitter';
 import { YoutubeIcon } from '../../../components/icons/Youtube';
 
@@ -98,7 +95,7 @@ const brandMark = (
   ),
 });
 
-// Google and Chrome keep their colour art on white, as their own favicons do.
+// Google keeps its colour art on white, as its own favicon does.
 const faviconMark = (BrandIcon: Icon): ChannelMark => ({
   logo: <BrandIcon secondary />,
   tile: (
@@ -126,48 +123,8 @@ const CHANNEL_OPTIONS: Array<
 > = [
   {
     value: AcquisitionChannel.Friend,
-    label: 'Referred by a friend or colleague',
+    label: 'Friend or colleague',
     ...accentMark(InviteIcon, '--theme-brand-default', 'text-brand-default'),
-  },
-  {
-    value: AcquisitionChannel.X,
-    label: 'X (Twitter)',
-    ...brandMark(TwitterIcon, acquisitionBrandColors.x, <TwitterIcon />),
-  },
-  {
-    value: AcquisitionChannel.Reddit,
-    label: 'Reddit',
-    ...brandMark(RedditIcon, acquisitionBrandColors.reddit),
-  },
-  {
-    value: AcquisitionChannel.LinkedIn,
-    label: 'LinkedIn',
-    ...brandMark(LinkedInIcon, acquisitionBrandColors.linkedIn),
-  },
-  {
-    value: AcquisitionChannel.InstagramFacebook,
-    label: 'Instagram or Facebook',
-    ...brandMark(FacebookIcon, acquisitionBrandColors.facebook),
-  },
-  {
-    value: AcquisitionChannel.YouTube,
-    label: 'YouTube',
-    ...brandMark(YoutubeIcon, acquisitionBrandColors.youTube),
-  },
-  {
-    value: AcquisitionChannel.TikTok,
-    label: 'TikTok',
-    ...brandMark(TikTokIcon, acquisitionBrandColors.tikTok),
-  },
-  {
-    value: AcquisitionChannel.HackerNews,
-    label: 'Hacker News',
-    logo: <SourceBadge className="size-5 typo-footnote" source="hackernews" />,
-    tile: (
-      <Tile>
-        <SourceBadge className="size-full typo-footnote" source="hackernews" />
-      </Tile>
-    ),
   },
   {
     value: AcquisitionChannel.SearchEngine,
@@ -176,7 +133,7 @@ const CHANNEL_OPTIONS: Array<
   },
   {
     value: AcquisitionChannel.AI,
-    label: 'AI search or chat, like ChatGPT',
+    label: 'AI assistant like ChatGPT',
     ...brandMark(
       OpenAIIcon,
       acquisitionBrandColors.openAI,
@@ -189,13 +146,33 @@ const CHANNEL_OPTIONS: Array<
     ),
   },
   {
-    value: AcquisitionChannel.ExtensionStore,
-    label: 'Browser extension store',
-    ...faviconMark(ChromeIcon),
+    value: AcquisitionChannel.Creator,
+    label: 'YouTube, podcast or creator',
+    ...brandMark(YoutubeIcon, acquisitionBrandColors.youTube),
+  },
+  {
+    value: AcquisitionChannel.GitHub,
+    label: 'GitHub',
+    ...brandMark(GitHubIcon, acquisitionBrandColors.gitHub),
+  },
+  {
+    value: AcquisitionChannel.Reddit,
+    label: 'Reddit',
+    ...brandMark(RedditIcon, acquisitionBrandColors.reddit),
+  },
+  {
+    value: AcquisitionChannel.X,
+    label: 'X (Twitter)',
+    ...brandMark(TwitterIcon, acquisitionBrandColors.x, <TwitterIcon />),
+  },
+  {
+    value: AcquisitionChannel.LinkedIn,
+    label: 'LinkedIn',
+    ...brandMark(LinkedInIcon, acquisitionBrandColors.linkedIn),
   },
   {
     value: AcquisitionChannel.NewsletterBlog,
-    label: 'A newsletter or blog',
+    label: 'Blog, newsletter or website',
     ...accentMark(
       MailIcon,
       '--theme-accent-water-default',
@@ -203,12 +180,12 @@ const CHANNEL_OPTIONS: Array<
     ),
   },
   {
-    value: AcquisitionChannel.Advertisement,
-    label: 'Advertisement or sponsorship',
+    value: AcquisitionChannel.AppStore,
+    label: 'App or extension store',
     ...accentMark(
-      MegaphoneIcon,
-      '--theme-accent-ketchup-default',
-      'text-accent-ketchup-default',
+      AppIcon,
+      '--theme-accent-avocado-default',
+      'text-accent-avocado-default',
     ),
   },
   {

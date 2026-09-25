@@ -33,11 +33,11 @@ import {
 import { defaultBootData } from '../../../mock/boot';
 import ExtensionProviders from '../../extension/_providers';
 import { ChromeArm, ThemeModeSync } from './signupFunnel.mocks';
-import { ProposedFunnelProfileForm } from './accountDetailsProposal';
 
 /**
- * The identity-steps playground: the real `FunnelStepper` running the proposed
- * steps in a device frame, with the controls and the live readout around it.
+ * The identity-steps playground: the real `FunnelStepper` running the
+ * acquisition and user-role steps in a device frame, with the controls and
+ * the live readout around it.
  *
  * The frame is a separate story rendered in an iframe, so the steps respond to
  * the frame's width (the `tablet:`/`laptop:` breakpoints read the viewport, not
@@ -46,9 +46,8 @@ import { ProposedFunnelProfileForm } from './accountDetailsProposal';
  * - every Freyja transition, by intercepting the POST the stepper makes
  * - every profile write, by intercepting the GraphQL mutations
  *
- * Two behaviours are proposals simulated here rather than shipped in shared
- * code: account details dropping itself (`accountDetailsProposal.tsx`), and
- * moving past a step that has nothing to ask on arrival (`withGuardReport`).
+ * One behaviour is simulated here rather than shipped in shared code: moving
+ * past a step that has nothing to ask on arrival (`withGuardReport`).
  */
 
 const MESSAGE_SOURCE = 'identity-steps-playground';
@@ -92,15 +91,6 @@ export const PLAYGROUND_HANDLERS = [
       },
     });
   }),
-  graphql.query('GenerateUniqueUsername', ({ variables }) =>
-    HttpResponse.json({
-      data: {
-        generateUniqueUsername: String(variables.name ?? 'dev')
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, ''),
-      },
-    }),
-  ),
   http.post('*/freyja/sessions/:sessionId/transition', async ({ request }) => {
     const payload = (await request.json()) as Omit<
       Extract<PlaygroundEvent, { kind: 'transition' }>,
@@ -111,25 +101,15 @@ export const PLAYGROUND_HANDLERS = [
   }),
 ];
 
-type ProfileFields = Pick<
-  LoggedUser,
-  'username' | 'title' | 'experienceLevel' | 'acquisitionChannel'
->;
+type ProfileFields = Pick<LoggedUser, 'title' | 'acquisitionChannel'>;
 
 export const PLAYGROUND_SCENARIOS = {
-  github: {
-    label: 'New GitHub signup',
-    description: 'Name, email and username came from GitHub. Nothing else.',
+  newSignup: {
+    label: 'New signup',
+    description: 'Just finished account details. No title or channel yet.',
     expected:
-      'Both questions, then account details drops itself: it has nothing left to ask.',
+      'Both questions, in the chosen order. Something else writes no title.',
     profile: {} as Partial<ProfileFields>,
-  },
-  noUsername: {
-    label: 'New signup, no username yet',
-    description: 'Name and email only, so account details still has a job.',
-    expected:
-      'Both questions, then account details appears with no experience dropdown.',
-    profile: { username: undefined } as Partial<ProfileFields>,
   },
   heardBefore: {
     label: 'Already told us how they found us',
@@ -140,14 +120,19 @@ export const PLAYGROUND_SCENARIOS = {
       acquisitionChannel: AcquisitionChannel.Friend,
     } as Partial<ProfileFields>,
   },
+  hasTitle: {
+    label: 'Already has a job title',
+    description: 'Filled title in the signup extra fields, so title is set.',
+    expected: '"Who are you" skips itself, even as the very first step.',
+    profile: { title: 'Staff engineer' } as Partial<ProfileFields>,
+  },
   returning: {
-    label: 'Profile already complete',
-    description: 'Every answer is already on file.',
-    expected: 'Every step skips; the funnel completes on arrival.',
+    label: 'Both answers on file',
+    description: 'title and acquisitionChannel are already set.',
+    expected: 'Both steps skip; the funnel completes on arrival.',
     profile: {
       acquisitionChannel: AcquisitionChannel.Friend,
-      title: 'Developer',
-      experienceLevel: 'MORE_THAN_4_YEARS',
+      title: 'Software engineer',
     } as Partial<ProfileFields>,
   },
 } as const;
@@ -159,7 +144,6 @@ export const getScenarioUser = (
   scenario: PlaygroundScenario,
 ): Partial<LoggedUser> => ({
   title: undefined,
-  experienceLevel: undefined,
   acquisitionChannel: undefined,
   ...PLAYGROUND_SCENARIOS[scenario].profile,
 });
@@ -167,20 +151,17 @@ export const getScenarioUser = (
 export interface PlaygroundSettings {
   scenario: PlaygroundScenario;
   order: PlaygroundOrder;
-  skipWhenComplete: boolean;
   acquisitionSkip: boolean;
   chrome: OnboardingChromeVariant;
 }
 
 const STEP_LABELS: Record<string, string> = {
   acquisition: 'How did you hear about us',
-  'user-role': 'Who are you + experience',
-  'account-details': 'Account details',
+  'user-role': 'Who are you',
 };
 
 const buildFunnel = ({
   order,
-  skipWhenComplete,
   acquisitionSkip,
 }: PlaygroundSettings): FunnelJSON => {
   const next = [
@@ -201,19 +182,12 @@ const buildFunnel = ({
     type: FunnelStepType.UserRole,
     parameters: {
       headline: 'Who are you?',
-      explainer: 'So your feed starts from the right place.',
     },
     transitions: next,
   };
-  const accountDetails = {
-    id: 'account-details',
-    type: FunnelStepType.ProfileForm,
-    parameters: { headline: 'Tell us a bit about yourself', skipWhenComplete },
-    transitions: next,
-  };
   const steps = (order === 'roleFirst'
-    ? [role, acquisition, accountDetails]
-    : [acquisition, role, accountDetails]) as unknown as FunnelStep[];
+    ? [role, acquisition]
+    : [acquisition, role]) as unknown as FunnelStep[];
 
   return {
     id: 'identity-steps-playground',
@@ -270,7 +244,6 @@ const withGuardReport = (
 const STEP_OVERRIDES = {
   [FunnelStepType.Acquisition]: withGuardReport(FunnelAcquisition),
   [FunnelStepType.UserRole]: withGuardReport(FunnelUserRole),
-  [FunnelStepType.ProfileForm]: withGuardReport(ProposedFunnelProfileForm),
 };
 
 const PositionReport = ({ funnel }: { funnel: FunnelJSON }): null => {
@@ -615,8 +588,6 @@ const toArgs = (settings: PlaygroundSettings): string =>
 const PROFILE_FIELDS: Array<keyof ProfileFields> = [
   'acquisitionChannel',
   'title',
-  'experienceLevel',
-  'username',
 ];
 
 export const PlaygroundPanel = ({
@@ -628,10 +599,9 @@ export const PlaygroundPanel = ({
   const [theme, setTheme] = useState<'dark' | 'light'>();
   const [device, setDevice] = useState<Device>('mobile');
   const [settings, setSettings] = useState<PlaygroundSettings>({
-    scenario: 'github',
+    scenario: 'newSignup',
     order: 'acquisitionFirst',
-    skipWhenComplete: true,
-    acquisitionSkip: false,
+    acquisitionSkip: true,
     chrome: OnboardingChromeVariant.Control,
   });
   const [runId, setRunId] = useState(0);
@@ -642,10 +612,9 @@ export const PlaygroundPanel = ({
   const frame = DEVICES[device];
   const stepIds = getFunnelStepIds(settings.order);
   const scenario = PLAYGROUND_SCENARIOS[settings.scenario];
-  const startingProfile = {
-    username: 'ido',
-    ...getScenarioUser(settings.scenario),
-  } as Partial<ProfileFields>;
+  const startingProfile = getScenarioUser(
+    settings.scenario,
+  ) as Partial<ProfileFields>;
   const runKey = `${toArgs(settings)}|${activeTheme}|${device}|${runId}`;
 
   const update = <Key extends keyof PlaygroundSettings>(
@@ -690,7 +659,7 @@ export const PlaygroundPanel = ({
         <div className="flex flex-col gap-1">
           <h1 className="font-bold typo-title2">Identity steps · playground</h1>
           <p className="text-text-tertiary typo-callout">
-            The real funnel stepper running the new steps. Pick who is signing
+            The real funnel stepper running the two steps. Pick who is signing
             up, click through the frame, and watch what the funnel decides and
             what it writes.
           </p>
@@ -711,7 +680,10 @@ export const PlaygroundPanel = ({
             <div className="flex flex-col gap-2">
               {(
                 Object.entries(PLAYGROUND_SCENARIOS) as Array<
-                  [PlaygroundScenario, (typeof PLAYGROUND_SCENARIOS)['github']]
+                  [
+                    PlaygroundScenario,
+                    (typeof PLAYGROUND_SCENARIOS)['newSignup'],
+                  ]
                 >
               ).map(([key, option]) => {
                 const isSelected = key === settings.scenario;
@@ -747,17 +719,6 @@ export const PlaygroundPanel = ({
                 { value: 'roleFirst', label: 'Who are you first' },
               ]}
               value={settings.order}
-            />
-          </Section>
-
-          <Section title="Account details">
-            <Segmented
-              onChange={(value) => update('skipWhenComplete', value === 'on')}
-              options={[
-                { value: 'on', label: 'Drop when complete' },
-                { value: 'off', label: 'Always show (today)' },
-              ]}
-              value={settings.skipWhenComplete ? 'on' : 'off'}
             />
           </Section>
 
