@@ -4,8 +4,6 @@ import React from 'react';
 import { fn } from 'storybook/test';
 import { FunnelAcquisition } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelAcquisition';
 import { FunnelUserRole } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelUserRole';
-import { FunnelProfileForm } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelProfileForm';
-import { ProposedFunnelProfileForm } from './accountDetailsProposal';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { AcquisitionChannel } from '@dailydotdev/shared/src/graphql/users';
 import { OnboardingChromeVariant } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -27,22 +25,15 @@ import {
 } from './identityPlayground';
 
 /**
- * Two steps proposed for the signup onboarding, plus the account-details step
- * they are meant to empty out.
+ * The two identity steps a new user meets right after account details.
  *
- * 1. **How did you hear about us** — the acquisition question that today only
- *    appears as a feed card behind a `?ua=true` query param, moved to where
- *    every new user actually passes.
- * 2. **Who are you** — a list of roles, and, once a role is picked, the
- *    experience question the account-details form asks. Between them they write `title`
- *    and `experienceLevel` to the profile.
+ * 1. **How did you hear about us**: the acquisition question that otherwise
+ *    only appears as a feed card behind a `?ua=true` query param, moved to
+ *    where every new user passes. Writes `acquisitionChannel`.
+ * 2. **Who are you**: a list of roles. The pick is saved as the profile's job
+ *    `title`, except Something else, which saves nothing.
  *
- * With those two on the profile, an OAuth signup (Google/GitHub, which supply
- * name, email and avatar) has nothing left for the account-details form to
- * ask, so that step can drop itself — `skipWhenComplete` on the profileForm
- * step. The account-details stories show that side by side. That part is a
- * proposal simulated in Storybook (`accountDetailsProposal.tsx`); the shared
- * account-details step is unchanged.
+ * Each step skips itself when its answer is already on the profile.
  *
  * Everything here renders the real step components; only auth, the GraphQL
  * writes and the funnel chrome are faked.
@@ -81,14 +72,13 @@ const baseStep: any = {
   onRegisterStepToSkip: fn(),
 };
 
-/** A GitHub signup: name, email and avatar came from the provider. */
+/** A GitHub signup that just finished account details. */
 const oauthUser = {
   name: 'Ido Shamun',
   username: 'ido',
   email: 'ido@acme.com',
   providers: ['github'],
   title: undefined,
-  experienceLevel: undefined,
   acquisitionChannel: undefined,
 };
 
@@ -141,90 +131,66 @@ interface HearAboutUsArgs extends StepArgs {
   skip?: string;
 }
 
-// The six channels most likely to lead, plus Other.
-const COMPACT_CHANNELS = [
-  AcquisitionChannel.SearchEngine,
-  AcquisitionChannel.AI,
-  AcquisitionChannel.Friend,
-  AcquisitionChannel.YouTube,
-  AcquisitionChannel.X,
-  AcquisitionChannel.Reddit,
-  AcquisitionChannel.Other,
-];
-
-const renderHearAboutUs =
-  (options?: AcquisitionChannel[]) =>
-  ({ chrome, iconStyle, explainer, shuffle, skip }: HearAboutUsArgs) => {
-    const step = {
-      ...baseStep,
-      id: 'acquisition',
-      type: FunnelStepType.Acquisition,
-      parameters: {
-        headline: 'How did you hear about us?',
-        options,
-        iconStyle,
-        explainer,
-        shuffle,
-        skip,
-      },
-    };
-
-    return (
-      <FunnelStepShell chrome={chrome} step={step} stepIndex={1} fullWidth>
-        <FunnelAcquisition {...step} />
-      </FunnelStepShell>
-    );
+const renderHearAboutUs = ({
+  chrome,
+  iconStyle,
+  explainer,
+  shuffle,
+  skip,
+}: HearAboutUsArgs) => {
+  const step = {
+    ...baseStep,
+    id: 'acquisition',
+    type: FunnelStepType.Acquisition,
+    parameters: {
+      headline: 'How did you hear about us?',
+      iconStyle,
+      explainer,
+      shuffle,
+      skip,
+    },
   };
+
+  return (
+    <FunnelStepShell chrome={chrome} step={step} stepIndex={1} fullWidth>
+      <FunnelAcquisition {...step} />
+    </FunnelStepShell>
+  );
+};
 
 const hearAboutUsArgs: HearAboutUsArgs = {
   iconStyle: 'logo',
   shuffle: false,
   explainer: '',
-  skip: '',
+  skip: 'Skip',
 };
 
 export const HearAboutUs: Story = {
-  name: '1. How did you hear about us · all 14',
+  name: '1. How did you hear about us',
   argTypes: hearAboutUsArgTypes,
   args: hearAboutUsArgs,
   beforeEach: () => bootAsUser(oauthUser),
-  render: renderHearAboutUs(),
-};
-
-export const HearAboutUsCompact: Story = {
-  name: '1b. How did you hear about us · compact 7',
-  argTypes: hearAboutUsArgTypes,
-  args: hearAboutUsArgs,
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'The same step with the six channels most likely to lead, plus Other. Everything else matches the full list, so the two can be compared on length alone. The set is the `options` parameter, so a campaign funnel can pick its own (Instagram or Facebook for a Meta campaign, for example).',
-      },
-    },
-  },
-  beforeEach: () => bootAsUser(oauthUser),
-  render: renderHearAboutUs(COMPACT_CHANNELS),
+  render: renderHearAboutUs,
 };
 
 export const HearAboutUsTiles: Story = {
-  name: '1c. How did you hear about us · tile icons',
+  name: '1b. How did you hear about us · tile icons',
   argTypes: hearAboutUsArgTypes,
   args: { ...hearAboutUsArgs, iconStyle: 'tile' },
   parameters: {
     docs: {
       description: {
         story:
-          'Every mark in the same favicon-style rounded square: the brand colour behind a white glyph, with Google and Chrome on white the way their own favicons are. Set by `iconStyle: "tile"`; the other stories switch to it from the controls.',
+          'Every mark in the same favicon-style rounded square: the brand colour behind a white glyph, with Google on white the way its own favicon is. Set by `iconStyle: "tile"`; the other stories switch to it from the controls.',
       },
     },
   },
   beforeEach: () => bootAsUser(oauthUser),
-  render: renderHearAboutUs(),
+  render: renderHearAboutUs,
 };
 
 export const HearAboutUsAnswered: Story = {
-  name: '1d. Already answered — step skips',
+  name: '1c. Already answered, step skips',
   parameters: {
     docs: {
       description: {
@@ -262,13 +228,11 @@ const roleArgTypes: Meta['argTypes'] = {
   ...chromeArgTypes,
   headline: { control: 'text' },
   explainer: { control: 'text' },
-  experienceHeadline: { control: 'text' },
 };
 
 interface RoleArgs extends StepArgs {
   headline?: string;
   explainer?: string;
-  experienceHeadline?: string;
 }
 
 export const WhoAreYou: Story = {
@@ -276,33 +240,23 @@ export const WhoAreYou: Story = {
   argTypes: roleArgTypes,
   args: {
     headline: 'Who are you?',
-    explainer: 'So your feed starts from the right place.',
-    experienceHeadline: 'How long have you been doing this?',
+    explainer: '',
   },
   parameters: {
     docs: {
       description: {
         story:
-          'Tap a role, then Continue, then tap a level, then Continue: the same select-then-Continue rhythm as "How did you hear about us". Continue stays disabled until something is selected. The experience question opens with its title on top and a Change link back to the roles, which keeps your pick selected. Every role sees the same levels, with the years in gray on the right.',
+          'Tap a role, then Continue: the same select-then-Continue rhythm as "How did you hear about us". Continue stays disabled until a role is selected. The role is saved as the profile\'s job title, except Something else, which moves on without saving anything.',
       },
     },
   },
   beforeEach: () => bootAsUser(oauthUser),
-  render: ({
-    chrome,
-    headline,
-    explainer,
-    experienceHeadline,
-  }: RoleArgs): ReactElement => {
+  render: ({ chrome, headline, explainer }: RoleArgs): ReactElement => {
     const step = {
       ...baseStep,
       id: 'user-role',
       type: FunnelStepType.UserRole,
-      parameters: {
-        headline,
-        explainer,
-        experience: { headline: experienceHeadline },
-      },
+      parameters: { headline, explainer },
     };
 
     return (
@@ -313,134 +267,30 @@ export const WhoAreYou: Story = {
   },
 };
 
-export const WhoAreYouNonTechnical: Story = {
-  name: '2b. Non-technical role',
+export const WhoAreYouAnswered: Story = {
+  name: '2b. Title on file, step skips',
   parameters: {
     docs: {
       description: {
         story:
-          'A trimmed role list. A non-engineering role sees the same levels as everyone, and is saved to the profile as NOT_ENGINEER so it stays out of the engineer_signup conversion events; the years it picked travel in the funnel details.',
+          "A user who already has a job title (for example from the signup form's extra fields) keeps it: the step reports itself skippable and renders nothing, so a broader role never replaces it.",
       },
     },
   },
-  beforeEach: () => bootAsUser(oauthUser),
-  render: ({ chrome }: StepArgs): ReactElement => {
+  beforeEach: () => bootAsUser({ ...oauthUser, title: 'Staff engineer' }),
+  render: ({ chrome }: StepArgs) => {
     const step = {
       ...baseStep,
-      id: 'user-role-trimmed',
+      id: 'user-role-answered',
       type: FunnelStepType.UserRole,
-      parameters: {
-        headline: 'Who are you?',
-        roles: [
-          { value: 'Developer', label: 'Developer', isTechnical: true },
-          { value: 'Designer', label: 'Designer' },
-          { value: 'Founder', label: 'Founder' },
-          { value: 'Other', label: 'Something else' },
-        ],
-      },
+      parameters: { headline: 'Who are you?' },
     };
 
     return (
-      <FunnelStepShell chrome={chrome} step={step} stepIndex={2} fullWidth>
-        <FunnelUserRole {...step} />
-      </FunnelStepShell>
-    );
-  },
-};
-
-export const AccountDetailsToday: Story = {
-  name: '3. Account details — today',
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'What a Google/GitHub signup sees now. Email, name and username arrive filled from the provider; the experience dropdown is the only thing the screen is really asking for.',
-      },
-    },
-  },
-  beforeEach: () => bootAsUser(oauthUser),
-  render: ({ chrome }: StepArgs) => {
-    const step = {
-      ...baseStep,
-      id: 'profile-form',
-      type: FunnelStepType.ProfileForm,
-      parameters: { headline: 'Tell us a bit about yourself' },
-    };
-
-    return (
-      <FunnelStepShell chrome={chrome} step={step} stepIndex={3} fullWidth>
-        <FunnelProfileForm {...step} />
-      </FunnelStepShell>
-    );
-  },
-};
-
-export const AccountDetailsWithoutExperience: Story = {
-  name: '3b. Account details — no experience dropdown',
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'An email signup who answered the user-role step: the form still has a username to confirm, but the experience dropdown is gone, because the role step already asked it in the words of the role they picked. A Storybook-only wrapper hides it here (`accountDetailsProposal.tsx`); engineering builds it into `RegistrationFieldsForm`.',
-      },
-    },
-  },
-  beforeEach: () =>
-    bootAsUser({
-      ...oauthUser,
-      providers: [],
-      username: undefined,
-      title: 'Designer',
-      experienceLevel: 'NOT_ENGINEER',
-    }),
-  render: ({ chrome }: StepArgs) => {
-    const step = {
-      ...baseStep,
-      id: 'profile-form-no-experience',
-      type: FunnelStepType.ProfileForm,
-      parameters: { headline: 'Tell us a bit about yourself' },
-    };
-
-    return (
-      <FunnelStepShell chrome={chrome} step={step} stepIndex={3} fullWidth>
-        <ProposedFunnelProfileForm {...step} />
-      </FunnelStepShell>
-    );
-  },
-};
-
-export const AccountDetailsSkipped: Story = {
-  name: '3c. Account details — dropped',
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'The same user after the role step wrote `title` and `experienceLevel`. With `skipWhenComplete` set on the profileForm step, the form has nothing left to ask and takes itself out of the funnel. Proposed behaviour, simulated in Storybook (`accountDetailsProposal.tsx`); engineering builds it into `FunnelProfileForm`.',
-      },
-    },
-  },
-  beforeEach: () =>
-    bootAsUser({
-      ...oauthUser,
-      title: 'Developer',
-      experienceLevel: 'MORE_THAN_4_YEARS',
-    }),
-  render: ({ chrome }: StepArgs) => {
-    const step = {
-      ...baseStep,
-      id: 'profile-form-skipped',
-      type: FunnelStepType.ProfileForm,
-      parameters: {
-        headline: 'Tell us a bit about yourself',
-        skipWhenComplete: true,
-      },
-    };
-
-    return (
-      <SkipReport label="profileForm">
+      <SkipReport label="user-role">
         {(onRegisterStepToSkip) => (
-          <FunnelStepShell chrome={chrome} step={step} stepIndex={3} fullWidth>
-            <ProposedFunnelProfileForm
+          <FunnelStepShell chrome={chrome} step={step} stepIndex={2} fullWidth>
+            <FunnelUserRole
               {...step}
               onRegisterStepToSkip={onRegisterStepToSkip}
             />
@@ -475,7 +325,6 @@ const useThemeClass = (): 'dark' | 'light' => {
 const MATRIX_STORIES = [
   { id: 'hear-about-us', label: 'How did you hear about us' },
   { id: 'who-are-you', label: 'Who are you' },
-  { id: 'account-details-today', label: 'Account details — today' },
 ];
 
 const VIEWPORTS = [
@@ -490,7 +339,7 @@ export const ResponsiveMatrix: Story = {
     docs: {
       description: {
         story:
-          'The three steps at three widths. They size themselves from the 440px funnel rail, the same as every other onboarding step, so the content column is identical on all three and only the space around it changes.',
+          'The two steps at three widths. They size themselves from the 440px funnel rail, the same as every other onboarding step, so the content column is identical on all three and only the space around it changes.',
       },
     },
   },
@@ -502,8 +351,8 @@ export const ResponsiveMatrix: Story = {
     const [reloadKey, setReloadKey] = React.useState(0);
     // Mount the frames one at a time.
     //
-    // Nine iframes booting at once each pull the same module graph, and a cold
-    // Vite server answers that by re-running dep optimization — which
+    // Six iframes booting at once each pull the same module graph, and a cold
+    // Vite server answers that by re-running dep optimization, which
     // invalidates the URLs the in-flight requests are already using. Every
     // frame then dies with "Failed to fetch dynamically imported module".
     // Staggering means the first frame warms the optimizer and the rest are
@@ -608,7 +457,7 @@ export const Playground: Story = {
     docs: {
       description: {
         story:
-          "The real funnel stepper running the new steps in a device frame. Pick who is signing up, the step order, and whether account details drops itself, then click through the frame. The side panel shows each step's status, what landed on the profile, and every Freyja transition and API write as it happens.",
+          "The real funnel stepper running the two steps in a device frame. Pick who is signing up and the step order, then click through the frame. The side panel shows each step's status, what landed on the profile, and every Freyja transition and API write as it happens.",
       },
     },
   },
@@ -628,13 +477,11 @@ export const PlaygroundFrame: Story = {
       control: { type: 'inline-radio' },
       options: ['acquisitionFirst', 'roleFirst'],
     },
-    skipWhenComplete: { control: 'boolean' },
     acquisitionSkip: { control: 'boolean' },
   },
   args: {
-    scenario: 'github',
+    scenario: 'newSignup',
     order: 'acquisitionFirst',
-    skipWhenComplete: true,
     acquisitionSkip: false,
   },
   parameters: {

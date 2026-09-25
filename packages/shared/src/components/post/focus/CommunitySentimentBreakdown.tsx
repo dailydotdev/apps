@@ -48,7 +48,7 @@ const providerLabel = (source: string): string =>
 const formatDiscussionCount = (value: number): string =>
   largeNumberFormat(value)?.toLowerCase() ?? `${value}`;
 
-export const SourceBadge = ({
+const SourceBadge = ({
   source,
   className,
 }: {
