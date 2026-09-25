@@ -26,6 +26,8 @@ export interface TaboolaPlacement {
   /** Both the container id and the placement's name in Backstage reports. */
   container: string;
   placement: string;
+  /** Audience segment, which Taboola's engagement products key on. */
+  cseg?: string;
 }
 
 /**
@@ -57,6 +59,18 @@ export const TABOOLA_ARTICLE_PLACEMENT = {
     mode: 'thumbnails-4x1-rr',
     container: 'taboola-right-rail-thumbnails-4x1',
     placement: 'Right Rail Thumbnails 4x1',
+  },
+  /**
+   * Renders nothing in place: a tracking unit that arms Taboola's Explore More
+   * and Next Engage, which Taboola configures and renders on its side. Kept out
+   * of the article's own container, as their brief asks.
+   */
+  exploreMore: {
+    pageType: 'article',
+    mode: 'rbox-Tracking',
+    container: 'taboola-trigger-explore-more',
+    placement: 'Trigger Explore More',
+    cseg: 'subscriber',
   },
 } as const satisfies Record<string, TaboolaPlacement>;
 
@@ -165,13 +179,20 @@ export const pushTaboolaPlacement = ({
   mode,
   container,
   placement,
+  cseg,
 }: TaboolaPlacement): void => {
   if (queuedContainers.has(container)) {
     return;
   }
   queuedContainers.add(container);
   loadTaboola(pageType);
-  getQueue().push({ mode, container, placement, target_type: 'mix' });
+  getQueue().push({
+    mode,
+    container,
+    placement,
+    target_type: 'mix',
+    ...(cseg && { cseg }),
+  });
   clearTimeout(flushTimeout);
   flushTimeout = setTimeout(() => {
     getQueue().push({ flush: true });

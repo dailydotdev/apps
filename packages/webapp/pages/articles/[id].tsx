@@ -402,6 +402,7 @@ const ReadPostPage = ({
             className="min-h-page max-w-[72rem] pb-6"
           />
         )}
+        <ReadTaboolaSlot placement={TABOOLA_ARTICLE_PLACEMENT.exploreMore} />
       </FooterNavBarLayout>
     </ActivePostContextProvider>
   );
