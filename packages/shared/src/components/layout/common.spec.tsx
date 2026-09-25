@@ -1,34 +1,13 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import SettingsContext from '../../contexts/SettingsContext';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useLogContext } from '../../contexts/LogContext';
-import { useActions } from '../../hooks/useActions';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
-import {
-  checkIsExtension,
-  getCurrentBrowserName,
-  isExtensionCapableBrowser,
-} from '../../lib/func';
-import { ActionType } from '../../graphql/actions';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
-
-jest.mock('../../contexts/AuthContext', () => ({
-  useAuthContext: jest.fn(),
-}));
-
-jest.mock('../../contexts/LogContext', () => ({
-  useLogContext: jest.fn(),
-}));
-
-jest.mock('../../hooks/useActions', () => ({
-  useActions: jest.fn(),
-}));
 
 jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
@@ -48,13 +27,6 @@ jest.mock('../../hooks/utils/useQueryState', () => ({
     FeedPeriod: 'feed-period',
   },
   useQueryState: jest.fn(),
-}));
-
-jest.mock('../../lib/func', () => ({
-  ...jest.requireActual('../../lib/func'),
-  checkIsExtension: jest.fn(),
-  getCurrentBrowserName: jest.fn(),
-  isExtensionCapableBrowser: jest.fn(),
 }));
 
 jest.mock('../filters/MyFeedHeading', () => ({
@@ -83,7 +55,7 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
 
 jest.mock('../filters/IntroQuestButton', () => ({
   IntroQuestButton: function MockIntroQuestButton() {
-    return null;
+    return <div data-testid="intro-quest-button" />;
   },
 }));
 
@@ -103,45 +75,15 @@ jest.mock('../tooltip/Tooltip', () => ({
   },
 }));
 
-jest.mock('../../hooks/useHasIntroQuests', () => ({
-  useHasIntroQuests: jest.fn().mockReturnValue(false),
-}));
-
 jest.mock('../../hooks/layout/useLayoutVariant', () => ({
   useLayoutVariant: jest.fn(),
 }));
 
-const mockUseAuthContext = useAuthContext as jest.Mock;
-const mockUseLogContext = useLogContext as jest.Mock;
-const mockUseActions = useActions as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseReadingStreak = useReadingStreak as jest.Mock;
 const mockUseFeedName = useFeedName as jest.Mock;
 const mockUseQueryState = useQueryState as jest.Mock;
 const mockUseLayoutVariant = useLayoutVariant as jest.Mock;
-const mockCheckIsExtension = checkIsExtension as jest.Mock;
-const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
-const mockIsExtensionCapableBrowser = isExtensionCapableBrowser as jest.Mock;
-
-const createActionsState = ({
-  dismissedInstallExtension = false,
-  isActionsFetched = true,
-  completeAction = jest.fn(),
-}: {
-  dismissedInstallExtension?: boolean;
-  isActionsFetched?: boolean;
-  completeAction?: jest.Mock;
-} = {}) => ({
-  checkHasCompleted: jest.fn((type: ActionType) => {
-    if (type === ActionType.DismissInstallExtension) {
-      return dismissedInstallExtension;
-    }
-
-    return false;
-  }),
-  completeAction,
-  isActionsFetched,
-});
 
 const renderComponent = ({
   chips,
@@ -186,12 +128,6 @@ const mockViewSize = ({
 
 describe('SearchControlHeader', () => {
   beforeEach(() => {
-    mockUseAuthContext.mockReturnValue({
-      isAuthReady: true,
-      isLoggedIn: true,
-      user: { flags: {} },
-    });
-    mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
     mockViewSize();
     mockUseReadingStreak.mockReturnValue({
       streak: null,
@@ -204,109 +140,44 @@ describe('SearchControlHeader', () => {
     });
     mockUseQueryState.mockReturnValue([0, jest.fn()]);
     mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
-    mockCheckIsExtension.mockReturnValue(false);
-    mockGetCurrentBrowserName.mockReturnValue('Chrome');
-    mockIsExtensionCapableBrowser.mockReturnValue(true);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('does not render the install extension prompt before actions are fetched', () => {
-    mockUseActions.mockReturnValue(
-      createActionsState({ isActionsFetched: false }),
-    );
-
+  it('renders the intro quest button in the control layout', () => {
     renderComponent();
 
-    expect(
-      screen.queryByRole('link', { name: 'Get it for Chrome' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
   });
 
-  it('does not render the install extension prompt after dismissal', () => {
-    mockUseActions.mockReturnValue(
-      createActionsState({ dismissedInstallExtension: true }),
-    );
+  it('renders the intro quest button in the v2 layout', () => {
+    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
 
     renderComponent();
 
-    expect(
-      screen.queryByRole('link', { name: 'Get it for Chrome' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('does not render the install extension prompt for extension users', () => {
-    mockUseActions.mockReturnValue(createActionsState());
-    mockCheckIsExtension.mockReturnValue(true);
-
-    renderComponent();
-
-    expect(
-      screen.queryByRole('link', { name: 'Get it for Chrome' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('does not render the install extension prompt on browsers without an extension build', () => {
-    mockUseActions.mockReturnValue(createActionsState());
-    mockIsExtensionCapableBrowser.mockReturnValue(false);
-
-    renderComponent();
-
-    expect(
-      screen.queryByRole('link', { name: 'Get it for Chrome' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('does not render the install extension prompt after extension usage is recorded', () => {
-    mockUseActions.mockReturnValue(createActionsState());
-    mockUseAuthContext.mockReturnValue({
-      user: { flags: { lastExtensionUse: '2025-01-01T00:00:00.000Z' } },
-    });
-
-    renderComponent();
-
-    expect(
-      screen.queryByRole('link', { name: 'Get it for Chrome' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders the install extension prompt when actions are fetched and not dismissed', () => {
-    mockUseActions.mockReturnValue(createActionsState());
-
-    renderComponent();
-
-    expect(
-      screen.getByRole('link', { name: 'Get it for Chrome' }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
   });
 
   it('renders v2 feed actions icon-only below tablet without chips', () => {
-    mockUseActions.mockReturnValue(createActionsState());
     mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
     mockViewSize({ isTablet: false, isLaptop: false });
 
     renderComponent();
 
-    expect(
-      screen.getByRole('link', { name: 'Generate brief' }),
-    ).toBeInTheDocument();
-    expect(screen.queryByText('Generate brief')).not.toBeInTheDocument();
     expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
       'data-icon-only',
       'true',
     );
   });
 
-  it('renders the v2 brief shortcut label at tablet size without chips', () => {
-    mockUseActions.mockReturnValue(createActionsState());
+  it('renders v2 feed actions with labels at tablet size without chips', () => {
     mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
     mockViewSize({ isTablet: true, isLaptop: false });
 
     renderComponent();
 
-    expect(screen.getByText('Generate brief')).toBeInTheDocument();
     expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
       'data-icon-only',
       'false',
@@ -314,16 +185,11 @@ describe('SearchControlHeader', () => {
   });
 
   it('keeps v2 feed actions icon-only when chips are present', () => {
-    mockUseActions.mockReturnValue(createActionsState());
     mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
     mockViewSize({ isTablet: true, isLaptop: false });
 
     renderComponent({ chips: <div>Chips</div> });
 
-    expect(
-      screen.getByRole('link', { name: 'Generate brief' }),
-    ).toBeInTheDocument();
-    expect(screen.queryByText('Generate brief')).not.toBeInTheDocument();
     expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
       'data-icon-only',
       'true',

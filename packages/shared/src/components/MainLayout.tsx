@@ -50,7 +50,7 @@ import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
   HomepageTopBanners,
-  useHomepageTopBannersVisibility,
+  useHomepageTopBanners,
 } from './marketing/banners/HomepageTopBanners';
 import { RouteProgressBar } from './RouteProgressBar';
 
@@ -237,12 +237,14 @@ function MainLayoutComponent({
 
   // Extension new tab mounts its own `ExtensionTopBanners` strip, so
   // the webapp strip is suppressed there to avoid duplicate cards. The strip
-  // only renders inside the sidebar-owned header, so the visibility hook is
-  // evaluated there too instead of on every shell mount.
+  // only renders inside the sidebar-owned header, so the cards are gated on
+  // that too instead of evaluating on every shell mount.
   const showHomepageTopBanners = !isExtension;
-  const { hasAny: hasTopBanners } = useHomepageTopBannersVisibility({
+  const topBanners = useHomepageTopBanners({
     enabled: showHomepageTopBanners && sidebarOwnsHeader,
+    isMyFeed: currentFeedName === SharedFeedPage.MyFeed,
   });
+  const hasTopBanners = topBanners.hasAny;
 
   let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
   if (sidebarOwnsHeader) {
@@ -446,7 +448,10 @@ function MainLayoutComponent({
             )}
           >
             {showHomepageTopBanners && (
-              <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
+              <HomepageTopBanners
+                className="mx-4 mb-3 laptop:mx-0"
+                state={topBanners}
+              />
             )}
             {topBanner}
             <div

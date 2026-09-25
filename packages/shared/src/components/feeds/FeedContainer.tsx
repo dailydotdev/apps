@@ -151,7 +151,7 @@ export const FeedContainer = ({
   const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isV2 } = useLayoutVariant();
+  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
@@ -213,8 +213,15 @@ export const FeedContainer = ({
       }
     },
   });
+  // v2 renders the same campaign as a compact card in the shell's top-hero
+  // strip, so only one of the two claims the impression. `isV2` reads as the
+  // control default until the flag resolves, hence the loading guard.
   const shouldEvaluateBanner =
-    !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
+    !isV2 &&
+    !isLayoutVariantLoading &&
+    !!marketingCta &&
+    shouldShow &&
+    activeFeedName === SharedFeedPage.MyFeed;
   const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBanner,
   });

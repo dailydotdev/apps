@@ -1,88 +1,61 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { TopHero } from './HeroBottomBanner';
+import { CvTopHero } from './CvTopHero';
 import ReadingReminderCatLaptop from './ReadingReminderCatLaptop';
-import { useReadingReminderHero } from '../../../hooks/notifications/useReadingReminderHero';
-import {
-  fileValidation,
-  uploadCvOpportunitySuccessContent,
-  uploadCvProfileSuccessContent,
-  useUploadCv,
-} from '../../../features/profile/hooks/useUploadCv';
-import { useActions } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
+import { useReadingReminderFeedHero } from '../../../hooks/notifications/useReadingReminderFeedHero';
+import { useCvTopBanner } from '../../../features/profile/hooks/useCvTopBanner';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { uploadCvBgMobile } from '../../../lib/image';
-import { useJobsFeature } from '../../../hooks/useJobsFeature';
-
-const illustrationFrameClass =
-  '!m-0 flex h-24 w-32 shrink-0 items-center justify-center self-center tablet:h-28 tablet:w-36';
-
-const CvIllustration = (): ReactElement => (
-  <div
-    className={classNames(illustrationFrameClass, 'overflow-hidden')}
-    aria-hidden
-  >
-    <span
-      className="block size-full bg-no-repeat"
-      style={{
-        backgroundImage: `url(${uploadCvBgMobile})`,
-        backgroundPosition: 'center top',
-        backgroundSize: 'auto 220%',
-      }}
-    />
-  </div>
-);
 
 const CompactReminderCat = (): ReactElement => (
   <ReadingReminderCatLaptop className="!m-0 h-24 w-28 shrink-0 self-center rounded-12 object-contain tablet:h-28 tablet:w-32" />
 );
 
-export const useHomepageTopBannersVisibility = ({
-  enabled: isEnabled = true,
-}: { enabled?: boolean } = {}): {
-  showReminder: boolean;
-  showCv: boolean;
+export interface HomepageTopBannersState {
   hasAny: boolean;
-} => {
+  reminder: ReturnType<typeof useReadingReminderFeedHero>;
+  cv: ReturnType<typeof useCvTopBanner>;
+}
+
+interface UseHomepageTopBannersProps {
+  enabled?: boolean;
+  isMyFeed?: boolean;
+}
+
+/**
+ * Call once per shell. Both cards log their impression from the condition
+ * that renders them, so a second evaluation double-counts them.
+ */
+export const useHomepageTopBanners = ({
+  enabled: isEnabled = true,
+  isMyFeed = false,
+}: UseHomepageTopBannersProps = {}): HomepageTopBannersState => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  const reminder = useReadingReminderHero({
-    requireMobile: false,
-    enabled: isEnabled,
-  });
-  const { shouldShow: shouldShowCv } = useUploadCv();
   const enabled = isEnabled && isAuthReady && isLoggedIn;
-  const showReminder = enabled && reminder.shouldShow;
-  const showCv = enabled && shouldShowCv;
-  return { showReminder, showCv, hasAny: showReminder || showCv };
+  const reminder = useReadingReminderFeedHero({ enabled: enabled && isMyFeed });
+  const cv = useCvTopBanner({ enabled: enabled && isMyFeed });
+
+  return {
+    hasAny: reminder.shouldShowTopHero || cv.shouldShow,
+    reminder,
+    cv,
+  };
 };
 
-type HomepageTopBannersProps = {
+interface HomepageTopBannersProps {
   className?: string;
-};
+  state: HomepageTopBannersState;
+}
 
 export const HomepageTopBanners = ({
   className,
+  state,
 }: HomepageTopBannersProps): ReactElement | null => {
-  const reminder = useReadingReminderHero({ requireMobile: false });
-  const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { isJobsEnabled } = useJobsFeature();
-  const { onUpload, shouldShow: shouldShowCv } = useUploadCv({
-    modalContent: isJobsEnabled
-      ? uploadCvOpportunitySuccessContent
-      : uploadCvProfileSuccessContent,
-  });
-  const { completeAction } = useActions();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  if (!isAuthReady || !isLoggedIn) {
-    return null;
-  }
-
+  const { reminder, cv } = state;
   const cards: ReactElement[] = [];
 
-  if (reminder.shouldShow) {
+  if (reminder.shouldShowTopHero) {
     cards.push(
       <TopHero
         key="reminder"
@@ -90,28 +63,22 @@ export const HomepageTopBanners = ({
         subtitle={reminder.subtitle}
         illustration={<CompactReminderCat />}
         onCtaClick={() => {
-          reminder.onEnable();
+          reminder.onEnableHero();
         }}
         onClose={() => {
-          reminder.onDismiss();
+          reminder.onDismissHero();
         }}
       />,
     );
   }
 
-  if (shouldShowCv) {
+  if (cv.shouldShow) {
     cards.push(
-      <TopHero
+      <CvTopHero
         key="cv"
-        subtitle={
-          isJobsEnabled
-            ? 'Upload your CV and let your next job quietly come to you.'
-            : 'Upload your CV to autofill your profile in seconds.'
-        }
-        ctaLabel="Upload CV"
-        illustration={<CvIllustration />}
-        onCtaClick={() => fileInputRef.current?.click()}
-        onClose={() => completeAction(ActionType.ClosedProfileBanner)}
+        subtitle={cv.subtitle}
+        onUpload={cv.onUpload}
+        onClose={cv.onClose}
       />,
     );
   }
@@ -121,33 +88,14 @@ export const HomepageTopBanners = ({
   }
 
   return (
-    <>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={fileValidation.acceptedExtensions
-          .map((ext: string) => `.${ext}`)
-          .join(',')}
-        className="hidden"
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-          if (!file) {
-            return;
-          }
-          onUpload(file);
-          // eslint-disable-next-line no-param-reassign
-          event.target.value = '';
-        }}
-      />
-      <div
-        className={classNames(
-          'grid grid-cols-1 gap-3',
-          cards.length === 2 && 'tablet:grid-cols-2',
-          className,
-        )}
-      >
-        {cards}
-      </div>
-    </>
+    <div
+      className={classNames(
+        'grid grid-cols-1 gap-3',
+        cards.length === 2 && 'tablet:grid-cols-2',
+        className,
+      )}
+    >
+      {cards}
+    </div>
   );
 };

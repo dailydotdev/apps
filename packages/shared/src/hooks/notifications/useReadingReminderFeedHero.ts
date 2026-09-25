@@ -14,6 +14,10 @@ interface UseReadingReminderFeedHeroProps {
   // its impression event). Used when a parent layout owns the top hero
   // and the feed itself should not render or measure it.
   disableTopHero?: boolean;
+  // In the extension `webappUrl` is an absolute URL, so it can never match
+  // the router's path: the new tab has to declare that it is the home feed.
+  isHomeSurface?: boolean;
+  enabled?: boolean;
 }
 
 interface UseReadingReminderFeedHero {
@@ -26,14 +30,17 @@ interface UseReadingReminderFeedHero {
 
 export const useReadingReminderFeedHero = ({
   disableTopHero = false,
+  isHomeSurface,
+  enabled = true,
 }: UseReadingReminderFeedHeroProps = {}): UseReadingReminderFeedHero => {
   const { pathname } = useRouter();
   const { shouldShow, title, subtitle, onEnable, onDismiss } =
     useReadingReminderHero({
       requireMobile: false,
+      enabled,
     });
-  const isHomePage = pathname === webappUrl;
-  const shouldEvaluateReminderPlacement = isHomePage && shouldShow;
+  const isHomePage = isHomeSurface ?? pathname === webappUrl;
+  const shouldEvaluateReminderPlacement = enabled && isHomePage && shouldShow;
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const [isDismissed, setIsDismissed] = useState(false);
 
