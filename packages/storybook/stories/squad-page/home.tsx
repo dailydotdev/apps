@@ -149,7 +149,7 @@ export const SquadHeader = ({
           <Button
             variant={ButtonVariant.Primary}
             size={size}
-            icon={<BoostIcon secondary />}
+            icon={<BoostIcon secondary size={IconSize.Small} />}
             className={className}
           >
             {config.campaign ? 'View boost' : 'Boost'}
