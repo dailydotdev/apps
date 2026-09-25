@@ -76,6 +76,7 @@ describe('ReadingHistoryList component', () => {
             isTokenValid: true,
             getRedirectUri: jest.fn(),
             isAuthReady: true,
+            isAuthReadyOrCached: true,
           }}
         >
           <ReadHistoryList {...props} />
@@ -153,6 +154,7 @@ describe('PostItemCard component', () => {
           isLoggedIn: true,
           closeLogin: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <QueryClientProvider client={new QueryClient()}>
@@ -280,6 +282,7 @@ describe('PostItemCard component', () => {
               isLoggedIn: true,
               closeLogin: jest.fn(),
               isAuthReady: true,
+              isAuthReadyOrCached: true,
             }}
           >
             <QueryClientProvider client={new QueryClient()}>

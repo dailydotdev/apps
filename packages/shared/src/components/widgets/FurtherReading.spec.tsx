@@ -89,6 +89,7 @@ const renderComponent = (
           isTokenValid: true,
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
           isLoggedIn: !!user,
           closeLogin: jest.fn(),
         }}

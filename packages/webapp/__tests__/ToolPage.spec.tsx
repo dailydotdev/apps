@@ -149,6 +149,7 @@ const renderComponent = (
           refetchBoot: jest.fn(),
           isAndroidApp: false,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <SettingsContext.Provider value={settingsContext}>

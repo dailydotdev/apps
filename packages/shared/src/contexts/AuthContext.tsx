@@ -79,6 +79,8 @@ export interface AuthContextData {
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady: boolean;
+  /** `isAuthReady`, or a still-valid cached session before boot lands, for gating paint */
+  isAuthReadyOrCached: boolean;
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
@@ -183,9 +185,10 @@ export const AuthContextProvider = ({
   const growthbook = useGrowthBook();
   // Before boot, wait until the flags and route params that feed query keys
   // are built from have settled, or the feed would be requested twice
-  const isTokenValid =
-    tokenRefreshed ||
-    (!!hasValidCachedToken && !!growthbook?.ready && !!router?.isReady);
+  const isCachedSessionReady =
+    !!hasValidCachedToken && !!growthbook?.ready && !!router?.isReady;
+  const isTokenValid = tokenRefreshed || isCachedSessionReady;
+  const isAuthReady = !isNullOrUndefined(firstLoad);
 
   const showLogin = useCallback(
     ({ trigger, options = {} }) => {
@@ -215,7 +218,8 @@ export const AuthContextProvider = ({
   const value = useMemo<AuthContextData>(
     () => ({
       isFunnel: isFunnelRef.current,
-      isAuthReady: !isNullOrUndefined(firstLoad),
+      isAuthReady,
+      isAuthReadyOrCached: isAuthReady || isCachedSessionReady,
       user: endUser,
       isLoggedIn: !!endUser?.id,
       referral: loginState?.referral ?? referral,
@@ -248,7 +252,8 @@ export const AuthContextProvider = ({
       isGdprCovered: checkIfGdprCovered(geo),
     }),
     [
-      firstLoad,
+      isAuthReady,
+      isCachedSessionReady,
       endUser,
       loginState,
       referral,

@@ -90,6 +90,10 @@ export const defaultLogContextData: LogContextData = {
   sendBeacon: jest.fn(),
 };
 
+// Has its features, so code gated on `growthbook.ready` goes ahead
+export const createReadyGrowthBook = (): GrowthBook =>
+  new GrowthBook({ features: {} });
+
 export const TestBootProvider = ({
   client,
   children,
@@ -113,6 +117,7 @@ export const TestBootProvider = ({
             getRedirectUri: jest.fn(),
             isFetched: true,
             isAuthReady: true,
+            isAuthReadyOrCached: auth.isAuthReady ?? true,
             isLoggedIn: true,
             showLogin: jest.fn(),
             closeLogin: jest.fn(),
