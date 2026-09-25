@@ -116,6 +116,7 @@ const defaultAuthContext = {
   loadingUser: false,
   isFetched: true,
   tokenRefreshed: false,
+  isTokenValid: false,
   loadedUserFromCache: false,
   getRedirectUri: jest.fn(),
   anonymous: undefined,

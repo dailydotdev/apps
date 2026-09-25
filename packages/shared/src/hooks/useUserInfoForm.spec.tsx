@@ -81,6 +81,7 @@ const renderUserInfoForm = (user: LoggedUser = loggedUser) => {
           shouldShowLogin: false,
           showLogin: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           updateUser,
           user,
         }}

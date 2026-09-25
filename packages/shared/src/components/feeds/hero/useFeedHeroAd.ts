@@ -5,6 +5,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import FeedContext from '../../../contexts/FeedContext';
 import { useFeedLayout } from '../../../hooks/useFeedLayout';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../../lib/ads';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import type { FeedHeroAdPlacement, FeedHeroShape } from './feedHeroShape';
@@ -23,7 +24,7 @@ export type FeedHeroAdSlot = {
  * load that painted straight at its final size and so never fired a resize.
  */
 export const useFeedHeroAd = (): FeedHeroAdSlot => {
-  const { user, tokenRefreshed } = useAuthContext();
+  const { user, isTokenValid } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { numCards } = useContext(FeedContext);
   // The same call the feed makes, so the two agree on what a list is.
@@ -32,12 +33,16 @@ export const useFeedHeroAd = (): FeedHeroAdSlot => {
   // with — see `FeedContainer`.
   const shape = feedHeroShape(numCards.eco, shouldUseListFeedLayout);
 
+  const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-hero');
+  const enabled = isTokenValid && !isPlus && shape.adPlacement !== 'none';
   const { data: ad } = useAdQuery({
     placement: AdPlacement.Feed,
-    queryKey: generateQueryKey(RequestKey.Ads, user, 'feed-hero'),
-    enabled: tokenRefreshed && !isPlus && shape.adPlacement !== 'none',
+    queryKey,
+    enabled,
     staleTime: StaleTime.OneHour,
   });
+  // The ad query suffixes the consent to this key, so it matches as a prefix
+  useCachedTokenRecovery({ queryKey, enabled });
 
   return {
     ad: ad ?? undefined,
