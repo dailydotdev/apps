@@ -1,0 +1,2068 @@
+import type { ReactElement, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import classNames from 'classnames';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  AddUserIcon,
+  AnalyticsIcon,
+  AtIcon,
+  BlockIcon,
+  BookmarkIcon,
+  CameraIcon,
+  CardIcon,
+  ClearIcon,
+  ClickIcon,
+  DiscussIcon,
+  DocsIcon,
+  EditIcon,
+  EyeIcon,
+  HomeIcon,
+  LinkIcon,
+  LockIcon,
+  MedalBadgeIcon,
+  MegaphoneIcon,
+  MenuIcon,
+  MergeIcon,
+  OpenLinkIcon,
+  PlayIcon,
+  PlusIcon,
+  PollIcon,
+  SearchIcon,
+  SettingsIcon,
+  ShareIcon,
+  SlackIcon,
+  SparkleIcon,
+  SquadIcon,
+  StarIcon,
+  TimerIcon,
+  TrashIcon,
+  UpvoteIcon,
+  UserIcon,
+  VIcon,
+  WarningIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
+import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
+import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
+import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
+import { SquadEmptyScreen } from '@dailydotdev/shared/src/components/squads/moderation/SquadEmptyScreen';
+import { BlockedMembersPlaceholder } from '@dailydotdev/shared/src/components/squads/Members/BlockedMembersPlaceholder';
+import { AnalyticsNumbersList } from '@dailydotdev/shared/src/components/analytics/AnalyticsNumbersList';
+import { CombinedImpressionsChart } from '@dailydotdev/shared/src/components/analytics/CombinedImpressionsChart';
+import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
+import type { SquadPoll } from './data';
+import {
+  analyticsDays,
+  analyticsDiscovery,
+  analyticsEngagement,
+  entriesByMonth,
+  feedEntries,
+  moderationQueueCount,
+  pendingQueue,
+  formatCount,
+  formatDay,
+  formatSince,
+  companyLinks,
+  polls,
+  products,
+  rules,
+  squad,
+  team,
+} from './data';
+import {
+  Avatar,
+  CardList,
+  Facepile,
+  isAdmin,
+  isBlocked,
+  isJoined,
+  isLoggedIn,
+  isStaff,
+  linkIcon,
+  VerifiedMark,
+  Viewer,
+} from './kit';
+import { PollList } from '@dailydotdev/shared/src/components/cards/poll/PollList';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import { PostsToolbar } from './home';
+import { ClassicSidebar } from './rail';
+import type { SquadConfig, WorkspaceState } from './state';
+import {
+  ContentSource,
+  defaultConfig,
+  MemberRole,
+  PostingGate,
+  useWorkspace,
+  WorkspaceContext,
+} from './state';
+
+// Round three: the Whop mindset. A squad is not a page with widgets, it is a
+// workspace. The owner composes a left column of pages (a feed, a chat, a
+// document, a link, a bounty board, a job list), each page type renders its
+// own UI in the main area, and the app's own rail stays where it is. Three
+// columns, like Whop: communities rail, this community's pages, the page.
+
+/* ------------------------------------------------------------- page model */
+
+export enum PageType {
+  Home = 'home',
+  /** A saved filter on the squad feed with its own posting rule. */
+  Channel = 'channel',
+  Releases = 'releases',
+  Polls = 'polls',
+  Doc = 'doc',
+  Rules = 'rules',
+  Link = 'link',
+  Products = 'products',
+  Members = 'members',
+  Analytics = 'analytics',
+  Moderation = 'moderation',
+  Settings = 'settings',
+  /** Where the content comes from: the RSS feed a company page is fed by. */
+  Feed = 'feed',
+  Add = 'add',
+  /** A member's own posts in the queue. */
+  Pending = 'pending',
+  /** The invitation link landing. */
+  Invite = 'invite',
+  NotFound = 'not-found',
+}
+
+export interface SquadPage {
+  id: string;
+  label: string;
+  type: PageType;
+  /** Unread or open count, shown as a bubble. */
+  badge?: number;
+  /** Only admins and moderators can post. */
+  restricted?: boolean;
+  /** Opens outside daily.dev. */
+  href?: string;
+  /** One line under the channel name on its page. */
+  description?: string;
+  /** Moderators do not see it; only admins. */
+  adminOnly?: boolean;
+}
+
+export interface SidebarSection {
+  id: string;
+  label?: string;
+  pages: SquadPage[];
+  /** Only rendered for admins. */
+  admin?: boolean;
+}
+
+// The shape every developer community converges on. Reddit calls the channel
+// a post flair (Needs help, Discussion, Show and tell, News, Resource,
+// Announcement), GitHub Discussions ships the same list as its default
+// categories (Announcements, General, Ideas, Polls, Q&A, Show and tell) and
+// Discord servers name them #announcements #general #help #showcase #jobs.
+// Recurring threads are Reddit's other invention: the monthly Who's hiring,
+// the weekly easy-questions thread, Showoff Saturday. Rules and a Read-first
+// wiki are the sidebar on every subreddit. daily.dev already has the parts:
+// post types, posting gates, scheduled posts, pinning, the welcome post.
+
+const page = (
+  id: string,
+  label: string,
+  type: PageType,
+  extra: Partial<SquadPage> = {},
+): SquadPage => ({ id, label, type, ...extra });
+
+export const channels = {
+  discussions: page('discussions', 'Discussions', PageType.Channel, {
+    description:
+      'Questions, opinions, feedback, bug reports. If it needs an answer, it lives here.',
+  }),
+  polls: page('polls', 'Polls', PageType.Polls, { badge: 1 }),
+};
+
+export const docs = {
+  rules: page('rules', 'Rules', PageType.Rules),
+  faq: page('faq', 'FAQ', PageType.Doc),
+};
+
+export const common = {
+  home: page('home', 'Home', PageType.Home),
+  members: page('members', 'Followers', PageType.Members),
+  products: page('products', 'Products', PageType.Products),
+  releases: page('releases', 'Releases', PageType.Releases, { badge: 1 }),
+};
+
+/** Pages with no sidebar row: reached from a strip, a link, or a bad URL. */
+export const hidden = {
+  pending: page('pending', 'Pending posts', PageType.Pending),
+  invite: page('invite', 'Invitation', PageType.Invite),
+  notFound: page('not-found', 'Not found', PageType.NotFound),
+};
+
+const link = (id: string, label: string, href: string): SquadPage =>
+  page(id, label, PageType.Link, { href });
+
+export const manage: SidebarSection = {
+  id: 'manage',
+  label: 'Manage',
+  admin: true,
+  pages: [
+    page('feed', 'Content feed', PageType.Feed, { adminOnly: true }),
+    page('moderation', 'Moderation', PageType.Moderation, { badge: 3 }),
+    page('analytics', 'Analytics', PageType.Analytics, { adminOnly: true }),
+    page('settings', 'Settings', PageType.Settings, { adminOnly: true }),
+  ],
+};
+
+export {
+  ContentSource,
+  defaultConfig,
+  MemberRole,
+  PostingGate,
+  postingState,
+  useWorkspace,
+  WorkspaceContext,
+} from './state';
+export type { SquadConfig, WorkspaceState } from './state';
+
+export const sections: SidebarSection[] = [
+  {
+    id: 'top',
+    pages: [common.home, common.releases, common.products],
+  },
+  {
+    id: 'channels',
+    label: 'Channels',
+    pages: [channels.discussions, channels.polls],
+  },
+  {
+    id: 'docs',
+    label: 'Documentation',
+    pages: [docs.rules, docs.faq],
+  },
+  {
+    id: 'links',
+    label: 'Links',
+    pages: companyLinks.map((item) => link(item.id, item.label, item.href)),
+  },
+  manage,
+];
+
+export const pageIcon = (type: PageType, size = IconSize.Small): ReactElement =>
+  ({
+    [PageType.Home]: <HomeIcon size={size} />,
+    [PageType.Channel]: <MegaphoneIcon size={size} />,
+    [PageType.Releases]: <SparkleIcon size={size} secondary />,
+    [PageType.Polls]: <PollIcon size={size} />,
+    [PageType.Doc]: <DocsIcon size={size} />,
+    [PageType.Rules]: <DocsIcon size={size} />,
+    [PageType.Link]: <LinkIcon size={size} />,
+    [PageType.Products]: <CardIcon size={size} />,
+    [PageType.Members]: <UserIcon size={size} />,
+    [PageType.Analytics]: <AnalyticsIcon size={size} />,
+    [PageType.Moderation]: <TimerIcon size={size} />,
+    [PageType.Settings]: <SettingsIcon size={size} />,
+    [PageType.Feed]: <MegaphoneIcon size={size} />,
+    [PageType.Add]: <PlusIcon size={size} />,
+    [PageType.Pending]: <TimerIcon size={size} />,
+    [PageType.Invite]: <AddUserIcon size={size} />,
+    [PageType.NotFound]: <SearchIcon size={size} />,
+  }[type]);
+
+/** Channels get their own glyphs; everything else keeps the type's. */
+const channelIcons: Record<string, ReactElement> = {
+  discussions: <DiscussIcon size={IconSize.Small} />,
+  polls: <PollIcon size={IconSize.Small} />,
+};
+
+export const iconFor = (item: SquadPage): ReactElement =>
+  channelIcons[item.id] ??
+  (item.type === PageType.Link ? linkIcon(item.id) : pageIcon(item.type));
+
+/* ------------------------------------------------------------------ shell */
+
+const shellCss = `
+.ws-scroll { scrollbar-width: thin; scrollbar-color: var(--theme-border-subtlest-tertiary) transparent; }
+.ws-item .ws-item-tools { opacity: 0; }
+.ws-active::before {
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--theme-accent-cabbage-default);
+}
+.ws-item:hover .ws-item-tools { opacity: 1; }
+.ws-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, color-mix(in srgb, var(--theme-background-default), transparent 20%), transparent 60%);
+}
+`;
+
+export const WorkspaceStyles = (): ReactElement => (
+  // eslint-disable-next-line react/no-danger
+  <style dangerouslySetInnerHTML={{ __html: shellCss }} />
+);
+
+/** Production's sidebar outside layout v2, collapsed to its icons. */
+export const Rail = ({ loggedIn }: { loggedIn?: boolean }): ReactElement => (
+  <ClassicSidebar loggedIn={loggedIn} />
+);
+
+/* ------------------------------------------------------------------ pages */
+
+/**
+ * Set by a page that already sizes its content column (the direction's
+ * sub-pages): every page then fills it with the same padding instead of
+ * its own width cap.
+ */
+export const ColumnFitContext = createContext(false);
+
+export const Column = ({
+  children,
+  width = 'max-w-[46rem]',
+  bare = false,
+  className,
+}: {
+  children: ReactNode;
+  width?: string;
+  /** Inside another page's column: no width cap or padding of its own. */
+  bare?: boolean;
+  className?: string;
+}): ReactElement => {
+  const fit = useContext(ColumnFitContext);
+
+  return (
+    <div
+      className={classNames(
+        'flex w-full flex-col gap-5',
+        !bare && 'mx-auto px-4 py-6 tablet:px-6',
+        !bare && !fit && width,
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+};
+
+/**
+ * A channel is the squad feed filtered to one flair, with a posting rule of
+ * its own. The strip under the bar says what belongs here and who may post,
+ * the way a subreddit's flair description and posting rule do.
+ */
+export const ChannelPage = ({
+  page: channel,
+  viewer,
+}: {
+  page: SquadPage;
+  viewer: Viewer;
+}): ReactElement => {
+  const canPost = isStaff(viewer) || (isJoined(viewer) && !channel.restricted);
+
+  return (
+    <Column>
+      {channel.description && (
+        <div className="flex items-center justify-between gap-4 rounded-12 bg-surface-float px-4 py-3">
+          <span className="text-text-secondary typo-footnote">
+            {channel.description}
+          </span>
+          {canPost ? (
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+            >
+              Post to {channel.label}
+            </Button>
+          ) : (
+            <span className="flex shrink-0 items-center gap-1 text-text-quaternary typo-caption1">
+              <LockIcon size={IconSize.XSmall} />
+              {channel.restricted
+                ? 'Team only'
+                : isLoggedIn(viewer)
+                ? 'Follow to post'
+                : 'Sign up to post'}
+            </span>
+          )}
+        </div>
+      )}
+      <PostsToolbar sort="Latest" />
+      <CardList entries={feedEntries.slice(0, 5)} />
+    </Column>
+  );
+};
+
+/** Reddit's rules widget, as a page: numbered, one line each, with the why. */
+export const RulesPage = (): ReactElement => {
+  const fit = useContext(ColumnFitContext);
+
+  return (
+    <Column width="max-w-[44rem]" className="gap-6">
+      <div className="flex flex-col gap-1">
+        {!fit && (
+          <h1 className="font-bold text-text-primary typo-large-title">
+            Rules
+          </h1>
+        )}
+        <p className="text-text-tertiary typo-callout">
+          Shown once before your first post. Moderators remove what breaks them.
+        </p>
+      </div>
+      <ol className="flex flex-col gap-5">
+        {rules.map(([title, body], index) => (
+          <li key={title} className="flex gap-4">
+            <span className="sq-nums w-5 shrink-0 font-bold text-text-quaternary typo-callout">
+              {index + 1}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="font-bold text-text-primary typo-callout">
+                {title}
+              </span>
+              <span className="text-text-tertiary typo-footnote">{body}</span>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Column>
+  );
+};
+
+/** A freeform post, rendered as a page: the FAQ, or any document. */
+export const DocPage = ({ page }: { page: SquadPage }): ReactElement => {
+  const fit = useContext(ColumnFitContext);
+
+  return (
+    <Column width="max-w-[44rem]" className="gap-6">
+      {!fit && (
+        <h1 className="font-bold text-text-primary typo-large-title">
+          {page.id === 'start-here'
+            ? `Welcome to ${squad.name}`
+            : page.id === 'rules'
+            ? 'Rules and how to post'
+            : 'Frequently asked questions'}
+        </h1>
+      )}
+      <p className="text-text-secondary typo-body">
+        {page.id === 'start-here'
+          ? `Everything the ${squad.name} team ships, announced here first. Releases, betas, the reasoning behind changes, and a place to tell us what broke.`
+          : page.id === 'rules'
+          ? 'This squad is a changelog. Posts from the team are announcements; posts from members are questions, bug reports and feedback about a release.'
+          : 'Answers to the questions we get every week, kept current by the team.'}
+      </p>
+      <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-16 bg-surface-float">
+        <img
+          src={feedEntries[0].image ?? ''}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
+        />
+        <span className="sq-elevated relative flex size-14 items-center justify-center rounded-full bg-background-default text-text-primary">
+          <PlayIcon size={IconSize.Medium} />
+        </span>
+      </div>
+      <h2 className="font-bold text-text-primary typo-title3">
+        Where to start
+      </h2>
+      <ul className="flex list-disc flex-col gap-1.5 pl-5 text-text-secondary typo-body">
+        <li>
+          Read <span className="text-text-link">Announcements</span> for what
+          shipped this week.
+        </li>
+        <li>Turn on notifications for the squad so a release finds you.</li>
+        <li>
+          Something broke? Post it to Home with the{' '}
+          <span className="font-bold">#bug</span> tag and a team member picks it
+          up.
+        </li>
+      </ul>
+      <h2 className="font-bold text-text-primary typo-title3">Get involved</h2>
+      <ul className="flex list-disc flex-col gap-1.5 pl-5 text-text-secondary typo-body">
+        <li>
+          Ask in <span className="text-text-link">Discussions</span>; the team
+          answers there.
+        </li>
+        <li>
+          The public API is open:{' '}
+          <span className="text-text-link">docs.coderabbit.ai</span>.
+        </li>
+      </ul>
+      <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary pt-4 text-text-quaternary typo-footnote">
+        <Avatar member={team[3]} size={1.25} />
+        Maintained by {team[3].name} · Updated 2 days ago
+      </div>
+    </Column>
+  );
+};
+
+/**
+ * The changelog as a log, not a feed: GitHub Releases' shape. Every post
+ * flaired as a release lands here grouped by month, newest first, with the
+ * kind as a filter. The Announcements channel is where they are discussed;
+ * this is where they are found.
+ */
+export const ReleasesPage = ({
+  viewer,
+  bare,
+}: {
+  viewer: Viewer;
+  bare?: boolean;
+}): ReactElement => {
+  const { source, empty } = useWorkspace();
+
+  return (
+    <Column width="max-w-[52rem]" bare={bare} className="gap-6">
+      {source === ContentSource.Feed && (
+        <div className="flex items-center gap-3 rounded-12 bg-surface-float px-4 py-2.5 text-text-tertiary typo-footnote">
+          <MegaphoneIcon size={IconSize.Small} />
+          <span className="min-w-0 flex-1">
+            Published from the company&apos;s feed,{' '}
+            <span className="break-all text-text-secondary">
+              {squad.feedUrl}
+            </span>
+            . Every item becomes a post here the hour it goes live.
+          </span>
+          <span className="sq-nums hidden shrink-0 text-text-quaternary typo-caption1 tablet:inline">
+            Synced 2h ago
+          </span>
+        </div>
+      )}
+      {empty && (
+        <div className="flex flex-col items-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary px-6 py-12 text-center">
+          <span className="font-bold text-text-primary typo-callout">
+            No releases yet
+          </span>
+          <span className="max-w-[40ch] text-text-tertiary typo-footnote">
+            {source === ContentSource.Feed
+              ? 'The feed is connected. The first item lands here the hour it is published.'
+              : 'Post the first release and it starts the log.'}
+          </span>
+        </div>
+      )}
+      {((isStaff(viewer) && source === ContentSource.Manual) ||
+        (isAdmin(viewer) && source === ContentSource.Feed)) && (
+        <div className="flex justify-end">
+          {source === ContentSource.Manual ? (
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+            >
+              New release
+            </Button>
+          ) : (
+            <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+              Feed settings
+            </Button>
+          )}
+        </div>
+      )}
+      <ol className={classNames('flex flex-col gap-6', empty && 'hidden')}>
+        {entriesByMonth
+          .flatMap((group) => group.items)
+          .map((entry) => (
+            <li key={entry.id} className="group flex gap-4">
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <span className="font-bold text-text-primary typo-callout">
+                  {entry.title}
+                </span>
+                <p className="line-clamp-2 text-text-secondary typo-footnote">
+                  {entry.summary}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-quaternary typo-caption1">
+                  <time className="sq-nums">{formatDay(entry.createdAt)}</time>
+                  <span className="flex items-center gap-1.5">
+                    <Avatar member={entry.author} size={1} />
+                    {entry.author.name}
+                  </span>
+                  <span className="sq-nums flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <UpvoteIcon size={IconSize.XSmall} />
+                      {entry.upvotes}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <DiscussIcon size={IconSize.XSmall} />
+                      {entry.comments}
+                    </span>
+                  </span>
+                </div>
+              </div>
+              {entry.image && (
+                <img
+                  src={entry.image}
+                  alt=""
+                  className="h-16 w-24 shrink-0 rounded-12 object-cover tablet:h-20 tablet:w-32"
+                />
+              )}
+            </li>
+          ))}
+      </ol>
+    </Column>
+  );
+};
+
+const noop = () => undefined;
+const cardHandlers = {
+  onPostClick: noop,
+  onPostAuxClick: noop,
+  onUpvoteClick: noop,
+  onDownvoteClick: noop,
+  onCommentClick: noop,
+  onBookmarkClick: noop,
+  onCopyLinkClick: noop,
+  onShare: noop,
+  onReadArticleClick: noop,
+};
+
+const pollSource = {
+  id: squad.handle,
+  handle: squad.handle,
+  name: squad.name,
+  permalink: squad.permalink,
+  image: squad.image,
+  type: 'squad' as const,
+  active: true,
+  public: true,
+};
+
+/** A quiz question as a real poll post, so the production poll card renders it. */
+const toPollPost = (poll: SquadPoll, picked?: number): Post =>
+  ({
+    id: poll.id,
+    title: poll.question,
+    permalink: `https://daily.dev/posts/${poll.id}`,
+    commentsPermalink: `https://daily.dev/posts/${poll.id}`,
+    createdAt: '2026-09-20T09:00:00.000Z',
+    endsAt: poll.endsAt,
+    type: PostType.Poll,
+    source: pollSource,
+    author: {
+      id: poll.author.id,
+      name: poll.author.name,
+      username: poll.author.username,
+      image: poll.author.image,
+      permalink: `https://daily.dev/${poll.author.username}`,
+    },
+    numUpvotes: 31,
+    numComments: 12,
+    numPollVotes: poll.votes,
+    pollOptions: poll.options.map((text, index) => ({
+      id: `${poll.id}-${index}`,
+      text,
+      order: index + 1,
+      numVotes: Math.round((poll.split[index] / 100) * poll.votes),
+    })),
+    tags: ['coderabbit'],
+    userState: {
+      vote: UserVote.None,
+      flags: { feedbackDismiss: false },
+      ...(picked !== undefined && {
+        pollOption: { id: `${poll.id}-${picked}` },
+      }),
+    },
+  } as unknown as Post);
+
+/**
+ * Polls, on the production poll card. The company asks, members vote in
+ * place, the card flips to its results. The click is caught before the
+ * card's own vote mutation so the story stays offline.
+ */
+export const PollsPage = ({
+  viewer,
+  bare,
+}: {
+  viewer: Viewer;
+  bare?: boolean;
+}): ReactElement => {
+  const [votes, setVotes] = useState<Record<string, number>>({});
+
+  return (
+    <Column bare={bare} className="gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <span className="min-w-0 flex-1 basis-56 text-text-tertiary typo-footnote">
+          What the team wants to know from you. One vote each, results when you
+          vote.
+        </span>
+        {isStaff(viewer) ? (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+          >
+            New poll
+          </Button>
+        ) : (
+          <span className="sq-nums shrink-0 text-text-quaternary typo-caption1">
+            {polls.length} open
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col gap-4">
+        {polls.map((poll) => {
+          const picked = votes[poll.id];
+
+          return (
+            <div
+              key={poll.id}
+              onClickCapture={(event) => {
+                if (picked !== undefined || !isJoined(viewer)) {
+                  return;
+                }
+                const option = (event.target as HTMLElement)
+                  .closest('button')
+                  ?.textContent?.trim();
+                const index = poll.options.indexOf(option ?? '');
+                if (index === -1) {
+                  return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                setVotes((current) => ({ ...current, [poll.id]: index }));
+              }}
+            >
+              <PollList post={toPollPost(poll, picked)} {...cardHandlers} />
+            </div>
+          );
+        })}
+      </div>
+    </Column>
+  );
+};
+
+const importSources = ['Product Hunt', 'G2', 'Trustpilot', 'GitHub', 'A URL'];
+
+/**
+ * Everything the company makes, on one page. Listings are imported, not
+ * typed: paste a Product Hunt, G2, Trustpilot or GitHub link and the card
+ * arrives with the logo, tagline, category and the source's rating.
+ */
+export const ProductsPage = ({ viewer }: { viewer: Viewer }): ReactElement => (
+  <Column width="max-w-[56rem]">
+    <p className="max-w-[52ch] text-text-secondary typo-callout">
+      Everything {squad.name} makes.
+    </p>
+    {/* Product Hunt's list: logo, name and tagline, then the chips. */}
+    <ol className="flex flex-col gap-6">
+      {products.map((product) => (
+        <li key={product.id} className="group flex items-start gap-4">
+          <img
+            src={product.image}
+            alt=""
+            className="size-12 shrink-0 self-start rounded-12 bg-background-default object-cover"
+          />
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="font-bold text-text-primary typo-callout">
+              {product.name}
+            </span>
+            <span className="line-clamp-2 text-text-secondary typo-footnote">
+              {product.tagline}
+            </span>
+            <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-caption1">
+              {product.rating && (
+                <span className="sq-nums flex items-center gap-1">
+                  <StarIcon
+                    size={IconSize.XSmall}
+                    secondary
+                    className="text-text-primary"
+                  />
+                  <span className="text-text-primary">
+                    {product.rating.toFixed(1)}
+                  </span>
+                  {formatCount(product.reviews ?? 0)} on {product.source}
+                </span>
+              )}
+              <span className="rounded-6 bg-surface-float px-1.5 py-0.5">
+                {product.category}
+              </span>
+              <span className="rounded-6 bg-surface-float px-1.5 py-0.5">
+                {product.pricing}
+              </span>
+              {product.links.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-1 hover:text-text-primary"
+                >
+                  <OpenLinkIcon size={IconSize.XSmall} />
+                  {item.label}
+                </a>
+              ))}
+            </span>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </Column>
+);
+
+enum MemberTab {
+  All = 'Followers',
+  Moderators = 'Moderators',
+  Blocked = 'Blocked',
+}
+
+const roleActions: Record<string, string[]> = {
+  Admin: ['Demote to moderator', 'Demote to follower'],
+  Moderator: ['Make admin', 'Demote to follower'],
+  Member: ['Make admin', 'Promote to moderator'],
+};
+
+/* The team snapshot is all admins and moderators; the tail plays members. */
+const roleOf = (member: (typeof team)[number]): string =>
+  team.indexOf(member) >= 5 ? 'Member' : member.role;
+
+/**
+ * Production's SquadMemberModal as a page: three tabs (Blocked for staff
+ * only), search, Copy invitation link first when the viewer may invite,
+ * a role badge on every row, and the per-member menu for staff.
+ */
+export const MembersPage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const { config } = useWorkspace();
+  const [tab, setTab] = useState<MemberTab>(MemberTab.All);
+  const [menu, setMenu] = useState<string | null>(null);
+  const staff = isStaff(viewer);
+  const canInvite =
+    isJoined(viewer) &&
+    (staff || config.memberInviteRole === MemberRole.Member);
+  const tabs = [
+    MemberTab.All,
+    MemberTab.Moderators,
+    ...(staff ? [MemberTab.Blocked] : []),
+  ];
+  const blocked = team.slice(6, 8);
+  const rows =
+    tab === MemberTab.Blocked
+      ? blocked
+      : tab === MemberTab.Moderators
+      ? team.filter((member) => roleOf(member) !== 'Member')
+      : team;
+
+  return (
+    <Column>
+      <SquadDirectoryNavbar
+        aria-label="Followers filters"
+        className="!mx-0 !border-0 !px-0"
+      >
+        {tabs.map((item) => (
+          <SquadDirectoryNavbarItem
+            key={item}
+            buttonSize={ButtonSize.Small}
+            isActive={tab === item}
+            label={item}
+            ariaLabel={item}
+            onClick={() => setTab(item)}
+          />
+        ))}
+      </SquadDirectoryNavbar>
+      <SearchField
+        inputId="followers-search"
+        placeholder={`Search ${tab.toLowerCase()}`}
+        aria-label={`Search ${tab.toLowerCase()}`}
+      />
+      <span className="text-text-tertiary typo-footnote">
+        <b className="sq-nums text-text-primary">
+          {tab === MemberTab.Blocked
+            ? blocked.length
+            : tab === MemberTab.Moderators
+            ? rows.length
+            : formatCount(squad.membersCount)}
+        </b>{' '}
+        {tab.toLowerCase()}
+      </span>
+      {rows.length === 0 ? (
+        <BlockedMembersPlaceholder />
+      ) : (
+        <div className="flex flex-col gap-4">
+          {canInvite && tab !== MemberTab.Blocked && (
+            <button
+              type="button"
+              className="flex items-center gap-3 text-left text-text-primary typo-callout hover:text-text-secondary"
+            >
+              <span className="flex size-10 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
+                <AddUserIcon size={IconSize.Medium} />
+              </span>
+              Copy invitation link
+            </button>
+          )}
+          {rows.map((member) => (
+            <div key={member.id} className="relative flex items-center gap-3">
+              <Avatar member={member} size={2.5} />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="flex min-w-0 items-center gap-2 font-bold text-text-primary typo-callout">
+                  <span className="truncate">{member.name}</span>
+                  {tab !== MemberTab.Blocked && roleOf(member) !== 'Member' && (
+                    <UserBadge
+                      role={
+                        roleOf(member) === 'Admin'
+                          ? SourceMemberRole.Admin
+                          : SourceMemberRole.Moderator
+                      }
+                      className="font-normal"
+                    >
+                      {roleOf(member).toLowerCase()}
+                    </UserBadge>
+                  )}
+                </span>
+                <span className="truncate text-text-tertiary typo-footnote">
+                  @{member.username}
+                </span>
+              </div>
+              {tab === MemberTab.Blocked ? (
+                staff && (
+                  <Button
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Small}
+                    icon={<BlockIcon />}
+                    aria-label="Unblock"
+                    title="Unblock"
+                  />
+                )
+              ) : staff ? (
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  icon={<MenuIcon />}
+                  aria-label="Member options"
+                  onClick={() => setMenu(menu === member.id ? null : member.id)}
+                />
+              ) : (
+                <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                  Follow
+                </Button>
+              )}
+              {menu === member.id && (
+                <ul className="sq-elevated absolute right-4 top-full z-popup -mt-1 flex w-56 flex-col rounded-12 bg-background-default p-1">
+                  {[
+                    ...(isAdmin(viewer)
+                      ? roleActions[roleOf(member)] ?? []
+                      : []),
+                    'Report follower',
+                    'Block follower',
+                    'Gift daily.dev Plus',
+                  ].map((label) => (
+                    <li key={label}>
+                      <button
+                        type="button"
+                        onClick={() => setMenu(null)}
+                        className={classNames(
+                          'flex w-full items-center rounded-8 px-2 py-1.5 text-left typo-callout hover:bg-surface-float',
+                          label === 'Block follower'
+                            ? 'text-status-error'
+                            : 'text-text-secondary hover:text-text-primary',
+                        )}
+                      >
+                        {label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </Column>
+  );
+};
+
+const pendingPosts = pendingQueue;
+
+/**
+ * Production's moderation queue for a moderator: Approve all above two or
+ * more, spam warnings, the poll item, Decline with its reason list, and
+ * the all-done state.
+ */
+export const ModerationPage = (): ReactElement => {
+  const { empty } = useWorkspace();
+  const [declining, setDeclining] = useState<string | null>(null);
+
+  if (empty) {
+    return (
+      <Column>
+        <SquadEmptyScreen
+          Icon={VIcon}
+          title="All done!"
+          description="All caught up! There are no posts waiting for your review right now."
+        />
+      </Column>
+    );
+  }
+
+  return (
+    <Column>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="min-w-0 flex-1 basis-60 text-text-secondary typo-callout">
+          <b className="sq-nums text-text-primary">{moderationQueueCount}</b>{' '}
+          posts waiting. Approve and they go live; decline and the author hears
+          why.
+        </span>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<VIcon secondary />}
+        >
+          Approve all {moderationQueueCount} posts
+        </Button>
+      </div>
+      <div className="flex flex-col gap-8">
+        {[...pendingPosts, null].map((entry, index) => {
+          const key = entry?.id ?? 'poll';
+          const author = entry?.author ?? polls[1].author;
+          return (
+            <div key={key} className="flex flex-col gap-3">
+              {index === 0 && (
+                <span className="flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-secondary typo-footnote">
+                  <WarningIcon
+                    size={IconSize.Small}
+                    className="shrink-0 text-status-warning"
+                  />
+                  Shared in multiple Squads · Spam alert
+                </span>
+              )}
+              <div className="flex items-center gap-3">
+                <Avatar member={author} size={2.5} />
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="font-bold text-text-primary typo-footnote">
+                    {author.name}
+                  </span>
+                  <span className="text-text-tertiary typo-caption1">
+                    {entry ? formatDay(entry.createdAt) : 'Today'}
+                    {index === 2 && ' · Resubmitted Post'}
+                    {!entry && ' · Poll'}
+                  </span>
+                </div>
+              </div>
+              {entry ? (
+                <div className="flex gap-4">
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="font-bold text-text-primary typo-callout">
+                      {entry.title}
+                    </span>
+                    <span className="line-clamp-2 text-text-tertiary typo-footnote">
+                      {entry.summary}
+                    </span>
+                  </div>
+                  {entry.image && (
+                    <img
+                      src={entry.image}
+                      alt=""
+                      className="h-16 w-28 shrink-0 rounded-10 object-cover"
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <span className="font-bold text-text-primary typo-callout">
+                    {polls[1].question}
+                  </span>
+                  <ul className="flex flex-col gap-1">
+                    {polls[1].options.map((option) => (
+                      <li
+                        key={option}
+                        className="rounded-10 border border-border-subtlest-tertiary px-3 py-1.5 text-text-secondary typo-footnote"
+                      >
+                        {option}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {declining === key ? (
+                <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3">
+                  <span className="font-bold text-text-primary typo-footnote">
+                    Select a reason for declining
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {rejectReasons.map((reason) => (
+                      <button
+                        key={reason}
+                        type="button"
+                        onClick={() => setDeclining(null)}
+                        className="rounded-[999px] border border-border-subtlest-tertiary px-2.5 py-1 text-text-secondary typo-caption1 hover:border-border-subtlest-primary hover:text-text-primary"
+                      >
+                        {reason}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                    icon={<BlockIcon />}
+                    className="flex-1"
+                    onClick={() => setDeclining(key)}
+                  >
+                    Decline
+                  </Button>
+                  <Button
+                    variant={ButtonVariant.Primary}
+                    size={ButtonSize.Small}
+                    icon={<VIcon secondary />}
+                    className="flex-1"
+                  >
+                    Approve
+                  </Button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Column>
+  );
+};
+
+const feedItems = feedEntries.slice(0, 4);
+
+/**
+ * The company page's engine. A verified page is a squad fed by the
+ * company's RSS: items land in Releases as posts, daily.dev runs the feed
+ * and the moderation, the company keeps the keys. This is the admin's view
+ * of that arrangement.
+ */
+export const FeedSourcePage = (): ReactElement => (
+  <Column width="max-w-[52rem]" className="gap-6">
+    <div className="flex flex-wrap items-start gap-x-3 gap-y-3">
+      <VerifiedMark label={false} />
+      <div className="flex min-w-0 flex-1 basis-56 flex-col">
+        <span className="font-bold text-text-primary typo-callout">
+          Managed by daily.dev
+        </span>
+        <span className="text-text-tertiary typo-footnote">
+          Your feed is imported, moderated and kept in sync by our team. You
+          keep the keys: pause, edit any post, or write your own.
+        </span>
+      </div>
+      <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+        Contact your manager
+      </Button>
+    </div>
+    <div className="h-px w-full bg-border-subtlest-tertiary" />
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-text-primary typo-body">Source</span>
+        <span className="flex items-center gap-1.5 text-status-success typo-caption1">
+          <span className="size-1.5 rounded-full bg-status-success" />
+          Healthy
+        </span>
+      </div>
+      <dl className="grid grid-cols-1 gap-x-8 gap-y-3 tablet:grid-cols-2">
+        {[
+          ['Feed', squad.feedUrl],
+          ['Publishes to', 'Releases'],
+          ['Checked', 'Every hour · last 2h ago'],
+          [
+            'Imported',
+            `${squad.totalPosts} items since ${formatSince(squad.createdAt)}`,
+          ],
+          ['Author on posts', 'The team member in the item, or the squad'],
+          ['Auto-publish', 'On · new items go live without review'],
+        ].map(([label, value]) => (
+          <div key={label} className="flex flex-col gap-0.5">
+            <dt className="text-text-quaternary typo-caption1">{label}</dt>
+            <dd className="break-words text-text-primary typo-callout [overflow-wrap:anywhere]">
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <div className="flex flex-wrap gap-2">
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+          Sync now
+        </Button>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+          Pause feed
+        </Button>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+          Add a feed
+        </Button>
+      </div>
+    </div>
+    <div className="h-px w-full bg-border-subtlest-tertiary" />
+    <div className="flex flex-col gap-3">
+      <span className="font-bold text-text-primary typo-body">
+        Recent imports
+      </span>
+      <ol className="flex flex-col gap-3">
+        {feedItems.map((entry) => (
+          <li key={entry.id} className="flex items-center gap-3">
+            <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
+              {entry.title}
+            </span>
+            <span className="sq-nums shrink-0 text-text-quaternary typo-caption1">
+              {formatDay(entry.createdAt)}
+            </span>
+            <span className="shrink-0 rounded-6 bg-surface-float px-1.5 py-0.5 text-text-tertiary typo-caption2">
+              Published
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </Column>
+);
+
+/**
+ * Production's Unauthorized screen, word for word: a private squad has no
+ * request-to-join, the invitation link is the only door. Shown to every
+ * non-member on every page but Home.
+ */
+export const PrivateWall = ({ viewer }: { viewer: Viewer }): ReactElement => (
+  <Column>
+    <div className="flex flex-col items-center gap-3 px-2 py-14 text-center">
+      <LockIcon
+        secondary
+        size={IconSize.XLarge}
+        className="text-text-secondary"
+      />
+      <span className="font-bold text-text-primary typo-title3">
+        Oops! This link leads to a private discussion
+      </span>
+      <span className="max-w-[44ch] text-text-tertiary typo-footnote">
+        You don&apos;t seem to have access to this page. Try to ask the person
+        who shared this link with you for permissions.
+      </span>
+      <div className="mt-2 flex gap-2">
+        <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
+          Back home
+        </Button>
+        {!isLoggedIn(viewer) && (
+          <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
+            Log in
+          </Button>
+        )}
+      </div>
+    </div>
+  </Column>
+);
+
+/** Production's Custom404: a deleted squad, a bad handle. */
+export const NotFoundPage = (): ReactElement => (
+  <Column>
+    <div className="flex flex-col items-center gap-3 px-6 py-20 text-center">
+      <span className="font-bold text-text-primary typo-mega3">
+        Why are you here?
+      </span>
+      <span className="text-text-tertiary typo-body">
+        You&apos;re not supposed to be here.
+      </span>
+      <div className="mt-3 flex gap-2">
+        <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
+          Go home
+        </Button>
+        <Button variant={ButtonVariant.Subtle} size={ButtonSize.Medium}>
+          Find Squads
+        </Button>
+      </div>
+    </div>
+  </Column>
+);
+
+/**
+ * Production's /squads/[handle]/[token], the invitation landing: the
+ * inviter, the squad card, Join, and who is waiting inside. A member is
+ * redirected past it; a blocked user is told at the door.
+ */
+export const InvitePage = ({ viewer }: { viewer: Viewer }): ReactElement => {
+  const inviter = team[2];
+  const others = team.filter((member) => member.id !== inviter.id);
+
+  return (
+    <Column
+      width="max-w-[40rem]"
+      className="items-center gap-6 py-12 text-center"
+    >
+      <h1 className="font-bold text-text-primary typo-title1">
+        You are invited to join {squad.name}
+      </h1>
+      <p className="text-text-tertiary typo-body">
+        {squad.name} is your place to stay up to date as a Squad. You and other
+        followers can share knowledge and content in one place. Follow now to
+        start collaborating.
+      </p>
+      <div className="flex items-center gap-4 text-left">
+        <Avatar member={inviter} size={2.5} />
+        <p className="min-w-0 flex-1 text-text-tertiary typo-body">
+          <b className="text-text-primary">{inviter.name}</b>{' '}
+          <span className="text-text-link">(@{inviter.username})</span> has
+          invited you to <b className="text-text-primary">{squad.name}</b>
+        </p>
+      </div>
+      <div className="flex w-full flex-col items-center gap-4 rounded-24 border border-accent-cabbage-default p-6 text-center tablet:flex-row tablet:text-left">
+        <img
+          src={squad.image}
+          alt=""
+          className="size-16 shrink-0 rounded-full"
+        />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="flex items-center gap-1 font-bold text-text-primary typo-body">
+            {squad.name}
+            <VerifiedMark label={false} />
+          </span>
+          <span className="text-text-tertiary typo-callout">
+            @{squad.handle}
+          </span>
+          <span className="mt-2 text-text-tertiary typo-callout">
+            {squad.description}
+          </span>
+        </div>
+        {isJoined(viewer) ? (
+          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Large}>
+            Open Squad
+          </Button>
+        ) : (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
+            disabled={isBlocked(viewer)}
+          >
+            Follow
+          </Button>
+        )}
+      </div>
+      {isBlocked(viewer) && (
+        <span className="rounded-12 bg-surface-float px-4 py-2 text-text-secondary typo-callout">
+          🚫 You no longer have access to this Squad.
+        </span>
+      )}
+      {isJoined(viewer) && (
+        <span className="rounded-12 bg-surface-float px-4 py-2 text-text-secondary typo-callout">
+          You already follow this page. Production sends you straight to it.
+        </span>
+      )}
+      <p className="text-text-tertiary typo-body">
+        {inviter.name} and {formatCount(squad.membersCount - 1)} others are
+        waiting for you inside. Join them now!
+      </p>
+      <Facepile members={others} max={8} size={2} />
+      {!isLoggedIn(viewer) && (
+        <span className="text-text-quaternary typo-caption1">
+          Follow opens sign up first; the invitation is kept through it.
+        </span>
+      )}
+    </Column>
+  );
+};
+
+/* ------------------------------------------------------------- settings */
+
+interface SettingsOption {
+  value: string;
+  label: string;
+  hint?: string;
+  /** Shown under the option while it is picked, like the category under Public. */
+  after?: ReactNode;
+}
+
+const SettingsRadio = ({
+  name,
+  options,
+  value,
+  onChange,
+  disabled = false,
+}: {
+  name: string;
+  options: SettingsOption[];
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}): ReactElement => (
+  <Radio
+    name={name}
+    value={value}
+    onChange={onChange}
+    disabled={disabled}
+    className={{
+      container: '!gap-3',
+      content: '!items-start !whitespace-normal !pr-0',
+      label: 'min-w-0 flex-1',
+    }}
+    options={options.map((option) => ({
+      value: option.value,
+      afterElement: option.after && value === option.value && (
+        <div className="ml-9 mt-2">{option.after}</div>
+      ),
+      label: (
+        <span className="flex flex-col gap-0.5 pt-1.5">
+          <span
+            className={classNames(
+              'typo-callout',
+              disabled ? 'text-text-disabled' : 'text-text-primary',
+            )}
+          >
+            {option.label}
+          </span>
+          {option.hint && (
+            <span className="text-text-tertiary typo-footnote">
+              {option.hint}
+            </span>
+          )}
+        </span>
+      ),
+    }))}
+  />
+);
+
+const SettingsSection = ({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}): ReactElement => (
+  <section className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1">
+      <Typography type={TypographyType.Body} bold>
+        {title}
+      </Typography>
+      {description && (
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {description}
+        </Typography>
+      )}
+    </div>
+    {children}
+  </section>
+);
+
+export const ImageActions = ({
+  label,
+  className,
+  removable = true,
+}: {
+  label: string;
+  className?: string;
+  /** False while nothing is uploaded yet. */
+  removable?: boolean;
+}): ReactElement => (
+  <div className={classNames('flex gap-2', className)}>
+    <Button
+      type="button"
+      className="bg-shadow-shadow3"
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      icon={<CameraIcon size={IconSize.Medium} />}
+      aria-label={`Upload ${label}`}
+    />
+    {removable && (
+      <Button
+        type="button"
+        className="bg-shadow-shadow3"
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<ClearIcon size={IconSize.Medium} />}
+        aria-label={`Remove ${label}`}
+      />
+    )}
+  </div>
+);
+
+const SettingsRow = ({
+  icon,
+  title,
+  description,
+  action,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  action: ReactNode;
+}): ReactElement => (
+  <div className="flex items-center gap-4">
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float">
+      {icon}
+    </span>
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <Typography type={TypographyType.Callout} bold>
+        {title}
+      </Typography>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        className="[overflow-wrap:anywhere]"
+      >
+        {description}
+      </Typography>
+    </div>
+    {action}
+  </div>
+);
+
+const squadCategories = [
+  'Developer tools',
+  'Web development',
+  'DevOps and cloud',
+  'AI and machine learning',
+  'Mobile',
+  'Open source',
+  'Career',
+  'Fun',
+];
+
+/**
+ * Production's Squad settings (Details.tsx and the settings sections),
+ * laid out like the profile settings pages: a bold title and a short
+ * description per section, separators between them.
+ */
+export type SettingsPart = 'details' | 'posting' | 'integrations' | 'danger';
+
+export const SettingsPage = ({
+  only,
+}: {
+  /** One part of the settings, for the Manage area; all of them otherwise. */
+  only?: SettingsPart;
+} = {}): ReactElement => {
+  const shows = (part: SettingsPart): boolean => !only || only === part;
+  const { config, source } = useWorkspace();
+  const [state, setState] = useState(config);
+  const membersOnly = state.memberPostingRole === MemberRole.Moderator;
+  const roleOptions = [
+    { value: MemberRole.Member, label: 'All members (recommended)' },
+    { value: MemberRole.Moderator, label: 'Only moderators' },
+  ];
+  const parts: ReactNode[] = [];
+
+  if (shows('details')) {
+    parts.push(
+      <div key="identity" className="flex flex-col gap-6">
+        <div className="relative mb-10">
+          <div className="group relative h-24 w-full">
+            <div className="relative h-full w-full overflow-hidden rounded-16">
+              <img
+                src={squad.headerImage}
+                alt="Squad cover"
+                className={classNames(
+                  'h-full w-full object-cover',
+                  squad.headerImagePosition === 'top' && 'object-top',
+                  squad.headerImagePosition === 'bottom' && 'object-bottom',
+                )}
+              />
+            </div>
+            <ImageActions
+              label="cover"
+              className="absolute right-6 top-1/2 -translate-y-1/2"
+            />
+          </div>
+          <div className="absolute bottom-0 left-6 size-[7.5rem] translate-y-1/2">
+            <div className="size-full overflow-hidden rounded-full bg-background-default">
+              <img
+                src={squad.image}
+                alt="Squad image"
+                className="size-full object-cover"
+              />
+            </div>
+            <ImageActions
+              label="image"
+              className="absolute inset-0 items-center justify-center"
+            />
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col gap-4">
+          <TextField
+            inputId="squad-name"
+            name="name"
+            label="Squad name"
+            leftIcon={<SquadIcon />}
+            defaultValue={squad.name}
+            className={{ container: 'w-full' }}
+          />
+          <TextField
+            inputId="squad-handle"
+            name="handle"
+            label="Squad handle"
+            leftIcon={<AtIcon />}
+            defaultValue={squad.handle}
+            hint={`daily.dev/squads/${squad.handle}`}
+            className={{ container: 'w-full' }}
+          />
+          <Textarea
+            inputId="squad-description"
+            name="description"
+            label="Squad description"
+            defaultValue={squad.description}
+            rows={3}
+            maxLength={250}
+          />
+        </div>
+      </div>,
+      <SettingsSection
+        key="type"
+        title="Squad type"
+        description="Who can find the page and read it."
+      >
+        <SettingsRadio
+          name="squad-type"
+          value={state.isPublic ? 'public' : 'private'}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              isPublic: value === 'public',
+            }))
+          }
+          options={[
+            {
+              value: 'public',
+              label: 'Public',
+              hint: 'Listed in the directory and open to anyone.',
+              after: (
+                <Dropdown
+                  placeholder="Select category"
+                  className={{ container: 'w-56' }}
+                  options={squadCategories}
+                  selectedIndex={squadCategories.indexOf(state.category ?? '')}
+                  onChange={(value) =>
+                    setState((current) => ({ ...current, category: value }))
+                  }
+                />
+              ),
+            },
+            {
+              value: 'private',
+              label: 'Private',
+              hint: 'Invite only and hidden from the directory.',
+            },
+          ]}
+        />
+      </SettingsSection>,
+    );
+  }
+
+  if (shows('posting')) {
+    parts.push(
+      <SettingsSection
+        key="post"
+        title="Who can post"
+        description="Admins and moderators can always post."
+      >
+        <SettingsRadio
+          name="post-role"
+          value={state.memberPostingRole}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              memberPostingRole: value as MemberRole,
+              postingGate:
+                value === MemberRole.Moderator
+                  ? PostingGate.None
+                  : current.postingGate,
+            }))
+          }
+          options={roleOptions}
+        />
+      </SettingsSection>,
+      <SettingsSection
+        key="requirements"
+        title="Posting requirements"
+        description={
+          membersOnly
+            ? 'Only admins and moderators can post, so their posts publish right away.'
+            : 'Whether a member’s post is reviewed before it goes live.'
+        }
+      >
+        <SettingsRadio
+          name="post-gate"
+          disabled={membersOnly}
+          value={state.postingGate}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              postingGate: value as PostingGate,
+            }))
+          }
+          options={[
+            {
+              value: PostingGate.None,
+              label: 'Anyone can post',
+              hint: 'All members can post. No review.',
+            },
+            {
+              value: PostingGate.Moderation,
+              label: 'Require post approval',
+              hint: 'All members can post. Every post is reviewed.',
+            },
+            {
+              value: PostingGate.Reputation,
+              label: 'Require a minimum reputation',
+              hint: 'Only members with enough reputation can post. No review.',
+            },
+          ]}
+        />
+        {state.postingGate === PostingGate.Reputation && !membersOnly && (
+          <TextField
+            inputId="squad-min-reputation"
+            name="minReputation"
+            label="Minimum reputation"
+            type="number"
+            defaultValue={String(state.postingMinReputation)}
+            className={{ container: 'max-w-60' }}
+          />
+        )}
+      </SettingsSection>,
+      <SettingsSection
+        key="invite"
+        title="Who can invite"
+        description="Who can send invitation links to the page."
+      >
+        <SettingsRadio
+          name="invite-role"
+          value={state.memberInviteRole}
+          onChange={(value) =>
+            setState((current) => ({
+              ...current,
+              memberInviteRole: value as MemberRole,
+            }))
+          }
+          options={roleOptions}
+        />
+      </SettingsSection>,
+    );
+  }
+
+  if (shows('integrations')) {
+    parts.push(
+      <SettingsSection
+        key="integrations"
+        title="Connected apps"
+        description="Send the page’s new posts to the tools your team already uses."
+      >
+        <div className="flex flex-col gap-6">
+          <SettingsRow
+            icon={<SlackIcon size={IconSize.Small} />}
+            title="Slack"
+            description={
+              config.slack
+                ? 'Posting new posts to #product-updates'
+                : 'Post every new post to a channel.'
+            }
+            action={
+              <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                {config.slack ? 'Manage' : 'Connect'}
+              </Button>
+            }
+          />
+          {source === ContentSource.Feed && (
+            <SettingsRow
+              icon={<MegaphoneIcon size={IconSize.Small} />}
+              title="Content feed"
+              description="Your changelog RSS, checked every hour by daily.dev."
+              action={
+                <Button variant={ButtonVariant.Subtle} size={ButtonSize.Small}>
+                  Open
+                </Button>
+              }
+            />
+          )}
+        </div>
+      </SettingsSection>,
+    );
+  }
+
+  if (shows('danger')) {
+    parts.push(
+      <SettingsSection
+        key="danger"
+        title="Delete the squad"
+        description="Deleting a squad is permanent and can’t be undone."
+      >
+        <ul className="flex list-disc flex-col gap-2 pl-5 text-text-tertiary typo-callout">
+          <li>The squad and its page are deleted.</li>
+          <li>
+            Every post, comment and upvote in it is deleted, yours and everyone
+            else&apos;s.
+          </li>
+          <li>The handle becomes free for anyone to take.</li>
+        </ul>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Questions first? Write to{' '}
+          <a className="text-text-link" href="mailto:support@daily.dev">
+            support@daily.dev
+          </a>
+          .
+        </Typography>
+        <Button
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Ketchup}
+          className="self-start"
+        >
+          Delete squad
+        </Button>
+      </SettingsSection>,
+    );
+  }
+
+  return (
+    <Column width="max-w-[44rem]" className="gap-6">
+      {parts.map((part, index) => (
+        <React.Fragment key={(part as ReactElement).key}>
+          {index > 0 && <HorizontalSeparator />}
+          {part}
+        </React.Fragment>
+      ))}
+
+      {!only && (
+        <div className="sticky bottom-0 flex justify-end border-t border-border-subtlest-tertiary bg-background-default py-3">
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Medium}
+          >
+            Save
+          </Button>
+        </div>
+      )}
+    </Column>
+  );
+};
+
+/* ------------------------------------------------------------ analytics */
+
+const days = analyticsDays;
+
+/** Production's /squads/[handle]/analytics: two tiles, the chart, the list. */
+export const AnalyticsPage = (): ReactElement => {
+  const { config, empty } = useWorkspace();
+  const engagementIcons: Record<string, ReactElement> = {
+    Upvotes: <UpvoteIcon />,
+    'Upvotes ratio': <MergeIcon />,
+    Comments: <DiscussIcon />,
+    Bookmarks: <BookmarkIcon />,
+    Awards: <MedalBadgeIcon secondary />,
+    Shares: <ShareIcon />,
+    Clicks: <ClickIcon />,
+  };
+  const start = new Date(2026, 7, 11);
+  const impressions = days.map((day, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return {
+      name: date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }),
+      value: day.organic + (config.campaign ? day.boosted : 0),
+      isBoosted: !!config.campaign && day.boosted > 0,
+    };
+  });
+
+  return (
+    <Column width="max-w-[48rem]" className="gap-6">
+      <section className="flex flex-col gap-4">
+        <Typography type={TypographyType.Body} bold>
+          Discovery (last 45 days)
+        </Typography>
+        <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
+          {analyticsDiscovery.map(([label, amount]) => (
+            <DataTile
+              key={label}
+              label={label}
+              value={empty ? 0 : amount}
+              info={
+                label === 'Impressions'
+                  ? 'The total number of times posts from this squad were shown to developers across the platform'
+                  : 'The estimated number of unique developers who viewed posts from this squad'
+              }
+              icon={
+                <EyeIcon size={IconSize.Small} className="text-text-tertiary" />
+              }
+            />
+          ))}
+        </div>
+      </section>
+      <HorizontalSeparator />
+      <section className="flex flex-col gap-4">
+        <Typography type={TypographyType.Body} bold>
+          Impressions over time
+        </Typography>
+        {empty ? (
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            No impressions data in the last 45 days.
+          </Typography>
+        ) : (
+          <CombinedImpressionsChart data={impressions} />
+        )}
+      </section>
+      <HorizontalSeparator />
+      <section className="flex flex-col gap-4">
+        <Typography type={TypographyType.Body} bold>
+          Engagement (last 45 days)
+        </Typography>
+        <AnalyticsNumbersList
+          data={analyticsEngagement.map(([label, value]) => ({
+            icon: engagementIcons[label],
+            label,
+            value: empty ? 0 : value,
+            ...(label === 'Upvotes ratio' && {
+              tooltip: 'The percentage of upvotes out of total votes.',
+            }),
+          }))}
+        />
+      </section>
+    </Column>
+  );
+};
+
+/* --------------------------------------------------------------- pending */
+
+const rejectReasons = [
+  'Off-topic post unrelated to the Squad',
+  "Violates the Squad's code of conduct",
+  'Too promotional without adding value',
+  'Duplicate or similar content already posted',
+  'Lacks quality or clarity',
+  'Inappropriate, NSFW or offensive post',
+  'Post is spam or scam',
+  'Misinformation or false claims',
+  'Copyright or legal issue',
+  'Other',
+];
+
+/**
+ * Production's /squads/moderate for the author: their own posts in the
+ * queue, Pending or Rejected, with the moderator's reason, and Edit or
+ * Delete on each. The moderator's queue is ModerationPage.
+ */
+export const PendingPostsPage = (): ReactElement => {
+  const { config } = useWorkspace();
+  const items = feedEntries.slice(3, 3 + Math.max(config.ownPending, 0));
+
+  if (items.length === 0) {
+    return (
+      <Column>
+        <div className="flex flex-col items-center gap-2 px-2 py-14 text-center">
+          <VIcon size={IconSize.Large} className="text-status-success" />
+          <span className="font-bold text-text-primary typo-title3">
+            All done!
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            All caught up! No posts are pending
+          </span>
+        </div>
+      </Column>
+    );
+  }
+
+  return (
+    <Column>
+      <span className="text-text-secondary typo-callout">
+        Your posts waiting for a moderator of {squad.name}. You hear when they
+        are reviewed.
+      </span>
+      <div className="flex flex-col gap-8">
+        {items.map((entry, index) => {
+          const rejected = index === 1;
+          return (
+            <div key={entry.id} className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <Avatar member={entry.author} size={2} />
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="font-bold text-text-primary typo-footnote">
+                    {entry.author.name}
+                  </span>
+                  <span className="flex flex-wrap items-center gap-x-1.5 text-text-tertiary typo-caption1">
+                    {formatDay(entry.createdAt)}
+                    {index === 2 && <span>· Resubmitted</span>}
+                    <span
+                      className={classNames(
+                        'flex items-center gap-1 font-bold',
+                        rejected ? 'text-status-error' : 'text-text-secondary',
+                      )}
+                    >
+                      ·{' '}
+                      {rejected ? (
+                        <WarningIcon size={IconSize.XSmall} />
+                      ) : (
+                        <TimerIcon size={IconSize.XSmall} />
+                      )}
+                      {rejected ? 'Rejected' : 'Pending review'}
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <span className="font-bold text-text-primary typo-callout">
+                    {entry.title}
+                  </span>
+                  <span className="line-clamp-2 text-text-tertiary typo-footnote">
+                    {entry.summary}
+                  </span>
+                </div>
+                {entry.image && (
+                  <img
+                    src={entry.image}
+                    alt=""
+                    className="h-16 w-28 shrink-0 rounded-10 object-cover"
+                  />
+                )}
+              </div>
+              {rejected && (
+                <div className="flex gap-2 rounded-12 bg-surface-float px-3 py-2.5 text-text-secondary typo-footnote">
+                  <WarningIcon
+                    size={IconSize.Small}
+                    className="shrink-0 text-status-error"
+                  />
+                  <span className="min-w-0 flex-1">
+                    Your post in {squad.name} was not approved for the following
+                    reason:{' '}
+                    <b className="text-text-primary">{rejectReasons[2]}</b>.
+                    Please review the feedback and consider making changes
+                    before resubmitting.
+                  </span>
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  icon={<EditIcon />}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  icon={<TrashIcon />}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Column>
+  );
+};
