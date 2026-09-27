@@ -70,8 +70,6 @@ const squad = {
   name: 'React Israel',
   public: true,
   permalink: 'https://app.daily.dev/squads/react-israel',
-  image:
-    'https://media.daily.dev/image/upload/s--Zlp3ah1N--/f_auto/v1/squads/react-israel',
   description: 'The biggest React community in Israel.',
   membersCount: 1240,
   flags: { totalPosts: 312, totalViews: 48200, totalUpvotes: 5100 },
