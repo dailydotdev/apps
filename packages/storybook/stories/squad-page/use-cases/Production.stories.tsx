@@ -423,7 +423,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'About below laptop width',
         production: 'None (no right column on phones)',
         design:
-          'About in the feed heading swaps the feed for the right column’s widgets; the feed stays one list, the kind chips are in the Archive',
+          'Posts and About tabs above the composer in the tags-directory style; About holds every right-column widget, share card included for the team. None from laptop up. The kind chips are in the Archive',
         status: 'Added',
       },
       {

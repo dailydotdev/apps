@@ -32,9 +32,9 @@ export const Overview: StoryObj = {
               Frosted glass with a brand-purple hairline and two soft light
               sources, cabbage and onion, behind the seal and four words. Picked
               from 28 explorations; it is the Verified Squad page card at the
-              top of the right column. On phones, where the right column sits
-              behind About in the feed heading, the page shows the verified
-              badge beside the name only.
+              top of the right column. On phones the right column moves to the
+              About tab: the header shows the verified badge beside the name,
+              and the card sits at the top of About.
             </p>
           </header>
           <div className="flex w-80 flex-col gap-4">

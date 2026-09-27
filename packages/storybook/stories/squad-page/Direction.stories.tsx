@@ -87,8 +87,8 @@ export const Overview: StoryObj = {
           <p>
             The right column holds the Verified Squad page card, View as a
             visitor and the share card for the team, Rules, Team, Stack &amp;
-            Tools, Analytics for admins, and Links. Below 1020px it moves behind
-            About in the feed heading.
+            Tools, Analytics for admins, and Links. Below 1020px it becomes the
+            About tab beside Posts, above the composer.
           </p>
         </div>
       </header>

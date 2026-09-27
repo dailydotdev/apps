@@ -15,6 +15,10 @@ import {
   PlusIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
 import { polls, products, squad } from './data';
 import { matchSquadPosts, SquadSpotlight } from './squadSpotlight';
 import { CardList, isAdmin, isJoined, isStaff, Viewer } from './kit';
@@ -106,29 +110,38 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
 type FeedView = 'feed' | 'about';
 
 /**
- * Below laptop the right column's widgets sit behind About, beside the
- * feed's title. From laptop up the column is beside the page and the row
- * is not needed.
+ * Below laptop the right column's widgets sit behind an About tab beside
+ * Posts, drawn as the tags directory draws its tabs. From laptop up the
+ * column is beside the page and the tabs are not needed.
  */
-const FeedHeading = ({
+const FeedTabs = ({
   view,
   onView,
 }: {
   view: FeedView;
   onView: (view: FeedView) => void;
 }): ReactElement => (
-  <div className="flex items-center gap-2 px-4 tablet:px-0 laptop:hidden">
-    <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body">
-      {view === 'about' ? `About ${squad.name}` : 'Posts'}
-    </span>
-    <Button
-      variant={ButtonVariant.Subtle}
-      size={ButtonSize.Small}
-      aria-pressed={view === 'about'}
-      onClick={() => onView(view === 'about' ? 'feed' : 'about')}
+  <div className="laptop:hidden">
+    <SquadDirectoryNavbar
+      aria-label="Posts and About"
+      className="!mx-0 !border-0 px-4 tablet:!px-0"
     >
-      {view === 'about' ? 'Posts' : 'About'}
-    </Button>
+      {(
+        [
+          ['feed', 'Posts'],
+          ['about', 'About'],
+        ] as [FeedView, string][]
+      ).map(([id, label]) => (
+        <SquadDirectoryNavbarItem
+          key={id}
+          buttonSize={ButtonSize.Small}
+          isActive={view === id}
+          label={label}
+          ariaLabel={label}
+          onClick={() => onView(id)}
+        />
+      ))}
+    </SquadDirectoryNavbar>
   </div>
 );
 
@@ -233,6 +246,7 @@ const Feed = ({
       <div className="flex flex-col gap-4 px-4 tablet:px-0 laptop:hidden">
         <SquadWidgets
           viewer={viewer}
+          afterVerified={isStaff(viewer) && <SharePageWidget />}
           onOpenRules={() => onSelect('rules')}
           onOpenFaq={() => onSelect('faq')}
           onOpenAnalytics={() => onSelect('analytics')}
@@ -269,8 +283,8 @@ const Feed = ({
 
   return (
     <div className="flex flex-col gap-4 pb-4 tablet:p-6">
-      <SquadComposer viewer={viewer} />
-      <FeedHeading view={view} onView={setView} />
+      <FeedTabs view={view} onView={setView} />
+      {view === 'feed' && <SquadComposer viewer={viewer} />}
       {body}
     </div>
   );

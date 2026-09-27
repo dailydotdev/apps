@@ -302,15 +302,15 @@ export const Overview: StoryObj = {
             ],
             [
               'Right column',
-              'Behind About in the feed heading',
-              'Behind About in the feed heading',
+              'The About tab',
+              'The About tab',
               'Beside the page',
             ],
             [
-              'Feed heading',
-              'Posts, About, search',
-              'Posts, About, search',
-              'Posts and search',
+              'Tabs above the feed',
+              'Posts and About tabs',
+              'Posts and About tabs',
+              'None; the right column is beside the page',
             ],
             [
               'Team tools',
