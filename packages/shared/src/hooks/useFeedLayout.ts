@@ -56,6 +56,7 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.SourcePage,
   OtherFeedPage.SquadPage,
   OtherFeedPage.Squads,
+  OtherFeedPage.SearchSquad,
   OtherFeedPage.Bookmarks,
   OtherFeedPage.BookmarkLater,
   OtherFeedPage.BookmarkFolder,
@@ -79,6 +80,8 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
 // makes `shouldUseListMode` resolve on laptop.
 export const ListModeOnlyFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.Watercooler,
+  OtherFeedPage.Squads,
+  OtherFeedPage.SearchSquad,
 ]);
 
 export const UserProfileFeedPages = new Set([

@@ -124,6 +124,7 @@ export const SquadHome = ({
           !shouldUseListFeedLayout && 'px-4 tablet:px-6',
         )}
         disableAds={isAdFree}
+        disableListFrame
         showSearch={false}
         options={{ refetchOnMount: true }}
         allowPin

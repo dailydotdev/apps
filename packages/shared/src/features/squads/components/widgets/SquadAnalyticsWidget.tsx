@@ -70,7 +70,7 @@ export const SquadAnalyticsWidget = ({
             <span
               key={day.name}
               className={classNames(
-                'min-w-0 flex-1 rounded-t-2',
+                'min-h-0.5 min-w-0 flex-1 rounded-t-2',
                 day.isBoosted
                   ? 'bg-accent-cabbage-default'
                   : 'bg-text-disabled',
