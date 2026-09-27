@@ -7,6 +7,7 @@ import { WorkspaceStyles } from './workspace';
 import { directionPageIds, DirectionShell } from './direction';
 import { PinStyle, pinStyles } from './pins';
 import { allCases, caseById } from './use-cases/cases';
+import { ViewportFrame } from './use-cases/shared';
 
 const meta: Meta = {
   title: 'Squad Page/1. Direction',
@@ -183,4 +184,37 @@ export const Playground: StoryObj<{
       </>
     );
   },
+};
+
+/**
+ * The page on a phone. Storybook's canvas is desktop-wide, so the
+ * Playground always shows the laptop layout; this renders it in a real
+ * 375px frame, whose breakpoints are the phone's.
+ */
+export const Mobile: StoryObj<{
+  viewer: Viewer;
+  page: string;
+}> = {
+  args: {
+    viewer: Viewer.Member,
+    page: 'home',
+  },
+  argTypes: {
+    viewer: { control: 'select', options: Object.values(Viewer) },
+    page: { control: 'select', options: directionPageIds },
+  },
+  render: ({ viewer, page }) => (
+    <div className="flex min-h-screen justify-center bg-background-subtle p-8">
+      <KitStyles />
+      <WorkspaceStyles />
+      <ViewportFrame width={375} height={812} label="Phone, 375 × 812">
+        <DirectionShell
+          key={`${viewer}-${page}`}
+          viewer={viewer}
+          initialPage={page}
+          fluid
+        />
+      </ViewportFrame>
+    </div>
+  ),
 };

@@ -235,9 +235,12 @@ export const VerifiedSeal = ({
 export const VerifiedMark = ({
   label = true,
   className,
+  sealClassName,
 }: {
   label?: boolean;
   className?: string;
+  /** The seal's size, when it sits beside a larger name. */
+  sealClassName?: string;
 }): ReactElement => (
   <span
     title="Verified Squad"
@@ -248,7 +251,7 @@ export const VerifiedMark = ({
       className,
     )}
   >
-    <VerifiedSeal />
+    <VerifiedSeal className={sealClassName} />
     {label && 'Verified'}
   </span>
 );

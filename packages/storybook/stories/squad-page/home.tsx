@@ -259,7 +259,7 @@ export const SquadHeader = ({
         <div className="flex flex-col gap-1">
           <h1 className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2">
             {squad.name}
-            <VerifiedMark label={false} />
+            <VerifiedMark label={false} sealClassName="size-5" />
           </h1>
           <p className="text-text-secondary typo-body">{squad.tagline}</p>
         </div>
