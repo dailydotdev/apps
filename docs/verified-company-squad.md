@@ -127,6 +127,7 @@ Named constants in the API (`src/common/schema/squadFeatures.ts`), mirrored by o
 - The feed is infinite, pinned-posts collapse and the own-pending-posts strip are wired.
 - No mock data ships: no CodeRabbit copy, placeholder stats, ratings, company size or location.
 - The tagline slot renders the squad description.
+- A private squad shows the wall in place of the whole page for non-members, header included: the API returns `FORBIDDEN` for the squad, so there is no header data to render.
 - Content feed, Rules, FAQ, Releases wording and the product category dropdown are not built.
 
 ## Testing
