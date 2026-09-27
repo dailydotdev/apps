@@ -49,9 +49,9 @@ import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
-  HomepageTopBanners,
-  useHomepageTopBanners,
-} from './marketing/banners/HomepageTopBanners';
+  TopHeroSlotProvider,
+  useTopHeroSlot,
+} from '../contexts/TopHeroSlotContext';
 import { RouteProgressBar } from './RouteProgressBar';
 
 const GoBackHeaderMobile = dynamic(
@@ -240,16 +240,7 @@ function MainLayoutComponent({
     showSidebar &&
     (isAuthReadyOrCached ? sidebarRendered : hasServerShell);
 
-  // Extension new tab mounts its own `ExtensionTopBanners` strip, so
-  // the webapp strip is suppressed there to avoid duplicate cards. The strip
-  // only renders inside the sidebar-owned header, so the cards are gated on
-  // that too instead of evaluating on every shell mount.
-  const showHomepageTopBanners = !isExtension;
-  const topBanners = useHomepageTopBanners({
-    enabled: showHomepageTopBanners && sidebarOwnsHeader,
-    isMyFeed: currentFeedName === SharedFeedPage.MyFeed,
-  });
-  const hasTopBanners = topBanners.hasAny;
+  const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
   let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
   if (sidebarOwnsHeader) {
@@ -452,13 +443,11 @@ function MainLayoutComponent({
               'laptop:has-[.feed-dock]:mb-0',
             )}
           >
-            {showHomepageTopBanners && (
-              <HomepageTopBanners
-                className="mx-4 mb-3 laptop:mx-0"
-                state={topBanners}
-              />
-            )}
             {topBanner}
+            <div
+              ref={setTopHeroSlot}
+              className="peer/top-hero mx-4 mb-3 grid grid-cols-1 gap-3 empty:hidden tablet:has-[>:nth-child(2)]:grid-cols-2 laptop:mx-0"
+            />
             <div
               className={classNames(
                 'relative flex min-h-0 flex-1 flex-col',
@@ -480,11 +469,12 @@ function MainLayoutComponent({
                 // — a frame that stops short leaves a `sticky bottom-0` dock
                 // resting at its end, which is what happens for as long as
                 // the feed is too short to make the page scrollable.
-                !hasTopBanners &&
-                  !topBanner &&
+                // The top-hero slot is filled by the page, so whether it
+                // holds a card is read from the DOM rather than known here.
+                !topBanner &&
                   (isBannerAvailable
-                    ? 'laptop:min-h-[calc(100vh-3.5rem)] laptop:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
-                    : 'laptop:min-h-[calc(100vh-1.5rem)] laptop:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                    ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
+                    : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
               )}
             >
               <RouteProgressBar />
@@ -508,7 +498,9 @@ const MainLayout = ({
     <ActiveFeedNameContextProvider>
       <SearchProvider>
         <SpotlightProvider>
-          <MainLayoutComponent {...props} />
+          <TopHeroSlotProvider>
+            <MainLayoutComponent {...props} />
+          </TopHeroSlotProvider>
         </SpotlightProvider>
       </SearchProvider>
     </ActiveFeedNameContextProvider>

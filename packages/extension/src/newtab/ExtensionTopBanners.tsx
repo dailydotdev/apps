@@ -2,9 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { TopHero } from '@dailydotdev/shared/src/components/marketing/banners/HeroBottomBanner';
-import { CvTopHero } from '@dailydotdev/shared/src/components/marketing/banners/CvTopHero';
-import { useReadingReminderFeedHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderFeedHero';
-import { useCvTopBanner } from '@dailydotdev/shared/src/features/profile/hooks/useCvTopBanner';
+import { TopHeroPortal } from '@dailydotdev/shared/src/contexts/TopHeroSlotContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -14,24 +12,15 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/shortcuts/hooks/useIsShortcutsHubEnabled';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
-import ReadingReminderCatLaptop from '@dailydotdev/shared/src/components/marketing/banners/ReadingReminderCatLaptop';
 import {
   cloudinaryShortcutsIconsGmail,
   cloudinaryShortcutsIconsOpenai,
   cloudinaryShortcutsIconsReddit,
 } from '@dailydotdev/shared/src/lib/image';
 
-// Bare-illustration frame matched across the three top cards so they
-// line up vertically. Slightly wider than tall to give the CV cluster
-// horizontal room without cropping.
+// Matches `CvTopHero`'s frame so the cards sharing the strip line up.
 const illustrationFrameClass =
   '!m-0 flex h-24 w-32 shrink-0 items-center justify-center self-center tablet:h-28 tablet:w-36';
-
-// Compact cat illustration scaled to match the CV / Shortcuts frames so
-// the three cards in the row share the same height.
-const CompactReminderCat = (): ReactElement => (
-  <ReadingReminderCatLaptop className="!m-0 h-24 w-28 shrink-0 self-center rounded-12 object-contain tablet:h-28 tablet:w-32" />
-);
 
 const ShortcutsIllustration = (): ReactElement => {
   const { githubShortcut } = useThemedAsset();
@@ -112,77 +101,24 @@ const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
 
 export const ExtensionTopBanners = (): ReactElement | null => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  // The new tab is the home feed, and it has no Next router for the hook to
-  // read the route from.
-  const reminder = useReadingReminderFeedHero({
-    isHomeSurface: true,
-    enabled: isAuthReady && isLoggedIn,
-  });
-  const cv = useCvTopBanner({ enabled: isAuthReady && isLoggedIn });
   const shortcuts = useShortcutsOnboarding();
 
   // Logged-out users get the dedicated sticky sign-in strip rendered
   // higher up in `MainFeedPage`. This component is logged-in cards only.
-  if (!isAuthReady || !isLoggedIn) {
+  if (!isAuthReady || !isLoggedIn || !shortcuts.shouldShow) {
     return null;
   }
 
-  const cards: ReactElement[] = [];
-
-  if (reminder.shouldShowTopHero) {
-    cards.push(
+  return (
+    <TopHeroPortal>
       <TopHero
-        key="reminder"
-        title={reminder.title}
-        subtitle={reminder.subtitle}
-        illustration={<CompactReminderCat />}
-        onCtaClick={() => {
-          reminder.onEnableHero();
-        }}
-        onClose={() => {
-          reminder.onDismissHero();
-        }}
-      />,
-    );
-  }
-
-  if (cv.shouldShow) {
-    cards.push(
-      <CvTopHero
-        key="cv"
-        subtitle={cv.subtitle}
-        onUpload={cv.onUpload}
-        onClose={cv.onClose}
-      />,
-    );
-  }
-
-  if (shortcuts.shouldShow) {
-    cards.push(
-      <TopHero
-        key="shortcuts"
+        className="order-last"
         subtitle="Pin the sites you visit most, right from your new tab."
         ctaLabel="Add shortcuts"
         illustration={<ShortcutsIllustration />}
         onCtaClick={shortcuts.onAddClick}
         onClose={shortcuts.onClose}
-      />,
-    );
-  }
-
-  if (cards.length === 0) {
-    return null;
-  }
-
-  return (
-    <div
-      className={classNames(
-        'mx-4 mb-3 grid grid-cols-1 gap-3 laptop:mx-0',
-        cards.length === 2 && 'tablet:grid-cols-2',
-        cards.length === 3 && 'tablet:grid-cols-2 laptop:grid-cols-3',
-      )}
-    >
-      {cards}
-    </div>
+      />
+    </TopHeroPortal>
   );
 };

@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { TopHero } from './HeroBottomBanner';
-import { fileValidation } from '../../../features/profile/hooks/useUploadCv';
+import { TopHero } from '../../../components/marketing/banners/HeroBottomBanner';
+import { fileValidation } from '../hooks/useUploadCv';
+import { useCloseCvBanner } from '../hooks/useCloseCvBanner';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { uploadCvBgMobile } from '../../../lib/image';
@@ -42,6 +43,7 @@ export const CvTopHero = ({
 }: CvTopHeroProps): ReactElement => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { logEvent } = useLogContext();
+  const handleClose = useCloseCvBanner(onClose);
 
   useEffect(() => {
     logEvent({
@@ -52,7 +54,7 @@ export const CvTopHero = ({
   }, [logEvent]);
 
   return (
-    <>
+    <div className="flex">
       <input
         ref={fileInputRef}
         type="file"
@@ -75,8 +77,8 @@ export const CvTopHero = ({
         ctaLabel="Upload CV"
         illustration={<CvIllustration />}
         onCtaClick={() => fileInputRef.current?.click()}
-        onClose={onClose}
+        onClose={handleClose}
       />
-    </>
+    </div>
   );
 };
