@@ -296,7 +296,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Search this Squad',
         production: 'PostsSearch in the feed heading',
         design:
-          'The search icon in the feed heading (and ⌘K) opens Spotlight with the Squad as a filter pill; results come from SEARCH_SOURCE_POSTS_QUERY, Backspace widens to all of daily.dev, Enter lists every match in the feed',
+          'The search bar above the feed (and ⌘K) opens Spotlight with the Squad as a filter pill; results come from SEARCH_SOURCE_POSTS_QUERY, Backspace widens to all of daily.dev, Enter lists every match in the feed under a sticky query chip',
         status: 'Covered',
       },
       {

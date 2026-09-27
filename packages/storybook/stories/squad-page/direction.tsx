@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -107,60 +107,98 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
 type FeedView = 'feed' | 'about';
 
 /**
- * The row above the feed: the title, About below laptop (the right
- * column's widgets, which sit beside the page from laptop up) and search,
- * which opens Spotlight filtered to this Squad. After See all, the row
- * names the search and clears it.
+ * The row above the feed. At rest it is the search, on the left where a
+ * field is looked for, with About beside it below laptop (the right
+ * column's widgets, which sit beside the page from laptop up). After a
+ * search it becomes the query as one chip: the text reopens Spotlight to
+ * edit it, the cross removes the whole search. While results show, the
+ * row sticks with the Squad's logo, so the context survives scrolling
+ * past the header.
  */
 const FeedHeading = ({
   view,
   onView,
   results,
+  resultCount,
   onSearch,
   onClearResults,
 }: {
   view: FeedView;
   onView: (view: FeedView) => void;
   results: string | null;
+  resultCount: number;
   onSearch: () => void;
   onClearResults: () => void;
-}): ReactElement => (
-  <div className="flex items-center gap-2 px-4 tablet:px-0">
-    <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body">
-      {results !== null && `“${results}” in ${squad.name}`}
-      {results === null && (view === 'about' ? `About ${squad.name}` : 'Posts')}
-    </span>
-    {results !== null ? (
-      <Button
-        variant={ButtonVariant.Subtle}
-        size={ButtonSize.Small}
-        icon={<MiniCloseIcon />}
-        aria-label="Clear search"
-        title="Clear search"
-        onClick={onClearResults}
-      />
-    ) : (
+}): ReactElement => {
+  if (results !== null) {
+    return (
+      <div className="sticky top-0 z-1 flex items-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-2 tablet:-mx-6 tablet:px-6">
+        <img
+          src={squad.image}
+          alt={squad.name}
+          title={squad.name}
+          className="size-6 shrink-0 rounded-full"
+        />
+        <span className="flex h-9 min-w-0 items-center rounded-12 bg-surface-float pr-1 text-text-primary">
+          <button
+            type="button"
+            onClick={onSearch}
+            title="Edit search"
+            className="flex h-full min-w-0 items-center gap-2 pl-3 pr-1 typo-callout"
+          >
+            <SearchIcon size={IconSize.XSmall} className="shrink-0" />
+            <span className="truncate">{results}</span>
+          </button>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
+            icon={<MiniCloseIcon />}
+            aria-label="Clear search"
+            title="Clear search"
+            onClick={onClearResults}
+          />
+        </span>
+        <span className="sq-nums ml-auto shrink-0 text-text-tertiary typo-footnote">
+          {resultCount} {resultCount === 1 ? 'post' : 'posts'}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 px-4 tablet:px-0">
+      {view === 'about' ? (
+        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body">
+          About {squad.name}
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={onSearch}
+          className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-12 bg-surface-float px-3 text-left text-text-tertiary transition-colors typo-callout hover:bg-surface-hover hover:text-text-secondary"
+        >
+          <SearchIcon size={IconSize.Small} className="shrink-0" />
+          <span className="min-w-0 flex-1 truncate">
+            Search {squad.name} posts
+          </span>
+          <kbd className="hidden shrink-0 text-text-quaternary typo-caption1 laptop:inline">
+            ⌘K
+          </kbd>
+        </button>
+      )}
       <span className="flex laptop:hidden">
         <Button
           variant={ButtonVariant.Subtle}
-          size={ButtonSize.Small}
+          size={ButtonSize.Medium}
           aria-pressed={view === 'about'}
           onClick={() => onView(view === 'about' ? 'feed' : 'about')}
         >
           {view === 'about' ? 'Posts' : 'About'}
         </Button>
       </span>
-    )}
-    <Button
-      variant={ButtonVariant.Subtle}
-      size={ButtonSize.Small}
-      icon={<SearchIcon />}
-      aria-label={`Search ${squad.name}`}
-      title={`Search ${squad.name} (⌘K)`}
-      onClick={onSearch}
-    />
-  </div>
-);
+    </div>
+  );
+};
 
 const SearchResults = ({ query }: { query: string }): ReactElement => {
   const matches = matchSquadPosts(query);
@@ -179,14 +217,7 @@ const SearchResults = ({ query }: { query: string }): ReactElement => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <span className="px-4 text-text-tertiary typo-footnote tablet:px-0">
-        {matches.length} {matches.length === 1 ? 'post' : 'posts'}
-      </span>
-      <CardList
-        entries={matches.map((entry) => ({ ...entry, pinned: false }))}
-      />
-    </div>
+    <CardList entries={matches.map((entry) => ({ ...entry, pinned: false }))} />
   );
 };
 
@@ -205,7 +236,14 @@ const Feed = ({
   const [view, setView] = useState<FeedView>(initialView);
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<string | null>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
   const entries = feedUnder(pinStyle).slice(0, 6);
+
+  useEffect(() => {
+    if (results !== null) {
+      headingRef.current?.scrollIntoView({ block: 'start' });
+    }
+  }, [results]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -263,10 +301,12 @@ const Feed = ({
   return (
     <div className="flex flex-col gap-4 pb-4 tablet:p-6">
       <SquadComposer viewer={viewer} />
+      <div ref={headingRef} className="scroll-mt-0" />
       <FeedHeading
         view={view}
         onView={setView}
         results={results}
+        resultCount={results === null ? 0 : matchSquadPosts(results).length}
         onSearch={() => setSearching(true)}
         onClearResults={() => setResults(null)}
       />
