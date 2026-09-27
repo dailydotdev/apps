@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -16,8 +16,8 @@ import {
   SearchIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
-import { feedEntries, pinnedEntry, polls, products, squad } from './data';
+import { polls, products, squad } from './data';
+import { matchSquadPosts, SquadSpotlight } from './squadSpotlight';
 import { CardList, isAdmin, isJoined, isStaff, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
 import { MobileFooterNav, TabletSidebar } from './rail';
@@ -108,51 +108,38 @@ type FeedView = 'feed' | 'about';
 
 /**
  * The row above the feed: the title, About below laptop (the right
- * column's widgets, which sit beside the page from laptop up) and
- * production's search. Searching turns the row into the field, so nothing
- * below it moves; Escape or close puts the row back.
+ * column's widgets, which sit beside the page from laptop up) and search,
+ * which opens Spotlight filtered to this Squad. After See all, the row
+ * names the search and clears it.
  */
 const FeedHeading = ({
   view,
   onView,
-  query,
-  onQuery,
+  results,
+  onSearch,
+  onClearResults,
 }: {
   view: FeedView;
   onView: (view: FeedView) => void;
-  query: string | null;
-  onQuery: (query: string | null) => void;
-}): ReactElement => {
-  if (query !== null) {
-    return (
-      <div className="flex items-center gap-2 px-4 tablet:px-0">
-        <SearchField
-          inputId="squad-posts-search"
-          className="flex-1"
-          fieldSize="medium"
-          placeholder={`Search ${squad.name} posts`}
-          aria-label={`Search ${squad.name} posts`}
-          autoFocus
-          value={query}
-          valueChanged={(value) => onQuery(value)}
-          onKeyDown={(event) => event.key === 'Escape' && onQuery(null)}
-        />
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<MiniCloseIcon />}
-          aria-label="Close search"
-          onClick={() => onQuery(null)}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-2 px-4 tablet:px-0">
-      <span className="min-w-0 flex-1 font-bold text-text-primary typo-body">
-        {view === 'about' ? `About ${squad.name}` : 'Posts'}
-      </span>
+  results: string | null;
+  onSearch: () => void;
+  onClearResults: () => void;
+}): ReactElement => (
+  <div className="flex items-center gap-2 px-4 tablet:px-0">
+    <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body">
+      {results !== null && `“${results}” in ${squad.name}`}
+      {results === null && (view === 'about' ? `About ${squad.name}` : 'Posts')}
+    </span>
+    {results !== null ? (
+      <Button
+        variant={ButtonVariant.Subtle}
+        size={ButtonSize.Small}
+        icon={<MiniCloseIcon />}
+        aria-label="Clear search"
+        title="Clear search"
+        onClick={onClearResults}
+      />
+    ) : (
       <span className="flex laptop:hidden">
         <Button
           variant={ButtonVariant.Subtle}
@@ -163,37 +150,26 @@ const FeedHeading = ({
           {view === 'about' ? 'Posts' : 'About'}
         </Button>
       </span>
-      <Button
-        variant={ButtonVariant.Subtle}
-        size={ButtonSize.Small}
-        icon={<SearchIcon />}
-        aria-label="Search posts"
-        title="Search posts"
-        onClick={() => {
-          onView('feed');
-          onQuery('');
-        }}
-      />
-    </div>
-  );
-};
-
-const searchable = [pinnedEntry, ...feedEntries];
+    )}
+    <Button
+      variant={ButtonVariant.Subtle}
+      size={ButtonSize.Small}
+      icon={<SearchIcon />}
+      aria-label={`Search ${squad.name}`}
+      title={`Search ${squad.name} (⌘K)`}
+      onClick={onSearch}
+    />
+  </div>
+);
 
 const SearchResults = ({ query }: { query: string }): ReactElement => {
-  const needle = query.trim().toLowerCase();
-  const matches = searchable.filter((entry) =>
-    [entry.title, entry.summary, ...entry.tags]
-      .join(' ')
-      .toLowerCase()
-      .includes(needle),
-  );
+  const matches = matchSquadPosts(query);
 
   if (!matches.length) {
     return (
       <div className="flex flex-col items-center gap-1 px-4 py-12 text-center">
         <span className="font-bold text-text-primary typo-callout">
-          No posts match “{query.trim()}”
+          No posts match “{query}”
         </span>
         <span className="text-text-tertiary typo-footnote">
           Try a product name, a tag, or fewer words.
@@ -205,8 +181,7 @@ const SearchResults = ({ query }: { query: string }): ReactElement => {
   return (
     <div className="flex flex-col gap-3">
       <span className="px-4 text-text-tertiary typo-footnote tablet:px-0">
-        {matches.length} {matches.length === 1 ? 'post' : 'posts'} in{' '}
-        {squad.name} match “{query.trim()}”
+        {matches.length} {matches.length === 1 ? 'post' : 'posts'}
       </span>
       <CardList
         entries={matches.map((entry) => ({ ...entry, pinned: false }))}
@@ -228,12 +203,24 @@ const Feed = ({
 }): ReactElement => {
   const { empty } = useWorkspace();
   const [view, setView] = useState<FeedView>(initialView);
-  const [query, setQuery] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [results, setResults] = useState<string | null>(null);
   const entries = feedUnder(pinStyle).slice(0, 6);
 
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        setSearching(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   let body: ReactElement;
-  if (query !== null && query.trim()) {
-    body = <SearchResults query={query} />;
+  if (results !== null) {
+    body = <SearchResults query={results} />;
   } else if (view === 'about') {
     body = (
       <div className="flex flex-col gap-4 px-4 tablet:px-0 laptop:hidden">
@@ -269,15 +256,6 @@ const Feed = ({
           <FeedPoll viewer={viewer} poll={polls[0]} />
           <CardList entries={entries.slice(2)} />
         </div>
-        <div className="px-4 tablet:px-0">
-          <Button
-            variant={ButtonVariant.Subtle}
-            size={ButtonSize.Medium}
-            className="w-full"
-          >
-            Load more
-          </Button>
-        </div>
       </>
     );
   }
@@ -288,10 +266,22 @@ const Feed = ({
       <FeedHeading
         view={view}
         onView={setView}
-        query={query}
-        onQuery={setQuery}
+        results={results}
+        onSearch={() => setSearching(true)}
+        onClearResults={() => setResults(null)}
       />
       {body}
+      {searching && (
+        <SquadSpotlight
+          initialQuery={results ?? ''}
+          onClose={() => setSearching(false)}
+          onSeeAll={(query) => {
+            setResults(query);
+            setView('feed');
+            setSearching(false);
+          }}
+        />
+      )}
     </div>
   );
 };

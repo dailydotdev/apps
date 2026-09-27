@@ -74,8 +74,8 @@ export const Overview: StoryObj = {
             carries the cover, the round logo, the name with the verified badge,
             one meta line and the stats, with every action as a Subtle button
             and Join Squad last. Home is the products shelf, the composer,
-            pinned posts and one feed, with production&apos;s search in the row
-            above it.
+            pinned posts and one feed in infinite scroll. The search in the row
+            above it opens Spotlight filtered to this Squad.
           </p>
           <p>
             Rules, FAQ, Members, Products and the other pages replace the centre
