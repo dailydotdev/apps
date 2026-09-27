@@ -57,8 +57,11 @@ export const SquadAnalyticsWidget = ({
       }
     >
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <Tile label="Impressions" value={analytics?.impressions ?? 0} />
-        <Tile label="Unique reach" value={analytics?.reach ?? 0} />
+        <Tile
+          label="Lifetime impressions"
+          value={analytics?.impressions ?? 0}
+        />
+        <Tile label="Lifetime reach" value={analytics?.reach ?? 0} />
       </div>
       {hasImpressions && (
         <div
