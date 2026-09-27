@@ -19,8 +19,10 @@ import { GoBackHeaderMobile } from '@dailydotdev/shared/src/components/post/GoBa
 import { PostHeaderActions } from '@dailydotdev/shared/src/components/post/PostHeaderActions';
 import { Header as ProfileHeader } from '@dailydotdev/shared/src/components/profile/Header';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
-import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
+import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
+import { SquadActions } from '@dailydotdev/shared/src/features/squads/components/header/SquadActions';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import { SpotlightProvider } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -195,11 +197,15 @@ export const SquadsDirectory: Story = {
   render: () => <SquadDirectoryLayout />,
 };
 
-export const SquadActions: Story = {
-  name: 'Squad page: How Squads work instead of the menu',
+export const SquadPage: Story = {
+  name: 'Squad page: Learn how Squads work instead of the menu',
   render: () => (
     <div className="p-4">
-      <SquadHeaderBar squad={squad} members={[]} />
+      <SpotlightProvider>
+        <SquadPageContextProvider squad={squad} isViewerReady>
+          <SquadActions />
+        </SquadPageContextProvider>
+      </SpotlightProvider>
     </div>
   ),
 };

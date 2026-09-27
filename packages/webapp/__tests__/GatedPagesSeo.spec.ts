@@ -1,8 +1,12 @@
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { getSquadInvitation } from '@dailydotdev/shared/src/graphql/squads';
 import FollowingFeed from '../pages/following';
-import SquadAnalytics from '../pages/squads/[handle]/analytics';
 import ModerateSquad from '../pages/squads/moderate';
+import SquadManage from '../pages/squads/[handle]/manage';
+import SquadManageSection from '../pages/squads/[handle]/manage/[section]';
+import SquadMembers from '../pages/squads/[handle]/members';
+import SquadPendingPosts from '../pages/squads/[handle]/pending';
+import SquadProducts from '../pages/squads/[handle]/products';
 import { getStaticProps as getSquadInviteStaticProps } from '../pages/squads/[handle]/[token]';
 
 jest.mock('@dailydotdev/shared/src/graphql/squads', () => {
@@ -26,8 +30,12 @@ const layoutSeo = (page: unknown): NextSeoProps | undefined =>
 describe('gated page seo', () => {
   it.each([
     ['following feed', FollowingFeed],
-    ['squad analytics', SquadAnalytics],
     ['squad moderation', ModerateSquad],
+    ['squad manage', SquadManage],
+    ['squad manage section', SquadManageSection],
+    ['squad members', SquadMembers],
+    ['squad pending posts', SquadPendingPosts],
+    ['squad products', SquadProducts],
   ])('%s is noindex and nofollow', (_, page) => {
     const seo = layoutSeo(page);
 

@@ -1,73 +1,37 @@
-import type { ChangeEvent, FormEvent, ReactElement, ReactNode } from 'react';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import type { FormEvent, ReactElement, ReactNode } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { ClientError } from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import { ArrowIcon, AtIcon, CameraIcon, SlackIcon, SquadIcon } from '../icons';
+import { ArrowIcon, AtIcon, SlackIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
-import ImageInput from '../fields/ImageInput';
-import { cloudinarySquadsImageFallback } from '../../lib/image';
 import { formToJson } from '../../lib/form';
 import type { SquadForm } from '../../graphql/squads';
 import { checkExistingHandle } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
-import { IconSize } from '../Icon';
 import { FormWrapper } from '../fields/form';
 import { SquadPrivacySection } from './settings/SquadPrivacySection';
+import type { SquadPostingGate } from './settings/SquadModerationSettingsSection';
 import {
+  postingGateToInput,
   SquadModerationSettingsSection,
-  SquadPostingGate,
 } from './settings/SquadModerationSettingsSection';
 import { SquadSettingsSection } from './settings';
-import { SquadStats } from './common/SquadStat';
-import { SquadPrivacyState } from './common/SquadPrivacyState';
-import { SquadDangerZone } from './settings/SquadDangerZone';
 import type { Squad } from '../../graphql/sources';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { Dropdown } from '../fields/Dropdown';
 import { Typography, TypographyType } from '../typography/Typography';
-import { ACCEPTED_TYPES, acceptedTypesList } from '../../graphql/posts';
-import { useFileInput } from '../../hooks/utils/useFileInput';
 
-const squadImageId = 'squad_image_file';
-const squadHeaderId = 'squad_header_file';
-
-// The three posting gates are exclusive in the UI but two independent fields on
-// the API, so the radio value is expanded back into both here.
 type SquadFormFields = Omit<
   SquadForm,
   'moderationRequired' | 'postingMinReputation'
 > & {
   postingGate?: SquadPostingGate;
   postingMinReputation?: string;
-};
-
-const postingGateToInput = (
-  gate: SquadPostingGate | undefined,
-  minReputation: string | undefined,
-): Pick<SquadForm, 'moderationRequired' | 'postingMinReputation'> => {
-  if (gate === SquadPostingGate.Reputation) {
-    const parsed = parseInt(minReputation, 10);
-
-    return {
-      moderationRequired: false,
-      postingMinReputation: Number.isNaN(parsed) ? null : parsed,
-    };
-  }
-
-  return {
-    moderationRequired: gate === SquadPostingGate.Moderation,
-    postingMinReputation: null,
-  };
 };
 
 interface SquadDetailsProps {
@@ -79,7 +43,6 @@ interface SquadDetailsProps {
   onRequestClose?: () => void;
   children?: ReactNode;
   isLoading?: boolean;
-  squad?: Squad;
   initialData?: Partial<Squad>;
   integrationId?: string;
 }
@@ -88,37 +51,27 @@ export function SquadDetails({
   onSubmit,
   children,
   isLoading,
-  squad,
   initialData = {},
   integrationId,
 }: SquadDetailsProps): ReactElement {
-  const createMode = !squad;
   const {
     name,
     handle,
     description,
-    image,
     category,
-    flags,
-    headerImage,
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
     moderationRequired: initialModerationRequired,
     postingMinReputation: initialPostingMinReputation,
-  } = squad ?? { ...initialData };
+  } = initialData;
   const [activeHandle, setActiveHandle] = useState(handle);
-  const [imageChanged, setImageChanged] = useState(false);
-  const [headerChanged, setHeaderChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
   const [categoryHint, setCategoryHint] = useState('');
-  const [isDescriptionOpen, setDescriptionOpen] = useState(!createMode);
+  const [isDescriptionOpen, setDescriptionOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<string>(null);
   const router = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const headerImageRef = useRef<HTMLInputElement>();
-  const imageFileRef = useRef<File | null>(null);
-  const headerFileRef = useRef<File | null>(null);
 
   const {
     channels,
@@ -127,7 +80,7 @@ export function SquadDetails({
     isFetchingNextPage: isFetchingNextChannelPage,
   } = useSlackChannelsQuery({
     integrationId,
-    queryOptions: { enabled: createMode },
+    queryOptions: { enabled: true },
     selectedChannelId: selectedChannel,
   });
 
@@ -175,18 +128,6 @@ export function SquadDetails({
       ...postingGateToInput(postingGate, postingMinReputation),
     };
 
-    if (imageChanged) {
-      data.file = imageFileRef.current ?? undefined;
-    }
-
-    if (headerChanged) {
-      data.header = headerFileRef.current ?? undefined;
-    }
-
-    if (!createMode) {
-      return onSubmit(e, data, channels?.[selectedChannelIndex]?.id);
-    }
-
     const handleExists = await onValidateHandle(formJson.handle);
     setHandleHint(handleExists ? 'The handle already exists' : null);
 
@@ -212,40 +153,27 @@ export function SquadDetails({
     setCanSubmit(!!formJson.name);
   };
 
-  const [headerImageBase64, setHeaderImageBase64] = useState(headerImage);
-  const { onFileChange } = useFileInput({
-    acceptedTypes: acceptedTypesList,
-    limitMb: 2,
-    onChange(base64, file) {
-      setHeaderImageBase64(base64);
-      setHeaderChanged(true);
-      headerFileRef.current = file;
-    },
-  });
-
   return (
     <FormWrapper
       form="squad-form"
       isHeaderTitle={!isMobile}
-      title={createMode ? undefined : 'Squad settings'}
       className={{
         container: 'flex flex-1 flex-col',
         title: 'px-4 font-bold typo-title3 tablet:px-0',
         header: 'border-b-0',
       }}
       copy={{
-        right: createMode ? 'Create Squad' : 'Save',
+        right: 'Create Squad',
         left: isMobile ? 'Cancel' : null,
       }}
       leftButtonProps={{
         icon: isMobile ? null : <ArrowIcon className="-rotate-90" />,
-        onClick: () =>
-          router.push(createMode ? '/squads' : `/squads/${handle}`),
+        onClick: () => router.push('/squads'),
       }}
       rightButtonProps={{
         disabled: !canSubmit || isLoading,
         variant: ButtonVariant.Primary,
-        color: createMode ? ButtonColor.Cabbage : undefined,
+        color: ButtonColor.Cabbage,
         loading: isLoading,
       }}
     >
@@ -256,65 +184,9 @@ export function SquadDetails({
         onBlur={handleChange}
         id="squad-form"
       >
-        {!createMode && (
-          <div className="flex flex-col items-center gap-5">
-            <div
-              className="mt-4 flex w-full max-w-70 flex-row items-center justify-between rounded-32 bg-surface-float bg-cover pr-4"
-              style={{
-                backgroundImage: headerImageBase64
-                  ? `url(${headerImageBase64})`
-                  : undefined,
-              }}
-            >
-              <ImageInput
-                initialValue={image}
-                id={squadImageId}
-                fallbackImage={cloudinarySquadsImageFallback}
-                className={{
-                  container: '!rounded-full border-0',
-                  img: 'object-cover',
-                }}
-                hoverIcon={<CameraIcon size={IconSize.Large} />}
-                alwaysShowHover={!imageChanged}
-                onChange={(_, file) => {
-                  setImageChanged(true);
-                  imageFileRef.current = file ?? null;
-                }}
-                size="medium"
-              />
-              <Button
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<CameraIcon />}
-                onClick={() => headerImageRef.current?.click()}
-              >
-                Upload cover
-              </Button>
-              <input
-                ref={headerImageRef}
-                type="file"
-                id={squadHeaderId}
-                hidden
-                accept={ACCEPTED_TYPES}
-                multiple={false}
-                onChange={(event: ChangeEvent) => {
-                  const input = event.target as HTMLInputElement;
-                  const file = input.files?.[0];
-                  onFileChange(file);
-                }}
-              />
-            </div>
-            <SquadPrivacyState
-              isPublic={squad?.public ?? false}
-              isFeatured={flags?.featured ?? false}
-            />
-            <SquadStats flags={flags} />
-          </div>
-        )}
         <SquadSettingsSection title="Squad details" className="!gap-4">
           <TextField
-            label={createMode ? 'Name your Squad' : 'Squad name'}
+            label="Name your Squad"
             inputId="name"
             name="name"
             valid={!!name}
@@ -395,7 +267,7 @@ export function SquadDetails({
         ) : undefined}
         <SquadPrivacySection
           initialCategory={category?.id}
-          isPublic={squad?.public ?? false}
+          isPublic={false}
           categoryHint={categoryHint}
           onCategoryChange={useCallback(() => setCategoryHint(''), [])}
         />
@@ -405,7 +277,6 @@ export function SquadDetails({
           initialModerationRequired={initialModerationRequired}
           initialPostingMinReputation={initialPostingMinReputation}
         />
-        {!createMode && <SquadDangerZone squad={squad} />}
       </form>
     </FormWrapper>
   );

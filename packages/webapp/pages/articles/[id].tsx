@@ -105,12 +105,12 @@ const ReadPostPage = ({
 }: ReadPostPageProps): ReactElement => {
   const router = useRouter();
   const { applyThemeMode } = useSettingsContext();
-  const adSlots = useReadAdSlots();
-  const adsLive = hasLiveAdSlots(adSlots);
   const { post, isError, isLoading } = usePostById({
     id,
     options: { initialData, retry: false },
   });
+  const adSlots = useReadAdSlots(post);
+  const adsLive = hasLiveAdSlots(adSlots);
   const { showRedesign } = usePostRedesign(post);
   // Every slot self-gates on the read map, so the set is built whenever the
   // card renders, like ReadPostContent's markup.
@@ -332,14 +332,31 @@ const ReadPostPage = ({
   );
 };
 
-ReadPostPage.getLayout = getLayout;
+const getReadPostPageLayout: typeof getLayout = (
+  page,
+  pageProps,
+  layoutProps,
+) =>
+  getLayout(page, pageProps, {
+    ...layoutProps,
+    // Only the pinned phone ad here, never CustomAuthBanner: this template
+    // carries no auth banner.
+    customBanner: (
+      <PhoneTopAdStrip
+        surface="read"
+        post={
+          (pageProps as Partial<ReadPostPageProps> | undefined)?.initialData
+            ?.post
+        }
+      />
+    ),
+  });
+
+ReadPostPage.getLayout = getReadPostPageLayout;
 ReadPostPage.layoutProps = {
   screenCentered: false,
   showSidebar: false,
   hideFeedbackWidget: true,
-  // Only the pinned phone ad here, never CustomAuthBanner: this template
-  // carries no auth banner.
-  customBanner: <PhoneTopAdStrip surface="read" />,
 };
 
 export default ReadPostPage;
