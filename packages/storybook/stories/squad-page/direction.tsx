@@ -64,7 +64,7 @@ import {
 /* -------------------------------------------------------------- products */
 
 const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
-  <section className="flex flex-col gap-3 border-t border-border-subtlest-tertiary px-6 py-4">
+  <section className="flex flex-col gap-3 border-t border-border-subtlest-tertiary px-4 py-4 tablet:px-6">
     <div className="flex items-center justify-between">
       <span className="font-bold text-text-primary typo-callout">Products</span>
       <Button
@@ -78,7 +78,7 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
       </Button>
     </div>
     <ul
-      className="-mx-6 flex gap-3 overflow-x-auto px-6"
+      className="-mx-4 flex gap-3 overflow-x-auto px-4 tablet:-mx-6 tablet:px-6"
       style={{ scrollbarWidth: 'none' }}
     >
       {products.map((product) => (
@@ -124,7 +124,7 @@ const FeedTabs = ({
   <div className="laptop:hidden">
     <SquadDirectoryNavbar
       aria-label="Posts and About"
-      className="!mx-0 !border-0 px-6 tablet:!px-0"
+      className="!mx-0 !border-0 px-4 tablet:!px-0"
     >
       {(
         [
@@ -243,7 +243,7 @@ const Feed = ({
   let body: ReactElement;
   if (view === 'about') {
     body = (
-      <div className="flex flex-col gap-4 px-6 tablet:px-0 laptop:hidden">
+      <div className="flex flex-col gap-4 px-4 tablet:px-0 laptop:hidden">
         <SquadWidgets
           viewer={viewer}
           afterVerified={isStaff(viewer) && <SharePageWidget />}
@@ -269,7 +269,7 @@ const Feed = ({
   } else {
     body = (
       <>
-        <div className="px-6 tablet:px-0">
+        <div className="px-4 tablet:px-0">
           <PinnedArea style={pinStyle} />
         </div>
         <div className="flex flex-col gap-3">

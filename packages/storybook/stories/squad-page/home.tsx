@@ -188,7 +188,7 @@ export const SquadHeader = ({
 
   return (
     <div className="relative w-full">
-      <div className="h-36 overflow-hidden laptop:rounded-t-[0.9375rem]">
+      <div className="relative h-28 overflow-hidden tablet:h-36 laptop:rounded-t-[0.9375rem]">
         <img
           src={squad.headerImage}
           alt="Cover"
@@ -199,64 +199,70 @@ export const SquadHeader = ({
           )}
         />
       </div>
-      <img
-        src={squad.image}
-        alt="Logo"
-        className="absolute left-6 top-16 size-[7.5rem] rounded-full object-cover"
-      />
-      <div className="flex flex-col px-6 pb-5">
-        <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
-          {isAdmin(viewer) && (
-            <Button
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              icon={<EditIcon />}
-              aria-label="Edit page"
-              title="Edit page"
-              onClick={() => onManage?.('manage-details')}
-            />
-          )}
-          {extra}
-          {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}
-          <span
-            className={classNames(
-              'flex',
-              isAdmin(viewer) && 'hidden tablet:flex',
+      <div className="flex flex-col px-4 pb-5 tablet:px-6">
+        {/* Logo and actions share one baseline, so the identity column below
+          is text only and every row starts at the same x. */}
+        <div className="-mt-8 flex items-end justify-between gap-4 tablet:-mt-12">
+          <img
+            src={squad.image}
+            alt="Logo"
+            className="relative size-20 shrink-0 rounded-full bg-background-default object-cover ring-4 ring-background-default tablet:size-[6.5rem]"
+          />
+          <div className="flex items-center gap-2 pb-1">
+            {isAdmin(viewer) && (
+              <Button
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                icon={<EditIcon />}
+                aria-label="Edit page"
+                title="Edit page"
+                onClick={() => onManage?.('manage-details')}
+              />
             )}
-          >
-            <Button
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              icon={<LinkIcon />}
-              aria-label="Share"
-              title="Share"
-              onClick={onShare}
-            />
-          </span>
-          {onSearch && (
-            <Button
-              variant={ButtonVariant.Subtle}
-              size={ButtonSize.Small}
-              icon={<SearchIcon />}
-              aria-label={`Search ${squad.name}`}
-              title={`Search ${squad.name} (⌘K)`}
-              onClick={onSearch}
-            />
-          )}
-          <MoreMenu viewer={viewer} onManage={onManage} />
-          {boost && <span className="hidden tablet:flex">{boost()}</span>}
-          {join && (
-            <span className="hidden tablet:flex">{join(ButtonSize.Small)}</span>
-          )}
+            {extra}
+            {isJoined(viewer) && <NotificationsMenu viewer={viewer} />}
+            <span
+              className={classNames(
+                'flex',
+                isAdmin(viewer) && 'hidden tablet:flex',
+              )}
+            >
+              <Button
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                icon={<LinkIcon />}
+                aria-label="Share"
+                title="Share"
+                onClick={onShare}
+              />
+            </span>
+            {onSearch && (
+              <Button
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                icon={<SearchIcon />}
+                aria-label={`Search ${squad.name}`}
+                title={`Search ${squad.name} (⌘K)`}
+                onClick={onSearch}
+              />
+            )}
+            <MoreMenu viewer={viewer} onManage={onManage} />
+            {boost && <span className="hidden tablet:flex">{boost()}</span>}
+            {join && (
+              <span className="hidden tablet:flex">
+                {join(ButtonSize.Small)}
+              </span>
+            )}
+          </div>
         </div>
         {isBlocked(viewer) && (
-          <div className="mb-4 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-tertiary typo-footnote">
+          <div className="mt-4 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-tertiary typo-footnote">
             <LockIcon size={IconSize.Small} />
             You no longer have access to this Squad. Contact a moderator if you
             think this is a mistake.
           </div>
         )}
-        <div className="flex flex-col gap-1">
+        <div className="mt-4 flex flex-col gap-1">
           <h1 className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2">
             {squad.name}
             <VerifiedMark label={false} sealClassName="size-5" />
@@ -851,7 +857,7 @@ export const SquadComposer = ({
         <button
           type="button"
           onClick={onOpenPending}
-          className="mx-6 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-left text-text-secondary typo-footnote hover:text-text-primary tablet:mx-0"
+          className="mx-4 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-left text-text-secondary typo-footnote hover:text-text-primary tablet:mx-0"
         >
           <TimerIcon size={IconSize.Small} className="text-text-tertiary" />
           <span className="min-w-0 flex-1">
@@ -865,7 +871,7 @@ export const SquadComposer = ({
       {state.canPost ? (
         <ComposerEntry canPoll={isStaff(viewer)} reviewed={state.reviewed} />
       ) : (
-        <div className="mx-6 flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 py-3 text-text-quaternary typo-callout tablet:mx-0">
+        <div className="mx-4 flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 py-3 text-text-quaternary typo-callout tablet:mx-0">
           <LockIcon size={IconSize.Small} />
           {state.reason}
         </div>

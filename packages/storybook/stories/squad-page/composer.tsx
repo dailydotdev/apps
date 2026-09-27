@@ -238,7 +238,7 @@ export const ComposerEntry = ({
       <div
         role="presentation"
         onClick={() => setOpen('text')}
-        className="mx-6 flex cursor-text flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-colors focus-within:border-border-subtlest-secondary hover:border-border-subtlest-secondary tablet:mx-0"
+        className="mx-4 flex cursor-text flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-colors focus-within:border-border-subtlest-secondary hover:border-border-subtlest-secondary tablet:mx-0"
       >
         <button
           type="button"
