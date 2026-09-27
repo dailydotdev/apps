@@ -23,10 +23,10 @@ export const Overview: StoryObj = {
       intro={
         <>
           <p>
-            A verified squad page is a squad whose releases are posted from the
+            A verified Squad page is a Squad whose releases are posted from the
             company&apos;s RSS. Members still post, vote on polls, and wait for
-            a moderator when the squad asks for review, all in the one feed. The
-            rules are the squad&apos;s existing rules; only the source of the
+            a moderator when the Squad asks for review, all in the one feed. The
+            rules are the Squad&apos;s existing rules; only the source of the
             team&apos;s posts changes.
           </p>
         </>

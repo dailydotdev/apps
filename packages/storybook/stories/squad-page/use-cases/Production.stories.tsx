@@ -39,7 +39,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
     group: 'Landing and access',
     rows: [
       {
-        surface: 'Public squad, anonymous',
+        surface: 'Public Squad, anonymous',
         production:
           'Full page, no Join (a quirk: the join button waits for a query that never runs logged out)',
         design:
@@ -47,14 +47,14 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Changed',
       },
       {
-        surface: 'Public squad, logged in non-member',
+        surface: 'Public Squad, logged in non-member',
         production: 'Join Squad in the bar, Invitation link in the menu',
         design:
           'Join Squad, text only, last in the header row; Invitation link in the menu',
         status: 'Covered',
       },
       {
-        surface: 'Private squad, non-member',
+        surface: 'Private Squad, non-member',
         production:
           'Unauthorized: “Oops! This link leads to a private discussion”',
         design:
@@ -62,7 +62,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Changed',
       },
       {
-        surface: 'Private squad, logged out',
+        surface: 'Private Squad, logged out',
         production: 'ProtectedPage redirect to onboarding',
         design: 'Same wall with Log in',
         status: 'Covered',
@@ -106,7 +106,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production:
           'Follow, bell, block, related tags, similar sources, rails, archive',
         design:
-          'Becomes the squad: Follow becomes Join Squad, the bell keeps its switches, the archive is the one feed, newest first',
+          'Becomes the Squad: Follow becomes Join Squad, the bell keeps its switches, the archive is the one feed, newest first',
         status: 'Changed',
       },
     ],
@@ -173,7 +173,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Covered',
       },
       {
-        surface: 'Share squad',
+        surface: 'Share Squad',
         production: 'Copy link when the user cannot invite',
         design:
           'Share icon in the header for everyone, Share page beside Boost for admins on phones. Both use useShareOrCopyLink: the native share sheet on phones, copy link elsewhere. The Public page & URL card for the team',
@@ -196,9 +196,9 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Boost',
         production:
-          'Public squads, BoostSquad permission; readiness check; Boosting while active',
+          'Public Squads, BoostSquad permission; readiness check; Boosting while active',
         design:
-          'Boost / View boost for the admin on public squads; readiness and the modal unchanged',
+          'Boost / View boost for the admin on public Squads; readiness and the modal unchanged',
         status: 'Covered',
       },
       {
@@ -208,9 +208,9 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Changed',
       },
       {
-        surface: 'Award the squad',
+        surface: 'Award the Squad',
         production: 'Award button for eligible non-admins',
-        design: 'Award the squad in the options menu',
+        design: 'Award the Squad in the options menu',
         status: 'Changed',
       },
       {
@@ -293,7 +293,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Covered',
       },
       {
-        surface: 'Search this squad',
+        surface: 'Search this Squad',
         production: 'PostsSearch in the feed heading',
         design:
           'A search icon in the feed heading; the row turns into production’s search field, results replace the feed',
@@ -308,7 +308,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
       },
       {
         surface: 'Fed by RSS',
-        production: 'Does not exist for squads (machine sources only)',
+        production: 'Does not exist for Squads (machine sources only)',
         design: 'Content feed page in Manage; the items land in the one feed',
         status: 'Added',
       },
@@ -348,14 +348,14 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Covered',
       },
       {
-        surface: 'Delete squad',
+        surface: 'Delete Squad',
         production: 'Danger zone and the menu, with the prompt',
         design:
           'Danger zone in Manage only, out of the options menu; the prompt stays',
         status: 'Changed',
       },
       {
-        surface: 'Leave squad',
+        surface: 'Leave Squad',
         production: 'Menu, prompt “Leave {name}”, toast',
         design: 'Leave Squad in the menu; prompt and toast unchanged',
         status: 'Covered',
@@ -391,21 +391,21 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Elsewhere',
       },
       {
-        surface: 'Feed cards, squad ads, entity card, comment join banner',
+        surface: 'Feed cards, Squad ads, entity card, comment join banner',
         production: 'Cards and post page',
         design: 'Unchanged',
         status: 'Elsewhere',
       },
       {
-        surface: 'Share to squad from a post',
+        surface: 'Share to Squad from a post',
         production: 'SquadsToShare',
         design: 'Unchanged',
         status: 'Elsewhere',
       },
       {
-        surface: 'Create squad',
+        surface: 'Create Squad',
         production: '/squads/new, NewSquadModal',
-        design: 'Unchanged; a verified squad page is created by daily.dev',
+        design: 'Unchanged; a verified Squad page is created by daily.dev',
         status: 'Elsewhere',
       },
       {
@@ -434,7 +434,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Added',
       },
       {
-        surface: 'Verified squad page badge',
+        surface: 'Verified Squad page badge',
         production: 'None (VerifiedCompanyUserBadge is user-only)',
         design: 'Aurora card at the top of the right column',
         status: 'Added',
@@ -554,12 +554,12 @@ export const Overview: StoryObj = {
   render: () => (
     <Page
       eyebrow="Use cases · Production parity"
-      title="Everything the squad page does today"
+      title="Everything the Squad page does today"
       intro={
         <>
           <p>
-            An audit of the production squad and source code (the routes under
-            /squads and /sources, the squads components, the hooks and the
+            An audit of the production Squad and source code (the routes under
+            /squads and /sources, the Squads components, the hooks and the
             GraphQL model), every state it can be in, and where each one lives
             in the new design. The cases below render the ones that were missing
             before this pass; the tables list all of them.
@@ -572,7 +572,7 @@ export const Overview: StoryObj = {
             outside this page that stays as it is,{' '}
             <b className={tone.Dropped}>Dropped</b> is gone on purpose, and{' '}
             <b className={tone.Neither}>{statusLabel.Neither}</b> is a pattern
-            other platforms have that squads never had and the design does not
+            other platforms have that Squads never had and the design does not
             add.
           </p>
           <p className="flex flex-wrap gap-x-4 gap-y-1 typo-callout">
@@ -605,7 +605,7 @@ export const Overview: StoryObj = {
       <Section title="Production quirks the redesign fixes">
         <ul className="flex max-w-[80ch] list-disc flex-col gap-2 pl-5 text-text-secondary typo-callout">
           <li>
-            Logged-out visitors never see Join on a public squad: the button
+            Logged-out visitors never see Join on a public Squad: the button
             waits for a content-preference query that only runs logged in. The
             design shows Sign up to join.
           </li>
@@ -637,9 +637,9 @@ export const Overview: StoryObj = {
         </ul>
       </Section>
 
-      <Section title="What the fed verified squad page adds on top">
+      <Section title="What the fed verified Squad page adds on top">
         <p className="max-w-[76ch] text-text-secondary typo-callout">
-          Nothing above changes for a verified squad page. It is a squad with
+          Nothing above changes for a verified Squad page. It is a Squad with
           three additions: the verified badge, the content feed that posts the
           company&apos;s RSS into the feed (listed under Integrations and
           explained on the Content feed page), and the daily.dev manager on the

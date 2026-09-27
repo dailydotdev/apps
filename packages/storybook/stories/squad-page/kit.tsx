@@ -240,7 +240,7 @@ export const VerifiedMark = ({
   className?: string;
 }): ReactElement => (
   <span
-    title="Verified squad"
+    title="Verified Squad"
     className={classNames(
       'inline-flex shrink-0 items-center gap-1 text-accent-cabbage-default',
       label &&
@@ -733,7 +733,7 @@ export const FeedToolbar = ({
     {search && (
       <div className="flex h-10 flex-1 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 text-text-quaternary typo-callout">
         <SearchIcon size={IconSize.Small} />
-        Search this squad
+        Search this Squad
       </div>
     )}
     <div className="flex h-10 items-center rounded-12 bg-surface-float p-1">

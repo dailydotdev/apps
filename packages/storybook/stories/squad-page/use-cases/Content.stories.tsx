@@ -18,20 +18,20 @@ export const Overview: StoryObj = {
   render: () => (
     <Page
       eyebrow="Use cases · Content source"
-      title="A squad, fed"
+      title="A Squad, fed"
       intro={
         <>
           <p>
-            Every verified squad page is a squad underneath: the same members,
+            Every verified Squad page is a Squad underneath: the same members,
             roles, channels, moderation, rules and pages. The difference is how
-            the team&apos;s posts arrive. On a plain squad someone writes them.
+            the team&apos;s posts arrive. On a plain Squad someone writes them.
             On a verified page the company&apos;s RSS (changelog, blog,
             releases) is imported into the feed as posts, on a schedule, by
             daily.dev, and the company keeps the keys to edit, pause or add.
           </p>
           <p>
             The Content feed page is the admin&apos;s window into that
-            arrangement. It exists only when a feed is connected; a plain squad
+            arrangement. It exists only when a feed is connected; a plain Squad
             never sees it.
           </p>
         </>

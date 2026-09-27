@@ -20,7 +20,7 @@ export const Overview: StoryObj = {
       intro={
         <p>
           Two states the page has to survive. Empty is the first day, before the
-          feed delivers or anyone writes. Private is the squad that only
+          feed delivers or anyone writes. Private is the Squad that only
           approved members read, which a company may want for a customer
           community or a beta.
         </p>

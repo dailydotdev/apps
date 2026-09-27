@@ -18,7 +18,7 @@ export const Overview: StoryObj = {
       intro={
         <p>
           Edit profile opens a settings area with its own menu; Edit page does
-          the same for the squad. Everything the team runs lives there, grouped
+          the same for the Squad. Everything the team runs lives there, grouped
           the way profile settings groups its pages, and each page carries one
           action in its header. The options menu&apos;s Manage items open the
           same area on their section.

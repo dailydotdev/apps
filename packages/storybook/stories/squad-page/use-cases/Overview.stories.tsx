@@ -113,12 +113,12 @@ export const Overview: StoryObj = {
       intro={
         <>
           <p>
-            The verified squad page is a squad. Same roles, same channels, same
+            The verified Squad page is a Squad. Same roles, same channels, same
             moderation, same rules and pages. The package a customer buys is
             three things on top: the badge that marks the page as verified, the
-            feed that posts their RSS into the squad without anyone posting by
+            feed that posts their RSS into the Squad without anyone posting by
             hand, and the daily.dev manager who runs it for them. Everything
-            below is the squad&apos;s existing model, with those three added.
+            below is the Squad&apos;s existing model, with those three added.
           </p>
           <p>
             Every case is drawn on the chosen direction (Squad Page, 1.
@@ -135,7 +135,7 @@ export const Overview: StoryObj = {
     >
       <Section title="Summary: today versus the new design">
         <p className="max-w-[76ch] text-text-tertiary typo-footnote">
-          Every surface of the production squad page, audited in Production
+          Every surface of the production Squad page, audited in Production
           parity, and what the direction adds. ✓ exists or is supported, ✕ does
           not, – stays outside the page and is unchanged.
         </p>
@@ -143,7 +143,7 @@ export const Overview: StoryObj = {
           head={[
             'Area',
             'Surface',
-            'In squads today',
+            'In Squads today',
             'In the new design',
             'How',
           ]}
@@ -179,7 +179,7 @@ export const Overview: StoryObj = {
         <Table
           head={['Can they…', ...viewers.map((viewer) => viewerLabel[viewer])]}
           rows={[
-            ['Read a public squad', ...can(() => true)],
+            ['Read a public Squad', ...can(() => true)],
             [
               'See Join Squad',
               ...can((viewer) => viewer === Viewer.Visitor).map((cell, index) =>
@@ -190,11 +190,11 @@ export const Overview: StoryObj = {
                 ),
               ),
             ],
-            ['Read a private squad', ...can(joined)],
-            ['Post in the squad', ...can(joined)],
+            ['Read a private Squad', ...can(joined)],
+            ['Post in the Squad', ...can(joined)],
             ['Vote on polls', ...can(joined)],
             ['Ask a poll', ...can(staff)],
-            ['Post a release (plain squad)', ...can(staff)],
+            ['Post a release (plain Squad)', ...can(staff)],
             ['Post (moderators only setting)', ...can(staff)],
             ['Post (below the reputation gate)', ...can(staff)],
             [
@@ -232,7 +232,7 @@ export const Overview: StoryObj = {
               ...can((viewer) => joined(viewer) && viewer !== Viewer.Admin),
             ],
             [
-              'Award the squad',
+              'Award the Squad',
               ...can(
                 (viewer) =>
                   viewer !== Viewer.Anonymous && viewer !== Viewer.Admin,
@@ -322,9 +322,9 @@ export const Overview: StoryObj = {
         />
       </Section>
 
-      <Section title="Fed page vs plain squad">
+      <Section title="Fed page vs plain Squad">
         <Table
-          head={['', 'Verified squad page (fed)', 'Plain squad (hand-written)']}
+          head={['', 'Verified Squad page (fed)', 'Plain Squad (hand-written)']}
           rows={[
             [
               'Releases',
@@ -341,7 +341,7 @@ export const Overview: StoryObj = {
               'Content feed, Moderation, Analytics, Settings',
               'Moderation, Analytics, Settings',
             ],
-            ['Badge', 'Verified squad page', 'None'],
+            ['Badge', 'Verified Squad page', 'None'],
             [
               'Who runs it',
               'daily.dev, with the company keeping the keys',

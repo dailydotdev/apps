@@ -861,7 +861,7 @@ export const reviews: Review[] = [
     author: team[4],
     rating: 3,
     title: 'Too many notifications by default',
-    body: 'Good product, but a new account gets a lot of streak and squad noise before it learns you. Turn it down out of the box.',
+    body: 'Good product, but a new account gets a lot of streak and Squad noise before it learns you. Turn it down out of the box.',
     date: 'Aug 22',
     helpful: 9,
     reply: {

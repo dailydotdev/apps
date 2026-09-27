@@ -467,7 +467,7 @@ export const DocPage = ({ page }: { page: SquadPage }): ReactElement => {
         {page.id === 'start-here'
           ? `Everything the ${squad.name} team ships, announced here first. Releases, betas, the reasoning behind changes, and a place to tell us what broke.`
           : page.id === 'rules'
-          ? 'This squad is a changelog. Posts from the team are announcements; posts from members are questions, bug reports and feedback about a release.'
+          ? 'This Squad is a changelog. Posts from the team are announcements; posts from members are questions, bug reports and feedback about a release.'
           : 'Answers to the questions we get every week, kept current by the team.'}
       </p>
       <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-16 bg-surface-float">
@@ -488,7 +488,7 @@ export const DocPage = ({ page }: { page: SquadPage }): ReactElement => {
           Read <span className="text-text-link">Announcements</span> for what
           shipped this week.
         </li>
-        <li>Turn on notifications for the squad so a release finds you.</li>
+        <li>Turn on notifications for the Squad so a release finds you.</li>
         <li>
           Something broke? Post it to Home with the{' '}
           <span className="font-bold">#bug</span> tag and a team member picks it
@@ -1033,13 +1033,13 @@ export const FeedSourcePage = (): ReactElement => (
       <dl className="grid grid-cols-1 gap-x-8 gap-y-3 tablet:grid-cols-2">
         {[
           ['Feed', squad.feedUrl],
-          ['Publishes to', 'The squad feed, as posts'],
+          ['Publishes to', 'The Squad feed, as posts'],
           ['Checked', 'Every hour · last 2h ago'],
           [
             'Imported',
             `${squad.totalPosts} items since ${formatSince(squad.createdAt)}`,
           ],
-          ['Author on posts', 'The team member in the item, or the squad'],
+          ['Author on posts', 'The team member in the item, or the Squad'],
           ['Auto-publish', 'On · new items go live without review'],
         ].map(([label, value]) => (
           <div key={label} className="flex flex-col gap-0.5">
@@ -1650,11 +1650,11 @@ export const SettingsPage = ({
     parts.push(
       <SettingsSection
         key="danger"
-        title="Delete the squad"
-        description="Deleting a squad is permanent and can’t be undone."
+        title="Delete the Squad"
+        description="Deleting a Squad is permanent and can’t be undone."
       >
         <ul className="flex list-disc flex-col gap-2 pl-5 text-text-tertiary typo-callout">
-          <li>The squad and its page are deleted.</li>
+          <li>The Squad and its page are deleted.</li>
           <li>
             Every post, comment and upvote in it is deleted, yours and everyone
             else&apos;s.
@@ -1676,7 +1676,7 @@ export const SettingsPage = ({
           color={ButtonColor.Ketchup}
           className="self-start"
         >
-          Delete squad
+          Delete Squad
         </Button>
       </SettingsSection>,
     );
@@ -1750,8 +1750,8 @@ export const AnalyticsPage = (): ReactElement => {
               value={empty ? 0 : amount}
               info={
                 label === 'Impressions'
-                  ? 'The total number of times posts from this squad were shown to developers across the platform'
-                  : 'The estimated number of unique developers who viewed posts from this squad'
+                  ? 'The total number of times posts from this Squad were shown to developers across the platform'
+                  : 'The estimated number of unique developers who viewed posts from this Squad'
               }
               icon={
                 <EyeIcon size={IconSize.Small} className="text-text-tertiary" />

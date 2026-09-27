@@ -271,7 +271,7 @@ export const SquadHeader = ({
               <a
                 href="/squads/discover"
                 className="text-text-link hover:underline"
-                title={`View all squads in ${config.category}`}
+                title={`View all Squads in ${config.category}`}
               >
                 {config.category}
               </a>
@@ -329,7 +329,7 @@ const PrivacyChip = (): ReactElement => {
       )}
     >
       {icon}
-      {label} squad
+      {label} Squad
     </span>
   );
 };
@@ -478,7 +478,7 @@ const MoreMenu = ({
       ? [
           {
             icon: small(<MedalBadgeIcon size={IconSize.Small} />),
-            label: 'Award the squad',
+            label: 'Award the Squad',
           },
         ]
       : []),
@@ -1296,7 +1296,7 @@ export const StackWidget = ({
       ) : (
         <div className="mt-3 flex flex-col items-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary p-4 text-center">
           <span className="text-text-tertiary typo-footnote">
-            Share your squad&apos;s stack &amp; tools
+            Share your Squad&apos;s stack &amp; tools
           </span>
           <Button
             variant={ButtonVariant.Secondary}
@@ -1433,7 +1433,7 @@ export const VerifiedWidget = (): ReactElement => (
     />
     <VerifiedSeal className="relative size-6 text-accent-cabbage-default" />
     <span className="relative font-bold text-text-primary typo-callout">
-      Verified squad page
+      Verified Squad page
     </span>
   </div>
 );

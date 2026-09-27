@@ -70,7 +70,7 @@ export const Overview: StoryObj = {
         </h1>
         <div className="flex max-w-[76ch] flex-col gap-3 text-text-secondary typo-body">
           <p>
-            The profile&apos;s header and right column, for a squad. The header
+            The profile&apos;s header and right column, for a Squad. The header
             carries the cover, the round logo, the name with the verified badge,
             one meta line and the stats, with every action as a Subtle button
             and Join Squad last. Home is the products shelf, the composer,
@@ -84,7 +84,7 @@ export const Overview: StoryObj = {
             laptop, a list and then one page at a time on phones.
           </p>
           <p>
-            The right column holds the Verified squad page card, View as a
+            The right column holds the Verified Squad page card, View as a
             visitor and the share card for the team, Rules, Team, Stack &amp;
             Tools, Analytics for admins, and Links. Below 1020px it moves behind
             About in the feed heading.
