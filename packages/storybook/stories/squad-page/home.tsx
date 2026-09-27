@@ -871,7 +871,7 @@ export const SquadComposer = ({
       {state.canPost ? (
         <ComposerEntry canPoll={isStaff(viewer)} reviewed={state.reviewed} />
       ) : (
-        <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-4 py-4 text-text-quaternary typo-callout tablet:rounded-16 tablet:border">
+        <div className="mx-4 flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 py-3 text-text-quaternary typo-callout tablet:mx-0">
           <LockIcon size={IconSize.Small} />
           {state.reason}
         </div>
