@@ -146,7 +146,7 @@ const IntroScreen = () => {
           >
             {hasAwards ? (
               <>
-                {largeNumberFormat(entity.numAwards)} Award
+                {largeNumberFormat(entity.numAwards ?? 0)} Award
                 {entity.numAwards === 1 ? '' : 's'} given
               </>
             ) : (
@@ -206,7 +206,7 @@ const IntroScreen = () => {
               key={item.id}
               item={item}
               onClick={({ product: clickedProduct }) => {
-                if (clickedProduct.value > user.balance.amount) {
+                if (clickedProduct.value > (user?.balance.amount ?? 0)) {
                   setActiveStep({
                     screen: AWARD_SCREENS.INTRO,
                     product: clickedProduct,
@@ -259,9 +259,9 @@ const IntroScreen = () => {
   );
 };
 
-const CommentScreen = () => {
+const CommentScreen = ({ product }: { product: Product }) => {
   const { updateUser, user } = useAuthContext();
-  const { setActiveStep, type, entity, product, flags, logAwardEvent } =
+  const { setActiveStep, type, entity, flags, logAwardEvent } =
     useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [note, setNote] = useState('');
@@ -269,14 +269,16 @@ const CommentScreen = () => {
   const { mutate: awardMutation, isPending } = useMutation({
     mutationKey: [
       'awards',
-      { productId: product?.id, type, entityId: entity.id, note },
+      { productId: product.id, type, entityId: entity.id, note },
     ],
     mutationFn: award,
     onSuccess: async (result) => {
-      await updateUser({
-        ...user,
-        balance: result.balance,
-      });
+      if (user) {
+        await updateUser({
+          ...user,
+          balance: result.balance,
+        });
+      }
 
       setActiveStep({ screen: AWARD_SCREENS.SUCCESS, product });
     },
@@ -370,15 +372,15 @@ const CommentScreen = () => {
           Send Award for <CoreIcon />{' '}
           {product.value === 0 ? 'Free' : formatCoresCurrency(product.value)}
         </Button>
-        {!!product?.value && <CoresBalanceNote price={product.value} />}
+        {product.value > 0 && <CoresBalanceNote price={product.value} />}
         <AwardFeesNote />
       </Modal.Footer>
     </>
   );
 };
 
-const SuccessScreen = () => {
-  const { entity, product, onRequestClose } = useGiveAwardModalContext();
+const SuccessScreen = ({ product }: { product: Product }) => {
+  const { entity, onRequestClose } = useGiveAwardModalContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
@@ -386,8 +388,8 @@ const SuccessScreen = () => {
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="flex flex-col gap-2">
           <Image
-            src={product?.flags?.imageGlow || product.image}
-            alt={product?.flags?.description}
+            src={product.flags?.imageGlow || product.image}
+            alt={product.flags?.description}
             className="size-20"
           />
           <div className="flex items-center justify-center gap-1">
@@ -430,8 +432,8 @@ const SuccessScreen = () => {
           <Button
             variant={ButtonVariant.Primary}
             className="w-full"
-            onClick={() => {
-              onRequestClose(undefined);
+            onClick={(event: React.MouseEvent) => {
+              onRequestClose?.(event);
             }}
           >
             Close
@@ -443,12 +445,16 @@ const SuccessScreen = () => {
 };
 
 const ModalBody = () => {
-  const { activeStep } = useGiveAwardModalContext();
+  const { activeStep, product } = useGiveAwardModalContext();
   return (
     <>
       {activeStep === 'INTRO' ? <IntroScreen /> : null}
-      {activeStep === 'COMMENT' ? <CommentScreen /> : null}
-      {activeStep === 'SUCCESS' ? <SuccessScreen /> : null}
+      {activeStep === 'COMMENT' && product ? (
+        <CommentScreen product={product} />
+      ) : null}
+      {activeStep === 'SUCCESS' && product ? (
+        <SuccessScreen product={product} />
+      ) : null}
     </>
   );
 };
@@ -483,12 +489,12 @@ const ModalRender = ({ ...props }: ModalProps) => {
 
   return (
     <>
-      {activeModal === 'AWARD_ANIMATION' && (
+      {activeModal === 'AWARD_ANIMATION' && product && (
         <AnimatedAward
-          src={product?.flags?.imageGlow || product?.image}
-          alt={product?.name}
+          src={product.flags?.imageGlow || product.image}
+          alt={product.name}
           onDone={() => {
-            props.onRequestClose?.(undefined);
+            props.onRequestClose?.(undefined as never);
           }}
         />
       )}
@@ -514,7 +520,7 @@ const ModalRender = ({ ...props }: ModalProps) => {
           {...props}
           onCompletion={onCompletion}
           onRequestClose={onRequestClose}
-          product={product}
+          product={product as Product}
           origin={Origin.Award}
           onPlusClick={() => setActiveModal('BUY_CORES')}
         />
