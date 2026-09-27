@@ -13,16 +13,19 @@ const FooterWrapper = dynamic(
 interface FooterNavBarLayoutProps {
   children?: ReactNode;
   post?: Post;
+  /** Keeps the wrapper, so its children never remount, but drops the nav. */
+  hideNav?: boolean;
 }
 
 export default function FooterNavBarLayout({
   children,
   post,
+  hideNav,
 }: FooterNavBarLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const showNav = windowLoaded && isMobile;
+  const showNav = windowLoaded && isMobile && !hideNav;
 
   return (
     <>

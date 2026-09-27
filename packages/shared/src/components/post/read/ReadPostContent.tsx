@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { isVideoPost } from '../../../graphql/posts';
+import { PostType } from '../../../types';
 import { Origin } from '../../../lib/log';
 import usePostContent from '../../../hooks/usePostContent';
 import PostMetadata from '../../cards/common/PostMetadata';
@@ -19,6 +20,15 @@ import { TruncateText } from '../../utilities';
 import Markdown from '../../Markdown';
 import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
 import { ReadTopLeaderboard } from './ReadTopLeaderboard';
+import { ReadTaboolaSlot } from './ReadTaboolaSlot';
+import {
+  getTaboolaCommentsPlacement,
+  getTaboolaInContentPlacement,
+  TABOOLA_ARTICLE_PLACEMENT,
+  TABOOLA_COMMENTS_PER_AD,
+} from '../../../features/monetization/taboola';
+import { useArticlesContained, useReadTaboola } from './useReadAdSlots';
+import { ReadNextArticles } from './ReadNextArticles';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { splitContentForAds, splitTextForAds } from './splitContentForAds';
 import {
@@ -102,20 +112,27 @@ export function ReadPostContent({
     post,
   });
   const leaderboardReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
+  const taboola = useReadTaboola();
+  // Off the template only through the read CTA: title, cover and domain go
+  // plain, and the source, tags and author cards go entirely.
+  const contained = useArticlesContained();
   // Memoised: the splits re-scan the whole text, and this component
   // re-renders on comment sorting, hover state and auth resolution. The TLDR
   // is main content here — for a scraped article it is the only content — so
   // it carries the same MPU cadence as a hosted body.
+  // A collection's body is the story itself, so it opens the page without
+  // the TLDR above it.
+  const showSummary = !(post.type === PostType.Collection && post.contentHtml);
   const summaryParts = useMemo(
     () =>
-      post.summary
+      post.summary && showSummary
         ? splitTextForAds(
             post.summary,
             CONTENT_CHARS_PER_AD,
             MAX_CONTENT_ADS_PER_SECTION + 1,
           )
         : [],
-    [post.summary],
+    [post.summary, showSummary],
   );
   const bodyChunks = useMemo(
     () =>
@@ -127,6 +144,27 @@ export function ReadPostContent({
           )
         : [],
     [post.contentHtml],
+  );
+  // Taboola's mid-article widget takes every break the MPU cadence uses,
+  // numbered through the page, phones included: or a single one after the
+  // content when it is too short to break.
+  const summaryBreaks = Math.max(summaryParts.length - 1, 0);
+  const hasContentBreaks = summaryBreaks > 0 || bodyChunks.length > 1;
+  const cover = (
+    <LazyImage
+      imgSrc={post.image}
+      imgAlt="Post cover image"
+      ratio="49%"
+      eager
+      fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+      fetchPriority="high"
+    />
+  );
+  const inContentTaboola = (occurrence: number) => (
+    <ReadTaboolaSlot
+      placement={getTaboolaInContentPlacement(occurrence)}
+      className="my-6"
+    />
   );
 
   return (
@@ -161,13 +199,16 @@ export function ReadPostContent({
               : 'sticky top-[var(--phone-top-ad-height,0px)] z-postNavigation bg-background-default laptop:contents',
           )}
         >
-          <ReadTopLeaderboard released={leaderboardReleased} />
+          {/* The Kueez leaderboard, collapsed anyway under Taboola: this also
+              drops its padded, sticky wrapper. */}
+          {!contained && <ReadTopLeaderboard released={leaderboardReleased} />}
 
           <GoBackHeaderMobile
             className={classNames(
               '-mx-4 bg-background-subtle',
               !leaderboardReleased && '!static',
             )}
+            showLogo={!contained}
           >
             <PostHeaderActions
               post={post}
@@ -181,24 +222,38 @@ export function ReadPostContent({
 
         <div className="my-6">
           <div className="mb-3 flex items-center gap-2">
-            <PostSourceInfo
-              className="min-w-0 flex-1"
-              post={post}
-              onReadArticle={onReadArticle}
-            />
+            {contained ? (
+              <PostHeaderActions
+                post={post}
+                className="ml-auto hidden laptop:flex"
+                contextMenuId="post-widgets-context"
+                onReadArticle={onReadArticle}
+                buttonSize={ButtonSize.Small}
+              />
+            ) : (
+              <PostSourceInfo
+                className="min-w-0 flex-1"
+                post={post}
+                onReadArticle={onReadArticle}
+              />
+            )}
           </div>
           <h1
             className="break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
-            <a
-              href={post.permalink}
-              title="Go to post"
-              target="_blank"
-              rel={anchorNofollowRel}
-            >
-              {post.title}
-            </a>
+            {contained ? (
+              post.title
+            ) : (
+              <a
+                href={post.permalink}
+                title="Go to post"
+                target="_blank"
+                rel={anchorNofollowRel}
+              >
+                {post.title}
+              </a>
+            )}
           </h1>
         </div>
 
@@ -216,6 +271,7 @@ export function ReadPostContent({
             <div className="mb-6 overflow-hidden text-text-secondary">
               <p className="select-text break-words typo-markdown">{part}</p>
             </div>
+            {index < parts.length - 1 && inContentTaboola(index + 1)}
             {index < parts.length - 1 && (
               // Phone density policy: only the page's first in-content unit
               // keeps a phone placement — the 250-char cadence would stack
@@ -233,7 +289,7 @@ export function ReadPostContent({
 
         <div className="mb-6">
           <div className="min-w-0 flex-1">
-            <PostTagList post={post} />
+            {!contained && <PostTagList post={post} />}
             <PostMetadata
               createdAt={post.createdAt}
               readTime={post.readTime}
@@ -245,38 +301,43 @@ export function ReadPostContent({
                 !!post.domain?.length && (
                   <TruncateText>
                     From{' '}
-                    <a
-                      href={post.permalink}
-                      title={post.domain}
-                      target="_blank"
-                      rel={anchorNofollowRel}
-                      className="hover:underline"
-                    >
-                      {post.domain}
-                    </a>
+                    {contained ? (
+                      post.domain
+                    ) : (
+                      <a
+                        href={post.permalink}
+                        title={post.domain}
+                        target="_blank"
+                        rel={anchorNofollowRel}
+                        className="hover:underline"
+                      >
+                        {post.domain}
+                      </a>
+                    )}
                   </TruncateText>
                 )
               }
             />
 
-            {!isVideoType && (
-              <a
-                href={post.permalink}
-                target="_blank"
-                rel={anchorNofollowRel}
-                className="block cursor-pointer overflow-hidden rounded-16"
-                style={{ maxWidth: '25.625rem' }}
-              >
-                <LazyImage
-                  imgSrc={post.image}
-                  imgAlt="Post cover image"
-                  ratio="49%"
-                  eager
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                  fetchPriority="high"
-                />
-              </a>
-            )}
+            {!isVideoType &&
+              (contained ? (
+                <div
+                  className="overflow-hidden rounded-16"
+                  style={{ maxWidth: '25.625rem' }}
+                >
+                  {cover}
+                </div>
+              ) : (
+                <a
+                  href={post.permalink}
+                  target="_blank"
+                  rel={anchorNofollowRel}
+                  className="block cursor-pointer overflow-hidden rounded-16"
+                  style={{ maxWidth: '25.625rem' }}
+                >
+                  {cover}
+                </a>
+              ))}
           </div>
         </div>
 
@@ -292,6 +353,8 @@ export function ReadPostContent({
               content={chunk}
               appendTooltipTo={() => globalThis?.document?.body}
             />
+            {index < chunks.length - 1 &&
+              inContentTaboola(summaryBreaks + index + 1)}
             {index < chunks.length - 1 && (
               <ReadAdSlot
                 slot={READ_SLOT.inBodyMpu}
@@ -303,6 +366,8 @@ export function ReadPostContent({
             )}
           </React.Fragment>
         ))}
+
+        {!hasContentBreaks && inContentTaboola(1)}
 
         {/* Same block the post page shows: the questions that likely brought
             an anonymous visitor here (the component self-hides for logged-in
@@ -324,18 +389,32 @@ export function ReadPostContent({
           onCopyLinkClick={onCopyPostLink}
           logOrigin={Origin.ArticlePage}
           hideInternalAd
-          interleaveEvery={COMMENTS_PER_INTERLEAVED_AD}
+          interleaveEvery={
+            taboola ? TABOOLA_COMMENTS_PER_AD : COMMENTS_PER_INTERLEAVED_AD
+          }
           renderInterleaved={(occurrence) => (
-            // Phone-hidden until the density precondition in slots.ts is
-            // satisfied: a repeating unit, and the phone figure was measured
-            // without it.
-            <ReadAdSlot
-              slot={READ_SLOT.commentMpu}
-              format={ReadAdFormat.MediumRectangle}
-              hideOnPhone
-              logExtra={{ occurrence }}
-            />
+            <>
+              {/* Phone-hidden until the density precondition in slots.ts is
+                  satisfied: a repeating unit, and the phone figure was
+                  measured without it. */}
+              <ReadAdSlot
+                slot={READ_SLOT.commentMpu}
+                format={ReadAdFormat.MediumRectangle}
+                hideOnPhone
+                logExtra={{ occurrence }}
+              />
+              <ReadTaboolaSlot
+                placement={getTaboolaCommentsPlacement(occurrence)}
+              />
+            </>
           )}
+        />
+
+        {contained && <ReadNextArticles post={post} className="mt-6" />}
+
+        <ReadTaboolaSlot
+          placement={TABOOLA_ARTICLE_PLACEMENT.belowArticle}
+          className="mt-6"
         />
       </PostContainer>
 
@@ -349,6 +428,8 @@ export function ReadPostContent({
         hideSignupWidget
         hideToc
         hideAdWidget
+        hideEntityCards={contained}
+        hideDiscovery={contained}
         getRailAd={(position) => {
           const spec = RAIL_AD[position];
 
@@ -357,12 +438,20 @@ export function ReadPostContent({
           }
 
           return (
-            <ReadAdSlot
-              slot={spec.slot}
-              format={spec.format}
-              className={spec.className}
-              hideOnPhone={spec.hideOnPhone}
-            />
+            <>
+              <ReadAdSlot
+                slot={spec.slot}
+                format={spec.format}
+                className={spec.className}
+                hideOnPhone={spec.hideOnPhone}
+              />
+              {position === PostWidgetPosition.Source && (
+                <ReadTaboolaSlot
+                  placement={TABOOLA_ARTICLE_PLACEMENT.rightRail1x1}
+                  hideOnPhone
+                />
+              )}
+            </>
           );
         }}
         // The page's only sticky unit, closing the rail: last in the column,
@@ -370,12 +459,18 @@ export function ReadPostContent({
         // the overlap the mid-rail sticky produced. Compliant as a publisher
         // sticky at exactly 300px wide, desktop only, one per viewport.
         trailing={
-          <ReadAdSlot
-            slot={READ_SLOT.railBottomSticky}
-            format={ReadAdFormat.HalfPage}
-            className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1"
-            hideOnPhone
-          />
+          <>
+            <ReadAdSlot
+              slot={READ_SLOT.railBottomSticky}
+              format={ReadAdFormat.HalfPage}
+              className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1"
+              hideOnPhone
+            />
+            <ReadTaboolaSlot
+              placement={TABOOLA_ARTICLE_PLACEMENT.rightRail4x1}
+              hideOnPhone
+            />
+          </>
         }
       />
     </PostContentContainerRaw>

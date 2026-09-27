@@ -76,7 +76,7 @@ describe('read article static props', () => {
     ).toBeUndefined();
   });
 
-  it('does not generate article ad pages for unsupported post types', async () => {
+  it('sends unsupported post types to the regular post page', async () => {
     mockRequest.mockResolvedValueOnce({
       post: createPost({ type: PostType.Share }),
     });
@@ -85,7 +85,9 @@ describe('read article static props', () => {
       params: { id: 'post-id' },
     } as never);
 
-    expect(result).toMatchObject({ notFound: true });
+    expect(result).toMatchObject({
+      redirect: { destination: '/posts/post-id', permanent: false },
+    });
   });
 
   it('keeps the API-error fallback noindex and nofollow', async () => {

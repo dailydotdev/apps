@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import type {
@@ -47,9 +47,24 @@ import {
   hasLiveAdSlots,
   PREBID_SCRIPT_SRC,
 } from '@dailydotdev/shared/src/features/monetization/kueez';
-import { useReadAdSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdSlots';
+import {
+  useArticlesContained,
+  useReadAdSlots,
+  useReadTaboola,
+} from '@dailydotdev/shared/src/components/post/read/useReadAdSlots';
+import { ReadNextArticles } from '@dailydotdev/shared/src/components/post/read/ReadNextArticles';
+import { READ_ELIGIBLE_POST_TYPES } from '@dailydotdev/shared/src/components/post/read/common';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import { ReadTaboolaSlot } from '@dailydotdev/shared/src/components/post/read/ReadTaboolaSlot';
+import {
+  getTaboolaCommentsPlacement,
+  getTaboolaInContentPlacement,
+  TABOOLA_ARTICLE_PLACEMENT,
+  TABOOLA_COMMENTS_PER_AD,
+} from '@dailydotdev/shared/src/features/monetization/taboola';
 import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
 import { AdHeadHints } from '../../components/AdHeadHints';
+import { useArticlePostLinks } from '../../hooks/useArticlePostLinks';
 import { getLayout } from '../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../components/layouts/FooterNavBarLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -63,18 +78,6 @@ const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
 
 const READ_ARTICLE_ROUTE_PATTERN =
   /^\/(?:articles\/[^/]+|posts\/[^/]+\/read)(?:[/?#]|$)/;
-
-/**
- * The post types /articles may render, all of which carry content beyond the ad
- * slots. Deliberately excludes squad/user-generated types (share, welcome,
- * freeform, poll) — paid traffic never targets them and their content is our
- * members', not landing-page material — and internal types (brief, digest).
- */
-const READ_ELIGIBLE_POST_TYPES = new Set<PostType>([
-  PostType.Article,
-  PostType.VideoYouTube,
-  PostType.Collection,
-]);
 
 export interface ReadPostPageProps extends DynamicSeoProps {
   id: string;
@@ -106,11 +109,15 @@ const ReadPostPage = ({
   const router = useRouter();
   const { applyThemeMode } = useSettingsContext();
   const adSlots = useReadAdSlots();
-  const adsLive = hasLiveAdSlots(adSlots);
+  const kueezLive = hasLiveAdSlots(adSlots);
+  const taboolaLive = useReadTaboola();
+  const adsLive = kueezLive || taboolaLive;
+  const contained = useArticlesContained();
   const { post, isError, isLoading } = usePostById({
     id,
     options: { initialData, retry: false },
   });
+  useArticlePostLinks(contained, post);
   const { showRedesign } = usePostRedesign(post);
   // Every slot self-gates on the read map, so the set is built whenever the
   // card renders, like ReadPostContent's markup.
@@ -131,33 +138,65 @@ const ReadPostPage = ({
         logExtra={{ section, occurrence: index + 1 }}
       />
     );
-    const hasSummaryUnits =
-      !!post?.summary &&
-      splitTextForAds(
-        post.summary,
+    // A collection's body is the story itself, so it opens the card without
+    // the TLDR above it.
+    const showSummary = !(
+      post?.type === PostType.Collection && post.contentHtml
+    );
+    const summaryBreaks =
+      post?.summary && showSummary
+        ? splitTextForAds(
+            post.summary,
+            CONTENT_CHARS_PER_AD,
+            MAX_CONTENT_ADS_PER_SECTION + 1,
+          ).length - 1
+        : 0;
+    const hasSummaryUnits = summaryBreaks > 0;
+    const hasBodyUnits =
+      !!post?.contentHtml &&
+      splitContentForAds(
+        post.contentHtml,
         CONTENT_CHARS_PER_AD,
         MAX_CONTENT_ADS_PER_SECTION + 1,
       ).length > 1;
+    // Same rule as the classic template: every break the MPU cadence uses,
+    // numbered through the page, or one after content too short to break.
+    const inContentTaboola = (occurrence: number) => (
+      <ReadTaboolaSlot
+        placement={getTaboolaInContentPlacement(occurrence)}
+        className="my-2"
+      />
+    );
     return {
       withoutDirectSold: true,
       withoutSignupWidget: true,
-      contentLeading: <ReadTopLeaderboard />,
-      renderSummarySegments: (summary, trailing) =>
-        splitTextForAds(
-          summary,
-          CONTENT_CHARS_PER_AD,
-          MAX_CONTENT_ADS_PER_SECTION + 1,
-        ).map((part, index, parts) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <React.Fragment key={index}>
-            <p className="select-text break-words text-text-secondary typo-markdown">
-              {part}
-              {index === parts.length - 1 && trailing}
-            </p>
-            {index < parts.length - 1 &&
-              inBodyUnit('summary', index, index > 0)}
-          </React.Fragment>
-        )),
+      contained,
+      belowComments: (
+        <>
+          {contained && post && <ReadNextArticles post={post} />}
+          <ReadTaboolaSlot placement={TABOOLA_ARTICLE_PLACEMENT.belowArticle} />
+        </>
+      ),
+      contentLeading: !contained && <ReadTopLeaderboard />,
+      renderSummarySegments: !showSummary
+        ? undefined
+        : (summary, trailing) =>
+            splitTextForAds(
+              summary,
+              CONTENT_CHARS_PER_AD,
+              MAX_CONTENT_ADS_PER_SECTION + 1,
+            ).map((part, index, parts) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <React.Fragment key={index}>
+                <p className="select-text break-words text-text-secondary typo-markdown">
+                  {part}
+                  {index === parts.length - 1 && trailing}
+                </p>
+                {index < parts.length - 1 && inContentTaboola(index + 1)}
+                {index < parts.length - 1 &&
+                  inBodyUnit('summary', index, index > 0)}
+              </React.Fragment>
+            )),
       // Phone density policy, same as the classic template: only the page's
       // first in-content unit keeps a phone placement.
       renderBody: (contentHtml) =>
@@ -173,6 +212,8 @@ const ReadPostPage = ({
               content={chunk}
               appendTooltipTo={() => globalThis?.document?.body}
             />
+            {index < chunks.length - 1 &&
+              inContentTaboola(summaryBreaks + index + 1)}
             {index < chunks.length - 1 &&
               inBodyUnit('body', index, hasSummaryUnits || index > 0)}
           </React.Fragment>
@@ -203,25 +244,52 @@ const ReadPostPage = ({
       // one per viewport, closing the rail where nothing follows.
       railPinsLast: true,
       aboveComments: (
-        <ReadAdSlot
-          slot={READ_SLOT.aboveCommentsMpu}
-          format={ReadAdFormat.MediumRectangle}
-          className="my-2"
-        />
+        <>
+          {!hasSummaryUnits && !hasBodyUnits && inContentTaboola(1)}
+          <ReadAdSlot
+            slot={READ_SLOT.aboveCommentsMpu}
+            format={ReadAdFormat.MediumRectangle}
+            className="my-2"
+          />
+        </>
       ),
       commentAds: {
-        interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
+        interleaveEvery: taboolaLive
+          ? TABOOLA_COMMENTS_PER_AD
+          : COMMENTS_PER_INTERLEAVED_AD,
         renderInterleaved: (occurrence) => (
-          <ReadAdSlot
-            slot={READ_SLOT.commentMpu}
-            format={ReadAdFormat.MediumRectangle}
-            hideOnPhone
-            logExtra={{ occurrence }}
-          />
+          <>
+            <ReadAdSlot
+              slot={READ_SLOT.commentMpu}
+              format={ReadAdFormat.MediumRectangle}
+              hideOnPhone
+              logExtra={{ occurrence }}
+            />
+            <ReadTaboolaSlot
+              placement={getTaboolaCommentsPlacement(occurrence)}
+            />
+          </>
         ),
       },
+      // Taboola's rail widgets stand in for the whole Kueez rail while it
+      // serves, unpinned: the sticky closing tower is a Kueez booking.
+      ...(taboolaLive && {
+        rail: [
+          <ReadTaboolaSlot
+            key="taboola-rail-1x1"
+            placement={TABOOLA_ARTICLE_PLACEMENT.rightRail1x1}
+            hideOnPhone
+          />,
+          <ReadTaboolaSlot
+            key="taboola-rail-4x1"
+            placement={TABOOLA_ARTICLE_PLACEMENT.rightRail4x1}
+            hideOnPhone
+          />,
+        ],
+        railPinsLast: false,
+      }),
     };
-  }, [showRedesign, post?.summary]);
+  }, [showRedesign, taboolaLive, contained, post]);
 
   // Display-only override; the stored theme preference is untouched and
   // restored the moment the visitor leaves.
@@ -242,6 +310,13 @@ const ReadPostPage = ({
     if (!adsLive) {
       return undefined;
     }
+    // Taboola's widgets are queued once per page load, so while it serves even
+    // the next article has to load fresh: only the same page stays in place.
+    const staysOnAdRoute = (url: string): boolean =>
+      taboolaLive
+        ? new URL(url, window.location.origin).pathname ===
+          window.location.pathname
+        : READ_ARTICLE_ROUTE_PATTERN.test(url);
     const forceHardNavigation = (
       url: string,
       { shallow }: { shallow: boolean },
@@ -249,7 +324,7 @@ const ReadPostPage = ({
       // Shallow same-page updates (comment permalinks, URL-masking modals,
       // query tweaks) never unload anything — only a genuine departure from
       // the article ad route has ads to tear down.
-      if (shallow || READ_ARTICLE_ROUTE_PATTERN.test(url)) {
+      if (shallow || staysOnAdRoute(url)) {
         return;
       }
       router.events.emit('routeChangeError');
@@ -265,7 +340,7 @@ const ReadPostPage = ({
     // the SPA transition and loading the target URL in place respects the
     // history position the user just moved to.
     router.beforePopState(({ as }) => {
-      if (READ_ARTICLE_ROUTE_PATTERN.test(as)) {
+      if (staysOnAdRoute(as)) {
         return true;
       }
       window.location.href = as;
@@ -278,7 +353,7 @@ const ReadPostPage = ({
       // claims it, the two must be composed rather than overwritten.
       router.beforePopState(() => true);
     };
-  }, [adsLive, router]);
+  }, [adsLive, taboolaLive, router]);
 
   if (isLoading) {
     return <PostLoadingSkeleton type={post?.type} />;
@@ -288,19 +363,19 @@ const ReadPostPage = ({
     return <Custom404 />;
   }
 
+  // Below laptop MainLayoutHeader renders the feed nav, which a post route has
+  // nothing to fill, so without the footer nav the page carries no navigation
+  // on a phone. The post is deliberately not passed: that would add the mobile
+  // floating comment bar, a third fixed element competing with the footer nav
+  // and the anchor for the bottom of a phone screen. A contained page drops
+  // the nav, every tab of which leads off the template.
   return (
     <ActivePostContextProvider post={post}>
-      {/* Below laptop MainLayoutHeader renders the feed nav, which a post route
-          has nothing to fill, so without this the page carries no navigation at
-          all on a phone — the single clearest doorway-page signal there is. The
-          post is deliberately not passed: that would add the mobile floating
-          comment bar, a third fixed element competing with the footer nav and
-          the anchor for the bottom of a phone screen. */}
-      <FooterNavBarLayout>
+      <FooterNavBarLayout hideNav={contained}>
         <Head>
           {!!post.image && <link rel="preload" as="image" href={post.image} />}
         </Head>
-        {adsLive && (
+        {kueezLive && (
           <>
             <AdHeadHints />
             <Script
@@ -327,12 +402,22 @@ const ReadPostPage = ({
             className="min-h-page max-w-[72rem] pb-6"
           />
         )}
+        <ReadTaboolaSlot placement={TABOOLA_ARTICLE_PLACEMENT.exploreMore} />
       </FooterNavBarLayout>
     </ActivePostContextProvider>
   );
 };
 
-ReadPostPage.getLayout = getLayout;
+ReadPostPage.getLayout = (
+  page: ReactNode,
+  pageProps?: Record<string, unknown>,
+  layoutProps?: MainLayoutProps,
+): ReactNode => {
+  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const contained = useArticlesContained();
+  return getLayout(page, pageProps, { ...layoutProps, contained });
+};
 ReadPostPage.layoutProps = {
   screenCentered: false,
   showSidebar: false,
@@ -377,8 +462,13 @@ export async function getStaticProps({
     const isReadEligible =
       READ_ELIGIBLE_POST_TYPES.has(post.type) &&
       !!(post.summary || post.contentHtml);
+    // Links across the template lead here for every post, so the rest are
+    // sent on to the regular post page rather than a 404.
     if (!isReadEligible) {
-      return { notFound: true, revalidate: 60 };
+      return {
+        redirect: { destination: `/posts/${id}`, permanent: false },
+        revalidate: 60,
+      };
     }
 
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');

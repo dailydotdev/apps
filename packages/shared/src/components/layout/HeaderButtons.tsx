@@ -12,12 +12,14 @@ import { GetAppButton } from '../../features/getApp/components/GetAppButton';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
+  hideGetApp?: boolean;
 }
 
 const Container = classed('div', 'ml-auto flex justify-end gap-3');
 
 export function HeaderButtons({
   additionalButtons,
+  hideGetApp,
 }: HeaderButtonsProps): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
@@ -32,7 +34,7 @@ export function HeaderButtons({
         {/* Sits ahead of the Log in / Sign up pair. It keeps its label here
             because there is room, but it stays Float (not Primary) so it never
             competes with Sign up, which is the CTA that matters logged out. */}
-        <GetAppButton showLabel />
+        {!hideGetApp && <GetAppButton showLabel />}
         <LoginButton
           className={{
             container: 'gap-4',

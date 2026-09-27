@@ -20,6 +20,8 @@ export interface MainLayoutHeaderProps {
   sidebarRendered?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  /** Keeps visitors on the page: an unlinked logo, no search, no app links. */
+  contained?: boolean;
 }
 
 const SpotlightTrigger = dynamic(
@@ -39,6 +41,7 @@ function MainLayoutHeader({
   sidebarRendered,
   additionalButtons,
   onLogoClick,
+  contained,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
   const [hasHydrated, setHasHydrated] = useState(false);
@@ -125,10 +128,14 @@ function MainLayoutHeader({
                       : LogoPosition.Absolute
                   }
                   onLogoClick={onLogoClick}
+                  linkDisabled={contained}
                 />
               </div>
-              {renderSearchPanel()}
-              <HeaderButtons additionalButtons={additionalButtons} />
+              {!contained && renderSearchPanel()}
+              <HeaderButtons
+                additionalButtons={additionalButtons}
+                hideGetApp={contained}
+              />
             </>
           )}
     </header>

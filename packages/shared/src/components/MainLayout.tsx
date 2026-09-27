@@ -107,6 +107,7 @@ function MainLayoutComponent({
   onLogoClick,
   onNavTabClick,
   canGoBack,
+  contained,
   hideFeedbackWidget = false,
   topBanner,
 }: MainLayoutProps): ReactElement | null {
@@ -116,7 +117,8 @@ function MainLayoutComponent({
     useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
-  const { isAvailable: isBannerAvailable } = useBanner();
+  const { isAvailable } = useBanner();
+  const isBannerAvailable = isAvailable && !contained;
   const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
     useContext(SettingsContext);
   const { value: isSidebarCompact } = useSidebarCompact();
@@ -357,11 +359,15 @@ function MainLayoutComponent({
       <QuestUpdatesListener />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      <BootPopups />
-      <SpotlightHost />
+      {!contained && (
+        <>
+          <BootPopups />
+          <SpotlightHost />
+        </>
+      )}
       <StreakMilestonePopup />
       <QuestOffersPopup />
-      {plusEntryAnnouncementBar && (
+      {plusEntryAnnouncementBar && !contained && (
         <PlusMobileEntryBanner
           className="relative"
           {...plusEntryAnnouncementBar}
@@ -378,6 +384,7 @@ function MainLayoutComponent({
           sidebarRendered={sidebarRendered}
           additionalButtons={additionalButtons}
           onLogoClick={onLogoClick}
+          contained={contained}
         />
       )}
       <main

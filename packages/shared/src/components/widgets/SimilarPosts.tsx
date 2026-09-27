@@ -33,6 +33,7 @@ export type SimilarPostsProps = {
   moreButtonProps?: {
     href?: string;
     text?: string;
+    hidden?: boolean;
   };
   ListItem?: React.ComponentType<PostProps> & {
     Placeholder: () => ReactElement;
@@ -152,18 +153,20 @@ export default function SimilarPosts({
           ))}
         </>
       )}
-      <Link href={moreButtonHref} passHref>
-        <Button
-          variant={ButtonVariant.Tertiary}
-          className="mt-2 self-start"
-          size={ButtonSize.Small}
-          tag="a"
-          icon={<ArrowIcon className="rotate-90" />}
-          iconPosition={ButtonIconPosition.Right}
-        >
-          {moreButtonText}
-        </Button>
-      </Link>
+      {!moreButtonProps?.hidden && (
+        <Link href={moreButtonHref} passHref>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            className="mt-2 self-start"
+            size={ButtonSize.Small}
+            tag="a"
+            icon={<ArrowIcon className="rotate-90" />}
+            iconPosition={ButtonIconPosition.Right}
+          >
+            {moreButtonText}
+          </Button>
+        </Link>
+      )}
     </WidgetContainer>
   );
 }
