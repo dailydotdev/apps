@@ -1,4 +1,3 @@
-import user from '../../__tests__/fixture/loggedUser';
 import { useAuthContext } from '../contexts/AuthContext';
 import type {
   ApiErrorResult,
@@ -12,7 +11,7 @@ import { useToastNotification } from './useToastNotification';
 
 export const useTransactionError = () => {
   const { displayToast } = useToastNotification();
-  const { updateUser } = useAuthContext();
+  const { user, updateUser } = useAuthContext();
 
   return async (data: ApiErrorResult) => {
     if (
@@ -25,7 +24,8 @@ export const useTransactionError = () => {
       if (
         errorExtensions.extensions.status ===
           UserTransactionStatus.InsufficientFunds &&
-        errorExtensions.extensions.balance
+        errorExtensions.extensions.balance &&
+        user
       ) {
         await updateUser({
           ...user,
