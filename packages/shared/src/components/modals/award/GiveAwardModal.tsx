@@ -39,6 +39,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { AwardFeesNote } from '../../cores/AwardFeesNote';
+import { CoresBalanceNote } from '../../cores/CoresBalanceNote';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import { AnimatedAward } from '../../AnimatedAward';
@@ -369,6 +370,7 @@ const CommentScreen = () => {
           Send Award for <CoreIcon />{' '}
           {product.value === 0 ? 'Free' : formatCoresCurrency(product.value)}
         </Button>
+        {!!product?.value && <CoresBalanceNote price={product.value} />}
         <AwardFeesNote />
       </Modal.Footer>
     </>
