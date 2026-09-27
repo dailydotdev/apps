@@ -471,9 +471,19 @@ export const PostPage = ({
       error === ApiError.Forbidden ||
       getApiError(postError, ApiError.Forbidden)
     ) {
-      return <Unauthorized />;
+      return (
+        <>
+          <MobileAppHeader />
+          <Unauthorized />
+        </>
+      );
     }
-    return <Custom404 />;
+    return (
+      <>
+        <MobileAppHeader />
+        <Custom404 />
+      </>
+    );
   }
 
   return (

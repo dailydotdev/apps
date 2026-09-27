@@ -75,7 +75,6 @@ const CustomFeedOptionsMenu = ({
 
   options.push(...additionalOptions);
 
-  // Logged out, only Share works and every page already has a copy-link button.
   if (isMobileAppHeader) {
     return null;
   }
