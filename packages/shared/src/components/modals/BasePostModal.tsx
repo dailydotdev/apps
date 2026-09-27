@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -19,6 +19,7 @@ import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 import { getEngagementLogExtra } from '../../lib/engagementAds';
 import { isSourceAdFree } from '../../lib/ads';
+import { usePostById } from '../../hooks/usePostById';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -77,6 +78,14 @@ function BasePostModal({
   const { logEvent } = useLogContext();
   const [scrollNode, setScrollNode] = useState<HTMLDivElement | null>(null);
   const { getCreativeForTags } = useEngagementAdsContext();
+  const { post: loadedPost } = usePostById({ id: post?.id ?? '' });
+  const activePost = useMemo(
+    () =>
+      post && loadedPost?.source
+        ? { ...post, source: loadedPost.source }
+        : post,
+    [post, loadedPost?.source],
+  );
 
   usePostReferrer({ post });
 
@@ -102,10 +111,10 @@ function BasePostModal({
   useEventListener(scrollNode, 'scroll', debouncedOnScroll);
 
   return (
-    <ActivePostContextProvider post={post}>
+    <ActivePostContextProvider post={activePost}>
       <LogExtraContextProvider
         selector={() => {
-          const creative = isSourceAdFree(post?.source)
+          const creative = isSourceAdFree(activePost?.source)
             ? null
             : getCreativeForTags(post?.tags || []);
           return {

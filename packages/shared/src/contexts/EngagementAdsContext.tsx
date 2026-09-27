@@ -56,6 +56,17 @@ export const useEngagementAdsContext = (): EngagementAdsContextValue => {
   return isSourceAdFree(activePost?.source) ? defaultValue : value;
 };
 
+/** Blanks brand sponsorships for a subtree, such as an ad-free squad's feed. */
+export const NoEngagementAdsProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => (
+  <EngagementAdsContext.Provider value={defaultValue}>
+    {children}
+  </EngagementAdsContext.Provider>
+);
+
 interface EngagementAdsProviderProps {
   children: ReactNode;
   rawCreatives?: EngagementCreative[];

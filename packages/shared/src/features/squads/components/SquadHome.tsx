@@ -9,6 +9,7 @@ import {
   supportedTypesForPrivateSources,
 } from '../../../graphql/feed';
 import { FeedLayoutProvider } from '../../../contexts/FeedContext';
+import { NoEngagementAdsProvider } from '../../../contexts/EngagementAdsContext';
 import { useSearchContextProvider } from '../../../contexts/search/SearchContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useFeedLayout } from '../../../hooks/useFeedLayout';
@@ -114,7 +115,7 @@ export const SquadHome = ({
     user?.id,
   ]);
 
-  const feed = (
+  const feedLayout = (
     <FeedLayoutProvider maxNumCards={MAX_FEED_COLUMNS}>
       <Feed
         {...feedProps}
@@ -128,6 +129,11 @@ export const SquadHome = ({
         allowPin
       />
     </FeedLayoutProvider>
+  );
+  const feed = isAdFree ? (
+    <NoEngagementAdsProvider>{feedLayout}</NoEngagementAdsProvider>
+  ) : (
+    feedLayout
   );
 
   if (isSearching) {

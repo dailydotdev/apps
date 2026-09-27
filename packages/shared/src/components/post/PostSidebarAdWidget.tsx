@@ -16,7 +16,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useAdQuery } from '../../features/monetization/useAdQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
-import { AdActions, AdPlacement, isSourceAdFree } from '../../lib/ads';
+import { AdActions, AdPlacement, shouldSkipSourceAds } from '../../lib/ads';
 import type { Post } from '../../graphql/posts';
 import { adLogEvent } from '../../lib/feed';
 import { adImprovementsV3Feature } from '../../lib/featureManagement';
@@ -58,7 +58,7 @@ export function PostSidebarAdWidget({
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const adImprovementsV3 = Boolean(useFeature(adImprovementsV3Feature));
-  const isAdFree = isPlus || isSourceAdFree(source);
+  const isAdFree = isPlus || shouldSkipSourceAds(source);
 
   const { data: ad, isPending } = useAdQuery({
     placement: AdPlacement.PostSidebar,

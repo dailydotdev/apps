@@ -13,7 +13,7 @@ import { AdPixel } from '../cards/ad/common/AdPixel';
 import { AdViewability } from '../cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../features/monetization/viewability';
-import { AdActions, AdPlacement, isSourceAdFree } from '../../lib/ads';
+import { AdActions, AdPlacement, shouldSkipSourceAds } from '../../lib/ads';
 import type { Post } from '../../graphql/posts';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { RemoveAd } from '../cards/ad/common/RemoveAd';
@@ -38,7 +38,7 @@ export const AdAsComment = ({
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const isAdFree = isSourceAdFree(postSource);
+  const isAdFree = shouldSkipSourceAds(postSource);
 
   const {
     data: ad,
@@ -101,7 +101,7 @@ export const AdAsComment = ({
     );
   }
 
-  if (!ad) {
+  if (isAdFree || !ad) {
     return <></>;
   }
 

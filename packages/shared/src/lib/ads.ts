@@ -1,6 +1,7 @@
 import { apiUrl } from './config';
 import type { Ad } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
+import { SourceType } from '../graphql/sources';
 import type { AdMacroContext } from '../features/monetization/adMacros';
 
 /**
@@ -11,6 +12,16 @@ import type { AdMacroContext } from '../features/monetization/adMacros';
 export const isSourceAdFree = (
   source?: Pick<Source, 'features'> | null,
 ): boolean => !!source?.features?.adFree;
+
+/**
+ * A squad post opened from a feed card has no features until its own post
+ * query lands, so the ads that request an ad wait for it.
+ */
+export const shouldSkipSourceAds = (
+  source?: Pick<Source, 'features' | 'type'> | null,
+): boolean =>
+  isSourceAdFree(source) ||
+  (source?.type === SourceType.Squad && !source.features);
 
 export enum AdActions {
   Click = 'click',
