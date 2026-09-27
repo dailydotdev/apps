@@ -394,7 +394,7 @@ const SourcePage = ({
             All posts from {source.name}
           </EntitySectionHeading>
           <Feed
-            feedName={OtherFeedPage.Squad}
+            feedName={OtherFeedPage.Source}
             feedQueryKey={[
               'sourceFeed',
               user?.id ?? 'anonymous',
