@@ -31,10 +31,10 @@ export const Overview: StoryObj = {
             <p className="max-w-[64ch] text-text-secondary typo-body">
               Frosted glass with a brand-purple hairline and two soft light
               sources, cabbage and onion, behind the seal and four words. Picked
-              from 28 explorations; it is the Verified company page card at the
+              from 28 explorations; it is the Verified squad page card at the
               top of the right column. On phones, where the right column sits
-              behind the About chip, the page shows the verified badge beside
-              the name only.
+              behind About in the feed heading, the page shows the verified
+              badge beside the name only.
             </p>
           </header>
           <div className="flex w-80 flex-col gap-4">

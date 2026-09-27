@@ -10,10 +10,10 @@ const meta: Meta = {
 
 export default meta;
 
-// Who can publish where. Discussions is open to members; Releases is fed by
-// the company's RSS on a verified page and written by the team on a plain
-// squad; Polls are asked by the team and answered by members; what members
-// post can wait for a moderator.
+// Who can publish what, in the one feed. Members post; releases come from
+// the company's RSS on a verified page and from the team on a plain squad;
+// polls are asked by the team and answered by members; what members post
+// can wait for a moderator.
 
 export const Overview: StoryObj = {
   render: () => (
@@ -23,9 +23,9 @@ export const Overview: StoryObj = {
       intro={
         <>
           <p>
-            A verified company page is a squad whose Releases are fed by the
-            company&apos;s RSS. Followers still write in Discussions, vote in
-            Polls, and wait for a moderator when the squad asks for review. The
+            A verified squad page is a squad whose releases are posted from the
+            company&apos;s RSS. Members still post, vote on polls, and wait for
+            a moderator when the squad asks for review, all in the one feed. The
             rules are the squad&apos;s existing rules; only the source of the
             team&apos;s posts changes.
           </p>

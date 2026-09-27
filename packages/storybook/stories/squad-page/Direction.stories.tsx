@@ -73,34 +73,34 @@ export const Overview: StoryObj = {
             The profile&apos;s header and right column, for a squad. The header
             carries the cover, the round logo, the name with the verified badge,
             one meta line and the stats, with every action as a Subtle button
-            and Follow last. Home is the products shelf, the composer, pinned
-            posts and one feed filtered by chips: All, Releases, Discussions,
-            Polls, and About on smaller screens.
+            and Join Squad last. Home is the products shelf, the composer,
+            pinned posts and one feed, with production&apos;s search in the row
+            above it.
           </p>
           <p>
-            Rules, FAQ, Followers, Products and the other pages replace the
-            centre card under a back button and the page title. Edit page opens
-            the Manage area, laid out like profile settings: a grouped menu on
+            Rules, FAQ, Members, Products and the other pages replace the centre
+            card under a back button and the page title. Edit page opens the
+            Manage area, laid out like profile settings: a grouped menu on
             laptop, a list and then one page at a time on phones.
           </p>
           <p>
-            The right column holds the Verified company page card, View as a
+            The right column holds the Verified squad page card, View as a
             visitor and the share card for the team, Rules, Team, Stack &amp;
             Tools, Analytics for admins, and Links. Below 1020px it moves behind
-            the About chip.
+            About in the feed heading.
           </p>
         </div>
       </header>
       <div className="flex flex-col gap-12">
         <Case
-          title="Home, as a follower"
-          body="Header, the products shelf, the composer, pinned posts, then the feed with its chips. The shelf clips the last product so it reads as scrollable; See all opens Products."
+          title="Home, as a member"
+          body="Header, the products shelf, the composer, then Posts with its search, pinned posts and the one feed, polls included. The shelf clips the last product so it reads as scrollable; See all opens Products."
           viewer={Viewer.Member}
           page="home"
         />
         <Case
           title="Home, as an admin"
-          body="Edit page as a pen icon, the bell, Share, the options menu with Manage, and Boost last where Follow sits for everyone else. The right column opens with View as a visitor and the share card, and adds Analytics."
+          body="Edit page as a pen icon, the bell, Share, the options menu with Manage, and Boost last where Join Squad sits for everyone else. The right column opens with View as a visitor and the share card, and adds Analytics."
           viewer={Viewer.Admin}
           page="home"
         />
@@ -111,8 +111,8 @@ export const Overview: StoryObj = {
           page="rules"
         />
         <Case
-          title="Followers, from the count"
-          body="The followers list with its tabs and search, under the same back button and title."
+          title="Members, from the count"
+          body="The members list with its tabs and search, under the same back button and title."
           viewer={Viewer.Member}
           page="members"
         />

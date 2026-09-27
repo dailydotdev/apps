@@ -240,7 +240,7 @@ export const VerifiedMark = ({
   className?: string;
 }): ReactElement => (
   <span
-    title="Verified company"
+    title="Verified squad"
     className={classNames(
       'inline-flex shrink-0 items-center gap-1 text-accent-cabbage-default',
       label &&
@@ -354,7 +354,7 @@ export const Stat = ({
 );
 
 export const stats = [
-  { value: squad.membersCount, label: 'Followers' },
+  { value: squad.membersCount, label: 'Members' },
   { value: squad.totalPosts, label: 'Posts' },
   { value: squad.totalViews, label: 'Views' },
   { value: squad.totalUpvotes, label: 'Upvotes' },
@@ -512,7 +512,7 @@ export const Actions = ({
         size={size}
         className="sq-press"
       >
-        Follow
+        Join Squad
       </Button>
     )}
     {viewer !== Viewer.Visitor && (

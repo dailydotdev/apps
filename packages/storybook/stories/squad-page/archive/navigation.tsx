@@ -9,16 +9,10 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ArrowIcon,
-  BellIcon,
-  LinkIcon,
-  MenuIcon,
-  SettingsIcon,
   UpvoteIcon,
-  VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
-  companyLinks,
   feedEntries,
   formatCount,
   pinnedEntry,
@@ -29,18 +23,15 @@ import {
 import {
   Avatar,
   CardList,
-  isAdmin,
   isBlocked,
   isJoined,
   isLoggedIn,
-  isStaff,
-  linkIcon,
-  VerifiedMark,
   Viewer,
 } from '../kit';
 import { Kit2Styles } from '../kit2';
 import { PostsArea, SquadComposer, SquadHeader, SquadWidgets } from '../home';
 import type { SquadPage } from '../workspace';
+import { PollsPage, ReleasesPage } from './chipPages';
 import {
   AnalyticsPage,
   ChannelPage,
@@ -51,14 +42,11 @@ import {
   docs,
   DocPage,
   FeedSourcePage,
-  iconFor,
   manage,
   MembersPage,
   ModerationPage,
-  PollsPage,
   ProductsPage,
   Rail,
-  ReleasesPage,
   RulesPage,
   SettingsPage,
   useWorkspace,

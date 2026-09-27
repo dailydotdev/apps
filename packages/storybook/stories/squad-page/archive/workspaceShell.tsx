@@ -55,17 +55,16 @@ import {
   pageIcon,
   PageType,
   PendingPostsPage,
-  PollsPage,
   PrivateWall,
   ProductsPage,
   Rail,
-  ReleasesPage,
   RulesPage,
   sections,
   SettingsPage,
   SquadPage,
   WorkspaceStyles,
 } from '../workspace';
+import { PollsPage, ReleasesPage } from './chipPages';
 
 // The earlier direction's shell: a workspace sidebar of channels and
 // pages, the bar above each page, and the Add a page picker. Only the

@@ -10,7 +10,7 @@ const meta: Meta = {
 
 export default meta;
 
-// The package. A verified company page is technically a squad; what the
+// The package. A verified squad page is technically a squad; what the
 // customer buys is the feed that fills it, the badge that marks it, and
 // the daily.dev manager who runs it for them.
 
@@ -22,11 +22,11 @@ export const Overview: StoryObj = {
       intro={
         <>
           <p>
-            Every verified company page is a squad underneath: the same members,
+            Every verified squad page is a squad underneath: the same members,
             roles, channels, moderation, rules and pages. The difference is how
             the team&apos;s posts arrive. On a plain squad someone writes them.
             On a verified page the company&apos;s RSS (changelog, blog,
-            releases) is imported into Releases as posts, on a schedule, by
+            releases) is imported into the feed as posts, on a schedule, by
             daily.dev, and the company keeps the keys to edit, pause or add.
           </p>
           <p>

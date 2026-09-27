@@ -43,14 +43,14 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production:
           'Full page, no Join (a quirk: the join button waits for a query that never runs logged out)',
         design:
-          'Full page, Sign up to follow last in the header; full width under the stats on a phone',
+          'Full page, Join Squad (opens sign up) last in the header; full width under the stats on a phone',
         status: 'Changed',
       },
       {
         surface: 'Public squad, logged in non-member',
         production: 'Join Squad in the bar, Invitation link in the menu',
         design:
-          'Follow, text only, last in the header row; Invitation link in the menu',
+          'Join Squad, text only, last in the header row; Invitation link in the menu',
         status: 'Covered',
       },
       {
@@ -70,9 +70,9 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Blocked member',
         production:
-          'Join disabled, tooltip “You are not allowed to follow this Squad”; still gets the bell and Leave',
+          'Join disabled, tooltip “You are not allowed to join the Squad”; still gets the bell and Leave',
         design:
-          'Follow disabled with the copy under it, lock card, no bell, no Unfollow',
+          'Join Squad disabled with the copy under it, lock card, no bell, no Leave Squad',
         status: 'Changed',
       },
       {
@@ -106,7 +106,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production:
           'Follow, bell, block, related tags, similar sources, rails, archive',
         design:
-          'Becomes the squad: Follow stays Follow, the bell keeps its switches, the archive is the Releases chip, newest first',
+          'Becomes the squad: Follow becomes Join Squad, the bell keeps its switches, the archive is the one feed, newest first',
         status: 'Changed',
       },
     ],
@@ -130,7 +130,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Stats',
         production:
           'Posts, Views, Upvotes, Awards when > 0 (opens the awards list)',
-        design: 'Followers with faces, Posts, Views, Upvotes, Awards when > 0',
+        design: 'Members with faces, Posts, Views, Upvotes, Awards when > 0',
         status: 'Covered',
       },
       {
@@ -148,14 +148,14 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Member short list',
         production: 'Avatars and count, opens the members modal',
-        design: 'Faces on the Followers stat, opens the Followers page',
+        design: 'Faces on the Members stat, opens the Members page',
         status: 'Covered',
       },
       {
         surface: 'Moderated by, Top members',
         production: 'Two avatar rows with +N modals',
         design:
-          'Team widget, Top followers row for public squads, See all opens Followers',
+          'Team widget with the admins and moderators, See all opens Members. No top members row',
         status: 'Covered',
       },
       {
@@ -169,7 +169,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Invitation link button',
         production: 'Invite permission (memberInviteRole)',
         design:
-          'Copy invitation link on Followers and in the options menu, hidden when members may not invite',
+          'Copy invitation link on Members and in the options menu, hidden when members may not invite',
         status: 'Covered',
       },
       {
@@ -225,7 +225,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         production:
           'Add to custom feed, Squad settings, Invitation link, Learn how Squads work, Feedback, Report Squad, Delete Squad, Leave Squad',
         design:
-          'Same items and gates, opened by Manage for the team (Moderation, Content feed, Analytics, Settings); Squad settings is Settings there, and the separate gear is gone',
+          'Same items and gates, opened by Manage for the team (Moderation, Content feed, Analytics, Settings); Squad settings is Settings there, the separate gear is gone, and Delete Squad lives only in Manage, Danger zone',
         status: 'Changed',
       },
     ],
@@ -242,19 +242,19 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Cannot post: not a member',
         production: '“Join the Squad to create new posts”',
-        design: 'Lock card, Follow instead of Join the Squad',
+        design: 'Lock card, same copy',
         status: 'Covered',
       },
       {
         surface: 'Cannot post: moderators only',
         production: '“Only admins and moderators can post”',
-        design: 'Lock card, same copy; Discussions says Team only',
+        design: 'Lock card, same copy',
         status: 'Covered',
       },
       {
         surface: 'Cannot post: reputation',
         production: '“You need N reputation points to post”',
-        design: 'Lock card, Follow instead of Join the Squad',
+        design: 'Lock card, same copy',
         status: 'Covered',
       },
       {
@@ -289,14 +289,15 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Welcome post',
         production: 'PostType.Welcome, editable by WelcomePostEdit',
         design:
-          'The first pinned post; on a fed page the feed strip explains the source',
+          'The first pinned post; on a fed page the Content feed page explains the source',
         status: 'Covered',
       },
       {
         surface: 'Search this squad',
         production: 'PostsSearch in the feed heading',
-        design: 'Not on the page for now; the toolbar is the chips only',
-        status: 'Dropped',
+        design:
+          'A search icon in the feed heading; the row turns into production’s search field, results replace the feed',
+        status: 'Covered',
       },
       {
         surface: 'Empty feed',
@@ -308,7 +309,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Fed by RSS',
         production: 'Does not exist for squads (machine sources only)',
-        design: 'Content feed page, Releases strip, Feed settings',
+        design: 'Content feed page in Manage; the items land in the one feed',
         status: 'Added',
       },
     ],
@@ -327,8 +328,8 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Members modal',
         production:
-          'Followers / Moderators / Blocked members, search, Copy invitation link, role menu, Unblock',
-        design: 'Followers page from the count, and in the Manage area',
+          'Squad members / Moderators / Blocked members, search, Copy invitation link, role menu, Unblock',
+        design: 'Members page from the count, and in the Manage area',
         status: 'Covered',
       },
       {
@@ -349,13 +350,14 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Delete squad',
         production: 'Danger zone and the menu, with the prompt',
-        design: 'Both places; the prompt stays',
-        status: 'Covered',
+        design:
+          'Danger zone in Manage only, out of the options menu; the prompt stays',
+        status: 'Changed',
       },
       {
         surface: 'Leave squad',
         production: 'Menu, prompt “Leave {name}”, toast',
-        design: 'Unfollow in the menu; prompt and toast unchanged',
+        design: 'Leave Squad in the menu; prompt and toast unchanged',
         status: 'Covered',
       },
       {
@@ -368,7 +370,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         surface: 'Preview as',
         production: 'None',
         design:
-          'View as a visitor, a switch at the top of the right column; the page renders as a non-follower sees it',
+          'View as a visitor, a switch at the top of the right column; the page renders as a non-member sees it',
         status: 'Added',
       },
     ],
@@ -403,7 +405,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
       {
         surface: 'Create squad',
         production: '/squads/new, NewSquadModal',
-        design: 'Unchanged; a company page is created by daily.dev',
+        design: 'Unchanged; a verified squad page is created by daily.dev',
         status: 'Elsewhere',
       },
       {
@@ -418,10 +420,10 @@ export const coverage: { group: string; rows: Row[] }[] = [
     group: 'New in the direction',
     rows: [
       {
-        surface: 'Kind chips on the feed',
-        production: 'None (one feed, no filters)',
+        surface: 'About below laptop width',
+        production: 'None (no right column on phones)',
         design:
-          'All, Releases, Discussions, Polls; About joins them below laptop width',
+          'About in the feed heading swaps the feed for the right column’s widgets; the feed stays one list, the kind chips are in the Archive',
         status: 'Added',
       },
       {
@@ -432,7 +434,7 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Added',
       },
       {
-        surface: 'Verified company page badge',
+        surface: 'Verified squad page badge',
         production: 'None (VerifiedCompanyUserBadge is user-only)',
         design: 'Aurora card at the top of the right column',
         status: 'Added',
@@ -635,15 +637,15 @@ export const Overview: StoryObj = {
         </ul>
       </Section>
 
-      <Section title="What the fed company page adds on top">
+      <Section title="What the fed verified squad page adds on top">
         <p className="max-w-[76ch] text-text-secondary typo-callout">
-          Nothing above changes for a verified company page. It is a squad with
-          three additions: the verified badge, the content feed that fills
-          Releases from the company&apos;s RSS (with Feed settings in place of
-          New release, and the feed listed under Integrations), and the
-          daily.dev manager on the Content feed page. Every gate, role, state
-          and menu item here applies to it unchanged; the source is{' '}
-          {ContentSource.Feed} by default in these stories.
+          Nothing above changes for a verified squad page. It is a squad with
+          three additions: the verified badge, the content feed that posts the
+          company&apos;s RSS into the feed (listed under Integrations and
+          explained on the Content feed page), and the daily.dev manager on the
+          Content feed page. Every gate, role, state and menu item here applies
+          to it unchanged; the source is {ContentSource.Feed} by default in
+          these stories.
         </p>
       </Section>
     </Page>

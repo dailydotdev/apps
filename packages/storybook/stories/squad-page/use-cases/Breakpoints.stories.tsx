@@ -51,9 +51,9 @@ export const Overview: StoryObj = {
         <p>
           The frame follows the profile page. From laptop the page card sits
           beside the 320px right column under the classic sidebar; below it, one
-          full-bleed column with the right column behind the About chip, the
-          tablet sidebar from 656px and the floating tab bar on phones. Every
-          frame is live: scroll it, open the chips, open a page.
+          full-bleed column with the right column behind About in the feed
+          heading, the tablet sidebar from 656px and the floating tab bar on
+          phones. Every frame is live: scroll it, open About, open a page.
         </p>
       }
     >

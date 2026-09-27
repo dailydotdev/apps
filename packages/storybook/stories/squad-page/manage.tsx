@@ -98,7 +98,7 @@ const groups: { title: string; items: ManageItem[] }[] = [
   {
     title: 'Community',
     items: [
-      { id: 'followers', label: 'Followers', icon: <UserIcon />, team: true },
+      { id: 'followers', label: 'Members', icon: <UserIcon />, team: true },
       {
         id: 'moderation',
         label: 'Moderation',
@@ -132,7 +132,7 @@ export const manageTitles: Record<ManageSection, string> = {
   products: 'Products',
   'add-product': 'Add product',
   links: 'Links',
-  followers: 'Followers',
+  followers: 'Members',
   moderation: 'Moderation',
   posting: 'Posting and invitations',
   feed: 'Content feed',

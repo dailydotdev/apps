@@ -113,11 +113,11 @@ export const Overview: StoryObj = {
       intro={
         <>
           <p>
-            The verified company page is a squad. Same roles, same channels,
-            same moderation, same rules and pages. The package a customer buys
-            is three things on top: the badge that marks the page as verified,
-            the feed that fills Releases from their RSS without anyone posting
-            by hand, and the daily.dev manager who runs it for them. Everything
+            The verified squad page is a squad. Same roles, same channels, same
+            moderation, same rules and pages. The package a customer buys is
+            three things on top: the badge that marks the page as verified, the
+            feed that posts their RSS into the squad without anyone posting by
+            hand, and the daily.dev manager who runs it for them. Everything
             below is the squad&apos;s existing model, with those three added.
           </p>
           <p>
@@ -181,7 +181,7 @@ export const Overview: StoryObj = {
           rows={[
             ['Read a public squad', ...can(() => true)],
             [
-              'See Follow',
+              'See Join Squad',
               ...can((viewer) => viewer === Viewer.Visitor).map((cell, index) =>
                 index === 5 ? (
                   <span className="text-text-tertiary">Disabled</span>
@@ -191,12 +191,12 @@ export const Overview: StoryObj = {
               ),
             ],
             ['Read a private squad', ...can(joined)],
-            ['Post in Discussions', ...can(joined)],
-            ['Vote in Polls', ...can(joined)],
+            ['Post in the squad', ...can(joined)],
+            ['Vote on polls', ...can(joined)],
             ['Ask a poll', ...can(staff)],
             ['Post a release (plain squad)', ...can(staff)],
-            ['Post in Discussions (moderators only setting)', ...can(staff)],
-            ['Post in Discussions (below the reputation gate)', ...can(staff)],
+            ['Post (moderators only setting)', ...can(staff)],
+            ['Post (below the reputation gate)', ...can(staff)],
             [
               'Post a release (fed page)',
               ...can(() => false).map((cell, index) =>
@@ -249,16 +249,16 @@ export const Overview: StoryObj = {
           rows={viewerCases.map((useCase) => [
             useCase.title,
             useCase.viewer === Viewer.Anonymous
-              ? 'Share, more, Sign up to follow'
+              ? 'Share, more, Join Squad (opens sign up)'
               : useCase.viewer === Viewer.Visitor
-              ? 'Share, more, Follow'
+              ? 'Share, more, Join Squad'
               : useCase.viewer === Viewer.Blocked
-              ? 'Share, more, Follow disabled'
+              ? 'Share, more, Join Squad disabled'
               : useCase.viewer === Viewer.Admin
               ? 'Edit page as a pen icon, bell, Share, more (with Manage), Boost last as the Primary button; on phones Boost sits beside Share page under the stats'
               : useCase.viewer === Viewer.Moderator
-              ? 'Bell, Share, more (with Manage), Following'
-              : 'Bell, Share, more, Following',
+              ? 'Bell, Share, more (with Manage), Joined'
+              : 'Bell, Share, more, Joined',
             useCase.viewer === Viewer.Admin
               ? 'View as a visitor, Verified, share card, Rules, Team, Stack & Tools, Analytics, Links'
               : useCase.viewer === Viewer.Moderator
@@ -267,7 +267,7 @@ export const Overview: StoryObj = {
             useCase.viewer === Viewer.Admin
               ? 'The Manage area, every section (Edit page opens Details)'
               : useCase.viewer === Viewer.Moderator
-              ? 'The Manage area: Rules, FAQ, Followers, Moderation'
+              ? 'The Manage area: Rules, FAQ, Members, Moderation'
               : 'None',
           ])}
         />
@@ -296,21 +296,21 @@ export const Overview: StoryObj = {
             ],
             [
               'Header',
-              '80px logo; Follow full width under the stats, or Boost and Share page for admins',
-              'Full header, Follow (or Boost for admins) last in the row',
-              'Full header, Follow (or Boost for admins) last in the row',
+              '80px logo; Join Squad full width under the stats, or Boost and Share page for admins',
+              'Full header, Join Squad (or Boost for admins) last in the row',
+              'Full header, Join Squad (or Boost for admins) last in the row',
             ],
             [
               'Right column',
-              'Behind the About chip',
-              'Behind the About chip',
+              'Behind About in the feed heading',
+              'Behind About in the feed heading',
               'Beside the page',
             ],
             [
-              'Chips',
-              'Scroll sideways',
-              'All in a row',
-              'All in a row, no About',
+              'Feed heading',
+              'Posts, About, search',
+              'Posts, About, search',
+              'Posts and search',
             ],
             [
               'Team tools',
@@ -324,11 +324,7 @@ export const Overview: StoryObj = {
 
       <Section title="Fed page vs plain squad">
         <Table
-          head={[
-            '',
-            'Verified company page (fed)',
-            'Plain squad (hand-written)',
-          ]}
+          head={['', 'Verified squad page (fed)', 'Plain squad (hand-written)']}
           rows={[
             [
               'Releases',
@@ -336,16 +332,16 @@ export const Overview: StoryObj = {
               'Written by the team',
             ],
             [
-              'Releases page bar',
-              'Feed settings (admin); strip says where posts come from',
-              'New release (staff)',
+              'Where it is explained',
+              'The Content feed page in Manage',
+              'Nothing to explain',
             ],
             [
               'Manage',
               'Content feed, Moderation, Analytics, Settings',
               'Moderation, Analytics, Settings',
             ],
-            ['Badge', 'Verified company page', 'None'],
+            ['Badge', 'Verified squad page', 'None'],
             [
               'Who runs it',
               'daily.dev, with the company keeping the keys',

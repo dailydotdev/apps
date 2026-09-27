@@ -33,7 +33,6 @@ import {
   SourceIcon,
   TimerIcon,
   TourIcon,
-  TrashIcon,
   TwitterIcon,
   AnalyticsIcon,
   MegaphoneIcon,
@@ -136,12 +135,12 @@ export const SquadHeader = ({
     text: `Check out ${squad.name} on daily.dev`,
     logObject: () => ({ event_name: LogEvent.ShareSource }),
   });
-  const following = isJoined(viewer) && !isAdmin(viewer);
-  const canFollow = standalone && !isJoined(viewer);
-  // X's rule: one text-only button at the end of the row, Follow until you
-  // do, Following after. On phones it leaves the row for a full-width
-  // button under the stats.
-  // Boost is the admin's Follow: last in the row on larger screens, and
+  const joined = isJoined(viewer) && !isAdmin(viewer);
+  const canJoin = standalone && !isJoined(viewer);
+  // One text-only button at the end of the row, Join Squad until you do,
+  // Joined after. On phones it leaves the row for a full-width button
+  // under the stats.
+  // Boost is the admin's Join: last in the row on larger screens, and
   // beside Share page under the stats on phones.
   const boost =
     isAdmin(viewer) && config.isPublic
@@ -156,16 +155,16 @@ export const SquadHeader = ({
           </Button>
         )
       : null;
-  const follow =
-    following || canFollow
+  const join =
+    joined || canJoin
       ? (size: ButtonSize, className?: string): ReactElement =>
-          following ? (
+          joined ? (
             <Button
               variant={ButtonVariant.Subtle}
               size={size}
               className={className}
             >
-              Following
+              Joined
             </Button>
           ) : (
             <Button
@@ -175,15 +174,11 @@ export const SquadHeader = ({
               disabled={isBlocked(viewer) || !config.isPublic}
               title={
                 isBlocked(viewer)
-                  ? 'You are not allowed to follow this Squad'
+                  ? 'You are not allowed to join the Squad'
                   : undefined
               }
             >
-              {!config.isPublic
-                ? 'Invite only'
-                : isLoggedIn(viewer)
-                ? 'Follow'
-                : 'Sign up to follow'}
+              {config.isPublic ? 'Join Squad' : 'Invite only'}
             </Button>
           )
       : null;
@@ -240,9 +235,9 @@ export const SquadHeader = ({
             </span>
             <MoreMenu viewer={viewer} onManage={onManage} />
             {boost && <span className="hidden tablet:flex">{boost()}</span>}
-            {follow && (
+            {join && (
               <span className="hidden tablet:flex">
-                {follow(ButtonSize.Small)}
+                {join(ButtonSize.Small)}
               </span>
             )}
           </div>
@@ -290,9 +285,9 @@ export const SquadHeader = ({
           </MetaItem>
         </div>
         <SquadStats onOpenMembers={onOpenMembers} />
-        {follow && (
+        {join && (
           <div className="mt-4 flex tablet:hidden">
-            {follow(ButtonSize.Medium, 'w-full')}
+            {join(ButtonSize.Medium, 'w-full')}
           </div>
         )}
         {isAdmin(viewer) && (
@@ -412,7 +407,7 @@ const MenuList = ({
  * Production's SquadHeaderMenu, item for item, gated the same way: Add to
  * custom feed, Squad settings (Edit), Invitation link (public, logged in,
  * not a member), Learn how Squads work, Feedback (members), Report Squad,
- * Delete Squad (Delete), Leave Squad (members who are not the admin). Award
+ * Leave Squad (members who are not the admin). Award
  * moved here from the bar.
  */
 const MoreMenu = ({
@@ -500,20 +495,11 @@ const MoreMenu = ({
         ]
       : []),
     { icon: small(<FlagIcon size={IconSize.Small} />), label: 'Report Squad' },
-    ...(isAdmin(viewer)
-      ? [
-          {
-            icon: small(<TrashIcon size={IconSize.Small} />),
-            label: 'Delete Squad',
-            danger: true,
-          },
-        ]
-      : []),
     ...(isJoined(viewer) && !isAdmin(viewer)
       ? [
           {
             icon: small(<ExitIcon size={IconSize.Small} />),
-            label: 'Unfollow',
+            label: 'Leave Squad',
           },
         ]
       : []),
@@ -549,7 +535,7 @@ const NotificationsMenu = ({ viewer }: { viewer: Viewer }): ReactElement => {
     ['feed', 'Show new posts on For You'],
     ['posts', 'Notify me about new posts'],
     ...(isAdmin(viewer)
-      ? ([['members', 'Notify me about new followers']] as [
+      ? ([['members', 'Notify me about new members']] as [
           keyof typeof state,
           string,
         ][])
@@ -628,7 +614,7 @@ const SquadStats = ({
         className="flex items-center gap-2 rounded-8 text-left transition-opacity hover:opacity-80"
       >
         <Facepile members={team.slice(3)} max={3} size={1.25} />
-        <Item amount={squad.membersCount} title="Followers" />
+        <Item amount={squad.membersCount} title="Members" />
       </button>
       <Item amount={squad.totalPosts} title="Posts" />
       <Item amount={squad.totalViews} title="Views" />
@@ -1245,7 +1231,6 @@ export const TeamWidget = (): ReactElement => (
         </li>
       ))}
     </ul>
-    <TopMembers />
     <div className="mt-auto pt-3">
       <Button
         variant={ButtonVariant.Subtle}
@@ -1257,22 +1242,6 @@ export const TeamWidget = (): ReactElement => (
     </div>
   </Widget>
 );
-
-/** Production's "Top members" row (last 30 days), public squads only. */
-const TopMembers = (): ReactElement | null => {
-  const { config } = useWorkspace();
-
-  if (!config.isPublic) {
-    return null;
-  }
-
-  return (
-    <div className="mt-4 flex items-center justify-between border-t border-border-subtlest-tertiary pt-3">
-      <span className="text-text-tertiary typo-footnote">Top followers</span>
-      <Facepile members={[...team].reverse().slice(0, 5)} max={5} size={1.5} />
-    </div>
-  );
-};
 
 /**
  * Production's SquadStack: the tools the squad builds with. Hidden when
@@ -1464,7 +1433,7 @@ export const VerifiedWidget = (): ReactElement => (
     />
     <VerifiedSeal className="relative size-6 text-accent-cabbage-default" />
     <span className="relative font-bold text-text-primary typo-callout">
-      Verified company page
+      Verified squad page
     </span>
   </div>
 );
@@ -1480,7 +1449,7 @@ export const SquadWidgets = ({
   onOpenRules?: () => void;
   onOpenFaq?: () => void;
   onOpenAnalytics?: () => void;
-  /** Sits right under the Verified company page card. */
+  /** Sits right under the Verified squad page card. */
   afterVerified?: ReactNode;
 }): ReactElement => (
   <>
@@ -1539,8 +1508,8 @@ export const SquadHome = ({
             </span>
             <span className="max-w-[40ch] text-text-tertiary typo-footnote">
               {isStaff(viewer)
-                ? 'Connect the content feed or write the first post. Followers see the rules, the team and the links until then.'
-                : 'The team has not posted yet. Follow to hear when they do.'}
+                ? 'Connect the content feed or write the first post. Members see the rules, the team and the links until then.'
+                : 'The team has not posted yet. Join to hear when they do.'}
             </span>
           </div>
         </div>

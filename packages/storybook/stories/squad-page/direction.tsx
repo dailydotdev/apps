@@ -9,16 +9,15 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ArrowIcon,
+  EyeIcon,
+  MiniCloseIcon,
   MoveToIcon,
   PlusIcon,
-  EyeIcon,
+  SearchIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import {
-  SquadDirectoryNavbar,
-  SquadDirectoryNavbarItem,
-} from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
-import { feedEntries, products, squad } from './data';
+import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
+import { feedEntries, pinnedEntry, polls, products, squad } from './data';
 import { CardList, isAdmin, isJoined, isStaff, Viewer } from './kit';
 import { Kit2Styles } from './kit2';
 import { MobileFooterNav, TabletSidebar } from './rail';
@@ -41,27 +40,23 @@ import {
   defaultConfig,
   docs,
   DocPage,
+  FeedPoll,
   FeedSourcePage,
   manage,
   MembersPage,
   ModerationPage,
-  PollsPage,
   ProductsPage,
   Rail,
-  ReleasesPage,
   RulesPage,
   SettingsPage,
   WorkspaceContext,
   WorkspaceStyles,
 } from './workspace';
 
-// The direction after the navigation round: the profile header and the
-// profile's right column stay; Home is the feed with kind chips on its
-// toolbar and the products as a shelf between the header and the feed;
-// anything that is not the feed (Rules, FAQ, Followers, Products, the
-// team's pages) replaces the whole centre card with a page under a compact
-// header, the way LinkedIn's company sub-pages do: back, the logo and
-// name, the page.
+// The profile header and the profile's right column, for a squad. Home is
+// the products shelf and one feed under a heading with search; anything
+// that is not the feed (Rules, FAQ, Members, Products, the team's pages)
+// replaces the centre card under a back button and the page title.
 
 /* -------------------------------------------------------------- products */
 
@@ -107,67 +102,139 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
   </section>
 );
 
-/* ----------------------------------------------------------------- chips */
+/* ------------------------------------------------------------------ feed */
 
-const chips = [
-  { id: 'all', label: 'All' },
-  { id: 'releases', label: 'Releases' },
-  { id: 'discussions', label: 'Discussions' },
-  { id: 'polls', label: 'Polls' },
-  /** Below laptop the right column is gone; its widgets live here. */
-  { id: 'about', label: 'About', compactOnly: true },
-];
+type FeedView = 'feed' | 'about';
 
-const discussionEntries = feedEntries.filter((_, index) => index % 3 === 2);
-
-/** One row: the kinds as chips. */
 /**
- * The kinds as the tags directory draws its tabs: the shared
- * SquadDirectoryNavbar, Float for the active one with the underline,
- * Tertiary for the rest, scrolling with arrows when it overflows.
+ * The row above the feed: the title, About below laptop (the right
+ * column's widgets, which sit beside the page from laptop up) and
+ * production's search. Searching turns the row into the field, so nothing
+ * below it moves; Escape or close puts the row back.
  */
-const FeedToolbar = ({
-  chip,
-  onChip,
+const FeedHeading = ({
+  view,
+  onView,
+  query,
+  onQuery,
 }: {
-  chip: string;
-  onChip: (id: string) => void;
-}): ReactElement => (
-  <SquadDirectoryNavbar
-    aria-label="Feed filters"
-    className="!mx-0 !border-0 px-4 tablet:!px-0"
-  >
-    {chips.map((item) => (
-      <SquadDirectoryNavbarItem
-        key={item.id}
-        buttonSize={ButtonSize.Small}
-        isActive={chip === item.id}
-        label={item.label}
-        ariaLabel={item.label}
-        onClick={() => onChip(item.id)}
-        elementProps={
-          item.compactOnly ? { className: 'laptop:hidden' } : undefined
-        }
+  view: FeedView;
+  onView: (view: FeedView) => void;
+  query: string | null;
+  onQuery: (query: string | null) => void;
+}): ReactElement => {
+  if (query !== null) {
+    return (
+      <div className="flex items-center gap-2 px-4 tablet:px-0">
+        <SearchField
+          inputId="squad-posts-search"
+          className="flex-1"
+          fieldSize="medium"
+          placeholder={`Search ${squad.name} posts`}
+          aria-label={`Search ${squad.name} posts`}
+          autoFocus
+          value={query}
+          valueChanged={(value) => onQuery(value)}
+          onKeyDown={(event) => event.key === 'Escape' && onQuery(null)}
+        />
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<MiniCloseIcon />}
+          aria-label="Close search"
+          onClick={() => onQuery(null)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 px-4 tablet:px-0">
+      <span className="min-w-0 flex-1 font-bold text-text-primary typo-body">
+        {view === 'about' ? `About ${squad.name}` : 'Posts'}
+      </span>
+      <span className="flex laptop:hidden">
+        <Button
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Small}
+          aria-pressed={view === 'about'}
+          onClick={() => onView(view === 'about' ? 'feed' : 'about')}
+        >
+          {view === 'about' ? 'Posts' : 'About'}
+        </Button>
+      </span>
+      <Button
+        variant={ButtonVariant.Subtle}
+        size={ButtonSize.Small}
+        icon={<SearchIcon />}
+        aria-label="Search posts"
+        title="Search posts"
+        onClick={() => {
+          onView('feed');
+          onQuery('');
+        }}
       />
-    ))}
-  </SquadDirectoryNavbar>
-);
+    </div>
+  );
+};
+
+const searchable = [pinnedEntry, ...feedEntries];
+
+const SearchResults = ({ query }: { query: string }): ReactElement => {
+  const needle = query.trim().toLowerCase();
+  const matches = searchable.filter((entry) =>
+    [entry.title, entry.summary, ...entry.tags]
+      .join(' ')
+      .toLowerCase()
+      .includes(needle),
+  );
+
+  if (!matches.length) {
+    return (
+      <div className="flex flex-col items-center gap-1 px-4 py-12 text-center">
+        <span className="font-bold text-text-primary typo-callout">
+          No posts match “{query.trim()}”
+        </span>
+        <span className="text-text-tertiary typo-footnote">
+          Try a product name, a tag, or fewer words.
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="px-4 text-text-tertiary typo-footnote tablet:px-0">
+        {matches.length} {matches.length === 1 ? 'post' : 'posts'} in{' '}
+        {squad.name} match “{query.trim()}”
+      </span>
+      <CardList
+        entries={matches.map((entry) => ({ ...entry, pinned: false }))}
+      />
+    </div>
+  );
+};
 
 const Feed = ({
   viewer,
   pinStyle,
   onSelect,
-  initialChip = 'all',
+  initialView = 'feed',
 }: {
   viewer: Viewer;
   pinStyle: PinStyle;
   onSelect: (id: string) => void;
-  initialChip?: string;
+  initialView?: FeedView;
 }): ReactElement => {
   const { empty } = useWorkspace();
-  const [chip, setChip] = useState(initialChip);
+  const [view, setView] = useState<FeedView>(initialView);
+  const [query, setQuery] = useState<string | null>(null);
+  const entries = feedUnder(pinStyle).slice(0, 6);
+
   let body: ReactElement;
-  if (chip === 'about') {
+  if (query !== null && query.trim()) {
+    body = <SearchResults query={query} />;
+  } else if (view === 'about') {
     body = (
       <div className="flex flex-col gap-4 px-4 tablet:px-0 laptop:hidden">
         <SquadWidgets
@@ -178,18 +245,6 @@ const Feed = ({
         />
       </div>
     );
-  } else if (chip === 'polls') {
-    body = (
-      <div className="px-4 tablet:px-0">
-        <PollsPage viewer={viewer} bare />
-      </div>
-    );
-  } else if (chip === 'releases') {
-    body = (
-      <div className="px-4 tablet:px-0">
-        <ReleasesPage viewer={viewer} bare />
-      </div>
-    );
   } else if (empty) {
     body = (
       <div className="flex flex-col items-center gap-1 px-4 py-12 text-center">
@@ -198,26 +253,22 @@ const Feed = ({
         </span>
         <span className="max-w-[44ch] text-text-tertiary typo-footnote">
           {isStaff(viewer)
-            ? 'Connect the content feed or write the first post. Followers see the rules, the team and the links until then.'
-            : 'The team has not posted yet. Follow to hear when they do.'}
+            ? 'Connect the content feed or write the first post. Members see the rules, the team and the links until then.'
+            : 'The team has not posted yet. Join to hear when they do.'}
         </span>
       </div>
     );
   } else {
     body = (
       <>
-        {chip === 'all' && (
-          <div className="px-4 tablet:px-0">
-            <PinnedArea style={pinStyle} />
-          </div>
-        )}
-        <CardList
-          entries={
-            chip === 'discussions'
-              ? discussionEntries.slice(0, 6)
-              : feedUnder(pinStyle).slice(0, 6)
-          }
-        />
+        <div className="px-4 tablet:px-0">
+          <PinnedArea style={pinStyle} />
+        </div>
+        <div className="flex flex-col gap-3">
+          <CardList entries={entries.slice(0, 2)} />
+          <FeedPoll viewer={viewer} poll={polls[0]} />
+          <CardList entries={entries.slice(2)} />
+        </div>
         <div className="px-4 tablet:px-0">
           <Button
             variant={ButtonVariant.Subtle}
@@ -234,7 +285,12 @@ const Feed = ({
   return (
     <div className="flex flex-col gap-4 pb-4 tablet:p-6">
       <SquadComposer viewer={viewer} />
-      <FeedToolbar chip={chip} onChip={setChip} />
+      <FeedHeading
+        view={view}
+        onView={setView}
+        query={query}
+        onQuery={setQuery}
+      />
       {body}
     </div>
   );
@@ -245,7 +301,7 @@ const Feed = ({
 const titles: Record<string, string> = {
   rules: 'Rules',
   faq: 'FAQ',
-  members: 'Followers',
+  members: 'Members',
   products: 'Products',
   'add-product': 'Add product',
   moderation: 'Moderation',
@@ -378,18 +434,18 @@ export const DirectionPage = ({
   active,
   onSelect,
   pinStyle = PinStyle.Reddit,
-  initialChip,
+  initialView,
 }: {
   viewer: Viewer;
   active: string;
   onSelect: (id: string) => void;
   pinStyle?: PinStyle;
-  initialChip?: string;
+  initialView?: FeedView;
 }): ReactElement => {
   const { empty, isPrivate } = useWorkspace();
   const [previewing, setPreviewing] = useState(false);
   const runsPage = isStaff(realViewer);
-  // Preview renders the page for a logged-in visitor who has not followed:
+  // Preview renders the page for a logged-in visitor who has not joined:
   // the public page, without any of the team's controls.
   const viewer = previewing && runsPage ? Viewer.Visitor : realViewer;
   // Production gates a private squad behind its Unauthorized copy; the
@@ -475,7 +531,7 @@ export const DirectionPage = ({
                   viewer={viewer}
                   pinStyle={pinStyle}
                   onSelect={onSelect}
-                  initialChip={initialChip}
+                  initialView={initialView}
                 />
               </div>
             </>
@@ -526,12 +582,9 @@ const toManage: Record<string, string> = {
   settings: 'manage-details',
 };
 
-/** Feed chips an initial page may name; they open Home on that chip. */
-export const feedChipIds = ['releases', 'discussions', 'polls', 'about'];
-
 export const directionPageIds = [
   'home',
-  ...feedChipIds,
+  'about',
   'add-product',
   'rules',
   'faq',
@@ -558,7 +611,7 @@ export const DirectionShell = ({
   config,
 }: {
   viewer?: Viewer;
-  /** A page id, or a feed chip (releases, discussions, polls, about). */
+  /** A page id, or about for the right column's widgets below laptop. */
   initialPage?: string;
   /** rem */
   height?: number;
@@ -575,9 +628,9 @@ export const DirectionShell = ({
    */
   fluid?: boolean;
 }): ReactElement => {
-  const chipPage = feedChipIds.includes(initialPage);
+  const aboutPage = initialPage === 'about';
   const [active, setPage] = useState(
-    chipPage ? 'home' : toManage[initialPage] ?? initialPage,
+    aboutPage ? 'home' : toManage[initialPage] ?? initialPage,
   );
   const setActive = (id: string) => setPage(toManage[id] ?? id);
   const loggedIn = viewer !== Viewer.Anonymous;
@@ -588,7 +641,7 @@ export const DirectionShell = ({
         active={active}
         onSelect={setActive}
         pinStyle={pinStyle}
-        initialChip={chipPage ? initialPage : undefined}
+        initialView={aboutPage ? 'about' : undefined}
       />
     </main>
   );
