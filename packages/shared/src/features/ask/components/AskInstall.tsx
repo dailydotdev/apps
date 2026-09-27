@@ -150,7 +150,7 @@ export const AskInstall = (): ReactElement => {
                 Upgrade to Plus
               </a>
             </Link>{' '}
-            for full API access and higher rate limits.
+            for an ad-free experience, custom feeds, bookmark folders, and more.
           </>
         )}
       </Typography>
