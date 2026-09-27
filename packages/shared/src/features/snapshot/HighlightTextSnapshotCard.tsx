@@ -19,6 +19,8 @@ export interface HighlightTextSnapshotCardProps {
    * leaves the paragraph unmarked rather than guessing at one.
    */
   highlight?: HighlightRange;
+  /** The post the passage came from, so the card says what it is quoting. */
+  title?: string;
   source?: { name: string; image?: string };
   /** The surface's own label, on the logo row. */
   label?: ReactNode;
@@ -29,6 +31,8 @@ export interface HighlightTextSnapshotCardProps {
 const CONTEXT = 'rgba(255, 255, 255, 0.42)';
 /** A marker tint, kept low enough that the bold copy stays the loud part. */
 const MARK_BACKGROUND = 'rgba(217, 126, 254, 0.22)';
+/** A long headline is cut so the passage, not the title, fills the card. */
+const TITLE_LIMIT = 140;
 
 /**
  * The reader's selection shown where it came from: the whole paragraph, set
@@ -45,7 +49,14 @@ const MARK_BACKGROUND = 'rgba(217, 126, 254, 0.22)';
  * unclickable in an image.
  */
 function HighlightTextSnapshotCardComponent(
-  { passage, highlight, source, label, seed }: HighlightTextSnapshotCardProps,
+  {
+    passage,
+    highlight,
+    title,
+    source,
+    label,
+    seed,
+  }: HighlightTextSnapshotCardProps,
   ref: React.Ref<HTMLDivElement>,
 ): ReactElement {
   const trimmed = passage.trim();
@@ -54,6 +65,7 @@ function HighlightTextSnapshotCardComponent(
     highlight.start >= 0 &&
     highlight.end > highlight.start &&
     highlight.end <= trimmed.length;
+  const heading = title?.trim();
   const windowed = isValid
     ? windowAroundHighlight(trimmed, highlight)
     : undefined;
@@ -99,8 +111,12 @@ function HighlightTextSnapshotCardComponent(
           </p>
         </div>
 
-        {source?.name && (
-          <SnapshotCredit image={source.image} name={source.name} />
+        {(source?.name || heading) && (
+          <SnapshotCredit
+            image={source?.image}
+            name={source?.name}
+            title={heading && truncateAtWord(heading, TITLE_LIMIT)}
+          />
         )}
       </div>
     </SnapshotFrame>
