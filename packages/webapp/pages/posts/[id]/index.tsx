@@ -91,6 +91,7 @@ import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/Com
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
@@ -509,6 +510,7 @@ export const PostPage = ({
                 showPostAuthBanner && 'laptop:pb-72',
               )}
             >
+              <MobileAppHeader />
               <PostFocusCard
                 post={post}
                 origin={Origin.ArticlePage}
