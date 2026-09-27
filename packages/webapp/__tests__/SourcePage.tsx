@@ -8,7 +8,7 @@ import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
@@ -31,10 +31,14 @@ import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helper
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import SourcePage from '../pages/sources/[source]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();
+const logEvent = jest.fn();
+const LogContext = getLogContextStatic();
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
@@ -43,6 +47,7 @@ jest.mock('next/router', () => ({
         isFallback: false,
         pathname: '/',
         query: {},
+        push: jest.fn(),
       } as unknown as NextRouter),
   ),
 }));
@@ -161,7 +166,16 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <SourcePage source={source} />
+          <LogContext.Provider
+            value={{
+              logEvent,
+              logEventStart: jest.fn(),
+              logEventEnd: jest.fn(),
+              sendBeacon: jest.fn(),
+            }}
+          >
+            <SourcePage source={source} />
+          </LogContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -175,6 +189,21 @@ it('should request source feed', async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
   });
+});
+
+it('should log source feed events under the source feed name', async () => {
+  renderComponent();
+  const [post] = await screen.findAllByTestId('postItem');
+  within(post).getAllByRole('link')[0].click();
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: 'click' }),
+    ),
+  );
+  const [{ extra }] = logEvent.mock.calls.find(
+    ([event]) => event.event_name === 'click',
+  );
+  expect(JSON.parse(extra).feed).toEqual(OtherFeedPage.Source);
 });
 
 it('should show source image', async () => {
