@@ -12,7 +12,8 @@ interface SquadPageContextProps {
   squad: Squad;
   /**
    * False while the page renders the server's anonymous copy of the squad,
-   * before the viewer's own copy arrives. Viewer specific controls wait.
+   * before the viewer's own copy arrives. Controls that need the viewer's
+   * full permissions wait for it.
    */
   isViewerReady: boolean;
   children?: ReactNode;
@@ -25,6 +26,11 @@ export interface SquadPageContextValue {
   /** The viewer's own role, which preview does not change. */
   ownViewer: SquadViewer;
   isViewerReady: boolean;
+  /**
+   * The viewer's role is settled, from boot's squad memberships before the
+   * squad query lands, so role specific regions render once without shifting.
+   */
+  isViewerKnown: boolean;
   /** Staff may look at the page as a logged in visitor who has not joined. */
   canPreview: boolean;
   isPreviewing: boolean;
@@ -33,11 +39,23 @@ export interface SquadPageContextValue {
 
 const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
   ({ squad, isViewerReady }: SquadPageContextProps): SquadPageContextValue => {
-    const { isLoggedIn } = useAuthContext();
+    const { isLoggedIn, isAuthReadyOrCached, squads } = useAuthContext();
     const { logEvent } = useLogContext();
     const [isPreviewing, setIsPreviewing] = useState(false);
-    const ownViewer = getSquadViewer(squad, isLoggedIn);
-    const canPreview = isViewerReady && isStaffViewer(ownViewer);
+    const bootMember = useMemo(
+      () => squads?.find(({ id }) => id === squad.id)?.currentMember,
+      [squads, squad.id],
+    );
+    const viewerSquad = useMemo(
+      () =>
+        isViewerReady || !bootMember
+          ? squad
+          : { ...squad, currentMember: bootMember },
+      [isViewerReady, bootMember, squad],
+    );
+    const isViewerKnown = isViewerReady || isAuthReadyOrCached;
+    const ownViewer = getSquadViewer(viewerSquad, isLoggedIn);
+    const canPreview = isViewerKnown && isStaffViewer(ownViewer);
     const isPreviewActive = canPreview && isPreviewing;
 
     const togglePreview = useCallback(() => {
@@ -50,8 +68,11 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
     }, [isPreviewing, logEvent, squad.id]);
 
     const pageSquad = useMemo(
-      () => (isPreviewActive ? { ...squad, currentMember: undefined } : squad),
-      [isPreviewActive, squad],
+      () =>
+        isPreviewActive
+          ? { ...viewerSquad, currentMember: undefined }
+          : viewerSquad,
+      [isPreviewActive, viewerSquad],
     );
 
     return useMemo(
@@ -60,6 +81,7 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
         viewer: getSquadViewer(pageSquad, isLoggedIn),
         ownViewer,
         isViewerReady,
+        isViewerKnown,
         canPreview,
         isPreviewing: isPreviewActive,
         togglePreview,
@@ -69,6 +91,7 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
         isLoggedIn,
         ownViewer,
         isViewerReady,
+        isViewerKnown,
         canPreview,
         isPreviewActive,
         togglePreview,

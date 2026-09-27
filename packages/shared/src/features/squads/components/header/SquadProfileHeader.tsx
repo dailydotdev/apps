@@ -154,6 +154,8 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
   );
   const awards = squad.flags?.totalAwards ?? 0;
   const membersUrl = getSquadMembersUrl(squad.handle);
+  // Placeholders hold the facepile's width until the members load
+  const faces = Math.min(members?.length ?? squad.membersCount ?? 0, MAX_FACES);
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
@@ -163,19 +165,31 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
           aria-label={`View ${squad.membersCount} squad members`}
           className="flex items-center gap-2 hover:opacity-64"
         >
-          {!!members?.length && (
+          {faces > 0 && (
             <span className="flex">
-              {members.slice(0, MAX_FACES).map(({ user }, index) => (
-                <ProfilePicture
-                  key={user.id}
-                  user={user}
-                  size={ProfileImageSize.XSmall}
-                  className={classNames(
-                    'ring-2 ring-background-default',
-                    index > 0 && '-ml-1.5',
-                  )}
-                />
-              ))}
+              {members?.length
+                ? members
+                    .slice(0, MAX_FACES)
+                    .map(({ user }, index) => (
+                      <ProfilePicture
+                        key={user.id}
+                        user={user}
+                        size={ProfileImageSize.XSmall}
+                        className={classNames(
+                          'ring-2 ring-background-default',
+                          index > 0 && '-ml-1.5',
+                        )}
+                      />
+                    ))
+                : Array.from({ length: faces }, (_, index) => (
+                    <span
+                      key={index}
+                      className={classNames(
+                        'size-5 rounded-6 bg-surface-float ring-2 ring-background-default',
+                        index > 0 && '-ml-1.5',
+                      )}
+                    />
+                  ))}
             </span>
           )}
           <Stat amount={squad.membersCount} label="Members" />
@@ -244,7 +258,7 @@ export const SquadProfileHeader = (): ReactElement => {
         </div>
         <SquadMetaLine squad={squad} />
         <SquadStats squad={squad} />
-        {isViewerReady && <SquadPhoneActions />}
+        <SquadPhoneActions />
       </div>
     </header>
   );

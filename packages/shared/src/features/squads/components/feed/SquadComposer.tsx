@@ -1,4 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
+import classNames from 'classnames';
 import React from 'react';
 import { SourcePostModerationStatus } from '../../../../graphql/squads';
 import type { ComposerKind } from '../../../../components/post/composer/types';
@@ -70,6 +71,11 @@ const shortcuts: { kind: ComposerKind; label: string; icon: ReactElement }[] = [
   { kind: 'poll', label: 'Poll', icon: <PollIcon /> },
 ];
 
+// The lock card and the composer share a height, so the server's logged out
+// render and the viewer's own render swap without moving the feed.
+const composerBoxClassName =
+  'mx-4 flex min-h-24 rounded-16 border border-border-subtlest-tertiary bg-surface-float tablet:mx-0';
+
 const ComposerEntry = ({
   canPoll,
   isReviewed,
@@ -90,7 +96,10 @@ const ComposerEntry = ({
     <div
       role="presentation"
       onClick={() => openComposer('text')}
-      className="mx-4 flex cursor-text flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float hover:border-border-subtlest-secondary tablet:mx-0"
+      className={classNames(
+        composerBoxClassName,
+        'cursor-text flex-col hover:border-border-subtlest-secondary',
+      )}
     >
       <button
         type="button"
@@ -153,7 +162,12 @@ export const SquadComposer = (): ReactElement => {
           isReviewed={isReviewed}
         />
       ) : (
-        <div className="mx-4 flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 py-3 text-text-quaternary typo-callout tablet:mx-0">
+        <div
+          className={classNames(
+            composerBoxClassName,
+            'items-center gap-2 px-4 py-3 text-text-quaternary typo-callout',
+          )}
+        >
           <LockIcon size={IconSize.Small} className="shrink-0" />
           {reason}
         </div>

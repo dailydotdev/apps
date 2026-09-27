@@ -15,6 +15,7 @@ import {
   useSquadAnalytics,
 } from '../../hooks/useSquadAnalytics';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
+import { useSquadPageContext } from '../../SquadPageContext';
 
 interface SquadAnalyticsWidgetProps {
   squad: Squad;
@@ -32,14 +33,22 @@ const Tile = ({ label, value }: { label: string; value: number }) => (
 export const SquadAnalyticsWidget = ({
   squad,
 }: SquadAnalyticsWidgetProps): ReactElement | null => {
-  const { canViewAnalytics, analytics, impressions, hasImpressions } =
-    useSquadAnalytics(squad);
+  const { isViewerReady } = useSquadPageContext();
+  const { canViewAnalytics, analytics, impressions } = useSquadAnalytics(squad);
 
-  if (!canViewAnalytics) {
+  if (isViewerReady && !canViewAnalytics) {
     return null;
   }
 
-  const peak = Math.max(...impressions.map((day) => day.value), 1);
+  // Until the history lands the strip keeps its size with empty days
+  const days = impressions.length
+    ? impressions
+    : Array.from({ length: SQUAD_ANALYTICS_HISTORY_DAYS }, (_, index) => ({
+        name: `${index}`,
+        value: 0,
+        isBoosted: false,
+      }));
+  const peak = Math.max(...days.map((day) => day.value), 1);
   const engagement = [
     ['Upvotes', largeNumberFormat(analytics?.upvotes ?? 0) ?? 0],
     ['Upvotes ratio', `${analytics?.upvotesRatio ?? 0}%`],
@@ -63,26 +72,22 @@ export const SquadAnalyticsWidget = ({
         />
         <Tile label="Lifetime reach" value={analytics?.reach ?? 0} />
       </div>
-      {hasImpressions && (
-        <div
-          role="img"
-          aria-label={`Impressions per day, last ${SQUAD_ANALYTICS_HISTORY_DAYS} days`}
-          className="mt-4 flex h-12 items-end gap-px"
-        >
-          {impressions.map((day) => (
-            <span
-              key={day.name}
-              className={classNames(
-                'min-h-0.5 min-w-0 flex-1 rounded-t-2',
-                day.isBoosted
-                  ? 'bg-accent-cabbage-default'
-                  : 'bg-text-disabled',
-              )}
-              style={{ height: `${(day.value / peak) * 100}%` }}
-            />
-          ))}
-        </div>
-      )}
+      <div
+        role="img"
+        aria-label={`Impressions per day, last ${SQUAD_ANALYTICS_HISTORY_DAYS} days`}
+        className="mt-4 flex h-12 items-end gap-px"
+      >
+        {days.map((day) => (
+          <span
+            key={day.name}
+            className={classNames(
+              'min-h-0.5 min-w-0 flex-1 rounded-t-2',
+              day.isBoosted ? 'bg-accent-cabbage-default' : 'bg-text-disabled',
+            )}
+            style={{ height: `${(day.value / peak) * 100}%` }}
+          />
+        ))}
+      </div>
       <dl className="mt-4 flex flex-col">
         {engagement.map(([label, value]) => (
           <div

@@ -376,6 +376,79 @@ describe('squad page viewer matrix', () => {
   });
 });
 
+describe('squad page before the viewer query lands', () => {
+  // The server renders the logged out copy; the viewer's role comes from boot
+  // so role specific regions render once instead of shifting in later.
+  const renderFromServerCopy = (squads: Squad[]): RenderResult => {
+    const serverCopy = createSquad({ currentMember: undefined });
+
+    return render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: defaultUser, squads }}
+      >
+        {
+          SquadPage.getLayout(
+            <SquadPage handle={serverCopy.handle} initialSquad={serverCopy} />,
+            {},
+            SquadPage.layoutProps as unknown as Parameters<
+              typeof SquadPage.getLayout
+            >[2],
+          ) as JSX.Element
+        }
+      </TestBootProvider>,
+    );
+  };
+
+  it('renders the staff regions for an admin from boot', async () => {
+    const squad = createSquad();
+    renderFromServerCopy([
+      {
+        ...squad,
+        currentMember: member(SourceMemberRole.Admin, [
+          SourcePermissions.Post,
+          SourcePermissions.ModeratePost,
+        ]),
+      },
+    ]);
+
+    expect(
+      await screen.findByLabelText('View as a visitor'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Public page & URL')).toBeInTheDocument();
+    expect(screen.getByText('Analytics')).toBeInTheDocument();
+    expect(screen.getAllByText('Share a link').length).toBeGreaterThan(0);
+  });
+
+  it('renders the composer for a member from boot', async () => {
+    const squad = createSquad();
+    renderFromServerCopy([
+      {
+        ...squad,
+        currentMember: member(SourceMemberRole.Member, [
+          SourcePermissions.Post,
+        ]),
+      },
+    ]);
+
+    expect((await screen.findAllByText('Share a link')).length).toBeGreaterThan(
+      0,
+    );
+    expect(
+      screen.queryByLabelText('View as a visitor'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders the lock card for a squad the viewer has not joined', async () => {
+    renderFromServerCopy([]);
+
+    expect(
+      (await screen.findAllByText('Join the Squad to create new posts')).length,
+    ).toBeGreaterThan(0);
+    expect(screen.queryByText('Analytics')).not.toBeInTheDocument();
+  });
+});
+
 describe('squad page pinned posts', () => {
   const pinned = {
     ...defaultPost,

@@ -12,18 +12,17 @@ import { SquadAnalyticsWidget } from './SquadAnalyticsWidget';
 import { SquadLinksWidget } from './SquadLinksWidget';
 
 export const SquadWidgets = (): ReactElement => {
-  const { squad, viewer, isViewerReady } = useSquadPageContext();
+  const { squad, viewer, isViewerKnown } = useSquadPageContext();
+  const isStaff = isViewerKnown && isStaffViewer(viewer);
 
   return (
     <>
       <SquadPreviewToggle />
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
-      {isViewerReady && isStaffViewer(viewer) && (
-        <SquadShareWidget squad={squad} />
-      )}
+      {isStaff && <SquadShareWidget squad={squad} />}
       <SquadTeamWidget squad={squad} />
       <SquadStack squad={squad} />
-      {isViewerReady && <SquadAnalyticsWidget squad={squad} />}
+      {isStaff && <SquadAnalyticsWidget squad={squad} />}
       <SquadLinksWidget squad={squad} />
     </>
   );
