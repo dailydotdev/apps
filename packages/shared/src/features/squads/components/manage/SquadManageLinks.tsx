@@ -45,22 +45,25 @@ export const SquadManageLinks = (): ReactElement => {
   const isWebsiteValid = !website.trim() || isValidSquadLink(website);
   const isFull = links.length >= SQUAD_LINKS_MAX;
 
-  const onAdd = () => {
+  const onAdd = (): string[] | null => {
     const link = draft.trim();
 
     if (!isValidSquadLink(link)) {
       setDraftError(invalidLinkCopy);
-      return;
+      return null;
     }
 
     if (links.includes(link)) {
       setDraftError('This link is already on the list');
-      return;
+      return null;
     }
 
-    setLinks((current) => [...current, link]);
+    const next = [...links, link];
+    setLinks(next);
     setDraft('');
     setDraftError(undefined);
+
+    return next;
   };
 
   const onSubmit = (event: FormEvent) => {
@@ -70,7 +73,13 @@ export const SquadManageLinks = (): ReactElement => {
       return;
     }
 
-    onSave({ website: website.trim() || null, links });
+    const nextLinks = draft.trim() ? onAdd() : links;
+
+    if (!nextLinks) {
+      return;
+    }
+
+    onSave({ website: website.trim() || null, links: nextLinks });
   };
 
   return (

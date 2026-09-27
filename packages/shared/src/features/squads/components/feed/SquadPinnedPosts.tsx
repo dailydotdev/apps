@@ -3,10 +3,13 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Post } from '../../../../graphql/posts';
+import { updatePinnedPost } from '../../../../graphql/posts';
+import { SourcePermissions } from '../../../../graphql/sources';
 import {
   collapsePinnedPosts,
   expandPinnedPosts,
   squadPinnedPostsQueryOptions,
+  verifyPermission,
 } from '../../../../graphql/squads';
 import { updateFlagsCache } from '../../../../graphql/source/common';
 import {
@@ -16,6 +19,12 @@ import {
   UpvoteIcon,
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import Link from '../../../../components/utilities/Link';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
@@ -29,15 +38,17 @@ import { getSquadId } from '../../lib/features';
 const PinnedCard = ({
   post,
   index,
+  onUnpin,
 }: {
   post: Post;
   index: number;
+  onUnpin?: (post: Post) => void;
 }): ReactElement => {
   const { logEvent } = useLogContext();
   const href = post.commentsPermalink;
 
   return (
-    <li className="shrink-0">
+    <li className="relative shrink-0">
       <Link href={href} passHref>
         <a
           href={href}
@@ -77,6 +88,19 @@ const PinnedCard = ({
           </span>
         </a>
       </Link>
+      {onUnpin && (
+        <Tooltip content="Unpin">
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.XSmall}
+            icon={<PinIcon secondary />}
+            aria-label="Unpin post"
+            className="absolute right-2 top-2"
+            onClick={() => onUnpin(post)}
+          />
+        </Tooltip>
+      )}
     </li>
   );
 };
@@ -90,6 +114,7 @@ export const SquadPinnedPosts = (): ReactElement | null => {
   );
   const [isLocallyCollapsed, setIsLocallyCollapsed] = useState(false);
   const isJoined = isJoinedViewer(viewer);
+  const canPin = verifyPermission(squad, SourcePermissions.PostPin);
   // Members keep their choice on the membership; everyone else per visit.
   const isCollapsed = isJoined
     ? !!squad.currentMember?.flags?.collapsePinnedPosts
@@ -107,6 +132,18 @@ export const SquadPinnedPosts = (): ReactElement | null => {
         });
       }
     },
+  });
+
+  const { mutate: unpin } = useMutation({
+    mutationFn: (post: Post) =>
+      updatePinnedPost({ id: post.id, pinned: false }),
+    onSuccess: () =>
+      Promise.all([
+        client.invalidateQueries({
+          queryKey: squadPinnedPostsQueryOptions({ squad, user }).queryKey,
+        }),
+        client.invalidateQueries({ queryKey: ['sourceFeed'] }),
+      ]),
   });
 
   if (!pins?.length) {
@@ -139,7 +176,12 @@ export const SquadPinnedPosts = (): ReactElement | null => {
       {!isCollapsed && (
         <ul className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 tablet:mx-0 tablet:px-0">
           {pins.map((post, index) => (
-            <PinnedCard key={post.id} post={post} index={index} />
+            <PinnedCard
+              key={post.id}
+              post={post}
+              index={index}
+              onUnpin={canPin ? unpin : undefined}
+            />
           ))}
         </ul>
       )}

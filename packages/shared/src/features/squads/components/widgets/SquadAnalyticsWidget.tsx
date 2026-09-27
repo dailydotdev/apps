@@ -10,7 +10,10 @@ import {
 import Link from '../../../../components/utilities/Link';
 import { largeNumberFormat } from '../../../../lib/numberFormat';
 import { SquadWidget } from './SquadWidget';
-import { useSquadAnalytics } from '../../hooks/useSquadAnalytics';
+import {
+  SQUAD_ANALYTICS_HISTORY_DAYS,
+  useSquadAnalytics,
+} from '../../hooks/useSquadAnalytics';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 
 interface SquadAnalyticsWidgetProps {
@@ -38,22 +41,29 @@ export const SquadAnalyticsWidget = ({
 
   const peak = Math.max(...impressions.map((day) => day.value), 1);
   const engagement = [
-    ['Upvotes', analytics?.upvotes],
-    ['Comments', analytics?.comments],
-    ['Bookmarks', analytics?.bookmarks],
-    ['Shares', analytics?.shares],
+    ['Upvotes', largeNumberFormat(analytics?.upvotes ?? 0) ?? 0],
+    ['Upvotes ratio', `${analytics?.upvotesRatio ?? 0}%`],
+    ['Comments', largeNumberFormat(analytics?.comments ?? 0) ?? 0],
+    ['Bookmarks', largeNumberFormat(analytics?.bookmarks ?? 0) ?? 0],
   ] as const;
 
   return (
-    <SquadWidget title="Analytics">
+    <SquadWidget
+      title="Analytics"
+      action={
+        <span className="text-text-quaternary typo-caption1">
+          {`Last ${SQUAD_ANALYTICS_HISTORY_DAYS} days`}
+        </span>
+      }
+    >
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Tile label="Impressions" value={analytics?.impressions ?? 0} />
-        <Tile label="Reach" value={analytics?.reach ?? 0} />
+        <Tile label="Unique reach" value={analytics?.reach ?? 0} />
       </div>
       {hasImpressions && (
         <div
           role="img"
-          aria-label="Impressions per day, last 45 days"
+          aria-label={`Impressions per day, last ${SQUAD_ANALYTICS_HISTORY_DAYS} days`}
           className="mt-4 flex h-12 items-end gap-px"
         >
           {impressions.map((day) => (
@@ -78,7 +88,7 @@ export const SquadAnalyticsWidget = ({
           >
             <dt className="text-text-tertiary">{label}</dt>
             <dd className="font-bold tabular-nums text-text-primary">
-              {largeNumberFormat(value ?? 0) ?? 0}
+              {value}
             </dd>
           </div>
         ))}

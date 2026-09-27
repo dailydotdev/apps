@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadPostingState, isJoinedViewer } from '../../lib/viewer';
+import { useSquadProducts } from '../../hooks/useSquadProducts';
 
 const getEmptyCopy = (canPost: boolean, isJoined: boolean): string => {
   if (canPost) {
@@ -26,6 +27,29 @@ export const SquadEmptyFeed = (): ReactElement => {
       </span>
       <span className="max-w-[44ch] text-text-tertiary typo-footnote">
         {getEmptyCopy(canPost, isJoinedViewer(viewer))}
+      </span>
+    </div>
+  );
+};
+
+export const SquadSearchEmpty = ({
+  query,
+}: {
+  query: string;
+}): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const { isEnabled, products } = useSquadProducts(squad);
+  const hasProducts = isEnabled && products.length > 0;
+
+  return (
+    <div className="flex flex-col items-center gap-1 px-4 py-12 text-center">
+      <span className="font-bold text-text-primary typo-callout">
+        No posts match “{query}”
+      </span>
+      <span className="text-text-tertiary typo-footnote">
+        {hasProducts
+          ? 'Try a product name, a tag, or fewer words.'
+          : 'Try a tag or fewer words.'}
       </span>
     </div>
   );

@@ -73,11 +73,13 @@ const getManageEntries = (squad: Squad): ManageEntry[] => {
     });
   }
 
-  entries.push({
-    label: 'Members',
-    icon: <UserIcon size={IconSize.Small} />,
-    href: getSquadManageUrl(handle, SquadManageSection.Members),
-  });
+  if (!verifyPermission(squad, SourcePermissions.Edit)) {
+    entries.push({
+      label: 'Members',
+      icon: <UserIcon size={IconSize.Small} />,
+      href: getSquadManageUrl(handle, SquadManageSection.Members),
+    });
+  }
 
   if (verifyPermission(squad, SourcePermissions.ViewAnalytics)) {
     entries.push({
@@ -156,12 +158,7 @@ export const SquadOptionsMenu = (): ReactElement => {
       },
     ];
 
-    const canInviteAsVisitor =
-      isLoggedIn && squad.public && viewer === SquadViewer.Visitor;
-    if (
-      canInviteAsVisitor ||
-      (isJoined && verifyPermission(squad, SourcePermissions.Invite))
-    ) {
+    if (isLoggedIn && squad.public && viewer === SquadViewer.Visitor) {
       list.push({
         icon: <LinkIcon size={IconSize.Small} />,
         label: 'Invitation link',

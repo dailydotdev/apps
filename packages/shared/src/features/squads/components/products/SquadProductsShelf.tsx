@@ -32,7 +32,7 @@ export const SquadProductsShelf = (): ReactElement | null => {
   const productsUrl = getSquadProductsUrl(squad.handle);
 
   return (
-    <section className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 py-4 tablet:px-6">
+    <section className="flex flex-col gap-3 border-t border-border-subtlest-tertiary px-4 py-4 tablet:px-6">
       <div className="flex items-center justify-between">
         <h2 className="font-bold text-text-primary typo-callout">Products</h2>
         <Link href={productsUrl} passHref>

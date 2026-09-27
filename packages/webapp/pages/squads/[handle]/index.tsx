@@ -62,6 +62,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
+import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
@@ -132,6 +133,14 @@ const getSquadPageJsonLd = (
       },
     ],
   });
+};
+
+const getSquadProfileUrls = (squad?: Squad): string[] => {
+  if (!squad || !hasSquadFeature(squad, 'links')) {
+    return [];
+  }
+
+  return [...(squad.website ? [squad.website] : []), ...(squad.links ?? [])];
 };
 
 interface SourcePageProps extends DynamicSeoProps {
@@ -479,10 +488,7 @@ export async function getServerSideProps({
         ...(seoUsers && { seoUsers }),
         ...(referringUser && { referringUser }),
         ...(isPublicSquad && {
-          jsonLd: getSquadPageJsonLd(squad, [
-            ...(initialSquad?.website ? [initialSquad.website] : []),
-            ...(initialSquad?.links ?? []),
-          ]),
+          jsonLd: getSquadPageJsonLd(squad, getSquadProfileUrls(initialSquad)),
         }),
       },
     };

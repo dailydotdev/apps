@@ -188,7 +188,7 @@ export const SquadMembersList = ({
         }
         userInfoProps={{
           origin: Origin.SquadMembersList,
-          showFollow: true,
+          showFollow: !canSeeBlocked,
           showSubscribe: false,
         }}
       />

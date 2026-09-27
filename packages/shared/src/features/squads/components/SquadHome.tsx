@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import Feed from '../../../components/Feed';
 import type { FeedProps } from '../../../components/Feed';
 import {
@@ -25,16 +24,9 @@ import { SquadPageLayout } from './SquadPageLayout';
 import { SquadProfileHeader } from './header/SquadProfileHeader';
 import { SquadComposer } from './feed/SquadComposer';
 import { SquadPinnedPosts } from './feed/SquadPinnedPosts';
-import { SquadEmptyFeed } from './feed/SquadEmptyFeed';
+import { SquadEmptyFeed, SquadSearchEmpty } from './feed/SquadEmptyFeed';
 import { SquadSearchHeader } from './feed/SquadSearchHeader';
 import { SquadProductsShelf } from './products/SquadProductsShelf';
-
-const SearchEmptyScreen = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "searchEmptyScreen" */ '../../../components/SearchEmptyScreen'
-    ),
-);
 
 // Two cards a row at most: the feed shares the page with the right column.
 const MAX_FEED_COLUMNS = 2;
@@ -90,7 +82,7 @@ export const SquadHome = ({
         },
         searchId,
         searchVersion,
-        emptyScreen: <SearchEmptyScreen />,
+        emptyScreen: <SquadSearchEmpty query={searchQuery} />,
       };
     }
 
@@ -151,13 +143,14 @@ export const SquadHome = ({
   }
 
   return (
-    <SquadPageLayout header={<SquadProfileHeader />} hasAboutTab>
-      <div className="flex flex-col border-border-subtlest-tertiary laptop:border-t">
-        <SquadProductsShelf />
-        <div className="flex flex-col gap-4 pt-4 tablet:px-6 tablet:pt-6">
-          <SquadComposer />
-          <SquadPinnedPosts />
-        </div>
+    <SquadPageLayout
+      header={<SquadProfileHeader />}
+      belowHeader={<SquadProductsShelf />}
+      hasAboutTab
+    >
+      <div className="flex flex-col gap-4 border-border-subtlest-tertiary pt-4 tablet:px-6 tablet:pt-6 laptop:border-t">
+        <SquadComposer />
+        <SquadPinnedPosts />
       </div>
       {feed}
     </SquadPageLayout>

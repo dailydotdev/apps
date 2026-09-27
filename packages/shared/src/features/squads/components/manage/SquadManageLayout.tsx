@@ -248,7 +248,10 @@ export const SquadManageLayout = ({
       <aside className="hidden w-64 shrink-0 flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 laptop:flex">
         <MenuHeader />
         <HorizontalSeparator />
-        <ManageMenu groups={groups} active={section} />
+        <ManageMenu
+          groups={groups}
+          active={section ?? groups[0]?.items[0]?.id}
+        />
       </aside>
       <main
         className={classNames(

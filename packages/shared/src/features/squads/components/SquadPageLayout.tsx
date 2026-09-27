@@ -17,6 +17,8 @@ enum SquadPageTab {
 interface SquadPageLayoutProps {
   /** The card's top: the profile header on the page, a title bar elsewhere. */
   header: ReactNode;
+  /** Sits under the header on every width, above the tabs below laptop. */
+  belowHeader?: ReactNode;
   children: ReactNode;
   /**
    * Below laptop the right column moves behind an About tab beside Posts.
@@ -30,6 +32,7 @@ interface SquadPageLayoutProps {
 // be ordered between the tabs and the posts.
 export const SquadPageLayout = ({
   header,
+  belowHeader,
   children,
   hasAboutTab = false,
 }: SquadPageLayoutProps): ReactElement => {
@@ -43,6 +46,7 @@ export const SquadPageLayout = ({
           <SquadPreviewNotice />
           <div className="border-border-subtlest-tertiary laptop:rounded-t-16 laptop:border laptop:border-b-0">
             {header}
+            {belowHeader}
           </div>
         </div>
         {hasAboutTab && (

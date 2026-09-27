@@ -1,7 +1,13 @@
 import React from 'react';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -23,6 +29,13 @@ import {
   TOP_MEMBERS_BY_SQUAD_QUERY,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { SQUAD_PRODUCTS_QUERY } from '@dailydotdev/shared/src/graphql/squadProducts';
+import {
+  RankingAlgorithm,
+  SOURCE_FEED_QUERY,
+  supportedTypesForPrivateSources,
+} from '@dailydotdev/shared/src/graphql/feed';
+import { PIN_POST_MUTATION } from '@dailydotdev/shared/src/graphql/posts';
+import defaultPost from '@dailydotdev/shared/__tests__/fixture/post';
 import type {
   SourceFeatures,
   SourceMember,
@@ -210,6 +223,19 @@ const viewerCases: ViewerCase[] = [
     canEdit: false,
   },
   {
+    viewer: 'member of a private squad',
+    user: defaultUser,
+    squad: {
+      public: false,
+      currentMember: member(SourceMemberRole.Member, memberPermissions),
+    },
+    primary: { label: 'Joined' },
+    hasBell: true,
+    composer: 'Share a link',
+    isStaff: false,
+    canEdit: false,
+  },
+  {
     viewer: 'moderator',
     user: defaultUser,
     squad: {
@@ -347,6 +373,72 @@ describe('squad page viewer matrix', () => {
     expect(
       screen.getAllByText('Join the Squad to create new posts').length,
     ).toBeGreaterThan(0);
+  });
+});
+
+describe('squad page pinned posts', () => {
+  const pinned = {
+    ...defaultPost,
+    title: 'Read this first',
+    pinnedAt: new Date('2026-09-01'),
+  };
+
+  const mockPinned = (squad: Squad) =>
+    mockGraphQL({
+      request: {
+        query: SOURCE_FEED_QUERY,
+        variables: {
+          source: squad.id,
+          first: 10,
+          loggedIn: true,
+          ranking: RankingAlgorithm.Time,
+          supportedTypes: supportedTypesForPrivateSources,
+        },
+      },
+      result: {
+        data: {
+          page: {
+            pageInfo: { hasNextPage: false, endCursor: '' },
+            edges: [{ node: pinned }],
+          },
+        },
+      },
+    });
+
+  it('lets staff unpin a post, since the feed leaves pins out', async () => {
+    const squad = createSquad({
+      currentMember: member(SourceMemberRole.Moderator, moderatorPermissions),
+    });
+    mockSquad(squad);
+    mockPinned(squad);
+    let unpinned = false;
+    mockGraphQL({
+      request: {
+        query: PIN_POST_MUTATION,
+        variables: { id: pinned.id, pinned: false },
+      },
+      result: () => {
+        unpinned = true;
+        return { data: { updatePinPost: { _: true } } };
+      },
+    });
+    renderSquadPage(squad);
+
+    fireEvent.click(await screen.findByLabelText('Unpin post'));
+
+    await waitFor(() => expect(unpinned).toBe(true));
+  });
+
+  it('shows the pins without the unpin control to members', async () => {
+    const squad = createSquad({
+      currentMember: member(SourceMemberRole.Member, memberPermissions),
+    });
+    mockSquad(squad);
+    mockPinned(squad);
+    renderSquadPage(squad);
+
+    await screen.findByText(pinned.title);
+    expect(screen.queryByLabelText('Unpin post')).not.toBeInTheDocument();
   });
 });
 

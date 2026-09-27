@@ -85,6 +85,10 @@ export const SquadPendingPostsPage = (): ReactElement => {
         <SquadSubPageHeader title="Pending posts" {...useBackToSquad()} />
       }
     >
+      <p className="px-4 pt-4 text-text-secondary typo-callout tablet:px-6">
+        Your posts waiting for a moderator of {squad.name}. You hear when they
+        are reviewed.
+      </p>
       <SquadModerationList squad={squad} isModerator={false} />
     </SquadPageLayout>
   );

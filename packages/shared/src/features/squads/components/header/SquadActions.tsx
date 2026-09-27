@@ -55,7 +55,10 @@ const SquadJoinButton = ({
 }): ReactElement | null => {
   const { squad, viewer, isPreviewing } = useSquadPageContext();
 
-  if (viewer === SquadViewer.Admin || !squad.public) {
+  if (
+    viewer === SquadViewer.Admin ||
+    (!squad.public && !isJoinedViewer(viewer))
+  ) {
     return null;
   }
 

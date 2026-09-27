@@ -10,6 +10,7 @@ import {
   SQUAD_LINK_MAX_LENGTH,
   SQUAD_PRODUCT_DESCRIPTION_MAX_LENGTH,
   SQUAD_PRODUCT_LINKS_MAX,
+  SQUAD_PRODUCT_NAME_MAX_LENGTH,
   SQUAD_PRODUCT_TAGLINE_MAX_LENGTH,
 } from '../../lib/limits';
 import { TextField } from '../../../../components/fields/TextField';
@@ -212,6 +213,8 @@ export const SquadProductForm = ({
           name="name"
           label="Product name*"
           fieldType="secondary"
+          maxLength={SQUAD_PRODUCT_NAME_MAX_LENGTH}
+          showMaxLength={false}
           value={name}
           valueChanged={(value) => {
             setName(value);
