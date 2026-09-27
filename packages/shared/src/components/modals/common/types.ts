@@ -25,7 +25,6 @@ export enum ModalSize {
 }
 
 export enum LazyModal {
-  SquadMember = 'squadMember',
   SquadTour = 'squadTour',
   UpvotedPopup = 'upvotedPopup',
   RepostsPopup = 'repostsPopup',
@@ -48,8 +47,6 @@ export enum LazyModal {
   ReputationPrivileges = 'reputationPrivileges',
   MarketingCta = 'marketingCta',
   Share = 'share',
-  PrivilegedMembers = 'privilegedMembers',
-  TopMembers = 'topMembers',
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   SlackShare = 'slackShare',

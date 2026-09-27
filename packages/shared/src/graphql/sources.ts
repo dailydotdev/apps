@@ -91,6 +91,10 @@ export interface Squad extends Source {
   category?: SourceCategory;
   moderationPostCount: number;
   favoritedAt?: string | null;
+  /** Paid (`links` feature): empty while the feature is off. */
+  website?: string | null;
+  /** Paid (`links` feature): ordered URLs, empty while the feature is off. */
+  links?: string[];
 }
 
 interface SourceFlags {
@@ -100,6 +104,14 @@ interface SourceFlags {
   totalUpvotes: number;
   totalAwards: number;
   campaignId?: string;
+}
+
+// A missing key comes back as null and means off
+export interface SourceFeatures {
+  verified: boolean | null;
+  adFree: boolean | null;
+  links: boolean | null;
+  products: boolean | null;
 }
 
 export interface Source {
@@ -118,6 +130,7 @@ export interface Source {
   color?: string;
   description?: string;
   flags?: SourceFlags;
+  features?: SourceFeatures;
   createdAt?: Date;
   contentPreference?: ContentPreference;
 }

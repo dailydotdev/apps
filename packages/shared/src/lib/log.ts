@@ -216,6 +216,9 @@ export enum LogEvent {
   ChecklistClose = 'checklist close',
   DeletePost = 'delete post',
   DeleteComment = 'delete comment',
+  ToggleSquadPreview = 'toggle squad preview',
+  ClickSquadLink = 'click squad link',
+  ClickSquadProduct = 'click squad product',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',

@@ -1,6 +1,27 @@
 import { apiUrl } from './config';
 import type { Ad } from '../graphql/posts';
+import type { Source } from '../graphql/sources';
+import { SourceType } from '../graphql/sources';
 import type { AdMacroContext } from '../features/monetization/adMacros';
+
+/**
+ * Squads with the paid `adFree` feature carry no ads on their feed, their
+ * search results, or the page and modal of any of their posts. Every ad
+ * placement reads this one rule.
+ */
+export const isSourceAdFree = (
+  source?: Pick<Source, 'features'> | null,
+): boolean => !!source?.features?.adFree;
+
+/**
+ * A squad post opened from a feed card has no features until its own post
+ * query lands, so the ads that request an ad wait for it.
+ */
+export const shouldSkipSourceAds = (
+  source?: Pick<Source, 'features' | 'type'> | null,
+): boolean =>
+  isSourceAdFree(source) ||
+  (source?.type === SourceType.Squad && !source.features);
 
 export enum AdActions {
   Click = 'click',

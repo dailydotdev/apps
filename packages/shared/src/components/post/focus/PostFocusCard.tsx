@@ -841,7 +841,11 @@ const PostFocusCardRaw = ({
           )}
 
           {!ads?.withoutDirectSold && (
-            <PostSidebarAdWidget postId={post.id} variant="inline" />
+            <PostSidebarAdWidget
+              postId={post.id}
+              source={post.source}
+              variant="inline"
+            />
           )}
 
           <PostUpvotesCommentsCount

@@ -40,7 +40,7 @@ export const EmptyModerationList = ({
   isModerator: boolean;
   isFetched: boolean;
 }): ReactElement => {
-  if (!isFetched || !isModerator) {
+  if (!isFetched) {
     return (
       <div className="flex flex-col gap-4">
         <ModerationItemSkeleton />

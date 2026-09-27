@@ -36,6 +36,7 @@ import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import adFixture from '@dailydotdev/shared/__tests__/fixture/ad';
 import { postWithCommunitySentiment } from '@dailydotdev/shared/__tests__/fixture/post';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
@@ -175,6 +176,15 @@ const defaultPost = {
   numUpvotes: 0,
   numComments: 0,
   domain: 'medium.com',
+};
+
+const adFreeSquad: Post['source'] = {
+  ...defaultPost.source,
+  id: 'squad',
+  handle: 'squad',
+  name: 'Verified squad',
+  type: SourceType.Squad,
+  features: { verified: true, adFree: true, links: false, products: false },
 };
 
 const createPostMock = (
@@ -1525,7 +1535,88 @@ describe('post redesign', () => {
       expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
       expect(mountedUnits()).toEqual(['ad-slot-21']);
     });
+
+    it.each([
+      ['classic', false],
+      ['focus card', true],
+    ])(
+      'carries no unit or phone strip for a post in an ad-free squad on the %s layout',
+      async (_, redesign) => {
+        renderAnonymous(redesign, { source: adFreeSquad });
+        expect(
+          await screen.findByTestId(
+            redesign ? 'post-focus-card' : 'postContainer',
+          ),
+        ).toBeInTheDocument();
+        expect(screen.queryAllByTestId(/^ad-slot-/)).toHaveLength(0);
+        expect(
+          screen.queryByTestId('phone-top-ad-strip'),
+        ).not.toBeInTheDocument();
+      },
+    );
   });
+});
+
+describe('direct-sold post ads', () => {
+  // The sidebar widget and the ad shown as a comment both come from the ad
+  // server, so an ad-free squad must not request them at all.
+  const mockAdServer = (): string[] => {
+    const requests: string[] = [];
+    nock('http://localhost:3000')
+      .persist()
+      .get(/^\/v1\/a/)
+      .reply(200, (uri) => {
+        requests.push(uri);
+        return [adFixture];
+      });
+    return requests;
+  };
+
+  it.each([
+    ['classic', false],
+    ['focus card', true],
+  ])(
+    'renders the sidebar and comment ads for a regular source on the %s layout',
+    async (_, redesign) => {
+      mockRedesignOn = redesign;
+      const requests = mockAdServer();
+      renderPost();
+
+      await waitFor(() =>
+        expect(screen.getAllByText(adFixture.description)).toHaveLength(2),
+      );
+      expect(requests).toEqual(
+        expect.arrayContaining([
+          expect.stringMatching(/^\/v1\/a\?/),
+          expect.stringMatching(/^\/v1\/a\/post/),
+        ]),
+      );
+    },
+  );
+
+  it.each([
+    ['classic', false],
+    ['focus card', true],
+  ])(
+    'renders no ad and requests none for a post in an ad-free squad on the %s layout',
+    async (_, redesign) => {
+      mockRedesignOn = redesign;
+      const requests = mockAdServer();
+      renderPost({}, [
+        createPostMock({ source: adFreeSquad }),
+        createCommentsMock(),
+      ]);
+
+      expect(
+        await screen.findByTestId(
+          redesign ? 'post-focus-card' : 'postContainer',
+        ),
+      ).toBeInTheDocument();
+      await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+      expect(screen.queryByText(adFixture.description)).not.toBeInTheDocument();
+      expect(requests).toEqual([]);
+    },
+  );
 });
 
 describe('post query failures', () => {
