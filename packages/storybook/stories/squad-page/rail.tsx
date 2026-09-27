@@ -103,7 +103,7 @@ export const ProductionRail = ({
   <nav
     aria-label="Primary navigation"
     className={classNames(
-      'group/rail flex w-20 shrink-0 flex-col items-center px-1.5 pb-3 pt-[13px]',
+      'group/rail flex w-20 shrink-0 flex-col items-center px-1.5 pb-3 pt-[0.8125rem]',
       railColumnGapClass,
       railBackgroundClass,
     )}
