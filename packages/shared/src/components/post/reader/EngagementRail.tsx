@@ -335,6 +335,7 @@ export function EngagementRail({
 
         <PostSidebarAdWidget
           postId={post.id}
+          source={post.source}
           className={{ container: 'w-full bg-transparent' }}
         />
 

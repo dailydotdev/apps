@@ -6,9 +6,6 @@ export type CloseModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
 ) => void;
 
-const SquadMemberModal = dynamic(
-  () => import(/* webpackChunkName: "squadMemberModal" */ './SquadMemberModal'),
-);
 const UpvotedPopupModal = dynamic(
   () =>
     import(/* webpackChunkName: "upvotedPopupModal" */ './UpvotedPopupModal'),
@@ -123,19 +120,6 @@ const MarketingCtaModal = dynamic(
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
-);
-
-const PrivilegedMemberModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "privilegedMembersModal" */ './squads/PrivilegedMembersModal'
-    ),
-);
-const TopMembersModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "topMembersModal" */ './squads/TopMembersModal'
-    ),
 );
 
 const BookmarkReminderModal = dynamic(
@@ -531,7 +515,6 @@ const PostImpressionsModal = dynamic(
 );
 
 export const modals = {
-  [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
   [LazyModal.SquadTour]: SquadTourModal,
@@ -551,8 +534,6 @@ export const modals = {
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
-  [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
-  [LazyModal.TopMembers]: TopMembersModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,

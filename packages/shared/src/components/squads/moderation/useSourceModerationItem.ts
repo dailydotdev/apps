@@ -1,4 +1,3 @@
-import { useSearchParams } from 'next/navigation';
 import type { SourcePostModeration } from '../../../graphql/squads';
 import { verifyPermission } from '../../../graphql/squads';
 import { useLazyModal } from '../../../hooks/useLazyModal';
@@ -12,7 +11,8 @@ export interface SquadModerationItemProps {
   onApprove: () => Promise<void>;
   onReject: () => void;
   isPending: boolean;
-  squad: Squad;
+  /** Unset on the queue of every squad the viewer moderates. */
+  squad?: Squad;
 }
 
 interface UseSourceModerationItem {
@@ -34,13 +34,10 @@ export const useSourceModerationItem = ({
   onReject,
 }: SquadModerationItemProps): UseSourceModerationItem => {
   const squad = data.source as Squad;
-  const searchParams = useSearchParams();
 
   const { openModal, closeModal } = useLazyModal();
 
-  const isModerator =
-    verifyPermission(squad, SourcePermissions.ModeratePost) ||
-    !searchParams?.get('handle');
+  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
 
   const { onDelete } = useSourceModerationList();
 

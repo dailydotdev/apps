@@ -18,6 +18,7 @@ import { useEventListener } from '../../hooks';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 import { getEngagementLogExtra } from '../../lib/engagementAds';
+import { isSourceAdFree } from '../../lib/ads';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -104,7 +105,9 @@ function BasePostModal({
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
         selector={() => {
-          const creative = getCreativeForTags(post?.tags || []);
+          const creative = isSourceAdFree(post?.source)
+            ? null
+            : getCreativeForTags(post?.tags || []);
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,

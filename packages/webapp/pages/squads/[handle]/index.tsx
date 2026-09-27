@@ -10,38 +10,17 @@ import React, {
 } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import Head from 'next/head';
-import Feed from '@dailydotdev/shared/src/components/Feed';
-import type { FeedProps } from '@dailydotdev/shared/src/components/Feed';
-import type { PostsSearchProps } from '@dailydotdev/shared/src/components/PostsSearch';
+import { useRouter } from 'next/router';
+import type { ClientError } from 'graphql-request';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons';
-import {
-  SEARCH_SOURCE_POSTS_QUERY,
-  SOURCE_FEED_QUERY,
-  supportedTypesForPrivateSources,
-} from '@dailydotdev/shared/src/graphql/feed';
-import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { useSearchId } from '@dailydotdev/shared/src/hooks/search/useSearchId';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
-import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
-import {
-  BaseFeedPage,
-  FeedPageLayoutList,
-} from '@dailydotdev/shared/src/components/utilities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { SquadStaticData } from '@dailydotdev/shared/src/graphql/squads';
 import {
-  getSquadMembers,
   getSquad,
   getSquadStaticFields,
 } from '@dailydotdev/shared/src/graphql/squads';
 import type {
-  BasicSourceMember,
   SourceData,
   Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
@@ -50,31 +29,20 @@ import {
   SOURCE_QUERY,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
-import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
-import { useQuery } from '@tanstack/react-query';
 import {
   LogEvent,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import dynamic from 'next/dynamic';
-import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
-import classNames from 'classnames';
-import {
-  useFeedLayout,
-  useJoinReferral,
-  useSquad,
-} from '@dailydotdev/shared/src/hooks';
-import type { ClientError } from 'graphql-request';
+import { useJoinReferral } from '@dailydotdev/shared/src/hooks/referral/useJoinReferral';
+import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { OtherFeedPage, StaleTime } from '@dailydotdev/shared/src/lib/query';
-import { useRouter } from 'next/router';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
-import { useSearchContextProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type {
   PublicProfile,
@@ -92,52 +60,22 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
+import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
-import type { ProtectedPageProps } from '../../../components/ProtectedPage';
-import ProtectedPage from '../../../components/ProtectedPage';
 import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 import { getAppOrigin } from '../../../lib/seo';
 import { createSquadNotificationToastStateStore } from '../../../lib/squadNotificationToastState';
-
-const Custom404 = dynamic(
-  () => import(/* webpackChunkName: "404" */ '../../404'),
-);
-
-const SquadEmptyScreen = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "squadEmptyScreen" */ '@dailydotdev/shared/src/components/squads/SquadEmptyScreen'
-    ),
-);
-
-const SearchEmptyScreen = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "searchEmptyScreen" */ '@dailydotdev/shared/src/components/SearchEmptyScreen'
-    ),
-);
-
-const PostsSearch = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "postsSearch" */ '@dailydotdev/shared/src/components/PostsSearch'
-    ),
-  { ssr: false },
-);
-
-const SquadLoading = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "squadLoading" */ '@dailydotdev/shared/src/components/errors/SquadLoading'
-    ),
-  { ssr: false },
-);
+import { SquadRoute } from '../../../components/squads/SquadRoute';
 
 const appOrigin = getAppOrigin();
-const getSquadPageJsonLd = (squad: SquadStaticData): string => {
+const getSquadPageJsonLd = (
+  squad: SquadStaticData,
+  profileUrls: string[],
+): string => {
   const squadUrl = squad.permalink;
 
   return JSON.stringify({
@@ -150,6 +88,7 @@ const getSquadPageJsonLd = (squad: SquadStaticData): string => {
         url: squadUrl,
         ...(squad.description && { description: squad.description }),
         ...(squad.image && { logo: squad.image, image: squad.image }),
+        ...(profileUrls.length > 0 && { sameAs: profileUrls }),
         ...(squad.createdAt && {
           foundingDate: new Date(squad.createdAt).toISOString().split('T')[0],
         }),
@@ -198,6 +137,8 @@ const getSquadPageJsonLd = (squad: SquadStaticData): string => {
 interface SourcePageProps extends DynamicSeoProps {
   handle: string;
   initialData?: SquadStaticData;
+  /** Public squads only: the page renders from it on the server. */
+  initialSquad?: Squad;
   referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
   jsonLd?: string;
   seoUsers?: SquadSeoUsers;
@@ -236,47 +177,24 @@ const SquadSeoLinks = ({
 }: {
   seoUsers?: SquadSeoUsers;
 }): ReactElement | null => {
-  if (!seoUsers) {
+  if (!seoUsers?.topMembers.length) {
     return null;
   }
 
   return (
-    <>
-      {seoUsers.privilegedMembers.length > 0 && (
-        <div className="sr-only">
-          {seoUsers.privilegedMembers.map((member) => (
-            <Link key={member.id} href={member.permalink} prefetch={false}>
-              <a>Posts by {member.name}</a>
-            </Link>
-          ))}
-        </div>
-      )}
-      {seoUsers.topMembers.length > 0 && (
-        <div className="sr-only">
-          {seoUsers.topMembers.map((member) => (
-            <Link key={member.id} href={member.permalink} prefetch={false}>
-              <a>Posts by {member.name}</a>
-            </Link>
-          ))}
-        </div>
-      )}
-    </>
+    <div className="sr-only">
+      {seoUsers.topMembers.map((member) => (
+        <Link key={member.id} href={member.permalink} prefetch={false}>
+          <a>Posts by {member.name}</a>
+        </Link>
+      ))}
+    </div>
   );
-};
-
-const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
-  const { squad, children, ...restProtectedPageProps } = props;
-
-  if (squad.public) {
-    return <>{children}</>;
-  }
-
-  return <ProtectedPage {...restProtectedPageProps}>{children}</ProtectedPage>;
 };
 
 const SquadPage = ({
   handle,
-  initialData,
+  initialSquad,
   jsonLd,
   seoUsers,
 }: SourcePageProps): ReactElement => {
@@ -285,16 +203,11 @@ const SquadPage = ({
   useJoinReferral();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const { sidebarRendered } = useSidebarRendered();
-  const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
-  const { postTypesFilter } = useSearchContextProvider();
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
-  const { user, isFetched: isBootFetched } = useAuthContext();
+  const { user } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
-  const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
+  const { squad, isFetched, isForbidden } = useSquad({ handle });
   const squadId = squad?.id;
-  useRecentPageMeta({ image: squad?.image });
+  useRecentPageMeta({ image: squad?.image ?? initialSquad?.image });
   const shownToastForSquadInSession = useRef<Record<string, boolean>>({});
   const squadNotificationToastState = useMemo(
     () => createSquadNotificationToastStateStore(user?.id),
@@ -376,143 +289,21 @@ const SquadPage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squadId, loggedImpression]);
 
-  const { data: squadMembers } = useQuery<BasicSourceMember[]>({
-    queryKey: ['squadMembersInitial', handle],
-    queryFn: () => getSquadMembers(squadId ?? ''),
-    enabled: isBootFetched && !!squadId,
-    staleTime: StaleTime.OneHour,
-  });
-
-  // Must be memoized to prevent refreshing the feed
-  const queryVariables = useMemo(
-    () => ({
-      source: squadId,
-      ranking: 'TIME',
-      supportedTypes: supportedTypesForPrivateSources,
-    }),
-    [squadId],
-  );
-
   const searchQuery =
     typeof router.query?.q === 'string' ? router.query.q.trim() : '';
-  const isSearching = searchQuery.length > 0;
-  const { value: searchVersion } = useConditionalFeature({
-    feature: feature.searchVersion,
-    shouldEvaluate: isSearching,
-  });
-  const searchId = useSearchId(
-    isSearching
-      ? [squadId, searchQuery, searchVersion, postTypesFilter.join(',')].join(
-          '|',
-        )
-      : '',
-  );
 
-  const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (isSearching) {
-      return {
-        feedName: OtherFeedPage.SearchSquad,
-        feedQueryKey: [
-          'searchSourcePosts',
-          user?.id ?? 'anonymous',
-          squadId,
-          searchQuery,
-          postTypesFilter,
-        ],
-        query: SEARCH_SOURCE_POSTS_QUERY,
-        variables: {
-          source: squadId,
-          query: searchQuery,
-          supportedTypes: supportedTypesForPrivateSources,
-          postTypes: postTypesFilter,
-          version: searchVersion,
-        },
-        searchId,
-        searchVersion,
-        emptyScreen: <SearchEmptyScreen />,
-      };
-    }
-
-    return {
-      feedName: OtherFeedPage.Squads,
-      feedQueryKey: [
-        'sourceFeed',
-        user?.id ?? 'anonymous',
-        Object.values(queryVariables),
-      ],
-      query: SOURCE_FEED_QUERY,
-      variables: queryVariables,
-      emptyScreen: <SquadEmptyScreen />,
-    };
-  }, [
-    isSearching,
-    searchQuery,
-    squadId,
-    queryVariables,
-    user?.id,
-    searchId,
-    searchVersion,
-    postTypesFilter,
-  ]);
-
-  // Search submit/clear write `q` to the URL. Cannot reuse `router.pathname`
-  // here (`/squads/[handle]`) the way RouterPostsSearch does for static
-  // routes — Next's router.replace throws/produces a literal
-  // "/squads/[handle]" href when the dynamic segment isn't present in the
-  // provided query object, so we build the concrete path from `asPath`.
-  const onSubmitSquadSearch = useCallback(
-    (
-      query: string,
-      extraFlags?: Parameters<PostsSearchProps['onSubmitQuery']>[1],
-    ) => {
-      logEvent({
-        event_name: LogEvent.SubmitSearch,
-        extra: JSON.stringify({
-          query,
-          provider: SearchProviderEnum.Posts,
-          squad: squadId,
-          ...extraFlags,
-        }),
-      });
-
-      const basePath = router.asPath.split('?')[0];
-      const searchParams = new URLSearchParams(window.location.search);
-      if (query) {
-        searchParams.set('q', query);
-      } else {
-        searchParams.delete('q');
-      }
-
-      return router.replace(
-        getPathnameWithQuery(basePath, searchParams),
-        undefined,
-        { shallow: true },
-      );
-    },
-    [logEvent, router, squadId],
-  );
-
-  const onClearSquadSearch = useCallback(() => {
+  // Next's router.replace needs the concrete path here, not the
+  // `/squads/[handle]` pathname, so it is built from `asPath`.
+  const onClearSearch = useCallback(() => {
     const searchParams = new URLSearchParams(window.location.search);
-
-    if (!searchParams.has('q')) {
-      return Promise.resolve();
-    }
-
     searchParams.delete('q');
 
-    const basePath = router.asPath.split('?')[0];
-
     return router.replace(
-      getPathnameWithQuery(basePath, searchParams),
+      getPathnameWithQuery(router.asPath.split('?')[0], searchParams),
       undefined,
       { shallow: true },
     );
   }, [router]);
-
-  const onFocusSquadSearch = useCallback(() => {
-    logEvent({ event_name: LogEvent.FocusSearch });
-  }, [logEvent]);
 
   useEffect(() => {
     if (!isForbidden) {
@@ -551,10 +342,8 @@ const SquadPage = ({
   }, [shouldManageSlack, squad, openModal, router]);
 
   const privateSourceJoin = usePrivateSourceJoin();
-  const initialSeoUsers = getSeoSquadUsers(initialData as Squad | undefined);
-  const resolvedSeoUsers =
-    getSeoSquadUsers(squad) ?? seoUsers ?? initialSeoUsers;
-  const seoContent = (
+
+  return (
     <>
       {jsonLd && (
         <Head>
@@ -564,85 +353,15 @@ const SquadPage = ({
           />
         </Head>
       )}
-      <SquadSeoLinks seoUsers={resolvedSeoUsers} />
-    </>
-  );
-
-  if ((isLoading && !isFetched) || privateSourceJoin.isActive) {
-    return (
-      <>
-        {seoContent}
-        <SquadLoading
-          squad={squad || initialData}
-          sidebarRendered={sidebarRendered}
-        />
-      </>
-    );
-  }
-
-  if (!isFetched) {
-    return <>{seoContent}</>;
-  }
-
-  if (isForbidden) {
-    return <Unauthorized />;
-  }
-
-  if (!squad) {
-    return <Custom404 />;
-  }
-
-  const FeedPageComponent = shouldUseListMode
-    ? FeedPageLayoutList
-    : BaseFeedPage;
-
-  return (
-    <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
-      {seoContent}
-      {isV2Laptop && (
-        <PageHeader title={squad.name}>
-          <SquadHeaderBar
-            squad={squad}
-            members={squadMembers ?? []}
-            className="!gap-1"
-          />
-        </PageHeader>
+      <SquadSeoLinks seoUsers={getSeoSquadUsers(squad) ?? seoUsers} />
+      {privateSourceJoin.isActive ? (
+        <SquadPageSkeleton />
+      ) : (
+        <SquadRoute handle={handle} initialSquad={initialSquad}>
+          <SquadHome searchQuery={searchQuery} onClearSearch={onClearSearch} />
+        </SquadRoute>
       )}
-      <div className="relative mb-4 pt-2">
-        <SquadPageHeader
-          squad={squad}
-          members={squadMembers ?? []}
-          shouldUseListMode={shouldUseListMode}
-          hideHeaderBar={isV2Laptop}
-        />
-        <FeedPageComponent>
-          <Feed
-            className={classNames(shouldUseListFeedLayout ? 'px-0' : 'px-6')}
-            {...feedProps}
-            showSearch={false}
-            options={{ refetchOnMount: true }}
-            header={
-              <SquadFeedHeading
-                squad={squad}
-                searchChildren={
-                  <PostsSearch
-                    autoFocus={false}
-                    enableSuggestions={false}
-                    placeholder="Search this squad"
-                    initialQuery={searchQuery}
-                    onSubmitQuery={onSubmitSquadSearch}
-                    onClearQuery={onClearSquadSearch}
-                    onFocus={onFocusSquadSearch}
-                  />
-                }
-              />
-            }
-            inlineHeader
-            allowPin
-          />
-        </FeedPageComponent>
-      </div>
-    </PageComponent>
+    </>
   );
 };
 
@@ -728,11 +447,10 @@ export async function getServerSideProps({
     const isPublicSquad = squad?.public === true;
     const noindex = !isPublicSquad || squad?.noindex === true;
 
-    const seoUsers = isPublicSquad
-      ? await getSquad(handle)
-          .then((fullSquad) => getSeoSquadUsers(fullSquad))
-          .catch(() => undefined)
+    const initialSquad = isPublicSquad
+      ? await getSquad(handle).catch(() => undefined)
       : undefined;
+    const seoUsers = getSeoSquadUsers(initialSquad);
 
     setCacheHeader();
 
@@ -756,11 +474,15 @@ export async function getServerSideProps({
       props: {
         seo,
         handle,
-        initialData: squad as Squad,
+        initialData: squad,
+        ...(initialSquad && { initialSquad }),
         ...(seoUsers && { seoUsers }),
         ...(referringUser && { referringUser }),
         ...(isPublicSquad && {
-          jsonLd: getSquadPageJsonLd(squad as SquadStaticData),
+          jsonLd: getSquadPageJsonLd(squad, [
+            ...(initialSquad?.website ? [initialSquad.website] : []),
+            ...(initialSquad?.links ?? []),
+          ]),
         }),
       },
     };

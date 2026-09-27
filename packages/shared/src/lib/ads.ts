@@ -1,6 +1,16 @@
 import { apiUrl } from './config';
 import type { Ad } from '../graphql/posts';
+import type { Source } from '../graphql/sources';
 import type { AdMacroContext } from '../features/monetization/adMacros';
+
+/**
+ * Squads with the paid `adFree` feature carry no ads on their feed, their
+ * search results, or the page and modal of any of their posts. Every ad
+ * placement reads this one rule.
+ */
+export const isSourceAdFree = (
+  source?: Pick<Source, 'features'> | null,
+): boolean => !!source?.features?.adFree;
 
 export enum AdActions {
   Click = 'click',

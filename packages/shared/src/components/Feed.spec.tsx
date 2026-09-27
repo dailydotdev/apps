@@ -2451,7 +2451,7 @@ describe('Feed ad cadence with highlight cards', () => {
     renderWithHighlightLayout({
       posts: [buildPost('p0')],
       highlightEnabled: false,
-      feedName: OtherFeedPage.Squad,
+      feedName: OtherFeedPage.Squads,
     });
 
     await waitFor(() => {
@@ -2534,7 +2534,7 @@ describe('Feed ad cadence with highlight cards', () => {
         buildPost('p3'),
       ],
       highlightEnabled: false,
-      feedName: OtherFeedPage.Squad,
+      feedName: OtherFeedPage.Squads,
     });
 
     expect(

@@ -15,6 +15,8 @@ import {
 import { useIsLightTheme } from '../hooks/utils/useThemedAsset';
 import { useAuthContext } from './AuthContext';
 import { isProduction } from '../lib/constants';
+import { isSourceAdFree } from '../lib/ads';
+import { useActivePostContext } from './ActivePostContext';
 
 interface EngagementAdsContextValue {
   /** All creatives from boot, theme-resolved */
@@ -42,8 +44,17 @@ const defaultValue: EngagementAdsContextValue = {
 const EngagementAdsContext =
   createContext<EngagementAdsContextValue>(defaultValue);
 
-export const useEngagementAdsContext = (): EngagementAdsContextValue =>
-  useContext(EngagementAdsContext);
+/**
+ * Brand sponsorships (sponsored tags, keyword highlights, the branded upvote,
+ * sponsored tools) are ads too: under a post from an ad-free source every
+ * lookup comes back empty, so each surface falls back to its organic render.
+ */
+export const useEngagementAdsContext = (): EngagementAdsContextValue => {
+  const value = useContext(EngagementAdsContext);
+  const { activePost } = useActivePostContext();
+
+  return isSourceAdFree(activePost?.source) ? defaultValue : value;
+};
 
 interface EngagementAdsProviderProps {
   children: ReactNode;
