@@ -65,7 +65,7 @@ function HighlightTextSnapshotCardComponent(
     highlight.start >= 0 &&
     highlight.end > highlight.start &&
     highlight.end <= trimmed.length;
-  const heading = title?.trim();
+  const heading = title && truncateAtWord(title, TITLE_LIMIT);
   const windowed = isValid
     ? windowAroundHighlight(trimmed, highlight)
     : undefined;
@@ -115,7 +115,7 @@ function HighlightTextSnapshotCardComponent(
           <SnapshotCredit
             image={source?.image}
             name={source?.name}
-            title={heading && truncateAtWord(heading, TITLE_LIMIT)}
+            title={heading}
           />
         )}
       </div>
