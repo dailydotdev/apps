@@ -37,6 +37,9 @@ import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
 import { isConnectionError } from '../lib/errors';
 import { EngagementAdsProvider } from './EngagementAdsContext';
+import { FIVE_MINUTES } from '../lib/time';
+
+export const BOOT_FOCUS_REFETCH_INTERVAL = FIVE_MINUTES;
 
 const ServerError = dynamic(
   () =>
@@ -100,6 +103,7 @@ const updateLocalBootData = (
     'feeds',
     'geo',
     'isAndroidApp',
+    'accessTokenExpiresIn',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -114,6 +118,25 @@ const getCachedOrNull = () => {
   } catch (err) {
     return null;
   }
+};
+
+// /boot only reissues a token with under 4 minutes left, so past this margin a
+// reissued token means the cached expiry was wrong
+const CACHED_TOKEN_EXPIRY_MARGIN = FIVE_MINUTES;
+
+const isCachedTokenValid = ({
+  user,
+  accessTokenExpiresIn,
+}: Partial<BootCacheData>): boolean => {
+  const logged = user as LoggedUser;
+
+  return (
+    !!logged?.providers &&
+    !!logged?.id &&
+    !!accessTokenExpiresIn &&
+    new Date(accessTokenExpiresIn).getTime() - Date.now() >
+      CACHED_TOKEN_EXPIRY_MARGIN
+  );
 };
 
 export const BootDataProvider = ({
@@ -131,6 +154,11 @@ export const BootDataProvider = ({
   const [cachedBootData, setCachedBootDataState] =
     useState<Partial<BootCacheData>>();
   const cachedBootDataRef = useRef<Partial<BootCacheData>>();
+  // Checked once on load, so the feed doesn't lose its query as the cached
+  // token nears expiry while boot is in flight
+  const [validTokenCache, setValidTokenCache] =
+    useState<Partial<BootCacheData>>();
+  const [cachedTokenWasInvalid, setCachedTokenWasInvalid] = useState(false);
   const setCachedBootData = useCallback(
     (data: Partial<BootCacheData> | undefined) => {
       cachedBootDataRef.current = data;
@@ -142,6 +170,9 @@ export const BootDataProvider = ({
   useEffect(() => {
     if (localBootData) {
       setCachedBootData(localBootData);
+      setValidTokenCache(
+        isCachedTokenValid(localBootData) ? localBootData : undefined,
+      );
 
       return;
     }
@@ -159,6 +190,7 @@ export const BootDataProvider = ({
     }
 
     setCachedBootData(boot);
+    setValidTokenCache(isCachedTokenValid(boot) ? boot : undefined);
   }, [localBootData, setCachedBootData]);
 
   const { hostGranted } = useHostStatus();
@@ -186,7 +218,26 @@ export const BootDataProvider = ({
 
       return result;
     },
-    refetchOnWindowFocus: shouldRefetch,
+    refetchOnWindowFocus: (query) => {
+      if (!shouldRefetch) {
+        return false;
+      }
+
+      if (
+        Date.now() - query.state.dataUpdatedAt >=
+        BOOT_FOCUS_REFETCH_INTERVAL
+      ) {
+        return true;
+      }
+
+      // another tab may have logged out, switched account or bought Plus
+      const current = cachedBootDataRef.current?.user as LoggedUser;
+      const persisted = getCachedOrNull()?.user;
+
+      return (
+        persisted?.id !== current?.id || persisted?.isPlus !== current?.isPlus
+      );
+    },
     staleTime: STALE_TIME,
     enabled: !isExtension || !!hostGranted,
   });
@@ -320,8 +371,21 @@ export const BootDataProvider = ({
 
   useEffect(() => {
     if (remoteData) {
-      setInitialLoad(typeof initialLoad === 'undefined');
-      updateBootData(remoteData);
+      const isFirstLoad = typeof initialLoad === 'undefined';
+      setInitialLoad(isFirstLoad);
+      if (
+        isFirstLoad &&
+        !!validTokenCache &&
+        validTokenCache.user?.id === remoteData.user?.id &&
+        validTokenCache.accessTokenExpiresIn !==
+          remoteData.accessToken?.expiresIn
+      ) {
+        setCachedTokenWasInvalid(true);
+      }
+      updateBootData({
+        ...remoteData,
+        accessTokenExpiresIn: remoteData.accessToken?.expiresIn,
+      });
       setRemoteBootApplied({
         dataUpdatedAt,
         userId: remoteData.user?.id,
@@ -399,6 +463,8 @@ export const BootDataProvider = ({
         user={user}
         updateUser={updateUser}
         tokenRefreshed={updatedAtActive > 0}
+        hasValidCachedToken={!!validTokenCache}
+        cachedTokenWasInvalid={cachedTokenWasInvalid}
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}

@@ -26,7 +26,13 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
-import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import type { ApiErrorResult } from '../graphql/common';
+import {
+  ApiError,
+  GARMR_ERROR,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
@@ -64,6 +70,7 @@ import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
 import type { Squad } from '../graphql/sources';
+import { useCachedTokenRecovery } from './useCachedTokenRecovery';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -305,7 +312,7 @@ export default function useFeed<T>(
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, isTokenValid } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
@@ -330,6 +337,7 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
+  const isFeedQueryEnabled = !!query && isTokenValid;
   const feedQuery = useInfiniteQuery<
     FeedItemData,
     ClientError,
@@ -421,7 +429,7 @@ export default function useFeed<T>(
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
     ...options,
-    enabled: !!query && tokenRefreshed,
+    enabled: isFeedQueryEnabled,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: avoidRetry ? false : 3,
@@ -430,6 +438,15 @@ export default function useFeed<T>(
   });
 
   const clientError = feedQuery?.error as ClientError;
+  useCachedTokenRecovery({
+    queryKey: feedQueryKey,
+    enabled: isFeedQueryEnabled,
+    isUnauthenticated: !!getApiError(
+      feedQuery.error as ApiErrorResult,
+      ApiError.Unauthenticated,
+    ),
+  });
+
   const adPostLength = settings?.adPostLength;
   const firstPagePostsCount = feedQuery.data?.pages[0]?.page.edges.length ?? 0;
   const meetsAdPostLength = !adPostLength || firstPagePostsCount > adPostLength;
@@ -439,7 +456,7 @@ export default function useFeed<T>(
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
       query &&
-      tokenRefreshed &&
+      isTokenValid &&
       !isFeedPreview &&
       (!adPostLength ||
         (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
@@ -527,6 +544,11 @@ export default function useFeed<T>(
   if (!adJitterSeedRef.current) {
     adJitterSeedRef.current = Math.random().toString(36).slice(2);
   }
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  useCachedTokenRecovery({
+    queryKey: adsQueryKey,
+    enabled: isAdsQueryEnabled,
+  });
   const adsQuery = useInfiniteQuery<
     Ad,
     ClientError,
@@ -534,7 +556,7 @@ export default function useFeed<T>(
     QueryKey,
     string | number
   >({
-    queryKey: [RequestKey.Ads, ...feedQueryKey],
+    queryKey: adsQueryKey,
     queryFn: async ({ pageParam }) => {
       const ad = await fetchAd({
         placement: AdPlacement.Feed,

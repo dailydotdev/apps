@@ -304,6 +304,40 @@ describe('squad page', () => {
     });
   });
 
+  it('should hide pinned posts when the member collapsed them', async () => {
+    const [pinnedEdge, ...restEdges] = defaultFeedPage.edges;
+    const page: FeedData['page'] = {
+      ...defaultFeedPage,
+      edges: [
+        {
+          node: {
+            ...pinnedEdge.node,
+            pinnedAt: new Date(),
+            source: {
+              ...(pinnedEdge.node.source as Squad),
+              currentMember: {
+                ...defaultCurrentMember,
+                flags: { collapsePinnedPosts: true },
+              },
+            },
+          },
+        },
+        ...restEdges,
+      ],
+    };
+    renderComponent(defaultSquad.handle, [
+      createSourceMock(defaultSquad.handle),
+      createFeedMock(page),
+      createBasicSourceMembersMock(),
+    ]);
+    await waitForNock();
+
+    await screen.findByText(restEdges[0].node.title as string);
+    expect(
+      screen.queryByText(pinnedEdge.node.title as string),
+    ).not.toBeInTheDocument();
+  });
+
   it('should show forbidden access if not a member of the squad', async () => {
     const handle = 'sample';
     const forbidden = generateForbiddenSquadResult();

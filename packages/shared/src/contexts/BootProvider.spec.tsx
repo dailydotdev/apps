@@ -4,7 +4,13 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
@@ -32,7 +38,7 @@ import type {
   Spaciness,
 } from '../graphql/settings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
-import { BootDataProvider } from './BootProvider';
+import { BOOT_FOCUS_REFETCH_INTERVAL, BootDataProvider } from './BootProvider';
 import { BOOT_LOCAL_KEY } from './common';
 import type { Boot, BootCacheData } from '../lib/boot';
 import { BootApp, getBootData } from '../lib/boot';
@@ -41,6 +47,7 @@ import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
 import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { SortCommentsBy } from '../graphql/comments';
+import { ONE_MINUTE } from '../lib/time';
 
 jest.mock('../lib/boot', () => {
   const actual = jest.requireActual('../lib/boot');
@@ -870,4 +877,145 @@ it('should unset the content language header when user language is cleared', asy
     Reflect.get(Reflect.get(gqlClient, 'options'), 'headers'),
   ).not.toHaveProperty('content-language');
   unsetHeaderSpy.mockRestore();
+});
+
+const inMinutes = (minutes: number): string =>
+  new Date(Date.now() + minutes * ONE_MINUTE).toISOString();
+
+it('should persist the access token expiry but never the token', async () => {
+  const accessToken = {
+    token: 'secret-access-token',
+    expiresIn: inMinutes(10),
+  };
+  jest.mocked(getBootData).mockResolvedValueOnce({
+    ...getBootMock(defaultBootData),
+    accessToken,
+  });
+  renderComponent(<AuthMock updatedUser={{ ...defaultUser, name: 'Lee' }} />);
+
+  await waitFor(() =>
+    expect(getStoredBootData().accessTokenExpiresIn).toEqual(
+      accessToken.expiresIn,
+    ),
+  );
+  expect(localStorage.getItem(BOOT_LOCAL_KEY)).not.toContain(accessToken.token);
+
+  const user = await screen.findByText('User');
+  fireEvent.click(user);
+  await expectToHaveTestValue(user, 'Lee');
+  expect(getStoredBootData().accessTokenExpiresIn).toEqual(
+    accessToken.expiresIn,
+  );
+});
+
+const TokenMock = () => {
+  const { isTokenValid } = useContext(AuthContext);
+
+  return <span data-test-value={isTokenValid}>Token</span>;
+};
+
+it.each([
+  { name: 'a session with time left', cache: {}, isReady: true, before: true },
+  {
+    name: 'a session expiring within five minutes',
+    cache: { accessTokenExpiresIn: inMinutes(4) },
+    isReady: true,
+    before: false,
+  },
+  {
+    name: 'an anonymous user',
+    cache: { user: defaultAnonymousUser },
+    isReady: true,
+    before: false,
+  },
+  {
+    name: 'features not cached yet',
+    cache: { exp: undefined },
+    isReady: true,
+    before: false,
+  },
+  { name: 'a route not ready yet', cache: {}, isReady: false, before: false },
+])(
+  'should trust the cached token before boot only for $name',
+  async ({ cache, isReady, before }) => {
+    localStorage.setItem(
+      BOOT_LOCAL_KEY,
+      JSON.stringify({
+        ...defaultBootData,
+        exp: {
+          fv: 'v1',
+          e: [],
+          a: [],
+          features: { flag: { defaultValue: 1 } },
+        },
+        accessTokenExpiresIn: inMinutes(10),
+        ...cache,
+      }),
+    );
+    mockUseRouter({ isReady });
+    let resolveBoot: (boot: Boot) => void = () => undefined;
+    jest.mocked(getBootData).mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveBoot = resolve;
+      }),
+    );
+    renderComponent(<TokenMock />);
+
+    const token = await screen.findByText('Token');
+    await expectToHaveTestValue(token, before.toString());
+
+    await act(async () => resolveBoot(getBootMock(defaultBootData)));
+    await expectToHaveTestValue(token, 'true');
+  },
+);
+
+describe('boot refetch on window focus', () => {
+  const renderLoggedIn = async () => {
+    jest.mocked(getBootData).mockClear();
+    renderComponent(<AuthMock />);
+    const user = await screen.findByText('User');
+    await expectToHaveTestValue(user, defaultUser.name);
+    expect(getBootData).toHaveBeenCalledTimes(1);
+  };
+
+  const focusWindowAfter = async (elapsed: number) => {
+    const dateNow = jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.now() + elapsed);
+    fireEvent(window, new Event('visibilitychange'));
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve);
+      });
+    });
+    dateNow.mockRestore();
+  };
+
+  it('should not refetch boot on focus within the interval', async () => {
+    await renderLoggedIn();
+    await focusWindowAfter(ONE_MINUTE);
+    expect(getBootData).toHaveBeenCalledTimes(1);
+  });
+
+  it('should refetch boot on focus after the interval', async () => {
+    await renderLoggedIn();
+    await focusWindowAfter(BOOT_FOCUS_REFETCH_INTERVAL);
+    expect(getBootData).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    { changed: 'user', user: { ...defaultUser, id: 'u2' } },
+    { changed: 'Plus status', user: { ...defaultUser, isPlus: true } },
+  ])(
+    'should refetch boot on focus within the interval when another tab changed the $changed',
+    async ({ user }) => {
+      await renderLoggedIn();
+      localStorage.setItem(
+        BOOT_LOCAL_KEY,
+        JSON.stringify({ ...getStoredBootData(), user }),
+      );
+      await focusWindowAfter(ONE_MINUTE);
+      expect(getBootData).toHaveBeenCalledTimes(2);
+    },
+  );
 });

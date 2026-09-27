@@ -206,12 +206,12 @@ export interface MainFeedLayoutProps
 }
 
 const getQueryBasedOnLogin = (
-  tokenRefreshed: boolean,
+  isTokenValid: boolean,
   user: LoggedUser | null,
   query: string,
   queryIfLogged: string | null,
 ): string | null => {
-  if (tokenRefreshed) {
+  if (isTokenValid) {
     if (user && queryIfLogged) {
       return queryIfLogged;
     }
@@ -249,7 +249,7 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, isTokenValid } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const feedWidthStyle = {
@@ -464,7 +464,7 @@ export default function MainFeedLayout({
     }
 
     const query = getQueryBasedOnLogin(
-      tokenRefreshed,
+      isTokenValid,
       user ?? null,
       dynamicFeedConfig?.query || feedConfig.query,
       dynamicFeedConfig?.queryIfLogged || feedConfig.queryIfLogged || null,
@@ -502,7 +502,7 @@ export default function MainFeedLayout({
     exploreDiscussedFeedV,
     exploreLatestFeedV,
     customFeedV,
-    tokenRefreshed,
+    isTokenValid,
     feedVersion,
   ]);
 
@@ -555,9 +555,9 @@ export default function MainFeedLayout({
       return null;
     }
 
-    // Wait for both algorithm (from IndexedDB) and tokenRefreshed (from boot) to load
-    // before making sortable feed requests to prevent double queries
-    if (isSortableFeed && (!loadedAlgo || !tokenRefreshed)) {
+    // Wait for both algorithm (from IndexedDB) and a valid token (cached or from boot)
+    // to load before making sortable feed requests to prevent double queries
+    if (isSortableFeed && (!loadedAlgo || !isTokenValid)) {
       return null;
     }
 
@@ -712,7 +712,7 @@ export default function MainFeedLayout({
     isExploreLatest,
     isLaptop,
     loadedAlgo,
-    tokenRefreshed,
+    isTokenValid,
   ]);
 
   useEffect(() => {

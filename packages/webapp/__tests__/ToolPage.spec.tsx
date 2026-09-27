@@ -143,11 +143,13 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           refetchBoot: jest.fn(),
           isAndroidApp: false,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <SettingsContext.Provider value={settingsContext}>

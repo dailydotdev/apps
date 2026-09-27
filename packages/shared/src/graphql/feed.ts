@@ -583,7 +583,17 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('pinnedAt contentHtml')}
+  ${getFeedPostFragment(`
+    pinnedAt
+    contentHtml
+    source {
+      currentMember {
+        flags {
+          collapsePinnedPosts
+        }
+      }
+    }
+  `)}
 `;
 
 export const CHANNEL_FEED_QUERY = gql`

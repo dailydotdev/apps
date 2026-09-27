@@ -156,6 +156,7 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
         }}
       >

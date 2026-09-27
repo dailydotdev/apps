@@ -16,9 +16,9 @@ interface UseLayoutVariant {
 // single source of truth (no separate `useViewSize(ViewSize.Laptop)` check
 // needed at the call site).
 export const useLayoutVariantFlag = (): UseLayoutVariant => {
-  const { isAuthReady } = useAuthContext();
+  const { isAuthReadyOrCached } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const shouldEvaluate = isAuthReady && isLaptop;
+  const shouldEvaluate = isAuthReadyOrCached && isLaptop;
   const { value, isLoading } = useConditionalFeature({
     feature: featureLayoutV2,
     shouldEvaluate,
@@ -32,7 +32,7 @@ export const useLayoutVariantFlag = (): UseLayoutVariant => {
 
 export const useLayoutVariant = (): UseLayoutVariant => {
   const serverVariant = useContext(LayoutVariantContext);
-  const { isAuthReady } = useAuthContext();
+  const { isAuthReadyOrCached } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2, isLoading } = useLayoutVariantFlag();
 
@@ -40,11 +40,11 @@ export const useLayoutVariant = (): UseLayoutVariant => {
   // contradict it, so turning `layout_v2_2` off takes effect on this render
   // rather than the next hard navigation. `isLaptop` is client-only and would
   // contradict what the server painted, so it applies from the second render
-  // on: `isAuthReady` is false on the server and on the first client render,
-  // which makes it the hydration boundary.
+  // on: `isAuthReadyOrCached` is false on the server and on the first client
+  // render, which makes it the hydration boundary.
   if (serverVariant && isLoading) {
     return {
-      isV2: serverVariant === 'v2' && (!isAuthReady || isLaptop),
+      isV2: serverVariant === 'v2' && (!isAuthReadyOrCached || isLaptop),
       isLoading: false,
     };
   }
