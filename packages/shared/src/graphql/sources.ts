@@ -106,11 +106,12 @@ interface SourceFlags {
   campaignId?: string;
 }
 
+// A missing key comes back as null and means off
 export interface SourceFeatures {
-  verified: boolean;
-  adFree: boolean;
-  links: boolean;
-  products: boolean;
+  verified: boolean | null;
+  adFree: boolean | null;
+  links: boolean | null;
+  products: boolean | null;
 }
 
 export interface Source {

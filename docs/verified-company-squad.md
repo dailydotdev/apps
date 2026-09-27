@@ -43,8 +43,8 @@ The API ships first and is additive only, so it can deploy before `apps` merges.
 
 - A dedicated jsonb column on `source` (not inside `flags`, which crons and CDC write counters into). Missing keys mean off.
 - Keys today: `verified`, `adFree`, `links`, `products`. Tiers can come later as named presets that resolve to the same map; the column shape does not change.
-- GraphQL: `Source.features: SourceFeatures!` with `verified: Boolean!`, `adFree: Boolean!`, `links: Boolean!`, `products: Boolean!`. Always present, all `false` for sources without a map.
-- Enforcement is server side: a paid field reads as empty and its mutations reject while its feature is off. The stored data is kept, so switching a feature back on restores it.
+- GraphQL: `Source.features: SourceFeatures!` with nullable `verified`, `adFree`, `links`, `products`. A missing key reads as `null` and means off.
+- Mutations for paid data reject while the feature is off. Reads are not gated (no per-query overhead): the client renders a paid surface only when its key is on, and ops clean up the stored data when a customer stops paying.
 
 ### Private endpoint for Smith
 
@@ -56,7 +56,7 @@ The API ships first and is additive only, so it can deploy before `apps` merges.
 ### Links (`links` feature)
 
 - Squad fields: `website` (single URL) and `links` (ordered list of URLs). The client derives the icon and label from the domain.
-- GraphQL: `Source.website: String`, `Source.links: [String!]!`, both empty while the feature is off.
+- GraphQL: `Source.website: String`, `Source.links: [String!]!`.
 - Mutation `updateSquadLinks(sourceId: ID!, website: String, links: [String!]!): Source!`: admins only (`Edit` permission), feature on, `http(s)` URLs only.
 - The client renders these links with `rel="noopener"` and no `nofollow`.
 
@@ -67,7 +67,7 @@ The API ships first and is additive only, so it can deploy before `apps` merges.
 - The logo upload is stored in `faviconUrl` with an owner value in `faviconSource`, replacing the auto-fetched favicon everywhere the tool appears.
 - Pricing (`free`, `freemium`, `paid`, `open-source`, shown as Free, Freemium, Paid, Open source) and description are written as tool facts (`pricingModel`, `description`) with an owner-corrected status, which the enrichment cron never overwrites. An empty value deletes the fact.
 - Category is the tool's curated category, read only. Tools without one show no category chip. The mock's category dropdown is dropped.
-- GraphQL: `Source.products: [DatasetTool!]!` (ordered, empty while the feature is off). New `DatasetTool` fields: `tagline`, `description`, `pricingModel`, `links: [String!]!`; the logo is the existing `faviconUrl`.
+- GraphQL: `Source.products: [DatasetTool!]!` (ordered). New `DatasetTool` fields: `tagline`, `description`, `pricingModel`, `links: [String!]!`; the logo is the existing `faviconUrl`.
 - Mutations, admins only and feature on (`FORBIDDEN` otherwise):
   - `addSquadProduct(sourceId: ID!, input: AddSquadProductInput!, logo: Upload): DatasetTool!` finds or creates the catalog tool by `name` and sets `officialSourceId`; `CONFLICT` when the tool is official elsewhere.
   - `updateSquadProduct(id: ID!, input: UpdateSquadProductInput!, logo: Upload): DatasetTool!` (no name).
