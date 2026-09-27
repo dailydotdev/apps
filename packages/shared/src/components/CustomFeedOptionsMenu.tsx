@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from './dropdown/DropdownMenu';
 import type { MenuItemProps } from './dropdown/common';
+import { useMobileAppHeader } from '../features/getApp/hooks/useMobileAppHeader';
 
 type CustomFeedOptionsMenuProps = {
   onCreateNewFeed?: () => void;
@@ -38,10 +39,11 @@ const CustomFeedOptionsMenu = ({
   onCreateNewFeed,
   additionalOptions = [],
   buttonVariant = ButtonVariant.Float,
-}: CustomFeedOptionsMenuProps): ReactElement => {
+}: CustomFeedOptionsMenuProps): ReactElement | null => {
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { feeds } = useFeeds();
+  const isMobileAppHeader = useMobileAppHeader();
 
   const handleOpenModal = () => {
     if (feeds?.edges?.length > 0) {
@@ -72,6 +74,11 @@ const CustomFeedOptionsMenu = ({
   ];
 
   options.push(...additionalOptions);
+
+  // Logged out, only Share works and every page already has a copy-link button.
+  if (isMobileAppHeader) {
+    return null;
+  }
 
   return (
     <DropdownMenu>

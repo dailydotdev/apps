@@ -19,6 +19,8 @@ import { GoBackHeaderMobile } from '@dailydotdev/shared/src/components/post/GoBa
 import { PostHeaderActions } from '@dailydotdev/shared/src/components/post/PostHeaderActions';
 import { Header as ProfileHeader } from '@dailydotdev/shared/src/components/profile/Header';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
+import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
+import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -60,6 +62,16 @@ const profile: PublicProfile = {
   permalink: 'https://app.daily.dev/mayachen',
 };
 
+const squad = {
+  id: 'sb-squad',
+  handle: 'react-israel',
+  name: 'React Israel',
+  public: true,
+  permalink: 'https://app.daily.dev/squads/react-israel',
+  membersCount: 1240,
+  flags: {},
+} as unknown as Squad;
+
 interface Args {
   experiment: boolean;
 }
@@ -77,9 +89,7 @@ const Providers = ({
           <FeatureOverrides
             values={{ [featureMobileAppHeader.id]: experiment }}
           >
-            <div className="min-h-screen bg-background-default">
-              {children}
-            </div>
+            <div className="min-h-screen bg-background-default">{children}</div>
           </FeatureOverrides>
         </SettingsContext.Provider>
       </LogContext.Provider>
@@ -183,4 +193,13 @@ export const ProfileBar: Story = {
 export const SquadsDirectory: Story = {
   name: 'Squads directory',
   render: () => <SquadDirectoryLayout />,
+};
+
+export const SquadActions: Story = {
+  name: 'Squad page: How Squads work instead of the menu',
+  render: () => (
+    <div className="p-4">
+      <SquadHeaderBar squad={squad} members={[]} />
+    </div>
+  ),
 };

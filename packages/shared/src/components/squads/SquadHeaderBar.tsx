@@ -17,6 +17,7 @@ import {
   BellIcon,
   SlackIcon,
   TimerIcon,
+  TourIcon,
 } from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -31,6 +32,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { BoostSourceButton } from '../../features/boost/BoostSourceButton';
 import { CopyLinkButton } from '../share/CopyLinkButton';
 import { ReferralCampaignKey } from '../../lib/referral';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 
 type SquadBarButtonProps<T extends AllowedTags> = Pick<
   Partial<ButtonProps<T>>,
@@ -211,6 +213,7 @@ export function SquadHeaderBar({
   const showPendingCount = !!(
     squad.moderationRequired && squad.moderationPostCount
   );
+  const isMobileAppHeader = useMobileAppHeader();
 
   return (
     <div
@@ -293,7 +296,19 @@ export function SquadHeaderBar({
         }}
       />
       <SquadAnalyticsButton squad={squad} />
-      <SquadHeaderMenu squad={squad} />
+      {isMobileAppHeader ? (
+        <Button
+          className="order-4"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<TourIcon />}
+          onClick={() => openModal({ type: LazyModal.SquadTour })}
+        >
+          Learn how Squads work
+        </Button>
+      ) : (
+        <SquadHeaderMenu squad={squad} />
+      )}
     </div>
   );
 }

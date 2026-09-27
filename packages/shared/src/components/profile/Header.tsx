@@ -224,7 +224,7 @@ export function Header({
           />
         )}
         {isMobileAppHeader && <MobileAppActions />}
-        {!isSameUser && !isMobileAppHeader && (
+        {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
               follow({
