@@ -6,7 +6,6 @@ import type {
   AnonymousUser,
   LoggedUser,
   ProfileExtraField,
-  UserExperienceLevel,
 } from '../../../lib/user';
 import type { AcquisitionChannel } from '../../../graphql/users';
 import type { BrowserName } from '../../../lib/func';
@@ -442,12 +441,9 @@ export interface FunnelStepAcquisition
 }
 
 export interface FunnelUserRoleOption {
-  // Stored as the profile's job title.
+  // Stored as the profile's job title, except for `Other`.
   value: string;
   label: string;
-  // Other roles are stored as `NOT_ENGINEER`, which keeps them out of the
-  // engineer_signup conversion events.
-  isTechnical?: boolean;
 }
 
 export interface FunnelStepUserRole
@@ -456,13 +452,10 @@ export interface FunnelStepUserRole
     explainer?: string;
     cta?: string;
     roles?: FunnelUserRoleOption[];
-    // The follow-up that replaces the account-details experience dropdown.
-    experience?: { headline?: string };
   }> {
   type: FunnelStepType.UserRole;
   onTransition: FunnelStepTransitionCallback<{
     role: string;
-    experienceLevel: keyof typeof UserExperienceLevel;
   }>;
 }
 
