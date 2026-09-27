@@ -20,7 +20,7 @@ import { PostHeaderActions } from '@dailydotdev/shared/src/components/post/PostH
 import { Header as ProfileHeader } from '@dailydotdev/shared/src/components/profile/Header';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
-import { SquadActions } from '@dailydotdev/shared/src/features/squads/components/header/SquadActions';
+import { SquadProfileHeader } from '@dailydotdev/shared/src/features/squads/components/header/SquadProfileHeader';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { SpotlightProvider } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
@@ -70,8 +70,11 @@ const squad = {
   name: 'React Israel',
   public: true,
   permalink: 'https://app.daily.dev/squads/react-israel',
+  image:
+    'https://media.daily.dev/image/upload/s--Zlp3ah1N--/f_auto/v1/squads/react-israel',
+  description: 'The biggest React community in Israel.',
   membersCount: 1240,
-  flags: {},
+  flags: { totalPosts: 312, totalViews: 48200, totalUpvotes: 5100 },
 } as unknown as Squad;
 
 interface Args {
@@ -198,14 +201,13 @@ export const SquadsDirectory: Story = {
 };
 
 export const SquadPage: Story = {
-  name: 'Squad page: Learn how Squads work instead of the menu',
+  name: 'Squad page: back bar and squad card',
   render: () => (
-    <div className="p-4">
-      <SpotlightProvider>
-        <SquadPageContextProvider squad={squad} isViewerReady>
-          <SquadActions />
-        </SquadPageContextProvider>
-      </SpotlightProvider>
-    </div>
+    <SpotlightProvider>
+      <SquadPageContextProvider squad={squad} isViewerReady>
+        <GoBackHeaderMobile />
+        <SquadProfileHeader />
+      </SquadPageContextProvider>
+    </SpotlightProvider>
   ),
 };

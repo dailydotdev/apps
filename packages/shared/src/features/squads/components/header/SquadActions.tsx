@@ -160,18 +160,7 @@ export const SquadActions = (): ReactElement => {
           onClick={() => openWithSource(getSquadSpotlightSource(squad))}
         />
       </Tooltip>
-      {isMobileAppHeader ? (
-        <Button
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Small}
-          icon={<TourIcon />}
-          onClick={() => openModal({ type: LazyModal.SquadTour })}
-        >
-          Learn how Squads work
-        </Button>
-      ) : (
-        <SquadOptionsMenu />
-      )}
+      {!isMobileAppHeader && <SquadOptionsMenu />}
       {canBoost(squad) && (
         <span className="hidden tablet:flex">
           <BoostSourceButton
@@ -191,11 +180,23 @@ export const SquadActions = (): ReactElement => {
 export const SquadPhoneActions = (): ReactElement => {
   const { squad, viewer } = useSquadPageContext();
   const [, onShare] = useSquadShare();
+  const { openModal } = useLazyModal();
+  const isMobileAppHeader = useMobileAppHeader();
 
   if (viewer !== SquadViewer.Admin) {
     return (
-      <div className="mt-4 flex empty:hidden tablet:hidden">
+      <div className="mt-4 flex flex-col gap-2 empty:hidden tablet:hidden">
         <SquadJoinButton size={ButtonSize.Medium} className="w-full" />
+        {isMobileAppHeader && (
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Medium}
+            icon={<TourIcon />}
+            onClick={() => openModal({ type: LazyModal.SquadTour })}
+          >
+            Learn how Squads work
+          </Button>
+        )}
       </div>
     );
   }
