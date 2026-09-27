@@ -12,6 +12,7 @@ import {
   verifyPermission,
 } from '../../../../graphql/squads';
 import { updateFlagsCache } from '../../../../graphql/source/common';
+import { Image, ImageType } from '../../../../components/image/Image';
 import {
   ArrowIcon,
   DiscussIcon,
@@ -62,14 +63,13 @@ const PinnedCard = ({
           }
           className="group relative flex h-40 w-52 flex-col justify-end overflow-hidden rounded-16 border border-border-subtlest-tertiary"
         >
-          {post.image && (
-            <img
-              src={post.image}
-              alt=""
-              loading="lazy"
-              className="absolute inset-0 size-full object-cover transition-transform group-hover:scale-105"
-            />
-          )}
+          <Image
+            src={post.image || post.sharedPost?.image || undefined}
+            alt=""
+            loading="lazy"
+            type={ImageType.Post}
+            className="absolute inset-0 size-full object-cover transition-transform group-hover:scale-105"
+          />
           <span className="absolute inset-0 bg-gradient-to-t from-background-default via-background-default to-transparent opacity-[0.9]" />
           <span className="relative flex flex-col gap-1.5 p-3">
             <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
