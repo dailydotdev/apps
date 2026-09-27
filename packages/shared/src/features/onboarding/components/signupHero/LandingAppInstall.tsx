@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import LogoIcon from '../../../../svg/LogoIcon';
+import { getAppUrl } from '../../../../lib/constants';
 
 // =============================================================
 // App install prompt — a scannable card floated over the hero
@@ -13,7 +14,7 @@ import LogoIcon from '../../../../svg/LogoIcon';
 // QR itself is decorative (aria-hidden) and the link carries the
 // accessible name.
 //
-// APP_URL is daily.dev's own smart link, which redirects on
+// getAppUrl is daily.dev's own smart link, which redirects on
 // User-Agent, so the one destination sends iPhones to the App
 // Store, Android to Google Play, and desktop to the extension.
 //
@@ -21,10 +22,9 @@ import LogoIcon from '../../../../svg/LogoIcon';
 // a runtime dependency: the module matrix was generated once at
 // error-correction level H (30% recovery, which is what lets the
 // logo sit on top without breaking the scan) and flattened into a
-// single path of horizontal runs. Regenerate if APP_URL changes.
+// single path of horizontal runs. Regenerate if getAppUrl changes.
 // =============================================================
 
-export const APP_URL = 'https://r.daily.dev/get';
 // Rendered as the card's caption AND embedded in its accessible name; exported
 // so the spec asserts on the same string rather than a copy of it.
 export const VISIBLE_LABEL = 'Scan to get the app';
@@ -54,7 +54,7 @@ export const LandingAppInstall = ({
       className,
     )}
     data-testid="landing-app-install"
-    href={APP_URL}
+    href={getAppUrl}
     rel="noopener noreferrer"
     target="_blank"
   >

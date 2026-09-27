@@ -315,6 +315,10 @@ export const featurePublicSignupBanner = new Feature(
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// Experiment: logged-out phones get Log in + Open app in each page's own top
+// bar instead of the full-width Log in / Sign up strip.
+export const featureMobileAppHeader = new Feature('mobile_app_header', false);
+
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
 // field. Control hides it entirely. Keep the default `false` — GrowthBook

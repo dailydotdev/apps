@@ -46,6 +46,8 @@ import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
 import { ProfileMobileBackButton } from './ProfileBackButton';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -85,6 +87,7 @@ export function Header({
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
   const { isJobsEnabled } = useJobsFeature();
+  const isMobileAppHeader = useMobileAppHeader();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -160,8 +163,8 @@ export function Header({
               nativeLazyLoading
               size={ProfileImageSize.Medium}
             />
-            <div className="ml-2 mr-auto flex flex-col typo-footnote">
-              <p className="font-bold">{user.name}</p>
+            <div className="ml-2 mr-auto flex min-w-0 flex-1 flex-col typo-footnote">
+              <p className="truncate font-bold">{user.name}</p>
               <p className="text-text-tertiary">
                 {largeNumberFormat(user.reputation)} Reputation
               </p>
@@ -184,7 +187,7 @@ export function Header({
             </Button>
           </Link>
         )}
-        {!blocked && (
+        {!blocked && !isMobileAppHeader && (
           <FollowButton
             entityId={user.id}
             type={ContentPreferenceType.User}
@@ -220,7 +223,8 @@ export function Header({
             variant={ButtonVariant.Float}
           />
         )}
-        {!isSameUser && (
+        {isMobileAppHeader && <MobileAppActions />}
+        {!isSameUser && !isMobileAppHeader && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
               follow({
