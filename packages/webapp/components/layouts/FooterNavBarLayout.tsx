@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { MobileAppFooterProvider } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
 
 const FooterWrapper = dynamic(
   () =>
@@ -25,11 +26,11 @@ export default function FooterNavBarLayout({
   const showNav = windowLoaded && isMobile;
 
   return (
-    <>
+    <MobileAppFooterProvider>
       {children}
       {showNav && <div className={post ? 'h-40' : 'h-16'} />}
       <FooterWrapper showNav={showNav} post={post} />
-    </>
+    </MobileAppFooterProvider>
   );
 }
 

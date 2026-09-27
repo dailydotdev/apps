@@ -362,3 +362,11 @@ export const featureReadAds = new Feature('read_ads', true);
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
+
+// Experiment: logged-out phones get the Charm footer in place of the tab bar
+// once they reach a page's trigger point.
+export const featureMobileAppFooter = new Feature('mobile_app_footer', false);
+
+// Experiment: logged-in phones get the "See daily.dev in…" sheet on their
+// second page view.
+export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);

@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
+import { MobileAppFooterAnchor } from '@dailydotdev/shared/src/features/getApp/components/MobileAppFooterAnchor';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
@@ -142,6 +143,7 @@ const ProfilePage = ({
         <ProfileUserStack user={user} />
         <ProfileUserHotTakes user={user} />
         <ProfileUserWorkspacePhotos user={user} />
+        <MobileAppFooterAnchor className="!border-0" />
         <Activity user={user} />
         {isSameUser && (
           <Share permalink={user?.permalink} className="laptop:hidden" />

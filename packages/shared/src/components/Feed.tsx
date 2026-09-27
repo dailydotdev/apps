@@ -84,6 +84,8 @@ import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import { useMobileAppFooterContext } from '../features/getApp/contexts/MobileAppFooterContext';
+import { MobileAppFooterAnchor } from '../features/getApp/components/MobileAppFooterAnchor';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -247,6 +249,10 @@ export default function Feed<T>({
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
+  const { moment: appFooterMoment } = useMobileAppFooterContext();
+  const appFooterAnchorIndex = isHorizontal
+    ? undefined
+    : appFooterMoment?.feedAnchorIndex;
   const numCards = currentSettings.numCards.eco;
   const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
@@ -910,6 +916,15 @@ export default function Feed<T>({
                         }}
                       />
                     )}
+                  {index === appFooterAnchorIndex && (
+                    <MobileAppFooterAnchor
+                      style={{
+                        gridColumn: !shouldUseListFeedLayout
+                          ? `span ${virtualizedNumCards}`
+                          : undefined,
+                      }}
+                    />
+                  )}
                   {renderedItem}
                 </FeedCardContext.Provider>
               );
