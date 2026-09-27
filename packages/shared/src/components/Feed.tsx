@@ -245,7 +245,7 @@ export default function Feed<T>({
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const numCards = currentSettings.numCards.eco;
-  const isSquadFeed = feedName === OtherFeedPage.Squad;
+  const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
