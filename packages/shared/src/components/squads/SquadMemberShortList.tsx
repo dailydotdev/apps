@@ -1,9 +1,8 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import type { BasicSourceMember, Squad } from '../../graphql/sources';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
 import {
   ProfileImageSize,
   ProfilePicture,
@@ -12,6 +11,7 @@ import {
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { largeNumberFormat } from '../../lib';
 import { Tooltip } from '../tooltip/Tooltip';
+import { getSquadMembersUrl } from '../../features/squads/lib/routes';
 
 export interface SquadMemberShortListProps {
   squad: Squad;
@@ -26,27 +26,23 @@ function SquadMemberShortList({
   className,
   size = ProfileImageSize.Medium,
 }: SquadMemberShortListProps): ReactElement {
+  const router = useRouter();
   const { sidebarRendered } = useSidebarRendered();
-  const { openModal } = useLazyModal();
-  const openMemberListModal = () =>
-    openModal({
-      type: LazyModal.SquadMember,
-      props: {
-        squad,
-        placeholderAmount: squad?.membersCount,
-      },
-    });
+  const membersUrl = getSquadMembersUrl(squad.handle);
 
   return (
     <Tooltip side="top" content="Members list">
-      <button
-        type="button"
+      <a
+        href={membersUrl}
+        onClick={(event) => {
+          event.preventDefault();
+          router.push(membersUrl);
+        }}
         className={classNames(
           'flex flex-row-reverse items-center border border-border-subtlest-secondary pl-3 pr-1 hover:bg-surface-hover active:bg-theme-active',
           className,
           roundClasses[size],
         )}
-        onClick={openMemberListModal}
         aria-label={`View ${squad.membersCount} squad members`}
         data-testid="squad-member-short-list"
       >
@@ -61,7 +57,7 @@ function SquadMemberShortList({
             user={user}
           />
         ))}
-      </button>
+      </a>
     </Tooltip>
   );
 }

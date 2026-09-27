@@ -18,14 +18,20 @@ import type {
   SourcePermissions,
   Squad,
 } from './sources';
-import type { PollOption, Post } from './posts';
+import type { FeedData, PollOption, Post } from './posts';
+import {
+  RankingAlgorithm,
+  SOURCE_FEED_QUERY,
+  supportedTypesForPrivateSources,
+} from './feed';
+import { gqlBatchRequest } from './batch';
 import type { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
-import { RequestKey, StaleTime } from '../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
-import type { UserShortProfile } from '../lib/user';
+import type { LoggedUser, UserShortProfile } from '../lib/user';
 
 type BaseSquadForm = Pick<
   Squad,
@@ -277,10 +283,71 @@ export const SQUAD_QUERY = gql`
     source(id: $handle) {
       ...SquadBaseInfo
       moderationPostCount
+      website
+      links
     }
   }
   ${SQUAD_BASE_FRAGMENT}
 `;
+
+export const UPDATE_SQUAD_LINKS_MUTATION = gql`
+  mutation UpdateSquadLinks(
+    $sourceId: ID!
+    $website: String
+    $links: [String!]!
+  ) {
+    updateSquadLinks(sourceId: $sourceId, website: $website, links: $links) {
+      id
+      website
+      links
+    }
+  }
+`;
+
+export interface UpdateSquadLinksInput {
+  sourceId: string;
+  website: string | null;
+  links: string[];
+}
+
+export const updateSquadLinks = async (
+  input: UpdateSquadLinksInput,
+): Promise<Pick<Squad, 'id' | 'website' | 'links'>> => {
+  const res = await gqlClient.request<{
+    updateSquadLinks: Pick<Squad, 'id' | 'website' | 'links'>;
+  }>(UPDATE_SQUAD_LINKS_MUTATION, input);
+
+  return res.updateSquadLinks;
+};
+
+// sourceFeed always orders the pinned posts first, so the first page holds
+// every pin and the rest of it is dropped.
+const SQUAD_PINNED_POSTS_PAGE_SIZE = 10;
+
+export const squadPinnedPostsQueryOptions = ({
+  squad,
+  user,
+}: {
+  squad?: Pick<Squad, 'id' | 'handle'>;
+  user?: Pick<LoggedUser, 'id'>;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Squad, user, squad?.handle, 'pinned'),
+  queryFn: async (): Promise<Post[]> => {
+    const res = await gqlBatchRequest<FeedData>(SOURCE_FEED_QUERY, {
+      source: squad?.id,
+      first: SQUAD_PINNED_POSTS_PAGE_SIZE,
+      loggedIn: !!user,
+      ranking: RankingAlgorithm.Time,
+      supportedTypes: supportedTypesForPrivateSources,
+    });
+
+    return res.page.edges
+      .map(({ node }) => node)
+      .filter((post) => !!post.pinnedAt);
+  },
+  enabled: !!squad?.id,
+  staleTime: StaleTime.Default,
+});
 
 export const SQUAD_ANALYTICS_QUERY = gql`
   query SquadAnalytics($sourceId: ID!) {
@@ -621,6 +688,20 @@ export async function getSquadMembers(
   );
   return res.sourceMembers.edges?.map((edge) => edge.node);
 }
+
+// Join and leave invalidate this key, so it keeps its original shape.
+export const squadMembersPreviewQueryOptions = ({
+  squad,
+  enabled = true,
+}: {
+  squad?: Pick<Squad, 'id' | 'handle'>;
+  enabled?: boolean;
+}) => ({
+  queryKey: ['squadMembersInitial', squad?.handle],
+  queryFn: () => getSquadMembers(squad?.id ?? ''),
+  enabled: enabled && !!squad?.id,
+  staleTime: StaleTime.OneHour,
+});
 
 export interface SquadInvitation {
   member: SourceMember;

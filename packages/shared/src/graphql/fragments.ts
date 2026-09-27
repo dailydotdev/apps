@@ -213,6 +213,12 @@ export const SOURCE_BASE_FRAGMENT = gql`
     flags {
       totalUpvotes
     }
+    features {
+      verified
+      adFree
+      links
+      products
+    }
     currentMember {
       ...CurrentMember
     }

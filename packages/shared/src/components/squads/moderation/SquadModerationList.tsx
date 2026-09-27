@@ -12,7 +12,7 @@ import { EmptyModerationList } from './SquadModerationEmptyScreen';
 import InfiniteScrolling from '../../containers/InfiniteScrolling';
 
 interface SquadModerationListProps {
-  squad: Squad;
+  squad?: Squad;
   isModerator: boolean;
 }
 
@@ -73,8 +73,8 @@ export function SquadModerationList({
             squad={squad}
             data={item}
             isPending={isPending}
-            onReject={() => moderate.onReject(item.id, item.source.id)}
-            onApprove={() => moderate.onApprove([item.id], item.source.id)}
+            onReject={() => moderate.onReject(item.id, item.source?.id)}
+            onApprove={() => moderate.onApprove([item.id], item.source?.id)}
           />
         ))}
       </InfiniteScrolling>

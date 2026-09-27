@@ -66,6 +66,7 @@ export function SquadPostWidgets({
       )}
       <PostSidebarAdWidget
         postId={post.id}
+        source={post.source}
         className={{ container: cardClasses }}
       />
       <PreferGoogleSourceAction placement="squad post widgets" />
