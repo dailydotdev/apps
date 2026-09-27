@@ -30,13 +30,13 @@ import { shuffleArray } from '../../../lib/func';
 import { acquisitionBrandColors } from '../../../styles/custom';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
-import { AppIcon } from '../../../components/icons/App';
+import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
+import { CompassIcon } from '../../../components/icons/Compass';
 import { GitHubIcon } from '../../../components/icons/GitHub';
 import { GoogleIcon } from '../../../components/icons/Google';
 import { InviteIcon } from '../../../components/icons/Invite';
 import { LinkedInIcon } from '../../../components/icons/LinkedIn';
 import { MailIcon } from '../../../components/icons/Mail';
-import { MenuIcon } from '../../../components/icons/Menu';
 import { OpenAIIcon } from '../../../components/icons/OpenAI';
 import { RedditIcon } from '../../../components/icons/Reddit';
 import { TwitterIcon } from '../../../components/icons/Twitter';
@@ -95,7 +95,7 @@ const brandMark = (
   ),
 });
 
-// Google keeps its colour art on white, as its own favicon does.
+// Google and Chrome keep their colour art on white, as their own favicons do.
 const faviconMark = (BrandIcon: Icon): ChannelMark => ({
   logo: <BrandIcon secondary />,
   tile: (
@@ -181,20 +181,16 @@ const CHANNEL_OPTIONS: Array<
   },
   {
     value: AcquisitionChannel.AppStore,
-    label: 'App or extension store',
-    ...accentMark(
-      AppIcon,
-      '--theme-accent-avocado-default',
-      'text-accent-avocado-default',
-    ),
+    label: 'Chrome Web Store or app store',
+    ...faviconMark(ChromeIcon),
   },
   {
     value: AcquisitionChannel.Other,
     label: 'Other',
-    logo: <MenuIcon secondary className="text-text-tertiary" />,
+    logo: <CompassIcon secondary className="text-text-tertiary" />,
     tile: (
       <Tile className="bg-background-default text-text-tertiary">
-        <MenuIcon secondary size={IconSize.Size16} />
+        <CompassIcon secondary size={IconSize.Size16} />
       </Tile>
     ),
   },

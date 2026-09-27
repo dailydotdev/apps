@@ -181,7 +181,7 @@ export const HearAboutUsTiles: Story = {
     docs: {
       description: {
         story:
-          'Every mark in the same favicon-style rounded square: the brand colour behind a white glyph, with Google on white the way its own favicon is. Set by `iconStyle: "tile"`; the other stories switch to it from the controls.',
+          'Every mark in the same favicon-style rounded square: the brand colour behind a white glyph, with Google and Chrome on white the way their own favicons are. Set by `iconStyle: "tile"`; the other stories switch to it from the controls.',
       },
     },
   },
