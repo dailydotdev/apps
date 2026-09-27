@@ -17,6 +17,8 @@ Design reference: the Storybook mock-ups in `packages/storybook/stories/squad-pa
 - **Rules** ship in iteration 2. **FAQ** is dropped.
 - The verified badge appears **only on the squad page** in this project. Directory cards and post headers are unchanged.
 - The verified badge card is copied **as designed**, frosted glass included.
+- A squad's moderators and admins are public, logged out viewers included, so the Team widget renders for everyone and in the server HTML.
+- On a verified squad, daily.dev team members who help run it are left out of the moderators and admins lists (Team widget and the Members page's moderators).
 
 ## Paid vs free
 
