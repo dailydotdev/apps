@@ -120,6 +120,7 @@ export const SquadHeader = ({
   onOpenMembers,
   extra,
   onManage,
+  onSearch,
 }: {
   viewer: Viewer;
   standalone: boolean;
@@ -127,6 +128,8 @@ export const SquadHeader = ({
   extra?: ReactNode;
   /** Opens a Manage page from the options menu (moderators and admins). */
   onManage?: (id: string) => void;
+  /** Opens Spotlight filtered to this Squad, the way X searches a profile. */
+  onSearch?: () => void;
 }): ReactElement => {
   const { config } = useWorkspace();
   // Native share sheet on phones, copy link elsewhere, as SquadOptionsButton.
@@ -233,6 +236,16 @@ export const SquadHeader = ({
                 onClick={onShare}
               />
             </span>
+            {onSearch && (
+              <Button
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                icon={<SearchIcon />}
+                aria-label={`Search ${squad.name}`}
+                title={`Search ${squad.name} (⌘K)`}
+                onClick={onSearch}
+              />
+            )}
             <MoreMenu viewer={viewer} onManage={onManage} />
             {boost && <span className="hidden tablet:flex">{boost()}</span>}
             {join && (

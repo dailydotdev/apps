@@ -242,6 +242,15 @@ export const stateCases: UseCase[] = [
 // production's, word for word, unless a case says it changed.
 export const productionCases: UseCase[] = [
   {
+    id: 'search',
+    title: 'Searching inside the Squad',
+    who: 'Member, after searching “review”',
+    sees: 'The search icon beside the options menu opens Spotlight with the Squad as a filter pill; Enter opens this page: back, the query as a chip with the Squad’s logo (the text edits it, the cross ends it), the count, and only the matching posts.',
+    viewer: Viewer.Member,
+    page: 'search',
+    height: 44,
+  },
+  {
     id: 'blocked-member',
     title: 'Blocked member',
     who: 'SourceMemberRole.Blocked',

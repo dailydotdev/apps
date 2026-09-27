@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -13,7 +13,6 @@ import {
   MiniCloseIcon,
   MoveToIcon,
   PlusIcon,
-  SearchIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { polls, products, squad } from './data';
@@ -107,98 +106,86 @@ const ProductsShelf = ({ onOpen }: { onOpen: () => void }): ReactElement => (
 type FeedView = 'feed' | 'about';
 
 /**
- * The row above the feed. At rest it is the search, on the left where a
- * field is looked for, with About beside it below laptop (the right
- * column's widgets, which sit beside the page from laptop up). After a
- * search it becomes the query as one chip: the text reopens Spotlight to
- * edit it, the cross removes the whole search. While results show, the
- * row sticks with the Squad's logo, so the context survives scrolling
- * past the header.
+ * Below laptop the right column's widgets sit behind About, beside the
+ * feed's title. From laptop up the column is beside the page and the row
+ * is not needed.
  */
 const FeedHeading = ({
   view,
   onView,
-  results,
-  resultCount,
-  onSearch,
-  onClearResults,
 }: {
   view: FeedView;
   onView: (view: FeedView) => void;
-  results: string | null;
-  resultCount: number;
-  onSearch: () => void;
-  onClearResults: () => void;
-}): ReactElement => {
-  if (results !== null) {
-    return (
-      <div className="sticky top-0 z-1 flex items-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-2 tablet:-mx-6 tablet:px-6">
+}): ReactElement => (
+  <div className="flex items-center gap-2 px-4 tablet:px-0 laptop:hidden">
+    <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body">
+      {view === 'about' ? `About ${squad.name}` : 'Posts'}
+    </span>
+    <Button
+      variant={ButtonVariant.Subtle}
+      size={ButtonSize.Small}
+      aria-pressed={view === 'about'}
+      onClick={() => onView(view === 'about' ? 'feed' : 'about')}
+    >
+      {view === 'about' ? 'Posts' : 'About'}
+    </Button>
+  </div>
+);
+
+/**
+ * The results page, the way X answers a search from a profile: the page
+ * gives way to the results under a back button and the query. The query
+ * is one chip with the Squad's logo for context: the text reopens
+ * Spotlight to edit it, the cross ends the search.
+ */
+const SearchHeader = ({
+  query,
+  count,
+  onEdit,
+  onClear,
+}: {
+  query: string;
+  count: number;
+  onEdit: () => void;
+  onClear: () => void;
+}): ReactElement => (
+  <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-4 py-3">
+    <Button
+      variant={ButtonVariant.Tertiary}
+      size={ButtonSize.Small}
+      icon={<MoveToIcon className="rotate-180" />}
+      aria-label="Back"
+      title="Back"
+      onClick={onClear}
+    />
+    <span className="flex h-8 min-w-0 items-center rounded-10 bg-surface-float pr-1 text-text-primary">
+      <button
+        type="button"
+        onClick={onEdit}
+        title="Edit search"
+        className="flex h-full min-w-0 items-center gap-2 pl-2 pr-1 typo-callout"
+      >
         <img
           src={squad.image}
           alt={squad.name}
-          title={squad.name}
-          className="size-6 shrink-0 rounded-full"
+          className="size-5 shrink-0 rounded-full"
         />
-        <span className="flex h-9 min-w-0 items-center rounded-12 bg-surface-float pr-1 text-text-primary">
-          <button
-            type="button"
-            onClick={onSearch}
-            title="Edit search"
-            className="flex h-full min-w-0 items-center gap-2 pl-3 pr-1 typo-callout"
-          >
-            <SearchIcon size={IconSize.XSmall} className="shrink-0" />
-            <span className="truncate">{results}</span>
-          </button>
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            icon={<MiniCloseIcon />}
-            aria-label="Clear search"
-            title="Clear search"
-            onClick={onClearResults}
-          />
-        </span>
-        <span className="sq-nums ml-auto shrink-0 text-text-tertiary typo-footnote">
-          {resultCount} {resultCount === 1 ? 'post' : 'posts'}
-        </span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-2 px-4 tablet:px-0">
-      {view === 'about' ? (
-        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-body">
-          About {squad.name}
-        </span>
-      ) : (
-        <button
-          type="button"
-          onClick={onSearch}
-          className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-12 bg-surface-float px-3 text-left text-text-tertiary transition-colors typo-callout hover:bg-surface-hover hover:text-text-secondary"
-        >
-          <SearchIcon size={IconSize.Small} className="shrink-0" />
-          <span className="min-w-0 flex-1 truncate">
-            Search {squad.name} posts
-          </span>
-          <kbd className="hidden shrink-0 text-text-quaternary typo-caption1 laptop:inline">
-            ⌘K
-          </kbd>
-        </button>
-      )}
-      <span className="flex laptop:hidden">
-        <Button
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Medium}
-          aria-pressed={view === 'about'}
-          onClick={() => onView(view === 'about' ? 'feed' : 'about')}
-        >
-          {view === 'about' ? 'Posts' : 'About'}
-        </Button>
-      </span>
-    </div>
-  );
-};
+        <span className="truncate">{query}</span>
+      </button>
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        icon={<MiniCloseIcon />}
+        aria-label="Clear search"
+        title="Clear search"
+        onClick={onClear}
+      />
+    </span>
+    <span className="sq-nums ml-auto shrink-0 text-text-tertiary typo-footnote">
+      {count} {count === 1 ? 'post' : 'posts'}
+    </span>
+  </div>
+);
 
 const SearchResults = ({ query }: { query: string }): ReactElement => {
   const matches = matchSquadPosts(query);
@@ -217,7 +204,11 @@ const SearchResults = ({ query }: { query: string }): ReactElement => {
   }
 
   return (
-    <CardList entries={matches.map((entry) => ({ ...entry, pinned: false }))} />
+    <div className="pb-4 tablet:p-6">
+      <CardList
+        entries={matches.map((entry) => ({ ...entry, pinned: false }))}
+      />
+    </div>
   );
 };
 
@@ -234,32 +225,10 @@ const Feed = ({
 }): ReactElement => {
   const { empty } = useWorkspace();
   const [view, setView] = useState<FeedView>(initialView);
-  const [searching, setSearching] = useState(false);
-  const [results, setResults] = useState<string | null>(null);
-  const headingRef = useRef<HTMLDivElement>(null);
   const entries = feedUnder(pinStyle).slice(0, 6);
 
-  useEffect(() => {
-    if (results !== null) {
-      headingRef.current?.scrollIntoView({ block: 'start' });
-    }
-  }, [results]);
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-        event.preventDefault();
-        setSearching(true);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
   let body: ReactElement;
-  if (results !== null) {
-    body = <SearchResults query={results} />;
-  } else if (view === 'about') {
+  if (view === 'about') {
     body = (
       <div className="flex flex-col gap-4 px-4 tablet:px-0 laptop:hidden">
         <SquadWidgets
@@ -301,27 +270,8 @@ const Feed = ({
   return (
     <div className="flex flex-col gap-4 pb-4 tablet:p-6">
       <SquadComposer viewer={viewer} />
-      <div ref={headingRef} className="scroll-mt-0" />
-      <FeedHeading
-        view={view}
-        onView={setView}
-        results={results}
-        resultCount={results === null ? 0 : matchSquadPosts(results).length}
-        onSearch={() => setSearching(true)}
-        onClearResults={() => setResults(null)}
-      />
+      <FeedHeading view={view} onView={setView} />
       {body}
-      {searching && (
-        <SquadSpotlight
-          initialQuery={results ?? ''}
-          onClose={() => setSearching(false)}
-          onSeeAll={(query) => {
-            setResults(query);
-            setView('feed');
-            setSearching(false);
-          }}
-        />
-      )}
     </div>
   );
 };
@@ -474,6 +424,31 @@ export const DirectionPage = ({
 }): ReactElement => {
   const { empty, isPrivate } = useWorkspace();
   const [previewing, setPreviewing] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [query, setQuery] = useState('review');
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        setSearching(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const spotlight = searching && (
+    <SquadSpotlight
+      initialQuery={active === 'search' ? query : ''}
+      onClose={() => setSearching(false)}
+      onSeeAll={(next) => {
+        setQuery(next);
+        setSearching(false);
+        onSelect('search');
+      }}
+    />
+  );
   const runsPage = isStaff(realViewer);
   // Preview renders the page for a logged-in visitor who has not joined:
   // the public page, without any of the team's controls.
@@ -545,6 +520,7 @@ export const DirectionPage = ({
             standalone
             onOpenMembers={() => onSelect('members')}
             onManage={onSelect}
+            onSearch={() => setSearching(true)}
           />
           {walled ? (
             <div className="border-t border-border-subtlest-tertiary">
@@ -566,6 +542,16 @@ export const DirectionPage = ({
               </div>
             </>
           )}
+        </>
+      ) : active === 'search' ? (
+        <>
+          <SearchHeader
+            query={query}
+            count={matchSquadPosts(query).length}
+            onEdit={() => setSearching(true)}
+            onClear={() => onSelect('home')}
+          />
+          <SearchResults query={query} />
         </>
       ) : (
         <>
@@ -600,6 +586,7 @@ export const DirectionPage = ({
           </ColumnFitContext.Provider>
         </>
       )}
+      {spotlight}
     </Frame>
   );
 };
@@ -615,6 +602,7 @@ const toManage: Record<string, string> = {
 export const directionPageIds = [
   'home',
   'about',
+  'search',
   'add-product',
   'rules',
   'faq',

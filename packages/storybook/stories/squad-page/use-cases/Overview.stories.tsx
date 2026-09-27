@@ -249,16 +249,16 @@ export const Overview: StoryObj = {
           rows={viewerCases.map((useCase) => [
             useCase.title,
             useCase.viewer === Viewer.Anonymous
-              ? 'Share, more, Join Squad (opens sign up)'
+              ? 'Share, search, more, Join Squad (opens sign up)'
               : useCase.viewer === Viewer.Visitor
-              ? 'Share, more, Join Squad'
+              ? 'Share, search, more, Join Squad'
               : useCase.viewer === Viewer.Blocked
-              ? 'Share, more, Join Squad disabled'
+              ? 'Share, search, more, Join Squad disabled'
               : useCase.viewer === Viewer.Admin
-              ? 'Edit page as a pen icon, bell, Share, more (with Manage), Boost last as the Primary button; on phones Boost sits beside Share page under the stats'
+              ? 'Edit page as a pen icon, bell, Share, search, more (with Manage), Boost last as the Primary button; on phones Boost sits beside Share page under the stats'
               : useCase.viewer === Viewer.Moderator
-              ? 'Bell, Share, more (with Manage), Joined'
-              : 'Bell, Share, more, Joined',
+              ? 'Bell, Share, search, more (with Manage), Joined'
+              : 'Bell, Share, search, more, Joined',
             useCase.viewer === Viewer.Admin
               ? 'View as a visitor, Verified, share card, Rules, Team, Stack & Tools, Analytics, Links'
               : useCase.viewer === Viewer.Moderator
