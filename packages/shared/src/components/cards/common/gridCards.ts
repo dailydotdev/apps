@@ -12,7 +12,6 @@ import { BriefCard } from '../brief/BriefCard/BriefCard';
 export const PostTypeToGridCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Article]: ArticleGrid,
   [PostType.Share]: ShareGrid,
-  [PostType.Welcome]: FreeformGrid,
   [PostType.Freeform]: FreeformGrid,
   [PostType.VideoYouTube]: ArticleGrid,
   [PostType.Collection]: CollectionGrid,

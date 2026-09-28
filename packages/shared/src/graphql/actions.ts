@@ -5,7 +5,6 @@ export enum ActionType {
   CreateSquad = 'create_squad',
   EditSquad = 'edit_squad',
   JoinSquad = 'join_squad',
-  EditWelcomePost = 'edit_welcome_post',
   SquadFirstComment = 'squad_first_comment',
   SquadFirstPost = 'squad_first_post',
   MyFeed = 'my_feed',

@@ -817,9 +817,7 @@ const PostOptionButtonContent = ({
           // Moderation items keep the dedicated page: it edits a pending
           // submission rather than a post, which the composer cannot do.
           const canUseSmartComposer =
-            post.type === PostType.Freeform ||
-            post.type === PostType.Welcome ||
-            post.type === PostType.Share;
+            post.type === PostType.Freeform || post.type === PostType.Share;
           if (canUseSmartComposer) {
             openModal({
               type: LazyModal.SmartComposer,

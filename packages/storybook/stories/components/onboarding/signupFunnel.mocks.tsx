@@ -184,13 +184,6 @@ const ADVANCED_SETTINGS = [
     group: AdvancedSettingsGroup.ContentTypes,
   },
   {
-    id: 21,
-    title: 'Welcome',
-    description: 'Show welcome posts on my feed',
-    defaultEnabledState: true,
-    group: AdvancedSettingsGroup.ContentTypes,
-  },
-  {
     id: 22,
     title: 'Collection',
     description: 'Show collection posts on my feed',

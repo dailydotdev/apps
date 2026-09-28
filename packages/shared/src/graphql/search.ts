@@ -7,7 +7,7 @@ import { PostType } from '../types';
 import { gqlClient } from './common';
 import type { Connection } from './common';
 import type { Post } from './posts';
-import { supportedTypesForPrivateSources } from './feed';
+import { baseFeedSupportedTypes } from './feed';
 import type { LoggedUser } from '../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
@@ -241,7 +241,7 @@ export const sourceSpotlightPostsQueryOptions = ({
     }>(SOURCE_SPOTLIGHT_POSTS_QUERY, {
       source: sourceId,
       first: SOURCE_SPOTLIGHT_POSTS_LIMIT,
-      supportedTypes: supportedTypesForPrivateSources,
+      supportedTypes: baseFeedSupportedTypes,
     });
 
     return page.edges.map(({ node }) => node);

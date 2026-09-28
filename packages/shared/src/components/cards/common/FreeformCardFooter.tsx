@@ -7,7 +7,7 @@ import { CardCover } from './CardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 
-interface WelcomePostCardFooterProps {
+interface FreeformCardFooterProps {
   post: Post;
   image?: string;
   contentHtml?: string;
@@ -16,14 +16,14 @@ interface WelcomePostCardFooterProps {
   contentClassName?: string;
 }
 
-export const WelcomePostCardFooter = ({
+export const FreeformCardFooter = ({
   post,
   image,
   onShare,
   contentHtml,
   imageClassName,
   contentClassName,
-}: WelcomePostCardFooterProps): ReactElement | null => {
+}: FreeformCardFooterProps): ReactElement | null => {
   const { overlay } = useCardCover({
     post,
     className: {

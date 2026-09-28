@@ -18,6 +18,7 @@ import { useSquadPageContext } from '../../SquadPageContext';
 import { useSquadProducts } from '../../hooks/useSquadProducts';
 import { useSquadProductMutations } from '../../hooks/useSquadProductMutations';
 import { SQUAD_PRODUCTS_MAX } from '../../lib/limits';
+import { moveItem } from '../../lib/order';
 import {
   getSquadManageUrl,
   getSquadProductFormUrl,
@@ -30,14 +31,6 @@ import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
 } from './SquadManageLayout';
-
-const moveItem = (ids: string[], from: number, to: number): string[] => {
-  const next = [...ids];
-  const [moved] = next.splice(from, 1);
-  next.splice(to, 0, moved);
-
-  return next;
-};
 
 export const SquadManageProducts = (): ReactElement => {
   const { squad } = useSquadPageContext();

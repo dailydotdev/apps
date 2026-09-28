@@ -20,6 +20,7 @@ import {
 import { SquadManageDetails } from './SquadManageDetails';
 import { SquadManagePosting } from './SquadManagePosting';
 import { SquadManageLinks } from './SquadManageLinks';
+import { SquadManageRules } from './SquadManageRules';
 import {
   SquadManageProductForm,
   SquadManageProducts,
@@ -39,6 +40,8 @@ const SectionContent = ({
       return <SquadManageProducts />;
     case SquadManageSection.Links:
       return <SquadManageLinks />;
+    case SquadManageSection.Rules:
+      return <SquadManageRules />;
     case SquadManageSection.Members:
       return (
         <SquadManageSectionPanel section={section}>

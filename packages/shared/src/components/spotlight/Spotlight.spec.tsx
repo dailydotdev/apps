@@ -12,7 +12,7 @@ import {
   SOURCE_SPOTLIGHT_POSTS_LIMIT,
   SOURCE_SPOTLIGHT_POSTS_QUERY,
 } from '../../graphql/search';
-import { supportedTypesForPrivateSources } from '../../graphql/feed';
+import { baseFeedSupportedTypes } from '../../graphql/feed';
 import { SPOTLIGHT_ACTIONS_QUERY } from '../../graphql/spotlight';
 import { feature } from '../../lib/featureManagement';
 import { Spotlight } from './Spotlight';
@@ -50,7 +50,7 @@ const mockSquadPosts = (): void =>
       variables: {
         source: squad.id,
         first: SOURCE_SPOTLIGHT_POSTS_LIMIT,
-        supportedTypes: supportedTypesForPrivateSources,
+        supportedTypes: baseFeedSupportedTypes,
       },
     },
     result: {
