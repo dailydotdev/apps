@@ -6,6 +6,7 @@ import { WidgetCard } from '../../widgets/WidgetCard';
 import { UserHighlight, UserType } from '../../widgets/PostUsersHighlights';
 import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
 import type { SearchSuggestion } from '../../../graphql/search';
+import { getSourceSuggestionUrl } from '../../../graphql/search';
 
 interface SearchResultsSourcesProps {
   items: SearchSuggestion[];
@@ -15,16 +16,22 @@ interface SearchResultsSourcesProps {
 
 export const SearchResultsSources = (
   props: SearchResultsSourcesProps,
-): ReactElement => {
+): ReactElement | null => {
   const { items, isLoading, onSourceClick } = props;
-  const sources = items.map(({ id, subtitle, image, title }) => ({
-    id,
-    name: title,
-    image,
-    handle: subtitle,
-    permalink: `/sources/${subtitle}`,
-    type: SourceType.Machine,
+  const sources = items.map((item) => ({
+    id: item.id,
+    name: item.title,
+    image: item.image ?? '',
+    handle: item.subtitle ?? '',
+    permalink: getSourceSuggestionUrl(item),
+    type: item.sourceType ?? SourceType.Machine,
     public: true,
+    features: {
+      verified: item.verified ?? null,
+      adFree: null,
+      links: null,
+      products: null,
+    },
   }));
 
   if (!isLoading && !items.length) {

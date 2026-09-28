@@ -143,6 +143,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
             extra: JSON.stringify({
               inviter: inviterMember?.id,
               squad: squad.id,
+              origin,
             }),
           });
         }
