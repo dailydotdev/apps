@@ -26,6 +26,7 @@ import { PopularHotTakesList } from '@dailydotdev/shared/src/components/cards/Le
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import { MobileAppFooterAnchor } from '@dailydotdev/shared/src/features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -112,7 +113,11 @@ const LeaderboardPage = ({
               items={highestLevel}
               isLoading={isLoading}
               showLevel
-              footer={<MobileAppFooterAnchor />}
+              footer={
+                <MobileAppFooterAnchor
+                  at={MobileAppFooterAnchorPlace.Leaderboard}
+                />
+              }
             />
           )}
           <UserTopList
@@ -124,7 +129,11 @@ const LeaderboardPage = ({
             isLoading={isLoading}
             leaderboardType={LeaderboardType.HighestReputation}
             footer={
-              isHighestLevelSupported ? undefined : <MobileAppFooterAnchor />
+              isHighestLevelSupported ? undefined : (
+                <MobileAppFooterAnchor
+                  at={MobileAppFooterAnchorPlace.Leaderboard}
+                />
+              )
             }
           />
           <UserTopList

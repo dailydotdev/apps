@@ -17,6 +17,7 @@ import { CopyHighlightsLink } from './CopyHighlightsLink';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
 import { MobileAppFooterAnchor } from '../../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../../features/getApp/mobileAppFooter';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
 const ALL_HIGHLIGHTS_LABEL = 'All';
@@ -85,7 +86,9 @@ const HighlightFeedList = ({
             highlight={highlight}
             defaultExpanded={highlight.id === expandedId}
           />
-          {index === headlinesBeforeAppFooter - 1 && <MobileAppFooterAnchor />}
+          {index === headlinesBeforeAppFooter - 1 && (
+            <MobileAppFooterAnchor at={MobileAppFooterAnchorPlace.Headlines} />
+          )}
         </Fragment>
       ))}
     </div>

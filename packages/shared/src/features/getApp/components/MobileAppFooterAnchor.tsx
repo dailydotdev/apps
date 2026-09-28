@@ -3,21 +3,22 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import { useMobileAppFooterContext } from '../contexts/MobileAppFooterContext';
-import { MobileAppFooterTrigger } from '../mobileAppFooter';
+import type { MobileAppFooterAnchorPlace } from '../mobileAppFooter';
 
-interface MobileAppFooterAnchorProps {
+interface AnchorProps {
   className?: string;
   style?: CSSProperties;
+}
+
+interface MobileAppFooterAnchorProps extends AnchorProps {
+  at: MobileAppFooterAnchorPlace;
 }
 
 // The tall top margin counts an anchor the reader already scrolled past as
 // reached, so landing mid-page (a comment permalink) still triggers it.
 const reachedMargin = '100000px 0px 0px 0px';
 
-const Anchor = ({
-  className,
-  style,
-}: MobileAppFooterAnchorProps): ReactElement => {
+const Anchor = ({ className, style }: AnchorProps): ReactElement => {
   const { reveal } = useMobileAppFooterContext();
   const { ref, inView } = useInView({ rootMargin: reachedMargin });
 
@@ -37,12 +38,13 @@ const Anchor = ({
   );
 };
 
-export const MobileAppFooterAnchor = (
-  props: MobileAppFooterAnchorProps,
-): ReactElement | null => {
+export const MobileAppFooterAnchor = ({
+  at,
+  ...props
+}: MobileAppFooterAnchorProps): ReactElement | null => {
   const { moment, isRevealed } = useMobileAppFooterContext();
 
-  if (moment?.trigger !== MobileAppFooterTrigger.Anchor || isRevealed) {
+  if (moment?.anchorAt !== at || isRevealed) {
     return null;
   }
 

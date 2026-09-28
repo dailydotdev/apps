@@ -10,6 +10,7 @@ import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative } from '../../../lib/func';
 import { MobileAppFooterAnchor } from '../components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../mobileAppFooter';
 import {
   MobileAppFooterProvider,
   useMobileAppFooterContext,
@@ -48,7 +49,10 @@ interface Page {
   query?: Record<string, string>;
 }
 
-const page = (auth: Partial<AuthContextData> = {}): ReactElement => (
+const page = (
+  auth: Partial<AuthContextData> = {},
+  anchorAt = MobileAppFooterAnchorPlace.Comments,
+): ReactElement => (
   <AuthContext.Provider
     value={
       {
@@ -60,7 +64,7 @@ const page = (auth: Partial<AuthContextData> = {}): ReactElement => (
     }
   >
     <MobileAppFooterProvider>
-      <MobileAppFooterAnchor />
+      <MobileAppFooterAnchor at={anchorAt} />
       <RevealedTitle />
     </MobileAppFooterProvider>
   </AuthContext.Provider>
@@ -105,6 +109,14 @@ describe('MobileAppFooterContext', () => {
     expect(mockFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
+  });
+
+  it('should ignore anchors that belong to another page', () => {
+    navigate({ pathname: '/posts' });
+    render(page({}, MobileAppFooterAnchorPlace.Comments));
+    mockAllIsIntersecting(true);
+
+    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
   });
 
   it('should leave pages without a footer moment alone', () => {

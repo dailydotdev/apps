@@ -17,6 +17,7 @@ import { useCommentContentPreferenceMutationSubscription } from './useCommentCon
 import { CharmEmptyState } from '../charm/CharmEmptyState';
 import { cloudinaryCharmNoComments } from '../../lib/image';
 import { MobileAppFooterAnchor } from '../../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../../features/getApp/mobileAppFooter';
 
 const commentsBeforeAppFooter = 2;
 
@@ -188,7 +189,10 @@ export function PostComments({
               />
               {index === commentsBeforeAppFooter - 1 &&
                 edges.length > commentsBeforeAppFooter && (
-                  <MobileAppFooterAnchor className="-mt-4" />
+                  <MobileAppFooterAnchor
+                    at={MobileAppFooterAnchorPlace.Comments}
+                    className="-mt-4"
+                  />
                 )}
               {shouldInterleave &&
                 renderInterleaved(Math.floor(seen / interleaveEvery))}

@@ -7,19 +7,39 @@ export enum MobileAppFooterTrigger {
   ThirdQuery = 'third_query',
 }
 
+// Where a page's anchor lives. Shared components carry anchors onto other
+// pages (post comments render in the reader modal over a feed), so each one
+// only counts on the page that asked for it.
+export enum MobileAppFooterAnchorPlace {
+  Feed = 'feed',
+  Comments = 'comments',
+  Headlines = 'headlines',
+  Activity = 'activity',
+  Leaderboard = 'leaderboard',
+}
+
 export interface MobileAppFooterMoment {
   title: string;
   trigger: MobileAppFooterTrigger;
+  anchorAt?: MobileAppFooterAnchorPlace;
   // Feed pages place the anchor before this card.
   feedAnchorIndex?: number;
 }
 
 const atAnchor = (
   title: string,
-  feedAnchorIndex?: number,
+  anchorAt: MobileAppFooterAnchorPlace,
 ): MobileAppFooterMoment => ({
   title,
   trigger: MobileAppFooterTrigger.Anchor,
+  anchorAt,
+});
+
+const atFeedCard = (
+  title: string,
+  feedAnchorIndex: number,
+): MobileAppFooterMoment => ({
+  ...atAnchor(title, MobileAppFooterAnchorPlace.Feed),
   feedAnchorIndex,
 });
 
@@ -29,11 +49,11 @@ const onScrollUp = (title: string): MobileAppFooterMoment => ({
 });
 
 const seeAllPosts = 'See all posts';
-const explore = atAnchor(seeAllPosts, 12);
-const headlines = atAnchor(seeAllPosts);
+const explore = atFeedCard(seeAllPosts, 12);
+const headlines = atAnchor(seeAllPosts, MobileAppFooterAnchorPlace.Headlines);
 const bestOf = onScrollUp(seeAllPosts);
 const squads = onScrollUp('See all squads');
-const profileFeed = atAnchor('See full profile', 1);
+const profileFeed = atFeedCard('See full profile', 1);
 
 const momentByRoute: Record<string, MobileAppFooterMoment> = {
   '/posts': explore,
@@ -56,19 +76,28 @@ const momentByRoute: Record<string, MobileAppFooterMoment> = {
   '/sources/[source]/best-of': bestOf,
   '/sources/[source]/best-of/[year]': bestOf,
   '/sources/[source]/best-of/[year]/[month]': bestOf,
-  '/posts/[id]': atAnchor('See all comments'),
+  '/posts/[id]': atAnchor(
+    'See all comments',
+    MobileAppFooterAnchorPlace.Comments,
+  ),
   '/tags': onScrollUp('See all tags'),
-  '/tags/[tag]': atAnchor(seeAllPosts, 1),
+  '/tags/[tag]': atFeedCard(seeAllPosts, 1),
   '/sources': onScrollUp('See all sources'),
-  '/sources/[source]': atAnchor(seeAllPosts, 0),
+  '/sources/[source]': atFeedCard(seeAllPosts, 0),
   '/squads/discover': squads,
   '/squads/discover/featured': squads,
   '/squads/discover/[id]': squads,
-  '/squads/[handle]': atAnchor('See full squad', 1),
-  '/[userId]': atAnchor('See full profile'),
+  '/squads/[handle]': atFeedCard('See full squad', 1),
+  '/[userId]': atAnchor(
+    'See full profile',
+    MobileAppFooterAnchorPlace.Activity,
+  ),
   '/[userId]/posts': profileFeed,
   '/[userId]/upvoted': profileFeed,
-  '/users': atAnchor('See full leaderboard'),
+  '/users': atAnchor(
+    'See full leaderboard',
+    MobileAppFooterAnchorPlace.Leaderboard,
+  ),
   '/search/posts': {
     title: seeAllPosts,
     trigger: MobileAppFooterTrigger.ThirdQuery,

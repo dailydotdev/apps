@@ -47,14 +47,15 @@ const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
       const routeMoment = getMobileAppFooterMoment(
         withoutLayoutVariantPrefix(router?.pathname),
       );
+      const isSearchLanding = isSearchEngineLanding();
       const shouldEvaluate =
+        !isSearchLanding &&
         !!routeMoment &&
         isAuthReady &&
         !isLoggedIn &&
         !isTablet &&
         !isAndroidApp &&
-        !isIOSNative() &&
-        !isSearchEngineLanding();
+        !isIOSNative();
       const { value: isEnabled } = useConditionalFeature({
         feature: featureMobileAppFooter,
         shouldEvaluate,

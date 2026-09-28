@@ -86,6 +86,7 @@ import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEli
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
 import { useMobileAppFooterContext } from '../features/getApp/contexts/MobileAppFooterContext';
 import { MobileAppFooterAnchor } from '../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../features/getApp/mobileAppFooter';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -918,6 +919,7 @@ export default function Feed<T>({
                     )}
                   {index === appFooterAnchorIndex && (
                     <MobileAppFooterAnchor
+                      at={MobileAppFooterAnchorPlace.Feed}
                       style={{
                         gridColumn: !shouldUseListFeedLayout
                           ? `span ${virtualizedNumCards}`
