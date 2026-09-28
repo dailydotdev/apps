@@ -8,6 +8,7 @@ import {
 } from '../../../../components/buttons/Button';
 import Link from '../../../../components/utilities/Link';
 import { getSquadRulesUrl } from '../../lib/routes';
+import { SquadRulesEditButton } from '../SquadRulesEditButton';
 import { SquadWidget } from './SquadWidget';
 
 interface SquadRulesWidgetProps {
@@ -26,7 +27,16 @@ export const SquadRulesWidget = ({
   const url = getSquadRulesUrl(squad.handle);
 
   return (
-    <SquadWidget title="Rules">
+    <SquadWidget
+      title="Rules"
+      action={
+        <SquadRulesEditButton
+          squad={squad}
+          size={ButtonSize.XSmall}
+          className="-my-1"
+        />
+      }
+    >
       <ol className="mt-2 flex flex-col divide-y divide-border-subtlest-tertiary">
         {rules.map(({ title }, index) => (
           <li

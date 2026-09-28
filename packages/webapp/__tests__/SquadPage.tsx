@@ -693,6 +693,22 @@ describe('squad rules', () => {
     expect(
       within(widget).getByRole('link', { name: 'All rules' }),
     ).toHaveAttribute('href', '/squads/webteam/rules');
+    expect(
+      within(widget).queryByRole('link', { name: 'Edit rules' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('links staff from the widget to the rules editor', async () => {
+    const squad = createSquad({ rules, currentMember: adminMember });
+    mockSquad(squad);
+    renderSquadPage(squad);
+
+    const widget = (
+      await screen.findByRole('heading', { name: 'Rules' })
+    ).closest('section') as HTMLElement;
+    expect(
+      within(widget).getByRole('link', { name: 'Edit rules' }),
+    ).toHaveAttribute('href', '/squads/webteam/manage/rules');
   });
 
   it('shows no rules widget when the squad removed every rule', async () => {
