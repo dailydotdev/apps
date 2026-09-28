@@ -69,8 +69,15 @@ export const getToolsAlsoStacked = async (
 // (missing this field) can't 500 the whole page during the rollout window.
 export type ToolOfficialSource = Pick<
   Source,
-  'id' | 'name' | 'handle' | 'image' | 'type' | 'permalink'
->;
+  | 'id'
+  | 'name'
+  | 'handle'
+  | 'image'
+  | 'type'
+  | 'permalink'
+  | 'description'
+  | 'features'
+> & { membersCount: number };
 
 const TOOL_OFFICIAL_SOURCE_QUERY = gql`
   query ToolOfficialSource($slug: String!) {
@@ -82,6 +89,11 @@ const TOOL_OFFICIAL_SOURCE_QUERY = gql`
         image
         type
         permalink
+        description
+        membersCount
+        features {
+          verified
+        }
       }
     }
   }
