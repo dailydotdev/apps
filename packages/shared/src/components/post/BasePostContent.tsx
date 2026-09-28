@@ -8,7 +8,10 @@ import { PostHeaderActions } from './PostHeaderActions';
 import { PostAnsweredQuestions } from './PostAnsweredQuestions';
 import { ButtonSize } from '../buttons/common';
 import { PostSignupWidget } from './PostSignupWidget';
-import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import {
+  useMobileAppHeader,
+  useMobileAppHeaderDeclutter,
+} from '../../features/getApp/hooks/useMobileAppHeader';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -43,6 +46,7 @@ export function BasePostContent({
   const postPageNavigationProps = isPostPage ? navigationProps : undefined;
   const onReadArticle = postPageNavigationProps?.onReadArticle;
   const isMobileAppHeader = useMobileAppHeader();
+  const isDecluttered = useMobileAppHeaderDeclutter();
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -64,8 +68,8 @@ export function BasePostContent({
             contextMenuId="post-page-header-actions"
             onReadArticle={onReadArticle}
             buttonSize={ButtonSize.Small}
-            hideOptions={isMobileAppHeader}
-            hideSubscribeAction={isMobileAppHeader}
+            hideOptions={isDecluttered}
+            hideSubscribeAction={isDecluttered}
           />
         </GoBackHeaderMobile>
       )}

@@ -9,12 +9,10 @@ import {
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { AuthTriggers } from '../../../lib/auth';
-import { getAppUrl } from '../../../lib/constants';
-import { LogEvent, TargetType } from '../../../lib/log';
+import { appDownloadUrl } from '../../../lib/constants';
+import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 
-const logTargetId = 'mobile header';
-
-export const openAppUrl = `${getAppUrl}?utm_source=mobile_header`;
+export const openAppUrl = `${appDownloadUrl}?utm_source=mobile_header`;
 
 interface MobileAppActionsProps {
   className?: string;
@@ -30,7 +28,7 @@ export function MobileAppActions({
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.LoginButton,
-      target_id: logTargetId,
+      target_id: TargetId.MobileHeader,
     });
     showLogin({
       trigger: AuthTriggers.MainButton,
@@ -42,7 +40,7 @@ export function MobileAppActions({
     logEvent({
       event_name: LogEvent.DownloadApp,
       target_type: TargetType.GetAppButton,
-      target_id: logTargetId,
+      target_id: TargetId.MobileHeader,
     });
   };
 

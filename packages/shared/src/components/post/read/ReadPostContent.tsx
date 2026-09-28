@@ -33,7 +33,10 @@ import { GoBackHeaderMobile } from '../GoBackHeaderMobile';
 import { PostWidgets, PostWidgetPosition } from '../PostWidgets';
 import PostEngagements from '../PostEngagements';
 import { anchorNofollowRel } from '../../../lib/strings';
-import { useMobileAppHeader } from '../../../features/getApp/hooks/useMobileAppHeader';
+import {
+  useMobileAppHeader,
+  useMobileAppHeaderDeclutter,
+} from '../../../features/getApp/hooks/useMobileAppHeader';
 
 /**
  * The rail carries two in-flow units between its widgets, and the closing
@@ -104,6 +107,7 @@ export function ReadPostContent({
   });
   const leaderboardReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
   const isMobileAppHeader = useMobileAppHeader();
+  const isDecluttered = useMobileAppHeaderDeclutter();
   // Memoised: the splits re-scan the whole text, and this component
   // re-renders on comment sorting, hover state and auth resolution. The TLDR
   // is main content here — for a scraped article it is the only content — so
@@ -177,8 +181,8 @@ export function ReadPostContent({
               contextMenuId="read-post-header-actions"
               onReadArticle={onReadArticle}
               buttonSize={ButtonSize.Small}
-              hideOptions={isMobileAppHeader}
-              hideSubscribeAction={isMobileAppHeader}
+              hideOptions={isDecluttered}
+              hideSubscribeAction={isDecluttered}
             />
           </GoBackHeaderMobile>
         </div>

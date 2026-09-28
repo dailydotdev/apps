@@ -319,6 +319,15 @@ export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 // bar instead of the full-width Log in / Sign up strip.
 export const featureMobileAppHeader = new Feature('mobile_app_header', false);
 
+// Layered on mobile_app_header: drops the three-dots menus, collection
+// subscribe and the profile Follow from those bars, and moves "Learn how
+// Squads work" under Join Squad. Its own flag so the header result reads
+// without it.
+export const featureMobileAppHeaderDeclutter = new Feature(
+  'mobile_app_header_declutter',
+  false,
+);
+
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
 // field. Control hides it entirely. Keep the default `false` — GrowthBook

@@ -11,9 +11,13 @@ import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext
 import type { LogContextData } from '@dailydotdev/shared/src/hooks/log/useLogContextData';
 import type { SettingsContextData } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { featureMobileAppHeader } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featureMobileAppHeader,
+  featureMobileAppHeaderDeclutter,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import { MobileAppActions } from '@dailydotdev/shared/src/features/getApp/components/MobileAppActions';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
+import { useMobileAppHeaderDeclutter } from '@dailydotdev/shared/src/features/getApp/hooks/useMobileAppHeader';
 import { MobileFeedActions } from '@dailydotdev/shared/src/components/feeds/MobileFeedActions';
 import { GoBackHeaderMobile } from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
 import { PostHeaderActions } from '@dailydotdev/shared/src/components/post/PostHeaderActions';
@@ -77,10 +81,12 @@ const squad = {
 
 interface Args {
   experiment: boolean;
+  declutter: boolean;
 }
 
 const Providers = ({
   experiment,
+  declutter,
   children,
 }: Args & { children: ReactNode }): ReactElement => (
   <QueryClientProvider client={new QueryClient()}>
@@ -90,7 +96,10 @@ const Providers = ({
       >
         <SettingsContext.Provider value={settings}>
           <FeatureOverrides
-            values={{ [featureMobileAppHeader.id]: experiment }}
+            values={{
+              [featureMobileAppHeader.id]: experiment,
+              [featureMobileAppHeaderDeclutter.id]: declutter,
+            }}
           >
             <div className="min-h-screen bg-background-default">{children}</div>
           </FeatureOverrides>
@@ -100,13 +109,23 @@ const Providers = ({
   </QueryClientProvider>
 );
 
+// Mirrors the profile page: without the declutter arm the row takes the
+// strip's place and the profile bar stays as it is today.
+const MobileAppHeaderWithoutDeclutter = (): ReactElement | null =>
+  useMobileAppHeaderDeclutter() ? null : <MobileAppHeader sticky />;
+
 const meta: Meta<Args> = {
   title: 'Mobile Header',
-  args: { experiment: true },
+  args: { experiment: true, declutter: true },
   argTypes: {
     experiment: {
       name: featureMobileAppHeader.id,
       description: 'On: Log in + Open app. Off: production today.',
+    },
+    declutter: {
+      name: featureMobileAppHeaderDeclutter.id,
+      description:
+        'With the header on: no three-dots menus or profile Follow, squad tour under Join.',
     },
   },
   parameters: { layout: 'fullscreen' },
@@ -124,7 +143,7 @@ const meta: Meta<Args> = {
   },
   decorators: [
     (Story, { args }) => (
-      <Providers experiment={args.experiment}>
+      <Providers experiment={args.experiment} declutter={args.declutter}>
         <Story />
       </Providers>
     ),
@@ -166,7 +185,7 @@ export const BackBar: Story = {
 
 export const PostBar: Story = {
   name: 'Post bar: post, share and reader pages',
-  render: ({ experiment }) => (
+  render: ({ experiment, declutter }) => (
     <>
       <CustomAuthBanner />
       <GoBackHeaderMobile className="bg-background-subtle">
@@ -175,8 +194,8 @@ export const PostBar: Story = {
           className={experiment ? undefined : 'ml-auto'}
           onReadArticle={fn()}
           buttonSize={ButtonSize.Small}
-          hideOptions={experiment}
-          hideSubscribeAction={experiment}
+          hideOptions={experiment && declutter}
+          hideSubscribeAction={experiment && declutter}
         />
       </GoBackHeaderMobile>
     </>
@@ -188,6 +207,7 @@ export const ProfileBar: Story = {
   render: () => (
     <>
       <CustomAuthBanner />
+      <MobileAppHeaderWithoutDeclutter />
       <ProfileHeader user={profile} isSameUser={false} />
     </>
   ),

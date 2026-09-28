@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
@@ -9,6 +9,11 @@ import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative } from '../../../lib/func';
 import { AuthTriggers } from '../../../lib/auth';
+import {
+  featureMobileAppHeader,
+  featureMobileAppHeaderDeclutter,
+} from '../../../lib/featureManagement';
+import { useMobileAppHeaderDeclutter } from '../hooks/useMobileAppHeader';
 import { MobileAppHeader } from './MobileAppHeader';
 import { openAppUrl } from './MobileAppActions';
 
@@ -114,5 +119,48 @@ describe('MobileAppHeader', () => {
     renderComponent(auth);
 
     expect(screen.queryByText('Open app')).not.toBeInTheDocument();
+  });
+
+  describe('declutter', () => {
+    const arms = (header: boolean, declutter: boolean) =>
+      mockFeature.mockImplementation(({ feature }) => ({
+        value: (feature === featureMobileAppHeader
+          ? header
+          : declutter) as never,
+        isLoading: false,
+      }));
+
+    const renderDeclutter = () =>
+      renderHook(() => useMobileAppHeaderDeclutter(), {
+        wrapper: ({ children }) => (
+          <AuthContext.Provider
+            value={
+              {
+                isAuthReady: true,
+                isLoggedIn: false,
+                isAndroidApp: false,
+              } as unknown as AuthContextData
+            }
+          >
+            {children}
+          </AuthContext.Provider>
+        ),
+      });
+
+    it('should keep the menus when only the header is on', () => {
+      arms(true, false);
+
+      expect(renderDeclutter().result.current).toBe(false);
+    });
+
+    it('should only enroll readers already in the header arm', () => {
+      arms(false, true);
+
+      expect(renderDeclutter().result.current).toBe(false);
+      expect(mockFeature).toHaveBeenCalledWith({
+        feature: featureMobileAppHeaderDeclutter,
+        shouldEvaluate: false,
+      });
+    });
   });
 });
