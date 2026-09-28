@@ -183,7 +183,9 @@ function PostEngagements({
           composer — the one place on the page where someone has already
           decided to engage. */}
       <DiscussionShareRow className="mt-3" post={post} withSquads />
-      {!isPlus && !hideInternalAd && <AdAsComment postId={post.id} />}
+      {!isPlus && !hideInternalAd && (
+        <AdAsComment postId={post.id} source={post.source} />
+      )}
       <PostComments
         post={post}
         sortBy={sortBy}

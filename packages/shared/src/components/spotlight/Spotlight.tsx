@@ -36,13 +36,18 @@ import {
   SpotlightGroup,
   type SpotlightResultsImpressionDetails,
   SpotlightScope,
+  type SpotlightSource,
 } from './types';
 import { useSpotlight } from './SpotlightContext';
 import { useRecentCommands } from './useRecentCommands';
 import { useSpotlightCommands } from './useSpotlightCommands';
-import { useSpotlightSearchCommands } from './commands/search';
+import {
+  buildSourceSeeAllCommand,
+  useSpotlightSearchCommands,
+} from './commands/search';
+import { useSpotlightSourcePosts } from './commands/sourcePosts';
 import { ScopeBreadcrumbs } from './ScopeBreadcrumbs';
-import { ScopeFilterPill } from './ScopeFilterPill';
+import { ScopeFilterPill, SourceFilterPill } from './ScopeFilterPill';
 import { useQuickKeyDispatch } from './useQuickKeyDispatch';
 import {
   spotlightCommandFilter,
@@ -409,6 +414,24 @@ interface SpotlightDialogProps {
   onCloseLog?: (details: SpotlightCloseDetails) => void;
 }
 
+const getPlaceholder = (
+  scope: SpotlightScope,
+  source: SpotlightSource | null,
+): string => {
+  if (source) {
+    return `Search ${source.name} posts…`;
+  }
+  return scope === SpotlightScope.All
+    ? 'Search posts, squads, people, tags, or actions…'
+    : scopeMeta[scope].placeholder;
+};
+
+const renderSkeletonGroup = (heading: string) => (
+  <Command.Group heading={heading} className={groupHeadingClass}>
+    <SkeletonRows count={4} />
+  </Command.Group>
+);
+
 const Hint = ({ label, combo }: { label: string; combo: string }) => (
   <span className="flex items-center gap-1.5">
     <kbd aria-hidden className="font-mono text-text-quaternary typo-caption1">
@@ -452,23 +475,38 @@ export const Spotlight = ({
     pushScope,
     popScope,
     clearScope,
+    source,
+    isSourceScoped,
+    scopeToSource,
+    clearSourceScope,
   } = spotlight;
+  const scopedSource = isSourceScoped ? source : null;
   const trimmedQuery = query.trim();
   const isFiltering = trimmedQuery.length > 0;
-  const isSearching = isOpen && trimmedQuery.length >= minSearchQueryLength;
+  const isQueryLongEnough = trimmedQuery.length >= minSearchQueryLength;
+  const isSearching = isOpen && isQueryLongEnough;
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
     shouldEvaluate: isSearching,
   });
   const searchId = useSearchId(
-    isSearching ? [trimmedQuery, searchVersion, scope].join('|') : '',
+    isSearching
+      ? [trimmedQuery, searchVersion, scope, scopedSource?.id].join('|')
+      : '',
   );
   const search = useSpotlightSearchCommands({
     router,
     query,
     scope,
     searchId,
+    source: scopedSource,
   });
+  const sourcePosts = useSpotlightSourcePosts({
+    router,
+    source: scopedSource,
+    enabled: isOpen,
+  });
+  const showSourcePosts = !!scopedSource && !isQueryLongEnough;
   const hasSearchResults =
     search.users.length > 0 ||
     search.sources.length > 0 ||
@@ -476,6 +514,9 @@ export const Spotlight = ({
     search.posts.length > 0;
 
   const openedAtRef = useRef(0);
+  // In a squad scope, typing then Enter runs the full search in the squad
+  // unless the arrow keys picked a suggestion first.
+  const hasMovedSelectionRef = useRef(false);
   const ranCommandRef = useRef(false);
   const closeLoggedRef = useRef(false);
   const loggedImpressionRef = useRef<string | null>(null);
@@ -570,7 +611,8 @@ export const Spotlight = ({
   useQuickKeyDispatch({
     query,
     setQuery,
-    commands,
+    // A squad scope searches posts, so two letters and a space stay text.
+    commands: scopedSource ? [] : commands,
     scope,
     onDispatch: runCommand,
   });
@@ -596,7 +638,7 @@ export const Spotlight = ({
         handleClose();
         return;
       }
-      spotlight.open();
+      spotlight.openFromShortcut();
       onOpenViaShortcut?.();
     };
     window.addEventListener('keydown', handleKeydown);
@@ -672,6 +714,7 @@ export const Spotlight = ({
   //  - cmdk preserves selection on the old Action row, so arrow keys feel
   //    "stuck at the bottom" while the visible top is the entity hits.
   useEffect(() => {
+    hasMovedSelectionRef.current = false;
     if (!listRef.current) {
       return;
     }
@@ -682,11 +725,14 @@ export const Spotlight = ({
   }, [
     query,
     scope,
+    scopedSource,
     search.isLoading,
     search.users.length,
     search.sources.length,
     search.tags.length,
     search.posts.length,
+    sourcePosts.pinned.length,
+    sourcePosts.latest.length,
   ]);
 
   const commandById = useMemo(() => {
@@ -805,17 +851,41 @@ export const Spotlight = ({
     if (!trimmedQuery) {
       return;
     }
-    const fallthrough = search.fallthrough[0];
+    const fallthrough = scopedSource
+      ? buildSourceSeeAllCommand(scopedSource, trimmedQuery, router)
+      : search.fallthrough[0];
     if (fallthrough) {
       handleSelect(fallthrough, { fallthrough: true });
     }
-  }, [trimmedQuery, search.fallthrough, handleSelect]);
+  }, [trimmedQuery, scopedSource, router, search.fallthrough, handleSelect]);
+
+  const sourceScopeCommand = useMemo<SpotlightCommand | null>(() => {
+    if (!source) {
+      return null;
+    }
+    return {
+      id: 'search.scope-source',
+      title: trimmedQuery
+        ? `Search “${trimmedQuery}” in ${source.name}`
+        : `Search in ${source.name}`,
+      icon: SearchIcon,
+      group: SpotlightGroup.Search,
+      meta: { kind: 'source', image: source.image },
+      perform: () => {
+        scopeToSource();
+        return { keepOpen: true };
+      },
+    };
+  }, [source, trimmedQuery, scopeToSource]);
 
   /**
    * Groups visible right now (skip Suggested when filtering, etc.). Cmd+1..9
    * and Tab navigate between these in display order.
    */
   const visibleGroups = useMemo<SpotlightGroup[]>(() => {
+    if (scopedSource) {
+      return [];
+    }
     if (isFiltering) {
       const filterGroups: SpotlightGroup[] = [];
       groupOrder.forEach((group) => {
@@ -851,7 +921,13 @@ export const Spotlight = ({
       }
     });
     return out;
-  }, [isFiltering, grouped, suggested.length, recentCommands.length]);
+  }, [
+    scopedSource,
+    isFiltering,
+    grouped,
+    suggested.length,
+    recentCommands.length,
+  ]);
 
   const scopeSearch = useMemo(() => {
     if (scope === SpotlightScope.Posts) {
@@ -889,6 +965,28 @@ export const Spotlight = ({
     isMobile,
     pendingConfirmId,
     onSelect: handleSelect,
+  };
+
+  const listProps = {
+    className: classNames(
+      'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
+      firstHeadingNoTopPaddingClass,
+      isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
+    ),
+    ref: (node: HTMLDivElement | null) => {
+      listRef.current = node;
+      if (!node) {
+        setResultCount(null);
+        return;
+      }
+      const items = node.querySelectorAll('[data-command-id]');
+      setResultCount(items.length);
+    },
+  };
+
+  const onClearSourceScope = () => {
+    clearSourceScope();
+    inputRef.current?.focus();
   };
 
   const paletteBody = (
@@ -978,6 +1076,12 @@ export const Spotlight = ({
                 className="text-text-tertiary transition-colors group-focus-within/spotlight:text-text-primary"
                 aria-hidden
               />
+              {scopedSource && (
+                <SourceFilterPill
+                  source={scopedSource}
+                  onRemove={onClearSourceScope}
+                />
+              )}
               {scope !== SpotlightScope.All && (
                 <ScopeFilterPill scope={scope} onRemove={clearScope} />
               )}
@@ -985,15 +1089,20 @@ export const Spotlight = ({
                 ref={inputRef}
                 value={query}
                 onValueChange={setQuery}
-                placeholder={
-                  scope === SpotlightScope.All
-                    ? 'Search posts, squads, people, tags, or actions…'
-                    : scopeMeta[scope].placeholder
-                }
+                placeholder={getPlaceholder(scope, scopedSource)}
                 autoFocus
                 className="h-full flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary"
                 aria-labelledby="spotlight-title"
                 onKeyDown={(event) => {
+                  if (
+                    event.key === 'Backspace' &&
+                    query.length === 0 &&
+                    scopedSource
+                  ) {
+                    event.preventDefault();
+                    clearSourceScope();
+                    return;
+                  }
                   if (
                     event.key === 'Backspace' &&
                     query.length === 0 &&
@@ -1003,10 +1112,18 @@ export const Spotlight = ({
                     popScope();
                     return;
                   }
+                  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                    hasMovedSelectionRef.current = true;
+                  }
+                  const runsSourceSearch =
+                    !!scopedSource &&
+                    isQueryLongEnough &&
+                    (!hasMovedSelectionRef.current ||
+                      search.posts.length === 0);
                   if (
                     event.key === 'Enter' &&
                     isFiltering &&
-                    resultCount === 0
+                    (resultCount === 0 || runsSourceSearch)
                   ) {
                     event.preventDefault();
                     handleFallthroughEnter();
@@ -1041,8 +1158,13 @@ export const Spotlight = ({
                 </Button>
               )}
             </div>
-            {scope === SpotlightScope.All && (
-              <ScopeBreadcrumbs scope={scope} onSelect={pushScope} />
+            {scope === SpotlightScope.All && !scopedSource && (
+              <ScopeBreadcrumbs
+                scope={scope}
+                onSelect={pushScope}
+                source={source}
+                onSelectSource={scopeToSource}
+              />
             )}
           </>
         )}
@@ -1055,24 +1177,90 @@ export const Spotlight = ({
           />
         )}
 
-        {!pendingCommand && (
-          <Command.List
-            key={`spotlight-list-${scope}`}
-            className={classNames(
-              'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
-              firstHeadingNoTopPaddingClass,
-              isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
+        {!pendingCommand && scopedSource && (
+          <Command.List key="spotlight-list-source" {...listProps}>
+            {showSourcePosts &&
+              sourcePosts.isLoading &&
+              renderSkeletonGroup(`Latest in ${scopedSource.name}`)}
+            {showSourcePosts && sourcePosts.pinned.length > 0 && (
+              <Command.Group
+                heading={`Pinned in ${scopedSource.name}`}
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
+              >
+                {renderRows({
+                  ...commonRowProps,
+                  commands: sourcePosts.pinned,
+                })}
+              </Command.Group>
             )}
-            ref={(node) => {
-              listRef.current = node;
-              if (!node) {
-                setResultCount(null);
-                return;
-              }
-              const items = node.querySelectorAll('[data-command-id]');
-              setResultCount(items.length);
-            }}
-          >
+            {showSourcePosts && sourcePosts.latest.length > 0 && (
+              <Command.Group
+                heading={`Latest in ${scopedSource.name}`}
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
+              >
+                {renderRows({
+                  ...commonRowProps,
+                  commands: sourcePosts.latest,
+                })}
+              </Command.Group>
+            )}
+            {!showSourcePosts &&
+              search.postsLoading &&
+              search.posts.length === 0 &&
+              renderSkeletonGroup(`Posts in ${scopedSource.name}`)}
+            {!showSourcePosts && search.posts.length > 0 && (
+              <Command.Group
+                heading={`Posts in ${scopedSource.name}`}
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
+              >
+                {renderRows({ ...commonRowProps, commands: search.posts })}
+              </Command.Group>
+            )}
+            {!search.isLoading && !sourcePosts.isLoading && (
+              <Command.Empty className="flex flex-col items-center gap-2 px-4 py-12 text-center">
+                <SearchIcon
+                  size={IconSize.Medium}
+                  className="text-text-tertiary"
+                  aria-hidden
+                />
+                <p className="text-text-primary typo-callout">
+                  {trimmedQuery
+                    ? `No posts in ${scopedSource.name} match “${trimmedQuery}”`
+                    : `No posts in ${scopedSource.name} yet.`}
+                </p>
+                {trimmedQuery && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                    onClick={onClearSourceScope}
+                  >
+                    Search all of daily.dev
+                  </Button>
+                )}
+              </Command.Empty>
+            )}
+          </Command.List>
+        )}
+
+        {!pendingCommand && !scopedSource && (
+          <Command.List key={`spotlight-list-${scope}`} {...listProps}>
+            {scope === SpotlightScope.All && sourceScopeCommand && (
+              <Command.Group
+                heading="This Squad"
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
+              >
+                {renderRows({
+                  ...commonRowProps,
+                  commands: [sourceScopeCommand],
+                })}
+              </Command.Group>
+            )}
+
             {scope !== SpotlightScope.All &&
               scope !== SpotlightScope.Actions &&
               scopeSearch.isLoading &&
@@ -1305,6 +1493,7 @@ export const Spotlight = ({
             <span className="flex items-center gap-4">
               <Hint label="Open" combo="↵" />
               <Hint label="Close" combo="esc" />
+              {scopedSource && <Hint label="All of daily.dev" combo="⌫" />}
             </span>
           </div>
         )}

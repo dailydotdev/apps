@@ -183,6 +183,7 @@ export function PostWidgets({
           PostWidgetPosition.DirectAd,
           <PostSidebarAdWidget
             postId={post.id}
+            source={post.source}
             className={{ container: cardClasses }}
           />,
         )}

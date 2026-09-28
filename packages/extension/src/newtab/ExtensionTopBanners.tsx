@@ -1,14 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { TopHero } from '@dailydotdev/shared/src/components/marketing/banners/HeroBottomBanner';
-import { useReadingReminderHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderHero';
-import {
-  fileValidation,
-  uploadCvOpportunitySuccessContent,
-  uploadCvProfileSuccessContent,
-  useUploadCv,
-} from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { TopHeroPortal } from '@dailydotdev/shared/src/contexts/TopHeroSlotContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -18,42 +12,15 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/shortcuts/hooks/useIsShortcutsHubEnabled';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
-import ReadingReminderCatLaptop from '@dailydotdev/shared/src/components/marketing/banners/ReadingReminderCatLaptop';
 import {
   cloudinaryShortcutsIconsGmail,
   cloudinaryShortcutsIconsOpenai,
   cloudinaryShortcutsIconsReddit,
-  uploadCvBgMobile,
 } from '@dailydotdev/shared/src/lib/image';
-import { useJobsFeature } from '@dailydotdev/shared/src/hooks/useJobsFeature';
 
-// Bare-illustration frame matched across the three top cards so they
-// line up vertically. Slightly wider than tall to give the CV cluster
-// horizontal room without cropping.
+// Matches `CvTopHero`'s frame so the cards sharing the strip line up.
 const illustrationFrameClass =
   '!m-0 flex h-24 w-32 shrink-0 items-center justify-center self-center tablet:h-28 tablet:w-36';
-
-const CvIllustration = (): ReactElement => (
-  <div
-    className={classNames(illustrationFrameClass, 'overflow-hidden')}
-    aria-hidden
-  >
-    <span
-      className="block size-full bg-no-repeat"
-      style={{
-        backgroundImage: `url(${uploadCvBgMobile})`,
-        backgroundPosition: 'center top',
-        backgroundSize: 'auto 220%',
-      }}
-    />
-  </div>
-);
-
-// Compact cat illustration scaled to match the CV / Shortcuts frames so
-// the three cards in the row share the same height.
-const CompactReminderCat = (): ReactElement => (
-  <ReadingReminderCatLaptop className="!m-0 h-24 w-28 shrink-0 self-center rounded-12 object-contain tablet:h-28 tablet:w-32" />
-);
 
 const ShortcutsIllustration = (): ReactElement => {
   const { githubShortcut } = useThemedAsset();
@@ -133,109 +100,25 @@ const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
 };
 
 export const ExtensionTopBanners = (): ReactElement | null => {
-  // The extension's top hero row is the only place this card appears
-  // on the new tab, so we evaluate the reminder regardless of viewport
-  // (the webapp-only `requireMobile` heuristic would hide it on desktop
-  // new tabs, which is where the extension lives).
-  const reminder = useReadingReminderHero({ requireMobile: false });
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { isJobsEnabled } = useJobsFeature();
-  const { onUpload, shouldShow: shouldShowCv } = useUploadCv({
-    modalContent: isJobsEnabled
-      ? uploadCvOpportunitySuccessContent
-      : uploadCvProfileSuccessContent,
-  });
-  const { completeAction } = useActions();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const shortcuts = useShortcutsOnboarding();
 
   // Logged-out users get the dedicated sticky sign-in strip rendered
   // higher up in `MainFeedPage`. This component is logged-in cards only.
-  if (!isAuthReady || !isLoggedIn) {
+  if (!isAuthReady || !isLoggedIn || !shortcuts.shouldShow) {
     return null;
   }
 
-  const cards: ReactElement[] = [];
-
-  if (reminder.shouldShow) {
-    cards.push(
+  return (
+    <TopHeroPortal>
       <TopHero
-        key="reminder"
-        title={reminder.title}
-        subtitle={reminder.subtitle}
-        illustration={<CompactReminderCat />}
-        onCtaClick={() => {
-          reminder.onEnable();
-        }}
-        onClose={() => {
-          reminder.onDismiss();
-        }}
-      />,
-    );
-  }
-
-  if (shouldShowCv) {
-    cards.push(
-      <TopHero
-        key="cv"
-        subtitle={
-          isJobsEnabled
-            ? 'Upload your CV and let your next job quietly come to you.'
-            : 'Upload your CV to autofill your profile in seconds.'
-        }
-        ctaLabel="Upload CV"
-        illustration={<CvIllustration />}
-        onCtaClick={() => fileInputRef.current?.click()}
-        onClose={() => completeAction(ActionType.ClosedProfileBanner)}
-      />,
-    );
-  }
-
-  if (shortcuts.shouldShow) {
-    cards.push(
-      <TopHero
-        key="shortcuts"
+        className="order-last"
         subtitle="Pin the sites you visit most, right from your new tab."
         ctaLabel="Add shortcuts"
         illustration={<ShortcutsIllustration />}
         onCtaClick={shortcuts.onAddClick}
         onClose={shortcuts.onClose}
-      />,
-    );
-  }
-
-  if (cards.length === 0) {
-    return null;
-  }
-
-  return (
-    <>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={fileValidation.acceptedExtensions
-          .map((ext) => `.${ext}`)
-          .join(',')}
-        className="hidden"
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-          if (!file) {
-            return;
-          }
-          onUpload(file);
-          // eslint-disable-next-line no-param-reassign
-          event.target.value = '';
-        }}
       />
-      <div
-        className={classNames(
-          'mx-4 mb-3 grid grid-cols-1 gap-3 laptop:mx-0',
-          cards.length === 2 && 'tablet:grid-cols-2',
-          cards.length === 3 && 'tablet:grid-cols-2 laptop:grid-cols-3',
-        )}
-      >
-        {cards}
-      </div>
-    </>
+    </TopHeroPortal>
   );
 };
