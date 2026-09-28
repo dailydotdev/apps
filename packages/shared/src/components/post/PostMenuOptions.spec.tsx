@@ -28,7 +28,6 @@ describe('PostMenuOptions copy link', () => {
     PostType.Article,
     PostType.Share,
     PostType.Freeform,
-    PostType.Welcome,
     PostType.Collection,
     PostType.VideoYouTube,
     PostType.Poll,

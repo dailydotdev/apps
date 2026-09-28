@@ -282,7 +282,7 @@ export interface UseFeedOptionalParams<T> {
   isHorizontal?: boolean;
   /**
    * Drop pinned posts from the feed. `sourceFeed` always orders pinned posts
-   * (welcome post, squad pins) first and offers no way to opt out server-side,
+   * first and offers no way to opt out server-side,
    * so single-squad feeds that don't want them filter here.
    */
   excludePinnedPosts?: boolean;

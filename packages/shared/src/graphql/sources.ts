@@ -32,7 +32,6 @@ export enum SourcePermissions {
   Leave = 'leave',
   Delete = 'delete',
   Edit = 'edit',
-  WelcomePostEdit = 'welcome_post_edit',
   ConnectSlack = 'connect_slack',
   ModeratePost = 'moderate_post',
   BoostSquad = 'boost_squad',
@@ -95,6 +94,13 @@ export interface Squad extends Source {
   website?: string | null;
   /** Paid (`links` feature): ordered URLs, empty while the feature is off. */
   links?: string[];
+  /** The platform defaults until moderators save their own, empty for none. */
+  rules?: SquadRule[];
+}
+
+export interface SquadRule {
+  title: string;
+  description?: string | null;
 }
 
 interface SourceFlags {

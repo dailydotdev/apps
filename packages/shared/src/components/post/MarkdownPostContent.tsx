@@ -95,21 +95,15 @@ function MarkdownPostContent({
       {/* The spacing rides the wrapper, not the body: the column is a flex
           container, so a margin left inside this new flex item would no longer
           reach the block below it. */}
-      <div
-        ref={bodyRef}
-        className={post.type !== PostType.Welcome ? 'mb-5' : undefined}
-      >
+      <div ref={bodyRef} className="mb-5">
         <Markdown content={post.contentHtml ?? ''} className="break-words" />
         <ParagraphSnapshotButtons containerRef={bodyRef} post={post} />
       </div>
       <ContentEmbeds
         embeds={post.contentEmbeds}
         variant="post"
-        className={post.type !== PostType.Welcome ? 'mb-5' : undefined}
+        className="mb-5"
       />
-      {post.type === PostType.Welcome && post.image && (
-        <MarkdownPostImage imgSrc={post.image} className="mb-5 mt-8" />
-      )}
     </>
   );
 }

@@ -227,6 +227,7 @@ const RenderMarkdown = ({
 
               {!inline ? (
                 <div
+                  translate="no"
                   className={classNames(
                     'px-5 py-3',
                     isExpanded || !isExpandable
@@ -252,7 +253,7 @@ const RenderMarkdown = ({
                   </Wrapper>
                 </div>
               ) : (
-                <code {...props} className={codeClassName}>
+                <code {...props} className={codeClassName} translate="no">
                   {children}
                 </code>
               )}

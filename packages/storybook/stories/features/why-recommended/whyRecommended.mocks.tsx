@@ -197,13 +197,6 @@ export const posts = {
     author: undefined,
     tags: ['ai-agents'],
   }),
-  welcome: basePost({
-    type: PostType.Welcome,
-    title: 'Welcome to Web Dev Squad',
-    source: squadSource(true),
-    author: makeAuthor('Web Dev Squad admin', 9),
-    tags: [],
-  }),
   trending: basePost({ trending: 120 }),
 } satisfies Record<string, Post>;
 

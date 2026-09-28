@@ -429,7 +429,7 @@ export const Overview: StoryObj = {
               'Rules widget (numbered), wiki, FAQ',
               'CONTRIBUTING, discussion guidelines',
               '#rules, #start-here',
-              'Welcome post, description',
+              'Rules, description',
               'Documentation: Rules and FAQ, with the rules also as a widget on Home',
             ],
             [

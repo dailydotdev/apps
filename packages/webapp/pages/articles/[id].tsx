@@ -66,8 +66,8 @@ const READ_ARTICLE_ROUTE_PATTERN =
 
 /**
  * The post types /articles may render, all of which carry content beyond the ad
- * slots. Deliberately excludes squad/user-generated types (share, welcome,
- * freeform, poll) — paid traffic never targets them and their content is our
+ * slots. Deliberately excludes squad/user-generated types (share, freeform,
+ * poll) — paid traffic never targets them and their content is our
  * members', not landing-page material — and internal types (brief, digest).
  */
 const READ_ELIGIBLE_POST_TYPES = new Set<PostType>([

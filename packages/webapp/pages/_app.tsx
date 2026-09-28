@@ -42,6 +42,7 @@ import { SerwistProvider } from '@serwist/turbopack/react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { installDomMutationGuard } from '@dailydotdev/shared/src/lib/domMutationGuard';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
@@ -59,6 +60,7 @@ import { PixelsProvider } from '../context/PixelsContext';
 import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
+installDomMutationGuard();
 
 const AuthModal = dynamic(
   () =>

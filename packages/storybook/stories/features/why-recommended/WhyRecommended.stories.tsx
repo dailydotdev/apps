@@ -240,10 +240,6 @@ const postTypes: Scenario[] = [
     post: posts.social,
     feedName: feeds.popular,
   },
-  {
-    title: 'Squad welcome post',
-    post: posts.welcome,
-  },
 ];
 
 const NotOffered = (): ReactElement => (
