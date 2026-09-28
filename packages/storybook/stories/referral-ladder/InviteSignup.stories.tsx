@@ -73,29 +73,16 @@ export default meta;
 
 type Story = StoryObj<typeof FunnelHeroLanding>;
 
-const baseArgs: FunnelStepHeroLanding = {
-  id: 'hero-landing-step',
-  type: FunnelStepType.HeroLanding,
-  transitions: [],
-  onTransition: action('onTransition'),
-  parameters: {
-    headline: "Where developers discover what's next.",
-    background: 'horizon',
-    oauthOrder: 'googleFirst',
-  },
-};
-
-export const Horizon: Story = {
-  name: 'Invited (current signup page)',
-  args: baseArgs,
-};
-
-export const Cards: Story = {
-  name: 'Invited (cards background)',
+export const Invited: Story = {
   args: {
-    ...baseArgs,
+    id: 'hero-landing-step',
+    type: FunnelStepType.HeroLanding,
+    transitions: [],
+    onTransition: action('onTransition'),
     parameters: {
-      headline: 'The homepage every developer deserves.',
+      headline: "Where developers discover what's next.",
+      background: 'horizon',
+      oauthOrder: 'googleFirst',
     },
   },
 };

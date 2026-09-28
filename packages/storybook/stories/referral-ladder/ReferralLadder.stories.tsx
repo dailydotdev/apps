@@ -5,17 +5,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import ProfileMenu from '@dailydotdev/shared/src/components/ProfileMenu/ProfileMenu';
 import ReferralLadderModal from '@dailydotdev/shared/src/components/modals/referral/ReferralLadderModal';
-import {
-  REFERRAL_LADDER_POPUP_TITLE,
-  ReferralLadderPopupContent,
-} from '@dailydotdev/shared/src/components/referral/ReferralLadderPopupContent';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { generateQueryKey, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
 import { referredUsersPreviewQueryOptions } from '@dailydotdev/shared/src/graphql/users';
 import { fn } from 'storybook/test';
-import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
-import { TargetId, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { graphql, http, HttpResponse } from 'msw';
 import AccountInvitePage from '../../../webapp/pages/settings/invite';
 import { featureReferralLadder } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -26,7 +20,6 @@ import { friends } from './_mock';
 interface LadderArgs {
   referredCount: number;
 }
-
 
 const toFriendNode = (friend: (typeof friends)[number], index: number) => ({
   ...friend,
@@ -81,7 +74,6 @@ const LadderProviders = ({
     </FeatureOverrides>
   </ExtensionProviders>
 );
-
 
 // Read by the ReferredUsers handler so the list matches the slider.
 let mockReferredCount = 1;
@@ -149,63 +141,10 @@ export const InvitePage: Story = {
   },
 };
 
-const popupStates = [
-  { referredCount: 0, label: 'No invites yet' },
-  { referredCount: 1, label: '1 friend joined' },
-  { referredCount: 2, label: '2 friends joined' },
-  { referredCount: 3, label: 'Ladder completed' },
-];
-
-export const AllPopupStates: Story = {
-  name: 'Popup: all states',
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <div className="flex min-h-screen flex-wrap items-start justify-center gap-8 bg-background-subtle p-8">
-      {popupStates.map(({ referredCount, label }) => (
-        <div key={referredCount} className="flex flex-col gap-3">
-          <p className="font-bold text-text-tertiary typo-callout">{label}</p>
-          <LadderProviders referredCount={referredCount}>
-            <div className="w-[26.25rem] overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default">
-              <div className="relative border-b border-border-subtlest-tertiary px-5 py-4">
-                <h2 className="font-bold typo-title3">
-                  {REFERRAL_LADDER_POPUP_TITLE}
-                </h2>
-                <ModalClose top="3" right="3" onClick={fn()} />
-              </div>
-              <ReferralLadderPopupContent
-                className="p-5"
-                logTargetId={TargetId.ProfileDropdown}
-                logTargetType={TargetType.ReferralPopup}
-              />
-            </div>
-          </LadderProviders>
-        </div>
-      ))}
-    </div>
-  ),
-};
-
-const PopupStory = ({ referredCount }: LadderArgs): ReactElement => (
-  <LadderProviders referredCount={referredCount}>
-    <ReferralLadderModal isOpen onRequestClose={fn()} />
-  </LadderProviders>
-);
-
 export const Popup: Story = {
-  render: PopupStory,
-};
-
-export const NoInvitesYet: Story = {
-  args: { referredCount: 0 },
-  render: PopupStory,
-};
-
-export const TwoFriendsJoined: Story = {
-  args: { referredCount: 2 },
-  render: PopupStory,
-};
-
-export const LadderCompleted: Story = {
-  args: { referredCount: 3 },
-  render: PopupStory,
+  render: ({ referredCount }) => (
+    <LadderProviders referredCount={referredCount}>
+      <ReferralLadderModal isOpen onRequestClose={fn()} />
+    </LadderProviders>
+  ),
 };
