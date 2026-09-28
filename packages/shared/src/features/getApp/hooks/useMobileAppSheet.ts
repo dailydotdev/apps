@@ -21,8 +21,6 @@ interface UseMobileAppSheet {
 
 const oneHour = 60 * 60 * 1000;
 
-// Logged-in phones only. Either choice hides the sheet for the same window,
-// then it asks again.
 export const useMobileAppSheet = (): UseMobileAppSheet => {
   const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
   const isTablet = useViewSize(ViewSize.Tablet);
