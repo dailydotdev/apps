@@ -11,14 +11,12 @@ import { EarthIcon } from '../../../components/icons/Earth';
 import { IconSize } from '../../../components/Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
-import { getAppUrl } from '../../../lib/constants';
+import { appDownloadUrl } from '../../../lib/constants';
 import { cloudinaryAppIconMain } from '../../../lib/image';
-import { LogEvent, TargetType } from '../../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { useMobileAppSheet } from '../hooks/useMobileAppSheet';
 
-const logTargetId = 'mobile sheet';
-
-export const openAppFromSheetUrl = `${getAppUrl}?utm_source=mobile_sheet`;
+export const openAppFromSheetUrl = `${appDownloadUrl}?utm_source=mobile_sheet`;
 
 export function MobileAppSheet(): ReactElement {
   const drawerRef = useRef<DrawerRef>(null);
@@ -29,7 +27,7 @@ export function MobileAppSheet(): ReactElement {
     () => ({
       event_name: LogEvent.Impression,
       target_type: TargetType.GetAppButton,
-      target_id: logTargetId,
+      target_id: TargetId.MobileSheet,
     }),
     { condition: isOpen },
   );
@@ -38,7 +36,7 @@ export function MobileAppSheet(): ReactElement {
     logEvent({
       event_name: LogEvent.DownloadApp,
       target_type: TargetType.GetAppButton,
-      target_id: logTargetId,
+      target_id: TargetId.MobileSheet,
     });
     onDismiss();
   };
@@ -47,7 +45,7 @@ export function MobileAppSheet(): ReactElement {
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.GetAppButton,
-      target_id: logTargetId,
+      target_id: TargetId.MobileSheet,
       extra: JSON.stringify({ choice: 'continue' }),
     });
     onDismiss();

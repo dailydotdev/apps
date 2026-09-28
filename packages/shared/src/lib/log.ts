@@ -716,6 +716,8 @@ export enum TargetId {
   ReaderHeader = 'reader header',
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
+  MobileFooter = 'mobile footer',
+  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {

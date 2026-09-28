@@ -9,13 +9,11 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { AuthTriggers } from '../../../lib/auth';
-import { getAppUrl } from '../../../lib/constants';
+import { appDownloadUrl } from '../../../lib/constants';
 import { cloudinaryCharmNoComments } from '../../../lib/image';
-import { LogEvent, TargetType } from '../../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 
-const logTargetId = 'mobile footer';
-
-export const openAppFromFooterUrl = `${getAppUrl}?utm_source=mobile_footer`;
+export const openAppFromFooterUrl = `${appDownloadUrl}?utm_source=mobile_footer`;
 
 interface MobileAppFooterProps {
   title: string;
@@ -28,7 +26,7 @@ export function MobileAppFooter({ title }: MobileAppFooterProps): ReactElement {
   useLogEventOnce(() => ({
     event_name: LogEvent.Impression,
     target_type: TargetType.GetAppButton,
-    target_id: logTargetId,
+    target_id: TargetId.MobileFooter,
     extra: JSON.stringify({ title }),
   }));
 
@@ -36,7 +34,7 @@ export function MobileAppFooter({ title }: MobileAppFooterProps): ReactElement {
     logEvent({
       event_name: LogEvent.DownloadApp,
       target_type: TargetType.GetAppButton,
-      target_id: logTargetId,
+      target_id: TargetId.MobileFooter,
     });
   };
 
@@ -44,7 +42,7 @@ export function MobileAppFooter({ title }: MobileAppFooterProps): ReactElement {
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.SignupButton,
-      target_id: logTargetId,
+      target_id: TargetId.MobileFooter,
     });
     showLogin({ trigger: AuthTriggers.MainButton });
   };
