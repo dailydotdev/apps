@@ -15,6 +15,8 @@ import { Button } from '../buttons/Button';
 import { SettingsIcon } from '../icons';
 import { RootPortal } from '../tooltips/Portal';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 
 const ProfileSettingsMenuMobile = dynamic(
   () =>
@@ -29,6 +31,7 @@ export function MobileFeedActions(): ReactElement {
   const { user } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobileAppHeader = useMobileAppHeader();
 
   return (
     <div className="flex flex-row justify-between px-4 py-1">
@@ -46,6 +49,7 @@ export function MobileFeedActions(): ReactElement {
           />
         )}
         <QuestHeaderButton compact />
+        {isMobileAppHeader && <MobileAppActions />}
         {user && (
           <>
             <Button

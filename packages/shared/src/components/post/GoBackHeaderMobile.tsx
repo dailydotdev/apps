@@ -10,6 +10,8 @@ import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;
@@ -33,9 +35,11 @@ const checkSameSite = () => {
 export const GoBackButton = ({
   className,
   showLogo = true,
+  compactLogo = false,
   fallbackPath,
 }: WithClassNameProps & {
   showLogo?: boolean;
+  compactLogo?: boolean;
   fallbackPath?: string;
 }): JSX.Element | null => {
   const router = useRouter();
@@ -59,6 +63,7 @@ export const GoBackButton = ({
   const logoButton = showLogo ? (
     <Logo
       className="my-2"
+      compact={compactLogo}
       onLogoClick={goHome}
       position={LogoPosition.Initial}
       featureTheme={featureTheme}
@@ -88,6 +93,7 @@ export function GoBackHeaderMobile({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
+  const isMobileAppHeader = useMobileAppHeader();
 
   if (isLaptop || !router?.isReady || !globalThis?.history) {
     return null;
@@ -101,8 +107,9 @@ export function GoBackHeaderMobile({
         className,
       )}
     >
-      <GoBackButton />
+      <GoBackButton compactLogo={isMobileAppHeader} />
       {children}
+      {isMobileAppHeader && <MobileAppActions className="ml-auto" />}
     </span>
   );
 }

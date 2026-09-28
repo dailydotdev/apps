@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
+import { useMobileAppHeaderDeclutter } from '@dailydotdev/shared/src/features/getApp/hooks/useMobileAppHeader';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
@@ -90,6 +92,9 @@ const ProfilePage = ({
     [isUserSameBase, isPreviewMode],
   );
 
+  // Without the declutter arm the profile bar keeps Follow and its menu, so
+  // Log in and Open app take the Log in / Sign up strip's place instead.
+  const isDecluttered = useMobileAppHeaderDeclutter();
   const { ref: stickyRef, progress: stickyProgress } =
     useDynamicHeader<HTMLDivElement>(true);
   const hideSticky = !stickyProgress;
@@ -103,6 +108,7 @@ const ProfilePage = ({
   return (
     <div className="rounded-16 border border-t-0 border-border-subtlest-tertiary laptop:border-t">
       <NextSeo {...seo} />
+      {!isDecluttered && <MobileAppHeader sticky />}
       <Header
         user={user}
         isSameUser={isSameUser}

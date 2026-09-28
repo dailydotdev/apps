@@ -17,6 +17,8 @@ import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
 import { PublicPageSignupBanner } from '../../auth/PublicPageSignupBanner';
+import { useMobileAppHeader } from '../../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../../features/getApp/components/MobileAppActions';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -58,6 +60,7 @@ export const SquadDirectoryLayout = (
   const buttonSize = isMobileLayout ? ButtonSize.XSmall : ButtonSize.Small;
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const isMobileAppHeader = useMobileAppHeader();
 
   useEffect(() => {
     const element = document?.getElementById?.(`squad-item-discover-${id}`);
@@ -121,10 +124,14 @@ export const SquadDirectoryLayout = (
         >
           <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
             <strong>Squads</strong>
-            <NewSquadButton
-              icon={<PlusIcon />}
-              variant={ButtonVariant.Primary}
-            />
+            {isMobileAppHeader ? (
+              <MobileAppActions />
+            ) : (
+              <NewSquadButton
+                icon={<PlusIcon />}
+                variant={ButtonVariant.Primary}
+              />
+            )}
           </section>
           <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
             <SquadDirectoryNavbar className="min-h-14 min-w-0 flex-1">

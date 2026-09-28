@@ -14,6 +14,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import useActiveNav from '../../hooks/useActiveNav';
+import { MobileAppHeader } from '../../features/getApp/components/MobileAppHeader';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -99,39 +100,42 @@ function MainLayoutHeader({
   }
 
   return (
-    <header
-      className={classNames(
-        isMobileSearchPage
-          ? 'sticky top-0 w-full bg-background-default tablet:pl-16'
-          : 'fixed top-0 h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
-        'z-header',
-        !isMobileSearchPage &&
-          (isMobileProfile ? 'hidden laptop:flex' : 'flex'),
-        hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
-        !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
-        !isMobileSearchPage && scrollClassName,
-      )}
-      style={featureTheme ? featureTheme.navbar : undefined}
-    >
-      {isMobileSearchPage
-        ? renderSearchPanel()
-        : sidebarRendered !== undefined && (
-            <>
-              <div>
-                <HeaderLogo
-                  position={
-                    isStreaksEnabled && isStreakLarge
-                      ? LogoPosition.Relative
-                      : LogoPosition.Absolute
-                  }
-                  onLogoClick={onLogoClick}
-                />
-              </div>
-              {renderSearchPanel()}
-              <HeaderButtons additionalButtons={additionalButtons} />
-            </>
-          )}
-    </header>
+    <>
+      {isMobileSearchPage && <MobileAppHeader />}
+      <header
+        className={classNames(
+          isMobileSearchPage
+            ? 'sticky top-0 w-full bg-background-default tablet:pl-16'
+            : 'fixed top-0 h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
+          'z-header',
+          !isMobileSearchPage &&
+            (isMobileProfile ? 'hidden laptop:flex' : 'flex'),
+          hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
+          !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
+          !isMobileSearchPage && scrollClassName,
+        )}
+        style={featureTheme ? featureTheme.navbar : undefined}
+      >
+        {isMobileSearchPage
+          ? renderSearchPanel()
+          : sidebarRendered !== undefined && (
+              <>
+                <div>
+                  <HeaderLogo
+                    position={
+                      isStreaksEnabled && isStreakLarge
+                        ? LogoPosition.Relative
+                        : LogoPosition.Absolute
+                    }
+                    onLogoClick={onLogoClick}
+                  />
+                </div>
+                {renderSearchPanel()}
+                <HeaderButtons additionalButtons={additionalButtons} />
+              </>
+            )}
+      </header>
+    </>
   );
 }
 

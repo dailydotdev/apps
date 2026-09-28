@@ -23,6 +23,7 @@ import { FeedExploreTabs } from '@dailydotdev/shared/src/components/header/FeedE
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -102,6 +103,7 @@ const getPageLayout: typeof getLayout = (...props) =>
 GlobalArchiveIndexPage.getLayout = getPageLayout;
 GlobalArchiveIndexPage.layoutProps = {
   screenCentered: false,
+  customBanner: <MobileAppHeader />,
 };
 
 export default GlobalArchiveIndexPage;

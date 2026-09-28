@@ -116,6 +116,7 @@ export function PostHeaderActions({
               onClick={handleReadArticle}
               data-testid="postActionsRead"
               size={buttonSize}
+              aria-label={inlineActions ? readButtonText : undefined}
             >
               {!inlineActions ? readButtonText : undefined}
             </Button>
