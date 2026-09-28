@@ -41,7 +41,6 @@ export interface SharedPost extends Post {
 export { PostType };
 
 export const internalReadTypes: PostType[] = [
-  PostType.Welcome,
   PostType.Freeform,
   PostType.Collection,
 ];

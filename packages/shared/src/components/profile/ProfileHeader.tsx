@@ -179,6 +179,7 @@ const ProfileHeader = ({
             <Typography
               type={TypographyType.Subhead}
               color={TypographyColor.Secondary}
+              translate="no"
             >
               @{username}
             </Typography>

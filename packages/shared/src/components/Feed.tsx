@@ -199,7 +199,6 @@ export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
   {
     [PostType.Article]: ArticlePostModal,
     [PostType.Share]: SharePostModal,
-    [PostType.Welcome]: SharePostModal,
     [PostType.Freeform]: SharePostModal,
     [PostType.VideoYouTube]: ArticlePostModal,
     [PostType.Collection]: CollectionPostModal,
@@ -382,7 +381,7 @@ export default function Feed<T>({
     isSquadFeed || shouldUseListFeedLayout
       ? {
           ...adTemplate,
-          adStart: 2, // always make adStart 2 for squads due to welcome and pinned posts
+          adStart: 2, // always make adStart 2 for squads due to pinned posts
         }
       : adTemplate,
     numCards,

@@ -17,12 +17,13 @@ import type {
   SourceMember,
   SourcePermissions,
   Squad,
+  SquadRule,
 } from './sources';
 import type { FeedData, PollOption, Post } from './posts';
 import {
   RankingAlgorithm,
   SOURCE_FEED_QUERY,
-  supportedTypesForPrivateSources,
+  baseFeedSupportedTypes,
 } from './feed';
 import { gqlBatchRequest } from './batch';
 import type { EmptyResponse } from './emptyResponse';
@@ -285,6 +286,10 @@ export const SQUAD_QUERY = gql`
       moderationPostCount
       website
       links
+      rules {
+        title
+        description
+      }
     }
   }
   ${SQUAD_BASE_FRAGMENT}
@@ -320,6 +325,33 @@ export const updateSquadLinks = async (
   return res.updateSquadLinks;
 };
 
+export const UPDATE_SQUAD_RULES_MUTATION = gql`
+  mutation UpdateSquadRules($sourceId: ID!, $rules: [SquadRuleInput!]!) {
+    updateSquadRules(sourceId: $sourceId, rules: $rules) {
+      id
+      rules {
+        title
+        description
+      }
+    }
+  }
+`;
+
+export interface UpdateSquadRulesInput {
+  sourceId: string;
+  rules: SquadRule[];
+}
+
+export const updateSquadRules = async (
+  input: UpdateSquadRulesInput,
+): Promise<Pick<Squad, 'id' | 'rules'>> => {
+  const res = await gqlClient.request<{
+    updateSquadRules: Pick<Squad, 'id' | 'rules'>;
+  }>(UPDATE_SQUAD_RULES_MUTATION, input);
+
+  return res.updateSquadRules;
+};
+
 // sourceFeed always orders the pinned posts first, so the first page holds
 // every pin and the rest of it is dropped.
 const SQUAD_PINNED_POSTS_PAGE_SIZE = 10;
@@ -338,7 +370,7 @@ export const squadPinnedPostsQueryOptions = ({
       first: SQUAD_PINNED_POSTS_PAGE_SIZE,
       loggedIn: !!user,
       ranking: RankingAlgorithm.Time,
-      supportedTypes: supportedTypesForPrivateSources,
+      supportedTypes: baseFeedSupportedTypes,
     });
 
     return res.page.edges

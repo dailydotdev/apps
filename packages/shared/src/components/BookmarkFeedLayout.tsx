@@ -12,7 +12,7 @@ import {
   BookmarkSort,
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
-  supportedTypesForPrivateSources,
+  baseFeedSupportedTypes,
 } from '../graphql/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import AuthContext from '../contexts/AuthContext';
@@ -133,7 +133,7 @@ export default function BookmarkFeedLayout({
         query: SEARCH_BOOKMARKS_QUERY,
         variables: {
           query: searchQuery,
-          supportedTypes: supportedTypesForPrivateSources,
+          supportedTypes: baseFeedSupportedTypes,
         },
         emptyScreen: <SearchEmptyScreen />,
       };
@@ -152,7 +152,7 @@ export default function BookmarkFeedLayout({
         ...(listId && { listId }),
         reminderOnly: isReminderOnly,
         sort: selectedSortValue,
-        supportedTypes: supportedTypesForPrivateSources,
+        supportedTypes: baseFeedSupportedTypes,
       },
       emptyScreen: isReminderOnly ? (
         <BookmarkEmptyScreen

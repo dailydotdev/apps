@@ -8,11 +8,7 @@ import {
 } from '@dailydotdev/shared/src/components/post/freeform';
 import type { EditPostProps } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  usePostById,
-  useActions,
-  usePostToSquad,
-} from '@dailydotdev/shared/src/hooks';
+import { usePostById, usePostToSquad } from '@dailydotdev/shared/src/hooks';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
@@ -28,7 +24,6 @@ import {
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   WriteFormTab,
   WriteFormTabToFormID,
@@ -47,7 +42,6 @@ import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 function EditPost(): ReactElement {
   gqlClient.unsetHeader('content-language');
 
-  const { completeAction } = useActions();
   const { query, isReady, push } = useRouter();
   const idQuery = query.id as string;
   const isModeration = query.moderation === 'true';
@@ -104,10 +98,6 @@ function EditPost(): ReactElement {
   };
   const { onEditFreeformPost, isPosting, isSuccess } = usePostToSquad({
     onPostSuccess: async (data) => {
-      if (data.type === PostType.Welcome) {
-        completeAction(ActionType.EditWelcomePost);
-      }
-
       // A still-scheduled post is invisible, so its permalink 404s — send the
       // author back to their scheduled list instead of the (hidden) post.
       onSuccess(
@@ -181,17 +171,7 @@ function EditPost(): ReactElement {
   const isAuthor =
     post?.author.id === user?.id || moderated?.createdBy?.id === user?.id;
 
-  const canEdit = (() => {
-    if (isAuthor) {
-      return true;
-    }
-
-    if (post?.type !== PostType.Welcome) {
-      return false;
-    }
-
-    return verifyPermission(squad, SourcePermissions.WelcomePostEdit);
-  })();
+  const canEdit = isAuthor;
 
   const isLoadingPage =
     !fetchedPost &&

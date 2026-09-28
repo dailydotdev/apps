@@ -27,12 +27,13 @@ import {
   MAX_TOP_MEMBERS_BY_SQUAD,
   SQUAD_QUERY,
   TOP_MEMBERS_BY_SQUAD_QUERY,
+  UPDATE_SQUAD_RULES_MUTATION,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { SQUAD_PRODUCTS_QUERY } from '@dailydotdev/shared/src/graphql/squadProducts';
 import {
   RankingAlgorithm,
   SOURCE_FEED_QUERY,
-  supportedTypesForPrivateSources,
+  baseFeedSupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
 import { PIN_POST_MUTATION } from '@dailydotdev/shared/src/graphql/posts';
 import defaultPost from '@dailydotdev/shared/__tests__/fixture/post';
@@ -465,7 +466,7 @@ describe('squad page pinned posts', () => {
           first: 10,
           loggedIn: true,
           ranking: RankingAlgorithm.Time,
-          supportedTypes: supportedTypesForPrivateSources,
+          supportedTypes: baseFeedSupportedTypes,
         },
       },
       result: {
@@ -670,14 +671,66 @@ describe('squad page paid features', () => {
   });
 });
 
+describe('squad rules', () => {
+  const rules = [
+    { title: 'Stay on topic', description: 'Posts fit the Squad.' },
+    { title: 'Be respectful', description: null },
+  ];
+
+  it('lists the rule titles in the widget and links to the rules page', async () => {
+    const squad = createSquad({ rules });
+    mockSquad(squad);
+    renderSquadPage(squad);
+
+    const widget = (
+      await screen.findByRole('heading', { name: 'Rules' })
+    ).closest('section') as HTMLElement;
+    expect(
+      within(widget)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['1Stay on topic', '2Be respectful']);
+    expect(
+      within(widget).getByRole('link', { name: 'All rules' }),
+    ).toHaveAttribute('href', '/squads/webteam/rules');
+    expect(
+      within(widget).queryByRole('link', { name: 'Edit rules' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('links staff from the widget to the rules editor', async () => {
+    const squad = createSquad({ rules, currentMember: adminMember });
+    mockSquad(squad);
+    renderSquadPage(squad);
+
+    const widget = (
+      await screen.findByRole('heading', { name: 'Rules' })
+    ).closest('section') as HTMLElement;
+    expect(
+      within(widget).getByRole('link', { name: 'Edit rules' }),
+    ).toHaveAttribute('href', '/squads/webteam/manage/rules');
+  });
+
+  it('shows no rules widget when the squad removed every rule', async () => {
+    const squad = createSquad({ rules: [] });
+    mockSquad(squad);
+    renderSquadPage(squad);
+
+    await screen.findByLabelText('Squad options');
+    expect(
+      screen.queryByRole('heading', { name: 'Rules' }),
+    ).not.toBeInTheDocument();
+  });
+});
+
 describe('squad manage area', () => {
-  const renderManage = (squad: Squad) =>
+  const renderManage = (
+    squad: Squad,
+    section: SquadManageSection = SquadManageSection.Members,
+  ) =>
     renderWithBoot(
       SquadManageSectionPage.getLayout(
-        <SquadManageSectionPage
-          handle={squad.handle}
-          section={SquadManageSection.Members}
-        />,
+        <SquadManageSectionPage handle={squad.handle} section={section} />,
       ) as JSX.Element,
     );
 
@@ -719,5 +772,42 @@ describe('squad manage area', () => {
     await waitFor(() =>
       expect(replace).toHaveBeenCalledWith('/squads/webteam'),
     );
+  });
+
+  it('saves the edited rules in their new order', async () => {
+    const squad = createSquad({
+      currentMember: adminMember,
+      rules: [
+        { title: 'Stay on topic', description: 'Posts fit the Squad.' },
+        { title: 'Be respectful', description: null },
+      ],
+    });
+    mockSquad(squad);
+    const saved = [
+      { title: 'Be respectful', description: null },
+      { title: 'Stay on topic', description: 'Posts fit the Squad.' },
+      { title: 'No spam', description: null },
+    ];
+    let isSaved = false;
+    mockGraphQL({
+      request: {
+        query: UPDATE_SQUAD_RULES_MUTATION,
+        variables: { sourceId: squad.id, rules: saved },
+      },
+      result: () => {
+        isSaved = true;
+        return { data: { updateSquadRules: { id: squad.id, rules: saved } } };
+      },
+    });
+    renderManage(squad, SquadManageSection.Rules);
+
+    fireEvent.click(await screen.findByLabelText('Move rule 2 up'));
+    fireEvent.click(screen.getByText('Add rule'));
+    const titles = document.querySelectorAll('input[name^="rule-title-"]');
+    fireEvent.input(titles[2], { target: { value: '  No spam  ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await screen.findByText('The rules have been updated');
+    expect(isSaved).toBe(true);
   });
 });

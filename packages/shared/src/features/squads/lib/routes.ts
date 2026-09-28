@@ -4,6 +4,7 @@ export enum SquadManageSection {
   Details = 'details',
   Products = 'products',
   Links = 'links',
+  Rules = 'rules',
   Members = 'members',
   Moderation = 'moderation',
   Posting = 'posting',
@@ -27,6 +28,9 @@ export const getSquadMembersUrl = (handle: string): string =>
 
 export const getSquadProductsUrl = (handle: string): string =>
   `${getSquadUrl(handle)}/products`;
+
+export const getSquadRulesUrl = (handle: string): string =>
+  `${getSquadUrl(handle)}/rules`;
 
 export const getSquadPendingPostsUrl = (handle: string): string =>
   `${getSquadUrl(handle)}/pending`;
