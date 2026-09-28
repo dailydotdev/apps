@@ -19,6 +19,7 @@ import { SquadSubPageHeader } from './SquadSubPageHeader';
 import { SquadMembersList } from './SquadMembersList';
 import { SquadProductsList } from './products/SquadProductsList';
 import { SquadRulesList } from './SquadRulesList';
+import { SquadRulesEditButton } from './SquadRulesEditButton';
 
 const useBackToSquad = () => {
   const { squad } = useSquadPageContext();
@@ -83,7 +84,15 @@ export const SquadRulesPage = (): ReactElement => {
 
   return (
     <SquadPageLayout
-      header={<SquadSubPageHeader title="Rules" {...useBackToSquad()} />}
+      header={
+        <SquadSubPageHeader
+          title="Rules"
+          {...useBackToSquad()}
+          action={
+            <SquadRulesEditButton squad={squad} size={ButtonSize.Small} />
+          }
+        />
+      }
     >
       {rules.length ? (
         <SquadRulesList rules={rules} />
