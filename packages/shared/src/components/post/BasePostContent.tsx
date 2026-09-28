@@ -11,6 +11,7 @@ import { PostSignupWidget } from './PostSignupWidget';
 import {
   useMobileAppHeader,
   useMobileAppHeaderDeclutter,
+  useMobileAppHeaderIconOnlyRead,
 } from '../../features/getApp/hooks/useMobileAppHeader';
 
 const Custom404 = dynamic(
@@ -47,6 +48,7 @@ export function BasePostContent({
   const onReadArticle = postPageNavigationProps?.onReadArticle;
   const isMobileAppHeader = useMobileAppHeader();
   const isDecluttered = useMobileAppHeaderDeclutter();
+  const isIconOnlyRead = useMobileAppHeaderIconOnlyRead();
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -69,6 +71,7 @@ export function BasePostContent({
             onReadArticle={onReadArticle}
             buttonSize={ButtonSize.Small}
             hideOptions={isDecluttered}
+            inlineActions={isIconOnlyRead}
             hideSubscribeAction={isDecluttered}
           />
         </GoBackHeaderMobile>

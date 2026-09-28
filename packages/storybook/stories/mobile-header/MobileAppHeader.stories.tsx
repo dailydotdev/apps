@@ -17,7 +17,10 @@ import {
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { MobileAppActions } from '@dailydotdev/shared/src/features/getApp/components/MobileAppActions';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
-import { useMobileAppHeaderDeclutter } from '@dailydotdev/shared/src/features/getApp/hooks/useMobileAppHeader';
+import {
+  useMobileAppHeaderDeclutter,
+  useMobileAppHeaderIconOnlyRead,
+} from '@dailydotdev/shared/src/features/getApp/hooks/useMobileAppHeader';
 import { MobileFeedActions } from '@dailydotdev/shared/src/components/feeds/MobileFeedActions';
 import { GoBackHeaderMobile } from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
 import { PostHeaderActions } from '@dailydotdev/shared/src/components/post/PostHeaderActions';
@@ -82,6 +85,7 @@ const squad = {
 interface Args {
   experiment: boolean;
   declutter: boolean;
+  postType?: PostType;
 }
 
 const Providers = ({
@@ -185,21 +189,39 @@ export const BackBar: Story = {
 
 export const PostBar: Story = {
   name: 'Post bar: post, share and reader pages',
-  render: ({ experiment, declutter }) => (
-    <>
-      <CustomAuthBanner />
-      <GoBackHeaderMobile className="bg-background-subtle">
-        <PostHeaderActions
-          post={post}
-          className={experiment ? undefined : 'ml-auto'}
-          onReadArticle={fn()}
-          buttonSize={ButtonSize.Small}
-          hideOptions={experiment && declutter}
-          hideSubscribeAction={experiment && declutter}
-        />
-      </GoBackHeaderMobile>
-    </>
-  ),
+  args: { postType: PostType.Article },
+  argTypes: {
+    postType: {
+      control: 'select',
+      options: ['Article', 'Video', 'Collection'],
+      mapping: {
+        Article: PostType.Article,
+        Video: PostType.VideoYouTube,
+        Collection: PostType.Collection,
+      },
+      description: 'Video posts read "Watch video"; collections add Subscribe.',
+    },
+  },
+  render: function Render({ experiment, declutter, postType }) {
+    const isIconOnlyRead = useMobileAppHeaderIconOnlyRead();
+
+    return (
+      <>
+        <CustomAuthBanner />
+        <GoBackHeaderMobile className="bg-background-subtle">
+          <PostHeaderActions
+            post={{ ...post, type: postType ?? PostType.Article }}
+            className={experiment ? undefined : 'ml-auto'}
+            onReadArticle={fn()}
+            buttonSize={ButtonSize.Small}
+            hideOptions={experiment && declutter}
+            hideSubscribeAction={experiment && declutter}
+            inlineActions={isIconOnlyRead}
+          />
+        </GoBackHeaderMobile>
+      </>
+    );
+  },
 };
 
 export const ProfileBar: Story = {

@@ -1,5 +1,6 @@
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useMedia } from '../../../hooks/useMedia';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import {
   featureMobileAppHeader,
@@ -30,4 +31,16 @@ export const useMobileAppHeaderDeclutter = (): boolean => {
   });
 
   return isMobileAppHeader && isDecluttered;
+};
+
+// Below 375px the post bar can't hold the Read label ("Watch video" is the
+// widest) next to its menu, Log in and Open app, so it drops to its icon.
+const readLabelQueries = ['(min-width: 375px)'];
+const readLabelValues = [true];
+
+export const useMobileAppHeaderIconOnlyRead = (): boolean => {
+  const isMobileAppHeader = useMobileAppHeader();
+  const hasRoomForLabel = useMedia(readLabelQueries, readLabelValues, false);
+
+  return isMobileAppHeader && !hasRoomForLabel;
 };

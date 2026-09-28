@@ -13,7 +13,10 @@ import {
   featureMobileAppHeader,
   featureMobileAppHeaderDeclutter,
 } from '../../../lib/featureManagement';
-import { useMobileAppHeaderDeclutter } from '../hooks/useMobileAppHeader';
+import {
+  useMobileAppHeaderDeclutter,
+  useMobileAppHeaderIconOnlyRead,
+} from '../hooks/useMobileAppHeader';
 import { MobileAppHeader } from './MobileAppHeader';
 import { openAppUrl } from './MobileAppActions';
 
@@ -161,6 +164,43 @@ describe('MobileAppHeader', () => {
         feature: featureMobileAppHeaderDeclutter,
         shouldEvaluate: false,
       });
+    });
+  });
+
+  describe('post bar Read button', () => {
+    const renderIconOnlyRead = (width: number) => {
+      window.matchMedia = jest.fn().mockImplementation((query: string) => ({
+        matches: query === '(min-width: 375px)' && width >= 375,
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+      }));
+
+      return renderHook(() => useMobileAppHeaderIconOnlyRead(), {
+        wrapper: ({ children }) => (
+          <AuthContext.Provider
+            value={
+              {
+                isAuthReady: true,
+                isLoggedIn: false,
+                isAndroidApp: false,
+              } as unknown as AuthContextData
+            }
+          >
+            {children}
+          </AuthContext.Provider>
+        ),
+      }).result.current;
+    };
+
+    it('should drop to its icon below 375px in the header arm', () => {
+      expect(renderIconOnlyRead(360)).toBe(true);
+      expect(renderIconOnlyRead(375)).toBe(false);
+    });
+
+    it('should keep its label for control', () => {
+      mockFeature.mockReturnValue({ value: false, isLoading: false });
+
+      expect(renderIconOnlyRead(360)).toBe(false);
     });
   });
 });
