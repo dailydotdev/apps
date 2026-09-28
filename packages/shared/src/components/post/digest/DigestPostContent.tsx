@@ -56,7 +56,7 @@ const DigestPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement => {
+}: PostContentProps): ReactElement | null => {
   const { user, isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { subject } = useToastNotification();
@@ -160,6 +160,10 @@ const DigestPostContentRaw = ({
     [formattedDate, postsCount, sourcesCount],
   );
 
+  if (!post) {
+    return null;
+  }
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -172,7 +176,7 @@ const DigestPostContentRaw = ({
               isBannerVisible,
               className: className?.fixedNavigation,
             }
-          : null
+          : undefined
       }
     >
       <PostContainer
@@ -209,7 +213,7 @@ const DigestPostContentRaw = ({
               />
             </BriefPostHeader>
             <div className="flex flex-wrap items-center gap-3">
-              {post.collectionSources?.length > 0 && (
+              {!!post.collectionSources?.length && (
                 <div className="flex w-full items-center gap-1">
                   <CollectionPillSources
                     alwaysShowSources
