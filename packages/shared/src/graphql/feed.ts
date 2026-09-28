@@ -26,11 +26,6 @@ export const baseFeedSupportedTypes = [
   PostType.Poll,
 ];
 
-export const supportedTypesForPrivateSources = [
-  ...baseFeedSupportedTypes,
-  PostType.Welcome,
-];
-
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 export const FEED_V2_HIGHLIGHTS_LIMIT = 5;

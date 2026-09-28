@@ -10,6 +10,7 @@ import {
 } from '../../../../components/buttons/Button';
 import {
   ArrowIcon,
+  DocsIcon,
   LinkIcon,
   LockIcon,
   PollIcon,
@@ -31,7 +32,7 @@ import {
   isStaffViewer,
   SquadViewer,
 } from '../../lib/viewer';
-import { getSquadPendingPostsUrl } from '../../lib/routes';
+import { getSquadPendingPostsUrl, getSquadRulesUrl } from '../../lib/routes';
 
 const pendingStatus = [SourcePostModerationStatus.Pending];
 
@@ -86,6 +87,7 @@ const ComposerEntry = ({
   const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
+  const rulesUrl = getSquadRulesUrl(squad.handle);
   const openComposer = (initialKind: ComposerKind) =>
     openModal({
       type: LazyModal.SmartComposer,
@@ -135,15 +137,29 @@ const ComposerEntry = ({
               {label}
             </Button>
           ))}
-        {isReviewed && (
-          <span
-            title="Posts are reviewed by a moderator before they go live."
-            className="ml-auto hidden items-center gap-1.5 pr-1 text-text-quaternary typo-caption1 tablet:flex"
-          >
-            <TimerIcon size={IconSize.Size16} />
-            Reviewed before it goes live
-          </span>
-        )}
+        <div className="ml-auto flex items-center gap-3 pr-1 text-text-quaternary typo-caption1">
+          {isReviewed && (
+            <span
+              title="Posts are reviewed by a moderator before they go live."
+              className="hidden items-center gap-1.5 tablet:flex"
+            >
+              <TimerIcon size={IconSize.Size16} />
+              Reviewed before it goes live
+            </span>
+          )}
+          {!!squad.rules?.length && (
+            <Link href={rulesUrl} passHref>
+              <a
+                href={rulesUrl}
+                onClick={(event) => event.stopPropagation()}
+                className="flex items-center gap-1.5 hover:text-text-primary"
+              >
+                <DocsIcon size={IconSize.Size16} />
+                Read the rules
+              </a>
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

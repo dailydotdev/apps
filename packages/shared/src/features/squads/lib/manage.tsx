@@ -6,6 +6,7 @@ import { verifyPermission } from '../../../graphql/squads';
 import {
   AnalyticsIcon,
   AppIcon,
+  DocsIcon,
   EditIcon,
   EmbedIcon,
   LinkIcon,
@@ -35,6 +36,7 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Details]: 'Details',
   [SquadManageSection.Products]: 'Products',
   [SquadManageSection.Links]: 'Links',
+  [SquadManageSection.Rules]: 'Rules',
   [SquadManageSection.Members]: 'Members',
   [SquadManageSection.Moderation]: 'Moderation',
   [SquadManageSection.Posting]: 'Posting and invitations',
@@ -48,6 +50,7 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
 
   switch (section) {
     case SquadManageSection.Details:
+    case SquadManageSection.Rules:
     case SquadManageSection.Posting:
       return canEdit;
     case SquadManageSection.Products:
@@ -90,6 +93,7 @@ export const getSquadManageGroups = (
         item(SquadManageSection.Details, <EditIcon />),
         item(SquadManageSection.Products, <AppIcon />),
         item(SquadManageSection.Links, <LinkIcon />),
+        item(SquadManageSection.Rules, <DocsIcon />),
       ],
     },
     {

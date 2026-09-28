@@ -286,13 +286,6 @@ export const coverage: { group: string; rows: Row[] }[] = [
         status: 'Covered',
       },
       {
-        surface: 'Welcome post',
-        production: 'PostType.Welcome, editable by WelcomePostEdit',
-        design:
-          'The first pinned post; on a fed page the Content feed page explains the source',
-        status: 'Covered',
-      },
-      {
         surface: 'Search this Squad',
         production: 'PostsSearch in the feed heading',
         design:

@@ -42,17 +42,16 @@ interface SquadContentProps {
 }
 
 const ContentMap: Record<
-  PostType.Freeform | PostType.Welcome | PostType.Share | PostType.VideoYouTube,
+  PostType.Freeform | PostType.Share | PostType.VideoYouTube,
   ComponentType<SquadContentProps>
 > = {
   [PostType.Freeform]: MarkdownPostContent,
-  [PostType.Welcome]: MarkdownPostContent,
   [PostType.Share]: SharePostContent,
   [PostType.VideoYouTube]: ShareYouTubeContent,
 };
 
 const getSquadContentComponent = (type: PostType) => {
-  if (type === PostType.Freeform || type === PostType.Welcome) {
+  if (type === PostType.Freeform) {
     return ContentMap[PostType.Freeform];
   }
 

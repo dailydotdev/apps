@@ -179,7 +179,7 @@ export interface SidebarSection {
 // Recurring threads are Reddit's other invention: the monthly Who's hiring,
 // the weekly easy-questions thread, Showoff Saturday. Rules and a Read-first
 // wiki are the sidebar on every subreddit. daily.dev already has the parts:
-// post types, posting gates, scheduled posts, pinning, the welcome post.
+// post types, posting gates, scheduled posts and pinning.
 
 const page = (
   id: string,

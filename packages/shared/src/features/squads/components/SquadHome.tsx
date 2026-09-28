@@ -6,7 +6,7 @@ import type { FeedProps } from '../../../components/Feed';
 import {
   SEARCH_SOURCE_POSTS_QUERY,
   SOURCE_FEED_QUERY,
-  supportedTypesForPrivateSources,
+  baseFeedSupportedTypes,
 } from '../../../graphql/feed';
 import { FeedLayoutProvider } from '../../../contexts/FeedContext';
 import { NoEngagementAdsProvider } from '../../../contexts/EngagementAdsContext';
@@ -77,7 +77,7 @@ export const SquadHome = ({
         variables: {
           source: squad.id,
           query: searchQuery,
-          supportedTypes: supportedTypesForPrivateSources,
+          supportedTypes: baseFeedSupportedTypes,
           postTypes: postTypesFilter,
           version: searchVersion,
         },
@@ -90,7 +90,7 @@ export const SquadHome = ({
     const variables = {
       source: squad.id,
       ranking: 'TIME',
-      supportedTypes: supportedTypesForPrivateSources,
+      supportedTypes: baseFeedSupportedTypes,
     };
 
     return {

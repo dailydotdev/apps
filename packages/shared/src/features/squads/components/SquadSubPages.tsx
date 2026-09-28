@@ -18,6 +18,7 @@ import { SquadPageLayout } from './SquadPageLayout';
 import { SquadSubPageHeader } from './SquadSubPageHeader';
 import { SquadMembersList } from './SquadMembersList';
 import { SquadProductsList } from './products/SquadProductsList';
+import { SquadRulesList } from './SquadRulesList';
 
 const useBackToSquad = () => {
   const { squad } = useSquadPageContext();
@@ -72,6 +73,25 @@ export const SquadProductsPage = (): ReactElement => {
       }
     >
       <SquadProductsList />
+    </SquadPageLayout>
+  );
+};
+
+export const SquadRulesPage = (): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const rules = squad.rules ?? [];
+
+  return (
+    <SquadPageLayout
+      header={<SquadSubPageHeader title="Rules" {...useBackToSquad()} />}
+    >
+      {rules.length ? (
+        <SquadRulesList rules={rules} />
+      ) : (
+        <p className="px-4 py-6 text-text-secondary typo-callout tablet:px-6">
+          {squad.name} has no rules yet.
+        </p>
+      )}
     </SquadPageLayout>
   );
 };

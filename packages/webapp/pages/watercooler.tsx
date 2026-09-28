@@ -6,7 +6,7 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import {
   SOURCE_FEED_QUERY,
-  supportedTypesForPrivateSources,
+  baseFeedSupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
@@ -64,7 +64,7 @@ const WatercoolerPage = (): ReactElement => {
     () => ({
       source: squadId,
       ranking: 'TIME',
-      supportedTypes: supportedTypesForPrivateSources,
+      supportedTypes: baseFeedSupportedTypes,
     }),
     [squadId],
   );

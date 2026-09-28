@@ -29,7 +29,7 @@ import type { FeedProps } from '../../Feed';
 import Feed from '../../Feed';
 import {
   FEED_BY_IDS_QUERY,
-  supportedTypesForPrivateSources,
+  baseFeedSupportedTypes,
 } from '../../../graphql/feed';
 import {
   generateQueryKey,
@@ -115,7 +115,7 @@ const DigestPostContentRaw = ({
       feedQueryKey,
       query: FEED_BY_IDS_QUERY,
       variables: {
-        supportedTypes: supportedTypesForPrivateSources,
+        supportedTypes: baseFeedSupportedTypes,
         postIds: digestPostIds,
       },
       disableAds: true,

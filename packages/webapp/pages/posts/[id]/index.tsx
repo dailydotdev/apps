@@ -186,7 +186,6 @@ type PostContentComponent = ComponentType<PostContentProps>;
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
   share: SquadPostContent as PostContentComponent,
-  welcome: SquadPostContent as PostContentComponent,
   freeform: SquadPostContent as PostContentComponent,
   [PostType.VideoYouTube]: PostContent as PostContentComponent,
   collection: CollectionPostContent as PostContentComponent,
@@ -413,12 +412,9 @@ export const PostPage = ({
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
-    [
-      PostType.Share,
-      PostType.Welcome,
-      PostType.Freeform,
-      PostType.SocialTwitter,
-    ].includes(post?.type),
+    [PostType.Share, PostType.Freeform, PostType.SocialTwitter].includes(
+      post?.type,
+    ),
     featureTheme && 'bg-transparent',
   );
   useSharedByToast();
