@@ -4,6 +4,7 @@ import { HashtagIcon, OpenLinkIcon, SearchIcon } from '../../icons';
 import {
   SearchProviderEnum,
   getSearchUrl,
+  getSourceSuggestionUrl,
   minSearchQueryLength,
   type SearchSuggestion,
 } from '../../../graphql/search';
@@ -116,7 +117,7 @@ const buildSourceCommand = (
     if (!hit.id) {
       return;
     }
-    router.push(`${webappUrl}sources/${hit.id}`);
+    router.push(getSourceSuggestionUrl(hit));
   },
 });
 

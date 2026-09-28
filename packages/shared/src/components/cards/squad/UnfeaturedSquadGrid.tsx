@@ -15,6 +15,8 @@ import { Origin } from '../../../lib/log';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { ButtonVariant } from '../../buttons/common';
 import { Image, ImageType } from '../../image/Image';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 export const UnfeaturedSquadGrid = ({
   source,
@@ -44,14 +46,17 @@ export const UnfeaturedSquadGrid = ({
           buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
         />
       </div>
-      <Typography
-        tag={TypographyTag.H1}
-        type={TypographyType.Body}
-        bold
-        truncate
-      >
-        {title}
-      </Typography>
+      <div className="flex items-center gap-1">
+        <Typography
+          tag={TypographyTag.H1}
+          type={TypographyType.Body}
+          bold
+          truncate
+        >
+          {title}
+        </Typography>
+        {hasSquadFeature(source, 'verified') && <VerifiedSquadBadge />}
+      </div>
       <Typography
         tag={TypographyTag.P}
         type={TypographyType.Callout}
