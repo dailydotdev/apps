@@ -4,10 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { Post } from '../../../graphql/posts';
 import { gqlClient } from '../../../graphql/common';
 import type { FeedHeroData } from '../../../graphql/feed';
-import {
-  FEED_HERO_QUERY,
-  supportedTypesForPrivateSources,
-} from '../../../graphql/feed';
+import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../../graphql/feed';
 import type { PostHighlight } from '../../../graphql/highlights';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../../features/monetization/viewability';
@@ -76,7 +73,7 @@ export const FeedHero = ({
     queryFn: () =>
       gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
         loggedIn: !!user,
-        supportedTypes: supportedTypesForPrivateSources,
+        supportedTypes: baseFeedSupportedTypes,
       }),
     enabled: isTokenValid,
     // The same window `majorHeadlinesQueryOptions` gives the in-feed card, so

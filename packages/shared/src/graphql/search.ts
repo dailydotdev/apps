@@ -4,6 +4,12 @@ import { webappUrl } from '../lib/constants';
 import { labels } from '../lib';
 import type { ContentPreference } from './contentPreference';
 import { PostType } from '../types';
+import { gqlClient } from './common';
+import type { Connection } from './common';
+import type { Post } from './posts';
+import { baseFeedSupportedTypes } from './feed';
+import type { LoggedUser } from '../lib/user';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export enum SearchTime {
   AllTime = 'All Time',
@@ -157,10 +163,11 @@ export interface Search {
   chunks: SearchChunk[];
 }
 
-// Search control version suggestions
+// Search control version suggestions. `source` narrows them to one squad or
+// source, with the same access rules as `searchSourcePosts`.
 export const SEARCH_POST_SUGGESTIONS = gql`
-  query SearchPostSuggestions($query: String!, $version: Int) {
-    searchPostSuggestions(query: $query, version: $version) {
+  query SearchPostSuggestions($query: String!, $version: Int, $source: ID) {
+    searchPostSuggestions(query: $query, version: $version, source: $source) {
       hits {
         id
         title
@@ -170,6 +177,77 @@ export const SEARCH_POST_SUGGESTIONS = gql`
     }
   }
 `;
+
+// What a squad scoped Spotlight shows before anything is typed: the squad's
+// feed opens with its pinned posts, then the latest ones.
+export const SOURCE_SPOTLIGHT_POSTS_QUERY = gql`
+  query SourceSpotlightPosts(
+    $source: ID!
+    $first: Int
+    $supportedTypes: [String!]
+  ) {
+    page: sourceFeed(
+      source: $source
+      first: $first
+      ranking: TIME
+      supportedTypes: $supportedTypes
+    ) {
+      edges {
+        node {
+          id
+          title
+          image
+          pinnedAt
+          createdAt
+          author {
+            name
+          }
+          sharedPost {
+            title
+            image
+          }
+        }
+      }
+    }
+  }
+`;
+
+export type SourceSpotlightPost = Pick<
+  Post,
+  'id' | 'title' | 'image' | 'pinnedAt' | 'createdAt'
+> & {
+  author?: Pick<NonNullable<Post['author']>, 'name'> | null;
+  sharedPost?: Pick<NonNullable<Post['sharedPost']>, 'title' | 'image'> | null;
+};
+
+export const SOURCE_SPOTLIGHT_POSTS_LIMIT = 8;
+
+export const sourceSpotlightPostsQueryOptions = ({
+  user,
+  sourceId,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  sourceId: string;
+}) => ({
+  queryKey: generateQueryKey(
+    RequestKey.Search,
+    user,
+    'spotlight-source-posts',
+    sourceId,
+  ),
+  queryFn: async (): Promise<SourceSpotlightPost[]> => {
+    const { page } = await gqlClient.request<{
+      page: Connection<SourceSpotlightPost>;
+    }>(SOURCE_SPOTLIGHT_POSTS_QUERY, {
+      source: sourceId,
+      first: SOURCE_SPOTLIGHT_POSTS_LIMIT,
+      supportedTypes: baseFeedSupportedTypes,
+    });
+
+    return page.edges.map(({ node }) => node);
+  },
+  staleTime: StaleTime.Default,
+});
 
 export const SEARCH_TAG_SUGGESTIONS = gql`
   query SearchTagSuggestions($query: String!, $version: Int, $limit: Int) {

@@ -12,7 +12,6 @@ import { BriefCard } from '../brief/BriefCard/BriefCard';
 export const PostTypeToListCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Article]: ArticleList,
   [PostType.Share]: ShareList,
-  [PostType.Welcome]: FreeformList,
   [PostType.Freeform]: FreeformList,
   [PostType.VideoYouTube]: ArticleList,
   [PostType.Collection]: CollectionList,

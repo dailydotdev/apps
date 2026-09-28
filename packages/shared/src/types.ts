@@ -25,7 +25,6 @@ export type FAQItem = {
 export enum PostType {
   Article = 'article',
   Share = 'share',
-  Welcome = 'welcome',
   Freeform = 'freeform',
   VideoYouTube = 'video:youtube',
   Collection = 'collection',

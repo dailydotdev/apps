@@ -126,6 +126,27 @@ describe('squad page getServerSideProps seo', () => {
     expect(result).not.toMatchObject({ props: { jsonLd: expect.anything() } });
   });
 
+  it.each([
+    ['lists', true, ['https://example.com', 'https://github.com/example']],
+    ['leaves out', false, undefined],
+  ])(
+    '%s the stored links in the organization data by the links feature',
+    async (_, links, sameAs) => {
+      mockStaticFields.mockResolvedValue(createSquad(true));
+      mockGetSquad.mockResolvedValue({
+        ...createSquad(true),
+        features: { verified: null, adFree: null, links, products: null },
+        website: 'https://example.com',
+        links: ['https://github.com/example'],
+      });
+
+      const result = (await runGssp()) as { props: { jsonLd: string } };
+      const [organization] = JSON.parse(result.props.jsonLd)['@graph'];
+
+      expect(organization.sameAs).toEqual(sameAs);
+    },
+  );
+
   // SSR is always unauthenticated, so the API rejects every private squad with
   // FORBIDDEN before we ever see `public`. This fallback used to ship no seo at
   // all, which left private squads advertised as index,follow.

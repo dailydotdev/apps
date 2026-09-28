@@ -83,7 +83,7 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
 
 jest.mock('../filters/IntroQuestButton', () => ({
   IntroQuestButton: function MockIntroQuestButton() {
-    return null;
+    return <div data-testid="intro-quest-button" />;
   },
 }));
 
@@ -282,6 +282,34 @@ describe('SearchControlHeader', () => {
     ).toBeInTheDocument();
   });
 
+  it('does not render the install extension prompt in the v2 strip', () => {
+    mockUseActions.mockReturnValue(createActionsState());
+    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+
+    renderComponent();
+
+    expect(
+      screen.queryByRole('link', { name: 'Get it for Chrome' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders the intro quest button in the control layout', () => {
+    mockUseActions.mockReturnValue(createActionsState());
+
+    renderComponent();
+
+    expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
+  });
+
+  it('renders the intro quest button in the v2 layout', () => {
+    mockUseActions.mockReturnValue(createActionsState());
+    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+
+    renderComponent();
+
+    expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
+  });
+
   it('renders v2 feed actions icon-only below tablet without chips', () => {
     mockUseActions.mockReturnValue(createActionsState());
     mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
@@ -289,24 +317,19 @@ describe('SearchControlHeader', () => {
 
     renderComponent();
 
-    expect(
-      screen.getByRole('link', { name: 'Generate brief' }),
-    ).toBeInTheDocument();
-    expect(screen.queryByText('Generate brief')).not.toBeInTheDocument();
     expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
       'data-icon-only',
       'true',
     );
   });
 
-  it('renders the v2 brief shortcut label at tablet size without chips', () => {
+  it('renders v2 feed actions with labels at tablet size without chips', () => {
     mockUseActions.mockReturnValue(createActionsState());
     mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
     mockViewSize({ isTablet: true, isLaptop: false });
 
     renderComponent();
 
-    expect(screen.getByText('Generate brief')).toBeInTheDocument();
     expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
       'data-icon-only',
       'false',
@@ -320,10 +343,6 @@ describe('SearchControlHeader', () => {
 
     renderComponent({ chips: <div>Chips</div> });
 
-    expect(
-      screen.getByRole('link', { name: 'Generate brief' }),
-    ).toBeInTheDocument();
-    expect(screen.queryByText('Generate brief')).not.toBeInTheDocument();
     expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
       'data-icon-only',
       'true',

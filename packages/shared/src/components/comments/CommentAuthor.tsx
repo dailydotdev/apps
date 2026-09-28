@@ -42,6 +42,7 @@ export default function CommentAuthor({
           className,
         )}
         title={author.name}
+        translate="no"
       >
         <TruncateText>{author.name}</TruncateText>
       </ProfileLink>

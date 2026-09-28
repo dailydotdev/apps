@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useSearchParams } from 'next/navigation';
 import {
   Typography,
   TypographyColor,
@@ -41,14 +40,12 @@ const SquadModerationPreview = (props: SquadModerationItemProps) => {
 const SpamWarnings = {
   [WarningReason.MultipleSquadPost]: 'Shared in multiple Squads - Spam alert',
   [WarningReason.DuplicatedInSameSquad]:
-    'Duplicate post - the same post has been previously shared in the Squad"',
+    'Duplicate post - the same post has been previously shared in the Squad',
 };
 
 export function SquadModerationItem(
   props: SquadModerationItemProps,
 ): ReactElement {
-  const searchParams = useSearchParams();
-  const handle = searchParams?.get('handle');
   const { context, modal, user } = useSourceModerationItem(props);
   const { data, squad, onApprove, onReject, isPending } = props;
   const { rejectionReason, createdBy, createdAt, status, source } = data;
@@ -58,8 +55,9 @@ export function SquadModerationItem(
 
   const post = data.sharedPost || data.post;
   const { title } = useTruncatedSummary(
-    data?.title || data.sharedPost?.title || data.post?.title,
+    data?.title || data.sharedPost?.title || data.post?.title || '',
   );
+  const squadName = (squad ?? source)?.name;
 
   return (
     <div className="relative flex flex-col gap-4 border-b border-border-subtlest-tertiary p-6 hover:bg-surface-hover">
@@ -72,7 +70,7 @@ export function SquadModerationItem(
         onClick={modal.open}
         type="button"
       />
-      {!handle && (
+      {!squad && source && (
         <div className="flex gap-2">
           <SourceProfilePicture
             className="pointer-events-none"
@@ -88,14 +86,16 @@ export function SquadModerationItem(
         </div>
       )}
       <div className="flex flex-row gap-4">
-        <ProfilePicture
-          className="pointer-events-none"
-          user={createdBy}
-          size={ProfileImageSize.Large}
-        />
+        {createdBy && (
+          <ProfilePicture
+            className="pointer-events-none"
+            user={createdBy}
+            size={ProfileImageSize.Large}
+          />
+        )}
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Footnote}>
-            {createdBy.name}
+            {createdBy?.name}
           </Typography>
           <div className="flex flex-row gap-1">
             <PostMetadata readTime={post?.readTime} createdAt={createdAt} />
@@ -136,7 +136,7 @@ export function SquadModerationItem(
       <SquadModerationPreview {...props} />
       {status === SourcePostModerationStatus.Rejected && !user.isModerator && (
         <AlertPointerMessage color={AlertColor.Bun}>
-          Your post in {squad.name} was not approved for the following reason:
+          Your post in {squadName} was not approved for the following reason:{' '}
           {rejectionReason}. Please review the feedback and consider making
           changes before resubmitting.
         </AlertPointerMessage>

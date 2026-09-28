@@ -13,7 +13,7 @@ import {
 import CardOverlay from '../common/CardOverlay';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
-import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
+import { FreeformCardFooter } from '../common/FreeformCardFooter';
 import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import PostTags from '../common/PostTags';
@@ -97,7 +97,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         />
       </Container>
       <Container ref={containerRef}>
-        <WelcomePostCardFooter
+        <FreeformCardFooter
           image={image}
           contentHtml={post.contentHtml}
           post={post}

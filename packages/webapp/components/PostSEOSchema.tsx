@@ -13,7 +13,6 @@ import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 const USER_GENERATED_POST_TYPES: PostType[] = [
   PostType.Share,
   PostType.Freeform,
-  PostType.Welcome,
   PostType.Poll,
 ];
 const SEO_DESCRIPTION_MAX_LENGTH = 160;
@@ -62,7 +61,7 @@ export const getSeoDescription = (post: Post): string => {
  * Get the text content for a post (used in DiscussionForumPosting)
  */
 const getPostTextContent = (post: Post): string => {
-  // For freeform/welcome posts, use summary or description
+  // For freeform posts, use summary or description
   if (post?.summary) {
     return post.summary;
   }

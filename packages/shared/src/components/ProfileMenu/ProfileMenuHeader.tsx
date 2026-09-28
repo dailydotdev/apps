@@ -80,6 +80,7 @@ export const ProfileMenuHeader = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
             truncate
+            translate="no"
           >
             @{user.username}
           </Typography>

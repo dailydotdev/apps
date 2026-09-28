@@ -87,6 +87,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
+import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
@@ -185,7 +186,6 @@ type PostContentComponent = ComponentType<PostContentProps>;
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
   share: SquadPostContent as PostContentComponent,
-  welcome: SquadPostContent as PostContentComponent,
   freeform: SquadPostContent as PostContentComponent,
   [PostType.VideoYouTube]: PostContent as PostContentComponent,
   collection: CollectionPostContent as PostContentComponent,
@@ -259,9 +259,10 @@ export const PostPage = ({
     showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
   const showSignupStrip =
     showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
-  // Empty for every logged-in visitor; the slot components check the same
-  // hook, so with it empty neither markup nor the Prebid bundle exists.
-  const adSlots = useOrganicAdSlots();
+  // Empty for every logged-in visitor and for posts in ad-free squads; the
+  // slot components check the same hook, so with it empty neither markup nor
+  // the Prebid bundle exists.
+  const adSlots = useOrganicAdSlots(post);
   const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
   // the organic page: the TLDR splits at the shared cadence with an MPU
@@ -411,12 +412,9 @@ export const PostPage = ({
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
-    [
-      PostType.Share,
-      PostType.Welcome,
-      PostType.Freeform,
-      PostType.SocialTwitter,
-    ].includes(post?.type),
+    [PostType.Share, PostType.Freeform, PostType.SocialTwitter].includes(
+      post?.type,
+    ),
     featureTheme && 'bg-transparent',
   );
   useSharedByToast();
@@ -477,7 +475,9 @@ export const PostPage = ({
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
         selector={() => {
-          const creative = getCreativeForTags(post?.tags || []);
+          const creative = isSourceAdFree(post?.source)
+            ? null
+            : getCreativeForTags(post?.tags || []);
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
@@ -566,16 +566,24 @@ export const PostPage = ({
   );
 };
 
-PostPage.getLayout = getLayout;
+const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) =>
+  getLayout(page, pageProps, {
+    ...layoutProps,
+    // Strip first: both pin, and the banner's top offset is the strip's height.
+    customBanner: (
+      <>
+        <PhoneTopAdStrip
+          surface="organic"
+          post={(pageProps as Partial<Props> | undefined)?.initialData?.post}
+        />
+        <CustomAuthBanner />
+      </>
+    ),
+  });
+
+PostPage.getLayout = getPostPageLayout;
 PostPage.layoutProps = {
   screenCentered: false,
-  // Strip first: both pin, and the banner's top offset is the strip's height.
-  customBanner: (
-    <>
-      <PhoneTopAdStrip surface="organic" />
-      <CustomAuthBanner />
-    </>
-  ),
 };
 
 export default PostPage;
