@@ -3,6 +3,7 @@ import { isNullOrUndefined } from '../lib/func';
 import { webappUrl } from '../lib/constants';
 import { labels } from '../lib';
 import type { ContentPreference } from './contentPreference';
+import { SourceType } from './sources';
 import { PostType } from '../types';
 import { gqlClient } from './common';
 import type { Connection } from './common';
@@ -280,6 +281,8 @@ export const SEARCH_SOURCE_SUGGESTIONS = gql`
         title
         subtitle
         image
+        sourceType
+        verified
         contentPreference {
           status
         }
@@ -433,7 +436,14 @@ export type SearchSuggestion = {
   subtitle?: string;
   image?: string;
   contentPreference?: ContentPreference;
+  sourceType?: SourceType;
+  verified?: boolean;
 };
+
+export const getSourceSuggestionUrl = (suggestion: SearchSuggestion): string =>
+  `${webappUrl}${
+    suggestion.sourceType === SourceType.Squad ? 'squads' : 'sources'
+  }/${suggestion.subtitle?.toLowerCase() || suggestion.id}`;
 
 export type SearchSuggestionResult = {
   hits: SearchSuggestion[];

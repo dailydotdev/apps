@@ -62,6 +62,7 @@ const defaultProps: ToolPageProps = {
       image: 'https://daily.dev/squad.png',
       description: null,
       membersCount: 42,
+      features: null,
     },
   ],
   topPosts: [
@@ -113,6 +114,7 @@ const defaultProps: ToolPageProps = {
     image: 'https://daily.dev/docker-source.png',
     type: SourceType.Machine,
     permalink: 'https://app.daily.dev/sources/docker',
+    membersCount: 0,
   },
   alternatives: [
     {
@@ -259,6 +261,7 @@ it('should render squads with the directory card details', async () => {
         image: 'https://daily.dev/squad.png',
         description: 'Where the platform folks hang out.',
         membersCount: 42,
+        features: null,
       },
     ],
   };
@@ -270,6 +273,35 @@ it('should render squads with the directory card details', async () => {
   ).toBeInTheDocument();
   expect(screen.getByText(/@platform/)).toBeInTheDocument();
   expect(screen.getByText('42 members')).toBeInTheDocument();
+});
+
+it('should show a verified official squad as a card instead of the pill', async () => {
+  renderComponent({
+    ...defaultProps,
+    officialSource: {
+      id: 'squad1',
+      name: 'Docker',
+      handle: 'dockerhq',
+      image: 'https://daily.dev/docker-squad.png',
+      type: SourceType.Squad,
+      permalink: 'https://app.daily.dev/squads/dockerhq',
+      description: 'News and tips from the Docker team',
+      membersCount: 1200,
+      features: { verified: true, adFree: null, links: null, products: null },
+    },
+  });
+
+  expect(
+    await screen.findByRole('link', { name: 'Docker official squad' }),
+  ).toHaveAttribute('href', 'https://app.daily.dev/squads/dockerhq');
+  expect(
+    screen.getByRole('img', { name: 'Verified Company Squad' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('News and tips from the Docker team'),
+  ).toBeInTheDocument();
+  expect(screen.getByText(/1.2K\s+members/)).toBeInTheDocument();
+  expect(screen.queryByText('Official source')).not.toBeInTheDocument();
 });
 
 it('should copy an absolute, tracked link to the tool', async () => {

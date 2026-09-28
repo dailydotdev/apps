@@ -41,6 +41,7 @@ import {
   voteTool,
 } from '@dailydotdev/shared/src/graphql/tools';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -117,6 +118,7 @@ import { getAppOrigin } from '../../lib/seo';
 import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
 import { useAddToolToStack } from '../../components/tools/useAddToolToStack';
 import { ToolSquadCard } from '../../components/tools/ToolSquadCard';
+import { ToolOfficialSquadCard } from '../../components/tools/ToolOfficialSquadCard';
 import { ToolCard } from '../../components/tools/ToolCard';
 import { ToolPageNavbar } from '../../components/tools/ToolPageNavbar';
 import { ToolSection } from '../../components/tools/ToolSection';
@@ -124,6 +126,7 @@ import { ToolSection } from '../../components/tools/ToolSection';
 const TOP_POSTS_COUNT = 5;
 const STACKERS_COUNT = 5;
 const ALTERNATIVES_COUNT = 6;
+const TOP_SQUADS_COUNT = 3;
 // Mirrors the sitemap inclusion gate in daily-api.
 const MIN_INDEXABLE_STACKS = 3;
 
@@ -579,6 +582,10 @@ const ToolPage = ({
     [logEvent],
   );
 
+  const isVerifiedOfficialSquad =
+    officialSource?.type === SourceType.Squad &&
+    hasSquadFeature(officialSource, 'verified');
+
   const handleOfficialSourceClick = useCallback(() => {
     if (!officialSource) {
       return;
@@ -709,9 +716,17 @@ const ToolPage = ({
             </Typography>
           )}
 
-          {(!!officialSource || !!claimedByState) && (
+          {officialSource && isVerifiedOfficialSquad && (
+            <ToolOfficialSquadCard
+              source={officialSource}
+              onClick={handleOfficialSourceClick}
+            />
+          )}
+
+          {((!!officialSource && !isVerifiedOfficialSquad) ||
+            !!claimedByState) && (
             <div className="flex flex-wrap items-center justify-center gap-2">
-              {officialSource && (
+              {officialSource && !isVerifiedOfficialSquad && (
                 <Link href={officialSource.permalink} passHref>
                   <a
                     href={officialSource.permalink}
@@ -1198,7 +1213,8 @@ export async function getStaticProps({
       facts,
     ] = await Promise.all([
       getToolsAlsoStacked(tool.id),
-      getTopSquadsForTool({ toolId: tool.id, first: 3 }),
+      // One extra so the list stays full once the official squad is dropped
+      getTopSquadsForTool({ toolId: tool.id, first: TOP_SQUADS_COUNT + 1 }),
       tool.keyword
         ? getToolTopPosts(tool.keyword, TOP_POSTS_COUNT)
         : Promise.resolve([]),
@@ -1226,7 +1242,9 @@ export async function getStaticProps({
       props: {
         tool,
         alsoStacked,
-        topSquads,
+        topSquads: topSquads
+          .filter(({ id }) => id !== officialSource?.id)
+          .slice(0, TOP_SQUADS_COUNT),
         topPosts,
         stackers,
         adoption,
