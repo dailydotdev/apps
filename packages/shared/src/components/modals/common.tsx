@@ -514,6 +514,10 @@ const PostImpressionsModal = dynamic(
     ),
 );
 
+const AgentIntroModal = dynamic(
+  () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
+);
+
 export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
@@ -597,6 +601,7 @@ export const modals = {
   [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
+  [LazyModal.AgentIntro]: AgentIntroModal,
 };
 
 type GetComponentProps<T> = T extends

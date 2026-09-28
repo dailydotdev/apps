@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -10,6 +10,10 @@ import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagem
 import { interestsQueryOptions } from '@dailydotdev/shared/src/features/interests/queries';
 import { useCreateInterest } from '@dailydotdev/shared/src/features/interests/hooks/useCreateInterest';
 import { AgentHomeScreen } from '@dailydotdev/shared/src/features/interests/components/AgentHomeScreen';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -45,6 +49,23 @@ const Page = (): ReactElement | null => {
     }
   }, [isGatedOut, router]);
 
+  const { checkHasCompleted, isActionsFetched } = useActions();
+  const { openModal } = useLazyModal();
+  const hasOpenedIntroRef = useRef(false);
+  const shouldShowIntro =
+    showAgent &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.InterestAgentIntroSeen);
+
+  useEffect(() => {
+    if (!shouldShowIntro || hasOpenedIntroRef.current) {
+      return;
+    }
+
+    hasOpenedIntroRef.current = true;
+    openModal({ type: LazyModal.AgentIntro });
+  }, [shouldShowIntro, openModal]);
+
   if (isGatedOut) {
     return null;
   }
@@ -72,6 +93,6 @@ const seo: NextSeoProps = {
 };
 
 Page.getLayout = getAgentLayout;
-Page.layoutProps = { seo, screenCentered: false, hideFeedbackWidget: true };
+Page.layoutProps = { seo, screenCentered: false };
 
 export default Page;

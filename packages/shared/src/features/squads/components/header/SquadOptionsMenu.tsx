@@ -251,16 +251,16 @@ export const SquadOptionsMenu = (): ReactElement => {
       <DropdownMenuContent className="w-64">
         {manageEntries.length > 0 && (
           <>
-            <span className="px-2 pb-1 pt-2 font-bold uppercase text-text-quaternary typo-caption2">
+            <div className="px-2.5 pb-1 pt-2 font-bold uppercase tracking-[0.12em] text-text-quaternary typo-caption2">
               Manage
-            </span>
+            </div>
             {manageEntries.map(({ label, icon, href, badge }) => (
-              <DropdownMenuItem key={label} asChild>
+              <DropdownMenuItem key={label}>
                 <Link href={href} passHref>
                   <a
                     href={href}
                     role="menuitem"
-                    className="inline-flex flex-1 items-center gap-2"
+                    className="inline-flex min-w-0 flex-1 items-center gap-2"
                   >
                     {icon}
                     <span className="min-w-0 flex-1">{label}</span>
