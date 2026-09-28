@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import type { Connection } from '../common';
 import { gqlClient } from '../common';
+import type { SourceFeatures } from '../sources';
 
 export const MAX_STACK_ITEMS = 100;
 
@@ -24,6 +25,7 @@ export interface ToolTopSquad {
   image: string;
   description: string | null;
   membersCount: number;
+  features: Pick<SourceFeatures, 'verified'> | null;
 }
 
 export interface UserStack {
@@ -154,6 +156,9 @@ const TOP_SQUADS_FOR_TOOL_QUERY = gql`
           image
           description
           membersCount
+          features {
+            verified
+          }
         }
       }
     }

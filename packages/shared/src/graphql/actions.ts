@@ -68,6 +68,8 @@ export enum ActionType {
   ClickedNewStripCta = 'click_new_strip_cta',
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
   SidebarTourSeen = 'sidebar_tour_seen',
+  InterestAgentIntroSeen = 'interest_agent_intro_seen',
+  InterestAgentSidebarClick = 'interest_agent_sidebar_click',
 }
 
 export const cvActions = [
