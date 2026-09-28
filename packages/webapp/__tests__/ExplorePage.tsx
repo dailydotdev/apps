@@ -10,6 +10,7 @@ import {
   useViewSize,
   useViewSizeClient,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { checkIsExtension } from '@dailydotdev/shared/src/lib/func';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import Posts from '../pages/posts/index';
@@ -19,6 +20,11 @@ jest.setTimeout(30000);
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
   useConditionalFeature: jest.fn(),
+}));
+
+jest.mock('@dailydotdev/shared/src/lib/func', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/lib/func'),
+  checkIsExtension: jest.fn(() => false),
 }));
 
 jest.mock('@dailydotdev/shared/src/hooks/useViewSize', () => ({
@@ -41,6 +47,7 @@ beforeAll(async () => {
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
+  jest.mocked(checkIsExtension).mockReturnValue(false);
   jest.mocked(useViewSize).mockReturnValue(true);
   jest.mocked(useViewSizeClient).mockReturnValue(true);
   mockFeature.mockImplementation(({ feature }) => ({
@@ -81,6 +88,14 @@ it('should give an anonymous laptop visitor the signup banner and never the spon
   expect(await screen.findByText(bannerHeadline)).toBeInTheDocument();
   expect(screen.queryByTestId('sponsorStrip')).not.toBeInTheDocument();
   expect(sponsorStripEvaluations()).not.toContain(true);
+});
+
+it('should leave the extension new tab alone', async () => {
+  jest.mocked(checkIsExtension).mockReturnValue(true);
+  render(tree({ isAuthReady: true }));
+
+  expect(screen.queryByText(bannerHeadline)).not.toBeInTheDocument();
+  expect(sponsorStripEvaluations()).toContain(true);
 });
 
 it('should leave the sponsor dock to members', async () => {

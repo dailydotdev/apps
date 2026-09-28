@@ -32,7 +32,7 @@ import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
 import {
   PublicPageSignupBanner,
-  usePublicPageSignupBanner,
+  usePublicPageSignupBannerGate,
 } from './auth/PublicPageSignupBanner';
 import FeedContext from '../contexts/FeedContext';
 import AuthContext from '../contexts/AuthContext';
@@ -252,7 +252,7 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
-  const { user, isTokenValid, isAuthReady } = useContext(AuthContext);
+  const { user, isTokenValid } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const feedWidthStyle = {
@@ -853,16 +853,15 @@ export default function MainFeedLayout({
     chipsTopContent
   );
 
-  const isSignupBannerVisible = usePublicPageSignupBanner();
-  const showSignupBanner =
-    !isExtension && isExploreHub && isSignupBannerVisible;
   // Both pin to the window's bottom edge, so an anonymous visitor gets the
   // signup banner or the sponsor dock, never both. Auth unknown counts as
   // "banner may show": the boot cache readies GrowthBook before the remote
   // boot answers, and the dock must not enroll a visitor it is about to
   // leave.
-  const mayShowSignupBanner =
-    !isExtension && isExploreHub && isLaptop && (!isAuthReady || !user);
+  const signupBannerGate = usePublicPageSignupBannerGate();
+  const hasSignupBannerSlot = !isExtension && isExploreHub;
+  const mayShowSignupBanner = hasSignupBannerSlot && signupBannerGate.mayShow;
+  const showSignupBanner = hasSignupBannerSlot && signupBannerGate.shouldShow;
   // Read here rather than inside the feed or the strip: this is the one place
   // that owns both, so the card can only ever go missing on a surface that is
   // mounting the strip — with headlines in it — in the card's place.
