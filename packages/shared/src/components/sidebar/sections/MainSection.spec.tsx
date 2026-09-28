@@ -8,6 +8,7 @@ import {
 import { useConditionalFeature } from '../../../hooks';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
+import { useActions } from '../../../hooks/useActions';
 import { MainSection } from './MainSection';
 
 jest.mock('../Section', () => ({
@@ -49,10 +50,15 @@ jest.mock('../../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
 }));
 
+jest.mock('../../../hooks/useActions', () => ({
+  useActions: jest.fn(),
+}));
+
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseCustomDefaultFeed = useCustomDefaultFeed as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
+const mockUseActions = useActions as jest.Mock;
 
 describe('MainSection', () => {
   beforeEach(() => {
@@ -74,6 +80,11 @@ describe('MainSection', () => {
       data: {
         milestone: [],
       },
+    });
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: () => true,
+      completeAction: jest.fn(),
+      isActionsFetched: true,
     });
   });
 
