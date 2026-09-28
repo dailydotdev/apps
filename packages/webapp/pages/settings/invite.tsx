@@ -41,6 +41,13 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { ReferralLadderPopupContent } from '@dailydotdev/shared/src/components/referral/ReferralLadderPopupContent';
+import {
+  getReferralInviteMessage,
+  REFERRAL_INVITE_COPIED_TOAST,
+  REFERRAL_INVITE_TEXT,
+} from '@dailydotdev/shared/src/lib/referral';
+import { useReferralLadderFeature } from '@dailydotdev/shared/src/hooks/referral/useReferralLadder';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -62,8 +69,12 @@ const AccountInvitePage = (): ReactElement => {
   });
   const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
+  const { isEnabled: isReferralLadderEnabled } = useReferralLadderFeature();
+  const inviteText = isReferralLadderEnabled
+    ? REFERRAL_INVITE_TEXT
+    : labels.referral.generic.inviteText;
   const [, onShareOrCopyLink] = useShareOrCopyLink({
-    text: labels.referral.generic.inviteText,
+    text: inviteText,
     link: inviteLink,
     logObject: () => ({
       event_name: LogEvent.CopyReferralLink,
@@ -101,11 +112,21 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
-      <AccountContentSection
-        className={{ heading: 'mt-0' }}
-        title="Grow the community"
-        description="Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals list below."
-      />
+      {isReferralLadderEnabled ? (
+        <section className="rounded-16 border border-border-subtlest-tertiary p-5">
+          <ReferralLadderPopupContent
+            logTargetId={TargetId.InviteFriendsPage}
+            logTargetType={TargetType.InviteFriendsPage}
+            showShareOptions={false}
+          />
+        </section>
+      ) : (
+        <AccountContentSection
+          className={{ heading: 'mt-0' }}
+          title="Grow the community"
+          description="Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals list below."
+        />
+      )}
       <AccountContentSection
         title="Share your invite link"
         description="Copy your personal link or share it directly on social platforms."
@@ -113,6 +134,10 @@ const AccountInvitePage = (): ReactElement => {
         <InviteLinkInput
           className={{ container: 'mt-4' }}
           link={inviteLink}
+          {...(isReferralLadderEnabled && {
+            copyFormat: getReferralInviteMessage,
+            copyMessage: REFERRAL_INVITE_COPIED_TOAST,
+          })}
           logProps={{
             event_name: LogEvent.CopyReferralLink,
             target_id: TargetId.InviteFriendsPage,
@@ -130,7 +155,7 @@ const AccountInvitePage = (): ReactElement => {
         <div className="flex flex-row flex-wrap gap-2 gap-y-4">
           <SocialShareList
             link={inviteLink}
-            description={labels.referral.generic.inviteText}
+            description={inviteText}
             onNativeShare={onShareOrCopyLink}
             onClickSocial={onLogShare}
             shortenUrl={false}

@@ -28,6 +28,10 @@ jest.mock('../../../components/auth/SignupDisclaimer', () => ({
   default: () => <div data-testid="disclaimer" />,
 }));
 
+jest.mock('../../../components/referral/ReferralInviterCard', () => ({
+  ReferralInviterCard: () => null,
+}));
+
 jest.mock('../../../hooks', () => ({
   ViewSize: { MobileL: 'mobileL' },
   useViewSize: jest.fn(() => false),

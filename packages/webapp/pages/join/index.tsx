@@ -16,12 +16,13 @@ import type { JoinPageProps } from '../../components/invite/common';
 import { AISearchInvite } from '../../components/invite/AISearchInvite';
 import Custom404Seo from '../404';
 import { Referral } from '../../components/invite/Referral';
+import { ReferralSignupRedirect } from '../../components/invite/ReferralSignupRedirect';
 
 type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
 
 const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   [ReferralCampaignKey.Search]: AISearchInvite,
-  [ReferralCampaignKey.Generic]: Referral,
+  [ReferralCampaignKey.Generic]: ReferralSignupRedirect,
   [ReferralCampaignKey.SharePost]: Referral,
   [ReferralCampaignKey.ShareComment]: Referral,
   [ReferralCampaignKey.ShareProfile]: Referral,

@@ -6,14 +6,19 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile, UserProfile, UserShortProfile } from '../lib/user';
+import type {
+  LoggedUser,
+  PublicProfile,
+  UserProfile,
+  UserShortProfile,
+} from '../lib/user';
 import type { Connection } from './common';
 import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
 import type { NotificationSettings } from '../components/notifications/utils';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export const USER_SHORT_BY_ID = `
   query UserShortById($id: ID!) {
@@ -619,6 +624,20 @@ export const REFERRED_USERS_QUERY = gql`
   }
   ${USER_SHORT_INFO_FRAGMENT}
 `;
+
+export const referredUsersPreviewQueryOptions = (
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.ReferredUsers, user, 'preview'),
+  queryFn: async (): Promise<UserShortProfile[]> => {
+    const { referredUsers } = await gqlClient.request<{
+      referredUsers: Connection<UserShortProfile>;
+    }>(REFERRED_USERS_QUERY);
+
+    return referredUsers.edges.map(({ node }) => node);
+  },
+  staleTime: StaleTime.Default,
+});
 
 export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
   mutation SubscribePersonalizedDigest(

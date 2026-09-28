@@ -362,3 +362,8 @@ export const featureReadAds = new Feature('read_ads', true);
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
+
+// Plus referral ladder: the profile menu gift, the ladder popup, the invite
+// page card, the inviter card on the invited signup and the invite message.
+// Off until the API counts active friends and grants both sides' Plus.
+export const featureReferralLadder = new Feature('referral_ladder', false);

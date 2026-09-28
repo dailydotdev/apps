@@ -17,6 +17,8 @@ import type { WithClassNameProps } from '../utilities';
 import { webappUrl } from '../../lib/constants';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { IconSize } from '../Icon';
+import { ReferralLadderGiftButton } from '../referral/ReferralLadderGiftButton';
+import { useReferralLadderFeature } from '../../hooks/referral/useReferralLadder';
 
 type Props = WithClassNameProps & {
   shouldOpenProfile?: boolean;
@@ -33,6 +35,9 @@ export const ProfileMenuHeader = ({
 }: Props): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+  const { isEnabled: isReferralLadderEnabled } = useReferralLadderFeature(
+    !!user,
+  );
 
   if (!user) {
     return null;
@@ -85,6 +90,8 @@ export const ProfileMenuHeader = ({
             @{user.username}
           </Typography>
         </div>
+
+        {isReferralLadderEnabled && <ReferralLadderGiftButton />}
 
         {shouldOpenProfile && (
           <OpenLinkIcon
