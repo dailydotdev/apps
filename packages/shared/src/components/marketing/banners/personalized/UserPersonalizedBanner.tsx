@@ -8,9 +8,11 @@ import { generateQueryKey, RequestKey } from '../../../../lib/query';
 const UserPersonalizedBanner = ({
   userId,
   compact,
+  targetId,
 }: {
   userId: string;
   compact?: boolean;
+  targetId?: string;
 }): ReactElement => {
   const key = generateQueryKey(RequestKey.ReferringUser);
   const { data: user, isError } = useQuery({
@@ -19,13 +21,13 @@ const UserPersonalizedBanner = ({
   });
 
   if (isError) {
-    return <AuthenticationBanner compact={compact} />;
+    return <AuthenticationBanner compact={compact} targetId={targetId} />;
   }
 
   const name = user?.name ? user?.name.split(' ')[0] : user?.username;
 
   return (
-    <AuthenticationBanner compact={compact}>
+    <AuthenticationBanner compact={compact} targetId={targetId}>
       <OnboardingHeadline
         className={{
           title: compact ? 'typo-large-title' : 'typo-mega3',

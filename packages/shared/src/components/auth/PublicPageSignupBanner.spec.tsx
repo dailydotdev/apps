@@ -12,7 +12,9 @@ jest.mock('../../hooks/useViewSize', () => ({
 }));
 
 jest.mock('./PostAuthBanner', () => ({
-  PostAuthBanner: () => <div data-testid="post-auth-banner" />,
+  PostAuthBanner: ({ targetId }: { targetId?: string }) => (
+    <div data-testid="post-auth-banner" data-target-id={targetId} />
+  ),
 }));
 
 // The banner loads lazily; the suite-wide dynamic mock resolves a tick late.
@@ -56,7 +58,10 @@ describe('PublicPageSignupBanner', () => {
   it('should render the banner and its clearance for anonymous laptop visitors', async () => {
     const { container } = renderComponent();
 
-    expect(await screen.findByTestId('post-auth-banner')).toBeInTheDocument();
+    expect(await screen.findByTestId('post-auth-banner')).toHaveAttribute(
+      'data-target-id',
+      TargetId.PublicPageSignupBanner,
+    );
     expect(container.firstElementChild).toHaveClass('h-72');
     expect(logEvent).toHaveBeenCalledTimes(1);
     expect(logEvent).toHaveBeenCalledWith(impression);

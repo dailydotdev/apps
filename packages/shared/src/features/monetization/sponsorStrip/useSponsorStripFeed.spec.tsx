@@ -17,13 +17,21 @@ const settled = (headlines: StatuslineItem[]) => ({
   isSettled: true,
 });
 
-const render = () =>
-  renderHook(() => useSponsorStripFeed({ feedName: 'my-feed' }));
+const render = (props: { suppressed?: boolean } = {}) =>
+  renderHook(() => useSponsorStripFeed({ feedName: 'my-feed', ...props }));
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockStrip.mockReturnValue(true);
   mockHeadlines.mockReturnValue(settled([headline]));
+});
+
+it('should hand the suppression to the strip gate', () => {
+  render({ suppressed: true });
+
+  expect(mockStrip).toHaveBeenCalledWith(
+    expect.objectContaining({ suppressed: true }),
+  );
 });
 
 it('should not query headlines when the strip is off', () => {

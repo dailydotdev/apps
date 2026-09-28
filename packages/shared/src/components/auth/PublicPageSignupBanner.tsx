@@ -41,7 +41,7 @@ export function PublicPageSignupBanner(): ReactElement | null {
   return (
     <>
       <div aria-hidden className="h-72" />
-      <PostAuthBanner />
+      <PostAuthBanner targetId={TargetId.PublicPageSignupBanner} />
     </>
   );
 }
