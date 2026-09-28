@@ -46,7 +46,7 @@ import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
 import { ProfileMobileBackButton } from './ProfileBackButton';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
-import { useMobileAppHeaderDeclutter } from '../../features/getApp/hooks/useMobileAppHeader';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 
 export interface HeaderProps {
@@ -87,7 +87,7 @@ export function Header({
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
   const { isJobsEnabled } = useJobsFeature();
-  const isDecluttered = useMobileAppHeaderDeclutter();
+  const isMobileAppHeader = useMobileAppHeader();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -187,7 +187,7 @@ export function Header({
             </Button>
           </Link>
         )}
-        {!blocked && !isDecluttered && (
+        {!blocked && !isMobileAppHeader && (
           <FollowButton
             entityId={user.id}
             type={ContentPreferenceType.User}
@@ -223,7 +223,7 @@ export function Header({
             variant={ButtonVariant.Float}
           />
         )}
-        {isDecluttered && <MobileAppActions />}
+        {isMobileAppHeader && <MobileAppActions />}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>

@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from './dropdown/DropdownMenu';
 import type { MenuItemProps } from './dropdown/common';
-import { useMobileAppHeaderDeclutter } from '../features/getApp/hooks/useMobileAppHeader';
+import { useMobileAppHeader } from '../features/getApp/hooks/useMobileAppHeader';
 
 type CustomFeedOptionsMenuProps = {
   onCreateNewFeed?: () => void;
@@ -43,7 +43,7 @@ const CustomFeedOptionsMenu = ({
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { feeds } = useFeeds();
-  const isDecluttered = useMobileAppHeaderDeclutter();
+  const isMobileAppHeader = useMobileAppHeader();
 
   const handleOpenModal = () => {
     if ((feeds?.edges?.length ?? 0) > 0) {
@@ -75,7 +75,7 @@ const CustomFeedOptionsMenu = ({
 
   options.push(...additionalOptions);
 
-  if (isDecluttered) {
+  if (isMobileAppHeader) {
     return null;
   }
 
