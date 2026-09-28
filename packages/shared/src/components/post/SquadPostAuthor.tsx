@@ -131,7 +131,7 @@ function SquadPostAuthor({
           {author?.isPlus && (
             <PlusUserBadge size={IconSize.Small} user={author} />
           )}
-          <TruncateText title={`@${author.username}`}>
+          <TruncateText title={`@${author.username}`} translate="no">
             @{author.username}
           </TruncateText>
           {!!date && <Separator className="!mx-0" />}
