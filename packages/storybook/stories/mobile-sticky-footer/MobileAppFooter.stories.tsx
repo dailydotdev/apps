@@ -120,8 +120,8 @@ export const EveryTitle: Story = {
   ),
 };
 
-// Continue is remembered in the app's IndexedDB store; forget it so the
-// story shows the sheet on every visit.
+// Open and Continue are remembered in the app's IndexedDB store; forget
+// them so the story shows the sheet on every visit.
 const forgetSheetChoice = async (): Promise<void> => {
   const databases = (await indexedDB.databases?.()) ?? [];
   if (!databases.some(({ name }) => name === 'keyval-store')) {
@@ -149,17 +149,9 @@ const forgetSheetChoice = async (): Promise<void> => {
   });
 };
 
-// The sheet waits for the second page view of the session, so the story
-// counts one before it renders.
 export const ContinueSheet: Story = {
   name: 'Logged in: See daily.dev in…',
-  beforeEach: async () => {
-    sessionStorage.setItem(
-      'mobile_app_sheet_views',
-      JSON.stringify({ last: '/', count: 1 }),
-    );
-    await forgetSheetChoice();
-  },
+  beforeEach: forgetSheetChoice,
   render: () => (
     <Providers isLoggedIn>
       <PageBehind />

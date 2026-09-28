@@ -23,7 +23,7 @@ export const openAppFromSheetUrl = `${getAppUrl}?utm_source=mobile_sheet`;
 export function MobileAppSheet(): ReactElement {
   const drawerRef = useRef<DrawerRef>(null);
   const { logEvent } = useLogContext();
-  const { isOpen, onOpenApp, onContinue } = useMobileAppSheet();
+  const { isOpen, onDismiss } = useMobileAppSheet();
 
   useLogEventOnce(
     () => ({
@@ -40,7 +40,7 @@ export function MobileAppSheet(): ReactElement {
       target_type: TargetType.GetAppButton,
       target_id: logTargetId,
     });
-    onOpenApp();
+    onDismiss();
   };
 
   const onClose = () => {
@@ -50,7 +50,7 @@ export function MobileAppSheet(): ReactElement {
       target_id: logTargetId,
       extra: JSON.stringify({ choice: 'continue' }),
     });
-    onContinue();
+    onDismiss();
   };
 
   return (

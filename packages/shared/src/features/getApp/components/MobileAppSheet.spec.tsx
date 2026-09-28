@@ -3,8 +3,6 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { NextRouter } from 'next/router';
-import { useRouter } from 'next/router';
 import { get as getCache, set as setCache } from 'idb-keyval';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
@@ -14,9 +12,11 @@ import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { PersistentContextKeys } from '../../../hooks/usePersistentContext';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative } from '../../../lib/func';
+import {
+  featureMobileAppSheet,
+  featureMobileAppSheetSnoozeHours,
+} from '../../../lib/featureManagement';
 import { MobileAppSheet, openAppFromSheetUrl } from './MobileAppSheet';
-
-jest.mock('next/router', () => ({ useRouter: jest.fn() }));
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -32,16 +32,16 @@ jest.mock('../../../lib/func', () => ({
   isIOSNative: jest.fn(),
 }));
 
-const mockRouter = jest.mocked(useRouter);
 const mockFeature = jest.mocked(useConditionalFeature);
 const mockIsTablet = jest.mocked(useViewSize);
 const mockIsIOSNative = jest.mocked(isIOSNative);
 
 const LogContext = getLogContextStatic();
-const day = 24 * 60 * 60 * 1000;
+const hour = 60 * 60 * 1000;
 const title = 'See daily.dev in…';
 
 let client: QueryClient;
+let snoozeHours: number;
 
 const sheet = (auth: Partial<AuthContextData> = {}): ReactElement => (
   <QueryClientProvider client={client}>
@@ -64,41 +64,41 @@ const sheet = (auth: Partial<AuthContextData> = {}): ReactElement => (
   </QueryClientProvider>
 );
 
-const visit = (asPath: string) =>
-  mockRouter.mockReturnValue({ asPath } as NextRouter);
+const dismissedHoursAgo = (hours: number) =>
+  setCache(PersistentContextKeys.MobileAppSheet, {
+    dismissedAt: Date.now() - hours * hour,
+  });
 
-const renderSecondPageView = (auth?: Partial<AuthContextData>) => {
-  visit('/posts');
-  const view = render(sheet(auth));
-  visit('/posts/abc');
-  view.rerender(sheet(auth));
-  return view;
+const expectNoSheet = async () => {
+  await waitFor(() =>
+    expect(mockFeature).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        feature: featureMobileAppSheet,
+        shouldEvaluate: false,
+      }),
+    ),
+  );
+  expect(screen.queryByText(title)).not.toBeInTheDocument();
 };
 
 beforeEach(async () => {
   jest.clearAllMocks();
-  sessionStorage.clear();
   await setCache(PersistentContextKeys.MobileAppSheet, undefined);
   client = new QueryClient();
-  mockFeature.mockReturnValue({ value: true, isLoading: false });
+  snoozeHours = 72;
+  mockFeature.mockImplementation(({ feature }) => ({
+    value: (feature === featureMobileAppSheetSnoozeHours
+      ? snoozeHours
+      : true) as never,
+    isLoading: false,
+  }));
   mockIsTablet.mockReturnValue(false);
   mockIsIOSNative.mockReturnValue(false);
 });
 
 describe('MobileAppSheet', () => {
-  it('should wait for the second page view of the session', async () => {
-    visit('/posts');
-    const { rerender } = render(sheet());
-
-    await waitFor(() =>
-      expect(mockFeature).toHaveBeenLastCalledWith(
-        expect.objectContaining({ shouldEvaluate: false }),
-      ),
-    );
-    expect(screen.queryByText(title)).not.toBeInTheDocument();
-
-    visit('/posts/abc');
-    rerender(sheet());
+  it('should ask on the first page view', async () => {
+    render(sheet());
 
     expect(await screen.findByText(title)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Open' })).toHaveAttribute(
@@ -107,57 +107,49 @@ describe('MobileAppSheet', () => {
     );
   });
 
-  it('should remember Continue so the sheet stays away', async () => {
-    renderSecondPageView();
+  it.each(['Continue', 'Open'])(
+    'should remember %s so the sheet stays away',
+    async (choice) => {
+      render(sheet());
+      const button = await screen.findByText(choice);
+      button.addEventListener('click', (event) => event.preventDefault());
 
-    await userEvent.click(
-      await screen.findByRole('button', { name: 'Continue' }),
-    );
+      await userEvent.click(button);
 
-    await waitFor(() =>
-      expect(screen.queryByText(title)).not.toBeInTheDocument(),
-    );
-    expect(await getCache(PersistentContextKeys.MobileAppSheet)).toMatchObject({
-      continues: 1,
-    });
+      await waitFor(() =>
+        expect(screen.queryByText(title)).not.toBeInTheDocument(),
+      );
+      expect(
+        await getCache(PersistentContextKeys.MobileAppSheet),
+      ).toMatchObject({ dismissedAt: expect.any(Number) });
+    },
+  );
+
+  it('should stay away inside the snooze window', async () => {
+    await dismissedHoursAgo(71);
+    render(sheet());
+
+    await expectNoSheet();
   });
 
-  it.each([
-    ['7 days after a Continue', 6, 1],
-    ['90 days after the third Continue', 60, 3],
-  ])('should stay hidden %s', async (_, daysAgo, continues) => {
-    await setCache(PersistentContextKeys.MobileAppSheet, {
-      dismissedAt: Date.now() - daysAgo * day,
-      continues,
-    });
-    renderSecondPageView();
+  it('should ask again once the snooze window is over', async () => {
+    await dismissedHoursAgo(73);
+    render(sheet());
 
-    await waitFor(() =>
-      expect(mockFeature).toHaveBeenLastCalledWith(
-        expect.objectContaining({ shouldEvaluate: false }),
-      ),
-    );
-    expect(screen.queryByText(title)).not.toBeInTheDocument();
+    expect(await screen.findByText(title)).toBeInTheDocument();
   });
 
-  it('should come back once the 7 days are over', async () => {
-    await setCache(PersistentContextKeys.MobileAppSheet, {
-      dismissedAt: Date.now() - 8 * day,
-      continues: 1,
-    });
-    renderSecondPageView();
+  it('should take the snooze window from GrowthBook', async () => {
+    snoozeHours = 24;
+    await dismissedHoursAgo(25);
+    render(sheet());
 
     expect(await screen.findByText(title)).toBeInTheDocument();
   });
 
   it('should never ask logged-out readers', async () => {
-    renderSecondPageView({ isLoggedIn: false });
+    render(sheet({ isLoggedIn: false }));
 
-    await waitFor(() =>
-      expect(mockFeature).toHaveBeenLastCalledWith(
-        expect.objectContaining({ shouldEvaluate: false }),
-      ),
-    );
-    expect(screen.queryByText(title)).not.toBeInTheDocument();
+    await expectNoSheet();
   });
 });

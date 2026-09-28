@@ -367,6 +367,12 @@ export const featureGqlBatching = new Feature('gql_batching', false);
 // once they reach a page's trigger point.
 export const featureMobileAppFooter = new Feature('mobile_app_footer', false);
 
-// Experiment: logged-in phones get the "See daily.dev in…" sheet on their
-// second page view.
+// Experiment: logged-in phones get the "See daily.dev in…" sheet when they
+// land on the web.
 export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);
+
+// How long the sheet stays away after the reader picks Open or Continue.
+export const featureMobileAppSheetSnoozeHours = new Feature(
+  'mobile_app_sheet_snooze_hours',
+  72,
+);
