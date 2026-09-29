@@ -1001,6 +1001,12 @@ export const getBasicUserInfo = async (
   return res.user || null;
 };
 
+export const referringUserQueryOptions = (userId: string) => ({
+  queryKey: generateQueryKey(RequestKey.ReferringUser, undefined, userId),
+  queryFn: () => getBasicUserInfo(userId),
+  staleTime: StaleTime.Default,
+});
+
 export enum UploadPreset {
   Avatar = 'avatar',
   ProfileCover = 'cover',

@@ -10,7 +10,6 @@ import { ButtonSize } from '../buttons/common';
 import { PostSignupWidget } from './PostSignupWidget';
 import {
   useMobileAppHeader,
-  useMobileAppHeaderDeclutter,
   useMobileAppHeaderIconOnlyRead,
 } from '../../features/getApp/hooks/useMobileAppHeader';
 
@@ -47,7 +46,6 @@ export function BasePostContent({
   const postPageNavigationProps = isPostPage ? navigationProps : undefined;
   const onReadArticle = postPageNavigationProps?.onReadArticle;
   const isMobileAppHeader = useMobileAppHeader();
-  const isDecluttered = useMobileAppHeaderDeclutter();
   const isIconOnlyRead = useMobileAppHeaderIconOnlyRead();
 
   if (!id && !isFallback) {
@@ -70,9 +68,9 @@ export function BasePostContent({
             contextMenuId="post-page-header-actions"
             onReadArticle={onReadArticle}
             buttonSize={ButtonSize.Small}
-            hideOptions={isDecluttered}
+            hideOptions={isMobileAppHeader}
             inlineActions={isIconOnlyRead}
-            hideSubscribeAction={isDecluttered}
+            hideSubscribeAction={isMobileAppHeader}
           />
         </GoBackHeaderMobile>
       )}

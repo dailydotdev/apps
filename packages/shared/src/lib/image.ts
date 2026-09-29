@@ -124,27 +124,6 @@ export const cloudinaryReferralCampaignGenericSad =
 export const cloudinaryReferralCampaignGenericHappy =
   'https://media.daily.dev/image/upload/s--gnompkBm--/f_auto/v1697024846/ido_happy_zfosbr';
 
-export const cloudinaryReferralCampaignSearchBg =
-  'https://media.daily.dev/image/upload/s--lYQL8anp--/f_auto/v1697393720/referral_bg_i261vi';
-
-export const cloudinaryReferralCampaignSearchBgMobile =
-  'https://media.daily.dev/image/upload/s--pvdAKlaQ--/f_auto/v1697393719/referral_bg_mobile_on0esi';
-
-export const cloudinaryReferralCampaignSearchBgPopupMobile =
-  'https://media.daily.dev/image/upload/s--19oBvNgw--/f_auto/v1697393719/referral_bg_popup_mobile_on7ss5';
-
-export const cloudinaryReferralCampaignGenericReferralBackgroundDark =
-  'https://media.daily.dev/image/upload/s--GBy6n7jn--/f_auto/v1685961531/public/background_Image';
-
-export const cloudinaryReferralCampaignGenericReferralAppScreenshot =
-  'https://media.daily.dev/image/upload/s--m_DzIlz0--/f_auto/v1698844735/platform_bjdgxm';
-
-export const cloudinaryReferralCampaignGenericReferralPlayButton =
-  'https://media.daily.dev/image/upload/v1698844736/play_button_h38ezx.svg';
-
-export const cloudinaryReferralCampaignGenericReferralPurpleEdgeGlowTablet =
-  'https://media.daily.dev/image/upload/v1698922944/glow_mobile_tablet_lsou4j.svg';
-
 export const cloudinaryOnboardingGlow =
   'https://media.daily.dev/image/upload/v1694596741/Glow_o9ehvn.svg';
 

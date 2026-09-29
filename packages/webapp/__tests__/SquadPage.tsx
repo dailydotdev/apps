@@ -187,6 +187,8 @@ interface ViewerCase {
   composer: string;
   isStaff: boolean;
   canEdit: boolean;
+  // Logged-out phones get Log in + Open app instead of the options menu.
+  hasOptions: boolean;
 }
 
 // The mock's viewer matrix (use-cases/cases.ts), one row per viewer.
@@ -200,6 +202,7 @@ const viewerCases: ViewerCase[] = [
     composer: 'Join the Squad to create new posts',
     isStaff: false,
     canEdit: false,
+    hasOptions: false,
   },
   {
     viewer: 'visitor',
@@ -210,6 +213,7 @@ const viewerCases: ViewerCase[] = [
     composer: 'Join the Squad to create new posts',
     isStaff: false,
     canEdit: false,
+    hasOptions: true,
   },
   {
     viewer: 'member',
@@ -222,6 +226,7 @@ const viewerCases: ViewerCase[] = [
     composer: 'Share a link',
     isStaff: false,
     canEdit: false,
+    hasOptions: true,
   },
   {
     viewer: 'member of a private squad',
@@ -235,6 +240,7 @@ const viewerCases: ViewerCase[] = [
     composer: 'Share a link',
     isStaff: false,
     canEdit: false,
+    hasOptions: true,
   },
   {
     viewer: 'moderator',
@@ -247,6 +253,7 @@ const viewerCases: ViewerCase[] = [
     composer: 'Poll',
     isStaff: true,
     canEdit: false,
+    hasOptions: true,
   },
   {
     viewer: 'admin',
@@ -257,6 +264,7 @@ const viewerCases: ViewerCase[] = [
     composer: 'Poll',
     isStaff: true,
     canEdit: true,
+    hasOptions: true,
   },
   {
     viewer: 'blocked',
@@ -270,6 +278,7 @@ const viewerCases: ViewerCase[] = [
     composer: 'You no longer have access to this Squad.',
     isStaff: false,
     canEdit: false,
+    hasOptions: true,
   },
 ];
 
@@ -284,12 +293,14 @@ describe('squad page viewer matrix', () => {
       composer,
       isStaff,
       canEdit,
+      hasOptions,
     }) => {
       const squad = createSquad(props);
       mockSquad(squad);
       renderSquadPage(squad, user);
 
-      await screen.findByLabelText('Squad options');
+      await screen.findByRole('heading', { level: 1, name: squad.name });
+      expect(!!screen.queryByLabelText('Squad options')).toBe(hasOptions);
       expect(
         screen.getByRole('heading', { level: 1, name: squad.name }),
       ).toBeInTheDocument();
@@ -337,7 +348,8 @@ describe('squad page viewer matrix', () => {
     renderSquadPage(squad, null);
 
     await screen.findByText('Oops! This link leads to a private discussion');
-    expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument();
+    // One in the wall, one in the phone header.
+    expect(screen.getAllByRole('button', { name: 'Log in' })).toHaveLength(2);
   });
 
   it('shows not found for a missing squad', async () => {
