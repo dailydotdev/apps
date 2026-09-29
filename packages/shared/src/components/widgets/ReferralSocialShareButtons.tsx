@@ -18,10 +18,12 @@ import { Tooltip } from '../tooltip/Tooltip';
 interface ReferralSocialShareButtonsProps {
   url: string;
   targetType: TargetType;
+  text?: string;
 }
 const ReferralSocialShareButtons = ({
   url,
   targetType,
+  text,
 }: ReferralSocialShareButtonsProps): ReactElement => {
   const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
@@ -30,7 +32,7 @@ const ReferralSocialShareButtons = ({
     whatsapp: {
       icon: <WhatsappIcon />,
       tooltip: 'Share on WhatsApp',
-      href: getWhatsappShareLink(inviteLink),
+      href: getWhatsappShareLink(text ? `${text} ${inviteLink}` : inviteLink),
       shareProvider: ShareProvider.WhatsApp,
     },
     facebook: {
@@ -42,7 +44,10 @@ const ReferralSocialShareButtons = ({
     x: {
       icon: <TwitterIcon />,
       tooltip: 'Share on X',
-      href: getTwitterShareLink(inviteLink, labels.referral.generic.inviteText),
+      href: getTwitterShareLink(
+        inviteLink,
+        text ?? labels.referral.generic.inviteText,
+      ),
       shareProvider: ShareProvider.Twitter,
     },
   };
