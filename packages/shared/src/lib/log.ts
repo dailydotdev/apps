@@ -590,6 +590,7 @@ export enum TargetType {
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
+  ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
@@ -658,6 +659,7 @@ export enum TargetId {
   InviteBanner = 'invite banner',
   ExploreStrip = 'explore strip',
   PostStrip = 'post strip',
+  MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign

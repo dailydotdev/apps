@@ -67,6 +67,7 @@ import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/
 import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
 import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -413,7 +414,12 @@ const SourcePage = ({
 SourcePage.getLayout = getLayout;
 SourcePage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: <CustomAuthBanner />,
+  customBanner: (
+    <>
+      <CustomAuthBanner />
+      <MobileAppHeader sticky />
+    </>
+  ),
 };
 export default SourcePage;
 

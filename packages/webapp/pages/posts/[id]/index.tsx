@@ -92,6 +92,7 @@ import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/Com
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { isPostDetailPath } from '../../../lib/postRoutes';
@@ -466,9 +467,19 @@ export const PostPage = ({
       error === ApiError.Forbidden ||
       getApiError(postError, ApiError.Forbidden)
     ) {
-      return <Unauthorized />;
+      return (
+        <>
+          <MobileAppHeader sticky />
+          <Unauthorized />
+        </>
+      );
     }
-    return <Custom404 />;
+    return (
+      <>
+        <MobileAppHeader sticky />
+        <Custom404 />
+      </>
+    );
   }
 
   return (
@@ -509,6 +520,7 @@ export const PostPage = ({
                 showPostAuthBanner && 'laptop:pb-72',
               )}
             >
+              <MobileAppHeader sticky />
               <PostFocusCard
                 post={post}
                 origin={Origin.ArticlePage}

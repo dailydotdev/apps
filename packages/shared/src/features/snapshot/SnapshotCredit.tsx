@@ -6,8 +6,10 @@ const MUTED = colors.salt['90'];
 const DIVIDER = colors.pepper['10'];
 
 export interface SnapshotCreditProps {
-  name: string;
+  name?: string;
   image?: string;
+  /** The post the copy was lifted from, named above who wrote it. */
+  title?: string;
 }
 
 /**
@@ -21,27 +23,40 @@ export interface SnapshotCreditProps {
 export function SnapshotCredit({
   name,
   image,
+  title,
 }: SnapshotCreditProps): ReactElement {
   return (
     <div
-      className="flex items-center gap-4"
+      className="flex flex-col gap-5"
       style={{
         marginTop: 44,
         paddingTop: 32,
         borderTop: `1px solid ${DIVIDER}`,
       }}
     >
-      {image && (
-        <img
-          src={image}
-          alt=""
-          crossOrigin="anonymous"
-          className="block size-14 rounded-full object-cover"
-        />
+      {title && (
+        <span
+          className="font-bold text-white"
+          style={{ fontSize: 30, lineHeight: 1.3, overflowWrap: 'break-word' }}
+        >
+          {title}
+        </span>
       )}
-      <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
-        {name}
-      </span>
+      {name && (
+        <div className="flex items-center gap-4">
+          {image && (
+            <img
+              src={image}
+              alt=""
+              crossOrigin="anonymous"
+              className="block size-14 rounded-full object-cover"
+            />
+          )}
+          <span style={{ color: MUTED, fontSize: 28, lineHeight: 1.2 }}>
+            {name}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
