@@ -13,7 +13,7 @@ import type { ReferralLadderStep } from '../../graphql/users';
 import { getReferralLadderReward } from '../../lib/referral';
 import type { WithClassNameProps } from '../utilities';
 
-const pluralizeFriend = (count: number): string =>
+export const pluralizeFriend = (count: number): string =>
   count === 1 ? 'friend' : 'friends';
 
 export const getReferralLadderHeadline = ({
