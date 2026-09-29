@@ -84,6 +84,7 @@ export function TextSnapshotButton({
               ref={cardRef}
               seed={post.id}
               source={snapshotSource(post)}
+              title={post.title}
             />
           </div>,
           document.body,
