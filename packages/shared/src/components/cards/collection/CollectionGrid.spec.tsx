@@ -130,8 +130,12 @@ it('should display the collection source stack in the header', async () => {
       numCollectionSources: 2,
     } as Post,
   });
-  await screen.findByAltText('Avatar of src1');
-  await screen.findByAltText('Avatar of src2');
+  expect(await screen.findByAltText('Avatar of src1')).toHaveClass(
+    'bg-background-default',
+  );
+  expect(await screen.findByAltText('Avatar of src2')).toHaveClass(
+    'bg-background-default',
+  );
 });
 
 it('should link each source in the stack to its source page', async () => {

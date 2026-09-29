@@ -78,6 +78,9 @@ import { EngagementFeedStrip } from './brand/EngagementFeedStrip';
 import { isEngagementAdFeed } from '../hooks/feed/useFeedName';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
+import { TopHero } from './marketing/banners/HeroBottomBanner';
+import { TopHeroPortal } from '../contexts/TopHeroSlotContext';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
@@ -102,6 +105,14 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  /** The surface shows the highlights itself, so keep them out of the grid. */
+  disableHighlightCards?: boolean;
+  /** The surface owns the top slot, so the feed must not render or measure its own hero. */
+  disableTopHero?: boolean;
+  /** The surface shows an ad above the feed, so drop the grid's first one. */
+  skipFirstAd?: boolean;
+  /** The surface leads with a featured card, so keep wide ones out of row one. */
+  deferWideCards?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
@@ -185,7 +196,6 @@ export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
   {
     [PostType.Article]: ArticlePostModal,
     [PostType.Share]: SharePostModal,
-    [PostType.Welcome]: SharePostModal,
     [PostType.Freeform]: SharePostModal,
     [PostType.VideoYouTube]: ArticlePostModal,
     [PostType.Collection]: CollectionPostModal,
@@ -211,6 +221,10 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  disableHighlightCards,
+  disableTopHero,
+  skipFirstAd,
+  deferWideCards,
   staticAd,
   disableAdRefresh = false,
   allowFetchMore,
@@ -233,7 +247,7 @@ export default function Feed<T>({
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const numCards = currentSettings.numCards.eco;
-  const isSquadFeed = feedName === OtherFeedPage.Squad;
+  const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
@@ -291,7 +305,8 @@ export default function Feed<T>({
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
-  const { isV2 } = useLayoutVariant();
+  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const getFirstSlotCard = (): ReactElement | null => {
     const canShowGrowthCta =
@@ -359,7 +374,7 @@ export default function Feed<T>({
     isSquadFeed || shouldUseListFeedLayout
       ? {
           ...adTemplate,
-          adStart: 2, // always make adStart 2 for squads due to welcome and pinned posts
+          adStart: 2, // always make adStart 2 for squads due to pinned posts
         }
       : adTemplate,
     numCards,
@@ -371,11 +386,14 @@ export default function Feed<T>({
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
       engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
       firstSlotOffset: Number(eligibleFirstSlotCard !== null),
-      disableTopHero: isV2,
+      disableTopHero: disableTopHero || (isLaptop && isLayoutVariantLoading),
       isHorizontal,
       excludePinnedPosts,
       settings: {
         disableAds,
+        disableHighlightCards,
+        skipFirstAd,
+        deferWideCards,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         feedName,
@@ -744,12 +762,13 @@ export default function Feed<T>({
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
+  const showReadingReminder = shouldShowTopHero && !topContentProp;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
         topContent:
           topContentProp ??
-          (shouldShowTopHero ? (
+          (showReadingReminder && !isV2 ? (
             <ReadingReminderFeedHero
               className="pt-2"
               title={readingReminderTitle}
@@ -772,6 +791,17 @@ export default function Feed<T>({
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
+      {showReadingReminder && isV2 && !isSearchPageLaptop && (
+        <TopHeroPortal>
+          <TopHero
+            className="order-first"
+            title={readingReminderTitle}
+            subtitle={readingReminderSubtitle}
+            onCtaClick={onEnableHero}
+            onClose={onDismissHero}
+          />
+        </TopHeroPortal>
+      )}
       <FeedWrapperComponent {...containerProps}>
         {isSearchPageLaptop && emptyScreen && emptyFeed ? (
           <>{emptyScreen}</>

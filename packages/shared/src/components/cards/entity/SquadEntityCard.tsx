@@ -19,6 +19,8 @@ import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 type SquadEntityCardProps = {
   handle: string;
@@ -85,12 +87,13 @@ const SquadEntityCard = ({
         <Link passHref href={permalink}>
           <Typography
             tag={TypographyTag.Link}
-            className="flex"
+            className="flex items-center gap-1"
             type={TypographyType.Body}
             color={TypographyColor.Primary}
             bold
           >
             {name}
+            {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
           </Typography>
         </Link>
         {description && <EntityDescription copy={description} length={100} />}

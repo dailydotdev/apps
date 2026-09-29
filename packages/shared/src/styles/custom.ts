@@ -56,3 +56,26 @@ export const plusSaleSunStripes =
 
 export const plusSaleLabelBg =
   'linear-gradient(90deg, #F4A83A 0%, #E05C4B 100%)';
+
+// Third-party brand colours for the onboarding acquisition channel marks.
+export const acquisitionBrandColors = {
+  x: '#000000',
+  reddit: '#FF4500',
+  linkedIn: '#0A66C2',
+  youTube: '#FF0000',
+  gitHub: '#181717',
+  openAI: '#000000',
+  favicon: '#FFFFFF',
+  glyph: '#FFFFFF',
+} as const;
+
+// Verified Company Squad card: two blurred orbs of brand light under
+// frosted glass, with a cabbage hairline.
+export const verifiedSquadCardBg =
+  'color-mix(in srgb, var(--theme-background-default) 58%, transparent)';
+
+export const verifiedSquadCardShadow =
+  'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent)';
+
+export const verifiedSquadCardGlow =
+  'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent), transparent 60%)';

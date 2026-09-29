@@ -41,7 +41,6 @@ export interface SharedPost extends Post {
 export { PostType };
 
 export const internalReadTypes: PostType[] = [
-  PostType.Welcome,
   PostType.Freeform,
   PostType.Collection,
 ];
@@ -133,7 +132,13 @@ export const getReadArticleHref = (
   getPostReadTarget(post).target?.permalink ?? post.permalink;
 
 export const getPostTitle = (
-  post: Pick<Post, 'title' | 'sharedPost'> | undefined | null,
+  post:
+    | {
+        title?: string | null;
+        sharedPost?: { title?: string | null } | null;
+      }
+    | undefined
+    | null,
 ): string | undefined => post?.title || post?.sharedPost?.title || undefined;
 
 export const getReadPostButtonText = (post: Post): string => {

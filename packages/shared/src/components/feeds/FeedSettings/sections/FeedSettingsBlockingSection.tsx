@@ -19,6 +19,9 @@ import { BlockedSourceList } from '../components/BlockedSourceList';
 import { SourceType } from '../../../../graphql/sources';
 import { BlockedUserList } from '../components/BlockedUserList';
 import { BlockedTagList } from '../components/BlockedTagList';
+import { TutorialVideoButton } from '../../../video/TutorialVideoButton';
+import { feedBlockingTutorialVideoId } from '../../../../lib/video';
+import { feedBlockingTutorialVideo } from '../../../../lib/constants';
 
 enum FeedSettingsBlockingSectionTabs {
   Sources = 'Sources',
@@ -51,13 +54,20 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
         placeholder="Search sources, squads, users, or tags"
         valueChanged={onSearch}
       />
-      <Typography
-        color={TypographyColor.Tertiary}
-        type={TypographyType.Callout}
-      >
-        Block sources, squads, users, or tags you never want to see. Anything
-        blocked here is removed from your feed entirely.
-      </Typography>
+      <div className="flex flex-col items-start gap-2">
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Callout}
+        >
+          Block sources, squads, users, or tags you never want to see. Anything
+          blocked here is removed from your feed entirely.
+        </Typography>
+        <TutorialVideoButton
+          videoId={feedBlockingTutorialVideoId}
+          videoUrl={feedBlockingTutorialVideo}
+          title="See less of what you don't want"
+        />
+      </div>
       <BlockedWords />
       <ModalPropsContext.Provider
         value={{

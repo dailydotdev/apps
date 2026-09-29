@@ -22,7 +22,7 @@ export const CollectionPostWidgets = ({
 }: PostWidgetsProps): ReactElement => {
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      <PostSignupWidget post={post} />
       <CollectionsIntro className="hidden laptop:flex" />
       <RelatedPostsWidget
         post={post}
@@ -30,6 +30,7 @@ export const CollectionPostWidgets = ({
       />
       <PostSidebarAdWidget
         postId={post.id}
+        source={post.source}
         className={{ container: 'w-full bg-transparent' }}
       />
       <PreferGoogleSourceAction placement="collection post widgets" />

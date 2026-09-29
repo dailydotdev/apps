@@ -19,7 +19,11 @@ const config: StorybookConfig = {
   typescript: {
     reactDocgen: 'react-docgen-typescript',
   },
-  staticDirs: ['../public'],
+  staticDirs: [
+    '../public',
+    // Webapp-hosted assets that shared components load through `fromCDN`.
+    { from: '../../webapp/public/app/assets', to: '/app/assets' },
+  ],
   async viteFinal(config, { configType }) {
     const GrowthBookMockPath = path.resolve(
       __dirname,

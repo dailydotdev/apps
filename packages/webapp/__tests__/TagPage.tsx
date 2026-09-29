@@ -268,8 +268,10 @@ const renderComponent = (
           logout: jest.fn().mockResolvedValue(undefined),
           updateUser: jest.fn().mockResolvedValue(undefined),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <AlertContextProvider alerts={{}} updateAlerts={jest.fn()} loadedAlerts>

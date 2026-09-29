@@ -279,6 +279,9 @@ const normalizeHostname = (url: string): string => {
   }
 };
 
+export const matchesDomain = (hostname: string, domain: string): boolean =>
+  hostname === domain || hostname.endsWith(`.${domain}`);
+
 /**
  * Check if URL matches Mastodon pattern (/@username)
  */
@@ -306,7 +309,7 @@ export function detectPlatformFromUrl<T extends Record<string, PlatformConfig>>(
 
   // Check each platform's domains
   const matchedEntry = Object.entries(platforms).find(([, config]) =>
-    config.domains.some((domain) => hostname.includes(domain)),
+    config.domains.some((domain) => matchesDomain(hostname, domain)),
   );
 
   if (matchedEntry) {
@@ -326,7 +329,7 @@ export function detectPlatformFromUrl<T extends Record<string, PlatformConfig>>(
     ].flatMap((config) => config.domains);
 
     const isKnownDomain = allKnownDomains.some((domain) =>
-      hostname.includes(domain),
+      matchesDomain(hostname, domain),
     );
 
     if (!isKnownDomain) {

@@ -8,6 +8,7 @@ import {
   postHighlightsFeedQueryOptions,
 } from '@dailydotdev/shared/src/graphql/highlights';
 import { HighlightsPage } from '@dailydotdev/shared/src/components/highlights/HighlightsPage';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -24,6 +25,7 @@ const getHighlightsLayout: typeof getLayout = (...props) =>
 AllHighlightsPage.getLayout = getHighlightsLayout;
 AllHighlightsPage.layoutProps = {
   screenCentered: false,
+  customBanner: <MobileAppHeader />,
   seo: {
     title: HIGHLIGHTS_TITLE,
     description: HIGHLIGHTS_DESCRIPTION,

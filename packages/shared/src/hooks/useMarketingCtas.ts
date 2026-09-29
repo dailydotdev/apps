@@ -33,7 +33,7 @@ interface UseMarketingCtas {
 export function useMarketingCtas(
   variant: MarketingCtaVariant,
 ): UseMarketingCtas {
-  const { user } = useAuthContext();
+  const { user, isAndroidApp } = useAuthContext();
   const queryClient = useQueryClient();
 
   const bootData = queryClient.getQueryData<Boot>(BOOT_QUERY_KEY);
@@ -55,8 +55,7 @@ export function useMarketingCtas(
   });
 
   const targetedCtas = (data ?? []).filter(
-    (cta) =>
-      !cta.targets || isMarketingCtaTarget(cta.targets, bootData?.isAndroidApp),
+    (cta) => !cta.targets || isMarketingCtaTarget(cta.targets, isAndroidApp),
   );
 
   const dismissMutation = useMutation({

@@ -42,7 +42,7 @@ export const defaultSteps = [
     title: 'Step 2',
     description: 'Step 2 description',
     action: {
-      type: ActionType.EditWelcomePost,
+      type: ActionType.EditSquad,
       completedAt: new Date(),
     },
   },

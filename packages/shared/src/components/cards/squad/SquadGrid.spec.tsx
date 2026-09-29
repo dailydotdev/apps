@@ -7,19 +7,13 @@ import { AuthContextProvider } from '../../../contexts/AuthContext';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import {
   generateMembersList,
-  generateMembersResult,
   generateTestAdmin,
   generateTestSquad,
 } from '../../../../__tests__/fixture/squads';
 import { SquadGrid } from './SquadGrid';
 import { LazyModalElement } from '../../modals/LazyModalElement';
-import type { MockedGraphQLResponse } from '../../../../__tests__/helpers/graphql';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
-import type { SquadEdgesData } from '../../../graphql/squads';
-import {
-  SQUAD_JOIN_MUTATION,
-  SQUAD_MEMBERS_QUERY,
-} from '../../../graphql/squads';
+import { SQUAD_JOIN_MUTATION } from '../../../graphql/squads';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { cloudinarySquadsDirectoryCardBannerDefault } from '../../../lib/image';
 import { ActionType, COMPLETE_ACTION_MUTATION } from '../../../graphql/actions';
@@ -34,29 +28,6 @@ const members = generateMembersList();
 const admin = generateTestAdmin();
 admin.source.members!.edges = members;
 admin.source.membersCount = members.length;
-const defaultSquad = generateTestSquad();
-
-const createSourceMembersMock = (
-  result = generateMembersResult(),
-  variables: Record<string, unknown> = { id: defaultSquad.id, first: 5 },
-): MockedGraphQLResponse<SquadEdgesData> => ({
-  request: { query: SQUAD_MEMBERS_QUERY, variables },
-  result: { data: result },
-});
-
-const openedMembersModal = async () => {
-  const result = generateMembersResult(members);
-  mockGraphQL(
-    createSourceMembersMock(result, { id: defaultSquad.id, role: null }),
-  );
-  const membersCount = result.sourceMembers.edges.length;
-  const trigger = await screen.findByLabelText(
-    `View ${membersCount} squad members`,
-  );
-  trigger.click();
-  await screen.findByText('Squad members');
-  return members;
-};
 
 beforeEach(async () => {
   nock.cleanAll();
@@ -121,10 +92,16 @@ it('should render the component and member short list when members are provided'
   );
 });
 
-it('should show the admin on top of the list', async () => {
+it('should link the member short list to the members page', async () => {
   renderComponent();
-  const membersList = await openedMembersModal();
-  expect(membersList[0].node.user.name).toEqual('Eliz Kılıç');
+  const list = await screen.findByLabelText(
+    `View ${admin.source.membersCount} squad members`,
+  );
+
+  expect(list).toHaveAttribute(
+    'href',
+    expect.stringMatching(/squads\/test\/members$/),
+  );
 });
 
 it('should render the component with a view squad button', async () => {

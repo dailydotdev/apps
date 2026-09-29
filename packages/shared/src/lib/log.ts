@@ -9,6 +9,7 @@ export enum Origin {
   ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
+  FeedHero = 'feed hero',
   CommentFeed = 'comment feed',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
@@ -60,7 +61,6 @@ export enum Origin {
   PostSummary = 'post summary',
   PostParagraph = 'post paragraph',
   PollResults = 'poll results',
-  PollVotePrompt = 'poll vote prompt',
   BriefTextSelection = 'brief text selection',
   BriefParagraph = 'brief paragraph',
   BriefMustKnow = 'brief must know',
@@ -216,6 +216,9 @@ export enum LogEvent {
   ChecklistClose = 'checklist close',
   DeletePost = 'delete post',
   DeleteComment = 'delete comment',
+  ToggleSquadPreview = 'toggle squad preview',
+  ClickSquadLink = 'click squad link',
+  ClickSquadProduct = 'click squad product',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',
@@ -643,6 +646,7 @@ export enum TargetType {
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
   ProfileWorldToggle = 'profile world toggle',
+  PostTopicSignup = 'post topic signup',
 }
 
 export enum TargetId {
@@ -653,6 +657,8 @@ export enum TargetId {
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   ExploreStrip = 'explore strip',
+  PostStrip = 'post strip',
+  MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign

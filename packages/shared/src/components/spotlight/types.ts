@@ -127,6 +127,14 @@ export enum SpotlightScope {
   Tags = 'tags',
 }
 
+/** The squad (or source) a Spotlight session can be narrowed to. */
+export interface SpotlightSource {
+  id: string;
+  handle: string;
+  name: string;
+  image?: string;
+}
+
 export interface ScopeMetaEntry {
   label: string;
   /** Used for tooltips and ARIA labels on the trigger icon buttons. */

@@ -26,7 +26,13 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
-import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import type { ApiErrorResult } from '../graphql/common';
+import {
+  ApiError,
+  GARMR_ERROR,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
@@ -64,6 +70,7 @@ import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
 import type { Squad } from '../graphql/sources';
+import { useCachedTokenRecovery } from './useCachedTokenRecovery';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -206,6 +213,12 @@ export type FeedReturnType = {
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
+  /** The surface shows the highlights itself, so keep them out of the grid. */
+  disableHighlightCards?: boolean;
+  /** The surface shows an ad above the feed, so drop the grid's first slot. */
+  skipFirstAd?: boolean;
+  /** The surface leads with a featured card, so keep wide ones out of row one. */
+  deferWideCards?: boolean;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
   /** Set on search feeds so every fetch can be logged as a search execution. */
@@ -269,7 +282,7 @@ export interface UseFeedOptionalParams<T> {
   isHorizontal?: boolean;
   /**
    * Drop pinned posts from the feed. `sourceFeed` always orders pinned posts
-   * (welcome post, squad pins) first and offers no way to opt out server-side,
+   * first and offers no way to opt out server-side,
    * so single-squad feeds that don't want them filter here.
    */
   excludePinnedPosts?: boolean;
@@ -299,7 +312,7 @@ export default function useFeed<T>(
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, isTokenValid } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
@@ -324,6 +337,7 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
+  const isFeedQueryEnabled = !!query && isTokenValid;
   const feedQuery = useInfiniteQuery<
     FeedItemData,
     ClientError,
@@ -415,7 +429,7 @@ export default function useFeed<T>(
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
     ...options,
-    enabled: !!query && tokenRefreshed,
+    enabled: isFeedQueryEnabled,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: avoidRetry ? false : 3,
@@ -424,6 +438,15 @@ export default function useFeed<T>(
   });
 
   const clientError = feedQuery?.error as ClientError;
+  useCachedTokenRecovery({
+    queryKey: feedQueryKey,
+    enabled: isFeedQueryEnabled,
+    isUnauthenticated: !!getApiError(
+      feedQuery.error as ApiErrorResult,
+      ApiError.Unauthenticated,
+    ),
+  });
+
   const adPostLength = settings?.adPostLength;
   const firstPagePostsCount = feedQuery.data?.pages[0]?.page.edges.length ?? 0;
   const meetsAdPostLength = !adPostLength || firstPagePostsCount > adPostLength;
@@ -433,7 +456,7 @@ export default function useFeed<T>(
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
       query &&
-      tokenRefreshed &&
+      isTokenValid &&
       !isFeedPreview &&
       (!adPostLength ||
         (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
@@ -521,6 +544,11 @@ export default function useFeed<T>(
   if (!adJitterSeedRef.current) {
     adJitterSeedRef.current = Math.random().toString(36).slice(2);
   }
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  useCachedTokenRecovery({
+    queryKey: adsQueryKey,
+    enabled: isAdsQueryEnabled,
+  });
   const adsQuery = useInfiniteQuery<
     Ad,
     ClientError,
@@ -528,7 +556,7 @@ export default function useFeed<T>(
     QueryKey,
     string | number
   >({
-    queryKey: [RequestKey.Ads, ...feedQueryKey],
+    queryKey: adsQueryKey,
     queryFn: async ({ pageParam }) => {
       const ad = await fetchAd({
         placement: AdPlacement.Feed,
@@ -573,7 +601,7 @@ export default function useFeed<T>(
       const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
       const adJitter = adTemplate?.adJitter ?? 0;
 
-      const adPage = getAdSlotIndex({
+      const slot = getAdSlotIndex({
         index,
         adStart,
         adRepeat,
@@ -581,7 +609,15 @@ export default function useFeed<T>(
         seed: adJitterSeedRef.current ?? '',
       });
 
-      if (adPage === undefined) {
+      if (slot === undefined) {
+        return undefined;
+      }
+
+      // Shifted rather than skipped, so the creative the first slot would have
+      // shown moves down to the second instead of being fetched and discarded.
+      const adPage = settings?.skipFirstAd ? slot - 1 : slot;
+
+      if (adPage < 0) {
         return undefined;
       }
 
@@ -620,6 +656,7 @@ export default function useFeed<T>(
       adTemplate?.adJitter,
       adsUpdatedAt,
       pageSize,
+      settings?.skipFirstAd,
     ],
   );
 
@@ -664,6 +701,7 @@ export default function useFeed<T>(
         startIndex: heroCardsConfig.startIndex,
         widenableTypes,
         firstSlotOffset: effectiveFirstSlotOffset,
+        minWideCardRow: settings?.deferWideCards ? 1 : 0,
       });
 
       const staticAd = settings?.staticAd;
@@ -709,7 +747,7 @@ export default function useFeed<T>(
           }
 
           if (node.itemType === 'highlight') {
-            if (!node.highlights.length) {
+            if (!node.highlights.length || settings?.disableHighlightCards) {
               return;
             }
             pushAndAdvance({
@@ -762,6 +800,7 @@ export default function useFeed<T>(
     feedQuery.dataUpdatedAt,
     placeholdersPerPage,
     getAd,
+    settings?.disableHighlightCards,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
@@ -772,6 +811,7 @@ export default function useFeed<T>(
     widenableTypes,
     excludePinnedPosts,
     effectiveFirstSlotOffset,
+    settings?.deferWideCards,
   ]);
 
   const placements = useMemo(
@@ -787,6 +827,7 @@ export default function useFeed<T>(
         fullRowInsertionBeforeIndex,
         cadence,
         firstSlotOffset: effectiveFirstSlotOffset,
+        minWideCardRow: settings?.deferWideCards ? 1 : 0,
       }),
     [
       items,
@@ -798,6 +839,7 @@ export default function useFeed<T>(
       cadence,
       widenableTypes,
       effectiveFirstSlotOffset,
+      settings?.deferWideCards,
     ],
   );
 

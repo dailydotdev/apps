@@ -13,6 +13,7 @@ import {
   USER_STREAK_FREEZE_DATES_QUERY,
 } from '../../../graphql/streakFreeze';
 import { DayOfWeek } from '../../../lib/date';
+import { CoresRole } from '../../../lib/user';
 import { StreakFreezePurchaseModal } from './StreakFreezePurchaseModal';
 
 ReactModal.setAppElement('body');
@@ -85,7 +86,13 @@ const renderComponent = ({
   return render(
     <TestBootProvider
       client={client}
-      auth={{ user: { ...loggedUser, balance: { amount: balance } } }}
+      auth={{
+        user: {
+          ...loggedUser,
+          coresRole: CoresRole.User,
+          balance: { amount: balance },
+        },
+      }}
     >
       <StreakFreezePurchaseModal isOpen onRequestClose={jest.fn()} />
     </TestBootProvider>,
@@ -129,6 +136,18 @@ describe('StreakFreezePurchaseModal', () => {
       expect(
         screen.getByTestId('streak-freeze-purchase-button'),
       ).toHaveTextContent('Buy Cores100'),
+    );
+  });
+
+  it('should show how many Cores are missing for the selected pack', async () => {
+    renderComponent({ balance: 40, freezesAvailable: 0 });
+
+    await waitForNock();
+
+    await waitFor(() =>
+      expect(screen.getByTestId('cores-balance-note')).toHaveTextContent(
+        '60 more needed',
+      ),
     );
   });
 

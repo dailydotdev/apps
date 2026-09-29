@@ -121,7 +121,10 @@ export const BrandedTag = ({
     <>
       {/* Original tag — hidden when branded */}
       {!showBranding && (
-        <span className={classNames(styles.tagContent, 'whitespace-nowrap')}>
+        <span
+          className={classNames(styles.tagContent, 'whitespace-nowrap')}
+          translate="no"
+        >
           #{tag}
         </span>
       )}

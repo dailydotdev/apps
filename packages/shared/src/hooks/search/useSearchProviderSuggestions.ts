@@ -57,6 +57,7 @@ export const useSearchProviderSuggestions = ({
   limit = defaultSearchSuggestionsLimit,
   includeContentPreference,
   feedId,
+  source,
   enabled = true,
   searchId,
   scope,
@@ -81,6 +82,7 @@ export const useSearchProviderSuggestions = ({
     limit,
     includeContentPreference,
     feedId,
+    source,
     version,
   });
 
@@ -94,6 +96,7 @@ export const useSearchProviderSuggestions = ({
         limit,
         includeContentPreference,
         feedId,
+        source,
       });
 
       logEvent(

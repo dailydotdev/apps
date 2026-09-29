@@ -1,0 +1,486 @@
+import { Viewer } from '../kit';
+import type { SquadConfig } from '../workspace';
+import { ContentSource, MemberRole, PostingGate } from '../workspace';
+
+// Every use case, on the chosen direction (Squad Page, 1. Direction).
+// One list so the stories, the index and the phone frames (which load a
+// case by id in the Direction playground) all draw from the same place.
+
+export interface UseCase {
+  id: string;
+  title: string;
+  who: string;
+  sees: string;
+  viewer: Viewer;
+  /** A page id, or about for the right column's widgets below laptop. */
+  page?: string;
+  source?: ContentSource;
+  empty?: boolean;
+  isPrivate?: boolean;
+  config?: Partial<SquadConfig>;
+  /** rem, the desktop frame's height */
+  height?: number;
+}
+
+export const viewerCases: UseCase[] = [
+  {
+    id: 'anonymous',
+    title: 'Anonymous',
+    who: 'Logged out, from a link or a search result',
+    sees: 'The page reads in full. The header ends with Join Squad, which opens sign up, full width under the stats on a phone. The composer is the lock card, no bell, polls are read-only.',
+    viewer: Viewer.Anonymous,
+  },
+  {
+    id: 'visitor',
+    title: 'Logged in, not a member',
+    who: 'A daily.dev user who has not joined',
+    sees: 'Join Squad is the one primary button, last in the header row. Everything reads; the composer says Join the Squad to create new posts.',
+    viewer: Viewer.Visitor,
+  },
+  {
+    id: 'member',
+    title: 'Member',
+    who: 'Joined',
+    sees: 'Joined in the Subtle style and the bell in the header, the composer with Share a link, a vote on polls in the feed.',
+    viewer: Viewer.Member,
+  },
+  {
+    id: 'moderator',
+    title: 'Moderator',
+    who: 'A member the company trusts with the queue',
+    sees: 'Everything a member has, plus Manage in the options menu (Rules, FAQ, Members, Moderation), View as a visitor and the share card at the top of the right column, and Poll in the composer. No analytics or settings.',
+    viewer: Viewer.Moderator,
+  },
+  {
+    id: 'admin',
+    title: 'Admin',
+    who: 'The company, or the daily.dev manager acting for them',
+    sees: 'Edit page as a pen icon in the header and Boost last, like Join (beside Share page under the stats on a phone), Manage at the top of the options menu, View as a visitor and the share card, the Analytics widget, Poll in the composer, Add product on Products.',
+    viewer: Viewer.Admin,
+  },
+  {
+    id: 'blocked',
+    title: 'Blocked',
+    who: 'Removed by a moderator, still logged in',
+    sees: 'A public Squad still reads. Join Squad is disabled with “You are not allowed to join the Squad”, the composer is the lock card, no bell. A private Squad shows the wall.',
+    viewer: Viewer.Blocked,
+  },
+];
+
+export const postingCases: UseCase[] = [
+  {
+    id: 'discussions-anonymous',
+    title: 'Posting, logged out',
+    who: 'Anonymous',
+    sees: 'The composer is the lock card. The feed reads in full.',
+    viewer: Viewer.Anonymous,
+    height: 40,
+  },
+  {
+    id: 'discussions-visitor',
+    title: 'Posting, not a member',
+    who: 'Logged in, not joined',
+    sees: 'The lock card says Join the Squad to create new posts. Same feed.',
+    viewer: Viewer.Visitor,
+    height: 40,
+  },
+  {
+    id: 'discussions-member',
+    title: 'Posting, as a member',
+    who: 'Member',
+    sees: 'The whole composer box opens the new composer; Share a link is the shortcut. The post waits for a moderator if the Squad reviews posts.',
+    viewer: Viewer.Member,
+    height: 40,
+  },
+  {
+    id: 'releases-fed',
+    title: 'Releases on a verified page',
+    who: 'Admin, feed connected',
+    sees: 'Releases arrive in the one feed from the company’s changelog, nobody writes them by hand. The Content feed page in Manage says where they come from.',
+    viewer: Viewer.Admin,
+    source: ContentSource.Feed,
+    height: 44,
+  },
+  {
+    id: 'releases-manual',
+    title: 'Releases on a hand-written Squad',
+    who: 'Admin, no feed',
+    sees: 'The team writes releases in the composer like any post. No Content feed in Manage.',
+    viewer: Viewer.Admin,
+    source: ContentSource.Manual,
+    height: 44,
+  },
+  {
+    id: 'polls-member',
+    title: 'Polls, as a member',
+    who: 'Member',
+    sees: 'Polls sit in the feed on the production poll card, one vote each. The composer has no Poll shortcut; asking is the team’s.',
+    viewer: Viewer.Member,
+    height: 44,
+  },
+  {
+    id: 'polls-moderator',
+    title: 'Polls, as a moderator',
+    who: 'Moderator',
+    sees: 'Poll in the composer: moderators can ask. The poll lands in the feed like any post.',
+    viewer: Viewer.Moderator,
+    height: 44,
+  },
+  {
+    id: 'moderation',
+    title: 'The queue',
+    who: 'Moderator',
+    sees: 'Member posts waiting for approval, with Approve and Decline. A moderator’s Manage menu holds Rules, FAQ, Members and Moderation.',
+    viewer: Viewer.Moderator,
+    page: 'moderation',
+    height: 44,
+  },
+];
+
+export const contentCases: UseCase[] = [
+  {
+    id: 'feed-admin',
+    title: 'The content feed, as an admin',
+    who: 'The company, or its daily.dev manager',
+    sees: 'Managed by daily.dev up top with a contact. The source, its health, where it publishes, how often it is checked, what it has imported. Sync, pause, add a feed. Recent imports with their state.',
+    viewer: Viewer.Admin,
+    page: 'feed',
+    source: ContentSource.Feed,
+    height: 52,
+  },
+  {
+    id: 'feed-member',
+    title: 'The feed, as a member of a fed page',
+    who: 'Member',
+    sees: 'Items from the company’s changelog read like any other post in the one feed, signed by the team member in the item or the Squad.',
+    viewer: Viewer.Member,
+    source: ContentSource.Feed,
+    height: 44,
+  },
+  {
+    id: 'manual-moderator',
+    title: 'A plain Squad, as a moderator',
+    who: 'Moderator, no feed',
+    sees: 'The team writes in the composer. There is no Content feed page because there is no feed.',
+    viewer: Viewer.Moderator,
+    source: ContentSource.Manual,
+    height: 44,
+  },
+  {
+    id: 'manual-admin',
+    title: 'A plain Squad’s Manage menu',
+    who: 'Admin, no feed',
+    sees: 'Manage in the options menu lists Moderation, Analytics, Settings. Content feed appears only once a feed is connected.',
+    viewer: Viewer.Admin,
+    source: ContentSource.Manual,
+    height: 44,
+  },
+];
+
+export const stateCases: UseCase[] = [
+  {
+    id: 'empty-admin',
+    title: 'Just created, as an admin',
+    who: 'Admin, feed not yet delivering',
+    sees: 'The header, the badge, the rules, the team and the links are all there. No products shelf and no pins yet; the feed says what to do next: connect the feed or write the first post.',
+    viewer: Viewer.Admin,
+    empty: true,
+    height: 44,
+  },
+  {
+    id: 'empty-visitor',
+    title: 'Just created, as a visitor',
+    who: 'Logged in, not joined',
+    sees: 'The same page with an empty feed asking them to join to hear when the team posts.',
+    viewer: Viewer.Visitor,
+    empty: true,
+    height: 44,
+  },
+  {
+    id: 'empty-releases',
+    title: 'A fed page before the first item',
+    who: 'Member, feed connected',
+    sees: 'An empty feed: the first changelog item lands the hour it is published.',
+    viewer: Viewer.Member,
+    empty: true,
+    source: ContentSource.Feed,
+    height: 40,
+  },
+  {
+    id: 'private-anonymous',
+    title: 'Private Squad, logged out',
+    who: 'Anonymous',
+    sees: 'The header, rules and team read; the feed and every page are production’s Unauthorized copy, with Log in.',
+    viewer: Viewer.Anonymous,
+    isPrivate: true,
+    height: 40,
+  },
+  {
+    id: 'private-visitor',
+    title: 'Private Squad, logged in',
+    who: 'Logged in, not a member',
+    sees: 'The same wall without Log in. There is no request to join in production; the invitation link is the only door.',
+    viewer: Viewer.Visitor,
+    page: 'rules',
+    isPrivate: true,
+    height: 40,
+  },
+  {
+    id: 'private-member',
+    title: 'Private Squad, as a member',
+    who: 'Member',
+    sees: 'No wall. The Squad behaves like any other.',
+    viewer: Viewer.Member,
+    isPrivate: true,
+    height: 40,
+  },
+];
+
+// Every state the production squad page has today, and where it lives in
+// the direction. Audited from packages/webapp/pages/squads/** and
+// packages/shared/src/components/squads/** on 23 Sep 2026. Copy is
+// production's, word for word, unless a case says it changed.
+export const productionCases: UseCase[] = [
+  {
+    id: 'search',
+    title: 'Searching inside the Squad',
+    who: 'Member, after searching “review”',
+    sees: 'The search icon beside the options menu opens Spotlight with the Squad as a filter pill; Enter opens this page: back, the query as a chip with the Squad’s logo (the text edits it, the cross ends it), the count, and only the matching posts.',
+    viewer: Viewer.Member,
+    page: 'search',
+    height: 44,
+  },
+  {
+    id: 'blocked-member',
+    title: 'Blocked member',
+    who: 'SourceMemberRole.Blocked',
+    sees: 'Join Squad is disabled with production’s copy, the composer is the lock card, the bell and Leave Squad are gone (production still shows them, a quirk). The page reads in full because the Squad is public.',
+    viewer: Viewer.Blocked,
+    height: 44,
+  },
+  {
+    id: 'featured',
+    title: 'Featured public Squad with a category',
+    who: 'Visitor',
+    sees: 'The meta line carries production’s SquadPrivacyState (Featured outranks Public outranks Private) and the category link to the directory. Awards appear in the stats when the Squad has any.',
+    viewer: Viewer.Visitor,
+    config: { featured: true, category: 'DevRel' },
+    height: 40,
+  },
+  {
+    id: 'mods-only',
+    title: 'Only moderators can post',
+    who: 'Member, memberPostingRole = moderator',
+    sees: 'The lock card says “Only admins and moderators can post”.',
+    viewer: Viewer.Member,
+    config: {
+      memberPostingRole: MemberRole.Moderator,
+      postingGate: PostingGate.None,
+    },
+    height: 40,
+  },
+  {
+    id: 'reputation',
+    title: 'Reputation gate, member below it',
+    who: 'Member with 120 reputation, threshold 250',
+    sees: '“You need 250 reputation points to post”. A member above the threshold posts without review.',
+    viewer: Viewer.Member,
+    config: {
+      postingGate: PostingGate.Reputation,
+      postingMinReputation: 250,
+      viewerReputation: 120,
+    },
+    height: 40,
+  },
+  {
+    id: 'moderated',
+    title: 'Post approval on, member with posts in the queue',
+    who: 'Member, moderationRequired',
+    sees: 'The composer works and says posts are reviewed before they go live. Above it, the member’s own queue: two waiting.',
+    viewer: Viewer.Member,
+    config: { postingGate: PostingGate.Moderation, ownPending: 2 },
+    height: 44,
+  },
+  {
+    id: 'pending',
+    title: 'Pending posts, the author’s view',
+    who: 'Member',
+    sees: 'Production’s /squads/moderate for a non-moderator: Pending and Rejected items, the rejection reason, Resubmitted Post, Edit and Delete.',
+    viewer: Viewer.Member,
+    page: 'pending',
+    config: { ownPending: 3 },
+    height: 44,
+  },
+  {
+    id: 'queue',
+    title: 'The moderation queue',
+    who: 'Moderator',
+    sees: 'Approve all N posts, the spam warning, a poll item, Decline opening the ten production reasons, Approve.',
+    viewer: Viewer.Moderator,
+    page: 'moderation',
+    height: 48,
+  },
+  {
+    id: 'queue-empty',
+    title: 'The queue, all done',
+    who: 'Moderator',
+    sees: 'Production’s empty copy. Authors get theirs on Pending posts (production shows skeletons forever there, a bug).',
+    viewer: Viewer.Moderator,
+    page: 'moderation',
+    empty: true,
+    height: 36,
+  },
+  {
+    id: 'members',
+    title: 'Members with the Blocked tab and the role menu',
+    who: 'Admin',
+    sees: 'Production’s SquadMemberModal as a page: three tabs, search, Copy invitation link first, Admin and Moderator badges, and the member menu (Make admin, Promote, Demote, Report, Block, Gift Plus).',
+    viewer: Viewer.Admin,
+    page: 'members',
+    height: 44,
+  },
+  {
+    id: 'members-member',
+    title: 'Members as a plain member',
+    who: 'Member, memberInviteRole = member',
+    sees: 'Two tabs, Copy invitation link because members may invite, Follow on rows (to follow the person) instead of the menu.',
+    viewer: Viewer.Member,
+    page: 'members',
+    height: 40,
+  },
+  {
+    id: 'settings',
+    title: 'Squad settings',
+    who: 'Admin',
+    sees: 'Settings opens the Manage area on Details. Production’s one long form is split across Details, Posting and invitations, Integrations and Danger zone in the menu.',
+    viewer: Viewer.Admin,
+    page: 'settings',
+    height: 56,
+  },
+  {
+    id: 'analytics',
+    title: 'Squad analytics with a boost running',
+    who: 'Admin, ViewAnalytics, campaign active',
+    sees: 'Production’s analytics parts: the Impressions and Unique reach tiles, the 45-day chart with boosted days marked, the Engagement list. The header says View boost instead of Boost.',
+    viewer: Viewer.Admin,
+    page: 'analytics',
+    config: { campaign: true },
+    height: 44,
+  },
+  {
+    id: 'add-product',
+    title: 'Adding a product',
+    who: 'Admin',
+    sees: 'The profile’s add-experience pattern: its own page, Save in the header, the link first to fill the rest, then logo, name, tagline, category, pricing, description.',
+    viewer: Viewer.Admin,
+    page: 'add-product',
+    height: 52,
+  },
+  {
+    id: 'invite-anonymous',
+    title: 'Invitation link, logged out',
+    who: 'Anonymous on /squads/[handle]/[token]',
+    sees: 'Production’s landing: who invited you, the Squad card, Join Squad (sign up first), who is waiting inside.',
+    viewer: Viewer.Anonymous,
+    page: 'invite',
+    height: 44,
+  },
+  {
+    id: 'invite-blocked',
+    title: 'Invitation link, blocked',
+    who: 'Blocked',
+    sees: 'Join is disabled and the forbidden label shows. Production shows it as a toast on click.',
+    viewer: Viewer.Blocked,
+    page: 'invite',
+    height: 44,
+  },
+  {
+    id: 'private-wall',
+    title: 'Private Squad, not a member',
+    who: 'Logged in, not a member',
+    sees: 'Production’s Unauthorized screen, word for word, under the header. The invitation link is the only door.',
+    viewer: Viewer.Visitor,
+    page: 'rules',
+    isPrivate: true,
+    height: 40,
+  },
+  {
+    id: 'not-found',
+    title: 'Deleted Squad or bad handle',
+    who: 'Anyone',
+    sees: 'Production’s Custom404 copy, plus a Find Squads door it does not have.',
+    viewer: Viewer.Visitor,
+    page: 'not-found',
+    height: 32,
+  },
+];
+
+export const manageCases: UseCase[] = [
+  {
+    id: 'manage-admin',
+    title: 'Manage, opened from Edit page',
+    who: 'Admin',
+    sees: 'The profile’s settings pattern: on laptop a grouped menu (Page, Community, Tools) beside Details; on a phone the menu is a list and each item opens its own page with a back button.',
+    viewer: Viewer.Admin,
+    page: 'manage',
+    height: 52,
+  },
+  {
+    id: 'manage-details',
+    title: 'Details',
+    who: 'Admin',
+    sees: 'The cover and the round image with camera and remove buttons, like profile settings, then name, handle and description, and the Squad type with the category dropdown under Public. Save sits in the page header.',
+    viewer: Viewer.Admin,
+    page: 'manage-details',
+    height: 56,
+  },
+  {
+    id: 'manage-moderator',
+    title: 'Manage, as a moderator',
+    who: 'Moderator',
+    sees: 'Only what a moderator may touch: Rules, FAQ, Members, Moderation. It opens on Rules.',
+    viewer: Viewer.Moderator,
+    page: 'manage',
+    height: 48,
+  },
+  {
+    id: 'manage-posting',
+    title: 'Posting and invitations',
+    who: 'Admin',
+    sees: 'Who may post, whether posts are reviewed or gated by reputation, and who may invite, split out of production’s one long settings form.',
+    viewer: Viewer.Admin,
+    page: 'manage-posting',
+    height: 52,
+  },
+  {
+    id: 'manage-products',
+    title: 'Products, managed',
+    who: 'Admin',
+    sees: 'The products as management rows with an edit button each and Add in the header; Add opens the form with Save, and back returns to the list.',
+    viewer: Viewer.Admin,
+    page: 'manage-products',
+    height: 52,
+  },
+  {
+    id: 'manage-links',
+    title: 'Links',
+    who: 'Admin',
+    sees: 'The links the right column shows, each with its mark, address and a remove button, the Add link field on top, and Save in the header.',
+    viewer: Viewer.Admin,
+    page: 'manage-links',
+    height: 44,
+  },
+];
+
+export const allCases: UseCase[] = [
+  ...viewerCases,
+  ...postingCases,
+  ...contentCases,
+  ...stateCases,
+  ...productionCases,
+  ...manageCases,
+];
+
+export const caseById = Object.fromEntries(
+  allCases.map((useCase) => [useCase.id, useCase]),
+) as Record<string, UseCase>;

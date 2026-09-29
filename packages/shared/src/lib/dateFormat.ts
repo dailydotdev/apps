@@ -220,10 +220,21 @@ export const getReadHistoryDateFormat = (currentDate: Date): string => {
   return `${dayOfTheWeek}, ${dayOfTheMonth} ${month}${year}`;
 };
 
-export const getTopReaderBadgeDateFormat = (date: string | Date): string => {
+export const getTopReaderBadgeDateFormat = (
+  date: string | Date,
+  options?: {
+    /**
+     * Format on the UTC calendar rather than the viewer's. For a month that
+     * was cut in UTC — a monthly ranking period, say — the local calendar
+     * shifts the label by a month for anyone far enough east or west.
+     */
+    utc?: boolean;
+  },
+): string => {
   return new Date(date).toLocaleString('en-US', {
     year: 'numeric',
     month: 'long',
+    ...(options?.utc && { timeZone: 'UTC' }),
   });
 };
 

@@ -55,6 +55,10 @@ jest.mock('../../hooks/feed/useFeedName', () => ({
 
 jest.mock('../../hooks/useActiveNav', () => jest.fn());
 
+jest.mock('../../features/getApp/components/MobileAppHeader', () => ({
+  MobileAppHeader: () => null,
+}));
+
 const mockUseSettingsContext = useSettingsContext as jest.Mock;
 const mockUseActiveFeedNameContext = useActiveFeedNameContext as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;

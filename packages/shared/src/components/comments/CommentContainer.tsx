@@ -97,7 +97,8 @@ export default function CommentContainer({
         <header className="mb-4 line-clamp-1 text-text-tertiary typo-footnote">
           {comment.parent?.author ? (
             <p>
-              Replied to <strong>@{comment.parent.author.username}</strong>
+              Replied to{' '}
+              <strong translate="no">@{comment.parent.author.username}</strong>
             </p>
           ) : (
             <p>

@@ -7,7 +7,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { plusApiCta, plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   usePersonalAccessTokens,
@@ -530,7 +530,7 @@ const ApiAccessPage = (): ReactElement => {
         {!isPlus && (
           <div className="plus-entry-gradient flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4">
             <Typography type={TypographyType.Body} bold>
-              {plusApiCta}
+              Full API access and higher rate limits
             </Typography>
             <Typography
               type={TypographyType.Callout}

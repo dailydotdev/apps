@@ -35,9 +35,19 @@ jest.mock('../../../contexts/PushNotificationContext', () => ({
   }),
 }));
 
+const mockUseViewSize = jest.fn(() => true);
 jest.mock('../../../hooks', () => ({
   ...jest.requireActual('../../../hooks'),
-  useViewSize: () => true,
+  useViewSize: () => mockUseViewSize(),
+}));
+
+const mockUseConditionalFeature = jest.fn<
+  { value: boolean; isLoading: boolean },
+  [{ shouldEvaluate?: boolean }]
+>(() => ({ value: false, isLoading: false }));
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: (args: { shouldEvaluate?: boolean }) =>
+    mockUseConditionalFeature(args),
 }));
 
 const defaultProps: FunnelStepReadingReminder = {
@@ -65,6 +75,11 @@ const renderStep = (isOnboarding: boolean) =>
 describe('FunnelReadingReminder', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseViewSize.mockReturnValue(true);
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: false,
+    });
   });
 
   // The hook logs an impression and mounts the push/digest mutations, so a
@@ -81,5 +96,48 @@ describe('FunnelReadingReminder', () => {
 
     expect(screen.getByTestId('funnel-reminder')).toBeInTheDocument();
     expect(useReadingReminder).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips desktop unless the desktop experiment is on', () => {
+    mockUseViewSize.mockReturnValue(false);
+
+    const { unmount } = renderStep(true);
+
+    expect(screen.queryByTestId('funnel-reminder')).not.toBeInTheDocument();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: true }),
+    );
+    unmount();
+
+    mockUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: false,
+    });
+    renderStep(true);
+
+    expect(screen.getByTestId('funnel-reminder')).toBeInTheDocument();
+  });
+
+  it('keeps the experiment out of the paid funnel', () => {
+    mockUseViewSize.mockReturnValue(false);
+    mockUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: false,
+    });
+
+    renderStep(false);
+
+    expect(screen.queryByTestId('paid-reminder')).not.toBeInTheDocument();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
+  it('never evaluates the desktop experiment on mobile', () => {
+    renderStep(true);
+
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
   });
 });
