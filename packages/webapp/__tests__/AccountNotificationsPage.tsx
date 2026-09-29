@@ -9,7 +9,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import type { Visit } from '@dailydotdev/shared/src/lib/boot';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import {
@@ -154,10 +153,6 @@ afterEach(() => {
 
 const defaultLoggedUser: LoggedUser = {
   ...loggedUser,
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: false,
   isPlus: true,
 };
@@ -210,7 +205,7 @@ const renderComponent = (
         >
           <SettingsContext.Provider value={settingsContext}>
             <PushNotificationContextProvider>
-              <NotificationsContextProvider app={BootApp.Webapp}>
+              <NotificationsContextProvider>
                 <ProfileNotificationsPage />
               </NotificationsContextProvider>
             </PushNotificationContextProvider>

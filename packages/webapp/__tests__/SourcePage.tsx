@@ -14,7 +14,6 @@ import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
-import type { SettingsContextData } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type {
   AllTagCategoriesData,
@@ -27,6 +26,7 @@ import {
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
@@ -101,6 +101,10 @@ const createSourcesSettingsMock = (
         id: 'react',
         name: 'React',
         image: 'https://reactjs.org',
+        handle: 'react',
+        permalink: 'permalink/react',
+        type: SourceType.Machine,
+        public: true,
       },
     ],
   },
@@ -137,35 +141,25 @@ const renderComponent = (
   nock('http://localhost:3000')
     .get('/v1/a?active=false&gdpr=0')
     .reply(200, [ad]);
-  const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: 'dark',
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    isRemoteSettingsLoaded: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
-  };
   return render(
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
           user,
+          isLoggedIn: !!user,
           shouldShowLogin: false,
           showLogin,
+          closeLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
           isTokenValid: true,
           getRedirectUri: jest.fn(),
+          isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
-        <SettingsContext.Provider value={settingsContext}>
+        <SettingsContext.Provider value={createTestSettings()}>
           <LogContext.Provider
             value={{
               logEvent,

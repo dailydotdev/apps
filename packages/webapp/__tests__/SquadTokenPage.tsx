@@ -71,9 +71,14 @@ const createInvitationMock = (
 });
 
 const defaultToken = defaultSquadToken;
+const defaultProps: SquadReferralProps = {
+  token: defaultToken,
+  handle: 'test',
+  initialData: undefined,
+};
 const renderComponent = (
   mocks = [createInvitationMock(defaultToken)],
-  props: SquadReferralProps = { token: defaultToken, handle: 'test' },
+  props: SquadReferralProps = defaultProps,
   user: LoggedUser = defaultUser,
 ): RenderResult => {
   client = new QueryClient();
@@ -83,14 +88,18 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user,
+          isLoggedIn: !!user,
           shouldShowLogin: false,
           showLogin,
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           squads: [],
+          isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <SettingsContext.Provider value={defaultTestSettings}>
@@ -228,8 +237,8 @@ describe('invalid token', () => {
   it('should redirect to home page when invitation source id does not match route squad id', async () => {
     const admin = generateTestAdmin();
     renderComponent([createInvitationMock(defaultToken, admin)], {
+      ...defaultProps,
       handle: 'not your squad',
-      token: defaultToken,
     });
     await waitForNock();
     expect(replaced).toEqual(webappUrl);

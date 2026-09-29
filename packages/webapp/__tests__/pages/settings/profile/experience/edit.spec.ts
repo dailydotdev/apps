@@ -42,7 +42,13 @@ const mockExperience = {
   createdAt: '2024-01-01T00:00:00.000Z',
   startedAt: '2023-06-15T00:00:00.000Z',
   endedAt: '2024-01-01T00:00:00.000Z',
-  company: { id: 'company-1', name: 'Test Company', image: null },
+  company: {
+    id: 'company-1',
+    name: 'Test Company',
+    image: null,
+    createdAt: new Date('2024-01-01T00:00:00.000Z'),
+    updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+  },
   customCompanyName: null,
   isOwner: true,
   skills: [{ value: 'TypeScript' }, { value: 'React' }],
@@ -158,10 +164,8 @@ describe('edit experience page getServerSideProps', () => {
       const result = await getServerSideProps(context);
 
       expect(result).toHaveProperty('props');
-      const { props } = result as {
-        props: { experience: { current: boolean } };
-      };
-      expect(props.experience.current).toBe(true);
+      const { props } = result as { props: { experience: unknown } };
+      expect(props.experience).toMatchObject({ current: true });
     });
   });
 });
