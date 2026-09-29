@@ -5,7 +5,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import type { DrawerRef } from '../../../components/drawers/Drawer';
+import type {
+  DrawerRef,
+  PopupEventType,
+} from '../../../components/drawers/Drawer';
 import { Drawer } from '../../../components/drawers/Drawer';
 import { EarthIcon } from '../../../components/icons/Earth';
 import { IconSize } from '../../../components/Icon';
@@ -41,13 +44,26 @@ export function MobileAppSheet(): ReactElement {
     onDismiss();
   };
 
-  const onClose = () => {
+  const logDecline = (origin: 'continue' | 'close') => {
     logEvent({
-      event_name: LogEvent.Click,
+      event_name: LogEvent.Dismiss,
       target_type: TargetType.GetAppButton,
       target_id: TargetId.MobileSheet,
-      extra: JSON.stringify({ choice: 'continue' }),
+      extra: JSON.stringify({ origin }),
     });
+  };
+
+  const onContinue = () => {
+    logDecline('continue');
+    drawerRef.current?.onClose();
+  };
+
+  // Continue closes through the ref without an event, so only a backdrop tap
+  // or Escape arrives here with one.
+  const onClose = (event?: PopupEventType) => {
+    if (event) {
+      logDecline('close');
+    }
     onDismiss();
   };
 
@@ -86,7 +102,7 @@ export function MobileAppSheet(): ReactElement {
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
             className="w-28"
-            onClick={() => drawerRef.current?.onClose()}
+            onClick={onContinue}
           >
             Continue
           </Button>

@@ -11,11 +11,12 @@ import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { PersistentContextKeys } from '../../../hooks/usePersistentContext';
 import { useViewSize } from '../../../hooks/useViewSize';
-import { isIOSNative } from '../../../lib/func';
+import { isIOSNative, isPWA } from '../../../lib/func';
 import {
   featureMobileAppSheet,
   featureMobileAppSheetSnoozeHours,
 } from '../../../lib/featureManagement';
+import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { MobileAppSheet, openAppFromSheetUrl } from './MobileAppSheet';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
@@ -30,11 +31,14 @@ jest.mock('../../../hooks/useViewSize', () => ({
 jest.mock('../../../lib/func', () => ({
   ...jest.requireActual('../../../lib/func'),
   isIOSNative: jest.fn(),
+  isPWA: jest.fn(),
 }));
 
 const mockFeature = jest.mocked(useConditionalFeature);
 const mockIsTablet = jest.mocked(useViewSize);
 const mockIsIOSNative = jest.mocked(isIOSNative);
+const mockIsPWA = jest.mocked(isPWA);
+const logEvent = jest.fn();
 
 const LogContext = getLogContextStatic();
 const hour = 60 * 60 * 1000;
@@ -55,9 +59,7 @@ const sheet = (auth: Partial<AuthContextData> = {}): ReactElement => (
         } as unknown as AuthContextData
       }
     >
-      <LogContext.Provider
-        value={{ logEvent: jest.fn() } as unknown as LogContextData}
-      >
+      <LogContext.Provider value={{ logEvent } as unknown as LogContextData}>
         <MobileAppSheet />
       </LogContext.Provider>
     </AuthContext.Provider>
@@ -68,6 +70,13 @@ const dismissedHoursAgo = (hours: number) =>
   setCache(PersistentContextKeys.MobileAppSheet, {
     dismissedAt: Date.now() - hours * hour,
   });
+
+const declined = (origin: string) => ({
+  event_name: LogEvent.Dismiss,
+  target_type: TargetType.GetAppButton,
+  target_id: TargetId.MobileSheet,
+  extra: JSON.stringify({ origin }),
+});
 
 const expectNoSheet = async () => {
   await waitFor(() =>
@@ -94,6 +103,7 @@ beforeEach(async () => {
   }));
   mockIsTablet.mockReturnValue(false);
   mockIsIOSNative.mockReturnValue(false);
+  mockIsPWA.mockReturnValue(false);
 });
 
 describe('MobileAppSheet', () => {
@@ -125,6 +135,31 @@ describe('MobileAppSheet', () => {
     },
   );
 
+  it('should log Continue as a decline', async () => {
+    render(sheet());
+
+    await userEvent.click(await screen.findByText('Continue'));
+
+    await waitFor(() =>
+      expect(screen.queryByText(title)).not.toBeInTheDocument(),
+    );
+    expect(logEvent).toHaveBeenCalledWith(declined('continue'));
+    expect(logEvent).not.toHaveBeenCalledWith(declined('close'));
+  });
+
+  it('should log closing the sheet apart from Continue', async () => {
+    render(sheet());
+    await screen.findByText(title);
+
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() =>
+      expect(screen.queryByText(title)).not.toBeInTheDocument(),
+    );
+    expect(logEvent).toHaveBeenCalledWith(declined('close'));
+    expect(logEvent).not.toHaveBeenCalledWith(declined('continue'));
+  });
+
   it('should stay away inside the snooze window', async () => {
     await dismissedHoursAgo(71);
     render(sheet());
@@ -145,6 +180,13 @@ describe('MobileAppSheet', () => {
     render(sheet());
 
     expect(await screen.findByText(title)).toBeInTheDocument();
+  });
+
+  it('should never ask inside an installed PWA', async () => {
+    mockIsPWA.mockReturnValue(true);
+    render(sheet());
+
+    await expectNoSheet();
   });
 
   it('should never ask logged-out readers', async () => {
