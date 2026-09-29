@@ -13,7 +13,7 @@ import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
 import type { NotificationSettings } from '../components/notifications/utils';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export const USER_SHORT_BY_ID = `
   query UserShortById($id: ID!) {
@@ -942,6 +942,12 @@ export const getBasicUserInfo = async (
 
   return res.user || null;
 };
+
+export const referringUserQueryOptions = (userId: string) => ({
+  queryKey: generateQueryKey(RequestKey.ReferringUser, undefined, userId),
+  queryFn: () => getBasicUserInfo(userId),
+  staleTime: StaleTime.Default,
+});
 
 export enum UploadPreset {
   Avatar = 'avatar',
