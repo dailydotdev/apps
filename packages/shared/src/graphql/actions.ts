@@ -70,6 +70,7 @@ export enum ActionType {
   SidebarTourSeen = 'sidebar_tour_seen',
   InterestAgentIntroSeen = 'interest_agent_intro_seen',
   InterestAgentSidebarClick = 'interest_agent_sidebar_click',
+  ReferralLadderGiftShake = 'referral_ladder_gift_shake',
 }
 
 export const cvActions = [

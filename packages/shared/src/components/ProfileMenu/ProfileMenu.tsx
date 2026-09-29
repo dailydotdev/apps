@@ -25,6 +25,7 @@ import { ThemeSection } from './sections/ThemeSection';
 import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
+import { useReferralLadder } from '../../hooks/referral/useReferralLadder';
 
 const ExtensionSection = dynamic(() =>
   import(
@@ -43,6 +44,8 @@ export default function ProfileMenu({
   const { user, logout } = useAuthContext();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
+  const { isEligible: isReferralLadderEligible, isCompleted } =
+    useReferralLadder();
 
   useEffect(() => {
     events.on('routeChangeStart', onClose);
@@ -61,10 +64,11 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
+      showCloseButton={!isReferralLadderEligible || isCompleted}
       className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
       {showProfileCompletion && <ProfileCompletion />}
-      <ProfileMenuHeader />
+      <ProfileMenuHeader showReferralLadderGift />
 
       <UpgradeToPlus
         target={TargetId.ProfileDropdown}

@@ -135,6 +135,19 @@ const EmailNotificationsTab = (): ReactElement => {
             }
           />
           <NotificationSwitch
+            id="referrals"
+            label="Friends you invite"
+            description="Get an email when a friend joins daily.dev with your invite link."
+            checked={getGroupStatus('referrals', 'email')}
+            onToggle={() =>
+              toggleGroup(
+                'referrals',
+                !getGroupStatus('referrals', 'email'),
+                'email',
+              )
+            }
+          />
+          <NotificationSwitch
             id="creator_updates"
             label="Creator updates"
             description="Get email notifications about your posts, source suggestions, analytics, and other creator activity on daily.dev."

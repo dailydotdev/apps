@@ -195,6 +195,26 @@ describe('PostFocusCard shared video', () => {
   });
 });
 
+describe('PostFocusCard youtube links', () => {
+  const contentHtml =
+    '<p>Watch <a href="https://youtu.be/igZCEr3HwCg">this talk</a></p>';
+
+  it('embeds youtube links from a freeform body', () => {
+    renderCard({ ...freeformPost, contentHtml });
+
+    expect(screen.getByTitle('YouTube video')).toHaveAttribute(
+      'src',
+      'https://www.youtube-nocookie.com/embed/igZCEr3HwCg',
+    );
+  });
+
+  it('keeps youtube links as links on a publication article', () => {
+    renderCard({ ...post, contentHtml });
+
+    expect(screen.queryByTitle('YouTube video')).not.toBeInTheDocument();
+  });
+});
+
 describe('PostFocusCard community sentiment', () => {
   it('renders in the post modal when the post has a take', () => {
     renderCard(postWithCommunitySentiment, { onClose: jest.fn() });
