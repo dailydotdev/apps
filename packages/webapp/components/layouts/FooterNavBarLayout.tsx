@@ -4,7 +4,11 @@ import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { MobileAppFooterProvider } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
+import {
+  MobileAppFooterProvider,
+  useMobileAppFooterContext,
+} from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
+import { mobileAppFooterHeight } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
 
 const FooterWrapper = dynamic(
   () =>
@@ -14,6 +18,18 @@ const FooterWrapper = dynamic(
 interface FooterNavBarLayoutProps {
   children?: ReactNode;
   post?: Post;
+}
+
+function FooterSpacer({
+  post,
+}: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement {
+  const { isRevealed: showAppFooter } = useMobileAppFooterContext();
+
+  if (showAppFooter) {
+    return <div className={mobileAppFooterHeight} />;
+  }
+
+  return <div className={post ? 'h-40' : 'h-16'} />;
 }
 
 export default function FooterNavBarLayout({
@@ -28,7 +44,7 @@ export default function FooterNavBarLayout({
   return (
     <MobileAppFooterProvider>
       {children}
-      {showNav && <div className={post ? 'h-40' : 'h-16'} />}
+      {showNav && <FooterSpacer post={post} />}
       <FooterWrapper showNav={showNav} post={post} />
     </MobileAppFooterProvider>
   );

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
@@ -12,6 +13,7 @@ import { AuthTriggers } from '../../../lib/auth';
 import { appDownloadUrl } from '../../../lib/constants';
 import { cloudinaryCharmNoComments } from '../../../lib/image';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { mobileAppFooterHeight } from '../mobileAppFooter';
 
 export const openAppFromFooterUrl = `${appDownloadUrl}?utm_source=mobile_footer`;
 
@@ -48,7 +50,12 @@ export function MobileAppFooter({ title }: MobileAppFooterProps): ReactElement {
   };
 
   return (
-    <div className="pointer-events-none flex flex-col">
+    <div
+      className={classNames(
+        'pointer-events-none flex flex-col justify-end',
+        mobileAppFooterHeight,
+      )}
+    >
       <div className="h-28 bg-gradient-to-b from-transparent to-background-default" />
       <div className="pointer-events-auto flex flex-col items-center gap-3 bg-background-default px-5 pb-[max(env(safe-area-inset-bottom),1.5rem)] text-center">
         <div className="relative w-full">
