@@ -99,6 +99,13 @@ const ReferralLadderModal = dynamic(
     ),
 );
 
+const ReferralLadderPromoModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "referralLadderPromoModal" */ './referral/ReferralLadderPromoModal'
+    ),
+);
+
 const NewStreakModal = dynamic(
   () =>
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
@@ -539,6 +546,7 @@ export const modals = {
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.ReferralLadder]: ReferralLadderModal,
+  [LazyModal.ReferralLadderPromo]: ReferralLadderPromoModal,
   [LazyModal.Video]: VideoModal,
   [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
