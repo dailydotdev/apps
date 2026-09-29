@@ -11,6 +11,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
+import { YoutubeLinkEmbeds } from '../contentEmbeds/YoutubeLinkEmbeds';
 import { ParagraphSnapshotButtons } from '../../features/snapshot/ParagraphSnapshotButtons';
 
 interface MarkdownPostContentProps {
@@ -99,6 +100,9 @@ function MarkdownPostContent({
         <Markdown content={post.contentHtml ?? ''} className="break-words" />
         <ParagraphSnapshotButtons containerRef={bodyRef} post={post} />
       </div>
+      {post.type === PostType.Freeform && (
+        <YoutubeLinkEmbeds contentHtml={post.contentHtml} className="mb-5" />
+      )}
       <ContentEmbeds
         embeds={post.contentEmbeds}
         variant="post"
