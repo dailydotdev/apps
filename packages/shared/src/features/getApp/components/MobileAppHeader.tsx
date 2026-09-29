@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/router';
 import HeaderLogo from '../../../components/layout/HeaderLogo';
 import { LogoPosition } from '../../../components/Logo';
@@ -15,26 +15,34 @@ import { MOBILE_APP_HEADER_HIDDEN_CLASS } from '../mobileAppHeaderHint';
 // scroll can't open a gap between them.
 export const MOBILE_APP_HEADER_OFFSET_VAR = '--mobile-app-header-offset';
 
+const noopSubscribe = () => () => undefined;
+
+// True only while React hydrates the server markup; any later mount, such as
+// client-side navigation, reads false, so a member never gets a frame of the
+// row after the first page.
+const useIsHydrating = (): boolean =>
+  useSyncExternalStore(
+    noopSubscribe,
+    () => false,
+    () => true,
+  );
+
 // For pages that have no top bar of their own on phones.
 export function MobileAppHeader(): ReactElement | null {
   const router = useRouter();
   const { isAuthReady } = useAuthContext();
   const isEnabled = useMobileAppHeader();
-  const [hasMounted, setHasMounted] = useState(false);
+  const isHydrating = useIsHydrating();
   // Rendered from the server on so logged-out readers get no layout shift;
   // dropped once auth says this reader should not see it.
-  const isShown = isEnabled || !isAuthReady || !hasMounted;
+  const isShown = isEnabled || !isAuthReady || isHydrating;
   const isHidden = useHideOnScrollDown(isEnabled);
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (isAuthReady) {
+    if (isEnabled) {
       document.documentElement.classList.remove(MOBILE_APP_HEADER_HIDDEN_CLASS);
     }
-  }, [isAuthReady]);
+  }, [isEnabled]);
 
   useEffect(() => {
     if (!isEnabled) {
