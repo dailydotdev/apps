@@ -24,6 +24,17 @@ const useIsAnonymous = (): boolean => {
 };
 
 /**
+ * TEMPORARY, revert before merging: serves the Taboola trial to every visitor
+ * of /articles, logged in or not and whatever `read_taboola` says, so preview
+ * deployments can be tested. Off under test, so the Kueez specs still run.
+ */
+const TABOOLA_FOR_EVERYONE = process.env.NODE_ENV !== 'test';
+
+/** `read_taboola`, or the temporary override above. */
+export const useReadTaboolaFlag = (): boolean =>
+  !!useFeature(featureReadTaboola) || TABOOLA_FOR_EVERYONE;
+
+/**
  * Whether the /read template serves Taboola's widgets instead of its Kueez
  * units. Same audience as the Kueez slots, anonymous visitors only, except
  * in development, where the flag is on and any session renders live widgets
@@ -32,9 +43,13 @@ const useIsAnonymous = (): boolean => {
  */
 export const useReadTaboola = (): boolean => {
   const auth = useContext(AuthContext);
-  const enabled = useFeature(featureReadTaboola);
+  const enabled = useReadTaboolaFlag();
 
-  return !!enabled && !!auth?.isAuthReady && (!auth.user || isDevelopment);
+  return (
+    enabled &&
+    !!auth?.isAuthReady &&
+    (!auth.user || isDevelopment || TABOOLA_FOR_EVERYONE)
+  );
 };
 
 /**
@@ -44,8 +59,7 @@ export const useReadTaboola = (): boolean => {
  * and flags resolve after boot, so outside development the chrome still
  * renders in full on the server and drops once features load.
  */
-export const useArticlesContained = (): boolean =>
-  !!useFeature(featureReadTaboola);
+export const useArticlesContained = (): boolean => useReadTaboolaFlag();
 
 /**
  * The /read template's slots. Anonymous visitors only: the page exists for
@@ -57,7 +71,7 @@ export const useArticlesContained = (): boolean =>
 export const useReadAdSlots = (): AdSlots => {
   const isAnonymous = useIsAnonymous();
   const enabled = useFeature(featureReadAds);
-  const taboola = useFeature(featureReadTaboola);
+  const taboola = useReadTaboolaFlag();
 
   if (isDevelopment || taboola) {
     return NO_SLOTS;
