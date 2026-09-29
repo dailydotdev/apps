@@ -39,6 +39,8 @@ import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -89,6 +91,8 @@ function FeedNav(): ReactElement | null {
   );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
+  const isMobileAppHeader = useMobileAppHeader();
+  const isLogoRowHidden = useHideOnScrollDown(isMobile && isMobileAppHeader);
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
@@ -186,6 +190,9 @@ function FeedNav(): ReactElement | null {
       className={classNames(
         'sticky top-0 z-header w-full bg-background-default tablet:pl-16',
         scrollClassName,
+        isMobileAppHeader && 'transition-transform duration-200 ease-out',
+        // Slides the logo row with Log in and Open app away, keeping the chips.
+        isLogoRowHidden && '-translate-y-10',
       )}
     >
       {isMobile && <MobileFeedActions />}
