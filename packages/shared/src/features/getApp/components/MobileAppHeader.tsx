@@ -1,22 +1,40 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
-import classNames from 'classnames';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import HeaderLogo from '../../../components/layout/HeaderLogo';
 import { LogoPosition } from '../../../components/Logo';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMobileAppHeader } from '../hooks/useMobileAppHeader';
 import { useHideOnScrollDown } from '../hooks/useHideOnScrollDown';
 import { MobileAppActions } from './MobileAppActions';
+import { MOBILE_APP_HEADER_HIDDEN_CLASS } from '../mobileAppHeaderHint';
 
 // Published on <html> so the page's own sticky bars (search, tabs) sit under
-// the header while it shows and take the top once it slides away.
+// the header while it shows and take the top once it slides away. The header
+// and those bars all move through `top` on the same transition, so a fast
+// scroll can't open a gap between them.
 export const MOBILE_APP_HEADER_OFFSET_VAR = '--mobile-app-header-offset';
 
 // For pages that have no top bar of their own on phones.
 export function MobileAppHeader(): ReactElement | null {
   const router = useRouter();
+  const { isAuthReady } = useAuthContext();
   const isEnabled = useMobileAppHeader();
+  const [hasMounted, setHasMounted] = useState(false);
+  // Rendered from the server on so logged-out readers get no layout shift;
+  // dropped once auth says this reader should not see it.
+  const isShown = isEnabled || !isAuthReady || !hasMounted;
   const isHidden = useHideOnScrollDown(isEnabled);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthReady) {
+      document.documentElement.classList.remove(MOBILE_APP_HEADER_HIDDEN_CLASS);
+    }
+  }, [isAuthReady]);
 
   useEffect(() => {
     if (!isEnabled) {
@@ -33,17 +51,12 @@ export function MobileAppHeader(): ReactElement | null {
     };
   }, [isEnabled, isHidden]);
 
-  if (!isEnabled) {
+  if (!isShown) {
     return null;
   }
 
   return (
-    <header
-      className={classNames(
-        'sticky left-0 top-[var(--phone-top-ad-height,0px)] z-max flex h-14 flex-row items-center justify-between border-b border-border-subtlest-tertiary bg-background-default px-4 transition-transform duration-200 ease-out tablet:hidden',
-        isHidden && '-translate-y-full',
-      )}
-    >
+    <header className="mobile-app-header sticky left-0 top-[calc(var(--phone-top-ad-height,0px)+var(--mobile-app-header-offset,3.5rem)-3.5rem)] z-max flex h-14 flex-row items-center justify-between border-b border-border-subtlest-tertiary bg-background-default px-4 transition-[top] duration-200 ease-out tablet:hidden">
       <HeaderLogo
         position={LogoPosition.Relative}
         onLogoClick={() => router.push('/')}
