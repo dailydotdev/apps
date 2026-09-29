@@ -31,7 +31,7 @@ import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import { getSquadSpotlightSource } from '../../lib/spotlight';
 import { getSquadShareText } from '../widgets/SquadShareWidget';
 import { SquadOptionsMenu } from './SquadOptionsMenu';
-import { useMobileAppHeaderDeclutter } from '../../../getApp/hooks/useMobileAppHeader';
+import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
 
 const useSquadShare = () => {
   const { squad } = useSquadPageContext();
@@ -100,7 +100,7 @@ export const SquadActions = (): ReactElement => {
   const isAdminView = viewer === SquadViewer.Admin;
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
   const editUrl = getSquadManageUrl(squad.handle, SquadManageSection.Details);
-  const isDecluttered = useMobileAppHeaderDeclutter();
+  const isMobileAppHeader = useMobileAppHeader();
 
   return (
     <div className="flex items-center gap-2 pb-1">
@@ -160,7 +160,7 @@ export const SquadActions = (): ReactElement => {
           onClick={() => openWithSource(getSquadSpotlightSource(squad))}
         />
       </Tooltip>
-      {!isDecluttered && <SquadOptionsMenu />}
+      {!isMobileAppHeader && <SquadOptionsMenu />}
       {canBoost(squad) && (
         <span className="hidden tablet:flex">
           <BoostSourceButton
@@ -181,13 +181,13 @@ export const SquadPhoneActions = (): ReactElement => {
   const { squad, viewer } = useSquadPageContext();
   const [, onShare] = useSquadShare();
   const { openModal } = useLazyModal();
-  const isDecluttered = useMobileAppHeaderDeclutter();
+  const isMobileAppHeader = useMobileAppHeader();
 
   if (viewer !== SquadViewer.Admin) {
     return (
       <div className="mt-4 flex flex-col gap-2 empty:hidden tablet:hidden">
         <SquadJoinButton size={ButtonSize.Medium} className="w-full" />
-        {isDecluttered && (
+        {isMobileAppHeader && (
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Medium}

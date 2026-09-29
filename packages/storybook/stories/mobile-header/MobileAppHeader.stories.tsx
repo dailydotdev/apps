@@ -11,16 +11,9 @@ import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext
 import type { LogContextData } from '@dailydotdev/shared/src/hooks/log/useLogContextData';
 import type { SettingsContextData } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import {
-  featureMobileAppHeader,
-  featureMobileAppHeaderDeclutter,
-} from '@dailydotdev/shared/src/lib/featureManagement';
 import { MobileAppActions } from '@dailydotdev/shared/src/features/getApp/components/MobileAppActions';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
-import {
-  useMobileAppHeaderDeclutter,
-  useMobileAppHeaderIconOnlyRead,
-} from '@dailydotdev/shared/src/features/getApp/hooks/useMobileAppHeader';
+import { useMobileAppHeaderIconOnlyRead } from '@dailydotdev/shared/src/features/getApp/hooks/useMobileAppHeader';
 import { MobileFeedActions } from '@dailydotdev/shared/src/components/feeds/MobileFeedActions';
 import { GoBackHeaderMobile } from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
 import { PostHeaderActions } from '@dailydotdev/shared/src/components/post/PostHeaderActions';
@@ -35,16 +28,10 @@ import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 
 const LogContext = getLogContextStatic();
 
-const auth = {
-  isAuthReady: true,
-  isLoggedIn: false,
-  isAndroidApp: false,
-  showLogin: fn().mockName('showLogin'),
-} as unknown as AuthContextData;
+const showLogin = fn().mockName('showLogin');
 
 const settings = {
   loadedSettings: true,
@@ -83,53 +70,43 @@ const squad = {
 } as unknown as Squad;
 
 interface Args {
-  experiment: boolean;
-  declutter: boolean;
+  loggedIn: boolean;
   postType?: PostType;
 }
 
 const Providers = ({
-  experiment,
-  declutter,
+  loggedIn,
   children,
 }: Args & { children: ReactNode }): ReactElement => (
   <QueryClientProvider client={new QueryClient()}>
-    <AuthContext.Provider value={auth}>
+    <AuthContext.Provider
+      value={
+        {
+          isAuthReady: true,
+          isLoggedIn: loggedIn,
+          isAndroidApp: false,
+          showLogin,
+        } as unknown as AuthContextData
+      }
+    >
       <LogContext.Provider
         value={{ logEvent: fn() } as unknown as LogContextData}
       >
         <SettingsContext.Provider value={settings}>
-          <FeatureOverrides
-            values={{
-              [featureMobileAppHeader.id]: experiment,
-              [featureMobileAppHeaderDeclutter.id]: declutter,
-            }}
-          >
-            <div className="min-h-screen bg-background-default">{children}</div>
-          </FeatureOverrides>
+          <div className="min-h-screen bg-background-default">{children}</div>
         </SettingsContext.Provider>
       </LogContext.Provider>
     </AuthContext.Provider>
   </QueryClientProvider>
 );
 
-// Mirrors the profile page: without the declutter arm the row takes the
-// strip's place and the profile bar stays as it is today.
-const MobileAppHeaderWithoutDeclutter = (): ReactElement | null =>
-  useMobileAppHeaderDeclutter() ? null : <MobileAppHeader sticky />;
-
 const meta: Meta<Args> = {
   title: 'Mobile Header',
-  args: { experiment: true, declutter: true },
+  args: { loggedIn: false },
   argTypes: {
-    experiment: {
-      name: featureMobileAppHeader.id,
-      description: 'On: Log in + Open app. Off: production today.',
-    },
-    declutter: {
-      name: featureMobileAppHeaderDeclutter.id,
+    loggedIn: {
       description:
-        'With the header on: no three-dots menus or profile Follow, squad tour under Join.',
+        'Logged out: Log in + Open app. Logged in: the header members keep.',
     },
   },
   parameters: { layout: 'fullscreen' },
@@ -147,7 +124,7 @@ const meta: Meta<Args> = {
   },
   decorators: [
     (Story, { args }) => (
-      <Providers experiment={args.experiment} declutter={args.declutter}>
+      <Providers loggedIn={args.loggedIn}>
         <Story />
       </Providers>
     ),
@@ -202,7 +179,7 @@ export const PostBar: Story = {
       description: 'Video posts read "Watch video"; collections add Subscribe.',
     },
   },
-  render: function Render({ experiment, declutter, postType }) {
+  render: function Render({ loggedIn, postType }) {
     const isIconOnlyRead = useMobileAppHeaderIconOnlyRead();
 
     return (
@@ -211,11 +188,11 @@ export const PostBar: Story = {
         <GoBackHeaderMobile className="bg-background-subtle">
           <PostHeaderActions
             post={{ ...post, type: postType ?? PostType.Article }}
-            className={experiment ? undefined : 'ml-auto'}
+            className={loggedIn ? 'ml-auto' : undefined}
             onReadArticle={fn()}
             buttonSize={ButtonSize.Small}
-            hideOptions={experiment && declutter}
-            hideSubscribeAction={experiment && declutter}
+            hideOptions={!loggedIn}
+            hideSubscribeAction={!loggedIn}
             inlineActions={isIconOnlyRead}
           />
         </GoBackHeaderMobile>
@@ -229,7 +206,6 @@ export const ProfileBar: Story = {
   render: () => (
     <>
       <CustomAuthBanner />
-      <MobileAppHeaderWithoutDeclutter />
       <ProfileHeader user={profile} isSameUser={false} />
     </>
   ),

@@ -8,8 +8,8 @@ import { useMobileAppHeader } from '../hooks/useMobileAppHeader';
 import { MobileAppActions } from './MobileAppActions';
 
 interface MobileAppHeaderProps {
-  // Where it stands in for the sticky Log in / Sign up strip, it sticks too,
-  // so the only difference from control is where Log in sits.
+  // Where it stands in for the sticky Log in / Sign up strip, it sticks the
+  // same way, so Log in stays on screen.
   sticky?: boolean;
 }
 
