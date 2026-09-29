@@ -8,7 +8,7 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks/useViewSize';
-import { isIOSNative } from '../../../lib/func';
+import { isIOSNative, isPWA } from '../../../lib/func';
 import { MobileAppFooterAnchor } from '../components/MobileAppFooterAnchor';
 import { MobileAppFooterAnchorPlace } from '../mobileAppFooter';
 import {
@@ -30,12 +30,14 @@ jest.mock('../../../hooks/useViewSize', () => ({
 jest.mock('../../../lib/func', () => ({
   ...jest.requireActual('../../../lib/func'),
   isIOSNative: jest.fn(),
+  isPWA: jest.fn(),
 }));
 
 const mockRouter = jest.mocked(useRouter);
 const mockFeature = jest.mocked(useConditionalFeature);
 const mockIsTablet = jest.mocked(useViewSize);
 const mockIsIOSNative = jest.mocked(isIOSNative);
+const mockIsPWA = jest.mocked(isPWA);
 
 const RevealedTitle = (): ReactElement | null => {
   const { moment, isRevealed } = useMobileAppFooterContext();
@@ -85,6 +87,7 @@ beforeEach(() => {
   mockFeature.mockReturnValue({ value: true, isLoading: false });
   mockIsTablet.mockReturnValue(false);
   mockIsIOSNative.mockReturnValue(false);
+  mockIsPWA.mockReturnValue(false);
 });
 
 describe('MobileAppFooterContext', () => {
@@ -103,6 +106,18 @@ describe('MobileAppFooterContext', () => {
   it('should not enroll logged-in readers', () => {
     navigate({ pathname: '/posts/[id]', asPath: '/posts/abc' });
     render(page({ isLoggedIn: true }));
+    mockAllIsIntersecting(true);
+
+    expect(screen.queryByText('See all comments')).not.toBeInTheDocument();
+    expect(mockFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
+  it('should not enroll readers inside an installed PWA', () => {
+    mockIsPWA.mockReturnValue(true);
+    navigate({ pathname: '/posts/[id]', asPath: '/posts/abc' });
+    render(page());
     mockAllIsIntersecting(true);
 
     expect(screen.queryByText('See all comments')).not.toBeInTheDocument();

@@ -3,9 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { featureMobileAppFooter } from '../../../lib/featureManagement';
-import { isIOSNative, safeContextHookExport } from '../../../lib/func';
+import { safeContextHookExport } from '../../../lib/func';
 import { withoutLayoutVariantPrefix } from '../../../lib/layoutVariant';
 import type { MobileAppFooterMoment } from '../mobileAppFooter';
 import {
@@ -13,6 +12,7 @@ import {
   isSearchEngineLanding,
   MobileAppFooterTrigger,
 } from '../mobileAppFooter';
+import { usePhoneBrowser } from '../hooks/usePhoneBrowser';
 
 interface MobileAppFooterContextValue {
   // Set only for readers who should see the footer on this page.
@@ -42,20 +42,14 @@ const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
   createContextProvider(
     (): MobileAppFooterContextValue => {
       const router = useRouter();
-      const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
-      const isTablet = useViewSize(ViewSize.Tablet);
+      const { isLoggedIn } = useAuthContext();
+      const isPhoneBrowser = usePhoneBrowser();
       const routeMoment = getMobileAppFooterMoment(
         withoutLayoutVariantPrefix(router?.pathname),
       );
       const isSearchLanding = isSearchEngineLanding();
       const shouldEvaluate =
-        !isSearchLanding &&
-        !!routeMoment &&
-        isAuthReady &&
-        !isLoggedIn &&
-        !isTablet &&
-        !isAndroidApp &&
-        !isIOSNative();
+        !isSearchLanding && !!routeMoment && isPhoneBrowser && !isLoggedIn;
       const { value: isEnabled } = useConditionalFeature({
         feature: featureMobileAppFooter,
         shouldEvaluate,
