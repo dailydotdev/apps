@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { PropsWithChildren, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fn } from 'storybook/test';
 import { delay, graphql, http, HttpResponse } from 'msw';
@@ -9,6 +9,8 @@ import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import ProfileMenu from '@dailydotdev/shared/src/components/ProfileMenu/ProfileMenu';
 import ReferralLadderModal from '@dailydotdev/shared/src/components/modals/referral/ReferralLadderModal';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useReferralReminderModal } from '@dailydotdev/shared/src/hooks/referral/useReferralReminderModal';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { referralLadderQueryOptions } from '@dailydotdev/shared/src/graphql/users';
 import {
@@ -24,6 +26,17 @@ import { friends, getLadder, LadderState } from './_mock';
 interface LadderArgs {
   state: LadderState;
 }
+
+const getLadderBoot = (state: LadderState) => ({
+  ...defaultBootData,
+  user: {
+    ...defaultUser,
+    isReferralLadderEligible: state !== LadderState.Ineligible,
+  },
+  accessToken: { token: '1', expiresIn: '1' },
+  visit: { sessionId: '1', visitId: '1' },
+  feeds: [],
+});
 
 const createClient = (state: LadderState): QueryClient => {
   const client = new QueryClient();
@@ -64,15 +77,7 @@ const LadderProviders = ({
   children,
 }: PropsWithChildren<LadderArgs>): ReactElement => {
   const [queryClient] = useState(() => createClient(state));
-  const [bootData] = useState(() =>
-    getBootMock({
-      ...defaultBootData,
-      user: {
-        ...defaultUser,
-        isReferralLadderEligible: state !== LadderState.Ineligible,
-      },
-    }),
-  );
+  const [bootData] = useState(() => getLadderBoot(state));
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -95,9 +100,31 @@ const LadderProviders = ({
   );
 };
 
+// Mirrors BootPopups: the reminder waits for the ladder before picking a popup.
+const ReminderPopup = (): ReactElement => {
+  const modal = useReferralReminderModal({ enabled: true });
+  const { openModal } = useLazyModal();
+
+  useEffect(() => {
+    if (modal) {
+      openModal({ type: modal, props: { isDrawerOnMobile: true } });
+    }
+  }, [modal, openModal]);
+
+  return (
+    <p className="p-6 text-text-tertiary typo-callout">
+      {modal ? `Opened ${modal}` : 'Nothing opens until the ladder loads.'}
+    </p>
+  );
+};
+
 const meta: Meta<LadderArgs> = {
   title: 'Features/Referral Ladder',
   args: { state: LadderState.OneJoined },
+  // The boot refetch would otherwise return the default, ineligible user.
+  beforeEach: ({ args }) => {
+    getBootMock.mockReturnValue(getLadderBoot(args.state));
+  },
   argTypes: {
     state: {
       name: 'State',
@@ -158,6 +185,15 @@ export const Popup: Story = {
         origin={TargetId.ProfileDropdown}
         onRequestClose={fn()}
       />
+    </LadderProviders>
+  ),
+};
+
+export const ReminderPopupStory: Story = {
+  name: 'Reminder popup',
+  render: ({ state }) => (
+    <LadderProviders key={state} state={state}>
+      <ReminderPopup />
     </LadderProviders>
   ),
 };
