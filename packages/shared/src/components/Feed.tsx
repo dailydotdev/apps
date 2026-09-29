@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
+import { FeedItemType } from './cards/common/common';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -916,16 +917,17 @@ export default function Feed<T>({
                         }}
                       />
                     )}
-                  {index === appFooterAnchorIndex && (
-                    <MobileAppFooterAnchor
-                      at={MobileAppFooterAnchorPlace.Feed}
-                      style={{
-                        gridColumn: !shouldUseListFeedLayout
-                          ? `span ${virtualizedNumCards}`
-                          : undefined,
-                      }}
-                    />
-                  )}
+                  {index === appFooterAnchorIndex &&
+                    item.type !== FeedItemType.Placeholder && (
+                      <MobileAppFooterAnchor
+                        at={MobileAppFooterAnchorPlace.Feed}
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
                   {renderedItem}
                 </FeedCardContext.Provider>
               );
