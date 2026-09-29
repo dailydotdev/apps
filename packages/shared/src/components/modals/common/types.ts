@@ -38,6 +38,7 @@ export enum LazyModal {
   NewSource = 'newSource',
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
+  ReferralLadder = 'referralLadder',
   Video = 'video',
   ImageView = 'imageView',
   NewStreak = 'newStreak',

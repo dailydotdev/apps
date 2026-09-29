@@ -101,6 +101,7 @@ export enum NotificationType {
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
   WorldDistrictLevelUp = 'world_district_level_up',
+  ReferralSignup = 'referral_signup',
 }
 
 export enum NotificationIconType {
@@ -307,6 +308,7 @@ export const ACHIEVEMENT_KEYS = [
 // would mean the only way to stop hearing about a world is to also stop
 // hearing about badges, under a label that never mentions worlds.
 export const WORLD_KEYS = [NotificationType.WorldDistrictLevelUp];
+export const REFERRAL_KEYS = [NotificationType.ReferralSignup];
 export const MENTION_KEYS = [
   NotificationType.PostMention,
   NotificationType.CommentMention,
@@ -447,6 +449,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.WorldDistrictLevelUp,
+    NotificationType.ReferralSignup,
   ],
 };
 
