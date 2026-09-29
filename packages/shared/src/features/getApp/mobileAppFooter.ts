@@ -109,7 +109,7 @@ const momentByRoute: Record<string, MobileAppFooterMoment> = {
 // Shared by the footer and the page spacer under it, so the end of the page
 // always scrolls clear of the footer.
 export const mobileAppFooterHeight =
-  'h-[calc(17.125rem_+_max(env(safe-area-inset-bottom),1.5rem))]';
+  'h-[calc(9.5rem_+_max(env(safe-area-inset-bottom),1.5rem))]';
 
 export const getMobileAppFooterMoment = (
   pathname: string,

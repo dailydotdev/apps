@@ -6,10 +6,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
-import { AuthTriggers } from '../../../lib/auth';
 import { appDownloadUrl } from '../../../lib/constants';
 import { cloudinaryCharmNoComments } from '../../../lib/image';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
@@ -23,7 +21,6 @@ interface MobileAppFooterProps {
 
 export function MobileAppFooter({ title }: MobileAppFooterProps): ReactElement {
   const { logEvent } = useLogContext();
-  const { showLogin } = useAuthContext();
 
   useLogEventOnce(() => ({
     event_name: LogEvent.Impression,
@@ -40,15 +37,6 @@ export function MobileAppFooter({ title }: MobileAppFooterProps): ReactElement {
     });
   };
 
-  const onSignup = () => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_type: TargetType.SignupButton,
-      target_id: TargetId.MobileFooter,
-    });
-    showLogin({ trigger: AuthTriggers.MainButton });
-  };
-
   return (
     <div
       className={classNames(
@@ -56,52 +44,40 @@ export function MobileAppFooter({ title }: MobileAppFooterProps): ReactElement {
         mobileAppFooterHeight,
       )}
     >
-      <div className="h-28 bg-gradient-to-b from-transparent to-background-default" />
-      <div className="pointer-events-auto flex flex-col items-center gap-3 bg-background-default px-5 pb-[max(env(safe-area-inset-bottom),1.5rem)] text-center">
-        <div className="relative w-full">
-          <div className="relative flex h-[5.25rem] items-end">
-            <h3 className="min-w-0 flex-1 pb-3 pr-28 text-left font-bold leading-tight typo-title3">
-              {title}
-            </h3>
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -bottom-3 -right-6 h-24 w-44 overflow-hidden"
-            >
-              <div className="animate-charm-rise absolute inset-0">
-                <div className="animate-charm-press absolute inset-0">
-                  <img
-                    src={cloudinaryCharmNoComments}
-                    alt=""
-                    className="absolute -top-4 left-0 size-44 max-w-none"
-                  />
-                </div>
+      <div className="h-12 bg-gradient-to-b from-transparent to-background-default" />
+      <div className="pointer-events-auto relative bg-background-default px-5 pb-[max(env(safe-area-inset-bottom),1.5rem)]">
+        <div className="relative flex h-14 items-end">
+          <h3 className="min-w-0 flex-1 pb-2 pr-16 font-bold leading-tight typo-title3">
+            {title}
+          </h3>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -bottom-2 -right-3 h-[3.625rem] w-[6.625rem] overflow-hidden"
+          >
+            <div className="animate-charm-rise absolute inset-0">
+              <div className="animate-charm-press absolute inset-0">
+                <img
+                  src={cloudinaryCharmNoComments}
+                  alt=""
+                  className="absolute -top-2.5 left-0 size-[6.625rem] max-w-none"
+                />
               </div>
             </div>
-            <span className="animate-charm-ripple pointer-events-none absolute -bottom-4 right-[4.625rem] z-2 size-8 rounded-max bg-accent-cabbage-default opacity-0 blur-sm" />
           </div>
-          <div className="animate-charm-button-press relative z-1">
-            <Button
-              tag="a"
-              href={openAppFromFooterUrl}
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              className="w-full"
-              onClick={onOpenApp}
-            >
-              Open daily.dev app
-            </Button>
-          </div>
+          <span className="animate-charm-ripple pointer-events-none absolute -bottom-2.5 right-[2.75rem] z-2 size-5 rounded-max bg-accent-cabbage-default opacity-0 blur-sm" />
         </div>
-        <span className="text-text-tertiary typo-footnote">
-          or{' '}
-          <button
-            type="button"
-            className="font-bold text-accent-cabbage-default"
-            onClick={onSignup}
+        <div className="animate-charm-button-press relative z-1">
+          <Button
+            tag="a"
+            href={openAppFromFooterUrl}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
+            className="w-full"
+            onClick={onOpenApp}
           >
-            sign up on the web
-          </button>
-        </span>
+            Open daily.dev app
+          </Button>
+        </div>
       </div>
     </div>
   );
