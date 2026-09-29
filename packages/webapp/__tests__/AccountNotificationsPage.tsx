@@ -119,10 +119,6 @@ beforeEach(() => {
   nock.cleanAll();
   client = new QueryClient();
 
-  globalThis.OneSignal = {
-    getRegistrationId: jest.fn().mockResolvedValue('123'),
-  };
-
   personalizedDigestMock = {
     request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
     result: {
@@ -145,10 +141,6 @@ beforeEach(() => {
       },
     },
   };
-});
-
-afterEach(() => {
-  delete globalThis.OneSignal;
 });
 
 const defaultLoggedUser: LoggedUser = {
@@ -330,8 +322,8 @@ it('should change hour for AI briefings', async () => {
     },
   });
 
-  const { firstChild } = await screen.findByTestId('hour-dropdown');
-  fireEvent.click(firstChild);
+  const dropdown = await screen.findByTestId('hour-dropdown');
+  fireEvent.click(dropdown.firstChild as Node);
   const selectedHour = await screen.findByText('00:00');
   fireEvent.click(selectedHour);
 

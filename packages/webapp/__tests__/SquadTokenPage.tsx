@@ -18,7 +18,6 @@ import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helper
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import type { SquadInvitation } from '@dailydotdev/shared/src/graphql/squads';
 import {
   SQUAD_INVITATION_QUERY,
   SQUAD_JOIN_MUTATION,
@@ -59,8 +58,8 @@ let client: QueryClient;
 
 const createInvitationMock = (
   token: string = defaultSquadToken,
-  member: SourceMember = generateTestAdmin(),
-): MockedGraphQLResponse<SquadInvitation> => ({
+  member: SourceMember | null = generateTestAdmin(),
+): MockedGraphQLResponse<{ member: SourceMember | null }> => ({
   request: {
     query: SQUAD_INVITATION_QUERY,
     variables: { token },
@@ -74,7 +73,7 @@ const defaultToken = defaultSquadToken;
 const defaultProps: SquadReferralProps = {
   token: defaultToken,
   handle: 'test',
-  initialData: undefined,
+  initialData: undefined as unknown as SourceMember,
 };
 const renderComponent = (
   mocks = [createInvitationMock(defaultToken)],
@@ -164,9 +163,8 @@ describe('squad details', () => {
   });
 
   it('should show accurate waiting label when there is 2 members', async () => {
-    const admin = generateTestAdmin();
     const newMember = generateTestMember('u1');
-    admin.source.members.edges.push({ node: newMember });
+    const admin = generateTestAdmin([{ node: newMember }]);
     renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
     const label = `${admin.user.name} and ${newMember.user.name} are waiting for you inside. Join them now`;
@@ -175,9 +173,8 @@ describe('squad details', () => {
   });
 
   it('should show accurate waiting label when there is 3 or more members', async () => {
-    const admin = generateTestAdmin();
     const members = [generateTestMember('u1'), generateTestMember('u2')];
-    admin.source.members.edges.push({ node: members[0] }, { node: members[1] });
+    const admin = generateTestAdmin(members.map((node) => ({ node })));
     admin.source.membersCount = 3;
     renderComponent([createInvitationMock(defaultToken, admin)]);
     await waitForNock();
