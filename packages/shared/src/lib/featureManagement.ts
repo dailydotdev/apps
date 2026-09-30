@@ -369,3 +369,7 @@ export const featureMobileAppSheetSnoozeHours = new Feature(
   'mobile_app_sheet_snooze_hours',
   72,
 );
+
+// A Slack channel can opt into a weekly digest of what the team read and
+// shared. The digest API ships with this flag, so nothing calls it while off.
+export const featureSlackTeamDigest = new Feature('slack_team_digest', false);

@@ -90,6 +90,85 @@ export const INTEGRATION_SHARE_POST_MUTATION = gql`
   }
 `;
 
+export type SlackDigest = {
+  id: string;
+  integrationId: string;
+  channelId: string;
+  channelName: string;
+  // 0 is Sunday, as in Date.getDay
+  weekday: number;
+  hour: number;
+  timezone: string;
+  // empty means every topic the team reads
+  tags: string[];
+  includeTeamStats: boolean;
+};
+
+export type UpsertSlackDigestInput = Omit<SlackDigest, 'id' | 'channelName'> & {
+  id?: string;
+};
+
+const SLACK_DIGEST_FRAGMENT = gql`
+  fragment SlackDigestFragment on SlackDigest {
+    id
+    integrationId
+    channelId
+    channelName
+    weekday
+    hour
+    timezone
+    tags
+    includeTeamStats
+  }
+`;
+
+export const SLACK_DIGESTS_QUERY = gql`
+  query SlackDigests($integrationId: ID!) {
+    slackDigests(integrationId: $integrationId) {
+      ...SlackDigestFragment
+    }
+  }
+  ${SLACK_DIGEST_FRAGMENT}
+`;
+
+export const UPSERT_SLACK_DIGEST_MUTATION = gql`
+  mutation UpsertSlackDigest($input: UpsertSlackDigestInput!) {
+    upsertSlackDigest(input: $input) {
+      ...SlackDigestFragment
+    }
+  }
+  ${SLACK_DIGEST_FRAGMENT}
+`;
+
+export const DELETE_SLACK_DIGEST_MUTATION = gql`
+  mutation DeleteSlackDigest($id: ID!) {
+    deleteSlackDigest(id: $id) {
+      _
+    }
+  }
+`;
+
+export const slackDigestsQueryOptions = ({
+  integrationId,
+  user,
+}: {
+  integrationId?: string;
+  user?: LoggedUser;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.SlackDigests, user, {
+    integrationId,
+  }),
+  queryFn: async (): Promise<SlackDigest[]> => {
+    const { slackDigests } = await gqlClient.request<{
+      slackDigests: SlackDigest[];
+    }>(SLACK_DIGESTS_QUERY, { integrationId });
+
+    return slackDigests;
+  },
+  staleTime: StaleTime.Default,
+  enabled: !!integrationId && !!user,
+});
+
 export const SLACK_CONNECT_SOURCE_MUTATION = gql`
   mutation SlackConnectSource(
     $integrationId: ID!

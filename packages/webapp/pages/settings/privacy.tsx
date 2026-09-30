@@ -27,12 +27,16 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureSlackTeamDigest } from '@dailydotdev/shared/src/lib/featureManagement';
 import { openIubendaPreferences } from '../../components/Iubenda';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { SettingsSwitch } from '../../components/layouts/SettingsLayout/common';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
@@ -51,6 +55,12 @@ const AccountInvitePage = (): ReactElement | null => {
   );
   const { user, isAuthReady } = useAuthContext();
   const { openModal } = useLazyModal();
+  const { flags, updateFlag } = useSettingsContext();
+  const { value: isTeamDigestEnabled } = useConditionalFeature({
+    feature: featureSlackTeamDigest,
+    shouldEvaluate: !!user,
+  });
+  const isTeamDigestReadingCounted = !flags?.teamDigestReadingOptOut;
 
   useEffect(() => {
     if (!isAuthReady) {
@@ -156,6 +166,23 @@ const AccountInvitePage = (): ReactElement | null => {
           </div>
         )}
       </AccountContentSection>
+      {isTeamDigestEnabled && (
+        <AccountContentSection
+          title="Team digests"
+          className={{ container: 'flex flex-col gap-4' }}
+        >
+          <SettingsSwitch
+            name="team-digest-reading"
+            checked={isTeamDigestReadingCounted}
+            onToggle={() =>
+              updateFlag('teamDigestReadingOptOut', isTeamDigestReadingCounted)
+            }
+          >
+            Count my reading in team digests. It only ever shows as a number,
+            and only when 3 or more teammates read the same post.
+          </SettingsSwitch>
+        </AccountContentSection>
+      )}
       <AccountContentSection
         title="Legal & support"
         className={{ container: 'flex flex-col gap-4' }}

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { getIconForIntegration } from '../../lib/integrations';
 import type { UserIntegration } from '../../graphql/integrations';
+import { UserIntegrationType } from '../../graphql/integrations';
 import { Button } from '../buttons/Button';
 import { ButtonSize } from '../buttons/common';
 import { IconSize } from '../Icon';
@@ -27,16 +28,24 @@ const UserSourceIntegrationList = dynamic(() =>
   ).then((mod) => mod.UserSourceIntegrationList),
 );
 
+const SlackDigestSettings = dynamic(() =>
+  import(
+    /* webpackChunkName: "slackDigestSettings" */ './SlackDigestSettings'
+  ).then((mod) => mod.SlackDigestSettings),
+);
+
 export type UserIntegrationItemProps = {
   integration: UserIntegration;
   isOpen: boolean;
   onToggle: () => void;
+  showSlackDigests?: boolean;
 };
 
 export const UserIntegrationItem = ({
   integration,
   isOpen,
   onToggle,
+  showSlackDigests,
 }: UserIntegrationItemProps): ReactElement => {
   const { removeIntegration } = useIntegration();
   const Icon = getIconForIntegration(integration.type);
@@ -86,6 +95,11 @@ export const UserIntegrationItem = ({
         </div>
       </div>
       {isOpen && <UserSourceIntegrationList integrationId={integration.id} />}
+      {isOpen &&
+        showSlackDigests &&
+        integration.type === UserIntegrationType.Slack && (
+          <SlackDigestSettings integrationId={integration.id} />
+        )}
     </>
   );
 };
