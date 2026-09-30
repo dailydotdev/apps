@@ -1,14 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import type { Post } from '../../../graphql/posts';
+import { getPostById } from '../../../graphql/posts';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { useSlackShare } from './useSlackShare';
+import { useIntegrationsQuery } from '../useIntegrationsQuery';
 import { useLazyModal } from '../../useLazyModal';
+import { useToastNotification } from '../../useToastNotification';
+import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
-import type { Origin } from '../../../lib/log';
-import { LogEvent } from '../../../lib/log';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { LogEvent, Origin } from '../../../lib/log';
 import { postLogEvent } from '../../../lib/feed';
 import { getPathnameWithQuery } from '../../../lib/links';
+import { isExtension } from '../../../lib/func';
+import { featureSlackConnectV2 } from '../../../lib/featureManagement';
+import { getPostByIdKey, StaleTime } from '../../../lib/query';
+import {
+  getScrollPosition,
+  restoreScrollPosition,
+} from '../../../lib/scrollRestoration';
 
 export type UseSlackShareButton = {
   onClick: () => void;
@@ -22,6 +35,11 @@ export type UseSlackShareButton = {
 };
 
 const postIdParam = 'slackPostId';
+const scrollParam = 'slackScrollY';
+const originParam = 'slackOrigin';
+// `error` is appended by the API when the reader cancels or Slack refuses
+const returnParams = ['lzym', postIdParam, scrollParam, originParam, 'error'];
+const origins = new Set<string>(Object.values(Origin));
 
 /**
  * Where Slack sends the user back. It has to be the post's own page: the share
@@ -38,6 +56,32 @@ export const getSlackShareRedirectPath = (post: Post): string =>
     }),
   );
 
+/** The surface the share started on, with the scroll position to put back. */
+export const getSlackShareOriginPath = ({
+  post,
+  origin,
+  path,
+  scrollY,
+}: {
+  post: Post;
+  origin?: Origin;
+  path: string;
+  scrollY: number;
+}): string => {
+  const [pathname, query] = path.split('#')[0].split('?');
+  const params = new URLSearchParams(query);
+  returnParams.forEach((param) => params.delete(param));
+  params.set('lzym', LazyModal.SlackShare);
+  params.set(postIdParam, post.id);
+  params.set(scrollParam, `${Math.round(scrollY)}`);
+
+  if (origin) {
+    params.set(originParam, origin);
+  }
+
+  return getPathnameWithQuery(pathname, params);
+};
+
 export const useSlackShareButton = ({
   post,
   origin,
@@ -45,8 +89,10 @@ export const useSlackShareButton = ({
   post: Post;
   origin?: Origin;
 }): UseSlackShareButton => {
+  const router = useRouter();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
+  const { getFeatureValue } = useFeaturesReadyContext();
   const { integration, canPostAsUser, connect, isLoading } = useSlackShare();
   const isConnected = !!integration;
 
@@ -83,7 +129,27 @@ export const useSlackShareButton = ({
       extra: JSON.stringify({ origin, reason: 'share' }),
     });
 
-    connect(getSlackShareRedirectPath(post));
+    // read on press, not on render: every Share menu mounts this hook, and
+    // only the surfaces that look different should enroll a reader
+    if (isExtension || !getFeatureValue(featureSlackConnectV2)) {
+      connect(getSlackShareRedirectPath(post));
+
+      return;
+    }
+
+    // a post modal masks the feed behind it with the post's URL, so the feed's
+    // address and position come from what the modal stashed when it opened
+    const feedPath = router?.query?.pmap as string | undefined;
+    connect(
+      getSlackShareOriginPath({
+        post,
+        origin,
+        path: feedPath ?? router?.asPath ?? window.location.pathname,
+        scrollY: feedPath
+          ? getScrollPosition(window.location.href, 'post-modal') ?? 0
+          : window.scrollY,
+      }),
+    );
   }, [
     isLoading,
     integration,
@@ -93,6 +159,8 @@ export const useSlackShareButton = ({
     origin,
     connect,
     post,
+    getFeatureValue,
+    router,
   ]);
 
   return {
@@ -110,7 +178,8 @@ const readSlackShareReturnPostId = (): string | undefined => {
 
   const params = new URLSearchParams(window.location.search);
 
-  return params.get('lzym') === LazyModal.SlackShare
+  // a return to the surface the share started on is useSlackShareOriginReturn's
+  return params.get('lzym') === LazyModal.SlackShare && !params.has(scrollParam)
     ? params.get(postIdParam) ?? undefined
     : undefined;
 };
@@ -155,4 +224,119 @@ export const useSlackShareReturn = ({ post }: { post?: Post }): void => {
 
     openModal({ type: LazyModal.SlackShare, props: { post } });
   }, [returnPostId, isLoading, integration, post, openModal]);
+};
+
+type SlackShareOriginReturn = {
+  postId: string;
+  scrollY: number;
+  origin?: Origin;
+  error?: string;
+};
+
+const readSlackShareOriginReturn = (): SlackShareOriginReturn | undefined => {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const postId = params.get(postIdParam);
+  const origin = params.get(originParam);
+
+  if (
+    params.get('lzym') !== LazyModal.SlackShare ||
+    !postId ||
+    !params.has(scrollParam)
+  ) {
+    return undefined;
+  }
+
+  return {
+    postId,
+    scrollY: Number(params.get(scrollParam)) || 0,
+    origin: origin && origins.has(origin) ? (origin as Origin) : undefined,
+    error: params.get('error') ?? undefined,
+  };
+};
+
+/**
+ * Finishes a share that left for Slack's OAuth from any surface: the post, a
+ * brief, or a feed behind a post modal. It sits on the app shell because the
+ * destination can be any page, which is also why it fetches the post itself.
+ */
+export const useSlackShareOriginReturn = (): void => {
+  const router = useRouter();
+  const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
+  const { tokenRefreshed } = useAuthContext();
+  const [pending] = useState(readSlackShareOriginReturn);
+  const isReturning = !!pending && !pending.error;
+  const { data: integrations, isSuccess: hasIntegrations } =
+    useIntegrationsQuery({ queryOptions: { enabled: isReturning } });
+  const { data, isError: isPostMissing } = useQuery({
+    queryKey: getPostByIdKey(pending?.postId ?? ''),
+    queryFn: () => getPostById(pending!.postId),
+    staleTime: StaleTime.Default,
+    enabled: isReturning && tokenRefreshed,
+  });
+  const handled = useRef(false);
+  const post = data?.post;
+  const isConnected = !!integrations?.some(
+    ({ type }) => type === UserIntegrationType.Slack,
+  );
+  const isNotConnected = !!pending?.error || (hasIntegrations && !isConnected);
+
+  useEffect(() => {
+    if (
+      !pending ||
+      handled.current ||
+      !(isNotConnected || isPostMissing || (isConnected && post))
+    ) {
+      return;
+    }
+
+    handled.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const query = { ...router.query };
+    returnParams.forEach((param) => {
+      params.delete(param);
+      delete query[param];
+    });
+
+    // through the router, not history: the feed builds post modal URLs from
+    // the router's asPath, which would otherwise bring the params back
+    router.replace(
+      { pathname: router.pathname, query },
+      getPathnameWithQuery(window.location.pathname, params),
+      { shallow: true, scroll: false },
+    );
+
+    if (isNotConnected) {
+      displayToast('Slack was not connected, so nothing was shared');
+
+      return;
+    }
+
+    if (!post) {
+      return;
+    }
+
+    if (pending.scrollY) {
+      restoreScrollPosition(pending.scrollY);
+    }
+
+    openModal({
+      type: LazyModal.SlackShare,
+      props: { post, origin: pending.origin },
+    });
+  }, [
+    pending,
+    isNotConnected,
+    isPostMissing,
+    isConnected,
+    post,
+    router,
+    openModal,
+    displayToast,
+  ]);
 };

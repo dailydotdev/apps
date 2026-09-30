@@ -25,6 +25,8 @@ import { LazyModal } from '../../modals/common/types';
 import { ReferralCampaignKey } from '../../../lib';
 import { getShareableSquads } from '../../squads/SquadsToShare';
 import { useSlackShareButton } from '../../../hooks/integrations/slack/useSlackShareButton';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureSlackConnectV2 } from '../../../lib/featureManagement';
 import SourceProfilePicture from '../../profile/SourceProfilePicture';
 import { ProfileImageSize } from '../../ProfilePicture';
 
@@ -58,11 +60,18 @@ export const DiscussionShareRow = ({
   const [copying, copyLink] = useCopyPostLink();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
-  const { squads } = useAuthContext();
-  const { onClick: onShareToSlack } = useSlackShareButton({
-    post,
-    origin: Origin.DiscussionPanel,
+  const { user, squads } = useAuthContext();
+  const { onClick: onShareToSlack, isConnected: isSlackConnected } =
+    useSlackShareButton({
+      post,
+      origin: Origin.DiscussionPanel,
+    });
+  const { value: isSlackStateShown } = useConditionalFeature({
+    feature: featureSlackConnectV2,
+    shouldEvaluate: !!user,
   });
+  const slackStateLabel = isSlackConnected ? 'Send to Slack' : 'Connect Slack';
+  const slackLabel = isSlackStateShown ? slackStateLabel : 'Share on Slack';
   const inlineSquads = withSquads
     ? getShareableSquads(squads).slice(0, maxInlineSquads)
     : [];
@@ -134,16 +143,21 @@ export const DiscussionShareRow = ({
             variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
-        <Tooltip content="Share on Slack">
-          <Button
-            aria-label="Share on Slack"
-            icon={<SlackIcon />}
-            onClick={onShareToSlack}
-            size={ButtonSize.Small}
-            type="button"
-            variant={ButtonVariant.Tertiary}
-          />
-        </Tooltip>
+        <div className="relative flex">
+          <Tooltip content={slackLabel}>
+            <Button
+              aria-label={slackLabel}
+              icon={<SlackIcon />}
+              onClick={onShareToSlack}
+              size={ButtonSize.Small}
+              type="button"
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+          {isSlackStateShown && isSlackConnected && (
+            <span className="pointer-events-none absolute bottom-1 right-1 size-2.5 rounded-full border-2 border-background-default bg-accent-avocado-default" />
+          )}
+        </div>
         <Tooltip content="Share on X">
           <Button
             aria-label="Share on X"
