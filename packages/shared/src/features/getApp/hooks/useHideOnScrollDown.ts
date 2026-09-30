@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 
 // Near the top the bar always shows; past that, a scroll down hides it and
 // any scroll up brings it back, so Log in never needs a trip to the top
-// (where iOS Chrome turns the overscroll into a reload).
+// (where iOS Chrome turns the overscroll into a reload). The bottom
+// rubber-band reports scrollY past the end and counts back, so it's clamped.
 const alwaysShownDepth = 56;
 const minScrollDelta = 6;
 
@@ -19,7 +20,10 @@ export const useHideOnScrollDown = (enabled: boolean): boolean => {
 
     const update = () => {
       frame = 0;
-      const y = window.scrollY;
+      const y = Math.min(
+        window.scrollY,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
       const delta = y - lastY;
 
       if (y <= alwaysShownDepth) {

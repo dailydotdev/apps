@@ -18,7 +18,10 @@ import {
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
 } from '../layout/common';
-import { MobileFeedActions } from './MobileFeedActions';
+import {
+  hideLoggedOutRowClassName,
+  MobileFeedActions,
+} from './MobileFeedActions';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
@@ -192,7 +195,7 @@ function FeedNav(): ReactElement | null {
         scrollClassName,
         isMobileAppHeader && 'transition-transform duration-200 ease-out',
         // Slides the logo row with Log in and Open app away, keeping the chips.
-        isLogoRowHidden && '-translate-y-10',
+        isLogoRowHidden && hideLoggedOutRowClassName,
       )}
     >
       {isMobile && <MobileFeedActions />}

@@ -64,7 +64,8 @@ export function MobileAppHeader(): ReactElement | null {
   }
 
   return (
-    <header className="mobile-app-header sticky left-0 top-[calc(var(--phone-top-ad-height,0px)+var(--mobile-app-header-offset,3.5rem)-3.5rem)] z-max flex h-14 flex-row items-center justify-between border-b border-border-subtlest-tertiary bg-background-default px-4 transition-[top] duration-200 ease-out tablet:hidden">
+    // Below the pinned phone ad strip (z-max): hidden, the row tucks under it.
+    <header className="mobile-app-header sticky left-0 top-[calc(var(--phone-top-ad-height,0px)+var(--mobile-app-header-offset,3.5rem)-3.5rem)] z-header flex h-14 flex-row items-center justify-between border-b border-border-subtlest-tertiary bg-background-default px-4 transition-[top] duration-200 ease-out tablet:hidden">
       <HeaderLogo
         position={LogoPosition.Relative}
         onLogoClick={() => router.push('/')}

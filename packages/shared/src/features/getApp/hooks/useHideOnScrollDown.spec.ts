@@ -13,6 +13,9 @@ const scrollTo = async (y: number) => {
 
 beforeEach(() => {
   window.scrollY = 0;
+  jest
+    .spyOn(document.documentElement, 'scrollHeight', 'get')
+    .mockReturnValue(5000);
 });
 
 describe('useHideOnScrollDown', () => {
@@ -33,6 +36,17 @@ describe('useHideOnScrollDown', () => {
     await scrollTo(40);
 
     expect(result.current).toBe(false);
+  });
+
+  it('should stay hidden through the rubber-band at the bottom', async () => {
+    const { result } = renderHook(() => useHideOnScrollDown(true));
+    const maxScroll = 5000 - window.innerHeight;
+
+    await scrollTo(maxScroll);
+    await scrollTo(maxScroll + 60);
+    await scrollTo(maxScroll + 10);
+
+    expect(result.current).toBe(true);
   });
 
   it('should never hide when disabled', async () => {
