@@ -299,13 +299,6 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-// Experiment: skip layout/paint for off-screen feed cards via CSS
-// `content-visibility: auto` to keep long feeds responsive.
-export const featureFeedContentVisibility = new Feature(
-  'feed_content_visibility',
-  false,
-);
-
 export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,

@@ -8,7 +8,6 @@ import type {
 } from 'next';
 import Head from 'next/head';
 import Script from 'next/script';
-import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { ClientError } from 'graphql-request';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
@@ -61,9 +60,6 @@ import { seoTitle } from '../posts/[id]/index';
 
 const Custom404 = dynamic(() => import(/* webpackChunkName: "404" */ '../404'));
 
-const READ_ARTICLE_ROUTE_PATTERN =
-  /^\/(?:articles\/[^/]+|posts\/[^/]+\/read)(?:[/?#]|$)/;
-
 /**
  * The post types /articles may render, all of which carry content beyond the ad
  * slots. Deliberately excludes squad/user-generated types (share, freeform,
@@ -103,7 +99,6 @@ const ReadPostPage = ({
   initialData,
   error,
 }: ReadPostPageProps): ReactElement => {
-  const router = useRouter();
   const { applyThemeMode } = useSettingsContext();
   const { post, isError, isLoading } = usePostById({
     id,
@@ -231,54 +226,6 @@ const ReadPostPage = ({
       applyThemeMode();
     };
   }, [applyThemeMode]);
-
-  // adsbygoogle must never follow a client-side navigation into the rest of
-  // the app: once loaded, its Auto ads overlays (anchor/vignette) persist
-  // across soft navigations. Leaving the article ad route forces a full page
-  // load, which tears down every Google global — combined with the script only
-  // ever being rendered by this route, ads outside it are impossible by
-  // construction.
-  useEffect(() => {
-    if (!adsLive) {
-      return undefined;
-    }
-    const forceHardNavigation = (
-      url: string,
-      { shallow }: { shallow: boolean },
-    ): void => {
-      // Shallow same-page updates (comment permalinks, URL-masking modals,
-      // query tweaks) never unload anything — only a genuine departure from
-      // the article ad route has ads to tear down.
-      if (shallow || READ_ARTICLE_ROUTE_PATTERN.test(url)) {
-        return;
-      }
-      router.events.emit('routeChangeError');
-      window.location.assign(url);
-      // Next.js has no cancel API; throwing inside the handler is the
-      // established way to abort the client-side transition.
-      throw new Error(`Aborted client navigation to ${url} to unload ads`);
-    };
-    router.events.on('routeChangeStart', forceHardNavigation);
-    // Back/forward must not go through the handler above: on popstate the
-    // history pointer has already moved, so assign() would navigate *forward*
-    // and leave /read in the forward stack — Back appears broken. Cancelling
-    // the SPA transition and loading the target URL in place respects the
-    // history position the user just moved to.
-    router.beforePopState(({ as }) => {
-      if (READ_ARTICLE_ROUTE_PATTERN.test(as)) {
-        return true;
-      }
-      window.location.href = as;
-      return false;
-    });
-    return () => {
-      router.events.off('routeChangeStart', forceHardNavigation);
-      // beforePopState is a single global slot; nothing else registers one
-      // today, so resetting to pass-through is safe. If another surface ever
-      // claims it, the two must be composed rather than overwritten.
-      router.beforePopState(() => true);
-    };
-  }, [adsLive, router]);
 
   if (isLoading) {
     return <PostLoadingSkeleton type={post?.type} />;
