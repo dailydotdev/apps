@@ -65,7 +65,6 @@ import { useFeedName } from '../hooks/feed/useFeedName';
 import {
   useConditionalFeature,
   useFeedLayout,
-  useScrollRestoration,
   useViewSize,
   ViewSize,
 } from '../hooks';
@@ -247,7 +246,6 @@ export default function MainFeedLayout({
   isFinder,
   onNavTabClick,
 }: MainFeedLayoutProps): ReactElement {
-  useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, isTokenValid } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);

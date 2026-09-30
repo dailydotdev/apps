@@ -16,7 +16,6 @@ import {
   ViewSize,
   useConditionalFeature,
   useEventListener,
-  useScrollRestoration,
   useViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
@@ -53,7 +52,6 @@ const seo: NextSeoProps = {
 };
 
 const DemoPage = (): ReactElement => {
-  useScrollRestoration();
   const router = useRouter();
   const { user, showLogin, isAuthReady, isLoggedIn } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);

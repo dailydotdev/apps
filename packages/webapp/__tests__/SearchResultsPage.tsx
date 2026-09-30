@@ -16,10 +16,6 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('@dailydotdev/shared/src/hooks/useScrollRestoration', () => ({
-  useScrollRestoration: jest.fn(),
-}));
-
 jest
   .spyOn(contexts, 'useActiveFeedNameContext')
   .mockReturnValue({ feedName: SharedFeedPage.Search });
