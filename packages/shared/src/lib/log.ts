@@ -249,6 +249,9 @@ export enum LogEvent {
   DeleteBookmarkFolder = 'delete bookmark folder',
   // bookmark - end
   ReportComment = 'report comment',
+  ImpressionFilteredComments = 'impression filtered comments',
+  ExpandFilteredComments = 'expand filtered comments',
+  ReportFilteredCommentNotSpam = 'report filtered comment not spam',
   // search start
   FocusSearch = 'focus search',
   SubmitSearch = 'submit search',

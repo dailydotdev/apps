@@ -6,6 +6,7 @@ import type { Post } from '../../graphql/posts';
 import type { MainCommentProps } from '../comments/MainComment';
 import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
+import { FilteredComments } from '../comments/FilteredComments';
 import { Origin } from '../../lib/log';
 import type { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
@@ -200,6 +201,7 @@ export function PostComments({
           );
         });
       })()}
+      <FilteredComments post={post} appendTooltipTo={getAppendTooltipParent} />
     </div>
   );
 }

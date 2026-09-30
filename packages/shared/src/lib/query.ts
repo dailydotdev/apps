@@ -307,6 +307,7 @@ export enum RequestKey {
   FollowedWorlds = 'followed_worlds',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
+  FilteredComments = 'filtered_comments',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
