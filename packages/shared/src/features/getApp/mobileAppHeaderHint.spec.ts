@@ -7,10 +7,12 @@ import {
 const runHint = ({
   cache,
   isTablet = false,
+  isStandalone = false,
   search = '',
 }: {
   cache?: Record<string, unknown>;
   isTablet?: boolean;
+  isStandalone?: boolean;
   search?: string;
 }): boolean => {
   document.documentElement.classList.remove(MOBILE_APP_HEADER_HIDDEN_CLASS);
@@ -18,7 +20,9 @@ const runHint = ({
   if (cache) {
     localStorage.setItem(BOOT_LOCAL_KEY, JSON.stringify(cache));
   }
-  window.matchMedia = jest.fn().mockReturnValue({ matches: isTablet });
+  window.matchMedia = jest.fn().mockImplementation((query: string) => ({
+    matches: query.includes('display-mode') ? isStandalone : isTablet,
+  }));
   window.history.replaceState({}, '', `/${search}`);
 
   // Runs the inline <head> script the way the browser would.
@@ -45,6 +49,10 @@ describe('mobileAppHeaderHintScript', () => {
   it('should hide the header in the Android app, cached or on first launch', () => {
     expect(runHint({ cache: { isAndroidApp: true } })).toBe(true);
     expect(runHint({ search: '?android=true' })).toBe(true);
+  });
+
+  it('should hide the header in an installed PWA', () => {
+    expect(runHint({ isStandalone: true })).toBe(true);
   });
 
   it('should not touch the boot cache on tablets and desktops', () => {
