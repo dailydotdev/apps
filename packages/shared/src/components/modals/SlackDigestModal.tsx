@@ -249,15 +249,23 @@ const SlackDigestModal = ({
             />
           )}
         </div>
-        <Switch
-          inputId="slack-digest-team-stats"
-          name="slack-digest-team-stats"
-          compact={false}
-          checked={includeTeamStats}
-          onToggle={() => setIncludeTeamStats((value) => !value)}
-        >
-          Team stats: how many of you read each post
-        </Switch>
+        <div className="flex items-center justify-between gap-4">
+          <Typography
+            className="min-w-0 flex-1"
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            Team stats: how many of you read each post
+          </Typography>
+          <Switch
+            inputId="slack-digest-team-stats"
+            name="slack-digest-team-stats"
+            aria-label="Team stats"
+            compact={false}
+            checked={includeTeamStats}
+            onToggle={() => setIncludeTeamStats((value) => !value)}
+          />
+        </div>
         <Button
           type="button"
           variant={ButtonVariant.Primary}
