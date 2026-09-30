@@ -28,11 +28,13 @@ export interface PostHighlightFeed {
     id: string;
     type: string;
     commentsPermalink: string;
+    title?: string;
     summary?: string;
     contentHtml?: string;
     domain?: string;
     source?: HighlightFeedSource;
     sharedPost?: {
+      title?: string;
       summary?: string;
       contentHtml?: string;
       domain?: string;
@@ -123,6 +125,7 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
       id
       type
       commentsPermalink
+      title
       summary
       contentHtml
       domain
@@ -131,6 +134,7 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
         image
       }
       sharedPost {
+        title
         summary
         contentHtml
         domain

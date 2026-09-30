@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
@@ -50,6 +50,10 @@ export interface MainCommentProps
   forceInlineComposer?: boolean;
 }
 
+// Once rendered, a comment renders eagerly for the rest of the session, remounts
+// included.
+const renderedCommentIds = new Set<string>();
+
 const shouldShowBannerOnComment = (
   commentId: string | undefined,
   comment: Comment,
@@ -96,11 +100,20 @@ export default function MainComment({
   const commentChildren = comment.children?.edges ?? [];
   const replyCount = commentChildren.length;
 
-  const initialInView = !lazy;
+  const [initialInView] = useState(
+    () => !lazy || renderedCommentIds.has(comment.id),
+  );
   const { ref: inViewRef, inView } = useInView({
     triggerOnce: true,
     initialInView,
+    skip: initialInView,
   });
+
+  useEffect(() => {
+    if (inView) {
+      renderedCommentIds.add(comment.id);
+    }
+  }, [inView, comment.id]);
 
   const [areRepliesExpanded, setAreRepliesExpanded] = useState(true);
   const showThreadRepliesToggle = isModalThread && replyCount > 0;

@@ -35,6 +35,7 @@ import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
+import { YoutubeLinkEmbeds } from '../../contentEmbeds/YoutubeLinkEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { Origin } from '../../../lib/log';
 import { TextSnapshotButton } from '../../../features/snapshot/TextSnapshotButton';
@@ -504,6 +505,9 @@ const PostFocusCardRaw = ({
         <Markdown content={article.contentHtml} className="break-words" />
       )}
       <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
+      {article.type === PostType.Freeform && (
+        <YoutubeLinkEmbeds contentHtml={article.contentHtml} />
+      )}
       <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
     </div>
   ) : (

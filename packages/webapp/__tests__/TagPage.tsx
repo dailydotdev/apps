@@ -239,6 +239,7 @@ const renderComponent = (
       clickbaitShieldEnabled: true,
     },
     toggleSidebarExpanded: jest.fn().mockResolvedValue(undefined),
+    setSidebarForceCollapsed: jest.fn(),
     toggleSortingEnabled: jest.fn().mockResolvedValue(undefined),
     toggleOptOutReadingStreak: jest.fn().mockResolvedValue(undefined),
     toggleOptOutLevelSystem: jest.fn().mockResolvedValue(undefined),

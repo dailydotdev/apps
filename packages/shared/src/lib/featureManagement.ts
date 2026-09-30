@@ -299,29 +299,9 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-// Experiment: skip layout/paint for off-screen feed cards via CSS
-// `content-visibility: auto` to keep long feeds responsive.
-export const featureFeedContentVisibility = new Feature(
-  'feed_content_visibility',
-  false,
-);
-
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
-
-// Experiment: logged-out phones get Log in + Open app in each page's own top
-// bar instead of the full-width Log in / Sign up strip.
-export const featureMobileAppHeader = new Feature('mobile_app_header', false);
-
-// Layered on mobile_app_header: drops the three-dots menus, collection
-// subscribe and the profile Follow from those bars, and moves "Learn how
-// Squads work" under Join Squad. Its own flag so the header result reads
-// without it.
-export const featureMobileAppHeaderDeclutter = new Feature(
-  'mobile_app_header_declutter',
-  false,
-);
 
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`

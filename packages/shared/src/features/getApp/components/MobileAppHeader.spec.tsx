@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import React from 'react';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -5,26 +6,14 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative } from '../../../lib/func';
 import { AuthTriggers } from '../../../lib/auth';
-import {
-  featureMobileAppHeader,
-  featureMobileAppHeaderDeclutter,
-} from '../../../lib/featureManagement';
-import {
-  useMobileAppHeaderDeclutter,
-  useMobileAppHeaderIconOnlyRead,
-} from '../hooks/useMobileAppHeader';
+import { useMobileAppHeaderIconOnlyRead } from '../hooks/useMobileAppHeader';
 import { MobileAppHeader } from './MobileAppHeader';
 import { openAppUrl } from './MobileAppActions';
 
 jest.mock('../../../components/layout/HeaderLogo', () => () => null);
-
-jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
-}));
 
 jest.mock('../../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../../hooks/useViewSize'),
@@ -36,37 +25,47 @@ jest.mock('../../../lib/func', () => ({
   isIOSNative: jest.fn(),
 }));
 
-const mockFeature = jest.mocked(useConditionalFeature);
 const mockIsTablet = jest.mocked(useViewSize);
 const mockIsIOSNative = jest.mocked(isIOSNative);
 const showLogin = jest.fn();
 
 const LogContext = getLogContextStatic();
 
+const Auth = ({
+  auth = {},
+  children,
+}: {
+  auth?: Partial<AuthContextData>;
+  children: ReactNode;
+}) => (
+  <AuthContext.Provider
+    value={
+      {
+        isAuthReady: true,
+        isLoggedIn: false,
+        isAndroidApp: false,
+        showLogin,
+        ...auth,
+      } as unknown as AuthContextData
+    }
+  >
+    {children}
+  </AuthContext.Provider>
+);
+
 const renderComponent = (auth: Partial<AuthContextData> = {}) =>
   render(
-    <AuthContext.Provider
-      value={
-        {
-          isAuthReady: true,
-          isLoggedIn: false,
-          isAndroidApp: false,
-          showLogin,
-          ...auth,
-        } as unknown as AuthContextData
-      }
-    >
+    <Auth auth={auth}>
       <LogContext.Provider
         value={{ logEvent: jest.fn() } as unknown as LogContextData}
       >
         <MobileAppHeader />
       </LogContext.Provider>
-    </AuthContext.Provider>,
+    </Auth>,
   );
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockFeature.mockReturnValue({ value: true, isLoading: false });
   mockIsTablet.mockReturnValue(false);
   mockIsIOSNative.mockReturnValue(false);
 });
@@ -88,30 +87,17 @@ describe('MobileAppHeader', () => {
     });
   });
 
-  it('should render nothing when the experiment is off', () => {
-    mockFeature.mockReturnValue({ value: false, isLoading: false });
-    renderComponent();
-
-    expect(screen.queryByText('Open app')).not.toBeInTheDocument();
-  });
-
-  it('should not enroll logged-in readers', () => {
+  it('should leave logged-in readers with their header', () => {
     renderComponent({ isLoggedIn: true });
 
     expect(screen.queryByText('Open app')).not.toBeInTheDocument();
-    expect(mockFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
-  it('should not enroll tablets, which keep the Log in / Sign up strip', () => {
+  it('should leave tablets with the Log in / Sign up strip', () => {
     mockIsTablet.mockReturnValue(true);
     renderComponent();
 
     expect(screen.queryByText('Open app')).not.toBeInTheDocument();
-    expect(mockFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
   it.each([
@@ -124,83 +110,29 @@ describe('MobileAppHeader', () => {
     expect(screen.queryByText('Open app')).not.toBeInTheDocument();
   });
 
-  describe('declutter', () => {
-    const arms = (header: boolean, declutter: boolean) =>
-      mockFeature.mockImplementation(({ feature }) => ({
-        value: (feature === featureMobileAppHeader
-          ? header
-          : declutter) as never,
-        isLoading: false,
-      }));
-
-    const renderDeclutter = () =>
-      renderHook(() => useMobileAppHeaderDeclutter(), {
-        wrapper: ({ children }) => (
-          <AuthContext.Provider
-            value={
-              {
-                isAuthReady: true,
-                isLoggedIn: false,
-                isAndroidApp: false,
-              } as unknown as AuthContextData
-            }
-          >
-            {children}
-          </AuthContext.Provider>
-        ),
-      });
-
-    it('should keep the menus when only the header is on', () => {
-      arms(true, false);
-
-      expect(renderDeclutter().result.current).toBe(false);
-    });
-
-    it('should only enroll readers already in the header arm', () => {
-      arms(false, true);
-
-      expect(renderDeclutter().result.current).toBe(false);
-      expect(mockFeature).toHaveBeenCalledWith({
-        feature: featureMobileAppHeaderDeclutter,
-        shouldEvaluate: false,
-      });
-    });
-  });
-
   describe('post bar Read button', () => {
-    const renderIconOnlyRead = (width: number) => {
+    const renderIconOnlyRead = (
+      width: number,
+      auth: Partial<AuthContextData> = {},
+    ) => {
       window.matchMedia = jest.fn().mockImplementation((query: string) => ({
-        matches: query === '(min-width: 375px)' && width >= 375,
+        matches: query === '(min-width: 360px)' && width >= 360,
         addEventListener: jest.fn(),
         removeEventListener: jest.fn(),
       }));
 
       return renderHook(() => useMobileAppHeaderIconOnlyRead(), {
-        wrapper: ({ children }) => (
-          <AuthContext.Provider
-            value={
-              {
-                isAuthReady: true,
-                isLoggedIn: false,
-                isAndroidApp: false,
-              } as unknown as AuthContextData
-            }
-          >
-            {children}
-          </AuthContext.Provider>
-        ),
+        wrapper: ({ children }) => <Auth auth={auth}>{children}</Auth>,
       }).result.current;
     };
 
-    it('should drop to its icon below 375px in the header arm', () => {
-      expect(renderIconOnlyRead(360)).toBe(true);
-      expect(renderIconOnlyRead(375)).toBe(false);
+    it('should drop to its icon below 360px', () => {
+      expect(renderIconOnlyRead(320)).toBe(true);
+      expect(renderIconOnlyRead(360)).toBe(false);
     });
 
-    it('should keep its label for control', () => {
-      mockFeature.mockReturnValue({ value: false, isLoading: false });
-
-      expect(renderIconOnlyRead(360)).toBe(false);
+    it('should keep its label for logged-in readers', () => {
+      expect(renderIconOnlyRead(320, { isLoggedIn: true })).toBe(false);
     });
   });
 });

@@ -98,6 +98,7 @@ export const HighlightItem = ({
             <HighlightShareActions
               highlight={highlight}
               source={snapshotSource(post)}
+              title={post.title ?? highlight.headline}
               tldr={tldr}
               tldrRef={tldrRef}
             />

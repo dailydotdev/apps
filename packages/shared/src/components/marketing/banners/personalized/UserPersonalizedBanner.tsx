@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
 import React from 'react';
-import { getBasicUserInfo } from '../../../../graphql/users';
+import { referringUserQueryOptions } from '../../../../graphql/users';
 import { AuthenticationBanner, OnboardingHeadline } from '../../../auth';
-import { generateQueryKey, RequestKey } from '../../../../lib/query';
 
 const UserPersonalizedBanner = ({
   userId,
@@ -14,11 +13,7 @@ const UserPersonalizedBanner = ({
   compact?: boolean;
   targetId?: string;
 }): ReactElement => {
-  const key = generateQueryKey(RequestKey.ReferringUser);
-  const { data: user, isError } = useQuery({
-    queryKey: [key, userId],
-    queryFn: () => getBasicUserInfo(userId),
-  });
+  const { data: user, isError } = useQuery(referringUserQueryOptions(userId));
 
   if (isError) {
     return <AuthenticationBanner compact={compact} targetId={targetId} />;

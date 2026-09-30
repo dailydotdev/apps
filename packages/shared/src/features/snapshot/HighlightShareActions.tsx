@@ -36,11 +36,14 @@ export function HighlightShareActions({
   highlight,
   tldr,
   tldrRef,
+  title,
   source,
 }: {
   highlight: PostHighlightFeed;
   tldr: string;
   tldrRef: RefObject<HTMLElement>;
+  /** The article the TLDR summarizes, credited on both cards. */
+  title?: string;
   /** Who wrote the TLDR, credited on both cards. */
   source?: { name: string; image?: string };
 }): ReactElement {
@@ -86,6 +89,7 @@ export function HighlightShareActions({
             ref={cardRef}
             seed={highlight.id}
             source={source}
+            title={title}
           />
         </div>
       )}
@@ -96,6 +100,7 @@ export function HighlightShareActions({
         onShare={logSelectionShare}
         seed={highlight.id}
         source={source}
+        title={title}
       />
     </>
   );

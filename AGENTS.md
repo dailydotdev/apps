@@ -61,7 +61,7 @@ pnpm monorepo for the daily.dev app suite:
 
 - Infinite scroll: pass `fetchNextPage`, `canFetchMore` (from `hasNextPage`), and `isFetchingNextPage` as separate props; never derive `canFetchMore` from callback existence (see `InfiniteScrolling.tsx`).
 - Portaled drawers/overlays must `stopPropagation` on the overlay click, otherwise `useOutsideClick` closes the parent modal (see `drawers/Drawer.tsx`).
-- Next's scroll restoration is off, so the router scrolls to the top on every route change, back/forward included. `useScrollRestoration` restores the position itself and must wait for the feed to reach full height, or phones get stranded mid-feed.
+- Next's scroll restoration is off, so the router scrolls to the top on every route change, back/forward included. `useScrollRestoration`, mounted once in `_app`, saves each history entry's position as you leave it and restores it on back/forward for every page; it must wait for the page to reach full height, or phones get stranded mid-feed. Never turn back into a full page load (`beforePopState` plus `location.href`): the reload drops the saved positions and the query cache, so readers land at the top.
 - Markdown conversion: never run formatting regexes over already-generated HTML (image `src` URLs contain `_`).
 
 ## Node.js version upgrade checklist

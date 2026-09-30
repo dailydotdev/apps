@@ -245,6 +245,19 @@ const InAppNotificationsTab = (): ReactElement => {
               toggleGroup('world', !getGroupStatus('world', 'inApp'), 'inApp')
             }
           />
+          <NotificationSwitch
+            id="referrals"
+            label="Friends you invite"
+            description="Get notified when a friend joins daily.dev with your invite link."
+            checked={getGroupStatus('referrals', 'inApp')}
+            onToggle={() =>
+              toggleGroup(
+                'referrals',
+                !getGroupStatus('referrals', 'inApp'),
+                'inApp',
+              )
+            }
+          />
           {showOpportunitiesToggle && (
             <NotificationSwitch
               id="opportunities"
