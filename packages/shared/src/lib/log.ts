@@ -587,6 +587,8 @@ export enum TargetType {
   SearchInviteButton = 'search invite button',
   HideInviteCheckbox = 'hide invite mechanism',
   ReferralPopup = 'referral popup',
+  ReferralLadderGift = 'referral ladder gift',
+  ReferralLadderPromo = 'referral ladder promo',
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
@@ -664,6 +666,8 @@ export enum TargetId {
   SearchActivation = 'search activation',
   // Referral campaign
   GenericReferralPopup = 'generic referral popup',
+  ReferralLadderPopup = 'referral ladder popup',
+  ReferralLadderPromo = 'referral ladder promo',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
@@ -718,6 +722,8 @@ export enum TargetId {
   ReaderHeader = 'reader header',
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
+  MobileFooter = 'mobile footer',
+  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {

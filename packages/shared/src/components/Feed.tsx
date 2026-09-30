@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   useRef,
   useEffect,
@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
+import { FeedItemType } from './cards/common/common';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -67,7 +68,6 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   featureFeedAdTemplate,
-  featureFeedContentVisibility,
 } from '../lib/featureManagement';
 import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
@@ -84,6 +84,9 @@ import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import { useMobileAppFooterContext } from '../features/getApp/contexts/MobileAppFooterContext';
+import { MobileAppFooterAnchor } from '../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../features/getApp/mobileAppFooter';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -246,6 +249,10 @@ export default function Feed<T>({
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
+  const { moment: appFooterMoment } = useMobileAppFooterContext();
+  const appFooterAnchorIndex = isHorizontal
+    ? undefined
+    : appFooterMoment?.feedAnchorIndex;
   const numCards = currentSettings.numCards.eco;
   const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
@@ -410,33 +417,6 @@ export default function Feed<T>({
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
 
-  // Experiment: let the browser skip layout/paint for off-screen cards on long
-  // vertical feeds. Horizontal carousels are short and scroll on the other axis,
-  // so they get no benefit and are excluded from evaluation.
-  const { value: feedContentVisibility } = useConditionalFeature({
-    feature: featureFeedContentVisibility,
-    shouldEvaluate: !isHorizontal,
-  });
-  const useContentVisibility = feedContentVisibility && !isHorizontal;
-  // `contain-intrinsic-size: auto <estimate>` reserves height for skipped cards
-  // so the scrollbar stays stable; `auto` makes the browser remember each card's
-  // real size after its first paint, so the estimate only matters for cards not
-  // yet rendered. Grid cards use the `min-h-card` baseline; list cards are shorter.
-  const contentVisibilityStyle: CSSProperties | undefined = useContentVisibility
-    ? {
-        contentVisibility: 'auto',
-        containIntrinsicSize: shouldUseListFeedLayout
-          ? 'auto 12rem'
-          : 'auto 24rem',
-        // `content-visibility: auto` applies paint containment, which clips
-        // anything drawn outside the box — including the "Video" type label and
-        // the "Hot"/"Pinned" flag, which straddle the card's top edge with a
-        // negative offset. Extend the paint-clip region so those labels aren't
-        // truncated. Covers the tallest overhang (the grid flag, ~1.25rem)
-        // without any layout shift.
-        overflowClipMargin: '1.5rem',
-      }
-    : undefined;
   const {
     onOpenModal,
     onCloseModal,
@@ -816,7 +796,7 @@ export default function Feed<T>({
                 isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
                   ? (colSpan as FeaturedWideColSpan)
                   : undefined;
-              const itemNode: ReactElement = (
+              const itemNode = (
                 <FeedItemComponent
                   item={item}
                   index={index}
@@ -843,39 +823,6 @@ export default function Feed<T>({
                   searchLogExtra={searchLogExtra}
                 />
               );
-
-              let renderedItem = itemNode;
-              if (isWidened) {
-                renderedItem = (
-                  <div
-                    className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
-                    style={{
-                      gridColumn: `span ${colSpan}`,
-                      ...contentVisibilityStyle,
-                    }}
-                    data-testid="feedItemColSpanWrapper"
-                  >
-                    {itemNode}
-                  </div>
-                );
-              } else if (useContentVisibility) {
-                // List cards stack at natural height; grid cards must keep
-                // filling their equal-height row, so preserve the h-full pass-through.
-                // The overhanging card labels are handled by `overflowClipMargin`
-                // on `contentVisibilityStyle` (see above), so both branches are safe.
-                renderedItem = (
-                  <div
-                    className={
-                      shouldUseListFeedLayout
-                        ? 'w-full'
-                        : 'flex h-full w-full [&>*]:h-full [&>*]:w-full'
-                    }
-                    style={contentVisibilityStyle}
-                  >
-                    {itemNode}
-                  </div>
-                );
-              }
 
               return (
                 <FeedCardContext.Provider
@@ -909,7 +856,28 @@ export default function Feed<T>({
                         }}
                       />
                     )}
-                  {renderedItem}
+                  {index === appFooterAnchorIndex &&
+                    item.type !== FeedItemType.Placeholder && (
+                      <MobileAppFooterAnchor
+                        at={MobileAppFooterAnchorPlace.Feed}
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
+                  {isWidened ? (
+                    <div
+                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                      style={{ gridColumn: `span ${colSpan}` }}
+                      data-testid="feedItemColSpanWrapper"
+                    >
+                      {itemNode}
+                    </div>
+                  ) : (
+                    itemNode
+                  )}
                 </FeedCardContext.Provider>
               );
             })}

@@ -133,6 +133,7 @@ export enum RequestKey {
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',
   ReferralCampaigns = 'referral_campaigns',
+  ReferralLadder = 'referral_ladder',
   ContextMenu = 'context_menu',
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
