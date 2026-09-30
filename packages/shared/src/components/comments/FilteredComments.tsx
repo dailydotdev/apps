@@ -19,7 +19,6 @@ import { postLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { labels } from '../../lib/labels';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons/Arrow';
 import { ShieldIcon } from '../icons/Shield';
 import { ShieldCheckIcon } from '../icons/ShieldCheck';
@@ -27,10 +26,12 @@ import { IconSize } from '../Icon';
 import UserBadge from '../UserBadge';
 import CommentContainer from './CommentContainer';
 import PlaceholderCommentList from './PlaceholderCommentList';
+import { threadCommentBoxClassName } from './common';
 
 interface FilteredCommentsProps {
   post: Post;
   appendTooltipTo?: () => HTMLElement;
+  isModalThread?: boolean;
 }
 
 const rowClassName =
@@ -46,6 +47,7 @@ function FilteredComment({
   post,
   comment,
   appendTooltipTo,
+  isModalThread,
 }: FilteredCommentsProps & { comment: Comment }): ReactElement {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
@@ -67,7 +69,16 @@ function FilteredComment({
       postAuthorId={post.author?.id ?? null}
       postScoutId={post.scout?.id ?? null}
       appendTooltipTo={appendTooltipTo}
-      className={{ container: 'opacity-[0.64]' }}
+      className={{
+        container: classNames(
+          'opacity-[0.64]',
+          isModalThread && threadCommentBoxClassName.container,
+        ),
+        content: classNames(isModalThread && threadCommentBoxClassName.content),
+        markdown: classNames(
+          isModalThread && threadCommentBoxClassName.markdown,
+        ),
+      }}
       badge={
         <UserBadge className="gap-0.5 normal-case">
           <ShieldIcon size={IconSize.Size16} />
@@ -75,21 +86,23 @@ function FilteredComment({
         </UserBadge>
       }
       actions={
-        <div className="mt-3 flex items-center">
+        <div
+          className={classNames(
+            'flex h-8 items-center text-text-tertiary typo-footnote',
+            isModalThread ? 'mt-1' : 'mt-3',
+          )}
+        >
           {isSuccess ? (
-            <span className="text-text-tertiary typo-footnote">
-              Sent to our moderators. Thanks.
-            </span>
+            'Sent to our moderators. Thanks.'
           ) : (
-            <Button
+            <button
               type="button"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              loading={isPending}
+              className="font-bold hover:text-text-primary"
+              disabled={isPending}
               onClick={() => mutate()}
             >
               Not spam? Report it
-            </Button>
+            </button>
           )}
         </div>
       }
@@ -100,6 +113,7 @@ function FilteredComment({
 function FilteredCommentsRow({
   post,
   appendTooltipTo,
+  isModalThread,
 }: FilteredCommentsProps): ReactElement | null {
   const { user, isLoggedIn, tokenRefreshed, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -182,6 +196,7 @@ function FilteredCommentsRow({
               post={post}
               comment={comment}
               appendTooltipTo={appendTooltipTo}
+              isModalThread={isModalThread}
             />
           ))
         ) : (
@@ -194,6 +209,7 @@ function FilteredCommentsRow({
 export function FilteredComments({
   post,
   appendTooltipTo,
+  isModalThread,
 }: FilteredCommentsProps): ReactElement | null {
   const { value: isEnabled } = useConditionalFeature({
     feature: featureFilteredCommentsBar,
@@ -204,5 +220,11 @@ export function FilteredComments({
     return null;
   }
 
-  return <FilteredCommentsRow post={post} appendTooltipTo={appendTooltipTo} />;
+  return (
+    <FilteredCommentsRow
+      post={post}
+      appendTooltipTo={appendTooltipTo}
+      isModalThread={isModalThread}
+    />
+  );
 }

@@ -201,7 +201,11 @@ export function PostComments({
           );
         });
       })()}
-      <FilteredComments post={post} appendTooltipTo={getAppendTooltipParent} />
+      <FilteredComments
+        post={post}
+        appendTooltipTo={getAppendTooltipParent}
+        isModalThread={isModalThread}
+      />
     </div>
   );
 }
