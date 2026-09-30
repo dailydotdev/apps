@@ -24,6 +24,7 @@ import {
   requestKueezBid,
 } from './prebid';
 import { useAdUtm } from './useAdUtm';
+import { getHistoryEntryKey } from '../../lib/scrollRestoration';
 
 /** Names the page/context a unit serves on, for per-surface reporting. */
 export type ProgrammaticAdSurface = string;
@@ -194,6 +195,33 @@ type SlotOutcome = 'pending' | 'filled' | 'unfilled';
 // interleave) share a slot number. Module-level so remounts never collide.
 let adUnitSequence = 0;
 
+// Placements that went unfilled, per history entry. Back navigation remounts
+// the page, and a slot that collapsed while the reader was here would
+// otherwise come back pending and hold its full reservation above the
+// restored scroll position, where no auction ever runs to collapse it. A fresh
+// visit is a new entry, so it still runs every auction.
+const unfilledPlacements = new Set<string>();
+const MAX_UNFILLED_PLACEMENTS = 1000;
+
+// Repeated placements share a slot number and tell themselves apart by
+// logExtra (section, occurrence), so it is part of the placement's identity.
+const getPlacementKey = ({
+  surface,
+  slot,
+  format,
+  logExtra,
+}: Pick<
+  ProgrammaticAdProps,
+  'surface' | 'slot' | 'format' | 'logExtra'
+>): string =>
+  [
+    getHistoryEntryKey(),
+    surface,
+    slot,
+    format,
+    JSON.stringify(logExtra ?? {}),
+  ].join('|');
+
 export interface ProgrammaticAdProps {
   slot: number;
   config: AdSlotConfig;
@@ -242,8 +270,17 @@ export function ProgrammaticAd({
 }: ProgrammaticAdProps): ReactElement {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const creativeRef = useRef<HTMLDivElement>(null);
-  const [isRequested, setIsRequested] = useState(eager ?? false);
-  const [outcome, setOutcome] = useState<SlotOutcome>('pending');
+  // Starting collapsed also keeps the slot out of the auction: a display:none
+  // box never intersects, and an eager one is simply not requested.
+  const [outcome, setOutcome] = useState<SlotOutcome>(() =>
+    typeof window !== 'undefined' &&
+    unfilledPlacements.has(getPlacementKey({ surface, slot, format, logExtra }))
+      ? 'unfilled'
+      : 'pending',
+  );
+  const [isRequested, setIsRequested] = useState(
+    !!eager && outcome !== 'unfilled',
+  );
   const { logEvent } = useLogContext();
   // Optional: a bare component test has no provider, and the context's
   // default is null rather than an empty object.
@@ -277,6 +314,27 @@ export function ProgrammaticAd({
       isMounted.current = false;
     };
   }, []);
+
+  // Keyed when the verdict lands rather than at mount: on the landing page
+  // Next only writes the entry's history key after hydration.
+  useEffect(() => {
+    if (outcome !== 'unfilled') {
+      return;
+    }
+
+    const key = getPlacementKey({
+      surface,
+      slot,
+      format,
+      logExtra: logExtraRef.current,
+    });
+    unfilledPlacements.delete(key);
+    unfilledPlacements.add(key);
+    if (unfilledPlacements.size > MAX_UNFILLED_PLACEMENTS) {
+      const [oldest] = unfilledPlacements;
+      unfilledPlacements.delete(oldest);
+    }
+  }, [format, outcome, slot, surface]);
 
   const logSlotEvent = useCallback(
     (

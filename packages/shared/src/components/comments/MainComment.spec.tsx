@@ -2,6 +2,7 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import AuthContext from '../../contexts/AuthContext';
 import type { LoggedUser } from '../../lib/user';
 import type { MainCommentProps } from './MainComment';
@@ -261,4 +262,18 @@ it('should show creator badge', async () => {
 it('should not show hide replies button when there are no replies', async () => {
   renderLayout();
   expect(screen.queryByText('Hide replies')).not.toBeInTheDocument();
+});
+
+it('should render a lazy comment that already rendered as soon as it remounts', async () => {
+  const lazyComment = { ...comment, id: 'lazy-remount' };
+  const { unmount } = renderLayout({ comment: lazyComment, lazy: true });
+  expect(screen.queryByText('my comment')).not.toBeInTheDocument();
+
+  mockAllIsIntersecting(true);
+  await screen.findByText('my comment');
+  unmount();
+
+  renderLayout({ comment: lazyComment, lazy: true });
+  mockAllIsIntersecting(false);
+  expect(await screen.findByText('my comment')).toBeInTheDocument();
 });
