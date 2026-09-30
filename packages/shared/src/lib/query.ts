@@ -277,6 +277,8 @@ export enum RequestKey {
   PopularGear = 'popular_gear',
   GearCategories = 'gear_categories',
   PersonalAccessTokens = 'personal_access_tokens',
+  OAuthClients = 'oauth_clients',
+  OAuthConsents = 'oauth_consents',
   UserAchievements = 'user_achievements',
   UserFeedbackByUserId = 'user_feedback_by_user_id',
   TrackedAchievement = 'tracked_achievement',

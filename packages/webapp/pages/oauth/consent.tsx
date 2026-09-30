@@ -34,6 +34,18 @@ const scopeDescriptions: Record<string, string> = {
     'Make changes on your behalf, like bookmarking posts and updating your feed settings',
 };
 
+const getRedirectHost = (redirectUri?: string): string | null => {
+  if (!redirectUri) {
+    return null;
+  }
+
+  try {
+    return new URL(redirectUri).host;
+  } catch {
+    return null;
+  }
+};
+
 const fetchOAuthClient = async (clientId: string): Promise<OAuthClient> => {
   const res = await fetch(
     `${apiUrl}/auth/oauth2/public-client?client_id=${encodeURIComponent(
@@ -58,6 +70,7 @@ const OAuthConsentPage = (): ReactElement => {
     .filter(Boolean);
   const scopes = requestedScopes.filter((scope) => scopeDescriptions[scope]);
   const canWrite = requestedScopes.includes(WRITE_SCOPE);
+  const redirectHost = getRedirectHost(getFirstQueryParam(query.redirect_uri));
 
   const { data: client, isError } = useQuery({
     queryKey: ['oauth-client', clientId],
@@ -130,6 +143,17 @@ const OAuthConsentPage = (): ReactElement => {
                 Signed in as @{user.username}. This will allow {clientName}
                 {client?.client_uri ? ` (${client.client_uri})` : ''} to:
               </Typography>
+              <div className="flex flex-col gap-1 rounded-12 bg-status-warning p-3">
+                <Typography type={TypographyType.Callout} bold>
+                  This app is not made or controlled by daily.dev. Only continue
+                  if you trust it.
+                </Typography>
+                {redirectHost && (
+                  <Typography type={TypographyType.Callout}>
+                    You will be redirected to {redirectHost}.
+                  </Typography>
+                )}
+              </div>
               <div className="flex flex-col gap-2">
                 {scopes.map((scope) =>
                   scope === WRITE_SCOPE ? (

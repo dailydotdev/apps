@@ -45,6 +45,13 @@ import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureOAuthApps } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  ConnectedAppsSection,
+  OAuthAppsSection,
+} from '../../components/settings/OAuthApps';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -459,6 +466,11 @@ const ApiAccessPage = (): ReactElement => {
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
   const { displayToast } = useToastNotification();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { user } = useAuthContext();
+  const { value: isOAuthAppsEnabled } = useConditionalFeature({
+    feature: featureOAuthApps,
+    shouldEvaluate: !!user,
+  });
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -756,6 +768,13 @@ const ApiAccessPage = (): ReactElement => {
             </Button>
           </div>
         </div>
+
+        {isOAuthAppsEnabled && (
+          <>
+            <OAuthAppsSection />
+            <ConnectedAppsSection />
+          </>
+        )}
       </div>
 
       <CreateTokenModal

@@ -325,6 +325,8 @@ export const featureCardImpressions = new Feature('card_impressions', false);
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
+export const featureOAuthApps = new Feature('oauth_apps', false);
+
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
   discountId: string;
