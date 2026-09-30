@@ -53,7 +53,11 @@ export const CollectionFeaturedWideGridCard = forwardRef(
     const image = usePostImage(post);
     const significance = post.hero?.significance;
     const wasUpdated = isPostUpdated(post);
-    const { overlay } = useCardCover({ post, onShare });
+    const { overlay, shouldDimImage } = useCardCover({
+      post,
+      onShare,
+      hasImage: !!image,
+    });
     const hasMedia = !!image || !!overlay;
     const textFit = useFittedLineClamp(HERO_DESCRIPTION_MAX_LINES);
 
@@ -139,6 +143,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
               wideColSpan={wideColSpan}
               hero={hero}
               overlay={overlay}
+              shouldDimImage={shouldDimImage}
               eagerLoadImage={eagerLoadImage}
             />
           )}

@@ -36,13 +36,13 @@ export function SharedCardCover({
   renderOverlay,
   CardImageComponent,
 }: SharedCardCoverProps): ReactElement {
-  const { overlay } = useCardCover({
+  const { overlay, shouldDimImage } = useCardCover({
     post,
     onShare,
   });
   const imageClasses = classNames(
     imageProps?.className,
-    !!overlay && 'opacity-16',
+    shouldDimImage && 'opacity-16',
   );
 
   if (isVideoType) {

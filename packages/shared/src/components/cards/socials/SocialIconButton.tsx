@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import type { ButtonSize } from '../../buttons/Button';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
 import {
@@ -22,6 +23,8 @@ type SocialShareButtonProps = {
   post: Post;
   platform: SocialIconType;
   variant?: ButtonVariant;
+  size?: ButtonSize;
+  origin?: Origin;
 };
 
 const getBtnProps = ({
@@ -38,7 +41,7 @@ const getBtnProps = ({
     rel: 'noopener noreferrer',
   };
 
-  const title = post?.title || post?.sharedPost?.title;
+  const title = post?.title || post?.sharedPost?.title || '';
 
   switch (platform) {
     case SocialIconType.Reddit:
@@ -80,6 +83,8 @@ const SocialIconButton = ({
   post,
   platform,
   variant = ButtonVariant.Float,
+  size,
+  origin = Origin.Suggestions,
 }: SocialShareButtonProps): ReactElement => {
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
@@ -95,13 +100,14 @@ const SocialIconButton = ({
   return (
     <Button
       variant={variant}
+      size={size}
       tag="a"
       onClick={() =>
         logEvent(
           postLogEvent(LogEvent.SharePost, post, {
             extra: {
               provider: platform,
-              origin: Origin.Suggestions,
+              origin,
             },
             ...(logOpts && logOpts),
           }),

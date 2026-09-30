@@ -2,14 +2,19 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import type { PostCardProps } from '../common/common';
 import { visibleOnGroupHover } from '../common/common';
 import { PostType } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleGrid } from './ArticleGrid';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import { USER_INTEGRATIONS } from '../../../graphql/users';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -175,4 +180,50 @@ it('should show cover image with play icon when post is video:youtube type', asy
   renderComponent(videoPostTypeComponentProps);
   const image = await screen.findByTestId('playIconVideoPost');
   expect(image).toBeInTheDocument();
+});
+
+describe('copy link cover', () => {
+  const renderCopied = (isCopySlackEnabled: boolean): RenderResult => {
+    const client = new QueryClient();
+    client.setQueryData(
+      generateQueryKey(RequestKey.PostActions, { id: post.id }),
+      { interaction: 'copy', previousInteraction: 'none' },
+    );
+    mockGraphQL({
+      request: { query: USER_INTEGRATIONS },
+      result: { data: { userIntegrations: { pageInfo: {}, edges: [] } } },
+    });
+
+    return render(
+      <TestBootProvider
+        client={client}
+        auth={{ user: loggedUser }}
+        gb={
+          new GrowthBook({
+            features: {
+              card_copy_slack: { defaultValue: isCopySlackEnabled },
+            },
+          })
+        }
+      >
+        <ArticleGrid {...defaultProps} />
+      </TestBootProvider>,
+    );
+  };
+
+  it('should offer Slack after copying when card_copy_slack is on', async () => {
+    renderCopied(true);
+    expect(await screen.findByText('Send to Slack')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Why not share it on social, too?'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should keep the social cover when card_copy_slack is off', async () => {
+    renderCopied(false);
+    expect(
+      await screen.findByText('Why not share it on social, too?'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Send to Slack')).not.toBeInTheDocument();
+  });
 });

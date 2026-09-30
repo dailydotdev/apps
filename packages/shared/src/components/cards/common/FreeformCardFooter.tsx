@@ -26,6 +26,7 @@ export const FreeformCardFooter = ({
 }: FreeformCardFooterProps): ReactElement | null => {
   const { overlay } = useCardCover({
     post,
+    hasImage: !!image,
     className: {
       bookmark: {
         container: !image

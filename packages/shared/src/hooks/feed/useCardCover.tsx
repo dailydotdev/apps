@@ -9,14 +9,20 @@ import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { socials } from '../../lib/socialMedia';
 import SocialIconButton from '../../components/cards/socials/SocialIconButton';
 import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
+import { CardCoverCopySlack } from '../../components/cards/common/CardCoverCopySlack';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useConditionalFeature } from '../useConditionalFeature';
+import { featureCardCopySlack } from '../../lib/featureManagement';
 
 interface UseCardCover {
   overlay: ReactNode;
+  shouldDimImage: boolean;
 }
 
 interface UseCardCoverProps {
   post?: Post;
   onShare?: (post: Post) => void;
+  hasImage?: boolean;
   className?: {
     bookmark?: {
       container?: string;
@@ -27,14 +33,30 @@ interface UseCardCoverProps {
 export const useCardCover = ({
   post,
   onShare,
+  hasImage = true,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
+  const { user } = useAuthContext();
   const { onInteract, interaction } = usePostActions({ post });
   const shouldShowReminder = useBookmarkReminderCover(post);
+  const { value: isCopySlackEnabled } = useConditionalFeature({
+    feature: featureCardCopySlack,
+    shouldEvaluate: interaction === 'copy' && hasImage && !!user,
+  });
+  const isCopySlackCover = interaction === 'copy' && isCopySlackEnabled;
 
   const overlay = useMemo(() => {
     if (!post) {
       return undefined;
+    }
+
+    if (isCopySlackCover) {
+      return (
+        <CardCoverCopySlack
+          post={post}
+          onShareToSlack={() => onInteract('none')}
+        />
+      );
     }
 
     if (interaction === 'copy') {
@@ -88,11 +110,12 @@ export const useCardCover = ({
   }, [
     className?.bookmark?.container,
     interaction,
+    isCopySlackCover,
     onInteract,
     onShare,
     post,
     shouldShowReminder,
   ]);
 
-  return { overlay };
+  return { overlay, shouldDimImage: !!overlay && !isCopySlackCover };
 };

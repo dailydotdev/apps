@@ -369,3 +369,7 @@ export const featureMobileAppSheetSnoozeHours = new Feature(
   'mobile_app_sheet_snooze_hours',
   72,
 );
+
+// Experiment: copying a link from a feed card offers Slack next to the
+// socials, over the bottom of the card image.
+export const featureCardCopySlack = new Feature('card_copy_slack', false);
