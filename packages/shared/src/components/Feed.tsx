@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
+import { FeedItemType } from './cards/common/common';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -83,6 +84,9 @@ import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import { useMobileAppFooterContext } from '../features/getApp/contexts/MobileAppFooterContext';
+import { MobileAppFooterAnchor } from '../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../features/getApp/mobileAppFooter';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -245,6 +249,10 @@ export default function Feed<T>({
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
+  const { moment: appFooterMoment } = useMobileAppFooterContext();
+  const appFooterAnchorIndex = isHorizontal
+    ? undefined
+    : appFooterMoment?.feedAnchorIndex;
   const numCards = currentSettings.numCards.eco;
   const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
@@ -841,6 +849,17 @@ export default function Feed<T>({
                     index === indexWhenShowingEngagementStrip && (
                       <EngagementFeedStrip
                         creative={engagementStripCreative}
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
+                  {index === appFooterAnchorIndex &&
+                    item.type !== FeedItemType.Placeholder && (
+                      <MobileAppFooterAnchor
+                        at={MobileAppFooterAnchorPlace.Feed}
                         style={{
                           gridColumn: !shouldUseListFeedLayout
                             ? `span ${virtualizedNumCards}`
