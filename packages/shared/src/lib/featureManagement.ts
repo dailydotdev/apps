@@ -360,3 +360,10 @@ export const featureMobileAppSheetSnoozeHours = new Feature(
   'mobile_app_sheet_snooze_hours',
   72,
 );
+
+// Experiment: once a snapshot is copied, a panel offers Slack, the post link
+// and other places to send it.
+export const featureSnapshotShareOptions = new Feature(
+  'snapshot_share_options',
+  false,
+);

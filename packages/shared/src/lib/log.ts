@@ -69,6 +69,7 @@ export enum Origin {
   HappeningNowHighlight = 'happening now highlight',
   HappeningNowSelection = 'happening now selection',
   HighlightsCard = 'highlights card',
+  SnapshotSharePanel = 'snapshot share panel',
   // snapshot placements - end
   // profile share placements - start
   ProfileHeader = 'profile header',
@@ -394,6 +395,7 @@ export enum LogEvent {
   ShareHotTake = 'share hot take',
   ShareHighlights = 'share highlights',
   ShareArchive = 'share archive',
+  OpenSnapshotSharePanel = 'open snapshot share panel',
   // End Share
   /* Start World
      `world view` is the denominator and fires whatever happens next, so the
