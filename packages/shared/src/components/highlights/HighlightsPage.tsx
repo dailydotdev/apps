@@ -197,7 +197,7 @@ export const HighlightsPage = (): ReactElement => {
         tabTag="a"
         className={{
           header:
-            'no-scrollbar sticky top-0 z-2 overflow-x-auto bg-background-default',
+            'no-scrollbar sticky top-[var(--mobile-app-header-offset,0px)] z-2 overflow-x-auto bg-background-default transition-[top] duration-200 ease-out',
         }}
       >
         {[

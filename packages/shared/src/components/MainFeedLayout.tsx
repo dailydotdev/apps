@@ -29,7 +29,6 @@ import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
-import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
 import { ExploreSignupStrip } from './auth/ExploreSignupStrip';
 import FeedContext from '../contexts/FeedContext';
 import AuthContext from '../contexts/AuthContext';
@@ -769,7 +768,7 @@ export default function MainFeedLayout({
         showBreadcrumbs={false}
         className={{
           container: classNames(
-            'sticky top-[4.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            'sticky top-[calc(4.5rem+var(--mobile-app-header-offset,0px))] z-header w-full border-b border-border-subtlest-tertiary bg-background-default transition-[top] duration-200 ease-out',
             feedGutter,
           ),
           tabBarHeader: 'no-scrollbar overflow-x-auto',
@@ -911,9 +910,6 @@ export default function MainFeedLayout({
         {isSearchOn && isFinder && !isSearchPageLaptop && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
-        <div className={feedWidthClassName} style={feedWidthStyle}>
-          <FeedEngagementBanner className="mb-3" />
-        </div>
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
         )}
