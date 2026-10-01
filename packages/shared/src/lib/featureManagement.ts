@@ -360,7 +360,3 @@ export const featureMobileAppSheetSnoozeHours = new Feature(
   'mobile_app_sheet_snooze_hours',
   72,
 );
-
-// Experiment: Slack sits beside Copy link in the share band and says whether a
-// press connects or sends, and connecting returns the reader where they began.
-export const featureSlackConnectV2 = new Feature('slack_connect_v2', false);

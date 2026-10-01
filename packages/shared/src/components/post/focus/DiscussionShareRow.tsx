@@ -25,8 +25,6 @@ import { LazyModal } from '../../modals/common/types';
 import { ReferralCampaignKey } from '../../../lib';
 import { getShareableSquads } from '../../squads/SquadsToShare';
 import { useSlackShareButton } from '../../../hooks/integrations/slack/useSlackShareButton';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureSlackConnectV2 } from '../../../lib/featureManagement';
 import SourceProfilePicture from '../../profile/SourceProfilePicture';
 import { ProfileImageSize } from '../../ProfilePicture';
 
@@ -60,16 +58,11 @@ export const DiscussionShareRow = ({
   const [copying, copyLink] = useCopyPostLink();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
-  const { user, squads } = useAuthContext();
+  const { squads } = useAuthContext();
   const slack = useSlackShareButton({
     post,
     origin: Origin.DiscussionPanel,
   });
-  const { value: isSlackStateShown } = useConditionalFeature({
-    feature: featureSlackConnectV2,
-    shouldEvaluate: !!user,
-  });
-  const slackLabel = isSlackStateShown ? slack.label : 'Share on Slack';
   const inlineSquads = withSquads
     ? getShareableSquads(squads).slice(0, maxInlineSquads)
     : [];
@@ -142,10 +135,10 @@ export const DiscussionShareRow = ({
           />
         </Tooltip>
         <div className="relative flex">
-          <Tooltip content={slackLabel}>
+          <Tooltip content={slack.label}>
             <Button
-              aria-label={slackLabel}
-              disabled={isSlackStateShown && slack.isLoading}
+              aria-label={slack.label}
+              disabled={slack.isLoading}
               icon={<SlackIcon />}
               onClick={slack.onClick}
               size={ButtonSize.Small}
@@ -153,7 +146,7 @@ export const DiscussionShareRow = ({
               variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
-          {isSlackStateShown && slack.isConnected && (
+          {slack.isConnected && (
             <span className="pointer-events-none absolute bottom-1 right-1 size-2.5 rounded-full border-2 border-background-default bg-accent-avocado-default" />
           )}
         </div>

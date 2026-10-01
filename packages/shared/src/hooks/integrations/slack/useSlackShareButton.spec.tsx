@@ -4,7 +4,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
 import {
   getSlackShareOriginPath,
-  useSlackShareOriginReturn,
+  useSlackShareReturn,
 } from './useSlackShareButton';
 import type { Post } from '../../../graphql/posts';
 import type { UserIntegration } from '../../../graphql/integrations';
@@ -21,10 +21,16 @@ import {
 
 const mockOpenModal = jest.fn();
 const mockDisplayToast = jest.fn();
+const mockRestoreScrollPosition = jest.fn();
 
 jest.mock('../../useLazyModal', () => ({
   ...jest.requireActual('../../useLazyModal'),
   useLazyModal: () => ({ openModal: mockOpenModal }),
+}));
+
+jest.mock('../../../lib/scrollRestoration', () => ({
+  ...jest.requireActual('../../../lib/scrollRestoration'),
+  restoreScrollPosition: (target: number) => mockRestoreScrollPosition(target),
 }));
 
 jest.mock('../../useToastNotification', () => ({
@@ -60,7 +66,7 @@ describe('getSlackShareOriginPath', () => {
   });
 });
 
-describe('useSlackShareOriginReturn', () => {
+describe('useSlackShareReturn', () => {
   const replace = jest.fn();
 
   const land = (params: Record<string, string>) => {
@@ -87,7 +93,7 @@ describe('useSlackShareOriginReturn', () => {
     );
     client.setQueryData(getPostByIdKey(post.id), { post });
 
-    renderHook(() => useSlackShareOriginReturn(), {
+    renderHook(() => useSlackShareReturn(), {
       wrapper: ({ children }) => (
         <TestBootProvider client={client} auth={{ user: loggedUser }}>
           {children}
@@ -118,10 +124,22 @@ describe('useSlackShareOriginReturn', () => {
     await waitFor(() =>
       expect(mockOpenModal).toHaveBeenCalledWith({
         type: LazyModal.SlackShare,
-        props: { post, origin: Origin.PostContent },
+        props: expect.objectContaining({ post, origin: Origin.PostContent }),
       }),
     );
     expectParamsCleared();
+  });
+
+  it('should scroll back to where the share started once the picker closes', async () => {
+    land({ slackScrollY: '1200' });
+    renderReturn([slackIntegration]);
+
+    await waitFor(() => expect(mockOpenModal).toHaveBeenCalled());
+    expect(mockRestoreScrollPosition).not.toHaveBeenCalled();
+
+    mockOpenModal.mock.calls[0][0].props.onAfterClose();
+
+    expect(mockRestoreScrollPosition).toHaveBeenCalledWith(1200);
   });
 
   it('should drop an origin that is not one of ours', async () => {
@@ -131,7 +149,7 @@ describe('useSlackShareOriginReturn', () => {
     await waitFor(() =>
       expect(mockOpenModal).toHaveBeenCalledWith({
         type: LazyModal.SlackShare,
-        props: { post, origin: undefined },
+        props: expect.objectContaining({ post, origin: undefined }),
       }),
     );
   });

@@ -14,8 +14,6 @@ import type { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureSlackConnectV2 } from '../../lib/featureManagement';
 
 export interface ShareBandProps {
   title: string;
@@ -59,49 +57,20 @@ export const ShareBand = ({
   onShare,
 }: ShareBandProps): ReactElement => {
   const { user } = useAuthContext();
-  const { value: withSlack } = useConditionalFeature({
-    feature: featureSlackConnectV2,
-    shouldEvaluate: !!user && !!slackPost,
-  });
-  const copyLink = (
-    <ShareActions
-      variant="split"
-      link={link}
-      text={text}
-      cid={cid}
-      // the button beside it is Slack's one door while it shows
-      post={withSlack ? undefined : post}
-      origin={origin}
-      emailTitle={emailTitle}
-      buttonVariant={ButtonVariant.Primary}
-      buttonSize={ButtonSize.Small}
-      label="Copy link"
-      triggerText="Copy link"
-      dropdownLabel="More share options"
-      className={withSlack ? 'w-full tablet:w-auto' : 'shrink-0'}
-      onShare={onShare}
-    />
-  );
+  // connecting a workspace needs an account
+  const slackSharePost = user ? slackPost : undefined;
 
   return (
     <aside
       // Labelled by its own visible copy, so no aria-label here — a second label
       // on the landmark would shadow the share button's.
       className={classNames(
-        'flex flex-col gap-3 text-center tablet:flex-row tablet:text-left',
-        withSlack
-          ? 'items-stretch tablet:flex-wrap tablet:items-center tablet:gap-x-4'
-          : 'items-center tablet:justify-between',
+        'flex flex-col items-stretch gap-3 text-center tablet:flex-row tablet:flex-wrap tablet:items-center tablet:gap-x-4 tablet:text-left',
         className,
       )}
     >
-      <div
-        className={classNames(
-          'flex min-w-0 flex-col gap-0.5',
-          // the buttons wrap below the copy rather than squeeze it any narrower
-          withSlack && 'tablet:flex-[1_1_14rem]',
-        )}
-      >
+      {/* the buttons wrap below the copy rather than squeeze it any narrower */}
+      <div className="flex min-w-0 flex-col gap-0.5 tablet:flex-[1_1_14rem]">
         <Typography bold type={TypographyType.Callout}>
           {title}
         </Typography>
@@ -112,20 +81,34 @@ export const ShareBand = ({
           {description}
         </Typography>
       </div>
-      {withSlack && slackPost ? (
-        <div className="flex flex-col gap-2 tablet:flex-row tablet:flex-wrap tablet:items-center">
-          {copyLink}
+      <div className="flex flex-col gap-2 tablet:flex-row tablet:flex-wrap tablet:items-center">
+        <ShareActions
+          variant="split"
+          link={link}
+          text={text}
+          cid={cid}
+          // the button beside it is Slack's one door while it shows
+          post={slackSharePost ? undefined : post}
+          origin={origin}
+          emailTitle={emailTitle}
+          buttonVariant={ButtonVariant.Primary}
+          buttonSize={ButtonSize.Small}
+          label="Copy link"
+          triggerText="Copy link"
+          dropdownLabel="More share options"
+          className="w-full tablet:w-auto"
+          onShare={onShare}
+        />
+        {slackSharePost && (
           <SlackCtaButton
-            post={slackPost}
+            post={slackSharePost}
             origin={origin}
             size={ButtonSize.Small}
             variant={ButtonVariant.Float}
             className="w-full tablet:w-auto"
           />
-        </div>
-      ) : (
-        copyLink
-      )}
+        )}
+      </div>
     </aside>
   );
 };

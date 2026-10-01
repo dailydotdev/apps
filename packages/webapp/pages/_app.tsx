@@ -52,7 +52,7 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
-import { useSlackShareOriginReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
+import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
@@ -165,7 +165,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useCheckCoresRole();
   useCheckLocation();
-  useSlackShareOriginReturn();
+  useSlackShareReturn();
 
   const activeModalType = modal?.type;
   const hotAndColdModalQuery = router.query[hotAndColdModalQueryKey];

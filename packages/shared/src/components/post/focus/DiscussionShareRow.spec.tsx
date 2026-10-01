@@ -15,13 +15,6 @@ import { DiscussionShareRow } from './DiscussionShareRow';
 import type { UserIntegration } from '../../../graphql/integrations';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-
-jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
-}));
-
-const mockFeature = jest.mocked(useConditionalFeature);
 
 const defaultPost = Post;
 
@@ -42,7 +35,6 @@ Object.defineProperty(window, 'matchMedia', {
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mockFeature.mockReturnValue({ value: false, isLoading: false });
 });
 
 const squads = Array.from({ length: 6 }, (_, index) =>
@@ -123,11 +115,7 @@ describe('DiscussionShareRow', () => {
     ).toBeInTheDocument();
   });
 
-  describe('with Slack state shown', () => {
-    beforeEach(() => {
-      mockFeature.mockReturnValue({ value: true, isLoading: false });
-    });
-
+  describe('Slack', () => {
     it('holds Slack disabled until integrations settle', () => {
       renderComponent(false);
 

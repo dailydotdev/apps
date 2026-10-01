@@ -103,30 +103,12 @@ export const restoreScrollPosition = (target: number): (() => void) => {
     observer.observe(document.body);
   }
 
-  // a dialog over the page does not move it, so using one keeps the restore
-  const stopUnlessInDialog = (event: Event) => {
-    if (
-      event.target instanceof Element &&
-      event.target.closest('[aria-modal="true"]')
-    ) {
-      return;
-    }
-
-    stop();
-  };
-
   const { signal } = controller;
   window.addEventListener('resize', restore, { signal });
-  window.addEventListener('wheel', stopUnlessInDialog, {
-    passive: true,
-    signal,
-  });
-  window.addEventListener('touchmove', stopUnlessInDialog, {
-    passive: true,
-    signal,
-  });
-  window.addEventListener('keydown', stopUnlessInDialog, { signal });
-  window.addEventListener('mousedown', stopUnlessInDialog, { signal });
+  window.addEventListener('wheel', stop, { passive: true, signal });
+  window.addEventListener('touchmove', stop, { passive: true, signal });
+  window.addEventListener('keydown', stop, { signal });
+  window.addEventListener('mousedown', stop, { signal });
   window.addEventListener(
     'scroll',
     () => {

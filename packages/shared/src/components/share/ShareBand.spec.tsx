@@ -8,20 +8,12 @@ import post from '../../../__tests__/fixture/post';
 import type { UserIntegration } from '../../graphql/integrations';
 import { UserIntegrationType } from '../../graphql/integrations';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useViewSize } from '../../hooks/useViewSize';
-
-jest.mock('../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
-}));
 
 jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
   useViewSize: jest.fn(),
 }));
-
-const mockFeature = jest.mocked(useConditionalFeature);
-let isFlagOn: boolean;
 
 const slackIntegration = {
   id: 'integration-1',
@@ -71,12 +63,7 @@ const openChevron = () =>
 
 beforeEach(() => {
   jest.clearAllMocks();
-  isFlagOn = true;
   jest.mocked(useViewSize).mockReturnValue(true);
-  mockFeature.mockImplementation(({ shouldEvaluate }) => ({
-    value: shouldEvaluate !== false && isFlagOn,
-    isLoading: false,
-  }));
 });
 
 describe('ShareBand', () => {
@@ -109,9 +96,8 @@ describe('ShareBand', () => {
     expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
   });
 
-  it('should keep Slack behind the chevron when the flag is off', async () => {
-    isFlagOn = false;
-    renderBand();
+  it('should keep Slack behind the chevron for logged-out readers', async () => {
+    renderBand({ isLoggedIn: false });
 
     expect(
       screen.queryByRole('button', { name: /Slack/ }),
@@ -119,16 +105,5 @@ describe('ShareBand', () => {
 
     openChevron();
     expect(await screen.findByTestId('social-share-Slack')).toBeInTheDocument();
-  });
-
-  it('should not enroll logged-out readers', () => {
-    renderBand({ isLoggedIn: false });
-
-    expect(mockFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
-    expect(
-      screen.queryByRole('button', { name: /Slack/ }),
-    ).not.toBeInTheDocument();
   });
 });

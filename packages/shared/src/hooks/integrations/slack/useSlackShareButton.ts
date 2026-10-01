@@ -8,7 +8,6 @@ import { useSlackShare } from './useSlackShare';
 import { useIntegrationsQuery } from '../useIntegrationsQuery';
 import { useLazyModal } from '../../useLazyModal';
 import { useToastNotification } from '../../useToastNotification';
-import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -16,7 +15,6 @@ import { LogEvent, Origin } from '../../../lib/log';
 import { postLogEvent } from '../../../lib/feed';
 import { getPathnameWithQuery } from '../../../lib/links';
 import { isExtension } from '../../../lib/func';
-import { featureSlackConnectV2 } from '../../../lib/featureManagement';
 import { getPostByIdKey, StaleTime } from '../../../lib/query';
 import {
   getScrollPosition,
@@ -42,10 +40,9 @@ const returnParams = ['lzym', postIdParam, scrollParam, originParam, 'error'];
 const origins = new Set<string>(Object.values(Origin));
 
 /**
- * Where Slack sends the user back. It has to be the post's own page: the share
- * can start from a post modal over the feed or from the extension, and neither
- * is an address the API callback can return to, since it only ever redirects to
- * a path on the webapp.
+ * Where Slack sends the user back when the share has no webapp page of its own
+ * to return to, as on the extension: the API callback only ever redirects to a
+ * path on the webapp, so it has to be the post's page.
  */
 export const getSlackShareRedirectPath = (post: Post): string =>
   getPathnameWithQuery(
@@ -92,7 +89,6 @@ export const useSlackShareButton = ({
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
-  const { getFeatureValue } = useFeaturesReadyContext();
   const { integration, canPostAsUser, connect, isLoading } = useSlackShare();
   const isConnected = !!integration;
 
@@ -129,9 +125,7 @@ export const useSlackShareButton = ({
       extra: JSON.stringify({ origin, reason: 'share' }),
     });
 
-    // read on press, not on render: every Share menu mounts this hook, and
-    // only the surfaces that look different should enroll a reader
-    if (isExtension || !getFeatureValue(featureSlackConnectV2)) {
+    if (isExtension) {
       connect(getSlackShareRedirectPath(post));
 
       return;
@@ -159,7 +153,6 @@ export const useSlackShareButton = ({
     origin,
     connect,
     post,
-    getFeatureValue,
     router,
   ]);
 
@@ -171,69 +164,14 @@ export const useSlackShareButton = ({
   };
 };
 
-const readSlackShareReturnPostId = (): string | undefined => {
-  if (typeof window === 'undefined') {
-    return undefined;
-  }
-
-  const params = new URLSearchParams(window.location.search);
-
-  // a return to the surface the share started on is useSlackShareOriginReturn's
-  return params.get('lzym') === LazyModal.SlackShare && !params.has(scrollParam)
-    ? params.get(postIdParam) ?? undefined
-    : undefined;
-};
-
-/**
- * Reopens the picker after the OAuth round trip. It lives on the post page
- * rather than on the share button because the button that started the flow may
- * not exist at the destination: the share can begin in a post modal or on the
- * extension, and the share bar itself is desktop only.
- */
-export const useSlackShareReturn = ({ post }: { post?: Post }): void => {
-  const { openModal } = useLazyModal();
-  // read once from the location, and deliberately not keyed on the post: the
-  // post arrives a render later than the URL does, so a latch that consulted it
-  // would conclude there was nothing to return to
-  const [returnPostId] = useState(readSlackShareReturnPostId);
-  const { integration, isLoading } = useSlackShare({ enabled: !!returnPostId });
-  const reopened = useRef(false);
-
-  useEffect(() => {
-    if (
-      !returnPostId ||
-      reopened.current ||
-      isLoading ||
-      !integration ||
-      post?.id !== returnPostId
-    ) {
-      return;
-    }
-
-    reopened.current = true;
-
-    const params = new URLSearchParams(window.location.search);
-    params.delete('lzym');
-    params.delete(postIdParam);
-
-    window.history.replaceState(
-      window.history.state,
-      '',
-      getPathnameWithQuery(window.location.pathname, params),
-    );
-
-    openModal({ type: LazyModal.SlackShare, props: { post } });
-  }, [returnPostId, isLoading, integration, post, openModal]);
-};
-
-type SlackShareOriginReturn = {
+type SlackShareReturn = {
   postId: string;
-  scrollY: number;
+  scrollY?: number;
   origin?: Origin;
   error?: string;
 };
 
-const readSlackShareOriginReturn = (): SlackShareOriginReturn | undefined => {
+const readSlackShareReturn = (): SlackShareReturn | undefined => {
   if (typeof window === 'undefined') {
     return undefined;
   }
@@ -242,33 +180,31 @@ const readSlackShareOriginReturn = (): SlackShareOriginReturn | undefined => {
   const postId = params.get(postIdParam);
   const origin = params.get(originParam);
 
-  if (
-    params.get('lzym') !== LazyModal.SlackShare ||
-    !postId ||
-    !params.has(scrollParam)
-  ) {
+  if (params.get('lzym') !== LazyModal.SlackShare || !postId) {
     return undefined;
   }
 
   return {
     postId,
-    scrollY: Number(params.get(scrollParam)) || 0,
+    scrollY: Number(params.get(scrollParam)) || undefined,
     origin: origin && origins.has(origin) ? (origin as Origin) : undefined,
     error: params.get('error') ?? undefined,
   };
 };
 
 /**
- * Finishes a share that left for Slack's OAuth from any surface: the post, a
- * brief, or a feed behind a post modal. It sits on the app shell because the
- * destination can be any page, which is also why it fetches the post itself.
+ * Finishes a share that left for Slack's OAuth. The reader comes back to the
+ * page the share started on, which can be any feed, a post or a brief (or the
+ * post page, from the extension), so this sits on the app shell and fetches
+ * the post itself rather than relying on a button that may not be there.
  */
-export const useSlackShareOriginReturn = (): void => {
+export const useSlackShareReturn = (): void => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const { tokenRefreshed } = useAuthContext();
-  const [pending] = useState(readSlackShareOriginReturn);
+  // read once: the params are cleared as soon as the return is handled
+  const [pending] = useState(readSlackShareReturn);
   const isReturning = !!pending && !pending.error;
   const { data: integrations, isSuccess: hasIntegrations } =
     useIntegrationsQuery({ queryOptions: { enabled: isReturning } });
@@ -321,13 +257,21 @@ export const useSlackShareOriginReturn = (): void => {
       return;
     }
 
-    if (pending.scrollY) {
-      restoreScrollPosition(pending.scrollY);
-    }
+    const { scrollY, origin } = pending;
 
     openModal({
       type: LazyModal.SlackShare,
-      props: { post, origin: pending.origin },
+      props: {
+        post,
+        origin,
+        // the feed behind the picker is still loading; by the time the picker
+        // closes it is tall enough to scroll back to where the share started
+        onAfterClose: () => {
+          if (scrollY) {
+            restoreScrollPosition(scrollY);
+          }
+        },
+      },
     });
   }, [
     pending,
