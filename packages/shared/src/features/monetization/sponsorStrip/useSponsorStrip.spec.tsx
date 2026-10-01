@@ -29,9 +29,15 @@ const LogContext = getLogContextStatic();
 const render = ({
   feedName = SharedFeedPage.MyFeed as string,
   disableAds = false,
+  suppressed = false,
   isPlus = false,
-}: { feedName?: string; disableAds?: boolean; isPlus?: boolean } = {}) =>
-  renderHook(() => useSponsorStrip({ feedName, disableAds }), {
+}: {
+  feedName?: string;
+  disableAds?: boolean;
+  suppressed?: boolean;
+  isPlus?: boolean;
+} = {}) =>
+  renderHook(() => useSponsorStrip({ feedName, disableAds, suppressed }), {
     wrapper: ({ children }) => (
       <AuthContext.Provider
         value={
@@ -54,6 +60,13 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockFeature.mockReturnValue({ value: true, isLoading: false });
   mockViewSize.mockReturnValue(true);
+});
+
+it('should not evaluate the flag while another surface may take the bottom edge', () => {
+  expect(render({ suppressed: true }).result.current).toBe(false);
+  expect(mockFeature).toHaveBeenCalledWith(
+    expect.objectContaining({ shouldEvaluate: false }),
+  );
 });
 
 it('should be on for a feed that can show the Happening Now card', () => {

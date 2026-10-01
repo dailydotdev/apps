@@ -299,11 +299,6 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-export const featurePublicSignupBanner = new Feature(
-  'public_signup_banner',
-  false,
-);
-
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
@@ -317,6 +312,8 @@ export const featureCardImpressions = new Feature('card_impressions', false);
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
+
+export const featureOAuthApps = new Feature('oauth_apps', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
