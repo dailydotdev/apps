@@ -26,7 +26,7 @@ import { useOpenShareLink } from '../../hooks/useOpenShareLink';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
-import { useSlackShareButton } from '../../hooks/integrations/slack/useSlackShareButton';
+import { SlackCtaButton } from '../widgets/SlackCtaButton';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
@@ -101,19 +101,14 @@ function SnapshotSlackRow({
   post,
   placement,
   isDrawer,
-  onStart,
+  onClose,
 }: {
   post: Post;
   placement?: Origin;
   isDrawer: boolean;
-  onStart: () => void;
+  onClose: () => void;
 }): ReactElement {
-  const { integration, isLoading } = useSlackShare();
-  const { onClick } = useSlackShareButton({
-    post,
-    origin: Origin.SnapshotSharePanel,
-    placement,
-  });
+  const { integration } = useSlackShare();
 
   return (
     <div className="flex flex-col gap-3 rounded-14 bg-surface-float p-3">
@@ -130,21 +125,14 @@ function SnapshotSlackRow({
           </span>
         </span>
       </div>
-      <Button
-        type="button"
+      <SlackCtaButton
         className="w-full"
+        origin={Origin.SnapshotSharePanel}
+        placement={placement}
+        post={post}
         size={isDrawer ? ButtonSize.Medium : ButtonSize.Small}
-        variant={ButtonVariant.Primary}
-        icon={<SlackIcon />}
-        loading={isLoading}
-        disabled={isLoading}
-        onClick={() => {
-          onStart();
-          onClick();
-        }}
-      >
-        {integration ? 'Pick a channel' : 'Connect Slack'}
-      </Button>
+        onAfterClick={onClose}
+      />
     </div>
   );
 }
@@ -255,7 +243,7 @@ function SnapshotShareContent({
       {isLoggedIn && (
         <SnapshotSlackRow
           isDrawer={isDrawer}
-          onStart={onClose}
+          onClose={onClose}
           placement={placement}
           post={post}
         />
