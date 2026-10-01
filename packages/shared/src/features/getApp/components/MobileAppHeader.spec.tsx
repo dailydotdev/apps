@@ -87,6 +87,12 @@ describe('MobileAppHeader', () => {
     });
   });
 
+  it('should wait for auth so members never see it', () => {
+    renderComponent({ isAuthReady: false });
+
+    expect(screen.queryByText('Open app')).not.toBeInTheDocument();
+  });
+
   it('should leave logged-in readers with their header', () => {
     renderComponent({ isLoggedIn: true });
 
