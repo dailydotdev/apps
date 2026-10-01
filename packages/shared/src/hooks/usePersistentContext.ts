@@ -79,4 +79,5 @@ export enum PersistentContextKeys {
   ReadingReminderLastSeen = 'reading_reminder_last_seen',
   QuestOffersLastSeen = 'quest_offers_last_seen',
   QuestOffersEligibleLogged = 'quest_offers_eligible_logged',
+  MobileAppSheet = 'mobile_app_sheet',
 }

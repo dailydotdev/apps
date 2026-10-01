@@ -16,6 +16,10 @@ import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
 import { CharmEmptyState } from '../charm/CharmEmptyState';
 import { cloudinaryCharmNoComments } from '../../lib/image';
+import { MobileAppFooterAnchor } from '../../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../../features/getApp/mobileAppFooter';
+
+const commentsBeforeAppFooter = 2;
 
 const threadCommentOrigins = new Set<Origin>([
   Origin.ArticleModal,
@@ -183,6 +187,13 @@ export function PostComments({
                 onReplyBlocked={onReplyBlocked}
                 forceInlineComposer={forceInlineComposer}
               />
+              {index === commentsBeforeAppFooter - 1 &&
+                edges.length > commentsBeforeAppFooter && (
+                  <MobileAppFooterAnchor
+                    at={MobileAppFooterAnchorPlace.Comments}
+                    className="-mt-4"
+                  />
+                )}
               {shouldInterleave &&
                 renderInterleaved(Math.floor(seen / interleaveEvery))}
             </Fragment>

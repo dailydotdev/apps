@@ -26,7 +26,6 @@ const creative: EngagementCreative = {
   tools: ['vscode'],
   keywords: ['Copilot'],
   tags: ['ai'],
-  placements: [],
 };
 
 let queryClient: QueryClient;

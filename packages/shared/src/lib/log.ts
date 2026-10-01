@@ -129,8 +129,6 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
-  EngagementBanner = 'engagement banner',
-  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {
@@ -722,6 +720,8 @@ export enum TargetId {
   ReaderHeader = 'reader header',
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
+  MobileFooter = 'mobile footer',
+  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {

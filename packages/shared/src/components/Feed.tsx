@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
+import { FeedItemType } from './cards/common/common';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -73,8 +74,6 @@ import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
-import { EngagementFeedStrip } from './brand/EngagementFeedStrip';
-import { isEngagementAdFeed } from '../hooks/feed/useFeedName';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
@@ -83,6 +82,9 @@ import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import { useMobileAppFooterContext } from '../features/getApp/contexts/MobileAppFooterContext';
+import { MobileAppFooterAnchor } from '../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../features/getApp/mobileAppFooter';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -245,6 +247,10 @@ export default function Feed<T>({
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
+  const { moment: appFooterMoment } = useMobileAppFooterContext();
+  const appFooterAnchorIndex = isHorizontal
+    ? undefined
+    : appFooterMoment?.feedAnchorIndex;
   const numCards = currentSettings.numCards.eco;
   const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
@@ -383,7 +389,6 @@ export default function Feed<T>({
       variables,
       options,
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
-      engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
       firstSlotOffset: Number(eligibleFirstSlotCard !== null),
       disableTopHero: disableTopHero || (isLaptop && isLayoutVariantLoading),
       isHorizontal,
@@ -442,9 +447,6 @@ export default function Feed<T>({
   const {
     showPromoBanner,
     indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-    engagementStripCreative,
     hero: {
       shouldShowTopHero,
       title: readingReminderTitle,
@@ -836,11 +838,10 @@ export default function Feed<T>({
                       }}
                     />
                   )}
-                  {showEngagementStrip &&
-                    engagementStripCreative &&
-                    index === indexWhenShowingEngagementStrip && (
-                      <EngagementFeedStrip
-                        creative={engagementStripCreative}
+                  {index === appFooterAnchorIndex &&
+                    item.type !== FeedItemType.Placeholder && (
+                      <MobileAppFooterAnchor
+                        at={MobileAppFooterAnchorPlace.Feed}
                         style={{
                           gridColumn: !shouldUseListFeedLayout
                             ? `span ${virtualizedNumCards}`

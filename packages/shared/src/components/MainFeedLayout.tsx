@@ -29,7 +29,6 @@ import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
-import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
 import {
   PublicPageSignupBanner,
   usePublicPageSignupBannerGate,
@@ -914,9 +913,6 @@ export default function MainFeedLayout({
         {isSearchOn && isFinder && !isSearchPageLaptop && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
-        <div className={feedWidthClassName} style={feedWidthStyle}>
-          <FeedEngagementBanner className="mb-3" />
-        </div>
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
         )}
