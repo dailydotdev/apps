@@ -19,11 +19,13 @@ const Section = classed('div', 'flex flex-col');
 
 interface AuthenticationBannerProps extends PropsWithChildren {
   compact?: boolean;
+  targetId?: string;
 }
 
 export function AuthenticationBanner({
   children,
   compact,
+  targetId,
 }: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
 
@@ -75,6 +77,7 @@ export function AuthenticationBanner({
             ignoreMessages
             formRef={null as unknown as React.MutableRefObject<HTMLFormElement>}
             trigger={AuthTriggers.Onboarding}
+            targetId={targetId}
             simplified
             defaultDisplay={AuthDisplay.OnboardingSignup}
             forceDefaultDisplay
