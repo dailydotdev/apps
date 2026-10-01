@@ -24,6 +24,7 @@ import { pageHeaderClassName } from '../../layout/PageHeader';
 import { PublicPageSignupBanner } from '../../auth/PublicPageSignupBanner';
 import { useMobileAppHeader } from '../../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../../features/getApp/components/MobileAppActions';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -80,6 +81,7 @@ export const SquadDirectoryLayout = (
   const isV2Laptop = isV2;
   const isMobileAppHeader = useMobileAppHeader();
   const isPhone = useViewSize(ViewSize.MobileL);
+  const { user } = useAuthContext();
 
   useEffect(() => {
     const element = document?.getElementById?.(`squad-item-discover-${id}`);
@@ -157,7 +159,7 @@ export const SquadDirectoryLayout = (
             </section>
           )}
           <ShellPage
-            actions={!isMobileAppHeader && <NewSquadSquare />}
+            actions={!!user && <NewSquadSquare />}
             row={
               <ShellRow>
                 <Chips

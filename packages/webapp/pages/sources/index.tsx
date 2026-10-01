@@ -31,6 +31,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
 const seoTitles = getPageSeoTitles('Top sources for developer content');
 const seo: NextSeoProps = {
@@ -85,6 +86,7 @@ const SourcesPage = ({
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useViewSize(ViewSize.MobileL);
+  const { user } = useAuthContext();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
 
@@ -138,12 +140,14 @@ const SourcesPage = ({
         <ShellPage
           title="Sources"
           actions={
-            <ShellSquare
-              aria-label="Suggest new source"
-              onClick={() => openModal({ type: LazyModal.NewSource })}
-            >
-              <PlusIcon size={IconSize.Small} />
-            </ShellSquare>
+            user && (
+              <ShellSquare
+                aria-label="Suggest new source"
+                onClick={() => openModal({ type: LazyModal.NewSource })}
+              >
+                <PlusIcon size={IconSize.Small} />
+              </ShellSquare>
+            )
           }
         />
         {!isV2Laptop && !isPhone && (
