@@ -87,10 +87,10 @@ describe('MobileAppHeader', () => {
     });
   });
 
-  it('should hold its place before auth settles so the page does not shift', () => {
+  it('should wait for auth so members never see it', () => {
     renderComponent({ isAuthReady: false });
 
-    expect(screen.getByRole('link', { name: 'Open app' })).toBeInTheDocument();
+    expect(screen.queryByText('Open app')).not.toBeInTheDocument();
   });
 
   it('should leave logged-in readers with their header', () => {

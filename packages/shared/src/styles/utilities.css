@@ -1494,9 +1494,3 @@ img.agent-media-ring {
     animation: none;
   }
 }
-
-/* Set before first paint for a cached member session (see _document), so the
-   logged-out header the server renders for everyone never flashes for them. */
-.mobile-app-header-hidden .mobile-app-header {
-  display: none;
-}
