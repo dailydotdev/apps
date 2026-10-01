@@ -41,9 +41,12 @@ export const getSlackShareRedirectPath = (post: Post): string =>
 export const useSlackShareButton = ({
   post,
   origin,
+  placement,
 }: {
   post: Post;
   origin?: Origin;
+  /** The surface the share control sits in, when `origin` names a control. */
+  placement?: Origin;
 }): UseSlackShareButton => {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
@@ -51,8 +54,11 @@ export const useSlackShareButton = ({
   const isConnected = !!integration;
 
   const openPicker = useCallback(() => {
-    openModal({ type: LazyModal.SlackShare, props: { post, origin } });
-  }, [openModal, post, origin]);
+    openModal({
+      type: LazyModal.SlackShare,
+      props: { post, origin, placement },
+    });
+  }, [openModal, post, origin, placement]);
 
   const onClick = useCallback(() => {
     if (isLoading) {
@@ -65,6 +71,7 @@ export const useSlackShareButton = ({
       postLogEvent(LogEvent.StartShareToSlack, post, {
         extra: {
           origin,
+          placement,
           has_integration: !!integration,
           can_post_as_user: canPostAsUser,
         },
@@ -80,7 +87,7 @@ export const useSlackShareButton = ({
     logEvent({
       event_name: LogEvent.StartAddingWorkspace,
       target_id: UserIntegrationType.Slack,
-      extra: JSON.stringify({ origin, reason: 'share' }),
+      extra: JSON.stringify({ origin, placement, reason: 'share' }),
     });
 
     connect(getSlackShareRedirectPath(post));
@@ -91,6 +98,7 @@ export const useSlackShareButton = ({
     openPicker,
     logEvent,
     origin,
+    placement,
     connect,
     post,
   ]);

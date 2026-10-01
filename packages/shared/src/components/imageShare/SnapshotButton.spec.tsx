@@ -8,6 +8,7 @@ import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { featureSnapshotShareOptions } from '../../lib/featureManagement';
 import { LogEvent, Origin } from '../../lib/log';
+import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import { SnapshotButton } from './SnapshotButton';
 
 jest.mock('../../lib/imageShare/captureShareImage', () => ({
@@ -23,10 +24,17 @@ jest.mock('../../hooks/integrations/slack/useSlackShare', () => ({
 const logEvent = jest.fn();
 const onResult = jest.fn();
 
+const client = new QueryClient();
+
 const renderButton = ({
   shareOptions = true,
   isLoggedIn = true,
-}: { shareOptions?: boolean; isLoggedIn?: boolean } = {}) => {
+  withPost = true,
+}: {
+  shareOptions?: boolean;
+  isLoggedIn?: boolean;
+  withPost?: boolean;
+} = {}) => {
   const gb = new GrowthBook();
   gb.setFeatures({
     [featureSnapshotShareOptions.id]: { defaultValue: shareOptions },
@@ -35,13 +43,13 @@ const renderButton = ({
   return render(
     <TestBootProvider
       auth={{ isLoggedIn }}
-      client={new QueryClient()}
+      client={client}
       gb={gb}
       log={{ logEvent }}
     >
       <SnapshotButton
         origin={Origin.PostSummary}
-        post={post}
+        post={withPost ? post : undefined}
         onResult={onResult}
         target={createRef<HTMLDivElement>()}
       />
@@ -49,10 +57,19 @@ const renderButton = ({
   );
 };
 
+const expectToastOnly = async () => {
+  await waitFor(() => expect(onResult).toHaveBeenCalledWith('clipboard'));
+  expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
+    message: 'Image copied',
+  });
+  expect(screen.queryByText('Copied')).not.toBeInTheDocument();
+};
+
 const press = () => fireEvent.click(screen.getByLabelText('Snapshot'));
 
 beforeEach(() => {
   jest.clearAllMocks();
+  client.clear();
   URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
   URL.revokeObjectURL = jest.fn();
   jest
@@ -93,7 +110,19 @@ describe('SnapshotButton share options', () => {
 
     press();
 
-    await waitFor(() => expect(onResult).toHaveBeenCalledWith('clipboard'));
-    expect(screen.queryByText('Copied')).not.toBeInTheDocument();
+    await expectToastOnly();
+  });
+
+  it('keeps today’s behaviour for a snapshot without a post', async () => {
+    renderButton({ withPost: false });
+
+    press();
+
+    await expectToastOnly();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.OpenSnapshotSharePanel,
+      }),
+    );
   });
 });

@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
 import { Drawer } from '../drawers/Drawer';
+import type { IconType } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { IconProps } from '../Icon';
@@ -21,6 +22,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
+import { useOpenShareLink } from '../../hooks/useOpenShareLink';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
@@ -28,7 +30,7 @@ import { useSlackShareButton } from '../../hooks/integrations/slack/useSlackShar
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
-import { getShareLink, ShareProvider } from '../../lib/share';
+import { ShareProvider } from '../../lib/share';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import {
   getShareableImageFile,
@@ -39,10 +41,9 @@ export interface SnapshotSharePanelProps {
   anchorRef: RefObject<HTMLElement>;
   image: Blob;
   filename: string;
-  /** Without a post there is nothing to link to or send to Slack. */
-  post?: Post;
-  /** The placement the snapshot was taken from. */
-  origin?: Origin;
+  post: Post;
+  /** The snapshot placement the panel opened from. */
+  placement?: Origin;
   onClose: () => void;
 }
 
@@ -56,30 +57,63 @@ const socials: {
   { provider: ShareProvider.WhatsApp, label: 'WhatsApp', Icon: WhatsappIcon },
 ];
 
-const tileProps = {
-  type: 'button' as const,
-  size: ButtonSize.Small,
-  variant: ButtonVariant.Float,
-};
+/**
+ * Icon-only with a tooltip on larger screens. Tooltips never open on touch, so
+ * the drawer captions each tile instead.
+ */
+function ShareTile({
+  label,
+  icon,
+  isDrawer,
+  onClick,
+}: {
+  label: string;
+  icon: IconType;
+  isDrawer: boolean;
+  onClick: () => void;
+}): ReactElement {
+  const button = (
+    <Button
+      type="button"
+      aria-label={label}
+      icon={icon}
+      size={isDrawer ? ButtonSize.Medium : ButtonSize.Small}
+      variant={ButtonVariant.Float}
+      onClick={onClick}
+    />
+  );
+
+  if (!isDrawer) {
+    return <Tooltip content={label}>{button}</Tooltip>;
+  }
+
+  return (
+    <span className="flex flex-1 flex-col items-center gap-1">
+      {button}
+      <span aria-hidden className="text-text-tertiary typo-caption2">
+        {label}
+      </span>
+    </span>
+  );
+}
 
 function SnapshotSlackRow({
   post,
+  placement,
   isDrawer,
   onStart,
 }: {
   post: Post;
+  placement?: Origin;
   isDrawer: boolean;
   onStart: () => void;
-}): ReactElement | null {
+}): ReactElement {
   const { integration, isLoading } = useSlackShare();
   const { onClick } = useSlackShareButton({
     post,
     origin: Origin.SnapshotSharePanel,
+    placement,
   });
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <div className="flex flex-col gap-3 rounded-14 bg-surface-float p-3">
@@ -92,7 +126,7 @@ function SnapshotSlackRow({
           <span className="text-text-tertiary typo-footnote">
             {integration
               ? 'Share the post to a Slack channel.'
-              : 'Connect once, then one tap per share.'}
+              : 'Connect once, then pick a channel.'}
           </span>
         </span>
       </div>
@@ -102,6 +136,8 @@ function SnapshotSlackRow({
         size={isDrawer ? ButtonSize.Medium : ButtonSize.Small}
         variant={ButtonVariant.Primary}
         icon={<SlackIcon />}
+        loading={isLoading}
+        disabled={isLoading}
         onClick={() => {
           onStart();
           onClick();
@@ -117,7 +153,7 @@ function SnapshotShareContent({
   image,
   filename,
   post,
-  origin,
+  placement,
   isDrawer,
   onClose,
 }: Omit<SnapshotSharePanelProps, 'anchorRef'> & {
@@ -125,14 +161,16 @@ function SnapshotShareContent({
 }): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { getShortUrl, getTrackedUrl } = useGetShortUrl();
+  const { getTrackedUrl } = useGetShortUrl();
+  const openShare = useOpenShareLink();
   const [linkCopied, copyLink] = useCopyLink();
   const [thumbnail, setThumbnail] = useState<string>();
   const file = useMemo(
     () => getShareableImageFile(image, filename),
     [image, filename],
   );
-  const link = post?.commentsPermalink;
+  const link = post.commentsPermalink;
+  const iconSize = isDrawer ? IconSize.Small : IconSize.Size16;
 
   useEffect(() => {
     const url = URL.createObjectURL(image);
@@ -142,31 +180,21 @@ function SnapshotShareContent({
   }, [image]);
 
   const logShare = useCallback(
-    (provider: ShareProvider, extra?: Record<string, unknown>) => {
-      const attribution = {
-        provider,
-        origin: Origin.SnapshotSharePanel,
-        placement: origin,
-        ...extra,
-      };
-
+    (provider: ShareProvider, extra?: Record<string, unknown>) =>
       logEvent(
-        post
-          ? postLogEvent(LogEvent.SharePost, post, { extra: attribution })
-          : {
-              event_name: LogEvent.SharePost,
-              extra: JSON.stringify(attribution),
-            },
-      );
-    },
-    [logEvent, origin, post],
+        postLogEvent(LogEvent.SharePost, post, {
+          extra: {
+            provider,
+            origin: Origin.SnapshotSharePanel,
+            placement,
+            ...extra,
+          },
+        }),
+      ),
+    [logEvent, placement, post],
   );
 
   const onCopyLink = () => {
-    if (!link) {
-      return;
-    }
-
     logShare(ShareProvider.CopyLink);
     copyLink({
       link,
@@ -177,16 +205,13 @@ function SnapshotShareContent({
   };
 
   const onSocial = async (provider: ShareProvider) => {
-    if (!link) {
-      return;
-    }
-
     logShare(provider);
-    const shortLink = await getShortUrl(link, ReferralCampaignKey.SharePost);
-    window.open(
-      getShareLink({ provider, link: shortLink, text: post?.title ?? '' }),
-      '_blank',
-    );
+    await openShare({
+      provider,
+      link,
+      text: post.title,
+      cid: ReferralCampaignKey.SharePost,
+    });
   };
 
   const onSave = () => {
@@ -200,11 +225,15 @@ function SnapshotShareContent({
     }
 
     logShare(ShareProvider.Native);
-    shareImageFile(
-      file,
-      link ? getTrackedUrl(link, ReferralCampaignKey.SharePost) : undefined,
-    );
+    shareImageFile(file, getTrackedUrl(link, ReferralCampaignKey.SharePost));
   };
+
+  const copyLinkIcon = linkCopied ? (
+    <VIcon size={iconSize} />
+  ) : (
+    <LinkIcon size={iconSize} />
+  );
+  const copyLinkLabel = linkCopied ? 'Copied' : 'Copy link';
 
   return (
     <div className="flex flex-col gap-3">
@@ -223,8 +252,13 @@ function SnapshotShareContent({
           </span>
         </span>
       </div>
-      {isLoggedIn && post && (
-        <SnapshotSlackRow isDrawer={isDrawer} onStart={onClose} post={post} />
+      {isLoggedIn && (
+        <SnapshotSlackRow
+          isDrawer={isDrawer}
+          onStart={onClose}
+          placement={placement}
+          post={post}
+        />
       )}
       {isDrawer && file && (
         <Button
@@ -238,51 +272,48 @@ function SnapshotShareContent({
           Share to apps
         </Button>
       )}
-      <div className="flex items-center gap-1">
-        {link && (
+      <div className="flex items-start gap-1">
+        {isDrawer ? (
+          <ShareTile
+            isDrawer
+            icon={copyLinkIcon}
+            label={copyLinkLabel}
+            onClick={onCopyLink}
+          />
+        ) : (
           <Button
-            {...tileProps}
+            type="button"
             className="min-w-0 flex-1"
-            icon={
-              linkCopied ? (
-                <VIcon size={IconSize.Size16} />
-              ) : (
-                <LinkIcon size={IconSize.Size16} />
-              )
-            }
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            icon={copyLinkIcon}
             onClick={onCopyLink}
           >
-            {linkCopied ? 'Copied' : 'Copy link'}
+            {copyLinkLabel}
           </Button>
         )}
-        {link &&
-          socials.map(({ provider, label, Icon }) => (
-            <Tooltip key={provider} content={label}>
-              <Button
-                {...tileProps}
-                aria-label={label}
-                icon={<Icon size={IconSize.Size16} />}
-                onClick={() => onSocial(provider)}
-              />
-            </Tooltip>
-          ))}
-        <Tooltip content="Save image">
-          <Button
-            {...tileProps}
-            aria-label="Save image"
-            icon={<DownloadIcon size={IconSize.Size16} />}
-            onClick={onSave}
+        {socials.map(({ provider, label, Icon }) => (
+          <ShareTile
+            key={provider}
+            icon={<Icon size={iconSize} />}
+            isDrawer={isDrawer}
+            label={label}
+            onClick={() => onSocial(provider)}
           />
-        </Tooltip>
+        ))}
+        <ShareTile
+          icon={<DownloadIcon size={iconSize} />}
+          isDrawer={isDrawer}
+          label="Save image"
+          onClick={onSave}
+        />
         {!isDrawer && file && (
-          <Tooltip content="More">
-            <Button
-              {...tileProps}
-              aria-label="More"
-              icon={<MenuIcon size={IconSize.Size16} className="rotate-90" />}
-              onClick={onNativeShare}
-            />
-          </Tooltip>
+          <ShareTile
+            icon={<MenuIcon size={iconSize} className="rotate-90" />}
+            isDrawer={false}
+            label="More"
+            onClick={onNativeShare}
+          />
         )}
       </div>
     </div>
@@ -299,18 +330,13 @@ export function SnapshotSharePanel({
   ...props
 }: SnapshotSharePanelProps): ReactElement {
   const isDrawer = useViewSize(ViewSize.MobileL);
-  const { post, origin } = props;
+  const { post, placement } = props;
 
-  useLogEventOnce(() => {
-    const extra = { origin };
-
-    return post
-      ? postLogEvent(LogEvent.OpenSnapshotSharePanel, post, { extra })
-      : {
-          event_name: LogEvent.OpenSnapshotSharePanel,
-          extra: JSON.stringify(extra),
-        };
-  });
+  useLogEventOnce(() =>
+    postLogEvent(LogEvent.OpenSnapshotSharePanel, post, {
+      extra: { placement },
+    }),
+  );
 
   const content = (
     <SnapshotShareContent {...props} isDrawer={isDrawer} onClose={onClose} />

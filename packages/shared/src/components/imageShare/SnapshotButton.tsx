@@ -78,11 +78,12 @@ export function SnapshotButton({
   const [copiedImage, setCopiedImage] = useState<Blob>();
   const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const { value: hasShareOptions } = useConditionalFeature({
-    feature: featureSnapshotShareOptions,
-    shouldEvaluate: !!copiedImage,
-  });
-  const isPanelOpen = !!copiedImage && hasShareOptions;
+  const { value: hasShareOptions, isLoading: isShareOptionsLoading } =
+    useConditionalFeature({
+      feature: featureSnapshotShareOptions,
+      shouldEvaluate: !!post,
+    });
+  const opensSharePanel = !!post && hasShareOptions && !isShareOptionsLoading;
 
   useEffect(
     () => () => {
@@ -92,17 +93,6 @@ export function SnapshotButton({
     },
     [],
   );
-
-  // The flag is only evaluated once there is an image to share, so the
-  // confirmation waits for it: the panel says Copied, otherwise a toast does.
-  useEffect(() => {
-    if (!copiedImage || hasShareOptions) {
-      return;
-    }
-
-    displayToast('Image copied', { variant: ToastType.Success });
-    setCopiedImage(undefined);
-  }, [copiedImage, displayToast, hasShareOptions]);
 
   const onSnapshot = useCallback(
     async (event: React.MouseEvent) => {
@@ -137,7 +127,11 @@ export function SnapshotButton({
         // the whole payload: a link pasted beside it lands as a second line of
         // text in the composer, which is not what a snapshot is for.
         if (await copyShareImage(capture)) {
-          setCopiedImage(await capture);
+          if (opensSharePanel) {
+            setCopiedImage(await capture);
+          } else {
+            displayToast('Image copied', { variant: ToastType.Success });
+          }
           onResult?.('clipboard');
           return;
         }
@@ -161,6 +155,7 @@ export function SnapshotButton({
       isCapturing,
       onCapture,
       onResult,
+      opensSharePanel,
       target,
     ],
   );
@@ -188,12 +183,12 @@ export function SnapshotButton({
           {showLabel ? label : undefined}
         </Button>
       </Tooltip>
-      {isPanelOpen && (
+      {copiedImage && post && (
         <SnapshotSharePanel
           anchorRef={buttonRef}
           filename={filename}
           image={copiedImage}
-          origin={origin}
+          placement={origin}
           post={post}
           onClose={() => setCopiedImage(undefined)}
         />

@@ -15,7 +15,8 @@ import {
 } from '../../icons';
 import { useCopyPostLink } from '../../../hooks/useCopyPostLink';
 import { useGetShortUrl } from '../../../hooks';
-import { getShareLink, ShareProvider } from '../../../lib/share';
+import { ShareProvider } from '../../../lib/share';
+import { useOpenShareLink } from '../../../hooks/useOpenShareLink';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { postLogEvent } from '../../../lib/feed';
@@ -55,6 +56,7 @@ export const DiscussionShareRow = ({
   const href = post.commentsPermalink;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
+  const openShare = useOpenShareLink();
   const [copying, copyLink] = useCopyPostLink();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
@@ -89,13 +91,7 @@ export const DiscussionShareRow = ({
 
   const onShare = async (provider: ShareProvider) => {
     logShareEvent(provider);
-    const shortLink = await getShortUrl(href, cid);
-    const shareLink = getShareLink({
-      provider,
-      link: shortLink,
-      text: post?.title,
-    });
-    globalThis.window?.open(shareLink, '_blank');
+    await openShare({ provider, link: href, text: post?.title, cid });
   };
 
   const onCopy = async () => {
