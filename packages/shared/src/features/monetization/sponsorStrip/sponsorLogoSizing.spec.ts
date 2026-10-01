@@ -1,4 +1,7 @@
 import {
+  NARROW_SLOT_GAP,
+  NARROW_SLOT_GAP_MAX,
+  NARROW_WALL_WIDTH,
   SLOT_GAP,
   SLOT_GAP_MAX,
   WALL_HEIGHT,
@@ -70,6 +73,16 @@ describe('wallGap', () => {
     );
   });
 
+  it('should never round the row past the width it measured', () => {
+    // Eleven marks of 45 in a fractional 1000.4: the spread is 50.54, and
+    // rounding it up would make the row 1005 and clip the last mark.
+    const widths = Array(11).fill(45);
+    const gap = wallGap(1000.4, widths, SLOT_GAP, SLOT_GAP_MAX);
+
+    expect(gap).toEqual(50);
+    expect(45 * 11 + gap * 10).toBeLessThanOrEqual(1000.4);
+  });
+
   it('should hold a lone mark at the minimum', () => {
     expect(wallGap(1000, [60], SLOT_GAP, SLOT_GAP_MAX)).toEqual(SLOT_GAP);
     expect(wallGap(1000, [], SLOT_GAP, SLOT_GAP_MAX)).toEqual(SLOT_GAP);
@@ -77,6 +90,17 @@ describe('wallGap', () => {
 });
 
 describe('wallGapRange', () => {
+  it('should keep a tablet wall at the pair that holds its marks', () => {
+    expect(wallGapRange(NARROW_WALL_WIDTH - 1)).toEqual({
+      min: NARROW_SLOT_GAP,
+      max: NARROW_SLOT_GAP_MAX,
+    });
+    expect(wallGapRange(NARROW_WALL_WIDTH)).toEqual({
+      min: SLOT_GAP,
+      max: SLOT_GAP_MAX,
+    });
+  });
+
   it('should open the gap once the wall has room for a wide row', () => {
     expect(wallGapRange(WIDE_WALL_WIDTH - 1)).toEqual({
       min: SLOT_GAP,

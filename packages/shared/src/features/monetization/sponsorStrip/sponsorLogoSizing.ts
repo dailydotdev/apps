@@ -30,20 +30,39 @@ export const WIDE_SLOT_GAP = 64;
 export const WIDE_SLOT_GAP_MAX = 80;
 
 /**
- * The wall's own width at the desktopL breakpoint (2156px) with the rail
- * collapsed and a lead mark in place. Read off the measured wall rather
- * than the viewport: the rail's state and the lead's width both change how
- * much room the row has, and the measurement arrives in the same layout
- * effect as the fit, so no mark is ever mounted against one gap and
- * dropped against another.
+ * Below laptop the wall is a few hundred pixels and holds three to five
+ * marks; a 48px floor would cost one of them at every tablet width. This
+ * pair keeps the tablet count where it is today (gaps there already sit at
+ * 25-36px) and only stops the leftover from being spread.
  */
+export const NARROW_SLOT_GAP = 24;
+export const NARROW_SLOT_GAP_MAX = 40;
+
+/**
+ * The wall's own width at two breakpoints, with the rail collapsed and a
+ * lead mark in place: laptop (1020px) and desktopL (2156px). Read off the
+ * measured wall rather than the viewport: the rail's state and the lead's
+ * width both change how much room the row has, and the measurement
+ * arrives in the same layout effect as the fit, so no mark is ever mounted
+ * against one gap and dropped against another.
+ */
+export const NARROW_WALL_WIDTH = 660;
 export const WIDE_WALL_WIDTH = 1800;
 
 /** The gap pair the row fits with, for the room it measured. */
-export const wallGapRange = (available: number): { min: number; max: number } =>
-  available >= WIDE_WALL_WIDTH
-    ? { min: WIDE_SLOT_GAP, max: WIDE_SLOT_GAP_MAX }
-    : { min: SLOT_GAP, max: SLOT_GAP_MAX };
+export const wallGapRange = (
+  available: number,
+): { min: number; max: number } => {
+  if (available >= WIDE_WALL_WIDTH) {
+    return { min: WIDE_SLOT_GAP, max: WIDE_SLOT_GAP_MAX };
+  }
+
+  if (available >= NARROW_WALL_WIDTH) {
+    return { min: SLOT_GAP, max: SLOT_GAP_MAX };
+  }
+
+  return { min: NARROW_SLOT_GAP, max: NARROW_SLOT_GAP_MAX };
+};
 
 /** Fallback until the logo's intrinsic dimensions have loaded. */
 export const REFERENCE_RATIO = 3.5;
@@ -80,6 +99,10 @@ export const fittedSlotCount = (
  * The gap the fitted marks actually get: the row's spare width shared
  * between them, held between the minimum they were fitted with and the
  * maximum past which the marks would float apart.
+ *
+ * Floored, never rounded: `available` is a fractional rect width, and
+ * rounding a .5 up would push the row past it and clip the last mark,
+ * whose impression would already have been logged.
  */
 export const wallGap = (
   available: number,
@@ -94,5 +117,5 @@ export const wallGap = (
   const ink = widths.reduce((sum, width) => sum + width, 0);
   const spread = (available - ink) / (widths.length - 1);
 
-  return Math.round(Math.min(max, Math.max(min, spread)));
+  return Math.floor(Math.min(max, Math.max(min, spread)));
 };

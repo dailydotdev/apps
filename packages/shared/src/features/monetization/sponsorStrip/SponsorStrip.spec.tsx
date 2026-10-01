@@ -12,6 +12,7 @@ import { SponsorStrip } from './SponsorStrip';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
 import {
+  NARROW_SLOT_GAP,
   SLOT_GAP,
   WALL_MAX_WIDTH,
   WIDE_SLOT_GAP_MAX,
@@ -166,10 +167,12 @@ const setHeadlines = (next: StatuslineItem[]) => {
 const publishedHeight = (): string =>
   document.documentElement.style.getPropertyValue('--sponsor-strip-height');
 
-// Fewer slots than the four premium marks the deck holds.
+// Fewer slots than the four premium marks the deck holds. A wall this
+// narrow is fitted with the tablet pair, whose minimum is NARROW_SLOT_GAP.
 const NARROW_WALL_SLOTS = 2;
 const NARROW_WALL_WIDTH =
-  WALL_MAX_WIDTH * NARROW_WALL_SLOTS + SLOT_GAP * (NARROW_WALL_SLOTS - 1);
+  WALL_MAX_WIDTH * NARROW_WALL_SLOTS +
+  NARROW_SLOT_GAP * (NARROW_WALL_SLOTS - 1);
 
 const setWallWidth = (width: number) =>
   jest
@@ -616,8 +619,9 @@ it('should open the gap to a wide row\u2019s pair without re-fitting after mount
 
 it('should fit measured logos on a row narrower than the maximum logo width', async () => {
   const images = mockLogoImages();
-  // Two square marks and the gap between them, inside one maximum width.
-  setWallWidth(16 * 2 + SLOT_GAP);
+  // Two square marks and the tablet gap between them, inside one maximum
+  // width (a wall this narrow is fitted with the narrow pair).
+  setWallWidth(16 * 2 + NARROW_SLOT_GAP);
   renderStrip();
   await settle();
 
