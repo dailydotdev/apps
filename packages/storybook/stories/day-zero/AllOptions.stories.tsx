@@ -30,10 +30,18 @@ import { NotifMessage } from '@dailydotdev/shared/src/components/notifications/u
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import { TagElement } from '@dailydotdev/shared/src/components/tags/TagElement';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
-import { pageBorders } from '@dailydotdev/shared/src/components/utilities/common';
+import {
+  Justify,
+  pageBorders,
+} from '@dailydotdev/shared/src/components/utilities/common';
 import { GetAppQrCode } from '@dailydotdev/shared/src/features/getApp/components/GetAppQrCode';
 import { CommentMarkdownInput } from '@dailydotdev/shared/src/components/fields/MarkdownInput/CommentMarkdownInput';
-import { PushNotificationsContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import {
+  PushNotificationsContext,
+  usePushNotificationContext,
+} from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
 import {
   briefButtonBg,
   briefCardBg,
@@ -41,7 +49,11 @@ import {
 } from '@dailydotdev/shared/src/styles/custom';
 import { ExtensionProviders } from '../extension/_providers';
 import { post, WriteComment } from '../components/comments/composer.mocks';
-import { cardHandlers, feedPosts } from '../features/feed/feedHero.mocks';
+import {
+  cardHandlers,
+  feedPosts,
+  heroPosts,
+} from '../features/feed/feedHero.mocks';
 
 const meta: Meta = {
   title: 'Day Zero Retention/All options',
@@ -100,7 +112,7 @@ const ToastPreview = ({
     <NotifMessage>{message}</NotifMessage>
     <Button
       type="button"
-      variant={ButtonVariant.Subtle}
+      variant={ButtonVariant.Primary}
       size={ButtonSize.XSmall}
       className="shrink-0"
     >
@@ -343,6 +355,76 @@ const SealedBriefing = (): ReactElement => (
   </div>
 );
 
+const digestTimes = ['07:30', '08:00', '09:00'];
+
+// PushNotificationModal's layout, with the digest's own promise.
+const DigestPushModal = ({
+  time,
+  onClose,
+}: {
+  time: string;
+  onClose: () => void;
+}): ReactElement => {
+  const { subscribe } = usePushNotificationContext();
+
+  return (
+    <Modal
+      isOpen
+      onRequestClose={onClose}
+      kind={Modal.Kind.FlexibleTop}
+      size={Modal.Size.Medium}
+      isDrawerOnMobile
+    >
+      <Modal.Header />
+      <Modal.Body className="items-center gap-2 px-4 pb-8 pt-3">
+        <span className="mb-4 flex size-16 items-center justify-center rounded-full bg-surface-float">
+          <BellIcon size={IconSize.XLarge} />
+        </span>
+        <Modal.Title className="!typo-large-title tablet:typo-title1">
+          Get it at {time}
+        </Modal.Title>
+        <Modal.Text className="text-center typo-body tablet:typo-callout">
+          Turn on notifications and your first digest lands Monday at {time}.
+        </Modal.Text>
+      </Modal.Body>
+      <Modal.Footer justify={Justify.Center}>
+        <Button
+          variant={ButtonVariant.Primary}
+          onClick={async () => {
+            await subscribe(NotificationPromptSource.NotificationsPage);
+            onClose();
+          }}
+        >
+          Enable notifications
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
+
+const DigestTimes = (): ReactElement => {
+  const [time, setTime] = useState<string>();
+
+  return (
+    <div className="flex gap-2">
+      {digestTimes.map((digestTime) => (
+        <Button
+          key={digestTime}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Float}
+          className="flex-1"
+          onClick={() => setTime(digestTime)}
+        >
+          {digestTime}
+        </Button>
+      ))}
+      {time && (
+        <DigestPushModal time={time} onClose={() => setTime(undefined)} />
+      )}
+    </div>
+  );
+};
+
 // The notifications page frame and header from NotificationsFeed, with the
 // empty day-0 inbox replaced by an in-page promise.
 const InboxEmptyState = (): ReactElement => (
@@ -452,7 +534,7 @@ const PostPhoneWidget = ({
   title,
   body,
 }: {
-  title: string;
+  title: ReactNode;
   body: string;
 }): ReactElement => (
   <WidgetContainer className="flex w-full flex-col items-center gap-2 p-3 text-center">
@@ -594,7 +676,7 @@ const asks: {
               title="Three reads today"
               subtitle="Keep it going from every new tab."
             >
-              <AddToChrome className="w-full" />
+              <AddToChrome className="w-fit" />
             </FeedCard>
           </FeedFrame>
         ),
@@ -767,7 +849,13 @@ const asks: {
             </PostFrame>
             <PostFrame label="After 22:00">
               <PostPhoneWidget
-                title="Late one? Finish it in bed"
+                title={
+                  <>
+                    Late one?
+                    <br />
+                    Finish it in bed
+                  </>
+                }
                 body="Scan to pick up this post in the app."
               />
             </PostFrame>
@@ -814,30 +902,16 @@ const asks: {
           note: 'Nothing ships at the top of the first feed on day 0. From day 1 the reading reminder banner takes this slot, so keep the card to day 0. It shares the first screen with 7 and 9, so pick which one leads.',
         },
         tldr: 'The first feed tells them when the first digest arrives.',
-        where: 'The first feed, day 0.',
+        where:
+          'The first feed, day 0. Picking an hour opens the notifications modal.',
         why: 'Only 21% open the first digest. A date makes it expected.',
         ui: () => (
           <FeedFrame position="top">
             <FeedCard
-              title="Your first digest · Monday 08:00"
-              subtitle="Five picks from React, TypeScript and Node."
+              title="Your first digest arrives Monday"
+              subtitle="Five picks from React, TypeScript and Node. Pick when it lands."
             >
-              <div className="flex gap-2">
-                {['07:30', '08:00', '09:00'].map((time) => (
-                  <Button
-                    key={time}
-                    size={ButtonSize.Small}
-                    variant={
-                      time === '08:00'
-                        ? ButtonVariant.Primary
-                        : ButtonVariant.Float
-                    }
-                    className="flex-1"
-                  >
-                    {time}
-                  </Button>
-                ))}
-              </div>
+              <DigestTimes />
             </FeedCard>
           </FeedFrame>
         ),
@@ -849,15 +923,27 @@ const asks: {
         why: 'Half of web signups land on an article and never see a feed.',
         ui: () => (
           <Phone>
-            <div className="flex h-[24rem] flex-col justify-end bg-overlay-quaternary-onion">
-              <div className="flex flex-col rounded-t-16 bg-background-default">
+            <div className="relative flex h-[30rem] flex-col justify-end">
+              <div className="absolute inset-0 flex flex-col gap-3 p-4">
+                <span className="text-text-tertiary typo-footnote">
+                  {heroPosts[1].source?.name}
+                </span>
+                <h4 className="font-bold typo-title2">{heroPosts[1].title}</h4>
+                <img
+                  src={heroPosts[1].image}
+                  alt=""
+                  className="h-32 w-full rounded-12 object-cover"
+                />
+              </div>
+              <div className="absolute inset-0 bg-overlay-quaternary-onion" />
+              <div className="relative flex flex-col rounded-t-16 bg-background-default">
                 <div className="flex flex-row items-center border-b border-border-subtlest-tertiary p-4 font-bold typo-title3">
                   Your feed, from this post
                 </div>
                 <div className="flex w-full flex-col gap-4 px-4 py-3">
                   <TagRow
-                    names={['postgresql', 'database', 'backend', 'sql']}
-                    selected={['postgresql', 'database']}
+                    names={heroPosts[1].tags ?? []}
+                    selected={heroPosts[1].tags ?? []}
                   />
                   <Button variant={ButtonVariant.Primary} className="w-full">
                     Show my feed

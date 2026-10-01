@@ -17,7 +17,6 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
-import { GooglePlayIcon } from '@dailydotdev/shared/src/components/icons/GooglePlay';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import {
   Typography,
@@ -40,10 +39,15 @@ import { FunnelTargetId } from '@dailydotdev/shared/src/features/onboarding/type
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
 import {
+  appStoreUrl,
+  playStoreUrl,
+} from '@dailydotdev/shared/src/lib/constants';
+import {
   FEED_PREVIEW_HANDLER,
   FEED_SETTINGS_HANDLERS,
   FunnelStepShell,
 } from '../components/onboarding/signupFunnel.mocks';
+import { MailboxIllustration } from './MailboxIllustration';
 
 // The onboarding steps whose screen changes, each mounted on the real funnel
 // step or built from the funnel's own step wrapper, and shown on the overview
@@ -282,24 +286,66 @@ const ComposedStep = ({
   </FunnelStepCtaWrapper>
 );
 
+const GooglePlayMark = (): ReactElement => (
+  <svg viewBox="0 0 28 30" className="h-6 w-6" aria-hidden>
+    <path
+      d="M1.3.9 15.6 15 1.3 29.1C.9 28.7.7 28.1.7 27.4V2.6c0-.7.2-1.3.6-1.7Z"
+      fill="#4285F4"
+    />
+    <path
+      d="M20.4 19.8 15.6 15 1.3 29.1c.6.6 1.5.7 2.6.1l16.5-9.4Z"
+      fill="#EA4335"
+    />
+    <path
+      d="M20.4 10.2 3.9.8C2.8.2 1.9.3 1.3.9L15.6 15l4.8-4.8Z"
+      fill="#34A853"
+    />
+    <path
+      d="m20.4 10.2-4.8 4.8 4.8 4.8 4.9-2.8c1.7-1 1.7-3 0-4l-4.9-2.8Z"
+      fill="#FBBC04"
+    />
+  </svg>
+);
+
+const storeBadges = [
+  {
+    id: 'ios',
+    href: appStoreUrl,
+    caption: 'Download on the',
+    store: 'App Store',
+    mark: <AppleIcon size={IconSize.Medium} className="text-white" />,
+  },
+  {
+    id: 'android',
+    href: playStoreUrl,
+    caption: 'GET IT ON',
+    store: 'Google Play',
+    mark: <GooglePlayMark />,
+  },
+];
+
+// The stores' own badges: black, a grey hairline, the store mark and its
+// two-line wordmark.
 const StoreButtons = (): ReactElement => (
-  <div className="flex w-full max-w-[20rem] gap-2">
-    <Button
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Medium}
-      className="flex-1"
-      icon={<AppleIcon size={IconSize.XSmall} />}
-    >
-      App Store
-    </Button>
-    <Button
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Medium}
-      className="flex-1"
-      icon={<GooglePlayIcon size={IconSize.Size16} />}
-    >
-      Google Play
-    </Button>
+  <div className="flex gap-3">
+    {storeBadges.map((badge) => (
+      <a
+        key={badge.id}
+        href={badge.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex h-12 items-center gap-2 rounded-10 border bg-black pl-3 pr-4 text-white no-underline"
+        style={{ borderColor: '#A6A6A6' }}
+      >
+        {badge.mark}
+        <span className="flex flex-col items-start gap-0.5 leading-none">
+          <span className="text-[0.625rem]">{badge.caption}</span>
+          <span className="text-[1.25rem] font-bold tracking-tight">
+            {badge.store}
+          </span>
+        </span>
+      </a>
+    ))}
   </div>
 );
 
@@ -313,7 +359,9 @@ const CompanyInterestStep = (): ReactElement => {
       cta="Notify me"
       skip="Not now"
       onCta={() => subscribe(NotificationPromptSource.NotificationsPage)}
-    />
+    >
+      <MailboxIllustration className="mt-2 w-72" />
+    </ComposedStep>
   );
 };
 
