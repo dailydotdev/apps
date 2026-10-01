@@ -47,7 +47,6 @@ import {
   FunnelStepShell,
 } from '../components/onboarding/signupFunnel.mocks';
 import { LiveFrame } from './LiveFrame';
-import { MailboxIllustration } from './MailboxIllustration';
 
 // The onboarding steps whose screen changes, each mounted on the real funnel
 // step or built from the funnel's own step wrapper, and shown on the overview
@@ -329,7 +328,11 @@ const CompanyInterestStep = (): ReactElement => {
       skip="Not now"
       onCta={() => subscribe(NotificationPromptSource.NotificationsPage)}
     >
-      <MailboxIllustration className="mt-2 w-72" />
+      <img
+        src="/images/day-zero-mailbox.webp"
+        alt="A mailbox with its flag raised"
+        className="mt-2 w-80"
+      />
     </ComposedStep>
   );
 };
