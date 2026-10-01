@@ -5,6 +5,7 @@ import { useStripHeadlines } from './useStripHeadlines';
 interface UseSponsorStripFeedProps {
   feedName?: string;
   disableAds?: boolean;
+  suppressed?: boolean;
 }
 
 interface UseSponsorStripFeed {
@@ -26,8 +27,9 @@ interface UseSponsorStripFeed {
 export const useSponsorStripFeed = ({
   feedName,
   disableAds,
+  suppressed,
 }: UseSponsorStripFeedProps): UseSponsorStripFeed => {
-  const isEnabled = useSponsorStrip({ feedName, disableAds });
+  const isEnabled = useSponsorStrip({ feedName, disableAds, suppressed });
   const { headlines, isSettled } = useStripHeadlines(isEnabled);
 
   return {
