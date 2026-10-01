@@ -156,6 +156,8 @@ export function SquadDetails({
   return (
     <FormWrapper
       form="squad-form"
+      inBlock={isMobile}
+      title={isMobile ? 'New squad' : undefined}
       isHeaderTitle={!isMobile}
       className={{
         container: 'flex flex-1 flex-col',

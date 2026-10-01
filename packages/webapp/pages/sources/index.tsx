@@ -21,6 +21,7 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
@@ -84,6 +85,7 @@ const SourcesPage = ({
   const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useViewSize(ViewSize.MobileL);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
 
@@ -134,11 +136,21 @@ const SourcesPage = ({
             }}
           />
         </Head>
-        <ShellPage title="Sources" />
+        <ShellPage
+          title="Sources"
+          actions={
+            <ShellSquare
+              aria-label="Suggest new source"
+              onClick={() => openModal({ type: LazyModal.NewSource })}
+            >
+              <PlusIcon size={IconSize.Small} />
+            </ShellSquare>
+          }
+        />
         <ExploreSignupStrip className="mb-6" />
-        {!isV2Laptop && (
-          <div className="flex justify-end tablet:justify-between">
-            <BreadCrumbs className="hidden tablet:flex">
+        {!isV2Laptop && !isPhone && (
+          <div className="flex justify-between">
+            <BreadCrumbs>
               <SitesIcon size={IconSize.XSmall} secondary /> Sources
             </BreadCrumbs>
             {suggestSourceButton}

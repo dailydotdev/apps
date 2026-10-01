@@ -8,6 +8,12 @@ import { ArchivePeriodType, ArchiveScopeType } from '../../graphql/archive';
 import { LogEvent, Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 
+// The copy link sits in the phone block, which this render has no slot for.
+jest.mock('../../hooks/useViewSize', () => ({
+  ...jest.requireActual('../../hooks/useViewSize'),
+  useViewSize: () => false,
+}));
+
 it('logs a copy link on a monthly best-of page as an archive share', () => {
   const logEvent = jest.fn();
   Object.assign(navigator, {

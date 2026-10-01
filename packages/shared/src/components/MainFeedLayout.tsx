@@ -912,6 +912,9 @@ export default function MainFeedLayout({
         )}
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
+        {isExploreTag && isPhone && (
+          <ShellPage title={`#${router.query?.tag ?? ''}`} />
+        )}
         {isSearchOn && !isSearchPageLaptop && isPhone && (
           <ShellPage
             title={searchQuery || 'Search'}
