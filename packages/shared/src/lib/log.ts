@@ -534,8 +534,6 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
-  QuestOffersEligible = 'quest offers eligible',
-  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -615,8 +613,6 @@ export enum TargetType {
   Tag = 'tag',
   Tool = 'tool',
   Quest = 'quest',
-  QuestOffer = 'quest offer',
-  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
