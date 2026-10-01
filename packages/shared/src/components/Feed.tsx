@@ -74,8 +74,6 @@ import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
-import { EngagementFeedStrip } from './brand/EngagementFeedStrip';
-import { isEngagementAdFeed } from '../hooks/feed/useFeedName';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
@@ -391,7 +389,6 @@ export default function Feed<T>({
       variables,
       options,
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
-      engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
       firstSlotOffset: Number(eligibleFirstSlotCard !== null),
       disableTopHero: disableTopHero || (isLaptop && isLayoutVariantLoading),
       isHorizontal,
@@ -450,9 +447,6 @@ export default function Feed<T>({
   const {
     showPromoBanner,
     indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-    engagementStripCreative,
     hero: {
       shouldShowTopHero,
       title: readingReminderTitle,
@@ -844,18 +838,6 @@ export default function Feed<T>({
                       }}
                     />
                   )}
-                  {showEngagementStrip &&
-                    engagementStripCreative &&
-                    index === indexWhenShowingEngagementStrip && (
-                      <EngagementFeedStrip
-                        creative={engagementStripCreative}
-                        style={{
-                          gridColumn: !shouldUseListFeedLayout
-                            ? `span ${virtualizedNumCards}`
-                            : undefined,
-                        }}
-                      />
-                    )}
                   {index === appFooterAnchorIndex &&
                     item.type !== FeedItemType.Placeholder && (
                       <MobileAppFooterAnchor
