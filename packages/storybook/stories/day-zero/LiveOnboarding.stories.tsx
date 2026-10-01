@@ -457,9 +457,12 @@ export const LiveOnboarding: Story = {
   render: () => <ChangedSteps />,
 };
 
-export const StepPickTags: Story = {
+// `picked` opens the step with five tags already chosen, so a static capture
+// shows the push ask.
+export const StepPickTags: StoryObj<{ picked: boolean }> = {
   name: 'Step · Pick tags',
-  render: () => {
+  args: { picked: false },
+  render: ({ picked }) => {
     const step = stepFor('edit-tags', FunnelStepType.EditTags, {
       headline: 'Pick tags that are relevant to you',
       minimumRequirement: MINIMUM_TAGS,
@@ -467,10 +470,17 @@ export const StepPickTags: Story = {
 
     return (
       <LiveStep step={step} index={0} total={6}>
-        <StartWithNoTags>
-          <FunnelEditTags {...step} />
-          <TagsPushAsk />
-        </StartWithNoTags>
+        {picked ? (
+          <>
+            <FunnelEditTags {...step} />
+            <TagsPushAsk />
+          </>
+        ) : (
+          <StartWithNoTags>
+            <FunnelEditTags {...step} />
+            <TagsPushAsk />
+          </StartWithNoTags>
+        )}
       </LiveStep>
     );
   },

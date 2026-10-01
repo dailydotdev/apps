@@ -1,5 +1,5 @@
 import type { FC, PropsWithChildren, ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
@@ -27,10 +27,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { NotifMessage } from '@dailydotdev/shared/src/components/notifications/utils';
-import {
-  OnboardingHeadline,
-  OnboardingSubheadline,
-} from '@dailydotdev/shared/src/components/onboarding/common';
+import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import { TagElement } from '@dailydotdev/shared/src/components/tags/TagElement';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
 import { pageBorders } from '@dailydotdev/shared/src/components/utilities/common';
@@ -44,6 +41,7 @@ import {
 } from '@dailydotdev/shared/src/styles/custom';
 import { ExtensionProviders } from '../extension/_providers';
 import { post, WriteComment } from '../components/comments/composer.mocks';
+import { cardHandlers, feedPosts } from '../features/feed/feedHero.mocks';
 
 const meta: Meta = {
   title: 'Day Zero Retention/All options',
@@ -54,9 +52,10 @@ export default meta;
 
 type Story = StoryObj;
 
-// Every option is drawn with production components, or with the exact markup
-// and classes of the production component it extends when that component is
-// bound to live data. Only the copy is new.
+// Onboarding options are the live funnel steps from "Live onboarding". The rest
+// are drawn with production components and real feed cards, or with the exact
+// markup and classes of the production component they extend when that
+// component is bound to live data. Only the copy is new.
 
 const noop = (): undefined => undefined;
 
@@ -117,24 +116,91 @@ const ToastPreview = ({
   </div>
 );
 
-const PlaceholderCard = (): ReactElement => (
-  <div className="flex h-32 flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 opacity-[0.64]">
-    <span className="h-2 w-4/5 rounded-4 bg-surface-float" />
-    <span className="h-2 w-3/5 rounded-4 bg-surface-float" />
-    <span className="mt-auto h-12 rounded-8 bg-surface-float" />
-  </div>
+const FeedPosts = ({ count }: { count: number }): ReactElement => (
+  <>
+    {feedPosts.slice(0, count).map((feedPost) => (
+      <ArticleGrid key={feedPost.id} post={feedPost} {...cardHandlers} />
+    ))}
+  </>
 );
 
-const PlaceholderRow = (): ReactElement => (
-  <div className="grid grid-cols-3 gap-3">
-    <PlaceholderCard />
-    <PlaceholderCard />
-    <PlaceholderCard />
-  </div>
-);
+const useThemeClass = (): 'dark' | 'light' => {
+  const read = () =>
+    document.documentElement.classList.contains('light') ? 'light' : 'dark';
+  const [theme, setTheme] = useState<'dark' | 'light'>(read);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => setTheme(read()));
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return theme;
+};
+
+// A step from "Live onboarding": the real funnel step at the width it ships
+// on, scaled down to fit the card and still clickable.
+const LiveStep = ({
+  story,
+  width,
+  height,
+  args,
+  maxScale = 1,
+}: {
+  story: string;
+  width: number;
+  height: number;
+  args?: string;
+  maxScale?: number;
+}): ReactElement => {
+  const theme = useThemeClass();
+  const ref = useRef<HTMLDivElement>(null);
+  const [available, setAvailable] = useState(0);
+  const scale = Math.min(available / width, maxScale);
+
+  useEffect(() => {
+    const node = ref.current;
+
+    if (!node) {
+      return undefined;
+    }
+
+    const observer = new ResizeObserver(([entry]) =>
+      setAvailable(entry.contentRect.width),
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="flex w-full min-w-0 justify-center">
+      <div
+        className="relative shrink-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+        style={{ width: width * scale, height: height * scale }}
+      >
+        <iframe
+          title={story}
+          src={`/iframe.html?id=day-zero-retention-live-onboarding--${story}&viewMode=story&globals=theme:${theme}${
+            args ? `&args=${args}` : ''
+          }`}
+          style={{
+            width,
+            height,
+            border: 0,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+          }}
+        />
+      </div>
+    </div>
+  );
+};
 
 // Where an option sits on the feed: above the posts, as a card in the grid, or
-// as a toast over the screen. The posts around it are placeholders.
+// as a toast over the screen, among real feed cards.
 const FeedFrame = ({
   position,
   children,
@@ -153,19 +219,18 @@ const FeedFrame = ({
     {position === 'slot' ? (
       <div className="grid grid-cols-2 gap-3 p-3">
         {children}
-        <PlaceholderCard />
-        <PlaceholderCard />
-        <PlaceholderCard />
+        <FeedPosts count={3} />
       </div>
     ) : (
       <div className="flex flex-col gap-3 p-3">
         {position === 'top' && children}
-        <PlaceholderRow />
-        <PlaceholderRow />
+        <div className="grid grid-cols-2 gap-3">
+          <FeedPosts count={2} />
+        </div>
       </div>
     )}
     {position === 'toast' && (
-      <div className="absolute inset-x-0 top-14 flex flex-col items-center gap-2 px-3">
+      <div className="absolute inset-x-0 top-14 z-3 flex flex-col items-center gap-2 px-3">
         {children}
       </div>
     )}
@@ -323,50 +388,6 @@ const InboxEmptyState = (): ReactElement => (
   </main>
 );
 
-const OnboardingStep = ({
-  headline,
-  subheadline,
-  children,
-}: {
-  headline: string;
-  subheadline?: string;
-  children: ReactNode;
-}): ReactElement => (
-  <div className="flex w-full flex-col items-center gap-6 px-6 py-8">
-    <div className="flex w-full flex-col gap-3">
-      <OnboardingHeadline>{headline}</OnboardingHeadline>
-      {subheadline && (
-        <OnboardingSubheadline>{subheadline}</OnboardingSubheadline>
-      )}
-    </div>
-    {children}
-  </div>
-);
-
-// Markup of EnableNotificationsCta, deleted in #5893. Its bell keyframes still
-// ship in base.css.
-const TagsPushAsk = (): ReactElement => (
-  <div className="flex w-full max-w-[27.5rem] items-center gap-2 rounded-8 bg-surface-float px-3 py-2 text-left">
-    <Typography
-      type={TypographyType.Callout}
-      color={TypographyColor.Tertiary}
-      className="flex-1"
-    >
-      Get notified when your tags have a big story
-    </Typography>
-    <Button
-      type="button"
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Secondary}
-      icon={
-        <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
-      }
-    >
-      Enable
-    </Button>
-  </div>
-);
-
 const tags = (names: string[]) => names.map((name) => ({ name }));
 
 const TagRow = ({
@@ -441,8 +462,7 @@ const PostPhoneWidget = ({
   </WidgetContainer>
 );
 
-// Where the widget sits: the post page sidebar, next to the post. The post and
-// the other sidebar widgets are placeholders.
+// Where the widget sits: the post page sidebar, next to the post.
 const PostFrame = ({
   label,
   children,
@@ -453,18 +473,21 @@ const PostFrame = ({
   <div className="flex w-full max-w-[34rem] flex-col gap-2">
     <span className="font-bold text-text-tertiary typo-footnote">{label}</span>
     <div className="grid grid-cols-[minmax(0,1fr)_12rem] gap-4 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-      <div className="flex flex-col gap-3 opacity-[0.64]">
-        <span className="h-3 w-11/12 rounded-4 bg-surface-float" />
-        <span className="h-3 w-3/5 rounded-4 bg-surface-float" />
-        <span className="h-24 rounded-12 bg-surface-float" />
-        <span className="h-2 w-full rounded-4 bg-surface-float" />
-        <span className="h-2 w-5/6 rounded-4 bg-surface-float" />
-        <span className="h-2 w-4/5 rounded-4 bg-surface-float" />
-      </div>
       <div className="flex flex-col gap-3">
-        {children}
-        <span className="h-16 rounded-16 border border-border-subtlest-tertiary opacity-[0.64]" />
+        <span className="text-text-tertiary typo-footnote">
+          {feedPosts[0].source?.name}
+        </span>
+        <h4 className="font-bold typo-title3">{feedPosts[0].title}</h4>
+        <img
+          src={feedPosts[0].image}
+          alt=""
+          className="h-24 w-full rounded-12 object-cover"
+        />
+        <p className="text-text-tertiary typo-footnote">
+          {feedPosts[0].summary}
+        </p>
       </div>
+      <div className="flex flex-col gap-3">{children}</div>
     </div>
   </div>
 );
@@ -618,21 +641,7 @@ const asks: {
         where: 'Right after the CV upload, where jobs are on.',
         why: 'About 15% upload a CV. It is the most concrete promise we have.',
         ui: () => (
-          <OnboardingStep
-            headline="Your CV is in"
-            subheadline="Want to know the moment a company is interested?"
-          >
-            <div className="flex w-full max-w-[20rem] flex-col gap-2">
-              <Button
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Large}
-                className="w-full"
-              >
-                Notify me
-              </Button>
-              <Button variant={ButtonVariant.Tertiary}>Not now</Button>
-            </div>
-          </OnboardingStep>
+          <LiveStep story="step-company-interest" width={1280} height={640} />
         ),
       },
       {
@@ -698,25 +707,12 @@ const asks: {
         where: 'The last onboarding step on a phone.',
         why: 'App adopters retain 64.4% against 24.0%.',
         ui: () => (
-          <Phone>
-            <OnboardingStep
-              headline="Your feed is ready"
-              subheadline="Keep it on your home screen."
-            >
-              <div className="flex w-full flex-col gap-2">
-                <Button
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Large}
-                  className="w-full"
-                >
-                  Open in the app
-                </Button>
-                <Button variant={ButtonVariant.Tertiary}>
-                  Continue on the web
-                </Button>
-              </div>
-            </OnboardingStep>
-          </Phone>
+          <LiveStep
+            story="step-open-in-the-app"
+            width={390}
+            height={844}
+            maxScale={0.75}
+          />
         ),
       },
       {
@@ -743,7 +739,9 @@ const asks: {
                 Open app
               </Button>
             </header>
-            <div className="h-40" />
+            <div className="p-3">
+              <FeedPosts count={1} />
+            </div>
           </Phone>
         ),
       },
@@ -782,15 +780,7 @@ const asks: {
         where: 'The extension step, on Firefox and Safari.',
         why: 'Today these signups skip the step and leave with no second surface.',
         ui: () => (
-          <OnboardingStep
-            headline="Where should your feed find you?"
-            subheadline="Scan to open your feed on your phone."
-          >
-            <GetAppQrCode className="size-32" />
-            <Button variant={ButtonVariant.Tertiary}>
-              I will just use the website
-            </Button>
-          </OnboardingStep>
+          <LiveStep story="step-phone-door" width={1280} height={800} />
         ),
       },
     ],
@@ -801,31 +791,19 @@ const asks: {
     line: 'Upgrades to steps and cards that already ship.',
     options: [
       {
-        title: 'Ten is the magic number',
+        title: 'A push ask at five tags',
         label: 'Upgrade and notifications',
-        tldr: 'The tag picker nudges toward ten, and asks for push once five are picked.',
+        tldr: 'Once five tags are picked, a push ask docks above Continue.',
         where:
-          'The tag step. The push card appears at five tags, and the browser prompt only fires from Enable.',
-        why: 'Ten tags keep 39.2% at D7 against 14.7%. Five picked tags give the push a concrete promise.',
+          'The tag step. The ask appears at five tags, and the browser prompt only fires from Enable.',
+        why: 'Five picked tags give the push a concrete promise: big stories on tags they chose.',
         ui: () => (
-          <OnboardingStep headline="Pick tags that are relevant to you">
-            <div className="flex w-full max-w-[27.5rem] flex-col gap-2">
-              <div className="flex items-center justify-between typo-footnote">
-                <span className="font-bold">5 of 10</span>
-                <span className="text-text-tertiary">
-                  Your feed gets much sharper at 10
-                </span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-max bg-surface-float">
-                <div className="h-full w-1/2 rounded-max bg-accent-cabbage-default" />
-              </div>
-            </div>
-            <TagRow
-              names={['react', 'css', 'typescript', 'nextjs', 'tailwind']}
-              selected={['react', 'css', 'typescript', 'nextjs', 'tailwind']}
-            />
-            <TagsPushAsk />
-          </OnboardingStep>
+          <LiveStep
+            story="step-pick-tags"
+            width={1280}
+            height={800}
+            args="picked:!true"
+          />
         ),
       },
       {
@@ -942,7 +920,7 @@ const days: {
   title: string;
   line: string;
   hidden?: boolean;
-  moments: { title?: string; options: string[] }[];
+  moments: { title?: string; wide?: boolean; options: string[] }[];
 }[] = [
   {
     id: 'day-0',
@@ -951,8 +929,9 @@ const days: {
     moments: [
       {
         title: 'Onboarding',
+        wide: true,
         options: [
-          'Ten is the magic number',
+          'A push ask at five tags',
           'Ask for the CV last',
           'Hear when a company is interested',
           'A phone door for Firefox and Safari',
@@ -1069,7 +1048,8 @@ const AllOptionsPage = (): ReactElement => {
           </h1>
           <p className="max-w-[60ch] text-text-secondary typo-body">
             Arranged by day, with day 0 as the focus. Each option asks for one
-            thing, and is built from production components.
+            thing. Onboarding options are the live funnel steps, and the rest
+            are built from production components.
           </p>
           <nav className="flex flex-wrap gap-2 pt-2">
             {visibleDays.map((day) => (
@@ -1103,7 +1083,12 @@ const AllOptionsPage = (): ReactElement => {
                     </span>
                   </h3>
                 )}
-                <div className="grid gap-x-8 gap-y-12 laptop:grid-cols-2">
+                <div
+                  className={classNames(
+                    'grid gap-x-8 gap-y-12',
+                    !moment.wide && 'laptop:grid-cols-2',
+                  )}
+                >
                   {moment.options.map((title) => {
                     const option = optionByTitle.get(title);
 
