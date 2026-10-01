@@ -110,7 +110,9 @@ describe('ShellCluster', () => {
     firePointer('pointerup', track, 200);
     expect(mockPush).toHaveBeenCalledWith('/squads/discover');
     expect(mockLogEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ extra: JSON.stringify({ tab: 'squads' }) }),
+      expect.objectContaining({
+        extra: JSON.stringify({ tab: 'squads', logged_in: true }),
+      }),
     );
     expect(screen.getByTestId('shell-cluster-indicator')).toHaveStyle({
       transform: 'translateX(0%)',
@@ -175,8 +177,8 @@ describe('ShellCluster', () => {
 
     expect(mockLogEvent).toHaveBeenCalledWith({
       event_name: 'click',
-      target_id: 'mobile footer',
-      extra: JSON.stringify({ tab: 'explore' }),
+      target_id: 'mobile footer nav',
+      extra: JSON.stringify({ tab: 'explore', logged_in: true }),
     });
   });
 

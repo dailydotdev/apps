@@ -164,10 +164,8 @@ export function TabContainer<T extends string = string>({
     [tabs, currentActive, labels, navigateToUrl, onActiveChange],
   );
 
-  // The axis is decided once, on the first movement past the lock distance:
-  // a gesture that starts vertical is a scroll and is ignored to the end,
-  // whatever it does afterwards. A horizontal one changes the tab only when
-  // it travels far enough inside the cone, or fast enough.
+  // The axis locks on the first movement; only a horizontal gesture that
+  // stays inside the cone can change the tab, by distance or by speed.
   const swipeAxis = useRef<'x' | 'y' | null>(null);
   const swipeHandlers = useSwipeable({
     onSwipeStart: () => {
@@ -189,11 +187,11 @@ export function TabContainer<T extends string = string>({
       }
 
       const inCone = absX > swipe.coneRatio * absY;
-      const farEnough = absX > swipe.commitDistance && inCone;
+      const farEnough = absX > swipe.commitDistance;
       const fastEnough =
         velocity > swipe.velocity && absX > swipe.velocityDistance;
 
-      if (!farEnough && !fastEnough) {
+      if (!inCone || (!farEnough && !fastEnough)) {
         return;
       }
 
@@ -280,7 +278,7 @@ export function TabContainer<T extends string = string>({
       </header>
       <div
         {...(swipeable ? swipeHandlers : {})}
-        className={classNames(swipeable && 'touch-pan-y')}
+        className={classNames(swipeable && 'touch-pan-y touch-pinch-zoom')}
       >
         {render}
       </div>

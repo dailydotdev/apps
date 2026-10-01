@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, createEvent } from '@testing-library/react';
 import nock from 'nock';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -208,9 +208,23 @@ describe('tab container component', () => {
 });
 
 describe('swipeable tab container', () => {
-  const touch = (x: number, y: number) => ({
-    touches: [{ clientX: x, clientY: y }],
-  });
+  // react-swipeable reads event.timeStamp, which jsdom fills with real
+  // time; stamping it puts the velocity under the test's control.
+  const stamped = (
+    type: 'touchStart' | 'touchMove' | 'touchEnd',
+    element: HTMLElement,
+    x: number,
+    y: number,
+    at: number,
+  ) => {
+    const init =
+      type === 'touchEnd'
+        ? { changedTouches: [] }
+        : { touches: [{ clientX: x, clientY: y }] };
+    const event = createEvent[type](element, init);
+    Object.defineProperty(event, 'timeStamp', { value: at });
+    fireEvent(element, event);
+  };
 
   const swipeOn = (
     element: HTMLElement,
@@ -218,10 +232,18 @@ describe('swipeable tab container', () => {
     durationMs: number,
   ) => {
     const [start, ...rest] = points;
-    fireEvent.touchStart(element, touch(...start));
-    rest.forEach((point) => fireEvent.touchMove(element, touch(...point)));
-    jest.advanceTimersByTime(durationMs);
-    fireEvent.touchEnd(element, { changedTouches: [] });
+    stamped('touchStart', element, start[0], start[1], 1000);
+    rest.forEach(([x, y], index) =>
+      stamped(
+        'touchMove',
+        element,
+        x,
+        y,
+        1000 + (durationMs * (index + 1)) / rest.length,
+      ),
+    );
+    const [lastX, lastY] = points[points.length - 1];
+    stamped('touchEnd', element, lastX, lastY, 1000 + durationMs);
   };
 
   // A Tab without a className renders its children straight into the swipe
@@ -230,14 +252,6 @@ describe('swipeable tab container', () => {
     renderComponent({ swipeable: true });
     return screen.getByText('Sample');
   };
-
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
 
   it('ignores a scroll that drifts sideways past the old threshold', () => {
     const surface = mountSwipeable();
@@ -257,7 +271,7 @@ describe('swipeable tab container', () => {
     expect(onActiveClick).not.toHaveBeenCalled();
   });
 
-  it('moves to the next tab on a horizontal swipe inside the cone', () => {
+  it('moves to the next tab on a slow swipe past the commit distance', () => {
     const surface = mountSwipeable();
 
     swipeOn(
@@ -265,19 +279,17 @@ describe('swipeable tab container', () => {
       [
         [200, 100],
         [188, 101],
-        [150, 104],
-        [130, 108],
+        [160, 104],
+        [136, 108],
       ],
-      400,
+      600,
     );
 
     expect(screen.getByText('Test')).toBeInTheDocument();
     expect(onActiveClick).toHaveBeenCalledWith('Second', undefined);
   });
 
-  // jsdom stamps events with real time, so a drag here is always fast; the
-  // nudge stays under the distance the fast path needs too.
-  it('does nothing on a horizontal nudge that stops short', () => {
+  it('does nothing on a slow horizontal nudge that stops short', () => {
     const surface = mountSwipeable();
 
     swipeOn(
@@ -285,7 +297,7 @@ describe('swipeable tab container', () => {
       [
         [200, 100],
         [188, 100],
-        [170, 100],
+        [160, 100],
       ],
       600,
     );
@@ -312,5 +324,23 @@ describe('swipeable tab container', () => {
 
     expect(screen.getByText('Sample')).toBeInTheDocument();
     expect(onActiveClick).toHaveBeenCalledWith('First', undefined);
+  });
+
+  it('ignores a fast diagonal flick that locked sideways', () => {
+    const surface = mountSwipeable();
+
+    swipeOn(
+      surface,
+      [
+        [100, 100],
+        [111, 108],
+        [125, 150],
+        [140, 190],
+      ],
+      100,
+    );
+
+    expect(screen.getByText('Sample')).toBeInTheDocument();
+    expect(onActiveClick).not.toHaveBeenCalled();
   });
 });

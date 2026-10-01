@@ -108,8 +108,8 @@ export function ShellCluster({
     } else {
       logEvent({
         event_name: LogEvent.Click,
-        target_id: TargetId.MobileFooter,
-        extra: JSON.stringify({ tab: tab.root }),
+        target_id: TargetId.MobileFooterNav,
+        extra: JSON.stringify({ tab: tab.root, logged_in: !!user }),
       });
     }
   };
