@@ -12,6 +12,7 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
+import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;
@@ -85,15 +86,23 @@ export const GoBackButton = ({
   );
 };
 
+interface GoBackHeaderMobileProps extends WithClassNameProps {
+  // Off where the bar is pinned inside a sticky parent, which would keep its
+  // empty slot on screen.
+  hideOnScroll?: boolean;
+}
+
 export function GoBackHeaderMobile({
   children,
   className,
-}: PropsWithChildren<WithClassNameProps>): ReactElement | null {
+  hideOnScroll = true,
+}: PropsWithChildren<GoBackHeaderMobileProps>): ReactElement | null {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const isMobileAppHeader = useMobileAppHeader();
+  const isHidden = useHideOnScrollDown(isMobileAppHeader && hideOnScroll);
 
   if (isLaptop || !router?.isReady || !globalThis?.history) {
     return null;
@@ -104,6 +113,8 @@ export function GoBackHeaderMobile({
       className={classNames(
         'sticky top-[var(--phone-top-ad-height,0px)] z-postNavigation flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 tablet:-mx-6 laptop:hidden',
         scrollClassName,
+        isMobileAppHeader && 'transition-transform duration-200 ease-out',
+        isHidden && '-translate-y-full',
         className,
       )}
     >
