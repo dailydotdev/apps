@@ -769,7 +769,7 @@ export default function MainFeedLayout({
         showBreadcrumbs={false}
         className={{
           container: classNames(
-            'sticky top-[4.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            'z-header w-full border-b border-border-subtlest-tertiary bg-background-default tablet:sticky tablet:top-[4.5rem]',
             feedGutter,
           ),
           tabBarHeader: 'no-scrollbar overflow-x-auto',

@@ -124,10 +124,10 @@ export const SquadDirectoryLayout = (
             isV2Laptop && 'laptop:hidden',
           )}
         >
-          <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
-            <strong>Squads</strong>
+          <section className="flex w-full flex-row items-center justify-end typo-body tablet:justify-between laptop:hidden">
+            <strong className="hidden tablet:inline">Squads</strong>
             {isMobileAppHeader ? (
-              <MobileAppActions />
+              <MobileAppActions className="hidden tablet:flex" />
             ) : (
               <NewSquadButton
                 icon={<PlusIcon />}

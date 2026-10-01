@@ -18,7 +18,6 @@ import {
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
 } from '../layout/common';
-import { MobileFeedActions } from './MobileFeedActions';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
@@ -63,7 +62,13 @@ const FeedNavActionsWrapper = classed(
   'flex shrink-0 items-center justify-end gap-1 bg-background-default py-4 pl-1 pr-3',
 );
 
-function FeedNav(): ReactElement | null {
+interface FeedNavProps {
+  // Rendered inside the phone's top block: no sticky wrapper and no brand
+  // row of its own, the block owns both.
+  inShellBlock?: boolean;
+}
+
+function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
   const feedName = rawFeedName as AllFeedPages;
@@ -184,14 +189,14 @@ function FeedNav(): ReactElement | null {
   return (
     <div
       className={classNames(
-        'sticky top-0 z-header w-full bg-background-default tablet:pl-16',
+        'w-full bg-background-default',
+        !inShellBlock && 'sticky top-0 z-header tablet:pl-16',
         scrollClassName,
       )}
     >
-      {isMobile && <MobileFeedActions />}
       <div
         className={classNames(
-          'mb-4 tablet:relative tablet:mb-0',
+          inShellBlock ? 'relative' : 'mb-4 tablet:relative tablet:mb-0',
           !shouldRenderFeedChips &&
             'h-[3.25rem] tablet:h-auto tablet:min-h-[3.25rem]',
         )}

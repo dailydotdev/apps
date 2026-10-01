@@ -6,7 +6,7 @@ import type { ModalTabsProps } from './ModalTabs';
 import { ModalTabs } from './ModalTabs';
 import { ModalClose } from './ModalClose';
 import { ModalHeaderKind, ModalPropsContext } from './types';
-import type { ButtonProps } from '../../buttons/Button';
+import type { ButtonProps, IconType } from '../../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon } from '../../icons';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
@@ -18,6 +18,9 @@ export type ModalHeaderProps = {
   className?: string;
   title?: string;
   showCloseButton?: boolean;
+  // Replaces the phone's back chevron for modals that close rather than
+  // go back (a gated sign-up).
+  phoneCloseIcon?: IconType;
 };
 
 const headerKindToTitleClassName: Record<ModalHeaderKind, string> = {
@@ -36,6 +39,7 @@ export function ModalHeader({
   className,
   title,
   showCloseButton = true,
+  phoneCloseIcon,
 }: ModalHeaderProps): ReactElement | null {
   const {
     activeView,
@@ -68,8 +72,12 @@ export function ModalHeader({
         <Button
           type="button"
           size={ButtonSize.Small}
-          className="mr-2 flex -rotate-90 tablet:hidden"
-          icon={<ArrowIcon />}
+          className={classNames(
+            'mr-2 flex tablet:hidden',
+            !phoneCloseIcon && '-rotate-90',
+          )}
+          icon={phoneCloseIcon ?? <ArrowIcon />}
+          aria-label={phoneCloseIcon ? 'Close' : 'Back'}
           onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             if (isMobile && tabs && activeView) {
               setActiveView?.(undefined);

@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import HeaderLogo from './HeaderLogo';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -15,6 +16,9 @@ import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import useActiveNav from '../../hooks/useActiveNav';
 import { MobileAppHeader } from '../../features/getApp/components/MobileAppHeader';
+import { ShellBlock } from '../shell/ShellBlock';
+import { ShellRoot } from '../shell/shellNav';
+import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -51,10 +55,12 @@ function MainLayoutHeader({
     feedName: activeFeedName,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useViewSize(ViewSize.MobileL) && !isLaptop;
+  const router = useRouter();
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-  const { profile } = useActiveNav(activeFeedName);
+  const { profile, home, squads, notifications } = useActiveNav(activeFeedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
   const isMobileProfile = profile && !isLaptop;
   const isMobile = !isLaptop;
@@ -90,6 +96,42 @@ function MainLayoutHeader({
       ),
     [shouldUseLoadedSettings, isSearchPage, hasBanner],
   );
+
+  if (shouldUseLoadedSettings && isPhone) {
+    const isPostPage = withoutLayoutVariantPrefix(router?.pathname).startsWith(
+      '/posts/[id]',
+    );
+    const root = (() => {
+      if (isSearchPage) {
+        return ShellRoot.Explore;
+      }
+      if (squads) {
+        return ShellRoot.Squads;
+      }
+      if (notifications) {
+        return ShellRoot.Activity;
+      }
+      if (home && !isPostPage) {
+        return ShellRoot.Home;
+      }
+      return undefined;
+    })();
+
+    return (
+      <ShellBlock
+        root={root}
+        row={
+          root === ShellRoot.Explore ? (
+            <div className="px-2 pb-3">
+              <SpotlightTrigger />
+            </div>
+          ) : (
+            <FeedNav inShellBlock />
+          )
+        }
+      />
+    );
+  }
 
   if (shouldRenderFeedNav) {
     return (

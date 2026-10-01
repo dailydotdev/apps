@@ -8,6 +8,7 @@ import {
   useMobileAppFooterContext,
 } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
 import { mobileAppFooterHeight } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
+import { ShellCluster } from '@dailydotdev/shared/src/components/shell/ShellCluster';
 
 const FooterWrapper = dynamic(
   () =>
@@ -28,7 +29,17 @@ function FooterSpacer({
     return <div className={mobileAppFooterHeight} />;
   }
 
-  return <div className={post ? 'h-40' : 'h-16'} />;
+  return <div className={post ? 'h-44 tablet:hidden' : 'h-20 tablet:hidden'} />;
+}
+
+function ClusterSlot(): ReactElement | null {
+  const { isRevealed: showAppFooter } = useMobileAppFooterContext();
+
+  if (showAppFooter) {
+    return null;
+  }
+
+  return <ShellCluster />;
 }
 
 export default function FooterNavBarLayout({
@@ -42,13 +53,12 @@ export default function FooterNavBarLayout({
     setHasHydrated(true);
   }, []);
 
-  const showNav = hasHydrated && isMobile;
-
   return (
     <MobileAppFooterProvider>
       {children}
-      {showNav && <FooterSpacer post={post} />}
-      <FooterWrapper showNav={showNav} post={post} />
+      <FooterSpacer post={post} />
+      <FooterWrapper showNav={hasHydrated && isMobile} post={post} />
+      <ClusterSlot />
     </MobileAppFooterProvider>
   );
 }

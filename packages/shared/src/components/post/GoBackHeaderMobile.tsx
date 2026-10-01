@@ -12,6 +12,7 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
+import { ShellPage } from '../shell/ShellPageContext';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;
@@ -88,15 +89,23 @@ export const GoBackButton = ({
 export function GoBackHeaderMobile({
   children,
   className,
-}: PropsWithChildren<WithClassNameProps>): ReactElement | null {
+  title,
+}: PropsWithChildren<
+  WithClassNameProps & { title?: string }
+>): ReactElement | null {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useViewSize(ViewSize.MobileL);
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const isMobileAppHeader = useMobileAppHeader();
 
   if (isLaptop || !router?.isReady || !globalThis?.history) {
     return null;
+  }
+
+  if (isPhone) {
+    return <ShellPage title={title} actions={children} />;
   }
 
   return (
@@ -108,6 +117,7 @@ export function GoBackHeaderMobile({
       )}
     >
       <GoBackButton compactLogo={isMobileAppHeader} />
+      {title && <span className="ml-2 font-bold typo-body">{title}</span>}
       {children}
       {isMobileAppHeader && <MobileAppActions className="ml-auto" />}
     </span>

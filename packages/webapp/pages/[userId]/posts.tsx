@@ -14,10 +14,6 @@ import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
-import {
-  Typography,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -85,11 +81,7 @@ const ProfilePostsPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile>
-        <Typography bold type={TypographyType.Body}>
-          Posts
-        </Typography>
-      </GoBackHeaderMobile>
+      <GoBackHeaderMobile title="Posts" />
       <Feed
         {...feedProps}
         className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}

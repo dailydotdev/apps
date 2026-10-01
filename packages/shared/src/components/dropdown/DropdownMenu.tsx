@@ -24,6 +24,7 @@ import type { MenuItemProps } from './common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 import { useScrollFade } from '../../hooks/useScrollFade';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
@@ -80,8 +81,15 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
       // DropdownMenu is kept as forwardRef-compatible even though Radix root has no ref target here.
     }
     const [open, setOpen] = useState(false);
+    const isPhone = useViewSize(ViewSize.MobileL);
 
+    // On a phone the menu is a sheet: modal, so a tap on the scrim closes it
+    // without reaching the page, and never closed by the scroll the
+    // collapsing address bar fires.
     useEventListener(globalThis.window, 'scroll', () => {
+      if (isPhone) {
+        return;
+      }
       props.onOpenChange?.(false);
       setOpen(false);
     });
@@ -93,7 +101,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
           props.onOpenChange?.(value);
           setOpen(value);
         }}
-        modal={false}
+        modal={isPhone}
         {...props}
       >
         {children}
@@ -123,6 +131,7 @@ export const DropdownMenuContent = React.forwardRef<
     const { isCompanion } = useRequestProtocol();
     const container = isCompanion ? getCompanionWrapper() : undefined;
     const scrollFadeRef = useScrollFade<HTMLDivElement>();
+    const isPhone = useViewSize(ViewSize.MobileL);
     return (
       <DropdownMenuPortal container={container}>
         <DropdownMenuContentRoot
@@ -134,6 +143,7 @@ export const DropdownMenuContent = React.forwardRef<
             variant === 'field'
               ? styles.DropdownMenuContentField
               : styles.DropdownMenuContentAction,
+            isPhone && 'shell-menu-sheet',
             className,
           )}
           align={align}
@@ -146,7 +156,9 @@ export const DropdownMenuContent = React.forwardRef<
               styles.DropdownMenuScrollable,
               'overflow-y-auto bg-inherit',
               scrollableClassName ??
-                'max-h-[var(--radix-dropdown-menu-content-available-height)]',
+                (isPhone
+                  ? 'max-h-[70vh]'
+                  : 'max-h-[var(--radix-dropdown-menu-content-available-height)]'),
             )}
           >
             {children}

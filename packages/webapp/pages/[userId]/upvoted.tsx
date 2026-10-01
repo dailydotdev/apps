@@ -13,10 +13,6 @@ import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
-import {
-  Typography,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getStaticPaths as getProfileStaticPaths,
@@ -86,11 +82,7 @@ const ProfileUpvotedPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile>
-        <Typography bold type={TypographyType.Body}>
-          Upvoted posts
-        </Typography>
-      </GoBackHeaderMobile>
+      <GoBackHeaderMobile title="Upvoted posts" />
       <Feed
         {...feedProps}
         className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}

@@ -223,7 +223,7 @@ export const NotificationsFeed = (): ReactElement => {
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
         {!isV2Laptop && (
-          <div className="flex items-center justify-between px-4 pb-2 pt-4">
+          <div className="hidden items-center justify-between px-4 pb-2 pt-4 tablet:flex">
             <h2
               className="font-bold typo-body"
               data-testid="notification_page-title"

@@ -154,7 +154,6 @@ export function FeedbackWidget({
                 key={member.username}
                 user={member}
                 size={ProfileImageSize.Small}
-                rounded="full"
                 className={classNames(
                   'border-2 border-background-default group-hover:border-surface-hover',
                   index !== 0 && '-ml-3',
@@ -209,7 +208,6 @@ export function FeedbackWidget({
             key={member.username}
             user={member}
             size={ProfileImageSize.Medium}
-            rounded="full"
             className={classNames(
               'border-2 border-text-primary',
               index !== 0 && '-ml-4',

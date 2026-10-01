@@ -7,7 +7,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon, MenuIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
@@ -88,9 +91,25 @@ export const AccountPageContainer = ({
     >
       {isV2Laptop && portalTarget && createPortal(pageHeader, portalTarget)}
       {!isV2Laptop && (
+        <ShellPage
+          title={title}
+          actions={
+            <>
+              {actions}
+              <ShellSquare
+                aria-label="Settings menu"
+                onClick={() => setIsOpen(true)}
+              >
+                <MenuIcon size={IconSize.Small} />
+              </ShellSquare>
+            </>
+          }
+        />
+      )}
+      {!isV2Laptop && (
         <AccountPageHeading
           className={classNames(
-            'sticky top-[var(--safe-area-top)] z-1 bg-background-default laptop:top-[var(--sticky-header-offset)]',
+            'sticky top-[var(--safe-area-top)] z-1 hidden bg-background-default tablet:flex laptop:top-[var(--sticky-header-offset)]',
             className.heading,
           )}
         >

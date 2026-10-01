@@ -12,6 +12,7 @@ import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { RootPortal } from '../tooltips/Portal';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
+import { motion } from '../shell/constants';
 
 export type PopupEventType =
   | MouseEvent
@@ -131,6 +132,102 @@ function BaseDrawer({
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
   const isAnimating = !hasAnimated || isClosing;
+  const isSheet = position === DrawerPosition.Bottom && !isFullScreen;
+
+  // A bottom sheet follows the finger: down 1:1, up barely (a hint of
+  // rubber band), and a release past a third of its height or a quick
+  // flick dismisses it; anything less springs it back. The drag starts only
+  // when the sheet's own content is scrolled to the top, so a list inside
+  // keeps scrolling.
+  useEffect(() => {
+    const panel = container.current;
+    if (!isSheet || !panel) {
+      return undefined;
+    }
+
+    let startY = 0;
+    let startTime = 0;
+    let dy = 0;
+    let tracking = false;
+    let dragging = false;
+
+    const settle = () => {
+      panel.removeAttribute('data-dragging');
+      panel.style.transform = '';
+      panel.style.transition = '';
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (panel.scrollTop > 0 || event.touches.length !== 1) {
+        return;
+      }
+      startY = event.touches[0].clientY;
+      startTime = event.timeStamp;
+      dy = 0;
+      tracking = true;
+      dragging = false;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (!tracking) {
+        return;
+      }
+      dy = event.touches[0].clientY - startY;
+      if (!dragging) {
+        if (dy > 6) {
+          dragging = true;
+          panel.setAttribute('data-dragging', 'true');
+        } else if (dy < -6) {
+          tracking = false;
+          return;
+        } else {
+          return;
+        }
+      }
+      event.preventDefault();
+      const offset = dy > 0 ? dy : dy * 0.05;
+      panel.style.transform = `translateY(${offset}px)`;
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      if (!tracking) {
+        return;
+      }
+      tracking = false;
+      if (!dragging) {
+        return;
+      }
+      dragging = false;
+      const velocity = dy / Math.max(1, event.timeStamp - startTime);
+      const dismiss = dy > panel.offsetHeight / 3 || velocity > 0.6;
+      if (dismiss) {
+        settle();
+        onCloseRef.current(event as unknown as PopupEventType);
+        return;
+      }
+      panel.removeAttribute('data-dragging');
+      panel.style.transition = `transform ${motion.snap}ms ${motion.interaction}`;
+      panel.style.transform = '';
+      const clear = () => {
+        panel.style.transition = '';
+        panel.removeEventListener('transitionend', clear);
+      };
+      panel.addEventListener('transitionend', clear);
+    };
+
+    panel.addEventListener('touchstart', onTouchStart, { passive: true });
+    panel.addEventListener('touchmove', onTouchMove, { passive: false });
+    panel.addEventListener('touchend', onTouchEnd);
+    panel.addEventListener('touchcancel', onTouchEnd);
+
+    return () => {
+      panel.removeEventListener('touchstart', onTouchStart);
+      panel.removeEventListener('touchmove', onTouchMove);
+      panel.removeEventListener('touchend', onTouchEnd);
+      panel.removeEventListener('touchcancel', onTouchEnd);
+      settle();
+    };
+  }, [isSheet]);
 
   useEffect(() => {
     onAfterOpen?.();
@@ -289,7 +386,7 @@ function BaseDrawer({
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className={classNames(
-        'fixed z-modal transition-opacity duration-300 ease-in-out',
+        'shell-sheet-overlay fixed z-modal',
         isFullScreen
           ? 'inset-x-0 top-0 h-full bg-background-default'
           : 'inset-0 bg-overlay-quaternary-onion',
@@ -312,14 +409,15 @@ function BaseDrawer({
         // The height below beats `inset-0`'s bottom edge only while this
         // variable is set; without it the calc is invalid and `inset-0` wins.
         style={wrapperKeyboardStyle}
+        data-closing={isClosing || undefined}
         className={classNames(
-          'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
+          'shell-sheet-panel drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default',
           isFullScreen
             ? 'inset-0 h-[calc(var(--drawer-viewport-height)_-_var(--safe-area-top,0px))]'
             : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
-          !title && 'px-4 pt-3',
+          !title && (isSheet ? 'px-4 pt-1' : 'px-4 pt-3'),
           className?.wrapper,
         )}
         ref={(node) => {
@@ -332,6 +430,12 @@ function BaseDrawer({
           animate();
         }}
       >
+        {isSheet && (
+          <span
+            aria-hidden
+            className="mx-auto mb-1 mt-2 h-1 w-9 shrink-0 rounded-2 bg-border-subtlest-secondary"
+          />
+        )}
         {title && (
           <h3
             className={classNames(
@@ -377,7 +481,7 @@ export interface DrawerWrapperProps extends Omit<DrawerProps, 'isClosing'> {
   isOpen: boolean;
 }
 
-const ANIMATION_MS = 300;
+const ANIMATION_MS = motion.exit;
 
 export interface DrawerRef {
   onClose(): void;

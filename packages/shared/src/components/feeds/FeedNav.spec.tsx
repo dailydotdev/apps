@@ -90,10 +90,6 @@ jest.mock('./UnifiedMobileFeedNav', () => ({
   ),
 }));
 
-jest.mock('./MobileFeedActions', () => ({
-  MobileFeedActions: () => <div data-testid="mobile-feed-actions" />,
-}));
-
 jest.mock('../fields/Dropdown', () => ({
   Dropdown: () => (
     <button type="button" aria-label="Sort feed">

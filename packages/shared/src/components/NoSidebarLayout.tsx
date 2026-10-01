@@ -5,6 +5,7 @@ import Link from './utilities/Link';
 import { Button } from './buttons/Button';
 import { ButtonSize, ButtonVariant } from './buttons/common';
 import { ArrowIcon } from './icons';
+import { ShellPage } from './shell/ShellPageContext';
 
 /**
  * Layout that doesn't show a sidebar
@@ -24,8 +25,9 @@ export function NoSidebarLayout({
 }): ReactNode {
   return (
     <div className={className}>
+      {!hideBackButton && <ShellPage />}
       {!hideBackButton && (
-        <div className="flex h-12 items-center gap-2 border-b border-border-subtlest-tertiary px-4 laptop:hidden">
+        <div className="hidden h-12 items-center gap-2 border-b border-border-subtlest-tertiary px-4 tablet:flex laptop:hidden">
           <Link href={webappUrl} passHref>
             <Button
               tag="a"
