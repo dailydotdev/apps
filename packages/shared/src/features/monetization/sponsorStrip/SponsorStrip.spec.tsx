@@ -571,12 +571,14 @@ const loadLogos = (images: HTMLImageElement[], ratio: number) => {
 
 it('should fill unused row space after measuring all candidates without logging hidden ads', async () => {
   const images = mockLogoImages();
-  setWallWidth(560);
+  // Exactly twelve 2:1 marks (32px) at the minimum gap. Unmeasured, every
+  // mark is budgeted at the maximum width, so only six fit.
+  setWallWidth(32 * 12 + SLOT_GAP * 11);
   renderStrip();
   await settle();
 
-  expect(shownLogos()).toHaveLength(5);
-  expect(callsFor(AdActions.Impression)).toHaveLength(5);
+  expect(shownLogos()).toHaveLength(7);
+  expect(callsFor(AdActions.Impression)).toHaveLength(7);
   expect(images).toHaveLength(4 + COMMUNITY.length);
 
   loadLogos(images, 2);
@@ -593,7 +595,8 @@ it('should fill unused row space after measuring all candidates without logging 
 
 it('should fit measured logos on a row narrower than the maximum logo width', async () => {
   const images = mockLogoImages();
-  setWallWidth(48);
+  // Two square marks and the gap between them, inside one maximum width.
+  setWallWidth(16 * 2 + SLOT_GAP);
   renderStrip();
   await settle();
 

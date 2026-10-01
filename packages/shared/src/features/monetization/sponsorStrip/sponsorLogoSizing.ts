@@ -2,9 +2,32 @@
 export const GOLD_HEIGHT = 18;
 export const WALL_HEIGHT = 16;
 
-/** Fits wordmarks up to 8:1 at the shared height without shrinking them. */
-export const WALL_MAX_WIDTH = 128;
-export const SLOT_GAP = 16;
+/**
+ * Fits wordmarks up to 6:1 at the shared height without shrinking them.
+ *
+ * Measured over the first 34 advertisers, the median wall mark is 4.6:1
+ * (74px at this height) and three quarters are under 5.8:1, so 6:1 only
+ * touches the outliers. The earlier 8:1 let a single long lockup run to
+ * 128px, almost two medians, and take the row's attention with it.
+ */
+export const WALL_MAX_WIDTH = 96;
+
+/**
+ * The gap between wall marks is clamped, not spread: the row fits as many
+ * marks as the minimum allows, then shares the leftover between them up to
+ * the maximum, and anything beyond that stays empty at the row's end.
+ *
+ * At a fixed 16px height the median mark is 74px wide, so the gap has to be
+ * of that order for the row to read as separate marks rather than one line
+ * of type. On production the gap sat at 16-23px at every width and the wall
+ * was four fifths ink; 48 brings that to roughly three fifths. From desktopL
+ * the row has room for 16 or more marks, and the gap opens to a mark's own
+ * width so the count stops being the thing a reader notices.
+ */
+export const SLOT_GAP = 48;
+export const SLOT_GAP_MAX = 64;
+export const WIDE_SLOT_GAP = 64;
+export const WIDE_SLOT_GAP_MAX = 80;
 
 /** Fallback until the logo's intrinsic dimensions have loaded. */
 export const REFERENCE_RATIO = 3.5;
@@ -26,7 +49,7 @@ export const boxedLogoWidth = (
 export const fittedSlotCount = (
   available: number,
   widths: readonly number[],
-  gap: number = SLOT_GAP,
+  gap: number,
 ): number => {
   let used = 0;
   const overflow = widths.findIndex((width, index) => {
@@ -35,4 +58,25 @@ export const fittedSlotCount = (
   });
 
   return overflow === -1 ? widths.length : overflow;
+};
+
+/**
+ * The gap the fitted marks actually get: the row's spare width shared
+ * between them, held between the minimum they were fitted with and the
+ * maximum past which the marks would float apart.
+ */
+export const wallGap = (
+  available: number,
+  widths: readonly number[],
+  min: number,
+  max: number,
+): number => {
+  if (widths.length < 2) {
+    return min;
+  }
+
+  const ink = widths.reduce((sum, width) => sum + width, 0);
+  const spread = (available - ink) / (widths.length - 1);
+
+  return Math.round(Math.min(max, Math.max(min, spread)));
 };

@@ -9,10 +9,16 @@ import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import {
   boxedLogoWidth,
   fittedSlotCount,
+  SLOT_GAP,
+  SLOT_GAP_MAX,
+  wallGap,
   WALL_HEIGHT,
   WALL_MAX_WIDTH,
+  WIDE_SLOT_GAP,
+  WIDE_SLOT_GAP_MAX,
 } from './sponsorLogoSizing';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
+import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { useSponsorLogoRatios } from './useSponsorLogoRatios';
 import type {
   ResolvedSponsor,
@@ -31,6 +37,8 @@ interface UseSponsorStripAds {
   community: ResolvedSponsor[];
   /** Attach to the wall; its width decides how many marks the row holds. */
   wallRef: (node: HTMLElement | null) => void;
+  /** The space between wall marks, in px; see `wallGap`. */
+  wallGap: number;
   /**
    * Whether the ad query has answered. The dock holds the row's height open
    * until it has, so a fill landing cannot move the row.
@@ -41,7 +49,13 @@ interface UseSponsorStripAds {
 /** Measure before mounting any ad links so clipped logos never log impressions. */
 const useFittedSlots = (
   widths: number[],
-): { ref: (node: HTMLElement | null) => void; count: number } => {
+  minGap: number,
+  maxGap: number,
+): {
+  ref: (node: HTMLElement | null) => void;
+  count: number;
+  gap: number;
+} => {
   const [element, setElement] = useState<HTMLElement | null>(null);
   const [available, setAvailable] = useState(0);
   const ref = useCallback((node: HTMLElement | null) => setElement(node), []);
@@ -65,7 +79,13 @@ const useFittedSlots = (
     return () => observer.disconnect();
   }, [element]);
 
-  return { ref, count: fittedSlotCount(available, widths) };
+  const count = fittedSlotCount(available, widths, minGap);
+
+  return {
+    ref,
+    count,
+    gap: wallGap(available, widths.slice(0, count), minGap, maxGap),
+  };
 };
 
 /**
@@ -139,7 +159,20 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       ),
     [logos, ratios],
   );
-  const { ref: wallRef, count: wallSlots } = useFittedSlots(widths);
+  // From desktopL the row holds sixteen marks and more; the gap opens to a
+  // mark's own width there so the count is not what the reader sees.
+  // `useViewSizeClient` for the reason `useSponsorStrip` gives: the wall is
+  // measured on the client anyway, so the server need not guess.
+  const isWide = useViewSizeClient(ViewSize.DesktopL);
+  const {
+    ref: wallRef,
+    count: wallSlots,
+    gap,
+  } = useFittedSlots(
+    widths,
+    isWide ? WIDE_SLOT_GAP : SLOT_GAP,
+    isWide ? WIDE_SLOT_GAP_MAX : SLOT_GAP_MAX,
+  );
   const premiumSlots = Math.min(
     PREMIUM_SLOT_COUNT,
     premiumDeck.length,
@@ -158,5 +191,12 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
     [pools.gold],
   );
 
-  return { gold, premium, community, wallRef, isSettled: !isPending };
+  return {
+    gold,
+    premium,
+    community,
+    wallRef,
+    wallGap: gap,
+    isSettled: !isPending,
+  };
 };
