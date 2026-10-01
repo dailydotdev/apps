@@ -2,11 +2,9 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import type {
   EngagementCreative,
-  EngagementPlacement,
   ResolvedCreative,
 } from '../lib/engagementAds';
 import {
-  findCreativeForPlacement,
   findCreativeForTags,
   findCreativeForTool,
   parseCreatives,
@@ -27,18 +25,12 @@ interface EngagementAdsContextValue {
 
   /** Find a creative whose tools list includes the given tool name */
   getCreativeForTool: (toolName?: string | null) => ResolvedCreative | null;
-
-  /** Find a creative that opted into a prominent placement (banner/strip) */
-  getCreativeForPlacement: (
-    placement: EngagementPlacement,
-  ) => ResolvedCreative | null;
 }
 
 const defaultValue: EngagementAdsContextValue = {
   creatives: [],
   getCreativeForTags: () => null,
   getCreativeForTool: () => null,
-  getCreativeForPlacement: () => null,
 };
 
 const EngagementAdsContext =
@@ -98,25 +90,13 @@ export const EngagementAdsProvider = ({
     [resolvedCreatives],
   );
 
-  const getCreativeForPlacement = useCallback(
-    (placement: EngagementPlacement) =>
-      findCreativeForPlacement(resolvedCreatives, placement),
-    [resolvedCreatives],
-  );
-
   const contextValue = useMemo(
     () => ({
       creatives: resolvedCreatives,
       getCreativeForTags,
       getCreativeForTool,
-      getCreativeForPlacement,
     }),
-    [
-      resolvedCreatives,
-      getCreativeForTags,
-      getCreativeForTool,
-      getCreativeForPlacement,
-    ],
+    [resolvedCreatives, getCreativeForTags, getCreativeForTool],
   );
 
   return (
