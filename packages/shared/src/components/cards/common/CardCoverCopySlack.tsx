@@ -1,15 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { SlackIcon } from '../../icons/Slack';
+import { ButtonSize } from '../../buttons/common';
 import { VIcon } from '../../icons/V';
 import { IconSize } from '../../Icon';
 import type { Post } from '../../../graphql/posts';
 import { socials } from '../../../lib/socialMedia';
 import { Origin } from '../../../lib/log';
-import { wrapStopPropagation } from '../../../lib/func';
 import SocialIconButton from '../socials/SocialIconButton';
-import { useSlackShareButton } from '../../../hooks/integrations/slack/useSlackShareButton';
+import { SlackCtaButton } from '../../widgets/SlackCtaButton';
 
 interface CardCoverCopySlackProps {
   post: Post;
@@ -20,8 +18,6 @@ export function CardCoverCopySlack({
   post,
   onShareToSlack,
 }: CardCoverCopySlackProps): ReactElement {
-  const { onClick } = useSlackShareButton({ post, origin: Origin.CardCover });
-
   return (
     <div className="absolute inset-x-0 bottom-0 z-1 flex flex-col gap-2 rounded-t-12 border-t border-border-subtlest-tertiary bg-background-subtle p-2.5 shadow-2">
       <div className="flex items-center gap-2">
@@ -44,18 +40,13 @@ export function CardCoverCopySlack({
           ))}
         </div>
       </div>
-      <Button
-        className="w-full"
+      <SlackCtaButton
+        post={post}
+        origin={Origin.CardCover}
         size={ButtonSize.Small}
-        variant={ButtonVariant.Primary}
-        icon={<SlackIcon secondary />}
-        onClick={wrapStopPropagation(() => {
-          onClick();
-          onShareToSlack();
-        })}
-      >
-        Send to Slack
-      </Button>
+        className="w-full"
+        onAfterClick={onShareToSlack}
+      />
     </div>
   );
 }

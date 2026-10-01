@@ -213,7 +213,7 @@ describe('copy link cover', () => {
 
   it('should offer Slack after copying when card_copy_slack is on', async () => {
     renderCopied(true);
-    expect(await screen.findByText('Send to Slack')).toBeInTheDocument();
+    expect(await screen.findByText('Connect Slack')).toBeInTheDocument();
     expect(
       screen.queryByText('Why not share it on social, too?'),
     ).not.toBeInTheDocument();
@@ -224,6 +224,6 @@ describe('copy link cover', () => {
     expect(
       await screen.findByText('Why not share it on social, too?'),
     ).toBeInTheDocument();
-    expect(screen.queryByText('Send to Slack')).not.toBeInTheDocument();
+    expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
   });
 });
