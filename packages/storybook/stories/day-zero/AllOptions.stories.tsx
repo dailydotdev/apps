@@ -1,5 +1,5 @@
 import type { FC, PropsWithChildren, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
@@ -53,6 +53,7 @@ import {
   feedPosts,
   heroPosts,
 } from '../features/feed/feedHero.mocks';
+import { LiveFrame } from './LiveFrame';
 
 const meta: Meta = {
   title: 'Day Zero Retention/All options',
@@ -134,81 +135,6 @@ const FeedPosts = ({ count }: { count: number }): ReactElement => (
     ))}
   </>
 );
-
-const useThemeClass = (): 'dark' | 'light' => {
-  const read = () =>
-    document.documentElement.classList.contains('light') ? 'light' : 'dark';
-  const [theme, setTheme] = useState<'dark' | 'light'>(read);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => setTheme(read()));
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  return theme;
-};
-
-// A live story, such as a real funnel step or the real post modal, at the width
-// it ships on, scaled down to fit the card and still clickable.
-const LiveFrame = ({
-  story,
-  width,
-  height,
-  args,
-  maxScale = 1,
-}: {
-  story: string;
-  width: number;
-  height: number;
-  args?: string;
-  maxScale?: number;
-}): ReactElement => {
-  const theme = useThemeClass();
-  const ref = useRef<HTMLDivElement>(null);
-  const [available, setAvailable] = useState(0);
-  const scale = Math.min(available / width, maxScale);
-
-  useEffect(() => {
-    const node = ref.current;
-
-    if (!node) {
-      return undefined;
-    }
-
-    const observer = new ResizeObserver(([entry]) =>
-      setAvailable(entry.contentRect.width),
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={ref} className="flex w-full min-w-0 justify-center">
-      <div
-        className="relative shrink-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary"
-        style={{ width: width * scale, height: height * scale }}
-      >
-        <iframe
-          title={story}
-          src={`/iframe.html?id=day-zero-retention-${story}&viewMode=story&globals=theme:${theme}${
-            args ? `&args=${args}` : ''
-          }`}
-          style={{
-            width,
-            height,
-            border: 0,
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
-          }}
-        />
-      </div>
-    </div>
-  );
-};
 
 // Where an option sits on the feed: above the posts, as a card in the grid, or
 // as a toast over the screen, among real feed cards.

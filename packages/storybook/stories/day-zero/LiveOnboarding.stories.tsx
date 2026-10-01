@@ -47,6 +47,7 @@ import {
   FEED_SETTINGS_HANDLERS,
   FunnelStepShell,
 } from '../components/onboarding/signupFunnel.mocks';
+import { LiveFrame } from './LiveFrame';
 import { MailboxIllustration } from './MailboxIllustration';
 
 // The onboarding steps whose screen changes, each mounted on the real funnel
@@ -419,86 +420,46 @@ const changeTone: Record<string, string> = {
   New: 'bg-overlay-float-avocado text-accent-avocado-default',
 };
 
-const useThemeClass = (): 'dark' | 'light' => {
-  const read = () =>
-    document.documentElement.classList.contains('light') ? 'light' : 'dark';
-  const [theme, setTheme] = useState<'dark' | 'light'>(read);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => setTheme(read()));
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  return theme;
-};
-
-const ChangedSteps = (): ReactElement => {
-  const theme = useThemeClass();
-
-  return (
-    <div className="flex min-h-dvh flex-col items-center gap-10 bg-background-default px-6 py-8 text-text-primary">
-      <header className="flex w-full max-w-[60rem] flex-col gap-2">
-        <span className="text-text-tertiary typo-callout">
-          Day zero retention
-        </span>
-        <h1 className="font-bold typo-title1">Onboarding: what changes</h1>
-        <p className="text-text-secondary typo-callout">
-          Only the steps whose screen changes, live on the real funnel steps.
-          The CV step also moves last, after the extension or reminder, but its
-          screen stays as it is.
-        </p>
-      </header>
-      {changedSteps.map((step) => {
-        const scale = step.width > 1000 ? 0.75 : 0.85;
-
-        return (
-          <section
-            key={step.id}
-            className="flex w-full max-w-[60rem] flex-col items-center gap-3"
+const ChangedSteps = (): ReactElement => (
+  <div className="flex min-h-dvh flex-col items-center gap-10 bg-background-default px-6 py-8 text-text-primary">
+    <header className="flex w-full max-w-[60rem] flex-col gap-2">
+      <span className="text-text-tertiary typo-callout">
+        Day zero retention
+      </span>
+      <h1 className="font-bold typo-title1">Onboarding: what changes</h1>
+      <p className="text-text-secondary typo-callout">
+        Only the steps whose screen changes, live on the real funnel steps. The
+        CV step also moves last, after the extension or reminder, but its screen
+        stays as it is.
+      </p>
+    </header>
+    {changedSteps.map((step) => (
+      <section
+        key={step.id}
+        className="flex w-full max-w-[60rem] flex-col items-center gap-3"
+      >
+        <div className="flex w-full items-center gap-2">
+          <h2 className="font-bold typo-title3">{step.title}</h2>
+          <span
+            className={classNames(
+              'rounded-6 px-1.5 font-bold typo-caption1',
+              changeTone[step.change],
+            )}
           >
-            <div className="flex w-full items-center gap-2">
-              <h2 className="font-bold typo-title3">{step.title}</h2>
-              <span
-                className={classNames(
-                  'rounded-6 px-1.5 font-bold typo-caption1',
-                  changeTone[step.change],
-                )}
-              >
-                {step.change}
-              </span>
-            </div>
-            <p className="w-full text-text-secondary typo-callout">
-              {step.note}
-            </p>
-            <div
-              className="relative shrink-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary"
-              style={{
-                width: step.width * scale,
-                height: step.height * scale,
-              }}
-            >
-              <iframe
-                title={step.title}
-                src={`/iframe.html?id=day-zero-retention-live-onboarding--${step.id}&viewMode=story&globals=theme:${theme}`}
-                style={{
-                  width: step.width,
-                  height: step.height,
-                  border: 0,
-                  transform: `scale(${scale})`,
-                  transformOrigin: 'top left',
-                }}
-              />
-            </div>
-          </section>
-        );
-      })}
-    </div>
-  );
-};
+            {step.change}
+          </span>
+        </div>
+        <p className="w-full text-text-secondary typo-callout">{step.note}</p>
+        <LiveFrame
+          story={`live-onboarding--${step.id}`}
+          width={step.width}
+          height={step.height}
+          maxScale={step.width > 1000 ? 0.75 : 0.85}
+        />
+      </section>
+    ))}
+  </div>
+);
 
 export const LiveOnboarding: Story = {
   name: 'Onboarding: what changes',
