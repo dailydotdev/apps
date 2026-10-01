@@ -32,6 +32,8 @@ export const BriefShareBand = ({ post }: { post: Post }): ReactElement => {
       description="Anyone with the link can read it"
       link={post.commentsPermalink}
       onShare={onShare}
+      origin={Origin.EndOfBriefing}
+      slackPost={post}
       text={post.title ?? ''}
       title="Share this briefing"
     />
