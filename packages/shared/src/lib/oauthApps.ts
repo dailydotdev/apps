@@ -35,10 +35,13 @@ export const OAUTH_SCOPES = [
   'write',
 ];
 
+export const MAX_OAUTH_APPS_PER_USER = 5;
+
 export const oauthEndpoints = {
   authorize: `${publicApiUrl}/auth/oauth2/authorize`,
   token: `${publicApiUrl}/auth/oauth2/token`,
-  resource: `${publicApiUrl}/mcp`,
+  publicApiResource: `${publicApiUrl}/public/v1`,
+  mcpResource: `${publicApiUrl}/mcp`,
 };
 
 export class OAuthRequestError extends Error {
