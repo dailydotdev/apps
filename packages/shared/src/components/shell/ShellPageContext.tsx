@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface ShellPageConfig {
   title?: ReactNode;
@@ -19,11 +20,15 @@ export interface ShellPageConfig {
 interface ShellPageContextData {
   config: ShellPageConfig | null;
   setConfig: (config: ShellPageConfig | null) => void;
+  actionsSlot: HTMLElement | null;
+  setActionsSlot: (element: HTMLElement | null) => void;
 }
 
 const ShellPageContext = createContext<ShellPageContextData>({
   config: null,
   setConfig: () => undefined,
+  actionsSlot: null,
+  setActionsSlot: () => undefined,
 });
 
 export const ShellPageProvider = ({
@@ -32,7 +37,11 @@ export const ShellPageProvider = ({
   children: ReactNode;
 }): ReactElement => {
   const [config, setConfig] = useState<ShellPageConfig | null>(null);
-  const value = useMemo(() => ({ config, setConfig }), [config]);
+  const [actionsSlot, setActionsSlot] = useState<HTMLElement | null>(null);
+  const value = useMemo(
+    () => ({ config, setConfig, actionsSlot, setActionsSlot }),
+    [config, actionsSlot],
+  );
 
   return (
     <ShellPageContext.Provider value={value}>
@@ -44,6 +53,12 @@ export const ShellPageProvider = ({
 export const useShellPageConfig = (): ShellPageConfig | null =>
   useContext(ShellPageContext).config;
 
+// The block hands its actions slot to the context; pages portal their
+// actions into it so they keep the page's own providers.
+export const useShellActionsSlot = (): ((
+  element: HTMLElement | null,
+) => void) => useContext(ShellPageContext).setActionsSlot;
+
 // A leaf declares what its top block shows by rendering this anywhere in
 // its tree; the block in MainLayout picks it up. Unmounting clears it.
 export const ShellPage = ({
@@ -51,14 +66,18 @@ export const ShellPage = ({
   actions,
   row,
   hidden,
-}: ShellPageConfig): null => {
-  const { setConfig } = useContext(ShellPageContext);
+}: ShellPageConfig): ReactElement | null => {
+  const { setConfig, actionsSlot } = useContext(ShellPageContext);
 
   useLayoutEffect(() => {
-    setConfig({ title, actions, row, hidden });
-  }, [setConfig, title, actions, row, hidden]);
+    setConfig({ title, row, hidden });
+  }, [setConfig, title, row, hidden]);
 
   useLayoutEffect(() => () => setConfig(null), [setConfig]);
 
-  return null;
+  if (!actions || !actionsSlot) {
+    return null;
+  }
+
+  return createPortal(actions, actionsSlot);
 };

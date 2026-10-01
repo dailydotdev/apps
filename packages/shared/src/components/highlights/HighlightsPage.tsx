@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useMemo, useState } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type {
@@ -14,8 +14,6 @@ import {
 import { Origin } from '../../lib/log';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useViewSize, ViewSize } from '../../hooks';
-import { MenuLabel } from '../shell/ShellRow';
-import { HappeningNowSheet } from '../shell/HomeSegments';
 import { CopyHighlightsLink } from './CopyHighlightsLink';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
@@ -180,7 +178,6 @@ export const HighlightsPage = (): ReactElement => {
 
   const channelLabel = channels.find((c) => c.channel === channel)?.displayName;
   const isPhone = useViewSize(ViewSize.MobileL);
-  const [isChannelsOpen, setIsChannelsOpen] = useState(false);
   const activeTab = isAllTab
     ? ALL_HIGHLIGHTS_LABEL
     : channelLabel ?? MAJOR_HEADLINES_LABEL;
@@ -193,19 +190,6 @@ export const HighlightsPage = (): ReactElement => {
         </h1>
         <CopyHighlightsLink className="ml-auto" origin={Origin.HappeningNow} />
       </header>
-      {isPhone && (
-        <div className="flex items-center justify-between px-3 py-1">
-          <MenuLabel
-            label={activeTab}
-            onClick={() => setIsChannelsOpen(true)}
-          />
-          <CopyHighlightsLink origin={Origin.HappeningNow} />
-          <HappeningNowSheet
-            isOpen={isChannelsOpen}
-            onClose={() => setIsChannelsOpen(false)}
-          />
-        </div>
-      )}
       <TabContainer
         controlledActive={activeTab}
         showHeader={!isPhone}

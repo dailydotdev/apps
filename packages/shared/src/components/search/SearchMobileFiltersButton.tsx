@@ -1,6 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ShellSquare } from '../shell/ShellSquare';
+import { IconSize } from '../Icon';
 import { FilterIcon, MiniCloseIcon } from '../icons';
 import { Drawer, DrawerPosition } from '../drawers';
 import {
@@ -22,20 +24,34 @@ const SearchMobileFilterSection = ({
   </section>
 );
 
-const SearchMobileFiltersButton = (): ReactElement => {
+// `square` is the block's form: the icon alone on the floating square.
+const SearchMobileFiltersButton = ({
+  square = false,
+}: {
+  square?: boolean;
+}): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <Button
-        variant={ButtonVariant.Float}
-        icon={<FilterIcon />}
-        size={ButtonSize.Small}
-        aria-label="Open search filters"
-        onClick={() => setIsOpen(true)}
-      >
-        Filters
-      </Button>
+      {square ? (
+        <ShellSquare
+          aria-label="Open search filters"
+          onClick={() => setIsOpen(true)}
+        >
+          <FilterIcon size={IconSize.Small} />
+        </ShellSquare>
+      ) : (
+        <Button
+          variant={ButtonVariant.Float}
+          icon={<FilterIcon />}
+          size={ButtonSize.Small}
+          aria-label="Open search filters"
+          onClick={() => setIsOpen(true)}
+        >
+          Filters
+        </Button>
+      )}
       <Drawer
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

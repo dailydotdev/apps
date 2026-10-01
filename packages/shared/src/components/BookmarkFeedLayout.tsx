@@ -102,6 +102,7 @@ export default function BookmarkFeedLayout({
     DEFAULT_BOOKMARK_SORT_INDEX,
   );
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useViewSize(ViewSize.MobileL);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const isSearchResults = !!searchQuery;
@@ -204,7 +205,7 @@ export default function BookmarkFeedLayout({
         label: 'hidden',
         chevron: 'hidden',
         button: isV2Laptop ? undefined : '!px-1',
-        container: isV2Laptop ? 'flex' : 'ml-4 flex',
+        container: isV2Laptop || isPhone ? 'flex' : 'ml-4 flex',
       }}
       shouldIndicateSelected
       icon={<SortIcon size={isV2Laptop ? IconSize.XSmall : IconSize.Medium} />}
@@ -220,7 +221,7 @@ export default function BookmarkFeedLayout({
   const shareButton = !isFolderPage && (
     <Button
       aria-label="Share bookmarks"
-      className={isV2Laptop ? undefined : 'ml-4 flex'}
+      className={isV2Laptop || isPhone ? undefined : 'ml-4 flex'}
       icon={
         <ShareIcon
           size={isV2Laptop ? IconSize.XSmall : IconSize.Medium}
@@ -230,7 +231,9 @@ export default function BookmarkFeedLayout({
       }
       onClick={() => setShowSharedBookmarks(true)}
       size={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
-      variant={isV2Laptop ? ButtonVariant.Tertiary : ButtonVariant.Secondary}
+      variant={
+        isV2Laptop || isPhone ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+      }
     >
       {isLaptop ? <span>Share bookmarks</span> : null}
     </Button>
@@ -300,9 +303,9 @@ export default function BookmarkFeedLayout({
               )}
             >
               {searchChildren}
-              {sortDropdown}
-              {shareButton}
-              {folderMenu}
+              {!isPhone && sortDropdown}
+              {!isPhone && shareButton}
+              {!isPhone && folderMenu}
             </CustomFeedHeader>
           </>
         )}
@@ -315,6 +318,13 @@ export default function BookmarkFeedLayout({
         )}
         <ShellPage
           title="Bookmarks"
+          actions={
+            <div className="flex items-center gap-2">
+              {sortDropdown}
+              {shareButton}
+              {folderMenu}
+            </div>
+          }
           row={
             <ShellRow>
               <Segments

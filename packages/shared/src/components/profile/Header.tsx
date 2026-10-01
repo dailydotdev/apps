@@ -157,6 +157,42 @@ export function Header({
     });
   }
 
+  const optionsMenu = !isSameUser && (
+    <CustomFeedOptionsMenu
+      onAdd={(feedId) =>
+        follow({
+          id: user.id,
+          entity: ContentPreferenceType.User,
+          entityName: user.username || '',
+          feedId,
+        })
+      }
+      onUndo={(feedId) =>
+        unfollow({
+          id: user.id,
+          entity: ContentPreferenceType.User,
+          entityName: user.username || '',
+          feedId,
+        })
+      }
+      onCreateNewFeed={() =>
+        router.push(
+          `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+        )
+      }
+      shareProps={{
+        text: `Check out ${user.name}'s profile on daily.dev`,
+        link: user.permalink,
+        cid: ReferralCampaignKey.ShareProfile,
+        logObject: () => ({
+          event_name: LogEvent.ShareProfile,
+          target_id: user.id,
+        }),
+      }}
+      additionalOptions={options}
+    />
+  );
+
   const actions = (
     <>
       {isSameUser && (
@@ -208,41 +244,7 @@ export function Header({
         />
       )}
       {isMobileAppHeader && !isPhone && <MobileAppActions />}
-      {!isSameUser && (
-        <CustomFeedOptionsMenu
-          onAdd={(feedId) =>
-            follow({
-              id: user.id,
-              entity: ContentPreferenceType.User,
-              entityName: user.username || '',
-              feedId,
-            })
-          }
-          onUndo={(feedId) =>
-            unfollow({
-              id: user.id,
-              entity: ContentPreferenceType.User,
-              entityName: user.username || '',
-              feedId,
-            })
-          }
-          onCreateNewFeed={() =>
-            router.push(
-              `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
-            )
-          }
-          shareProps={{
-            text: `Check out ${user.name}'s profile on daily.dev`,
-            link: user.permalink,
-            cid: ReferralCampaignKey.ShareProfile,
-            logObject: () => ({
-              event_name: LogEvent.ShareProfile,
-              target_id: user.id,
-            }),
-          }}
-          additionalOptions={options}
-        />
-      )}
+      {optionsMenu}
     </>
   );
 
@@ -306,10 +308,14 @@ export function Header({
       <ShellPage
         title="Profile"
         actions={
-          <div className="flex flex-row items-center gap-2">
-            {actions}
-            {ownerActions}
-          </div>
+          isSameUser ? (
+            <div className="flex flex-row items-center gap-2">
+              {actions}
+              {ownerActions}
+            </div>
+          ) : (
+            optionsMenu
+          )
         }
       />
     );

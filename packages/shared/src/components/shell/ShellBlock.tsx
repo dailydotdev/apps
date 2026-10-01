@@ -20,7 +20,7 @@ import { plusUrl, webappUrl } from '../../lib/constants';
 import { ShellSquare } from './ShellSquare';
 import { motion, topButton } from './constants';
 import { revealShell, useShellScroll } from './useShellScroll';
-import { useShellPageConfig } from './ShellPageContext';
+import { useShellActionsSlot, useShellPageConfig } from './ShellPageContext';
 import { ShellRoot, useShellBack } from './shellNav';
 
 const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
@@ -82,6 +82,7 @@ const PlusSquare = (): ReactElement | null => {
 
 const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
   const { user } = useAuthContext();
+  const setActionsSlot = useShellActionsSlot();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const isMobileAppHeader = useMobileAppHeader();
   const { isPlus } = usePlusSubscription();
@@ -117,19 +118,15 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
           </ShellSquare>
         </Link>
       )}
+      <div ref={setActionsSlot} className="contents" />
       <AvatarSquare />
     </div>
   );
 };
 
-const PageRow = ({
-  title,
-  actions,
-}: {
-  title?: ReactNode;
-  actions?: ReactNode;
-}): ReactElement => {
+const PageRow = ({ title }: { title?: ReactNode }): ReactElement => {
   const goBack = useShellBack();
+  const setActionsSlot = useShellActionsSlot();
   const isMobileAppHeader = useMobileAppHeader();
 
   return (
@@ -151,7 +148,7 @@ const PageRow = ({
         className="flex shrink-0 items-center"
         style={{ gap: topButton.gap }}
       >
-        {actions}
+        <div ref={setActionsSlot} className="contents" />
         {isMobileAppHeader && <MobileAppActions />}
       </div>
     </div>
@@ -235,11 +232,7 @@ export function ShellBlock({
         transition: `transform ${duration}ms ${motion.interaction}`,
       }}
     >
-      {root ? (
-        <RootRow root={root} />
-      ) : (
-        <PageRow title={config?.title} actions={config?.actions} />
-      )}
+      {root ? <RootRow root={root} /> : <PageRow title={config?.title} />}
       {config?.row ?? row}
     </header>
   );

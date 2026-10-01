@@ -107,8 +107,9 @@ function MainLayoutHeader({
       ['/', '/my-feed', '/following'].includes(pathname) ||
       pathname.startsWith('/highlights') ||
       (pathname.startsWith('/feeds/[slugOrId]') && !pathname.endsWith('/edit'));
+    // Search results are a page under Explore: back, the query, Filters.
     const isExploreRoot =
-      isSearchPage || ['/popular', '/upvoted', '/discussed'].includes(pathname);
+      isAnyExplore || ['/popular', '/upvoted', '/discussed'].includes(pathname);
     const root = (() => {
       if (isExploreRoot) {
         return ShellRoot.Explore;

@@ -32,6 +32,9 @@ import { getSquadSpotlightSource } from '../../lib/spotlight';
 import { getSquadShareText } from '../widgets/SquadShareWidget';
 import { SquadOptionsMenu } from './SquadOptionsMenu';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
+import { ShellSquare } from '../../../../components/shell/ShellSquare';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
+import { IconSize } from '../../../../components/Icon';
 
 const useSquadShare = () => {
   const { squad } = useSquadPageContext();
@@ -101,6 +104,8 @@ export const SquadActions = (): ReactElement => {
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
   const editUrl = getSquadManageUrl(squad.handle, SquadManageSection.Details);
   const isMobileAppHeader = useMobileAppHeader();
+  // On a phone search and the menu are the block's actions.
+  const isPhone = useViewSize(ViewSize.MobileL);
 
   return (
     <div className="flex items-center gap-2 pb-1">
@@ -151,16 +156,18 @@ export const SquadActions = (): ReactElement => {
           />
         </Tooltip>
       </span>
-      <Tooltip content={`Search ${squad.name}`}>
-        <Button
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Small}
-          icon={<SearchIcon />}
-          aria-label={`Search ${squad.name}`}
-          onClick={() => openWithSource(getSquadSpotlightSource(squad))}
-        />
-      </Tooltip>
-      {!isMobileAppHeader && <SquadOptionsMenu />}
+      {!isPhone && (
+        <Tooltip content={`Search ${squad.name}`}>
+          <Button
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Small}
+            icon={<SearchIcon />}
+            aria-label={`Search ${squad.name}`}
+            onClick={() => openWithSource(getSquadSpotlightSource(squad))}
+          />
+        </Tooltip>
+      )}
+      {!isPhone && !isMobileAppHeader && <SquadOptionsMenu />}
       {canBoost(squad) && (
         <span className="hidden tablet:flex">
           <BoostSourceButton
@@ -173,6 +180,25 @@ export const SquadActions = (): ReactElement => {
         <SquadJoinButton size={ButtonSize.Small} />
       </span>
     </div>
+  );
+};
+
+/** The block's actions on a phone: search the squad, then its menu. */
+export const SquadBlockActions = (): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const { openWithSource } = useSpotlight();
+  const isMobileAppHeader = useMobileAppHeader();
+
+  return (
+    <>
+      <ShellSquare
+        aria-label={`Search ${squad.name}`}
+        onClick={() => openWithSource(getSquadSpotlightSource(squad))}
+      >
+        <SearchIcon size={IconSize.Small} />
+      </ShellSquare>
+      {!isMobileAppHeader && <SquadOptionsMenu />}
+    </>
   );
 };
 

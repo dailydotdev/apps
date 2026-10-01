@@ -71,7 +71,7 @@ export function ExploreSortMenu(): ReactElement {
   }));
 
   return (
-    <div className="flex items-center justify-between px-3 py-1">
+    <div className="flex items-center justify-between px-3 pb-1 pt-2">
       <MenuLabel label={current.label} onClick={() => setIsOpen(true)} />
       {withPeriod.includes(current.key) && (
         <Dropdown

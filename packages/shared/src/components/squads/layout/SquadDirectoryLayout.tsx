@@ -12,6 +12,9 @@ import {
   SquadDirectoryNavbarItem,
 } from './SquadDirectoryNavbar';
 import { ShellPage } from '../../shell/ShellPageContext';
+import { ShellSquare } from '../../shell/ShellSquare';
+import { IconSize } from '../../Icon';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { Chips, ShellRow } from '../../shell/ShellRow';
 import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
@@ -52,6 +55,19 @@ const NewSquadButton = (
   );
 };
 
+const NewSquadSquare = (): ReactElement => {
+  const { openNewSquad } = useSquadNavigation();
+
+  return (
+    <ShellSquare
+      aria-label="New Squad"
+      onClick={() => openNewSquad({ origin: Origin.SquadDirectory })}
+    >
+      <PlusIcon size={IconSize.Small} />
+    </ShellSquare>
+  );
+};
+
 export const SquadDirectoryLayout = (
   props: SquadDirectoryLayoutProps,
 ): ReactElement => {
@@ -63,6 +79,7 @@ export const SquadDirectoryLayout = (
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const isMobileAppHeader = useMobileAppHeader();
+  const isPhone = useViewSize(ViewSize.MobileL);
 
   useEffect(() => {
     const element = document?.getElementById?.(`squad-item-discover-${id}`);
@@ -126,18 +143,21 @@ export const SquadDirectoryLayout = (
             isV2Laptop && 'laptop:hidden',
           )}
         >
-          <section className="flex w-full flex-row items-center justify-end typo-body tablet:justify-between laptop:hidden">
-            <strong className="hidden tablet:inline">Squads</strong>
-            {isMobileAppHeader ? (
-              <MobileAppActions className="hidden tablet:flex" />
-            ) : (
-              <NewSquadButton
-                icon={<PlusIcon />}
-                variant={ButtonVariant.Primary}
-              />
-            )}
-          </section>
+          {!isPhone && (
+            <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
+              <strong>Squads</strong>
+              {isMobileAppHeader ? (
+                <MobileAppActions />
+              ) : (
+                <NewSquadButton
+                  icon={<PlusIcon />}
+                  variant={ButtonVariant.Primary}
+                />
+              )}
+            </section>
+          )}
           <ShellPage
+            actions={!isMobileAppHeader && <NewSquadSquare />}
             row={
               <ShellRow>
                 <Chips
