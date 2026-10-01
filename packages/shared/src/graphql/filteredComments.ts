@@ -1,10 +1,8 @@
 import { gql } from 'graphql-request';
 import type { Connection } from './common';
-import { gqlClient } from './common';
 import { gqlBatchRequest } from './batch';
 import { COMMENT_FRAGMENT } from './fragments';
 import type { Comment } from './comments';
-import type { EmptyResponse } from './emptyResponse';
 import type { LoggedUser } from '../lib/user';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
@@ -15,8 +13,8 @@ export const FILTERED_COMMENTS_COUNT_QUERY = gql`
 `;
 
 export const FILTERED_COMMENTS_QUERY = gql`
-  query FilteredComments($postId: ID!) {
-    filteredComments(postId: $postId) {
+  query FilteredComments($postId: ID!, $first: Int) {
+    filteredComments(postId: $postId, first: $first) {
       edges {
         node {
           ...CommentFragment
@@ -27,13 +25,8 @@ export const FILTERED_COMMENTS_QUERY = gql`
   ${COMMENT_FRAGMENT}
 `;
 
-export const REPORT_NOT_SPAM_MUTATION = gql`
-  mutation ReportNotSpam($commentId: ID!) {
-    reportNotSpam(commentId: $commentId) {
-      _
-    }
-  }
-`;
+// The API's page cap for filteredComments
+const filteredCommentsMaxSize = 100;
 
 interface FilteredCommentsQueryParams {
   postId: string;
@@ -64,15 +57,12 @@ export const filteredCommentsQueryOptions = ({
   postId,
   user,
 }: FilteredCommentsQueryParams) => ({
-  queryKey: generateQueryKey(RequestKey.FilteredComments, user, postId),
+  queryKey: generateQueryKey(RequestKey.FilteredComments, user, postId, 'list'),
   queryFn: async (): Promise<Comment[]> => {
     const res = await gqlBatchRequest<{
       filteredComments: Connection<Comment>;
-    }>(FILTERED_COMMENTS_QUERY, { postId });
+    }>(FILTERED_COMMENTS_QUERY, { postId, first: filteredCommentsMaxSize });
 
     return res.filteredComments.edges.map(({ node }) => node);
   },
 });
-
-export const reportNotSpam = (commentId: string): Promise<EmptyResponse> =>
-  gqlClient.request(REPORT_NOT_SPAM_MUTATION, { commentId });

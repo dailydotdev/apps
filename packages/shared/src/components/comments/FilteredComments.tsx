@@ -1,12 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import type { Comment } from '../../graphql/comments';
 import {
   filteredCommentsCountQueryOptions,
   filteredCommentsQueryOptions,
-  reportNotSpam,
 } from '../../graphql/filteredComments';
 import type { Post } from '../../graphql/posts';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -14,6 +13,8 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
+import useReportComment from '../../hooks/useReportComment';
+import { ReportReason } from '../../report';
 import { featureFilteredCommentsBar } from '../../lib/featureManagement';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
@@ -51,16 +52,33 @@ function FilteredComment({
 }: FilteredCommentsProps & { comment: Comment }): ReactElement {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const { mutate, isPending, isSuccess } = useMutation({
-    mutationFn: () => reportNotSpam(comment.id),
-    onSuccess: () =>
-      logEvent(
-        postLogEvent(LogEvent.ReportFilteredCommentNotSpam, post, {
-          extra: { commentId: comment.id },
-        }),
-      ),
-    onError: () => displayToast(labels.error.generic),
-  });
+  const { reportComment } = useReportComment();
+  const [isReporting, setIsReporting] = useState(false);
+  const [isReported, setIsReported] = useState(false);
+
+  const onReport = async () => {
+    setIsReporting(true);
+
+    try {
+      const { successful } = await reportComment({
+        commentId: comment.id,
+        reason: ReportReason.NotSpam,
+      });
+
+      if (successful) {
+        setIsReported(true);
+        logEvent(
+          postLogEvent(LogEvent.ReportFilteredCommentNotSpam, post, {
+            extra: { commentId: comment.id },
+          }),
+        );
+      }
+    } catch {
+      displayToast(labels.error.generic);
+    } finally {
+      setIsReporting(false);
+    }
+  };
 
   return (
     <CommentContainer
@@ -71,7 +89,7 @@ function FilteredComment({
       appendTooltipTo={appendTooltipTo}
       className={{
         container: classNames(
-          'opacity-[0.64]',
+          'opacity-64',
           isModalThread && threadCommentBoxClassName.container,
         ),
         content: classNames(isModalThread && threadCommentBoxClassName.content),
@@ -92,14 +110,14 @@ function FilteredComment({
             isModalThread ? 'mt-1' : 'mt-3',
           )}
         >
-          {isSuccess ? (
+          {isReported ? (
             'Sent to our moderators. Thanks.'
           ) : (
             <button
               type="button"
               className="font-bold hover:text-text-primary"
-              disabled={isPending}
-              onClick={() => mutate()}
+              disabled={isReporting}
+              onClick={onReport}
             >
               Not spam? Report it
             </button>

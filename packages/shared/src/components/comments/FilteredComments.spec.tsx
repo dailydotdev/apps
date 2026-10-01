@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import type { AuthContextData } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { reportNotSpam } from '../../graphql/filteredComments';
+import useReportComment from '../../hooks/useReportComment';
+import { ReportReason } from '../../report';
 import type { Comment } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
@@ -24,7 +25,13 @@ jest.mock('../../graphql/filteredComments', () => ({
     queryKey: ['filtered_comments'],
     queryFn: async () => [{ id: 'f1' }, { id: 'f2' }],
   }),
-  reportNotSpam: jest.fn(async () => ({ _: true })),
+}));
+
+const reportComment = jest.fn(async () => ({ successful: true }));
+
+jest.mock('../../hooks/useReportComment', () => ({
+  __esModule: true,
+  default: jest.fn(),
 }));
 
 jest.mock('./CommentContainer', () => ({
@@ -75,6 +82,7 @@ const setFlag = (value: boolean) =>
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(useReportComment).mockReturnValue({ reportComment });
 });
 
 it('renders nothing while the flag is off', () => {
@@ -112,5 +120,8 @@ it('expands for logged-in readers and reports a comment as not spam', async () =
   expect(
     await screen.findByText('Sent to our moderators. Thanks.'),
   ).toBeInTheDocument();
-  expect(reportNotSpam).toHaveBeenCalledWith('f1');
+  expect(reportComment).toHaveBeenCalledWith({
+    commentId: 'f1',
+    reason: ReportReason.NotSpam,
+  });
 });
