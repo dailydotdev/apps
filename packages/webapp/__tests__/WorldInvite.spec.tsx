@@ -30,6 +30,7 @@ const renderInvite = (viewer?: LoggedUser) =>
         value={{
           user: viewer,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -37,6 +38,7 @@ const renderInvite = (viewer?: LoggedUser) =>
           getRedirectUri: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           trackingId: '',
           isLoggedIn: !!viewer,
         }}

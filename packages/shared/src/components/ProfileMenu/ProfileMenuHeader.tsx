@@ -17,12 +17,15 @@ import type { WithClassNameProps } from '../utilities';
 import { webappUrl } from '../../lib/constants';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { IconSize } from '../Icon';
+import { ReferralLadderGiftButton } from '../referral/ReferralLadderGiftButton';
+import { useReferralLadder } from '../../hooks/referral/useReferralLadder';
 
 type Props = WithClassNameProps & {
   shouldOpenProfile?: boolean;
   profileImageSize?: ProfileImageSize;
   // v2 sidebar dropdown tightens the name/handle gap; defaults to the v1 value.
   compact?: boolean;
+  showReferralLadderGift?: boolean;
 };
 
 export const ProfileMenuHeader = ({
@@ -30,9 +33,13 @@ export const ProfileMenuHeader = ({
   shouldOpenProfile = false,
   profileImageSize = ProfileImageSize.Large,
   compact = false,
+  showReferralLadderGift = false,
 }: Props): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+  const { isEligible: isReferralLadderEligible, nextStep } = useReferralLadder({
+    enabled: showReferralLadderGift,
+  });
 
   if (!user) {
     return null;
@@ -80,10 +87,15 @@ export const ProfileMenuHeader = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
             truncate
+            translate="no"
           >
             @{user.username}
           </Typography>
         </div>
+
+        {isReferralLadderEligible && nextStep && (
+          <ReferralLadderGiftButton nextStep={nextStep} />
+        )}
 
         {shouldOpenProfile && (
           <OpenLinkIcon

@@ -18,6 +18,8 @@ import type { Ad } from '../../../graphql/posts';
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
@@ -58,9 +60,12 @@ export const SquadList = ({
         type={ImageType.Squad}
       />
       <div className="flex max-w-[calc(100%-10rem)] flex-1 flex-col">
-        <Typography type={TypographyType.Callout} bold truncate>
-          {name}
-        </Typography>
+        <div className="flex items-center gap-1">
+          <Typography type={TypographyType.Callout} bold truncate>
+            {name}
+          </Typography>
+          {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+        </div>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}

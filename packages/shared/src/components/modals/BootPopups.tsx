@@ -20,6 +20,7 @@ import { ButtonVariant } from '../buttons/common';
 import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useReferralReminderModal } from '../../hooks/referral/useReferralReminderModal';
 
 const REP_TRESHOLD = 250;
 
@@ -197,18 +198,20 @@ export const BootPopups = (): ReactElement => {
     }
   }, [marketingCtaPopoverSmall]);
 
-  const shouldShowGenericReferral = alerts?.showGenericReferral === true;
+  const referralReminderModal = useReferralReminderModal({
+    enabled: alerts?.showGenericReferral === true,
+  });
 
   /** *
-   * Boot popup for generic referral campaign
+   * Boot popup for the referral reminder, the ladder promo when eligible
    */
   useEffect(() => {
-    if (!shouldShowGenericReferral) {
+    if (!referralReminderModal) {
       return;
     }
 
     addBootPopup({
-      type: LazyModal.GenericReferral,
+      type: referralReminderModal,
       props: {
         onAfterOpen: () => {
           updateLastBootPopup();
@@ -216,7 +219,7 @@ export const BootPopups = (): ReactElement => {
         isDrawerOnMobile: true,
       },
     });
-  }, [shouldShowGenericReferral, updateLastBootPopup]);
+  }, [referralReminderModal, updateLastBootPopup]);
 
   /**
    * Streak recovery modal

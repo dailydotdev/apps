@@ -21,8 +21,8 @@ import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
 import {
   gameCenterMilestoneSectionId,
-  plusApiCta,
-  plusApiCtaShort,
+  plusCta,
+  plusCtaShort,
   plusUrl,
   webappUrl,
 } from '../../../lib/constants';
@@ -39,6 +39,9 @@ import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { usePlusSale } from '../../../hooks/usePlusSale';
 import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
+import { useActions } from '../../../hooks/useActions';
+import { ActionType } from '../../../graphql/actions';
+import { AlertColor, AlertDot } from '../../AlertDot';
 
 export const MainSection = ({
   isItemsButton,
@@ -50,7 +53,7 @@ export const MainSection = ({
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
   const { isActive: isSaleActive } = usePlusSale();
-  const ctaCopy = { full: plusApiCta, short: plusApiCtaShort };
+  const ctaCopy = { full: plusCta, short: plusCtaShort };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
@@ -59,6 +62,11 @@ export const MainSection = ({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn,
   });
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const showAgentDot =
+    !isV2 &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.InterestAgentSidebarClick);
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>
@@ -160,6 +168,12 @@ export const MainSection = ({
           icon: (active: boolean) => (
             <ListIcon Icon={() => <AgentIcon secondary={active} />} />
           ),
+          alert: showAgentDot && (
+            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+          ),
+          action: showAgentDot
+            ? () => completeAction(ActionType.InterestAgentSidebarClick)
+            : undefined,
           title: 'Agents',
           path: `${webappUrl}agent`,
           isForcedLink: true,
@@ -229,6 +243,8 @@ export const MainSection = ({
     isV2,
     onNavTabClick,
     showAgent,
+    showAgentDot,
+    completeAction,
     showYearInReview,
     user,
   ]);

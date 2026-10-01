@@ -213,6 +213,12 @@ export const SOURCE_BASE_FRAGMENT = gql`
     flags {
       totalUpvotes
     }
+    features {
+      verified
+      adFree
+      links
+      products
+    }
     currentMember {
       ...CurrentMember
     }
@@ -296,13 +302,6 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       reputation
       createdAt
       bio
-      companies {
-        name
-        image
-      }
-      contentPreference {
-        status
-      }
       coresRole
     }
     type
@@ -320,11 +319,6 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       description
       flags {
         totalUpvotes
-      }
-      currentMember {
-        flags {
-          collapsePinnedPosts
-        }
       }
     }
     userState {

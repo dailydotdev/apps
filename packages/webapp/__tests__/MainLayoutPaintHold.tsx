@@ -4,7 +4,11 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import {
+  createReadyGrowthBook,
+  TestBootProvider,
+} from '@dailydotdev/shared/__tests__/helpers/boot';
+import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import * as layoutVariant from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import MainLayout from '../components/layouts/MainLayout';
@@ -21,7 +25,7 @@ jest.mock('@dailydotdev/shared/src/lib/constants', () => ({
   isTesting: false,
 }));
 
-const mockRouter = (route: string) => {
+const mockRouter = (route: string, isReady = false) => {
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -29,7 +33,7 @@ const mockRouter = (route: string) => {
         pathname: route,
         asPath: route,
         query: {},
-        isReady: false,
+        isReady,
         push: jest.fn(),
         replace: jest.fn(),
         events: { on: jest.fn(), off: jest.fn() },
@@ -87,5 +91,37 @@ describe('MainLayout before boot resolves', () => {
     expect(
       screen.queryByText('prerendered page content'),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('MainLayout on a feed-shaped page before boot', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+  });
+
+  it.each([
+    { session: 'a still-valid cached session', isCached: true },
+    { session: 'no cached session', isCached: false },
+  ])('paints before boot with $session: $isCached', ({ isCached }) => {
+    mockRouter('/popular', true);
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        gb={createReadyGrowthBook()}
+        auth={{
+          isAuthReady: false,
+          isAuthReadyOrCached: isCached,
+          isLoggedIn: isCached,
+          user: isCached ? loggedUser : undefined,
+        }}
+      >
+        <MainLayout>
+          <p>feed</p>
+        </MainLayout>
+      </TestBootProvider>,
+    );
+
+    expect(!!screen.queryByText('feed')).toBe(isCached);
   });
 });

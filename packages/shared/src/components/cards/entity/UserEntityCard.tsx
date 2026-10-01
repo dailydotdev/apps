@@ -121,6 +121,7 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
               tag={TypographyTag.Link}
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
+              translate="no"
             >
               @{username}
             </Typography>

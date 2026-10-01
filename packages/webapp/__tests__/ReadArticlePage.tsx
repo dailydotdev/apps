@@ -11,6 +11,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/posts';
 import type { PostCommentsData } from '@dailydotdev/shared/src/graphql/comments';
 import { POST_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
+import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -223,5 +224,34 @@ describe('ReadPostPage under post_redesign', () => {
       expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
       expect(mountedUnits()).toEqual(classicUnits);
     });
+
+    it.each([
+      ['classic template', false],
+      ['focus card', true],
+    ])(
+      'carries no unit for a post in an ad-free squad on the %s',
+      async (_, redesign) => {
+        mockRedesignOn = redesign;
+        renderPage({
+          summary: longSummary,
+          source: {
+            ...(post.source as Source),
+            type: SourceType.Squad,
+            features: {
+              verified: true,
+              adFree: true,
+              links: false,
+              products: false,
+            },
+          },
+        });
+        expect(
+          await screen.findByTestId(
+            redesign ? 'post-focus-card' : 'postContainer',
+          ),
+        ).toBeInTheDocument();
+        expect(screen.queryAllByTestId(/^ad-slot-/)).toHaveLength(0);
+      },
+    );
   });
 });

@@ -35,6 +35,7 @@ import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
+import { YoutubeLinkEmbeds } from '../../contentEmbeds/YoutubeLinkEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { Origin } from '../../../lib/log';
 import { TextSnapshotButton } from '../../../features/snapshot/TextSnapshotButton';
@@ -363,13 +364,11 @@ const PostFocusCardRaw = ({
   // A markdown body has no summary to trail, so the copy sits per paragraph.
   const bodyRef = useRef<HTMLDivElement>(null);
   const isCollection = article.type === PostType.Collection;
-  // Posts authored by a user (shared, freeform, welcome) lead with that
+  // Posts authored by a user (shared, freeform) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
   // (article/video/collection) keep their source strip.
   const isSquadPost =
-    post.type === PostType.Share ||
-    post.type === PostType.Freeform ||
-    post.type === PostType.Welcome;
+    post.type === PostType.Share || post.type === PostType.Freeform;
   const author = isSquadPost ? post.author : undefined;
   // Author-led posts show the author in the header, so the squad needs naming
   // separately; publication-sourced posts already show their source strip.
@@ -506,6 +505,9 @@ const PostFocusCardRaw = ({
         <Markdown content={article.contentHtml} className="break-words" />
       )}
       <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
+      {article.type === PostType.Freeform && (
+        <YoutubeLinkEmbeds contentHtml={article.contentHtml} />
+      )}
       <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
     </div>
   ) : (
@@ -841,7 +843,11 @@ const PostFocusCardRaw = ({
           )}
 
           {!ads?.withoutDirectSold && (
-            <PostSidebarAdWidget postId={post.id} variant="inline" />
+            <PostSidebarAdWidget
+              postId={post.id}
+              source={post.source}
+              variant="inline"
+            />
           )}
 
           <PostUpvotesCommentsCount

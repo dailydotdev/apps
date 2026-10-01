@@ -3,7 +3,7 @@ import React from 'react';
 import type { PublicProfile } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
 import { PlusUser } from './PlusUser';
-import { plusApiCta, plusUrl } from '../lib/constants';
+import { plusCta, plusUrl } from '../lib/constants';
 import Link from './utilities/Link';
 import {
   Typography,
@@ -29,7 +29,6 @@ export const PlusUserBadge = ({
   size = IconSize.Size16,
 }: Props): ReactElement | null => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const plusCta = plusApiCta;
 
   if (!user.isPlus) {
     return null;

@@ -239,6 +239,7 @@ const renderComponent = (
       clickbaitShieldEnabled: true,
     },
     toggleSidebarExpanded: jest.fn().mockResolvedValue(undefined),
+    setSidebarForceCollapsed: jest.fn(),
     toggleSortingEnabled: jest.fn().mockResolvedValue(undefined),
     toggleOptOutReadingStreak: jest.fn().mockResolvedValue(undefined),
     toggleOptOutLevelSystem: jest.fn().mockResolvedValue(undefined),
@@ -268,8 +269,10 @@ const renderComponent = (
           logout: jest.fn().mockResolvedValue(undefined),
           updateUser: jest.fn().mockResolvedValue(undefined),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <AlertContextProvider alerts={{}} updateAlerts={jest.fn()} loadedAlerts>

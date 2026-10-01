@@ -7,6 +7,10 @@ import {
   ActivePostContextProvider,
   useActivePostContext,
 } from '@dailydotdev/shared/src/contexts/ActivePostContext';
+import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useMobileAppFooterContext } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
+import { MobileAppFooterTrigger } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
 import FooterWrapper from '../components/footer/FooterWrapper';
 
 jest.mock('@dailydotdev/shared/src/components/ScrollToTopButton', () => ({
@@ -29,7 +33,34 @@ jest.mock(
   }),
 );
 
+jest.mock(
+  '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext',
+  () => ({ useMobileAppFooterContext: jest.fn() }),
+);
+
+jest.mock(
+  '@dailydotdev/shared/src/features/getApp/components/MobileAppFooter',
+  () => ({
+    MobileAppFooter: ({ title }: { title: string }) => <p>{title}</p>,
+  }),
+);
+
+const mockAppFooter = jest.mocked(useMobileAppFooterContext);
+
 const post = { id: 'p1', type: PostType.Article } as Post;
+
+const renderFooter = (children: React.ReactNode) =>
+  render(
+    <AuthContext.Provider
+      value={{ isLoggedIn: false } as unknown as AuthContextData}
+    >
+      {children}
+    </AuthContext.Provider>,
+  );
+
+beforeEach(() => {
+  mockAppFooter.mockReturnValue({ isRevealed: false, reveal: jest.fn() });
+});
 
 const ComposerOwner = ({
   onOpenRequest,
@@ -49,7 +80,7 @@ const ComposerOwner = ({
 describe('FooterWrapper', () => {
   it('asks the in-page composer to open instead of mounting its own', async () => {
     const onOpenRequest = jest.fn();
-    render(
+    renderFooter(
       <ActivePostContextProvider post={post}>
         <ComposerOwner onOpenRequest={onOpenRequest} />
         <FooterWrapper post={post} />
@@ -62,8 +93,25 @@ describe('FooterWrapper', () => {
   });
 
   it('renders no floating bar without a post', () => {
-    render(<FooterWrapper />);
+    renderFooter(<FooterWrapper />);
 
+    expect(
+      screen.queryByRole('button', { name: 'Comment' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('swaps the bottom bar for the Charm footer once it is revealed', async () => {
+    mockAppFooter.mockReturnValue({
+      moment: {
+        title: 'See all comments',
+        trigger: MobileAppFooterTrigger.Anchor,
+      },
+      isRevealed: true,
+      reveal: jest.fn(),
+    });
+    renderFooter(<FooterWrapper post={post} />);
+
+    expect(await screen.findByText('See all comments')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Comment' }),
     ).not.toBeInTheDocument();

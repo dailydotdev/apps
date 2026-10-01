@@ -1,0 +1,4 @@
+# Gitignored local files copied into new worktrees. Claude Code reads this natively;
+# scripts/copy-worktree-files.js covers `git worktree add` (plain paths only, no globs).
+packages/webapp/.env.local
+packages/webapp/certificates/

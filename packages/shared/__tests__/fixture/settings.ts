@@ -42,6 +42,7 @@ export const createTestSettings = (
   toggleOptOutLevelSystem: jest.fn(),
   toggleOptOutQuestSystem: jest.fn(),
   toggleSidebarExpanded: jest.fn(),
+  setSidebarForceCollapsed: jest.fn(),
   toggleSortingEnabled: jest.fn(),
   syncSettings: jest.fn(),
   updateCustomLinks: jest.fn(),

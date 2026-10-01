@@ -26,11 +26,6 @@ export const baseFeedSupportedTypes = [
   PostType.Poll,
 ];
 
-export const supportedTypesForPrivateSources = [
-  ...baseFeedSupportedTypes,
-  PostType.Welcome,
-];
-
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
@@ -583,7 +578,17 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('pinnedAt contentHtml')}
+  ${getFeedPostFragment(`
+    pinnedAt
+    contentHtml
+    source {
+      currentMember {
+        flags {
+          collapsePinnedPosts
+        }
+      }
+    }
+  `)}
 `;
 
 export const CHANNEL_FEED_QUERY = gql`

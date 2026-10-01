@@ -11,6 +11,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
+import { YoutubeLinkEmbeds } from '../contentEmbeds/YoutubeLinkEmbeds';
 import { ParagraphSnapshotButtons } from '../../features/snapshot/ParagraphSnapshotButtons';
 
 interface MarkdownPostContentProps {
@@ -95,21 +96,18 @@ function MarkdownPostContent({
       {/* The spacing rides the wrapper, not the body: the column is a flex
           container, so a margin left inside this new flex item would no longer
           reach the block below it. */}
-      <div
-        ref={bodyRef}
-        className={post.type !== PostType.Welcome ? 'mb-5' : undefined}
-      >
+      <div ref={bodyRef} className="mb-5">
         <Markdown content={post.contentHtml ?? ''} className="break-words" />
         <ParagraphSnapshotButtons containerRef={bodyRef} post={post} />
       </div>
+      {post.type === PostType.Freeform && (
+        <YoutubeLinkEmbeds contentHtml={post.contentHtml} className="mb-5" />
+      )}
       <ContentEmbeds
         embeds={post.contentEmbeds}
         variant="post"
-        className={post.type !== PostType.Welcome ? 'mb-5' : undefined}
+        className="mb-5"
       />
-      {post.type === PostType.Welcome && post.image && (
-        <MarkdownPostImage imgSrc={post.image} className="mb-5 mt-8" />
-      )}
     </>
   );
 }

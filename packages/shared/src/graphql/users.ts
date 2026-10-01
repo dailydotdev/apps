@@ -6,14 +6,19 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile, UserProfile, UserShortProfile } from '../lib/user';
+import type {
+  LoggedUser,
+  PublicProfile,
+  UserProfile,
+  UserShortProfile,
+} from '../lib/user';
 import type { Connection } from './common';
 import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
 import type { NotificationSettings } from '../components/notifications/utils';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export const USER_SHORT_BY_ID = `
   query UserShortById($id: ID!) {
@@ -550,6 +555,59 @@ export const REFERRAL_CAMPAIGN_QUERY = gql`
   }
 `;
 
+export const REFERRAL_LADDER_QUERY = gql`
+  query ReferralLadder {
+    referralLadder {
+      eligible
+      referredCount
+      steps {
+        step
+        invites
+        months
+        unlockedAt
+      }
+      friends {
+        id
+        name
+        image
+        username
+        permalink
+      }
+    }
+  }
+`;
+
+export interface ReferralLadderStep {
+  step: number;
+  invites: number;
+  months: number;
+  unlockedAt: string | null;
+}
+
+export type ReferralLadderFriend = Pick<
+  UserShortProfile,
+  'id' | 'name' | 'image' | 'username' | 'permalink'
+>;
+
+export interface ReferralLadder {
+  eligible: boolean;
+  referredCount: number;
+  steps: ReferralLadderStep[];
+  friends: ReferralLadderFriend[];
+}
+
+export const referralLadderQueryOptions = (user?: Pick<LoggedUser, 'id'>) => ({
+  queryKey: generateQueryKey(RequestKey.ReferralLadder, user),
+  queryFn: async (): Promise<ReferralLadder> => {
+    const { referralLadder } = await gqlClient.request<{
+      referralLadder: ReferralLadder;
+    }>(REFERRAL_LADDER_QUERY);
+
+    return referralLadder;
+  },
+  staleTime: StaleTime.Default,
+});
+
 export const GET_REFERRING_USER_QUERY = gql`
   query User($id: ID!) {
     user(id: $id) {
@@ -814,10 +872,18 @@ export const DEV_CARD_QUERY = gql`
 
 export enum AcquisitionChannel {
   Friend = 'friend',
+  X = 'x',
+  Reddit = 'reddit',
+  LinkedIn = 'linkedin',
   InstagramFacebook = 'instagram_facebook',
   YouTube = 'youtube',
   TikTok = 'tiktok',
+  Creator = 'creator',
+  GitHub = 'github',
   SearchEngine = 'search_engine',
+  AI = 'ai',
+  AppStore = 'app_store',
+  NewsletterBlog = 'newsletter_blog',
   Advertisement = 'ad',
   Other = 'other',
 }
@@ -934,6 +1000,12 @@ export const getBasicUserInfo = async (
 
   return res.user || null;
 };
+
+export const referringUserQueryOptions = (userId: string) => ({
+  queryKey: generateQueryKey(RequestKey.ReferringUser, undefined, userId),
+  queryFn: () => getBasicUserInfo(userId),
+  staleTime: StaleTime.Default,
+});
 
 export enum UploadPreset {
   Avatar = 'avatar',

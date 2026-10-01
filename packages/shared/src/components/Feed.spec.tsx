@@ -1,4 +1,5 @@
 import nock from 'nock';
+import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import type { RenderResult } from '@testing-library/react';
 import {
@@ -90,6 +91,13 @@ import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingRem
 import { useBoot } from '../hooks/useBoot';
 import { MarketingCtaVariant } from './marketing/cta/common';
 import type { MarketingCta } from './marketing/cta/common';
+import * as uploadCv from '../features/profile/hooks/useUploadCv';
+import * as introQuests from '../hooks/useHasIntroQuests';
+import * as layoutVariant from '../hooks/layout/useLayoutVariant';
+import {
+  TopHeroSlotProvider,
+  useTopHeroSlot,
+} from '../contexts/TopHeroSlotContext';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -181,6 +189,12 @@ const defaultVariables = {
 
 const queryClient = new QueryClient(defaultQueryClientTestingConfig);
 
+const TopHeroSlotTarget = (): ReactElement => {
+  const { setSlot } = useTopHeroSlot();
+
+  return <div data-testid="top-hero-slot" ref={setSlot} />;
+};
+
 beforeEach(() => {
   queryClient.clear();
   jest.restoreAllMocks();
@@ -258,6 +272,7 @@ function renderComponent(
     toggleAutoDismissNotifications: jest.fn(),
     updateCustomLinks: jest.fn(),
     toggleSidebarExpanded: jest.fn(),
+    setSidebarForceCollapsed: jest.fn(),
   };
   return render(
     <QueryClientProvider client={queryClient}>
@@ -270,23 +285,28 @@ function renderComponent(
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           trackingId: resolvedUser?.id,
           loginState: undefined,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <LazyModalElement />
         <SettingsContext.Provider value={settingsContext}>
           <Toast autoDismissNotifications={false} />
-          <Feed
-            feedQueryKey={['feed']}
-            feedName={feedName}
-            query={query}
-            variables={variables}
-            {...feedProps}
-          />
+          <TopHeroSlotProvider>
+            <TopHeroSlotTarget />
+            <Feed
+              feedQueryKey={['feed']}
+              feedName={feedName}
+              query={query}
+              variables={variables}
+              {...feedProps}
+            />
+          </TopHeroSlotProvider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -2030,6 +2050,7 @@ const renderWithHighlightLayout = ({
     toggleAutoDismissNotifications: jest.fn(),
     updateCustomLinks: jest.fn(),
     toggleSidebarExpanded: jest.fn(),
+    setSidebarForceCollapsed: jest.fn(),
   };
 
   // Use a fresh QueryClient per render — the suite-level singleton can
@@ -2048,11 +2069,13 @@ const renderWithHighlightLayout = ({
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           trackingId: user.id,
           loginState: undefined,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <GrowthBookProvider growthbook={gb}>
@@ -2447,7 +2470,7 @@ describe('Feed ad cadence with highlight cards', () => {
     renderWithHighlightLayout({
       posts: [buildPost('p0')],
       highlightEnabled: false,
-      feedName: OtherFeedPage.Squad,
+      feedName: OtherFeedPage.Squads,
     });
 
     await waitFor(() => {
@@ -2530,7 +2553,7 @@ describe('Feed ad cadence with highlight cards', () => {
         buildPost('p3'),
       ],
       highlightEnabled: false,
-      feedName: OtherFeedPage.Squad,
+      feedName: OtherFeedPage.Squads,
     });
 
     expect(
@@ -2648,5 +2671,136 @@ describe('Feed excludePinnedPosts', () => {
     await waitForNock();
 
     expect(await screen.findByText(pinnedTitle)).toBeInTheDocument();
+  });
+});
+
+describe('Feed top hero placements', () => {
+  const cvCampaign: MarketingCta = {
+    campaignId: 'cv-campaign',
+    variant: MarketingCtaVariant.FeedBanner,
+    createdAt: new Date(),
+    flags: { title: '', ctaUrl: '', ctaText: '' },
+  };
+
+  const mockViewport = ({ isLaptop }: { isLaptop: boolean }) =>
+    jest
+      .spyOn(hooks, 'useViewSize')
+      .mockImplementation((size) =>
+        size === hooks.ViewSize.Laptop ? isLaptop : true,
+      );
+
+  const mockLayoutVariant = (isV2: boolean) =>
+    jest
+      .spyOn(layoutVariant, 'useLayoutVariant')
+      .mockReturnValue({ isV2, isLoading: false });
+
+  const mockReadingReminder = () =>
+    jest.mocked(useReadingReminderFeedHero).mockReturnValue({
+      shouldShowTopHero: true,
+      title: 'Never miss a learning day',
+      subtitle: 'Turn on your daily reading reminder.',
+      onEnableHero: jest.fn(),
+      onDismissHero: jest.fn(),
+    });
+
+  beforeEach(() => {
+    jest
+      .mocked(useRouter)
+      .mockImplementation(
+        () => ({ pathname: '/', query: {} } as unknown as NextRouter),
+      );
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn(() => null),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+    jest.mocked(useReadingReminderFeedHero).mockReturnValue({
+      shouldShowTopHero: false,
+      title: '',
+      subtitle: '',
+      onEnableHero: jest.fn(),
+      onDismissHero: jest.fn(),
+    });
+    jest.spyOn(introQuests, 'useHasIntroQuests').mockReturnValue(false);
+    jest.spyOn(uploadCv, 'useUploadCv').mockReturnValue({
+      onUpload: jest.fn(),
+      status: 'idle',
+      isSuccess: false,
+      isPending: false,
+      shouldShow: true,
+      onCloseBanner: jest.fn(),
+    });
+  });
+
+  const withCvCampaign = () =>
+    jest.mocked(useBoot).mockReturnValue({
+      ...jest.mocked(useBoot)(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.FeedBanner ? cvCampaign : null,
+      ),
+    });
+
+  it('renders the CV banner below laptop, where the layout flag is never evaluated', async () => {
+    mockViewport({ isLaptop: false });
+    withCvCampaign();
+
+    renderComponent();
+
+    expect(
+      await screen.findByText('Complete your profile faster'),
+    ).toBeInTheDocument();
+  });
+
+  it('moves the CV banner into the top-hero slot in v2 instead of rendering both', async () => {
+    mockViewport({ isLaptop: true });
+    mockLayoutVariant(true);
+    withCvCampaign();
+
+    renderComponent();
+
+    const slot = screen.getByTestId('top-hero-slot');
+    expect(await within(slot).findByText('Upload CV')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Complete your profile faster'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('moves the reading reminder into the top-hero slot in v2', async () => {
+    mockViewport({ isLaptop: true });
+    mockLayoutVariant(true);
+    mockReadingReminder();
+
+    renderComponent();
+
+    const slot = screen.getByTestId('top-hero-slot');
+    expect(
+      await within(slot).findByRole('button', { name: 'Enable reminder' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('button', { name: 'Enable reminder' }),
+    ).toHaveLength(1);
+  });
+
+  it('keeps the reading reminder out of the slot when the surface owns the top content', async () => {
+    mockViewport({ isLaptop: true });
+    mockLayoutVariant(true);
+    mockReadingReminder();
+
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { topContent: <div>Feed hero</div> },
+    );
+
+    expect(await screen.findByText('Feed hero')).toBeInTheDocument();
+    const slot = screen.getByTestId('top-hero-slot');
+    expect(
+      within(slot).queryByRole('button', { name: 'Enable reminder' }),
+    ).not.toBeInTheDocument();
   });
 });

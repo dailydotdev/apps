@@ -13,6 +13,8 @@ import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/pro
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
 import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { ProfileUserWorkspacePhotos } from '@dailydotdev/shared/src/features/profile/components/workspacePhotos/ProfileUserWorkspacePhotos';
+import { MobileAppFooterAnchor } from '@dailydotdev/shared/src/features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -142,6 +144,10 @@ const ProfilePage = ({
         <ProfileUserStack user={user} />
         <ProfileUserHotTakes user={user} />
         <ProfileUserWorkspacePhotos user={user} />
+        <MobileAppFooterAnchor
+          at={MobileAppFooterAnchorPlace.Activity}
+          className="!border-0"
+        />
         <Activity user={user} />
         {isSameUser && (
           <Share permalink={user?.permalink} className="laptop:hidden" />

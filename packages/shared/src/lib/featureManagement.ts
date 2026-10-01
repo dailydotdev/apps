@@ -299,17 +299,14 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-// Experiment: skip layout/paint for off-screen feed cards via CSS
-// `content-visibility: auto` to keep long feeds responsive.
-export const featureFeedContentVisibility = new Feature(
-  'feed_content_visibility',
-  false,
-);
-
 export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
 );
+
+// Experiment: the post page's full-width signup banner against the cover
+// card pinned over the bottom of the window at the content's width.
+export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
@@ -358,3 +355,17 @@ export const featureReadAds = new Feature('read_ads', true);
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
+
+// Experiment: logged-out phones get the Charm footer in place of the tab bar
+// once they reach a page's trigger point.
+export const featureMobileAppFooter = new Feature('mobile_app_footer', false);
+
+// Experiment: logged-in phones get the "See daily.dev in…" sheet when they
+// land on the web.
+export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);
+
+// How long the sheet stays away after the reader picks Open or Continue.
+export const featureMobileAppSheetSnoozeHours = new Feature(
+  'mobile_app_sheet_snooze_hours',
+  72,
+);

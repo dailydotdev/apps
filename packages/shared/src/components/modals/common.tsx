@@ -6,9 +6,6 @@ export type CloseModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
 ) => void;
 
-const SquadMemberModal = dynamic(
-  () => import(/* webpackChunkName: "squadMemberModal" */ './SquadMemberModal'),
-);
 const UpvotedPopupModal = dynamic(
   () =>
     import(/* webpackChunkName: "upvotedPopupModal" */ './UpvotedPopupModal'),
@@ -95,6 +92,20 @@ const GenericReferralModal = dynamic(
     ),
 );
 
+const ReferralLadderModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "referralLadderModal" */ './referral/ReferralLadderModal'
+    ),
+);
+
+const ReferralLadderPromoModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "referralLadderPromoModal" */ './referral/ReferralLadderPromoModal'
+    ),
+);
+
 const NewStreakModal = dynamic(
   () =>
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
@@ -123,19 +134,6 @@ const MarketingCtaModal = dynamic(
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
-);
-
-const PrivilegedMemberModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "privilegedMembersModal" */ './squads/PrivilegedMembersModal'
-    ),
-);
-const TopMembersModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "topMembersModal" */ './squads/TopMembersModal'
-    ),
 );
 
 const BookmarkReminderModal = dynamic(
@@ -530,8 +528,11 @@ const PostImpressionsModal = dynamic(
     ),
 );
 
+const AgentIntroModal = dynamic(
+  () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
+);
+
 export const modals = {
-  [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
   [LazyModal.SquadTour]: SquadTourModal,
@@ -544,6 +545,8 @@ export const modals = {
   [LazyModal.NewSource]: NewSource,
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
+  [LazyModal.ReferralLadder]: ReferralLadderModal,
+  [LazyModal.ReferralLadderPromo]: ReferralLadderPromoModal,
   [LazyModal.Video]: VideoModal,
   [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
@@ -551,8 +554,6 @@ export const modals = {
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
-  [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
-  [LazyModal.TopMembers]: TopMembersModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
@@ -616,6 +617,7 @@ export const modals = {
   [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
+  [LazyModal.AgentIntro]: AgentIntroModal,
 };
 
 type GetComponentProps<T> = T extends

@@ -216,6 +216,9 @@ export enum LogEvent {
   ChecklistClose = 'checklist close',
   DeletePost = 'delete post',
   DeleteComment = 'delete comment',
+  ToggleSquadPreview = 'toggle squad preview',
+  ClickSquadLink = 'click squad link',
+  ClickSquadProduct = 'click squad product',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',
@@ -584,9 +587,12 @@ export enum TargetType {
   SearchInviteButton = 'search invite button',
   HideInviteCheckbox = 'hide invite mechanism',
   ReferralPopup = 'referral popup',
+  ReferralLadderGift = 'referral ladder gift',
+  ReferralLadderPromo = 'referral ladder promo',
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
+  ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
@@ -654,10 +660,14 @@ export enum TargetId {
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   ExploreStrip = 'explore strip',
+  PostStrip = 'post strip',
+  MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign
   GenericReferralPopup = 'generic referral popup',
+  ReferralLadderPopup = 'referral ladder popup',
+  ReferralLadderPromo = 'referral ladder promo',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
@@ -712,6 +722,8 @@ export enum TargetId {
   ReaderHeader = 'reader header',
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
+  MobileFooter = 'mobile footer',
+  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {

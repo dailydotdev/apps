@@ -1,153 +1,50 @@
-import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
-import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
-import type { FunctionComponent, ReactElement } from 'react';
-import React, { useEffect } from 'react';
 import type { GetServerSideProps } from 'next';
-import type { NextSeoProps } from 'next-seo';
-import { NextSeo } from 'next-seo';
-import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
+import type { InviteReferral } from '@dailydotdev/shared/src/lib/referral';
+import { getInviteReferral } from '@dailydotdev/shared/src/lib/referral';
+import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
-import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
-import { defaultOpenGraph } from '../../next-seo';
-import type { JoinPageProps } from '../../components/invite/common';
-import { AISearchInvite } from '../../components/invite/AISearchInvite';
-import Custom404Seo from '../404';
-import { Referral } from '../../components/invite/Referral';
 
-type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
+const getJoinReferralCookie = ({ userId, campaign }: InviteReferral): string =>
+  [
+    `join_referral=${encodeURIComponent(`${userId}:${campaign}`)}`,
+    'Path=/',
+    `Max-Age=${oneYear}`,
+    process.env.NEXT_PUBLIC_DOMAIN &&
+      `Domain=${process.env.NEXT_PUBLIC_DOMAIN}`,
+    'SameSite=Lax',
+    !isDevelopment && 'Secure',
+  ]
+    .filter(Boolean)
+    .join('; ');
 
-const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
-  [ReferralCampaignKey.Search]: AISearchInvite,
-  [ReferralCampaignKey.Generic]: Referral,
-  [ReferralCampaignKey.SharePost]: Referral,
-  [ReferralCampaignKey.ShareComment]: Referral,
-  [ReferralCampaignKey.ShareProfile]: Referral,
-  [ReferralCampaignKey.ShareSource]: Referral,
-  [ReferralCampaignKey.ShareTag]: Referral,
-  [ReferralCampaignKey.ShareAgent]: Referral,
-  [ReferralCampaignKey.ShareSlack]: Referral,
-  [ReferralCampaignKey.ShareHighlights]: Referral,
-  [ReferralCampaignKey.ShareWorld]: Referral,
-  [ReferralCampaignKey.ShareTool]: Referral,
-};
-
-const referralCampaignValues = new Set<string>(
-  Object.values(ReferralCampaignKey),
-);
-
-const isReferralCampaignKey = (value: string): value is ReferralCampaignKey =>
-  referralCampaignValues.has(value);
-
-const Page = ({
-  referringUser,
-  campaign,
-  token,
-}: JoinPageProps): ReactElement => {
-  const Component = componentsMap[campaign];
-  const { title, description, images, redirectTo } = useReferralConfig({
-    campaign,
-    referringUser,
-  });
-
-  useEffect(() => {
-    document.body.classList.add('hidden-scrollbar');
-
-    return () => {
-      document.body.classList.remove('hidden-scrollbar');
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!componentsMap[campaign]) {
-      return;
-    }
-
-    setCookie('join_referral', `${referringUser.id}:${campaign}`, {
-      path: '/',
-      maxAge: oneYear,
-      secure: !isDevelopment,
-      domain: process.env.NEXT_PUBLIC_DOMAIN,
-      sameSite: 'lax',
-    });
-  }, [campaign, referringUser.id]);
-
-  const seoProps: NextSeoProps = {
-    title,
-    description,
-    openGraph: { ...defaultOpenGraph, images },
-  };
-  const seoComponent = <NextSeo {...seoProps} />;
-
-  if (!Component) {
-    return (
-      <>
-        {seoComponent}
-        <Custom404Seo />
-      </>
-    );
-  }
-
-  return (
-    <>
-      {seoComponent}
-      <Component
-        token={token}
-        campaign={campaign}
-        redirectTo={redirectTo}
-        referringUser={referringUser}
-      />
-    </>
-  );
-};
-
-export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
+export const getServerSideProps: GetServerSideProps = async ({
   query,
   res,
 }) => {
-  const validateUserId = (value: string) => !!value && value !== '404';
-  const userId = getFirstQueryParam(query.userid);
-  const campaignValue = getFirstQueryParam(query.cid);
-  const token = getFirstQueryParam(query.ctoken);
+  const referral = getInviteReferral(query);
 
-  if (
-    !userId ||
-    !validateUserId(userId) ||
-    !campaignValue ||
-    !isReferralCampaignKey(campaignValue)
-  ) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
+  if (!referral) {
+    return { redirect: { destination: '/', permanent: false } };
   }
 
-  const campaign = campaignValue;
+  res.setHeader('Set-Cookie', getJoinReferralCookie(referral));
 
-  const result = await gqlClient.request<{
-    user: JoinPageProps['referringUser'];
-  }>(GET_REFERRING_USER_QUERY, {
-    id: userId,
-  });
-
-  res.setHeader(
-    'Cache-Control',
-    `public, max-age=0, must-revalidate, s-maxage=${24 * 60 * 60}`,
+  const { ctoken, ...forwardedQuery } = query;
+  const params = new URLSearchParams();
+  Object.entries(forwardedQuery).forEach(([key, value]) =>
+    [value].flat().forEach((item) => item && params.append(key, item)),
   );
+  params.set('cid', referral.campaign);
+  params.set('userid', referral.userId);
 
   return {
-    props: {
-      // Next refuses to serialize an explicit `undefined`, and `token` is
-      // optional.
-      ...(token && { token }),
-      campaign,
-      referringUser: result.user,
+    redirect: {
+      destination: `/onboarding?${params.toString()}`,
+      permanent: false,
     },
   };
 };
+
+const Page = (): null => null;
 
 export default Page;

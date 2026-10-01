@@ -74,6 +74,7 @@ export const settingsContext: SettingsContextData = {
   toggleShowTopSites: jest.fn(),
   toggleShowFeedbackButton: jest.fn(),
   toggleSidebarExpanded: jest.fn(),
+  setSidebarForceCollapsed: jest.fn(),
   toggleSortingEnabled: jest.fn(),
   updateCustomLinks: jest.fn(),
   updateSortCommentsBy: jest.fn(),
@@ -89,6 +90,10 @@ export const defaultLogContextData: LogContextData = {
   logEventEnd: jest.fn(),
   sendBeacon: jest.fn(),
 };
+
+// Has its features, so code gated on `growthbook.ready` goes ahead
+export const createReadyGrowthBook = (): GrowthBook =>
+  new GrowthBook({ features: {} });
 
 export const TestBootProvider = ({
   client,
@@ -109,9 +114,11 @@ export const TestBootProvider = ({
             logout: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
+            isTokenValid: auth.tokenRefreshed ?? true,
             getRedirectUri: jest.fn(),
             isFetched: true,
             isAuthReady: true,
+            isAuthReadyOrCached: auth.isAuthReady ?? true,
             isLoggedIn: true,
             showLogin: jest.fn(),
             closeLogin: jest.fn(),

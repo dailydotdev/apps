@@ -12,7 +12,6 @@ import { getAppOrigin, getLlmsTxtUrl, getPostCanonicalUrl } from './seo';
 /** Post types whose body daily.dev hosts itself. Everything else links out. */
 const NATIVE_CONTENT_TYPES = [
   PostType.Freeform,
-  PostType.Welcome,
   PostType.Share,
   PostType.Collection,
 ];

@@ -119,6 +119,7 @@ export default function Logo({
         )}
         href={resolvedHref}
         onClick={onLogoClick}
+        translate="no"
       >
         <div className="relative">
           <LogoSvgElem

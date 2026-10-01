@@ -13,7 +13,6 @@ export const postRedesignEligibleTypes: PostType[] = [
   PostType.Share,
   PostType.Collection,
   PostType.Freeform,
-  PostType.Welcome,
 ];
 
 export const isPostRedesignEligible = (

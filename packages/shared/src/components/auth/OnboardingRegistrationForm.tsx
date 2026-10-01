@@ -40,6 +40,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   hideSignupDisclaimer?: boolean;
   compact?: boolean;
   signupStyle?: SignupStyle;
+  inlineProviders?: boolean;
   preferGithub?: boolean;
   onAuthOpenLogged?: () => void;
 }
@@ -119,6 +120,7 @@ export const OnboardingRegistrationForm = ({
   hideSignupDisclaimer,
   compact,
   signupStyle,
+  inlineProviders,
   preferGithub,
   onAuthOpenLogged,
 }: OnboardingRegistrationFormProps): ReactElement => {
@@ -211,7 +213,8 @@ export const OnboardingRegistrationForm = ({
     <button
       className={classNames(
         getEmailButtonClass(),
-        'mx-auto flex min-h-12 items-center justify-center px-3 text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-text-tertiary motion-reduce:transition-none',
+        inlineProviders ? '-my-1.5 min-h-11' : 'min-h-12',
+        'mx-auto flex items-center justify-center px-3 text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-text-tertiary motion-reduce:transition-none',
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
@@ -255,6 +258,9 @@ export const OnboardingRegistrationForm = ({
     // row on compact phones. Inert anywhere the hero's CSS is not present.
     // Centred on the buttons, not the left edge of the copy. mt-1 because the
     // email link's padded row already supplies most of the gap.
+    if (inlineProviders) {
+      return 'mx-auto mt-1.5 justify-center text-center text-text-tertiary typo-callout';
+    }
     if (isSinglePrimary) {
       return 'onb-split-login mx-auto mt-1 justify-center text-center text-text-tertiary typo-callout laptop:mt-2';
     }
@@ -282,10 +288,25 @@ export const OnboardingRegistrationForm = ({
   );
 
   return (
-    <div aria-label="Login/Register options" className="flex flex-col gap-4">
-      <ul aria-label="Social login buttons" className="flex flex-col gap-4">
+    <div
+      aria-label="Login/Register options"
+      className={classNames(
+        'flex flex-col',
+        inlineProviders ? 'gap-2.5' : 'gap-4',
+      )}
+    >
+      <ul
+        aria-label="Social login buttons"
+        className={classNames(
+          'flex',
+          inlineProviders ? 'flex-row gap-3' : 'flex-col gap-4',
+        )}
+      >
         {signupProviders.map((provider, index) => (
-          <li key={provider.value}>
+          <li
+            key={provider.value}
+            className={inlineProviders ? 'flex-1' : undefined}
+          >
             <Button
               aria-label={
                 isCreateAccountCopy

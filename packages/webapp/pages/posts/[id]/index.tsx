@@ -4,7 +4,7 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
@@ -49,7 +49,14 @@ import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
-import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import {
+  LogEvent,
+  Origin,
+  TargetId,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/log';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useEventListener,
   useJoinReferral,
@@ -80,13 +87,14 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
+import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
-import { isPostDetailPath } from '../../../lib/postRoutes';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -136,6 +144,12 @@ const PostAuthBanner = dynamic(() =>
   ).then((module) => module.PostAuthBanner),
 );
 
+const PinnedSignupStrip = dynamic(() =>
+  import(
+    /* webpackChunkName: "pinnedSignupStrip" */ '@dailydotdev/shared/src/components/auth/PinnedSignupStrip'
+  ).then((module) => module.PinnedSignupStrip),
+);
+
 const BriefPostContent = dynamic(() =>
   import(
     /* webpackChunkName: "lazyBriefPostContent" */ '@dailydotdev/shared/src/components/post/brief/BriefPostContent'
@@ -172,7 +186,6 @@ type PostContentComponent = ComponentType<PostContentProps>;
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
   share: SquadPostContent as PostContentComponent,
-  welcome: SquadPostContent as PostContentComponent,
   freeform: SquadPostContent as PostContentComponent,
   [PostType.VideoYouTube]: PostContent as PostContentComponent,
   collection: CollectionPostContent as PostContentComponent,
@@ -237,9 +250,19 @@ export const PostPage = ({
     canRender: router.isReady && !router.query?.author && !router.query?.squad,
   });
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
-  // Empty for every logged-in visitor; the slot components check the same
-  // hook, so with it empty neither markup nor the Prebid bundle exists.
-  const adSlots = useOrganicAdSlots();
+  const { value: isSignupStripOn, isLoading: isSignupStripLoading } =
+    useConditionalFeature({
+      feature: featurePostSignupStrip,
+      shouldEvaluate: showLaptopAuthBanner,
+    });
+  const showPostAuthBanner =
+    showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
+  const showSignupStrip =
+    showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
+  // Empty for every logged-in visitor and for posts in ad-free squads; the
+  // slot components check the same hook, so with it empty neither markup nor
+  // the Prebid bundle exists.
+  const adSlots = useOrganicAdSlots(post);
   const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
   // the organic page: the TLDR splits at the shared cadence with an MPU
@@ -348,53 +371,12 @@ export const PostPage = ({
     [adsActive, carriesInPageAds, renderSummarySegments],
   );
 
-  // Same boundary the /read template draws: adsbygoogle must never follow a
-  // client-side navigation off the post pages, because its Auto ads overlays
-  // persist across soft navigations. Post-to-post stays client-side — the
-  // destination carries its own slots — while any departure forces a full
-  // page load that tears every Google global down.
-  useEffect(() => {
-    if (!adsActive) {
-      return undefined;
-    }
-    const forceHardNavigation = (
-      url: string,
-      { shallow }: { shallow: boolean },
-    ): void => {
-      if (shallow || isPostDetailPath(url)) {
-        return;
-      }
-      router.events.emit('routeChangeError');
-      window.location.assign(url);
-      // Next.js has no cancel API; throwing inside the handler is the
-      // established way to abort the client-side transition.
-      throw new Error(`Aborted client navigation to ${url} to unload ads`);
-    };
-    router.events.on('routeChangeStart', forceHardNavigation);
-    // On popstate the history pointer has already moved, so assign() would
-    // navigate forward again; loading the target URL in place respects the
-    // position the user just moved to.
-    router.beforePopState(({ as }) => {
-      if (isPostDetailPath(as)) {
-        return true;
-      }
-      window.location.href = as;
-      return false;
-    });
-    return () => {
-      router.events.off('routeChangeStart', forceHardNavigation);
-      router.beforePopState(() => true);
-    };
-  }, [adsActive, router]);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
-    [
-      PostType.Share,
-      PostType.Welcome,
-      PostType.Freeform,
-      PostType.SocialTwitter,
-    ].includes(post?.type),
+    [PostType.Share, PostType.Freeform, PostType.SocialTwitter].includes(
+      post?.type,
+    ),
     featureTheme && 'bg-transparent',
   );
   useSharedByToast();
@@ -446,16 +428,28 @@ export const PostPage = ({
       error === ApiError.Forbidden ||
       getApiError(postError, ApiError.Forbidden)
     ) {
-      return <Unauthorized />;
+      return (
+        <>
+          <MobileAppHeader sticky />
+          <Unauthorized />
+        </>
+      );
     }
-    return <Custom404 />;
+    return (
+      <>
+        <MobileAppHeader sticky />
+        <Custom404 />
+      </>
+    );
   }
 
   return (
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
         selector={() => {
-          const creative = getCreativeForTags(post?.tags || []);
+          const creative = isSourceAdFree(post?.source)
+            ? null
+            : getCreativeForTags(post?.tags || []);
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
@@ -484,14 +478,18 @@ export const PostPage = ({
                 'mx-auto w-full max-w-[72rem]',
                 // Clears the fixed signup banner so the thread's tail is
                 // reachable; the classic page ends in the footer instead.
-                showLaptopAuthBanner && 'laptop:pb-72',
+                showPostAuthBanner && 'laptop:pb-72',
               )}
             >
+              <MobileAppHeader sticky />
               <PostFocusCard
                 post={post}
                 origin={Origin.ArticlePage}
                 ads={organicAds}
               />
+              {showSignupStrip && (
+                <PinnedSignupStrip targetId={TargetId.PostStrip} />
+              )}
             </div>
           ) : (
             <Content
@@ -528,7 +526,12 @@ export const PostPage = ({
               }}
             />
           )}
-          {showLaptopAuthBanner && <PostAuthBanner />}
+          {!showRedesign && showSignupStrip && (
+            <div className="m-auto w-full max-w-[69.25rem]">
+              <PinnedSignupStrip targetId={TargetId.PostStrip} />
+            </div>
+          )}
+          {showPostAuthBanner && <PostAuthBanner />}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>
@@ -536,16 +539,24 @@ export const PostPage = ({
   );
 };
 
-PostPage.getLayout = getLayout;
+const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) =>
+  getLayout(page, pageProps, {
+    ...layoutProps,
+    // Strip first: both pin, and the banner's top offset is the strip's height.
+    customBanner: (
+      <>
+        <PhoneTopAdStrip
+          surface="organic"
+          post={(pageProps as Partial<Props> | undefined)?.initialData?.post}
+        />
+        <CustomAuthBanner />
+      </>
+    ),
+  });
+
+PostPage.getLayout = getPostPageLayout;
 PostPage.layoutProps = {
   screenCentered: false,
-  // Strip first: both pin, and the banner's top offset is the strip's height.
-  customBanner: (
-    <>
-      <PhoneTopAdStrip surface="organic" />
-      <CustomAuthBanner />
-    </>
-  ),
 };
 
 export default PostPage;

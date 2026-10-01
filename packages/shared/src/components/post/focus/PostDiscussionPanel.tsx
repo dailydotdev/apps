@@ -185,7 +185,9 @@ export const PostDiscussionPanel = ({
         />
       </div>
       <DiscussionShareRow post={post} withSquads />
-      {!isPlus && !renderInterleaved && <AdAsComment postId={post.id} />}
+      {!isPlus && !renderInterleaved && (
+        <AdAsComment postId={post.id} source={post.source} />
+      )}
       {showSortHeader && commentsCount > 0 && (
         // A text link (not a button) so it aligns flush-left with the comments
         // below it; `mb-2` adds breathing room before the first comment.

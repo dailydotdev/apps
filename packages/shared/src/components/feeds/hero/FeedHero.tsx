@@ -4,10 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { Post } from '../../../graphql/posts';
 import { gqlClient } from '../../../graphql/common';
 import type { FeedHeroData } from '../../../graphql/feed';
-import {
-  FEED_HERO_QUERY,
-  supportedTypesForPrivateSources,
-} from '../../../graphql/feed';
+import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../../graphql/feed';
 import type { PostHighlight } from '../../../graphql/highlights';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../../features/monetization/viewability';
@@ -26,6 +23,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { FeedHeroSection } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
 import { useFeedHeroPostActions } from './useFeedHeroPostActions';
+import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
 
 /**
  * The carousel and the Happening Now list are two lists, not one: `feedHero`
@@ -50,7 +48,7 @@ export const FeedHero = ({
    */
   onRenderedChange?: (isRendered: boolean) => void;
 }): ReactElement | null => {
-  const { user, tokenRefreshed } = useAuthContext();
+  const { user, isTokenValid } = useAuthContext();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const [, copyLink] = useCopyLink();
@@ -75,13 +73,14 @@ export const FeedHero = ({
     queryFn: () =>
       gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
         loggedIn: !!user,
-        supportedTypes: supportedTypesForPrivateSources,
+        supportedTypes: baseFeedSupportedTypes,
       }),
-    enabled: tokenRefreshed,
+    enabled: isTokenValid,
     // The same window `majorHeadlinesQueryOptions` gives the in-feed card, so
     // the two surfaces the experiment compares are equally fresh.
     staleTime: StaleTime.OneMinute,
   });
+  useCachedTokenRecovery({ queryKey, enabled: isTokenValid });
 
   const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
   const posts: Post[] = useMemo(() => hero?.feedHero?.posts ?? [], [hero]);
