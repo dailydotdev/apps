@@ -43,7 +43,6 @@ const creative: EngagementCreative = {
   tools: ['VSCode'],
   keywords: ['Copilot'],
   tags: ['ai'],
-  placements: [],
 };
 
 const regularPost: Post = {
