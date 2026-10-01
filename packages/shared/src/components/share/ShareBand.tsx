@@ -94,7 +94,8 @@ export const ShareBand = ({
       link={link}
       text={text}
       cid={cid}
-      post={post}
+      // the button beside it is Slack's one door while it shows
+      post={withSlack ? undefined : post}
       origin={origin}
       emailTitle={emailTitle}
       buttonVariant={ButtonVariant.Primary}
