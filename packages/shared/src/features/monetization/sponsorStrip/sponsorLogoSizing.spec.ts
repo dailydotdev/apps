@@ -3,9 +3,13 @@ import {
   SLOT_GAP_MAX,
   WALL_HEIGHT,
   WALL_MAX_WIDTH,
+  WIDE_SLOT_GAP,
+  WIDE_SLOT_GAP_MAX,
+  WIDE_WALL_WIDTH,
   boxedLogoHeight,
   fittedSlotCount,
   wallGap,
+  wallGapRange,
 } from './sponsorLogoSizing';
 
 describe('boxedLogoHeight', () => {
@@ -69,5 +73,18 @@ describe('wallGap', () => {
   it('should hold a lone mark at the minimum', () => {
     expect(wallGap(1000, [60], SLOT_GAP, SLOT_GAP_MAX)).toEqual(SLOT_GAP);
     expect(wallGap(1000, [], SLOT_GAP, SLOT_GAP_MAX)).toEqual(SLOT_GAP);
+  });
+});
+
+describe('wallGapRange', () => {
+  it('should open the gap once the wall has room for a wide row', () => {
+    expect(wallGapRange(WIDE_WALL_WIDTH - 1)).toEqual({
+      min: SLOT_GAP,
+      max: SLOT_GAP_MAX,
+    });
+    expect(wallGapRange(WIDE_WALL_WIDTH)).toEqual({
+      min: WIDE_SLOT_GAP,
+      max: WIDE_SLOT_GAP_MAX,
+    });
   });
 });

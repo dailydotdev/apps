@@ -11,7 +11,12 @@ import { LogEvent } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
-import { SLOT_GAP, WALL_MAX_WIDTH } from './sponsorLogoSizing';
+import {
+  SLOT_GAP,
+  WALL_MAX_WIDTH,
+  WIDE_SLOT_GAP_MAX,
+  WIDE_WALL_WIDTH,
+} from './sponsorLogoSizing';
 
 jest.mock('./fetchSponsorStripAds', () => ({
   fetchSponsorStripAds: jest.fn(),
@@ -591,6 +596,22 @@ it('should fill unused row space after measuring all candidates without logging 
   );
   expect(callsFor(AdActions.Impression)).toHaveLength(13);
   expect(logEventStart).toHaveBeenCalledTimes(13);
+});
+
+it('should open the gap to a wide row\u2019s pair without re-fitting after mount', async () => {
+  const images = mockLogoImages();
+  setWallWidth(WIDE_WALL_WIDTH);
+  renderStrip();
+  await settle();
+  loadLogos(images, 2);
+  await settle();
+
+  // Every mark in the deck fits with room to spare, so the gap sits at the
+  // wide ceiling rather than spreading to fill the row.
+  expect(shownLogos()).toHaveLength(1 + 4 + COMMUNITY.length);
+  expect(callsFor(AdActions.Impression)).toHaveLength(1 + 4 + COMMUNITY.length);
+  const wall = screen.getByTestId('sponsorStripRow').lastElementChild;
+  expect(wall).toHaveStyle({ gap: `${WIDE_SLOT_GAP_MAX}px` });
 });
 
 it('should fit measured logos on a row narrower than the maximum logo width', async () => {

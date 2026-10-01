@@ -29,6 +29,22 @@ export const SLOT_GAP_MAX = 64;
 export const WIDE_SLOT_GAP = 64;
 export const WIDE_SLOT_GAP_MAX = 80;
 
+/**
+ * The wall's own width at the desktopL breakpoint (2156px) with the rail
+ * collapsed and a lead mark in place. Read off the measured wall rather
+ * than the viewport: the rail's state and the lead's width both change how
+ * much room the row has, and the measurement arrives in the same layout
+ * effect as the fit, so no mark is ever mounted against one gap and
+ * dropped against another.
+ */
+export const WIDE_WALL_WIDTH = 1800;
+
+/** The gap pair the row fits with, for the room it measured. */
+export const wallGapRange = (available: number): { min: number; max: number } =>
+  available >= WIDE_WALL_WIDTH
+    ? { min: WIDE_SLOT_GAP, max: WIDE_SLOT_GAP_MAX }
+    : { min: SLOT_GAP, max: SLOT_GAP_MAX };
+
 /** Fallback until the logo's intrinsic dimensions have loaded. */
 export const REFERENCE_RATIO = 3.5;
 

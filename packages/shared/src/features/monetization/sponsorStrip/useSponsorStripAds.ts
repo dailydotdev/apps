@@ -9,16 +9,12 @@ import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import {
   boxedLogoWidth,
   fittedSlotCount,
-  SLOT_GAP,
-  SLOT_GAP_MAX,
   wallGap,
+  wallGapRange,
   WALL_HEIGHT,
   WALL_MAX_WIDTH,
-  WIDE_SLOT_GAP,
-  WIDE_SLOT_GAP_MAX,
 } from './sponsorLogoSizing';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
-import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { useSponsorLogoRatios } from './useSponsorLogoRatios';
 import type {
   ResolvedSponsor,
@@ -49,8 +45,6 @@ interface UseSponsorStripAds {
 /** Measure before mounting any ad links so clipped logos never log impressions. */
 const useFittedSlots = (
   widths: number[],
-  minGap: number,
-  maxGap: number,
 ): {
   ref: (node: HTMLElement | null) => void;
   count: number;
@@ -79,12 +73,16 @@ const useFittedSlots = (
     return () => observer.disconnect();
   }, [element]);
 
-  const count = fittedSlotCount(available, widths, minGap);
+  // The gap pair comes from the same measurement as the count, so a wide
+  // row is fitted at its wider minimum from the first render that mounts
+  // anything: no mark logs an impression and is then dropped.
+  const { min, max } = wallGapRange(available);
+  const count = fittedSlotCount(available, widths, min);
 
   return {
     ref,
     count,
-    gap: wallGap(available, widths.slice(0, count), minGap, maxGap),
+    gap: wallGap(available, widths.slice(0, count), min, max),
   };
 };
 
@@ -159,20 +157,7 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       ),
     [logos, ratios],
   );
-  // From desktopL the row holds sixteen marks and more; the gap opens to a
-  // mark's own width there so the count is not what the reader sees.
-  // `useViewSizeClient` for the reason `useSponsorStrip` gives: the wall is
-  // measured on the client anyway, so the server need not guess.
-  const isWide = useViewSizeClient(ViewSize.DesktopL);
-  const {
-    ref: wallRef,
-    count: wallSlots,
-    gap,
-  } = useFittedSlots(
-    widths,
-    isWide ? WIDE_SLOT_GAP : SLOT_GAP,
-    isWide ? WIDE_SLOT_GAP_MAX : SLOT_GAP_MAX,
-  );
+  const { ref: wallRef, count: wallSlots, gap } = useFittedSlots(widths);
   const premiumSlots = Math.min(
     PREMIUM_SLOT_COUNT,
     premiumDeck.length,
