@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
@@ -76,6 +76,8 @@ const columns: Column[] = [
   },
 ];
 
+const [publishedColumn, ...metricColumns] = columns;
+
 const cellClassName = 'px-2 laptop:py-3 laptop:align-middle';
 
 const columnLabel = (key: CreatorPostSortBy): string =>
@@ -120,10 +122,12 @@ const SortableHeader = ({
   column,
   sort,
   onSortChange,
+  prefix,
 }: {
   column: Column;
   sort: CreatorPostSort;
   onSortChange: (sort: CreatorPostSort) => void;
+  prefix?: ReactNode;
 }): ReactElement => {
   const isActive = sort.sortBy === column.key;
   const isDescending = sort.order === CreatorPostSortOrder.Desc;
@@ -141,6 +145,7 @@ const SortableHeader = ({
         column.numeric ? 'text-right' : 'text-left',
       )}
     >
+      {prefix}
       <button
         type="button"
         onClick={() => onSortChange(getNextSort(sort, column.key))}
@@ -273,7 +278,7 @@ const SkeletonRows = (): ReactElement => (
       <tr key={index} className="block laptop:table-row">
         <td
           className={classNames(cellClassName, 'block py-2 laptop:table-cell')}
-          colSpan={columns.length + 1}
+          colSpan={columns.length}
         >
           <ElementPlaceholder className="h-10 w-full rounded-8" />
         </td>
@@ -301,19 +306,24 @@ export const CreatorPostPerformanceTable = ({
         </caption>
         <thead className="hidden laptop:table-header-group">
           <tr className="border-b border-border-subtlest-tertiary">
-            <th
-              scope="col"
-              className={classNames(cellClassName, 'font-normal')}
-            >
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                tag={TypographyTag.Span}
-              >
-                Post
-              </Typography>
-            </th>
-            {columns.map((column) => (
+            {/* The publish date sits under each title, so the post column
+                sorts by it rather than spending a column of its own. */}
+            <SortableHeader
+              column={publishedColumn}
+              sort={sort}
+              onSortChange={onSortChange}
+              prefix={
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  tag={TypographyTag.Span}
+                  className="mr-2"
+                >
+                  Post ·
+                </Typography>
+              }
+            />
+            {metricColumns.map((column) => (
               <SortableHeader
                 key={column.key}
                 column={column}
@@ -335,16 +345,16 @@ export const CreatorPostPerformanceTable = ({
                   className="grid grid-cols-4 border-b border-border-subtlest-tertiary last:border-b-0 laptop:table-row"
                 >
                   {/* `max-w-0` with `w-full` lets the title column take the
-                      spare width and truncate, instead of a long title
+                      spare width and wrap, instead of a long title
                       pushing the metrics out of view. */}
                   <td
                     className={classNames(
                       cellClassName,
-                      'col-span-4 min-w-0 pt-3 laptop:w-full laptop:max-w-0',
+                      'col-span-4 min-w-0 pb-2 pt-3 laptop:w-full laptop:max-w-0',
                     )}
                   >
                     <Link href={`${webappUrl}posts/${row.post.id}/analytics`}>
-                      <a className="focus-outline flex min-w-0 items-center gap-3 hover:underline">
+                      <a className="focus-outline group flex min-w-0 items-center gap-3">
                         <LazyImage
                           imgSrc={getCreatorPostImage(row.post)}
                           imgAlt=""
@@ -352,47 +362,41 @@ export const CreatorPostPerformanceTable = ({
                           className="h-10 w-16 flex-shrink-0 rounded-8 object-cover"
                           fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                         />
-                        <Typography
-                          type={TypographyType.Callout}
-                          color={TypographyColor.Primary}
-                          className="min-w-0 flex-1"
-                          tag={TypographyTag.Span}
-                          truncate
-                        >
-                          {title}
-                        </Typography>
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <Typography
+                            type={TypographyType.Callout}
+                            color={TypographyColor.Primary}
+                            className="line-clamp-2 break-words group-hover:underline"
+                            tag={TypographyTag.Span}
+                          >
+                            {title}
+                          </Typography>
+                          <Typography
+                            type={TypographyType.Footnote}
+                            color={TypographyColor.Tertiary}
+                            tag={TypographyTag.Span}
+                          >
+                            {formatDate({
+                              value: row.post.createdAt,
+                              type: TimeFormatType.Post,
+                            })}
+                          </Typography>
+                        </span>
                       </a>
                     </Link>
                   </td>
-                  <td
-                    className={classNames(
-                      cellClassName,
-                      'col-span-4 whitespace-nowrap pb-2 pt-1 laptop:pb-3 laptop:pt-3',
-                    )}
-                  >
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                      tag={TypographyTag.Span}
-                    >
-                      {formatDate({
-                        value: row.post.createdAt,
-                        type: TimeFormatType.Post,
-                      })}
-                    </Typography>
-                  </td>
                   <MetricCell
-                    column={columns[1]}
+                    column={metricColumns[0]}
                     value={row.impressions}
                     unknownReason="This post predates daily impressions history, so its impressions for this period are unknown."
                   />
                   <MetricCell
-                    column={columns[2]}
+                    column={metricColumns[1]}
                     value={row.upvotes}
                     unknownReason="Unknown for this period."
                   />
                   <td className={metricCellClassName}>
-                    <MetricCellLabel column={columns[3]} />
+                    <MetricCellLabel column={metricColumns[2]} />
                     {/* The comment count is the way into the discussion, so it
                         is the link rather than sitting next to one. */}
                     <Link href={row.post.commentsPermalink}>
@@ -411,7 +415,7 @@ export const CreatorPostPerformanceTable = ({
                     </Link>
                   </td>
                   <MetricCell
-                    column={columns[4]}
+                    column={metricColumns[3]}
                     value={row.outboundVisits}
                     unknownReason="Unknown for this post."
                   />
