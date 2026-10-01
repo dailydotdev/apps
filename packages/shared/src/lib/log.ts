@@ -129,8 +129,6 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
-  EngagementBanner = 'engagement banner',
-  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {

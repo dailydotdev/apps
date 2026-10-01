@@ -6,7 +6,7 @@ import type { DailyQuestSummary } from '../../../hooks/useQuestDashboard';
 // The celebration half of the moment: everything here belongs to daily.dev, no
 // partner paint. Gradients and glows are the design's own values in the quest
 // palette (cabbage into avocado); they intentionally bypass theme tokens the
-// same way brand paint does (see EngagementAdCta).
+// same way brand paint does.
 
 const panelBackground =
   'radial-gradient(120% 100% at 20% 0%, rgba(177,75,215,0.38) 0%, rgba(177,75,215,0.22) 42%, rgba(15,18,24,0) 78%), linear-gradient(160deg, rgba(52,209,116,0.18) 0%, rgba(15,18,24,0) 60%)';
