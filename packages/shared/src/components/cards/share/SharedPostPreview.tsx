@@ -35,10 +35,11 @@ export function SharedPostPreview({
   onShare,
   imageProps,
 }: SharedPostPreviewProps): ReactElement {
-  const { overlay } = useCardCover({ post, onShare });
+  const { overlay, shouldDimImage } = useCardCover({ post, onShare });
   const isUnknownSource =
     (post.sharedPost?.source?.id ?? 'unknown') === 'unknown';
   const unknownSource = post.sharedPost?.domain ?? source?.handle ?? 'unknown';
+  const sourceHandle = isUnknownSource ? unknownSource : source?.handle;
   const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
   const iconSize = Math.round(16 * pixelRatio);
   const sourceImage =
@@ -60,7 +61,7 @@ export function SharedPostPreview({
       <div
         className={classNames(
           'flex h-full flex-col bg-background-default',
-          !!overlay && 'opacity-16',
+          shouldDimImage && 'opacity-16',
         )}
       >
         <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -73,12 +74,12 @@ export function SharedPostPreview({
           />
           <div className="absolute inset-x-0 top-0 ">
             <div className="flex flex-col gap-2 rounded-t-8 bg-background-subtle p-2">
-              {sourceImage && (source?.handle || isUnknownSource) && (
+              {sourceImage && sourceHandle && (
                 <div className="flex min-w-0 items-center gap-1">
                   <SourceAvatar
                     source={{
                       image: sourceImage,
-                      handle: isUnknownSource ? unknownSource : source.handle,
+                      handle: sourceHandle,
                     }}
                     size={ProfileImageSize.Size16}
                     className="shrink-0"
@@ -89,7 +90,7 @@ export function SharedPostPreview({
                     color={TypographyColor.Primary}
                     className="truncate font-bold"
                   >
-                    {isUnknownSource ? unknownSource : source.name}
+                    {isUnknownSource ? unknownSource : source?.name}
                   </Typography>
                 </div>
               )}

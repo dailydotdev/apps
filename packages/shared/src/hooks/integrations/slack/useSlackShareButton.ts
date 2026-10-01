@@ -12,6 +12,13 @@ import { getPathnameWithQuery } from '../../../lib/links';
 
 export type UseSlackShareButton = {
   onClick: () => void;
+  isConnected: boolean;
+  /**
+   * The integrations query has not settled, so a press cannot tell the picker
+   * from OAuth yet. Render the control loading and disabled until it has.
+   */
+  isLoading: boolean;
+  label: string;
 };
 
 const postIdParam = 'slackPostId';
@@ -40,13 +47,18 @@ export const useSlackShareButton = ({
 }): UseSlackShareButton => {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
-  const { integration, canPostAsUser, connect } = useSlackShare();
+  const { integration, canPostAsUser, connect, isLoading } = useSlackShare();
+  const isConnected = !!integration;
 
   const openPicker = useCallback(() => {
     openModal({ type: LazyModal.SlackShare, props: { post, origin } });
   }, [openModal, post, origin]);
 
   const onClick = useCallback(() => {
+    if (isLoading) {
+      return;
+    }
+
     // logged on both branches: counting only the ones that go to OAuth would
     // hide every share attempt by someone already connected
     logEvent(
@@ -72,9 +84,23 @@ export const useSlackShareButton = ({
     });
 
     connect(getSlackShareRedirectPath(post));
-  }, [integration, canPostAsUser, openPicker, logEvent, origin, connect, post]);
+  }, [
+    isLoading,
+    integration,
+    canPostAsUser,
+    openPicker,
+    logEvent,
+    origin,
+    connect,
+    post,
+  ]);
 
-  return { onClick };
+  return {
+    onClick,
+    isConnected,
+    isLoading,
+    label: isConnected || isLoading ? 'Send to Slack' : 'Connect Slack',
+  };
 };
 
 const readSlackShareReturnPostId = (): string | undefined => {
