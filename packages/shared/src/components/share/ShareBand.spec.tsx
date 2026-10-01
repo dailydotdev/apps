@@ -34,14 +34,18 @@ const renderBand = ({
   integrations = [],
 }: {
   isLoggedIn?: boolean;
-  integrations?: UserIntegration[];
+  /** `null` leaves the integrations query in flight. */
+  integrations?: UserIntegration[] | null;
 } = {}) => {
   const user = isLoggedIn ? loggedUser : undefined;
   const client = new QueryClient();
-  client.setQueryData(
-    generateQueryKey(RequestKey.UserIntegrations, user),
-    integrations,
-  );
+
+  if (integrations) {
+    client.setQueryData(
+      generateQueryKey(RequestKey.UserIntegrations, user),
+      integrations,
+    );
+  }
 
   return render(
     <TestBootProvider client={client} auth={{ user }}>
@@ -94,6 +98,15 @@ describe('ShareBand', () => {
     expect(
       screen.getByRole('button', { name: 'Send to Slack' }),
     ).toBeInTheDocument();
+  });
+
+  it('should hold a disabled neutral state until integrations settle', () => {
+    renderBand({ integrations: null });
+
+    expect(
+      screen.getByRole('button', { name: 'Send to Slack' }),
+    ).toBeDisabled();
+    expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
   });
 
   it('should keep Slack behind the chevron when the flag is off', async () => {

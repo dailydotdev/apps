@@ -7,9 +7,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { SlackIcon } from '../icons/Slack';
+import { SlackCtaButton } from '../widgets/SlackCtaButton';
 import type { ReferralCampaignKey } from '../../lib/referral';
 import type { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
@@ -17,7 +16,6 @@ import type { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureSlackConnectV2 } from '../../lib/featureManagement';
-import { useSlackShareButton } from '../../hooks/integrations/slack/useSlackShareButton';
 
 export interface ShareBandProps {
   title: string;
@@ -37,29 +35,6 @@ export interface ShareBandProps {
   className?: string;
   onShare: (provider: ShareProvider) => void;
 }
-
-const ShareBandSlackButton = ({
-  post,
-  origin,
-}: {
-  post: Post;
-  origin?: Origin;
-}): ReactElement => {
-  const { onClick, isConnected } = useSlackShareButton({ post, origin });
-
-  return (
-    <Button
-      type="button"
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Small}
-      icon={<SlackIcon />}
-      className="w-full tablet:w-auto"
-      onClick={onClick}
-    >
-      {isConnected ? 'Send to Slack' : 'Connect Slack'}
-    </Button>
-  );
-};
 
 /**
  * One line of encouraging copy beside a single split copy-link control, with
@@ -140,7 +115,13 @@ export const ShareBand = ({
       {withSlack && slackPost ? (
         <div className="flex flex-col gap-2 tablet:flex-row tablet:flex-wrap tablet:items-center">
           {copyLink}
-          <ShareBandSlackButton post={slackPost} origin={origin} />
+          <SlackCtaButton
+            post={slackPost}
+            origin={origin}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            className="w-full tablet:w-auto"
+          />
         </div>
       ) : (
         copyLink

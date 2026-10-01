@@ -12,6 +12,16 @@ import SettingsContext from '../../../contexts/SettingsContext';
 import { NotificationsContextProvider } from '../../../contexts/NotificationsContext';
 import { LazyModalElement } from '../../modals/LazyModalElement';
 import { DiscussionShareRow } from './DiscussionShareRow';
+import type { UserIntegration } from '../../../graphql/integrations';
+import { UserIntegrationType } from '../../../graphql/integrations';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
+}));
+
+const mockFeature = jest.mocked(useConditionalFeature);
 
 const defaultPost = Post;
 
@@ -32,6 +42,7 @@ Object.defineProperty(window, 'matchMedia', {
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
+  mockFeature.mockReturnValue({ value: false, isLoading: false });
 });
 
 const squads = Array.from({ length: 6 }, (_, index) =>
@@ -42,8 +53,18 @@ const squads = Array.from({ length: 6 }, (_, index) =>
   }),
 );
 
-const renderComponent = (withSquads = true): RenderResult => {
+const renderComponent = (
+  withSquads = true,
+  integrations?: UserIntegration[],
+): RenderResult => {
   const client = new QueryClient();
+
+  if (integrations) {
+    client.setQueryData(
+      generateQueryKey(RequestKey.UserIntegrations, loggedUser),
+      integrations,
+    );
+  }
 
   return render(
     <QueryClientProvider client={client}>
@@ -100,5 +121,43 @@ describe('DiscussionShareRow', () => {
     expect(
       screen.getByRole('button', { name: 'More sharing options' }),
     ).toBeInTheDocument();
+  });
+
+  describe('with Slack state shown', () => {
+    beforeEach(() => {
+      mockFeature.mockReturnValue({ value: true, isLoading: false });
+    });
+
+    it('holds Slack disabled until integrations settle', () => {
+      renderComponent(false);
+
+      expect(
+        screen.getByRole('button', { name: 'Send to Slack' }),
+      ).toBeDisabled();
+      expect(
+        screen.queryByRole('button', { name: 'Connect Slack' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('offers to connect when there is no workspace', () => {
+      renderComponent(false, []);
+
+      expect(
+        screen.getByRole('button', { name: 'Connect Slack' }),
+      ).toBeEnabled();
+    });
+
+    it('offers to send once a workspace is connected', () => {
+      renderComponent(false, [
+        {
+          id: 'integration-1',
+          type: UserIntegrationType.Slack,
+        } as UserIntegration,
+      ]);
+
+      expect(
+        screen.getByRole('button', { name: 'Send to Slack' }),
+      ).toBeEnabled();
+    });
   });
 });

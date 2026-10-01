@@ -61,17 +61,15 @@ export const DiscussionShareRow = ({
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { user, squads } = useAuthContext();
-  const { onClick: onShareToSlack, isConnected: isSlackConnected } =
-    useSlackShareButton({
-      post,
-      origin: Origin.DiscussionPanel,
-    });
+  const slack = useSlackShareButton({
+    post,
+    origin: Origin.DiscussionPanel,
+  });
   const { value: isSlackStateShown } = useConditionalFeature({
     feature: featureSlackConnectV2,
     shouldEvaluate: !!user,
   });
-  const slackStateLabel = isSlackConnected ? 'Send to Slack' : 'Connect Slack';
-  const slackLabel = isSlackStateShown ? slackStateLabel : 'Share on Slack';
+  const slackLabel = isSlackStateShown ? slack.label : 'Share on Slack';
   const inlineSquads = withSquads
     ? getShareableSquads(squads).slice(0, maxInlineSquads)
     : [];
@@ -147,14 +145,15 @@ export const DiscussionShareRow = ({
           <Tooltip content={slackLabel}>
             <Button
               aria-label={slackLabel}
+              disabled={isSlackStateShown && slack.isLoading}
               icon={<SlackIcon />}
-              onClick={onShareToSlack}
+              onClick={slack.onClick}
               size={ButtonSize.Small}
               type="button"
               variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
-          {isSlackStateShown && isSlackConnected && (
+          {isSlackStateShown && slack.isConnected && (
             <span className="pointer-events-none absolute bottom-1 right-1 size-2.5 rounded-full border-2 border-background-default bg-accent-avocado-default" />
           )}
         </div>
