@@ -9,6 +9,7 @@ import React, {
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { useSwipeable } from 'react-swipeable';
+import { swipe } from '../shell/constants';
 import type { AllowedTabTags, TabListProps } from './TabList';
 import TabList from './TabList';
 import type { RenderTab } from './common';
@@ -163,11 +164,43 @@ export function TabContainer<T extends string = string>({
     [tabs, currentActive, labels, navigateToUrl, onActiveChange],
   );
 
+  // The axis is decided once, on the first movement past the lock distance:
+  // a gesture that starts vertical is a scroll and is ignored to the end,
+  // whatever it does afterwards. A horizontal one changes the tab only when
+  // it travels far enough inside the cone, or fast enough.
+  const swipeAxis = useRef<'x' | 'y' | null>(null);
   const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => navigateTab('next'),
-    onSwipedRight: () => navigateTab('previous'),
+    onSwipeStart: () => {
+      swipeAxis.current = null;
+    },
+    onSwiping: ({ absX, absY }) => {
+      if (swipeAxis.current || Math.max(absX, absY) < swipe.lockDistance) {
+        return;
+      }
+
+      swipeAxis.current = absX > absY ? 'x' : 'y';
+    },
+    onSwiped: ({ deltaX, absX, absY, velocity }) => {
+      const axis = swipeAxis.current;
+      swipeAxis.current = null;
+
+      if (axis !== 'x') {
+        return;
+      }
+
+      const inCone = absX > swipe.coneRatio * absY;
+      const farEnough = absX > swipe.commitDistance && inCone;
+      const fastEnough =
+        velocity > swipe.velocity && absX > swipe.velocityDistance;
+
+      if (!farEnough && !fastEnough) {
+        return;
+      }
+
+      navigateTab(deltaX < 0 ? 'next' : 'previous');
+    },
     trackTouch: true,
-    delta: 40,
+    delta: swipe.lockDistance,
   });
 
   const isTabActive = ({
@@ -245,7 +278,12 @@ export function TabContainer<T extends string = string>({
         />
         {extraHeaderContent}
       </header>
-      <div {...(swipeable ? swipeHandlers : {})}>{render}</div>
+      <div
+        {...(swipeable ? swipeHandlers : {})}
+        className={classNames(swipeable && 'touch-pan-y')}
+      >
+        {render}
+      </div>
     </div>
   );
 }

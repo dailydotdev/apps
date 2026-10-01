@@ -599,7 +599,7 @@ const SidebarSettingsButton = (): ReactElement => {
 
   const billingItems: ProfileSectionItemProps[] = [
     {
-      title: 'Subscriptions',
+      title: 'Payment & Subscription',
       href: `${settingsUrl}/subscription`,
       icon: CreditCardIcon,
     },

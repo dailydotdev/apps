@@ -1,0 +1,36 @@
+/*
+ * The phone shell: motion tokens and press feedback (Mobile UX review,
+ * chapters 9l and 10). Two curves for the whole shell: interaction for what
+ * the finger drives or toggles, travel for what crosses the screen.
+ */
+:root {
+  --shell-ease-interaction: cubic-bezier(0.2, 0, 0, 1);
+  --shell-ease-travel: cubic-bezier(0.32, 0.72, 0, 1);
+  --shell-duration-feedback: 150ms;
+  --shell-duration-enter: 300ms;
+  --shell-duration-exit: 200ms;
+  --shell-duration-snap: 220ms;
+}
+
+/*
+ * Press feedback for tappable chrome: the control scales to 0.96 under the
+ * finger and eases back on release. `scale` is listed beside the button
+ * transitions so a `.btn` keeps its colour transitions.
+ */
+.shell-press {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--shell-duration-feedback) ease-out;
+  transition-property: border-color, background-color, box-shadow, color,
+    scale;
+}
+
+.shell-press:active {
+  scale: 0.96;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-press {
+    transition-duration: 0s;
+  }
+}

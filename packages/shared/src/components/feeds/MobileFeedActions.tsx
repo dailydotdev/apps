@@ -55,6 +55,7 @@ export function MobileFeedActions(): ReactElement {
             <Button
               icon={<SettingsIcon />}
               variant={ButtonVariant.Tertiary}
+              className="shell-press"
               onClick={() => setIsMenuOpen(true)}
             />
             <RootPortal>
@@ -64,7 +65,7 @@ export function MobileFeedActions(): ReactElement {
               />
             </RootPortal>
             <Link href={`${webappUrl}${user.username}`} passHref>
-              <a>
+              <a className="shell-press">
                 <ProfilePictureWithIndicator user={user} />
               </a>
             </Link>

@@ -206,3 +206,111 @@ describe('tab container component', () => {
     });
   });
 });
+
+describe('swipeable tab container', () => {
+  const touch = (x: number, y: number) => ({
+    touches: [{ clientX: x, clientY: y }],
+  });
+
+  const swipeOn = (
+    element: HTMLElement,
+    points: [number, number][],
+    durationMs: number,
+  ) => {
+    const [start, ...rest] = points;
+    fireEvent.touchStart(element, touch(...start));
+    rest.forEach((point) => fireEvent.touchMove(element, touch(...point)));
+    jest.advanceTimersByTime(durationMs);
+    fireEvent.touchEnd(element, { changedTouches: [] });
+  };
+
+  // A Tab without a className renders its children straight into the swipe
+  // surface, so the element holding the text is the surface itself.
+  const mountSwipeable = () => {
+    renderComponent({ swipeable: true });
+    return screen.getByText('Sample');
+  };
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('ignores a scroll that drifts sideways past the old threshold', () => {
+    const surface = mountSwipeable();
+
+    swipeOn(
+      surface,
+      [
+        [100, 100],
+        [96, 112],
+        [70, 180],
+        [55, 260],
+      ],
+      400,
+    );
+
+    expect(screen.getByText('Sample')).toBeInTheDocument();
+    expect(onActiveClick).not.toHaveBeenCalled();
+  });
+
+  it('moves to the next tab on a horizontal swipe inside the cone', () => {
+    const surface = mountSwipeable();
+
+    swipeOn(
+      surface,
+      [
+        [200, 100],
+        [188, 101],
+        [150, 104],
+        [130, 108],
+      ],
+      400,
+    );
+
+    expect(screen.getByText('Test')).toBeInTheDocument();
+    expect(onActiveClick).toHaveBeenCalledWith('Second', undefined);
+  });
+
+  // jsdom stamps events with real time, so a drag here is always fast; the
+  // nudge stays under the distance the fast path needs too.
+  it('does nothing on a horizontal nudge that stops short', () => {
+    const surface = mountSwipeable();
+
+    swipeOn(
+      surface,
+      [
+        [200, 100],
+        [188, 100],
+        [170, 100],
+      ],
+      600,
+    );
+
+    expect(screen.getByText('Sample')).toBeInTheDocument();
+    expect(onActiveClick).not.toHaveBeenCalled();
+  });
+
+  it('moves to the previous tab on a short fast flick', () => {
+    renderComponent({ swipeable: true });
+    fireEvent.click(screen.getByText('Second'));
+    const surface = screen.getByText('Test');
+    onActiveClick.mockClear();
+
+    swipeOn(
+      surface,
+      [
+        [100, 100],
+        [112, 100],
+        [136, 101],
+      ],
+      50,
+    );
+
+    expect(screen.getByText('Sample')).toBeInTheDocument();
+    expect(onActiveClick).toHaveBeenCalledWith('First', undefined);
+  });
+});
