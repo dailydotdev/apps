@@ -15,8 +15,6 @@ import type {
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureSnapshotShareOptions } from '../../lib/featureManagement';
 import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
 import { SnapshotSharePanel } from './SnapshotSharePanel';
@@ -78,12 +76,6 @@ export function SnapshotButton({
   const [copiedImage, setCopiedImage] = useState<Blob>();
   const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const { value: hasShareOptions, isLoading: isShareOptionsLoading } =
-    useConditionalFeature({
-      feature: featureSnapshotShareOptions,
-      shouldEvaluate: !!post,
-    });
-  const opensSharePanel = !!post && hasShareOptions && !isShareOptionsLoading;
 
   useEffect(
     () => () => {
@@ -127,7 +119,7 @@ export function SnapshotButton({
         // the whole payload: a link pasted beside it lands as a second line of
         // text in the composer, which is not what a snapshot is for.
         if (await copyShareImage(capture)) {
-          if (opensSharePanel) {
+          if (post) {
             setCopiedImage(await capture);
           } else {
             displayToast('Image copied', { variant: ToastType.Success });
@@ -155,7 +147,7 @@ export function SnapshotButton({
       isCapturing,
       onCapture,
       onResult,
-      opensSharePanel,
+      post,
       target,
     ],
   );

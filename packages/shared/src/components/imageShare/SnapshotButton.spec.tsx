@@ -1,12 +1,10 @@
 import React, { createRef } from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
-import { featureSnapshotShareOptions } from '../../lib/featureManagement';
 import { LogEvent, Origin } from '../../lib/log';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import { SnapshotButton } from './SnapshotButton';
@@ -27,26 +25,14 @@ const onResult = jest.fn();
 const client = new QueryClient();
 
 const renderButton = ({
-  shareOptions = true,
   isLoggedIn = true,
   withPost = true,
 }: {
-  shareOptions?: boolean;
   isLoggedIn?: boolean;
   withPost?: boolean;
-} = {}) => {
-  const gb = new GrowthBook();
-  gb.setFeatures({
-    [featureSnapshotShareOptions.id]: { defaultValue: shareOptions },
-  });
-
-  return render(
-    <TestBootProvider
-      auth={{ isLoggedIn }}
-      client={client}
-      gb={gb}
-      log={{ logEvent }}
-    >
+} = {}) =>
+  render(
+    <TestBootProvider auth={{ isLoggedIn }} client={client} log={{ logEvent }}>
       <SnapshotButton
         origin={Origin.PostSummary}
         post={withPost ? post : undefined}
@@ -55,15 +41,6 @@ const renderButton = ({
       />
     </TestBootProvider>,
   );
-};
-
-const expectToastOnly = async () => {
-  await waitFor(() => expect(onResult).toHaveBeenCalledWith('clipboard'));
-  expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
-    message: 'Image copied',
-  });
-  expect(screen.queryByText('Copied')).not.toBeInTheDocument();
-};
 
 const press = () => fireEvent.click(screen.getByLabelText('Snapshot'));
 
@@ -105,20 +82,16 @@ describe('SnapshotButton share options', () => {
     expect(screen.getByText('Copy link')).toBeInTheDocument();
   });
 
-  it('keeps today’s behaviour with the flag off', async () => {
-    renderButton({ shareOptions: false });
-
-    press();
-
-    await expectToastOnly();
-  });
-
-  it('keeps today’s behaviour for a snapshot without a post', async () => {
+  it('only confirms the copy for a snapshot without a post', async () => {
     renderButton({ withPost: false });
 
     press();
 
-    await expectToastOnly();
+    await waitFor(() => expect(onResult).toHaveBeenCalledWith('clipboard'));
+    expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
+      message: 'Image copied',
+    });
+    expect(screen.queryByText('Copied')).not.toBeInTheDocument();
     expect(logEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.OpenSnapshotSharePanel,
