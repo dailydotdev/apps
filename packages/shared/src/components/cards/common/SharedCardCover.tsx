@@ -6,6 +6,7 @@ import type { ImageProps } from '../../image/Image';
 import { ImageType } from '../../image/Image';
 import type { VideoImageProps } from '../../image/VideoImage';
 import VideoImage from '../../image/VideoImage';
+import type { UseCardCoverProps } from '../../../hooks/feed/useCardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { CardImage } from './Card';
 
@@ -25,6 +26,7 @@ export interface SharedCardCoverProps extends CommonCardCoverProps {
   isVideoType?: boolean;
   CardImageComponent: typeof CardImage;
   renderOverlay: (props: RenderProps) => ReactNode;
+  coverClassName?: UseCardCoverProps['className'];
 }
 
 export function SharedCardCover({
@@ -35,10 +37,12 @@ export function SharedCardCover({
   post,
   renderOverlay,
   CardImageComponent,
+  coverClassName,
 }: SharedCardCoverProps): ReactElement {
   const { overlay, shouldDimImage } = useCardCover({
     post,
     onShare,
+    className: coverClassName,
   });
   const imageClasses = classNames(
     imageProps?.className,

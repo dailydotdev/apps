@@ -24,7 +24,6 @@ type SocialShareButtonProps = {
   platform: SocialIconType;
   variant?: ButtonVariant;
   size?: ButtonSize;
-  origin?: Origin;
 };
 
 const getBtnProps = ({
@@ -84,7 +83,6 @@ const SocialIconButton = ({
   platform,
   variant = ButtonVariant.Float,
   size,
-  origin = Origin.Suggestions,
 }: SocialShareButtonProps): ReactElement => {
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
@@ -107,7 +105,7 @@ const SocialIconButton = ({
           postLogEvent(LogEvent.SharePost, post, {
             extra: {
               provider: platform,
-              origin,
+              origin: Origin.Suggestions,
             },
             ...(logOpts && logOpts),
           }),

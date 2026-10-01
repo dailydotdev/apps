@@ -57,6 +57,9 @@ export const FreeformCardFooter = ({
             className: classNames('mb-1 mt-2 w-full px-1', imageClassName),
             alt: 'Post Cover image',
           }}
+          coverClassName={{
+            copy: { container: 'inset-x-1 bottom-1 top-2 rounded-8' },
+          }}
         />
       </>
     );

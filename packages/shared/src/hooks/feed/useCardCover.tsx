@@ -19,12 +19,15 @@ interface UseCardCover {
   shouldDimImage: boolean;
 }
 
-interface UseCardCoverProps {
+export interface UseCardCoverProps {
   post?: Post;
   onShare?: (post: Post) => void;
   hasImage?: boolean;
   className?: {
     bookmark?: {
+      container?: string;
+    };
+    copy?: {
       container?: string;
     };
   };
@@ -55,6 +58,7 @@ export const useCardCover = ({
         <CardCoverCopySlack
           post={post}
           onShareToSlack={() => onInteract('none')}
+          className={className?.copy?.container}
         />
       );
     }
@@ -109,6 +113,7 @@ export const useCardCover = ({
     return undefined;
   }, [
     className?.bookmark?.container,
+    className?.copy?.container,
     interaction,
     isCopySlackCover,
     onInteract,
