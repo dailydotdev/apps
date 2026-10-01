@@ -12,8 +12,8 @@ import { GetAppQrCode } from '@dailydotdev/shared/src/features/getApp/components
 import { ExtensionProviders } from '../extension/_providers';
 import { cardHandlers, feedPosts } from '../features/feed/feedHero.mocks';
 
-// The real post modal, opened over the feed, with the proposed phone widget at
-// the top of its real sidebar.
+// The real post modal, opened over the feed, with the proposed phone widget in
+// its real sidebar, under the share widget.
 
 const meta: Meta = {
   title: 'Day Zero Retention/Live post',
@@ -33,7 +33,7 @@ const post: Post = {
 };
 
 // PostWidgets renders the sidebar as the modal's only <aside>. The widget has
-// no slot there, so this mounts a node at the top of it.
+// no slot there, so this mounts a node right after the share widget.
 const useSidebarSlot = (): HTMLElement | null => {
   const [slot, setSlot] = useState<HTMLElement | null>(null);
 
@@ -44,12 +44,16 @@ const useSidebarSlot = (): HTMLElement | null => {
         '.ReactModal__Content aside',
       );
 
-      if (!sidebar) {
+      const share = [...(sidebar?.children ?? [])].find((child) =>
+        child.textContent?.includes('Would you recommend this post?'),
+      );
+
+      if (!share) {
         return false;
       }
 
       node = document.createElement('div');
-      sidebar.prepend(node);
+      share.after(node);
       setSlot(node);
       return true;
     };

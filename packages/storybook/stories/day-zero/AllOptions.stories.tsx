@@ -724,7 +724,7 @@ const asks: {
         title: 'A phone widget beside the post',
         tldr: 'The post page sidebar offers the post in the app, with a bedtime message after 22:00.',
         where:
-          'The top of the post modal and post page sidebar, desktop, without the app.',
+          'The post modal and post page sidebar, under "Would you recommend this post?", desktop, without the app.',
         why: 'Android app opens are 21.1% of returns, yet 2.0% adopt the app in week one.',
         wide: true,
         ui: () => (

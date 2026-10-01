@@ -312,7 +312,7 @@ const StoreButtons = (): ReactElement => (
         target="_blank"
         rel="noopener noreferrer"
       >
-        <img src={badge.src} alt={badge.alt} className="h-12 w-auto" />
+        <img src={badge.src} alt={badge.alt} className="h-auto w-40" />
       </a>
     ))}
   </div>
