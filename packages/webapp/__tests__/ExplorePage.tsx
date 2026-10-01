@@ -98,6 +98,20 @@ it('should leave the extension new tab alone', async () => {
   expect(sponsorStripEvaluations()).toContain(true);
 });
 
+it('should release the dock to a member known from the boot cache before boot', async () => {
+  render(
+    tree({
+      isAuthReady: false,
+      isAuthReadyOrCached: true,
+      isLoggedIn: true,
+      user: defaultUser,
+    }),
+  );
+
+  expect(screen.queryByText(bannerHeadline)).not.toBeInTheDocument();
+  expect(sponsorStripEvaluations()).toContain(true);
+});
+
 it('should leave the sponsor dock to members', async () => {
   render(tree({ isAuthReady: true, isLoggedIn: true, user: defaultUser }));
 

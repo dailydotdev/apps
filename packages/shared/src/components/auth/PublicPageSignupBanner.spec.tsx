@@ -77,6 +77,18 @@ describe('PublicPageSignupBanner', () => {
     expect(logEvent).not.toHaveBeenCalled();
   });
 
+  it('should render nothing for a member known from the boot cache', () => {
+    const { container } = renderComponent({
+      isAuthReady: false,
+      isAuthReadyOrCached: true,
+      isLoggedIn: true,
+      user: { id: 'u1' },
+    });
+
+    expect(container).toBeEmptyDOMElement();
+    expect(logEvent).not.toHaveBeenCalled();
+  });
+
   it('should render nothing until boot answers', () => {
     const { container } = renderComponent({ isAuthReady: false });
 

@@ -13,7 +13,11 @@ const PostAuthBanner = dynamic(() =>
 );
 
 interface PublicPageSignupBannerGate {
-  /** Auth is unknown or anonymous on a laptop: the banner may end up showing. */
+  /**
+   * On a laptop and not a known member: the banner may end up showing. A
+   * member known from the boot cache is released before the remote boot
+   * answers; only auth unknown and anonymous stay in.
+   */
   mayShow: boolean;
   shouldShow: boolean;
 }
@@ -22,8 +26,8 @@ interface PublicPageSignupBannerGate {
 // window's bottom edge to it, so the two can never drift apart.
 export const usePublicPageSignupBannerGate = (): PublicPageSignupBannerGate => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isAuthReady, user } = useAuthContext();
-  const mayShow = isLaptop && (!isAuthReady || !user);
+  const { isAuthReady, isAuthReadyOrCached, user } = useAuthContext();
+  const mayShow = isLaptop && !(isAuthReadyOrCached && user);
 
   return { mayShow, shouldShow: mayShow && isAuthReady };
 };
