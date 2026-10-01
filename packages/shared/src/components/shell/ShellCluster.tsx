@@ -53,6 +53,9 @@ export function ShellCluster({
   const [drag, setDrag] = useState<{ left: number; index: number } | null>(
     null,
   );
+  // A finger on the bar lifts the whole bar a touch (scale 1.04) for as
+  // long as it stays down, the way Instagram's and iOS 26's bars do.
+  const [pressed, setPressed] = useState(false);
 
   const tabs: ClusterTab[] = [
     {
@@ -154,6 +157,7 @@ export function ShellCluster({
       startX: event.clientX,
       moved: false,
     };
+    setPressed(true);
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -182,6 +186,15 @@ export function ShellCluster({
   const endDrag = () => {
     pointer.current = null;
     setDrag(null);
+    setPressed(false);
+  };
+
+  // Without capture (a plain press that never moved) the finger can leave
+  // the bar; the lift ends with it.
+  const onPointerLeave = () => {
+    if (pointer.current && !pointer.current.moved) {
+      endDrag();
+    }
   };
 
   const onPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -241,12 +254,17 @@ export function ShellCluster({
     >
       <nav
         aria-label="Main"
-        className="shell-material pointer-events-auto flex min-w-0 flex-1 items-stretch"
+        data-pressed={pressed || undefined}
+        className="shell-material pointer-events-auto flex min-w-0 flex-1 items-stretch motion-reduce:!transform-none"
         style={{
           height,
           borderRadius: radius,
           padding: cluster.padding,
-          transition,
+          transform: pressed ? `scale(${cluster.pressScale})` : 'scale(1)',
+          transformOrigin: '50% 100%',
+          transition: `${transition}, transform ${
+            pressed ? motion.feedback : motion.snap
+          }ms ${pressed ? 'ease-out' : motion.interaction}`,
         }}
       >
         <div
@@ -256,6 +274,7 @@ export function ShellCluster({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={endDrag}
+          onPointerLeave={onPointerLeave}
           onClickCapture={onClickCapture}
         >
           {/* The selected tab's pill: behind the lit tab at rest, under the
@@ -273,7 +292,7 @@ export function ShellCluster({
                   : `translateX(${activeIndex * 100}%)`,
                 transition: drag
                   ? 'none'
-                  : `transform ${motion.snap}ms ${motion.travel}, border-radius ${motion.snap}ms ${motion.interaction}`,
+                  : `transform ${motion.snap}ms ${motion.interaction}, border-radius ${motion.snap}ms ${motion.interaction}`,
               }}
             />
           )}
@@ -295,7 +314,7 @@ export function ShellCluster({
                       event.currentTarget.click();
                     }
                   }}
-                  className="shell-press relative flex min-w-0 flex-1 items-center justify-center text-text-primary"
+                  className="relative flex min-w-0 flex-1 items-center justify-center text-text-primary"
                   style={{ borderRadius: radius - cluster.padding }}
                 >
                   <span className="relative flex">

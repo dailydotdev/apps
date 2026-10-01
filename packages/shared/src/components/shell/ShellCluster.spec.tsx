@@ -118,6 +118,20 @@ describe('ShellCluster', () => {
     rect.mockRestore();
   });
 
+  it('lifts the bar while a finger is on it', () => {
+    renderCluster('/');
+    const track = screen.getByLabelText('Home').parentElement as HTMLElement;
+    const bar = screen.getByRole('navigation', { name: 'Main' });
+
+    firePointer('pointerdown', track, 40);
+    expect(bar).toHaveAttribute('data-pressed', 'true');
+    expect(bar).toHaveStyle({ transform: 'scale(1.04)' });
+
+    firePointer('pointerup', track, 40);
+    expect(bar).not.toHaveAttribute('data-pressed');
+    expect(bar).toHaveStyle({ transform: 'scale(1)' });
+  });
+
   it('leaves a plain tap to the link', () => {
     renderCluster('/');
     const track = screen.getByLabelText('Home').parentElement as HTMLElement;

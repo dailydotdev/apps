@@ -42,6 +42,8 @@ export const cluster = {
   lift: 8,
   // A held finger has to travel this far before the indicator follows it.
   dragStart: 6,
+  // The whole bar lifts this much while a finger is on it.
+  pressScale: 1.04,
 };
 
 export const topButton = {
