@@ -11,12 +11,30 @@ import {
 } from '../typography/Typography';
 import { PlusTile } from './PlusPreview';
 
+// Mirrors ProfileMenuHeader so the row reads as a sibling of the avatar block:
+// the tile matches the avatar size, the title and line match name and handle.
+export enum PlusEntryRowSize {
+  Medium = 'medium',
+  Large = 'large',
+}
+
+const tileClassName: Record<PlusEntryRowSize, string> = {
+  [PlusEntryRowSize.Medium]: 'size-8 rounded-10',
+  [PlusEntryRowSize.Large]: 'size-10 rounded-10',
+};
+
+const tileIconSize: Record<PlusEntryRowSize, IconSize> = {
+  [PlusEntryRowSize.Medium]: IconSize.Size16,
+  [PlusEntryRowSize.Large]: IconSize.XSmall,
+};
+
 interface PlusEntryRowProps {
   href: string;
   title: string;
   description: ReactNode;
   trailing?: ReactNode;
   member?: boolean;
+  size?: PlusEntryRowSize;
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
   className?: string;
 }
@@ -27,25 +45,32 @@ export const PlusEntryRow = ({
   description,
   trailing,
   member = false,
+  size = PlusEntryRowSize.Medium,
   onClick,
-  className,
+  className = 'rounded-10 px-1 hover:bg-surface-float',
 }: PlusEntryRowProps): ReactElement => (
   <Link href={href} passHref>
     <a
       href={href}
       onClick={onClick}
-      className={classNames(
-        'focus-outline flex items-center gap-2 rounded-10 px-1 py-1.5 hover:bg-surface-float',
-        className,
-      )}
+      className={classNames('focus-outline flex items-center gap-2', className)}
     >
-      <PlusTile muted={member} className="size-6 rounded-8 tablet:-mx-0.5" />
-      <span className="flex min-w-0 flex-1 flex-col">
-        <Typography type={TypographyType.Callout} bold truncate>
+      <PlusTile
+        muted={member}
+        className={tileClassName[size]}
+        iconSize={tileIconSize[size]}
+      />
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <Typography
+          type={TypographyType.Subhead}
+          color={TypographyColor.Primary}
+          bold
+          truncate
+        >
           {title}
         </Typography>
         <Typography
-          type={TypographyType.Caption1}
+          type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
           truncate
         >

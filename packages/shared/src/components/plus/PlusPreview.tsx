@@ -24,11 +24,13 @@ export const plusPreviewPerks = [
 interface PlusTileProps {
   muted?: boolean;
   className?: string;
+  iconSize?: IconSize;
 }
 
 export const PlusTile = ({
   muted = false,
   className = 'size-8 rounded-10',
+  iconSize = IconSize.Size16,
 }: PlusTileProps): ReactElement => (
   <span
     aria-hidden
@@ -40,7 +42,7 @@ export const PlusTile = ({
       className,
     )}
   >
-    <DevPlusIcon secondary size={IconSize.Size16} />
+    <DevPlusIcon secondary size={iconSize} />
   </span>
 );
 
@@ -55,20 +57,13 @@ export const PlusPreviewNote = ({
 );
 
 interface PlusPreviewCardProps {
-  context?: ReactNode;
   footer?: ReactNode;
 }
 
 export const PlusPreviewCard = ({
-  context,
   footer,
 }: PlusPreviewCardProps): ReactElement => (
   <div className="flex w-72 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-4 shadow-2">
-    {context && (
-      <div className="flex flex-col gap-0.5 border-b border-border-subtlest-tertiary pb-3">
-        {context}
-      </div>
-    )}
     <div className="flex items-center gap-2">
       <PlusTile />
       <div className="flex flex-col">
@@ -116,8 +111,7 @@ export const PlusPreview = ({
   children,
   side = 'right',
   align = 'start',
-  context,
-  footer,
+  footer = <PlusPreviewNote>Click to see plans</PlusPreviewNote>,
 }: PlusPreviewProps): ReactElement => {
   // After a click the card stays shut until the pointer leaves, otherwise the
   // open delay re-fires on the trigger while the next page loads.
@@ -158,7 +152,7 @@ export const PlusPreview = ({
           collisionPadding={12}
           className="rail-popup-panel z-tooltip"
         >
-          <PlusPreviewCard context={context} footer={footer} />
+          <PlusPreviewCard footer={footer} />
         </HoverCardPrimitive.Content>
       </HoverCardPrimitive.Portal>
     </HoverCardPrimitive.Root>

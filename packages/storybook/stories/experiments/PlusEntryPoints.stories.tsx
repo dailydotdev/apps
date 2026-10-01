@@ -7,7 +7,7 @@ import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { MainSection } from '@dailydotdev/shared/src/components/sidebar/sections/MainSection';
 import ProfileMenu from '@dailydotdev/shared/src/components/ProfileMenu/ProfileMenu';
-import { InnerProfileSettingsMenu } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
+import { ProfileSettingsMenuDesktop } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
 import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
 import { featurePlusEntryPoints } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeatureOverrides } from '../../mock/GrowthBookProvider';
@@ -202,11 +202,9 @@ export const AccountMenuMember: Story = {
 };
 
 const Settings = (): ReactElement => (
-  <Panel width="w-64">
-    <div className="h-[24rem] overflow-hidden px-2">
-      <InnerProfileSettingsMenu />
-    </div>
-  </Panel>
+  <div className="h-[28rem] w-64 overflow-hidden">
+    <ProfileSettingsMenuDesktop />
+  </div>
 );
 
 export const SettingsFree: Story = {
@@ -225,7 +223,6 @@ const Comment = (): ReactElement => (
     <PlusUserBadge
       user={{
         isPlus: true,
-        name: 'Buk1m',
         plusMemberSince: new Date('2025-03-01'),
       }}
     />

@@ -4,7 +4,7 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { DevPlusIcon } from '../../icons/DevPlus';
 import { plusUrl } from '../../../lib/constants';
-import { PlusPreview, PlusPreviewNote } from '../../plus/PlusPreview';
+import { PlusPreview } from '../../plus/PlusPreview';
 import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 
 interface CreatePlusMenuItemProps {
@@ -31,10 +31,6 @@ export const createPlusMenuItem = ({
   isForcedLink: true,
   requiresLogin: true,
   action: onClick,
-  renderPreview: (trigger) => (
-    <PlusPreview footer={<PlusPreviewNote>Click to see plans</PlusPreviewNote>}>
-      {trigger}
-    </PlusPreview>
-  ),
+  renderPreview: (trigger) => <PlusPreview>{trigger}</PlusPreview>,
   ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
 });

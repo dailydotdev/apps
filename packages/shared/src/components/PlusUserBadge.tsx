@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import type { PublicProfile } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
 import { PlusUser } from './PlusUser';
@@ -9,7 +10,6 @@ import {
   Typography,
   TypographyColor,
   TypographyTag,
-  TypographyType,
 } from './typography/Typography';
 import ConditionalWrapper from './ConditionalWrapper';
 import { DateFormat } from './utilities';
@@ -19,11 +19,10 @@ import { LogEvent, TargetId } from '../lib/log';
 import { IconSize } from './Icon';
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import { featurePlusEntryPoints } from '../lib/featureManagement';
-import { PlusPreview, PlusPreviewNote } from './plus/PlusPreview';
+import { PlusPreview } from './plus/PlusPreview';
 
 export type Props = {
-  user: Pick<PublicProfile, 'isPlus' | 'plusMemberSince'> &
-    Partial<Pick<PublicProfile, 'name'>>;
+  user: Pick<PublicProfile, 'isPlus' | 'plusMemberSince'>;
   tooltip?: boolean;
   size?: IconSize;
 };
@@ -33,6 +32,7 @@ export const PlusUserBadge = ({
   tooltip = true,
   size = IconSize.Size16,
 }: Props): ReactElement | null => {
+  const router = useRouter();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { value: isPlusEntryPoints } = useConditionalFeature({
     feature: featurePlusEntryPoints,
@@ -51,46 +51,20 @@ export const PlusUserBadge = ({
 
   if (tooltip && isPlusEntryPoints) {
     return (
-      <PlusPreview
-        side="bottom"
-        context={
-          <>
-            <Typography type={TypographyType.Callout} bold>
-              {user.name ? `${user.name} is a Plus member` : 'Plus member'}
-            </Typography>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              <DateFormat
-                prefix="Member since "
-                date={user.plusMemberSince}
-                type={TimeFormatType.PlusMember}
-              />
-            </Typography>
-          </>
-        }
-        footer={
-          isPlus ? (
-            <PlusPreviewNote>You are a Plus member too</PlusPreviewNote>
-          ) : (
-            <Link passHref href={plusUrl}>
-              <Typography
-                tag={TypographyTag.Link}
-                type={TypographyType.Footnote}
-                color={TypographyColor.Link}
-                bold
-                onClick={onUpgradeClick}
-              >
-                See what Plus does
-              </Typography>
-            </Link>
-          )
-        }
-      >
-        <div className="flex items-center">
+      <PlusPreview side="bottom">
+        <button
+          type="button"
+          aria-label="Plus member"
+          className="focus-outline flex items-center rounded-6"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onUpgradeClick();
+            router.push(plusUrl);
+          }}
+        >
           <PlusUser withText={false} iconSize={size} />
-        </div>
+        </button>
       </PlusPreview>
     );
   }

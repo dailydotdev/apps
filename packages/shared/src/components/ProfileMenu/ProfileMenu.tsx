@@ -12,6 +12,7 @@ import { checkIsExtension } from '../../lib/func';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';
 import { PlusMenuEntry } from '../plus/PlusMenuEntry';
+import { PlusEntryRowSize } from '../plus/PlusEntryRow';
 import { featurePlusEntryPoints } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 
@@ -75,10 +76,14 @@ export default function ProfileMenu({
       className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
       {showProfileCompletion && <ProfileCompletion />}
-      <ProfileMenuHeader showReferralLadderGift />
+      <ProfileMenuHeader showReferralLadderGift compact={isPlusEntryPoints} />
 
       {isPlusEntryPoints ? (
-        <PlusMenuEntry target={TargetId.ProfileDropdown} />
+        <PlusMenuEntry
+          target={TargetId.ProfileDropdown}
+          size={PlusEntryRowSize.Large}
+          className="-mx-1 rounded-10 px-1 hover:bg-surface-float"
+        />
       ) : (
         <UpgradeToPlus
           target={TargetId.ProfileDropdown}

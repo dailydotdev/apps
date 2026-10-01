@@ -373,7 +373,11 @@ interface ProfileSettingsMenuProps {
 export const InnerProfileSettingsMenu = ({
   className,
   onClose,
-}: WithClassNameProps & { onClose?: () => void }) => {
+  showPlusEntry = true,
+}: WithClassNameProps & {
+  onClose?: () => void;
+  showPlusEntry?: boolean;
+}) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
@@ -381,13 +385,16 @@ export const InnerProfileSettingsMenu = ({
   const { user } = useAuthContext();
   const { value: isPlusEntryPoints } = useConditionalFeature({
     feature: featurePlusEntryPoints,
-    shouldEvaluate: !!user,
+    shouldEvaluate: !!user && showPlusEntry,
   });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
-      {isPlusEntryPoints && (
-        <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
+      {showPlusEntry && isPlusEntryPoints && (
+        <>
+          <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
+          <HorizontalSeparator />
+        </>
       )}
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
         const lastItem = index === arr.length - 1;
@@ -446,10 +453,16 @@ export function ProfileSettingsMenuMobile({
 export function ProfileSettingsMenuDesktop(): ReactElement | null {
   const { user } = useAuthContext();
   const featureTheme = useFeatureTheme();
+  const { value: isPlusEntryPoints } = useConditionalFeature({
+    feature: featurePlusEntryPoints,
+    shouldEvaluate: !!user,
+  });
 
   if (!user) {
     return null;
   }
+
+  const headerClassName = 'rounded-10 px-1 hover:bg-theme-active';
 
   return (
     <aside
@@ -459,14 +472,22 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
       )}
     >
       <ProfileMenuHeader
-        className="rounded-10 px-1 hover:bg-theme-active"
+        className={headerClassName}
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
+        compact={isPlusEntryPoints}
       />
+
+      {isPlusEntryPoints && (
+        <PlusMenuEntry
+          target={TargetId.ProfileSettingsMenu}
+          className={headerClassName}
+        />
+      )}
 
       <HorizontalSeparator />
 
-      <InnerProfileSettingsMenu />
+      <InnerProfileSettingsMenu showPlusEntry={false} />
     </aside>
   );
 }
