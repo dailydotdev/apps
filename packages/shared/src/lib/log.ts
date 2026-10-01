@@ -535,8 +535,6 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
-  QuestOffersEligible = 'quest offers eligible',
-  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -616,8 +614,6 @@ export enum TargetType {
   Tag = 'tag',
   Tool = 'tool',
   Quest = 'quest',
-  QuestOffer = 'quest offer',
-  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
@@ -658,8 +654,8 @@ export enum TargetId {
   FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
-  ExploreStrip = 'explore strip',
   PostStrip = 'post strip',
+  PublicPageSignupBanner = 'public page signup banner',
   MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
