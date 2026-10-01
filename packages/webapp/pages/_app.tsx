@@ -40,6 +40,7 @@ import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWid
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { useIsLightTheme } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { installDomMutationGuard } from '@dailydotdev/shared/src/lib/domMutationGuard';
@@ -279,6 +280,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { layoutProps } = Component as ComponentGetLayout;
 
   const { themeColor } = useThemedAsset();
+  const isLightTheme = useIsLightTheme();
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
 
   const showAppStoreBanner = !router.pathname.startsWith('/helloworld');
@@ -299,9 +301,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             content="initial-scale=1.0, width=device-width, viewport-fit=cover"
           />
           <meta name="theme-color" content={themeColor} />
+          <meta name="color-scheme" content={isLightTheme ? 'light' : 'dark'} />
           <meta
             name="apple-mobile-web-app-status-bar-style"
-            content={themeColor}
+            content={isLightTheme ? 'default' : 'black'}
           />
 
           <meta name="application-name" content="daily.dev" />

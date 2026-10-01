@@ -132,18 +132,23 @@ export function ShellCluster({
 
   const activeIndex = tabs.findIndex((tab) => tab.root === active);
 
+  // The finger is measured on screen while the bar is lifted (scaled), but
+  // the pill moves in the bar's own, unscaled pixels: map through the
+  // layout width so the pill stops at the right edge as it does at the left.
   const tabAt = (clientX: number) => {
-    const rect = trackRef.current?.getBoundingClientRect();
-    if (!rect || !rect.width) {
+    const track = trackRef.current;
+    const rect = track?.getBoundingClientRect();
+    if (!track || !rect || !rect.width) {
       return null;
     }
-    const width = rect.width / tabs.length;
-    const x = clientX - rect.left;
+    const trackWidth = track.offsetWidth || rect.width;
+    const width = trackWidth / tabs.length;
+    const x = ((clientX - rect.left) / rect.width) * trackWidth;
     return {
-      left: Math.min(Math.max(x - width / 2, 0), rect.width - width),
+      left: Math.min(Math.max(x - width / 2, 0), trackWidth - width),
       index: Math.min(
         tabs.length - 1,
-        Math.floor(clamp(x / rect.width) * tabs.length),
+        Math.floor(clamp(x / trackWidth) * tabs.length),
       ),
     };
   };
