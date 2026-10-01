@@ -280,6 +280,7 @@ export enum RequestKey {
   PersonalAccessTokens = 'personal_access_tokens',
   OAuthClients = 'oauth_clients',
   OAuthConsents = 'oauth_consents',
+  OAuthPublicClient = 'oauth_public_client',
   UserAchievements = 'user_achievements',
   UserFeedbackByUserId = 'user_feedback_by_user_id',
   TrackedAchievement = 'tracked_achievement',

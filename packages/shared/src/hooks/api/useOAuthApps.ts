@@ -3,74 +3,29 @@ import {
   createOAuthClient,
   deleteOAuthClient,
   deleteOAuthConsent,
-  getOAuthClients,
-  getOAuthConsents,
-  getOAuthPublicClient,
-  OAuthRequestError,
+  oauthClientsQueryOptions,
+  oauthConsentsQueryOptions,
   rotateOAuthClientSecret,
   updateOAuthClient,
 } from '../../lib/oauthApps';
-import type { OAuthClient, OAuthConsent } from '../../lib/oauthApps';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../useConditionalFeature';
-import { featureOAuthApps } from '../../lib/featureManagement';
-
-export type OAuthConsentWithClient = OAuthConsent & {
-  client: OAuthClient | null;
-};
-
-export const oauthClientsQueryOptions = () => ({
-  queryKey: generateQueryKey(RequestKey.OAuthClients),
-  queryFn: getOAuthClients,
-  staleTime: StaleTime.OneMinute,
-});
-
-export const oauthConsentsQueryOptions = () => ({
-  queryKey: generateQueryKey(RequestKey.OAuthConsents),
-  queryFn: async (): Promise<OAuthConsentWithClient[]> => {
-    const consents = await getOAuthConsents();
-    return Promise.all(
-      consents.map(async (consent) => ({
-        ...consent,
-        client: await getOAuthPublicClient(consent.clientId).catch((err) => {
-          if (err instanceof OAuthRequestError && err.status === 404) {
-            return null;
-          }
-
-          throw err;
-        }),
-      })),
-    );
-  },
-  staleTime: StaleTime.OneMinute,
-});
-
-const useIsOAuthAppsEnabled = (): boolean => {
-  const { user } = useAuthContext();
-  const { value: isFlagOn } = useConditionalFeature({
-    feature: featureOAuthApps,
-    shouldEvaluate: !!user,
-  });
-
-  return !!user && isFlagOn;
-};
 
 export const useOAuthClients = () => {
-  const enabled = useIsOAuthAppsEnabled();
+  const { user } = useAuthContext();
 
   return useQuery({
     ...oauthClientsQueryOptions(),
-    enabled,
+    enabled: !!user,
   });
 };
 
 export const useOAuthConsents = () => {
-  const enabled = useIsOAuthAppsEnabled();
+  const { user } = useAuthContext();
 
   return useQuery({
     ...oauthConsentsQueryOptions(),
-    enabled,
+    enabled: !!user,
   });
 };
 

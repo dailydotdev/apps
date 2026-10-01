@@ -1,5 +1,6 @@
-import { apiUrl } from './config';
+import { apiUrl, publicApiUrl } from './config';
 import { getBetterAuthErrorMessage } from './betterAuth';
+import { generateQueryKey, RequestKey, StaleTime } from './query';
 
 export type OAuthClient = {
   client_id: string;
@@ -33,8 +34,6 @@ export const OAUTH_SCOPES = [
   'read',
   'write',
 ];
-
-const publicApiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const oauthEndpoints = {
   authorize: `${publicApiUrl}/auth/oauth2/authorize`,
@@ -116,3 +115,42 @@ export const getOAuthPublicClient = (clientId: string): Promise<OAuthClient> =>
 
 export const deleteOAuthConsent = (id: string): Promise<void> =>
   oauthRequest<void>('delete-consent', { id });
+
+export type OAuthConsentWithClient = OAuthConsent & {
+  client: OAuthClient | null;
+  isClientDisabled: boolean;
+};
+
+export const oauthClientsQueryOptions = () => ({
+  queryKey: generateQueryKey(RequestKey.OAuthClients),
+  queryFn: getOAuthClients,
+  staleTime: StaleTime.OneMinute,
+});
+
+export const oauthPublicClientQueryOptions = (clientId: string) => ({
+  queryKey: generateQueryKey(RequestKey.OAuthPublicClient, undefined, clientId),
+  queryFn: () => getOAuthPublicClient(clientId),
+});
+
+export const oauthConsentsQueryOptions = () => ({
+  queryKey: generateQueryKey(RequestKey.OAuthConsents),
+  queryFn: async (): Promise<OAuthConsentWithClient[]> => {
+    const consents = await getOAuthConsents();
+    return Promise.all(
+      consents.map(async (consent) => {
+        try {
+          const client = await getOAuthPublicClient(consent.clientId);
+          return { ...consent, client, isClientDisabled: false };
+        } catch (err) {
+          return {
+            ...consent,
+            client: null,
+            isClientDisabled:
+              err instanceof OAuthRequestError && err.status === 404,
+          };
+        }
+      }),
+    );
+  },
+  staleTime: StaleTime.OneMinute,
+});

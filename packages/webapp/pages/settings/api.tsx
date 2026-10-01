@@ -215,11 +215,6 @@ const SKILLS: SkillDefinition[] = [
   },
 ];
 
-const lowercaseRelativeDate = (dateStr: string): string => {
-  const relativeDates = ['Now', 'Today', 'Yesterday'];
-  return relativeDates.includes(dateStr) ? dateStr.toLowerCase() : dateStr;
-};
-
 const ExpirationOptions = [
   { value: '', label: 'Never expires' },
   { value: '30', label: '30 days' },
@@ -398,21 +393,20 @@ const TokenListItem = ({
           <span>&#x2022;</span>
           <span>
             Created{' '}
-            {lowercaseRelativeDate(
-              formatDate({ value: createdAt, type: TimeFormatType.Post }),
-            )}
+            {formatDate({
+              value: createdAt,
+              type: TimeFormatType.PostUpdated,
+            })}
           </span>
           {lastUsedAt && (
             <>
               <span>&#x2022;</span>
               <span>
                 Last used{' '}
-                {lowercaseRelativeDate(
-                  formatDate({
-                    value: lastUsedAt,
-                    type: TimeFormatType.Post,
-                  }),
-                )}
+                {formatDate({
+                  value: lastUsedAt,
+                  type: TimeFormatType.PostUpdated,
+                })}
               </span>
             </>
           )}

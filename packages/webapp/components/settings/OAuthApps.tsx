@@ -18,6 +18,7 @@ import type {
   OAuthClientInput,
 } from '@dailydotdev/shared/src/lib/oauthApps';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import {
   Typography,
@@ -40,7 +41,6 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
-import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/types';
 import { ModalHeader } from '@dailydotdev/shared/src/components/modals/common/ModalHeader';
@@ -59,13 +59,8 @@ const scopeLabels: Record<string, string> = {
   write: 'Write',
 };
 
-const lowercaseRelativeDate = (dateStr: string): string => {
-  const relativeDates = ['Now', 'Today', 'Yesterday'];
-  return relativeDates.includes(dateStr) ? dateStr.toLowerCase() : dateStr;
-};
-
 const formatRelative = (value: Date): string =>
-  lowercaseRelativeDate(formatDate({ value, type: TimeFormatType.Post }));
+  formatDate({ value, type: TimeFormatType.PostUpdated });
 
 const parseRedirectUris = (value: string): string[] =>
   value
@@ -73,33 +68,23 @@ const parseRedirectUris = (value: string): string[] =>
     .map((uri) => uri.trim())
     .filter(Boolean);
 
-const useCopy = () => {
-  const { displayToast } = useToastNotification();
-
-  return async (value: string, successMessage = 'Copied to clipboard') => {
-    try {
-      await navigator.clipboard.writeText(value);
-      displayToast(successMessage);
-    } catch {
-      displayToast('Failed to copy');
-    }
-  };
-};
-
 const getErrorMessage = (err: unknown, fallback: string): string =>
   err instanceof Error && err.message ? err.message : fallback;
 
 const AppLogo = ({ src }: { src?: string }): ReactElement | null => {
-  if (!src) {
+  const [failedSrc, setFailedSrc] = useState<string>();
+
+  if (!src || failedSrc === src) {
     return null;
   }
 
   return (
-    <Image
+    <img
       src={src}
       alt=""
       className="size-10 shrink-0 rounded-10 object-cover"
       loading="lazy"
+      onError={() => setFailedSrc(src)}
     />
   );
 };
@@ -230,7 +215,7 @@ interface CredentialRowProps {
 }
 
 const CredentialRow = ({ label, value }: CredentialRowProps): ReactElement => {
-  const copy = useCopy();
+  const [, copy] = useCopyText();
 
   return (
     <div className="flex flex-col gap-1">
@@ -245,7 +230,12 @@ const CredentialRow = ({ label, value }: CredentialRowProps): ReactElement => {
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<CopyIcon />}
-          onClick={() => copy(value, `${label} copied to clipboard`)}
+          onClick={() =>
+            copy({
+              textToCopy: value,
+              message: `${label} copied to clipboard`,
+            })
+          }
           className="shrink-0"
         />
       </div>
@@ -316,7 +306,7 @@ const OAuthClientListItem = ({
   onRotate,
   onDelete,
 }: OAuthClientListItemProps): ReactElement => {
-  const copy = useCopy();
+  const [, copy] = useCopyText();
 
   return (
     <div className="flex items-start justify-between gap-2 rounded-12 border border-border-subtlest-tertiary p-4">
@@ -340,7 +330,10 @@ const OAuthClientListItem = ({
               size={ButtonSize.XSmall}
               icon={<CopyIcon />}
               onClick={() =>
-                copy(client.client_id, 'Client ID copied to clipboard')
+                copy({
+                  textToCopy: client.client_id,
+                  message: 'Client ID copied to clipboard',
+                })
               }
               className="shrink-0"
             />
@@ -394,7 +387,7 @@ type ClientModalState = { client: OAuthClient | null } | null;
 type CredentialsState = { client: OAuthClient; title: string } | null;
 
 export const OAuthAppsSection = (): ReactElement => {
-  const { data: clients, isLoading } = useOAuthClients();
+  const { data: clients, isLoading, isError } = useOAuthClients();
   const { mutateAsync: rotateSecret } = useRotateOAuthClientSecret();
   const { mutateAsync: deleteClient } = useDeleteOAuthClient();
   const { displayToast } = useToastNotification();
@@ -506,7 +499,16 @@ export const OAuthAppsSection = (): ReactElement => {
         </div>
       )}
 
-      {!isLoading && (!clients || clients.length === 0) && (
+      {isError && (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          Couldn&apos;t load your apps. Try again later.
+        </Typography>
+      )}
+
+      {!isLoading && !isError && (!clients || clients.length === 0) && (
         <div className="flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-6">
           <Typography
             type={TypographyType.Callout}
@@ -548,7 +550,7 @@ export const OAuthAppsSection = (): ReactElement => {
 };
 
 export const ConnectedAppsSection = (): ReactElement => {
-  const { data: consents, isLoading } = useOAuthConsents();
+  const { data: consents, isLoading, isError } = useOAuthConsents();
   const { mutateAsync: deleteConsent } = useDeleteOAuthConsent();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
@@ -597,9 +599,9 @@ export const ConnectedAppsSection = (): ReactElement => {
       {!isLoading && consents && consents.length > 0 && (
         <div className="flex flex-col gap-3">
           {consents.map((consent) => {
-            const appName = consent.client
-              ? consent.client.client_name || consent.clientId
-              : 'Disabled app';
+            const appName = consent.isClientDisabled
+              ? 'Disabled app'
+              : consent.client?.client_name || consent.clientId;
             const scopes = consent.scopes
               .map((scope) => scopeLabels[scope])
               .filter(Boolean);
@@ -646,7 +648,16 @@ export const ConnectedAppsSection = (): ReactElement => {
         </div>
       )}
 
-      {!isLoading && (!consents || consents.length === 0) && (
+      {isError && (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          Couldn&apos;t load your connected apps. Try again later.
+        </Typography>
+      )}
+
+      {!isLoading && !isError && (!consents || consents.length === 0) && (
         <div className="flex flex-col items-center rounded-16 border border-border-subtlest-tertiary p-6">
           <Typography
             type={TypographyType.Callout}

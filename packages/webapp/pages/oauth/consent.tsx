@@ -6,6 +6,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
+import { oauthPublicClientQueryOptions } from '@dailydotdev/shared/src/lib/oauthApps';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import {
   Typography,
@@ -21,12 +22,6 @@ import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { noindexSeoProps } from '../../next-seo';
 
 const WRITE_SCOPE = 'write';
-
-type OAuthClient = {
-  client_id: string;
-  client_name?: string;
-  client_uri?: string;
-};
 
 const scopeDescriptions: Record<string, string> = {
   read: 'Read content on daily.dev, like feeds, posts, comments and search, and your personal data: profile, bookmarks, custom feeds, followed and blocked tags and sources, notifications, tech stack and experiences',
@@ -46,19 +41,6 @@ const getRedirectHost = (redirectUri?: string): string | null => {
   }
 };
 
-const fetchOAuthClient = async (clientId: string): Promise<OAuthClient> => {
-  const res = await fetch(
-    `${apiUrl}/auth/oauth2/public-client?client_id=${encodeURIComponent(
-      clientId,
-    )}`,
-    { credentials: 'include', headers: { Accept: 'application/json' } },
-  );
-  if (!res.ok) {
-    throw new Error('Failed to load the application');
-  }
-  return res.json();
-};
-
 const OAuthConsentPage = (): ReactElement => {
   const { query } = useRouter();
   const { showLogin, user, isAuthReady } = useAuthContext();
@@ -73,8 +55,7 @@ const OAuthConsentPage = (): ReactElement => {
   const redirectHost = getRedirectHost(getFirstQueryParam(query.redirect_uri));
 
   const { data: client, isError } = useQuery({
-    queryKey: ['oauth-client', clientId],
-    queryFn: () => fetchOAuthClient(clientId as string),
+    ...oauthPublicClientQueryOptions(clientId as string),
     enabled: !!clientId && !!user,
   });
 
