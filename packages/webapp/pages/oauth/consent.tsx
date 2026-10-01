@@ -7,6 +7,8 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { oauthPublicClientQueryOptions } from '@dailydotdev/shared/src/lib/oauthApps';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureOAuthApps } from '@dailydotdev/shared/src/lib/featureManagement';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import {
   Typography,
@@ -53,6 +55,10 @@ const OAuthConsentPage = (): ReactElement => {
   const scopes = requestedScopes.filter((scope) => scopeDescriptions[scope]);
   const canWrite = requestedScopes.includes(WRITE_SCOPE);
   const redirectHost = getRedirectHost(getFirstQueryParam(query.redirect_uri));
+  const { value: isOAuthAppsEnabled } = useConditionalFeature({
+    feature: featureOAuthApps,
+    shouldEvaluate: !!user,
+  });
 
   const { data: client, isError } = useQuery({
     ...oauthPublicClientQueryOptions(clientId as string),
@@ -124,17 +130,19 @@ const OAuthConsentPage = (): ReactElement => {
                 Signed in as @{user.username}. This will allow {clientName}
                 {client?.client_uri ? ` (${client.client_uri})` : ''} to:
               </Typography>
-              <div className="flex flex-col gap-1 rounded-12 bg-status-warning p-3">
-                <Typography type={TypographyType.Callout} bold>
-                  This app is not made or controlled by daily.dev. Only continue
-                  if you trust it.
-                </Typography>
-                {redirectHost && (
-                  <Typography type={TypographyType.Callout}>
-                    You will be redirected to {redirectHost}.
+              {isOAuthAppsEnabled && (
+                <div className="flex flex-col gap-1 rounded-12 bg-status-warning p-3">
+                  <Typography type={TypographyType.Callout} bold>
+                    This app is not made or controlled by daily.dev. Only
+                    continue if you trust it.
                   </Typography>
-                )}
-              </div>
+                  {redirectHost && (
+                    <Typography type={TypographyType.Callout}>
+                      You will be redirected to {redirectHost}.
+                    </Typography>
+                  )}
+                </div>
+              )}
               <div className="flex flex-col gap-2">
                 {scopes.map((scope) =>
                   scope === WRITE_SCOPE ? (

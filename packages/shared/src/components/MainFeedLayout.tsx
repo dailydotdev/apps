@@ -29,7 +29,10 @@ import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
-import { ExploreSignupStrip } from './auth/ExploreSignupStrip';
+import {
+  PublicPageSignupBanner,
+  usePublicPageSignupBannerGate,
+} from './auth/PublicPageSignupBanner';
 import FeedContext from '../contexts/FeedContext';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -863,12 +866,22 @@ export default function MainFeedLayout({
     chipsTopContent
   );
 
+  // Both pin to the window's bottom edge, so an anonymous visitor gets the
+  // signup banner or the sponsor dock, never both. Auth unknown counts as
+  // "banner may show": the boot cache readies GrowthBook before the remote
+  // boot answers, and the dock must not enroll a visitor it is about to
+  // leave.
+  const signupBannerGate = usePublicPageSignupBannerGate();
+  const hasSignupBannerSlot = !isExtension && isExploreHub;
+  const mayShowSignupBanner = hasSignupBannerSlot && signupBannerGate.mayShow;
+  const showSignupBanner = hasSignupBannerSlot && signupBannerGate.shouldShow;
   // Read here rather than inside the feed or the strip: this is the one place
   // that owns both, so the card can only ever go missing on a surface that is
   // mounting the strip — with headlines in it — in the card's place.
   const sponsorStrip = useSponsorStripFeed({
     feedName,
     disableAds: feedProps?.disableAds,
+    suppressed: mayShowSignupBanner,
   });
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
@@ -900,16 +913,6 @@ export default function MainFeedLayout({
       <FeedPageLayoutComponent
         className={classNames('relative', disableTopPadding && '!pt-0')}
       >
-        {!isExtension && isExploreHub && (
-          <div className={feedWidthClassName} style={feedWidthStyle}>
-            <ExploreSignupStrip
-              className={classNames(
-                'mb-4',
-                !shouldUseCommentFeedLayout && feedGutter,
-              )}
-            />
-          </div>
-        )}
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
         {isExploreTag && isPhone && (
@@ -977,6 +980,7 @@ export default function MainFeedLayout({
           )
         )}
         {children}
+        {showSignupBanner && <PublicPageSignupBanner />}
       </FeedPageLayoutComponent>
       {/* Docked outside the page container so it spans the feed column and
           pins to the window, and mounted here rather than in each app's

@@ -25,10 +25,12 @@ const GeoPersonalizedBanner = dynamic(
 
 interface PostAuthBannerProps {
   compact?: boolean;
+  targetId?: string;
 }
 
 export const PostAuthBanner = ({
   compact,
+  targetId,
 }: PostAuthBannerProps = {}): ReactElement => {
   const searchParams = useSearchParams();
   const { geo } = useAuthContext();
@@ -36,17 +38,35 @@ export const PostAuthBanner = ({
   const userId = searchParams?.get('userid');
 
   if (userId) {
-    return <UserPersonalizedBanner userId={userId} compact={compact} />;
+    return (
+      <UserPersonalizedBanner
+        userId={userId}
+        compact={compact}
+        targetId={targetId}
+      />
+    );
   }
 
   const social = getSocialReferrer();
   if (social) {
-    return <SocialPersonalizedBanner site={social} compact={compact} />;
+    return (
+      <SocialPersonalizedBanner
+        site={social}
+        compact={compact}
+        targetId={targetId}
+      />
+    );
   }
 
   if (geo?.region) {
-    return <GeoPersonalizedBanner geo={geo.region} compact={compact} />;
+    return (
+      <GeoPersonalizedBanner
+        geo={geo.region}
+        compact={compact}
+        targetId={targetId}
+      />
+    );
   }
 
-  return <AuthenticationBanner compact={compact} />;
+  return <AuthenticationBanner compact={compact} targetId={targetId} />;
 };

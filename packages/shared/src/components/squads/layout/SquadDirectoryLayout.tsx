@@ -21,7 +21,7 @@ import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
-import { ExploreSignupStrip } from '../../auth/ExploreSignupStrip';
+import { PublicPageSignupBanner } from '../../auth/PublicPageSignupBanner';
 import { useMobileAppHeader } from '../../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../../features/getApp/components/MobileAppActions';
 
@@ -132,8 +132,6 @@ export const SquadDirectoryLayout = (
         {isDiscover && (
           <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
         )}
-        <ExploreSignupStrip className="mb-4" />
-
         <header
           className={classNames(
             'flex w-full flex-col gap-2',
@@ -192,6 +190,7 @@ export const SquadDirectoryLayout = (
         >
           {children}
         </section>
+        <PublicPageSignupBanner />
       </BaseFeedPage>
     </>
   );
