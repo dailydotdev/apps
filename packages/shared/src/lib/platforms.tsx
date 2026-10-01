@@ -309,7 +309,8 @@ const isMastodonProfilePath = (pathname: string): boolean => {
   const segments = pathname.split('/').filter(Boolean);
   const handle = segments[0] === 'web' ? segments[1] : segments[0];
 
-  return /^@[\w-]{2,}$/.test(handle || '');
+  // Remote-account paths (/@user@other.instance) are valid Mastodon profiles too.
+  return /^@[\w-]{2,}(?:@(?:[a-z0-9-]+\.)+[a-z]{2,})?$/i.test(handle || '');
 };
 
 const isNonFediverseProfileDomain = (hostname: string): boolean =>

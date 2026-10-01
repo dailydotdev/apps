@@ -57,6 +57,12 @@ describe('detectPlatformFromUrl', () => {
         USER_PLATFORMS,
       ),
     ).toBe('mastodon');
+    expect(
+      detectPlatformFromUrl(
+        'https://some-instance.xyz/@user@hachyderm.io',
+        USER_PLATFORMS,
+      ),
+    ).toBe('mastodon');
   });
 
   it.each([
