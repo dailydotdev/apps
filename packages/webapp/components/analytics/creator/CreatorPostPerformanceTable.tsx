@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
@@ -10,9 +10,16 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
@@ -51,7 +58,8 @@ interface CreatorPostPerformanceTableProps {
 type Column = {
   key: CreatorPostSortBy;
   label: string;
-  /** Screen-reader description of what sorting this column means. */
+  /** Shorter label for the stacked mobile row, where four metrics share a line. */
+  shortLabel?: string;
   numeric: boolean;
 };
 
@@ -63,11 +71,31 @@ const columns: Column[] = [
   {
     key: CreatorPostSortBy.OutboundVisits,
     label: 'Outbound visits',
+    shortLabel: 'Visits',
     numeric: true,
   },
 ];
 
-const cellClassName = 'px-2 py-3 align-middle';
+const [publishedColumn, ...metricColumns] = columns;
+
+const cellClassName = 'px-2 laptop:py-3 laptop:align-middle';
+
+const columnLabel = (key: CreatorPostSortBy): string =>
+  columns.find((column) => column.key === key)?.label ?? '';
+
+const getNextSort = (
+  sort: CreatorPostSort,
+  sortBy: CreatorPostSortBy,
+): CreatorPostSort => ({
+  sortBy,
+  // Re-picking the active column flips it; a new column starts descending,
+  // which is what "best first" means for every metric here, publication date
+  // included.
+  order:
+    sort.sortBy === sortBy && sort.order === CreatorPostSortOrder.Desc
+      ? CreatorPostSortOrder.Asc
+      : CreatorPostSortOrder.Desc,
+});
 
 const getCreatorPostImage = ({
   image,
@@ -94,10 +122,12 @@ const SortableHeader = ({
   column,
   sort,
   onSortChange,
+  prefix,
 }: {
   column: Column;
   sort: CreatorPostSort;
   onSortChange: (sort: CreatorPostSort) => void;
+  prefix?: ReactNode;
 }): ReactElement => {
   const isActive = sort.sortBy === column.key;
   const isDescending = sort.order === CreatorPostSortOrder.Desc;
@@ -115,20 +145,10 @@ const SortableHeader = ({
         column.numeric ? 'text-right' : 'text-left',
       )}
     >
+      {prefix}
       <button
         type="button"
-        onClick={() =>
-          onSortChange({
-            sortBy: column.key,
-            // Re-picking the active column flips it; a new column starts
-            // descending, which is what "best first" means for every metric
-            // here, publication date included.
-            order:
-              isActive && isDescending
-                ? CreatorPostSortOrder.Asc
-                : CreatorPostSortOrder.Desc,
-          })
-        }
+        onClick={() => onSortChange(getNextSort(sort, column.key))}
         className={classNames(
           'focus-outline inline-flex items-center gap-1 rounded-8 px-1 py-0.5 hover:text-text-primary',
           column.numeric && 'flex-row-reverse',
@@ -154,14 +174,36 @@ const SortableHeader = ({
   );
 };
 
+// Below laptop the header row is hidden and each row stacks, so every metric
+// carries its own label.
+const MetricCellLabel = ({ column }: { column: Column }): ReactElement => (
+  <Typography
+    type={TypographyType.Caption2}
+    color={TypographyColor.Tertiary}
+    tag={TypographyTag.Span}
+    className="block truncate laptop:hidden"
+    aria-hidden
+  >
+    {column.shortLabel ?? column.label}
+  </Typography>
+);
+
+const metricCellClassName = classNames(
+  cellClassName,
+  'min-w-0 pb-3 laptop:text-right',
+);
+
 const MetricCell = ({
+  column,
   value,
   unknownReason,
 }: {
+  column: Column;
   value: number | null;
   unknownReason: string;
 }): ReactElement => (
-  <td className={classNames(cellClassName, 'text-right')}>
+  <td className={metricCellClassName}>
+    <MetricCellLabel column={column} />
     {value === null ? (
       <Tooltip content={unknownReason}>
         <span className="text-text-tertiary" aria-label={unknownReason}>
@@ -180,12 +222,64 @@ const MetricCell = ({
   </td>
 );
 
+// Column headers sort the table on laptop; the stacked rows below that have
+// no header row, so the same sorting lives in a dropdown.
+const SortSelect = ({
+  sort,
+  onSortChange,
+}: {
+  sort: CreatorPostSort;
+  onSortChange: (sort: CreatorPostSort) => void;
+}): ReactElement => {
+  const label = columnLabel(sort.sortBy);
+  const isDescending = sort.order === CreatorPostSortOrder.Desc;
+
+  return (
+    <div className="flex justify-end laptop:hidden">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            aria-label={`Sorted by ${label}, ${
+              isDescending ? 'descending' : 'ascending'
+            }. Change sort.`}
+            icon={
+              <ArrowIcon
+                size={IconSize.XSmall}
+                className={classNames(!isDescending && 'rotate-180')}
+              />
+            }
+            iconPosition={ButtonIconPosition.Right}
+          >
+            {label}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {columns.map((column) => (
+            <DropdownMenuItem
+              key={column.key}
+              onClick={() => onSortChange(getNextSort(sort, column.key))}
+              aria-current={column.key === sort.sortBy}
+            >
+              {column.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
 const SkeletonRows = (): ReactElement => (
   <>
     {Array.from({ length: 5 }, (_, index) => (
       // eslint-disable-next-line react/no-array-index-key
-      <tr key={index}>
-        <td className={cellClassName} colSpan={columns.length + 1}>
+      <tr key={index} className="block laptop:table-row">
+        <td
+          className={classNames(cellClassName, 'block py-2 laptop:table-cell')}
+          colSpan={columns.length}
+        >
           <ElementPlaceholder className="h-10 w-full rounded-8" />
         </td>
       </tr>
@@ -203,27 +297,33 @@ export const CreatorPostPerformanceTable = ({
   fetchNextPage,
 }: CreatorPostPerformanceTableProps): ReactElement => (
   <div className="flex flex-col gap-4">
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[42rem] border-collapse text-left">
+    <SortSelect sort={sort} onSortChange={onSortChange} />
+    <div>
+      <table className="w-full border-collapse text-left">
         <caption className="sr-only">
           Your posts and how they performed in the selected period, sortable by
           column.
         </caption>
-        <thead>
+        <thead className="hidden laptop:table-header-group">
           <tr className="border-b border-border-subtlest-tertiary">
-            <th
-              scope="col"
-              className={classNames(cellClassName, 'font-normal')}
-            >
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                tag={TypographyTag.Span}
-              >
-                Post
-              </Typography>
-            </th>
-            {columns.map((column) => (
+            {/* The publish date sits under each title, so the post column
+                sorts by it rather than spending a column of its own. */}
+            <SortableHeader
+              column={publishedColumn}
+              sort={sort}
+              onSortChange={onSortChange}
+              prefix={
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  tag={TypographyTag.Span}
+                  className="mr-2"
+                >
+                  Post ·
+                </Typography>
+              }
+            />
+            {metricColumns.map((column) => (
               <SortableHeader
                 key={column.key}
                 column={column}
@@ -233,7 +333,7 @@ export const CreatorPostPerformanceTable = ({
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="block laptop:table-row-group">
           {isPending && <SkeletonRows />}
           {!isPending &&
             posts.map((row) => {
@@ -242,11 +342,19 @@ export const CreatorPostPerformanceTable = ({
               return (
                 <tr
                   key={row.id}
-                  className="border-b border-border-subtlest-tertiary last:border-b-0"
+                  className="grid grid-cols-4 border-b border-border-subtlest-tertiary last:border-b-0 laptop:table-row"
                 >
-                  <td className={classNames(cellClassName, 'min-w-0')}>
+                  {/* `max-w-0` with `w-full` lets the title column take the
+                      spare width and wrap, instead of a long title
+                      pushing the metrics out of view. */}
+                  <td
+                    className={classNames(
+                      cellClassName,
+                      'col-span-4 min-w-0 pb-2 pt-3 laptop:w-full laptop:max-w-0',
+                    )}
+                  >
                     <Link href={`${webappUrl}posts/${row.post.id}/analytics`}>
-                      <a className="focus-outline flex min-w-0 items-center gap-3 hover:underline">
+                      <a className="focus-outline group flex min-w-0 items-center gap-3">
                         <LazyImage
                           imgSrc={getCreatorPostImage(row.post)}
                           imgAlt=""
@@ -254,41 +362,41 @@ export const CreatorPostPerformanceTable = ({
                           className="h-10 w-16 flex-shrink-0 rounded-8 object-cover"
                           fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                         />
-                        <Typography
-                          type={TypographyType.Callout}
-                          color={TypographyColor.Primary}
-                          className="min-w-0 flex-1"
-                          tag={TypographyTag.Span}
-                          truncate
-                        >
-                          {title}
-                        </Typography>
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <Typography
+                            type={TypographyType.Callout}
+                            color={TypographyColor.Primary}
+                            className="line-clamp-2 break-words group-hover:underline"
+                            tag={TypographyTag.Span}
+                          >
+                            {title}
+                          </Typography>
+                          <Typography
+                            type={TypographyType.Footnote}
+                            color={TypographyColor.Tertiary}
+                            tag={TypographyTag.Span}
+                          >
+                            {formatDate({
+                              value: row.post.createdAt,
+                              type: TimeFormatType.Post,
+                            })}
+                          </Typography>
+                        </span>
                       </a>
                     </Link>
                   </td>
-                  <td
-                    className={classNames(cellClassName, 'whitespace-nowrap')}
-                  >
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                      tag={TypographyTag.Span}
-                    >
-                      {formatDate({
-                        value: row.post.createdAt,
-                        type: TimeFormatType.Post,
-                      })}
-                    </Typography>
-                  </td>
                   <MetricCell
+                    column={metricColumns[0]}
                     value={row.impressions}
                     unknownReason="This post predates daily impressions history, so its impressions for this period are unknown."
                   />
                   <MetricCell
+                    column={metricColumns[1]}
                     value={row.upvotes}
                     unknownReason="Unknown for this period."
                   />
-                  <td className={classNames(cellClassName, 'text-right')}>
+                  <td className={metricCellClassName}>
+                    <MetricCellLabel column={metricColumns[2]} />
                     {/* The comment count is the way into the discussion, so it
                         is the link rather than sitting next to one. */}
                     <Link href={row.post.commentsPermalink}>
@@ -307,6 +415,7 @@ export const CreatorPostPerformanceTable = ({
                     </Link>
                   </td>
                   <MetricCell
+                    column={metricColumns[3]}
                     value={row.outboundVisits}
                     unknownReason="Unknown for this post."
                   />
