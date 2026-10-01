@@ -327,17 +327,17 @@ const storeBadges = [
 // The stores' own badges: black, a grey hairline, the store mark and its
 // two-line wordmark.
 const StoreButtons = (): ReactElement => (
-  <div className="flex gap-3">
+  <div className="flex w-52 flex-col gap-3">
     {storeBadges.map((badge) => (
       <a
         key={badge.id}
         href={badge.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex h-12 items-center gap-2 rounded-10 border bg-black pl-3 pr-4 text-white no-underline"
+        className="flex h-14 items-center gap-3 rounded-10 border bg-black px-4 text-white no-underline"
         style={{ borderColor: '#A6A6A6' }}
       >
-        {badge.mark}
+        <span className="flex w-7 justify-center">{badge.mark}</span>
         <span className="flex flex-col items-start gap-0.5 leading-none">
           <span className="text-[0.625rem]">{badge.caption}</span>
           <span className="text-[1.25rem] font-bold tracking-tight">
