@@ -10,6 +10,7 @@ import {
   useUpdateOAuthClient,
 } from '@dailydotdev/shared/src/hooks/api/useOAuthApps';
 import {
+  MAX_OAUTH_APPS_PER_USER,
   OAUTH_SCOPES,
   oauthEndpoints,
 } from '@dailydotdev/shared/src/lib/oauthApps';
@@ -30,6 +31,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import {
   PlusIcon,
   CopyIcon,
@@ -270,7 +272,14 @@ const OAuthCredentialsModal = ({
         )}
         <CredentialRow label="Authorize URL" value={oauthEndpoints.authorize} />
         <CredentialRow label="Token URL" value={oauthEndpoints.token} />
-        <CredentialRow label="Resource" value={oauthEndpoints.resource} />
+        <CredentialRow
+          label="REST API resource"
+          value={oauthEndpoints.publicApiResource}
+        />
+        <CredentialRow
+          label="MCP resource"
+          value={oauthEndpoints.mcpResource}
+        />
         <CredentialRow label="Scopes" value={OAUTH_SCOPES.join(' ')} />
         <Typography
           type={TypographyType.Footnote}
@@ -354,31 +363,33 @@ const OAuthClientListItem = ({
           )}
         </div>
       </div>
-      {!client.disabled && (
-        <div className="flex shrink-0 gap-1">
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<EditIcon />}
-            onClick={() => onEdit(client)}
-            aria-label="Edit app"
-          />
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<RefreshIcon />}
-            onClick={() => onRotate(client)}
-            aria-label="Rotate secret"
-          />
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<TrashIcon />}
-            onClick={() => onDelete(client)}
-            aria-label="Delete app"
-          />
-        </div>
-      )}
+      <div className="flex shrink-0 gap-1">
+        {!client.disabled && (
+          <>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<EditIcon />}
+              onClick={() => onEdit(client)}
+              aria-label="Edit app"
+            />
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<RefreshIcon />}
+              onClick={() => onRotate(client)}
+              aria-label="Rotate secret"
+            />
+          </>
+        )}
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<TrashIcon />}
+          onClick={() => onDelete(client)}
+          aria-label="Delete app"
+        />
+      </div>
     </div>
   );
 };
@@ -395,7 +406,7 @@ export const OAuthAppsSection = (): ReactElement => {
   const [clientModal, setClientModal] = useState<ClientModalState>(null);
   const [credentials, setCredentials] = useState<CredentialsState>(null);
 
-  const hasDisabledClient = !!clients?.some((client) => client.disabled);
+  const hasReachedLimit = (clients?.length ?? 0) >= MAX_OAUTH_APPS_PER_USER;
 
   const openCreate = () => setClientModal({ client: null });
 
@@ -454,27 +465,24 @@ export const OAuthAppsSection = (): ReactElement => {
             their behalf.
           </Typography>
         </div>
-        {!hasDisabledClient && (
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            onClick={openCreate}
-            className="shrink-0"
-          >
-            Create app
-          </Button>
-        )}
-      </div>
-
-      {hasDisabledClient && (
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
+        <Tooltip
+          content={
+            hasReachedLimit && "You've reached the maximum number of OAuth apps"
+          }
         >
-          You can&apos;t create new apps right now.
-        </Typography>
-      )}
+          <div className="shrink-0">
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+              onClick={openCreate}
+              disabled={hasReachedLimit}
+            >
+              Create app
+            </Button>
+          </div>
+        </Tooltip>
+      </div>
 
       {isLoading && (
         <Typography
