@@ -35,11 +35,11 @@ export const PlusEntryRow = ({
       href={href}
       onClick={onClick}
       className={classNames(
-        'focus-outline flex min-h-14 items-center gap-3 rounded-12 px-2 py-2 hover:bg-surface-hover',
+        'focus-outline flex items-center gap-2 rounded-10 px-1 py-1.5 hover:bg-surface-float',
         className,
       )}
     >
-      <PlusTile muted={member} />
+      <PlusTile muted={member} className="size-6 rounded-8 tablet:-mx-0.5" />
       <span className="flex min-w-0 flex-1 flex-col">
         <Typography type={TypographyType.Callout} bold truncate>
           {title}
@@ -56,7 +56,7 @@ export const PlusEntryRow = ({
         <ArrowIcon
           aria-hidden
           size={IconSize.Size16}
-          className="rotate-90 text-text-quaternary"
+          className="rotate-90 text-text-quaternary tablet:hidden"
         />
       )}
     </a>
