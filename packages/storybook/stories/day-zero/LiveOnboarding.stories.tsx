@@ -15,7 +15,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import {
@@ -287,64 +286,33 @@ const ComposedStep = ({
   </FunnelStepCtaWrapper>
 );
 
-const GooglePlayMark = (): ReactElement => (
-  <svg viewBox="0 0 28 30" className="h-6 w-6" aria-hidden>
-    <path
-      d="M1.3.9 15.6 15 1.3 29.1C.9 28.7.7 28.1.7 27.4V2.6c0-.7.2-1.3.6-1.7Z"
-      fill="#4285F4"
-    />
-    <path
-      d="M20.4 19.8 15.6 15 1.3 29.1c.6.6 1.5.7 2.6.1l16.5-9.4Z"
-      fill="#EA4335"
-    />
-    <path
-      d="M20.4 10.2 3.9.8C2.8.2 1.9.3 1.3.9L15.6 15l4.8-4.8Z"
-      fill="#34A853"
-    />
-    <path
-      d="m20.4 10.2-4.8 4.8 4.8 4.8 4.9-2.8c1.7-1 1.7-3 0-4l-4.9-2.8Z"
-      fill="#FBBC04"
-    />
-  </svg>
-);
-
+// The stores' official badges: Apple's from developer.apple.com, Google's
+// vector artwork from Wikimedia Commons, since Google only ships a padded PNG.
 const storeBadges = [
   {
     id: 'ios',
     href: appStoreUrl,
-    caption: 'Download on the',
-    store: 'App Store',
-    mark: <AppleIcon size={IconSize.Medium} className="text-white" />,
+    src: '/store-badges/app-store.svg',
+    alt: 'Download on the App Store',
   },
   {
     id: 'android',
     href: playStoreUrl,
-    caption: 'GET IT ON',
-    store: 'Google Play',
-    mark: <GooglePlayMark />,
+    src: '/store-badges/google-play.svg',
+    alt: 'Get it on Google Play',
   },
 ];
 
-// The stores' own badges: black, a grey hairline, the store mark and its
-// two-line wordmark.
 const StoreButtons = (): ReactElement => (
-  <div className="flex w-52 flex-col gap-3">
+  <div className="flex flex-col items-center gap-3">
     {storeBadges.map((badge) => (
       <a
         key={badge.id}
         href={badge.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex h-14 items-center gap-3 rounded-10 border bg-black px-4 text-white no-underline"
-        style={{ borderColor: '#A6A6A6' }}
       >
-        <span className="flex w-7 justify-center">{badge.mark}</span>
-        <span className="flex flex-col items-start gap-0.5 leading-none">
-          <span className="text-[0.625rem]">{badge.caption}</span>
-          <span className="text-[1.25rem] font-bold tracking-tight">
-            {badge.store}
-          </span>
-        </span>
+        <img src={badge.src} alt={badge.alt} className="h-12 w-auto" />
       </a>
     ))}
   </div>
