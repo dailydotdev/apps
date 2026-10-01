@@ -11,8 +11,6 @@ import SocialIconButton from '../../components/cards/socials/SocialIconButton';
 import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
 import { CardCoverCopySlack } from '../../components/cards/common/CardCoverCopySlack';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../useConditionalFeature';
-import { featureCardCopySlack } from '../../lib/featureManagement';
 
 interface UseCardCover {
   overlay: ReactNode;
@@ -42,11 +40,7 @@ export const useCardCover = ({
   const { user } = useAuthContext();
   const { onInteract, interaction } = usePostActions({ post });
   const shouldShowReminder = useBookmarkReminderCover(post);
-  const { value: isCopySlackEnabled } = useConditionalFeature({
-    feature: featureCardCopySlack,
-    shouldEvaluate: interaction === 'copy' && hasImage && !!user,
-  });
-  const isCopySlackCover = interaction === 'copy' && isCopySlackEnabled;
+  const isCopySlackCover = interaction === 'copy' && hasImage && !!user;
 
   const overlay = useMemo(() => {
     if (!post) {
