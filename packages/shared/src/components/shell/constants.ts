@@ -40,6 +40,8 @@ export const cluster = {
   padding: 4,
   gap: 8,
   lift: 8,
+  // A held finger has to travel this far before the indicator follows it.
+  dragStart: 6,
 };
 
 export const topButton = {

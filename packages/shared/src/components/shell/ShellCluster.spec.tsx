@@ -11,6 +11,7 @@ import { ShellCluster } from './ShellCluster';
 const mockLogEvent = jest.fn();
 const mockOpenModal = jest.fn();
 const mockShowLogin = jest.fn();
+const mockPush = jest.fn();
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
@@ -30,6 +31,15 @@ jest.mock('next/router', () => ({
 
 const user = { id: 'u1', username: 'ido' } as LoggedUser;
 
+// jsdom has no PointerEvent; a MouseEvent with the pointer fields set is
+// what React's pointer handlers read.
+const firePointer = (type: string, element: Element, clientX: number) => {
+  const event = new MouseEvent(type, { bubbles: true, clientX });
+  Object.defineProperty(event, 'pointerId', { value: 1 });
+  Object.defineProperty(event, 'pointerType', { value: 'touch' });
+  fireEvent(element, event);
+};
+
 const renderCluster = (
   pathname = '/',
   loggedUser: LoggedUser | null = user,
@@ -38,6 +48,7 @@ const renderCluster = (
     pathname,
     asPath: pathname,
     query: {},
+    push: mockPush,
   } as unknown as NextRouter);
 
   return render(
@@ -63,6 +74,60 @@ beforeEach(() => {
 });
 
 describe('ShellCluster', () => {
+  it('draws the indicator behind the lit tab', () => {
+    renderCluster('/squads/[handle]');
+
+    expect(screen.getByTestId('shell-cluster-indicator')).toHaveStyle({
+      transform: 'translateX(200%)',
+    });
+  });
+
+  it('follows a held finger along the bar and selects the tab under it', () => {
+    const rect = jest
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({
+        left: 0,
+        width: 320,
+        top: 0,
+        height: 48,
+        right: 320,
+        bottom: 48,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      } as DOMRect);
+    renderCluster('/');
+    const home = screen.getByLabelText('Home');
+    const track = home.parentElement as HTMLElement;
+
+    firePointer('pointerdown', track, 40);
+    firePointer('pointermove', track, 60);
+    firePointer('pointermove', track, 200);
+    expect(screen.getByTestId('shell-cluster-indicator')).toHaveStyle({
+      transform: 'translateX(160px)',
+    });
+
+    firePointer('pointerup', track, 200);
+    expect(mockPush).toHaveBeenCalledWith('/squads/discover');
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ extra: JSON.stringify({ tab: 'squads' }) }),
+    );
+    expect(screen.getByTestId('shell-cluster-indicator')).toHaveStyle({
+      transform: 'translateX(0%)',
+    });
+    rect.mockRestore();
+  });
+
+  it('leaves a plain tap to the link', () => {
+    renderCluster('/');
+    const track = screen.getByLabelText('Home').parentElement as HTMLElement;
+
+    firePointer('pointerdown', track, 40);
+    firePointer('pointerup', track, 42);
+
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
   it('lights the root that owns the page', () => {
     renderCluster('/squads/[handle]');
 

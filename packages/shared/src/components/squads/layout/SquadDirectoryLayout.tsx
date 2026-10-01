@@ -123,7 +123,9 @@ export const SquadDirectoryLayout = (
       )}
       <BaseFeedPage
         className={classNames(
-          'relative mb-4 flex-col px-4 pt-4',
+          'relative mb-4 flex-col px-4',
+          // The chips are in the block on a phone; the content starts close under it.
+          isPhone ? 'pt-2' : 'pt-4',
           // v2 matches the home feed gutters (24px) instead of the wide 72px
           // directory padding, so the content spans the same width.
           isV2Laptop ? 'laptop:px-6 laptop:pt-6' : 'laptop:px-18 laptop:pt-8',
@@ -183,7 +185,8 @@ export const SquadDirectoryLayout = (
         <section
           {...attrs}
           className={classNames(
-            'flex w-full flex-col pt-5',
+            'flex w-full flex-col',
+            isPhone ? 'pt-2' : 'pt-5',
             isV2Laptop && 'laptop:!pt-0',
             className,
           )}

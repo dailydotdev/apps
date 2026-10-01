@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
@@ -17,7 +17,7 @@ import { squadCategoriesPaths } from '../../lib/constants';
 import { LogEvent, NotificationTarget, TargetId } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import type { AuthTriggersType } from '../../lib/auth';
-import { cluster, lerp, motion } from './constants';
+import { clamp, cluster, lerp, motion } from './constants';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { ShellRoot, owningRoot } from './shellNav';
 
@@ -43,6 +43,16 @@ export function ShellCluster({
   const { p, snapping } = useShellScroll();
   const active = owningRoot(router?.pathname ?? '');
   const hasSquads = (squads?.length ?? 0) > 0;
+  const trackRef = useRef<HTMLDivElement>(null);
+  const pointer = useRef<{ id: number; startX: number; moved: boolean } | null>(
+    null,
+  );
+  const suppressClick = useRef(false);
+  // While a finger holds and moves along the bar the indicator follows it;
+  // `index` is the tab under the finger, `left` the indicator's offset.
+  const [drag, setDrag] = useState<{ left: number; index: number } | null>(
+    null,
+  );
 
   const tabs: ClusterTab[] = [
     {
@@ -85,7 +95,7 @@ export function ShellCluster({
     motion.interaction
   }, padding ${snapping ? motion.snap : motion.scrub}ms ${motion.interaction}`;
 
-  const onTabClick = (tab: ClusterTab) => (event: React.MouseEvent) => {
+  const logTab = (tab: ClusterTab) => {
     if (tab.root === ShellRoot.Activity) {
       logEvent({
         event_name: LogEvent.ClickNotificationIcon,
@@ -99,6 +109,10 @@ export function ShellCluster({
         extra: JSON.stringify({ tab: tab.root }),
       });
     }
+  };
+
+  const onTabClick = (tab: ClusterTab) => (event: React.MouseEvent) => {
+    logTab(tab);
 
     if (!user && tab.requiresLogin) {
       event.preventDefault();
@@ -110,6 +124,96 @@ export function ShellCluster({
       event.preventDefault();
       revealShell();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const activeIndex = tabs.findIndex((tab) => tab.root === active);
+
+  const tabAt = (clientX: number) => {
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect || !rect.width) {
+      return null;
+    }
+    const width = rect.width / tabs.length;
+    const x = clientX - rect.left;
+    return {
+      left: Math.min(Math.max(x - width / 2, 0), rect.width - width),
+      index: Math.min(
+        tabs.length - 1,
+        Math.floor(clamp(x / rect.width) * tabs.length),
+      ),
+    };
+  };
+
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) {
+      return;
+    }
+    pointer.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      moved: false,
+    };
+  };
+
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const { current } = pointer;
+    if (!current || current.id !== event.pointerId) {
+      return;
+    }
+    if (!current.moved) {
+      if (Math.abs(event.clientX - current.startX) < cluster.dragStart) {
+        return;
+      }
+      current.moved = true;
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // jsdom and older WebViews have no pointer capture; the bar still
+        // tracks the finger while it stays over it.
+      }
+    }
+    const next = tabAt(event.clientX);
+    if (next) {
+      setDrag(next);
+    }
+  };
+
+  const endDrag = () => {
+    pointer.current = null;
+    setDrag(null);
+  };
+
+  const onPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    const { current } = pointer;
+    if (!current || current.id !== event.pointerId) {
+      return;
+    }
+    const { moved } = current;
+    const target = tabAt(event.clientX);
+    endDrag();
+    if (!moved || !target) {
+      return;
+    }
+    // The browser fires a click for the release; the drag already chose.
+    suppressClick.current = true;
+    const tab = tabs[target.index];
+    if (tab.root === active) {
+      return;
+    }
+    logTab(tab);
+    if (!user && tab.requiresLogin) {
+      showLogin({ trigger: tab.trigger ?? AuthTriggers.MainButton });
+      return;
+    }
+    router.push(tab.href);
+  };
+
+  const onClickCapture = (event: React.MouseEvent) => {
+    if (suppressClick.current) {
+      suppressClick.current = false;
+      event.preventDefault();
+      event.stopPropagation();
     }
   };
 
@@ -145,47 +249,74 @@ export function ShellCluster({
           transition,
         }}
       >
-        {tabs.map((tab) => {
-          const isActive = tab.root === active;
+        <div
+          ref={trackRef}
+          className="relative flex min-w-0 flex-1 touch-none items-stretch"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={endDrag}
+          onClickCapture={onClickCapture}
+        >
+          {/* The selected tab's pill: behind the lit tab at rest, under the
+              finger while it is held and moved along the bar. */}
+          {activeIndex >= 0 && (
+            <span
+              aria-hidden
+              data-testid="shell-cluster-indicator"
+              className="pointer-events-none absolute inset-y-0 left-0 bg-surface-float motion-reduce:transition-none"
+              style={{
+                width: `${100 / tabs.length}%`,
+                borderRadius: radius - cluster.padding,
+                transform: drag
+                  ? `translateX(${drag.left}px)`
+                  : `translateX(${activeIndex * 100}%)`,
+                transition: drag
+                  ? 'none'
+                  : `transform ${motion.snap}ms ${motion.travel}, border-radius ${motion.snap}ms ${motion.interaction}`,
+              }}
+            />
+          )}
+          {tabs.map((tab, index) => {
+            const isActive = tab.root === active;
+            const isLit = drag ? drag.index === index : isActive;
 
-          return (
-            <Link key={tab.root} href={tab.href} passHref>
-              <a
-                aria-label={tab.label}
-                aria-current={isActive ? 'page' : undefined}
-                role="link"
-                tabIndex={0}
-                onClick={onTabClick(tab)}
-                onKeyDown={(event) => {
-                  if (event.key === ' ') {
-                    event.preventDefault();
-                    event.currentTarget.click();
-                  }
-                }}
-                className="shell-press flex min-w-0 flex-1 items-center justify-center text-text-primary"
-                style={{ borderRadius: radius - cluster.padding }}
-              >
-                <span className="relative flex">
-                  {/* The rest dims the glyph only; the count bubble keeps its
+            return (
+              <Link key={tab.root} href={tab.href} passHref>
+                <a
+                  aria-label={tab.label}
+                  aria-current={isActive ? 'page' : undefined}
+                  role="link"
+                  tabIndex={0}
+                  onClick={onTabClick(tab)}
+                  onKeyDown={(event) => {
+                    if (event.key === ' ') {
+                      event.preventDefault();
+                      event.currentTarget.click();
+                    }
+                  }}
+                  className="shell-press relative flex min-w-0 flex-1 items-center justify-center text-text-primary"
+                  style={{ borderRadius: radius - cluster.padding }}
+                >
+                  <span className="relative flex">
+                    {/* The rest dims the glyph only; the count bubble keeps its
                       full colour whether or not the tab is lit. */}
-                  <span
-                    className={classNames(
-                      'flex',
-                      !isActive && 'opacity-[0.72]',
+                    <span
+                      className={classNames('flex', !isLit && 'opacity-[0.72]')}
+                    >
+                      <tab.Icon size={IconSize.Large} secondary={isLit} />
+                    </span>
+                    {tab.root === ShellRoot.Activity && !!unreadCount && (
+                      <Bubble className={railCountBubbleClass}>
+                        {getUnreadText(unreadCount)}
+                      </Bubble>
                     )}
-                  >
-                    <tab.Icon size={IconSize.Large} secondary={isActive} />
                   </span>
-                  {tab.root === ShellRoot.Activity && !!unreadCount && (
-                    <Bubble className={railCountBubbleClass}>
-                      {getUnreadText(unreadCount)}
-                    </Bubble>
-                  )}
-                </span>
-              </a>
-            </Link>
-          );
-        })}
+                </a>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
       <button
         type="button"
