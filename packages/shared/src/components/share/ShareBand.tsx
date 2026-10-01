@@ -8,10 +8,12 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { SlackCtaButton } from '../widgets/SlackCtaButton';
 import type { ReferralCampaignKey } from '../../lib/referral';
 import type { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface ShareBandProps {
   title: string;
@@ -23,6 +25,8 @@ export interface ShareBandProps {
   cid?: ReferralCampaignKey;
   /** Adds Slack to the networks behind the chevron. */
   post?: Post;
+  /** The post the Slack button beside Copy link shares; defaults to `post`. */
+  slackPost?: Post;
   origin?: Origin;
   emailTitle?: string;
   /** Surface and spacing belong to the host: the two callers sit in different places. */
@@ -46,45 +50,65 @@ export const ShareBand = ({
   text,
   cid,
   post,
+  slackPost = post,
   origin,
   emailTitle,
   className,
   onShare,
-}: ShareBandProps): ReactElement => (
-  <aside
-    // Labelled by its own visible copy, so no aria-label here — a second label
-    // on the landmark would shadow the share button's.
-    className={classNames(
-      'flex flex-col items-center gap-3 text-center tablet:flex-row tablet:justify-between tablet:text-left',
-      className,
-    )}
-  >
-    <div className="flex min-w-0 flex-col gap-0.5">
-      <Typography bold type={TypographyType.Callout}>
-        {title}
-      </Typography>
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        {description}
-      </Typography>
-    </div>
-    <ShareActions
-      variant="split"
-      link={link}
-      text={text}
-      cid={cid}
-      post={post}
-      origin={origin}
-      emailTitle={emailTitle}
-      buttonVariant={ButtonVariant.Primary}
-      buttonSize={ButtonSize.Small}
-      label="Copy link"
-      triggerText="Copy link"
-      dropdownLabel="More share options"
-      className="shrink-0"
-      onShare={onShare}
-    />
-  </aside>
-);
+}: ShareBandProps): ReactElement => {
+  const { user } = useAuthContext();
+  // connecting a workspace needs an account
+  const slackSharePost = user ? slackPost : undefined;
+
+  return (
+    <aside
+      // Labelled by its own visible copy, so no aria-label here — a second label
+      // on the landmark would shadow the share button's.
+      className={classNames(
+        'flex flex-col items-stretch gap-3 text-center tablet:flex-row tablet:flex-wrap tablet:items-center tablet:gap-x-4 tablet:text-left',
+        className,
+      )}
+    >
+      {/* the buttons wrap below the copy rather than squeeze it any narrower */}
+      <div className="flex min-w-0 flex-col gap-0.5 tablet:flex-[1_1_14rem]">
+        <Typography bold type={TypographyType.Callout}>
+          {title}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {description}
+        </Typography>
+      </div>
+      <div className="flex flex-col gap-2 tablet:flex-row tablet:flex-wrap tablet:items-center">
+        <ShareActions
+          variant="split"
+          link={link}
+          text={text}
+          cid={cid}
+          // the button beside it is Slack's one door while it shows
+          post={slackSharePost ? undefined : post}
+          origin={origin}
+          emailTitle={emailTitle}
+          buttonVariant={ButtonVariant.Primary}
+          buttonSize={ButtonSize.Small}
+          label="Copy link"
+          triggerText="Copy link"
+          dropdownLabel="More share options"
+          className="w-full tablet:w-auto"
+          onShare={onShare}
+        />
+        {slackSharePost && (
+          <SlackCtaButton
+            post={slackSharePost}
+            origin={origin}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            className="w-full tablet:w-auto"
+          />
+        )}
+      </div>
+    </aside>
+  );
+};
