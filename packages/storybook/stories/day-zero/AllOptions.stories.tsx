@@ -29,7 +29,6 @@ import {
 import { NotifMessage } from '@dailydotdev/shared/src/components/notifications/utils';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import { TagElement } from '@dailydotdev/shared/src/components/tags/TagElement';
-import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
 import {
   Justify,
   pageBorders,
@@ -153,9 +152,9 @@ const useThemeClass = (): 'dark' | 'light' => {
   return theme;
 };
 
-// A step from "Live onboarding": the real funnel step at the width it ships
-// on, scaled down to fit the card and still clickable.
-const LiveStep = ({
+// A live story, such as a real funnel step or the real post modal, at the width
+// it ships on, scaled down to fit the card and still clickable.
+const LiveFrame = ({
   story,
   width,
   height,
@@ -195,7 +194,7 @@ const LiveStep = ({
       >
         <iframe
           title={story}
-          src={`/iframe.html?id=day-zero-retention-live-onboarding--${story}&viewMode=story&globals=theme:${theme}${
+          src={`/iframe.html?id=day-zero-retention-${story}&viewMode=story&globals=theme:${theme}${
             args ? `&args=${args}` : ''
           }`}
           style={{
@@ -530,50 +529,6 @@ const AppPanel = (): ReactElement => (
   </div>
 );
 
-const PostPhoneWidget = ({
-  title,
-  body,
-}: {
-  title: ReactNode;
-  body: string;
-}): ReactElement => (
-  <WidgetContainer className="flex w-full flex-col items-center gap-2 p-3 text-center">
-    <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
-    <GetAppQrCode className="size-24" />
-    <p className="text-text-tertiary typo-footnote">{body}</p>
-  </WidgetContainer>
-);
-
-// Where the widget sits: the post page sidebar, next to the post.
-const PostFrame = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}): ReactElement => (
-  <div className="flex w-full max-w-[34rem] flex-col gap-2">
-    <span className="font-bold text-text-tertiary typo-footnote">{label}</span>
-    <div className="grid grid-cols-[minmax(0,1fr)_12rem] gap-4 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-      <div className="flex flex-col gap-3">
-        <span className="text-text-tertiary typo-footnote">
-          {feedPosts[0].source?.name}
-        </span>
-        <h4 className="font-bold typo-title3">{feedPosts[0].title}</h4>
-        <img
-          src={feedPosts[0].image}
-          alt=""
-          className="h-24 w-full rounded-12 object-cover"
-        />
-        <p className="text-text-tertiary typo-footnote">
-          {feedPosts[0].summary}
-        </p>
-      </div>
-      <div className="flex flex-col gap-3">{children}</div>
-    </div>
-  </div>
-);
-
 const StepOrder = ({
   label,
   steps,
@@ -648,6 +603,7 @@ interface Option {
   title: string;
   label?: string;
   conflict?: { level: ConflictLevel; scope?: string; note: string };
+  wide?: boolean;
   tldr: string;
   where: string;
   why: string;
@@ -723,7 +679,11 @@ const asks: {
         where: 'Right after the CV upload, where jobs are on.',
         why: 'About 15% upload a CV. It is the most concrete promise we have.',
         ui: () => (
-          <LiveStep story="step-company-interest" width={1280} height={640} />
+          <LiveFrame
+            story="live-onboarding--step-company-interest"
+            width={1280}
+            height={640}
+          />
         ),
       },
       {
@@ -789,8 +749,8 @@ const asks: {
         where: 'The last onboarding step on a phone.',
         why: 'App adopters retain 64.4% against 24.0%.',
         ui: () => (
-          <LiveStep
-            story="step-open-in-the-app"
+          <LiveFrame
+            story="live-onboarding--step-open-in-the-app"
             width={390}
             height={844}
             maxScale={0.75}
@@ -837,28 +797,28 @@ const asks: {
       {
         title: 'A phone widget beside the post',
         tldr: 'The post page sidebar offers the post in the app, with a bedtime message after 22:00.',
-        where: 'The post page sidebar, desktop, without the app.',
+        where:
+          'The top of the post modal and post page sidebar, desktop, without the app.',
         why: 'Android app opens are 21.1% of returns, yet 2.0% adopt the app in week one.',
+        wide: true,
         ui: () => (
-          <div className="flex w-full flex-col items-center gap-6">
-            <PostFrame label="Before 22:00">
-              <PostPhoneWidget
-                title="Read it on your phone"
-                body="Scan to open this post in the app."
-              />
-            </PostFrame>
-            <PostFrame label="After 22:00">
-              <PostPhoneWidget
-                title={
-                  <>
-                    Late one?
-                    <br />
-                    Finish it in bed
-                  </>
-                }
-                body="Scan to pick up this post in the app."
-              />
-            </PostFrame>
+          <div className="flex w-full flex-col gap-6">
+            {[
+              { label: 'Before 22:00', args: undefined },
+              { label: 'After 22:00', args: 'late:!true' },
+            ].map(({ label, args }) => (
+              <div key={label} className="flex flex-col gap-2">
+                <span className="font-bold text-text-tertiary typo-footnote">
+                  {label}
+                </span>
+                <LiveFrame
+                  story="live-post--post-modal"
+                  width={1440}
+                  height={900}
+                  args={args}
+                />
+              </div>
+            ))}
           </div>
         ),
       },
@@ -868,7 +828,11 @@ const asks: {
         where: 'The extension step, on Firefox and Safari.',
         why: 'Today these signups skip the step and leave with no second surface.',
         ui: () => (
-          <LiveStep story="step-phone-door" width={1280} height={800} />
+          <LiveFrame
+            story="live-onboarding--step-phone-door"
+            width={1280}
+            height={800}
+          />
         ),
       },
     ],
@@ -886,8 +850,8 @@ const asks: {
           'The tag step. The ask appears at five tags, and the browser prompt only fires from Enable.',
         why: 'Five picked tags give the push a concrete promise: big stories on tags they chose.',
         ui: () => (
-          <LiveStep
-            story="step-pick-tags"
+          <LiveFrame
+            story="live-onboarding--step-pick-tags"
             width={1280}
             height={800}
             args="picked:!true"
@@ -1080,7 +1044,12 @@ const OptionCard = ({
   const View = option.ui;
 
   return (
-    <article className="flex flex-col gap-4">
+    <article
+      className={classNames(
+        'flex flex-col gap-4',
+        option.wide && 'laptop:col-span-2',
+      )}
+    >
       <div className="flex min-h-[18rem] items-center justify-center overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6">
         <View />
       </div>
