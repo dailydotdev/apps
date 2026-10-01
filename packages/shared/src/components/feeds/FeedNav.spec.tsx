@@ -90,6 +90,10 @@ jest.mock('./UnifiedMobileFeedNav', () => ({
   ),
 }));
 
+jest.mock('../../features/getApp/hooks/useMobileAppHeader', () => ({
+  useMobileAppHeader: () => false,
+}));
+
 jest.mock('../fields/Dropdown', () => ({
   Dropdown: () => (
     <button type="button" aria-label="Sort feed">

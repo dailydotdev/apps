@@ -50,6 +50,7 @@ import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHead
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 import { ShellPage } from '../shell/ShellPageContext';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -91,6 +92,10 @@ export function Header({
   const { isJobsEnabled } = useJobsFeature();
   const isMobileAppHeader = useMobileAppHeader();
   const isPhone = useViewSize(ViewSize.MobileL);
+  const isHidden = useHideOnScrollDown(
+    isMobileAppHeader && !!sticky && !isPhone,
+  );
+  const showIdentity = sticky && !isMobileAppHeader;
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -312,11 +317,15 @@ export function Header({
 
   return (
     <header
-      className={classNames('flex h-12 items-center px-4', className)}
+      className={classNames(
+        'flex h-12 items-center px-4',
+        className,
+        isHidden && '-translate-y-full',
+      )}
       style={style}
     >
-      <ProfileMobileBackButton className={!sticky ? 'mr-3' : undefined} />
-      {sticky ? (
+      <ProfileMobileBackButton className={!showIdentity ? 'mr-3' : undefined} />
+      {showIdentity ? (
         <>
           <ProfilePicture
             user={user}
