@@ -40,6 +40,7 @@ import {
   appsUrl,
   businessWebsiteUrl,
   docs,
+  plusUrl,
   reputation,
   settingsUrl,
   walletUrl,
@@ -60,7 +61,11 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
-import { TypographyColor, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -71,6 +76,12 @@ import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { featurePlusEntryPoints } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { usePlusSale } from '../../hooks/usePlusSale';
+import { PlusEntryRow } from '../plus/PlusEntryRow';
+import { PlusSaleLabel } from '../plus/PlusSaleLabel';
 
 type MenuItems = Record<
   string,
@@ -361,6 +372,57 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   return { items };
 };
 
+const PlusSettingsEntry = (): ReactElement => {
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isActive: isSaleActive } = usePlusSale();
+
+  if (isPlus) {
+    return (
+      <PlusEntryRow
+        member
+        href={`${settingsUrl}/subscription`}
+        title="daily.dev Plus"
+        description="Your plan and perks"
+        trailing={
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            Manage
+          </Typography>
+        }
+      />
+    );
+  }
+
+  return (
+    <PlusEntryRow
+      href={plusUrl}
+      title="daily.dev Plus"
+      description="Removes every ad"
+      trailing={
+        isSaleActive ? (
+          <PlusSaleLabel />
+        ) : (
+          <Typography
+            type={TypographyType.Footnote}
+            bold
+            className="shrink-0 text-accent-bacon-subtlest"
+          >
+            Get Plus
+          </Typography>
+        )
+      }
+      onClick={() =>
+        logSubscriptionEvent({
+          event_name: LogEvent.UpgradeSubscription,
+          target_id: TargetId.ProfileSettingsMenu,
+        })
+      }
+    />
+  );
+};
+
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
   onClose?: () => void;
@@ -375,9 +437,15 @@ export const InnerProfileSettingsMenu = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
   const { items: accountPageItems } = useAccountPageItems({ onClose });
+  const { user } = useAuthContext();
+  const { value: isPlusEntryPoints } = useConditionalFeature({
+    feature: featurePlusEntryPoints,
+    shouldEvaluate: !!user,
+  });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
+      {isPlusEntryPoints && <PlusSettingsEntry />}
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
         const lastItem = index === arr.length - 1;
 

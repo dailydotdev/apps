@@ -10,7 +10,14 @@ import InteractivePopup, {
 import { ButtonSize } from '../buttons/Button';
 import { checkIsExtension } from '../../lib/func';
 import { LogoutReason } from '../../lib/user';
-import { TargetId } from '../../lib/log';
+import { LogEvent, TargetId } from '../../lib/log';
+import { plusUrl, settingsUrl } from '../../lib/constants';
+import { featurePlusEntryPoints } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { usePlusSale } from '../../hooks/usePlusSale';
+import { PlusEntryRow } from '../plus/PlusEntryRow';
+import { PlusSaleLabel } from '../plus/PlusSaleLabel';
 
 import { ProfileMenuFooter } from './ProfileMenuFooter';
 import { UpgradeToPlus } from '../UpgradeToPlus';
@@ -26,6 +33,37 @@ import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 import { useReferralLadder } from '../../hooks/referral/useReferralLadder';
+
+const PlusMenuEntry = (): ReactElement => {
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isActive: isSaleActive } = usePlusSale();
+
+  if (isPlus) {
+    return (
+      <PlusEntryRow
+        member
+        href={`${settingsUrl}/subscription`}
+        title="Plus member"
+        description="Manage your plan and perks"
+      />
+    );
+  }
+
+  return (
+    <PlusEntryRow
+      href={plusUrl}
+      title="Get Plus"
+      description="Removes ads and clickbait"
+      trailing={isSaleActive ? <PlusSaleLabel /> : undefined}
+      onClick={() =>
+        logSubscriptionEvent({
+          event_name: LogEvent.UpgradeSubscription,
+          target_id: TargetId.ProfileDropdown,
+        })
+      }
+    />
+  );
+};
 
 const ExtensionSection = dynamic(() =>
   import(
@@ -46,6 +84,10 @@ export default function ProfileMenu({
     useProfileCompletionIndicator();
   const { isEligible: isReferralLadderEligible, isCompleted } =
     useReferralLadder();
+  const { value: isPlusEntryPoints } = useConditionalFeature({
+    feature: featurePlusEntryPoints,
+    shouldEvaluate: !!user,
+  });
 
   useEffect(() => {
     events.on('routeChangeStart', onClose);
@@ -70,11 +112,15 @@ export default function ProfileMenu({
       {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader showReferralLadderGift />
 
-      <UpgradeToPlus
-        target={TargetId.ProfileDropdown}
-        size={ButtonSize.Small}
-        className="flex-initial"
-      />
+      {isPlusEntryPoints ? (
+        <PlusMenuEntry />
+      ) : (
+        <UpgradeToPlus
+          target={TargetId.ProfileDropdown}
+          size={ButtonSize.Small}
+          className="flex-initial"
+        />
+      )}
 
       <HorizontalSeparator />
 

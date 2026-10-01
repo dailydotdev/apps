@@ -3,8 +3,10 @@ import { render, screen } from '@testing-library/react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   gameCenterMilestoneSectionId,
+  plusUrl,
   webappUrl,
 } from '../../../lib/constants';
+import { featurePlusEntryPoints } from '../../../lib/featureManagement';
 import { useConditionalFeature } from '../../../hooks';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -124,5 +126,26 @@ describe('MainSection', () => {
       'href',
       `${webappUrl}game-center#${gameCenterMilestoneSectionId}`,
     );
+  });
+
+  it('should move the Plus row under For You as "Get Plus" when plus_entry_points is on', () => {
+    mockUseConditionalFeature.mockImplementation(({ feature }) => ({
+      value: feature.id === featurePlusEntryPoints.id,
+      isLoading: false,
+    }));
+
+    render(
+      <MainSection
+        isItemsButton={false}
+        sidebarExpanded
+        shouldShowLabel
+        activePage="/"
+      />,
+    );
+
+    const links = screen.getAllByRole('link');
+    expect(links[0]).toHaveTextContent('For You');
+    expect(links[1]).toHaveTextContent('Get Plus');
+    expect(links[1]).toHaveAttribute('href', plusUrl);
   });
 });
