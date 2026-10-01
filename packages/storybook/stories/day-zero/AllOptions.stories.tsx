@@ -357,7 +357,7 @@ const TagsPushAsk = (): ReactElement => (
     <Button
       type="button"
       size={ButtonSize.Small}
-      variant={ButtonVariant.Primary}
+      variant={ButtonVariant.Secondary}
       icon={
         <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
       }
