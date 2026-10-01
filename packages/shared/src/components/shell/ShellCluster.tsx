@@ -162,14 +162,20 @@ export function ShellCluster({
                     event.currentTarget.click();
                   }
                 }}
-                className={classNames(
-                  'shell-press flex min-w-0 flex-1 items-center justify-center text-text-primary',
-                  !isActive && 'opacity-[0.72]',
-                )}
+                className="shell-press flex min-w-0 flex-1 items-center justify-center text-text-primary"
                 style={{ borderRadius: radius - cluster.padding }}
               >
                 <span className="relative flex">
-                  <tab.Icon size={IconSize.Large} secondary={isActive} />
+                  {/* The rest dims the glyph only; the count bubble keeps its
+                      full colour whether or not the tab is lit. */}
+                  <span
+                    className={classNames(
+                      'flex',
+                      !isActive && 'opacity-[0.72]',
+                    )}
+                  >
+                    <tab.Icon size={IconSize.Large} secondary={isActive} />
+                  </span>
                   {tab.root === ShellRoot.Activity && !!unreadCount && (
                     <Bubble className={railCountBubbleClass}>
                       {getUnreadText(unreadCount)}
