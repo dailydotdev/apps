@@ -53,8 +53,8 @@ describe('MobileFooterNavbar', () => {
 
     expect(mockLogEvent).toHaveBeenCalledWith({
       event_name: 'click',
-      target_id: 'mobile footer',
-      extra: JSON.stringify({ tab: 'explore' }),
+      target_id: 'mobile footer nav',
+      extra: JSON.stringify({ tab: 'explore', logged_in: true }),
     });
   });
 

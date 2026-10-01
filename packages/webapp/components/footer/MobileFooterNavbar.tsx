@@ -71,8 +71,8 @@ const MobileFooterNavbar = (): ReactElement => {
     const logTabClick = (tab: string) =>
       logEvent({
         event_name: LogEvent.Click,
-        target_id: TargetId.MobileFooter,
-        extra: JSON.stringify({ tab }),
+        target_id: TargetId.MobileFooterNav,
+        extra: JSON.stringify({ tab, logged_in: !!user }),
       });
 
     return [
@@ -124,7 +124,7 @@ const MobileFooterNavbar = (): ReactElement => {
         onClick: () => logTabClick('squads'),
       },
     ];
-  }, [logEvent, squadsUrl, unreadCount]);
+  }, [logEvent, squadsUrl, unreadCount, user]);
 
   const activeTab = useMemo(() => {
     const tabTitles = new Set(
