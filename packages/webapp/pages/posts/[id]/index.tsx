@@ -430,14 +430,14 @@ export const PostPage = ({
     ) {
       return (
         <>
-          <MobileAppHeader sticky />
+          <MobileAppHeader />
           <Unauthorized />
         </>
       );
     }
     return (
       <>
-        <MobileAppHeader sticky />
+        <MobileAppHeader />
         <Custom404 />
       </>
     );
@@ -481,7 +481,7 @@ export const PostPage = ({
                 showPostAuthBanner && 'laptop:pb-72',
               )}
             >
-              <MobileAppHeader sticky />
+              <MobileAppHeader />
               <PostFocusCard
                 post={post}
                 origin={Origin.ArticlePage}

@@ -414,7 +414,7 @@ SourcePage.layoutProps = {
   customBanner: (
     <>
       <CustomAuthBanner />
-      <MobileAppHeader sticky />
+      <MobileAppHeader />
     </>
   ),
 };
