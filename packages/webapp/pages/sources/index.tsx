@@ -27,11 +27,11 @@ import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/Expl
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
 const seoTitles = getPageSeoTitles('Top sources for developer content');
 const seo: NextSeoProps = {
