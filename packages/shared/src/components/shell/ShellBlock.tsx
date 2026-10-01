@@ -196,7 +196,7 @@ export function ShellBlock({
       observer.disconnect();
       document.documentElement.style.removeProperty('--shell-top');
     };
-  }, [root, row, config?.hidden]);
+  }, [root, row, config?.hidden, config?.row]);
 
   // Arrival never hides the block, and a focused field keeps it in view.
   useEffect(() => {
@@ -240,7 +240,7 @@ export function ShellBlock({
       ) : (
         <PageRow title={config?.title} actions={config?.actions} />
       )}
-      {row}
+      {config?.row ?? row}
     </header>
   );
 }

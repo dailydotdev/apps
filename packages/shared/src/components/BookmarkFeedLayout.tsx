@@ -7,7 +7,9 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import { webappUrl } from '../lib/constants';
 import {
   BookmarkSort,
   BOOKMARKS_FEED_QUERY,
@@ -28,6 +30,9 @@ import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { PageHeader } from './layout/PageHeader';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
+import { ShellPage } from './shell/ShellPageContext';
+import { Segments, ShellRow } from './shell/ShellRow';
+import { useBookmarkFolderList } from '../hooks/bookmark';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
 import {
@@ -80,6 +85,9 @@ export default function BookmarkFeedLayout({
   isReminderOnly,
 }: BookmarkFeedLayoutProps): ReactElement | null {
   const [isHydrated, setIsHydrated] = useState(false);
+  const router = useRouter();
+  const { folders: bookmarkFolders } = useBookmarkFolderList();
+  const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
   const {
     shouldUseListFeedLayout,
     FeedPageLayoutComponent,
@@ -305,7 +313,39 @@ export default function BookmarkFeedLayout({
             onRequestClose={() => setShowSharedBookmarks(false)}
           />
         )}
-        <div className="relative mb-4 laptop:hidden">
+        <ShellPage
+          title="Bookmarks"
+          row={
+            <ShellRow>
+              <Segments
+                items={[
+                  {
+                    key: 'quick-saves',
+                    label: 'Quick saves',
+                    href: `${webappUrl}bookmarks`,
+                    active: bookmarkPath === '/bookmarks',
+                    replace: true,
+                  },
+                  {
+                    key: 'later',
+                    label: 'Read it later',
+                    href: `${webappUrl}bookmarks/later`,
+                    active: bookmarkPath === '/bookmarks/later',
+                    replace: true,
+                  },
+                  ...bookmarkFolders.map((list) => ({
+                    key: list.id,
+                    label: list.name,
+                    href: `${webappUrl}bookmarks/${list.id}`,
+                    active: bookmarkPath === `/bookmarks/${list.id}`,
+                    replace: true,
+                  })),
+                ]}
+              />
+            </ShellRow>
+          }
+        />
+        <div className="relative mb-4 hidden tablet:block laptop:hidden">
           <BookmarkSection
             isItemsButton={false}
             sidebarExpanded

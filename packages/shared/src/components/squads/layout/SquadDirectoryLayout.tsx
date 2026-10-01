@@ -11,6 +11,8 @@ import {
   SquadDirectoryNavbar,
   SquadDirectoryNavbarItem,
 } from './SquadDirectoryNavbar';
+import { ShellPage } from '../../shell/ShellPageContext';
+import { Chips, ShellRow } from '../../shell/ShellRow';
 import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
@@ -135,7 +137,23 @@ export const SquadDirectoryLayout = (
               />
             )}
           </section>
-          <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
+          <ShellPage
+            row={
+              <ShellRow>
+                <Chips
+                  items={Object.entries(categoryPaths ?? {}).map(
+                    ([category, path]) => ({
+                      key: category,
+                      label: <span className="capitalize">{category}</span>,
+                      href: path,
+                      active: path === pathname || path === asPath,
+                    }),
+                  )}
+                />
+              </ShellRow>
+            }
+          />
+          <div className="hidden max-w-full flex-row flex-nowrap items-center justify-between gap-6 tablet:flex laptop:gap-22">
             <SquadDirectoryNavbar className="min-h-14 min-w-0 flex-1">
               {tabItems}
             </SquadDirectoryNavbar>

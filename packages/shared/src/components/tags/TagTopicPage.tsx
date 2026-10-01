@@ -381,12 +381,14 @@ export const TagTopicPage = ({
       )}
       {/* Full-bleed header strip — rendered outside the padded feed container
           so it spans flush to the edges like the main feed nav. */}
-      <TagPageNavbar
-        activeTag={tag}
-        recommendedTags={recommendedTags
-          .map((relatedTag) => relatedTag.name)
-          .filter((name): name is string => !!name)}
-      />
+      <div className="hidden tablet:block">
+        <TagPageNavbar
+          activeTag={tag}
+          recommendedTags={recommendedTags
+            .map((relatedTag) => relatedTag.name)
+            .filter((name): name is string => !!name)}
+        />
+      </div>
       <FeedPageLayoutComponent>
         <div className="flex w-full flex-col px-4 py-6 tablet:px-6">
           <ExploreSignupStrip />

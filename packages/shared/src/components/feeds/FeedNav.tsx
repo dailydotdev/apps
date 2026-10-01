@@ -19,6 +19,7 @@ import {
   DEFAULT_ALGORITHM_KEY,
 } from '../layout/common';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { HomeSegments } from '../shell/HomeSegments';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
 import { PlusIcon, SortIcon } from '../icons';
@@ -178,7 +179,8 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
     isCustomDefaultFeed,
   ]);
 
-  const shouldRenderNav = home || (isMobile && bookmarks);
+  // Inside the block the header already decided this is a Home page.
+  const shouldRenderNav = inShellBlock || home || (isMobile && bookmarks);
   if (
     !shouldRenderNav ||
     withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')
@@ -201,7 +203,17 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
             'h-[3.25rem] tablet:h-auto tablet:min-h-[3.25rem]',
         )}
       >
-        {shouldRenderFeedChips ? (
+        {inShellBlock && (
+          <div className="flex w-full items-stretch bg-background-default">
+            <HomeSegments />
+            {showFeedActions && (
+              <FeedNavActionsWrapper>
+                {renderFeedActions(true)}
+              </FeedNavActionsWrapper>
+            )}
+          </div>
+        )}
+        {!inShellBlock && shouldRenderFeedChips ? (
           <div className="flex w-full items-stretch border-b border-border-subtlest-tertiary bg-background-default">
             <UnifiedMobileFeedNav />
             {showFeedActions && (
@@ -216,38 +228,40 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
             )}
           </div>
         ) : (
-          <TabContainer
-            controlledActive={urlToTab[router.asPath] ?? ''}
-            shouldMountInactive
-            className={{
-              header: classNames(
-                'no-scrollbar overflow-x-auto px-2',
-                isSortableFeed && sortingEnabled && 'pr-28',
-              ),
-            }}
-            tabListProps={{
-              className: {
-                indicator: '!w-6',
-                item: 'px-1 tablet:last-of-type:mr-12',
-              },
-              autoScrollActive: true,
-            }}
-            renderTab={({ label }) => {
-              if (label === FeedNavTab.NewFeed) {
-                return (
-                  <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
-                    <PlusIcon />
-                  </div>
-                );
-              }
+          !inShellBlock && (
+            <TabContainer
+              controlledActive={urlToTab[router.asPath] ?? ''}
+              shouldMountInactive
+              className={{
+                header: classNames(
+                  'no-scrollbar overflow-x-auto px-2',
+                  isSortableFeed && sortingEnabled && 'pr-28',
+                ),
+              }}
+              tabListProps={{
+                className: {
+                  indicator: '!w-6',
+                  item: 'px-1 tablet:last-of-type:mr-12',
+                },
+                autoScrollActive: true,
+              }}
+              renderTab={({ label }) => {
+                if (label === FeedNavTab.NewFeed) {
+                  return (
+                    <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
+                      <PlusIcon />
+                    </div>
+                  );
+                }
 
-              return null;
-            }}
-          >
-            {Object.entries(urlToTab).map(([url, label]) => (
-              <Tab key={`${label}-${url}`} label={label} url={url} />
-            ))}
-          </TabContainer>
+                return null;
+              }}
+            >
+              {Object.entries(urlToTab).map(([url, label]) => (
+                <Tab key={`${label}-${url}`} label={label} url={url} />
+              ))}
+            </TabContainer>
+          )
         )}
 
         {!shouldRenderFeedChips && showFeedActions && (

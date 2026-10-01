@@ -20,6 +20,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
@@ -133,10 +134,11 @@ const SourcesPage = ({
             }}
           />
         </Head>
+        <ShellPage title="Sources" />
         <ExploreSignupStrip className="mb-6" />
         {!isV2Laptop && (
-          <div className="flex justify-between">
-            <BreadCrumbs>
+          <div className="flex justify-end tablet:justify-between">
+            <BreadCrumbs className="hidden tablet:flex">
               <SitesIcon size={IconSize.XSmall} secondary /> Sources
             </BreadCrumbs>
             {suggestSourceButton}

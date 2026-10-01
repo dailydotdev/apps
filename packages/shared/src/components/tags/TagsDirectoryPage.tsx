@@ -10,6 +10,7 @@ import { Origin } from '../../lib/log';
 import { TagCategorySection } from './TagCategorySection';
 import { TagDirectorySearch } from './TagDirectorySearch';
 import { TagPageNavbar } from './TagPageNavbar';
+import { ShellPage } from '../shell/ShellPageContext';
 import { TagDirectory } from './TagDirectory';
 import { TagDirectoryFilter } from './TagDirectoryFilter';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
@@ -112,10 +113,13 @@ export function TagsDirectoryPage({
 
   return (
     <>
+      <ShellPage title="Tags" />
       {/* Tabbed page header (same design as the Squad directory). */}
-      <TagPageNavbar
-        recommendedTags={popularTags?.map((tag) => tag.value) ?? []}
-      />
+      <div className="hidden tablet:block">
+        <TagPageNavbar
+          recommendedTags={popularTags?.map((tag) => tag.value) ?? []}
+        />
+      </div>
 
       <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
         <ExploreSignupStrip className="mb-8" />

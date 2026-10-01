@@ -19,6 +19,8 @@ import { MobileAppHeader } from '../../features/getApp/components/MobileAppHeade
 import { ShellBlock } from '../shell/ShellBlock';
 import { ShellRoot } from '../shell/shellNav';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { Chips, ShellRow } from '../shell/ShellRow';
+import { webappUrl } from '../../lib/constants';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -60,7 +62,7 @@ function MainLayoutHeader({
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-  const { profile, home, squads, notifications } = useActiveNav(activeFeedName);
+  const { profile, squads, notifications } = useActiveNav(activeFeedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
   const isMobileProfile = profile && !isLaptop;
   const isMobile = !isLaptop;
@@ -98,11 +100,17 @@ function MainLayoutHeader({
   );
 
   if (shouldUseLoadedSettings && isPhone) {
-    const isPostPage = withoutLayoutVariantPrefix(router?.pathname).startsWith(
-      '/posts/[id]',
-    );
+    const pathname = withoutLayoutVariantPrefix(router?.pathname ?? '');
+    // Home is the feeds a member switches between; the old strip's other
+    // destinations are leaves or Explore now.
+    const isHomeRoot =
+      ['/', '/my-feed', '/following'].includes(pathname) ||
+      pathname.startsWith('/highlights') ||
+      (pathname.startsWith('/feeds/[slugOrId]') && !pathname.endsWith('/edit'));
+    const isExploreRoot =
+      isSearchPage || ['/popular', '/upvoted', '/discussed'].includes(pathname);
     const root = (() => {
-      if (isSearchPage) {
+      if (isExploreRoot) {
         return ShellRoot.Explore;
       }
       if (squads) {
@@ -111,26 +119,51 @@ function MainLayoutHeader({
       if (notifications) {
         return ShellRoot.Activity;
       }
-      if (home && !isPostPage) {
+      if (isHomeRoot) {
         return ShellRoot.Home;
       }
       return undefined;
     })();
 
-    return (
-      <ShellBlock
-        root={root}
-        row={
-          root === ShellRoot.Explore ? (
-            <div className="px-2 pb-3">
+    const row = (() => {
+      if (root === ShellRoot.Explore) {
+        return (
+          <>
+            <div className="px-2 pb-1">
               <SpotlightTrigger />
             </div>
-          ) : (
-            <FeedNav inShellBlock />
-          )
-        }
-      />
-    );
+            <ShellRow>
+              <Chips
+                items={[
+                  { key: 'tags', label: 'Tags', href: `${webappUrl}tags` },
+                  {
+                    key: 'sources',
+                    label: 'Sources',
+                    href: `${webappUrl}sources`,
+                  },
+                  {
+                    key: 'leaderboard',
+                    label: 'Leaderboard',
+                    href: `${webappUrl}users`,
+                  },
+                  {
+                    key: 'discussions',
+                    label: 'Discussions',
+                    href: `${webappUrl}discussed`,
+                  },
+                ]}
+              />
+            </ShellRow>
+          </>
+        );
+      }
+      if (root === ShellRoot.Home) {
+        return <FeedNav inShellBlock />;
+      }
+      return undefined;
+    })();
+
+    return <ShellBlock root={root} row={row} />;
   }
 
   if (shouldRenderFeedNav) {

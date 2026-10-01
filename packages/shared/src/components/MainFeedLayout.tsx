@@ -102,6 +102,8 @@ import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
+import { ExploreSortMenu } from './shell/ExploreSortMenu';
+
 const FeedExploreHeader = dynamic(
   () =>
     import(/* webpackChunkName: "feedExploreHeader" */ './header').then(
@@ -261,6 +263,7 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useViewSize(ViewSize.MobileL);
   const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter, postTypesFilter } =
@@ -761,6 +764,10 @@ export default function MainFeedLayout({
       );
     }
 
+    if (isPhone) {
+      return <ExploreSortMenu />;
+    }
+
     return (
       <FeedExploreHeader
         tab={tab}
@@ -776,7 +783,7 @@ export default function MainFeedLayout({
         }}
       />
     );
-  }, [isLaptop, onTabChange, tab]);
+  }, [isLaptop, isPhone, onTabChange, tab]);
 
   // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
   // Discussions) from the sidebar's Explore panel, so the page header no longer
