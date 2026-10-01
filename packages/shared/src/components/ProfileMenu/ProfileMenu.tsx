@@ -82,7 +82,6 @@ export default function ProfileMenu({
         <PlusMenuEntry
           target={TargetId.ProfileDropdown}
           size={PlusEntryRowSize.Large}
-          className="-mx-1 rounded-10 px-1 hover:bg-surface-float"
         />
       ) : (
         <UpgradeToPlus

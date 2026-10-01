@@ -462,8 +462,6 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
     return null;
   }
 
-  const headerClassName = 'rounded-10 px-1 hover:bg-theme-active';
-
   return (
     <aside
       className={classNames(
@@ -472,17 +470,17 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
       )}
     >
       <ProfileMenuHeader
-        className={headerClassName}
+        className={classNames(
+          'rounded-10 hover:bg-theme-active',
+          !isPlusEntryPoints && 'px-1',
+        )}
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
         compact={isPlusEntryPoints}
       />
 
       {isPlusEntryPoints && (
-        <PlusMenuEntry
-          target={TargetId.ProfileSettingsMenu}
-          className={headerClassName}
-        />
+        <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
       )}
 
       <HorizontalSeparator />
