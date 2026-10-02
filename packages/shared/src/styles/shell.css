@@ -97,21 +97,29 @@
 }
 
 /*
- * The floating material of the shell, what production's footer painted:
- * the blur-baseline surface (opaque enough that a white image behind it
- * never takes the bar) with the floating bar's surface-float tint on top,
- * over a 40px backdrop blur, a hairline ring from the border token and the
- * soft shadow token. One recipe for the bar, its squares and the post
- * page's floating bar. No glass rim.
+ * The floating material of the shell: production's blur recipe (the
+ * blur-baseline surface over a 40px backdrop blur), a hairline ring from
+ * the border token and a soft transparent shadow. No glass rim. The bar,
+ * the block's squares and pills and the back-to-top square wear it.
  */
 .shell-material {
+  background: var(--theme-blur-blur-baseline);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 4px 30px rgb(0 0 0 / 0.12);
+}
+
+/* The action pieces, the Create square and the post page's floating bar,
+   take the post bar's lighter glass: the surface-float tint over the same
+   base so a white image behind them never washes them out, and the
+   shadow token. */
+.shell-material.shell-material-action {
   background: linear-gradient(
       var(--theme-surface-float),
       var(--theme-surface-float)
     ),
     var(--theme-blur-blur-baseline);
-  -webkit-backdrop-filter: blur(40px);
-  backdrop-filter: blur(40px);
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
 }
@@ -119,11 +127,7 @@
 /* A Button that stands in the block as a square keeps the material over
    the button's own transparent background and dropped shadow. */
 .btn.shell-material {
-  background: linear-gradient(
-      var(--theme-surface-float),
-      var(--theme-surface-float)
-    ),
-    var(--theme-blur-blur-baseline);
+  background: var(--theme-blur-blur-baseline);
   border-color: transparent;
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 4px 30px rgb(0 0 0 / 0.12);

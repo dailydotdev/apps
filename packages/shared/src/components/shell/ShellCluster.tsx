@@ -536,7 +536,7 @@ export function ShellCluster({
         type="button"
         aria-label="Create post"
         onClick={onCreate}
-        className="shell-material shell-press pointer-events-auto flex shrink-0 items-center justify-center text-text-primary"
+        className="shell-material shell-material-action shell-press pointer-events-auto flex shrink-0 items-center justify-center text-text-primary"
         style={{ width: height, height, borderRadius: radius, transition }}
       >
         <PlusIcon size={IconSize.Large} />

@@ -34,11 +34,11 @@ export interface MobilePostFloatingBarProps {
   className?: string;
 }
 
-// The shell's floating material (the bottom bar and its squares share it).
-// `justify-between` + `px-2` spreads the icons edge-to-edge with a small
-// pad so the outermost icons don't kiss the rounded corner.
+// The shell's action glass, shared with the Create square. `justify-between`
+// + `px-2` spreads the icons edge-to-edge with a small pad so the outermost
+// icons don't kiss the rounded corner.
 const containerClasses =
-  'shell-material flex w-full items-center justify-between rounded-16 px-2 py-1';
+  'shell-material shell-material-action flex w-full items-center justify-between rounded-16 px-2 py-1';
 
 // `QuaternaryButton` renders its children inside a sibling `<label>`, so the
 // `btn-tertiary-*` text color set on the button itself doesn't reach the
