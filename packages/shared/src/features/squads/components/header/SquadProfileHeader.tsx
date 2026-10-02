@@ -245,7 +245,7 @@ export const SquadProfileHeader = (): ReactElement => {
           />
           {isViewerReady && <SquadActions />}
           {isViewerReady && isPhone && (
-            <ShellPage title={squad.name} actions={<SquadBlockActions />} />
+            <ShellPage title="Squad" actions={<SquadBlockActions />} />
           )}
         </div>
         {viewer === SquadViewer.Blocked && (
