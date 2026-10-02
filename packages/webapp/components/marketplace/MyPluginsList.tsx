@@ -17,7 +17,10 @@ import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
 import { TrashIcon } from '@dailydotdev/shared/src/components/icons/Trash';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import {
+  ToastType,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   generateQueryKey,
@@ -69,6 +72,11 @@ export const MyPluginsList = ({
       });
       displayToast('Plugin deleted');
     },
+    onError: () => {
+      displayToast('Could not delete the plugin, please try again', {
+        variant: ToastType.Error,
+      });
+    },
   });
 
   const { mutate: cancelSubmission } = useMutation({
@@ -77,6 +85,11 @@ export const MyPluginsList = ({
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.MyPluginSubmissions, user),
+      });
+    },
+    onError: () => {
+      displayToast('Could not update the submission, please try again', {
+        variant: ToastType.Error,
       });
     },
   });

@@ -4,6 +4,7 @@ import { gqlClient } from './common';
 import type { UserShortProfile } from '../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { webappUrl } from '../lib/constants';
+import { publicApiUrl } from '../lib/config';
 
 export const PLUGIN_NAME_MAX_LENGTH = 60;
 export const PLUGIN_DESCRIPTION_MAX_LENGTH = 300;
@@ -11,7 +12,7 @@ export const PLUGIN_ABOUT_MAX_LENGTH = 20_000;
 export const PLUGIN_SKILL_MD_MAX_LENGTH = 50_000;
 export const PLUGIN_URL_MAX_LENGTH = 500;
 
-export const PLUGIN_API_BASE_URL = 'https://api.daily.dev/public/v1/plugins';
+export const PLUGIN_API_BASE_URL = `${publicApiUrl}/public/v1/plugins`;
 
 export const marketplaceUrl = `${webappUrl}marketplace`;
 

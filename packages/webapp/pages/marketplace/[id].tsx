@@ -37,7 +37,6 @@ import type {
   PluginData,
 } from '@dailydotdev/shared/src/graphql/plugins';
 import {
-  getMarketplacePluginUrl,
   getPluginSkillMdUrl,
   marketplaceSubmitUrl,
   marketplaceUrl,
@@ -51,6 +50,7 @@ import {
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
 import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
 import { getLayout } from '../../components/layouts/MainLayout';
+import { getAppOrigin } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -67,7 +67,7 @@ const getPluginSchema = (plugin: Plugin): string =>
     name: plugin.name,
     description: plugin.description,
     applicationCategory: 'DeveloperApplication',
-    url: getMarketplacePluginUrl(plugin.id),
+    url: `${getAppOrigin()}/marketplace/${plugin.id}`,
     author: { '@type': 'Person', name: plugin.author.name },
     ...(plugin.url && { sameAs: plugin.url }),
     dateModified: plugin.updatedAt,
@@ -183,7 +183,13 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
         </div>
         {plugin.about && (
           <div className="rounded-16 border border-border-subtlest-tertiary p-4">
-            <RenderMarkdown content={plugin.about} />
+            <RenderMarkdown
+              content={plugin.about}
+              reactMarkdownProps={{
+                disallowedElements: ['a', 'img'],
+                unwrapDisallowed: true,
+              }}
+            />
           </div>
         )}
       </PageWrapperLayout>

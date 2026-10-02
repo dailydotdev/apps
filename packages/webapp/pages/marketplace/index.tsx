@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   Button,
   ButtonSize,
@@ -24,7 +24,6 @@ import type {
   PluginsData,
 } from '@dailydotdev/shared/src/graphql/plugins';
 import {
-  getMarketplacePluginUrl,
   marketplaceSubmitUrl,
   PLUGINS_QUERY,
   pluginsQueryOptions,
@@ -33,6 +32,7 @@ import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { PluginCard } from '../../components/marketplace/PluginCard';
 import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
 import { getLayout } from '../../components/layouts/MainLayout';
+import { getAppOrigin } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -57,7 +57,7 @@ const getMarketplaceSchema = (plugins: Plugin[]): string =>
     itemListElement: plugins.map((plugin, index) => ({
       '@type': 'ListItem',
       position: index + 1,
-      url: getMarketplacePluginUrl(plugin.id),
+      url: `${getAppOrigin()}/marketplace/${plugin.id}`,
       name: plugin.name,
     })),
   });
@@ -68,8 +68,9 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
   const { data: searchResults, isFetching } = useQuery({
     ...pluginsQueryOptions(debouncedQuery),
     enabled: !!debouncedQuery,
+    placeholderData: keepPreviousData,
   });
-  const results = debouncedQuery ? searchResults ?? [] : plugins;
+  const results = debouncedQuery ? searchResults ?? plugins : plugins;
 
   return (
     <MarketplaceFeatureGate>
