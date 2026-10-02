@@ -1,18 +1,16 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { getDayOfYear } from 'date-fns';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { IconSize } from '../Icon';
 import { MiniCloseIcon } from '../icons';
-import { LogEvent, TargetType } from '../../lib/log';
+import { useToggleFeedbackButton } from '../../hooks/useToggleFeedbackButton';
 
 interface FeedbackWidgetProps {
   // `fixed` (default) — floating bottom-right pill (legacy/v1 chrome).
@@ -86,8 +84,8 @@ export function FeedbackWidget({
   placement = 'fixed',
 }: FeedbackWidgetProps = {}): ReactElement | null {
   const { user } = useAuthContext();
-  const { showFeedbackButton, toggleShowFeedbackButton } = useSettingsContext();
-  const { logEvent } = useLogContext();
+  const { showFeedbackButton, toggleFeedbackButton } =
+    useToggleFeedbackButton();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
   const dailyTrio = useMemo(getDailyTrio, []);
@@ -102,15 +100,6 @@ export function FeedbackWidget({
   const isSidebar = placement === 'sidebar';
   const isInline = isSupport || isSidebar;
   const isVisible = !!user && !isMobile && (isSupport || showFeedbackButton);
-
-  const onHideFeedbackButton = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.ChangeSettings,
-      target_type: TargetType.FeedbackButton,
-      target_id: 'hide',
-    });
-    return toggleShowFeedbackButton();
-  }, [logEvent, toggleShowFeedbackButton]);
 
   useEffect(() => {
     if (!isVisible || isInline) {
@@ -167,9 +156,9 @@ export function FeedbackWidget({
         {isSidebar && (
           <button
             type="button"
-            onClick={onHideFeedbackButton}
+            onClick={toggleFeedbackButton}
             aria-label="Hide feedback button"
-            className="focus-outline pointer-events-none absolute right-0 top-0 z-1 flex size-6 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-tertiary opacity-0 shadow-2 transition hover:bg-surface-hover hover:text-text-primary group-hover/feedback:pointer-events-auto group-hover/feedback:opacity-100"
+            className="focus-outline pointer-events-none absolute right-0 top-0 z-1 flex size-6 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-tertiary opacity-0 shadow-2 transition hover:bg-surface-hover hover:text-text-primary group-focus-within/feedback:pointer-events-auto group-focus-within/feedback:opacity-100 group-hover/feedback:pointer-events-auto group-hover/feedback:opacity-100"
           >
             <MiniCloseIcon size={IconSize.XSmall} aria-hidden />
           </button>
@@ -179,45 +168,56 @@ export function FeedbackWidget({
   }
 
   return (
-    <Button
-      variant={ButtonVariant.Primary}
-      size={ButtonSize.Medium}
-      // `--sponsor-strip-height` is set only while the sponsor strip is docked
-      // (see `sponsorStripOffset`), so this is the usual 1rem everywhere else.
-      className="group fixed bottom-[calc(1rem_+_var(--sponsor-strip-height,0px))] right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
-      onClick={() => openModal({ type: LazyModal.Feedback })}
-      aria-label="Send feedback. Real people reply."
-      aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
-    >
-      <span
-        aria-hidden={isCompact}
-        className={classNames(
-          'flex flex-col items-start overflow-hidden whitespace-nowrap leading-tight transition-all duration-300 ease-out',
-          isCompact
-            ? 'max-w-0 opacity-0 group-hover:mr-3 group-hover:max-w-40 group-hover:opacity-100'
-            : 'mr-3 max-w-40 opacity-100',
-        )}
+    <div className="group/feedback fixed bottom-[calc(1rem_+_var(--sponsor-strip-height,0px))] right-4 z-max">
+      <Button
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Medium}
+        // `--sponsor-strip-height` is set only while the sponsor strip is docked
+        // (see `sponsorStripOffset`), so this is the usual 1rem everywhere else.
+        className="group !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+        onClick={() => openModal({ type: LazyModal.Feedback })}
+        aria-label="Send feedback. Real people reply."
+        aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
       >
-        <span>Feedback</span>
-        <span className="opacity-80 font-normal typo-caption2">
-          Real people reply
+        <span
+          aria-hidden={isCompact}
+          className={classNames(
+            'flex flex-col items-start overflow-hidden whitespace-nowrap leading-tight transition-all duration-300 ease-out',
+            isCompact
+              ? 'max-w-0 opacity-0 group-hover:mr-3 group-hover:max-w-40 group-hover:opacity-100'
+              : 'mr-3 max-w-40 opacity-100',
+          )}
+        >
+          <span>Feedback</span>
+          <span className="opacity-80 font-normal typo-caption2">
+            Real people reply
+          </span>
         </span>
-      </span>
-      <span className="flex">
-        {dailyTrio.map((member, index) => (
-          <ProfilePicture
-            key={member.username}
-            user={member}
-            size={ProfileImageSize.Medium}
-            rounded="full"
-            className={classNames(
-              'border-2 border-text-primary',
-              index !== 0 && '-ml-4',
-            )}
-          />
-        ))}
-      </span>
-    </Button>
+        <span className="flex">
+          {dailyTrio.map((member, index) => (
+            <ProfilePicture
+              key={member.username}
+              user={member}
+              size={ProfileImageSize.Medium}
+              rounded="full"
+              className={classNames(
+                'border-2 border-text-primary',
+                index !== 0 && '-ml-4',
+              )}
+            />
+          ))}
+        </span>
+      </Button>
+
+      <button
+        type="button"
+        onClick={toggleFeedbackButton}
+        aria-label="Hide feedback button"
+        className="focus-outline pointer-events-none absolute right-0 top-0 z-1 flex size-6 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-tertiary opacity-0 shadow-2 transition hover:bg-surface-hover hover:text-text-primary group-focus-within/feedback:pointer-events-auto group-focus-within/feedback:opacity-100 group-hover/feedback:pointer-events-auto group-hover/feedback:opacity-100"
+      >
+        <MiniCloseIcon size={IconSize.XSmall} aria-hidden />
+      </button>
+    </div>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import {
@@ -7,25 +7,14 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { Switch } from '../../fields/Switch';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../../lib/log';
+import { useToggleFeedbackButton } from '../../../hooks/useToggleFeedbackButton';
 import type { WithClassNameProps } from '../../utilities';
 
 export const FeedbackButtonSection = ({
   className,
 }: WithClassNameProps): ReactElement => {
-  const { logEvent } = useLogContext();
-  const { showFeedbackButton, toggleShowFeedbackButton } = useSettingsContext();
-
-  const onToggle = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.ChangeSettings,
-      target_type: TargetType.FeedbackButton,
-      target_id: !showFeedbackButton ? 'show' : 'hide',
-    });
-    return toggleShowFeedbackButton();
-  }, [logEvent, showFeedbackButton, toggleShowFeedbackButton]);
+  const { showFeedbackButton, toggleFeedbackButton } =
+    useToggleFeedbackButton();
 
   return (
     <section
@@ -43,7 +32,7 @@ export const FeedbackButtonSection = ({
         name="feedback-button"
         compact
         checked={showFeedbackButton}
-        onToggle={onToggle}
+        onToggle={toggleFeedbackButton}
         aria-label="Toggle feedback button visibility"
       />
     </section>
