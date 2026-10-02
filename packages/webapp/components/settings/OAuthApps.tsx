@@ -451,7 +451,7 @@ export const OAuthAppsSection = (): ReactElement => {
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div id="oauth-apps" className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>

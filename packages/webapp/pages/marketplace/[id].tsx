@@ -112,12 +112,6 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
             </Button>
           )}
         </div>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          {plugin.description}
-        </Typography>
         <div className="flex flex-wrap items-center gap-4">
           <Link href={`${webappUrl}${plugin.author.username}`} prefetch={false}>
             <a className="flex items-center gap-2 hover:underline">
@@ -141,7 +135,7 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
             })}
           </Typography>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
           {plugin.url && (
             <Button
               tag="a"
@@ -151,7 +145,6 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
-              className="w-fit"
             >
               {getPluginLinkHost(plugin.url)}
             </Button>
@@ -165,12 +158,17 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
-              className="w-fit"
             >
               SKILL.md
             </Button>
           )}
         </div>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+        >
+          {plugin.description}
+        </Typography>
       </div>
       {plugin.about && (
         <div className="rounded-16 border border-border-subtlest-tertiary p-4">
