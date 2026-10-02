@@ -78,28 +78,36 @@ export function FormWrapper({
       <div className={classNames('flex w-full flex-col', className?.container)}>
         <PageHeader
           className={classNames(
-            'sticky top-5 z-2 -mx-4 flex flex-row items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-2',
+            'sticky top-5 z-2 -mx-4 flex min-h-11 flex-row items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-2',
             className?.header,
           )}
           ref={headerRef}
         >
-          <Button {...leftButtonProps} variant={ButtonVariant.Tertiary}>
-            {left}
-          </Button>
           {title && (
             <span className="min-w-0 flex-1 truncate text-center font-bold typo-body">
               {title}
             </span>
           )}
-          <div className="ml-auto flex items-center gap-2">{headerActions}</div>
+          {headerActions && (
+            <div className="ml-auto flex items-center gap-2">
+              {headerActions}
+            </div>
+          )}
         </PageHeader>
         {children}
-        <div className="sticky bottom-0 z-2 -mx-4 -mb-[max(env(safe-area-inset-bottom,0.75rem),0.75rem)] mt-4 border-t border-border-subtlest-tertiary bg-background-default px-4 pb-[max(env(safe-area-inset-bottom,0.75rem),0.75rem)] pt-3">
+        <div className="sticky bottom-0 z-2 -mx-4 -mb-[max(env(safe-area-inset-bottom,0.75rem),0.75rem)] mt-4 flex gap-3 border-t border-border-subtlest-tertiary bg-background-default px-4 pb-[max(env(safe-area-inset-bottom,0.75rem),0.75rem)] pt-3">
+          <Button
+            {...leftButtonProps}
+            variant={ButtonVariant.Float}
+            className={classNames('flex-1', leftButtonProps.className)}
+          >
+            {left}
+          </Button>
           <Button
             {...rightButtonProps}
             variant={ButtonVariant.Primary}
             form={form}
-            className={classNames('w-full', rightButtonProps.className)}
+            className={classNames('flex-1', rightButtonProps.className)}
           >
             {right}
           </Button>
