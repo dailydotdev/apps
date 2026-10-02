@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
@@ -23,7 +23,6 @@ import { revealShell, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
 import { useShellActionsSlot, useShellPageConfig } from './ShellPageContext';
 import { ShellRoot, useShellBack } from './shellNav';
-import { YouDrawer } from './YouPage';
 
 const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Explore]: 'Explore',
@@ -33,20 +32,15 @@ const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
 
 const AvatarSquare = (): ReactElement | null => {
   const { user } = useAuthContext();
-  const [isYouOpen, setIsYouOpen] = useState(false);
 
   if (!user) {
     return null;
   }
 
   return (
-    <>
-      <button
-        type="button"
+    <Link href={`${webappUrl}you`} passHref>
+      <a
         aria-label="You"
-        aria-haspopup="dialog"
-        aria-expanded={isYouOpen}
-        onClick={() => setIsYouOpen(true)}
         className="shell-material shell-press shell-hit relative flex size-[2.375rem] shrink-0 items-center justify-center overflow-hidden rounded-14"
       >
         <ProfilePicture
@@ -55,13 +49,8 @@ const AvatarSquare = (): ReactElement | null => {
           nativeLazyLoading
           className="!size-[2.375rem] !rounded-14"
         />
-      </button>
-      <YouDrawer
-        isOpen={isYouOpen}
-        onOpen={() => setIsYouOpen(true)}
-        onClose={() => setIsYouOpen(false)}
-      />
-    </>
+      </a>
+    </Link>
   );
 };
 
@@ -185,7 +174,7 @@ export function ShellBlock({
   const ref = useRef<HTMLElement>(null);
   const hidden = !config?.hidden && p >= 0.99;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = ref.current;
     if (!element) {
       return undefined;
@@ -241,7 +230,7 @@ export function ShellBlock({
       ref={ref}
       aria-hidden={hidden || undefined}
       className={classNames(
-        'shell-chrome fixed inset-x-0 z-header flex flex-col bg-background-default tablet:hidden',
+        'fixed inset-x-0 z-header flex flex-col bg-background-default tablet:hidden',
         hidden && 'pointer-events-none',
       )}
       style={{

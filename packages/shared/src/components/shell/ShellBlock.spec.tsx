@@ -32,11 +32,6 @@ jest.mock('../header/QuestHeaderButton', () => ({
   QuestHeaderButton: () => <button type="button" aria-label="Quests" />,
 }));
 
-jest.mock('./YouPage', () => ({
-  YouDrawer: ({ isOpen }: { isOpen: boolean }) =>
-    isOpen ? <div role="dialog" aria-label="You" /> : null,
-}));
-
 const user = {
   id: 'u1',
   username: 'ido',
@@ -79,15 +74,10 @@ afterEach(() => {
 });
 
 describe('ShellBlock', () => {
-  it('shows the brand row on Home with the avatar opening You', () => {
+  it('shows the brand row on Home with the avatar leading to You', () => {
     renderBlock(<ShellBlock root={ShellRoot.Home} />);
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    act(() => {
-      screen.getByRole('button', { name: 'You' }).click();
-    });
-
-    expect(screen.getByRole('dialog', { name: 'You' })).toBeInTheDocument();
+    expect(screen.getByLabelText('You')).toHaveAttribute('href', '/you');
     expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument();
   });
 

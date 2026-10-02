@@ -129,7 +129,7 @@ function MainLayoutHeader({
       if (root === ShellRoot.Explore) {
         return (
           <>
-            <div className="px-2 pb-1">
+            <div className="flex h-[3.25rem] flex-col px-2 pb-1">
               <SpotlightTrigger />
             </div>
             <ShellRow>
