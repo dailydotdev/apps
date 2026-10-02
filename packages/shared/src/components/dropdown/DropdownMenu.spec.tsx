@@ -47,9 +47,7 @@ const renderMenu = (isPhone: boolean) => {
 // Each option is a Radix item around its own button; the buttons are the
 // rows a finger or a keyboard reaches.
 const menuButtons = () =>
-  screen
-    .getAllByRole('menuitem')
-    .filter((item) => item.tagName === 'BUTTON');
+  screen.getAllByRole('menuitem').filter((item) => item.tagName === 'BUTTON');
 
 describe('DropdownMenu', () => {
   it('opens a popover on a desktop with the items wired to their actions', () => {
