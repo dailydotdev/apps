@@ -200,7 +200,10 @@ describe('ShellCluster', () => {
 
     fireEvent.click(screen.getByLabelText('Home'));
 
-    expect(invalidate).toHaveBeenCalledWith({ type: 'active' });
+    expect(invalidate).toHaveBeenCalledWith(
+      { type: 'active' },
+      { throwOnError: false },
+    );
     expect(mockPush).not.toHaveBeenCalled();
   });
 
