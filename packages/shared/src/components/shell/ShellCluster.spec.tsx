@@ -33,12 +33,30 @@ const user = { id: 'u1', username: 'ido' } as LoggedUser;
 
 // jsdom has no PointerEvent; a MouseEvent with the pointer fields set is
 // what React's pointer handlers read.
-const firePointer = (type: string, element: Element, clientX: number) => {
+const firePointer = (
+  type: string,
+  element: Element,
+  clientX: number,
+  pointerType = 'touch',
+) => {
   const event = new MouseEvent(type, { bubbles: true, clientX });
   Object.defineProperty(event, 'pointerId', { value: 1 });
-  Object.defineProperty(event, 'pointerType', { value: 'touch' });
+  Object.defineProperty(event, 'pointerType', { value: pointerType });
   fireEvent(element, event);
 };
+
+const mockTrackRect = () =>
+  jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+    left: 0,
+    width: 320,
+    top: 0,
+    height: 48,
+    right: 320,
+    bottom: 48,
+    x: 0,
+    y: 0,
+    toJSON: () => ({}),
+  } as DOMRect);
 
 const renderCluster = (
   pathname = '/',
@@ -83,19 +101,7 @@ describe('ShellCluster', () => {
   });
 
   it('follows a held finger along the bar and selects the tab under it', () => {
-    const rect = jest
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockReturnValue({
-        left: 0,
-        width: 320,
-        top: 0,
-        height: 48,
-        right: 320,
-        bottom: 48,
-        x: 0,
-        y: 0,
-        toJSON: () => ({}),
-      } as DOMRect);
+    const rect = mockTrackRect();
     renderCluster('/');
     const home = screen.getByLabelText('Home');
     const track = home.parentElement as HTMLElement;
@@ -134,14 +140,30 @@ describe('ShellCluster', () => {
     expect(bar).toHaveStyle({ transform: 'scale(1)' });
   });
 
-  it('leaves a plain tap to the link', () => {
+  it('resolves a touch tap on release and swallows the click after it', () => {
+    const rect = mockTrackRect();
     renderCluster('/');
     const track = screen.getByLabelText('Home').parentElement as HTMLElement;
 
-    firePointer('pointerdown', track, 40);
-    firePointer('pointerup', track, 42);
+    firePointer('pointerdown', track, 120);
+    firePointer('pointerup', track, 122);
+    fireEvent.click(screen.getByLabelText('Explore'));
+
+    expect(mockPush).toHaveBeenCalledTimes(1);
+    expect(mockPush).toHaveBeenCalledWith('/posts');
+    rect.mockRestore();
+  });
+
+  it('leaves a mouse tap to the link', () => {
+    const rect = mockTrackRect();
+    renderCluster('/');
+    const track = screen.getByLabelText('Home').parentElement as HTMLElement;
+
+    firePointer('pointerdown', track, 120, 'mouse');
+    firePointer('pointerup', track, 122, 'mouse');
 
     expect(mockPush).not.toHaveBeenCalled();
+    rect.mockRestore();
   });
 
   it('lights the root that owns the page', () => {

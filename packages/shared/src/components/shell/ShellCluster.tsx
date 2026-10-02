@@ -125,21 +125,47 @@ export function ShellCluster({
     }
   };
 
-  const onTabClick = (tab: ClusterTab) => (event: React.MouseEvent) => {
+  // What a tab does when chosen; the link's own navigation covers the
+  // remaining case (a mouse click on another root).
+  const activate = (tab: ClusterTab): boolean => {
     logTab(tab);
 
     if (!user && tab.requiresLogin) {
-      event.preventDefault();
       showLogin({ trigger: tab.trigger ?? AuthTriggers.MainButton });
-      return;
+      return true;
     }
 
     if (tab.root === active) {
-      event.preventDefault();
       revealShell();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      return true;
+    }
+
+    return false;
+  };
+
+  const onTabClick = (tab: ClusterTab) => (event: React.MouseEvent) => {
+    if (activate(tab)) {
+      event.preventDefault();
     }
   };
+
+  // iOS Safari turns a finger held on a link into a URL preview and cancels
+  // the pointer, so the bar owns its touches: nothing native starts from
+  // them, and a touch tap is resolved on release like a drag is.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) {
+      return undefined;
+    }
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 1) {
+        event.preventDefault();
+      }
+    };
+    track.addEventListener('touchstart', onTouchStart, { passive: false });
+    return () => track.removeEventListener('touchstart', onTouchStart);
+  }, []);
 
   const activeIndex = tabs.findIndex((tab) => tab.root === active);
 
@@ -221,21 +247,21 @@ export function ShellCluster({
     const { moved } = current;
     const target = tabAt(event.clientX);
     endDrag();
-    if (!moved || !target) {
+    if (!target || (!moved && event.pointerType !== 'touch')) {
       return;
     }
-    // The browser fires a click for the release; the drag already chose.
+    // A click may still follow the release; the pointer already chose.
     suppressClick.current = true;
+    window.setTimeout(() => {
+      suppressClick.current = false;
+    }, motion.snap);
     const tab = tabs[target.index];
-    if (tab.root === active) {
+    if (moved && tab.root === active) {
       return;
     }
-    logTab(tab);
-    if (!user && tab.requiresLogin) {
-      showLogin({ trigger: tab.trigger ?? AuthTriggers.MainButton });
-      return;
+    if (!activate(tab)) {
+      router.push(tab.href);
     }
-    router.push(tab.href);
   };
 
   const onClickCapture = (event: React.MouseEvent) => {
@@ -285,13 +311,14 @@ export function ShellCluster({
       >
         <div
           ref={trackRef}
-          className="relative flex min-w-0 flex-1 touch-none items-stretch"
+          className="shell-drag relative flex min-w-0 flex-1 touch-none items-stretch"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={endDrag}
           onPointerLeave={onPointerLeave}
           onClickCapture={onClickCapture}
+          onContextMenu={(event) => event.preventDefault()}
         >
           {/* The selected tab's pill: behind the lit tab at rest, under the
               finger while it is held and moved along the bar. */}

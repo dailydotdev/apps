@@ -56,6 +56,16 @@
     0 4px 30px rgb(0 0 0 / 0.12);
 }
 
+/* The bar's track is dragged along, so a held finger must stay a pointer:
+   no link callout or preview on a long press (iOS Safari cancels the touch
+   to show it) and nothing to select. */
+.shell-drag,
+.shell-drag * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* A 38px square the finger can hit at 44px; neighbours sit 8px apart so
    two hit areas never overlap. */
 .shell-hit::after {
@@ -96,15 +106,35 @@
  * Menus on a phone: the Radix popover becomes a bottom sheet. The popper
  * wrapper is pinned to the bottom edge, the content takes the full width
  * with rounded top corners, and the open and close are the sheet's own
- * timings. The scrim is drawn by the content so the menu stays one node.
+ * timings. The scrim is drawn by the popper wrapper so the menu stays one
+ * node; a tap on it is a tap outside the content, which closes the menu.
  */
 @media (max-width: 655.98px) {
   [data-radix-popper-content-wrapper]:has(> .shell-menu-sheet) {
     position: fixed !important;
     inset: auto 0 0 0 !important;
     transform: none !important;
+    /* Radix's will-change would make the wrapper the scrim's containing
+       block and shrink it to the sheet. */
+    will-change: auto !important;
     min-width: 0 !important;
     z-index: 100 !important;
+  }
+
+  [data-radix-popper-content-wrapper]:has(> .shell-menu-sheet)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    /* overlay-quaternary-onion, the Drawer's scrim */
+    background: rgb(98 74 211 / 0.24);
+    animation: shell-scrim-in var(--shell-duration-feedback) ease-out both;
+  }
+
+  [data-radix-popper-content-wrapper]:has(
+      > .shell-menu-sheet[data-state='closed']
+    )::before {
+    animation-name: shell-scrim-out;
+    animation-duration: var(--shell-duration-exit);
   }
 
   .shell-menu-sheet {
@@ -173,6 +203,26 @@
 
   to {
     transform: translateY(100%);
+  }
+}
+
+@keyframes shell-scrim-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shell-scrim-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
   }
 }
 
