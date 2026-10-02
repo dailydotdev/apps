@@ -97,13 +97,19 @@
 }
 
 /*
- * The floating material of the shell, the post page's floating bar's
- * recipe so every piece of glass reads the same: the surface-float tint
- * over a 40px backdrop blur, a hairline ring from the border token and
- * the soft shadow token. No glass rim.
+ * The floating material of the shell, what production's footer painted:
+ * the blur-baseline surface (opaque enough that a white image behind it
+ * never takes the bar) with the floating bar's surface-float tint on top,
+ * over a 40px backdrop blur, a hairline ring from the border token and the
+ * soft shadow token. One recipe for the bar, its squares and the post
+ * page's floating bar. No glass rim.
  */
 .shell-material {
-  background: var(--theme-surface-float);
+  background: linear-gradient(
+      var(--theme-surface-float),
+      var(--theme-surface-float)
+    ),
+    var(--theme-blur-blur-baseline);
   -webkit-backdrop-filter: blur(40px);
   backdrop-filter: blur(40px);
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
@@ -113,7 +119,11 @@
 /* A Button that stands in the block as a square keeps the material over
    the button's own transparent background and dropped shadow. */
 .btn.shell-material {
-  background: var(--theme-surface-float);
+  background: linear-gradient(
+      var(--theme-surface-float),
+      var(--theme-surface-float)
+    ),
+    var(--theme-blur-blur-baseline);
   border-color: transparent;
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 4px 30px rgb(0 0 0 / 0.12);
