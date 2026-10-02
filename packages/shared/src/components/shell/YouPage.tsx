@@ -90,7 +90,7 @@ const YouRow = ({
     </>
   );
   const className =
-    'flex h-12 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout hover:bg-surface-hover active:bg-surface-hover';
+    'flex h-11 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout hover:bg-surface-hover active:bg-surface-hover';
 
   if (href && external) {
     return (
@@ -268,21 +268,31 @@ export function YouPage(): ReactElement | null {
     openModal({ type, props: { ...followQuery, placeholderAmount } });
   };
 
-  const helpButton = (
-    <button
-      type="button"
-      onClick={() => setIsHelpOpen(true)}
-      className="shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center gap-1.5 rounded-14 px-3 font-bold text-text-primary typo-callout"
-    >
-      <HelpIcon size={IconSize.Small} />
-      Help
-    </button>
+  const pillClassName =
+    'shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center gap-1.5 rounded-14 px-3 font-bold text-text-primary typo-callout';
+  const actions = (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsHelpOpen(true)}
+        className={pillClassName}
+      >
+        <HelpIcon size={IconSize.Small} />
+        Help
+      </button>
+      <Link href={`${settingsUrl}/invite`} passHref>
+        <a className={pillClassName}>
+          <AddUserIcon size={IconSize.Small} />
+          Invite
+        </a>
+      </Link>
+    </>
   );
 
   return (
     <div className="flex flex-col pb-6">
-      <ShellPage title="You" actions={helpButton} />
-      <div className="flex flex-col gap-3 px-4 pb-4 pt-3">
+      <ShellPage title="You" actions={actions} />
+      <div className="flex flex-col gap-3 px-4 pb-3 pt-2">
         <Link href={profileUrl} passHref>
           <a className="flex items-center gap-3">
             <ProfilePicture
@@ -388,13 +398,6 @@ export function YouPage(): ReactElement | null {
           icon={DevCardIcon}
           label="DevCard"
           href={`${webappUrl}devcard`}
-        />
-      </YouGroup>
-      <YouGroup>
-        <YouRow
-          icon={AddUserIcon}
-          label="Invite friends"
-          href={`${settingsUrl}/invite`}
         />
         <YouRow
           icon={SettingsIcon}
