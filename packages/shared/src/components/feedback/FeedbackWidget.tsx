@@ -4,22 +4,19 @@ import classNames from 'classnames';
 import { getDayOfYear } from 'date-fns';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { IconSize } from '../Icon';
-import { MiniCloseIcon } from '../icons';
-import { useToggleFeedbackButton } from '../../hooks/useToggleFeedbackButton';
 
 interface FeedbackWidgetProps {
   // `fixed` (default) — floating bottom-right pill (legacy/v1 chrome).
   // `sidebar` — inline button rendered inside the v2 expanded sidebar
-  // panel, with a hover-revealed × to hide it (toggles
-  // `showFeedbackButton`).
+  // panel.
   // `support` — same inline button rendered inside the v2 rail support
-  // popover; not gated by `showFeedbackButton` so users can re-open the
-  // widget after dismissing it from the sidebar.
+  // popover; not gated by `showFeedbackButton` so it stays reachable after
+  // the user hides the button in settings.
   placement?: 'fixed' | 'sidebar' | 'support';
 }
 
@@ -84,8 +81,7 @@ export function FeedbackWidget({
   placement = 'fixed',
 }: FeedbackWidgetProps = {}): ReactElement | null {
   const { user } = useAuthContext();
-  const { showFeedbackButton, toggleFeedbackButton } =
-    useToggleFeedbackButton();
+  const { showFeedbackButton } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
   const dailyTrio = useMemo(getDailyTrio, []);
@@ -95,7 +91,7 @@ export function FeedbackWidget({
   // variants are additionally gated by the `showFeedbackButton` setting;
   // the support variant lives inside the rail support popover and is
   // always reachable so users can re-open the widget after hiding it
-  // from the sidebar.
+  // in settings.
   const isSupport = placement === 'support';
   const isSidebar = placement === 'sidebar';
   const isInline = isSupport || isSidebar;
@@ -121,103 +117,79 @@ export function FeedbackWidget({
 
   if (isInline) {
     return (
-      <div className="group/feedback relative">
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          className="group !h-auto w-full justify-between !gap-0 border border-border-subtlest-tertiary !bg-transparent !px-3 py-2 !text-text-secondary shadow-none hover:!bg-surface-hover hover:!text-text-primary"
-          onClick={() => openModal({ type: LazyModal.Feedback })}
-          aria-label="Send feedback. Real people reply."
-          aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
-        >
-          <span className="flex min-w-0 flex-col items-start overflow-hidden whitespace-nowrap leading-tight">
-            <span>Feedback</span>
-            <span className="opacity-80 font-normal typo-caption2">
-              Real people reply
-            </span>
-          </span>
-          <span className="ml-3 flex shrink-0">
-            {dailyTrio.map((member, index) => (
-              <ProfilePicture
-                key={member.username}
-                user={member}
-                size={ProfileImageSize.Small}
-                rounded="full"
-                className={classNames(
-                  'border-2 border-background-default group-hover:border-surface-hover',
-                  index !== 0 && '-ml-3',
-                )}
-              />
-            ))}
-          </span>
-        </Button>
-
-        {isSidebar && (
-          <button
-            type="button"
-            onClick={toggleFeedbackButton}
-            aria-label="Hide feedback button"
-            className="focus-outline pointer-events-none absolute right-0 top-0 z-1 flex size-6 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-tertiary opacity-0 shadow-2 transition hover:bg-surface-hover hover:text-text-primary group-focus-within/feedback:pointer-events-auto group-focus-within/feedback:opacity-100 group-hover/feedback:pointer-events-auto group-hover/feedback:opacity-100"
-          >
-            <MiniCloseIcon size={IconSize.XSmall} aria-hidden />
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="group/feedback fixed bottom-[calc(1rem_+_var(--sponsor-strip-height,0px))] right-4 z-max">
       <Button
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
-        // `--sponsor-strip-height` is set only while the sponsor strip is docked
-        // (see `sponsorStripOffset`), so this is the usual 1rem everywhere else.
-        className="group !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+        type="button"
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        className="group !h-auto w-full justify-between !gap-0 border border-border-subtlest-tertiary !bg-transparent !px-3 py-2 !text-text-secondary shadow-none hover:!bg-surface-hover hover:!text-text-primary"
         onClick={() => openModal({ type: LazyModal.Feedback })}
         aria-label="Send feedback. Real people reply."
         aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
       >
-        <span
-          aria-hidden={isCompact}
-          className={classNames(
-            'flex flex-col items-start overflow-hidden whitespace-nowrap leading-tight transition-all duration-300 ease-out',
-            isCompact
-              ? 'max-w-0 opacity-0 group-hover:mr-3 group-hover:max-w-40 group-hover:opacity-100'
-              : 'mr-3 max-w-40 opacity-100',
-          )}
-        >
+        <span className="flex min-w-0 flex-col items-start overflow-hidden whitespace-nowrap leading-tight">
           <span>Feedback</span>
           <span className="opacity-80 font-normal typo-caption2">
             Real people reply
           </span>
         </span>
-        <span className="flex">
+        <span className="ml-3 flex shrink-0">
           {dailyTrio.map((member, index) => (
             <ProfilePicture
               key={member.username}
               user={member}
-              size={ProfileImageSize.Medium}
+              size={ProfileImageSize.Small}
               rounded="full"
               className={classNames(
-                'border-2 border-text-primary',
-                index !== 0 && '-ml-4',
+                'border-2 border-background-default group-hover:border-surface-hover',
+                index !== 0 && '-ml-3',
               )}
             />
           ))}
         </span>
       </Button>
+    );
+  }
 
-      <button
-        type="button"
-        onClick={toggleFeedbackButton}
-        aria-label="Hide feedback button"
-        className="focus-outline pointer-events-none absolute right-0 top-0 z-1 flex size-6 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-accent-pepper-subtlest text-text-tertiary opacity-0 shadow-2 transition hover:bg-surface-hover hover:text-text-primary group-focus-within/feedback:pointer-events-auto group-focus-within/feedback:opacity-100 group-hover/feedback:pointer-events-auto group-hover/feedback:opacity-100"
+  return (
+    <Button
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Medium}
+      // `--sponsor-strip-height` is set only while the sponsor strip is docked
+      // (see `sponsorStripOffset`), so this is the usual 1rem everywhere else.
+      className="group fixed bottom-[calc(1rem_+_var(--sponsor-strip-height,0px))] right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+      onClick={() => openModal({ type: LazyModal.Feedback })}
+      aria-label="Send feedback. Real people reply."
+      aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
+    >
+      <span
+        aria-hidden={isCompact}
+        className={classNames(
+          'flex flex-col items-start overflow-hidden whitespace-nowrap leading-tight transition-all duration-300 ease-out',
+          isCompact
+            ? 'max-w-0 opacity-0 group-hover:mr-3 group-hover:max-w-40 group-hover:opacity-100'
+            : 'mr-3 max-w-40 opacity-100',
+        )}
       >
-        <MiniCloseIcon size={IconSize.XSmall} aria-hidden />
-      </button>
-    </div>
+        <span>Feedback</span>
+        <span className="opacity-80 font-normal typo-caption2">
+          Real people reply
+        </span>
+      </span>
+      <span className="flex">
+        {dailyTrio.map((member, index) => (
+          <ProfilePicture
+            key={member.username}
+            user={member}
+            size={ProfileImageSize.Medium}
+            rounded="full"
+            className={classNames(
+              'border-2 border-text-primary',
+              index !== 0 && '-ml-4',
+            )}
+          />
+        ))}
+      </span>
+    </Button>
   );
 }
 
