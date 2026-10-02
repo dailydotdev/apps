@@ -37,7 +37,7 @@ interface ChipItem {
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
 
 const chipBaseClass =
-  'shrink-0 rounded-10 border px-2.5 py-1.5 font-bold transition-colors typo-callout';
+  'shell-press shrink-0 rounded-10 border px-2.5 py-1.5 font-bold typo-callout';
 const chipActiveClass =
   'border-border-subtlest-tertiary bg-surface-float text-text-primary hover:bg-surface-hover';
 const chipInactiveClass =

@@ -12,6 +12,7 @@ import {
   FlagIcon,
   DownvoteIcon,
   AddUserIcon,
+  RemoveUserIcon,
   BlockIcon,
   GiftIcon,
   MenuIcon,
@@ -258,7 +259,7 @@ export default function CommentActionButtons({
     const isFollowingUser = isFollowingContent(author?.contentPreference);
 
     commentOptions.push({
-      icon: <AddUserIcon />,
+      icon: isFollowingUser ? <RemoveUserIcon /> : <AddUserIcon />,
       label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
       action: () => {
         const opts = {
