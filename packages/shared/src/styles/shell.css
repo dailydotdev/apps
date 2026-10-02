@@ -49,6 +49,16 @@
     0 4px 30px rgb(0 0 0 / 0.12);
 }
 
+/* A Button that stands in the block as a square keeps the material over
+   the button's own transparent background and dropped shadow. */
+.btn.shell-material {
+  background: var(--theme-blur-blur-baseline);
+  border-color: transparent;
+  box-shadow:
+    inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 4px 30px rgb(0 0 0 / 0.12);
+}
+
 /* A 38px square the finger can hit at 44px; neighbours sit 8px apart so
    two hit areas never overlap. */
 .shell-hit::after {
