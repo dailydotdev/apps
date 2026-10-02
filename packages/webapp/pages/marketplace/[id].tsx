@@ -20,14 +20,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  ProfileImageSize,
-  ProfilePicture,
-} from '@dailydotdev/shared/src/components/ProfilePicture';
+import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { RenderMarkdown } from '@dailydotdev/shared/src/components/RenderMarkdown';
+import SquadPostAuthor from '@dailydotdev/shared/src/components/post/SquadPostAuthor';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
@@ -41,11 +39,7 @@ import {
   marketplaceUrl,
   PLUGIN_QUERY,
 } from '@dailydotdev/shared/src/graphql/plugins';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import {
-  formatDate,
-  TimeFormatType,
-} from '@dailydotdev/shared/src/lib/dateFormat';
+
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -112,36 +106,14 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
             </Button>
           )}
         </div>
-        <Typography
-          type={TypographyType.Body}
-          color={TypographyColor.Secondary}
-        >
-          {plugin.description}
-        </Typography>
-        <div className="flex flex-wrap items-center gap-4">
-          <Link href={`${webappUrl}${plugin.author.username}`} prefetch={false}>
-            <a className="flex items-center gap-2 hover:underline">
-              <ProfilePicture
-                user={plugin.author}
-                size={ProfileImageSize.Small}
-              />
-              <Typography type={TypographyType.Footnote}>
-                {plugin.author.name}
-              </Typography>
-            </a>
-          </Link>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            Updated{' '}
-            {formatDate({
-              value: plugin.updatedAt,
-              type: TimeFormatType.Post,
-            })}
-          </Typography>
-        </div>
-        <div className="flex flex-col gap-2">
+        <SquadPostAuthor
+          author={plugin.author}
+          date={plugin.updatedAt}
+          size={ProfileImageSize.Large}
+          isUserSource
+          showSkeletonWhenMissing={false}
+        />
+        <div className="flex flex-wrap gap-2">
           {plugin.url && (
             <Button
               tag="a"
@@ -151,7 +123,6 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
-              className="w-fit"
             >
               {getPluginLinkHost(plugin.url)}
             </Button>
@@ -165,12 +136,17 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
-              className="w-fit"
             >
               SKILL.md
             </Button>
           )}
         </div>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+        >
+          {plugin.description}
+        </Typography>
       </div>
       {plugin.about && (
         <div className="rounded-16 border border-border-subtlest-tertiary p-4">
