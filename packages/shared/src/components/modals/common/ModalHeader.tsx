@@ -70,7 +70,7 @@ export function ModalHeader({
     return (
       <div
         className={classNames(
-          'sticky top-0 z-2 -mx-4 mb-4 flex min-h-11 shrink-0 flex-row items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default py-1 pl-4 pr-2',
+          'sticky top-0 z-2 -mx-4 mb-4 flex min-h-11 shrink-0 flex-row items-center gap-2 bg-background-default py-1 pl-4 pr-2',
           className,
         )}
       >

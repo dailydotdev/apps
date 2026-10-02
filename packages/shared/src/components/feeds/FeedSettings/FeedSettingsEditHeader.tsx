@@ -169,7 +169,9 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   if (isMobile) {
     return (
       <ShellPage
-        title={<FeedSettingsTitle />}
+        // The block renders the title outside the page's providers, so it
+        // gets text, not the context-reading title component.
+        title={feed?.type === FeedType.Custom ? feed.flags?.name : 'For You'}
         actions={
           <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
             {actions}

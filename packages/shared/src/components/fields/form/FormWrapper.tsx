@@ -82,7 +82,7 @@ export function FormWrapper({
       <div className={classNames('flex w-full flex-col', className?.container)}>
         <PageHeader
           className={classNames(
-            'sticky top-0 z-2 -mx-4 flex min-h-11 flex-row items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-2',
+            'sticky top-0 z-2 -mx-4 flex min-h-11 flex-row items-center gap-2 bg-background-default px-4 py-2',
             className?.header,
           )}
           ref={headerRef}

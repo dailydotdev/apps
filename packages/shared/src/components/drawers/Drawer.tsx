@@ -390,8 +390,10 @@ function BaseDrawer({
         {title && (
           <h3
             className={classNames(
-              'flex shrink-0 flex-row items-center border-b border-border-subtlest-tertiary font-bold typo-title3',
-              isSheet ? 'gap-2 py-1 pl-4 pr-2' : 'p-4',
+              'flex shrink-0 flex-row items-center font-bold typo-title3',
+              isSheet
+                ? 'gap-2 py-1 pl-4 pr-2'
+                : 'border-b border-border-subtlest-tertiary p-4',
               className?.title,
             )}
           >
