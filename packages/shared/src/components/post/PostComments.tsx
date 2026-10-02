@@ -6,6 +6,7 @@ import type { Post } from '../../graphql/posts';
 import type { MainCommentProps } from '../comments/MainComment';
 import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
+import { FilteredComments } from '../comments/FilteredComments';
 import { Origin } from '../../lib/log';
 import type { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
@@ -110,13 +111,15 @@ export function PostComments({
 
   if (commentsCount === 0) {
     return (
-      <CharmEmptyState
-        className="mb-12 mt-8"
-        image={cloudinaryCharmNoComments}
-        imageAlt="daily.dev charm peeking over a glowing speech bubble"
-        title="No comments yet"
-        description="The discussion is waiting for a spark. Share your take and get it started."
-      />
+      <div className="mb-12 mt-8 flex flex-col gap-4">
+        <CharmEmptyState
+          image={cloudinaryCharmNoComments}
+          imageAlt="daily.dev charm peeking over a glowing speech bubble"
+          title="No comments yet"
+          description="The discussion is waiting for a spark. Share your take and get it started."
+        />
+        <FilteredComments post={post} isModalThread={isModalThread} />
+      </div>
     );
   }
 
@@ -200,6 +203,11 @@ export function PostComments({
           );
         });
       })()}
+      <FilteredComments
+        post={post}
+        appendTooltipTo={getAppendTooltipParent}
+        isModalThread={isModalThread}
+      />
     </div>
   );
 }
