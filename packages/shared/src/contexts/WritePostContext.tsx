@@ -65,15 +65,11 @@ export interface WritePostProps {
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
-  onSubmitForm: null,
+  onSubmitForm: () => undefined,
   isPosting: false,
   squad: null,
-  post: null,
   enableUpload: false,
-  formRef: null,
   draft: {},
-  updateDraft: null,
-  formId: null,
 });
 
 export const useWritePostContext = (): WritePostProps =>
@@ -81,15 +77,19 @@ export const useWritePostContext = (): WritePostProps =>
 
 interface WritePostContextProviderProps extends WritePostProps {
   rightCopy?: string;
+  // The page name the phone block shows beside its back button.
+  title?: string;
 }
 
 export const WritePostContextProvider = ({
   children,
   formId,
   rightCopy,
+  title,
   ...props
 }: PropsWithChildren<WritePostContextProviderProps>): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useViewSize(ViewSize.MobileL);
   const router = useRouter();
 
   return (
@@ -99,6 +99,8 @@ export const WritePostContextProvider = ({
         wrapper={(component) => (
           <FormWrapper
             className={{ container: 'w-full', header: 'border-b-0' }}
+            inBlock={isPhone}
+            title={isPhone ? title : undefined}
             copy={{ right: rightCopy ?? 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
@@ -115,7 +117,7 @@ export const WritePostContextProvider = ({
                 </>
               ) : undefined
             }
-            form={formId}
+            form={formId ?? ''}
           >
             {component}
           </FormWrapper>

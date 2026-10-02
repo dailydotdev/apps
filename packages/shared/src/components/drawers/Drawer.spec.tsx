@@ -179,6 +179,39 @@ describe('Drawer', () => {
     expect(dialog).toHaveFocus();
   });
 
+  it('makes the page behind it inert and frees it on close', () => {
+    if (!Object.prototype.hasOwnProperty.call(HTMLElement.prototype, 'inert')) {
+      Object.defineProperty(HTMLElement.prototype, 'inert', {
+        configurable: true,
+        get() {
+          return this.hasAttribute('inert');
+        },
+        set(value: boolean) {
+          if (value) {
+            this.setAttribute('inert', '');
+          } else {
+            this.removeAttribute('inert');
+          }
+        },
+      });
+    }
+    const page = document.createElement('main');
+    document.body.appendChild(page);
+
+    const { unmount } = render(
+      <Drawer isOpen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    expect(page).toHaveAttribute('inert');
+    expect(screen.getByRole('dialog')).not.toHaveAttribute('inert');
+
+    unmount();
+    expect(page).not.toHaveAttribute('inert');
+    page.remove();
+  });
+
   it('restores focus to the opener when it closes', () => {
     const opener = document.createElement('button');
     document.body.appendChild(opener);

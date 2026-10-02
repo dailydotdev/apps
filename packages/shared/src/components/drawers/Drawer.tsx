@@ -6,6 +6,7 @@ import type {
 } from 'react';
 import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { inertOthers } from 'aria-hidden';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ButtonVariant } from '../buttons/common';
@@ -66,6 +67,16 @@ let lockedScrollY = 0;
 
 // Escape must close only the top-most drawer of a stack.
 const drawerStack: symbol[] = [];
+
+// The page behind an open drawer is inert; every open panel stays live so a
+// drawer opened from inside another keeps both reachable, and anything
+// portaled later (a menu inside the sheet) is never touched.
+const openPanels: HTMLElement[] = [];
+let undoInert: () => void = () => undefined;
+const syncInert = () => {
+  undoInert();
+  undoInert = openPanels.length ? inertOthers(openPanels) : () => undefined;
+};
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -238,8 +249,13 @@ function BaseDrawer({
 
   useEffect(() => {
     const token = stackToken.current;
+    const panel = container.current;
     const previouslyFocused = document.activeElement as HTMLElement | null;
     drawerStack.push(token);
+    if (panel) {
+      openPanels.push(panel);
+      syncInert();
+    }
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || drawerStack[drawerStack.length - 1] !== token) {
@@ -256,6 +272,10 @@ function BaseDrawer({
 
     return () => {
       drawerStack.splice(drawerStack.indexOf(token), 1);
+      if (panel) {
+        openPanels.splice(openPanels.indexOf(panel), 1);
+        syncInert();
+      }
       document.removeEventListener('keydown', onKeyDown);
       if (previouslyFocused?.isConnected) {
         previouslyFocused.focus();

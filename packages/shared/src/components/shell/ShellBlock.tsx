@@ -20,6 +20,7 @@ import { plusUrl, webappUrl } from '../../lib/constants';
 import { ShellSquare } from './ShellSquare';
 import { motion, topButton } from './constants';
 import { revealShell, useShellScroll } from './useShellScroll';
+import { useOnline } from './useOnline';
 import { useShellActionsSlot, useShellPageConfig } from './ShellPageContext';
 import { ShellRoot, useShellBack } from './shellNav';
 
@@ -171,7 +172,9 @@ export function ShellBlock({
   const router = useRouter();
   const config = useShellPageConfig();
   const { p, snapping } = useShellScroll();
+  const online = useOnline();
   const ref = useRef<HTMLElement>(null);
+  const hidden = !config?.hidden && p >= 0.99;
 
   useEffect(() => {
     const element = ref.current;
@@ -193,7 +196,14 @@ export function ShellBlock({
       observer.disconnect();
       document.documentElement.style.removeProperty('--shell-top');
     };
-  }, [root, row, config?.hidden, config?.row]);
+  }, [root, row, config?.hidden, config?.row, online]);
+
+  // Once the block is gone the status area turns into a soft scroll edge
+  // (safeArea.css paints it solid while the block stands under it).
+  useEffect(() => {
+    document.documentElement.classList.toggle('shell-edge', hidden);
+    return () => document.documentElement.classList.remove('shell-edge');
+  }, [hidden]);
 
   // Arrival never hides the block, and a focused field keeps it in view.
   useEffect(() => {
@@ -215,7 +225,6 @@ export function ShellBlock({
     return null;
   }
 
-  const hidden = p >= 0.99;
   const duration = snapping ? motion.snap : motion.scrub;
 
   return (
@@ -232,6 +241,14 @@ export function ShellBlock({
         transition: `transform ${duration}ms ${motion.interaction}`,
       }}
     >
+      {!online && (
+        <div
+          role="status"
+          className="flex h-7 items-center justify-center bg-surface-float text-text-secondary typo-footnote"
+        >
+          You&apos;re offline
+        </div>
+      )}
       {root ? <RootRow root={root} /> : <PageRow title={config?.title} />}
       {config?.row ?? row}
     </header>

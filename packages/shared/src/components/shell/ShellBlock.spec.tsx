@@ -132,5 +132,33 @@ describe('ShellBlock', () => {
 
     expect(header.style.transform).toContain('* 1)');
     expect(header).toHaveAttribute('aria-hidden', 'true');
+    expect(document.documentElement).toHaveClass('shell-edge');
+
+    act(() => {
+      scrollTo(300);
+      jest.advanceTimersByTime(scroll.stop);
+    });
+
+    expect(document.documentElement).not.toHaveClass('shell-edge');
+  });
+
+  it('carries the offline strip while the network is down', () => {
+    Object.defineProperty(navigator, 'onLine', {
+      configurable: true,
+      value: false,
+    });
+    renderBlock(<ShellBlock root={ShellRoot.Home} />);
+
+    expect(screen.getByRole('status')).toHaveTextContent("You're offline");
+
+    Object.defineProperty(navigator, 'onLine', {
+      configurable: true,
+      value: true,
+    });
+    act(() => {
+      window.dispatchEvent(new Event('online'));
+    });
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 });

@@ -181,3 +181,16 @@
     animation: none !important;
   }
 }
+
+/*
+ * The status edge: while the top block is hidden the status area stops
+ * being a solid frame and becomes a soft scroll edge (blur and fade), so
+ * content passes under the clock and the page reads as endless.
+ */
+:root.shell-edge body::before {
+  background: linear-gradient(var(--theme-background-default), transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  -webkit-mask-image: linear-gradient(black 30%, transparent);
+  mask-image: linear-gradient(black 30%, transparent);
+}

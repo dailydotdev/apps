@@ -85,6 +85,14 @@ interface RowProps {
 const rowBaseClass =
   'group/spotlight-row mx-2 flex min-w-0 cursor-pointer items-center gap-3 overflow-hidden rounded-10 px-3 text-left aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-[selected=true]:bg-surface-hover';
 
+// People are rounded squares at ProfilePicture's radius for the size;
+// sources keep the circle.
+const avatarRadius = {
+  full: 'rounded-full',
+  '8': 'rounded-6',
+  person: 'rounded-8',
+};
+
 const TypedAvatar = ({
   src,
   alt,
@@ -93,13 +101,13 @@ const TypedAvatar = ({
 }: {
   src?: string;
   alt: string;
-  rounded: 'full' | '8';
+  rounded: 'full' | '8' | 'person';
   className?: string;
 }): ReactElement => (
   <span
     className={classNames(
       'flex size-6 shrink-0 items-center justify-center overflow-hidden bg-surface-float',
-      rounded === 'full' ? 'rounded-full' : 'rounded-6',
+      avatarRadius[rounded],
       className,
     )}
   >
@@ -192,7 +200,11 @@ const buildRowParts = (
     case 'user':
       return {
         leading: (
-          <TypedAvatar src={meta.image} alt={command.title} rounded="full" />
+          <TypedAvatar
+            src={meta.image}
+            alt={command.title}
+            rounded={meta.kind === 'user' ? 'person' : 'full'}
+          />
         ),
         body: (
           <TitleSubtitle
