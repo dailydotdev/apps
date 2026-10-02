@@ -228,8 +228,12 @@ const usePlusRow = (): { label: string; meta: string } => {
 // over the page (YouDrawer); /you renders the same panel as a page.
 export function YouPanel({
   inDrawer = false,
+  onLeave,
 }: {
   inDrawer?: boolean;
+  // The drawer's close: a modal opened from the menu first sends the page
+  // home, since the page is inert and away while the menu shows.
+  onLeave?: () => void;
 }): ReactElement | null {
   const { openModal } = useLazyModal();
   const router = useRouter();
@@ -257,6 +261,14 @@ export function YouPanel({
   const followQuery = {
     queryProps: { id: user.id, entity: ContentPreferenceType.User },
   };
+  const openFromMenu = (open: () => void) => {
+    if (!onLeave) {
+      open();
+      return;
+    }
+    onLeave();
+    window.setTimeout(open, motion.enter);
+  };
   const openFollowList = (
     type: LazyModal.UserFollowersModal | LazyModal.UserFollowingModal,
     placeholderAmount: number,
@@ -264,7 +276,9 @@ export function YouPanel({
     if (!placeholderAmount) {
       return;
     }
-    openModal({ type, props: { ...followQuery, placeholderAmount } });
+    openFromMenu(() =>
+      openModal({ type, props: { ...followQuery, placeholderAmount } }),
+    );
   };
 
   const helpButton = (
@@ -437,7 +451,7 @@ export function YouPanel({
             label="Send feedback"
             onClick={() => {
               setIsHelpOpen(false);
-              openModal({ type: LazyModal.Feedback });
+              openFromMenu(() => openModal({ type: LazyModal.Feedback }));
             }}
           />
           <YouRow icon={HelpIcon} label="Help center" href={docs} external />
@@ -673,7 +687,7 @@ export function YouDrawer({
         tabIndex={-1}
         className="you-panel fixed bottom-0 right-0 top-0 flex w-[85%] max-w-[22rem] flex-col overflow-y-auto overscroll-contain bg-background-default pt-[var(--safe-area-top,0px)] focus:outline-none"
       >
-        <YouPanel inDrawer />
+        <YouPanel inDrawer onLeave={onClose} />
       </div>
       {/* The strip of the page still showing: a tap on it brings the page
           back. */}
