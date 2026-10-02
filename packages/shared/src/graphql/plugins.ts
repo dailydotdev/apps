@@ -1,7 +1,8 @@
 import { gql } from 'graphql-request';
 import type { Connection } from './common';
 import { gqlClient } from './common';
-import type { UserShortProfile } from '../lib/user';
+import type { Author } from './comments';
+import { USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { webappUrl } from '../lib/constants';
 import { publicApiUrl } from '../lib/config';
@@ -38,7 +39,7 @@ export interface Plugin {
   url: string | null;
   hasSkillMd: boolean;
   skillMd?: string | null;
-  author: Pick<UserShortProfile, 'id' | 'name' | 'username' | 'image'>;
+  author: Author;
   createdAt: string;
   updatedAt: string;
 }
@@ -72,12 +73,10 @@ const PLUGIN_CARD_FRAGMENT = gql`
     createdAt
     updatedAt
     author {
-      id
-      name
-      username
-      image
+      ...UserShortInfo
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export const PLUGINS_QUERY = gql`

@@ -11,8 +11,10 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { LinkIcon } from '@dailydotdev/shared/src/components/icons/Link';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
+import { ReputationUserBadge } from '@dailydotdev/shared/src/components/ReputationUserBadge';
+import { VerifiedCompanyUserBadge } from '@dailydotdev/shared/src/components/VerifiedCompanyUserBadge';
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { getMarketplacePluginUrl } from '@dailydotdev/shared/src/graphql/plugins';
 
@@ -69,7 +71,7 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => (
       >
         {plugin.description}
       </Typography>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2">
         <span className="flex min-w-0 items-center gap-2">
           <ProfilePicture
             user={plugin.author}
@@ -83,13 +85,16 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => (
           >
             {plugin.author.name}
           </Typography>
+          <PlusUserBadge
+            user={plugin.author}
+            size={IconSize.XSmall}
+            tooltip={false}
+          />
+          <ReputationUserBadge user={plugin.author} />
+          {!!plugin.author.companies?.length && (
+            <VerifiedCompanyUserBadge user={plugin.author} />
+          )}
         </span>
-        {plugin.url && (
-          <span className="flex min-w-0 items-center gap-1 text-text-tertiary typo-footnote">
-            <LinkIcon size={IconSize.XSmall} className="shrink-0" />
-            <span className="truncate">{getPluginLinkHost(plugin.url)}</span>
-          </span>
-        )}
       </div>
     </a>
   </Link>
