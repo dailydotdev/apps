@@ -58,6 +58,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { PlusUser } from '../PlusUser';
 import { ShellPage } from './ShellPageContext';
+import { ShellSquare } from './ShellSquare';
 
 interface YouRowProps {
   icon: (props: IconProps) => ReactElement;
@@ -268,24 +269,17 @@ export function YouPage(): ReactElement | null {
     openModal({ type, props: { ...followQuery, placeholderAmount } });
   };
 
-  const pillClassName =
-    'shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center gap-1.5 rounded-14 px-3 font-bold text-text-primary typo-callout';
   const actions = (
     <>
-      <button
-        type="button"
-        onClick={() => setIsHelpOpen(true)}
-        className={pillClassName}
-      >
-        <HelpIcon size={IconSize.Small} />
-        Help
-      </button>
       <Link href={`${settingsUrl}/invite`} passHref>
-        <a className={pillClassName}>
+        <a className="shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center gap-1.5 rounded-14 px-3 font-bold text-text-primary typo-callout">
           <AddUserIcon size={IconSize.Small} />
           Invite
         </a>
       </Link>
+      <ShellSquare aria-label="Help" onClick={() => setIsHelpOpen(true)}>
+        <HelpIcon size={IconSize.Small} />
+      </ShellSquare>
     </>
   );
 
@@ -418,6 +412,7 @@ export function YouPage(): ReactElement | null {
           isOpen={isHelpOpen}
           onClose={() => setIsHelpOpen(false)}
           title="Help"
+          className={{ drawer: 'py-1' }}
         >
           <YouRow
             icon={FeedbackIcon}

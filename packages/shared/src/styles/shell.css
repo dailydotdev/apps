@@ -97,22 +97,23 @@
 }
 
 /*
- * The floating material of the shell: production's blur recipe (the
- * blur-baseline surface over a 40px backdrop blur), a hairline ring from
- * the border token and a soft transparent shadow. No glass rim.
+ * The floating material of the shell, the post page's floating bar's
+ * recipe so every piece of glass reads the same: the surface-float tint
+ * over a 40px backdrop blur, a hairline ring from the border token and
+ * the soft shadow token. No glass rim.
  */
 .shell-material {
-  background: var(--theme-blur-blur-baseline);
+  background: var(--theme-surface-float);
   -webkit-backdrop-filter: blur(40px);
   backdrop-filter: blur(40px);
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
-    0 4px 30px rgb(0 0 0 / 0.12);
+    0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
 }
 
 /* A Button that stands in the block as a square keeps the material over
    the button's own transparent background and dropped shadow. */
 .btn.shell-material {
-  background: var(--theme-blur-blur-baseline);
+  background: var(--theme-surface-float);
   border-color: transparent;
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 4px 30px rgb(0 0 0 / 0.12);
@@ -156,6 +157,12 @@
 .shell-sheet-panel[data-expanded='true'] {
   max-height: 100% !important;
   border-radius: 0 !important;
+}
+
+/* Under the status bar the grabber keeps clear of it; the sheet's own
+   padding stays outside the scroller so nothing shows through. */
+.shell-sheet-panel[data-expanded='true'] .shell-sheet-grab {
+  padding-top: calc(var(--safe-area-top, 0px) + 0.75rem);
 }
 
 .shell-sheet-panel[data-closing='true'] {
@@ -217,7 +224,7 @@
     min-width: 0 !important;
     border-radius: 1rem 1rem 0 0 !important;
     border: 0 !important;
-    padding: 0.75rem 0.5rem calc(env(safe-area-inset-bottom, 0px) + 0.75rem) !important;
+    padding: 0.75rem 0 calc(env(safe-area-inset-bottom, 0px) + 0.75rem) !important;
     background: var(--theme-background-default) !important;
     box-shadow: 0 -8px 40px rgb(0 0 0 / 0.24);
     animation-duration: var(--shell-duration-enter) !important;
@@ -253,10 +260,17 @@
   .shell-menu-sheet [role='menuitemcheckbox'],
   .shell-menu-sheet [role='menuitemradio'] {
     height: 3rem;
-    padding-inline: 0.75rem;
+    padding-inline: 1rem;
+    border-radius: 0;
     font-size: 0.9375rem;
     line-height: 1.25rem;
     color: var(--theme-text-primary);
+  }
+
+  /* The row's own button carries the role too; only the outer item pads. */
+  .shell-menu-sheet [role='menuitem'] [role='menuitem'] {
+    height: auto;
+    padding-inline: 0;
   }
 
   .shell-menu-sheet [role='menuitem'] svg {

@@ -104,40 +104,32 @@ export const Segments = ({
   onMenu?: () => void;
 }): ReactElement => (
   <>
-    {items.map((item) => (
-      <RowChip
-        key={item.key}
-        item={item}
-        className={
-          item.active
-            ? 'border-border-subtlest-secondary bg-surface-float text-text-primary'
-            : 'border-transparent text-text-tertiary'
-        }
-      >
-        {item.active && item.key === menu && (
-          <span
-            role="button"
-            tabIndex={0}
-            aria-label="Choose a channel"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onMenu?.();
+    {items.map((item) => {
+      const className = item.active
+        ? 'border-border-subtlest-secondary bg-surface-float text-text-primary'
+        : 'border-transparent text-text-tertiary';
+
+      // The lit segment that carries a menu is already the page, so its
+      // chip is the menu's button rather than a link with a button inside.
+      if (item.active && item.key === menu) {
+        return (
+          <RowChip
+            key={item.key}
+            item={{
+              ...item,
+              href: undefined,
+              ariaLabel: item.ariaLabel ?? `${item.label}, choose a channel`,
+              onClick: onMenu,
             }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                event.stopPropagation();
-                onMenu?.();
-              }
-            }}
-            className="-mr-1 flex"
+            className={className}
           >
-            <ArrowIcon size={IconSize.XSmall} className="rotate-180" />
-          </span>
-        )}
-      </RowChip>
-    ))}
+            <ArrowIcon size={IconSize.XSmall} className="-mr-1 rotate-180" />
+          </RowChip>
+        );
+      }
+
+      return <RowChip key={item.key} item={item} className={className} />;
+    })}
   </>
 );
 

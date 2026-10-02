@@ -17,37 +17,15 @@ export const rootHref: Record<ShellRoot, string> = {
   [ShellRoot.Activity]: '/notifications',
 };
 
-const explorePrefixes = ['/posts', '/search', '/tags', '/sources', '/users'];
-
-// The root that owns a URL is the tab that lights on it and the place back
-// goes when there is no history: Home for posts and profiles; Squads for
-// squads; Explore for search and the tag, source and leaderboard
-// directories.
-export const owningRoot = (pathname: string): ShellRoot => {
-  const path = withoutLayoutVariantPrefix(pathname ?? '');
-
-  if (path.startsWith('/squads')) {
-    return ShellRoot.Squads;
-  }
-  if (path.startsWith('/notifications')) {
-    return ShellRoot.Activity;
-  }
-  if (path.startsWith('/posts/[id]') || path.startsWith('/posts/')) {
-    return ShellRoot.Home;
-  }
-  if (
-    explorePrefixes.some(
-      (prefix) => path === prefix || path.startsWith(`${prefix}/`),
-    )
-  ) {
-    return ShellRoot.Explore;
-  }
-
-  return ShellRoot.Home;
-};
-
 const homeViews = ['/', '/my-feed', '/following'];
 const exploreViews = ['/posts', '/popular', '/upvoted', '/discussed'];
+const exploreSortPrefixes = [
+  '/posts/upvoted',
+  '/posts/discussed',
+  '/posts/latest',
+  '/posts/best-of',
+  '/explore',
+];
 
 // The views a root tab switches between (its segments and sorts). A tap on
 // the lit tab from one of these scrolls or refreshes; from anywhere else it
@@ -65,9 +43,7 @@ export const isRootView = (root: ShellRoot, pathname: string): boolean => {
     case ShellRoot.Explore:
       return (
         exploreViews.includes(path) ||
-        path.startsWith('/posts/upvoted') ||
-        path.startsWith('/posts/discussed') ||
-        path.startsWith('/explore')
+        exploreSortPrefixes.some((prefix) => path.startsWith(prefix))
       );
     case ShellRoot.Squads:
       return path.startsWith(squadCategoriesPaths.discover);
@@ -76,6 +52,38 @@ export const isRootView = (root: ShellRoot, pathname: string): boolean => {
     default:
       return false;
   }
+};
+
+const explorePrefixes = ['/posts', '/search', '/tags', '/sources', '/users'];
+
+// The root that owns a URL is the tab that lights on it and the place back
+// goes when there is no history: Home for posts and profiles; Squads for
+// squads; Explore for search and the tag, source and leaderboard
+// directories.
+export const owningRoot = (pathname: string): ShellRoot => {
+  const path = withoutLayoutVariantPrefix(pathname ?? '');
+
+  if (path.startsWith('/squads')) {
+    return ShellRoot.Squads;
+  }
+  if (path.startsWith('/notifications')) {
+    return ShellRoot.Activity;
+  }
+  if (isRootView(ShellRoot.Explore, path)) {
+    return ShellRoot.Explore;
+  }
+  if (path.startsWith('/posts/')) {
+    return ShellRoot.Home;
+  }
+  if (
+    explorePrefixes.some(
+      (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+    )
+  ) {
+    return ShellRoot.Explore;
+  }
+
+  return ShellRoot.Home;
 };
 
 const noClusterPrefixes = [

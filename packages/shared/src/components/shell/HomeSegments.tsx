@@ -68,7 +68,12 @@ export const HappeningNowSheet = ({
 
   return (
     <RootPortal>
-      <Drawer isOpen={isOpen} onClose={onClose} title="Happening now">
+      <Drawer
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Happening now"
+        className={{ drawer: 'py-1' }}
+      >
         <SheetChoice items={items} />
       </Drawer>
     </RootPortal>

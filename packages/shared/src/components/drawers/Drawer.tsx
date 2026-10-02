@@ -112,6 +112,7 @@ function BaseDrawer({
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement | null>(null);
+  const body = useRef<HTMLDivElement | null>(null);
   const stackToken = useRef(Symbol('drawer'));
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -152,8 +153,10 @@ function BaseDrawer({
       return undefined;
     }
 
-    return attachSheetDrag(panel, (event) =>
-      onCloseRef.current(event as unknown as PopupEventType),
+    return attachSheetDrag(
+      panel,
+      (event) => onCloseRef.current(event as unknown as PopupEventType),
+      { scroller: () => body.current },
     );
   }, [isSheet]);
 
@@ -348,13 +351,17 @@ function BaseDrawer({
         style={wrapperKeyboardStyle}
         data-closing={isClosing || undefined}
         className={classNames(
-          'shell-sheet-panel drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default focus:outline-none',
+          'shell-sheet-panel absolute flex w-full flex-col overscroll-contain bg-background-default focus:outline-none',
           isFullScreen
             ? 'inset-0 h-[calc(var(--drawer-viewport-height)_-_var(--safe-area-top,0px))]'
             : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
-          !title && (isSheet ? 'px-4 pt-1' : 'px-4 pt-3'),
+          // A sheet is a header, a scroller and a foot, so a row pinned
+          // inside the scroller reaches the panel's edges; the other
+          // drawers scroll as one and pad themselves.
+          isSheet ? 'overflow-hidden' : 'drawer-padding overflow-y-auto',
+          !isSheet && !title && 'px-4 pt-3',
           className?.wrapper,
         )}
         ref={(node) => {
@@ -370,7 +377,7 @@ function BaseDrawer({
         {isSheet && (
           <div
             aria-hidden
-            className="sticky top-0 z-2 -mx-4 -mt-1 flex shrink-0 justify-center bg-background-default pb-1 pt-3"
+            className="shell-sheet-grab flex shrink-0 justify-center pb-1 pt-3"
           >
             <span className="h-1 w-9 rounded-2 bg-border-subtlest-secondary" />
           </div>
@@ -378,23 +385,42 @@ function BaseDrawer({
         {title && (
           <h3
             className={classNames(
-              'flex flex-row items-center border-b border-border-subtlest-tertiary p-4 font-bold typo-title3',
+              'flex shrink-0 flex-row items-center border-b border-border-subtlest-tertiary font-bold typo-title3',
+              isSheet ? 'px-4 pb-3 pt-1' : 'p-4',
               className?.title,
             )}
           >
             {title}
           </h3>
         )}
-        <ConditionalWrapper
-          condition={!!title}
-          wrapper={(component) => (
-            <div className={classNames(classes, 'flex w-full flex-col')}>
-              {component}
+        {isSheet ? (
+          <>
+            <div
+              ref={body}
+              className={classNames(
+                'flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain',
+                title ? classes : className?.drawer ?? 'px-4',
+              )}
+            >
+              {children}
             </div>
-          )}
-        >
-          {children}
-        </ConditionalWrapper>
+            <div
+              aria-hidden
+              className="h-[max(env(safe-area-inset-bottom,0.75rem),0.75rem)] shrink-0"
+            />
+          </>
+        ) : (
+          <ConditionalWrapper
+            condition={!!title}
+            wrapper={(component) => (
+              <div className={classNames(classes, 'flex w-full flex-col')}>
+                {component}
+              </div>
+            )}
+          >
+            {children}
+          </ConditionalWrapper>
+        )}
         {displayCloseButton && !isSheet && (
           <div
             className={classNames(

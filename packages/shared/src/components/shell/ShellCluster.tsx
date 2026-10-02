@@ -22,6 +22,7 @@ import { clamp, cluster, lerp, motion, settle } from './constants';
 import { refreshShell } from './shellRefresh';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster, isRootView, ShellRoot, owningRoot } from './shellNav';
+import { ShellTopButton } from './ShellTopButton';
 
 interface ClusterTab {
   root: ShellRoot;
@@ -123,6 +124,11 @@ export function ShellCluster({
 
   const height = lerp(cluster.rest, cluster.compact, p);
   const radius = lerp(cluster.radiusRest, cluster.radiusCompact, p);
+  const inset = lerp(cluster.inset, cluster.insetCompact, p);
+  // The main feed only, for now.
+  const showsTopButton =
+    active === ShellRoot.Home &&
+    isRootView(ShellRoot.Home, router?.pathname ?? '');
   const transition = `height ${snapping ? motion.snap : motion.scrub}ms ${
     motion.interaction
   }, border-radius ${snapping ? motion.snap : motion.scrub}ms ${
@@ -435,7 +441,7 @@ export function ShellCluster({
       )}
       style={{
         bottom: `calc(env(safe-area-inset-bottom, 0px) + ${cluster.lift}px)`,
-        paddingInline: lerp(cluster.inset, cluster.insetCompact, p),
+        paddingInline: inset,
         gap: cluster.gap,
         transition,
       }}
@@ -525,6 +531,7 @@ export function ShellCluster({
           })}
         </div>
       </nav>
+      {showsTopButton && <ShellTopButton inset={inset} gap={cluster.gap} />}
       <button
         type="button"
         aria-label="Create post"

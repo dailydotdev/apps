@@ -85,7 +85,12 @@ export function ExploreSortMenu(): ReactElement {
         />
       )}
       <RootPortal>
-        <Drawer isOpen={isOpen} onClose={() => setIsOpen(false)} title="Sort">
+        <Drawer
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          title="Sort"
+          className={{ drawer: 'py-1' }}
+        >
           <SheetChoice items={items} />
         </Drawer>
       </RootPortal>
