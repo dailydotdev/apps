@@ -34,7 +34,7 @@ import {
   SquadPhoneActions,
 } from './SquadActions';
 import { ShellPage } from '../../../../components/shell/ShellPageContext';
-import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
+import { useIsPhone } from '../../../../hooks/useViewSize';
 
 const MAX_FACES = 3;
 
@@ -224,7 +224,7 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
 
 export const SquadProfileHeader = (): ReactElement => {
   const { squad, viewer, isViewerReady } = useSquadPageContext();
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
 
   return (
     <header className="relative w-full">

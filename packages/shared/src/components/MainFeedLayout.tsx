@@ -70,6 +70,7 @@ import {
   useViewSize,
   ViewSize,
 } from '../hooks';
+import { useIsPhone } from '../hooks/useViewSize';
 import { feedNameToHeading, v2FeedSideInsetClass } from './feeds/FeedContainer';
 import { pageHeaderClassName } from './layout/PageHeader';
 import {
@@ -274,7 +275,7 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter, postTypesFilter } =

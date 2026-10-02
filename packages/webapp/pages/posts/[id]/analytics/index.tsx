@@ -1,9 +1,6 @@
 import type { ReactElement } from 'react';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import React, { useEffect, useMemo } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
@@ -207,7 +204,7 @@ const PostAnalyticsPage = ({
   const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
   const router = useRouter();
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const { user, isAuthReady } = useAuthContext();
 
   const { post, isLoading } = usePostById({

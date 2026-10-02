@@ -33,7 +33,7 @@ import { getSquadShareText } from '../widgets/SquadShareWidget';
 import { SquadOptionsMenu } from './SquadOptionsMenu';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
 import { ShellSquare } from '../../../../components/shell/ShellSquare';
-import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
+import { useIsPhone } from '../../../../hooks/useViewSize';
 import { IconSize } from '../../../../components/Icon';
 
 const useSquadShare = () => {
@@ -105,7 +105,7 @@ export const SquadActions = (): ReactElement => {
   const editUrl = getSquadManageUrl(squad.handle, SquadManageSection.Details);
   const isMobileAppHeader = useMobileAppHeader();
   // On a phone search and the menu are the block's actions.
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
 
   return (
     <div className="flex items-center gap-2 pb-1">
@@ -157,17 +157,19 @@ export const SquadActions = (): ReactElement => {
         </Tooltip>
       </span>
       {!isPhone && (
-        <Tooltip content={`Search ${squad.name}`}>
-          <Button
-            variant={ButtonVariant.Subtle}
-            size={ButtonSize.Small}
-            icon={<SearchIcon />}
-            aria-label={`Search ${squad.name}`}
-            onClick={() => openWithSource(getSquadSpotlightSource(squad))}
-          />
-        </Tooltip>
+        <span className="hidden tablet:contents">
+          <Tooltip content={`Search ${squad.name}`}>
+            <Button
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              icon={<SearchIcon />}
+              aria-label={`Search ${squad.name}`}
+              onClick={() => openWithSource(getSquadSpotlightSource(squad))}
+            />
+          </Tooltip>
+          {!isMobileAppHeader && <SquadOptionsMenu />}
+        </span>
       )}
-      {!isPhone && !isMobileAppHeader && <SquadOptionsMenu />}
       {canBoost(squad) && (
         <span className="hidden tablet:flex">
           <BoostSourceButton

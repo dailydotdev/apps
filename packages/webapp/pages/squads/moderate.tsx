@@ -1,9 +1,6 @@
 import type { ReactElement } from 'react';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import React from 'react';
@@ -51,14 +48,14 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
 export default function ModerateSquadPage(): ReactElement {
   const router = useRouter();
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
 
   return (
     <ManageSquadPageContainer>
       {isPhone ? (
         <ShellPage title="Squad settings" />
       ) : (
-        <PageHeader className="border-b-0">
+        <PageHeader className="hidden border-b-0 tablet:flex">
           <Button
             onClick={() => router.back()}
             icon={<ArrowIcon className="-rotate-90" />}

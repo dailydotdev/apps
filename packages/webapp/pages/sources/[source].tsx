@@ -67,10 +67,7 @@ import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/En
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -230,7 +227,7 @@ const SourcePage = ({
   relatedTags = [],
   topPosts = [],
 }: SourcePageProps): ReactElement => {
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { user } = useContext(AuthContext);

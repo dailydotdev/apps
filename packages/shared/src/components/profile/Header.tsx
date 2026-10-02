@@ -49,7 +49,7 @@ import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 import { ShellPage } from '../shell/ShellPageContext';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
 
 export interface HeaderProps {
@@ -91,7 +91,7 @@ export function Header({
   const canPurchaseCores = useCanPurchaseCores();
   const { isJobsEnabled } = useJobsFeature();
   const isMobileAppHeader = useMobileAppHeader();
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const isHidden = useHideOnScrollDown(
     isMobileAppHeader && !!sticky && !isPhone,
   );
@@ -330,7 +330,7 @@ export function Header({
   return (
     <header
       className={classNames(
-        'flex h-12 items-center px-4',
+        'hidden h-12 items-center px-4 tablet:flex',
         className,
         isHidden && '-translate-y-full',
       )}

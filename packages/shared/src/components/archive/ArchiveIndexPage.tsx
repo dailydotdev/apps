@@ -14,7 +14,7 @@ import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ArchiveCopyLinkButton } from './ArchiveCopyLinkButton';
-import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { ShellPage } from '../shell/ShellPageContext';
 
 interface ArchiveIndexPageProps {
@@ -162,7 +162,7 @@ export function ArchiveIndexPage({
   className,
 }: ArchiveIndexPageProps): ReactElement {
   const groups = groupArchivesByYear(archives);
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const copyLink = (
     <ArchiveCopyLinkButton
       scopeType={scopeType}

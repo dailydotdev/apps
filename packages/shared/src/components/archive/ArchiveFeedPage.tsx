@@ -12,7 +12,7 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ArchiveCopyLinkButton } from './ArchiveCopyLinkButton';
-import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { ShellPage } from '../shell/ShellPageContext';
 
 interface ArchiveFeedPageProps {
@@ -99,7 +99,7 @@ export function ArchiveFeedPage({
   } as ArchiveScopeInfo);
   const items = (archive?.items ?? []).filter((item) => item.post);
 
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
 
   return (
     <div

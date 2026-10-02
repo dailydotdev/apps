@@ -5,14 +5,14 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FilterIcon } from '../icons';
-import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { ShellPage } from '../shell/ShellPageContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 const jobPreferenceUrl = `${settingsUrl}/job-preferences`;
 const howItWorksUrl = `${webappUrl}jobs/how-it-works`;
 export const OpportunityHeader = (): ReactElement => {
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const { user } = useAuthContext();
   const actions = (
     <div className="flex gap-2">

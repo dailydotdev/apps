@@ -38,7 +38,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import type { MenuItemProps } from '../dropdown/common';
-import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhone } from '../../hooks/useViewSize';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -61,7 +61,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
     receivingUser: user as LoggedUser,
   });
   // On a phone the menu is the block's; the hero keeps Follow and Award.
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {

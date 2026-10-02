@@ -12,6 +12,7 @@ import { ShareProvider } from '../../lib/share';
 jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
   useViewSize: () => false,
+  useIsPhone: () => false,
 }));
 
 it('logs a copy link on a monthly best-of page as an archive share', () => {

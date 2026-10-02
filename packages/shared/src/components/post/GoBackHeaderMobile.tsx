@@ -10,6 +10,7 @@ import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 import { ShellPage } from '../shell/ShellPageContext';
@@ -102,7 +103,7 @@ export function GoBackHeaderMobile({
 }: PropsWithChildren<GoBackHeaderMobileProps>): ReactElement | null {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const isMobileAppHeader = useMobileAppHeader();
@@ -121,7 +122,7 @@ export function GoBackHeaderMobile({
   return (
     <span
       className={classNames(
-        'sticky top-[var(--phone-top-ad-height,0px)] z-postNavigation flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 tablet:-mx-6 laptop:hidden',
+        'sticky top-[var(--phone-top-ad-height,0px)] z-postNavigation hidden flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 tablet:-mx-6 tablet:flex laptop:hidden',
         scrollClassName,
         isMobileAppHeader && 'transition-transform duration-200 ease-out',
         isHidden && '-translate-y-full',

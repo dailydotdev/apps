@@ -17,7 +17,7 @@ import type { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { FormWrapper } from '../components/fields/form';
 import type { SourcePostModeration } from '../graphql/squads';
-import { useViewSize, ViewSize } from '../hooks/useViewSize';
+import { useViewSize, ViewSize, useIsPhone } from '../hooks/useViewSize';
 import type { UseSchedulePost } from '../components/post/schedule/useSchedulePost';
 import { SchedulePostControl } from '../components/post/schedule/SchedulePostControl';
 
@@ -89,7 +89,7 @@ export const WritePostContextProvider = ({
   ...props
 }: PropsWithChildren<WritePostContextProviderProps>): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const router = useRouter();
 
   return (

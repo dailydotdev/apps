@@ -13,6 +13,7 @@ import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
@@ -85,7 +86,7 @@ const SourcesPage = ({
   const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const { user } = useAuthContext();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;

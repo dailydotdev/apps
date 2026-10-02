@@ -13,7 +13,7 @@ import {
 } from '../../graphql/highlights';
 import { Origin } from '../../lib/log';
 import { Tab, TabContainer } from '../tabs/TabContainer';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { CopyHighlightsLink } from './CopyHighlightsLink';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
@@ -177,7 +177,7 @@ export const HighlightsPage = (): ReactElement => {
   const majorLoading = isFetching && !data;
 
   const channelLabel = channels.find((c) => c.channel === channel)?.displayName;
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const activeTab = isAllTab
     ? ALL_HIGHLIGHTS_LABEL
     : channelLabel ?? MAJOR_HEADLINES_LABEL;

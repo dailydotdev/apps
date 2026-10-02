@@ -27,6 +27,7 @@ import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useIsPhone } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { PageHeader } from './layout/PageHeader';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
@@ -102,7 +103,7 @@ export default function BookmarkFeedLayout({
     DEFAULT_BOOKMARK_SORT_INDEX,
   );
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const isSearchResults = !!searchQuery;
@@ -310,9 +311,13 @@ export default function BookmarkFeedLayout({
               )}
             >
               {searchChildren}
-              {!isPhone && sortDropdown}
-              {!isPhone && shareButton}
-              {!isPhone && folderMenu}
+              {!isPhone && (
+                <span className="hidden tablet:contents">
+                  {sortDropdown}
+                  {shareButton}
+                  {folderMenu}
+                </span>
+              )}
             </CustomFeedHeader>
           </>
         )}

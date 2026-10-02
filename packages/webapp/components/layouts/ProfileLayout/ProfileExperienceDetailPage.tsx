@@ -17,10 +17,7 @@ import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/com
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from './index';
 import { getProfileSeoDefaults } from './index';
 import { getPageSeoTitles } from '../utils';
@@ -38,7 +35,7 @@ export function ProfileExperienceDetailPage({
   title,
   seoTitle,
 }: ProfileExperienceDetailPageProps): ReactElement | null {
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
 
   if (!user || !experiences || experiences.length === 0) {
     return null;
@@ -62,7 +59,7 @@ export function ProfileExperienceDetailPage({
       {isPhone ? <ShellPage title={title} /> : <MobileAppHeader />}
       <div className="rounded-16 border border-border-subtlest-tertiary">
         {!isPhone && (
-          <header className="flex h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4">
+          <header className="hidden h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4 tablet:flex">
             <Link href={`${webappUrl}${user.username}`} passHref>
               <Button
                 size={ButtonSize.Small}

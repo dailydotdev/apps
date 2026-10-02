@@ -14,7 +14,7 @@ import {
 import { ShellPage } from '../../shell/ShellPageContext';
 import { ShellSquare } from '../../shell/ShellSquare';
 import { IconSize } from '../../Icon';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
+import { useIsPhone } from '../../../hooks/useViewSize';
 import { Chips, ShellRow } from '../../shell/ShellRow';
 import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
@@ -80,7 +80,7 @@ export const SquadDirectoryLayout = (
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const isMobileAppHeader = useMobileAppHeader();
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const { user } = useAuthContext();
 
   useEffect(() => {
@@ -146,7 +146,7 @@ export const SquadDirectoryLayout = (
           )}
         >
           {!isPhone && (
-            <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
+            <section className="hidden w-full flex-row items-center justify-between typo-body tablet:flex laptop:hidden">
               <strong>Squads</strong>
               {isMobileAppHeader ? (
                 <MobileAppActions />

@@ -68,10 +68,7 @@ import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayout
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -121,7 +118,7 @@ const Wallet = (): ReactElement | null => {
   const canPurchaseCores = useCanPurchaseCores();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
 
   const onBuyCoresClick = useCallback(
     ({
@@ -222,7 +219,7 @@ const Wallet = (): ReactElement | null => {
             <ShellPage title="Core wallet" actions={buyCoresButton} />
           )}
           {!isV2Laptop && !isPhone && (
-            <header className="flex items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2">
+            <header className="hidden items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2 tablet:flex">
               <Typography type={TypographyType.Title3} bold>
                 Core wallet
               </Typography>
