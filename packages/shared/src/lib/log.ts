@@ -81,6 +81,7 @@ export enum Origin {
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
+  CardCover = 'card cover',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
@@ -717,6 +718,7 @@ export enum TargetId {
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
+  MobileFooterNav = 'mobile footer nav',
   MobileSheet = 'mobile sheet',
 }
 

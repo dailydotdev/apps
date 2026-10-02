@@ -90,7 +90,6 @@ import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
-import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { AdHeadHints } from '../../../components/AdHeadHints';
@@ -236,7 +235,6 @@ export const PostPage = ({
       retry: false,
     },
   });
-  useSlackShareReturn({ post });
   useShareLinkClick({ postId: post?.id });
   const queryClient = useQueryClient();
   const postError = (isError

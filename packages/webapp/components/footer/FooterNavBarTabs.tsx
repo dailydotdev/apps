@@ -24,26 +24,26 @@ const Tab = ({ tab, isActive }: TabProps) => {
         href={
           !user && tab.requiresLogin
             ? '/onboarding'
-            : getNavPath(tab.path, user)
+            : getNavPath(tab.path, user) ?? '/'
         }
         passHref
       >
         <a
           className={classNames(
-            'flex flex-col items-center justify-center',
+            'shell-press flex flex-col items-center justify-center',
             !isActive && 'text-text-tertiary',
           )}
           onClick={tab.onClick}
           role="link"
           tabIndex={0}
           onKeyDown={(e) => {
-            if ((e.key === 'Enter' || e.key === ' ') && tab.onClick) {
+            if (e.key === ' ') {
               e.preventDefault();
-              tab.onClick();
+              e.currentTarget.click();
             }
           }}
         >
-          {tab.icon(isActive)}
+          {tab.icon?.(!!isActive)}
           <span className="typo-caption2">{tab.title}</span>
         </a>
       </Link>
