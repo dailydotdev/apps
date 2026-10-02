@@ -21,8 +21,7 @@
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   transition: var(--shell-duration-feedback) ease-out;
-  transition-property: border-color, background-color, box-shadow, color,
-    scale;
+  transition-property: border-color, background-color, box-shadow, color, scale;
 }
 
 .shell-press:active {
@@ -44,8 +43,7 @@
   background: var(--theme-blur-blur-baseline);
   -webkit-backdrop-filter: blur(40px);
   backdrop-filter: blur(40px);
-  box-shadow:
-    inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 4px 30px rgb(0 0 0 / 0.12);
 }
 
@@ -54,8 +52,7 @@
 .btn.shell-material {
   background: var(--theme-blur-blur-baseline);
   border-color: transparent;
-  box-shadow:
-    inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 4px 30px rgb(0 0 0 / 0.12);
 }
 
