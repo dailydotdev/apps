@@ -16,6 +16,7 @@ import {
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UserPersonalizedDigestType,
   GET_NOTIFICATION_SETTINGS,
+  UPDATE_NOTIFICATION_SETTINGS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { SendType } from '@dailydotdev/shared/src/hooks';
@@ -405,4 +406,45 @@ it('should render squad roles section', async () => {
   await waitFor(() => {
     expect(screen.queryByText('Squad roles')).toBeInTheDocument();
   });
+});
+
+it('should mute creator achievement emails without touching in-app', async () => {
+  const settings = {
+    ...defaultNotificationSettings,
+    [NotificationType.CreatorAchievement]: {
+      email: NotificationPreferenceStatus.Subscribed,
+      inApp: NotificationPreferenceStatus.Subscribed,
+    },
+  };
+  renderComponent(defaultLoggedUser, settings);
+
+  fireEvent.click(await screen.findByText('Email'));
+  const toggle = await screen.findByRole('checkbox', {
+    name: 'Creator achievements',
+  });
+  expect(toggle).toBeChecked();
+
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_NOTIFICATION_SETTINGS_MUTATION,
+      variables: {
+        notificationFlags: {
+          ...settings,
+          [NotificationType.CreatorAchievement]: {
+            email: NotificationPreferenceStatus.Muted,
+            inApp: NotificationPreferenceStatus.Subscribed,
+          },
+        },
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { updateNotificationSettings: { _: true } } };
+    },
+  });
+  fireEvent.click(toggle);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(toggle).not.toBeChecked();
 });
