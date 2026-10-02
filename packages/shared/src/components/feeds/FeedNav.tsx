@@ -199,15 +199,18 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
       <div
         className={classNames(
           inShellBlock ? 'relative' : 'mb-4 tablet:relative tablet:mb-0',
-          !shouldRenderFeedChips &&
+          !inShellBlock &&
+            !shouldRenderFeedChips &&
             'h-[3.25rem] tablet:h-auto tablet:min-h-[3.25rem]',
         )}
       >
         {inShellBlock && (
           <div className="flex w-full items-stretch bg-background-default">
-            <HomeSegments />
+            <div className="min-w-0 flex-1">
+              <HomeSegments />
+            </div>
             {showFeedActions && (
-              <FeedNavActionsWrapper>
+              <FeedNavActionsWrapper className="!py-0">
                 {renderFeedActions(true)}
               </FeedNavActionsWrapper>
             )}
@@ -264,7 +267,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
           )
         )}
 
-        {!shouldRenderFeedChips && showFeedActions && (
+        {!inShellBlock && !shouldRenderFeedChips && showFeedActions && (
           <StickyNavIconWrapper
             className={classNames(
               'translate-x-[calc(100vw-100%)]',
@@ -274,7 +277,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
             {renderFeedActions()}
           </StickyNavIconWrapper>
         )}
-        {!shouldRenderFeedChips && (
+        {!inShellBlock && !shouldRenderFeedChips && (
           <div className="hidden items-center bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
             <NotificationsBell compact />
           </div>
@@ -283,7 +286,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
       {isForYouTab && plusEntryForYou && (
         <PlusMobileEntryBanner
           targetType={TargetType.PlusEntryForYouTab}
-          className="-mt-4"
+          className={inShellBlock ? undefined : '-mt-4'}
           arrow
           {...plusEntryForYou}
         />

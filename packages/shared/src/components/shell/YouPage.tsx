@@ -13,7 +13,7 @@ import {
   DevCardIcon,
   DevPlusIcon,
   FilterIcon,
-  HelpIcon,
+  FeedbackIcon,
   MagicIcon,
   MegaphoneIcon,
   ReadingStreakIcon,
@@ -32,7 +32,6 @@ import { SubscriptionStatus } from '../../lib/plus';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import {
-  docs,
   plusUrl,
   settingsUrl,
   squadCategoriesPaths,
@@ -40,6 +39,8 @@ import {
   webappUrl,
 } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
 
@@ -130,6 +131,7 @@ const usePlusRow = (): { label: string; meta: string } => {
 // the order decided in the Mobile UX review (9b), with the profile one tap
 // away and Help as the page's one top action.
 export function YouPage(): ReactElement | null {
+  const { openModal } = useLazyModal();
   const { user, squads } = useAuthContext();
   const { streak } = useReadingStreak();
   const [isStreakOpen, setIsStreakOpen] = useState(false);
@@ -152,13 +154,10 @@ export function YouPage(): ReactElement | null {
         title="You"
         actions={
           <ShellSquare
-            tag="a"
-            href={docs}
-            target="_blank"
-            rel="noopener"
-            aria-label="Help"
+            aria-label="Feedback"
+            onClick={() => openModal({ type: LazyModal.Feedback })}
           >
-            <HelpIcon size={IconSize.Small} />
+            <FeedbackIcon size={IconSize.Small} />
           </ShellSquare>
         }
       />
