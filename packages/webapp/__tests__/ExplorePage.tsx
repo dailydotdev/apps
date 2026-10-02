@@ -6,6 +6,7 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { useStripHeadlines } from '@dailydotdev/shared/src/features/monetization/sponsorStrip/useStripHeadlines';
 import {
   useViewSize,
   useViewSizeClient,
@@ -21,6 +22,41 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
   useConditionalFeature: jest.fn(),
 }));
+
+jest.mock(
+  '@dailydotdev/shared/src/features/monetization/sponsorStrip/useStripHeadlines',
+  () => ({ useStripHeadlines: jest.fn() }),
+);
+
+jest.mock('@dailydotdev/shared/src/components/Feed', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/components/Feed'),
+  __esModule: true,
+  default: ({
+    disableHighlightCards,
+    topContent,
+  }: {
+    disableHighlightCards?: boolean;
+    topContent?: React.ReactNode;
+  }) => (
+    <div data-testid="feed" data-highlights-disabled={disableHighlightCards}>
+      {topContent}
+    </div>
+  ),
+}));
+
+jest.mock('@dailydotdev/shared/src/components/feeds/hero/FeedHero', () => {
+  const { useEffect } = jest.requireActual('react');
+  return {
+    FeedHero: ({
+      onRenderedChange,
+    }: {
+      onRenderedChange: (isRendered: boolean) => void;
+    }) => {
+      useEffect(() => onRenderedChange(true), [onRenderedChange]);
+      return <div data-testid="feedHero" />;
+    },
+  };
+});
 
 jest.mock('@dailydotdev/shared/src/lib/func', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/lib/func'),
@@ -51,6 +87,10 @@ beforeEach(() => {
   jest.mocked(checkIsExtension).mockReturnValue(false);
   jest.mocked(useViewSize).mockReturnValue(true);
   jest.mocked(useViewSizeClient).mockReturnValue(true);
+  jest.mocked(useStripHeadlines).mockReturnValue({
+    headlines: [],
+    isSettled: true,
+  });
   mockFeature.mockImplementation(({ feature }) => ({
     value: feature.defaultValue,
     isLoading: false,
@@ -119,3 +159,46 @@ it('should leave the sponsor dock to members', async () => {
   expect(screen.queryByText(bannerHeadline)).not.toBeInTheDocument();
   expect(sponsorStripEvaluations()).toContain(true);
 });
+
+it.each([
+  [true, false],
+  [false, false],
+  [true, true],
+  [false, true],
+])(
+  'should preserve hero suppression with ticker enabled %s and hero rendered %s',
+  (breakingNewsEnabled, heroRendered) => {
+    const overrides: Record<string, boolean> = {
+      sponsor_strip: true,
+      sponsor_strip_breaking_news: breakingNewsEnabled,
+      feed_hero: heroRendered,
+    };
+    mockFeature.mockImplementation(({ feature }) => ({
+      value: overrides[feature.id] ?? feature.defaultValue,
+      isLoading: false,
+    }));
+    jest.mocked(useStripHeadlines).mockImplementation((enabled) => ({
+      headlines: enabled
+        ? [
+            {
+              id: 'h1',
+              kind: 'POST',
+              postId: 'h1',
+              title: 'Trending post',
+              upvotes: 42,
+              permalink: 'https://daily.dev/posts/h1',
+              highlightedAt: null,
+            },
+          ]
+        : [],
+      isSettled: true,
+    }));
+
+    render(tree({ isAuthReady: true, isLoggedIn: true, user: defaultUser }));
+
+    expect(screen.getByTestId('feed')).toHaveAttribute(
+      'data-highlights-disabled',
+      String(heroRendered),
+    );
+  },
+);
