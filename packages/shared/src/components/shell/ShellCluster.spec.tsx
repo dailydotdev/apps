@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { AuthContextData } from '../../contexts/AuthContext';
@@ -12,6 +13,7 @@ const mockLogEvent = jest.fn();
 const mockOpenModal = jest.fn();
 const mockShowLogin = jest.fn();
 const mockPush = jest.fn();
+let queryClient: QueryClient;
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
@@ -69,18 +71,21 @@ const renderCluster = (
     push: mockPush,
   } as unknown as NextRouter);
 
+  queryClient = new QueryClient();
   return render(
-    <AuthContext.Provider
-      value={
-        {
-          user: loggedUser,
-          squads: [],
-          showLogin: mockShowLogin,
-        } as unknown as AuthContextData
-      }
-    >
-      <ShellCluster />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider
+        value={
+          {
+            user: loggedUser,
+            squads: [],
+            showLogin: mockShowLogin,
+          } as unknown as AuthContextData
+        }
+      >
+        <ShellCluster />
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 
@@ -164,6 +169,49 @@ describe('ShellCluster', () => {
 
     expect(mockPush).not.toHaveBeenCalled();
     rect.mockRestore();
+  });
+
+  it('returns to the root when the lit tab is tapped on a leaf', () => {
+    renderCluster('/posts/[id]');
+
+    fireEvent.click(screen.getByLabelText('Home'));
+
+    expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('scrolls a scrolled root to the top on the lit tab', () => {
+    renderCluster('/');
+    const scrollTo = jest.spyOn(window, 'scrollTo').mockImplementation();
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      value: 300,
+    });
+
+    fireEvent.click(screen.getByLabelText('Home'));
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    expect(mockPush).not.toHaveBeenCalled();
+    scrollTo.mockRestore();
+  });
+
+  it('refreshes a root that is already at the top on the lit tab', () => {
+    renderCluster('/');
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
+    const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+
+    fireEvent.click(screen.getByLabelText('Home'));
+
+    expect(invalidate).toHaveBeenCalledWith({ type: 'active' });
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('stays away from settings and forms', () => {
+    renderCluster('/settings/profile');
+
+    expect(screen.queryByRole('navigation', { name: 'Main' })).toBeNull();
+    expect(
+      document.documentElement.style.getPropertyValue('--shell-bottom'),
+    ).toBe('');
   });
 
   it('lights the root that owns the page', () => {

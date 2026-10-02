@@ -45,6 +45,61 @@ export const owningRoot = (pathname: string): ShellRoot => {
   return ShellRoot.Home;
 };
 
+const homeViews = ['/', '/my-feed', '/following'];
+const exploreViews = ['/posts', '/popular', '/upvoted', '/discussed'];
+
+// The views a root tab switches between (its segments and sorts). A tap on
+// the lit tab from one of these scrolls or refreshes; from anywhere else it
+// returns here.
+export const isRootView = (root: ShellRoot, pathname: string): boolean => {
+  const path = withoutLayoutVariantPrefix(pathname ?? '');
+
+  switch (root) {
+    case ShellRoot.Home:
+      return (
+        homeViews.includes(path) ||
+        path.startsWith('/highlights') ||
+        (path.startsWith('/feeds/[slugOrId]') && !path.endsWith('/edit'))
+      );
+    case ShellRoot.Explore:
+      return (
+        exploreViews.includes(path) ||
+        path.startsWith('/posts/upvoted') ||
+        path.startsWith('/posts/discussed') ||
+        path.startsWith('/explore')
+      );
+    case ShellRoot.Squads:
+      return path.startsWith(squadCategoriesPaths.discover);
+    case ShellRoot.Activity:
+      return path === '/notifications';
+    default:
+      return false;
+  }
+};
+
+const noClusterPrefixes = [
+  '/settings',
+  '/feeds/new',
+  '/feeds/[slugOrId]/edit',
+  '/squads/new',
+  '/squads/create',
+  '/squads/moderate',
+  '/squads/[handle]/edit',
+  '/squads/[handle]/manage',
+  '/squads/[handle]/moderate',
+  '/posts/[id]/edit',
+];
+
+// Settings and forms are places you finish, not places you browse from:
+// the bar leaves so a half-edited page cannot be abandoned by a tab.
+export const hidesCluster = (pathname: string): boolean => {
+  const path = withoutLayoutVariantPrefix(pathname ?? '');
+
+  return noClusterPrefixes.some(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+  );
+};
+
 const isSameSiteReferrer = (): boolean => {
   const referrer = globalThis?.document?.referrer;
   const origin = globalThis?.window?.location.origin;

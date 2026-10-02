@@ -9,6 +9,8 @@ import {
 } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
 import { mobileAppFooterHeight } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
 import { ShellCluster } from '@dailydotdev/shared/src/components/shell/ShellCluster';
+import { hidesCluster } from '@dailydotdev/shared/src/components/shell/shellNav';
+import { useRouter } from 'next/router';
 
 const FooterWrapper = dynamic(
   () =>
@@ -22,11 +24,16 @@ interface FooterNavBarLayoutProps {
 
 function FooterSpacer({
   post,
-}: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement {
+}: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement | null {
   const { isRevealed: showAppFooter } = useMobileAppFooterContext();
+  const router = useRouter();
 
   if (showAppFooter) {
     return <div className={mobileAppFooterHeight} />;
+  }
+
+  if (hidesCluster(router?.pathname)) {
+    return null;
   }
 
   // The bar's own height comes from the cluster (--shell-bottom); a post

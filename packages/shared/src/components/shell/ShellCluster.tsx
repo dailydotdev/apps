@@ -6,6 +6,7 @@ import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { useLogContext } from '../../contexts/LogContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { BellIcon, CompassIcon, HomeIcon, PlusIcon, SquadIcon } from '../icons';
@@ -19,7 +20,7 @@ import { AuthTriggers } from '../../lib/auth';
 import type { AuthTriggersType } from '../../lib/auth';
 import { clamp, cluster, lerp, motion } from './constants';
 import { revealShell, useShellScroll } from './useShellScroll';
-import { ShellRoot, owningRoot } from './shellNav';
+import { hidesCluster, isRootView, ShellRoot, owningRoot } from './shellNav';
 
 interface ClusterTab {
   root: ShellRoot;
@@ -34,8 +35,10 @@ export function ShellCluster({
   className,
 }: {
   className?: string;
-}): ReactElement {
+}): ReactElement | null {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const hidden = hidesCluster(router?.pathname);
   const { user, squads, showLogin } = useAuthContext();
   const { unreadCount } = useNotificationContext();
   const { logEvent } = useLogContext();
@@ -92,6 +95,9 @@ export function ShellCluster({
 
   // The space the bar takes at rest, for content that must clear it.
   useEffect(() => {
+    if (hidden) {
+      return undefined;
+    }
     document.documentElement.style.setProperty(
       '--shell-bottom',
       `${cluster.rest + cluster.lift * 2}px`,
@@ -99,7 +105,7 @@ export function ShellCluster({
     return () => {
       document.documentElement.style.removeProperty('--shell-bottom');
     };
-  }, []);
+  }, [hidden]);
 
   const height = lerp(cluster.rest, cluster.compact, p);
   const radius = lerp(cluster.radiusRest, cluster.radiusCompact, p);
@@ -135,9 +141,19 @@ export function ShellCluster({
       return true;
     }
 
+    // The lit tab, as on X and Instagram: from a leaf it returns to the
+    // root; on the root it scrolls to the top; at the top it refreshes.
     if (tab.root === active) {
+      if (!isRootView(tab.root, router.pathname)) {
+        router.push(tab.href);
+        return true;
+      }
       revealShell();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.scrollY > 0) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        queryClient.invalidateQueries({ type: 'active' });
+      }
       return true;
     }
 
@@ -280,6 +296,10 @@ export function ShellCluster({
 
     openModal({ type: LazyModal.SmartComposer, props: {} });
   };
+
+  if (hidden) {
+    return null;
+  }
 
   return (
     <div

@@ -207,6 +207,7 @@ export enum RequestKey {
   PostCodeSnippets = 'post_code_snippets',
   ContentPreference = 'content_preference',
   UserFollowers = 'user_followers',
+  UserFollowStats = 'user_follow_stats',
   UserFollowing = 'user_following',
   UserBlocked = 'user_blocked',
   ContentPreferenceFollow = 'content_preference_follow',

@@ -12,17 +12,15 @@ import {
   CoreFlatIcon,
   DevCardIcon,
   DevPlusIcon,
-  FilterIcon,
   FeedbackIcon,
+  HelpIcon,
   MagicIcon,
-  MegaphoneIcon,
   ReadingStreakIcon,
+  ReputationIcon,
   SettingsIcon,
-  SquadIcon,
   TimerIcon,
   UserIcon,
 } from '../icons';
-import { MedalIcon } from '../icons/Medal';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { ReadingStreakPopup } from '../streak/popup/ReadingStreakPopup';
@@ -34,13 +32,16 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import {
   plusUrl,
   settingsUrl,
-  squadCategoriesPaths,
+  docs,
   walletUrl,
   webappUrl,
 } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
+import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
+import { PlusUser } from '../PlusUser';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
 
@@ -114,6 +115,59 @@ const YouGroup = ({
   </div>
 );
 
+// A count the member can act on: the follow counts read inline under the
+// handle, as on the profile; reputation, streak and Cores are tiles in the
+// wallet's language.
+const Stat = ({
+  amount,
+  label,
+  onClick,
+  href,
+  icon: Icon,
+  tile = false,
+}: {
+  amount: number;
+  label: string;
+  onClick?: () => void;
+  href?: string;
+  icon?: (props: IconProps) => ReactElement;
+  tile?: boolean;
+}): ReactElement => {
+  const content = tile ? (
+    <>
+      <span className="flex items-center gap-1 text-text-tertiary typo-caption1">
+        {Icon && <Icon size={IconSize.Size16} />}
+        {label}
+      </span>
+      <b className="text-text-primary typo-callout">
+        {largeNumberFormat(amount)}
+      </b>
+    </>
+  ) : (
+    <>
+      <b className="text-text-primary">{largeNumberFormat(amount)}</b>
+      <span className="text-text-tertiary">{label}</span>
+    </>
+  );
+  const className = tile
+    ? 'shell-press flex min-w-0 flex-1 flex-col items-start gap-0.5 rounded-14 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-left'
+    : 'shell-press flex items-center gap-1 typo-footnote';
+
+  if (href) {
+    return (
+      <Link href={href} passHref>
+        <a className={className}>{content}</a>
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onClick} className={className}>
+      {content}
+    </button>
+  );
+};
+
 const usePlusRow = (): { label: string; meta: string } => {
   const { isPlus, status } = usePlusSubscription();
 
@@ -127,13 +181,16 @@ const usePlusRow = (): { label: string; meta: string } => {
   return { label: 'daily.dev Plus', meta: 'Manage' };
 };
 
-// The page behind the avatar: everything that is about the member, in
-// the order decided in the Mobile UX review (9b), with the profile one tap
-// away and Help as the page's one top action.
+// The page behind the avatar, X's menu: who you are and your counts on
+// top, then the places only this page leads to, then the utilities. It
+// fits one screen; what the tabs already reach (feeds, squads, following)
+// is not repeated here.
 export function YouPage(): ReactElement | null {
   const { openModal } = useLazyModal();
-  const { user, squads } = useAuthContext();
+  const { user } = useAuthContext();
   const { streak } = useReadingStreak();
+  const { isPlus } = usePlusSubscription();
+  const { data: followStats } = useUserFollowStats(user?.id);
   const [isStreakOpen, setIsStreakOpen] = useState(false);
   const hasAccessToCores = useHasAccessToCores();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
@@ -147,6 +204,18 @@ export function YouPage(): ReactElement | null {
   }
 
   const profileUrl = `${webappUrl}${user.username}`;
+  const followQuery = {
+    queryProps: { id: user.id, entity: ContentPreferenceType.User },
+  };
+  const openFollowList = (
+    type: LazyModal.UserFollowersModal | LazyModal.UserFollowingModal,
+    placeholderAmount: number,
+  ) => {
+    if (!placeholderAmount) {
+      return;
+    }
+    openModal({ type, props: { ...followQuery, placeholderAmount } });
+  };
 
   return (
     <div className="flex flex-col pb-6">
@@ -161,30 +230,79 @@ export function YouPage(): ReactElement | null {
           </ShellSquare>
         }
       />
-      <Link href={profileUrl} passHref>
-        <a className="flex items-center gap-3 px-4 py-4">
-          <ProfilePicture
-            user={user}
-            size={ProfileImageSize.XLarge}
-            nativeLazyLoading
-          />
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate font-bold typo-title3">{user.name}</span>
-            <span className="truncate text-text-tertiary typo-footnote">
-              @{user.username}
-              {typeof user.reputation === 'number' &&
-                ` · ${largeNumberFormat(user.reputation)} reputation`}
+      <div className="flex flex-col gap-3 px-4 pb-4 pt-3">
+        <Link href={profileUrl} passHref>
+          <a className="flex items-center gap-3">
+            <ProfilePicture
+              user={user}
+              size={ProfileImageSize.XLarge}
+              nativeLazyLoading
+            />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="flex min-w-0 items-center gap-1">
+                <span className="truncate font-bold typo-title3">
+                  {user.name}
+                </span>
+                {isPlus && <PlusUser withText={false} />}
+              </span>
+              <span className="truncate text-text-tertiary typo-footnote">
+                @{user.username}
+              </span>
             </span>
-          </span>
-        </a>
-      </Link>
-      <Link href={profileUrl} passHref>
-        <a className="shell-press mx-4 mb-2 flex h-11 items-center justify-center gap-2 rounded-12 border border-border-subtlest-tertiary font-bold typo-callout">
-          <UserIcon size={IconSize.Small} />
-          View profile
-        </a>
-      </Link>
-      <YouGroup className="border-t-0">
+          </a>
+        </Link>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <Stat
+            amount={followStats?.numFollowing ?? 0}
+            label="Following"
+            onClick={() =>
+              openFollowList(
+                LazyModal.UserFollowingModal,
+                followStats?.numFollowing ?? 0,
+              )
+            }
+          />
+          <Stat
+            amount={followStats?.numFollowers ?? 0}
+            label="Followers"
+            onClick={() =>
+              openFollowList(
+                LazyModal.UserFollowersModal,
+                followStats?.numFollowers ?? 0,
+              )
+            }
+          />
+        </div>
+        <div className="flex gap-2">
+          <Stat
+            tile
+            icon={ReputationIcon}
+            amount={user.reputation ?? 0}
+            label="Reputation"
+            href={profileUrl}
+          />
+          {streak && (
+            <Stat
+              tile
+              icon={ReadingStreakIcon}
+              amount={streak.current}
+              label="Streak"
+              onClick={() => setIsStreakOpen(true)}
+            />
+          )}
+          {hasAccessToCores && (
+            <Stat
+              tile
+              icon={CoreFlatIcon}
+              amount={user.balance?.amount ?? 0}
+              label="Cores"
+              href={walletUrl}
+            />
+          )}
+        </div>
+      </div>
+      <YouGroup className="border-t-0 pt-0">
+        <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
         <YouRow
           icon={DevPlusIcon}
           label={plusRow.label}
@@ -192,58 +310,11 @@ export function YouPage(): ReactElement | null {
           href={plusUrl}
         />
         <YouRow
-          icon={FilterIcon}
-          label="Custom feeds"
-          href={`${webappUrl}feeds/new`}
-        />
-        <YouRow
-          icon={SquadIcon}
-          label="My squads"
-          meta={squads?.length ? String(squads.length) : undefined}
-          href={
-            squads?.length
-              ? squadCategoriesPaths['My Squads']
-              : squadCategoriesPaths.discover
-          }
-        />
-        <YouRow
-          icon={AddUserIcon}
-          label="Following"
-          href={`${webappUrl}following`}
-        />
-        <YouRow
           icon={BookmarkIcon}
           label="Bookmarks"
           href={`${webappUrl}bookmarks`}
         />
         <YouRow icon={TimerIcon} label="History" href={`${webappUrl}history`} />
-      </YouGroup>
-      <YouGroup title="Your progress">
-        {!optOutAchievements && (
-          <YouRow
-            icon={MedalIcon}
-            label="Achievements"
-            href={`${profileUrl}/achievements`}
-          />
-        )}
-        {streak && (
-          <YouRow
-            icon={ReadingStreakIcon}
-            label="Streak"
-            meta={`${streak.current} days`}
-            onClick={() => setIsStreakOpen(true)}
-          />
-        )}
-        <YouRow
-          icon={DevCardIcon}
-          label="DevCard"
-          href={`${webappUrl}devcard`}
-        />
-        <YouRow
-          icon={MegaphoneIcon}
-          label="Hot takes"
-          href={`${webappUrl}?openModal=hottakes`}
-        />
         {!hideGameCenter && (
           <YouRow
             icon={MagicIcon}
@@ -251,11 +322,13 @@ export function YouPage(): ReactElement | null {
             href={`${webappUrl}game-center`}
           />
         )}
+        <YouRow
+          icon={DevCardIcon}
+          label="DevCard"
+          href={`${webappUrl}devcard`}
+        />
       </YouGroup>
       <YouGroup>
-        {hasAccessToCores && (
-          <YouRow icon={CoreFlatIcon} label="Core wallet" href={walletUrl} />
-        )}
         <YouRow
           icon={AddUserIcon}
           label="Invite friends"
@@ -266,6 +339,7 @@ export function YouPage(): ReactElement | null {
           label="Settings"
           href={`${settingsUrl}/profile`}
         />
+        <YouRow icon={HelpIcon} label="Help" href={docs} />
       </YouGroup>
       {streak && (
         <RootPortal>
