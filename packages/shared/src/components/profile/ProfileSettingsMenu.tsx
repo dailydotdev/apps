@@ -71,6 +71,9 @@ import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { featurePlusEntryPoints } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { PlusMenuEntry } from '../plus/PlusMenuEntry';
 
 type MenuItems = Record<
   string,
@@ -370,14 +373,29 @@ interface ProfileSettingsMenuProps {
 export const InnerProfileSettingsMenu = ({
   className,
   onClose,
-}: WithClassNameProps & { onClose?: () => void }) => {
+  showPlusEntry = true,
+}: WithClassNameProps & {
+  onClose?: () => void;
+  showPlusEntry?: boolean;
+}) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
   const { items: accountPageItems } = useAccountPageItems({ onClose });
+  const { user } = useAuthContext();
+  const { value: isPlusEntryPoints } = useConditionalFeature({
+    feature: featurePlusEntryPoints,
+    shouldEvaluate: !!user && showPlusEntry,
+  });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
+      {showPlusEntry && isPlusEntryPoints && (
+        <>
+          <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
+          <HorizontalSeparator />
+        </>
+      )}
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
         const lastItem = index === arr.length - 1;
 
@@ -435,6 +453,10 @@ export function ProfileSettingsMenuMobile({
 export function ProfileSettingsMenuDesktop(): ReactElement | null {
   const { user } = useAuthContext();
   const featureTheme = useFeatureTheme();
+  const { value: isPlusEntryPoints } = useConditionalFeature({
+    feature: featurePlusEntryPoints,
+    shouldEvaluate: !!user,
+  });
 
   if (!user) {
     return null;
@@ -448,14 +470,22 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
       )}
     >
       <ProfileMenuHeader
-        className="rounded-10 px-1 hover:bg-theme-active"
+        className={classNames(
+          'rounded-10 hover:bg-theme-active',
+          !isPlusEntryPoints && 'px-1',
+        )}
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
+        compact={isPlusEntryPoints}
       />
+
+      {isPlusEntryPoints && (
+        <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
+      )}
 
       <HorizontalSeparator />
 
-      <InnerProfileSettingsMenu />
+      <InnerProfileSettingsMenu showPlusEntry={false} />
     </aside>
   );
 }

@@ -90,6 +90,26 @@ export const SidebarItem = ({
     : undefined;
   const handleDragEnd = canPinToDock ? () => setDragging(false) : undefined;
 
+  const clickableItem = (
+    <ClickableNavItem
+      item={item}
+      aria-label={isCollapsed ? item.title : undefined}
+      showLogin={
+        item.requiresLogin && !user
+          ? () => showLogin({ trigger: item.title as AuthTriggersType })
+          : undefined
+      }
+      isButton={isItemsButton && !item?.isForcedLink}
+    >
+      <ItemInner
+        item={item}
+        shouldShowLabel={shouldShowLabel}
+        active={isActive}
+        showLinkIconOnHover={showLinkIconOnHover}
+      />
+    </ClickableNavItem>
+  );
+
   const navItem = (
     <NavItem
       active={isActive}
@@ -108,27 +128,15 @@ export const SidebarItem = ({
         isCollapsed && 'justify-center',
       )}
     >
-      <ClickableNavItem
-        item={item}
-        aria-label={isCollapsed ? item.title : undefined}
-        showLogin={
-          item.requiresLogin && !user
-            ? () => showLogin({ trigger: item.title as AuthTriggersType })
-            : undefined
-        }
-        isButton={isItemsButton && !item?.isForcedLink}
-      >
-        <ItemInner
-          item={item}
-          shouldShowLabel={shouldShowLabel}
-          active={isActive}
-          showLinkIconOnHover={showLinkIconOnHover}
-        />
-      </ClickableNavItem>
+      {item.renderPreview
+        ? item.renderPreview(
+            <div className="flex min-w-0 flex-1">{clickableItem}</div>,
+          )
+        : clickableItem}
     </NavItem>
   );
 
-  if (isCollapsed) {
+  if (isCollapsed && !item.renderPreview) {
     return (
       <SimpleTooltip content={item.title} placement="right" {...item.tooltip}>
         {navItem}

@@ -32,6 +32,7 @@ import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
   featureInterestAgent,
+  featurePlusEntryPoints,
   featureYearInReview,
 } from '../../../lib/featureManagement';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
@@ -42,6 +43,9 @@ import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { AlertColor, AlertDot } from '../../AlertDot';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { createPlusMenuItem } from './plusMenuItem';
 
 export const MainSection = ({
   isItemsButton,
@@ -53,6 +57,11 @@ export const MainSection = ({
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
   const { isActive: isSaleActive } = usePlusSale();
+  const { logSubscriptionEvent } = usePlusSubscription();
+  const { value: isPlusEntryPoints } = useConditionalFeature({
+    feature: featurePlusEntryPoints,
+    shouldEvaluate: !isPlus,
+  });
   const ctaCopy = { full: plusCta, short: plusCtaShort };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
@@ -106,21 +115,34 @@ export const MainSection = ({
           ),
         };
 
-    const plusButton = !isPlus
-      ? {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <DevPlusIcon secondary={active} />} />
-          ),
-          title: ctaCopy.full,
-          path: plusUrl,
-          isForcedLink: true,
-          requiresLogin: true,
-          color: 'text-action-plus-default',
-          itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
-          disableDefaultBackground: true,
-          ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
-        }
-      : undefined;
+    const logUpgradeClick = () =>
+      logSubscriptionEvent({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: TargetId.Sidebar,
+      });
+
+    const getPlusRow = createPlusMenuItem({
+      onClick: logUpgradeClick,
+      isSaleActive,
+    });
+
+    const legacyPlusRow: SidebarMenuItem = {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <DevPlusIcon secondary={active} />} />
+      ),
+      title: ctaCopy.full,
+      path: plusUrl,
+      isForcedLink: true,
+      requiresLogin: true,
+      action: logUpgradeClick,
+      color: 'text-action-plus-default',
+      itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
+      disableDefaultBackground: true,
+      ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
+    };
+
+    const plusRow = isPlusEntryPoints ? getPlusRow : legacyPlusRow;
+    const plusButton = isPlus ? undefined : plusRow;
 
     const gameCenterPath = `${webappUrl}game-center${
       claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
@@ -197,6 +219,7 @@ export const MainSection = ({
     return (
       [
         myFeed,
+        isPlusEntryPoints ? plusButton : undefined,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly
@@ -230,7 +253,7 @@ export const MainSection = ({
         agents,
         gameCenter,
         yearInReview,
-        plusButton,
+        isPlusEntryPoints ? undefined : plusButton,
       ] as (SidebarMenuItem | undefined)[]
     ).filter((item): item is SidebarMenuItem => !!item);
   }, [
@@ -239,7 +262,9 @@ export const MainSection = ({
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
+    isPlusEntryPoints,
     isSaleActive,
+    logSubscriptionEvent,
     isV2,
     onNavTabClick,
     showAgent,

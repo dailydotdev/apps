@@ -11,6 +11,10 @@ import { ButtonSize } from '../buttons/Button';
 import { checkIsExtension } from '../../lib/func';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';
+import { PlusMenuEntry } from '../plus/PlusMenuEntry';
+import { PlusEntryRowSize } from '../plus/PlusEntryRow';
+import { featurePlusEntryPoints } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 
 import { ProfileMenuFooter } from './ProfileMenuFooter';
 import { UpgradeToPlus } from '../UpgradeToPlus';
@@ -46,6 +50,10 @@ export default function ProfileMenu({
     useProfileCompletionIndicator();
   const { isEligible: isReferralLadderEligible, isCompleted } =
     useReferralLadder();
+  const { value: isPlusEntryPoints } = useConditionalFeature({
+    feature: featurePlusEntryPoints,
+    shouldEvaluate: !!user,
+  });
 
   useEffect(() => {
     events.on('routeChangeStart', onClose);
@@ -68,13 +76,20 @@ export default function ProfileMenu({
       className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
       {showProfileCompletion && <ProfileCompletion />}
-      <ProfileMenuHeader showReferralLadderGift />
+      <ProfileMenuHeader showReferralLadderGift compact={isPlusEntryPoints} />
 
-      <UpgradeToPlus
-        target={TargetId.ProfileDropdown}
-        size={ButtonSize.Small}
-        className="flex-initial"
-      />
+      {isPlusEntryPoints ? (
+        <PlusMenuEntry
+          target={TargetId.ProfileDropdown}
+          size={PlusEntryRowSize.Large}
+        />
+      ) : (
+        <UpgradeToPlus
+          target={TargetId.ProfileDropdown}
+          size={ButtonSize.Small}
+          className="flex-initial"
+        />
+      )}
 
       <HorizontalSeparator />
 
