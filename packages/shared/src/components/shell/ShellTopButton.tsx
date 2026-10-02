@@ -68,7 +68,7 @@ export const ShellTopButton = (): ReactElement => {
         transitionTimingFunction: motion.interaction,
       }}
     >
-      <MoveToIcon size={IconSize.Small} className="-rotate-90" />
+      <MoveToIcon size={IconSize.XSmall} className="-rotate-90" />
     </button>
   );
 };
