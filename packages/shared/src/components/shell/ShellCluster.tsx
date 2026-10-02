@@ -531,7 +531,7 @@ export function ShellCluster({
           })}
         </div>
       </nav>
-      {showsTopButton && <ShellTopButton inset={inset} gap={cluster.gap} />}
+      {showsTopButton && <ShellTopButton />}
       <button
         type="button"
         aria-label="Create post"
