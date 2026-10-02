@@ -1,11 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
-import { logout, useAuthContext } from '../../contexts/AuthContext';
-import { LogoutReason } from '../../lib/user';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { IconProps } from '../Icon';
@@ -16,7 +15,6 @@ import {
   CoreIcon,
   DevCardIcon,
   DevPlusIcon,
-  ExitIcon,
   FeedbackIcon,
   FilterIcon,
   HelpIcon,
@@ -26,7 +24,7 @@ import {
   TimerIcon,
   UserIcon,
 } from '../icons';
-import { Drawer, DrawerPosition } from '../drawers/Drawer';
+import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { SubscriptionStatus } from '../../lib/plus';
@@ -48,6 +46,7 @@ import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { PlusUser } from '../PlusUser';
+import { motion } from './constants';
 import { ShellPage } from './ShellPageContext';
 
 interface YouRowProps {
@@ -285,7 +284,6 @@ export function YouPanel({
       <div className="flex flex-col gap-3 px-4 pb-4 pt-3">
         {inDrawer && (
           <div className="flex items-center justify-between">
-            {helpButton}
             <Link href={profileUrl} passHref>
               <a aria-label="Profile">
                 <ProfilePicture
@@ -295,6 +293,7 @@ export function YouPanel({
                 />
               </a>
             </Link>
+            {helpButton}
           </div>
         )}
         <Link href={profileUrl} passHref>
@@ -426,11 +425,6 @@ export function YouPanel({
             );
           }}
         />
-        <YouRow
-          icon={ExitIcon}
-          label="Log out"
-          onClick={() => logout(LogoutReason.ManualLogout)}
-        />
       </YouGroup>
       <RootPortal>
         <Drawer
@@ -457,17 +451,20 @@ export function YouPage(): ReactElement | null {
   return <YouPanel />;
 }
 
-// The phone's menu, X's side panel mirrored: it slides in from the right,
-// under the avatar that opened it, over the page, and leaves on any
-// navigation.
+// The phone's menu, X's side panel mirrored: the page slides to the left
+// and uncovers the menu, which sits under it on the right; a tap on the
+// page's edge, Escape or any navigation brings the page back. The page
+// is inert while it is away.
 export function YouDrawer({
   isOpen,
   onClose,
 }: {
   isOpen: boolean;
   onClose: () => void;
-}): ReactElement {
+}): ReactElement | null {
   const router = useRouter();
+  const [mounted, setMounted] = useState(isOpen);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     onClose();
@@ -475,21 +472,64 @@ export function YouDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router?.asPath]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setMounted(false), motion.enter);
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+    const root = document.getElementById('__next');
+    const { documentElement } = document;
+    documentElement.classList.add('you-open');
+    root?.setAttribute('inert', '');
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      documentElement.classList.remove('you-open');
+      root?.removeAttribute('inert');
+      previouslyFocused?.focus?.();
+    };
+  }, [isOpen, onClose]);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <RootPortal>
-      <Drawer
-        isOpen={isOpen}
-        onClose={onClose}
-        position={DrawerPosition.Right}
-        className={{
-          wrapper:
-            'h-full !max-h-none w-[85%] max-w-[22rem] !rounded-l-16 !px-0 !pt-[var(--safe-area-top,0px)]',
-          overlay: 'z-max',
-        }}
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
         aria-label="You"
+        tabIndex={-1}
+        className="you-panel fixed bottom-0 right-0 top-0 flex w-[85%] max-w-[22rem] flex-col overflow-y-auto overscroll-contain bg-background-default pt-[var(--safe-area-top,0px)] focus:outline-none"
       >
         <YouPanel inDrawer />
-      </Drawer>
+      </div>
+      {/* The strip of the page still showing: a tap on it brings the page
+          back. */}
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="you-scrim fixed inset-y-0 left-0 w-[15%] bg-overlay-quaternary-onion"
+      />
     </RootPortal>
   );
 }

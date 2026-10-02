@@ -237,7 +237,7 @@ export function ShellBlock({
       ref={ref}
       aria-hidden={hidden || undefined}
       className={classNames(
-        'fixed inset-x-0 z-header flex flex-col bg-background-default tablet:hidden',
+        'shell-chrome fixed inset-x-0 z-header flex flex-col bg-background-default tablet:hidden',
         hidden && 'pointer-events-none',
       )}
       style={{

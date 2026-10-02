@@ -267,3 +267,48 @@
   -webkit-mask-image: linear-gradient(black 30%, transparent);
   mask-image: linear-gradient(black 30%, transparent);
 }
+
+/*
+ * The You menu: the page slides to the left and uncovers the menu, which
+ * sits under it on the right (X's side menu, mirrored). The page is a
+ * stacking context above the menu; its fixed chrome fades while it is
+ * away, since a transformed ancestor would pin it to the document.
+ */
+#__next {
+  position: relative;
+  z-index: 2;
+  transition: transform var(--shell-duration-enter) var(--shell-ease-travel);
+}
+
+:root.you-open {
+  overflow: hidden;
+}
+
+:root.you-open #__next {
+  transform: translate3d(calc(-1 * min(85vw, 22rem)), 0, 0);
+}
+
+.you-panel {
+  z-index: 1;
+}
+
+.you-scrim {
+  z-index: 3;
+  opacity: 0;
+  animation: shell-scrim-in var(--shell-duration-enter) ease-out forwards;
+}
+
+.shell-chrome {
+  transition: opacity var(--shell-duration-feedback) ease-out;
+}
+
+:root.you-open .shell-chrome {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #__next,
+  .shell-chrome {
+    transition-duration: 0s;
+  }
+}

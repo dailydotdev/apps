@@ -351,7 +351,7 @@ export function ShellCluster({
   return (
     <div
       className={classNames(
-        'pointer-events-none fixed inset-x-0 z-3 flex items-end tablet:hidden',
+        'shell-chrome pointer-events-none fixed inset-x-0 z-3 flex items-end tablet:hidden',
         className,
       )}
       style={{
