@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { ArrowIcon } from '../icons';
+import { MoveToIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { motion } from './constants';
 import { revealShell } from './useShellScroll';
@@ -70,7 +70,7 @@ export const ShellTopButton = ({
         transitionTimingFunction: motion.interaction,
       }}
     >
-      <ArrowIcon size={IconSize.Medium} />
+      <MoveToIcon size={IconSize.Medium} className="-rotate-90" />
     </button>
   );
 };
