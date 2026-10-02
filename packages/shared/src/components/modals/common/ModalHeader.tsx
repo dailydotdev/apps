@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
+import CloseButton from '../../CloseButton';
 import classed from '../../../lib/classed';
 import type { ModalTabsProps } from './ModalTabs';
 import { ModalTabs } from './ModalTabs';
@@ -51,12 +52,44 @@ export function ModalHeader({
     isMobile,
   } = useContext(ModalPropsContext);
 
-  if (isDrawer || isForm) {
+  if (isForm) {
     return null;
   }
 
   const modalTitle = title ?? (tabs ? activeView : undefined);
   const shouldShowClose = showCloseButton && !!onRequestClose;
+
+  // In a sheet the header is the sheet's title row: the name at the left,
+  // an X at the right for those who never swipe, pinned while the body
+  // scrolls under it.
+  if (isDrawer) {
+    if (!modalTitle && !children) {
+      return null;
+    }
+
+    return (
+      <div
+        className={classNames(
+          'sticky top-0 z-2 -mx-4 flex min-h-11 shrink-0 flex-row items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default py-1 pl-4 pr-2',
+          className,
+        )}
+      >
+        {children}
+        {!!modalTitle && (
+          <h3 className="min-w-0 flex-1 truncate font-bold typo-title3">
+            {modalTitle}
+          </h3>
+        )}
+        {shouldShowClose && (
+          <CloseButton
+            size={ButtonSize.Small}
+            aria-label="Close"
+            onClick={onRequestClose}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <ModalHeaderOuter

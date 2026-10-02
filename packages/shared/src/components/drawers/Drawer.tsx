@@ -9,8 +9,9 @@ import classNames from 'classnames';
 import { inertOthers } from 'aria-hidden';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { ButtonVariant } from '../buttons/common';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
+import CloseButton from '../CloseButton';
 import { RootPortal } from '../tooltips/Portal';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { motion } from '../shell/constants';
@@ -386,11 +387,24 @@ function BaseDrawer({
           <h3
             className={classNames(
               'flex shrink-0 flex-row items-center border-b border-border-subtlest-tertiary font-bold typo-title3',
-              isSheet ? 'px-4 pb-3 pt-1' : 'p-4',
+              isSheet ? 'gap-2 py-1 pl-4 pr-2' : 'p-4',
               className?.title,
             )}
           >
-            {title}
+            {isSheet ? (
+              <span className="min-w-0 flex-1 truncate">{title}</span>
+            ) : (
+              title
+            )}
+            {/* The grabber says "drag"; the X says "close" to those who
+                never swipe a sheet. */}
+            {isSheet && (
+              <CloseButton
+                size={ButtonSize.Small}
+                aria-label="Close"
+                onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
+              />
+            )}
           </h3>
         )}
         {isSheet ? (

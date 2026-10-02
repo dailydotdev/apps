@@ -3,7 +3,6 @@ import React, {
   createContext,
   isValidElement,
   useContext,
-  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -160,32 +159,42 @@ export const DropdownMenuContent = React.forwardRef<
     const scrollFadeRef = useScrollFade<HTMLDivElement>();
     const isPhone = useViewSize(ViewSize.MobileL);
     const close = useContext(DropdownMenuCloseContext);
-    const panelRef = useRef<HTMLDivElement | null>(null);
+    const closeRef = useRef(close);
+    closeRef.current = close;
     const scrollRef = useRef<HTMLDivElement | null>(null);
+    const detachDrag = useRef<() => void>();
     const setScrollRef = (node: HTMLDivElement | null) => {
       scrollRef.current = node;
       scrollFadeRef(node);
     };
+    // Radix mounts the content from its own open state, not from a render
+    // of this wrapper, so an effect here can run before the panel exists
+    // (WebKit showed it: the effect saw no panel and the sheet never
+    // dragged). The ref callback sees the node the moment it arrives.
     const setPanelRef = (node: HTMLDivElement | null) => {
-      panelRef.current = node;
       assignRef(forwardedRef, node);
-    };
-
-    useEffect(() => {
-      const panel = panelRef.current;
-      if (!isPhone || !panel) {
-        return undefined;
+      detachDrag.current?.();
+      detachDrag.current = undefined;
+      if (node && isPhone) {
+        detachDrag.current = attachSheetDrag(node, () => closeRef.current(), {
+          scroller: () => scrollRef.current,
+          expandable: false,
+        });
       }
-      return attachSheetDrag(panel, close, {
-        scroller: () => scrollRef.current,
-        expandable: false,
-      });
-    }, [isPhone, close]);
+    };
 
     return (
       <DropdownMenuPortal container={container}>
         <DropdownMenuContentRoot
           {...props}
+          // A sheet has no keyboard to hand focus back to; the returned
+          // focus only painted a ring on the trigger.
+          onCloseAutoFocus={(event) => {
+            props.onCloseAutoFocus?.(event);
+            if (isPhone) {
+              event.preventDefault();
+            }
+          }}
           ref={setPanelRef}
           className={classNames(
             styles.DropdownMenuContent,
