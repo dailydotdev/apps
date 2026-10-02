@@ -29,6 +29,10 @@ export interface FormWrapperProps {
   // A page form on a phone: the block carries the title and the submit,
   // its back square stands in for the left button.
   inBlock?: boolean;
+  // A form inside a bottom sheet: the header stays pinned under the grabber
+  // while the body scrolls, and the submit sits pinned at the bottom, under
+  // the thumb.
+  inSheet?: boolean;
 }
 
 export function FormWrapper({
@@ -43,6 +47,7 @@ export function FormWrapper({
   isHeaderTitle,
   headerRef,
   inBlock = false,
+  inSheet = false,
 }: FormWrapperProps): ReactElement {
   const { left = 'Cancel', right = 'Submit' } = copy;
   const titleElement = (
@@ -67,6 +72,41 @@ export function FormWrapper({
       {right}
     </Button>
   );
+
+  if (inSheet) {
+    return (
+      <div className={classNames('flex w-full flex-col', className?.container)}>
+        <PageHeader
+          className={classNames(
+            'sticky top-5 z-2 -mx-4 flex flex-row items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-2',
+            className?.header,
+          )}
+          ref={headerRef}
+        >
+          <Button {...leftButtonProps} variant={ButtonVariant.Tertiary}>
+            {left}
+          </Button>
+          {title && (
+            <span className="min-w-0 flex-1 truncate text-center font-bold typo-body">
+              {title}
+            </span>
+          )}
+          <div className="ml-auto flex items-center gap-2">{headerActions}</div>
+        </PageHeader>
+        {children}
+        <div className="sticky bottom-0 z-2 -mx-4 -mb-[max(env(safe-area-inset-bottom,0.75rem),0.75rem)] mt-4 border-t border-border-subtlest-tertiary bg-background-default px-4 pb-[max(env(safe-area-inset-bottom,0.75rem),0.75rem)] pt-3">
+          <Button
+            {...rightButtonProps}
+            variant={ButtonVariant.Primary}
+            form={form}
+            className={classNames('w-full', rightButtonProps.className)}
+          >
+            {right}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (inBlock) {
     return (

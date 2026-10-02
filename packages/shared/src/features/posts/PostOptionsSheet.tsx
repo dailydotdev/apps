@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { MenuItemProps } from '../../components/dropdown/common';
 import {
@@ -80,22 +80,48 @@ export const PostOptionsSheet = ({
   options: MenuItemProps[];
 }): ReactElement => {
   const [level, setLevel] = useState<Level>('root');
+  const rootRef = useRef<HTMLDivElement>(null);
+  const subRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number>();
   const { primary, notInterested, owner, more } = groupPostOptions(options);
+
+  // The sheet is as tall as the level on screen, not the taller of the two.
+  useLayoutEffect(() => {
+    const active = level === 'root' ? rootRef.current : subRef.current;
+    if (!active) {
+      return undefined;
+    }
+    const measure = () => setHeight(active.offsetHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(active);
+    return () => observer.disconnect();
+  }, [level]);
   const sub = level === 'not-interested' ? notInterested : more;
   const subTitle = level === 'not-interested' ? 'Not interested in' : 'More';
   const firstLevel = [...primary.filter((option) => option.id !== 'report')];
   const report = primary.find((option) => option.id === 'report');
 
   return (
-    <div className="overflow-hidden">
+    <div
+      className="overflow-hidden motion-reduce:transition-none"
+      style={{
+        height,
+        transition: `height ${motion.snap}ms ${motion.interaction}`,
+      }}
+    >
       <div
-        className="flex w-[200%] motion-reduce:transition-none"
+        className="flex w-[200%] items-start motion-reduce:transition-none"
         style={{
           transform: level === 'root' ? 'translateX(0)' : 'translateX(-50%)',
           transition: `transform ${motion.snap}ms ${motion.interaction}`,
         }}
       >
-        <div className="flex w-1/2 flex-col" aria-hidden={level !== 'root'}>
+        <div
+          ref={rootRef}
+          className="flex w-1/2 flex-col"
+          aria-hidden={level !== 'root'}
+        >
           <DropdownMenuOptions options={firstLevel} />
           {notInterested.length > 0 && (
             <LevelRow
@@ -126,7 +152,11 @@ export const PostOptionsSheet = ({
             </>
           )}
         </div>
-        <div className="flex w-1/2 flex-col" aria-hidden={level === 'root'}>
+        <div
+          ref={subRef}
+          className="flex w-1/2 flex-col"
+          aria-hidden={level === 'root'}
+        >
           <DropdownMenuItem
             onSelect={(event: Event) => {
               event.preventDefault();

@@ -131,7 +131,7 @@ export function Modal({
         size,
         kind,
         onViewChange,
-        onRequestClose,
+        onRequestClose: onRequestClose ?? null,
         setActiveView,
         steps,
         tabs,
@@ -146,9 +146,10 @@ export function Modal({
         condition={isForm ?? false}
         wrapper={(component) => (
           <FormWrapper
-            {...formProps}
+            {...(formProps as Omit<FormWrapperProps, 'children'>)}
+            inSheet={isDrawerOpen}
             leftButtonProps={{
-              ...(formProps.leftButtonProps ?? {}),
+              ...(formProps?.leftButtonProps ?? {}),
               onClick: onRequestClose,
             }}
           >
@@ -169,7 +170,7 @@ export function Modal({
         isOpen
         onAfterClose={props?.onAfterClose}
         onAfterOpen={props?.onAfterOpen}
-        onClose={onRequestClose}
+        onClose={(event) => onRequestClose?.(event as React.MouseEvent)}
         closeOnOutsideClick={shouldCloseOnOverlayClick}
       >
         {content}
@@ -194,7 +195,6 @@ export function Modal({
 
   return (
     <ReactModal
-      isOpen
       overlayClassName={modalOverlayClassName}
       onRequestClose={onRequestClose}
       className={modalClassName}

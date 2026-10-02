@@ -14,6 +14,7 @@ import { Button } from '../buttons/Button';
 import { RootPortal } from '../tooltips/Portal';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { motion } from '../shell/constants';
+import { attachSheetDrag } from '../shell/sheetDrag';
 
 export type PopupEventType =
   | MouseEvent
@@ -145,99 +146,15 @@ function BaseDrawer({
   const isAnimating = !hasAnimated || isClosing;
   const isSheet = position === DrawerPosition.Bottom && !isFullScreen;
 
-  // A bottom sheet follows the finger: down 1:1, up barely (a hint of
-  // rubber band), and a release past a third of its height or a quick
-  // flick dismisses it; anything less springs it back. The drag starts only
-  // when the sheet's own content is scrolled to the top, so a list inside
-  // keeps scrolling.
   useEffect(() => {
     const panel = container.current;
     if (!isSheet || !panel) {
       return undefined;
     }
 
-    let startY = 0;
-    let startTime = 0;
-    let dy = 0;
-    let tracking = false;
-    let dragging = false;
-
-    const settle = () => {
-      panel.removeAttribute('data-dragging');
-      panel.style.transform = '';
-      panel.style.transition = '';
-    };
-
-    const onTouchStart = (event: TouchEvent) => {
-      if (panel.scrollTop > 0 || event.touches.length !== 1) {
-        return;
-      }
-      startY = event.touches[0].clientY;
-      startTime = event.timeStamp;
-      dy = 0;
-      tracking = true;
-      dragging = false;
-    };
-
-    const onTouchMove = (event: TouchEvent) => {
-      if (!tracking) {
-        return;
-      }
-      dy = event.touches[0].clientY - startY;
-      if (!dragging) {
-        if (dy > 6) {
-          dragging = true;
-          panel.setAttribute('data-dragging', 'true');
-        } else if (dy < -6) {
-          tracking = false;
-          return;
-        } else {
-          return;
-        }
-      }
-      event.preventDefault();
-      const offset = dy > 0 ? dy : dy * 0.05;
-      panel.style.transform = `translateY(${offset}px)`;
-    };
-
-    const onTouchEnd = (event: TouchEvent) => {
-      if (!tracking) {
-        return;
-      }
-      tracking = false;
-      if (!dragging) {
-        return;
-      }
-      dragging = false;
-      const velocity = dy / Math.max(1, event.timeStamp - startTime);
-      const dismiss = dy > panel.offsetHeight / 3 || velocity > 0.6;
-      if (dismiss) {
-        settle();
-        onCloseRef.current(event as unknown as PopupEventType);
-        return;
-      }
-      panel.removeAttribute('data-dragging');
-      panel.style.transition = `transform ${motion.snap}ms ${motion.interaction}`;
-      panel.style.transform = '';
-      const clear = () => {
-        panel.style.transition = '';
-        panel.removeEventListener('transitionend', clear);
-      };
-      panel.addEventListener('transitionend', clear);
-    };
-
-    panel.addEventListener('touchstart', onTouchStart, { passive: true });
-    panel.addEventListener('touchmove', onTouchMove, { passive: false });
-    panel.addEventListener('touchend', onTouchEnd);
-    panel.addEventListener('touchcancel', onTouchEnd);
-
-    return () => {
-      panel.removeEventListener('touchstart', onTouchStart);
-      panel.removeEventListener('touchmove', onTouchMove);
-      panel.removeEventListener('touchend', onTouchEnd);
-      panel.removeEventListener('touchcancel', onTouchEnd);
-      settle();
-    };
+    return attachSheetDrag(panel, (event) =>
+      onCloseRef.current(event as unknown as PopupEventType),
+    );
   }, [isSheet]);
 
   useEffect(() => {
@@ -451,10 +368,12 @@ function BaseDrawer({
         }}
       >
         {isSheet && (
-          <span
+          <div
             aria-hidden
-            className="mx-auto mb-1 mt-2 h-1 w-9 shrink-0 rounded-2 bg-border-subtlest-secondary"
-          />
+            className="sticky top-0 z-2 -mx-4 -mt-1 flex shrink-0 justify-center bg-background-default pb-1 pt-3"
+          >
+            <span className="h-1 w-9 rounded-2 bg-border-subtlest-secondary" />
+          </div>
         )}
         {title && (
           <h3

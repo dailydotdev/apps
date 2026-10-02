@@ -84,7 +84,16 @@
 }
 
 .shell-sheet-panel {
-  transition: transform var(--shell-duration-enter) var(--shell-ease-travel);
+  transition: transform var(--shell-duration-enter) var(--shell-ease-travel),
+    max-height var(--shell-duration-snap) var(--shell-ease-interaction),
+    border-radius var(--shell-duration-snap) var(--shell-ease-interaction);
+}
+
+/* A tall sheet pulled up: it meets the top of the screen and reads as a
+   page until a short drag down brings it back to rest. */
+.shell-sheet-panel[data-expanded='true'] {
+  max-height: 100% !important;
+  border-radius: 0 !important;
 }
 
 .shell-sheet-panel[data-closing='true'] {
@@ -165,6 +174,11 @@
     transform: translateX(-50%);
   }
 
+  .shell-menu-sheet[data-dragging='true'] {
+    animation: none !important;
+    transition: none !important;
+  }
+
   .shell-menu-sheet[data-state='closed'] {
     animation-name: shell-sheet-out !important;
     animation-duration: var(--shell-duration-exit) !important;
@@ -198,7 +212,7 @@
 
 @keyframes shell-sheet-out {
   from {
-    transform: none;
+    transform: translateY(var(--sheet-drag, 0px));
   }
 
   to {

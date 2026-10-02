@@ -1,5 +1,12 @@
 import type { ReactNode } from 'react';
-import React, { isValidElement, useState } from 'react';
+import React, {
+  createContext,
+  isValidElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import type {
   DropdownMenuContentProps as RadixDropdownMenuContentProps,
@@ -25,6 +32,7 @@ import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { attachSheetDrag } from '../shell/sheetDrag';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
@@ -75,6 +83,18 @@ export const DropdownMenuTrigger = React.forwardRef<
 });
 DropdownMenuTrigger.displayName = 'DropdownMenuTrigger';
 
+const assignRef = <T,>(ref: React.ForwardedRef<T>, node: T | null) => {
+  if (typeof ref === 'function') {
+    ref(node);
+  } else if (ref) {
+    Object.assign(ref, { current: node });
+  }
+};
+
+// Lets the phone sheet close itself (a drag past a third) through the
+// root's own open state.
+const DropdownMenuCloseContext = createContext<() => void>(() => undefined);
+
 export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
   ({ children, ...props }, _forwardedRef) => {
     if (_forwardedRef) {
@@ -94,18 +114,25 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
       setOpen(false);
     });
 
+    const close = () => {
+      props.onOpenChange?.(false);
+      setOpen(false);
+    };
+
     return (
-      <DropdownMenuRoot
-        open={props.open || open}
-        onOpenChange={(value) => {
-          props.onOpenChange?.(value);
-          setOpen(value);
-        }}
-        modal={isPhone}
-        {...props}
-      >
-        {children}
-      </DropdownMenuRoot>
+      <DropdownMenuCloseContext.Provider value={close}>
+        <DropdownMenuRoot
+          open={props.open || open}
+          onOpenChange={(value) => {
+            props.onOpenChange?.(value);
+            setOpen(value);
+          }}
+          modal={isPhone}
+          {...props}
+        >
+          {children}
+        </DropdownMenuRoot>
+      </DropdownMenuCloseContext.Provider>
     );
   },
 );
@@ -132,11 +159,34 @@ export const DropdownMenuContent = React.forwardRef<
     const container = isCompanion ? getCompanionWrapper() : undefined;
     const scrollFadeRef = useScrollFade<HTMLDivElement>();
     const isPhone = useViewSize(ViewSize.MobileL);
+    const close = useContext(DropdownMenuCloseContext);
+    const panelRef = useRef<HTMLDivElement | null>(null);
+    const scrollRef = useRef<HTMLDivElement | null>(null);
+    const setScrollRef = (node: HTMLDivElement | null) => {
+      scrollRef.current = node;
+      scrollFadeRef(node);
+    };
+    const setPanelRef = (node: HTMLDivElement | null) => {
+      panelRef.current = node;
+      assignRef(forwardedRef, node);
+    };
+
+    useEffect(() => {
+      const panel = panelRef.current;
+      if (!isPhone || !panel) {
+        return undefined;
+      }
+      return attachSheetDrag(panel, close, {
+        scroller: () => scrollRef.current,
+        expandable: false,
+      });
+    }, [isPhone, close]);
+
     return (
       <DropdownMenuPortal container={container}>
         <DropdownMenuContentRoot
           {...props}
-          ref={forwardedRef}
+          ref={setPanelRef}
           className={classNames(
             styles.DropdownMenuContent,
             'overflow-hidden',
@@ -151,7 +201,7 @@ export const DropdownMenuContent = React.forwardRef<
           collisionPadding={collisionPadding ?? 24}
         >
           <div
-            ref={scrollFadeRef}
+            ref={setScrollRef}
             className={classNames(
               styles.DropdownMenuScrollable,
               'overflow-y-auto bg-inherit',
