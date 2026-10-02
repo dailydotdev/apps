@@ -13,6 +13,9 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { LinkIcon } from '@dailydotdev/shared/src/components/icons/Link';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
+import { ReputationUserBadge } from '@dailydotdev/shared/src/components/ReputationUserBadge';
+import { VerifiedCompanyUserBadge } from '@dailydotdev/shared/src/components/VerifiedCompanyUserBadge';
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { getMarketplacePluginUrl } from '@dailydotdev/shared/src/graphql/plugins';
 
@@ -83,6 +86,15 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => (
           >
             {plugin.author.name}
           </Typography>
+          <PlusUserBadge
+            user={plugin.author}
+            size={IconSize.XSmall}
+            tooltip={false}
+          />
+          <ReputationUserBadge user={plugin.author} />
+          {!!plugin.author.companies?.length && (
+            <VerifiedCompanyUserBadge user={plugin.author} />
+          )}
         </span>
         {plugin.url && (
           <span className="flex min-w-0 items-center gap-1 text-text-tertiary typo-footnote">
