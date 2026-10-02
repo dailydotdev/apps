@@ -29,7 +29,6 @@ import {
   pluginsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
-import { marketplaceHeroImage } from '@dailydotdev/shared/src/lib/image';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PluginCard } from '../../components/marketplace/PluginCard';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
@@ -77,12 +76,6 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
 
   return (
     <MarketplacePageLayout className="gap-6">
-      <div
-        role="img"
-        aria-label="daily.dev plugin marketplace"
-        className="-mx-4 -mt-6 h-48 bg-cover bg-center tablet:-mx-4 tablet:-mt-4 tablet:h-56 laptop:-mx-10 laptop:-mt-10"
-        style={{ backgroundImage: `url("${marketplaceHeroImage}")` }}
-      />
       <Head>
         <script
           type="application/ld+json"
