@@ -130,12 +130,13 @@ const YouGroup = ({
   children: ReactNode;
   className?: string;
 }): ReactElement => (
-  <div
-    className={classNames(
-      'flex flex-col border-t border-border-subtlest-tertiary py-2',
-      className,
-    )}
-  >
+  <div className={classNames('flex flex-col py-2', className)}>
+    {/* The rule between groups is inset like the settings lists; only a
+        sheet's header rule runs edge to edge. */}
+    <span
+      aria-hidden
+      className="mx-4 mb-2 h-px shrink-0 bg-border-subtlest-tertiary"
+    />
     {title && (
       <span className="px-4 pb-1 pt-1 text-text-tertiary typo-caption1">
         {title}
@@ -357,7 +358,7 @@ export function YouPage(): ReactElement | null {
           )}
         </div>
       </div>
-      <YouGroup className="border-t-0 pt-0">
+      <YouGroup className="pt-0 [&>span:first-child]:hidden">
         <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
         <YouRow
           icon={DevPlusIcon}

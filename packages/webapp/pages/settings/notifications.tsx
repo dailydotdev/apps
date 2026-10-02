@@ -14,6 +14,7 @@ import InAppNotificationsTab from '@dailydotdev/shared/src/components/notificati
 import useNotificationSettings from '@dailydotdev/shared/src/hooks/notifications/useNotificationSettings';
 import EmailNotificationsTab from '@dailydotdev/shared/src/components/notifications/EmailNotificationsTab';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -43,10 +44,15 @@ const AccountNotificationsPage = (): ReactElement => {
   // Control variant keeps the legacy TabContainer rendering — no change.
   if (!isV2Laptop) {
     if (isLoadingPreferences) {
-      return <div className="w-full" />;
+      return (
+        <div className="w-full">
+          <ShellPage title="Notifications" />
+        </div>
+      );
     }
     return (
       <AccountPageContent>
+        <ShellPage title="Notifications" />
         <TabContainer className={{ header: 'h-14 px-4' }}>
           <Tab label="Notifications">
             <InAppNotificationsTab />

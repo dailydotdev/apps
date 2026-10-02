@@ -67,7 +67,11 @@ export function FormWrapper({
       {...rightButtonProps}
       variant={ButtonVariant.Primary}
       form={form}
-      className={rightButtonProps.className}
+      className={classNames(
+        // In the block the submit is a pill the height of the squares.
+        inBlock && '!h-[2.375rem] !rounded-14',
+        rightButtonProps.className,
+      )}
     >
       {right}
     </Button>

@@ -216,7 +216,15 @@ const Wallet = (): ReactElement | null => {
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
         <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
           {isPhone && (
-            <ShellPage title="Core wallet" actions={buyCoresButton} />
+            <ShellPage
+              title="Core wallet"
+              actions={
+                buyCoresButton &&
+                React.cloneElement(buyCoresButton, {
+                  className: '!h-[2.375rem] !rounded-14',
+                })
+              }
+            />
           )}
           {!isV2Laptop && !isPhone && (
             <header className="hidden items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2 tablet:flex">

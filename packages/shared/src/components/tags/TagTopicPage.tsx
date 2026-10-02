@@ -70,6 +70,7 @@ import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
 import { useIsPhone } from '../../hooks/useViewSize';
+import { ShellPage } from '../shell/ShellPageContext';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { webappUrl } from '../../lib/constants';
@@ -372,6 +373,7 @@ export const TagTopicPage = ({
 
   return (
     <>
+      {isPhone && <ShellPage title={title} />}
       {jsonLd && (
         <Head>
           <script

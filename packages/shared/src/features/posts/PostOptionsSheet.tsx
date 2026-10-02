@@ -19,7 +19,7 @@ import { groupPostOptions } from './postOptionGroups';
 type Level = 'root' | 'not-interested' | 'more';
 
 const Divider = (): ReactElement => (
-  <div aria-hidden className="my-1 h-px bg-border-subtlest-tertiary" />
+  <div aria-hidden className="mx-4 my-1 h-px bg-border-subtlest-tertiary" />
 );
 
 // A row that opens a sub-level instead of closing the menu.

@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { Button } from '../../buttons/Button';
+import { ShellPage } from '../../shell/ShellPageContext';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
@@ -115,7 +116,67 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
     !isFeedChipsEnabled && !isPlus && feed?.type === FeedType.Custom;
 
   if (!activeView) {
-    return null;
+    return isMobile ? <ShellPage title="Feed settings" /> : null;
+  }
+
+  const actions = (
+    <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
+      <Button
+        type="button"
+        size={ButtonSize.Small}
+        variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
+        onClick={async () => {
+          const shouldDiscard = await onDiscard({ activeView });
+
+          if (!shouldDiscard) {
+            return;
+          }
+
+          if (isMobile) {
+            setActiveView?.(undefined);
+          } else {
+            onBackToFeed({ action: 'discard' });
+          }
+        }}
+      >
+        Cancel
+      </Button>
+      {showPlusCta ? (
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<DevPlusIcon className="text-action-plus-default" />}
+          onClick={() => {
+            logSubscriptionEvent({
+              event_name: LogEvent.UpgradeSubscription,
+              target_id: TargetId.CustomFeed,
+            });
+
+            onSubmit();
+          }}
+        >
+          {plusCta}
+        </Button>
+      ) : (
+        <SaveButton activeView={activeView} />
+      )}
+    </div>
+  );
+
+  // On a phone the header is the block: the section's name, Cancel and Save
+  // as the block's pills.
+  if (isMobile) {
+    return (
+      <ShellPage
+        title={<FeedSettingsTitle />}
+        actions={
+          <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
+            {actions}
+          </div>
+        }
+      />
+    );
   }
 
   return (
@@ -125,48 +186,7 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
       showCloseButton={false}
     >
       <FeedSettingsTitle className="hidden tablet:flex" />
-      <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
-        <Button
-          type="button"
-          size={ButtonSize.Small}
-          variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
-          onClick={async () => {
-            const shouldDiscard = await onDiscard({ activeView });
-
-            if (!shouldDiscard) {
-              return;
-            }
-
-            if (isMobile) {
-              setActiveView?.(undefined);
-            } else {
-              onBackToFeed({ action: 'discard' });
-            }
-          }}
-        >
-          Cancel
-        </Button>
-        {showPlusCta ? (
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            icon={<DevPlusIcon className="text-action-plus-default" />}
-            onClick={() => {
-              logSubscriptionEvent({
-                event_name: LogEvent.UpgradeSubscription,
-                target_id: TargetId.CustomFeed,
-              });
-
-              onSubmit();
-            }}
-          >
-            {plusCta}
-          </Button>
-        ) : (
-          <SaveButton activeView={activeView} />
-        )}
-      </div>
+      {actions}
     </Modal.Header>
   );
 };

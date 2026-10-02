@@ -95,7 +95,11 @@ export const AccountPageContainer = ({
           title={title}
           actions={
             <>
-              {actions}
+              {actions && (
+                <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
+                  {actions}
+                </div>
+              )}
               <ShellSquare
                 aria-label="Settings menu"
                 onClick={() => setIsOpen(true)}

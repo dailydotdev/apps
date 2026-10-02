@@ -166,6 +166,9 @@ export function Modal({
     return (
       <Drawer
         displayCloseButton
+        // A modal can be rendered from anywhere in a page; its sheet still
+        // belongs above the fixed block and bar, so it mounts on the root.
+        appendOnRoot
         {...drawerProps}
         isOpen
         onAfterClose={props?.onAfterClose}

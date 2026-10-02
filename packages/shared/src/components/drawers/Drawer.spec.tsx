@@ -127,16 +127,18 @@ describe('Drawer', () => {
     expect(document.body).not.toHaveClass('hidden-scrollbar');
   });
 
-  it('leaves the page scrollable behind a partial drawer', () => {
+  it('locks the page behind a sheet and frees it on close', () => {
     const { unmount } = render(
       <Drawer isOpen onClose={jest.fn()}>
         content
       </Drawer>,
     );
 
-    expect(document.body).not.toHaveClass('hidden-scrollbar');
-    expect(document.documentElement).not.toHaveStyle({ overflow: 'hidden' });
+    expect(document.documentElement).toHaveStyle({ overflow: 'hidden' });
+    expect(document.body).toHaveStyle({ position: 'fixed' });
     unmount();
+    expect(document.documentElement).not.toHaveStyle({ overflow: 'hidden' });
+    expect(document.body).not.toHaveStyle({ position: 'fixed' });
   });
 
   it('hands back the inline overflow it found instead of deleting it', () => {

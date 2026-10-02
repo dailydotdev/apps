@@ -267,8 +267,8 @@ export function Header({
         >
           <Button
             tag="a"
-            className="tablet:hidden"
-            variant={ButtonVariant.Float}
+            className="shell-material !size-[2.375rem] !rounded-14 !p-0 tablet:hidden"
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={
               <span className="relative">
@@ -286,8 +286,11 @@ export function Header({
         </Link>
       )}
       <Button
-        className="laptop:hidden"
-        variant={ButtonVariant.Float}
+        className={classNames(
+          'laptop:hidden',
+          isPhone && 'shell-material !size-[2.375rem] !rounded-14 !p-0',
+        )}
+        variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<SettingsIcon />}
         onClick={() => setIsMenuOpen(true)}

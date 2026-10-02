@@ -60,6 +60,7 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
@@ -275,6 +276,7 @@ const SourcePage = ({
           so it spans the full floating-card width without being clamped
           by the list-mode max-width. */}
       {isV2Laptop && <PageHeader title={source.name} />}
+      {isPhone && <ShellPage title={source.name} />}
       <FeedPageLayoutComponent className="overflow-x-hidden">
         <Head>
           <script

@@ -214,6 +214,7 @@ export default function BookmarkFeedLayout({
         container: isV2Laptop || isPhone ? 'flex' : 'ml-4 flex',
       }}
       shouldIndicateSelected
+      buttonAriaLabel="Sort"
       icon={<SortIcon size={isV2Laptop ? IconSize.XSmall : IconSize.Medium} />}
       iconOnly
       selectedIndex={selectedSort}

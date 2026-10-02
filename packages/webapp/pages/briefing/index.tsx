@@ -54,6 +54,8 @@ import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPl
 import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
 import { isBriefGenerationPending } from '@dailydotdev/shared/src/features/briefing/hooks/useGenerateBrief';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -194,16 +196,17 @@ const Page = (): ReactElement => {
                       onClick={() => router.push('/briefing/generate')}
                       size={ButtonSize.Small}
                       variant={ButtonVariant.Primary}
+                      className="!size-[2.375rem] !rounded-14"
                     />
                   )}
-                  <Button
-                    icon={<SettingsIcon className="text-text-secondary" />}
+                  <ShellSquare
                     aria-label="Briefing settings"
                     onClick={() => {
                       router?.push(`${settingsUrl}/notifications`);
                     }}
-                    size={ButtonSize.Small}
-                  />
+                  >
+                    <SettingsIcon size={IconSize.Small} />
+                  </ShellSquare>
                 </div>
               }
             />

@@ -204,8 +204,12 @@ function BaseDrawer({
     };
   }, []);
 
+  // A sheet locks the page too: the scrim says the page is not for now,
+  // and WebKit would otherwise scroll it under a finger on the sheet.
+  const locksPage = isFullScreen || isSheet;
+
   useEffect(() => {
-    if (!isFullScreen) {
+    if (!locksPage) {
       return undefined;
     }
 
@@ -244,7 +248,7 @@ function BaseDrawer({
         window.scrollTo(0, lockedScrollY);
       }
     };
-  }, [isFullScreen]);
+  }, [locksPage]);
 
   // WKWebView extends the scroll range by the keyboard inset and pans to
   // reveal the focused input, a native scroll the body pin cannot stop.
@@ -401,6 +405,7 @@ function BaseDrawer({
             {isSheet && (
               <CloseButton
                 size={ButtonSize.Small}
+                variant={ButtonVariant.Float}
                 aria-label="Close"
                 onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
               />
