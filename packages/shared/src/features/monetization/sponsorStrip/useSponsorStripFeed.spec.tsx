@@ -1,14 +1,20 @@
 import { renderHook } from '@testing-library/react';
 import type { StatuslineItem } from '../../../graphql/statusline';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureSponsorStripBreakingNews } from '../../../lib/featureManagement';
 import { useSponsorStrip } from './useSponsorStrip';
 import { useSponsorStripFeed } from './useSponsorStripFeed';
 import { useStripHeadlines } from './useStripHeadlines';
 
 jest.mock('./useSponsorStrip', () => ({ useSponsorStrip: jest.fn() }));
 jest.mock('./useStripHeadlines', () => ({ useStripHeadlines: jest.fn() }));
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
+}));
 
 const mockStrip = jest.mocked(useSponsorStrip);
 const mockHeadlines = jest.mocked(useStripHeadlines);
+const mockFeature = jest.mocked(useConditionalFeature);
 
 const headline = { id: 'h1' } as StatuslineItem;
 
@@ -24,6 +30,10 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockStrip.mockReturnValue(true);
   mockHeadlines.mockReturnValue(settled([headline]));
+  mockFeature.mockReturnValue({
+    value: featureSponsorStripBreakingNews.defaultValue,
+    isLoading: false,
+  });
 });
 
 it('should hand the suppression to the strip gate', () => {
@@ -38,6 +48,33 @@ it('should not query headlines when the strip is off', () => {
   mockStrip.mockReturnValue(false);
   render();
 
+  expect(mockHeadlines).toHaveBeenCalledWith(false);
+  expect(mockFeature).toHaveBeenCalledWith({
+    feature: featureSponsorStripBreakingNews,
+    shouldEvaluate: false,
+  });
+});
+
+it('should evaluate breaking news only when the strip is on', () => {
+  render();
+
+  expect(mockFeature).toHaveBeenCalledWith({
+    feature: featureSponsorStripBreakingNews,
+    shouldEvaluate: true,
+  });
+  expect(mockHeadlines).toHaveBeenCalledWith(true);
+});
+
+it('should keep the sponsors and stop querying the ticker when breaking news is off', () => {
+  mockFeature.mockReturnValue({ value: false, isLoading: false });
+  mockHeadlines.mockReturnValue(settled([]));
+
+  const { result } = render();
+
+  expect(result.current.isEnabled).toBe(true);
+  expect(result.current.isBreakingNewsEnabled).toBe(false);
+  expect(result.current.headlines).toEqual([]);
+  expect(result.current.headlinesSettled).toBe(true);
   expect(mockHeadlines).toHaveBeenCalledWith(false);
 });
 
