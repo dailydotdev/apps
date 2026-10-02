@@ -1,8 +1,10 @@
 import { motion } from './constants';
 
-// A bottom sheet follows the finger: down 1:1, up barely (a hint of
-// rubber band), and a release past a third of its height or a quick flick
-// dismisses it; anything less springs it back. The drag starts only when
+// A bottom sheet follows the finger: down 1:1, and a release past a third
+// of its height or a quick flick dismisses it; anything less springs it
+// back. A swipe up grows it to the top whatever its content's height (the
+// Claude app's sheets do the same; a short list just leaves room below),
+// and a short drag down brings it back to rest. The drag starts only when
 // the sheet's own content is scrolled to the top, so a list inside keeps
 // scrolling. The dismiss leaves --sheet-drag on the panel so a closing
 // animation can start from where the finger let go.
@@ -10,8 +12,8 @@ interface SheetDragOptions {
   // The element whose scroll position decides whether a downward touch
   // drags the sheet or scrolls its content; the panel by default.
   scroller?: () => HTMLElement | null;
-  // A sheet taller than its resting height grows to the top on the first
-  // upward swipe and shrinks back on a short downward drag.
+  // A sheet grows to the top on the first upward swipe and shrinks back on
+  // a short downward drag.
   expandable?: boolean;
 }
 
@@ -31,19 +33,33 @@ export const attachSheetDrag = (
   let expanding = false;
 
   const isExpanded = () => panel.getAttribute('data-expanded') === 'true';
-  const canExpand = () => {
-    const content = scroller() ?? panel;
-    return (
-      expandable &&
-      !isExpanded() &&
-      content.scrollHeight > content.clientHeight + 1
-    );
-  };
+  const canExpand = () => expandable && !isExpanded();
 
   const settle = () => {
     panel.removeAttribute('data-dragging');
     style.transform = '';
     style.transition = '';
+  };
+
+  // A height transition needs a number at both ends: the resting height is
+  // pinned before the sheet grows and restored before it shrinks.
+  let restHeight = 0;
+  const expand = () => {
+    restHeight = panel.offsetHeight;
+    style.height = `${restHeight}px`;
+    requestAnimationFrame(() => panel.setAttribute('data-expanded', 'true'));
+  };
+  const collapse = () => {
+    style.height = `${panel.offsetHeight}px`;
+    panel.removeAttribute('data-expanded');
+    requestAnimationFrame(() => {
+      style.height = `${restHeight}px`;
+      const clear = () => {
+        style.height = '';
+        panel.removeEventListener('transitionend', clear);
+      };
+      panel.addEventListener('transitionend', clear);
+    });
   };
 
   // A finger on a field, or inside a list that is scrolled, is not a drag.
@@ -94,7 +110,7 @@ export const attachSheetDrag = (
         tracking = false;
         if (canExpand()) {
           expanding = true;
-          panel.setAttribute('data-expanded', 'true');
+          expand();
           event.preventDefault();
         }
         return;
@@ -120,14 +136,14 @@ export const attachSheetDrag = (
     const velocity = dy / Math.max(1, event.timeStamp - startTime);
     const far = dy > panel.offsetHeight / 3 || velocity > 0.6;
     if (far && isExpanded()) {
-      panel.removeAttribute('data-expanded');
+      collapse();
     } else if (far) {
       settle();
       style.setProperty('--sheet-drag', `${Math.max(0, dy)}px`);
       onDismiss(event);
       return;
     } else if (isExpanded() && dy > collapseDistance) {
-      panel.removeAttribute('data-expanded');
+      collapse();
     }
     panel.removeAttribute('data-dragging');
     style.transition = `transform ${motion.snap}ms ${motion.interaction}`;
@@ -150,5 +166,7 @@ export const attachSheetDrag = (
     panel.removeEventListener('touchend', onTouchEnd);
     panel.removeEventListener('touchcancel', onTouchEnd);
     settle();
+    style.height = '';
+    panel.removeAttribute('data-expanded');
   };
 };

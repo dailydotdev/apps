@@ -9,9 +9,11 @@ import classNames from 'classnames';
 import { inertOthers } from 'aria-hidden';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
-import CloseButton from '../CloseButton';
+import { ShellSquare } from '../shell/ShellSquare';
+import { MiniCloseIcon } from '../icons';
+import { IconSize } from '../Icon';
 import { RootPortal } from '../tooltips/Portal';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { motion } from '../shell/constants';
@@ -405,12 +407,12 @@ function BaseDrawer({
             {/* The grabber says "drag"; the X says "close" to those who
                 never swipe a sheet. */}
             {isSheet && (
-              <CloseButton
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Float}
+              <ShellSquare
                 aria-label="Close"
                 onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
-              />
+              >
+                <MiniCloseIcon size={IconSize.Small} />
+              </ShellSquare>
             )}
           </h3>
         )}

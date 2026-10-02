@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import React, {
   createContext,
+  useCallback,
   isValidElement,
   useContext,
   useRef,
@@ -171,17 +172,30 @@ export const DropdownMenuContent = React.forwardRef<
     // of this wrapper, so an effect here can run before the panel exists
     // (WebKit showed it: the effect saw no panel and the sheet never
     // dragged). The ref callback sees the node the moment it arrives.
-    const setPanelRef = (node: HTMLDivElement | null) => {
-      assignRef(forwardedRef, node);
-      detachDrag.current?.();
-      detachDrag.current = undefined;
-      if (node && isPhone) {
-        detachDrag.current = attachSheetDrag(node, () => closeRef.current(), {
-          scroller: () => scrollRef.current,
-          expandable: false,
-        });
-      }
-    };
+    // Stable, or React would re-run it on every render of the content and
+    // re-attach the drag in the middle of a gesture.
+    const panelRef = useRef<HTMLDivElement | null>(null);
+    const setPanelRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        assignRef(forwardedRef, node);
+        // Radix recomposes its refs on every render, so this is called with
+        // null and the same node again and again; the drag stays attached
+        // until a different node arrives.
+        if (!node || node === panelRef.current) {
+          return;
+        }
+        panelRef.current = node;
+        detachDrag.current?.();
+        detachDrag.current = undefined;
+        if (isPhone) {
+          detachDrag.current = attachSheetDrag(node, () => closeRef.current(), {
+            scroller: () => scrollRef.current,
+          });
+        }
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [isPhone],
+    );
 
     return (
       <DropdownMenuPortal container={container}>

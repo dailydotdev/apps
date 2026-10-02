@@ -1,7 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import CloseButton from '../../CloseButton';
+import { ShellSquare } from '../../shell/ShellSquare';
+import { MiniCloseIcon, ArrowIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import classed from '../../../lib/classed';
 import type { ModalTabsProps } from './ModalTabs';
 import { ModalTabs } from './ModalTabs';
@@ -9,7 +11,6 @@ import { ModalClose } from './ModalClose';
 import { ModalHeaderKind, ModalPropsContext } from './types';
 import type { ButtonProps, IconType } from '../../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ArrowIcon } from '../../icons';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';
 
@@ -81,12 +82,9 @@ export function ModalHeader({
           </h3>
         )}
         {shouldShowClose && (
-          <CloseButton
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Float}
-            aria-label="Close"
-            onClick={onRequestClose}
-          />
+          <ShellSquare aria-label="Close" onClick={onRequestClose}>
+            <MiniCloseIcon size={IconSize.Small} />
+          </ShellSquare>
         )}
       </div>
     );

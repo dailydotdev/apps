@@ -162,6 +162,7 @@
 
 .shell-sheet-panel {
   transition: transform var(--shell-duration-enter) var(--shell-ease-travel),
+    height var(--shell-duration-snap) var(--shell-ease-interaction),
     max-height var(--shell-duration-snap) var(--shell-ease-interaction),
     border-radius var(--shell-duration-snap) var(--shell-ease-interaction);
 }
@@ -169,8 +170,24 @@
 /* A tall sheet pulled up: it meets the top of the screen and reads as a
    page until a short drag down brings it back to rest. */
 .shell-sheet-panel[data-expanded='true'] {
+  height: 100% !important;
   max-height: 100% !important;
   border-radius: 0 !important;
+}
+
+/* The menu sheet grows the same way; its list stops capping itself. */
+.shell-menu-sheet[data-expanded='true'] {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  border-radius: 0 !important;
+  padding-top: calc(var(--safe-area-top, 0px) + 0.75rem) !important;
+}
+
+.shell-menu-sheet[data-expanded='true'] > div {
+  flex: 1;
+  max-height: none;
 }
 
 /* Under the status bar the grabber keeps clear of it; the sheet's own
@@ -257,6 +274,11 @@
     border-radius: 0.125rem;
     background: var(--theme-border-subtlest-secondary);
     transform: translateX(-50%);
+  }
+
+  .shell-menu-sheet {
+    transition: height var(--shell-duration-snap) var(--shell-ease-interaction),
+      border-radius var(--shell-duration-snap) var(--shell-ease-interaction);
   }
 
   .shell-menu-sheet[data-dragging='true'] {
