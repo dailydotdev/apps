@@ -24,11 +24,13 @@ import type {
   PluginsData,
 } from '@dailydotdev/shared/src/graphql/plugins';
 import {
+  marketplaceSubmissionsUrl,
   marketplaceSubmitUrl,
   PLUGINS_QUERY,
   pluginsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PluginCard } from '../../components/marketplace/PluginCard';
 import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -63,6 +65,7 @@ const getMarketplaceSchema = (plugins: Plugin[]): string =>
   });
 
 const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
+  const { user } = useAuthContext();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query.trim(), 300);
   const { data: searchResults, isFetching } = useQuery({
@@ -98,15 +101,27 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
               daily.dev API.
             </Typography>
           </div>
-          <Button
-            tag="a"
-            href={marketplaceSubmitUrl}
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-          >
-            Submit a plugin
-          </Button>
+          <div className="flex gap-2">
+            {user && (
+              <Button
+                tag="a"
+                href={marketplaceSubmissionsUrl}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+              >
+                Your plugins
+              </Button>
+            )}
+            <Button
+              tag="a"
+              href={marketplaceSubmitUrl}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+            >
+              Submit a plugin
+            </Button>
+          </div>
         </div>
         <SearchField
           inputId="marketplace-search"

@@ -12,14 +12,12 @@ import {
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import {
+  marketplaceSubmissionsUrl,
   marketplaceUrl,
   myPluginsQueryOptions,
-  myPluginSubmissionsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
 import { PluginSubmitForm } from '../../components/marketplace/PluginSubmitForm';
-import { MyPluginsList } from '../../components/marketplace/MyPluginsList';
 import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -36,23 +34,11 @@ const SubmitPluginPage = (): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const { data: plugins = [] } = useQuery(myPluginsQueryOptions(user?.id));
-  const { data: submissions = [] } = useQuery(
-    myPluginSubmissionsQueryOptions(user?.id),
-  );
   const editId = router.query.edit as string | undefined;
   const editing = useMemo(
     () => plugins.find((plugin) => plugin.id === editId),
     [plugins, editId],
   );
-
-  const setEditing = (plugin?: Plugin) =>
-    router.replace(
-      plugin
-        ? { query: { edit: plugin.id } }
-        : { pathname: '/marketplace/submit' },
-      undefined,
-      { shallow: true },
-    );
 
   return (
     <MarketplaceFeatureGate>
@@ -64,26 +50,21 @@ const SubmitPluginPage = (): ReactElement => {
             </a>
           </Link>
           <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
-            Share a plugin
+            {editing ? `Update ${editing.name}` : 'Share a plugin'}
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            A plugin is a SKILL.md and/or a GitHub repository that teaches an
-            agent a workflow on top of the daily.dev API. The daily.dev team
+            A plugin is an about page plus agent instructions (SKILL.md), a
+            link, or both, built on top of the daily.dev API. The daily.dev team
             reviews every submission before it goes live.
           </Typography>
         </div>
         <PluginSubmitForm
           key={editing?.id ?? 'new'}
           plugin={editing}
-          onSubmitted={() => setEditing()}
-        />
-        <MyPluginsList
-          plugins={plugins}
-          submissions={submissions}
-          onEdit={setEditing}
+          onSubmitted={() => router.push(marketplaceSubmissionsUrl)}
         />
       </PageWrapperLayout>
     </MarketplaceFeatureGate>

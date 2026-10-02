@@ -113,9 +113,6 @@ export const PluginSubmitForm = ({
 
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-      <Typography type={TypographyType.Body} bold>
-        {plugin ? `Update ${plugin.name}` : 'Submit a plugin'}
-      </Typography>
       <TextField
         label="Name"
         inputId="plugin-name"

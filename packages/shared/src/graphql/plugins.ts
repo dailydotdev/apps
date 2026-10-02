@@ -18,6 +18,8 @@ export const marketplaceUrl = `${webappUrl}marketplace`;
 
 export const marketplaceSubmitUrl = `${marketplaceUrl}/submit`;
 
+export const marketplaceSubmissionsUrl = `${marketplaceUrl}/submissions`;
+
 export const getMarketplacePluginUrl = (id: string): string =>
   `${marketplaceUrl}/${id}`;
 
