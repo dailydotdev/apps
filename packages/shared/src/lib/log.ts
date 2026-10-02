@@ -338,6 +338,9 @@ export enum LogEvent {
   SetIntegration = 'set integration',
   RemoveIntegration = 'remove integration',
   RevokeIntegrationAccess = 'revoke integration access',
+  CreateSlackDigest = 'slack digest create',
+  UpdateSlackDigest = 'slack digest update',
+  DeleteSlackDigest = 'slack digest delete',
   // End integrations
   // Post snippets
   CopySnippet = 'copy snippet',

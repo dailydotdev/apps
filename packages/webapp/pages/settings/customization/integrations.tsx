@@ -15,6 +15,8 @@ import { UserIntegrationItem } from '@dailydotdev/shared/src/components/integrat
 import { NewUserIntegration } from '@dailydotdev/shared/src/components/integrations/NewUserIntegration';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureSlackTeamDigest } from '@dailydotdev/shared/src/lib/featureManagement';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo, noindexSeoProps } from '../../../next-seo';
@@ -36,6 +38,12 @@ const AccountIntegrationsPage = (): ReactElement => {
   const { data } = useIntegrationsQuery();
 
   const hasNoIntegrations = data && !data.length;
+  const { value: isTeamDigestEnabled } = useConditionalFeature({
+    feature: featureSlackTeamDigest,
+    shouldEvaluate: !!data?.some(
+      ({ type }) => type === UserIntegrationType.Slack,
+    ),
+  });
 
   const onConnectNew = useCallback(() => {
     logEvent({
@@ -68,6 +76,7 @@ const AccountIntegrationsPage = (): ReactElement => {
               key={integration.id}
               isOpen={state.openIntegration?.id === integration.id}
               integration={integration}
+              showSlackDigests={isTeamDigestEnabled}
               onToggle={() => {
                 setState({
                   openIntegration:
