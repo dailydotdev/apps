@@ -110,7 +110,7 @@ export function ReportPostModal({
   ...props
 }: Props): ReactElement {
   const { logEvent } = useLogContext();
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
   const reportOptionsForActiveReason = useCallback(
     (reason: string) => {
@@ -173,7 +173,7 @@ export function ReportPostModal({
       onReported(post, { index, shouldBlockSource: inputRef.current?.checked });
     }
 
-    props.onRequestClose(event);
+    props.onRequestClose?.(event);
   };
 
   return (
