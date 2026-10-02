@@ -159,6 +159,12 @@ export function Header({
 
   const optionsMenu = !isSameUser && (
     <CustomFeedOptionsMenu
+      className={{
+        button: isPhone
+          ? 'shell-material !size-[2.375rem] !rounded-14 !p-0'
+          : undefined,
+      }}
+      buttonVariant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
       onAdd={(feedId) =>
         follow({
           id: user.id,

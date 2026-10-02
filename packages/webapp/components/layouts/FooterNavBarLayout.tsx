@@ -29,7 +29,14 @@ function FooterSpacer({
     return <div className={mobileAppFooterHeight} />;
   }
 
-  return <div className={post ? 'h-44 tablet:hidden' : 'h-20 tablet:hidden'} />;
+  // The bar's own height comes from the cluster (--shell-bottom); a post
+  // page adds its floating action bar on top of it.
+  return (
+    <div
+      className={post ? 'h-44 tablet:hidden' : 'tablet:hidden'}
+      style={post ? undefined : { height: 'var(--shell-bottom, 5rem)' }}
+    />
+  );
 }
 
 function ClusterSlot(): ReactElement | null {

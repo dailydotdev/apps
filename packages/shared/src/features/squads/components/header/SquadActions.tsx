@@ -197,7 +197,12 @@ export const SquadBlockActions = (): ReactElement => {
       >
         <SearchIcon size={IconSize.Small} />
       </ShellSquare>
-      {!isMobileAppHeader && <SquadOptionsMenu />}
+      {!isMobileAppHeader && (
+        <SquadOptionsMenu
+          variant={ButtonVariant.Tertiary}
+          className="shell-material !size-[2.375rem] !rounded-14 !p-0"
+        />
+      )}
     </>
   );
 };

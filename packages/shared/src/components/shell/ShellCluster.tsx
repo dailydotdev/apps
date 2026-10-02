@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
@@ -89,6 +89,17 @@ export function ShellCluster({
       trigger: AuthTriggers.FromNotification,
     },
   ];
+
+  // The space the bar takes at rest, for content that must clear it.
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--shell-bottom',
+      `${cluster.rest + cluster.lift * 2}px`,
+    );
+    return () => {
+      document.documentElement.style.removeProperty('--shell-bottom');
+    };
+  }, []);
 
   const height = lerp(cluster.rest, cluster.compact, p);
   const radius = lerp(cluster.radiusRest, cluster.radiusCompact, p);

@@ -42,7 +42,7 @@ const AddToCustomFeedModal = ({
   };
 
   return (
-    <Modal {...props}>
+    <Modal isDrawerOnMobile {...props}>
       <ModalHeader title="Add to custom feed" />
       <Modal.Body>
         <Button

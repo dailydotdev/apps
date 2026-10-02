@@ -88,6 +88,7 @@ const BookmarkFolderModal = ({
         },
         copy: { right: `${folder ? 'Update' : 'Create'} folder` },
       }}
+      isDrawerOnMobile
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       {...rest}

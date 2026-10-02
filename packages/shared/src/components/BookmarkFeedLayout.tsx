@@ -199,12 +199,17 @@ export default function BookmarkFeedLayout({
     return null;
   }
 
+  // In the block the controls are the shell's 38px squares.
+  const blockButtonClassName = isPhone
+    ? 'shell-material !size-[2.375rem] !rounded-14 !p-0'
+    : undefined;
+
   const sortDropdown = !isSearchResults && (
     <Dropdown
       className={{
         label: 'hidden',
         chevron: 'hidden',
-        button: isV2Laptop ? undefined : '!px-1',
+        button: blockButtonClassName ?? (isV2Laptop ? undefined : '!px-1'),
         container: isV2Laptop || isPhone ? 'flex' : 'ml-4 flex',
       }}
       shouldIndicateSelected
@@ -213,7 +218,9 @@ export default function BookmarkFeedLayout({
       selectedIndex={selectedSort}
       options={bookmarkSortOptionLabels}
       onChange={(_, index) => setSelectedSort(index)}
-      buttonVariant={isV2Laptop ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      buttonVariant={
+        isV2Laptop || isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float
+      }
       buttonSize={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
       drawerProps={{ displayCloseButton: true }}
     />
@@ -221,7 +228,7 @@ export default function BookmarkFeedLayout({
   const shareButton = !isFolderPage && (
     <Button
       aria-label="Share bookmarks"
-      className={isV2Laptop || isPhone ? undefined : 'ml-4 flex'}
+      className={blockButtonClassName ?? (isV2Laptop ? undefined : 'ml-4 flex')}
       icon={
         <ShareIcon
           size={isV2Laptop ? IconSize.XSmall : IconSize.Medium}

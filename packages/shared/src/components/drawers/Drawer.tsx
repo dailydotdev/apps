@@ -456,7 +456,7 @@ function BaseDrawer({
         >
           {children}
         </ConditionalWrapper>
-        {displayCloseButton && (
+        {displayCloseButton && !isSheet && (
           <div
             className={classNames(
               'sticky -bottom-3 bg-background-default',

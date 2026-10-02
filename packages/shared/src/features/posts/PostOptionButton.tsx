@@ -3,6 +3,8 @@ import type { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { PostOptionsSheet } from './PostOptionsSheet';
 import {
   AddUserIcon,
   BellAddIcon,
@@ -445,6 +447,8 @@ const PostOptionButtonContent = ({
     );
   };
 
+  const isPhone = useViewSize(ViewSize.MobileL);
+
   const contentTypeItem = useFeedContentTypeAction({
     post,
     customFeedId,
@@ -455,6 +459,7 @@ const PostOptionButtonContent = ({
   const postOptions: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
+      id: 'share',
       label: 'Share via',
       action: () =>
         openSharePost({
@@ -467,6 +472,7 @@ const PostOptionButtonContent = ({
   if (canViewPostAnalytics({ user, post })) {
     postOptions.push({
       icon: <MenuIcon Icon={AnalyticsIcon} />,
+      id: 'analytics',
       label: 'Post analytics',
       anchorProps: {
         href: `${webappUrl}posts/${post.id}/analytics`,
@@ -477,12 +483,14 @@ const PostOptionButtonContent = ({
   if (!isBriefPost) {
     postOptions.push({
       icon: <MenuIcon Icon={EyeIcon} />,
+      id: 'hide',
       label: 'Hide',
       action: onHide,
     });
 
     postOptions.push({
       icon: <MenuIcon Icon={FlagIcon} />,
+      id: 'report',
       label: 'Report',
       action: async () =>
         openModal({
@@ -501,6 +509,7 @@ const PostOptionButtonContent = ({
   if (isBriefPost) {
     postOptions.push({
       icon: <MenuIcon Icon={SettingsIcon} />,
+      id: 'settings',
       label: 'Settings',
       action: () => {
         router?.push(`${settingsUrl}/notifications`);
@@ -538,6 +547,7 @@ const PostOptionButtonContent = ({
           secondary={isBoosted}
         />
       ),
+      id: 'boost',
       label: isBoosted ? 'Manage ad' : 'Boost post',
       action: isBoosted ? onManageBoost : onBoostPost,
     });
@@ -557,6 +567,7 @@ const PostOptionButtonContent = ({
           secondary={post?.userState?.vote === UserVote.Down}
         />
       ),
+      id: 'downvote',
       label: 'Downvote',
       action: onToggleDownvotePost,
     });
@@ -572,6 +583,7 @@ const PostOptionButtonContent = ({
       icon: (
         <MenuIcon Icon={BookmarkReminderIcon} secondary={hasPostReminder} />
       ),
+      id: 'later',
       label: hasPostReminder ? 'Edit reminder' : 'Read it later',
       action: () => {
         openModal({
@@ -583,6 +595,7 @@ const PostOptionButtonContent = ({
 
     postOptions.push({
       icon: <MenuIcon Icon={LanguageIcon} />,
+      id: 'translate',
       label: 'Translate',
       action: () => {
         if (isPlus) {
@@ -614,6 +627,7 @@ const PostOptionButtonContent = ({
       // Remove
       postOptions.push({
         icon: <MenuIcon Icon={MiniCloseIcon} />,
+        id: 'remove-reminder',
         label: 'Remove reminder',
         action: () => {
           onRemoveReminder(post.id);
@@ -624,6 +638,7 @@ const PostOptionButtonContent = ({
     if (post?.bookmark) {
       postOptions.push({
         icon: <MenuIcon Icon={FolderIcon} />,
+        id: 'move',
         label: 'Move to...',
         action: () => {
           if (!isPlus) {
@@ -666,6 +681,7 @@ const PostOptionButtonContent = ({
   if (shouldShowSubscribe) {
     postOptions.push({
       icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
+      id: 'follow-source',
       label: `${isFollowing ? 'Unfollow' : 'Follow'} ${source.name}`,
       action: toggleFollow,
     });
@@ -677,6 +693,7 @@ const PostOptionButtonContent = ({
             Icon={haveNotificationsOn ? BellSubscribedIcon : BellAddIcon}
           />
         ),
+        id: 'notify-source',
         label: haveNotificationsOn
           ? `Remove notifications from ${source.name}`
           : `Notify on new post from ${source.name}`,
@@ -696,6 +713,7 @@ const PostOptionButtonContent = ({
 
     postOptions.push({
       icon: <MenuIcon Icon={isFollowingUser ? RemoveUserIcon : AddUserIcon} />,
+      id: 'follow-author',
       label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
       action: () => {
         const opts = {
@@ -727,6 +745,7 @@ const PostOptionButtonContent = ({
   if (!isBriefPost && source.name && !isSourceUserSource(source)) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
+      id: 'block-source',
       label: getBlockLabel(source.name, {
         isCustomFeed,
         isBlocked: isSourceBlocked,
@@ -738,6 +757,7 @@ const PostOptionButtonContent = ({
   if (author && authorName && author.id !== user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
+      id: 'block-author',
       label: getBlockLabel(authorName, {
         isCustomFeed,
         isBlocked: isBlockedAuthor,
@@ -787,7 +807,7 @@ const PostOptionButtonContent = ({
   }
 
   if (contentTypeItem) {
-    postOptions.push(contentTypeItem);
+    postOptions.push({ ...contentTypeItem, id: 'content-type' });
   }
 
   if (!isBriefPost) {
@@ -799,6 +819,7 @@ const PostOptionButtonContent = ({
         }
         postOptions.push({
           icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
+          id: 'block-tag',
           label: isBlocked ? `Unblock #${tag}` : `Block #${tag}`,
           action: () => onToggleTagBlock(tag, isBlocked),
         });
@@ -812,6 +833,7 @@ const PostOptionButtonContent = ({
     ) {
       postOptions.push({
         icon: <MenuIcon Icon={EditIcon} />,
+        id: 'edit',
         label: 'Edit post',
         action: () => {
           // Moderation items keep the dedicated page: it edits a pending
@@ -833,6 +855,7 @@ const PostOptionButtonContent = ({
     if (onConfirmDeletePost) {
       postOptions.push({
         icon: <MenuIcon Icon={TrashIcon} />,
+        id: 'delete',
         label: 'Delete post',
         action: onConfirmDeletePost,
       });
@@ -844,6 +867,7 @@ const PostOptionButtonContent = ({
           icon: (
             <MenuIcon Icon={SendBackwardIcon} secondary={!!post.pinnedAt} />
           ),
+          id: 'backward',
           label: 'Send backward',
           action: () => onSwapPinnedPost({ swapWithId: nextPost.id }),
         });
@@ -854,6 +878,7 @@ const PostOptionButtonContent = ({
           icon: (
             <MenuIcon Icon={BringForwardIcon} secondary={!!post.pinnedAt} />
           ),
+          id: 'forward',
           label: 'Bring forward',
           action: () => onSwapPinnedPost({ swapWithId: prevPost.id }),
         });
@@ -863,6 +888,7 @@ const PostOptionButtonContent = ({
     if (allowPin && onPinPost) {
       postOptions.unshift({
         icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
+        id: 'pin',
         label: post.pinnedAt ? 'Unpin from top' : 'Pin to top',
         action: onPinPost,
       });
@@ -871,6 +897,7 @@ const PostOptionButtonContent = ({
     if (isModerator) {
       postOptions.push({
         icon: <MenuIcon Icon={HammerIcon} />,
+        id: 'ban',
         label: 'Ban',
         action: banPostPrompt,
       });
@@ -879,6 +906,7 @@ const PostOptionButtonContent = ({
       const promoteFlag = post.flags?.promoteToPublic;
       postOptions.push({
         icon: <MenuIcon Icon={promoteFlag ? DownvoteIcon : UpvoteIcon} />,
+        id: 'promote',
         label: promoteFlag ? 'Demote' : 'Promote',
         action: promotePostPrompt,
       });
@@ -888,6 +916,7 @@ const PostOptionButtonContent = ({
       const isClickbait = post.clickbaitTitleDetected;
       postOptions.push({
         icon: <MenuIcon Icon={isClickbait ? ShieldIcon : ShieldWarningIcon} />,
+        id: 'clickbait',
         label: isClickbait ? 'Remove clickbait' : 'Mark as clickbait',
         action: clickbaitPostPrompt,
       });
@@ -896,7 +925,11 @@ const PostOptionButtonContent = ({
 
   return (
     <DropdownMenuContent>
-      <DropdownMenuOptions options={postOptions} />
+      {isPhone ? (
+        <PostOptionsSheet options={postOptions} />
+      ) : (
+        <DropdownMenuOptions options={postOptions} />
+      )}
     </DropdownMenuContent>
   );
 };

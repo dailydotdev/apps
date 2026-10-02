@@ -178,6 +178,7 @@ export function ReportPostModal({
 
   return (
     <ReasonSelectionModal
+      isDrawerOnMobile
       {...props}
       isOpen
       onReport={onReportPost}

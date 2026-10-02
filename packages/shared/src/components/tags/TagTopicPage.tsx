@@ -69,6 +69,7 @@ import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { webappUrl } from '../../lib/constants';
@@ -230,6 +231,7 @@ export const TagTopicPage = ({
   jsonLd,
 }: TagTopicPageProps): ReactElement => {
   const { push } = useRouter();
+  const isPhone = useViewSize(ViewSize.MobileL);
   const queryClient = useQueryClient();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
@@ -451,7 +453,12 @@ export const TagTopicPage = ({
                   {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
                 </Button>
               )}
-              <CopyLinkButton origin={Origin.TagPage} shareProps={shareProps} />
+              {!isPhone && (
+                <CopyLinkButton
+                  origin={Origin.TagPage}
+                  shareProps={shareProps}
+                />
+              )}
               <CustomFeedOptionsMenu
                 onCreateNewFeed={() =>
                   push(
