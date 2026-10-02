@@ -1,5 +1,6 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
   Typography,
@@ -23,6 +24,22 @@ export const getPluginLinkHost = (url: string): string => {
   }
 };
 
+const PluginLabel = ({
+  className,
+  children,
+}: {
+  className: string;
+  children: ReactNode;
+}): ReactElement => (
+  <Typography
+    type={TypographyType.Caption1}
+    bold
+    className={classNames('rounded-8 px-2 py-0.5', className)}
+  >
+    {children}
+  </Typography>
+);
+
 interface PluginCardProps {
   plugin: Plugin;
 }
@@ -34,15 +51,16 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => (
         <Typography type={TypographyType.Body} bold className="line-clamp-1">
           {plugin.name}
         </Typography>
-        {plugin.hasSkillMd && (
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="shrink-0 rounded-8 bg-surface-float px-2 py-0.5"
-          >
-            Agent skill
-          </Typography>
-        )}
+        <span className="flex shrink-0 gap-1">
+          <PluginLabel className="bg-accent-cabbage-flat text-accent-cabbage-default">
+            Plugin
+          </PluginLabel>
+          {plugin.hasSkillMd && (
+            <PluginLabel className="bg-accent-avocado-flat text-accent-avocado-default">
+              Agent skill
+            </PluginLabel>
+          )}
+        </span>
       </div>
       <Typography
         type={TypographyType.Callout}

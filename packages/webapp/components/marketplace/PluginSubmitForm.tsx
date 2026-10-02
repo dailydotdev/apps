@@ -143,6 +143,7 @@ export const PluginSubmitForm = ({
           onValueUpdate={setField('about')}
           maxInputLength={PLUGIN_ABOUT_MAX_LENGTH}
           enabledCommand={{ [MarkdownCommand.Emoji]: true }}
+          disallowLinks
           textareaProps={{
             name: 'about',
             placeholder: 'What it does and how to use it',
