@@ -722,7 +722,7 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     id: NotificationType.CreatorAchievement,
     label: 'Creator achievements',
     description:
-      'Get notified when your posts earn recognition, like a Best of ranking or a milestone.',
+      'Get notified when you earn a creator achievement, like a top spot in a monthly category ranking.',
     group: false,
   },
 ];
