@@ -1088,7 +1088,7 @@ const UPLOAD_CV_MUTATION = gql`
 export const uploadCv = (file: File) =>
   gqlClient.request(UPLOAD_CV_MUTATION, { resume: file });
 
-const UPDATE_NOTIFICATION_SETTINGS_MUTATION = gql`
+export const UPDATE_NOTIFICATION_SETTINGS_MUTATION = gql`
   mutation UpdateNotificationSettings($notificationFlags: JSON!) {
     updateNotificationSettings(notificationFlags: $notificationFlags) {
       _

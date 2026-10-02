@@ -160,6 +160,18 @@ const EmailNotificationsTab = (): ReactElement => {
               )
             }
           />
+          <NotificationSwitch
+            id={NotificationType.CreatorAchievement}
+            label="Creator achievements"
+            description="Get an email when your posts earn recognition, like a Best of ranking or a milestone."
+            checked={
+              ns?.[NotificationType.CreatorAchievement]?.email ===
+              NotificationPreferenceStatus.Subscribed
+            }
+            onToggle={() =>
+              toggleSetting(NotificationType.CreatorAchievement, 'email')
+            }
+          />
           {showOpportunitiesToggle && (
             <NotificationSwitch
               id="opportunities"
