@@ -44,6 +44,14 @@ export const cluster = {
   dragStart: 6,
   // The whole bar lifts this much while a finger is on it.
   pressScale: 1.04,
+  // The glass feel: the pill stretches with the finger's speed, up to 12%,
+  // and the bar leans up to 10px past its ends at 15% of the overshoot.
+  stretchPerPx: 0.004,
+  stretchMax: 0.12,
+  pullRate: 0.15,
+  pullMax: 10,
+  // Lifting the finger this far above or below the bar cancels the choice.
+  cancelDistance: 24,
 };
 
 export const topButton = {

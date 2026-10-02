@@ -191,7 +191,7 @@ export const SheetChoice = ({ items }: { items: RowItem[] }): ReactElement => (
   <div className="flex flex-col py-1">
     {items.map((item) => {
       const className = classNames(
-        'shell-press flex h-12 w-full items-center px-4 text-left typo-callout',
+        'flex h-12 w-full items-center px-4 text-left transition-colors typo-callout hover:bg-surface-hover active:bg-surface-hover',
         item.active ? 'font-bold text-text-primary' : 'text-text-primary',
       );
       const mark = item.active && (

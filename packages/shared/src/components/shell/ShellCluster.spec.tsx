@@ -114,9 +114,9 @@ describe('ShellCluster', () => {
     firePointer('pointerdown', track, 40);
     firePointer('pointermove', track, 60);
     firePointer('pointermove', track, 200);
-    expect(screen.getByTestId('shell-cluster-indicator')).toHaveStyle({
-      transform: 'translateX(160px)',
-    });
+    expect(
+      screen.getByTestId('shell-cluster-indicator').style.transform,
+    ).toMatch(/^translateX\(160px\) scaleX\(/);
 
     firePointer('pointerup', track, 200);
     expect(mockPush).toHaveBeenCalledWith('/squads/discover');
@@ -138,7 +138,7 @@ describe('ShellCluster', () => {
 
     firePointer('pointerdown', track, 40);
     expect(bar).toHaveAttribute('data-pressed', 'true');
-    expect(bar).toHaveStyle({ transform: 'scale(1.04)' });
+    expect(bar).toHaveStyle({ transform: 'translateX(0px) scale(1.04)' });
 
     firePointer('pointerup', track, 40);
     expect(bar).not.toHaveAttribute('data-pressed');
@@ -208,7 +208,9 @@ describe('ShellCluster', () => {
   it('stays away from settings and forms', () => {
     renderCluster('/settings/profile');
 
-    expect(screen.queryByRole('navigation', { name: 'Main' })).toBeNull();
+    expect(
+      screen.queryByRole('navigation', { name: 'Main' }),
+    ).not.toBeInTheDocument();
     expect(
       document.documentElement.style.getPropertyValue('--shell-bottom'),
     ).toBe('');

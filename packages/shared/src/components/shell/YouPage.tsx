@@ -1,30 +1,33 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { logout, useAuthContext } from '../../contexts/AuthContext';
+import { LogoutReason } from '../../lib/user';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import {
   AddUserIcon,
   BookmarkIcon,
-  CoreFlatIcon,
+  CoreIcon,
   DevCardIcon,
   DevPlusIcon,
+  ExitIcon,
   FeedbackIcon,
+  FilterIcon,
   HelpIcon,
   MagicIcon,
-  ReadingStreakIcon,
   ReputationIcon,
   SettingsIcon,
   TimerIcon,
   UserIcon,
 } from '../icons';
-import { Drawer } from '../drawers/Drawer';
+import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
-import { ReadingStreakPopup } from '../streak/popup/ReadingStreakPopup';
-import { useReadingStreak } from '../../hooks/streaks';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { SubscriptionStatus } from '../../lib/plus';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
@@ -33,6 +36,7 @@ import {
   plusUrl,
   settingsUrl,
   docs,
+  reputation as reputationDocsUrl,
   walletUrl,
   webappUrl,
 } from '../../lib/constants';
@@ -41,15 +45,17 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { PlusUser } from '../PlusUser';
 import { ShellPage } from './ShellPageContext';
-import { ShellSquare } from './ShellSquare';
 
 interface YouRowProps {
   icon: (props: IconProps) => ReactElement;
   label: string;
   meta?: string;
   href?: string;
+  external?: boolean;
   onClick?: () => void;
 }
 
@@ -58,6 +64,7 @@ const YouRow = ({
   label,
   meta,
   href,
+  external = false,
   onClick,
 }: YouRowProps): ReactElement => {
   const content = (
@@ -74,7 +81,20 @@ const YouRow = ({
     </>
   );
   const className =
-    'shell-press flex h-12 w-full items-center gap-3 px-4 text-left text-text-primary typo-callout';
+    'flex h-12 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout hover:bg-surface-hover active:bg-surface-hover';
+
+  if (href && external) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {content}
+      </a>
+    );
+  }
 
   if (href) {
     return (
@@ -116,55 +136,76 @@ const YouGroup = ({
 );
 
 // A count the member can act on: the follow counts read inline under the
-// handle, as on the profile; reputation, streak and Cores are tiles in the
-// wallet's language.
-const Stat = ({
+// handle, as on the profile.
+const FollowStat = ({
   amount,
   label,
   onClick,
-  href,
-  icon: Icon,
-  tile = false,
 }: {
   amount: number;
   label: string;
-  onClick?: () => void;
-  href?: string;
-  icon?: (props: IconProps) => ReactElement;
-  tile?: boolean;
+  onClick: () => void;
+}): ReactElement => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex items-center gap-1 rounded-8 transition-colors typo-footnote hover:bg-surface-hover active:bg-surface-hover"
+  >
+    <b className="text-text-primary">{largeNumberFormat(amount)}</b>
+    <span className="text-text-tertiary">{label}</span>
+  </button>
+);
+
+// Reputation and Cores as the v2 rail shows them: one strip, two cells,
+// each a full-height tap target, the number large enough to read at a
+// glance. The streak stays on the Home row.
+const StatCell = ({
+  icon,
+  amount,
+  label,
+  href,
+  external = false,
+}: {
+  icon: ReactNode;
+  amount: number;
+  label: string;
+  href: string;
+  external?: boolean;
 }): ReactElement => {
-  const content = tile ? (
+  const className =
+    'flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-hover active:bg-surface-hover';
+  const content = (
     <>
-      <span className="flex items-center gap-1 text-text-tertiary typo-caption1">
-        {Icon && <Icon size={IconSize.Size16} />}
-        {label}
+      {icon}
+      <span className="flex min-w-0 flex-col">
+        <b className="tabular-nums text-text-primary typo-title3">
+          {largeNumberFormat(amount)}
+        </b>
+        <span className="text-text-tertiary typo-caption1">{label}</span>
       </span>
-      <b className="text-text-primary typo-callout">
-        {largeNumberFormat(amount)}
-      </b>
-    </>
-  ) : (
-    <>
-      <b className="text-text-primary">{largeNumberFormat(amount)}</b>
-      <span className="text-text-tertiary">{label}</span>
     </>
   );
-  const className = tile
-    ? 'shell-press flex min-w-0 flex-1 flex-col items-start gap-0.5 rounded-14 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-left'
-    : 'shell-press flex items-center gap-1 typo-footnote';
 
-  if (href) {
+  if (external) {
     return (
-      <Link href={href} passHref>
-        <a className={className}>{content}</a>
-      </Link>
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        aria-label={`${label}: ${amount}`}
+      >
+        {content}
+      </a>
     );
   }
 
   return (
-    <button type="button" onClick={onClick} className={className}>
-      {content}
-    </button>
+    <Link href={href} passHref>
+      <a className={className} aria-label={`${label}: ${amount}`}>
+        {content}
+      </a>
+    </Link>
   );
 };
 
@@ -181,17 +222,24 @@ const usePlusRow = (): { label: string; meta: string } => {
   return { label: 'daily.dev Plus', meta: 'Manage' };
 };
 
-// The page behind the avatar, X's menu: who you are and your counts on
-// top, then the places only this page leads to, then the utilities. It
-// fits one screen; what the tabs already reach (feeds, squads, following)
-// is not repeated here.
-export function YouPage(): ReactElement | null {
+// Behind the avatar: who you are and your counts on top, then only the
+// places nothing else leads to, then the utilities. One screen, no scroll;
+// what the tabs and the header already reach (feeds, squads, following,
+// the streak) is not repeated here. On a phone it slides in from the left
+// over the page (YouDrawer); /you renders the same panel as a page.
+export function YouPanel({
+  inDrawer = false,
+}: {
+  inDrawer?: boolean;
+}): ReactElement | null {
   const { openModal } = useLazyModal();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { user } = useAuthContext();
-  const { streak } = useReadingStreak();
   const { isPlus } = usePlusSubscription();
   const { data: followStats } = useUserFollowStats(user?.id);
-  const [isStreakOpen, setIsStreakOpen] = useState(false);
+  const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const hasAccessToCores = useHasAccessToCores();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
     useSettingsContext();
@@ -204,6 +252,9 @@ export function YouPage(): ReactElement | null {
   }
 
   const profileUrl = `${webappUrl}${user.username}`;
+  const feedSettingsUrl = isCustomDefaultFeed
+    ? `${webappUrl}feeds/${defaultFeedId}/edit`
+    : `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.Tags}`;
   const followQuery = {
     queryProps: { id: user.id, entity: ContentPreferenceType.User },
   };
@@ -217,27 +268,44 @@ export function YouPage(): ReactElement | null {
     openModal({ type, props: { ...followQuery, placeholderAmount } });
   };
 
+  const helpButton = (
+    <button
+      type="button"
+      onClick={() => setIsHelpOpen(true)}
+      className="shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center gap-1.5 rounded-14 px-3 font-bold text-text-primary typo-callout"
+    >
+      <HelpIcon size={IconSize.Small} />
+      Help
+    </button>
+  );
+
   return (
     <div className="flex flex-col pb-6">
-      <ShellPage
-        title="You"
-        actions={
-          <ShellSquare
-            aria-label="Feedback"
-            onClick={() => openModal({ type: LazyModal.Feedback })}
-          >
-            <FeedbackIcon size={IconSize.Small} />
-          </ShellSquare>
-        }
-      />
+      {!inDrawer && <ShellPage title="You" actions={helpButton} />}
       <div className="flex flex-col gap-3 px-4 pb-4 pt-3">
+        {inDrawer && (
+          <div className="flex items-center justify-between">
+            {helpButton}
+            <Link href={profileUrl} passHref>
+              <a aria-label="Profile">
+                <ProfilePicture
+                  user={user}
+                  size={ProfileImageSize.XXLarge}
+                  nativeLazyLoading
+                />
+              </a>
+            </Link>
+          </div>
+        )}
         <Link href={profileUrl} passHref>
           <a className="flex items-center gap-3">
-            <ProfilePicture
-              user={user}
-              size={ProfileImageSize.XLarge}
-              nativeLazyLoading
-            />
+            {!inDrawer && (
+              <ProfilePicture
+                user={user}
+                size={ProfileImageSize.XLarge}
+                nativeLazyLoading
+              />
+            )}
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="flex min-w-0 items-center gap-1">
                 <span className="truncate font-bold typo-title3">
@@ -252,7 +320,7 @@ export function YouPage(): ReactElement | null {
           </a>
         </Link>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <Stat
+          <FollowStat
             amount={followStats?.numFollowing ?? 0}
             label="Following"
             onClick={() =>
@@ -262,7 +330,7 @@ export function YouPage(): ReactElement | null {
               )
             }
           />
-          <Stat
+          <FollowStat
             amount={followStats?.numFollowers ?? 0}
             label="Followers"
             onClick={() =>
@@ -273,31 +341,37 @@ export function YouPage(): ReactElement | null {
             }
           />
         </div>
-        <div className="flex gap-2">
-          <Stat
-            tile
-            icon={ReputationIcon}
+        <div className="flex items-stretch overflow-hidden rounded-14 border border-border-subtlest-tertiary bg-surface-float">
+          <StatCell
+            icon={
+              <ReputationIcon
+                size={IconSize.Medium}
+                className="text-accent-onion-default"
+              />
+            }
             amount={user.reputation ?? 0}
             label="Reputation"
-            href={profileUrl}
+            href={reputationDocsUrl}
+            external
           />
-          {streak && (
-            <Stat
-              tile
-              icon={ReadingStreakIcon}
-              amount={streak.current}
-              label="Streak"
-              onClick={() => setIsStreakOpen(true)}
-            />
-          )}
           {hasAccessToCores && (
-            <Stat
-              tile
-              icon={CoreFlatIcon}
-              amount={user.balance?.amount ?? 0}
-              label="Cores"
-              href={walletUrl}
-            />
+            <>
+              <span
+                aria-hidden
+                className="w-px self-stretch bg-border-subtlest-tertiary"
+              />
+              <StatCell
+                icon={
+                  <CoreIcon
+                    size={IconSize.Medium}
+                    className="text-accent-cheese-default"
+                  />
+                }
+                amount={user.balance?.amount ?? 0}
+                label="Cores"
+                href={walletUrl}
+              />
+            </>
           )}
         </div>
       </div>
@@ -308,6 +382,11 @@ export function YouPage(): ReactElement | null {
           label={plusRow.label}
           meta={plusRow.meta}
           href={plusUrl}
+        />
+        <YouRow
+          icon={FilterIcon}
+          label="Feed settings"
+          href={feedSettingsUrl}
         />
         <YouRow
           icon={BookmarkIcon}
@@ -337,18 +416,81 @@ export function YouPage(): ReactElement | null {
         <YouRow
           icon={SettingsIcon}
           label="Settings"
-          href={`${settingsUrl}/profile`}
+          onClick={async () => {
+            // On a phone the settings menu is state over the first settings
+            // page; the layout closes it on arrival, so it opens after.
+            await router.push(`${settingsUrl}/profile`);
+            queryClient.setQueryData(
+              generateQueryKey(RequestKey.AccountNavigation),
+              true,
+            );
+          }}
         />
-        <YouRow icon={HelpIcon} label="Help" href={docs} />
+        <YouRow
+          icon={ExitIcon}
+          label="Log out"
+          onClick={() => logout(LogoutReason.ManualLogout)}
+        />
       </YouGroup>
-      {streak && (
-        <RootPortal>
-          <Drawer isOpen={isStreakOpen} onClose={() => setIsStreakOpen(false)}>
-            <ReadingStreakPopup streak={streak} fullWidth />
-          </Drawer>
-        </RootPortal>
-      )}
+      <RootPortal>
+        <Drawer
+          isOpen={isHelpOpen}
+          onClose={() => setIsHelpOpen(false)}
+          title="Help"
+        >
+          <YouRow
+            icon={FeedbackIcon}
+            label="Send feedback"
+            onClick={() => {
+              setIsHelpOpen(false);
+              openModal({ type: LazyModal.Feedback });
+            }}
+          />
+          <YouRow icon={HelpIcon} label="Help center" href={docs} external />
+        </Drawer>
+      </RootPortal>
     </div>
+  );
+}
+
+export function YouPage(): ReactElement | null {
+  return <YouPanel />;
+}
+
+// The phone's menu, X's side panel mirrored: it slides in from the right,
+// under the avatar that opened it, over the page, and leaves on any
+// navigation.
+export function YouDrawer({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}): ReactElement {
+  const router = useRouter();
+
+  useEffect(() => {
+    onClose();
+    // Only the route change closes it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router?.asPath]);
+
+  return (
+    <RootPortal>
+      <Drawer
+        isOpen={isOpen}
+        onClose={onClose}
+        position={DrawerPosition.Right}
+        className={{
+          wrapper:
+            'h-full !max-h-none w-[85%] max-w-[22rem] !rounded-l-16 !px-0 !pt-[var(--safe-area-top,0px)]',
+          overlay: 'z-max',
+        }}
+        aria-label="You"
+      >
+        <YouPanel inDrawer />
+      </Drawer>
+    </RootPortal>
   );
 }
 

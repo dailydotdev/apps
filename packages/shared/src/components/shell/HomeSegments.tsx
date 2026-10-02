@@ -11,8 +11,6 @@ import { highlightsPageQueryOptions } from '../../graphql/highlights';
 import { webappUrl } from '../../lib/constants';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import { LogEvent } from '../../lib/log';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureFeedChips } from '../../lib/featureManagement';
 import { PlusIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Drawer } from '../drawers/Drawer';
@@ -87,12 +85,6 @@ export function HomeSegments(): ReactElement {
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
-  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
-    {
-      feature: featureFeedChips,
-      shouldEvaluate: !!user,
-    },
-  );
   const [isChannelsOpen, setIsChannelsOpen] = useState(false);
   const pathname = withoutLayoutVariantPrefix(router.pathname);
   const path = (router.asPath ?? router.pathname ?? '').split('?')[0];
@@ -143,10 +135,7 @@ export function HomeSegments(): ReactElement {
           logEvent({
             event_name: LogEvent.ClickFeedTagChip,
             target_id: feed.id,
-            extra: JSON.stringify({
-              variant: isVariantLoading ? undefined : variant,
-              origin: feed.flags?.origin,
-            }),
+            extra: JSON.stringify({ origin: feed.flags?.origin }),
           }),
       });
     });

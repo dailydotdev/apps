@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
@@ -23,6 +23,7 @@ import { revealShell, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
 import { useShellActionsSlot, useShellPageConfig } from './ShellPageContext';
 import { ShellRoot, useShellBack } from './shellNav';
+import { YouDrawer } from './YouPage';
 
 const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Explore]: 'Explore',
@@ -32,15 +33,20 @@ const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
 
 const AvatarSquare = (): ReactElement | null => {
   const { user } = useAuthContext();
+  const [isYouOpen, setIsYouOpen] = useState(false);
 
   if (!user) {
     return null;
   }
 
   return (
-    <Link href={`${webappUrl}you`} passHref>
-      <a
+    <>
+      <button
+        type="button"
         aria-label="You"
+        aria-haspopup="dialog"
+        aria-expanded={isYouOpen}
+        onClick={() => setIsYouOpen(true)}
         className="shell-material shell-press shell-hit relative flex size-[2.375rem] shrink-0 items-center justify-center overflow-hidden rounded-14"
       >
         <ProfilePicture
@@ -49,8 +55,9 @@ const AvatarSquare = (): ReactElement | null => {
           nativeLazyLoading
           className="!size-[2.375rem] !rounded-14"
         />
-      </a>
-    </Link>
+      </button>
+      <YouDrawer isOpen={isYouOpen} onClose={() => setIsYouOpen(false)} />
+    </>
   );
 };
 
@@ -101,16 +108,14 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
       {isHome && <span className="flex-1" />}
       {isMobileAppHeader && <MobileAppActions />}
       {user && isHome && isStreaksEnabled && streak && (
-        <>
-          <ReadingStreakButton
-            isLoading={isLoading}
-            streak={streak}
-            compact
-            iconPosition={ButtonIconPosition.Right}
-          />
-          <QuestHeaderButton compact />
-        </>
+        <ReadingStreakButton
+          isLoading={isLoading}
+          streak={streak}
+          compact
+          iconPosition={ButtonIconPosition.Right}
+        />
       )}
+      {user && isHome && <QuestHeaderButton compact />}
       {user && isHome && <PlusSquare />}
       {user && root === ShellRoot.Activity && (
         <Link href={`${webappUrl}notifications/settings`} passHref>

@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useQueryClient } from '@tanstack/react-query';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { BellIcon, CompassIcon, HomeIcon, PlusIcon, SquadIcon } from '../icons';
@@ -59,6 +59,11 @@ export function ShellCluster({
   // A finger on the bar lifts the whole bar a touch (scale 1.04) for as
   // long as it stays down, the way Instagram's and iOS 26's bars do.
   const [pressed, setPressed] = useState(false);
+  // The glass feel of a held bar: the pill stretches with the finger's speed
+  // and the whole bar leans past its ends when the finger overshoots.
+  const [stretch, setStretch] = useState(1);
+  const [pull, setPull] = useState(0);
+  const lastX = useRef(0);
 
   const tabs: ClusterTab[] = [
     {
@@ -215,6 +220,7 @@ export function ShellCluster({
       startX: event.clientX,
       moved: false,
     };
+    lastX.current = event.clientX;
     setPressed(true);
   };
 
@@ -239,13 +245,50 @@ export function ShellCluster({
     if (next) {
       setDrag(next);
     }
+    const dx = event.clientX - lastX.current;
+    lastX.current = event.clientX;
+    setStretch(
+      1 + Math.min(Math.abs(dx) * cluster.stretchPerPx, cluster.stretchMax),
+    );
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (rect) {
+      const over =
+        event.clientX < rect.left
+          ? event.clientX - rect.left
+          : Math.max(0, event.clientX - rect.right);
+      setPull(
+        Math.max(
+          -cluster.pullMax,
+          Math.min(cluster.pullMax, over * cluster.pullRate),
+        ),
+      );
+    }
   };
 
   const endDrag = () => {
     pointer.current = null;
     setDrag(null);
     setPressed(false);
+    setStretch(1);
+    setPull(0);
   };
+
+  // A finger that lifts away from the bar (capture refused, or the release
+  // lands outside) still ends the press, so the bar never stays lifted.
+  useEffect(() => {
+    if (!pressed) {
+      return undefined;
+    }
+    const end = () => endDrag();
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    return () => {
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+    };
+    // endDrag only touches refs and setters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pressed]);
 
   // Without capture (a plain press that never moved) the finger can leave
   // the bar; the lift ends with it.
@@ -262,8 +305,15 @@ export function ShellCluster({
     }
     const { moved } = current;
     const target = tabAt(event.clientX);
+    // A finger that lifts away from the bar, above or below it, cancels, as
+    // the iOS tab bar does.
+    const rect = trackRef.current?.getBoundingClientRect();
+    const away =
+      !!rect &&
+      (event.clientY < rect.top - cluster.cancelDistance ||
+        event.clientY > rect.bottom + cluster.cancelDistance);
     endDrag();
-    if (!target || (!moved && event.pointerType !== 'touch')) {
+    if (!target || away || (!moved && event.pointerType !== 'touch')) {
       return;
     }
     // A click may still follow the release; the pointer already chose.
@@ -272,9 +322,6 @@ export function ShellCluster({
       suppressClick.current = false;
     }, motion.snap);
     const tab = tabs[target.index];
-    if (moved && tab.root === active) {
-      return;
-    }
     if (!activate(tab)) {
       router.push(tab.href);
     }
@@ -290,7 +337,7 @@ export function ShellCluster({
 
   const onCreate = () => {
     if (!user) {
-      showLogin({ trigger: AuthTriggers.CreateSquad });
+      showLogin({ trigger: AuthTriggers.CreatePost });
       return;
     }
 
@@ -322,7 +369,9 @@ export function ShellCluster({
           height,
           borderRadius: radius,
           padding: cluster.padding,
-          transform: pressed ? `scale(${cluster.pressScale})` : 'scale(1)',
+          transform: pressed
+            ? `translateX(${pull}px) scale(${cluster.pressScale})`
+            : 'scale(1)',
           transformOrigin: '50% 100%',
           transition: `${transition}, transform ${
             pressed ? motion.feedback : motion.snap
@@ -351,7 +400,7 @@ export function ShellCluster({
                 width: `${100 / tabs.length}%`,
                 borderRadius: radius - cluster.padding,
                 transform: drag
-                  ? `translateX(${drag.left}px)`
+                  ? `translateX(${drag.left}px) scaleX(${stretch})`
                   : `translateX(${activeIndex * 100}%)`,
                 transition: drag
                   ? 'none'

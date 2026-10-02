@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import type { WithClassNameProps } from '../utilities';
-import { isDevelopment } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
@@ -14,26 +13,8 @@ import { useIsPhone } from '../../hooks/useViewSize';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 import { ShellPage } from '../shell/ShellPageContext';
+import { canGoBackInApp } from '../shell/shellNav';
 import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
-
-const checkSameSite = () => {
-  const referrer = globalThis?.document?.referrer;
-  const origin = globalThis?.window?.location.origin;
-
-  if (!referrer) {
-    return true; // empty referrer means you are from the same site or from blank tab or no-referrer header was used :/
-  }
-
-  if (!origin) {
-    return false;
-  }
-
-  try {
-    return new URL(referrer).origin === origin;
-  } catch {
-    return false;
-  }
-};
 
 export const GoBackButton = ({
   className,
@@ -49,8 +30,7 @@ export const GoBackButton = ({
   const goHome = useCallback(() => router.push('/'), [router]);
   const featureTheme = useFeatureTheme();
 
-  const canGoBack =
-    globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
+  const canGoBack = canGoBackInApp();
 
   const goBack = useCallback(() => {
     if (canGoBack) {

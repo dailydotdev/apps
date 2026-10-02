@@ -28,6 +28,13 @@
   scale: 0.96;
 }
 
+/* The floating squares and the Create square answer a press the way iOS 26
+   glass does: they swell a touch instead of shrinking, the pill of a
+   bubble under a finger. Rows and chips keep the 0.96 press. */
+.shell-material.shell-press:active {
+  scale: 1.06;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shell-press {
     transition-duration: 0s;
@@ -127,7 +134,9 @@
        block and shrink it to the sheet. */
     will-change: auto !important;
     min-width: 0 !important;
-    z-index: 100 !important;
+    /* Above modals, drawers and Radix's own 1000 so a menu opened from a
+       sheet or a form stays on top. */
+    z-index: 1001 !important;
   }
 
   [data-radix-popper-content-wrapper]:has(> .shell-menu-sheet)::before {

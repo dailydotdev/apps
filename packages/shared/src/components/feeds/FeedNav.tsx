@@ -84,7 +84,8 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
   const isTablet = isBelowLaptop && !isMobile;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
-    shouldEvaluate: isBelowLaptop,
+    // The phone row inside the block renders one layout for every arm.
+    shouldEvaluate: isBelowLaptop && !inShellBlock,
   });
   const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(

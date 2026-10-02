@@ -46,8 +46,27 @@ export const attachSheetDrag = (
     style.transition = '';
   };
 
+  // A finger on a field, or inside a list that is scrolled, is not a drag.
+  const startsInContent = (target: EventTarget | null): boolean => {
+    let node = target as HTMLElement | null;
+    while (node && node !== panel) {
+      if (node.matches?.('input, textarea, select, [contenteditable="true"]')) {
+        return true;
+      }
+      if (node.scrollTop > 0) {
+        return true;
+      }
+      node = node.parentElement;
+    }
+    return false;
+  };
+
   const onTouchStart = (event: TouchEvent) => {
-    if ((scroller()?.scrollTop ?? 0) > 0 || event.touches.length !== 1) {
+    if (
+      (scroller()?.scrollTop ?? 0) > 0 ||
+      event.touches.length !== 1 ||
+      startsInContent(event.target)
+    ) {
       return;
     }
     startY = event.touches[0].clientY;

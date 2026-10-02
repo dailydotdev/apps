@@ -20,8 +20,9 @@ export const rootHref: Record<ShellRoot, string> = {
 const explorePrefixes = ['/posts', '/search', '/tags', '/sources', '/users'];
 
 // The root that owns a URL is the tab that lights on it and the place back
-// goes when there is no history: Home for posts, tags, sources and
-// profiles; Squads for squads; Explore for search and the directories.
+// goes when there is no history: Home for posts and profiles; Squads for
+// squads; Explore for search and the tag, source and leaderboard
+// directories.
 export const owningRoot = (pathname: string): ShellRoot => {
   const path = withoutLayoutVariantPrefix(pathname ?? '');
 
@@ -115,17 +116,26 @@ const isSameSiteReferrer = (): boolean => {
   }
 };
 
+// Whether the previous history entry is one of ours. Next keeps the index
+// of each client navigation in history.state, which the referrer (set once
+// per document) cannot tell after the first in-app move.
+export const canGoBackInApp = (): boolean => {
+  const { history } = globalThis;
+  if (!history || history.length <= 1) {
+    return false;
+  }
+  const idx = (history.state as { idx?: number } | null)?.idx ?? 0;
+
+  return idx > 0 || isSameSiteReferrer() || isDevelopment;
+};
+
 // One back for every leaf: the previous entry when it is ours, otherwise
 // the root that owns the page, so a deep link always has a way up.
 export const useShellBack = (): (() => void) => {
   const router = useRouter();
 
   return useCallback(() => {
-    const canGoBack =
-      globalThis?.history?.length > 1 &&
-      (isSameSiteReferrer() || isDevelopment);
-
-    if (canGoBack) {
+    if (canGoBackInApp()) {
       router.back();
       return;
     }

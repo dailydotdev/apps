@@ -340,6 +340,9 @@ function MainLayoutComponent({
       <div
         className={classNames(
           'antialiased',
+          // The phone block is fixed; everything in this column, the
+          // banners included, starts under it.
+          !sidebarOwnsHeader && 'pt-[var(--shell-top,0px)] tablet:pt-0',
           isV2 &&
             'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
         )}
@@ -378,8 +381,7 @@ function MainLayoutComponent({
             'flex flex-col',
             animateContentPadding &&
               'transition-[padding] duration-300 ease-in-out',
-            !sidebarOwnsHeader &&
-              'pt-[var(--shell-top,0px)] tablet:pt-0 laptop:pt-16',
+            !sidebarOwnsHeader && 'laptop:pt-16',
             showSidebar &&
               (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
             className,
