@@ -431,7 +431,7 @@ function BaseDrawer({
         style={wrapperKeyboardStyle}
         data-closing={isClosing || undefined}
         className={classNames(
-          'shell-sheet-panel drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default',
+          'shell-sheet-panel drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default focus:outline-none',
           isFullScreen
             ? 'inset-0 h-[calc(var(--drawer-viewport-height)_-_var(--safe-area-top,0px))]'
             : 'max-h-[calc(100%-5rem)]',
