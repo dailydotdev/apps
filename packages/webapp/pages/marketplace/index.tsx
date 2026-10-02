@@ -31,6 +31,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/plugins';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { PluginCard } from '../../components/marketplace/PluginCard';
+import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -71,61 +72,67 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
   const results = debouncedQuery ? searchResults ?? [] : plugins;
 
   return (
-    <PageWrapperLayout className="flex flex-col gap-6 py-6">
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: getMarketplaceSchema(plugins) }}
+    <MarketplaceFeatureGate>
+      <PageWrapperLayout className="flex flex-col gap-6 py-6">
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: getMarketplaceSchema(plugins) }}
+          />
+        </Head>
+        <div className="flex flex-col gap-4 tablet:flex-row tablet:items-end tablet:justify-between">
+          <div className="flex flex-col gap-2">
+            <Typography
+              type={TypographyType.Title2}
+              tag={TypographyTag.H1}
+              bold
+            >
+              Marketplace
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Plugins that teach your agent new workflows on top of the
+              daily.dev API.
+            </Typography>
+          </div>
+          <Button
+            tag="a"
+            href={marketplaceSubmitUrl}
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+          >
+            Submit a plugin
+          </Button>
+        </div>
+        <SearchField
+          inputId="marketplace-search"
+          placeholder="Search plugins"
+          value={query}
+          valueChanged={setQuery}
         />
-      </Head>
-      <div className="flex flex-col gap-4 tablet:flex-row tablet:items-end tablet:justify-between">
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
-            Marketplace
-          </Typography>
+        {results.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 laptopL:grid-cols-3">
+            {results.map((plugin) => (
+              <PluginCard key={plugin.id} plugin={plugin} />
+            ))}
+          </div>
+        )}
+        {results.length === 0 && !isFetching && (
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
+            className="py-10 text-center"
           >
-            Plugins that teach your agent new workflows on top of the daily.dev
-            API.
+            {debouncedQuery
+              ? 'No plugins match your search.'
+              : 'No plugins yet. Be the first to submit one.'}
           </Typography>
-        </div>
-        <Button
-          tag="a"
-          href={marketplaceSubmitUrl}
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          icon={<PlusIcon />}
-        >
-          Submit a plugin
-        </Button>
-      </div>
-      <SearchField
-        inputId="marketplace-search"
-        placeholder="Search plugins"
-        value={query}
-        valueChanged={setQuery}
-      />
-      {results.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 laptopL:grid-cols-3">
-          {results.map((plugin) => (
-            <PluginCard key={plugin.id} plugin={plugin} />
-          ))}
-        </div>
-      )}
-      {results.length === 0 && !isFetching && (
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="py-10 text-center"
-        >
-          {debouncedQuery
-            ? 'No plugins match your search.'
-            : 'No plugins yet. Be the first to submit one.'}
-        </Typography>
-      )}
-    </PageWrapperLayout>
+        )}
+      </PageWrapperLayout>
+    </MarketplaceFeatureGate>
   );
 };
 

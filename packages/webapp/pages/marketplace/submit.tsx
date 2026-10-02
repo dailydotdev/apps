@@ -20,6 +20,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/plugins';
 import { PluginSubmitForm } from '../../components/marketplace/PluginSubmitForm';
 import { MyPluginsList } from '../../components/marketplace/MyPluginsList';
+import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -54,36 +55,38 @@ const SubmitPluginPage = (): ReactElement => {
     );
 
   return (
-    <PageWrapperLayout className="flex max-w-3xl flex-col gap-8 py-6">
-      <div className="flex flex-col gap-2">
-        <Link href={marketplaceUrl} prefetch={false}>
-          <a className="w-fit text-text-tertiary typo-footnote hover:underline">
-            ← Marketplace
-          </a>
-        </Link>
-        <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
-          Share a plugin
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-        >
-          A plugin is a SKILL.md and/or a GitHub repository that teaches an
-          agent a workflow on top of the daily.dev API. The daily.dev team
-          reviews every submission before it goes live.
-        </Typography>
-      </div>
-      <PluginSubmitForm
-        key={editing?.id ?? 'new'}
-        plugin={editing}
-        onSubmitted={() => setEditing()}
-      />
-      <MyPluginsList
-        plugins={plugins}
-        submissions={submissions}
-        onEdit={setEditing}
-      />
-    </PageWrapperLayout>
+    <MarketplaceFeatureGate>
+      <PageWrapperLayout className="flex max-w-3xl flex-col gap-8 py-6">
+        <div className="flex flex-col gap-2">
+          <Link href={marketplaceUrl} prefetch={false}>
+            <a className="w-fit text-text-tertiary typo-footnote hover:underline">
+              ← Marketplace
+            </a>
+          </Link>
+          <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
+            Share a plugin
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            A plugin is a SKILL.md and/or a GitHub repository that teaches an
+            agent a workflow on top of the daily.dev API. The daily.dev team
+            reviews every submission before it goes live.
+          </Typography>
+        </div>
+        <PluginSubmitForm
+          key={editing?.id ?? 'new'}
+          plugin={editing}
+          onSubmitted={() => setEditing()}
+        />
+        <MyPluginsList
+          plugins={plugins}
+          submissions={submissions}
+          onEdit={setEditing}
+        />
+      </PageWrapperLayout>
+    </MarketplaceFeatureGate>
   );
 };
 
