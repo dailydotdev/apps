@@ -160,7 +160,7 @@ const NotificationOptionsButton = ({
           // Tertiary is the flat variant — transparent, no background or
           // border (Float carries a faint surface-float background).
           variant={ButtonVariant.Tertiary}
-          icon={<MenuIcon className="rotate-90" />}
+          icon={<MenuIcon />}
           size={ButtonSize.XSmall}
         />
       </DropdownMenuTrigger>

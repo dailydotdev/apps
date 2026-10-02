@@ -133,6 +133,7 @@ export function FeedExploreHeader({
                 icon={<CalendarIcon size={IconSize.Medium} />}
                 selectedIndex={period}
                 options={periodTexts}
+                drawerProps={{ displayCloseButton: true }}
                 onChange={(_, index) => setPeriod(index)}
               />
             )}

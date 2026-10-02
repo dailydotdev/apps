@@ -684,7 +684,7 @@ const PostFocusCardRaw = ({
                 <div className="flex min-w-0 flex-1 flex-col gap-4">
                   <h1
                     className={classNames(
-                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                      'text-balance break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
                       // On the post page the reader came to read, so the title is
                       // always shown in full and the button flows below it; only
                       // the modal (a feed preview) clamps it.

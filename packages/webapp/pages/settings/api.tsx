@@ -8,6 +8,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { marketplaceUrl } from '@dailydotdev/shared/src/graphql/plugins';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   usePersonalAccessTokens,
@@ -46,7 +47,10 @@ import {
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureOAuthApps } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featureOAuthApps,
+  featurePluginMarketplace,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   ConnectedAppsSection,
@@ -465,6 +469,10 @@ const ApiAccessPage = (): ReactElement => {
     feature: featureOAuthApps,
     shouldEvaluate: !!user,
   });
+  const { value: isMarketplaceEnabled } = useConditionalFeature({
+    feature: featurePluginMarketplace,
+    shouldEvaluate: !!user,
+  });
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -760,6 +768,16 @@ const ApiAccessPage = (): ReactElement => {
             >
               OpenAPI Reference
             </Button>
+            {isMarketplaceEnabled && (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                tag="a"
+                href={marketplaceUrl}
+              >
+                Plugin marketplace
+              </Button>
+            )}
           </div>
         </div>
 

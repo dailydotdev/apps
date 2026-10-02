@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
@@ -36,10 +35,14 @@ export default function FooterNavBarLayout({
   children,
   post,
 }: FooterNavBarLayoutProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
-  const showNav = windowLoaded && isMobile;
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  const showNav = hasHydrated && isMobile;
 
   return (
     <MobileAppFooterProvider>
