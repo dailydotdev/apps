@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { clamp, scroll } from './constants';
+import { scroll } from './constants';
 
 export interface ShellScrollState {
   p: number;
@@ -7,28 +7,27 @@ export interface ShellScrollState {
 }
 
 // One reader of the window scroll for the whole shell: the top block and
-// the bottom cluster move on the same progress. 0 is shown and at rest, 1
-// is hidden and compact. Direction decides, not position: reading down
-// past the tolerance hides, any short scroll up reveals, and nothing moves
-// inside the dead zone at the top.
-const rest: ShellScrollState = { p: 0, snapping: false };
+// the bottom cluster move on the same state. 0 is shown and at rest, 1 is
+// hidden and compact, and nothing in between: the pieces never track the
+// finger, they play their own 220ms once the reading direction is clear.
+// (iOS 26 minimises its tab bar the same way, and Material's hide-on-
+// scroll slides as a whole; a value scrubbed from scroll events jumps on
+// Safari, whose events arrive in bursts.) Direction decides, not
+// position: reading down past the tolerance hides, a short scroll up
+// reveals, and the dead zone at the top always shows.
+const rest: ShellScrollState = { p: 0, snapping: true };
+const away: ShellScrollState = { p: 1, snapping: true };
 let state = rest;
 let lastY = 0;
-let target = 0;
 let armed = 0;
-let stopTimer: ReturnType<typeof setTimeout> | undefined;
 const listeners = new Set<() => void>();
 
 const emit = (next: ShellScrollState) => {
+  if (state === next) {
+    return;
+  }
   state = next;
   listeners.forEach((listener) => listener());
-};
-
-const settle = () => {
-  if (target > 0 && target < 1) {
-    target = target >= 0.5 ? 1 : 0;
-    emit({ p: target, snapping: true });
-  }
 };
 
 const onScroll = () => {
@@ -37,24 +36,17 @@ const onScroll = () => {
   lastY = y;
 
   if (y <= scroll.deadZone) {
-    target = 0;
     armed = 0;
-  } else {
-    armed = Math.sign(armed) === Math.sign(delta) ? armed + delta : delta;
-    const tolerance = delta > 0 ? scroll.hideTolerance : scroll.revealTolerance;
-    if (Math.abs(armed) > tolerance) {
-      target = clamp(target + delta / scroll.travel);
-    }
+    emit(rest);
+    return;
   }
 
-  if (state.p !== target || state.snapping) {
-    emit({ p: target, snapping: false });
+  armed = Math.sign(armed) === Math.sign(delta) ? armed + delta : delta;
+  if (armed > scroll.hideTolerance) {
+    emit(away);
+  } else if (armed < -scroll.revealTolerance) {
+    emit(rest);
   }
-
-  if (stopTimer) {
-    clearTimeout(stopTimer);
-  }
-  stopTimer = setTimeout(settle, scroll.stop);
 };
 
 const subscribe = (listener: () => void) => {
@@ -73,12 +65,9 @@ const subscribe = (listener: () => void) => {
 };
 
 export const revealShell = (): void => {
-  target = 0;
   armed = 0;
   lastY = globalThis.window?.scrollY ?? 0;
-  if (state.p !== 0) {
-    emit({ p: 0, snapping: true });
-  }
+  emit(rest);
 };
 
 export const useShellScroll = (): ShellScrollState =>

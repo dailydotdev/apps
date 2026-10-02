@@ -9,13 +9,8 @@ const scrollTo = (y: number) => {
 
 describe('useShellScroll', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
     scrollTo(0);
     revealShell();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
   });
 
   it('stays shown inside the dead zone', () => {
@@ -28,21 +23,33 @@ describe('useShellScroll', () => {
     expect(result.current.p).toBe(0);
   });
 
-  it('hides after reading past the tolerance and snaps when the scroll stops', () => {
+  it('hides as a whole once the reading passes the tolerance', () => {
     const { result } = renderHook(() => useShellScroll());
 
     act(() => {
-      scrollTo(90);
-      scrollTo(100);
-      scrollTo(140);
+      scrollTo(scroll.deadZone - 6);
+      scrollTo(scroll.deadZone + scroll.hideTolerance - 10);
     });
-    expect(result.current.p).toBeGreaterThan(0);
-    expect(result.current.p).toBeLessThan(1);
+    expect(result.current.p).toBe(0);
 
     act(() => {
-      jest.advanceTimersByTime(scroll.stop);
+      scrollTo(scroll.deadZone + scroll.hideTolerance + 4);
     });
     expect(result.current).toEqual({ p: 1, snapping: true });
+  });
+
+  it('never reports a value between shown and hidden', () => {
+    const { result } = renderHook(() => useShellScroll());
+    const seen = new Set<number>();
+
+    act(() => {
+      [100, 110, 120, 130, 140, 160, 200, 190, 185, 180, 170].forEach((y) => {
+        scrollTo(y);
+        seen.add(result.current.p);
+      });
+    });
+
+    expect([...seen].every((p) => p === 0 || p === 1)).toBe(true);
   });
 
   it('comes back on a short scroll up, anywhere in the page', () => {
@@ -51,27 +58,26 @@ describe('useShellScroll', () => {
     act(() => {
       scrollTo(200);
       scrollTo(400);
-      jest.advanceTimersByTime(scroll.stop);
     });
     expect(result.current.p).toBe(1);
 
     act(() => {
-      scrollTo(400 - scroll.revealTolerance - scroll.travel);
-      jest.advanceTimersByTime(scroll.stop);
+      scrollTo(400 - scroll.revealTolerance - 1);
     });
     expect(result.current.p).toBe(0);
   });
 
-  it('ignores a nudge smaller than the hide tolerance', () => {
+  it('ignores a wobble smaller than the tolerances', () => {
     const { result } = renderHook(() => useShellScroll());
 
     act(() => {
-      scrollTo(90);
-      scrollTo(100);
-      scrollTo(90 + scroll.hideTolerance - 4);
+      scrollTo(200);
+      scrollTo(400);
+      scrollTo(400 - scroll.revealTolerance + 2);
+      scrollTo(400);
     });
 
-    expect(result.current.p).toBe(0);
+    expect(result.current.p).toBe(1);
   });
 
   it('reveals on demand', () => {
@@ -80,7 +86,6 @@ describe('useShellScroll', () => {
     act(() => {
       scrollTo(200);
       scrollTo(400);
-      jest.advanceTimersByTime(scroll.stop);
     });
     expect(result.current.p).toBe(1);
 

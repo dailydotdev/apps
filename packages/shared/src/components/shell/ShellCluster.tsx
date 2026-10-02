@@ -45,7 +45,7 @@ export function ShellCluster({
   const { unreadCount } = useNotificationContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
-  const { p, snapping } = useShellScroll();
+  const { p } = useShellScroll();
   const active = owningRoot(router?.pathname ?? '');
   const hasSquads = (squads?.length ?? 0) > 0;
   const trackRef = useRef<HTMLDivElement>(null);
@@ -129,11 +129,7 @@ export function ShellCluster({
   const showsTopButton =
     active === ShellRoot.Home &&
     isRootView(ShellRoot.Home, router?.pathname ?? '');
-  const transition = `height ${snapping ? motion.snap : motion.scrub}ms ${
-    motion.interaction
-  }, border-radius ${snapping ? motion.snap : motion.scrub}ms ${
-    motion.interaction
-  }, padding ${snapping ? motion.snap : motion.scrub}ms ${motion.interaction}`;
+  const transition = `height ${motion.snap}ms ${motion.interaction}, border-radius ${motion.snap}ms ${motion.interaction}, padding ${motion.snap}ms ${motion.interaction}`;
 
   const logTab = (tab: ClusterTab) => {
     if (tab.root === ShellRoot.Activity) {

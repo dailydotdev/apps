@@ -10,7 +10,6 @@ import { ShellBlock } from './ShellBlock';
 import { ShellPage, ShellPageProvider } from './ShellPageContext';
 import { ShellRoot } from './shellNav';
 import { revealShell } from './useShellScroll';
-import { scroll } from './constants';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -131,7 +130,6 @@ describe('ShellBlock', () => {
     act(() => {
       scrollTo(200);
       scrollTo(400);
-      jest.advanceTimersByTime(scroll.stop);
     });
 
     expect(header.style.transform).toContain('* 1)');
@@ -140,7 +138,6 @@ describe('ShellBlock', () => {
 
     act(() => {
       scrollTo(300);
-      jest.advanceTimersByTime(scroll.stop);
     });
 
     expect(document.documentElement).not.toHaveClass('shell-edge');

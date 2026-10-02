@@ -25,17 +25,13 @@ export const motion = {
   enter: 300,
   exit: 200,
   snap: 220,
-  scrub: 140,
   press: 0.96,
 };
 
 export const scroll = {
-  travel: 64,
   deadZone: 96,
   hideTolerance: 24,
   revealTolerance: 8,
-  stop: 300,
-  shrinkDistance: 96,
 };
 
 export const cluster = {

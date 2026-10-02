@@ -169,7 +169,7 @@ export function ShellBlock({
 }: ShellBlockProps): ReactElement | null {
   const router = useRouter();
   const config = useShellPageConfig();
-  const { p, snapping } = useShellScroll();
+  const { p } = useShellScroll();
   const online = useOnline();
   const ref = useRef<HTMLElement>(null);
   const hidden = !config?.hidden && p >= 0.99;
@@ -223,8 +223,6 @@ export function ShellBlock({
     return null;
   }
 
-  const duration = snapping ? motion.snap : motion.scrub;
-
   return (
     <header
       ref={ref}
@@ -236,7 +234,7 @@ export function ShellBlock({
       style={{
         top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
         transform: `translateY(calc(-100% * ${p}))`,
-        transition: `transform ${duration}ms ${motion.interaction}`,
+        transition: `transform ${motion.snap}ms ${motion.interaction}`,
       }}
     >
       {!online && (
