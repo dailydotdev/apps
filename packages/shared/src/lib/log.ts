@@ -76,6 +76,7 @@ export enum Origin {
   BadgesAndAwards = 'badges and awards',
   AchievementsWidget = 'achievements widget',
   AchievementCard = 'achievement card',
+  AchievementCompletion = 'achievement completion',
   DevCard = 'devcard',
   // profile share placements - end
   History = 'history',
