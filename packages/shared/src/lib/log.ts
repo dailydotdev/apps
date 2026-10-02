@@ -718,6 +718,7 @@ export enum TargetId {
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
+  MobileFooterNav = 'mobile footer nav',
   MobileSheet = 'mobile sheet',
 }
 
