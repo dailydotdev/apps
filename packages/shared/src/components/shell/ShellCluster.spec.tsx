@@ -114,9 +114,11 @@ describe('ShellCluster', () => {
     firePointer('pointerdown', track, 40);
     firePointer('pointermove', track, 60);
     firePointer('pointermove', track, 200);
+    // The lens is driven frame by frame on the element; the lit glyph is
+    // the React side of the same drag.
     expect(
-      screen.getByTestId('shell-cluster-indicator').style.transform,
-    ).toMatch(/^translateX\(160px\) scaleX\(/);
+      screen.getByLabelText('Squads').querySelector('span > span'),
+    ).not.toHaveClass('opacity-[0.72]');
 
     firePointer('pointerup', track, 200);
     expect(mockPush).toHaveBeenCalledWith('/squads/discover');
@@ -125,9 +127,6 @@ describe('ShellCluster', () => {
         extra: JSON.stringify({ tab: 'squads', logged_in: true }),
       }),
     );
-    expect(screen.getByTestId('shell-cluster-indicator')).toHaveStyle({
-      transform: 'translateX(0%)',
-    });
     rect.mockRestore();
   });
 

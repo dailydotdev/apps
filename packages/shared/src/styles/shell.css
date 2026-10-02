@@ -35,6 +35,61 @@
   scale: 1.06;
 }
 
+/* The release settles on the light spring (constants.settle); browsers
+   without linear() keep the ease-out above. */
+.shell-material.shell-press {
+  transition-duration: 400ms;
+  transition-timing-function: linear(
+    0,
+    0.015,
+    0.054,
+    0.112,
+    0.183,
+    0.262,
+    0.345,
+    0.429,
+    0.511,
+    0.589,
+    0.663,
+    0.73,
+    0.791,
+    0.844,
+    0.891,
+    0.931,
+    0.964,
+    0.991,
+    1.013,
+    1.029,
+    1.042,
+    1.05,
+    1.055,
+    1.058,
+    1.058,
+    1.057,
+    1.054,
+    1.051,
+    1.046,
+    1.042,
+    1.037,
+    1.032,
+    1.027,
+    1.023,
+    1.018,
+    1.015,
+    1.011,
+    1.008,
+    1.006,
+    1.003,
+    1.002,
+    1
+  );
+}
+
+.shell-material.shell-press:active {
+  transition-duration: var(--shell-duration-feedback);
+  transition-timing-function: ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shell-press {
     transition-duration: 0s;

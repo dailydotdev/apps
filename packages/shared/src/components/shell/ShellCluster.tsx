@@ -18,7 +18,8 @@ import { squadCategoriesPaths } from '../../lib/constants';
 import { LogEvent, NotificationTarget, TargetId } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import type { AuthTriggersType } from '../../lib/auth';
-import { clamp, cluster, lerp, motion } from './constants';
+import { clamp, cluster, lerp, motion, settle } from './constants';
+import { refreshShell } from './shellRefresh';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster, isRootView, ShellRoot, owningRoot } from './shellNav';
 
@@ -59,11 +60,19 @@ export function ShellCluster({
   // A finger on the bar lifts the whole bar a touch (scale 1.04) for as
   // long as it stays down, the way Instagram's and iOS 26's bars do.
   const [pressed, setPressed] = useState(false);
-  // The glass feel of a held bar: the pill stretches with the finger's speed
-  // and the whole bar leans past its ends when the finger overshoots.
-  const [stretch, setStretch] = useState(1);
+  // The glass feel of a held bar: the pill is a lens that lifts, follows
+  // the finger on a stiff spring and squashes along its motion; the whole
+  // bar leans past its ends when the finger overshoots. The lens is driven
+  // frame by frame on the element, outside React.
   const [pull, setPull] = useState(0);
-  const lastX = useRef(0);
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const lens = useRef<{
+    target: number;
+    pos: number;
+    vel: number;
+    frame: number;
+    last: number;
+  } | null>(null);
 
   const tabs: ClusterTab[] = [
     {
@@ -157,7 +166,7 @@ export function ShellCluster({
       if (window.scrollY > 0) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        queryClient.invalidateQueries({ type: 'active' });
+        refreshShell(queryClient);
       }
       return true;
     }
@@ -220,8 +229,78 @@ export function ShellCluster({
       startX: event.clientX,
       moved: false,
     };
-    lastX.current = event.clientX;
     setPressed(true);
+  };
+
+  const stopLens = () => {
+    if (lens.current) {
+      cancelAnimationFrame(lens.current.frame);
+      lens.current = null;
+    }
+  };
+
+  // One spring step per frame: position chases the finger, the squash
+  // follows the speed, and the lens stays lifted while held.
+  const stepLens = (now: number) => {
+    const state = lens.current;
+    const pill = pillRef.current;
+    if (!state || !pill) {
+      return;
+    }
+    const dt = Math.min(32, now - state.last) / 1000;
+    state.last = now;
+    const { stiffness, damping } = cluster.spring;
+    const acceleration =
+      (state.target - state.pos) * stiffness - state.vel * damping;
+    state.vel += acceleration * dt;
+    state.pos += state.vel * dt;
+    const squash = Math.min(
+      Math.abs(state.vel) * (cluster.squashPerPxPerMs / 1000),
+      cluster.squashMax,
+    );
+    pill.style.transition = 'none';
+    pill.style.transform = `translateX(${state.pos}px) scale(${
+      cluster.lensScale
+    }) scaleX(${1 + squash}) scaleY(${1 / (1 + squash)})`;
+    state.frame = requestAnimationFrame(stepLens);
+  };
+
+  const moveLens = (target: number) => {
+    if (!lens.current) {
+      const pill = pillRef.current;
+      const start =
+        pill && typeof DOMMatrixReadOnly !== 'undefined'
+          ? new DOMMatrixReadOnly(getComputedStyle(pill).transform).e
+          : target;
+      lens.current = {
+        target,
+        pos: start,
+        vel: 0,
+        frame: 0,
+        last: performance.now(),
+      };
+      lens.current.frame = requestAnimationFrame(stepLens);
+    }
+    lens.current.target = target;
+  };
+
+  // The lens lets go: it settles onto the chosen tab on the light spring.
+  const settleLens = (index: number) => {
+    stopLens();
+    const pill = pillRef.current;
+    const track = trackRef.current;
+    if (!pill || !track) {
+      return;
+    }
+    const width = track.offsetWidth / tabs.length;
+    pill.style.transition = `transform ${settle.duration}ms ${settle.easing}`;
+    pill.style.transform = `translateX(${index * width}px)`;
+    const clear = () => {
+      pill.style.transition = '';
+      pill.style.transform = '';
+      pill.removeEventListener('transitionend', clear);
+    };
+    pill.addEventListener('transitionend', clear);
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -244,12 +323,8 @@ export function ShellCluster({
     const next = tabAt(event.clientX);
     if (next) {
       setDrag(next);
+      moveLens(next.left);
     }
-    const dx = event.clientX - lastX.current;
-    lastX.current = event.clientX;
-    setStretch(
-      1 + Math.min(Math.abs(dx) * cluster.stretchPerPx, cluster.stretchMax),
-    );
     const rect = trackRef.current?.getBoundingClientRect();
     if (rect) {
       const over =
@@ -265,11 +340,15 @@ export function ShellCluster({
     }
   };
 
-  const endDrag = () => {
+  const endDrag = (settleOn?: number) => {
+    if (lens.current && settleOn !== undefined) {
+      settleLens(settleOn);
+    } else {
+      stopLens();
+    }
     pointer.current = null;
     setDrag(null);
     setPressed(false);
-    setStretch(1);
     setPull(0);
   };
 
@@ -279,7 +358,7 @@ export function ShellCluster({
     if (!pressed) {
       return undefined;
     }
-    const end = () => endDrag();
+    const end = () => endDrag(activeIndex);
     window.addEventListener('pointerup', end);
     window.addEventListener('pointercancel', end);
     return () => {
@@ -312,7 +391,7 @@ export function ShellCluster({
       !!rect &&
       (event.clientY < rect.top - cluster.cancelDistance ||
         event.clientY > rect.bottom + cluster.cancelDistance);
-    endDrag();
+    endDrag(away || !target ? activeIndex : target.index);
     if (!target || away || (!moved && event.pointerType !== 'touch')) {
       return;
     }
@@ -364,7 +443,7 @@ export function ShellCluster({
       <nav
         aria-label="Main"
         data-pressed={pressed || undefined}
-        className="shell-material pointer-events-auto flex min-w-0 flex-1 items-stretch motion-reduce:!transform-none"
+        className="shell-material pointer-events-auto relative z-1 flex min-w-0 flex-1 items-stretch motion-reduce:!transform-none"
         style={{
           height,
           borderRadius: radius,
@@ -374,8 +453,8 @@ export function ShellCluster({
             : 'scale(1)',
           transformOrigin: '50% 100%',
           transition: `${transition}, transform ${
-            pressed ? motion.feedback : motion.snap
-          }ms ${pressed ? 'ease-out' : motion.interaction}`,
+            pressed ? motion.feedback : settle.duration
+          }ms ${pressed ? 'ease-out' : settle.easing}`,
         }}
       >
         <div
@@ -384,7 +463,7 @@ export function ShellCluster({
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={endDrag}
+          onPointerCancel={() => endDrag(activeIndex)}
           onPointerLeave={onPointerLeave}
           onClickCapture={onClickCapture}
           onContextMenu={(event) => event.preventDefault()}
@@ -393,18 +472,15 @@ export function ShellCluster({
               finger while it is held and moved along the bar. */}
           {activeIndex >= 0 && (
             <span
+              ref={pillRef}
               aria-hidden
               data-testid="shell-cluster-indicator"
               className="pointer-events-none absolute inset-y-0 left-0 bg-surface-float motion-reduce:transition-none"
               style={{
                 width: `${100 / tabs.length}%`,
                 borderRadius: radius - cluster.padding,
-                transform: drag
-                  ? `translateX(${drag.left}px) scaleX(${stretch})`
-                  : `translateX(${activeIndex * 100}%)`,
-                transition: drag
-                  ? 'none'
-                  : `transform ${motion.snap}ms ${motion.interaction}, border-radius ${motion.snap}ms ${motion.interaction}`,
+                transform: `translateX(${activeIndex * 100}%)`,
+                transition: `transform ${motion.snap}ms ${motion.interaction}, border-radius ${motion.snap}ms ${motion.interaction}`,
               }}
             />
           )}

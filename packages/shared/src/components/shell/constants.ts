@@ -10,6 +10,14 @@ export const swipe = {
   velocityDistance: 32,
 };
 
+// A release settles on a light spring (320/24): one small overshoot, then
+// still. Sampled into linear() so it runs as a plain CSS transition.
+export const settle = {
+  duration: 400,
+  easing:
+    'linear(0, 0.015, 0.054, 0.112, 0.183, 0.262, 0.345, 0.429, 0.511, 0.589, 0.663, 0.73, 0.791, 0.844, 0.891, 0.931, 0.964, 0.991, 1.013, 1.029, 1.042, 1.05, 1.055, 1.058, 1.058, 1.057, 1.054, 1.051, 1.046, 1.042, 1.037, 1.032, 1.027, 1.023, 1.018, 1.015, 1.011, 1.008, 1.006, 1.003, 1.002, 1)',
+};
+
 export const motion = {
   interaction: 'cubic-bezier(0.2, 0, 0, 1)',
   travel: 'cubic-bezier(0.32, 0.72, 0, 1)',
@@ -52,6 +60,12 @@ export const cluster = {
   pullMax: 10,
   // Lifting the finger this far above or below the bar cancels the choice.
   cancelDistance: 24,
+  // The lens under a finger: the pill lifts to 1.08 and follows on a stiff
+  // spring, squashing along its motion (volume kept) by up to 18%.
+  lensScale: 1.08,
+  spring: { stiffness: 420, damping: 32 },
+  squashPerPxPerMs: 0.18,
+  squashMax: 0.18,
 };
 
 export const topButton = {
