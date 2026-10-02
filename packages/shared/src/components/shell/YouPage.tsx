@@ -452,19 +452,31 @@ export function YouPage(): ReactElement | null {
 }
 
 // The phone's menu, X's side panel mirrored: the page slides to the left
-// and uncovers the menu, which sits under it on the right; a tap on the
-// page's edge, Escape or any navigation brings the page back. The page
-// is inert while it is away.
+// and uncovers the menu, which sits under it on the right. The avatar
+// opens it; a swipe in from the right edge drags the page open under the
+// finger, and dragging the page back, a tap on its edge, Escape or any
+// navigation closes it. A release settles by speed first, then by how far
+// the page went. The page is inert while it is away.
+const youWidth = () => Math.min(window.innerWidth * 0.85, 352);
+const edgeWidth = 24;
+const claimDistance = 8;
+const flick = 0.35;
+
 export function YouDrawer({
   isOpen,
+  onOpen,
   onClose,
 }: {
   isOpen: boolean;
+  onOpen: () => void;
   onClose: () => void;
 }): ReactElement | null {
   const router = useRouter();
   const [mounted, setMounted] = useState(isOpen);
+  const [dragging, setDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const openRef = useRef(isOpen);
+  openRef.current = isOpen;
 
   useEffect(() => {
     onClose();
@@ -477,8 +489,23 @@ export function YouDrawer({
       setMounted(true);
       return undefined;
     }
-    const timer = window.setTimeout(() => setMounted(false), motion.enter);
-    return () => window.clearTimeout(timer);
+    if (!mounted) {
+      return undefined;
+    }
+    // The page keeps its card look while it slides back; the menu stays
+    // under it until it has landed.
+    const { documentElement } = document;
+    documentElement.classList.add('you-closing');
+    const timer = window.setTimeout(() => {
+      documentElement.classList.remove('you-closing');
+      setMounted(false);
+    }, motion.enter);
+    return () => {
+      window.clearTimeout(timer);
+      documentElement.classList.remove('you-closing');
+    };
+    // mounted is read, not watched: the exit runs once per close.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   useEffect(() => {
@@ -506,7 +533,133 @@ export function YouDrawer({
     };
   }, [isOpen, onClose]);
 
-  if (!mounted) {
+  // The drag: the finger owns the page's position through --you-progress
+  // (0 home, 1 away); the release picks a side and hands back to the CSS
+  // transition, whose length follows the distance left.
+  useEffect(() => {
+    const { documentElement, body } = document;
+    let startX = 0;
+    let startY = 0;
+    let startProgress = 0;
+    let progress = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let velocity = 0;
+    let state: 'idle' | 'maybe' | 'dragging' = 'idle';
+
+    const setProgress = (value: number) => {
+      progress = Math.min(1, Math.max(0, value));
+      documentElement.style.setProperty('--you-progress', String(progress));
+    };
+
+    const finish = (open: boolean) => {
+      const remaining = open ? 1 - progress : progress;
+      documentElement.style.setProperty(
+        '--you-duration',
+        `${Math.max(120, Math.round(motion.enter * remaining))}ms`,
+      );
+      documentElement.classList.remove('you-dragging');
+      setDragging(false);
+      if (open) {
+        onOpen();
+      } else {
+        onClose();
+      }
+      window.setTimeout(() => {
+        documentElement.style.removeProperty('--you-duration');
+        documentElement.style.removeProperty('--you-progress');
+        // A drag that went back home from closed never opened; the panel
+        // mounted for the drag leaves here.
+        if (!open && !openRef.current) {
+          setMounted(false);
+        }
+      }, motion.enter);
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length !== 1) {
+        return;
+      }
+      const touch = event.touches[0];
+      const open = openRef.current;
+      // Closed: only a finger at the right edge may start it. Open: a
+      // finger on the page's strip, or anywhere on the panel, may close it.
+      const onEdge = touch.clientX >= window.innerWidth - edgeWidth;
+      if (!open && !onEdge) {
+        return;
+      }
+      startX = touch.clientX;
+      startY = touch.clientY;
+      lastX = startX;
+      lastTime = event.timeStamp;
+      velocity = 0;
+      startProgress = open ? 1 : 0;
+      state = 'maybe';
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (state === 'idle') {
+        return;
+      }
+      const touch = event.touches[0];
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+      if (state === 'maybe') {
+        if (Math.abs(dx) < claimDistance) {
+          return;
+        }
+        if (Math.abs(dy) > Math.abs(dx)) {
+          state = 'idle';
+          return;
+        }
+        const open = openRef.current;
+        if ((!open && dx > 0) || (open && dx < 0)) {
+          state = 'idle';
+          return;
+        }
+        state = 'dragging';
+        setDragging(true);
+        setMounted(true);
+        setProgress(startProgress);
+        documentElement.classList.add('you-dragging');
+      }
+      event.preventDefault();
+      const dt = Math.max(1, event.timeStamp - lastTime);
+      velocity = (touch.clientX - lastX) / dt;
+      lastX = touch.clientX;
+      lastTime = event.timeStamp;
+      setProgress(startProgress - dx / youWidth());
+    };
+
+    const onTouchEnd = () => {
+      if (state !== 'dragging') {
+        state = 'idle';
+        return;
+      }
+      state = 'idle';
+      if (velocity < -flick) {
+        finish(true);
+      } else if (velocity > flick) {
+        finish(false);
+      } else {
+        finish(progress > 0.5);
+      }
+    };
+
+    body.addEventListener('touchstart', onTouchStart, { passive: true });
+    body.addEventListener('touchmove', onTouchMove, { passive: false });
+    body.addEventListener('touchend', onTouchEnd);
+    body.addEventListener('touchcancel', onTouchEnd);
+    return () => {
+      body.removeEventListener('touchstart', onTouchStart);
+      body.removeEventListener('touchmove', onTouchMove);
+      body.removeEventListener('touchend', onTouchEnd);
+      body.removeEventListener('touchcancel', onTouchEnd);
+      documentElement.classList.remove('you-dragging');
+    };
+  }, [onOpen, onClose]);
+
+  if (!mounted && !dragging) {
     return null;
   }
 
@@ -524,12 +677,14 @@ export function YouDrawer({
       </div>
       {/* The strip of the page still showing: a tap on it brings the page
           back. */}
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="you-scrim fixed inset-y-0 left-0 w-[15%] bg-overlay-quaternary-onion"
-      />
+      {isOpen && (
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+          className="you-scrim fixed inset-y-0 left-0 w-[15%] bg-overlay-quaternary-onion"
+        />
+      )}
     </RootPortal>
   );
 }

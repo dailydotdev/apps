@@ -56,7 +56,11 @@ const AvatarSquare = (): ReactElement | null => {
           className="!size-[2.375rem] !rounded-14"
         />
       </button>
-      <YouDrawer isOpen={isYouOpen} onClose={() => setIsYouOpen(false)} />
+      <YouDrawer
+        isOpen={isYouOpen}
+        onOpen={() => setIsYouOpen(true)}
+        onClose={() => setIsYouOpen(false)}
+      />
     </>
   );
 };
