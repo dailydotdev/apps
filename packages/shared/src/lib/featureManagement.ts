@@ -265,6 +265,11 @@ export const featureOnboardingExtensionShowcase = new Feature(
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
+export const featureSponsorStripBreakingNews = new Feature(
+  'sponsor_strip_breaking_news',
+  true,
+);
+
 export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
