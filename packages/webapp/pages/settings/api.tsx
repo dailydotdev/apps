@@ -8,6 +8,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { marketplaceUrl } from '@dailydotdev/shared/src/graphql/plugins';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   usePersonalAccessTokens,
@@ -759,6 +760,14 @@ const ApiAccessPage = (): ReactElement => {
               target="_blank"
             >
               OpenAPI Reference
+            </Button>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              tag="a"
+              href={marketplaceUrl}
+            >
+              Plugin marketplace
             </Button>
           </div>
         </div>
