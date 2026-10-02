@@ -10,24 +10,24 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import {
-  AddUserIcon,
   AnalyticsIcon,
   BookmarkIcon,
   CoreIcon,
   DevCardIcon,
   DevPlusIcon,
   DocsIcon,
+  EyeIcon,
   FeedbackIcon,
   FilterIcon,
   FlagIcon,
   HelpIcon,
-  MagicIcon,
+  InviteIcon,
+  JoystickIcon,
   PhoneIcon,
   PrivacyIcon,
   ReputationIcon,
   SettingsIcon,
   TerminalIcon,
-  TimerIcon,
   UserIcon,
 } from '../icons';
 import { Drawer } from '../drawers/Drawer';
@@ -273,7 +273,7 @@ export function YouPage(): ReactElement | null {
     <>
       <Link href={`${settingsUrl}/invite`} passHref>
         <a className="shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center gap-1.5 rounded-14 px-3 font-bold text-text-primary typo-callout">
-          <AddUserIcon size={IconSize.Small} />
+          <InviteIcon size={IconSize.Small} />
           Invite
         </a>
       </Link>
@@ -375,7 +375,7 @@ export function YouPage(): ReactElement | null {
           label="Bookmarks"
           href={`${webappUrl}bookmarks`}
         />
-        <YouRow icon={TimerIcon} label="History" href={`${webappUrl}history`} />
+        <YouRow icon={EyeIcon} label="History" href={`${webappUrl}history`} />
         <YouRow
           icon={AnalyticsIcon}
           label="Analytics"
@@ -383,7 +383,7 @@ export function YouPage(): ReactElement | null {
         />
         {!hideGameCenter && (
           <YouRow
-            icon={MagicIcon}
+            icon={JoystickIcon}
             label="Game center"
             href={`${webappUrl}game-center`}
           />
