@@ -17,7 +17,6 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
-import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type {
   Plugin,
@@ -32,7 +31,7 @@ import {
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PluginCard } from '../../components/marketplace/PluginCard';
-import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
+import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getAppOrigin } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -76,79 +75,73 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
   const results = debouncedQuery ? searchResults ?? plugins : plugins;
 
   return (
-    <MarketplaceFeatureGate>
-      <PageWrapperLayout className="flex flex-col gap-6 py-6">
-        <Head>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: getMarketplaceSchema(plugins) }}
-          />
-        </Head>
-        <div className="flex flex-col gap-4 tablet:flex-row tablet:items-end tablet:justify-between">
-          <div className="flex flex-col gap-2">
-            <Typography
-              type={TypographyType.Title2}
-              tag={TypographyTag.H1}
-              bold
-            >
-              Marketplace
-            </Typography>
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Plugins that teach your agent new workflows on top of the
-              daily.dev API.
-            </Typography>
-          </div>
-          <div className="flex gap-2">
-            {user && (
-              <Button
-                tag="a"
-                href={marketplaceSubmissionsUrl}
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-              >
-                Your plugins
-              </Button>
-            )}
-            <Button
-              tag="a"
-              href={marketplaceSubmitUrl}
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<PlusIcon />}
-            >
-              Submit a plugin
-            </Button>
-          </div>
-        </div>
-        <SearchField
-          inputId="marketplace-search"
-          placeholder="Search plugins"
-          value={query}
-          valueChanged={setQuery}
+    <MarketplacePageLayout className="gap-6">
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: getMarketplaceSchema(plugins) }}
         />
-        {results.length > 0 && (
-          <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 laptopL:grid-cols-3">
-            {results.map((plugin) => (
-              <PluginCard key={plugin.id} plugin={plugin} />
-            ))}
-          </div>
-        )}
-        {results.length === 0 && !isFetching && (
+      </Head>
+      <div className="flex flex-col gap-4 laptop:flex-row laptop:items-end laptop:justify-between">
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
+            Marketplace
+          </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
-            className="py-10 text-center"
           >
-            {debouncedQuery
-              ? 'No plugins match your search.'
-              : 'No plugins yet. Be the first to submit one.'}
+            Plugins that teach your agent new workflows on top of the daily.dev
+            API.
           </Typography>
-        )}
-      </PageWrapperLayout>
-    </MarketplaceFeatureGate>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          {user && (
+            <Button
+              tag="a"
+              href={marketplaceSubmissionsUrl}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+            >
+              Your plugins
+            </Button>
+          )}
+          <Button
+            tag="a"
+            href={marketplaceSubmitUrl}
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+          >
+            Submit a plugin
+          </Button>
+        </div>
+      </div>
+      <SearchField
+        inputId="marketplace-search"
+        placeholder="Search plugins"
+        value={query}
+        valueChanged={setQuery}
+      />
+      {results.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 laptopL:grid-cols-3">
+          {results.map((plugin) => (
+            <PluginCard key={plugin.id} plugin={plugin} />
+          ))}
+        </div>
+      )}
+      {results.length === 0 && !isFetching && (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className="py-10 text-center"
+        >
+          {debouncedQuery
+            ? 'No plugins match your search.'
+            : 'No plugins yet. Be the first to submit one.'}
+        </Typography>
+      )}
+    </MarketplacePageLayout>
   );
 };
 

@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
+import RichTextInput from '@dailydotdev/shared/src/components/fields/RichTextInput';
+import { MarkdownCommand } from '@dailydotdev/shared/src/hooks/input/useMarkdownInput';
 import {
   Button,
   ButtonVariant,
@@ -131,16 +133,29 @@ export const PluginSubmitForm = ({
         hint="Your pitch in 1-3 sentences. This short version is what people see on marketplace cards, so sell it."
         rows={2}
       />
-      <Textarea
-        label="About"
-        inputId="plugin-about"
-        name="about"
-        value={form.about}
-        valueChanged={setField('about')}
-        maxLength={PLUGIN_ABOUT_MAX_LENGTH}
-        hint="Markdown shown on the plugin page: what it does and how to use it."
-        rows={8}
-      />
+      <div className="flex flex-col gap-2">
+        <Typography type={TypographyType.Callout} bold>
+          About
+        </Typography>
+        <RichTextInput
+          inputId="plugin-about"
+          initialContent={form.about}
+          onValueUpdate={setField('about')}
+          maxInputLength={PLUGIN_ABOUT_MAX_LENGTH}
+          enabledCommand={{ [MarkdownCommand.Emoji]: true }}
+          textareaProps={{
+            name: 'about',
+            placeholder: 'What it does and how to use it',
+          }}
+        />
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Shown on the plugin page. Links and images are not allowed here, use
+          the Link field instead.
+        </Typography>
+      </div>
       <Textarea
         label="SKILL.md (optional)"
         inputId="plugin-skill-md"

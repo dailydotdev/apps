@@ -28,7 +28,6 @@ import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink'
 import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { RenderMarkdown } from '@dailydotdev/shared/src/components/RenderMarkdown';
-import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
@@ -48,7 +47,7 @@ import {
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
-import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
+import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getAppOrigin } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -84,116 +83,107 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
   const isAuthor = user?.id === plugin.author.id;
 
   return (
-    <MarketplaceFeatureGate>
-      <PageWrapperLayout className="flex flex-col gap-6 py-6">
-        <Head>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: getPluginSchema(plugin) }}
-          />
-        </Head>
-        <Link href={marketplaceUrl} prefetch={false}>
-          <a className="w-fit text-text-tertiary typo-footnote hover:underline">
-            ← Marketplace
-          </a>
-        </Link>
-        <div className="flex flex-col gap-3">
-          <div className="flex items-start justify-between gap-4">
-            <Typography
-              type={TypographyType.Title2}
-              tag={TypographyTag.H1}
-              bold
-            >
-              {plugin.name}
-            </Typography>
-            {isAuthor && (
-              <Button
-                tag="a"
-                href={`${marketplaceSubmitUrl}?edit=${plugin.id}`}
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                icon={<EditIcon />}
-              >
-                Edit
-              </Button>
-            )}
-          </div>
-          <Typography
-            type={TypographyType.Body}
-            color={TypographyColor.Secondary}
-          >
-            {plugin.description}
+    <MarketplacePageLayout className="gap-6">
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: getPluginSchema(plugin) }}
+        />
+      </Head>
+      <Link href={marketplaceUrl} prefetch={false}>
+        <a className="w-fit text-text-tertiary typo-footnote hover:underline">
+          ← Marketplace
+        </a>
+      </Link>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-4">
+          <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
+            {plugin.name}
           </Typography>
-          <div className="flex flex-wrap items-center gap-4">
-            <Link
-              href={`${webappUrl}${plugin.author.username}`}
-              prefetch={false}
+          {isAuthor && (
+            <Button
+              tag="a"
+              href={`${marketplaceSubmitUrl}?edit=${plugin.id}`}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<EditIcon />}
             >
-              <a className="flex items-center gap-2 hover:underline">
-                <ProfilePicture
-                  user={plugin.author}
-                  size={ProfileImageSize.Small}
-                />
-                <Typography type={TypographyType.Footnote}>
-                  {plugin.author.name}
-                </Typography>
-              </a>
-            </Link>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              Updated{' '}
-              {formatDate({
-                value: plugin.updatedAt,
-                type: TimeFormatType.Post,
-              })}
-            </Typography>
-          </div>
-          <div className="flex flex-col gap-2">
-            {plugin.url && (
-              <Button
-                tag="a"
-                href={plugin.url}
-                target="_blank"
-                rel="nofollow ugc noopener"
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Small}
-                icon={<OpenLinkIcon />}
-                className="w-fit"
-              >
-                {getPluginLinkHost(plugin.url)}
-              </Button>
-            )}
-            {plugin.hasSkillMd && (
-              <Button
-                tag="a"
-                href={getPluginSkillMdUrl(plugin.id)}
-                target="_blank"
-                rel="noopener"
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Small}
-                icon={<OpenLinkIcon />}
-                className="w-fit"
-              >
-                SKILL.md
-              </Button>
-            )}
-          </div>
+              Edit
+            </Button>
+          )}
         </div>
-        {plugin.about && (
-          <div className="rounded-16 border border-border-subtlest-tertiary p-4">
-            <RenderMarkdown
-              content={plugin.about}
-              reactMarkdownProps={{
-                disallowedElements: ['a', 'img'],
-                unwrapDisallowed: true,
-              }}
-            />
-          </div>
-        )}
-      </PageWrapperLayout>
-    </MarketplaceFeatureGate>
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+        >
+          {plugin.description}
+        </Typography>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link href={`${webappUrl}${plugin.author.username}`} prefetch={false}>
+            <a className="flex items-center gap-2 hover:underline">
+              <ProfilePicture
+                user={plugin.author}
+                size={ProfileImageSize.Small}
+              />
+              <Typography type={TypographyType.Footnote}>
+                {plugin.author.name}
+              </Typography>
+            </a>
+          </Link>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            Updated{' '}
+            {formatDate({
+              value: plugin.updatedAt,
+              type: TimeFormatType.Post,
+            })}
+          </Typography>
+        </div>
+        <div className="flex flex-col gap-2">
+          {plugin.url && (
+            <Button
+              tag="a"
+              href={plugin.url}
+              target="_blank"
+              rel="nofollow ugc noopener"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<OpenLinkIcon />}
+              className="w-fit"
+            >
+              {getPluginLinkHost(plugin.url)}
+            </Button>
+          )}
+          {plugin.hasSkillMd && (
+            <Button
+              tag="a"
+              href={getPluginSkillMdUrl(plugin.id)}
+              target="_blank"
+              rel="noopener"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<OpenLinkIcon />}
+              className="w-fit"
+            >
+              SKILL.md
+            </Button>
+          )}
+        </div>
+      </div>
+      {plugin.about && (
+        <div className="rounded-16 border border-border-subtlest-tertiary p-4">
+          <RenderMarkdown
+            content={plugin.about}
+            reactMarkdownProps={{
+              disallowedElements: ['a', 'img'],
+              unwrapDisallowed: true,
+            }}
+          />
+        </div>
+      )}
+    </MarketplacePageLayout>
   );
 };
 

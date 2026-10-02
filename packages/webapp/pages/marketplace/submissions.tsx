@@ -15,7 +15,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
-import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -26,7 +25,7 @@ import {
   myPluginSubmissionsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
 import { MyPluginsList } from '../../components/marketplace/MyPluginsList';
-import { MarketplaceFeatureGate } from '../../components/marketplace/MarketplaceFeatureGate';
+import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -55,67 +54,61 @@ const PluginSubmissionsPage = (): ReactElement => {
     !submissions.length;
 
   return (
-    <MarketplaceFeatureGate>
-      <PageWrapperLayout className="flex max-w-3xl flex-col gap-8 py-6">
-        <div className="flex flex-col gap-2">
-          <Link href={marketplaceUrl} prefetch={false}>
-            <a className="w-fit text-text-tertiary typo-footnote hover:underline">
-              ← Marketplace
-            </a>
-          </Link>
-          <div className="flex items-center justify-between gap-4">
-            <Typography
-              type={TypographyType.Title2}
-              tag={TypographyTag.H1}
-              bold
-            >
-              Your plugins
-            </Typography>
-            <Button
-              tag="a"
-              href={marketplaceSubmitUrl}
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<PlusIcon />}
-            >
-              Submit a plugin
-            </Button>
-          </div>
+    <MarketplacePageLayout className="max-w-3xl gap-8">
+      <div className="flex flex-col gap-2">
+        <Link href={marketplaceUrl} prefetch={false}>
+          <a className="w-fit text-text-tertiary typo-footnote hover:underline">
+            ← Marketplace
+          </a>
+        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
+            Your plugins
+          </Typography>
+          <Button
+            tag="a"
+            href={marketplaceSubmitUrl}
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+          >
+            Submit a plugin
+          </Button>
         </div>
-        {isAuthReady && !user && (
-          <div className="flex flex-col items-start gap-3">
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Log in to see the plugins you submitted.
-            </Typography>
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              onClick={() => showLogin({ trigger: AuthTriggers.Marketplace })}
-            >
-              Log in
-            </Button>
-          </div>
-        )}
-        {isEmpty && (
+      </div>
+      {isAuthReady && !user && (
+        <div className="flex flex-col items-start gap-3">
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            You have not submitted any plugins yet.
+            Log in to see the plugins you submitted.
           </Typography>
-        )}
-        <MyPluginsList
-          plugins={plugins}
-          submissions={submissions}
-          onEdit={(plugin) =>
-            router.push(`${marketplaceSubmitUrl}?edit=${plugin.id}`)
-          }
-        />
-      </PageWrapperLayout>
-    </MarketplaceFeatureGate>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            onClick={() => showLogin({ trigger: AuthTriggers.Marketplace })}
+          >
+            Log in
+          </Button>
+        </div>
+      )}
+      {isEmpty && (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          You have not submitted any plugins yet.
+        </Typography>
+      )}
+      <MyPluginsList
+        plugins={plugins}
+        submissions={submissions}
+        onEdit={(plugin) =>
+          router.push(`${marketplaceSubmitUrl}?edit=${plugin.id}`)
+        }
+      />
+    </MarketplacePageLayout>
   );
 };
 
