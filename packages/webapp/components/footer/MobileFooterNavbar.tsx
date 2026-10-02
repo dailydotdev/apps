@@ -19,6 +19,12 @@ import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  LogEvent,
+  NotificationTarget,
+  TargetId,
+} from '@dailydotdev/shared/src/lib/log';
 import type { FooterTab } from './common';
 import { blurClasses } from './common';
 import { FooterNavBarTabs } from './FooterNavBarTabs';
@@ -58,8 +64,17 @@ const MobileFooterNavbar = (): ReactElement => {
   const squadsUrl = hasSquads
     ? squadCategoriesPaths['My Squads']
     : squadCategoriesPaths.discover;
+  const { logEvent } = useLogContext();
+  const { unreadCount } = useNotificationContext();
 
   const tabs: (FooterTab | ReactNode)[] = useMemo(() => {
+    const logTabClick = (tab: string) =>
+      logEvent({
+        event_name: LogEvent.Click,
+        target_id: TargetId.MobileFooterNav,
+        extra: JSON.stringify({ tab, logged_in: !!user }),
+      });
+
     return [
       {
         requiresLogin: true,
@@ -68,6 +83,7 @@ const MobileFooterNavbar = (): ReactElement => {
         icon: (active: boolean) => (
           <HomeIcon secondary={active} size={IconSize.Medium} />
         ),
+        onClick: () => logTabClick('home'),
       },
       {
         requiresLogin: false,
@@ -76,6 +92,7 @@ const MobileFooterNavbar = (): ReactElement => {
         icon: (active: boolean) => (
           <AiIcon secondary={active} size={IconSize.Medium} />
         ),
+        onClick: () => logTabClick('explore'),
       },
       {
         requiresLogin: false,
@@ -84,12 +101,19 @@ const MobileFooterNavbar = (): ReactElement => {
         icon: (active: boolean) => (
           <MegaphoneIcon secondary={active} size={IconSize.Medium} />
         ),
+        onClick: () => logTabClick('headlines'),
       },
       {
         requiresLogin: true,
         path: '/notifications',
         title: 'Activity',
         icon: (active: boolean) => <Notifications active={active} />,
+        onClick: () =>
+          logEvent({
+            event_name: LogEvent.ClickNotificationIcon,
+            target_id: NotificationTarget.Footer,
+            extra: JSON.stringify({ notifications_number: unreadCount }),
+          }),
       },
       {
         path: squadsUrl,
@@ -97,9 +121,10 @@ const MobileFooterNavbar = (): ReactElement => {
         icon: (active: boolean) => (
           <SourceIcon secondary={active} size={IconSize.Medium} />
         ),
+        onClick: () => logTabClick('squads'),
       },
     ];
-  }, [squadsUrl]);
+  }, [logEvent, squadsUrl, unreadCount, user]);
 
   const activeTab = useMemo(() => {
     const tabTitles = new Set(
