@@ -71,7 +71,7 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => (
       >
         {plugin.description}
       </Typography>
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center gap-2">
         <span className="flex min-w-0 items-center gap-2">
           <ProfilePicture
             user={plugin.author}
