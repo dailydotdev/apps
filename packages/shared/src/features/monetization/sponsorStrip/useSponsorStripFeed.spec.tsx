@@ -72,7 +72,6 @@ it('should keep the sponsors and stop querying the ticker when breaking news is 
   const { result } = render();
 
   expect(result.current.isEnabled).toBe(true);
-  expect(result.current.isBreakingNewsEnabled).toBe(false);
   expect(result.current.headlines).toEqual([]);
   expect(result.current.headlinesSettled).toBe(true);
   expect(mockHeadlines).toHaveBeenCalledWith(false);

@@ -940,11 +940,9 @@ export default function MainFeedLayout({
               // impression, so it has to be suppressed from the first paint
               // rather than flickering in and out as the hero resolves.
               disableTopHero={isFeedHeroEnabled}
-              disableHighlightCards={
-                sponsorStrip.isEnabled && !sponsorStrip.isBreakingNewsEnabled
-                  ? false
-                  : isHeroRendered || !!sponsorStrip.headlines.length
-              }
+              // The render, so a hero that finds no headlines hands the
+              // highlights card and row one back to the grid.
+              disableHighlightCards={isHeroRendered}
               skipFirstAd={isHeroAdVisible}
               deferWideCards={isHeroRendered}
               className={classNames(!isFinder && feedGutter)}

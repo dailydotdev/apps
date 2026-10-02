@@ -31,10 +31,32 @@ jest.mock(
 jest.mock('@dailydotdev/shared/src/components/Feed', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/components/Feed'),
   __esModule: true,
-  default: ({ disableHighlightCards }: { disableHighlightCards?: boolean }) => (
-    <div data-testid="feed" data-highlights-disabled={disableHighlightCards} />
+  default: ({
+    disableHighlightCards,
+    topContent,
+  }: {
+    disableHighlightCards?: boolean;
+    topContent?: React.ReactNode;
+  }) => (
+    <div data-testid="feed" data-highlights-disabled={disableHighlightCards}>
+      {topContent}
+    </div>
   ),
 }));
+
+jest.mock('@dailydotdev/shared/src/components/feeds/hero/FeedHero', () => {
+  const { useEffect } = jest.requireActual('react');
+  return {
+    FeedHero: ({
+      onRenderedChange,
+    }: {
+      onRenderedChange: (isRendered: boolean) => void;
+    }) => {
+      useEffect(() => onRenderedChange(true), [onRenderedChange]);
+      return <div data-testid="feedHero" />;
+    },
+  };
+});
 
 jest.mock('@dailydotdev/shared/src/lib/func', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/lib/func'),
@@ -137,12 +159,18 @@ it('should leave the sponsor dock to members', async () => {
   expect(sponsorStripEvaluations()).toContain(true);
 });
 
-it.each([true, false])(
-  'should disable the Happening Now card only while the ticker is enabled (%s)',
-  (breakingNewsEnabled) => {
+it.each([
+  [true, false],
+  [false, false],
+  [true, true],
+  [false, true],
+])(
+  'should preserve hero suppression with ticker enabled %s and hero rendered %s',
+  (breakingNewsEnabled, heroRendered) => {
     const overrides: Record<string, boolean> = {
       sponsor_strip: true,
       sponsor_strip_breaking_news: breakingNewsEnabled,
+      feed_hero: heroRendered,
     };
     mockFeature.mockImplementation(({ feature }) => ({
       value: overrides[feature.id] ?? feature.defaultValue,
@@ -169,7 +197,7 @@ it.each([true, false])(
 
     expect(screen.getByTestId('feed')).toHaveAttribute(
       'data-highlights-disabled',
-      String(breakingNewsEnabled),
+      String(heroRendered),
     );
   },
 );

@@ -255,8 +255,8 @@ export const featureOnboardingExtensionShowcase = new Feature(
 /**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds with
  * a trending ticker under it. The ticker carries the popular half of
- * `statuslineFeed`. The breaking-news flag controls the ticker and whether
- * the feed gets its Happening Now card back.
+ * `statuslineFeed`; the feed keeps its own Happening Now card and owns the
+ * curated headlines, so the two rows cannot show the same story.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
  * and `post_boost_ads` are: `isDevelopment` is false in a production build, so

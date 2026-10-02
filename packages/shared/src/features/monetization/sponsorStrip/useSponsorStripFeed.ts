@@ -12,7 +12,6 @@ interface UseSponsorStripFeedProps {
 
 interface UseSponsorStripFeed {
   isEnabled: boolean;
-  isBreakingNewsEnabled: boolean;
   headlines: StatuslineItem[];
   /** Whether the headlines query has answered; the dock reserves until it has. */
   headlinesSettled: boolean;
@@ -42,7 +41,6 @@ export const useSponsorStripFeed = ({
 
   return {
     isEnabled,
-    isBreakingNewsEnabled,
     headlines,
     headlinesSettled: isSettled,
   };
