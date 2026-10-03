@@ -250,7 +250,8 @@
 
   .shell-menu-sheet {
     position: relative;
-    width: 100%;
+    /* the field variant sizes itself to its trigger; a sheet is the screen */
+    width: 100% !important;
     max-width: none !important;
     min-width: 0 !important;
     border-radius: 1rem 1rem 0 0 !important;

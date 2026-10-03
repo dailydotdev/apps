@@ -15,6 +15,9 @@ export interface ShellPageConfig {
   row?: ReactNode;
   // A page that draws its own top chrome on phones opts out of the block.
   hidden?: boolean;
+  // The back square's action when it is not history: settings sections
+  // return to their menu.
+  onBack?: () => void;
 }
 
 interface ShellPageContextData {
@@ -66,12 +69,13 @@ export const ShellPage = ({
   actions,
   row,
   hidden,
+  onBack,
 }: ShellPageConfig): ReactElement | null => {
   const { setConfig, actionsSlot } = useContext(ShellPageContext);
 
   useLayoutEffect(() => {
-    setConfig({ title, row, hidden });
-  }, [setConfig, title, row, hidden]);
+    setConfig({ title, row, hidden, onBack });
+  }, [setConfig, title, row, hidden, onBack]);
 
   useLayoutEffect(() => () => setConfig(null), [setConfig]);
 

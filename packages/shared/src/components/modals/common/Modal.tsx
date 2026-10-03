@@ -101,7 +101,7 @@ export function Modal({
   shouldCloseOnOverlayClick,
   formProps,
   ...props
-}: ModalProps): ReactElement {
+}: ModalProps): ReactElement | null {
   if (!isExtension) {
     initReactModal({
       modalObject: ReactModal,
@@ -163,6 +163,12 @@ export function Modal({
   );
 
   if (isDrawerOpen) {
+    // react-modal renders nothing while closed; the sheet must do the same
+    // for the modals that stay mounted with isOpen false.
+    if (props.isOpen === false) {
+      return null;
+    }
+
     return (
       <Drawer
         displayCloseButton

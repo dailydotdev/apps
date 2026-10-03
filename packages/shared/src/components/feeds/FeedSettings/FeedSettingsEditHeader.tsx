@@ -3,7 +3,8 @@ import React, { useContext } from 'react';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { Button } from '../../buttons/Button';
-import { ShellPage } from '../../shell/ShellPageContext';
+import { ShellSquare } from '../../shell/ShellSquare';
+import { IconSize } from '../../Icon';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
@@ -12,7 +13,7 @@ import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { labels } from '../../../lib/labels';
 import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
-import { DevPlusIcon } from '../../icons';
+import { ArrowIcon, DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { FeedType } from '../../../graphql/feed';
 import {
@@ -115,8 +116,70 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   const showPlusCta =
     !isFeedChipsEnabled && !isPlus && feed?.type === FeedType.Custom;
 
+  const saveNode = showPlusCta ? (
+    <Button
+      type="button"
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Small}
+      icon={<DevPlusIcon className="text-action-plus-default" />}
+      onClick={() => {
+        logSubscriptionEvent({
+          event_name: LogEvent.UpgradeSubscription,
+          target_id: TargetId.CustomFeed,
+        });
+
+        onSubmit();
+      }}
+    >
+      {plusCta}
+    </Button>
+  ) : (
+    activeView && <SaveButton activeView={activeView} />
+  );
+
+  // On a phone the modal covers the block, so it draws the block's page
+  // row itself: back (to the sections menu, then to the feed), the name,
+  // Save.
+  if (isMobile) {
+    let rowTitle = 'Feed settings';
+    if (activeView) {
+      rowTitle =
+        feed?.type === FeedType.Custom
+          ? feed.flags?.name ?? 'Feed settings'
+          : 'For You';
+    }
+
+    return (
+      <div className="flex h-[3.25rem] shrink-0 items-center gap-2 px-4">
+        <ShellSquare
+          aria-label="Go back"
+          onClick={async () => {
+            if (!activeView) {
+              onBackToFeed({ action: 'discard' });
+              return;
+            }
+            const shouldDiscard = await onDiscard({ activeView });
+            if (shouldDiscard) {
+              setActiveView?.(undefined);
+            }
+          }}
+        >
+          <ArrowIcon size={IconSize.Small} className="-rotate-90" />
+        </ShellSquare>
+        <h1 className="min-w-0 flex-1 truncate px-1 font-bold typo-title3">
+          {rowTitle}
+        </h1>
+        {activeView && (
+          <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
+            {saveNode}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (!activeView) {
-    return isMobile ? <ShellPage title="Feed settings" /> : null;
+    return null;
   }
 
   const actions = (
@@ -124,7 +187,7 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
       <Button
         type="button"
         size={ButtonSize.Small}
-        variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
+        variant={ButtonVariant.Float}
         onClick={async () => {
           const shouldDiscard = await onDiscard({ activeView });
 
@@ -132,54 +195,14 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
             return;
           }
 
-          if (isMobile) {
-            setActiveView?.(undefined);
-          } else {
-            onBackToFeed({ action: 'discard' });
-          }
+          onBackToFeed({ action: 'discard' });
         }}
       >
         Cancel
       </Button>
-      {showPlusCta ? (
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<DevPlusIcon className="text-action-plus-default" />}
-          onClick={() => {
-            logSubscriptionEvent({
-              event_name: LogEvent.UpgradeSubscription,
-              target_id: TargetId.CustomFeed,
-            });
-
-            onSubmit();
-          }}
-        >
-          {plusCta}
-        </Button>
-      ) : (
-        <SaveButton activeView={activeView} />
-      )}
+      {saveNode}
     </div>
   );
-
-  // On a phone the header is the block: the section's name, Cancel and Save
-  // as the block's pills.
-  if (isMobile) {
-    return (
-      <ShellPage
-        // The block renders the title outside the page's providers, so it
-        // gets text, not the context-reading title component.
-        title={feed?.type === FeedType.Custom ? feed.flags?.name : 'For You'}
-        actions={
-          <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
-            {actions}
-          </div>
-        }
-      />
-    );
-  }
 
   return (
     <Modal.Header

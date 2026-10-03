@@ -7,10 +7,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon, MenuIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
@@ -93,20 +91,15 @@ export const AccountPageContainer = ({
       {!isV2Laptop && (
         <ShellPage
           title={title}
+          // On a phone the sections menu is the page behind every section,
+          // so back returns to it.
+          onBack={() => setIsOpen(true)}
           actions={
-            <>
-              {actions && (
-                <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
-                  {actions}
-                </div>
-              )}
-              <ShellSquare
-                aria-label="Settings menu"
-                onClick={() => setIsOpen(true)}
-              >
-                <MenuIcon size={IconSize.Small} />
-              </ShellSquare>
-            </>
+            actions && (
+              <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
+                {actions}
+              </div>
+            )
           }
         />
       )}

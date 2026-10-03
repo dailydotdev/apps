@@ -123,8 +123,15 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
   );
 };
 
-const PageRow = ({ title }: { title?: ReactNode }): ReactElement => {
-  const goBack = useShellBack();
+const PageRow = ({
+  title,
+  onBack,
+}: {
+  title?: ReactNode;
+  onBack?: () => void;
+}): ReactElement => {
+  const historyBack = useShellBack();
+  const goBack = onBack ?? historyBack;
   const setActionsSlot = useShellActionsSlot();
   const isMobileAppHeader = useMobileAppHeader();
 
@@ -245,7 +252,11 @@ export function ShellBlock({
           You&apos;re offline
         </div>
       )}
-      {root ? <RootRow root={root} /> : <PageRow title={config?.title} />}
+      {root ? (
+        <RootRow root={root} />
+      ) : (
+        <PageRow title={config?.title} onBack={config?.onBack} />
+      )}
       {config?.row ?? row}
     </header>
   );
