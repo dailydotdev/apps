@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
 import HeaderLogo from './HeaderLogo';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -18,7 +17,7 @@ import useActiveNav from '../../hooks/useActiveNav';
 import { MobileAppHeader } from '../../features/getApp/components/MobileAppHeader';
 import { ShellBlock } from '../shell/ShellBlock';
 import { ShellRoot } from '../shell/shellNav';
-import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { useShellBlockPlan } from '../shell/useShellBlockPlan';
 import { Chips, ShellRow } from '../shell/ShellRow';
 import { webappUrl } from '../../lib/constants';
 
@@ -58,11 +57,11 @@ function MainLayoutHeader({
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useViewSize(ViewSize.MobileL) && !isLaptop;
-  const router = useRouter();
+  const { root } = useShellBlockPlan();
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
-  const { profile, squads, notifications } = useActiveNav(activeFeedName);
+  const { profile } = useActiveNav(activeFeedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
   const isMobile = !isLaptop;
   const isMobileSearchPage =
@@ -98,72 +97,53 @@ function MainLayoutHeader({
     [shouldUseLoadedSettings, isSearchPage, hasBanner],
   );
 
-  if (shouldUseLoadedSettings && isPhone) {
-    const pathname = withoutLayoutVariantPrefix(router?.pathname ?? '');
-    // Home is the feeds a member switches between; the old strip's other
-    // destinations are leaves or Explore now.
-    const isHomeRoot =
-      ['/', '/my-feed', '/following'].includes(pathname) ||
-      pathname.startsWith('/highlights') ||
-      (pathname.startsWith('/feeds/[slugOrId]') && !pathname.endsWith('/edit'));
-    // Search results are a page under Explore: back, the query, Filters.
-    const isExploreRoot =
-      isAnyExplore || ['/popular', '/upvoted', '/discussed'].includes(pathname);
-    const root = (() => {
-      if (isExploreRoot) {
-        return ShellRoot.Explore;
-      }
-      if (squads) {
-        return ShellRoot.Squads;
-      }
-      if (notifications) {
-        return ShellRoot.Activity;
-      }
-      if (isHomeRoot) {
-        return ShellRoot.Home;
-      }
-      return undefined;
-    })();
+  const row = (() => {
+    if (root === ShellRoot.Explore) {
+      return (
+        <>
+          <div className="flex h-[3.25rem] flex-col px-2 pb-1">
+            <SpotlightTrigger />
+          </div>
+          <ShellRow>
+            <Chips
+              items={[
+                { key: 'tags', label: 'Tags', href: `${webappUrl}tags` },
+                {
+                  key: 'sources',
+                  label: 'Sources',
+                  href: `${webappUrl}sources`,
+                },
+                {
+                  key: 'leaderboard',
+                  label: 'Leaderboard',
+                  href: `${webappUrl}users`,
+                },
+                {
+                  key: 'discussions',
+                  label: 'Discussions',
+                  href: `${webappUrl}discussed`,
+                },
+              ]}
+            />
+          </ShellRow>
+        </>
+      );
+    }
+    if (root === ShellRoot.Home && shouldUseLoadedSettings) {
+      return <FeedNav inShellBlock />;
+    }
+    return undefined;
+  })();
 
-    const row = (() => {
-      if (root === ShellRoot.Explore) {
-        return (
-          <>
-            <div className="flex h-[3.25rem] flex-col px-2 pb-1">
-              <SpotlightTrigger />
-            </div>
-            <ShellRow>
-              <Chips
-                items={[
-                  { key: 'tags', label: 'Tags', href: `${webappUrl}tags` },
-                  {
-                    key: 'sources',
-                    label: 'Sources',
-                    href: `${webappUrl}sources`,
-                  },
-                  {
-                    key: 'leaderboard',
-                    label: 'Leaderboard',
-                    href: `${webappUrl}users`,
-                  },
-                  {
-                    key: 'discussions',
-                    label: 'Discussions',
-                    href: `${webappUrl}discussed`,
-                  },
-                ]}
-              />
-            </ShellRow>
-          </>
-        );
-      }
-      if (root === ShellRoot.Home) {
-        return <FeedNav inShellBlock />;
-      }
-      return undefined;
-    })();
+  // The server cannot know the screen, so it and the first client render
+  // emit both the phone block and the wider header and CSS shows one of
+  // them; from the second render on only this screen's stays mounted.
+  const block = (!hasHydrated || isPhone) && (
+    <ShellBlock root={root} row={row} />
+  );
 
-    return <ShellBlock root={root} row={row} />;
+  if (hasHydrated && isPhone) {
+    return <>{block}</>;
   }
 
   if (shouldRenderFeedNav) {
@@ -176,6 +156,7 @@ function MainLayoutHeader({
 
   return (
     <>
+      {block}
       {isMobileSearchPage && <MobileAppHeader />}
       <header
         className={classNames(

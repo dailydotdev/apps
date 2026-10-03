@@ -933,7 +933,7 @@ export default function MainFeedLayout({
         {isSearchOn && !isSearchPageLaptop && !isPhone && (
           <div
             className={classNames(
-              'mb-3 flex justify-end px-4',
+              'mb-3 hidden justify-end px-4 tablet:flex',
               feedWidthClassName,
             )}
             style={feedWidthStyle}

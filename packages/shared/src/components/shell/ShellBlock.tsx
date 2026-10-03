@@ -24,6 +24,11 @@ import { useOnline } from './useOnline';
 import { useShellActionsSlot, useShellPageConfig } from './ShellPageContext';
 import { ShellRoot, useShellBack } from './shellNav';
 
+// The block is in the server HTML, where a layout effect only warns; the
+// measurement is a client concern anyway.
+const useClientLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
 const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Explore]: 'Explore',
   [ShellRoot.Squads]: 'Squads',
@@ -181,7 +186,7 @@ export function ShellBlock({
   const ref = useRef<HTMLElement>(null);
   const hidden = !config?.hidden && p >= 0.99;
 
-  useLayoutEffect(() => {
+  useClientLayoutEffect(() => {
     const element = ref.current;
     const publish = () => {
       document.documentElement.style.setProperty(

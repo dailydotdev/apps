@@ -152,7 +152,7 @@ const SourcesPage = ({
           }
         />
         {!isV2Laptop && !isPhone && (
-          <div className="flex justify-between">
+          <div className="hidden justify-between tablet:flex">
             <BreadCrumbs>
               <SitesIcon size={IconSize.XSmall} secondary /> Sources
             </BreadCrumbs>

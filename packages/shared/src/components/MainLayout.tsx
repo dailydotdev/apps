@@ -1,4 +1,9 @@
-import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import type {
+  CSSProperties,
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -6,6 +11,7 @@ import dynamic from 'next/dynamic';
 import PromotionalBanner from './PromotionalBanner';
 import { RootPortal } from './tooltips/Portal';
 import { ShellRefreshIndicator } from './shell/ShellRefreshIndicator';
+import { useShellBlockPlan } from './shell/useShellBlockPlan';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useLogContext } from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -142,6 +148,7 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const hasServerShell = useContext(LayoutVariantContext) === 'v2';
+  const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
   useRecordRecentPages(isV2);
   useNotificationParams();
@@ -343,12 +350,14 @@ function MainLayoutComponent({
         className={classNames(
           'antialiased',
           // The phone block is fixed; everything in this column, the
-          // banners included, starts under it. The block only mounts once
-          // hydrated, so its one-row height is held from the server paint.
-          !sidebarOwnsHeader && 'pt-[var(--shell-top,3.25rem)] tablet:pt-0',
+          // banners included, starts under it. Until the block has measured
+          // itself the column holds the height this page's block rests at.
+          !sidebarOwnsHeader &&
+            'pt-[var(--shell-top,var(--shell-top-rest))] tablet:pt-0',
           isV2 &&
             'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
         )}
+        style={{ '--shell-top-rest': shellBlockRest } as CSSProperties}
       >
         {canGoBack && <GoBackHeaderMobile />}
         {customBanner}

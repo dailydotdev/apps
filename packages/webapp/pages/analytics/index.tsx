@@ -149,7 +149,10 @@ const Analytics = (): ReactElement => {
       <div className="mx-auto w-full max-w-[48rem]">
         {!isV2Laptop && !isPhone && (
           <LayoutHeader
-            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
+            className={classNames(
+              '!mb-0 hidden gap-2 border-b px-4 tablet:flex',
+              pageBorders,
+            )}
           >
             <Typography
               type={TypographyType.Title3}
