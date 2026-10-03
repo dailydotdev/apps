@@ -38,6 +38,7 @@ export interface CreatorAchievement {
    */
   post: {
     id: string;
+    slug?: string;
     title: string | null;
     commentsPermalink: string;
   } | null;
@@ -82,6 +83,7 @@ export const CREATOR_ACHIEVEMENT_FRAGMENT = gql`
     isHistorical
     post {
       id
+      slug
       title
       commentsPermalink
     }

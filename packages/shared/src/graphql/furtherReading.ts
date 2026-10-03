@@ -14,6 +14,7 @@ const FURTHER_READING_FRAGMENT = gql`
     title
     permalink
     commentsPermalink
+    slug
     bookmarked @include(if: $loggedIn)
     image
     readTime

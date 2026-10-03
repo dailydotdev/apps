@@ -20,6 +20,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { LogEvent } from '../../lib/log';
+import { getPostPath } from '../../lib/links';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -39,7 +40,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
       styles.card,
     )}
   >
-    <Link href={post.commentsPermalink} prefetch={false} passHref>
+    <Link href={getPostPath(post)} prefetch={false} passHref>
       <CardLink
         title={post.title}
         {...combinedClicks(() => onLinkClick(post))}
@@ -115,7 +116,7 @@ export default function BestDiscussions({
         </>
       )}
       <Link
-        href={posts?.[0]?.commentsPermalink ?? '/'}
+        href={posts?.[0] ? getPostPath(posts[0]) : '/'}
         prefetch={false}
         passHref
       >
