@@ -28,7 +28,10 @@ import {
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { canGoBackInApp } from '@dailydotdev/shared/src/components/shell/shellNav';
+import {
+  goBackPast,
+  isSettingsPath,
+} from '@dailydotdev/shared/src/components/shell/shellNav';
 import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
 import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
@@ -182,8 +185,10 @@ export default function SettingsLayout({
           <ProfileSettingsMenuMobile
             shouldKeepOpen
             isOpen={isOpen}
+            // Back from the menu leaves settings as a whole: past every
+            // settings page in history, to the page the member came from.
             onClose={() =>
-              canGoBackInApp() ? router.back() : router.push(`${webappUrl}you`)
+              goBackPast(isSettingsPath, () => router.push(`${webappUrl}you`))
             }
           />
         ) : (

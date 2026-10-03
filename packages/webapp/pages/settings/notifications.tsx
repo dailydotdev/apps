@@ -15,7 +15,11 @@ import useNotificationSettings from '@dailydotdev/shared/src/hooks/notifications
 import EmailNotificationsTab from '@dailydotdev/shared/src/components/notifications/EmailNotificationsTab';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
+import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import {
+  getSettingsLayout,
+  navigationKey,
+} from '../../components/layouts/SettingsLayout';
 
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -40,19 +44,23 @@ const AccountNotificationsPage = (): ReactElement => {
   const [activeTab, setActiveTab] = useState<NotificationsTab>('in-app');
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const [, setMenuOpen] = useQueryState({
+    key: navigationKey,
+    defaultValue: false,
+  });
 
   // Control variant keeps the legacy TabContainer rendering — no change.
   if (!isV2Laptop) {
     if (isLoadingPreferences) {
       return (
         <div className="w-full">
-          <ShellPage title="Notifications" />
+          <ShellPage title="Notifications" onBack={() => setMenuOpen(true)} />
         </div>
       );
     }
     return (
       <AccountPageContent>
-        <ShellPage title="Notifications" />
+        <ShellPage title="Notifications" onBack={() => setMenuOpen(true)} />
         <TabContainer className={{ header: 'h-14 px-4' }}>
           <Tab label="Notifications">
             <InAppNotificationsTab />

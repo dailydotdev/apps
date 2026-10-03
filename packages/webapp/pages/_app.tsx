@@ -36,6 +36,7 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks/useScrollRestoration';
+import { useShellRouteStack } from '@dailydotdev/shared/src/components/shell/shellNav';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
@@ -435,6 +436,7 @@ export default function App(
   const deviceId = useDeviceId();
   useError();
   useScrollRestoration();
+  useShellRouteStack();
   useScrollbarWidth();
 
   useEffect(() => {

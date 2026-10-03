@@ -1,5 +1,8 @@
 import {
   canGoBackInApp,
+  goBackPast,
+  isSettingsPath,
+  recordShellRoute,
   hidesCluster,
   isRootView,
   owningRoot,
@@ -91,5 +94,57 @@ describe('canGoBackInApp', () => {
     setHistory(2, 0);
     setReferrer(`${window.location.origin}/posts`);
     expect(canGoBackInApp()).toBe(true);
+  });
+});
+
+describe('goBackPast', () => {
+  const go = jest.fn();
+  beforeEach(() => {
+    window.sessionStorage.clear();
+    go.mockClear();
+    Object.defineProperty(window, 'history', {
+      configurable: true,
+      value: { length: 5, state: null, go },
+    });
+  });
+
+  it('jumps past every settings page to the page before them', () => {
+    [
+      '/you',
+      '/settings/profile',
+      '/settings/notifications',
+      '/feeds/[slugOrId]/edit',
+    ].forEach((path) => recordShellRoute(path, false));
+    const fallback = jest.fn();
+
+    goBackPast(isSettingsPath, fallback);
+
+    expect(go).toHaveBeenCalledWith(-3);
+    expect(fallback).not.toHaveBeenCalled();
+  });
+
+  it('follows a pop back to an earlier entry before deciding', () => {
+    ['/', '/you', '/settings/profile'].forEach((path) =>
+      recordShellRoute(path, false),
+    );
+    recordShellRoute('/you', true);
+    recordShellRoute('/settings/security', false);
+    const fallback = jest.fn();
+
+    goBackPast(isSettingsPath, fallback);
+
+    expect(go).toHaveBeenCalledWith(-1);
+  });
+
+  it('falls back when the stack holds nothing but settings', () => {
+    ['/settings/profile', '/settings/security'].forEach((path) =>
+      recordShellRoute(path, false),
+    );
+    const fallback = jest.fn();
+
+    goBackPast(isSettingsPath, fallback);
+
+    expect(go).not.toHaveBeenCalled();
+    expect(fallback).toHaveBeenCalled();
   });
 });

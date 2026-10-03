@@ -1,9 +1,16 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { Button } from '../../buttons/Button';
 import { ShellSquare } from '../../shell/ShellSquare';
+import {
+  goBackPast,
+  isFeedEditPath,
+  isSettingsPath,
+} from '../../shell/shellNav';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { IconSize } from '../../Icon';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
@@ -97,6 +104,7 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   );
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
+  const queryClient = useQueryClient();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
@@ -141,21 +149,31 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   // row itself: back (to the sections menu, then to the feed), the name,
   // Save.
   if (isMobile) {
-    let rowTitle = 'Feed settings';
-    if (activeView) {
-      rowTitle =
-        feed?.type === FeedType.Custom
-          ? feed.flags?.name ?? 'Feed settings'
-          : 'For You';
-    }
+    // The sections page carries the feed's name; a section carries its own,
+    // as Settings and its sections do.
+    const feedName =
+      feed?.type === FeedType.Custom
+        ? feed.flags?.name ?? 'Feed settings'
+        : 'For You';
+    const rowTitle = activeView ?? feedName;
 
     return (
-      <div className="flex h-[3.25rem] shrink-0 items-center gap-2 px-4">
+      <div className="flex h-[3.25rem] w-full shrink-0 items-center gap-2 px-4">
         <ShellSquare
           aria-label="Go back"
           onClick={async () => {
             if (!activeView) {
-              onBackToFeed({ action: 'discard' });
+              // One level up: the settings menu when feed settings was
+              // opened from it, otherwise the feed it came from.
+              const target = goBackPast(isFeedEditPath, () =>
+                onBackToFeed({ action: 'discard' }),
+              );
+              if (target && isSettingsPath(target)) {
+                queryClient.setQueryData(
+                  generateQueryKey(RequestKey.AccountNavigation),
+                  true,
+                );
+              }
               return;
             }
             const shouldDiscard = await onDiscard({ activeView });
