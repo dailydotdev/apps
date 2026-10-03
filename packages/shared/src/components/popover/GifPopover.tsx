@@ -250,7 +250,10 @@ const GifPopover = ({
           isOpen={open}
           onClose={handleClose}
           isFullScreen
-          className={{ wrapper: 'flex flex-col p-4' }}
+          className={{
+            wrapper:
+              'flex flex-col p-4 pb-[max(env(safe-area-inset-bottom,0px),1rem)]',
+          }}
         >
           <div className="mb-2 flex h-[3.25rem] shrink-0 items-center gap-2">
             <Typography

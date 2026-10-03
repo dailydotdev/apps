@@ -1526,7 +1526,7 @@ export const Spotlight = ({
           // drawer has no title); the palette supplies its own insets, so the
           // extra horizontal padding was clipping the search field.
           wrapper:
-            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default !p-0',
+            'flex !h-[90%] !max-h-[90%] flex-col overflow-hidden bg-background-default !p-0',
         }}
       >
         {paletteBody}

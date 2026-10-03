@@ -32,8 +32,11 @@ function FooterSpacer({
     return <div className={mobileAppFooterHeight} />;
   }
 
+  // No bar here, but the page still ends above the home indicator.
   if (hidesCluster(router?.pathname)) {
-    return null;
+    return (
+      <div className="h-[env(safe-area-inset-bottom,0px)] tablet:hidden" />
+    );
   }
 
   // The bar's own height comes from the cluster (--shell-bottom); a post

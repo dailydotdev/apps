@@ -59,6 +59,8 @@ describe('hidesCluster', () => {
     expect(hidesCluster('/feeds/[slugOrId]/edit')).toBe(true);
     expect(hidesCluster('/squads/[handle]/edit')).toBe(true);
     expect(hidesCluster('/posts/[id]/edit')).toBe(true);
+    expect(hidesCluster('/jobs/[id]')).toBe(true);
+    expect(hidesCluster('/jobs')).toBe(false);
     expect(hidesCluster('/feeds/[slugOrId]')).toBe(false);
     expect(hidesCluster('/squads/[handle]')).toBe(false);
     expect(hidesCluster('/posts/[id]')).toBe(false);

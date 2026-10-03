@@ -402,7 +402,7 @@ const QuestLevelFireworkLayer = ({
   return (
     <RootPortal>
       <div
-        className="pointer-events-none fixed inset-0"
+        className="pointer-events-none fixed inset-0 !top-0"
         style={{ zIndex: QUEST_REWARD_LAYER_Z_INDEX }}
       >
         {particles.map((particle) => {

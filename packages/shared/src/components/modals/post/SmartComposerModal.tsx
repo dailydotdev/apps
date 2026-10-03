@@ -620,7 +620,7 @@ export function SmartComposerModal({
             onMarkdownModeChange={onMarkdownModeChange}
           />
           {notificationToggleNode && (
-            <div className="-mt-2 flex min-w-0 shrink-0 px-5 pb-5">
+            <div className="-mt-2 flex min-w-0 shrink-0 px-5 pb-[max(env(safe-area-inset-bottom,0px),1.25rem)]">
               {notificationToggleNode}
             </div>
           )}
@@ -646,7 +646,7 @@ export function SmartComposerModal({
         </div>
       )}
       {kind !== 'text' && (
-        <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
+        <div className="flex shrink-0 flex-col gap-3 px-5 pb-[max(env(safe-area-inset-bottom,0px),1.25rem)] pt-4">
           <div className="flex items-center justify-between gap-3">
             {kindPickerNode}
             <span className="ml-auto flex items-center">
