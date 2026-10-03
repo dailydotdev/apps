@@ -34,7 +34,9 @@ body[data-scroll-locked] {
   padding-top: var(--safe-area-top) !important;
 }
 
-body .antialiased > .sticky.top-0,
+/* The layout's own sticky rows only: a modal's content is `antialiased`
+   too, and its overlay already starts below the status bar. */
+body #__next .antialiased > .sticky.top-0,
 body .fixed.top-0,
 body .fixed.inset-0 {
   top: calc(var(--safe-area-top) + var(--safe-area-top-offset, 0px));
@@ -44,10 +46,32 @@ body .fixed.top-0.h-full {
   height: calc(100vh - var(--safe-area-top) - var(--safe-area-top-offset, 0px));
 }
 
+/* A full screen is the screen less the status bar here: the body is
+   padded by the inset and overlays start below it. */
 .min-h-dvh {
   min-height: calc(100dvh - var(--safe-area-top));
 }
 
 .max-h-dvh {
   max-height: calc(100dvh - var(--safe-area-top));
+}
+
+.h-dvh {
+  height: calc(100dvh - var(--safe-area-top));
+}
+
+.\!h-dvh {
+  height: calc(100dvh - var(--safe-area-top)) !important;
+}
+
+.\!max-h-dvh {
+  max-height: calc(100dvh - var(--safe-area-top)) !important;
+}
+
+.min-h-screen {
+  min-height: calc(100vh - var(--safe-area-top));
+}
+
+.h-screen {
+  height: calc(100vh - var(--safe-area-top));
 }

@@ -593,7 +593,7 @@ function GameCenterPage({
 
           <section
             id={gameCenterMilestoneSectionId}
-            className="flex scroll-mt-16 flex-col gap-4"
+            className="flex scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))] flex-col gap-4"
           >
             <SectionHeader title="Milestone quests" />
 

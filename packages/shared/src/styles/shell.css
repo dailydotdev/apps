@@ -398,3 +398,13 @@
   -webkit-mask-image: linear-gradient(black 30%, transparent);
   mask-image: linear-gradient(black 30%, transparent);
 }
+
+/* A full-screen modal opened over a scrolled page keeps the solid cover:
+   the page must not show through above the modal's header. */
+:root.shell-edge body.ReactModal__Body--open::before {
+  background: var(--theme-background-default);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}

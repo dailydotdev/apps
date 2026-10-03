@@ -67,6 +67,23 @@ describe('useShellScroll', () => {
     expect(result.current.p).toBe(0);
   });
 
+  it('keeps its state while a sheet pins the page', () => {
+    const { result } = renderHook(() => useShellScroll());
+
+    act(() => {
+      scrollTo(200);
+      scrollTo(400);
+    });
+    expect(result.current.p).toBe(1);
+
+    document.body.style.position = 'fixed';
+    act(() => {
+      scrollTo(0);
+    });
+    expect(result.current.p).toBe(1);
+    document.body.style.removeProperty('position');
+  });
+
   it('ignores a wobble smaller than the tolerances', () => {
     const { result } = renderHook(() => useShellScroll());
 

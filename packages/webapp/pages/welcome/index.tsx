@@ -39,7 +39,6 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { authGradientBg } from '@dailydotdev/shared/src/components/marketing/banners';
-import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 
@@ -107,7 +106,7 @@ const DemoPage = (): ReactElement => {
     <>
       <div
         className={classNames(
-          'sticky top-0 z-header flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
+          'sticky top-[var(--safe-area-top,0px)] z-header flex h-12 w-full justify-between border-b border-accent-cabbage-default px-4 py-2',
           authGradientBg,
         )}
       >
@@ -155,10 +154,7 @@ const DemoPage = (): ReactElement => {
   );
 };
 
-const getPageLayout: typeof getLayout = (...props) =>
-  getFooterNavBarLayout(getLayout(...props));
-
-DemoPage.getLayout = getPageLayout;
+DemoPage.getLayout = getLayout;
 DemoPage.layoutProps = {
   screenCentered: false,
   seo,

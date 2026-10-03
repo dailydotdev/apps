@@ -31,6 +31,11 @@ const emit = (next: ShellScrollState) => {
 };
 
 const onScroll = () => {
+  // A sheet pins the body while it is open, which reads as a jump to the
+  // top; the bars keep the state they had.
+  if (document.body.style.position === 'fixed') {
+    return;
+  }
   const y = window.scrollY;
   const delta = y - lastY;
   lastY = y;
