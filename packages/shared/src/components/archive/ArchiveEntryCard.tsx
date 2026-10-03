@@ -78,7 +78,7 @@ export function ArchiveEntryCard({
 
           return (
             <Link key={archive.id} href={url} prefetch={false}>
-              <a className="flex shrink-0 items-center rounded-12 border border-border-subtlest-tertiary px-4 py-2.5 transition-all duration-200 typo-callout hover:border-border-subtlest-secondary mouse:hover:bg-surface-hover">
+              <a className="flex shrink-0 items-center rounded-12 border border-border-subtlest-tertiary px-4 py-2.5 transition-all duration-200 typo-callout hover:border-border-subtlest-secondary hover:bg-surface-hover">
                 {getArchiveTitle(archive)}
               </a>
             </Link>

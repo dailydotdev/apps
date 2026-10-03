@@ -59,7 +59,7 @@ export const HighlightItem = ({
     <article ref={ref}>
       <button
         type="button"
-        className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors mouse:hover:bg-surface-hover"
+        className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
         onClick={() => setExpanded((prev) => !prev)}
         aria-expanded={expanded}
       >

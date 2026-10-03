@@ -52,7 +52,7 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => {
   return (
     <article
       className={classNames(
-        'group relative -mx-4 flex items-start px-4 py-3 mouse:hover:bg-surface-hover',
+        'group relative -mx-4 flex items-start px-4 py-3 hover:bg-surface-hover',
         styles.card,
       )}
     >

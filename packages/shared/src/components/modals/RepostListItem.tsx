@@ -65,7 +65,7 @@ export function RepostListItem({
   };
 
   return (
-    <div className="border-b border-border-subtlest-tertiary px-6 py-5 last:border-b-0 mouse:hover:bg-surface-hover">
+    <div className="border-b border-border-subtlest-tertiary px-6 py-5 last:border-b-0 hover:bg-surface-hover">
       {/* Squad name + lock + date */}
       {showSquadPreview && source && (
         <div className="mb-3 flex items-center gap-1">

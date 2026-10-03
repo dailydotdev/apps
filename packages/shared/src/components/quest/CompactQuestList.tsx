@@ -83,9 +83,9 @@ export const CompactQuestRow = ({
   const destinationLabel = destination?.label ?? 'Game Center';
 
   return (
-    // Rounded hover pill + `mouse:hover:bg-surface-hover`, matching every other v2
+    // Rounded hover pill + `hover:bg-surface-hover`, matching every other v2
     // panel list row (the px-3 container gives the same ~12px inset as `mx-3`).
-    <li className="group/quest relative flex flex-col gap-1 rounded-10 px-2 py-2.5 transition-colors mouse:hover:bg-surface-hover">
+    <li className="group/quest relative flex flex-col gap-1 rounded-10 px-2 py-2.5 transition-colors hover:bg-surface-hover">
       {/* Title row: title takes the full width with the open-details chevron in
           the top-right corner. */}
       <div className="flex items-start justify-between gap-1">

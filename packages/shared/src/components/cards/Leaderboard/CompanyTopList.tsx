@@ -47,7 +47,7 @@ export function CompanyTopList({
           key={item.company.name}
           index={i + 1}
           className={classNames(
-            'group flex w-full flex-row items-center rounded-8 px-2 mouse:hover:bg-accent-pepper-subtler',
+            'group flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler',
             TOP_RANK_STYLES[i]?.hoverClass,
           )}
           onMouseEnter={TOP_RANK_STYLES[i] ? createRowMouseEnter(i) : undefined}

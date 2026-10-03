@@ -39,7 +39,7 @@ export function TagDirectoryListItem({
           aria-label={isFollowed ? `Unfollow ${tag}` : `Follow ${tag}`}
           aria-pressed={isFollowed}
           onClick={() => onToggleFollow(tag)}
-          className="flex w-full items-center gap-2 rounded-10 px-2 py-1.5 text-left text-text-secondary transition-colors typo-callout hover:text-text-primary mouse:hover:bg-surface-hover"
+          className="flex w-full items-center gap-2 rounded-10 px-2 py-1.5 text-left text-text-secondary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
         >
           <span className="min-w-0 flex-1 truncate">{title || tag}</span>
           {isFollowed ? (
@@ -53,7 +53,7 @@ export function TagDirectoryListItem({
   }
 
   return (
-    <li className="group flex break-inside-avoid items-center gap-1 rounded-10 pr-1 transition-colors mouse:hover:bg-surface-hover">
+    <li className="group flex break-inside-avoid items-center gap-1 rounded-10 pr-1 transition-colors hover:bg-surface-hover">
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
         <Typography
           tag={TypographyTag.Link}

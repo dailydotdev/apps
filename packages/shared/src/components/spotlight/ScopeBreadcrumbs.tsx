@@ -38,7 +38,7 @@ export const SourceAvatar = ({
 const chipClassName = classNames(
   'flex h-8 shrink-0 items-center gap-1.5 rounded-10 border px-3 transition-all typo-callout',
   'border-border-subtlest-tertiary bg-surface-float text-text-tertiary',
-  'hover:-translate-y-px hover:border-border-subtlest-secondary hover:text-text-primary hover:shadow-2 mouse:hover:bg-surface-hover',
+  'hover:-translate-y-px hover:border-border-subtlest-secondary hover:bg-surface-hover hover:text-text-primary hover:shadow-2',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-1',
 );
 

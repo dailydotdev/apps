@@ -88,7 +88,7 @@ const HighlightRow = ({
     <Link href={getHighlightUrl(highlight)}>
       <a
         className={classNames(
-          'group/highlight flex w-full flex-col gap-0 text-left transition-colors focus-visible:bg-surface-hover mouse:hover:bg-surface-hover',
+          'group/highlight flex w-full flex-col gap-0 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
           compact
             ? // Drawn, not bordered: a `border-b` follows the row's corner
               // radius and curves up at both ends.

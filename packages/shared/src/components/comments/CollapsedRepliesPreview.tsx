@@ -51,7 +51,7 @@ export default function CollapsedRepliesPreview({
     <button
       type="button"
       className={classNames(
-        'flex w-full cursor-pointer items-center gap-2 rounded-16 px-4 py-3 mouse:hover:bg-surface-hover',
+        'flex w-full cursor-pointer items-center gap-2 rounded-16 px-4 py-3 hover:bg-surface-hover',
         isThreadStyle &&
           'group relative gap-3 rounded-none !px-0 !py-0 hover:bg-transparent',
         className,

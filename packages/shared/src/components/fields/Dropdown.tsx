@@ -143,7 +143,7 @@ export function Dropdown({
       size={buttonSize}
       disabled={disabled}
       className={classNames(
-        'group flex items-center font-normal text-text-secondary typo-body hover:text-text-primary mouse:hover:bg-surface-hover',
+        'group flex items-center font-normal text-text-secondary typo-body hover:bg-surface-hover hover:text-text-primary',
         // `!pl-4 !pr-2.5` overrides the Button's built-in Large padding (px-6)
         // so the value lines up with the other fields' 16px text inset and the
         // chevron sits tight to the right edge instead of floating 24px in.

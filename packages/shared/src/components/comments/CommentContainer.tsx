@@ -76,7 +76,7 @@ export default function CommentContainer({
     <article
       ref={isCommentReferenced ? commentRef : null}
       className={classNames(
-        'relative flex flex-col rounded-16 p-4 focus:outline mouse:hover:bg-surface-hover',
+        'relative flex flex-col rounded-16 p-4 hover:bg-surface-hover focus:outline',
         hasAccessToCores &&
           comment.userState?.awarded &&
           'bg-overlay-float-onion',

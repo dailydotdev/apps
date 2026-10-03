@@ -213,7 +213,7 @@ export default function PostsSearch({
               // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
               <div
                 className={classNames(
-                  'flex h-8 items-center gap-1 truncate px-3 typo-footnote hover:cursor-pointer mouse:hover:bg-surface-hover',
+                  'flex h-8 items-center gap-1 truncate px-3 typo-footnote hover:cursor-pointer hover:bg-surface-hover',
                   { 'bg-surface-hover': index === selectedItemIndex },
                 )}
                 key={item}

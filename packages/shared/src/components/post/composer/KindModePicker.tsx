@@ -50,9 +50,7 @@ export const KindModePicker = ({
           className={classNames(
             'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-8 border border-accent-cabbage-default px-2 text-text-primary transition-colors',
             'hover:border-accent-cabbage-bolder',
-            open
-              ? 'bg-surface-float'
-              : 'bg-transparent mouse:hover:bg-surface-float',
+            open ? 'bg-surface-float' : 'bg-transparent hover:bg-surface-float',
             disabled && 'opacity-60 cursor-default',
           )}
         >

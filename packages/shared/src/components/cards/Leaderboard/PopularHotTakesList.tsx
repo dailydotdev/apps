@@ -30,7 +30,7 @@ export function PopularHotTakesList({
             key={hotTake.id}
             href={`${webappUrl}${user.username}#hot-takes`}
             index={score}
-            className="flex w-full flex-row items-center rounded-8 px-2 py-2 mouse:hover:bg-accent-pepper-subtler"
+            className="flex w-full flex-row items-center rounded-8 px-2 py-2 hover:bg-accent-pepper-subtler"
           >
             <span className="min-w-8 pl-1">{hotTake.emoji}</span>
             <div className="flex min-h-10 min-w-0 flex-1 flex-col justify-center gap-1 px-2">

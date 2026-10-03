@@ -90,7 +90,7 @@ const YouRow = ({
     </>
   );
   const className =
-    'flex h-11 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout mouse:hover:bg-surface-hover active:bg-surface-hover';
+    'flex h-11 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout hover:bg-surface-hover active:bg-surface-hover';
 
   if (href && external) {
     return (
@@ -159,7 +159,7 @@ const FollowStat = ({
   <button
     type="button"
     onClick={onClick}
-    className="flex items-center gap-1 rounded-8 transition-colors typo-footnote active:bg-surface-hover mouse:hover:bg-surface-hover"
+    className="flex items-center gap-1 rounded-8 transition-colors typo-footnote hover:bg-surface-hover active:bg-surface-hover"
   >
     <b className="text-text-primary">{largeNumberFormat(amount)}</b>
     <span className="text-text-tertiary">{label}</span>
@@ -183,7 +183,7 @@ const StatPill = ({
   external?: boolean;
 }): ReactElement => {
   const className =
-    'shell-press flex h-8 items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-surface-float pl-2 pr-2.5 typo-footnote transition-colors mouse:hover:bg-surface-hover active:bg-surface-hover';
+    'shell-press flex h-8 items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-surface-float pl-2 pr-2.5 typo-footnote transition-colors hover:bg-surface-hover active:bg-surface-hover';
   const content = (
     <>
       {icon}

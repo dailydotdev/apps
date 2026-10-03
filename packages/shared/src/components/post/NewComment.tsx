@@ -176,7 +176,7 @@ function NewCommentComponent(
     <button
       type="button"
       className={classNames(
-        'flex w-full items-center gap-2 !rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 typo-callout hover:border-border-subtlest-primary tablet:p-1 mouse:hover:bg-surface-hover',
+        'flex w-full items-center gap-2 !rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 typo-callout hover:border-border-subtlest-primary hover:bg-surface-hover tablet:p-1',
         className?.container,
       )}
       onClick={() => onCommentClick(Origin.StartDiscussion)}

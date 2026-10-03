@@ -35,7 +35,7 @@ type PostProps = {
 const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'group relative -mx-4 flex flex-col items-start px-4 py-3 mouse:hover:bg-surface-hover',
+      'group relative -mx-4 flex flex-col items-start px-4 py-3 hover:bg-surface-hover',
       styles.card,
     )}
   >

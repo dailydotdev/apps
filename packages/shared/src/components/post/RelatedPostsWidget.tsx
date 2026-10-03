@@ -79,7 +79,7 @@ export const RelatedPostsWidget = ({
             return (
               <article
                 key={relatedPost.id}
-                className="relative flex flex-col gap-2 px-4 py-2 mouse:hover:bg-surface-hover"
+                className="relative flex flex-col gap-2 px-4 py-2 hover:bg-surface-hover"
               >
                 <CardLink
                   className="cursor-pointer"
