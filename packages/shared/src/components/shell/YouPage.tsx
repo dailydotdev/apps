@@ -55,7 +55,6 @@ import { LazyModal } from '../modals/common/types';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { PlusUser } from '../PlusUser';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
@@ -254,9 +253,9 @@ export function YouPage(): ReactElement | null {
   }
 
   const profileUrl = `${webappUrl}${user.username}`;
-  const feedSettingsUrl = isCustomDefaultFeed
-    ? `${webappUrl}feeds/${defaultFeedId}/edit`
-    : `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.Tags}`;
+  const feedSettingsUrl = `${webappUrl}feeds/${
+    isCustomDefaultFeed ? defaultFeedId : user.id
+  }/edit`;
   const followQuery = {
     queryProps: { id: user.id, entity: ContentPreferenceType.User },
   };

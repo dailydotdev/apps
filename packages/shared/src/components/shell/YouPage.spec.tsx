@@ -134,7 +134,7 @@ describe('YouPage', () => {
     );
     expect(screen.getByRole('link', { name: 'Feed settings' })).toHaveAttribute(
       'href',
-      '/feeds/u1/edit?dview=tags',
+      '/feeds/u1/edit',
     );
     expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute(
       'href',
