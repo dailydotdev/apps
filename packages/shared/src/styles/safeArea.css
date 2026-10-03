@@ -27,6 +27,13 @@ body {
   padding-top: var(--safe-area-top);
 }
 
+/* A modal menu's scroll lock (react-remove-scroll) zeroes the body's
+   padding; without this the page behind a menu sheet jumps up by the
+   status-bar inset in the wrappers. */
+body[data-scroll-locked] {
+  padding-top: var(--safe-area-top) !important;
+}
+
 body .antialiased > .sticky.top-0,
 body .fixed.top-0,
 body .fixed.inset-0 {

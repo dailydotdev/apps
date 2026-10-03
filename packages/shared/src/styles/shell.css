@@ -182,18 +182,12 @@
   height: 100dvh !important;
   max-height: 100dvh !important;
   border-radius: 0 !important;
-  padding-top: calc(var(--safe-area-top, 0px) + 0.75rem) !important;
+  --sheet-gap: 0px;
 }
 
 .shell-menu-sheet[data-expanded='true'] > div {
   flex: 1;
   max-height: none;
-}
-
-/* The full-height menu sheet covers the status bar; its grabber sits
-   below it, not under the island. */
-.shell-menu-sheet[data-expanded='true']::before {
-  top: calc(var(--safe-area-top, 0px) + 0.375rem);
 }
 
 /* At full height the grabber keeps its own top padding. The overlay
@@ -286,9 +280,26 @@
     transform: translateX(-50%);
   }
 
+  /* The menu sheet reaches the top of the screen, over the status bar.
+     Its top padding grows by exactly as much as its edge enters the inset
+     (--sheet-gap is the distance left to the top, set while a finger drags
+     and zero at full height), so the rows never pass under the clock and
+     nothing jumps when the sheet arrives or leaves. */
   .shell-menu-sheet {
+    padding-top: max(
+      0.75rem,
+      calc(var(--safe-area-top, 0px) + 0.75rem - var(--sheet-gap, 100vh))
+    ) !important;
     transition: height var(--shell-duration-snap) var(--shell-ease-interaction),
+      padding-top var(--shell-duration-snap) var(--shell-ease-interaction),
       border-radius var(--shell-duration-snap) var(--shell-ease-interaction);
+  }
+
+  .shell-menu-sheet::before {
+    top: max(
+      0.375rem,
+      calc(var(--safe-area-top, 0px) + 0.375rem - var(--sheet-gap, 100vh))
+    );
   }
 
   .shell-menu-sheet[data-dragging='true'] {

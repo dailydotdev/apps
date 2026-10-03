@@ -52,12 +52,16 @@ export const attachSheetDrag = (
     style.height = '';
     style.maxHeight = '';
     style.transition = '';
+    style.removeProperty('--sheet-gap');
   };
 
   const settleTo = (expanded: boolean) => {
     panel.removeAttribute('data-dragging');
-    style.transition = `height ${motion.snap}ms ${motion.interaction}, transform ${motion.snap}ms ${motion.interaction}`;
+    style.transition = `height ${motion.snap}ms ${motion.interaction}, transform ${motion.snap}ms ${motion.interaction}, padding-top ${motion.snap}ms ${motion.interaction}`;
     style.transform = '';
+    // The distance left to the top; a sheet that covers the status bar pads
+    // its content by how far it has entered it.
+    style.removeProperty('--sheet-gap');
     if (expanded) {
       panel.setAttribute('data-expanded', 'true');
       // The attribute's rule carries the full height; the inline height
@@ -126,6 +130,7 @@ export const attachSheetDrag = (
     }
     panel.setAttribute('data-dragging', 'true');
     panel.setAttribute('data-entered', 'true');
+    style.setProperty('--sheet-gap', `${Math.max(0, fullHeight - current)}px`);
     // The inline height drives the sheet while a finger is down.
     panel.removeAttribute('data-expanded');
     style.transition = 'none';
@@ -163,8 +168,10 @@ export const attachSheetDrag = (
     // it the sheet rides down whole.
     const wanted = base - dy;
     if (wanted >= restHeight) {
-      style.height = `${Math.min(fullHeight, wanted)}px`;
+      const height = Math.min(fullHeight, wanted);
+      style.height = `${height}px`;
       style.transform = '';
+      style.setProperty('--sheet-gap', `${fullHeight - height}px`);
     } else {
       style.height = `${restHeight}px`;
       style.transform = `translateY(${restHeight - wanted}px)`;
