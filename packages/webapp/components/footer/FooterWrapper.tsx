@@ -5,15 +5,10 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
+import { MobilePostFloatingBar } from '@dailydotdev/shared/src/components/post/MobilePostFloatingBar';
 import { useActivePostContext } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMobileAppFooterContext } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
-
-const MobilePostFloatingBar = dynamic(() =>
-  import(
-    /* webpackChunkName: "mobilePostFloatingBar" */ '@dailydotdev/shared/src/components/post/MobilePostFloatingBar'
-  ).then((mod) => mod.MobilePostFloatingBar),
-);
 
 const MobileAppFooter = dynamic(() =>
   import(
