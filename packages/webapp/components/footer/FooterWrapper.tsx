@@ -44,7 +44,10 @@ export default function FooterWrapper({
     <div
       className={classNames(
         'pointer-events-none fixed !bottom-0 left-0 z-3 w-full',
-        showNav && !showAppFooter && post && 'pb-16',
+        showNav &&
+          !showAppFooter &&
+          post &&
+          'pb-[calc(var(--shell-bottom,4.5rem)-0.5rem)]',
       )}
     >
       <div className="hidden tablet:block">

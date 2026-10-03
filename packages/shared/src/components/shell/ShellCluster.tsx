@@ -114,14 +114,17 @@ export function ShellCluster({
     },
   ];
 
-  // The space the bar takes at rest, for content that must clear it.
+  // The space the bar takes at rest, for content that must clear it. The
+  // bar sits above the home indicator, so the inset is part of that space.
   useEffect(() => {
     if (hidden) {
       return undefined;
     }
     document.documentElement.style.setProperty(
       '--shell-bottom',
-      `${cluster.rest + cluster.lift * 2}px`,
+      `calc(${
+        cluster.rest + cluster.lift * 2
+      }px + env(safe-area-inset-bottom, 0px))`,
     );
     return () => {
       document.documentElement.style.removeProperty('--shell-bottom');

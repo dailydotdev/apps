@@ -40,7 +40,11 @@ function FooterSpacer({
   // page adds its floating action bar on top of it.
   return (
     <div
-      className={post ? 'h-44 tablet:hidden' : 'tablet:hidden'}
+      className={
+        post
+          ? 'h-[calc(11rem+env(safe-area-inset-bottom,0px))] tablet:hidden'
+          : 'tablet:hidden'
+      }
       style={post ? undefined : { height: 'var(--shell-bottom, 5rem)' }}
     />
   );
