@@ -12,9 +12,10 @@ import { SquadActionButton } from '../../squads/SquadActionButton';
 import { SourceIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useSquad } from '../../../hooks';
-import { ButtonSize } from '../../buttons/Button';
-import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
-import { Separator } from '../common/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { SquadOptionsMenu } from '../../../features/squads/components/header/SquadOptionsMenu';
+import { SquadPageContextProvider } from '../../../features/squads/SquadPageContext';
+import { visibleOnGroupHover, Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
@@ -72,13 +73,12 @@ const SquadEntityCard = ({
               squad={squad}
               origin={origin}
             />
-            <SquadHeaderMenu
-              squad={squad}
-              className={{
-                button: '!btn-tertiary invisible group-hover/menu:visible',
-              }}
-              showDeletion={false}
-            />
+            <SquadPageContextProvider squad={squad} isViewerReady>
+              <SquadOptionsMenu
+                variant={ButtonVariant.Tertiary}
+                className={visibleOnGroupHover}
+              />
+            </SquadPageContextProvider>
           </>
         )
       }

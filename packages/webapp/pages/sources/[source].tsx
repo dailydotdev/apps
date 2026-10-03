@@ -60,6 +60,7 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
@@ -67,6 +68,7 @@ import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/En
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -226,6 +228,7 @@ const SourcePage = ({
   relatedTags = [],
   topPosts = [],
 }: SourcePageProps): ReactElement => {
+  const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { user } = useContext(AuthContext);
@@ -273,6 +276,7 @@ const SourcePage = ({
           so it spans the full floating-card width without being clamped
           by the list-mode max-width. */}
       {isV2Laptop && <PageHeader title={source.name} />}
+      {isPhone && <ShellPage title={source.name} />}
       <FeedPageLayoutComponent className="overflow-x-hidden">
         <Head>
           <script
@@ -297,7 +301,7 @@ const SourcePage = ({
             <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
           </div>
           <div className="flex flex-row gap-3">
-            <SourceActions showCopyLink source={source} />
+            <SourceActions showCopyLink={!isPhone} source={source} />
           </div>
           {source?.description && (
             <p className="typo-body">{source?.description}</p>

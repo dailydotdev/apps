@@ -70,6 +70,7 @@ import {
   useViewSize,
   ViewSize,
 } from '../hooks';
+import { useIsPhone } from '../hooks/useViewSize';
 import { feedNameToHeading, v2FeedSideInsetClass } from './feeds/FeedContainer';
 import { pageHeaderClassName } from './layout/PageHeader';
 import {
@@ -104,6 +105,16 @@ import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
+
+import { ExploreSortMenu } from './shell/ExploreSortMenu';
+import { ShellPage } from './shell/ShellPageContext';
+
+const SpotlightTrigger = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "spotlightTrigger" */ './spotlight/SpotlightTrigger'
+    ),
+);
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -264,6 +275,7 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter, postTypesFilter } =
@@ -730,7 +742,8 @@ export default function MainFeedLayout({
   // (see `enableSsrSafeLayout`), so keying the spacing to it made the
   // gap change size on navigation and settle differently on reload.
   const disableTopPadding =
-    isFinder || (shouldUseListFeedLayout && !isAnyExplore);
+    isFinder ||
+    (shouldUseListFeedLayout && (!isAnyExplore || (isPhone && hasMounted)));
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
       if (clickedTab === ExploreTabs.BestOf && isExtension) {
@@ -764,6 +777,10 @@ export default function MainFeedLayout({
       );
     }
 
+    if (isPhone) {
+      return <ExploreSortMenu />;
+    }
+
     return (
       <FeedExploreHeader
         tab={tab}
@@ -771,7 +788,7 @@ export default function MainFeedLayout({
         showBreadcrumbs={false}
         className={{
           container: classNames(
-            'sticky top-[calc(4.5rem+var(--mobile-app-header-offset,0px))] z-header w-full border-b border-border-subtlest-tertiary bg-background-default transition-[top] duration-200 ease-out',
+            'z-header w-full border-b border-border-subtlest-tertiary bg-background-default transition-[top] duration-200 ease-out tablet:sticky tablet:top-[calc(4.5rem+var(--mobile-app-header-offset,0px))]',
             feedGutter,
           ),
           tabBarHeader: 'no-scrollbar overflow-x-auto',
@@ -779,7 +796,7 @@ export default function MainFeedLayout({
         }}
       />
     );
-  }, [isLaptop, onTabChange, tab]);
+  }, [isLaptop, isPhone, onTabChange, tab]);
 
   // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
   // Discussions) from the sidebar's Explore panel, so the page header no longer
@@ -899,7 +916,21 @@ export default function MainFeedLayout({
       >
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
-        {isSearchOn && !isSearchPageLaptop && (
+        {isExploreTag && isPhone && (
+          <ShellPage title={`#${router.query?.tag ?? ''}`} />
+        )}
+        {isSearchOn && !isSearchPageLaptop && isPhone && (
+          <ShellPage
+            title={searchQuery || 'Search'}
+            actions={<SearchMobileFiltersButton square />}
+            row={
+              <div className="px-2 pb-1">
+                <SpotlightTrigger />
+              </div>
+            }
+          />
+        )}
+        {isSearchOn && !isSearchPageLaptop && !isPhone && (
           <div
             className={classNames(
               'mb-3 flex justify-end px-4',

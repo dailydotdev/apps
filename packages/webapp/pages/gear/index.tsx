@@ -8,6 +8,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { GearTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/GearTopList';
@@ -68,7 +69,8 @@ const GearPage = ({ gearByCategory }: GearPageProps): ReactElement => {
       </div>
 
       <PageWrapperLayout className="py-6">
-        <BreadCrumbs>
+        <ShellPage title="Gear" />
+        <BreadCrumbs className="hidden tablet:flex">
           <SettingsIcon size={IconSize.XSmall} secondary /> Gear
         </BreadCrumbs>
         <header className="mt-6 flex items-center gap-3">

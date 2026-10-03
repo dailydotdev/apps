@@ -28,7 +28,13 @@ import { getDisplayUrl, squadLinkRel } from '../../lib/links';
 import { SquadViewer } from '../../lib/viewer';
 import { getSquadMembersUrl } from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
-import { SquadActions, SquadPhoneActions } from './SquadActions';
+import {
+  SquadActions,
+  SquadBlockActions,
+  SquadPhoneActions,
+} from './SquadActions';
+import { ShellPage } from '../../../../components/shell/ShellPageContext';
+import { useIsPhone } from '../../../../hooks/useViewSize';
 
 const MAX_FACES = 3;
 
@@ -218,6 +224,7 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
 
 export const SquadProfileHeader = (): ReactElement => {
   const { squad, viewer, isViewerReady } = useSquadPageContext();
+  const isPhone = useIsPhone();
 
   return (
     <header className="relative w-full">
@@ -237,6 +244,9 @@ export const SquadProfileHeader = (): ReactElement => {
             className="relative size-20 shrink-0 bg-background-default ring-4 ring-background-default tablet:size-26"
           />
           {isViewerReady && <SquadActions />}
+          {isViewerReady && isPhone && (
+            <ShellPage title="Squad" actions={<SquadBlockActions />} />
+          )}
         </div>
         {viewer === SquadViewer.Blocked && (
           <div className="mt-4 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-tertiary typo-footnote">

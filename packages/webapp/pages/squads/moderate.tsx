@@ -1,4 +1,6 @@
 import type { ReactElement } from 'react';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import React from 'react';
@@ -46,19 +48,24 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
 export default function ModerateSquadPage(): ReactElement {
   const router = useRouter();
+  const isPhone = useIsPhone();
 
   return (
     <ManageSquadPageContainer>
-      <PageHeader className="border-b-0">
-        <Button
-          onClick={() => router.back()}
-          icon={<ArrowIcon className="-rotate-90" />}
-          variant={ButtonVariant.Tertiary}
-        />
-        <PageHeaderTitle bold type={TypographyType.Title3}>
-          Squad settings
-        </PageHeaderTitle>
-      </PageHeader>
+      {isPhone ? (
+        <ShellPage title="Squad settings" />
+      ) : (
+        <PageHeader className="hidden border-b-0 tablet:flex">
+          <Button
+            onClick={() => router.back()}
+            icon={<ArrowIcon className="-rotate-90" />}
+            variant={ButtonVariant.Tertiary}
+          />
+          <PageHeaderTitle bold type={TypographyType.Title3}>
+            Squad settings
+          </PageHeaderTitle>
+        </PageHeader>
+      )}
       <SquadModerationList squad={undefined} isModerator />
     </ManageSquadPageContainer>
   );

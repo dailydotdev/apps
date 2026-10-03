@@ -3,8 +3,9 @@ import type { PropsWithChildren, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import type { DrawerRef, DrawerWrapperProps } from './Drawer';
 import { Drawer, DrawerPosition } from './Drawer';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
+import { ShellSquare } from '../shell/ShellSquare';
+import { IconSize } from '../Icon';
 import {
   Typography,
   TypographyTag,
@@ -56,16 +57,21 @@ export function NavDrawer({
       }}
     >
       {header && (
-        <div className="flex h-14 items-center gap-2 border-b border-border-subtlest-tertiary px-4">
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
+        <div className="flex h-[3.25rem] items-center gap-2 px-4">
+          <ShellSquare
+            aria-label="Go back"
             onClick={
               shouldKeepOpen ? drawerProps.onClose : ref.current?.onClose
             }
-            icon={<ArrowIcon className="-rotate-90" />}
-          />
-          <Typography bold tag={TypographyTag.H2} type={TypographyType.Body}>
+          >
+            <ArrowIcon size={IconSize.Small} className="-rotate-90" />
+          </ShellSquare>
+          <Typography
+            bold
+            tag={TypographyTag.H2}
+            type={TypographyType.Title3}
+            className="min-w-0 flex-1 truncate px-1"
+          >
             {header}
           </Typography>
 

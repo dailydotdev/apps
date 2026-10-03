@@ -17,6 +17,7 @@ import { GenericLoaderSpinner } from '../utilities/loaders';
 import { IconSize } from '../Icon';
 import { useViewSize, ViewSize } from '../../hooks';
 import { Drawer } from '../drawers';
+import { ShellSquare } from '../shell/ShellSquare';
 
 const searchSuggestions = [
   'Nodding zoom',
@@ -157,6 +158,12 @@ const GifPopover = ({
   });
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  // The picker opens on pictures, not on a message: the favorites when
+  // there are some, a suggestion's results otherwise.
+  const [defaultQuery] = useState(
+    () =>
+      searchSuggestions[Math.floor(Math.random() * searchSuggestions.length)],
+  );
   const [savedSelection, setSavedSelection] = React.useState<[number, number]>([
     0, 0,
   ]);
@@ -173,18 +180,19 @@ const GifPopover = ({
     favorites,
     isFetchingFavorites,
   } = useGif({
-    query,
+    query: query || defaultQuery,
     limit: '20',
     favoritesEnabled: open,
   });
+  const showFavorites = !query && favorites?.length > 0;
   const [debounceNextPage] = useDebounceFn<void>(() => {
-    if (inView && data?.length > 0 && !isFetchingNextPage && query) {
+    if (inView && data?.length > 0 && !isFetchingNextPage && !showFavorites) {
       fetchNextPage();
     }
   }, 500);
 
-  const gifsToDisplay = !query ? favorites : data;
-  const isLoadingGifs = !query ? isFetchingFavorites : isLoading;
+  const gifsToDisplay = showFavorites ? favorites : data;
+  const isLoadingGifs = showFavorites ? isFetchingFavorites : isLoading;
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && textareaRef?.current) {
@@ -226,7 +234,7 @@ const GifPopover = ({
     favorite,
     scrollRef,
     handleGifClick,
-    showLoadingSpinner: !!query,
+    showLoadingSpinner: !showFavorites,
   };
 
   if (!isTablet) {
@@ -242,17 +250,22 @@ const GifPopover = ({
           isOpen={open}
           onClose={handleClose}
           isFullScreen
-          className={{ wrapper: 'flex flex-col p-4' }}
+          className={{
+            wrapper:
+              'flex flex-col p-4 pb-[max(env(safe-area-inset-bottom,0px),1rem)]',
+          }}
         >
-          <div className="mb-2 flex shrink-0 items-center justify-between">
-            <Typography type={TypographyType.Title3} bold>
+          <div className="mb-2 flex h-[3.25rem] shrink-0 items-center gap-2">
+            <Typography
+              type={TypographyType.Title3}
+              bold
+              className="min-w-0 flex-1 truncate px-1"
+            >
               GIFs
             </Typography>
-            <Button
-              icon={<MiniCloseIcon />}
-              onClick={handleClose}
-              aria-label="Close"
-            />
+            <ShellSquare aria-label="Close" onClick={handleClose}>
+              <MiniCloseIcon size={IconSize.Small} />
+            </ShellSquare>
           </div>
           <GifPickerContent {...contentProps} />
         </Drawer>

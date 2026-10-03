@@ -454,6 +454,10 @@ export function SmartComposerModal({
     [handleSubmit, isSubmitBlocked, kind, logEvent, selectedIds.length],
   );
 
+  // On a phone the header's icon buttons are the block's squares.
+  const squareClassName = isLaptop
+    ? undefined
+    : 'shell-material !size-[2.375rem] !rounded-14 !p-0';
   const scheduleButtonNode = canSchedule ? (
     <SchedulePostButton
       isScheduled={schedule.isScheduled}
@@ -465,6 +469,7 @@ export function SmartComposerModal({
       onSeedDefault={schedule.seedDefault}
       onConfirm={schedule.confirmSchedule}
       onClear={schedule.clearSchedule}
+      className={isLaptop ? undefined : squareClassName}
     />
   ) : null;
   const postButtonNode = (
@@ -528,10 +533,11 @@ export function SmartComposerModal({
             disabled={isInFlight || isEditing}
           />
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-2">
           <ScheduledPostsNavButton
             onClick={handleViewScheduled}
             disabled={isInFlight}
+            className={squareClassName}
           />
           {scheduleInHeader && scheduleButtonNode}
           {kind === 'text' && (
@@ -545,6 +551,7 @@ export function SmartComposerModal({
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Tertiary}
                 icon={<MarkdownIcon secondary={isMarkdownMode} />}
+                className={squareClassName}
                 pressed={isMarkdownMode}
                 onClick={() => textFormRef.current?.toggleMarkdownMode()}
                 aria-label={
@@ -580,6 +587,7 @@ export function SmartComposerModal({
           <CloseButton
             type="button"
             size={ButtonSize.Small}
+            className={squareClassName}
             onClick={(event) => {
               handleClose(event);
             }}
@@ -612,7 +620,7 @@ export function SmartComposerModal({
             onMarkdownModeChange={onMarkdownModeChange}
           />
           {notificationToggleNode && (
-            <div className="-mt-2 flex min-w-0 shrink-0 px-5 pb-5">
+            <div className="-mt-2 flex min-w-0 shrink-0 px-5 pb-[max(env(safe-area-inset-bottom,0px),1.25rem)]">
               {notificationToggleNode}
             </div>
           )}
@@ -638,7 +646,7 @@ export function SmartComposerModal({
         </div>
       )}
       {kind !== 'text' && (
-        <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
+        <div className="flex shrink-0 flex-col gap-3 px-5 pb-[max(env(safe-area-inset-bottom,0px),1.25rem)] pt-4">
           <div className="flex items-center justify-between gap-3">
             {kindPickerNode}
             <span className="ml-auto flex items-center">

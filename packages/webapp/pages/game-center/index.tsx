@@ -41,6 +41,8 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import {
   ResponsivePageContainer,
@@ -168,6 +170,7 @@ function GameCenterPage({
   } = useSettingsContext();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const isPhone = useIsPhone();
   const isGameCenterEmpty =
     optOutLevelSystem && optOutQuestSystem && optOutAchievements;
 
@@ -525,8 +528,9 @@ function GameCenterPage({
   return (
     <ProtectedPage>
       {isV2Laptop && <PageHeader title="Game Center" />}
+      {isPhone && <ShellPage title="Game center" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        {!isV2Laptop && (
+        {!isV2Laptop && !isPhone && (
           <LayoutHeader
             className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
           >
@@ -589,7 +593,7 @@ function GameCenterPage({
 
           <section
             id={gameCenterMilestoneSectionId}
-            className="flex scroll-mt-16 flex-col gap-4"
+            className="flex scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))] flex-col gap-4"
           >
             <SectionHeader title="Milestone quests" />
 

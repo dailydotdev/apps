@@ -1,8 +1,26 @@
-/* Press feedback for the phone shell's tappable chrome. */
+/*
+ * The phone shell: motion tokens and press feedback (Mobile UX review,
+ * chapters 9l and 10). Two curves for the whole shell: interaction for what
+ * the finger drives or toggles, travel for what crosses the screen.
+ */
+:root {
+  --shell-ease-interaction: cubic-bezier(0.2, 0, 0, 1);
+  --shell-ease-travel: cubic-bezier(0.32, 0.72, 0, 1);
+  --shell-duration-feedback: 150ms;
+  --shell-duration-enter: 300ms;
+  --shell-duration-exit: 200ms;
+  --shell-duration-snap: 220ms;
+}
+
+/*
+ * Press feedback for tappable chrome: the control scales to 0.96 under the
+ * finger and eases back on release. `scale` is listed beside the button
+ * transitions so a `.btn` keeps its colour transitions.
+ */
 .shell-press {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: 150ms ease-out;
+  transition: var(--shell-duration-feedback) ease-out;
   transition-property: border-color, background-color, box-shadow, color, scale;
 }
 
@@ -10,8 +28,383 @@
   scale: 0.96;
 }
 
+/* The floating squares and the Create square answer a press the way iOS 26
+   glass does: they swell a touch instead of shrinking, the pill of a
+   bubble under a finger. Rows and chips keep the 0.96 press. */
+.shell-material.shell-press:active {
+  scale: 1.06;
+}
+
+/* The release settles on the light spring (constants.settle); browsers
+   without linear() keep the ease-out above. */
+.shell-material.shell-press {
+  transition-duration: 400ms;
+  transition-timing-function: linear(
+    0,
+    0.015,
+    0.054,
+    0.112,
+    0.183,
+    0.262,
+    0.345,
+    0.429,
+    0.511,
+    0.589,
+    0.663,
+    0.73,
+    0.791,
+    0.844,
+    0.891,
+    0.931,
+    0.964,
+    0.991,
+    1.013,
+    1.029,
+    1.042,
+    1.05,
+    1.055,
+    1.058,
+    1.058,
+    1.057,
+    1.054,
+    1.051,
+    1.046,
+    1.042,
+    1.037,
+    1.032,
+    1.027,
+    1.023,
+    1.018,
+    1.015,
+    1.011,
+    1.008,
+    1.006,
+    1.003,
+    1.002,
+    1
+  );
+}
+
+.shell-material.shell-press:active {
+  transition-duration: var(--shell-duration-feedback);
+  transition-timing-function: ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shell-press {
     transition-duration: 0s;
   }
+}
+
+/*
+ * The floating material of the shell: production's blur recipe (the
+ * blur-baseline surface over a 40px backdrop blur), a hairline ring from
+ * the border token and a soft transparent shadow. No glass rim. The bar,
+ * the block's squares and pills and the back-to-top square wear it.
+ */
+.shell-material {
+  background: var(--theme-blur-blur-baseline);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 4px 30px rgb(0 0 0 / 0.12);
+}
+
+/* The action pieces, the Create square and the post page's floating bar,
+   take the post bar's lighter glass: the surface-float tint over the same
+   base so a white image behind them never washes them out, and the
+   shadow token. */
+.shell-material.shell-material-action {
+  background: linear-gradient(
+      var(--theme-surface-float),
+      var(--theme-surface-float)
+    ),
+    var(--theme-blur-blur-baseline);
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
+}
+
+/* A Button that stands in the block as a square keeps the material over
+   the button's own transparent background and dropped shadow. */
+.btn.shell-material {
+  background: var(--theme-blur-blur-baseline);
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 4px 30px rgb(0 0 0 / 0.12);
+}
+
+/* The bar's track is dragged along, so a held finger must stay a pointer:
+   no link callout or preview on a long press (iOS Safari cancels the touch
+   to show it) and nothing to select. */
+.shell-drag,
+.shell-drag * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* A 38px square the finger can hit at 44px; neighbours sit 8px apart so
+   two hit areas never overlap. */
+.shell-hit::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+}
+
+/*
+ * Sheets: in on the travel curve, out faster on ease-out, the scrim on its
+ * own shorter fade. Both are transitions so a close mid-open reverses from
+ * where it is.
+ */
+.shell-sheet-overlay {
+  transition: opacity var(--shell-duration-feedback) ease-out;
+}
+
+.shell-sheet-panel {
+  transition: transform var(--shell-duration-enter) var(--shell-ease-travel),
+    height var(--shell-duration-snap) var(--shell-ease-interaction),
+    max-height var(--shell-duration-snap) var(--shell-ease-interaction),
+    border-radius var(--shell-duration-snap) var(--shell-ease-interaction);
+}
+
+/* A tall sheet pulled up: it meets the top of the screen and reads as a
+   page until a short drag down brings it back to rest. */
+.shell-sheet-panel[data-expanded='true'] {
+  height: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+}
+
+/* The menu sheet grows the same way; its list stops capping itself. */
+.shell-menu-sheet[data-expanded='true'] {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  border-radius: 0 !important;
+  --sheet-gap: 0px;
+}
+
+.shell-menu-sheet[data-expanded='true'] > div {
+  flex: 1;
+  max-height: none;
+}
+
+/* At full height the grabber keeps its own top padding. The overlay
+   already starts below the status bar in the wrappers (safeArea.css), so
+   the inset is not added a second time. */
+.shell-sheet-panel[data-expanded='true'] .shell-sheet-grab {
+  padding-top: 0.75rem;
+}
+
+.shell-sheet-panel[data-closing='true'] {
+  transition: transform var(--shell-duration-exit) ease-out;
+}
+
+.shell-sheet-panel[data-dragging='true'] {
+  transition: none;
+  /* the finger sets the height; the resting cap stands aside */
+  max-height: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-sheet-overlay,
+  .shell-sheet-panel {
+    transition-duration: 0s;
+  }
+}
+
+/*
+ * Menus on a phone: the Radix popover becomes a bottom sheet. The popper
+ * wrapper is pinned to the bottom edge, the content takes the full width
+ * with rounded top corners, and the open and close are the sheet's own
+ * timings. The scrim is drawn by the popper wrapper so the menu stays one
+ * node; a tap on it is a tap outside the content, which closes the menu.
+ */
+@media (max-width: 655.98px) {
+  [data-radix-popper-content-wrapper]:has(> .shell-menu-sheet) {
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    transform: none !important;
+    /* Radix's will-change would make the wrapper the scrim's containing
+       block and shrink it to the sheet. */
+    will-change: auto !important;
+    min-width: 0 !important;
+    /* Above modals, drawers and Radix's own 1000 so a menu opened from a
+       sheet or a form stays on top. */
+    z-index: 1001 !important;
+  }
+
+  [data-radix-popper-content-wrapper]:has(> .shell-menu-sheet)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    /* overlay-quaternary-onion, the Drawer's scrim */
+    background: rgb(98 74 211 / 0.24);
+    animation: shell-scrim-in var(--shell-duration-feedback) ease-out both;
+  }
+
+  [data-radix-popper-content-wrapper]:has(
+      > .shell-menu-sheet[data-state='closed']
+    )::before {
+    animation-name: shell-scrim-out;
+    animation-duration: var(--shell-duration-exit);
+  }
+
+  .shell-menu-sheet {
+    position: relative;
+    /* the field variant sizes itself to its trigger; a sheet is the screen */
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    border-radius: 1rem 1rem 0 0 !important;
+    border: 0 !important;
+    padding: 0.75rem 0 calc(env(safe-area-inset-bottom, 0px) + 0.75rem) !important;
+    background: var(--theme-background-default) !important;
+    box-shadow: 0 -8px 40px rgb(0 0 0 / 0.24);
+    animation-duration: var(--shell-duration-enter) !important;
+    animation-timing-function: var(--shell-ease-travel) !important;
+    animation-name: shell-sheet-in !important;
+    transform-origin: bottom center;
+  }
+
+  .shell-menu-sheet::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0.375rem;
+    width: 2.25rem;
+    height: 0.25rem;
+    border-radius: 0.125rem;
+    background: var(--theme-border-subtlest-secondary);
+    transform: translateX(-50%);
+  }
+
+  /* The menu sheet reaches the top of the screen, over the status bar.
+     Its top padding grows by exactly as much as its edge enters the inset
+     (--sheet-gap is the distance left to the top, set while a finger drags
+     and zero at full height), so the rows never pass under the clock and
+     nothing jumps when the sheet arrives or leaves. */
+  .shell-menu-sheet {
+    padding-top: max(
+      0.75rem,
+      calc(var(--safe-area-top, 0px) + 0.75rem - var(--sheet-gap, 100vh))
+    ) !important;
+    transition: height var(--shell-duration-snap) var(--shell-ease-interaction),
+      padding-top var(--shell-duration-snap) var(--shell-ease-interaction),
+      border-radius var(--shell-duration-snap) var(--shell-ease-interaction);
+  }
+
+  .shell-menu-sheet::before {
+    top: max(
+      0.375rem,
+      calc(var(--safe-area-top, 0px) + 0.375rem - var(--sheet-gap, 100vh))
+    );
+  }
+
+  .shell-menu-sheet[data-dragging='true'] {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* The enter animation runs once; a drag's release must not replay it. */
+  .shell-menu-sheet[data-entered='true']:not([data-state='closed']) {
+    animation: none !important;
+  }
+
+  .shell-menu-sheet[data-state='closed'] {
+    animation-name: shell-sheet-out !important;
+    animation-duration: var(--shell-duration-exit) !important;
+    animation-timing-function: ease-out !important;
+  }
+
+  .shell-menu-sheet [role='menuitem'],
+  .shell-menu-sheet [role='menuitemcheckbox'],
+  .shell-menu-sheet [role='menuitemradio'] {
+    height: 3rem;
+    padding-inline: 1rem;
+    border-radius: 0;
+    font-size: 0.9375rem;
+    line-height: 1.25rem;
+    color: var(--theme-text-primary);
+  }
+
+  /* The row's own button carries the role too; only the outer item pads. */
+  .shell-menu-sheet [role='menuitem'] [role='menuitem'] {
+    height: auto;
+    padding-inline: 0;
+  }
+
+  .shell-menu-sheet [role='menuitem'] svg {
+    color: var(--theme-text-secondary);
+  }
+}
+
+@keyframes shell-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes shell-sheet-out {
+  from {
+    transform: translateY(var(--sheet-drag, 0px));
+  }
+
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes shell-scrim-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shell-scrim-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-menu-sheet {
+    animation: none !important;
+  }
+}
+
+/*
+ * The status edge: while the top block is hidden the status area stops
+ * being a solid frame and becomes a soft scroll edge (blur and fade), so
+ * content passes under the clock and the page reads as endless.
+ */
+:root.shell-edge body::before {
+  background: linear-gradient(var(--theme-background-default), transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  -webkit-mask-image: linear-gradient(black 30%, transparent);
+  mask-image: linear-gradient(black 30%, transparent);
+}
+
+/* A full-screen modal opened over a scrolled page keeps the solid cover:
+   the page must not show through above the modal's header. */
+:root.shell-edge body.ReactModal__Body--open::before {
+  background: var(--theme-background-default);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
 }

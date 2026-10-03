@@ -1,6 +1,7 @@
 import type { ReactElement, FormEvent } from 'react';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Modal } from '../../modals/common/Modal';
+import { ModalHeader } from '../../modals/common/ModalHeader';
 import { ModalKind, ModalSize } from '../../modals/common/types';
 import { TextField } from '../TextField';
 import { Button, ButtonVariant } from '../../buttons/Button';
@@ -55,12 +56,11 @@ export const LinkModal = ({
       onRequestClose={onClose}
       size={ModalSize.Small}
       kind={ModalKind.FlexibleCenter}
+      isDrawerOnMobile
       parentSelector={() => document.body}
     >
+      <ModalHeader title={initialUrl ? 'Edit link' : 'Add link'} />
       <form onSubmit={handleSubmit} className="flex w-full flex-col gap-3 p-4">
-        <h3 className="font-bold typo-body">
-          {initialUrl ? 'Edit link' : 'Add link'}
-        </h3>
         <TextField
           name="url"
           label="Link"

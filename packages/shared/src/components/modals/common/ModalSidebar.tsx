@@ -5,6 +5,9 @@ import classed from '../../../lib/classed';
 import SidebarList from '../../sidebar/SidebarList';
 import type { ModalTabItem } from './types';
 import { ModalPropsContext } from './types';
+import { ProfileSection } from '../../ProfileMenu/ProfileSection';
+import type { IconProps } from '../../Icon';
+import { TypographyColor, TypographyType } from '../../typography/Typography';
 
 export type ModalSidebarProps = {
   children?: ReactNode;
@@ -21,7 +24,7 @@ export function ModalSidebarList({
   className,
   title,
   defaultOpen = false,
-}: ModalSidebarListProps): ReactElement {
+}: ModalSidebarListProps): ReactElement | null {
   const { activeView, tabs, setActiveView, isMobile } =
     useContext(ModalPropsContext);
   const [isNavOpen, setNavOpen] = useState(defaultOpen);
@@ -31,16 +34,47 @@ export function ModalSidebarList({
     setNavOpen(!activeView);
   }
 
+  // On a phone the sections are a page of their own, drawn like the
+  // settings menu's rows; the modal's header row above is its header.
+  if (isMobile) {
+    if (!isNavOpen) {
+      return null;
+    }
+
+    return (
+      <nav className={classNames('flex flex-col px-4 pb-6 pt-2', className)}>
+        <ProfileSection
+          items={(tabs ?? []).map((tab: string | ModalTabItem) => {
+            const tabTitle: string = typeof tab === 'string' ? tab : tab.title;
+            const options = typeof tab === 'string' ? {} : tab.options;
+            const icon = options.icon as ReactElement | undefined;
+            return {
+              title: tabTitle,
+              icon: icon
+                ? (props: IconProps) => React.cloneElement(icon, props)
+                : undefined,
+              onClick: () => setActiveView?.(tabTitle),
+              typography: {
+                type: TypographyType.Body,
+                color: TypographyColor.Secondary,
+              },
+            };
+          })}
+        />
+      </nav>
+    );
+  }
+
   return (
     <nav className={classNames('z-2 bg-background-default', className)}>
       <SidebarList
         className="z-1 pb-6"
-        active={activeView}
+        active={activeView ?? ''}
         title={title}
         onItemClick={(tab) => {
-          setActiveView(tab);
+          setActiveView?.(tab);
         }}
-        items={tabs.map((tab: string | ModalTabItem) =>
+        items={(tabs ?? []).map((tab: string | ModalTabItem) =>
           typeof tab === 'string'
             ? { title: tab, icon: <></> }
             : { title: tab.title, ...tab.options },

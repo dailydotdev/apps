@@ -52,7 +52,10 @@ const SubmitPluginPage = (): ReactElement => {
   );
 
   return (
-    <MarketplacePageLayout className="max-w-3xl gap-8">
+    <MarketplacePageLayout
+      title={editing ? `Update ${editing.name}` : 'Share a plugin'}
+      className="max-w-3xl gap-8"
+    >
       <div className="flex flex-col gap-2">
         <Link href={marketplaceUrl} prefetch={false}>
           <a className="w-fit text-text-tertiary typo-footnote hover:underline">

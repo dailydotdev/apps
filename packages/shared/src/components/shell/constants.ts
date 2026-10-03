@@ -1,4 +1,7 @@
-// The numbers of the phone shell (Mobile UX review, chapter 10).
+// The numbers of the phone shell, from the Mobile UX review in Storybook
+// (stories/mobile-ux/spec.ts, chapter 10). Components read them from here
+// so no file carries its own copy.
+
 export const swipe = {
   lockDistance: 10,
   commitDistance: 56,
@@ -6,3 +9,69 @@ export const swipe = {
   velocity: 0.3,
   velocityDistance: 32,
 };
+
+// A release settles on a light spring (320/24): one small overshoot, then
+// still. Sampled into linear() so it runs as a plain CSS transition.
+export const settle = {
+  duration: 400,
+  easing:
+    'linear(0, 0.015, 0.054, 0.112, 0.183, 0.262, 0.345, 0.429, 0.511, 0.589, 0.663, 0.73, 0.791, 0.844, 0.891, 0.931, 0.964, 0.991, 1.013, 1.029, 1.042, 1.05, 1.055, 1.058, 1.058, 1.057, 1.054, 1.051, 1.046, 1.042, 1.037, 1.032, 1.027, 1.023, 1.018, 1.015, 1.011, 1.008, 1.006, 1.003, 1.002, 1)',
+};
+
+export const motion = {
+  interaction: 'cubic-bezier(0.2, 0, 0, 1)',
+  travel: 'cubic-bezier(0.32, 0.72, 0, 1)',
+  feedback: 150,
+  enter: 300,
+  exit: 200,
+  snap: 220,
+  press: 0.96,
+};
+
+export const scroll = {
+  deadZone: 96,
+  hideTolerance: 24,
+  revealTolerance: 8,
+};
+
+export const cluster = {
+  rest: 56,
+  compact: 44,
+  radiusRest: 22,
+  radiusCompact: 18,
+  inset: 20,
+  insetCompact: 40,
+  padding: 4,
+  gap: 8,
+  lift: 8,
+  // A held finger has to travel this far before the indicator follows it.
+  dragStart: 6,
+  // The whole bar lifts this much while a finger is on it.
+  pressScale: 1.04,
+  // The glass feel: the pill stretches with the finger's speed, up to 12%,
+  // and the bar leans up to 10px past its ends at 15% of the overshoot.
+  stretchPerPx: 0.004,
+  stretchMax: 0.12,
+  pullRate: 0.15,
+  pullMax: 10,
+  // Lifting the finger this far above or below the bar cancels the choice.
+  cancelDistance: 24,
+  // The lens under a finger: the pill lifts to 1.08 and follows on a stiff
+  // spring, squashing along its motion (volume kept) by up to 18%.
+  lensScale: 1.08,
+  spring: { stiffness: 420, damping: 32 },
+  squashPerPxPerMs: 0.18,
+  squashMax: 0.18,
+};
+
+export const topButton = {
+  size: 38,
+  radius: 14,
+  inset: 16,
+  gap: 8,
+};
+
+export const lerp = (from: number, to: number, p: number): number =>
+  from + (to - from) * p;
+
+export const clamp = (value: number): number => Math.min(1, Math.max(0, value));

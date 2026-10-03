@@ -13,6 +13,7 @@ import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
@@ -20,11 +21,14 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -82,6 +86,8 @@ const SourcesPage = ({
   const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
+  const { user } = useAuthContext();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
 
@@ -132,7 +138,20 @@ const SourcesPage = ({
             }}
           />
         </Head>
-        {!isV2Laptop && (
+        <ShellPage
+          title="Sources"
+          actions={
+            user && (
+              <ShellSquare
+                aria-label="Suggest new source"
+                onClick={() => openModal({ type: LazyModal.NewSource })}
+              >
+                <PlusIcon size={IconSize.Small} />
+              </ShellSquare>
+            )
+          }
+        />
+        {!isV2Laptop && !isPhone && (
           <div className="flex justify-between">
             <BreadCrumbs>
               <SitesIcon size={IconSize.XSmall} secondary /> Sources

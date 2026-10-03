@@ -89,7 +89,6 @@ export function EmbeddedTweetPreview({
           <ProfilePicture
             user={avatarUser}
             size={ProfileImageSize.Size16}
-            rounded="full"
             className="shrink-0"
             nativeLazyLoading
           />

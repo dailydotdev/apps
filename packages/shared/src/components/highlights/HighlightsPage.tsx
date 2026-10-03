@@ -13,6 +13,7 @@ import {
 } from '../../graphql/highlights';
 import { Origin } from '../../lib/log';
 import { Tab, TabContainer } from '../tabs/TabContainer';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { CopyHighlightsLink } from './CopyHighlightsLink';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
@@ -176,13 +177,14 @@ export const HighlightsPage = (): ReactElement => {
   const majorLoading = isFetching && !data;
 
   const channelLabel = channels.find((c) => c.channel === channel)?.displayName;
+  const isPhone = useIsPhone();
   const activeTab = isAllTab
     ? ALL_HIGHLIGHTS_LABEL
     : channelLabel ?? MAJOR_HEADLINES_LABEL;
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary">
-      <header className="flex items-center px-3 py-4 laptop:px-4">
+      <header className="hidden items-center px-3 py-4 tablet:flex laptop:px-4">
         <h1 className="feed-highlights-title-gradient font-bold typo-large-title">
           Happening Now
         </h1>
@@ -190,6 +192,7 @@ export const HighlightsPage = (): ReactElement => {
       </header>
       <TabContainer
         controlledActive={activeTab}
+        showHeader={!isPhone}
         showBorder={false}
         shallow
         swipeable

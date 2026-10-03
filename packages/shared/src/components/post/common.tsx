@@ -60,6 +60,9 @@ export type PassedPostNavigationProps = Pick<
 >;
 
 export interface PostHeaderActionsProps {
+  // Inside the phone block: the Read pill and the menu square take the
+  // block's 38px size.
+  inBlock?: boolean;
   post: Post;
   onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;

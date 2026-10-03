@@ -12,6 +12,7 @@ import {
   useMobileAppHeader,
   useMobileAppHeaderIconOnlyRead,
 } from '../../features/getApp/hooks/useMobileAppHeader';
+import { useIsPhone } from '../../hooks/useViewSize';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -46,6 +47,7 @@ export function BasePostContent({
   const postPageNavigationProps = isPostPage ? navigationProps : undefined;
   const onReadArticle = postPageNavigationProps?.onReadArticle;
   const isMobileAppHeader = useMobileAppHeader();
+  const isPhone = useIsPhone();
   const isIconOnlyRead = useMobileAppHeaderIconOnlyRead();
 
   if (!id && !isFallback) {
@@ -68,6 +70,7 @@ export function BasePostContent({
             contextMenuId="post-page-header-actions"
             onReadArticle={onReadArticle}
             buttonSize={ButtonSize.Small}
+            inBlock={isPhone}
             hideOptions={isMobileAppHeader}
             inlineActions={isIconOnlyRead}
             hideSubscribeAction={isMobileAppHeader}

@@ -12,6 +12,8 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ArchiveCopyLinkButton } from './ArchiveCopyLinkButton';
+import { useIsPhone } from '../../hooks/useViewSize';
+import { ShellPage } from '../shell/ShellPageContext';
 
 interface ArchiveFeedPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -97,6 +99,8 @@ export function ArchiveFeedPage({
   } as ArchiveScopeInfo);
   const items = (archive?.items ?? []).filter((item) => item.post);
 
+  const isPhone = useIsPhone();
+
   return (
     <div
       className={classNames(
@@ -104,16 +108,34 @@ export function ArchiveFeedPage({
         className,
       )}
     >
-      {/* Header */}
-      <div className="mx-4 flex items-center gap-2">
-        <h1 className="flex-1 font-bold typo-title2 tablet:typo-title1">
-          Best of {scopeName} &mdash; {periodLabel}
-        </h1>
-        <ArchiveCopyLinkButton
-          scopeType={scopeType}
-          scopeId={scopeId}
-          text={`Check out the best of ${scopeName} from ${periodLabel}`}
+      {isPhone && (
+        <ShellPage
+          title={`Best of ${scopeName}`}
+          actions={
+            <ArchiveCopyLinkButton
+              scopeType={scopeType}
+              scopeId={scopeId}
+              text={`Check out the best of ${scopeName} from ${periodLabel}`}
+            />
+          }
         />
+      )}
+      <div className="mx-4 flex items-center gap-2">
+        <h1
+          className={classNames(
+            'flex-1 font-bold tablet:typo-title1',
+            isPhone ? 'typo-title3' : 'typo-title2',
+          )}
+        >
+          {isPhone ? periodLabel : `Best of ${scopeName} \u2014 ${periodLabel}`}
+        </h1>
+        {!isPhone && (
+          <ArchiveCopyLinkButton
+            scopeType={scopeType}
+            scopeId={scopeId}
+            text={`Check out the best of ${scopeName} from ${periodLabel}`}
+          />
+        )}
       </div>
 
       {/* Top navigation */}

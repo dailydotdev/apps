@@ -44,6 +44,8 @@ import { PopoverContent } from '../popover/Popover';
 import { Tooltip } from '../tooltip/Tooltip';
 import { WeeklyQuestResetTimer } from './WeeklyQuestResetTimer';
 import { useScrollFade } from '../../hooks/useScrollFade';
+import { useIsPhone } from '../../hooks/useViewSize';
+import { Drawer } from '../drawers/Drawer';
 import {
   QuestCard,
   QUEST_CLAIMED_STAMP_ANIMATION_MS,
@@ -400,7 +402,7 @@ const QuestLevelFireworkLayer = ({
   return (
     <RootPortal>
       <div
-        className="pointer-events-none fixed inset-0"
+        className="pointer-events-none fixed inset-0 !top-0"
         style={{ zIndex: QUEST_REWARD_LAYER_Z_INDEX }}
       >
         {particles.map((particle) => {
@@ -644,6 +646,9 @@ export const QuestButton = ({
   const triggerVisualClassName = compact ? 'size-8' : 'size-10';
   const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
   const [isOpen, setIsOpen] = useState(false);
+  // On a phone the panel is a bottom sheet; the popover trigger still
+  // toggles the same state.
+  const isPhone = useIsPhone();
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
@@ -1066,9 +1071,26 @@ export const QuestButton = ({
     );
   }
 
+  const panel = (
+    <QuestDropdownPanel
+      showLevelSystem={showLevelSystem}
+      renderedLevel={renderedLevel}
+      data={data}
+      isPending={isPending}
+      isError={isError}
+      claimingQuestId={claimingQuestId}
+      animatingClaimRotationIds={animatingClaimRotationIdSet}
+      claimedStampRotationIds={claimedStampRotationIdSet}
+      animatingClaimedStampRotationIds={animatingClaimedStampRotationIdSet}
+      deferredClaimedStampRotationIds={deferredClaimedStampRotationIdSet}
+      onClaim={handleClaim}
+      onDestinationClick={handleDestinationClick}
+    />
+  );
+
   return (
     <>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover open={isOpen && !isPhone} onOpenChange={setIsOpen}>
         <Tooltip content={triggerTooltipContent} side="bottom">
           <PopoverTrigger asChild>
             <Button
@@ -1172,27 +1194,20 @@ export const QuestButton = ({
             ref={scrollFadeRef}
             className="max-h-[var(--radix-popover-content-available-height)] overflow-y-auto bg-inherit"
           >
-            <QuestDropdownPanel
-              showLevelSystem={showLevelSystem}
-              renderedLevel={renderedLevel}
-              data={data}
-              isPending={isPending}
-              isError={isError}
-              claimingQuestId={claimingQuestId}
-              animatingClaimRotationIds={animatingClaimRotationIdSet}
-              claimedStampRotationIds={claimedStampRotationIdSet}
-              animatingClaimedStampRotationIds={
-                animatingClaimedStampRotationIdSet
-              }
-              deferredClaimedStampRotationIds={
-                deferredClaimedStampRotationIdSet
-              }
-              onClaim={handleClaim}
-              onDestinationClick={handleDestinationClick}
-            />
+            {panel}
           </div>
         </PopoverContent>
       </Popover>
+      {isPhone && (
+        <Drawer
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          appendOnRoot
+          className={{ drawer: 'p-0' }}
+        >
+          {panel}
+        </Drawer>
+      )}
       {rewardFlightLayers.map((layer) => (
         <QuestRewardFlightLayer
           key={layer.claimRotationId}
