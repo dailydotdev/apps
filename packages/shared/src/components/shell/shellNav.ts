@@ -87,6 +87,8 @@ export const owningRoot = (pathname: string): ShellRoot => {
 };
 
 const noClusterPrefixes = [
+  // You is a menu, not a place to browse from; back is its one way out.
+  '/you',
   '/settings',
   '/feeds/new',
   '/feeds/[slugOrId]/edit',
