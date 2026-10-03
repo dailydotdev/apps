@@ -6,6 +6,8 @@ import { LogoPosition } from '../../../components/Logo';
 import { useMobileAppHeader } from '../hooks/useMobileAppHeader';
 import { useHideOnScrollDown } from '../hooks/useHideOnScrollDown';
 import { MobileAppActions } from './MobileAppActions';
+import { useIsPhone } from '../../../hooks/useViewSize';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 // Published on <html> so the page's own sticky bars (search, tabs) sit under
 // the header while it shows and take the top once it slides away. The header
@@ -13,10 +15,14 @@ import { MobileAppActions } from './MobileAppActions';
 // scroll can't open a gap between them.
 export const MOBILE_APP_HEADER_OFFSET_VAR = '--mobile-app-header-offset';
 
-// For pages that have no top bar of their own on phones.
+// For pages that have no top bar of their own on phones. Once the shell
+// block is on the page (a phone, settings loaded) it carries the visitor
+// actions in its row, so this header leaves with its offset.
 export function MobileAppHeader(): ReactElement | null {
   const router = useRouter();
-  const isEnabled = useMobileAppHeader();
+  const isPhone = useIsPhone();
+  const loadedSettings = useSettingsContext()?.loadedSettings ?? false;
+  const isEnabled = useMobileAppHeader() && !(isPhone && loadedSettings);
   const isHidden = useHideOnScrollDown(isEnabled);
 
   useEffect(() => {

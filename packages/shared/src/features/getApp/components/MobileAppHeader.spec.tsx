@@ -11,6 +11,8 @@ import { isIOSNative } from '../../../lib/func';
 import { AuthTriggers } from '../../../lib/auth';
 import { useMobileAppHeaderIconOnlyRead } from '../hooks/useMobileAppHeader';
 import { MobileAppHeader } from './MobileAppHeader';
+import SettingsContext from '../../../contexts/SettingsContext';
+import type { SettingsContextData } from '../../../contexts/SettingsContext';
 import { openAppUrl } from './MobileAppActions';
 
 jest.mock('../../../components/layout/HeaderLogo', () => () => null);
@@ -140,5 +142,23 @@ describe('MobileAppHeader', () => {
     it('should keep its label for logged-in readers', () => {
       expect(renderIconOnlyRead(320, { isLoggedIn: true })).toBe(false);
     });
+  });
+
+  it('leaves once the shell block is on the page', () => {
+    render(
+      <Auth>
+        <SettingsContext.Provider
+          value={{ loadedSettings: true } as unknown as SettingsContextData}
+        >
+          <LogContext.Provider
+            value={{ logEvent: jest.fn() } as unknown as LogContextData}
+          >
+            <MobileAppHeader />
+          </LogContext.Provider>
+        </SettingsContext.Provider>
+      </Auth>,
+    );
+
+    expect(screen.queryByText('Open app')).not.toBeInTheDocument();
   });
 });
