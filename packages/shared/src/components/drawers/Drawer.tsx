@@ -119,18 +119,36 @@ function BaseDrawer({
   const stackToken = useRef(Symbol('drawer'));
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
-  const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
+  const isSheet = position === DrawerPosition.Bottom && !isFullScreen;
+  // Sheets follow the visual viewport too: a field inside one raises the
+  // keyboard, and the sheet has to stay above it.
+  const { height: viewportHeight, offsetTop } = useVisualViewport(
+    isFullScreen || isSheet,
+  );
   // safeArea.css owns the top offset (an opaque `body::before` covers the
   // status bar), so the viewport offset goes through its variable rather
   // than an inline `top`. Height stays 100vh so the cover reaches the
   // keyboard even mid-pan.
-  const overlayKeyboardStyle =
-    isFullScreen && viewportHeight
-      ? ({
-          '--safe-area-top-offset': `${offsetTop ?? 0}px`,
-          height: '100vh',
-        } as React.CSSProperties)
-      : undefined;
+  const overlayKeyboardStyle = (() => {
+    if (!viewportHeight) {
+      return undefined;
+    }
+    if (isFullScreen) {
+      return {
+        '--safe-area-top-offset': `${offsetTop ?? 0}px`,
+        height: '100vh',
+      } as React.CSSProperties;
+    }
+    if (isSheet) {
+      // The overlay is the visual viewport, so bottom-0 is above the
+      // keyboard and a sheet at full height ends above it too.
+      return {
+        '--safe-area-top-offset': `${offsetTop ?? 0}px`,
+        height: `${viewportHeight}px`,
+      } as React.CSSProperties;
+    }
+    return undefined;
+  })();
   // Only the wrapper tracks the visual viewport. --keyboard-inset lets
   // content cancel the safe-area-inset-bottom WKWebView keeps reporting
   // while the keyboard covers the home indicator.
@@ -148,8 +166,6 @@ function BaseDrawer({
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
   const isAnimating = !hasAnimated || isClosing;
-  const isSheet = position === DrawerPosition.Bottom && !isFullScreen;
-
   useEffect(() => {
     const panel = container.current;
     if (!isSheet || !panel) {

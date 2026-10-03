@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
-import { Drawer } from './Drawer';
+import { Drawer, DrawerPosition } from './Drawer';
 
 jest.mock('../../hooks/utils/useVisualViewport', () => ({
   useVisualViewport: jest.fn(),
@@ -45,9 +45,23 @@ describe('Drawer', () => {
     );
   });
 
-  it('leaves non-full-screen drawers sized by CSS', () => {
+  it('sizes a sheet to the visual viewport so it stays above the keyboard', () => {
     render(
       <Drawer isOpen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    const overlay = screen
+      .getByText('content')
+      .closest('.fixed') as HTMLElement;
+    // jsdom reports a visual viewport height; the overlay takes it in px.
+    expect(overlay.style.height).toMatch(/^\d+px$/);
+  });
+
+  it('leaves a side drawer sized by CSS', () => {
+    render(
+      <Drawer isOpen onClose={jest.fn()} position={DrawerPosition.Left}>
         content
       </Drawer>,
     );
