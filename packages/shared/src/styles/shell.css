@@ -190,10 +190,11 @@
   max-height: none;
 }
 
-/* Under the status bar the grabber keeps clear of it; the sheet's own
-   padding stays outside the scroller so nothing shows through. */
+/* At full height the grabber keeps its own top padding. The overlay
+   already starts below the status bar in the wrappers (safeArea.css), so
+   the inset is not added a second time. */
 .shell-sheet-panel[data-expanded='true'] .shell-sheet-grab {
-  padding-top: calc(var(--safe-area-top, 0px) + 0.75rem);
+  padding-top: 0.75rem;
 }
 
 .shell-sheet-panel[data-closing='true'] {

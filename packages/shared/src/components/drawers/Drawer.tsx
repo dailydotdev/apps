@@ -141,10 +141,12 @@ function BaseDrawer({
     }
     if (isSheet) {
       // The overlay is the visual viewport, so bottom-0 is above the
-      // keyboard and a sheet at full height ends above it too.
+      // keyboard and a sheet at full height ends above it too. safeArea.css
+      // starts it below the status bar in the wrappers, so that inset comes
+      // off the height or the sheet ends below the screen.
       return {
         '--safe-area-top-offset': `${offsetTop ?? 0}px`,
-        height: `${viewportHeight}px`,
+        '--sheet-viewport-height': `${viewportHeight}px`,
       } as React.CSSProperties;
     }
     return undefined;
@@ -353,6 +355,8 @@ function BaseDrawer({
         isFullScreen
           ? 'inset-x-0 top-0 h-full bg-background-default'
           : 'inset-0 bg-overlay-quaternary-onion',
+        isSheet &&
+          'h-[calc(var(--sheet-viewport-height)_-_var(--safe-area-top,0px))]',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}

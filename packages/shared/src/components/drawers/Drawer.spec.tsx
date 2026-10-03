@@ -55,8 +55,14 @@ describe('Drawer', () => {
     const overlay = screen
       .getByText('content')
       .closest('.fixed') as HTMLElement;
-    // jsdom reports a visual viewport height; the overlay takes it in px.
-    expect(overlay.style.height).toMatch(/^\d+px$/);
+    // The visual viewport's height, less the status-bar inset the wrappers
+    // already move the overlay down by.
+    expect(overlay.style.getPropertyValue('--sheet-viewport-height')).toBe(
+      '812px',
+    );
+    expect(overlay).toHaveClass(
+      'h-[calc(var(--sheet-viewport-height)_-_var(--safe-area-top,0px))]',
+    );
   });
 
   it('leaves a side drawer sized by CSS', () => {
