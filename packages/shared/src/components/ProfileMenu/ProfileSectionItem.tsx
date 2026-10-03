@@ -79,7 +79,7 @@ export const ProfileSectionItem = ({
       type={typography?.type ?? TypographyType.Subhead}
       className={classNames(
         'group flex h-10 cursor-pointer items-center gap-2 rounded-10 px-1 tablet:h-8',
-        (href || onClick) && 'hover:bg-surface-float',
+        (href || onClick) && 'mouse:hover:bg-surface-float',
         isActive ? 'bg-surface-active' : undefined,
         className,
       )}

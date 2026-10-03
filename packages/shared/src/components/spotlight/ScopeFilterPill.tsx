@@ -36,7 +36,7 @@ const FilterPill = ({
     className={classNames(
       'flex h-7 min-w-0 shrink-0 items-center gap-1.5 rounded-8 bg-background-subtle px-2 transition-colors',
       'text-text-primary typo-callout',
-      'hover:bg-surface-hover',
+      'mouse:hover:bg-surface-hover',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-1',
     )}
   >

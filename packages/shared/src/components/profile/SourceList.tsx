@@ -60,7 +60,7 @@ export const SourceList = ({
 
           return (
             <div
-              className="relative flex gap-2 px-6 py-3 hover:bg-surface-hover"
+              className="relative flex gap-2 px-6 py-3 mouse:hover:bg-surface-hover"
               key={sourceId}
             >
               <Link

@@ -42,7 +42,7 @@ export function ScheduledPostItem({
   const delta = formatScheduleDelta(scheduledDate);
 
   return (
-    <div className="flex items-center border-b border-border-subtlest-tertiary pr-4 hover:bg-surface-hover">
+    <div className="flex items-center border-b border-border-subtlest-tertiary pr-4 mouse:hover:bg-surface-hover">
       <Link href={`${webappUrl}posts/${post.id}/edit`} passHref>
         <a className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3">
           <SourceAvatar

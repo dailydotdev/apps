@@ -50,7 +50,7 @@ export default function PostToc({
           rel={anchorNofollowRel}
           title={item.text}
           onClick={onLinkClick}
-          className="-mx-4 flex flex-1 truncate px-4 py-2 typo-callout hover:bg-surface-hover"
+          className="-mx-4 flex flex-1 truncate px-4 py-2 typo-callout mouse:hover:bg-surface-hover"
         >
           <TruncateText>{item.text}</TruncateText>
         </a>
@@ -69,7 +69,7 @@ export default function PostToc({
           className,
         )}
       >
-        <Summary className="-mx-4 px-4 py-3 hover:bg-surface-hover">
+        <Summary className="-mx-4 px-4 py-3 mouse:hover:bg-surface-hover">
           <div
             className={classNames(collapsibleTitleClass, 'flex items-center')}
           >

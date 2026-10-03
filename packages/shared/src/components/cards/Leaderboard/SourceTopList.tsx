@@ -20,7 +20,7 @@ export function SourceTopList({
         <LeaderboardListItem
           key={item.id}
           index={i + 1}
-          className="group/source flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler"
+          className="group/source flex w-full flex-row items-center rounded-8 px-2 mouse:hover:bg-accent-pepper-subtler"
         >
           <UserHighlight
             {...item}

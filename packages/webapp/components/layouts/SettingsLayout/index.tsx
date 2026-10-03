@@ -155,7 +155,7 @@ export default function SettingsLayout({
         <button
           type="button"
           onClick={() => router.push(router.query.redirectTo as string)}
-          className="flex w-full items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-surface-float px-6 py-3 text-left transition-colors hover:bg-surface-hover"
+          className="flex w-full items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-surface-float px-6 py-3 text-left transition-colors mouse:hover:bg-surface-hover"
         >
           <ArrowIcon className="-rotate-90 text-text-tertiary" />
           <Typography

@@ -44,7 +44,7 @@ function ArchiveMonthCard({
 
   return (
     <Link href={url} prefetch={false}>
-      <a className="group flex flex-col gap-1 rounded-12 border border-border-subtlest-tertiary p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:bg-surface-hover hover:shadow-2">
+      <a className="group flex flex-col gap-1 rounded-12 border border-border-subtlest-tertiary p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:shadow-2 mouse:hover:bg-surface-hover">
         <span className="font-bold text-text-primary typo-callout">
           {getMonthName(month)}
         </span>

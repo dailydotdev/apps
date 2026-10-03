@@ -50,7 +50,7 @@ export const SpotlightTrigger = ({
       className={classNames(
         // Sizing, color, and shape match the production SearchPanel field.
         'relative flex h-12 w-full items-center overflow-hidden rounded-12 border border-transparent bg-background-subtle px-3 text-left transition-colors',
-        'hover:bg-surface-hover',
+        'mouse:hover:bg-surface-hover',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2',
         // Same compact desktop width used by SearchPanelInput in production
         // (26.25rem). Without this the trigger stretches edge-to-edge, which

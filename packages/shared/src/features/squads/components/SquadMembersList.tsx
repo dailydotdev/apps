@@ -53,7 +53,7 @@ const InviteRow = ({ squad }: { squad: Squad }): ReactElement | null => {
       type="button"
       disabled={copying}
       onClick={() => logAndCopyLink()}
-      className="flex w-full items-center gap-3 px-6 py-3 text-left text-text-primary typo-callout hover:bg-surface-hover"
+      className="flex w-full items-center gap-3 px-6 py-3 text-left text-text-primary typo-callout mouse:hover:bg-surface-hover"
     >
       <span className="flex size-10 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
         <AddUserIcon size={IconSize.Medium} />

@@ -39,7 +39,7 @@ export function TagDirectoryFilter({
       isDisabled && 'cursor-default text-text-disabled',
       !isDisabled &&
         !isActive &&
-        'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
+        'text-text-tertiary hover:text-text-primary mouse:hover:bg-surface-hover',
       isActive &&
         'border-border-subtlest-tertiary bg-surface-float text-text-primary',
     );

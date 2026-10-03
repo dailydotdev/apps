@@ -138,7 +138,7 @@ export function GearTopList({
           <li
             key={item.gearId}
             className={classNames(
-              'group flex items-center gap-2 rounded-8 py-2 pr-3 transition-all duration-300 hover:bg-surface-hover',
+              'group flex items-center gap-2 rounded-8 py-2 pr-3 transition-all duration-300 mouse:hover:bg-surface-hover',
               isTop3 && 'relative bg-surface-float',
               isTop3 && i === 0 && 'border-accent-cheese-default/20 border',
               hoverClass,

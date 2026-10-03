@@ -160,7 +160,7 @@ export const AudienceChip = ({
           className={classNames(
             // `shrink` opts back in past the global `flex-shrink: 0` reset.
             'flex min-w-0 max-w-full shrink items-center gap-1.5 rounded-12 px-2.5 py-1 text-text-primary transition-colors typo-callout',
-            showChevron && 'hover:bg-surface-float',
+            showChevron && 'mouse:hover:bg-surface-float',
             !showChevron && 'cursor-default',
             open && showChevron && 'bg-surface-float',
           )}

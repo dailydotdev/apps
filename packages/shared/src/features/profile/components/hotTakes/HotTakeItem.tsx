@@ -51,7 +51,7 @@ function HotTakeItemV1({
         'group relative flex items-center gap-4 rounded-16 p-4',
         'bg-surface-float',
         'transition-all duration-200',
-        'hover:bg-surface-hover',
+        'mouse:hover:bg-surface-hover',
       )}
     >
       <div className="flex size-12 flex-shrink-0 items-center justify-center rounded-14 bg-overlay-quaternary-cabbage">

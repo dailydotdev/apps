@@ -40,7 +40,7 @@ export function LeaderboardListItem({
     <li className={className} onMouseEnter={onMouseEnter}>
       {href ? (
         <Link href={href} prefetch={false}>
-          <a className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler">
+          <a className="flex w-full flex-row items-center rounded-8 px-2 mouse:hover:bg-accent-pepper-subtler">
             {content}
           </a>
         </Link>

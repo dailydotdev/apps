@@ -338,7 +338,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'relative flex min-h-14 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active laptop:min-h-16 laptop:py-4',
+        'relative flex min-h-14 flex-row items-start gap-3 px-4 py-3 focus:bg-theme-active laptop:min-h-16 laptop:py-4 mouse:hover:bg-surface-hover',
         isUnread && 'bg-surface-float',
       )}
     >
