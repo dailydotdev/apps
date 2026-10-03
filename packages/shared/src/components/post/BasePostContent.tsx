@@ -24,7 +24,7 @@ const GoBackHeaderMobile = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="-mx-4 h-12 border-b border-border-subtlest-tertiary laptop:hidden" />
+      <div className="-mx-4 hidden h-12 border-b border-border-subtlest-tertiary tablet:block laptop:hidden" />
     ),
   },
 );

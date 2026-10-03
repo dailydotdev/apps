@@ -86,7 +86,7 @@ export function PhoneTopAdStrip({
     // below: strip, block, content, in that order from the top.
     <div
       ref={ref}
-      className='sticky top-0 z-max -mt-[var(--shell-top,0px)] mb-[var(--shell-top,0px)] w-full bg-background-default py-1 has-[[data-ad-status="unfilled"]]:!hidden tablet:hidden [@media(max-width:319px)]:hidden'
+      className='sticky top-0 z-max -mt-[var(--shell-top,3.25rem)] mb-[var(--shell-top,3.25rem)] w-full bg-background-default py-1 has-[[data-ad-status="unfilled"]]:!hidden tablet:hidden [@media(max-width:319px)]:hidden'
       data-testid="phone-top-ad-strip"
     >
       <ReadAdSlot

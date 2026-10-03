@@ -183,22 +183,20 @@ export function ShellBlock({
 
   useLayoutEffect(() => {
     const element = ref.current;
-    if (!element) {
-      return undefined;
-    }
-
     const publish = () => {
       document.documentElement.style.setProperty(
         '--shell-top',
-        `${element.offsetHeight}px`,
+        `${element?.offsetHeight ?? 0}px`,
       );
     };
     publish();
-    const observer = new ResizeObserver(publish);
-    observer.observe(element);
+    const observer = element ? new ResizeObserver(publish) : undefined;
+    if (element) {
+      observer?.observe(element);
+    }
 
     return () => {
-      observer.disconnect();
+      observer?.disconnect();
       document.documentElement.style.removeProperty('--shell-top');
     };
   }, [root, row, config?.hidden, config?.row, online]);

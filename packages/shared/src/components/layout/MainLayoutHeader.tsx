@@ -183,7 +183,8 @@ function MainLayoutHeader({
             ? 'sticky top-[var(--mobile-app-header-offset,0px)] w-full bg-background-default transition-[top] duration-200 ease-out tablet:pl-16'
             : 'fixed top-0 h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
           'z-header',
-          !isMobileSearchPage && (profile ? 'hidden laptop:flex' : 'flex'),
+          !isMobileSearchPage &&
+            (profile ? 'hidden laptop:flex' : 'hidden tablet:flex'),
           hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
           !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
           !isMobileSearchPage && scrollClassName,

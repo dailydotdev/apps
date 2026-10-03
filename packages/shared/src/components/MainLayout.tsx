@@ -343,8 +343,9 @@ function MainLayoutComponent({
         className={classNames(
           'antialiased',
           // The phone block is fixed; everything in this column, the
-          // banners included, starts under it.
-          !sidebarOwnsHeader && 'pt-[var(--shell-top,0px)] tablet:pt-0',
+          // banners included, starts under it. The block only mounts once
+          // hydrated, so its one-row height is held from the server paint.
+          !sidebarOwnsHeader && 'pt-[var(--shell-top,3.25rem)] tablet:pt-0',
           isV2 &&
             'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
         )}
@@ -356,9 +357,7 @@ function MainLayoutComponent({
         <QuestUpdatesListener />
         <PromptElement />
         <RootPortal>
-          <div data-inert-exempt>
-            <Toast autoDismissNotifications={autoDismissNotifications} />
-          </div>
+          <Toast autoDismissNotifications={autoDismissNotifications} />
         </RootPortal>
         <BootPopups />
         <SpotlightHost />
