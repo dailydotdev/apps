@@ -289,6 +289,11 @@
     transition: none !important;
   }
 
+  /* The enter animation runs once; a drag's release must not replay it. */
+  .shell-menu-sheet[data-entered='true']:not([data-state='closed']) {
+    animation: none !important;
+  }
+
   .shell-menu-sheet[data-state='closed'] {
     animation-name: shell-sheet-out !important;
     animation-duration: var(--shell-duration-exit) !important;

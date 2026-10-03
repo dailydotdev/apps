@@ -125,6 +125,7 @@ export const attachSheetDrag = (
       restHeight = current;
     }
     panel.setAttribute('data-dragging', 'true');
+    panel.setAttribute('data-entered', 'true');
     // The inline height drives the sheet while a finger is down.
     panel.removeAttribute('data-expanded');
     style.transition = 'none';
@@ -210,12 +211,22 @@ export const attachSheetDrag = (
     settleTo(wanted > (restHeight + fullHeight) / 2);
   };
 
+  // Once the sheet has entered, its enter animation is over for good; a
+  // drag that removes and restores the panel's state must not replay it.
+  const onAnimationEnd = (event: AnimationEvent) => {
+    if (event.target === panel) {
+      panel.setAttribute('data-entered', 'true');
+    }
+  };
+
+  panel.addEventListener('animationend', onAnimationEnd);
   panel.addEventListener('touchstart', onTouchStart, { passive: true });
   panel.addEventListener('touchmove', onTouchMove, { passive: false });
   panel.addEventListener('touchend', onTouchEnd);
   panel.addEventListener('touchcancel', onTouchEnd);
 
   return () => {
+    panel.removeEventListener('animationend', onAnimationEnd);
     panel.removeEventListener('touchstart', onTouchStart);
     panel.removeEventListener('touchmove', onTouchMove);
     panel.removeEventListener('touchend', onTouchEnd);
