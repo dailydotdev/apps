@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import PromotionalBanner from './PromotionalBanner';
+import { RootPortal } from './tooltips/Portal';
 import { ShellRefreshIndicator } from './shell/ShellRefreshIndicator';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useLogContext } from '../contexts/LogContext';
@@ -354,7 +355,11 @@ function MainLayoutComponent({
         <InAppNotificationElement />
         <QuestUpdatesListener />
         <PromptElement />
-        <Toast autoDismissNotifications={autoDismissNotifications} />
+        <RootPortal>
+          <div data-inert-exempt>
+            <Toast autoDismissNotifications={autoDismissNotifications} />
+          </div>
+        </RootPortal>
         <BootPopups />
         <SpotlightHost />
         <StreakMilestonePopup />

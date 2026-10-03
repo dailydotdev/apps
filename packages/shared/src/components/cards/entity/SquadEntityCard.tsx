@@ -15,7 +15,7 @@ import { useSquad } from '../../../hooks';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { SquadOptionsMenu } from '../../../features/squads/components/header/SquadOptionsMenu';
 import { SquadPageContextProvider } from '../../../features/squads/SquadPageContext';
-import { visibleOnGroupHover, Separator } from '../common/common';
+import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
@@ -76,7 +76,7 @@ const SquadEntityCard = ({
             <SquadPageContextProvider squad={squad} isViewerReady>
               <SquadOptionsMenu
                 variant={ButtonVariant.Tertiary}
-                className={visibleOnGroupHover}
+                className="laptop:mouse:invisible laptop:mouse:group-hover/menu:visible"
               />
             </SquadPageContextProvider>
           </>

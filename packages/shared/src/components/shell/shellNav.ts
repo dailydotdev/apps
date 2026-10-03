@@ -113,31 +113,46 @@ export const hidesCluster = (pathname: string): boolean => {
   );
 };
 
-// The in-app route stack: the pages of this tab in order, with a pointer
-// at the current one, so a back can skip the entries that belong to the
-// same level (every settings page a member walked through) and land on
-// the page they came from in one history move: a hierarchical back, as
-// iOS Settings and X do, rather than a replay of history. Next no longer
-// numbers its history entries, so the stack keeps its own order and tells
-// a push from a pop through beforePopState.
+// The in-app route stack: this tab's history entries in order, with a
+// pointer at the current one, so a back can skip the entries that belong
+// to the same level (every settings page a member walked through) and land
+// on the page they came from in one history move: a hierarchical back, as
+// iOS Settings and X do, rather than a replay of history. Each entry is
+// keyed by the key Next keeps in history.state: a push gets a new key, a
+// replace keeps its key and a back or forward returns to one, so the stack
+// stays one to one with the browser's history.
 const stackKey = 'shell-routes';
+const stackLimit = 50;
+interface RouteEntry {
+  key: string;
+  path: string;
+}
 interface RouteStack {
-  routes: string[];
+  routes: RouteEntry[];
   pointer: number;
 }
+
+// How the document itself was reached, for the one record made on load.
+export type DocumentArrival = 'navigate' | 'reload' | 'back_forward';
+
+const emptyStack = (): RouteStack => ({ routes: [], pointer: -1 });
 
 const readStack = (): RouteStack => {
   try {
     const parsed = JSON.parse(
       globalThis.sessionStorage?.getItem(stackKey) ?? 'null',
     ) as RouteStack | null;
-    if (parsed && Array.isArray(parsed.routes)) {
+    if (
+      parsed &&
+      Array.isArray(parsed.routes) &&
+      parsed.routes.every((entry) => typeof entry?.key === 'string')
+    ) {
       return parsed;
     }
   } catch {
     // fall through to an empty stack
   }
-  return { routes: [], pointer: -1 };
+  return emptyStack();
 };
 
 const writeStack = (stack: RouteStack) => {
@@ -148,55 +163,112 @@ const writeStack = (stack: RouteStack) => {
   }
 };
 
-let popping = false;
+const isSameSiteReferrer = (): boolean => {
+  const referrer = globalThis?.document?.referrer;
+  const origin = globalThis?.window?.location.origin;
 
-export const recordShellRoute = (pathname: string, pop = popping): void => {
-  popping = false;
+  if (!referrer) {
+    return true;
+  }
+
+  try {
+    return new URL(referrer).origin === origin;
+  } catch {
+    return false;
+  }
+};
+
+const cameFromOutside = (): boolean =>
+  !!globalThis?.document?.referrer && !isSameSiteReferrer();
+
+const nearestWithPath = (stack: RouteStack, path: string): number => {
+  for (let distance = 1; distance < stack.routes.length; distance += 1) {
+    const before = stack.pointer - distance;
+    if (stack.routes[before]?.path === path) {
+      return before;
+    }
+    const after = stack.pointer + distance;
+    if (stack.routes[after]?.path === path) {
+      return after;
+    }
+  }
+  return -1;
+};
+
+export const recordShellRoute = (
+  pathname: string,
+  key: string,
+  arrival?: DocumentArrival,
+): void => {
   const path = withoutLayoutVariantPrefix(pathname);
   const stack = readStack();
-  if (stack.routes[stack.pointer] === path) {
+  const entry = { key, path };
+  const known = stack.routes.findIndex((route) => route.key === key);
+
+  // A replace keeps its key, a back or forward returns to one.
+  if (known !== -1) {
+    stack.routes[known] = entry;
+    writeStack({ routes: stack.routes, pointer: known });
     return;
   }
-  if (pop) {
-    // The nearest earlier entry with this path is where history went;
-    // forward is rarer and the next entry covers it.
-    let index = -1;
-    for (let i = stack.pointer - 1; i >= 0; i -= 1) {
-      if (stack.routes[i] === path) {
-        index = i;
-        break;
-      }
-    }
-    if (index === -1 && stack.routes[stack.pointer + 1] === path) {
-      index = stack.pointer + 1;
-    }
-    if (index !== -1) {
-      writeStack({ routes: stack.routes, pointer: index });
+
+  // A loaded document gets a fresh key from Next, so the kind of load says
+  // which entry it is: the same one on a reload, a neighbour on a back or
+  // forward across documents.
+  if (arrival === 'reload' && stack.routes[stack.pointer]) {
+    stack.routes[stack.pointer] = entry;
+    writeStack(stack);
+    return;
+  }
+  if (arrival === 'back_forward') {
+    const at =
+      stack.routes[stack.pointer]?.path === path
+        ? stack.pointer
+        : nearestWithPath(stack, path);
+    if (at !== -1) {
+      stack.routes[at] = entry;
+      writeStack({ routes: stack.routes, pointer: at });
       return;
     }
   }
-  const routes = stack.routes.slice(0, stack.pointer + 1).concat(path);
+  // Arriving from another site starts over: what this tab held before is
+  // no longer what back leads to.
+  if (arrival && cameFromOutside()) {
+    writeStack({ routes: [entry], pointer: 0 });
+    return;
+  }
+
+  const routes = stack.routes
+    .slice(0, stack.pointer + 1)
+    .concat(entry)
+    .slice(-stackLimit);
   writeStack({ routes, pointer: routes.length - 1 });
+};
+
+const historyKey = (): string =>
+  (globalThis.history?.state as { key?: string } | null)?.key ??
+  `${globalThis.location?.pathname}${globalThis.location?.search}`;
+
+const documentArrival = (): DocumentArrival => {
+  const [navigation] = (globalThis.performance?.getEntriesByType?.(
+    'navigation',
+  ) ?? []) as PerformanceNavigationTiming[];
+
+  return navigation?.type === 'reload' || navigation?.type === 'back_forward'
+    ? navigation.type
+    : 'navigate';
 };
 
 export const useShellRouteStack = (): void => {
   const router = useRouter();
 
-  // Once per tab: the router object changes on every route, and a re-run
-  // would record each arrival as a push before the pop could be seen.
+  // Once per tab: the router object changes on every route.
   useEffect(() => {
-    recordShellRoute(router.pathname, false);
+    recordShellRoute(window.location.pathname, historyKey(), documentArrival());
     const onComplete = () =>
-      recordShellRoute(withoutLayoutVariantPrefix(window.location.pathname));
-    // popstate fires before Next starts the route change, and unlike
-    // beforePopState it is not a single slot another hook can take over.
-    const onPop = () => {
-      popping = true;
-    };
-    window.addEventListener('popstate', onPop);
+      recordShellRoute(window.location.pathname, historyKey());
     router.events.on('routeChangeComplete', onComplete);
     return () => {
-      window.removeEventListener('popstate', onPop);
       router.events.off('routeChangeComplete', onComplete);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -221,10 +293,9 @@ export const goBackPast = (
 ): string | null => {
   const { routes, pointer } = readStack();
   for (let i = pointer - 1; i >= 0; i -= 1) {
-    if (!isSameLevel(routes[i])) {
-      popping = true;
+    if (!isSameLevel(routes[i].path)) {
       globalThis.history.go(i - pointer);
-      return routes[i];
+      return routes[i].path;
     }
   }
   fallback();
@@ -234,21 +305,6 @@ export const goBackPast = (
 export const isFeedEditPath = (pathname: string): boolean => {
   const path = withoutLayoutVariantPrefix(pathname ?? '');
   return path.startsWith('/feeds/') && path.endsWith('/edit');
-};
-
-const isSameSiteReferrer = (): boolean => {
-  const referrer = globalThis?.document?.referrer;
-  const origin = globalThis?.window?.location.origin;
-
-  if (!referrer) {
-    return true;
-  }
-
-  try {
-    return new URL(referrer).origin === origin;
-  } catch {
-    return false;
-  }
 };
 
 // Whether the previous history entry is one of ours. Next keeps the index

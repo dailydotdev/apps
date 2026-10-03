@@ -101,9 +101,19 @@ describe('canGoBackInApp', () => {
 
 describe('goBackPast', () => {
   const go = jest.fn();
+  const visit = (paths: string[]) =>
+    paths.forEach((path, index) => recordShellRoute(path, `k${index}`));
+  const setReferrer = (referrer: string) => {
+    Object.defineProperty(document, 'referrer', {
+      configurable: true,
+      value: referrer,
+    });
+  };
+
   beforeEach(() => {
     window.sessionStorage.clear();
     go.mockClear();
+    setReferrer('');
     Object.defineProperty(window, 'history', {
       configurable: true,
       value: { length: 5, state: null, go },
@@ -111,41 +121,75 @@ describe('goBackPast', () => {
   });
 
   it('jumps past every settings page to the page before them', () => {
-    [
+    visit([
       '/you',
       '/settings/profile',
       '/settings/notifications',
-      '/feeds/[slugOrId]/edit',
-    ].forEach((path) => recordShellRoute(path, false));
+      '/feeds/abc/edit',
+    ]);
     const fallback = jest.fn();
 
-    goBackPast(isSettingsPath, fallback);
-
+    expect(goBackPast(isSettingsPath, fallback)).toBe('/you');
     expect(go).toHaveBeenCalledWith(-3);
     expect(fallback).not.toHaveBeenCalled();
   });
 
-  it('follows a pop back to an earlier entry before deciding', () => {
-    ['/', '/you', '/settings/profile'].forEach((path) =>
-      recordShellRoute(path, false),
-    );
-    recordShellRoute('/you', true);
-    recordShellRoute('/settings/security', false);
-    const fallback = jest.fn();
+  it('follows a back to an earlier entry before deciding', () => {
+    visit(['/', '/you', '/settings/profile']);
+    recordShellRoute('/you', 'k1');
+    recordShellRoute('/settings/security', 'k3');
 
-    goBackPast(isSettingsPath, fallback);
+    goBackPast(isSettingsPath, jest.fn());
 
     expect(go).toHaveBeenCalledWith(-1);
   });
 
-  it('falls back when the stack holds nothing but settings', () => {
-    ['/settings/profile', '/settings/security'].forEach((path) =>
-      recordShellRoute(path, false),
-    );
+  it('counts a replace as the same entry', () => {
+    visit(['/you', '/settings/profile']);
+    recordShellRoute('/settings/security', 'k1');
+
+    goBackPast(isSettingsPath, jest.fn());
+
+    expect(go).toHaveBeenCalledWith(-1);
+  });
+
+  it('counts a push to the same path as its own entry', () => {
+    visit(['/you', '/search']);
+    recordShellRoute('/search', 'k2');
+    recordShellRoute('/settings/profile', 'k3');
+
+    goBackPast(isSettingsPath, jest.fn());
+
+    expect(go).toHaveBeenCalledWith(-1);
+    expect(canGoBackInApp()).toBe(true);
+  });
+
+  it('keeps its place over a reload', () => {
+    visit(['/you', '/settings/profile']);
+    recordShellRoute('/settings/profile', 'fresh', 'reload');
+
+    goBackPast(isSettingsPath, jest.fn());
+
+    expect(go).toHaveBeenCalledWith(-1);
+  });
+
+  it('starts over when the tab comes back from another site', () => {
+    visit(['/', '/you', '/settings/profile']);
+    setReferrer('https://elsewhere.example/results');
+    recordShellRoute('/posts/abc', 'fresh', 'navigate');
     const fallback = jest.fn();
 
-    goBackPast(isSettingsPath, fallback);
+    goBackPast(() => false, fallback);
 
+    expect(go).not.toHaveBeenCalled();
+    expect(fallback).toHaveBeenCalled();
+  });
+
+  it('falls back when the stack holds nothing but settings', () => {
+    visit(['/settings/profile', '/settings/security']);
+    const fallback = jest.fn();
+
+    expect(goBackPast(isSettingsPath, fallback)).toBeNull();
     expect(go).not.toHaveBeenCalled();
     expect(fallback).toHaveBeenCalled();
   });

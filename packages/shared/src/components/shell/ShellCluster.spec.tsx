@@ -1,6 +1,10 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryObserver,
+} from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { AuthContextData } from '../../contexts/AuthContext';
@@ -196,15 +200,31 @@ describe('ShellCluster', () => {
   it('refreshes a root that is already at the top on the lit tab', () => {
     renderCluster('/');
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
-    const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+    const paged = { pages: [], pageParams: [] };
+    const watch = (queryKey: string[], data: unknown) => {
+      queryClient.setQueryData(queryKey, data);
+      return new QueryObserver(queryClient, {
+        queryKey,
+        queryFn: () => data,
+        staleTime: Infinity,
+      }).subscribe(() => undefined);
+    };
+    const stop = [
+      watch(['popular'], paged),
+      watch(['ads', 'popular'], paged),
+      watch(['user_streak'], { current: 3 }),
+    ];
+    const reset = jest.spyOn(queryClient, 'resetQueries');
 
     fireEvent.click(screen.getByLabelText('Home'));
 
-    expect(invalidate).toHaveBeenCalledWith(
-      { type: 'active' },
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(reset).toHaveBeenCalledWith(
+      { queryKey: ['popular'], exact: true },
       { throwOnError: false },
     );
     expect(mockPush).not.toHaveBeenCalled();
+    stop.forEach((unsubscribe) => unsubscribe());
   });
 
   it('stays away from settings and forms', () => {

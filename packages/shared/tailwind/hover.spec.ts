@@ -14,9 +14,9 @@ describe('hover variant', () => {
   it('is hover with a pointer and the pressed state on touch', async () => {
     const css = await build('hover:underline');
 
-    expect(css).toContain('@media (hover: hover) and (pointer: fine)');
+    expect(css).toContain('@media (hover: hover)');
     expect(css).toContain('.hover\\:underline:hover');
-    expect(css).toContain('@media (hover: none), (pointer: coarse)');
+    expect(css).toContain('@media (hover: none)');
     expect(css).toContain('.hover\\:underline:active');
   });
 

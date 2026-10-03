@@ -74,12 +74,20 @@ const drawerStack: symbol[] = [];
 
 // The page behind an open drawer is inert; every open panel stays live so a
 // drawer opened from inside another keeps both reachable, and anything
-// portaled later (a menu inside the sheet) is never touched.
+// portaled later (a menu inside the sheet) is never touched. What must
+// stay reachable above a sheet (the toast and its Undo) opts out.
 const openPanels: HTMLElement[] = [];
 let undoInert: () => void = () => undefined;
 const syncInert = () => {
   undoInert();
-  undoInert = openPanels.length ? inertOthers(openPanels) : () => undefined;
+  undoInert = openPanels.length
+    ? inertOthers([
+        ...openPanels,
+        ...Array.from(
+          document.querySelectorAll<HTMLElement>('[data-inert-exempt]'),
+        ),
+      ])
+    : () => undefined;
 };
 
 const FOCUSABLE_SELECTOR =

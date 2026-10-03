@@ -275,7 +275,7 @@
 
     /* A touch screen keeps :hover on whatever lands under the last tap, so
        a button would stay lit after a tap or light up on the next page. */
-    @media (hover: hover) and (pointer: fine) {
+    @media (hover: hover) {
       &:hover {
         --button-background: var(--button-hover-background);
         --button-border-color: var(--button-hover-border-color);

@@ -46,7 +46,11 @@ export const attachSheetDrag = (
     window.visualViewport?.height ??
     window.innerHeight;
 
+  // The settle that is still running, so a new one or a new drag ends it.
+  let endSettle: () => void = () => undefined;
+
   const settle = () => {
+    endSettle();
     panel.removeAttribute('data-dragging');
     style.transform = '';
     style.height = '';
@@ -56,6 +60,7 @@ export const attachSheetDrag = (
   };
 
   const settleTo = (expanded: boolean) => {
+    endSettle();
     panel.removeAttribute('data-dragging');
     style.transition = `height ${motion.snap}ms ${motion.interaction}, transform ${motion.snap}ms ${motion.interaction}, padding-top ${motion.snap}ms ${motion.interaction}`;
     style.transform = '';
@@ -71,15 +76,26 @@ export const attachSheetDrag = (
       panel.removeAttribute('data-expanded');
       style.height = `${restHeight}px`;
     }
-    const done = () => {
+    // A child's transition ending (a row's press colour) is not the sheet
+    // settling; and a release exactly at a stop transitions nothing, so the
+    // timer ends the settle when no event will.
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.target === panel) {
+        endSettle();
+      }
+    };
+    const timer = setTimeout(() => endSettle(), motion.snap + 80);
+    endSettle = () => {
+      endSettle = () => undefined;
+      clearTimeout(timer);
+      panel.removeEventListener('transitionend', onTransitionEnd);
       style.transition = '';
       style.maxHeight = '';
       if (!isExpanded()) {
         style.height = '';
       }
-      panel.removeEventListener('transitionend', done);
     };
-    panel.addEventListener('transitionend', done);
+    panel.addEventListener('transitionend', onTransitionEnd);
   };
 
   // A finger on a field, or inside a list that is scrolled, is not a drag.
@@ -116,6 +132,7 @@ export const attachSheetDrag = (
   };
 
   const beginDrag = () => {
+    endSettle();
     dragging = true;
     startedExpanded = isExpanded();
     fullHeight = measureFull();
@@ -155,7 +172,12 @@ export const attachSheetDrag = (
       if (Math.abs(dy) < 6) {
         return;
       }
-      if (dy < 0 && !expandable) {
+      // Upward with nowhere to grow is the content's scroll, not a drag:
+      // a sheet that does not expand, or one already at full height.
+      if (
+        dy < 0 &&
+        (!expandable || isExpanded() || panel.offsetHeight >= measureFull() - 1)
+      ) {
         tracking = false;
         return;
       }
