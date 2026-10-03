@@ -240,7 +240,7 @@ export function ShellBlock({
       )}
       style={{
         top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
-        transform: `translateY(calc(-100% * ${p}))`,
+        transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${p}))`,
         transition: `transform ${motion.snap}ms ${motion.interaction}`,
       }}
     >

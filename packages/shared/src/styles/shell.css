@@ -190,6 +190,12 @@
   max-height: none;
 }
 
+/* The full-height menu sheet covers the status bar; its grabber sits
+   below it, not under the island. */
+.shell-menu-sheet[data-expanded='true']::before {
+  top: calc(var(--safe-area-top, 0px) + 0.375rem);
+}
+
 /* At full height the grabber keeps its own top padding. The overlay
    already starts below the status bar in the wrappers (safeArea.css), so
    the inset is not added a second time. */
