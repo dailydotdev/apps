@@ -17,6 +17,7 @@ import {
 } from '@dailydotdev/shared/src/components/quest/QuestRewardAnimations';
 import type { QuestRewardFlight } from '@dailydotdev/shared/src/components/quest/QuestRewardAnimations';
 import { QuestRewardType } from '@dailydotdev/shared/src/graphql/quests';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { PlannedDay } from './weekPlan';
 import { FINAL_DAY, GiftKind, weekPlan } from './weekPlan';
 import { ARCADE, CoreArt, FreezeArt } from './rewardArt';
@@ -298,6 +299,32 @@ const CheckBadge = ({ className }: { className?: string }): ReactElement => (
   </span>
 );
 
+/**
+ * What the two balances actually are.
+ *
+ * Both words are product vocabulary a first-week account has not met yet, and
+ * the chips are the first place either appears. A reward nobody understands
+ * cannot pull anyone back, so the definition has to be reachable — on hover
+ * where there is a pointer, on press where there is not.
+ */
+const EXPLAINERS = {
+  cores: {
+    title: 'Cores',
+    body: "daily.dev's currency. Spend them on Awards for posts and comments you rate, or on a briefing.",
+    accent: ARCADE.gold,
+  },
+  freeze: {
+    title: 'Streak freeze',
+    body: 'Covers a day you miss. It is spent automatically, so the streak survives and carries on.',
+    accent: ARCADE.cyan,
+  },
+} as const;
+
+type ExplainerKey = keyof typeof EXPLAINERS;
+
+/** Long enough to ignore a cursor passing through, short enough to feel instant. */
+const EXPLAINER_DELAY_MS = 200;
+
 const BalanceChips = ({
   cores,
   freezes,
@@ -305,15 +332,48 @@ const BalanceChips = ({
   cores: number;
   freezes: number;
 }): ReactElement => {
+  const [explainer, setExplainer] = useState<ExplainerKey | null>(null);
+  const timer = useRef<number>();
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  // Open on hover after a beat, close the moment the pointer leaves. The delay
+  // is what stops the panel flashing at anyone whose cursor merely crosses the
+  // chips on its way somewhere else. Click is not a fallback but a requirement:
+  // hover does not exist on touch, and this is the first place either word
+  // appears.
+  const explainerProps = (key: ExplainerKey) => ({
+    onMouseEnter: () => {
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(
+        () => setExplainer(key),
+        EXPLAINER_DELAY_MS,
+      );
+    },
+    onMouseLeave: () => {
+      window.clearTimeout(timer.current);
+      setExplainer(null);
+    },
+    onClick: () => {
+      window.clearTimeout(timer.current);
+      setExplainer((open) => (open === key ? null : key));
+    },
+    onFocus: () => setExplainer(key),
+    onBlur: () => setExplainer(null),
+  });
+
   const chip =
-    'flex items-center gap-1.5 rounded-10 px-2 py-1 font-bold tabular-nums typo-callout';
+    'flex cursor-help items-center gap-1.5 rounded-10 px-2 py-1 font-bold tabular-nums typo-callout';
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="relative flex items-center gap-2">
       {/* The claim animation flies Cores to this element — keep it single. */}
-      <span
+      <button
+        type="button"
         data-reward-target={QuestRewardType.Cores}
         aria-label={`Cores: ${cores}`}
+        aria-expanded={explainer === 'cores'}
+        {...explainerProps('cores')}
         className={chip}
         style={{
           background: `${ARCADE.ink}CC`,
@@ -323,9 +383,12 @@ const BalanceChips = ({
       >
         <CoreIcon size={IconSize.Size16} />
         {cores}
-      </span>
-      <span
+      </button>
+      <button
+        type="button"
         aria-label={`Streak freezes: ${freezes}`}
+        aria-expanded={explainer === 'freeze'}
+        {...explainerProps('freeze')}
         className={chip}
         style={{
           background: `${ARCADE.ink}CC`,
@@ -335,7 +398,36 @@ const BalanceChips = ({
       >
         <FreezeArt sizeClass="size-4" />
         {freezes}
-      </span>
+      </button>
+
+      {explainer && (
+        // Anchored to the chips rather than portalled. A portalled overlay
+        // inside a modal has to stopPropagation or the parent's outside-click
+        // handler closes the whole thing — see `drawers/Drawer.tsx`. Staying in
+        // the tree avoids that. It opens DOWNWARD because the chips are in the
+        // header; above them it would fall outside the card, which clips.
+        <div
+          className="absolute right-0 top-full z-3 mt-2 w-60 rounded-12 p-3 text-left"
+          style={{
+            background: ARCADE.ink,
+            border: `0.0625rem solid ${EXPLAINERS[explainer].accent}55`,
+            boxShadow: '0 0.75rem 2rem rgb(0 0 0 / 0.6)',
+          }}
+        >
+          <p
+            className="font-bold uppercase tracking-widest typo-callout"
+            style={{ color: EXPLAINERS[explainer].accent }}
+          >
+            {EXPLAINERS[explainer].title}
+          </p>
+          <p
+            className="mt-1 typo-callout"
+            style={{ color: `${ARCADE.ink100}CC` }}
+          >
+            {EXPLAINERS[explainer].body}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -496,43 +588,50 @@ const Tile = ({
       className="relative flex h-40 w-[5.75rem] snap-center flex-col items-center justify-between gap-2 rounded-16 p-2 tablet:w-auto tablet:p-1.5 laptop:p-2"
       style={{ background, border }}
     >
-      <span className="flex flex-1 flex-col items-center justify-center gap-1">
-        <span className="relative flex size-14 items-center justify-center">
-          {done ? (
-            <>
-              <StreakFlame
-                sizeClass={quiet ? 'size-8' : 'size-10'}
-                glow={isToday}
-                className={quiet ? 'opacity-70' : undefined}
-              />
-              <CheckBadge
-                className={classNames(
-                  'absolute ring-2 ring-[#181E25]',
-                  quiet
-                    ? 'bottom-2 right-2 size-4'
-                    : '-bottom-0.5 -right-0.5 size-5',
+      {/* What the reward actually is, on hover. Every name on this ladder is
+          product vocabulary a first-week account has not met — "Cores", "streak
+          freeze" — and the tile has room for the amount and nothing else, so
+          the explanation has to live somewhere. `enableMobileClick` because
+          hover does not exist on touch. */}
+      <Tooltip side="top" content={planned.explainer} enableMobileClick>
+        <span className="flex flex-1 cursor-help flex-col items-center justify-center gap-1">
+          <span className="relative flex size-14 items-center justify-center">
+            {done ? (
+              <>
+                <StreakFlame
+                  sizeClass={quiet ? 'size-8' : 'size-10'}
+                  glow={isToday}
+                  className={quiet ? 'opacity-70' : undefined}
+                />
+                <CheckBadge
+                  className={classNames(
+                    'absolute ring-2 ring-[#181E25]',
+                    quiet
+                      ? 'bottom-2 right-2 size-4'
+                      : '-bottom-0.5 -right-0.5 size-5',
+                  )}
+                />
+              </>
+            ) : (
+              <span className="flex items-center justify-center">
+                {planned.kind === GiftKind.Cores ? (
+                  <CoreArt cores={planned.cores} sizeClass="size-12" />
+                ) : (
+                  <FreezeArt sizeClass="size-12" />
                 )}
-              />
-            </>
-          ) : (
-            <span className="flex items-center justify-center">
-              {planned.kind === GiftKind.Cores ? (
-                <CoreArt cores={planned.cores} sizeClass="size-12" />
-              ) : (
-                <FreezeArt sizeClass="size-12" />
-              )}
-            </span>
-          )}
+              </span>
+            )}
+          </span>
+          <span
+            className="whitespace-nowrap font-bold tabular-nums typo-footnote"
+            style={{ color: amountColor }}
+          >
+            {done
+              ? amountText(planned).replace(/^\+?/, '+')
+              : amountText(planned)}
+          </span>
         </span>
-        <span
-          className="whitespace-nowrap font-bold tabular-nums typo-footnote"
-          style={{ color: amountColor }}
-        >
-          {done
-            ? amountText(planned).replace(/^\+?/, '+')
-            : amountText(planned)}
-        </span>
-      </span>
+      </Tooltip>
       <DaySlot
         planned={planned}
         status={status}
