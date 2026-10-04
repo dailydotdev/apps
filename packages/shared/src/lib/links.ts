@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { apiUrl } from './config';
 import { webappUrl } from './constants';
 import { checkIsExtension, isExtension } from './func';
-import type { Post } from '../graphql/posts';
 
 export const urlStartRegexMatch = /^https?:\/\//i;
 
@@ -24,8 +23,10 @@ export const urlParseSchema = z.preprocess(
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
 
-export const getPostPath = (post: Pick<Post, 'id' | 'slug'>): string =>
-  `${webappUrl}posts/${post.slug ?? post.id}`;
+export const getPostPath = (post: {
+  id: string;
+  slug?: string | null;
+}): string => `${webappUrl}posts/${post.slug || post.id}`;
 
 export function isValidHttpUrl(link: string): boolean {
   try {
