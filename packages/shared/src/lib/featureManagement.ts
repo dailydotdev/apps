@@ -373,4 +373,5 @@ export const featureMobileAppSheetSnoozeHours = new Feature(
 
 // Experiment: the existing Plus entry points (sidebar row, account menu,
 // settings, member badge) share one quiet row style and one hover card.
-export const featurePlusEntryPoints = new Feature('plus_entry_points', false);
+// TEMP-REVIEW: on so the preview shows the treatment. Revert before merge.
+export const featurePlusEntryPoints = new Feature('plus_entry_points', true);
