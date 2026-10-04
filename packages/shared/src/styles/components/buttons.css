@@ -362,8 +362,14 @@
     color: var(--button-pressed-color);
   }
 
-  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
+  & .hover ~ label, & :focus:focus-visible ~ label {
     color: var(--button-hover-color);
+  }
+
+  @media (hover: hover) {
+    & :hover ~ label {
+      color: var(--button-hover-color);
+    }
   }
 
   & :active ~ label {
@@ -405,8 +411,14 @@
     --button-icon: var(--button-hover-icon);
   }
 
-  &:hover, &.hover, &:focus:focus-visible {
+  &.hover, &:focus:focus-visible {
     --button-icon: var(--button-hover-icon);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      --button-icon: var(--button-hover-icon);
+    }
   }
 
   &:active {
@@ -427,8 +439,14 @@
     --button-icon: var(--button-hover-icon);
   }
 
-  &:hover, &.hover, &:focus:focus-visible {
+  &.hover, &:focus:focus-visible {
     --button-icon: var(--button-hover-icon);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      --button-icon: var(--button-hover-icon);
+    }
   }
 
   &:active {
@@ -447,11 +465,13 @@
     margin: 0 !important;
   }
 
-  &:hover {
-    background: var(--button-hover-background);
-    border-color: var(--button-hover-border-color);
-    color: var(--button-hover-color);
-    box-shadow: var(--button-hover-box-shadow);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--button-hover-background);
+      border-color: var(--button-hover-border-color);
+      color: var(--button-hover-color);
+      box-shadow: var(--button-hover-box-shadow);
+    }
   }
 }
 
