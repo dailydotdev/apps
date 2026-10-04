@@ -9,14 +9,16 @@ import { capitalize } from '../../../../lib/strings';
 const SocialPersonalizedBanner = ({
   site,
   compact,
+  targetId,
 }: {
   site: SupportedSocialReferrer;
   compact?: boolean;
+  targetId?: string;
 }): ReactElement => {
   const gradient = socialGradient[site];
 
   return (
-    <AuthenticationBanner compact={compact}>
+    <AuthenticationBanner compact={compact} targetId={targetId}>
       <OnboardingHeadline
         className={{
           title: classNames(

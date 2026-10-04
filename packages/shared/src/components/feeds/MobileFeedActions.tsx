@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -26,6 +27,11 @@ const ProfileSettingsMenuMobile = dynamic(
   { ssr: false },
 );
 
+// The logged-out row is pinned to this height so FeedNav slides it away by
+// exactly that much; change both together.
+const loggedOutRowHeight = 'h-10';
+export const hideLoggedOutRowClassName = '-translate-y-10';
+
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();
@@ -34,7 +40,12 @@ export function MobileFeedActions(): ReactElement {
   const isMobileAppHeader = useMobileAppHeader();
 
   return (
-    <div className="flex flex-row justify-between px-4 py-1">
+    <div
+      className={classNames(
+        'flex flex-row justify-between px-4 py-1',
+        isMobileAppHeader && loggedOutRowHeight,
+      )}
+    >
       <HeaderLogo
         position={LogoPosition.Relative}
         onLogoClick={() => router.push('/')}
@@ -55,6 +66,7 @@ export function MobileFeedActions(): ReactElement {
             <Button
               icon={<SettingsIcon />}
               variant={ButtonVariant.Tertiary}
+              className="shell-press"
               onClick={() => setIsMenuOpen(true)}
             />
             <RootPortal>
@@ -64,7 +76,7 @@ export function MobileFeedActions(): ReactElement {
               />
             </RootPortal>
             <Link href={`${webappUrl}${user.username}`} passHref>
-              <a>
+              <a className="shell-press">
                 <ProfilePictureWithIndicator user={user} />
               </a>
             </Link>

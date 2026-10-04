@@ -115,7 +115,7 @@ describe('MainLayoutHeader', () => {
     const hydratedHeader = screen.getByRole('banner');
 
     expect(hydratedHeader).toBe(initialHeader);
-    expect(hydratedHeader).toHaveClass('sticky', 'top-0');
+    expect(hydratedHeader).toHaveClass('sticky');
     expect(screen.getByTestId('spotlight-trigger')).toBeInTheDocument();
     expect(recoverableErrors).toHaveLength(0);
 

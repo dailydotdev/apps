@@ -80,6 +80,7 @@ export enum AuthTriggers {
   Hackathon = 'hackathon',
   World = 'world',
   FilteredComments = 'filtered comments',
+  Marketplace = 'marketplace',
 }
 
 export type AuthTriggersType =

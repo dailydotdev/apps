@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { EyeCancelIcon, MenuIcon as KebabIcon, PinIcon } from '../../icons';
 import { MenuIcon } from '../../MenuIcon';
+import { visibleOnGroupHover } from '../common/common';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,10 +71,7 @@ const HighlightCardOptionsContent = ({
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<KebabIcon />}
-          className={classNames(
-            'invisible z-1 my-auto group-hover:visible',
-            className,
-          )}
+          className={classNames(visibleOnGroupHover, 'z-1 my-auto', className)}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
