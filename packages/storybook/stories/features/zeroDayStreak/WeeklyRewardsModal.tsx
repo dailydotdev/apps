@@ -567,13 +567,16 @@ export const WeeklyRewardsModal = ({
   const [freezes, setFreezes] = useState(initial.freezes);
   const [pushOn, setPushOn] = useState(false);
   const [claimedHere, setClaimedHere] = useState(false);
+  // Separate from `claimedHere`, which any claim sets: a pending day collected
+  // from day 7 is not the finale, and must not fire the celebration.
+  const [finaleClaimed, setFinaleClaimed] = useState(false);
   const clearFlights = useCallback(() => setFlights([]), []);
   const today = weekPlan[day - 1];
   const lit = phase !== Phase.Unread;
   // The run is finished: the last day's reward is in. Either it was collected
   // before this card opened, or it was just pressed here.
   const complete =
-    day === FINAL_DAY && (phase === Phase.Claimed || claimedHere);
+    day === FINAL_DAY && (phase === Phase.Claimed || finaleClaimed);
 
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
 
@@ -614,6 +617,10 @@ export const WeeklyRewardsModal = ({
     (claimDay: number) => {
       onClaim(claimDay);
       setClaimedHere(true);
+
+      if (claimDay === FINAL_DAY) {
+        setFinaleClaimed(true);
+      }
 
       const claimed = weekPlan[claimDay - 1];
 
