@@ -29,8 +29,9 @@ export function ModalFooter({
 
   return (
     <footer
+      data-modal-footer
       className={classNames(
-        'flex min-h-16 w-full items-center gap-3 border-t border-border-subtlest-tertiary p-3 pb-[max(env(safe-area-inset-bottom,0px),0.75rem)]',
+        'flex h-16 w-full items-center gap-3 border-t border-border-subtlest-tertiary p-3',
         justify,
         className,
       )}

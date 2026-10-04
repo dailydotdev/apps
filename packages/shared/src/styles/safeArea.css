@@ -68,10 +68,33 @@ body .fixed.top-0.h-full {
   max-height: calc(100dvh - var(--safe-area-top)) !important;
 }
 
-.min-h-screen {
+/* Only where there is an inset: on the web these two keep Tailwind's
+   100vh and the iOS fill-available fix that follows it. :where keeps the
+   specificity of a single class, so responsive variants still win. */
+:where(:root.ios) .min-h-screen {
   min-height: calc(100vh - var(--safe-area-top));
 }
 
-.h-screen {
+:where(:root.ios) .h-screen {
   height: calc(100vh - var(--safe-area-top));
+}
+
+@media (display-mode: standalone) {
+  .min-h-screen {
+    min-height: calc(100vh - var(--safe-area-top));
+  }
+
+  .h-screen {
+    height: calc(100vh - var(--safe-area-top));
+  }
+}
+
+/* A full-screen modal's footer sits on the bottom edge of a phone; it
+   clears the home indicator. A margin, so the footer keeps the height and
+   padding its caller gave it; zero specificity, so a caller's own margin
+   wins. */
+@media (max-width: 655.98px) {
+  :where([data-modal-footer]:last-child) {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }

@@ -55,6 +55,7 @@ const SearchMobileFiltersButton = ({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         position={DrawerPosition.Bottom}
+        appendOnRoot
         title="Filters"
         className={{ drawer: 'px-4 pb-4 pt-2' }}
       >

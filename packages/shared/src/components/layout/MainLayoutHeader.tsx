@@ -129,8 +129,14 @@ function MainLayoutHeader({
         </>
       );
     }
-    if (root === ShellRoot.Home && shouldUseLoadedSettings) {
-      return <FeedNav inShellBlock />;
+    if (root === ShellRoot.Home) {
+      // The segments need the member's settings; until they load the row
+      // keeps its height, so the block measures the same before and after.
+      return shouldUseLoadedSettings ? (
+        <FeedNav inShellBlock />
+      ) : (
+        <div className="h-11" />
+      );
     }
     return undefined;
   })();

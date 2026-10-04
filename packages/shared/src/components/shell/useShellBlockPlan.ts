@@ -27,7 +27,7 @@ export const useShellBlockPlan = (): ShellBlockPlan => {
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.Popular;
   const { isAnyExplore, isSearch } = useFeedName({ feedName: activeFeedName });
-  const { squads, notifications } = useActiveNav(activeFeedName);
+  const { squads, notifications, bookmarks } = useActiveNav(activeFeedName);
   const pathname = withoutLayoutVariantPrefix(router?.pathname ?? '');
 
   const root = (() => {
@@ -59,5 +59,9 @@ export const useShellBlockPlan = (): ShellBlockPlan => {
 
   // Search results are a page under Explore: back, the query, Filters,
   // and the field under them.
-  return { rest: isSearch ? blockRest.pageWithField : blockRest.page };
+  if (isSearch) {
+    return { rest: blockRest.pageWithField };
+  }
+
+  return { rest: bookmarks ? blockRest.pageWithRow : blockRest.page };
 };

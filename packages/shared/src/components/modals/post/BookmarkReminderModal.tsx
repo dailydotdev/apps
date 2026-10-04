@@ -153,6 +153,7 @@ export const BookmarkReminderModal = (
 
   return (
     <Modal
+      drawerProps={{ 'aria-label': 'Set a reminder' }}
       isDrawerOnMobile={isOpen}
       isOpen={isOpen}
       onRequestClose={onRequestClose}

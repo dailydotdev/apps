@@ -71,12 +71,13 @@ export const topButton = {
 };
 
 // The block's height before it has measured itself, by what the page
-// shows in it: the page row (with the search field under it on search), a
-// root's row (with the row of segments or chips Home and Squads keep), and
-// Explore's row with its field and chips. The layout holds this from the
-// server paint so nothing under the block moves when it measures.
+// shows in it: the page row (with Bookmarks' row or search's field under
+// it), a root's row (with the row of segments or chips Home and Squads
+// keep), and Explore's row with its field and chips. The layout holds this
+// from the server paint so nothing under the block moves when it measures.
 export const blockRest = {
   page: '3.25rem',
+  pageWithRow: '6rem',
   pageWithField: '6.5rem',
   root: '3rem',
   rootWithRow: '5.75rem',

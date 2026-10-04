@@ -152,9 +152,13 @@ const PageRow = ({
       <ShellSquare aria-label="Go back" onClick={goBack}>
         <ArrowIcon size={IconSize.Small} className="-rotate-90" />
       </ShellSquare>
-      <h1 className="min-w-0 flex-1 truncate px-1 font-bold typo-title3">
-        {title}
-      </h1>
+      {title ? (
+        <h1 className="min-w-0 flex-1 truncate px-1 font-bold typo-title3">
+          {title}
+        </h1>
+      ) : (
+        <span className="min-w-0 flex-1" />
+      )}
       <div
         className="flex shrink-0 items-center"
         style={{ gap: topButton.gap }}
