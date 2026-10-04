@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { cloudinaryHijackingCoverArt } from '../../lib/image';
 
 export const hijackingPrimaryCta =
@@ -15,54 +14,10 @@ export interface HijackingCoverCopy {
   body: string;
 }
 
-interface HijackingCoverAuthActionsProps {
-  signup: string;
-  login: string;
-  onSignupClick: () => void;
-  onLoginClick: () => void;
-}
-
-// The sign up / log in pair for surfaces that offer both.
-export function HijackingCoverAuthActions({
-  signup,
-  login,
-  onSignupClick,
-  onLoginClick,
-}: HijackingCoverAuthActionsProps): ReactElement {
-  return (
-    <>
-      <Button
-        type="button"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
-        className={classNames(
-          'group/cta shadow-2 shadow-black/40',
-          hijackingPrimaryCta,
-        )}
-        onClick={onSignupClick}
-      >
-        {signup}
-        <span className="ml-1 inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5">
-          →
-        </span>
-      </Button>
-      <Button
-        type="button"
-        variant={ButtonVariant.Secondary}
-        size={ButtonSize.Medium}
-        className={hijackingGlassCta}
-        onClick={onLoginClick}
-      >
-        {login}
-      </Button>
-    </>
-  );
-}
-
 const coverArtPosition = { objectPosition: '50% 62%' };
 
 // The card's height without a sizer.
-export const hijackingCoverStripMinHeight = 'min-h-[14rem]';
+const hijackingCoverStripMinHeight = 'min-h-[14rem]';
 
 interface HijackingCoverCardProps {
   children: ReactNode;
@@ -150,18 +105,5 @@ export function HijackingCoverStrip({
         </div>
       </div>
     </HijackingCoverCard>
-  );
-}
-
-// The same box as the strip without a sizer, empty: holds its slot.
-export function HijackingCoverStripPlaceholder({
-  className,
-}: {
-  className?: string;
-}): ReactElement {
-  return (
-    <section aria-hidden className={classNames('w-full', className)}>
-      <div className={hijackingCoverStripMinHeight} />
-    </section>
   );
 }

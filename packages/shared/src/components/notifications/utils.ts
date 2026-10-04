@@ -102,6 +102,7 @@ export enum NotificationType {
   ExperienceCompanyEnriched = 'experience_company_enriched',
   WorldDistrictLevelUp = 'world_district_level_up',
   ReferralSignup = 'referral_signup',
+  CreatorAchievement = 'creator_achievement',
 }
 
 export enum NotificationIconType {
@@ -715,6 +716,13 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     id: NotificationType.PostAnalytics,
     label: 'Post analytics',
     description: 'Get updates about how your posts are performing.',
+    group: false,
+  },
+  {
+    id: NotificationType.CreatorAchievement,
+    label: 'Creator achievements',
+    description:
+      'Get notified when you earn a creator achievement, like a top spot in a monthly category ranking.',
     group: false,
   },
 ];

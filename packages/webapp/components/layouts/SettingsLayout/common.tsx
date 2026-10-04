@@ -60,9 +60,12 @@ export const SettingsSwitch = ({
   children,
   ...props
 }: SettingsSwitchProps) => {
+  const labelId = `${name}-label`;
+
   return (
     <div className="flex justify-between gap-4">
       <Typography
+        id={labelId}
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
         className="flex-1"
@@ -73,6 +76,7 @@ export const SettingsSwitch = ({
         inputId={`${name}-switch`}
         name={name}
         compact={false}
+        aria-labelledby={labelId}
         {...props}
       />
     </div>

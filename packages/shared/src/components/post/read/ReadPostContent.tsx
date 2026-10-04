@@ -174,6 +174,7 @@ export function ReadPostContent({
               '-mx-4 bg-background-subtle',
               !leaderboardReleased && '!static',
             )}
+            hideOnScroll={leaderboardReleased}
           >
             <PostHeaderActions
               post={post}

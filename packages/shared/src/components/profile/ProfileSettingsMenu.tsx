@@ -102,7 +102,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           title: null,
           items: {
             profile: {
-              title: 'Profile details',
+              title: 'Profile',
               icon: UserIcon,
               href: `${settingsUrl}/profile`,
             },
@@ -142,7 +142,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               href: `${settingsUrl}/composition`,
             },
             invite: {
-              title: 'Invite Friends',
+              title: 'Invite friends',
               icon: InviteIcon,
               href: `${settingsUrl}/invite`,
             },
@@ -202,7 +202,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               href: `${settingsUrl}/profile/experience/certification`,
             },
             openSource: {
-              title: 'Open Source',
+              title: 'Open source',
               icon: TerminalIcon,
               href: `${settingsUrl}/profile/experience/opensource`,
             },
@@ -230,7 +230,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               },
             }),
             gamification: {
-              title: 'Feature visibility',
+              title: 'Streaks & gamification',
               icon: EyeIcon,
               href: `${settingsUrl}/customization/gamification`,
             },
@@ -278,7 +278,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           title: 'Billing and Monetization',
           items: {
             subscription: {
-              title: 'Subscriptions',
+              title: 'Payment & Subscription',
               icon: CreditCardIcon,
               href: `${settingsUrl}/subscription`,
             },

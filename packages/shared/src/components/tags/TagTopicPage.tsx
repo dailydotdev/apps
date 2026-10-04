@@ -70,7 +70,6 @@ import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
-import { ExploreSignupStrip } from '../auth/ExploreSignupStrip';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { webappUrl } from '../../lib/constants';
 import {
@@ -389,7 +388,6 @@ export const TagTopicPage = ({
       />
       <FeedPageLayoutComponent>
         <div className="flex w-full flex-col px-4 py-6 tablet:px-6">
-          <ExploreSignupStrip />
           {/* Hero cover — centered on the page; content below spans full width. */}
           <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
             <SponsoredTagHero tag={tag} />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { CreatorPostPerformance } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
@@ -55,6 +55,11 @@ const renderTable = (
 
   return { onSortChange };
 };
+
+// The stacked mobile layout repeats the sort in a dropdown, so header buttons
+// are scoped to their column header.
+const headerButton = (name: RegExp) =>
+  within(screen.getByRole('columnheader', { name })).getByRole('button');
 
 describe('CreatorPostPerformanceTable', () => {
   it('should render an em dash rather than a zero for unknown impressions', () => {
@@ -135,7 +140,7 @@ describe('CreatorPostPerformanceTable', () => {
   it('should start a newly picked column descending', async () => {
     const { onSortChange } = renderTable();
 
-    await userEvent.click(screen.getByRole('button', { name: /upvotes/i }));
+    await userEvent.click(headerButton(/upvotes/i));
 
     expect(onSortChange).toHaveBeenCalledWith({
       sortBy: CreatorPostSortBy.Upvotes,
@@ -151,7 +156,7 @@ describe('CreatorPostPerformanceTable', () => {
       },
     });
 
-    await userEvent.click(screen.getByRole('button', { name: /upvotes/i }));
+    await userEvent.click(headerButton(/upvotes/i));
 
     expect(onSortChange).toHaveBeenCalledWith({
       sortBy: CreatorPostSortBy.Upvotes,
@@ -162,7 +167,7 @@ describe('CreatorPostPerformanceTable', () => {
   it('should be sortable from the keyboard', async () => {
     const { onSortChange } = renderTable();
 
-    const header = screen.getByRole('button', { name: /comments/i });
+    const header = headerButton(/comments/i);
     header.focus();
     await userEvent.keyboard('{Enter}');
 

@@ -10,6 +10,8 @@ export const apiUrl = shouldCallProxyRewrite
   ? '/api'
   : process.env.NEXT_PUBLIC_API_URL;
 
+export const publicApiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export const graphqlUrl = `${apiUrl}/graphql`;
 
 export const fallbackImages = {

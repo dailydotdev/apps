@@ -6,7 +6,6 @@ import type {
 import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import classNames from 'classnames';
 import React, { useContext, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
@@ -65,7 +64,7 @@ import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayout
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
 import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
-import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import Custom404 from '../404';
@@ -281,9 +280,6 @@ const SourcePage = ({
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
-        <ExploreSignupStrip
-          className={classNames(pageSectionAutoWidthClassName, 'mb-4')}
-        />
         <ArchiveBreadcrumbs
           items={[
             { label: 'Sources', href: '/sources' },
@@ -406,6 +402,7 @@ const SourcePage = ({
             className={pageFeedClassName}
           />
         </div>
+        <PublicPageSignupBanner />
       </FeedPageLayoutComponent>
     </>
   );
@@ -417,7 +414,7 @@ SourcePage.layoutProps = {
   customBanner: (
     <>
       <CustomAuthBanner />
-      <MobileAppHeader sticky />
+      <MobileAppHeader />
     </>
   ),
 };
