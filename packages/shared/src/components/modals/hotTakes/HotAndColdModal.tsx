@@ -2439,7 +2439,7 @@ const HotAndColdModal = ({
                   hasOnboardingContent ? 'overflow-visible' : 'overflow-hidden',
                 )}
               >
-                <div className="flex h-full min-h-0 w-full flex-1 flex-col items-stretch justify-between gap-8 px-5 pb-[max(env(safe-area-inset-bottom,0px),2rem)] pt-5 tablet:hidden">
+                <div className="flex h-full min-h-0 w-full flex-1 flex-col items-stretch justify-between gap-8 px-5 pt-5 pb-safe-or-8 tablet:hidden">
                   {topSlot ? <div className="shrink-0">{topSlot}</div> : null}
                   {progressSlot ? (
                     <div className="shrink-0">{progressSlot}</div>

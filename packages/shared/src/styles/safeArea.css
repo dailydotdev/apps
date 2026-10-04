@@ -62,8 +62,10 @@ body .fixed.top-0.h-full {
 }
 
 /* Only where there is an inset: on the web these two keep Tailwind's
-   100vh and the iOS fill-available fix that follows it. :where keeps the
-   specificity of a single class, so responsive variants still win. */
+   100vh and the iOS fill-available fix that follows it. Like the dvh rules
+   above, they come after the utilities at a single class's specificity,
+   so inside a wrapper they also beat a responsive variant of the same
+   property (`min-h-screen tablet:min-h-0`); nothing pairs them today. */
 :where(:root.ios) .min-h-screen {
   min-height: calc(100vh - var(--safe-area-top));
 }
