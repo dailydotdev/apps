@@ -156,6 +156,7 @@ export const SOURCE_QUERY = gql`
     source(id: $id) {
       ...SourceDirectoryInfo
       type
+      noindex
     }
   }
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
