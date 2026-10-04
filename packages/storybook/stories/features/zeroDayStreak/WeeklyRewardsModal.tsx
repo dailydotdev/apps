@@ -53,29 +53,46 @@ export interface WeeklyRewardsModalProps {
   phase: Phase;
   /** The reader's whole reading streak — not the reward day. */
   streakDays: number;
+  /**
+   * Days read earlier and never collected, 1-based.
+   *
+   * Reading earns a day and claiming collects it, and the two need not happen
+   * together: someone who read yesterday without tapping opens today with two
+   * claims waiting. Those days keep their reward art and get a live button of
+   * their own; what they do not get is the lit frame, which is today's alone.
+   */
+  pendingDays?: number[];
   isClaiming?: boolean;
-  onClaim: () => void;
+  /** The day being collected, so a pending day can be claimed out of order. */
+  onClaim: (day: number) => void;
   onClose?: () => void;
 }
 
 enum Status {
   Done = 'done',
+  /** Read on an earlier day, still uncollected. Claimable, but not today. */
+  Pending = 'pending',
   Today = 'today',
   Upcoming = 'upcoming',
 }
 
-const statusOf = (index: number, day: number): Status => {
+const statusOf = (
+  index: number,
+  day: number,
+  pendingDays: number[] = [],
+): Status => {
   if (index < day - 1) {
-    return Status.Done;
+    return pendingDays.includes(index + 1) ? Status.Pending : Status.Done;
   }
 
   return index === day - 1 ? Status.Today : Status.Upcoming;
 };
 
-const balancesFor = (day: number, phase: Phase) => {
+const balancesFor = (day: number, phase: Phase, pendingDays: number[] = []) => {
   const collected = weekPlan.filter(
     (planned) =>
-      planned.day < day || (planned.day === day && phase === Phase.Claimed),
+      (planned.day < day && !pendingDays.includes(planned.day)) ||
+      (planned.day === day && phase === Phase.Claimed),
   );
 
   return {
@@ -96,6 +113,19 @@ const amountText = (planned: PlannedDay): string =>
   planned.kind === GiftKind.Cores ? planned.amount : `${planned.amount} freeze`;
 
 const RULE = 'Read one post a day to unlock that day’s reward.';
+
+/**
+ * The one moment the header is allowed to change.
+ *
+ * The title and the rule are fixed everywhere else on purpose — a header that
+ * rewords itself across seven days teaches seven rules. The finale earns the
+ * exception: once the last reward is collected there is no rule left to state,
+ * and a card that still says "read one post a day to unlock" over a complete
+ * week is talking past the person who just finished it.
+ */
+const FINALE_TITLE = 'Week complete!';
+const FINALE_RULE =
+  'Seven reading days, seven rewards. Your streak carries on from here.';
 
 const HAIRLINE = 'rgba(168,179,206,0.12)';
 
@@ -121,10 +151,23 @@ const CardStyles = (): ReactElement => (
         opacity: 0;
         animation: zdEmber var(--zd-duration, 1.8s) ease-out var(--zd-delay, 0ms) infinite both;
       }
+      @keyframes zdConfetti {
+        0% { opacity: 0; transform: translate3d(0, -20%, 0) rotate(0deg); }
+        8% { opacity: 1; }
+        100% {
+          opacity: 0;
+          transform: translate3d(var(--zd-drift, 0), 115%, 0) rotate(var(--zd-spin, 360deg));
+        }
+      }
+      .zd-confetti {
+        animation: zdConfetti var(--zd-duration, 2.6s) ease-in var(--zd-delay, 0ms) 1 both;
+      }
       .zd-cast { display: none; }
       @media (min-width: 70rem) { .zd-cast { display: block; } }
       @media (prefers-reduced-motion: reduce) {
         .zd-ember { animation: none; }
+        /* A burst that cannot move is just litter on the card. */
+        .zd-confetti { display: none; }
       }
     `}
   </style>
@@ -206,6 +249,44 @@ const StreakFlame = ({
   </span>
 );
 
+/**
+ * The finale's one-off burst, over the card for a couple of seconds.
+ *
+ * Hand-rolled for the same reason the embers are: the product's confetti lives
+ * inside the upvote animation and is not separable. Seeded, so it falls the
+ * same way on every render, and it runs ONCE — a celebration that loops is a
+ * background.
+ */
+const Confetti = (): ReactElement => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute inset-0 z-2 overflow-hidden rounded-24"
+  >
+    {Array.from({ length: 36 }, (_, index) => (
+      <span
+        // A fixed set: the index is their only identity.
+        // eslint-disable-next-line react/no-array-index-key
+        key={index}
+        className="zd-confetti absolute block"
+        style={
+          {
+            left: `${seeded(index * 17) * 100}%`,
+            top: `-${4 + seeded(index * 29) * 8}%`,
+            width: 5 + seeded(index * 3) * 5,
+            height: 8 + seeded(index * 7) * 8,
+            borderRadius: seeded(index * 23) > 0.6 ? '999px' : '2px',
+            background: EMBER_COLORS[index % EMBER_COLORS.length],
+            '--zd-delay': `${seeded(index * 11) * 900}ms`,
+            '--zd-duration': `${2 + seeded(index * 13) * 1.6}s`,
+            '--zd-drift': `${(seeded(index * 19) - 0.5) * 120}px`,
+            '--zd-spin': `${180 + seeded(index * 31) * 540}deg`,
+          } as CSSProperties
+        }
+      />
+    ))}
+  </span>
+);
+
 const CheckBadge = ({ className }: { className?: string }): ReactElement => (
   <span
     className={classNames(
@@ -280,16 +361,16 @@ const DaySlot = ({
   status: Status;
   phase: Phase;
   isClaiming?: boolean;
-  onClaim: () => void;
+  onClaim: (day: number) => void;
 }): ReactElement => {
   const isToday = status === Status.Today;
   const done = status === Status.Done || (isToday && phase === Phase.Claimed);
 
-  if (isToday && phase === Phase.Ready) {
+  if ((isToday && phase === Phase.Ready) || status === Status.Pending) {
     return (
       <button
         type="button"
-        onClick={onClaim}
+        onClick={() => onClaim(planned.day)}
         disabled={isClaiming}
         className={classNames(
           slotBase,
@@ -360,6 +441,7 @@ const Tile = ({
   index,
   day,
   phase,
+  pendingDays,
   isClaiming,
   onClaim,
   innerRef,
@@ -368,11 +450,12 @@ const Tile = ({
   index: number;
   day: number;
   phase: Phase;
+  pendingDays?: number[];
   isClaiming?: boolean;
-  onClaim: () => void;
+  onClaim: (day: number) => void;
   innerRef?: Ref<HTMLLIElement>;
 }): ReactElement => {
-  const status = statusOf(index, day);
+  const status = statusOf(index, day, pendingDays);
   const isToday = status === Status.Today;
   const done = status === Status.Done || (isToday && phase === Phase.Claimed);
   const quiet = done && !isToday;
@@ -402,6 +485,8 @@ const Tile = ({
     stateLabel = 'claimed';
   } else if (isToday) {
     stateLabel = 'today';
+  } else if (status === Status.Pending) {
+    stateLabel = 'ready to claim';
   }
 
   return (
@@ -465,15 +550,19 @@ export const WeeklyRewardsModal = ({
   day,
   phase,
   streakDays,
+  pendingDays,
   isClaiming,
   onClaim,
   onClose,
 }: WeeklyRewardsModalProps): ReactElement => {
-  const todayRef = useRef<HTMLLIElement>(null);
+  const todayRef = useRef<HTMLLIElement | null>(null);
+  // Keyed by day as well as today's own ref: more than one tile can be
+  // pressed now, and the Cores fly out of whichever one it was.
+  const tileRefs = useRef<Record<number, HTMLLIElement | null>>({});
   const rowRef = useRef<HTMLOListElement>(null);
   const timers = useRef<number[]>([]);
   const [flights, setFlights] = useState<QuestRewardFlight[]>([]);
-  const initial = balancesFor(day, phase);
+  const initial = balancesFor(day, phase, pendingDays);
   const [cores, setCores] = useState(initial.cores);
   const [freezes, setFreezes] = useState(initial.freezes);
   const [pushOn, setPushOn] = useState(false);
@@ -481,6 +570,10 @@ export const WeeklyRewardsModal = ({
   const clearFlights = useCallback(() => setFlights([]), []);
   const today = weekPlan[day - 1];
   const lit = phase !== Phase.Unread;
+  // The run is finished: the last day's reward is in. Either it was collected
+  // before this card opened, or it was just pressed here.
+  const complete =
+    day === FINAL_DAY && (phase === Phase.Claimed || claimedHere);
 
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
 
@@ -491,7 +584,7 @@ export const WeeklyRewardsModal = ({
       return;
     }
 
-    const next = balancesFor(day, phase);
+    const next = balancesFor(day, phase, pendingDays);
     setCores(next.cores);
     setFreezes(next.freezes + (pushOn ? 1 : 0));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -517,44 +610,50 @@ export const WeeklyRewardsModal = ({
   }, [day]);
 
   // The production claim animation, flying from today's tile to the balance.
-  const handleClaim = useCallback(() => {
-    onClaim();
-    setClaimedHere(true);
+  const handleClaim = useCallback(
+    (claimDay: number) => {
+      onClaim(claimDay);
+      setClaimedHere(true);
 
-    if (today.freezeDays) {
-      setFreezes((current) => current + (today.freezeDays ?? 0));
-    }
+      const claimed = weekPlan[claimDay - 1];
 
-    const tile = todayRef.current;
+      if (claimed?.freezeDays) {
+        setFreezes((current) => current + (claimed.freezeDays ?? 0));
+      }
 
-    if (!tile || !today.cores) {
-      return;
-    }
+      const tile = tileRefs.current[claimDay];
+      const amountDue = claimed?.cores ?? 0;
 
-    const rect = tile.getBoundingClientRect();
-    const built = buildQuestRewardFlights([
-      {
-        id: `zd-weekly-${day}`,
-        type: QuestRewardType.Cores,
-        amount: today.cores,
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      },
-    ]);
-    setFlights(built);
+      if (!tile || !amountDue) {
+        return;
+      }
 
-    const share = Math.round(today.cores / built.length);
-    built.forEach((flight, index) => {
-      const amount =
-        index === built.length - 1 ? today.cores - share * index : share;
-      timers.current.push(
-        window.setTimeout(
-          () => setCores((current) => current + amount),
-          getQuestRewardHitAt(flight.delayMs),
-        ),
-      );
-    });
-  }, [day, onClaim, today]);
+      const rect = tile.getBoundingClientRect();
+      const built = buildQuestRewardFlights([
+        {
+          id: `zd-weekly-${claimDay}`,
+          type: QuestRewardType.Cores,
+          amount: amountDue,
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        },
+      ]);
+      setFlights(built);
+
+      const share = Math.round(amountDue / built.length);
+      built.forEach((flight, index) => {
+        const amount =
+          index === built.length - 1 ? amountDue - share * index : share;
+        timers.current.push(
+          window.setTimeout(
+            () => setCores((current) => current + amount),
+            getQuestRewardHitAt(flight.delayMs),
+          ),
+        );
+      });
+    },
+    [onClaim],
+  );
 
   // Credited when push actually turns on; production must wait for the
   // browser's `granted`, or a denial still pays out.
@@ -572,6 +671,9 @@ export const WeeklyRewardsModal = ({
         className="relative max-h-[92dvh] overflow-y-auto rounded-t-24 border border-border-subtlest-secondary [scrollbar-width:none] tablet:max-h-none tablet:overflow-hidden tablet:rounded-24"
         style={{ background: ARCADE.surface }}
       >
+        {/* Over the whole card, and only when the week is finished. */}
+        {complete && <Confetti />}
+
         {/* A bottom sheet on a phone says so with a grab handle. */}
         <span
           aria-hidden
@@ -628,13 +730,13 @@ export const WeeklyRewardsModal = ({
               className="text-balance font-bold typo-title3"
               style={{ color: ARCADE.ink100 }}
             >
-              Weekly reading rewards
+              {complete ? FINALE_TITLE : 'Weekly reading rewards'}
             </h2>
             <p
               className="text-pretty typo-footnote"
               style={{ color: ARCADE.ink70 }}
             >
-              {RULE}
+              {complete ? FINALE_RULE : RULE}
             </p>
           </div>
 
@@ -654,9 +756,16 @@ export const WeeklyRewardsModal = ({
               index={index}
               day={day}
               phase={phase}
+              pendingDays={pendingDays}
               isClaiming={isClaiming}
               onClaim={handleClaim}
-              innerRef={index === day - 1 ? todayRef : undefined}
+              innerRef={(node) => {
+                tileRefs.current[planned.day] = node;
+
+                if (index === day - 1) {
+                  todayRef.current = node;
+                }
+              }}
             />
           ))}
         </ol>
@@ -702,11 +811,31 @@ export const WeeklyRewardsModal = ({
           </div>
         )}
 
+        {/* A sheet on a phone closes with a full-width button at the bottom,
+            where the thumb is — not with a 24px target in the far corner. The
+            X is the tablet-and-up affordance, so each size gets exactly one. */}
         <CloseButton
           size={ButtonSize.Small}
-          className="absolute right-3 top-3 z-2 text-white"
+          className="absolute right-3 top-3 z-2 hidden text-white tablet:flex"
           onClick={onClose}
         />
+
+        <div
+          className="border-t px-5 pb-6 pt-4 tablet:hidden"
+          style={{ borderColor: HAIRLINE }}
+        >
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-12 w-full rounded-12 font-bold typo-callout"
+            style={{
+              background: 'rgba(168,179,206,0.12)',
+              color: ARCADE.ink100,
+            }}
+          >
+            Close
+          </button>
+        </div>
       </div>
 
       {/* The cast overlaps the card by ~45px, with 80% of each body level with
