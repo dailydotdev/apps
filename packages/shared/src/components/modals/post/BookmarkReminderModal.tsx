@@ -153,12 +153,6 @@ export const BookmarkReminderModal = (
 
   return (
     <Modal
-      drawerProps={{
-        title: 'Set a reminder',
-        className: {
-          title: '!block text-center border-transparent !typo-title2 pb-2',
-        },
-      }}
       isDrawerOnMobile={isOpen}
       isOpen={isOpen}
       onRequestClose={onRequestClose}

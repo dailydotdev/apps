@@ -88,7 +88,7 @@ export function FormWrapper({
           ref={headerRef}
         >
           {title && (
-            <span className="min-w-0 flex-1 truncate font-bold typo-body">
+            <span className="min-w-0 flex-1 truncate font-bold typo-title3">
               {title}
             </span>
           )}

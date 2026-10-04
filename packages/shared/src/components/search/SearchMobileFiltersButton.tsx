@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ShellSquare } from '../shell/ShellSquare';
 import { IconSize } from '../Icon';
-import { FilterIcon, MiniCloseIcon } from '../icons';
+import { FilterIcon } from '../icons';
 import { Drawer, DrawerPosition } from '../drawers';
 import {
   SearchFilterContentCurationList,
@@ -56,17 +56,9 @@ const SearchMobileFiltersButton = ({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         position={DrawerPosition.Bottom}
-        className={{ wrapper: 'gap-4 p-4' }}
+        title="Filters"
+        className={{ drawer: 'px-4 pb-4 pt-2' }}
       >
-        <div className="flex shrink-0 items-center justify-between">
-          <h2 className="font-bold text-text-primary typo-title3">Filters</h2>
-          <Button
-            type="button"
-            icon={<MiniCloseIcon />}
-            onClick={() => setIsOpen(false)}
-            aria-label="Close"
-          />
-        </div>
         <div className="flex flex-col gap-5">
           <SearchMobileFilterSection title="Time">
             <SearchFilterTimeList />

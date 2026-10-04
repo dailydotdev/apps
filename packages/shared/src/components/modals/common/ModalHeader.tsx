@@ -206,6 +206,16 @@ export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement | null {
   );
 }
 
+// A modal that draws its heading in its body on wider screens still gets
+// the sheet's title row on a phone: the name at the left, the X at the right.
+export function ModalSheetTitle({
+  title,
+}: Pick<ModalHeaderProps, 'title'>): ReactElement | null {
+  const { isDrawer } = useContext(ModalPropsContext);
+
+  return isDrawer ? <ModalHeader title={title} /> : null;
+}
+
 ModalHeader.Title = ModalHeaderTitle;
 ModalHeader.Subtitle = ModalHeaderSubtitle;
 ModalHeader.Tabs = ModalHeaderTabs;
