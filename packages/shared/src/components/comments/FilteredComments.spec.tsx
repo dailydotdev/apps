@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import type { AuthContextData } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { labels } from '../../lib/labels';
 import useReportComment from '../../hooks/useReportComment';
 import { ReportReason } from '../../report';
 import type { Comment } from '../../graphql/comments';
@@ -16,16 +18,32 @@ jest.mock('../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
 }));
 
+const mockPage = (ids: string[], endCursor?: string) => ({
+  edges: ids.map((id) => ({ node: { id } })),
+  pageInfo: { hasNextPage: !!endCursor, endCursor },
+});
+
+let mockFetchList: (pageParam: string) => Promise<ReturnType<typeof mockPage>>;
+
 jest.mock('../../graphql/filteredComments', () => ({
   filteredCommentsCountQueryOptions: () => ({
     queryKey: ['filtered_comments', 'count'],
     queryFn: async () => 2,
   }),
   filteredCommentsQueryOptions: () => ({
-    queryKey: ['filtered_comments'],
-    queryFn: async () => [{ id: 'f1' }, { id: 'f2' }],
+    queryKey: ['filtered_comments', 'list'],
+    queryFn: ({ pageParam }: { pageParam: string }) => mockFetchList(pageParam),
+    initialPageParam: '',
+    getNextPageParam: (last: ReturnType<typeof mockPage>) =>
+      last.pageInfo.hasNextPage ? last.pageInfo.endCursor : null,
   }),
 }));
+
+jest.mock('../../hooks/useToastNotification', () => ({
+  useToastNotification: jest.fn(),
+}));
+
+const displayToast = jest.fn();
 
 const reportComment = jest.fn(async () => ({ successful: true }));
 
@@ -59,7 +77,11 @@ const post = { id: 'p1' } as Post;
 
 const renderComponent = (isLoggedIn: boolean) =>
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider
+      client={
+        new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      }
+    >
       <AuthContext.Provider
         value={
           {
@@ -83,6 +105,10 @@ const setFlag = (value: boolean) =>
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(useReportComment).mockReturnValue({ reportComment });
+  jest.mocked(useToastNotification).mockReturnValue({
+    displayToast,
+  } as unknown as ReturnType<typeof useToastNotification>);
+  mockFetchList = async () => mockPage(['f1', 'f2']);
 });
 
 it('renders nothing while the flag is off', () => {
@@ -124,4 +150,37 @@ it('expands for logged-in readers and reports a comment as not spam', async () =
     commentId: 'f1',
     reason: ReportReason.NotSpam,
   });
+});
+
+it('collapses with an error toast when the list fails to load', async () => {
+  setFlag(true);
+  mockFetchList = async () => {
+    throw new Error('unauthenticated');
+  };
+  renderComponent(true);
+
+  fireEvent.click(await screen.findByText('View 2 filtered comments'));
+
+  expect(
+    await screen.findByText('View 2 filtered comments'),
+  ).toBeInTheDocument();
+  expect(displayToast).toHaveBeenCalledWith(labels.error.generic);
+  expect(screen.queryByTestId('filtered-comment')).not.toBeInTheDocument();
+});
+
+it('loads the next page when there are more filtered comments', async () => {
+  setFlag(true);
+  mockFetchList = async (pageParam) =>
+    pageParam === 'c1' ? mockPage(['f2']) : mockPage(['f1'], 'c1');
+  renderComponent(true);
+
+  fireEvent.click(await screen.findByText('View 2 filtered comments'));
+
+  expect(await screen.findAllByTestId('filtered-comment')).toHaveLength(1);
+  fireEvent.click(screen.getByText('View 1 more'));
+
+  await waitFor(() =>
+    expect(screen.getAllByTestId('filtered-comment')).toHaveLength(2),
+  );
+  expect(screen.queryByText('View 1 more')).not.toBeInTheDocument();
 });

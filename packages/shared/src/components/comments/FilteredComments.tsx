@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import type { Comment } from '../../graphql/comments';
 import {
   filteredCommentsCountQueryOptions,
@@ -135,16 +135,33 @@ function FilteredCommentsRow({
 }: FilteredCommentsProps): ReactElement | null {
   const { user, isLoggedIn, tokenRefreshed, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
   const [isOpen, setIsOpen] = useState(false);
   const queryParams = { postId: post.id, user };
   const { data: count = 0 } = useQuery({
     ...filteredCommentsCountQueryOptions(queryParams),
     enabled: tokenRefreshed,
   });
-  const { data: comments } = useQuery({
-    ...filteredCommentsQueryOptions(queryParams),
-    enabled: isLoggedIn && isOpen,
-  });
+  const { data, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery({
+      ...filteredCommentsQueryOptions(queryParams),
+      enabled: isLoggedIn && isOpen,
+    });
+  const comments = data?.pages.flatMap((page) =>
+    page.edges.map(({ node }) => node),
+  );
+
+  useEffect(() => {
+    if (!isError) {
+      return;
+    }
+
+    displayToast(labels.error.generic);
+
+    if (!data) {
+      setIsOpen(false);
+    }
+  }, [isError, data, displayToast]);
 
   useLogEventOnce(
     () =>
@@ -220,6 +237,21 @@ function FilteredCommentsRow({
         ) : (
           <PlaceholderCommentList placeholderAmount={count} />
         ))}
+      {isOpen && comments && hasNextPage && (
+        <button
+          type="button"
+          className={rowClassName}
+          disabled={isFetchingNextPage}
+          onClick={() => fetchNextPage()}
+        >
+          <RowIcon />
+          <span className="flex-1 text-text-tertiary typo-callout">
+            {isFetchingNextPage
+              ? 'Loading more filtered comments'
+              : `View ${Math.max(count - comments.length, 1)} more`}
+          </span>
+        </button>
+      )}
     </>
   );
 }

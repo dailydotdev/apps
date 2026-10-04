@@ -105,6 +105,9 @@ export function PostComments({
     enabled: !isLoadingComments && commentsCount > 0,
   });
 
+  const getAppendTooltipParent = (): HTMLElement =>
+    modalParentSelector?.() ?? container.current ?? document.body;
+
   if (isLoadingComments || isNullOrUndefined(comments)) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
@@ -118,13 +121,14 @@ export function PostComments({
           title="No comments yet"
           description="The discussion is waiting for a spark. Share your take and get it started."
         />
-        <FilteredComments post={post} isModalThread={isModalThread} />
+        <FilteredComments
+          post={post}
+          appendTooltipTo={getAppendTooltipParent}
+          isModalThread={isModalThread}
+        />
       </div>
     );
   }
-
-  const getAppendTooltipParent = (): HTMLElement =>
-    modalParentSelector?.() ?? container.current ?? document.body;
 
   return (
     <div

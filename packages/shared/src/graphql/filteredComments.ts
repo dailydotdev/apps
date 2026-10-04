@@ -4,7 +4,7 @@ import { gqlBatchRequest } from './batch';
 import { COMMENT_FRAGMENT } from './fragments';
 import type { Comment } from './comments';
 import type { LoggedUser } from '../lib/user';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, getNextPageParam, RequestKey } from '../lib/query';
 
 export const FILTERED_COMMENTS_COUNT_QUERY = gql`
   query FilteredCommentsCount($postId: ID!) {
@@ -13,8 +13,12 @@ export const FILTERED_COMMENTS_COUNT_QUERY = gql`
 `;
 
 export const FILTERED_COMMENTS_QUERY = gql`
-  query FilteredComments($postId: ID!, $first: Int) {
-    filteredComments(postId: $postId, first: $first) {
+  query FilteredComments($postId: ID!, $first: Int, $after: String) {
+    filteredComments(postId: $postId, first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       edges {
         node {
           ...CommentFragment
@@ -58,11 +62,22 @@ export const filteredCommentsQueryOptions = ({
   user,
 }: FilteredCommentsQueryParams) => ({
   queryKey: generateQueryKey(RequestKey.FilteredComments, user, postId, 'list'),
-  queryFn: async (): Promise<Comment[]> => {
+  queryFn: async ({
+    pageParam,
+  }: {
+    pageParam: string;
+  }): Promise<Connection<Comment>> => {
     const res = await gqlBatchRequest<{
       filteredComments: Connection<Comment>;
-    }>(FILTERED_COMMENTS_QUERY, { postId, first: filteredCommentsMaxSize });
+    }>(FILTERED_COMMENTS_QUERY, {
+      postId,
+      first: filteredCommentsMaxSize,
+      after: pageParam || undefined,
+    });
 
-    return res.filteredComments.edges.map(({ node }) => node);
+    return res.filteredComments;
   },
+  initialPageParam: '',
+  getNextPageParam: (lastPage: Connection<Comment>) =>
+    getNextPageParam(lastPage?.pageInfo),
 });
