@@ -24,6 +24,7 @@ import { SquadFeedStats } from './SquadFeedStats';
 import { CardLink } from '../../common/Card';
 import { SquadAdAction } from './SquadAdAction';
 import { useScrambler } from '../../../../hooks/useScrambler';
+import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
 
 export function SquadAdGrid({
   item,
@@ -56,8 +57,14 @@ export function SquadAdGrid({
       domProps={{ className: 'flex flex-col gap-3 group px-3 py-3' }}
       ref={ref}
     >
-      <Link href={source.permalink} onClick={onClickAd}>
-        <CardLink href={source.permalink} />
+      <Link href={source.permalink}>
+        <CardLink
+          href={source.permalink}
+          onClick={() => {
+            onClickAd();
+            storeSquadBoostClick(item.ad);
+          }}
+        />
       </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
       <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
