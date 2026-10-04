@@ -15,6 +15,7 @@ import { IconSize } from '../../Icon';
 import { TruncateText } from '../../utilities';
 import type { Squad } from '../../../graphql/sources';
 import { MAX_AUDIENCE_SQUADS, isUserAudience } from './useComposerAudience';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 
 interface AudienceChipProps {
   audiences: Squad[];
@@ -55,6 +56,8 @@ export const AudienceChip = ({
   disabled,
 }: AudienceChipProps): ReactElement | null => {
   const [open, setOpen] = useState(false);
+  // Under tablet the menu is a sheet and takes a sheet's title row.
+  const isSheet = useViewSize(ViewSize.MobileL);
 
   const selected = audiences.filter(
     (audience) => !!audience.id && selectedIds.includes(audience.id),
@@ -197,17 +200,35 @@ export const AudienceChip = ({
           )}
           scrollableClassName=""
         >
-          <div className="flex items-center justify-between gap-2 px-4 pb-1 pt-2 tablet:px-3">
-            <span className="text-text-tertiary typo-caption2">Post to</span>
+          <div
+            className={classNames(
+              'flex items-center justify-between gap-2',
+              isSheet ? 'py-1 pl-4 pr-2' : 'px-3 pb-1 pt-2',
+            )}
+          >
+            <span
+              className={
+                isSheet
+                  ? 'min-w-0 flex-1 truncate font-bold typo-title3'
+                  : 'text-text-tertiary typo-caption2'
+              }
+            >
+              Post to
+            </span>
             <button
               type="button"
               onClick={handleReset}
               disabled={!canReset}
               className={classNames(
-                'rounded-6 px-1 transition-colors typo-caption1',
-                canReset
-                  ? 'text-text-link hover:underline'
-                  : 'cursor-default text-text-disabled',
+                isSheet
+                  ? 'shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center rounded-14 px-3 font-bold typo-callout'
+                  : 'rounded-6 px-1 transition-colors typo-caption1',
+                canReset &&
+                  (isSheet
+                    ? 'text-text-primary'
+                    : 'text-text-link hover:underline'),
+                !canReset && 'cursor-default text-text-disabled',
+                !canReset && isSheet && 'pointer-events-none',
               )}
             >
               Reset
