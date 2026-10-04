@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import type { FeedItem, PostItem } from '../hooks/useFeed';
 import type { PostHighlight } from '../graphql/highlights';
 import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
+import type { Source } from '../graphql/sources';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import type { PostBootData } from './boot';
 import { Origin, TargetType } from './log';
@@ -106,9 +107,32 @@ export type PostLogEventFnOptions = FeedItemPosition & {
 
 const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
 
+/** What postLogEvent reads, so a partial post, like a highlight's, logs too. */
+export type PostLogEventPost = Pick<Post, 'id'> &
+  Partial<
+    Pick<
+      Post,
+      | 'image'
+      | 'permalink'
+      | 'title'
+      | 'feedMeta'
+      | 'author'
+      | 'scout'
+      | 'createdAt'
+      | 'numComments'
+      | 'readTime'
+      | 'tags'
+      | 'trending'
+      | 'numUpvotes'
+    >
+  > & {
+    type?: string;
+    source?: Partial<Pick<Source, 'id' | 'type'>>;
+  };
+
 export function postLogEvent(
   eventName: string,
-  post: Post | ReadHistoryPost | PostBootData,
+  post: PostLogEventPost,
   opts?: PostLogEventFnOptions,
 ): PostItemLogEvent {
   // Lives in `extra` rather than top-level: unmapped top-level event fields are
@@ -137,7 +161,7 @@ export function postLogEvent(
     feed_item_image: post.image,
     feed_item_target_url: post.permalink,
     feed_item_title: post.title,
-    feed_item_meta: (post as Post).feedMeta,
+    feed_item_meta: post.feedMeta,
     post_author_id: post.author?.id,
     post_scout_id: post.scout?.id,
     post_created_at: post.createdAt,

@@ -15,12 +15,12 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import type { Post } from '../../graphql/posts';
 import {
   integrationRecentChannelsQueryOptions,
   UserIntegrationType,
 } from '../../graphql/integrations';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
+import type { SlackSharePost } from '../../hooks/integrations/slack/useSlackShareButton';
 import { getSlackShareRedirectPath } from '../../hooks/integrations/slack/useSlackShareButton';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -32,7 +32,7 @@ import { LogEvent } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 
 export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
-  post: Post;
+  post: SlackSharePost;
   origin?: Origin;
   placement?: Origin;
 };

@@ -10,7 +10,10 @@ import { CopyIcon, LinkIcon } from '../../components/icons';
 import { CopyStateIcon } from '../../components/share/CopyStateIcon';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
-import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
+import type {
+  SnapshotShare,
+  SnapshotSharePost,
+} from '../../components/imageShare/SnapshotSharePanel';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
@@ -78,7 +81,7 @@ export interface SelectionShareBarProps {
   /** Called once per action, with how a snapshot ended, so the host logs it. */
   onShare: (provider: ShareProvider, result?: SnapshotResult) => void;
   /** What the snapshot's share panel sends, as on SnapshotButton. */
-  post?: Post;
+  post?: SnapshotSharePost;
   share?: SnapshotShare;
   origin?: Origin;
 }

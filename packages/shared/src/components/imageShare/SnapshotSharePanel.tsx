@@ -26,6 +26,7 @@ import { useOpenShareLink } from '../../hooks/useOpenShareLink';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
+import type { SlackSharePost } from '../../hooks/integrations/slack/useSlackShareButton';
 import { SlackCtaButton } from '../widgets/SlackCtaButton';
 import { postLogEvent } from '../../lib/feed';
 import type { TargetType } from '../../lib/log';
@@ -54,7 +55,13 @@ export interface SnapshotShare {
   extra?: Record<string, unknown>;
 }
 
-export const getPostSnapshotShare = (post: Post): SnapshotShare => ({
+/** A post as the panel uses it, so a partial one like a highlight's fits. */
+export type SnapshotSharePost = SlackSharePost &
+  Pick<Post, 'commentsPermalink'>;
+
+export const getPostSnapshotShare = (
+  post: SnapshotSharePost,
+): SnapshotShare => ({
   link: post.commentsPermalink,
   text: post.title,
   cid: ReferralCampaignKey.SharePost,
@@ -68,7 +75,7 @@ export interface SnapshotSharePanelProps {
   filename: string;
   share: SnapshotShare;
   /** The post the snapshot is from, which adds the Slack row. */
-  post?: Post;
+  post?: SnapshotSharePost;
   /** The snapshot placement the panel opened from. */
   placement?: Origin;
   onClose: () => void;
@@ -130,7 +137,7 @@ function SnapshotSlackRow({
   isDrawer,
   onClose,
 }: {
-  post: Post;
+  post: SlackSharePost;
   placement?: Origin;
   isDrawer: boolean;
   onClose: () => void;

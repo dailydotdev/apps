@@ -22,6 +22,9 @@ jest.mock('../../lib/imageShare/captureShareImage', () => ({
 jest.mock('../../lib/imageShare/copyShareImage', () => ({
   copyShareImage: jest.fn(),
 }));
+jest.mock('../../hooks/integrations/slack/useSlackShare', () => ({
+  useSlackShare: () => ({ isLoading: false, canPostAsUser: false }),
+}));
 
 const scrollIntoView = jest.fn();
 const summary = 'A concise summary for the expanded highlight item.';
@@ -36,7 +39,11 @@ const highlight: PostHighlightFeed = {
     type: 'article',
     commentsPermalink: '/posts/post-1',
     summary,
-    source: { name: 'The Pragmatic Engineer', image: 'https://img/source' },
+    source: {
+      id: 'pragmatic',
+      name: 'The Pragmatic Engineer',
+      image: 'https://img/source',
+    },
   },
 };
 
@@ -166,16 +173,20 @@ describe('HighlightItem', () => {
     fireEvent.click(screen.getByRole('button', { name: /snapshot/i }));
 
     expect(await screen.findByText('Copied')).toBeInTheDocument();
+    expect(screen.getByText('Connect Slack')).toBeInTheDocument();
     await waitFor(() =>
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.OpenSnapshotSharePanel,
-        target_id: 'post-1',
-        target_type: TargetType.Post,
-        extra: JSON.stringify({
-          placement: Origin.HappeningNowHighlight,
-          highlight_id: 'highlight-1',
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.OpenSnapshotSharePanel,
+          target_id: 'post-1',
+          target_type: TargetType.Post,
+          post_source_id: 'pragmatic',
+          extra: JSON.stringify({
+            placement: Origin.HappeningNowHighlight,
+            highlight_id: 'highlight-1',
+          }),
         }),
-      }),
+      ),
     );
   });
 });

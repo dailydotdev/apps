@@ -12,6 +12,7 @@ import { LazyModal } from '../../../components/modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent, Origin } from '../../../lib/log';
+import type { PostLogEventPost } from '../../../lib/feed';
 import { postLogEvent } from '../../../lib/feed';
 import { getPathnameWithQuery } from '../../../lib/links';
 import { isExtension } from '../../../lib/func';
@@ -39,12 +40,15 @@ const originParam = 'slackOrigin';
 const returnParams = ['lzym', postIdParam, scrollParam, originParam, 'error'];
 const origins = new Set<string>(Object.values(Origin));
 
+/** What sharing a post to Slack reads: its id, its page and what it logs. */
+export type SlackSharePost = PostLogEventPost & Partial<Pick<Post, 'slug'>>;
+
 /**
  * Where Slack sends the user back when the share has no webapp page of its own
  * to return to, as on the extension: the API callback only ever redirects to a
  * path on the webapp, so it has to be the post's page.
  */
-export const getSlackShareRedirectPath = (post: Post): string =>
+export const getSlackShareRedirectPath = (post: SlackSharePost): string =>
   getPathnameWithQuery(
     `/posts/${post.slug ?? post.id}`,
     new URLSearchParams({
@@ -60,7 +64,7 @@ export const getSlackShareOriginPath = ({
   path,
   scrollY,
 }: {
-  post: Post;
+  post: SlackSharePost;
   origin?: Origin;
   path: string;
   scrollY: number;
@@ -84,7 +88,7 @@ export const useSlackShareButton = ({
   origin,
   placement,
 }: {
-  post: Post;
+  post: SlackSharePost;
   origin?: Origin;
   /** The surface the share control sits in, when `origin` names a control. */
   placement?: Origin;

@@ -15,9 +15,8 @@ import type {
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
-import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
-import type { SnapshotShare } from './SnapshotSharePanel';
+import type { SnapshotShare, SnapshotSharePost } from './SnapshotSharePanel';
 import { getPostSnapshotShare, SnapshotSharePanel } from './SnapshotSharePanel';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
@@ -51,7 +50,7 @@ export interface SnapshotButtonProps {
   /** Called once per press with how it ended, so the host can log it. */
   onResult?: (result: SnapshotResult) => void;
   /** The post the snapshot is from, which the share panel links and sends. */
-  post?: Post;
+  post?: SnapshotSharePost;
   /** What the share panel links to when the snapshot is not of a post. */
   share?: SnapshotShare;
   /** Which placement this is, for the share panel's events. */

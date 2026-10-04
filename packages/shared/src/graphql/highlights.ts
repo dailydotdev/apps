@@ -16,7 +16,7 @@ export interface PostHighlight {
   };
 }
 
-type HighlightFeedSource = Pick<Source, 'name' | 'image'>;
+type HighlightFeedSource = Pick<Source, 'id' | 'name' | 'image'>;
 
 export interface PostHighlightFeed {
   id: string;
@@ -130,6 +130,7 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
       contentHtml
       domain
       source {
+        id
         name
         image
       }
@@ -139,6 +140,7 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
         contentHtml
         domain
         source {
+          id
           name
           image
         }

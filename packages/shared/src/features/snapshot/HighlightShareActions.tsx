@@ -60,8 +60,6 @@ export function HighlightShareActions({
     highlight,
   );
 
-  // The highlight's post is the feed's slim shape, not a full Post, so the
-  // panel shares it as a subject: logged like useLogHighlightShare, no Slack.
   const share: SnapshotShare = {
     link: highlight.post.commentsPermalink,
     text: title,
@@ -89,6 +87,7 @@ export function HighlightShareActions({
           filename={`daily-highlight-${highlight.id}`}
           onResult={onSnapshot}
           origin={Origin.HappeningNowHighlight}
+          post={highlight.post}
           share={share}
           showLabel={false}
           target={cardRef}
@@ -115,6 +114,7 @@ export function HighlightShareActions({
         link={highlight.post.commentsPermalink}
         onShare={logSelectionShare}
         origin={Origin.HappeningNowSelection}
+        post={highlight.post}
         seed={highlight.id}
         share={share}
         source={source}

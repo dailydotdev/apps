@@ -4,13 +4,13 @@ import { Button } from '../buttons/Button';
 import type { ButtonSize } from '../buttons/common';
 import { ButtonVariant } from '../buttons/common';
 import { SlackIcon } from '../icons/Slack';
-import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
 import { wrapStopPropagation } from '../../lib/func';
+import type { SlackSharePost } from '../../hooks/integrations/slack/useSlackShareButton';
 import { useSlackShareButton } from '../../hooks/integrations/slack/useSlackShareButton';
 
 export type SlackCtaButtonProps = {
-  post: Post;
+  post: SlackSharePost;
   origin?: Origin;
   /** The surface the button sits in, when `origin` names the control. */
   placement?: Origin;
