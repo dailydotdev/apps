@@ -304,7 +304,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             content="initial-scale=1.0, width=device-width, viewport-fit=cover"
           />
           <meta name="theme-color" content={themeColor} />
-          <meta name="color-scheme" content={isLightTheme ? 'light' : 'dark'} />
           <meta
             name="apple-mobile-web-app-status-bar-style"
             content={isLightTheme ? 'default' : 'black'}

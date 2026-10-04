@@ -20,6 +20,7 @@ import { ShellRoot } from '../shell/shellNav';
 import { useShellBlockPlan } from '../shell/useShellBlockPlan';
 import { Chips, ShellRow } from '../shell/ShellRow';
 import { webappUrl } from '../../lib/constants';
+import { isExtension } from '../../lib/func';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -56,7 +57,7 @@ function MainLayoutHeader({
     feedName: activeFeedName,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isPhone = useViewSize(ViewSize.MobileL) && !isLaptop;
+  const isPhone = useViewSize(ViewSize.MobileL) && !isLaptop && !isExtension;
   const { root } = useShellBlockPlan();
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
@@ -144,7 +145,7 @@ function MainLayoutHeader({
   // The server cannot know the screen, so it and the first client render
   // emit both the phone block and the wider header and CSS shows one of
   // them; from the second render on only this screen's stays mounted.
-  const block = (!hasHydrated || isPhone) && (
+  const block = !isExtension && (!hasHydrated || isPhone) && (
     <ShellBlock root={root} row={row} />
   );
 

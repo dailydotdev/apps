@@ -23,9 +23,11 @@ const exploreSortPrefixes = [
   '/posts/upvoted',
   '/posts/discussed',
   '/posts/latest',
-  '/posts/best-of',
   '/explore',
 ];
+// Explore's own pages that are not one of its views: the best-of archive
+// has a title and a back row, and the lit tab returns from it to Explore.
+const exploreLeafPrefixes = ['/posts/best-of'];
 
 // The views a root tab switches between (its segments and sorts). A tap on
 // the lit tab from one of these scrolls or refreshes; from anywhere else it
@@ -69,7 +71,10 @@ export const owningRoot = (pathname: string): ShellRoot => {
   if (path.startsWith('/notifications')) {
     return ShellRoot.Activity;
   }
-  if (isRootView(ShellRoot.Explore, path)) {
+  if (
+    isRootView(ShellRoot.Explore, path) ||
+    exploreLeafPrefixes.some((prefix) => path.startsWith(prefix))
+  ) {
     return ShellRoot.Explore;
   }
   if (path.startsWith('/posts/')) {

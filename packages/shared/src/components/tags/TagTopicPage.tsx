@@ -80,6 +80,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { getPostPath } from '../../lib/links';
 
 const SUPPORTED_TYPES = [
   PostType.Article,
@@ -492,11 +493,7 @@ export const TagTopicPage = ({
             {topPosts.length > 0 && (
               <div className="sr-only">
                 {topPosts.map((post) => (
-                  <Link
-                    key={post.id}
-                    href={`${webappUrl}posts/${post.slug || post.id}`}
-                    prefetch={false}
-                  >
+                  <Link key={post.id} href={getPostPath(post)} prefetch={false}>
                     <a>{post.title}</a>
                   </Link>
                 ))}

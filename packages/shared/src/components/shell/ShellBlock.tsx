@@ -190,6 +190,8 @@ export function ShellBlock({
   const ref = useRef<HTMLElement>(null);
   const hidden = !config?.hidden && p >= 0.99;
 
+  // The observer reports every later change of height (a row arriving, the
+  // offline strip); only the header mounting or leaving needs a new one.
   useClientLayoutEffect(() => {
     const element = ref.current;
     const publish = () => {
@@ -208,7 +210,7 @@ export function ShellBlock({
       observer?.disconnect();
       document.documentElement.style.removeProperty('--shell-top');
     };
-  }, [root, row, config?.hidden, config?.row, online]);
+  }, [config?.hidden]);
 
   // Once the block is gone the status area turns into a soft scroll edge
   // (safeArea.css paints it solid while the block stands under it).

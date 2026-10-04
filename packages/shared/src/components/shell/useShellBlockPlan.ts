@@ -3,9 +3,8 @@ import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import useActiveNav from '../../hooks/useActiveNav';
 import { SharedFeedPage } from '../utilities/common';
-import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import { blockRest } from './constants';
-import { ShellRoot } from './shellNav';
+import { isRootView, ShellRoot } from './shellNav';
 
 interface ShellBlockPlan {
   root?: ShellRoot;
@@ -20,38 +19,24 @@ const restOf: Record<ShellRoot, string> = {
   [ShellRoot.Activity]: blockRest.root,
 };
 
+const roots = [
+  ShellRoot.Explore,
+  ShellRoot.Squads,
+  ShellRoot.Activity,
+  ShellRoot.Home,
+];
+
 // What the block shows on this route and how tall it rests. Read from the
 // route alone, so the server answers the same as the client.
 export const useShellBlockPlan = (): ShellBlockPlan => {
   const router = useRouter();
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.Popular;
-  const { isAnyExplore, isSearch } = useFeedName({ feedName: activeFeedName });
-  const { squads, notifications, bookmarks } = useActiveNav(activeFeedName);
-  const pathname = withoutLayoutVariantPrefix(router?.pathname ?? '');
-
-  const root = (() => {
-    if (
-      isAnyExplore ||
-      ['/popular', '/upvoted', '/discussed'].includes(pathname)
-    ) {
-      return ShellRoot.Explore;
-    }
-    if (squads) {
-      return ShellRoot.Squads;
-    }
-    if (notifications) {
-      return ShellRoot.Activity;
-    }
-    if (
-      ['/', '/my-feed', '/following'].includes(pathname) ||
-      pathname.startsWith('/highlights') ||
-      (pathname.startsWith('/feeds/[slugOrId]') && !pathname.endsWith('/edit'))
-    ) {
-      return ShellRoot.Home;
-    }
-    return undefined;
-  })();
+  const { isSearch } = useFeedName({ feedName: activeFeedName });
+  const { bookmarks } = useActiveNav(activeFeedName);
+  const root = roots.find((candidate) =>
+    isRootView(candidate, router?.pathname ?? ''),
+  );
 
   if (root) {
     return { root, rest: restOf[root] };

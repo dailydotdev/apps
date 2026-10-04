@@ -353,6 +353,7 @@ function MainLayoutComponent({
           // banners included, starts under it. Until the block has measured
           // itself the column holds the height this page's block rests at.
           !sidebarOwnsHeader &&
+            !isExtension &&
             'pt-[var(--shell-top,var(--shell-top-rest))] tablet:pt-0',
           isV2 &&
             'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',

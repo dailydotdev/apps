@@ -16,9 +16,11 @@
   transition: background-color 0.12s linear, box-shadow 0.12s linear,
     border-color 0.12s linear;
 
-  &:hover {
-    background: var(--theme-surface-hover);
-    --field-placeholder-color: var(--theme-text-primary);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--theme-surface-hover);
+      --field-placeholder-color: var(--theme-text-primary);
+    }
   }
 
   &:global(.focused) {

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useMedia, useMediaClient } from './useMedia';
+import { isExtension } from '../lib/func';
 import {
   desktop,
   desktopL,
@@ -56,7 +57,7 @@ const useViewSize = (size: ViewSize): boolean => {
 
 // The phone shell swaps markup by viewport, so the server and the first
 // client render must agree: both say "not a phone" and the answer lands
-// after mount.
+// after mount. The extension's new tab has no shell at any width.
 export const useIsPhone = (): boolean => {
   const check = useMediaClient(
     [viewSizeToQuery[ViewSize.MobileL].replace('@media ', '')],
@@ -64,7 +65,7 @@ export const useIsPhone = (): boolean => {
     false,
   );
 
-  return check === undefined ? false : !check;
+  return !isExtension && check !== undefined && !check;
 };
 
 export const useViewSizeClient = (size: ViewSize): boolean => {

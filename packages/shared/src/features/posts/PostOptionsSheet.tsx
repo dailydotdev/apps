@@ -80,11 +80,18 @@ export const PostOptionsSheet = ({
   const [height, setHeight] = useState<number>();
   const { primary, notInterested, owner, more } = groupPostOptions(options);
 
-  // The sheet is as tall as the level on screen, not the taller of the two.
+  // The sheet is as tall as the level on screen, not the taller of the two,
+  // and the level off screen is out of the focus order and the reading order.
   useLayoutEffect(() => {
-    const active = level === 'root' ? rootRef.current : subRef.current;
+    const isRoot = level === 'root';
+    const active = isRoot ? rootRef.current : subRef.current;
+    const offScreen = isRoot ? subRef.current : rootRef.current;
     if (!active) {
       return undefined;
+    }
+    active.inert = false;
+    if (offScreen) {
+      offScreen.inert = true;
     }
     const measure = () => setHeight(active.offsetHeight);
     measure();
@@ -112,11 +119,7 @@ export const PostOptionsSheet = ({
           transition: `transform ${motion.snap}ms ${motion.interaction}`,
         }}
       >
-        <div
-          ref={rootRef}
-          className="flex w-1/2 flex-col"
-          aria-hidden={level !== 'root'}
-        >
+        <div ref={rootRef} className="flex w-1/2 flex-col">
           <DropdownMenuOptions options={firstLevel} />
           {notInterested.length > 0 && (
             <LevelRow
@@ -147,11 +150,7 @@ export const PostOptionsSheet = ({
             </>
           )}
         </div>
-        <div
-          ref={subRef}
-          className="flex w-1/2 flex-col"
-          aria-hidden={level === 'root'}
-        >
+        <div ref={subRef} className="flex w-1/2 flex-col">
           <DropdownMenuItem
             onSelect={(event: Event) => {
               event.preventDefault();

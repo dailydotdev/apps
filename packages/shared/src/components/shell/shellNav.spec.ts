@@ -45,7 +45,9 @@ describe('isRootView', () => {
   it('counts every Explore sort, not a post', () => {
     expect(isRootView(ShellRoot.Explore, '/posts')).toBe(true);
     expect(isRootView(ShellRoot.Explore, '/posts/latest')).toBe(true);
-    expect(isRootView(ShellRoot.Explore, '/posts/best-of/[period]')).toBe(true);
+    expect(isRootView(ShellRoot.Explore, '/posts/best-of/[period]')).toBe(
+      false,
+    );
     expect(isRootView(ShellRoot.Explore, '/popular')).toBe(true);
     expect(isRootView(ShellRoot.Explore, '/posts/[id]')).toBe(false);
     expect(isRootView(ShellRoot.Explore, '/tags/[tag]')).toBe(false);
