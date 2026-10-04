@@ -266,6 +266,19 @@
     animation-timing-function: var(--shell-ease-travel) !important;
     animation-name: shell-sheet-in !important;
     transform-origin: bottom center;
+    /* The sheet owns its height, at rest and under the finger, and its
+       list fills whatever height that is: a long list shows as much as the
+       resting sheet holds, and a pull up uncovers more of it as it goes. */
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+    max-height: 70dvh;
+  }
+
+  .shell-menu-sheet > div {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none !important;
   }
 
   .shell-menu-sheet::before {
