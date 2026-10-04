@@ -46,7 +46,7 @@ const DEFAULT_HEADLINE = 'Find your communities';
 const PACK_PROMISE =
   "Each pack brings a topic's top Squads, sources and the developers writing about it.";
 const DEFAULT_LIMIT = 10;
-export const MINIMUM_PACKS = 3;
+const MINIMUM_PACKS = 3;
 // Topics too thin to fill a pack are dropped, so a few more are asked for.
 const SPARE_TOPICS = 4;
 const PLACEHOLDER_ROWS = 5;

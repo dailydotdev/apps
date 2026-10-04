@@ -14,14 +14,14 @@ import { PackCover } from './PackCover';
 
 // Squad members plus source followers across the pack. Someone in two of them
 // counts twice, so this is the pack's reach, never a head count.
-export const packFollowers = ({ members }: CommunityPack): string =>
+const packFollowers = ({ members }: CommunityPack): string =>
   largeNumberFormat(
     members.reduce((sum, { membersCount }) => sum + (membersCount ?? 0), 0),
   ) ?? '0';
 
 // Everyone in the pack by name, the cover faces first. A Squad named after
 // the topic is left out, since it would only repeat the title above it.
-export const packNames = ({ members, title }: CommunityPack): string =>
+const packNames = ({ members, title }: CommunityPack): string =>
   members
     .map(({ name }) => name.trim())
     .filter((name) => name.toLowerCase() !== title.toLowerCase())
