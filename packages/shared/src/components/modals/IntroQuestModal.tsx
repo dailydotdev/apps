@@ -411,7 +411,7 @@ export const IntroQuestModal = ({
     >
       <ModalClose className="top-2" onClick={onRequestClose} />
       <ModalSheetTitle title="Intro quests" />
-      <Modal.Body className="gap-4 p-4 tablet:p-6">
+      <Modal.Body className="gap-4 pb-4 tablet:p-6">
         <div className="flex items-start gap-3 border-b border-border-subtlest-tertiary pb-4">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-primary">
             <TourIcon />
