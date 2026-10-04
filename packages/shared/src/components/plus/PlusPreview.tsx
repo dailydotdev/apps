@@ -1,10 +1,18 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import { DevPlusIcon } from '../icons/DevPlus';
 import { VIcon } from '../icons/V';
 import { IconSize } from '../Icon';
+import Link from '../utilities/Link';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
+import { plusUrl } from '../../lib/constants';
 import {
   Typography,
   TypographyColor,
@@ -46,22 +54,12 @@ export const PlusTile = ({
   </span>
 );
 
-export const PlusPreviewNote = ({
-  children,
-}: {
-  children: ReactNode;
-}): ReactElement => (
-  <Typography type={TypographyType.Caption1} color={TypographyColor.Tertiary}>
-    {children}
-  </Typography>
-);
-
 interface PlusPreviewCardProps {
-  footer?: ReactNode;
+  onAction?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export const PlusPreviewCard = ({
-  footer,
+  onAction,
 }: PlusPreviewCardProps): ReactElement => (
   <div className="flex w-72 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-4 shadow-2">
     <div className="flex items-center gap-2">
@@ -95,7 +93,22 @@ export const PlusPreviewCard = ({
         </li>
       ))}
     </ul>
-    {footer}
+    <Link href={plusUrl} passHref>
+      <Button
+        tag="a"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Bacon}
+        size={ButtonSize.Small}
+        icon={<DevPlusIcon secondary />}
+        className="w-full"
+        onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+          event.stopPropagation();
+          onAction?.(event);
+        }}
+      >
+        Get Plus
+      </Button>
+    </Link>
   </div>
 );
 
@@ -111,7 +124,7 @@ export const PlusPreview = ({
   children,
   side = 'right',
   align = 'start',
-  footer = <PlusPreviewNote>Click to see plans</PlusPreviewNote>,
+  onAction,
 }: PlusPreviewProps): ReactElement => {
   // After a click the card stays shut until the pointer leaves, otherwise the
   // open delay re-fires on the trigger while the next page loads.
@@ -152,7 +165,7 @@ export const PlusPreview = ({
           collisionPadding={12}
           className="rail-popup-panel z-tooltip"
         >
-          <PlusPreviewCard footer={footer} />
+          <PlusPreviewCard onAction={onAction} />
         </HoverCardPrimitive.Content>
       </HoverCardPrimitive.Portal>
     </HoverCardPrimitive.Root>

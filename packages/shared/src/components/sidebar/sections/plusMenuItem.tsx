@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { SidebarMenuItem } from '../common';
@@ -8,7 +9,7 @@ import { PlusPreview } from '../../plus/PlusPreview';
 import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 
 interface CreatePlusMenuItemProps {
-  onClick: () => void;
+  onClick: (event?: MouseEvent<HTMLElement>) => void;
   isSaleActive: boolean;
 }
 
@@ -31,6 +32,8 @@ export const createPlusMenuItem = ({
   isForcedLink: true,
   requiresLogin: true,
   action: onClick,
-  renderPreview: (trigger) => <PlusPreview>{trigger}</PlusPreview>,
+  renderPreview: (trigger) => (
+    <PlusPreview onAction={onClick}>{trigger}</PlusPreview>
+  ),
   ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
 });

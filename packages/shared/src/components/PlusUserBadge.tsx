@@ -27,6 +27,12 @@ export const PlusUserBadge = ({
     return null;
   }
 
+  const logUpgradeClick = () =>
+    logSubscriptionEvent({
+      event_name: LogEvent.UpgradeSubscription,
+      target_id: TargetId.PlusBadge,
+    });
+
   if (!tooltip) {
     return (
       <div className="flex items-center">
@@ -36,7 +42,7 @@ export const PlusUserBadge = ({
   }
 
   return (
-    <PlusPreview side="bottom">
+    <PlusPreview side="bottom" onAction={logUpgradeClick}>
       <button
         type="button"
         aria-label="Plus member"
@@ -44,10 +50,7 @@ export const PlusUserBadge = ({
         onClick={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          logSubscriptionEvent({
-            event_name: LogEvent.UpgradeSubscription,
-            target_id: TargetId.PlusBadge,
-          });
+          logUpgradeClick();
           router.push(plusUrl);
         }}
       >

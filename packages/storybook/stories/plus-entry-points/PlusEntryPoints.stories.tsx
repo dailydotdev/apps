@@ -13,10 +13,7 @@ import { ProfileSettingsMenuDesktop } from '@dailydotdev/shared/src/components/p
 import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
 import { PlusMenuEntry } from '@dailydotdev/shared/src/components/plus/PlusMenuEntry';
 import { PlusEntryRowSize } from '@dailydotdev/shared/src/components/plus/PlusEntryRow';
-import {
-  PlusPreviewCard,
-  PlusPreviewNote,
-} from '@dailydotdev/shared/src/components/plus/PlusPreview';
+import { PlusPreviewCard } from '@dailydotdev/shared/src/components/plus/PlusPreview';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
 import { TargetId } from '@dailydotdev/shared/src/lib/log';
 
@@ -218,9 +215,7 @@ export const Brief: Story = {
               <Sidebar />
               <Label>Sidebar</Label>
               <div className="mt-3">
-                <PlusPreviewCard
-                  footer={<PlusPreviewNote>Click to see plans</PlusPreviewNote>}
-                />
+                <PlusPreviewCard />
               </div>
               <Label>Hover card, sidebar and badge</Label>
             </div>

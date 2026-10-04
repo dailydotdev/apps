@@ -40,13 +40,14 @@ import { AlertColor, AlertDot } from '../../AlertDot';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { createPlusMenuItem } from './plusMenuItem';
+import { AuthTriggers } from '../../../lib/auth';
 
 export const MainSection = ({
   isItemsButton,
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { user, isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn, showLogin } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
@@ -104,11 +105,18 @@ export const MainSection = ({
           ),
         };
 
-    const logUpgradeClick = () =>
+    const logUpgradeClick = (event?: React.MouseEvent<HTMLElement>) => {
+      if (!isLoggedIn) {
+        event?.preventDefault();
+        showLogin({ trigger: AuthTriggers.Plus });
+        return;
+      }
+
       logSubscriptionEvent({
         event_name: LogEvent.UpgradeSubscription,
         target_id: TargetId.Sidebar,
       });
+    };
 
     const plusButton = isPlus
       ? undefined
@@ -232,6 +240,7 @@ export const MainSection = ({
     isPlus,
     isSaleActive,
     logSubscriptionEvent,
+    showLogin,
     isV2,
     onNavTabClick,
     showAgent,
