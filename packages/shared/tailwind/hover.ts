@@ -8,11 +8,11 @@ type AddVariantInPlace = (
 ) => void;
 
 /**
- * A touch screen keeps :hover on whatever lands under the last tap. Where
- * the primary input can hover, `hover:` is hover. Where it cannot, it is
- * the pressed state, the feedback a tap needs, and nothing stays lit. The
- * split is on `hover` alone, so a device that reports hover keeps it
- * whatever its pointer.
+ * `hover:` is hover where the primary input can hover and the pressed state
+ * where it cannot. Tailwind's `future.hoverOnlyWhenSupported` is not used:
+ * it also requires a fine pointer and gives touch no pressed state.
+ * `group-hover` and `peer-hover` keep the core definition; a tap is the
+ * only way to reveal what they reveal on touch.
  *
  * `before` puts the variant back where the core one sits in the cascade,
  * ahead of focus and active; a redefined variant goes last otherwise and
