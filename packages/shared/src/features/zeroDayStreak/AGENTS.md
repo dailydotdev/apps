@@ -37,23 +37,20 @@ most of the rules fall out of keeping them apart:
 4. **Cores already claimed are never clawed back.** A reset restarts the
    ladder, not the balance. Banked freezes survive it too.
 
-**A freeze is spent in the background.** No dialog, no "we saved you" banner on
-the card. Asking is pointless — the day is already gone by the time anyone could
-answer. But now that a freeze is the difference between keeping the run and
-starting over, spending one is worth saying in the **push notification**, which
-is the only surface that reaches someone who is not looking at the card.
+**A freeze is spent in the background, and nothing anywhere says so.** No
+dialog, no banner, and no notification either — see *Notifications*. Asking is
+pointless, because the day is already gone by the time anyone could answer, and
+announcing it afterwards turns a non-event into something to read and dismiss.
+A freeze doing its job silently is the whole point of owning one.
 
 **The card still only shows the run as it now stands.** No banner, no recovery
 notice: a `freezeCovered` prop was built and removed, and nothing has changed
 about that. What the card now *lacks* is a way to say the run is at risk — see
 *Open questions*.
 
-**The notification changed job with this rule.** It was a nudge; it is now also
-a warning, because missing the day has a consequence worth naming. It still has
-to name the act rather than the app — read a post, then claim — and per the
-original brief, name a human where it can. It is also why the switch pays a
-freeze for turning it on, and that trade is a better one than it was: the thing
-it pays in now does real work.
+**The notification is the only surface that reaches someone not looking at the
+card**, which is why the card's offer pays a freeze for turning it on. What it
+may say is deliberately short — see *Notifications*.
 
 **Why failable.** The counter-argument is on the record and still stands: loss
 aversion pulls only while the user holds something, and once a streak is gone it
@@ -79,6 +76,49 @@ Two inputs: was a post read, and has the day ended.
   "3 rewards ready" row counts.
 - The disabled claim stays on screen: the headline states the condition, the
   greyed button is what it unlocks.
+
+## Notifications
+
+**Exactly two, and no more.** The product already has four things that can ping
+a brand-new account — daily quests, intro quests, the reading streak, the top
+reader badge — and this run buys its channel with a streak freeze. A bought
+channel is the last one to abuse.
+
+### 1 · A reward is waiting
+
+- **Trigger:** a qualifying post was read and the day's reward is still
+  uncollected, some hours later and before the day ends. Once per day.
+- **Says:** that something is sitting there, and how much. It exists because
+  nothing auto-claims — an earned reward is invisible until the card is opened,
+  and the person has already done the hard part.
+- **Counts, when more than one has piled up.** "3 rewards are waiting" is the
+  same notification, not a second one; rewards stack, so the count is the only
+  part that varies.
+
+### 2 · The week restarted
+
+- **Trigger:** a day ended with no post read AND no freeze to cover it, so the
+  ladder reset.
+- **Says it plainly, once, without scolding.** This is the only surface a reset
+  has. Say nothing and someone who declined notifications finds their ladder
+  back at day 1 with no explanation anywhere — which is the strongest argument
+  for the card eventually getting a state of its own.
+- **Never fires when a freeze covered the day.** That stays silent.
+
+### Considered and dropped
+
+A daily nudge before the day ends, a separate "rewards have stacked" note, a
+"freeze spent" note, and a week-complete note. The run does not get to send four
+more things; if one of these comes back, one of the two above has to go.
+
+### Why these two cannot collide
+
+The first needs a post read that day, the second needs none. They are mutually
+exclusive by construction, so the one-a-day budget holds without a scheduler
+arbitrating between them.
+
+Both name the act rather than the app — read a post, then claim — and per the
+original brief, name a human where they can.
 
 ## Open questions
 
