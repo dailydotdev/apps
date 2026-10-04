@@ -36,9 +36,6 @@ import {
 import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
-import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
-import type { ResolvedCreative } from '../lib/engagementAds';
-import { EngagementPlacement } from '../lib/engagementAds';
 import type { FeedAdTemplate } from '../lib/feed';
 import { getAdSlotIndex } from '../lib/feed';
 import { searchResultsLogEvent } from '../lib/searchLog';
@@ -166,11 +163,6 @@ export type FeedBannerInsertions = {
   briefBannerPage: number;
   showPromoBanner: boolean;
   indexWhenShowingPromoBanner: number;
-  // Campaign-specific engagement strip: a full-row, brand-gradient promo
-  // rendered mid-feed when a creative opted into the feed-strip placement.
-  showEngagementStrip: boolean;
-  indexWhenShowingEngagementStrip: number;
-  engagementStripCreative: ResolvedCreative | null;
   hero: {
     shouldShowTopHero: boolean;
     title: string;
@@ -231,10 +223,6 @@ const searchFeedNames = new Set<string>([
   OtherFeedPage.SearchSquad,
 ]);
 
-// 0-based grid row where the campaign-specific engagement strip breaks the
-// feed. Picking a whole row (not an item index) keeps the row above it full.
-const ENGAGEMENT_STRIP_ROW = 4;
-
 export interface UseFeedOptionalParams<T> {
   query?: string;
   variables?: T;
@@ -256,12 +244,6 @@ export interface UseFeedOptionalParams<T> {
    * feature flag.
    */
   isBriefBannerEligible?: boolean;
-  /**
-   * Whether the current feed may show the campaign-specific engagement strip
-   * (the right feed page and not a horizontal carousel). The strip only
-   * renders when this is true AND a creative opted into the placement.
-   */
-  engagementStripEligible?: boolean;
   /**
    * Number of fixed "first slot" cards (e.g. profile completion / brief
    * card) rendered ABOVE the feed grid. Used to shift banner indices so
@@ -304,7 +286,6 @@ export default function useFeed<T>(
     settings,
     onEmptyFeed,
     isBriefBannerEligible = false,
-    engagementStripEligible = false,
     firstSlotOffset = 0,
     disableTopHero = false,
     isHorizontal = false,
@@ -508,33 +489,13 @@ export default function useFeed<T>(
     columnsDiffWithPage * Number(briefBannerPage) -
     effectiveFirstSlotOffset;
 
-  const { getCreativeForPlacement } = useEngagementAdsContext();
-  const engagementStripCreative = engagementStripEligible
-    ? getCreativeForPlacement(EngagementPlacement.FeedStrip)
-    : null;
-  const showEngagementStrip = !!engagementStripCreative;
-  // Break the feed a few rows in. Multiplying the row by the column count
-  // gives the item index at the start of that row; the full-row insertion
-  // machinery pads the row above so the strip always begins a clean row (in
-  // grid) and just slots inline (in list, where virtualizedNumCards === 1).
-  const indexWhenShowingEngagementStrip =
-    ENGAGEMENT_STRIP_ROW * virtualizedNumCards - effectiveFirstSlotOffset;
-
   const fullRowInsertionBeforeIndex = useMemo(() => {
     const set = new Set<number>();
     if (showPromoBanner) {
       set.add(indexWhenShowingPromoBanner);
     }
-    if (showEngagementStrip) {
-      set.add(indexWhenShowingEngagementStrip);
-    }
     return set;
-  }, [
-    showPromoBanner,
-    indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-  ]);
+  }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
   const { fetchAd } = useFetchAd();
   // Per-mount random seed for ad jitter. Stable across re-renders/pagination
@@ -886,9 +847,6 @@ export default function useFeed<T>(
     briefBannerPage: Number(briefBannerPage),
     showPromoBanner,
     indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-    engagementStripCreative,
     hero: {
       shouldShowTopHero: heroFeedHero.shouldShowTopHero,
       title: heroFeedHero.title,

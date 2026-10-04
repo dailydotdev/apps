@@ -69,6 +69,8 @@ export interface SelectionShareBarProps {
   link: string;
   /** Seeds the card's gradient and names the downloaded file. */
   seed: string;
+  /** The post the quote was selected from, credited on the card. */
+  title?: string;
   source?: { name: string; image?: string };
   /** The surface's own label on the card's logo row. */
   label?: ReactNode;
@@ -80,6 +82,7 @@ export function SelectionShareBar({
   containerRef,
   link,
   seed,
+  title,
   source,
   label,
   onShare,
@@ -187,6 +190,7 @@ export function SelectionShareBar({
           passage={quote.passage}
           seed={seed}
           source={source}
+          title={title}
         />
       </div>
     </>,
@@ -227,6 +231,7 @@ export function SelectionSnapshotBar({
       onShare={onShare}
       seed={post.id}
       source={snapshotSource(post)}
+      title={post.title}
     />
   );
 }

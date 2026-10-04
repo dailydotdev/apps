@@ -74,6 +74,7 @@ export const settingsContext: SettingsContextData = {
   toggleShowTopSites: jest.fn(),
   toggleShowFeedbackButton: jest.fn(),
   toggleSidebarExpanded: jest.fn(),
+  setSidebarForceCollapsed: jest.fn(),
   toggleSortingEnabled: jest.fn(),
   updateCustomLinks: jest.fn(),
   updateSortCommentsBy: jest.fn(),

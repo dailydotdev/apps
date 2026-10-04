@@ -26,7 +26,6 @@ const mockUseOnboardingActions = useOnboardingActions as jest.Mock;
 
 const client = new QueryClient();
 const noop = jest.fn();
-let queryCalled = false;
 
 const createWrapper = (variant?: FeedChipsVariant) => {
   const wrapper = ({ children }: { children: React.ReactNode }) => {
@@ -111,20 +110,16 @@ describe('useFeeds hook', () => {
           tagChipSeedStrategy: TagChipSeedStrategy.V3,
         },
       },
-      result: () => {
-        queryCalled = true;
-
-        return {
-          data: {
-            feedList: {
-              pageInfo: {
-                endCursor: expect.any(String),
-                hasNextPage: false,
-              },
-              edges: feeds,
+      result: {
+        data: {
+          feedList: {
+            pageInfo: {
+              endCursor: expect.any(String),
+              hasNextPage: false,
             },
+            edges: feeds,
           },
-        };
+        },
       },
     });
 
@@ -135,21 +130,17 @@ describe('useFeeds hook', () => {
           name: 'New feed',
         },
       },
-      result: () => {
-        queryCalled = true;
-
-        return {
-          data: {
-            createFeed: {
-              id: 'cf4',
-              userId: '1',
-              flags: {
-                name: 'New feed',
-              },
-              slug: 'new-feed-cf4',
+      result: {
+        data: {
+          createFeed: {
+            id: 'cf4',
+            userId: '1',
+            flags: {
+              name: 'New feed',
             },
+            slug: 'new-feed-cf4',
           },
-        };
+        },
       },
     });
 
@@ -161,21 +152,17 @@ describe('useFeeds hook', () => {
           feedId: 'cf1',
         },
       },
-      result: () => {
-        queryCalled = true;
-
-        return {
-          data: {
-            updateFeed: {
-              id: 'cf1',
-              userId: '1',
-              flags: {
-                name: 'Updated feed',
-              },
-              slug: 'updated-feed-cf1',
+      result: {
+        data: {
+          updateFeed: {
+            id: 'cf1',
+            userId: '1',
+            flags: {
+              name: 'Updated feed',
             },
+            slug: 'updated-feed-cf1',
           },
-        };
+        },
       },
     });
 
@@ -186,16 +173,12 @@ describe('useFeeds hook', () => {
           feedId: 'cf1',
         },
       },
-      result: () => {
-        queryCalled = true;
-
-        return {
-          data: {
-            deleteFeed: {
-              id: 'cf1',
-            },
+      result: {
+        data: {
+          deleteFeed: {
+            id: 'cf1',
           },
-        };
+        },
       },
     });
   });
@@ -205,10 +188,9 @@ describe('useFeeds hook', () => {
       wrapper: Wrapper,
     });
 
-    await waitFor(() => expect(queryCalled).toBe(true));
-
-    expect(result.current.feeds).toBeTruthy();
-    expect(result.current.feeds!.edges).toMatchObject(feeds);
+    await waitFor(() =>
+      expect(result.current.feeds?.edges).toMatchObject(feeds),
+    );
   });
 
   it('should create a feed', async () => {
@@ -216,7 +198,7 @@ describe('useFeeds hook', () => {
       wrapper: Wrapper,
     });
 
-    await waitFor(() => expect(queryCalled).toBe(true));
+    await waitFor(() => expect(result.current.feeds).toBeTruthy());
 
     let feed: Feed | undefined;
 
@@ -237,7 +219,7 @@ describe('useFeeds hook', () => {
       wrapper: Wrapper,
     });
 
-    await waitFor(() => expect(queryCalled).toBe(true));
+    await waitFor(() => expect(result.current.feeds).toBeTruthy());
 
     let feed: Feed | undefined;
     await act(async () => {
@@ -260,7 +242,7 @@ describe('useFeeds hook', () => {
       wrapper: Wrapper,
     });
 
-    await waitFor(() => expect(queryCalled).toBe(true));
+    await waitFor(() => expect(result.current.feeds).toBeTruthy());
 
     await act(async () => {
       await result.current.deleteFeed({ feedId: 'cf1' });

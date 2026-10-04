@@ -35,6 +35,7 @@ import PostMetadata from '../../cards/common/PostMetadata';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
+import { YoutubeLinkEmbeds } from '../../contentEmbeds/YoutubeLinkEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { Origin } from '../../../lib/log';
 import { TextSnapshotButton } from '../../../features/snapshot/TextSnapshotButton';
@@ -504,6 +505,9 @@ const PostFocusCardRaw = ({
         <Markdown content={article.contentHtml} className="break-words" />
       )}
       <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
+      {article.type === PostType.Freeform && (
+        <YoutubeLinkEmbeds contentHtml={article.contentHtml} />
+      )}
       <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
     </div>
   ) : (
@@ -680,7 +684,7 @@ const PostFocusCardRaw = ({
                 <div className="flex min-w-0 flex-1 flex-col gap-4">
                   <h1
                     className={classNames(
-                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                      'text-balance break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
                       // On the post page the reader came to read, so the title is
                       // always shown in full and the button flows below it; only
                       // the modal (a feed preview) clamps it.

@@ -25,7 +25,7 @@ export const AccountSection = (): ReactElement => {
       icon: SettingsIcon,
     },
     {
-      title: 'Subscriptions',
+      title: 'Payment & Subscription',
       href: `${settingsUrl}/subscription`,
       icon: CreditCardIcon,
     },

@@ -9,7 +9,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import type { Visit } from '@dailydotdev/shared/src/lib/boot';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import {
@@ -17,6 +16,7 @@ import {
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UserPersonalizedDigestType,
   GET_NOTIFICATION_SETTINGS,
+  UPDATE_NOTIFICATION_SETTINGS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { SendType } from '@dailydotdev/shared/src/hooks';
@@ -120,10 +120,6 @@ beforeEach(() => {
   nock.cleanAll();
   client = new QueryClient();
 
-  globalThis.OneSignal = {
-    getRegistrationId: jest.fn().mockResolvedValue('123'),
-  };
-
   personalizedDigestMock = {
     request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
     result: {
@@ -148,16 +144,8 @@ beforeEach(() => {
   };
 });
 
-afterEach(() => {
-  delete globalThis.OneSignal;
-});
-
 const defaultLoggedUser: LoggedUser = {
   ...loggedUser,
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: false,
   isPlus: true,
 };
@@ -210,7 +198,7 @@ const renderComponent = (
         >
           <SettingsContext.Provider value={settingsContext}>
             <PushNotificationContextProvider>
-              <NotificationsContextProvider app={BootApp.Webapp}>
+              <NotificationsContextProvider>
                 <ProfileNotificationsPage />
               </NotificationsContextProvider>
             </PushNotificationContextProvider>
@@ -335,8 +323,8 @@ it('should change hour for AI briefings', async () => {
     },
   });
 
-  const { firstChild } = await screen.findByTestId('hour-dropdown');
-  fireEvent.click(firstChild);
+  const dropdown = await screen.findByTestId('hour-dropdown');
+  fireEvent.click(dropdown.firstChild as Node);
   const selectedHour = await screen.findByText('00:00');
   fireEvent.click(selectedHour);
 
@@ -418,4 +406,45 @@ it('should render squad roles section', async () => {
   await waitFor(() => {
     expect(screen.queryByText('Squad roles')).toBeInTheDocument();
   });
+});
+
+it('should mute creator achievement emails without touching in-app', async () => {
+  const settings = {
+    ...defaultNotificationSettings,
+    [NotificationType.CreatorAchievement]: {
+      email: NotificationPreferenceStatus.Subscribed,
+      inApp: NotificationPreferenceStatus.Subscribed,
+    },
+  };
+  renderComponent(defaultLoggedUser, settings);
+
+  fireEvent.click(await screen.findByText('Email'));
+  const toggle = await screen.findByRole('checkbox', {
+    name: 'Creator achievements',
+  });
+  expect(toggle).toBeChecked();
+
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_NOTIFICATION_SETTINGS_MUTATION,
+      variables: {
+        notificationFlags: {
+          ...settings,
+          [NotificationType.CreatorAchievement]: {
+            email: NotificationPreferenceStatus.Muted,
+            inApp: NotificationPreferenceStatus.Subscribed,
+          },
+        },
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { updateNotificationSettings: { _: true } } };
+    },
+  });
+  fireEvent.click(toggle);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(toggle).not.toBeChecked();
 });

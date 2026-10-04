@@ -6,14 +6,16 @@ import { AuthenticationBanner, OnboardingHeadline } from '../../../auth';
 const GeoPersonalizedBanner = ({
   geo,
   compact,
+  targetId,
 }: {
   geo: string;
   compact?: boolean;
+  targetId?: string;
 }): ReactElement => {
   const country = geoToCountry(geo);
 
   return (
-    <AuthenticationBanner compact={compact}>
+    <AuthenticationBanner compact={compact} targetId={targetId}>
       <OnboardingHeadline
         className={{
           title: compact ? 'typo-large-title' : 'typo-mega3',

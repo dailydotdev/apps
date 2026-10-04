@@ -8,6 +8,7 @@ import { SidebarDensitySection } from '@dailydotdev/shared/src/components/Profil
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
+import { useToggleFeedbackButton } from '@dailydotdev/shared/src/hooks/useToggleFeedbackButton';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
@@ -68,6 +69,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const showReaderToggle = isReaderEligible;
   const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
     useSettingsBooleanFlag('highlightCardsOptOut');
+  const { showFeedbackButton, toggleFeedbackButton } =
+    useToggleFeedbackButton();
   const isReadInsideEnabled = isReaderEnabled;
   const isReaderPermissionGranted =
     flags?.readerInstallPromptAcknowledged ?? false;
@@ -174,6 +177,14 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             onToggle={toggleHighlightCards}
           >
             Show hero cards for highlighted news
+          </SettingsSwitch>
+
+          <SettingsSwitch
+            name="feedback-button"
+            checked={showFeedbackButton}
+            onToggle={toggleFeedbackButton}
+          >
+            Show feedback button
           </SettingsSwitch>
 
           <PreferredSourceSetting />

@@ -272,6 +272,7 @@ function renderComponent(
     toggleAutoDismissNotifications: jest.fn(),
     updateCustomLinks: jest.fn(),
     toggleSidebarExpanded: jest.fn(),
+    setSidebarForceCollapsed: jest.fn(),
   };
   return render(
     <QueryClientProvider client={queryClient}>
@@ -2049,6 +2050,7 @@ const renderWithHighlightLayout = ({
     toggleAutoDismissNotifications: jest.fn(),
     updateCustomLinks: jest.fn(),
     toggleSidebarExpanded: jest.fn(),
+    setSidebarForceCollapsed: jest.fn(),
   };
 
   // Use a fresh QueryClient per render — the suite-level singleton can

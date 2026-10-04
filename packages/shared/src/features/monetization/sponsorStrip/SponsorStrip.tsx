@@ -30,6 +30,7 @@ interface SponsorRowProps {
   premium: ResolvedSponsor[];
   community: ResolvedSponsor[];
   wallRef: (node: HTMLElement | null) => void;
+  wallGap: number;
 }
 
 const SponsorRow = ({
@@ -37,6 +38,7 @@ const SponsorRow = ({
   premium,
   community,
   wallRef,
+  wallGap,
 }: SponsorRowProps): ReactElement => (
   <div
     data-testid="sponsorStripRow"
@@ -71,9 +73,13 @@ const SponsorRow = ({
         className="h-5 w-px shrink-0 bg-border-subtlest-tertiary"
       />
     )}
+    {/* The gap is clamped, not spread (see `wallGap`): past its maximum the
+      row's spare width stays empty on the right rather than floating the
+      marks apart, which is why this is `justify-start` and not `between`. */}
     <div
       ref={wallRef}
-      className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
+      className="flex min-w-0 flex-1 items-center justify-start overflow-hidden"
+      style={{ gap: `${wallGap}px` }}
     >
       {premium.map((sponsor, index) => (
         <SponsorLogo
@@ -137,6 +143,7 @@ export const SponsorStrip = ({
     premium,
     community,
     wallRef,
+    wallGap,
     isSettled: adsSettled,
   } = useSponsorStripAds();
   const hasSponsors = !!gold || !!premium.length || !!community.length;
@@ -184,6 +191,7 @@ export const SponsorStrip = ({
           premium={premium}
           community={community}
           wallRef={wallRef}
+          wallGap={wallGap}
         />
       )}
       {showHeadlines && <SponsorStripHeadlines headlines={headlines} />}

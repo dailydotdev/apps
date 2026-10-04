@@ -46,6 +46,9 @@ import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
 import { ProfileMobileBackButton } from './ProfileBackButton';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
+import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -85,6 +88,9 @@ export function Header({
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
   const { isJobsEnabled } = useJobsFeature();
+  const isMobileAppHeader = useMobileAppHeader();
+  const isHidden = useHideOnScrollDown(isMobileAppHeader && !!sticky);
+  const showIdentity = sticky && !isMobileAppHeader;
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -148,20 +154,26 @@ export function Header({
 
   return (
     <header
-      className={classNames('flex h-12 items-center px-4', className)}
+      className={classNames(
+        'flex h-12 items-center px-4',
+        className,
+        isHidden && '-translate-y-full',
+      )}
       style={style}
     >
       <>
-        <ProfileMobileBackButton className={!sticky ? 'mr-3' : undefined} />
-        {sticky ? (
+        <ProfileMobileBackButton
+          className={!showIdentity ? 'mr-3' : undefined}
+        />
+        {showIdentity ? (
           <>
             <ProfilePicture
               user={user}
               nativeLazyLoading
               size={ProfileImageSize.Medium}
             />
-            <div className="ml-2 mr-auto flex flex-col typo-footnote">
-              <p className="font-bold">{user.name}</p>
+            <div className="ml-2 mr-auto flex min-w-0 flex-1 flex-col typo-footnote">
+              <p className="truncate font-bold">{user.name}</p>
               <p className="text-text-tertiary">
                 {largeNumberFormat(user.reputation)} Reputation
               </p>
@@ -184,7 +196,7 @@ export function Header({
             </Button>
           </Link>
         )}
-        {!blocked && (
+        {!blocked && !isMobileAppHeader && (
           <FollowButton
             entityId={user.id}
             type={ContentPreferenceType.User}
@@ -220,6 +232,7 @@ export function Header({
             variant={ButtonVariant.Float}
           />
         )}
+        {isMobileAppHeader && <MobileAppActions />}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>

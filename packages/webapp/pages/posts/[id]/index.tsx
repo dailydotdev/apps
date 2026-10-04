@@ -4,7 +4,7 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
@@ -90,11 +90,10 @@ import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
-import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
-import { isPostDetailPath } from '../../../lib/postRoutes';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -236,7 +235,6 @@ export const PostPage = ({
       retry: false,
     },
   });
-  useSlackShareReturn({ post });
   useShareLinkClick({ postId: post?.id });
   const queryClient = useQueryClient();
   const postError = (isError
@@ -371,44 +369,6 @@ export const PostPage = ({
     [adsActive, carriesInPageAds, renderSummarySegments],
   );
 
-  // Same boundary the /read template draws: adsbygoogle must never follow a
-  // client-side navigation off the post pages, because its Auto ads overlays
-  // persist across soft navigations. Post-to-post stays client-side — the
-  // destination carries its own slots — while any departure forces a full
-  // page load that tears every Google global down.
-  useEffect(() => {
-    if (!adsActive) {
-      return undefined;
-    }
-    const forceHardNavigation = (
-      url: string,
-      { shallow }: { shallow: boolean },
-    ): void => {
-      if (shallow || isPostDetailPath(url)) {
-        return;
-      }
-      router.events.emit('routeChangeError');
-      window.location.assign(url);
-      // Next.js has no cancel API; throwing inside the handler is the
-      // established way to abort the client-side transition.
-      throw new Error(`Aborted client navigation to ${url} to unload ads`);
-    };
-    router.events.on('routeChangeStart', forceHardNavigation);
-    // On popstate the history pointer has already moved, so assign() would
-    // navigate forward again; loading the target URL in place respects the
-    // position the user just moved to.
-    router.beforePopState(({ as }) => {
-      if (isPostDetailPath(as)) {
-        return true;
-      }
-      window.location.href = as;
-      return false;
-    });
-    return () => {
-      router.events.off('routeChangeStart', forceHardNavigation);
-      router.beforePopState(() => true);
-    };
-  }, [adsActive, router]);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -466,9 +426,19 @@ export const PostPage = ({
       error === ApiError.Forbidden ||
       getApiError(postError, ApiError.Forbidden)
     ) {
-      return <Unauthorized />;
+      return (
+        <>
+          <MobileAppHeader />
+          <Unauthorized />
+        </>
+      );
     }
-    return <Custom404 />;
+    return (
+      <>
+        <MobileAppHeader />
+        <Custom404 />
+      </>
+    );
   }
 
   return (
@@ -509,6 +479,7 @@ export const PostPage = ({
                 showPostAuthBanner && 'laptop:pb-72',
               )}
             >
+              <MobileAppHeader />
               <PostFocusCard
                 post={post}
                 origin={Origin.ArticlePage}

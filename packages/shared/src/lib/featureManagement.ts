@@ -97,12 +97,6 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
-// Experiment: sponsored partner offers (via Encore) presented as the reward
-// moment once the day's daily quests are all claimed. Enrollment is
-// conditional on the popup actually being eligible, so users who never finish
-// their quests don't dilute the split.
-export const featureQuestOffers = new Feature('quest_offers', isDevelopment);
-
 // whether the user will see post boost ads
 // does not necessarily mean they can't boost a post if they have access to cores
 export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
@@ -271,6 +265,11 @@ export const featureOnboardingExtensionShowcase = new Feature(
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
+export const featureSponsorStripBreakingNews = new Feature(
+  'sponsor_strip_breaking_news',
+  true,
+);
+
 export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
@@ -299,18 +298,6 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-// Experiment: skip layout/paint for off-screen feed cards via CSS
-// `content-visibility: auto` to keep long feeds responsive.
-export const featureFeedContentVisibility = new Feature(
-  'feed_content_visibility',
-  false,
-);
-
-export const featurePublicSignupBanner = new Feature(
-  'public_signup_banner',
-  false,
-);
-
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
@@ -324,6 +311,13 @@ export const featureCardImpressions = new Feature('card_impressions', false);
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
+
+export const featureOAuthApps = new Feature('oauth_apps', false);
+
+export const featurePluginMarketplace = new Feature(
+  'plugin_marketplace',
+  false,
+);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -362,3 +356,17 @@ export const featureReadAds = new Feature('read_ads', true);
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
+
+// Experiment: logged-out phones get the Charm footer in place of the tab bar
+// once they reach a page's trigger point.
+export const featureMobileAppFooter = new Feature('mobile_app_footer', false);
+
+// Experiment: logged-in phones get the "See daily.dev in…" sheet when they
+// land on the web.
+export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);
+
+// How long the sheet stays away after the reader picks Open or Continue.
+export const featureMobileAppSheetSnoozeHours = new Feature(
+  'mobile_app_sheet_snooze_hours',
+  72,
+);

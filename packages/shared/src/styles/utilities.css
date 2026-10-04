@@ -1394,3 +1394,103 @@ img.agent-media-ring {
     animation: none;
   }
 }
+
+/*
+ * Charm climbs up from behind the app button once, then presses it three
+ * times; the button dips and a ripple spreads in time with each press.
+ */
+@keyframes charm-rise {
+  from {
+    transform: translateY(70%);
+    filter: blur(4px);
+  }
+
+  to {
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes charm-press {
+  0%,
+  26%,
+  36%,
+  50%,
+  100% {
+    transform: none;
+  }
+
+  30%,
+  44% {
+    transform: translateY(7%);
+  }
+}
+
+@keyframes charm-button-press {
+  0%,
+  26%,
+  36%,
+  50%,
+  100% {
+    transform: none;
+  }
+
+  30%,
+  44% {
+    transform: scale(0.97);
+  }
+}
+
+@keyframes charm-ripple {
+  0%,
+  26% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  30% {
+    opacity: 0.7;
+    transform: scale(0.5);
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+.animate-charm-rise {
+  animation: charm-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
+}
+
+.animate-charm-press,
+.animate-charm-button-press,
+.animate-charm-ripple {
+  animation-duration: 2.4s;
+  animation-delay: 700ms;
+  animation-iteration-count: 3;
+  animation-fill-mode: both;
+  animation-timing-function: ease-out;
+}
+
+.animate-charm-press {
+  animation-name: charm-press;
+}
+
+.animate-charm-button-press {
+  animation-name: charm-button-press;
+}
+
+.animate-charm-ripple {
+  animation-name: charm-ripple;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-charm-rise,
+  .animate-charm-press,
+  .animate-charm-button-press,
+  .animate-charm-ripple {
+    animation: none;
+  }
+}

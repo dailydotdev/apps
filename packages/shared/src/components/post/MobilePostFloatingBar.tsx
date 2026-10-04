@@ -121,6 +121,7 @@ function MobilePostFloatingBarV1({
         variant={ButtonVariant.Tertiary}
         color={ButtonColor.Avocado}
         size={ButtonSize.Medium}
+        className="shell-press"
       >
         {upvoteCount > 0 && (
           <InteractionCounter className={counterClasses} value={upvoteCount} />
@@ -135,6 +136,7 @@ function MobilePostFloatingBarV1({
         variant={ButtonVariant.Tertiary}
         color={ButtonColor.Ketchup}
         size={ButtonSize.Medium}
+        className="shell-press"
       />
       <QuaternaryButton
         id="mobile-comment-post-btn"
@@ -143,7 +145,7 @@ function MobilePostFloatingBarV1({
         onClick={() => onCommentClick(LogOrigin.PostCommentButton)}
         icon={<CommentIcon secondary={post.commented} />}
         size={ButtonSize.Medium}
-        className="btn-tertiary-blueCheese"
+        className="shell-press btn-tertiary-blueCheese"
       >
         {commentCount > 0 && (
           <InteractionCounter className={counterClasses} value={commentCount} />
@@ -157,7 +159,7 @@ function MobilePostFloatingBarV1({
           pressed: post.bookmarked,
           onClick: onToggleBookmark,
           size: ButtonSize.Medium,
-          className: 'btn-tertiary-bun',
+          className: 'shell-press btn-tertiary-bun',
         }}
       />
       <QuaternaryButton
@@ -168,6 +170,7 @@ function MobilePostFloatingBarV1({
         variant={ButtonVariant.Tertiary}
         color={ButtonColor.Cabbage}
         size={ButtonSize.Medium}
+        className="shell-press"
       />
     </div>
   );

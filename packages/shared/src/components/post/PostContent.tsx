@@ -200,7 +200,7 @@ export function PostContentRaw({
             />
           </div>
           <h1
-            className="break-words font-bold typo-large-title"
+            className="text-balance break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
             <ArticleLink href={post.permalink} onClick={onReadArticle}>
