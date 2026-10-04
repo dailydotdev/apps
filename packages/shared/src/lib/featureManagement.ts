@@ -159,6 +159,16 @@ export const featureProfileCompletionIndicator = new Feature(
 
 export const questsFeature = new Feature('quests', true);
 
+// Experiment: a one-week claim streak for brand-new accounts. Each day is a
+// single concealed claim that pays Cores, and day three points those Cores at
+// the briefing — the first thing in the product worth spending them on. Only
+// zero-day accounts evaluate it (see ZERO_DAY_ENROLLMENT_DAYS), so the split
+// isn't diluted by users who would never see the strip.
+export const featureZeroDayStreak = new Feature(
+  'zero_day_streak',
+  isDevelopment,
+);
+
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',
   false,
