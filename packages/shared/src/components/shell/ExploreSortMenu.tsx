@@ -47,9 +47,6 @@ const sorts: { key: string; label: string; href: string; paths: string[] }[] = [
 
 const withPeriod = ['upvoted', 'discussed'];
 
-// The Explore feed's order on a phone: a text menu on the feed's own line
-// (reorder one list), with the period inside for the two sorts that have
-// one. Replaces the sort tabs under the search row.
 export function ExploreSortMenu(): ReactElement {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);

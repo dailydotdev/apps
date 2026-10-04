@@ -35,7 +35,6 @@ export const OpportunityHeader = (): ReactElement => {
     </div>
   );
 
-  // On a phone the title and its actions are the block's.
   if (isPhone) {
     return <ShellPage title="Jobs" actions={actions} />;
   }

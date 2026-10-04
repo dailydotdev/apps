@@ -8,7 +8,6 @@ import { blockRest } from './constants';
 import { ShellRoot } from './shellNav';
 
 interface ShellBlockPlan {
-  // The root whose row the block shows; a leaf gets the back row.
   root?: ShellRoot;
   rest: string;
 }
@@ -44,8 +43,6 @@ export const useShellBlockPlan = (): ShellBlockPlan => {
     if (notifications) {
       return ShellRoot.Activity;
     }
-    // Home is the feeds a member switches between; the old strip's other
-    // destinations are leaves or Explore now.
     if (
       ['/', '/my-feed', '/following'].includes(pathname) ||
       pathname.startsWith('/highlights') ||

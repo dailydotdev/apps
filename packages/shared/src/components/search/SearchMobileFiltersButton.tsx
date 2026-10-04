@@ -24,7 +24,6 @@ const SearchMobileFilterSection = ({
   </section>
 );
 
-// `square` is the block's form: the icon alone on the floating square.
 const SearchMobileFiltersButton = ({
   square = false,
 }: {

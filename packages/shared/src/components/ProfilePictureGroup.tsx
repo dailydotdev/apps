@@ -13,8 +13,6 @@ export type ProfilePictureGroupProps = {
   total?: number;
   limit?: number;
   size?: ProfileImageSize;
-  // The count takes the shape of the pictures: people are rounded squares,
-  // sources pass `full`.
   rounded?: ProfileImageRoundSize;
   children:
     | React.ReactElement<ProfilePictureGroupChildProps>[]

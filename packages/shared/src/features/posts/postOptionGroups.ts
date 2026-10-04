@@ -23,8 +23,8 @@ const sortBy = (ids: string[]) => (a: MenuItemProps, b: MenuItemProps) =>
 // The phone's post menu: seven rows at most on the first level (Share,
 // Read it later, Follow the source, Not interested, Report), then the
 // owner's rows, then More for everything else; Not interested gathers
-// every way of seeing less of this (chapter 4b). Options keep their
-// handlers; only the grouping is decided here, by id.
+// every way of seeing less of this. Options keep their handlers; only the
+// grouping is decided here, by id.
 export const groupPostOptions = (
   options: MenuItemProps[],
 ): PostOptionGroups => {

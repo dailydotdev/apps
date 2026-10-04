@@ -11,7 +11,6 @@ import { createPortal } from 'react-dom';
 export interface ShellPageConfig {
   title?: ReactNode;
   actions?: ReactNode;
-  // The page's own row under its title (segments, chips, a field).
   row?: ReactNode;
   // A page that draws its own top chrome on phones opts out of the block.
   hidden?: boolean;

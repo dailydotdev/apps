@@ -85,8 +85,6 @@ interface RowProps {
 const rowBaseClass =
   'group/spotlight-row mx-2 flex min-w-0 cursor-pointer items-center gap-3 overflow-hidden rounded-10 px-3 text-left aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-[selected=true]:bg-surface-hover';
 
-// People are rounded squares at ProfilePicture's radius for the size;
-// sources keep the circle.
 const avatarRadius = {
   full: 'rounded-full',
   '8': 'rounded-6',

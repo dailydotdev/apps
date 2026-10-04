@@ -1,7 +1,7 @@
 /*
- * The phone shell: motion tokens and press feedback (Mobile UX review,
- * chapters 9l and 10). Two curves for the whole shell: interaction for what
- * the finger drives or toggles, travel for what crosses the screen.
+ * The phone shell: motion tokens and press feedback. Two curves for the
+ * whole shell: interaction for what the finger drives or toggles, travel for
+ * what crosses the screen.
  */
 :root {
   --shell-ease-interaction: cubic-bezier(0.2, 0, 0, 1);

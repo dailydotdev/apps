@@ -6,7 +6,6 @@ import { IconSize } from '../Icon';
 import { cluster, motion } from './constants';
 import { revealShell } from './useShellScroll';
 
-// Shows once a screen's height of feed has gone by.
 const useScrolledPastViewport = (): boolean => {
   const [past, setPast] = useState(false);
 

@@ -77,7 +77,6 @@ export const useWritePostContext = (): WritePostProps =>
 
 interface WritePostContextProviderProps extends WritePostProps {
   rightCopy?: string;
-  // The page name the phone block shows beside its back button.
   title?: string;
 }
 

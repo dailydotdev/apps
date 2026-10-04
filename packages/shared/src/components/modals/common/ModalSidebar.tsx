@@ -34,8 +34,6 @@ export function ModalSidebarList({
     setNavOpen(!activeView);
   }
 
-  // On a phone the sections are a page of their own, drawn like the
-  // settings menu's rows; the modal's header row above is its header.
   if (isMobile) {
     if (!isNavOpen) {
       return null;

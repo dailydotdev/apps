@@ -134,7 +134,6 @@ export function ShellCluster({
   const height = lerp(cluster.rest, cluster.compact, p);
   const radius = lerp(cluster.radiusRest, cluster.radiusCompact, p);
   const inset = lerp(cluster.inset, cluster.insetCompact, p);
-  // The main feed only, for now.
   const showsTopButton =
     active === ShellRoot.Home &&
     isRootView(ShellRoot.Home, router?.pathname ?? '');

@@ -1,6 +1,5 @@
-// The numbers of the phone shell, from the Mobile UX review in Storybook
-// (stories/mobile-ux/spec.ts, chapter 10). Components read them from here
-// so no file carries its own copy.
+// The numbers of the phone shell. Components read them from here so no file
+// carries its own copy.
 
 export const swipe = {
   lockDistance: 10,

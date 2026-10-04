@@ -8,12 +8,11 @@ type AddVariantInPlace = (
 ) => void;
 
 /**
- * A touch screen keeps :hover on whatever lands under the last tap, so a row
- * lit up on the screen that opened under the finger. Where the primary
- * input can hover, `hover:` is hover. Where it cannot, it is the pressed
- * state, the feedback a tap needs, and nothing stays lit. The split is on
- * `hover` alone, so a device that reports hover keeps it whatever its
- * pointer.
+ * A touch screen keeps :hover on whatever lands under the last tap. Where
+ * the primary input can hover, `hover:` is hover. Where it cannot, it is
+ * the pressed state, the feedback a tap needs, and nothing stays lit. The
+ * split is on `hover` alone, so a device that reports hover keeps it
+ * whatever its pointer.
  *
  * `before` puts the variant back where the core one sits in the cascade,
  * ahead of focus and active; a redefined variant goes last otherwise and

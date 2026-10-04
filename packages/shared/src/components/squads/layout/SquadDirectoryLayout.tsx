@@ -126,7 +126,6 @@ export const SquadDirectoryLayout = (
       <BaseFeedPage
         className={classNames(
           'relative mb-4 flex-col px-4',
-          // The chips are in the block on a phone; the content starts close under it.
           'pt-2 tablet:pt-4',
           // v2 matches the home feed gutters (24px) instead of the wide 72px
           // directory padding, so the content spans the same width.

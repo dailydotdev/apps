@@ -84,7 +84,6 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
   const isTablet = isBelowLaptop && !isMobile;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
-    // The phone row inside the block renders one layout for every arm.
     shouldEvaluate: isBelowLaptop && !inShellBlock,
   });
   const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
@@ -180,7 +179,6 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
     isCustomDefaultFeed,
   ]);
 
-  // Inside the block the header already decided this is a Home page.
   const shouldRenderNav = inShellBlock || home || (isMobile && bookmarks);
   if (
     !shouldRenderNav ||

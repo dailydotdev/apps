@@ -22,8 +22,6 @@ export const highlightsUrl = `${webappUrl}highlights`;
 
 const happeningNowKey = 'happening-now';
 
-// The channel sheet behind the Happening now segment: Headlines, All, then
-// the channels the page already fetches.
 export const HappeningNowSheet = ({
   isOpen,
   onClose,
@@ -80,9 +78,6 @@ export const HappeningNowSheet = ({
   );
 };
 
-// The Home row: For you, Happening now with its channel sheet, Following,
-// the member's custom feeds, and the plus that adds one. Everything else
-// the strip carried lives on Explore, on You or in the bar now.
 export function HomeSegments(): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();

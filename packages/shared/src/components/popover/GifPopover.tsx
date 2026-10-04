@@ -158,8 +158,6 @@ const GifPopover = ({
   });
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  // The picker opens on pictures, not on a message: the favorites when
-  // there are some, a suggestion's results otherwise.
   const [defaultQuery] = useState(
     () =>
       searchSuggestions[Math.floor(Math.random() * searchSuggestions.length)],

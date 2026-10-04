@@ -200,7 +200,6 @@ export default function BookmarkFeedLayout({
     return null;
   }
 
-  // In the block the controls are the shell's 38px squares.
   const blockButtonClassName = isPhone
     ? 'shell-material !size-[2.375rem] !rounded-14 !p-0'
     : undefined;

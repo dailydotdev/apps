@@ -646,8 +646,6 @@ export const QuestButton = ({
   const triggerVisualClassName = compact ? 'size-8' : 'size-10';
   const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
   const [isOpen, setIsOpen] = useState(false);
-  // On a phone the panel is a bottom sheet; the popover trigger still
-  // toggles the same state.
   const isPhone = useIsPhone();
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),

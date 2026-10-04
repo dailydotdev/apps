@@ -60,7 +60,6 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
     sendingUser: loggedUser,
     receivingUser: user as LoggedUser,
   });
-  // On a phone the menu is the block's; the hero keeps Follow and Award.
   const isPhone = useIsPhone();
 
   const onReportUser = React.useCallback(

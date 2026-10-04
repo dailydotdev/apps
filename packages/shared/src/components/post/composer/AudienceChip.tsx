@@ -56,7 +56,6 @@ export const AudienceChip = ({
   disabled,
 }: AudienceChipProps): ReactElement | null => {
   const [open, setOpen] = useState(false);
-  // Under tablet the menu is a sheet and takes a sheet's title row.
   const isSheet = useViewSize(ViewSize.MobileL);
 
   const selected = audiences.filter(

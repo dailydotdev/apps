@@ -145,8 +145,6 @@ const YouGroup = ({
   </div>
 );
 
-// A count the member can act on: the follow counts read inline under the
-// handle, as on the profile.
 const FollowStat = ({
   amount,
   label,
@@ -166,9 +164,6 @@ const FollowStat = ({
   </button>
 );
 
-// Reputation and Cores as small pills under the follow counts: the number
-// bold, the label beside it, each pill its own tap target. The streak
-// stays on the Home row.
 const StatPill = ({
   icon,
   amount,

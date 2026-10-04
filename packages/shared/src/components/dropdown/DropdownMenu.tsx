@@ -169,11 +169,10 @@ export const DropdownMenuContent = React.forwardRef<
       scrollFadeRef(node);
     };
     // Radix mounts the content from its own open state, not from a render
-    // of this wrapper, so an effect here can run before the panel exists
-    // (WebKit showed it: the effect saw no panel and the sheet never
-    // dragged). The ref callback sees the node the moment it arrives.
-    // Stable, or React would re-run it on every render of the content and
-    // re-attach the drag in the middle of a gesture.
+    // of this wrapper, so an effect here can run before the panel exists.
+    // The ref callback sees the node the moment it arrives. Stable, or
+    // React would re-run it on every render of the content and re-attach
+    // the drag in the middle of a gesture.
     const panelRef = useRef<HTMLDivElement | null>(null);
     const setPanelRef = useCallback(
       (node: HTMLDivElement | null) => {

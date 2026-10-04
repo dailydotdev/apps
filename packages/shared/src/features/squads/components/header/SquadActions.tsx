@@ -104,7 +104,6 @@ export const SquadActions = (): ReactElement => {
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
   const editUrl = getSquadManageUrl(squad.handle, SquadManageSection.Details);
   const isMobileAppHeader = useMobileAppHeader();
-  // On a phone search and the menu are the block's actions.
   const isPhone = useIsPhone();
 
   return (
@@ -185,7 +184,6 @@ export const SquadActions = (): ReactElement => {
   );
 };
 
-/** The block's actions on a phone: search the squad, then its menu. */
 export const SquadBlockActions = (): ReactElement => {
   const { squad } = useSquadPageContext();
   const { openWithSource } = useSpotlight();

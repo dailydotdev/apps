@@ -56,8 +56,7 @@ const useViewSize = (size: ViewSize): boolean => {
 
 // The phone shell swaps markup by viewport, so the server and the first
 // client render must agree: both say "not a phone" and the answer lands
-// after mount. Desktop keeps its controls in the server HTML; a phone gets
-// the block's copies once hydrated, which is when the block itself appears.
+// after mount.
 export const useIsPhone = (): boolean => {
   const check = useMediaClient(
     [viewSizeToQuery[ViewSize.MobileL].replace('@media ', '')],

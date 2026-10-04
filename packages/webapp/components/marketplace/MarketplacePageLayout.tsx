@@ -9,7 +9,6 @@ import { MarketplaceFeatureGate } from './MarketplaceFeatureGate';
 interface MarketplacePageLayoutProps {
   children: ReactNode;
   className?: string;
-  // The page name the phone block shows beside its back button.
   title: string;
 }
 

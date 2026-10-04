@@ -22,7 +22,6 @@ const Divider = (): ReactElement => (
   <div aria-hidden className="mx-4 my-1 h-px bg-border-subtlest-tertiary" />
 );
 
-// A row that opens a sub-level instead of closing the menu.
 const LevelRow = ({
   icon,
   label,
@@ -70,10 +69,6 @@ const destructive = (option: MenuItemProps): MenuItemProps =>
       }
     : option;
 
-// The post menu on a phone: one sheet with two levels. The sub-level slides
-// in from the right over the first; its title row carries the back chevron
-// that slides the first level back. Swipe down or the scrim closes the
-// whole sheet from either level.
 export const PostOptionsSheet = ({
   options,
 }: {

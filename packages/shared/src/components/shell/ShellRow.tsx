@@ -17,8 +17,6 @@ export interface RowItem {
   ariaLabel?: string;
 }
 
-// The row under the block: one line, 44px tall, scrolls sideways, the
-// chip's hit area is the row's height.
 export const ShellRow = ({
   children,
   className,
@@ -91,9 +89,6 @@ const RowChip = ({
   );
 };
 
-// Segments: which list. Plain tertiary text, the active one on a soft
-// tonal fill with a hairline. `menu` marks the active segment that carries
-// a chevron opening a sheet (Happening now's channels).
 export const Segments = ({
   items,
   menu,
@@ -133,8 +128,6 @@ export const Segments = ({
   </>
 );
 
-// Chips: narrow this list. Hairline outlined, the active one a primary
-// button; a chip without an active state is a link to another page.
 export const Chips = ({ items }: { items: RowItem[] }): ReactElement => (
   <>
     {items.map((item) => (
@@ -151,8 +144,6 @@ export const Chips = ({ items }: { items: RowItem[] }): ReactElement => (
   </>
 );
 
-// A menu: text and a chevron, opening a sheet. Reorder, period, a second
-// dimension of the same list.
 export const MenuLabel = ({
   label,
   onClick,
@@ -178,7 +169,6 @@ export const MenuLabel = ({
   </button>
 );
 
-// A sheet row: an icon-less line that is the only choice on the line.
 export const SheetChoice = ({ items }: { items: RowItem[] }): ReactElement => (
   <div className="flex flex-col py-1">
     {items.map((item) => {

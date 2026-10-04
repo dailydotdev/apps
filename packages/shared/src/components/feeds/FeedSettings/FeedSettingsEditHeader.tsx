@@ -149,8 +149,6 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   // row itself: back (to the sections menu, then to the feed), the name,
   // Save.
   if (isMobile) {
-    // The sections page carries the feed's name; a section carries its own,
-    // as Settings and its sections do.
     const feedName =
       feed?.type === FeedType.Custom
         ? feed.flags?.name ?? 'Feed settings'
@@ -163,8 +161,6 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
           aria-label="Go back"
           onClick={async () => {
             if (!activeView) {
-              // One level up: the settings menu when feed settings was
-              // opened from it, otherwise the feed it came from.
               const target = goBackPast(isFeedEditPath, () =>
                 onBackToFeed({ action: 'discard' }),
               );

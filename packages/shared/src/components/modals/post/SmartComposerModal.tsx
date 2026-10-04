@@ -454,7 +454,6 @@ export function SmartComposerModal({
     [handleSubmit, isSubmitBlocked, kind, logEvent, selectedIds.length],
   );
 
-  // On a phone the header's icon buttons are the block's squares.
   const squareClassName = isLaptop
     ? undefined
     : 'shell-material !size-[2.375rem] !rounded-14 !p-0';
