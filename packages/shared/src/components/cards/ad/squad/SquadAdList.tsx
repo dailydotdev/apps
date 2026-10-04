@@ -33,9 +33,7 @@ export function SquadAdList({
 }: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
   const { squad, campaign, members, shouldShowAction, onJustJoined } =
-    useSquadAd({
-      item,
-    });
+    useSquadAd({ ad: item.ad });
   const { ref, inView } = useInView({ triggerOnce: true });
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
