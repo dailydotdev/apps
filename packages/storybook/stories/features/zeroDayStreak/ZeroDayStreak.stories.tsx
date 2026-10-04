@@ -11,6 +11,7 @@ import {
 import { FeedBackdrop } from '../../milestone-rewards/shell';
 import { Phase, WeeklyRewardsModal } from './WeeklyRewardsModal';
 import { StreakPanel } from './streakPopover';
+import { NotificationsPage, RulesPage } from './rules';
 
 // The zero-day reading run, start to finish, on one page: where it opens from,
 // then every state of the card.
@@ -291,6 +292,20 @@ type Story = StoryObj;
 /** Every surface of the run, on one page. */
 export const Design: Story = {
   render: () => <Page />,
+};
+
+/**
+ * How the run behaves: the two acts, the failable week, and what an unclaimed
+ * day does. The reasoning lives in the feature's AGENTS.md; this is the same
+ * rules in a form a designer or PM can read beside the card.
+ */
+export const Rules: Story = {
+  render: () => <RulesPage />,
+};
+
+/** The two notifications the run is allowed to send, drawn as they arrive. */
+export const Notifications: Story = {
+  render: () => <NotificationsPage />,
 };
 
 /**
