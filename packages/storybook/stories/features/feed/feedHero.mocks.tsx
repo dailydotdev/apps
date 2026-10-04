@@ -333,34 +333,34 @@ export const adWithLongCopy: Ad = {
 };
 
 export const exploreCategories: ExploreCategory[] = [
-  { id: 'ai', label: 'AI', path: '/explore/ai', tag: 'ai' },
-  { id: 'react', label: 'React', path: '/explore/react', tag: 'react' },
+  { id: 'ai', label: 'AI', path: '/tags/ai', tag: 'ai' },
+  { id: 'react', label: 'React', path: '/tags/react', tag: 'react' },
   {
     id: 'typescript',
     label: 'TypeScript',
-    path: '/explore/typescript',
+    path: '/tags/typescript',
     tag: 'typescript',
   },
-  { id: 'devops', label: 'DevOps', path: '/explore/devops', tag: 'devops' },
-  { id: 'rust', label: 'Rust', path: '/explore/rust', tag: 'rust' },
-  { id: 'career', label: 'Career', path: '/explore/career', tag: 'career' },
+  { id: 'devops', label: 'DevOps', path: '/tags/devops', tag: 'devops' },
+  { id: 'rust', label: 'Rust', path: '/tags/rust', tag: 'rust' },
+  { id: 'career', label: 'Career', path: '/tags/career', tag: 'career' },
   {
     id: 'databases',
     label: 'Databases',
-    path: '/explore/databases',
+    path: '/tags/databases',
     tag: 'databases',
   },
   {
     id: 'security',
     label: 'Security',
-    path: '/explore/security',
+    path: '/tags/security',
     tag: 'security',
   },
-  { id: 'webdev', label: 'Web dev', path: '/explore/webdev', tag: 'webdev' },
+  { id: 'webdev', label: 'Web dev', path: '/tags/webdev', tag: 'webdev' },
   {
     id: 'open-source',
     label: 'Open source',
-    path: '/explore/open-source',
+    path: '/tags/open-source',
     tag: 'open-source',
   },
 ];

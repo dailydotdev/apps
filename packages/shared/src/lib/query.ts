@@ -73,7 +73,6 @@ export enum OtherFeedPage {
   Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
-  ExploreTag = 'explore[tag]',
   Watercooler = 'watercooler',
 }
 

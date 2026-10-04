@@ -40,7 +40,6 @@ describe('getOnboardingRedirect', () => {
     '/discussed',
     '/following',
     '/feeds/[slugOrId]',
-    '/explore/[tag]',
   ])('does not force onboarding away from %s', (pathname) => {
     expect(redirect({ pathname })).toBeNull();
   });
