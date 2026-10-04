@@ -61,7 +61,7 @@ export function FooterPlusButton({
         icon={<PlusIcon />}
         variant={ButtonVariant.Primary}
         className={classNames(
-          'border border-border-subtlest-tertiary',
+          'shell-press border border-border-subtlest-tertiary',
           className,
         )}
       />

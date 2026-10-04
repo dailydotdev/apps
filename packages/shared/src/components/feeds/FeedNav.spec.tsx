@@ -90,8 +90,13 @@ jest.mock('./UnifiedMobileFeedNav', () => ({
   ),
 }));
 
+jest.mock('../../features/getApp/hooks/useMobileAppHeader', () => ({
+  useMobileAppHeader: () => false,
+}));
+
 jest.mock('./MobileFeedActions', () => ({
   MobileFeedActions: () => <div data-testid="mobile-feed-actions" />,
+  hideLoggedOutRowClassName: '-translate-y-10',
 }));
 
 jest.mock('../fields/Dropdown', () => ({

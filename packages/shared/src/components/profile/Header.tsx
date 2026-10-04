@@ -48,6 +48,7 @@ import { ProfileMobileBackButton } from './ProfileBackButton';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
+import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -88,6 +89,8 @@ export function Header({
   const canPurchaseCores = useCanPurchaseCores();
   const { isJobsEnabled } = useJobsFeature();
   const isMobileAppHeader = useMobileAppHeader();
+  const isHidden = useHideOnScrollDown(isMobileAppHeader && !!sticky);
+  const showIdentity = sticky && !isMobileAppHeader;
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -151,12 +154,18 @@ export function Header({
 
   return (
     <header
-      className={classNames('flex h-12 items-center px-4', className)}
+      className={classNames(
+        'flex h-12 items-center px-4',
+        className,
+        isHidden && '-translate-y-full',
+      )}
       style={style}
     >
       <>
-        <ProfileMobileBackButton className={!sticky ? 'mr-3' : undefined} />
-        {sticky ? (
+        <ProfileMobileBackButton
+          className={!showIdentity ? 'mr-3' : undefined}
+        />
+        {showIdentity ? (
           <>
             <ProfilePicture
               user={user}

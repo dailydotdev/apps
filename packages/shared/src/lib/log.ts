@@ -81,6 +81,7 @@ export enum Origin {
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
+  CardCover = 'card cover',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
@@ -129,8 +130,6 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
-  EngagementBanner = 'engagement banner',
-  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {
@@ -539,8 +538,6 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
-  QuestOffersEligible = 'quest offers eligible',
-  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -620,8 +617,6 @@ export enum TargetType {
   Tag = 'tag',
   Tool = 'tool',
   Quest = 'quest',
-  QuestOffer = 'quest offer',
-  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
@@ -662,8 +657,8 @@ export enum TargetId {
   FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
-  ExploreStrip = 'explore strip',
   PostStrip = 'post strip',
+  PublicPageSignupBanner = 'public page signup banner',
   MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
@@ -726,6 +721,7 @@ export enum TargetId {
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
+  MobileFooterNav = 'mobile footer nav',
   MobileSheet = 'mobile sheet',
 }
 

@@ -111,13 +111,6 @@ const NewStreakModal = dynamic(
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
 );
 
-const QuestOffersModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "questOffersModal" */ './quests/QuestOffersModal'
-    ),
-);
-
 const ReputationPrivilegesModal = dynamic(
   () =>
     import(
@@ -554,7 +547,6 @@ export const modals = {
   [LazyModal.Video]: VideoModal,
   [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
-  [LazyModal.QuestOffers]: QuestOffersModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,

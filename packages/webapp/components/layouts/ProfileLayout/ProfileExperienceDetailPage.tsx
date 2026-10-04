@@ -52,7 +52,7 @@ export function ProfileExperienceDetailPage({
   return (
     <>
       <NextSeo {...seo} />
-      <MobileAppHeader sticky />
+      <MobileAppHeader />
       <div className="rounded-16 border border-border-subtlest-tertiary">
         <header className="flex h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4">
           <Link href={`${webappUrl}${user.username}`} passHref>

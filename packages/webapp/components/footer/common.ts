@@ -17,13 +17,13 @@ export interface FooterNavBarContainerProps {
 
 export const getNavPath = (
   path: FooterTab['path'],
-  user: LoggedUser,
+  user?: LoggedUser,
 ): string | undefined => {
   if (typeof path === 'string') {
     return path;
   }
 
-  return path?.(user);
+  return user ? path?.(user) : undefined;
 };
 
 export const blurClasses = 'bg-blur-baseline backdrop-blur-[2.5rem]';

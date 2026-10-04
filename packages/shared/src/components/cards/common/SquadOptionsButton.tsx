@@ -27,6 +27,7 @@ import useFeedSettings from '../../../hooks/useFeedSettings';
 import { useShareOrCopyLink } from '../../../hooks/useShareOrCopyLink';
 import { LogEvent } from '../../../lib/log';
 import { plusUrl } from '../../../lib/constants';
+import { visibleOnGroupHover } from './common';
 
 interface SquadOptionsButtonProps {
   squad: Squad;
@@ -39,7 +40,7 @@ export function SquadOptionsButton({
 }: SquadOptionsButtonProps): ReactElement {
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
-  const { data: campaign } = useCampaignById(squad.flags.campaignId);
+  const { data: campaign } = useCampaignById(squad.flags?.campaignId ?? '');
   const isBooster = campaign && user?.id === campaign.user.id;
   const [, onShareOrCopy] = useShareOrCopyLink({
     link: squad.permalink,
@@ -57,7 +58,11 @@ export function SquadOptionsButton({
   const options = useMemo(() => {
     const blockAction = isSourceBlocked ? unblockSource : blockSource;
     const list: MenuItemProps[] = [
-      { label: 'Share via', icon: <ShareIcon />, action: onShareOrCopy },
+      {
+        label: 'Share via',
+        icon: <ShareIcon />,
+        action: () => onShareOrCopy(),
+      },
       {
         label: 'Hide',
         icon: <EyeIcon />,
@@ -81,7 +86,7 @@ export function SquadOptionsButton({
 
     if (isBooster) {
       list.unshift({
-        label: 'Manade Ad',
+        label: 'Manage ad',
         icon: <TrendingIcon />,
         action: () =>
           openModal({
@@ -110,7 +115,7 @@ export function SquadOptionsButton({
           variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           size={ButtonSize.Small}
-          className={classNames('invisible z-1 group-hover:visible', className)}
+          className={classNames(visibleOnGroupHover, 'z-1', className)}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
