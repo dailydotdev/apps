@@ -135,7 +135,7 @@ export default function MainComment({
     <section
       ref={inViewRef}
       className={classNames(
-        'flex scroll-mt-16 flex-col items-stretch border-border-subtlest-tertiary',
+        'flex scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))] flex-col items-stretch border-border-subtlest-tertiary',
         isModalThread
           ? 'relative rounded-none border-0 bg-transparent'
           : 'rounded-16',
