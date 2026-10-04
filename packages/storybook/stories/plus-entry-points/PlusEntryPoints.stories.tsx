@@ -205,7 +205,7 @@ export const Brief: Story = {
           <div className="mt-auto flex flex-col gap-2">
             <span className="flex items-center gap-2 font-bold text-accent-avocado-default typo-title3">
               <span className="size-3 rounded-[999px] bg-accent-avocado-default" />
-              All checks green · ships to everyone, no flag
+              Tests pass · ships to everyone, no flag
             </span>
             <span className="text-text-tertiary typo-callout">
               Real components from this branch.
