@@ -71,8 +71,6 @@ import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
-import { featurePlusEntryPoints } from '../../lib/featureManagement';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { PlusMenuEntry } from '../plus/PlusMenuEntry';
 
 type MenuItems = Record<
@@ -382,15 +380,10 @@ export const InnerProfileSettingsMenu = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
   const { items: accountPageItems } = useAccountPageItems({ onClose });
-  const { user } = useAuthContext();
-  const { value: isPlusEntryPoints } = useConditionalFeature({
-    feature: featurePlusEntryPoints,
-    shouldEvaluate: !!user && showPlusEntry,
-  });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
-      {showPlusEntry && isPlusEntryPoints && (
+      {showPlusEntry && (
         <>
           <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
           <HorizontalSeparator />
@@ -453,10 +446,6 @@ export function ProfileSettingsMenuMobile({
 export function ProfileSettingsMenuDesktop(): ReactElement | null {
   const { user } = useAuthContext();
   const featureTheme = useFeatureTheme();
-  const { value: isPlusEntryPoints } = useConditionalFeature({
-    feature: featurePlusEntryPoints,
-    shouldEvaluate: !!user,
-  });
 
   if (!user) {
     return null;
@@ -470,18 +459,13 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
       )}
     >
       <ProfileMenuHeader
-        className={classNames(
-          'rounded-10 hover:bg-theme-active',
-          !isPlusEntryPoints && 'px-1',
-        )}
+        className="rounded-10 hover:bg-theme-active"
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
-        compact={isPlusEntryPoints}
+        compact
       />
 
-      {isPlusEntryPoints && (
-        <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
-      )}
+      <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
 
       <HorizontalSeparator />
 

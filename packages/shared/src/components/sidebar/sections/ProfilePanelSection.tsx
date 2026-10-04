@@ -6,21 +6,10 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
 import { BookmarkSection } from './BookmarkSection';
-import {
-  AnalyticsIcon,
-  DevPlusIcon,
-  EyeIcon,
-  FilterIcon,
-  SquadIcon,
-} from '../../icons';
+import { AnalyticsIcon, EyeIcon, FilterIcon, SquadIcon } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
-import {
-  plusCta,
-  plusUrl,
-  settingsUrl,
-  webappUrl,
-} from '../../../lib/constants';
+import { settingsUrl, webappUrl } from '../../../lib/constants';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
@@ -34,9 +23,6 @@ import {
 import { PlusUser } from '../../PlusUser';
 import { SidebarProfileStats } from '../SidebarProfileStats';
 import { usePlusSale } from '../../../hooks/usePlusSale';
-import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featurePlusEntryPoints } from '../../../lib/featureManagement';
 import { createPlusMenuItem } from './plusMenuItem';
 
 // The avatar tab panel. Everything "you": identity + your feeds/activity, your
@@ -51,10 +37,6 @@ export const ProfilePanelSection = ({
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { isActive: isSaleActive } = usePlusSale();
   const router = useRouter();
-  const { value: isPlusEntryPoints } = useConditionalFeature({
-    feature: featurePlusEntryPoints,
-    shouldEvaluate: !isPlus,
-  });
   const logUpgradeClick = useCallback(
     () =>
       logSubscriptionEvent({
@@ -77,7 +59,6 @@ export const ProfilePanelSection = ({
     () =>
       [
         !isPlus &&
-          isPlusEntryPoints &&
           createPlusMenuItem({
             onClick: logUpgradeClick,
             isSaleActive,
@@ -116,31 +97,8 @@ export const ProfilePanelSection = ({
             <ListIcon Icon={() => <FilterIcon secondary={active} />} />
           ),
         },
-        // Non-Plus only: a purple upgrade CTA for the Plus perks.
-        // Plus users already have them, so it's hidden for them.
-        !isPlus &&
-          !isPlusEntryPoints && {
-            title: plusCta,
-            path: plusUrl,
-            isForcedLink: true,
-            requiresLogin: true,
-            // This row is the only upgrade entry point left on this panel, so it
-            // carries the attribution the removed UpgradeToPlus button used to.
-            // No anon branch here on purpose: `requiresLogin` makes SidebarItem
-            // hand ClickableNavItem a `showLogin`, which preventDefaults and
-            // prompts INSTEAD of running this action, so a logged-out click never
-            // reaches it.
-            action: logUpgradeClick,
-            color: 'text-action-plus-default',
-            itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
-            disableDefaultBackground: true,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <DevPlusIcon secondary={active} />} />
-            ),
-            ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
-          },
       ].filter(Boolean) as SidebarMenuItem[],
-    [onNavTabClick, isPlus, isPlusEntryPoints, isSaleActive, logUpgradeClick],
+    [onNavTabClick, isPlus, isSaleActive, logUpgradeClick],
   );
 
   if (!user) {

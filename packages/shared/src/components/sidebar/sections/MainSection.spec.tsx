@@ -6,7 +6,6 @@ import {
   plusUrl,
   webappUrl,
 } from '../../../lib/constants';
-import { featurePlusEntryPoints } from '../../../lib/featureManagement';
 import { useConditionalFeature } from '../../../hooks';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -128,12 +127,7 @@ describe('MainSection', () => {
     );
   });
 
-  it('should move the Plus row under For You as "Get Plus" when plus_entry_points is on', () => {
-    mockUseConditionalFeature.mockImplementation(({ feature }) => ({
-      value: feature.id === featurePlusEntryPoints.id,
-      isLoading: false,
-    }));
-
+  it('should place the "Get Plus" row right under For You', () => {
     render(
       <MainSection
         isItemsButton={false}
