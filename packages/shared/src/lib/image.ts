@@ -497,15 +497,6 @@ export const cloudinaryCharmNoPosts =
 export const cloudinaryCharmNotEnoughTags =
   'https://media.daily.dev/image/upload/s--0PIPx07_--/f_auto,q_auto/v1781529338/public/daily.dev%20Charm%20-%20no%20enoght%20tags%20(1)';
 
-// The Giveback charm (genie-themed). Artwork sits on solid black — render with
-// `mix-blend-screen` on a dark surface so the black drops out.
-export const cloudinaryCharmGiveback =
-  'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)';
-
-// Dedicated Open Graph / social share image for the giveback pages (1280×800).
-export const cloudinaryGivebackOpenGraph =
-  'https://media.daily.dev/image/upload/s--lQzU56yU--/f_auto,q_auto/v1783863597/public/daily.dev%20Givevback%20-%201280x800%20(1)';
-
 // The signature covers the transformation string, so a width cap cannot be
 // appended — serving this smaller than its 2072px source needs a re-sign.
 export const cloudinaryHijackingCoverArt =

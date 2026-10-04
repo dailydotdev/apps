@@ -11,7 +11,11 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+} from '@tanstack/react-query';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import type { LoggedUser, AnonymousUser } from '../lib/user';
@@ -26,7 +30,7 @@ import SettingsContext, {
   themeModes,
 } from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { dailyClientHeader, gqlClient } from '../graphql/common';
+import { ApiError, dailyClientHeader, gqlClient } from '../graphql/common';
 import { getDailyClientPlatform } from '../lib/func';
 import AlertContext from './AlertContext';
 import NotificationsContext from './NotificationsContext';
@@ -1018,4 +1022,71 @@ describe('boot refetch on window focus', () => {
       expect(getBootData).toHaveBeenCalledTimes(2);
     },
   );
+});
+
+describe('boot refetch on an expired token', () => {
+  const FailingMutation = ({ code }: { code: ApiError }) => {
+    const { mutate } = useMutation({
+      mutationFn: () =>
+        Promise.reject(
+          Object.assign(new Error(code), {
+            response: { errors: [{ extensions: { code } }] },
+          }),
+        ),
+    });
+
+    return (
+      <button type="button" onClick={() => mutate()}>
+        Submit
+      </button>
+    );
+  };
+
+  const failMutationAfterExpiry = async (code: ApiError) => {
+    jest.mocked(getBootData).mockClear();
+    jest.mocked(getBootData).mockResolvedValue({
+      ...getBootMock(defaultBootData),
+      accessToken: {
+        token: '1',
+        expiresIn: new Date(Date.now() + ONE_MINUTE * 15).toISOString(),
+      },
+    });
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <BootDataProvider
+          app={BootApp.Webapp}
+          version="test-version"
+          deviceId="test-device"
+          getPage={() => '/'}
+          getRedirectUri={getRedirectUriMock}
+        >
+          <FailingMutation code={code} />
+        </BootDataProvider>
+      </QueryClientProvider>,
+    );
+    await waitFor(() => expect(getBootData).toHaveBeenCalledTimes(1));
+
+    jest.useFakeTimers({ now: Date.now() + ONE_MINUTE * 16 });
+    fireEvent.click(await screen.findByText('Submit'));
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(200);
+    });
+  };
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it.each([ApiError.Unauthenticated, ApiError.Forbidden])(
+    'should refetch boot when a mutation fails with %s',
+    async (code) => {
+      await failMutationAfterExpiry(code);
+      expect(getBootData).toHaveBeenCalledTimes(2);
+    },
+  );
+
+  it('should not refetch boot when a mutation fails for another reason', async () => {
+    await failMutationAfterExpiry(ApiError.RateLimited);
+    expect(getBootData).toHaveBeenCalledTimes(1);
+  });
 });
