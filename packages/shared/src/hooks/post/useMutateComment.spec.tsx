@@ -155,6 +155,18 @@ describe('useMutateComment', () => {
       );
     });
 
+    it('should edit the same reply again without failing', async () => {
+      setComments([createComment('parent', [createComment('reply')])]);
+
+      await editComment({ parentCommentId: 'parent' });
+      await editComment({ parentCommentId: 'parent' });
+
+      const parent = getComments()?.[0]?.node;
+      expect(parent?.children?.edges).toHaveLength(1);
+      expect(parent?.children?.edges[0]?.node.children?.edges).toHaveLength(0);
+      expect(displayToast).not.toHaveBeenCalled();
+    });
+
     it('should refetch a cached list that misses the comment instead of failing', async () => {
       const onCommented = jest.fn();
       setComments([createComment('other')]);
