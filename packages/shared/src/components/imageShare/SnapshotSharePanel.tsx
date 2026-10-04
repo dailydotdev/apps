@@ -28,6 +28,7 @@ import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
 import { SlackCtaButton } from '../widgets/SlackCtaButton';
 import { postLogEvent } from '../../lib/feed';
+import type { TargetType } from '../../lib/log';
 import { LogEvent, Origin } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
@@ -37,11 +38,37 @@ import {
   shareImageFile,
 } from '../../lib/imageShare/shareImageFile';
 
+/**
+ * What the panel links to and how it logs: the same event and target the
+ * placement's own shares use, so a snapshot without a post still has a subject.
+ */
+export interface SnapshotShare {
+  link: string;
+  /** Prefilled on the networks that take a message. */
+  text?: string;
+  cid: ReferralCampaignKey;
+  event: LogEvent;
+  targetId: string;
+  targetType?: TargetType;
+  /** Logged beside the provider on every event. */
+  extra?: Record<string, unknown>;
+}
+
+export const getPostSnapshotShare = (post: Post): SnapshotShare => ({
+  link: post.commentsPermalink,
+  text: post.title,
+  cid: ReferralCampaignKey.SharePost,
+  event: LogEvent.SharePost,
+  targetId: post.id,
+});
+
 export interface SnapshotSharePanelProps {
   anchorRef: RefObject<HTMLElement>;
   image: Blob;
   filename: string;
-  post: Post;
+  share: SnapshotShare;
+  /** The post the snapshot is from, which adds the Slack row. */
+  post?: Post;
   /** The snapshot placement the panel opened from. */
   placement?: Origin;
   onClose: () => void;
@@ -137,9 +164,24 @@ function SnapshotSlackRow({
   );
 }
 
+const getPanelLogEvent = (
+  eventName: LogEvent,
+  { share, post }: Pick<SnapshotSharePanelProps, 'share' | 'post'>,
+  extra: Record<string, unknown>,
+) =>
+  post
+    ? postLogEvent(eventName, post, { extra })
+    : {
+        event_name: eventName,
+        target_id: share.targetId,
+        target_type: share.targetType,
+        extra: JSON.stringify(extra),
+      };
+
 function SnapshotShareContent({
   image,
   filename,
+  share,
   post,
   placement,
   isDrawer,
@@ -157,7 +199,7 @@ function SnapshotShareContent({
     () => getShareableImageFile(image, filename),
     [image, filename],
   );
-  const link = post.commentsPermalink;
+  const { link, text, cid } = share;
   const iconSize = isDrawer ? IconSize.Small : IconSize.Size16;
 
   useEffect(() => {
@@ -170,16 +212,19 @@ function SnapshotShareContent({
   const logShare = useCallback(
     (provider: ShareProvider, extra?: Record<string, unknown>) =>
       logEvent(
-        postLogEvent(LogEvent.SharePost, post, {
-          extra: {
+        getPanelLogEvent(
+          share.event,
+          { share, post },
+          {
             provider,
             origin: Origin.SnapshotSharePanel,
             placement,
+            ...share.extra,
             ...extra,
           },
-        }),
+        ),
       ),
-    [logEvent, placement, post],
+    [logEvent, placement, post, share],
   );
 
   const onCopyLink = () => {
@@ -187,7 +232,7 @@ function SnapshotShareContent({
     copyLink({
       link,
       shorten: true,
-      cid: ReferralCampaignKey.SharePost,
+      cid,
       disableToast: true,
     });
   };
@@ -197,8 +242,8 @@ function SnapshotShareContent({
     await openShare({
       provider,
       link,
-      text: post.title,
-      cid: ReferralCampaignKey.SharePost,
+      text,
+      cid,
     });
   };
 
@@ -213,7 +258,7 @@ function SnapshotShareContent({
     }
 
     logShare(ShareProvider.Native);
-    shareImageFile(file, getTrackedUrl(link, ReferralCampaignKey.SharePost));
+    shareImageFile(file, getTrackedUrl(link, cid));
   };
 
   const copyLinkIcon = linkCopied ? (
@@ -240,7 +285,7 @@ function SnapshotShareContent({
           </span>
         </span>
       </div>
-      {isLoggedIn && (
+      {isLoggedIn && post && (
         <SnapshotSlackRow
           isDrawer={isDrawer}
           onClose={onClose}
@@ -318,11 +363,12 @@ export function SnapshotSharePanel({
   ...props
 }: SnapshotSharePanelProps): ReactElement {
   const isDrawer = useViewSize(ViewSize.MobileL);
-  const { post, placement } = props;
+  const { placement, share } = props;
 
   useLogEventOnce(() =>
-    postLogEvent(LogEvent.OpenSnapshotSharePanel, post, {
-      extra: { placement },
+    getPanelLogEvent(LogEvent.OpenSnapshotSharePanel, props, {
+      placement,
+      ...share.extra,
     }),
   );
 

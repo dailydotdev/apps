@@ -83,6 +83,7 @@ export const BadgesAndAwards = ({
             filename={`daily-badges-${user.username ?? user.id}`}
             origin={Origin.BadgesAndAwards}
             ownerId={user.id}
+            permalink={user.permalink}
             renderCard={(ref) => (
               <BadgesSnapshotCard
                 awards={

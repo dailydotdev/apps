@@ -19,15 +19,15 @@ import { IconSize } from '../../../../components/Icon';
 import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButton';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
+import type { HotTakeAuthor } from '../../../snapshot/HotTakeSnapshotButton';
 import { HotTakeSnapshotButton } from '../../../snapshot/HotTakeSnapshotButton';
-import type { SnapshotCreditProps } from '../../../snapshot/SnapshotCredit';
 import { Origin } from '../../../../lib/log';
 import { HotTakeItem as HotTakeItemV2 } from './HotTakeItem.v2';
 
 interface HotTakeItemProps {
   item: HotTake;
   /** The profile's owner, credited on the take's snapshot. */
-  author?: SnapshotCreditProps;
+  author?: HotTakeAuthor;
   isOwner: boolean;
   onEdit?: (item: HotTake) => void;
   onDelete?: (item: HotTake) => void;

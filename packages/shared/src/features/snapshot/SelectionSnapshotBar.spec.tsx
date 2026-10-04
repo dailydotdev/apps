@@ -1,12 +1,24 @@
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
 import { LogEvent, Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
+import { captureShareImage } from '../../lib/imageShare/captureShareImage';
+import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { SelectionSnapshotBar } from './SelectionSnapshotBar';
+
+jest.mock('../../lib/imageShare/captureShareImage', () => ({
+  captureShareImage: jest.fn(),
+}));
+jest.mock('../../lib/imageShare/copyShareImage', () => ({
+  copyShareImage: jest.fn(),
+}));
+jest.mock('../../hooks/integrations/slack/useSlackShare', () => ({
+  useSlackShare: () => ({ isLoading: false, canPostAsUser: false }),
+}));
 
 const QUOTE =
   'They optimised the product they had instead of the one their customers were moving to.';
@@ -175,6 +187,39 @@ describe('SelectionSnapshotBar share events', () => {
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       `"${QUOTE}"\n\n${post.commentsPermalink}`,
+    );
+  });
+});
+
+describe('SelectionSnapshotBar share panel', () => {
+  it('stays up with its panel when the press collapses the selection', async () => {
+    URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
+    URL.revokeObjectURL = jest.fn();
+    let copied: (value: boolean) => void = () => {};
+    jest
+      .mocked(captureShareImage)
+      .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));
+    jest.mocked(copyShareImage).mockReturnValue(
+      new Promise((resolve) => {
+        copied = resolve;
+      }),
+    );
+    const logEvent = jest.fn();
+    renderBar(logEvent);
+    select('body');
+
+    fireEvent.click(screen.getByLabelText('Snapshot'));
+    window.getSelection()?.removeAllRanges();
+    fireEvent.pointerUp(document);
+    await act(async () => copied(true));
+
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    expect(toolbar()).toBeInTheDocument();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.OpenSnapshotSharePanel,
+        target_id: post.id,
+      }),
     );
   });
 });

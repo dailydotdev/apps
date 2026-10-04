@@ -1,13 +1,22 @@
 import React, { createRef } from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
-import { LogEvent, Origin } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
+import { ShareProvider } from '../../lib/share';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import { SnapshotButton } from './SnapshotButton';
+import type { SnapshotShare } from './SnapshotSharePanel';
 
 jest.mock('../../lib/imageShare/captureShareImage', () => ({
   captureShareImage: jest.fn(),
@@ -24,18 +33,29 @@ const onResult = jest.fn();
 
 const client = new QueryClient();
 
+const profileShare: SnapshotShare = {
+  link: 'https://app.daily.dev/ada',
+  cid: ReferralCampaignKey.ShareProfile,
+  event: LogEvent.ShareProfile,
+  targetId: 'ada-id',
+  targetType: TargetType.ProfilePage,
+};
+
 const renderButton = ({
   isLoggedIn = true,
   withPost = true,
+  share,
 }: {
   isLoggedIn?: boolean;
   withPost?: boolean;
+  share?: SnapshotShare;
 } = {}) =>
   render(
     <TestBootProvider auth={{ isLoggedIn }} client={client} log={{ logEvent }}>
       <SnapshotButton
         origin={Origin.PostSummary}
         post={withPost ? post : undefined}
+        share={share}
         onResult={onResult}
         target={createRef<HTMLDivElement>()}
       />
@@ -82,7 +102,44 @@ describe('SnapshotButton share options', () => {
     expect(screen.getByText('Copy link')).toBeInTheDocument();
   });
 
-  it('only confirms the copy for a snapshot without a post', async () => {
+  it('shares a subject other than a post by its own link and target', async () => {
+    Object.assign(navigator, {
+      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+    });
+    renderButton({ withPost: false, share: profileShare });
+
+    press();
+
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('X')).toBeInTheDocument();
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.OpenSnapshotSharePanel,
+      target_id: 'ada-id',
+      target_type: TargetType.ProfilePage,
+      extra: JSON.stringify({ placement: Origin.PostSummary }),
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
+    });
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      'https://app.daily.dev/ada',
+    );
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.ShareProfile,
+      target_id: 'ada-id',
+      target_type: TargetType.ProfilePage,
+      extra: JSON.stringify({
+        provider: ShareProvider.CopyLink,
+        origin: Origin.SnapshotSharePanel,
+        placement: Origin.PostSummary,
+      }),
+    });
+  });
+
+  it('only confirms the copy for a snapshot with nothing to link', async () => {
     renderButton({ withPost: false });
 
     press();

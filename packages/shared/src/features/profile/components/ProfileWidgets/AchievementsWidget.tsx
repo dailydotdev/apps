@@ -144,6 +144,7 @@ export function AchievementsWidget({
               filename={`daily-achievements-${user.username ?? user.id}`}
               origin={Origin.AchievementsWidget}
               ownerId={user.id}
+              permalink={user.permalink}
               renderCard={(ref) => (
                 <AchievementsSnapshotCard
                   achievements={sortRarestUnlockedAchievements(

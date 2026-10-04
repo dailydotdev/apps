@@ -7,20 +7,25 @@ import type {
 } from '../../components/buttons/common';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
 import { useLogContext } from '../../contexts/LogContext';
 import type { HotTake } from '../../graphql/user/userHotTake';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import type { SnapshotCreditProps } from './SnapshotCredit';
 import { HotTakeSnapshotCard } from './HotTakeSnapshotCard';
 import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { useArmedCard } from './useArmedCard';
 
+export type HotTakeAuthor = SnapshotCreditProps & { permalink?: string };
+
 /**
- * A hot take is a self-contained opinion with nowhere to link to, so the card
- * is the whole share. It is portalled to the body: the swipe card it sits on
- * is transformed while it moves, which would carry a fixed child with it.
+ * A hot take is a self-contained opinion with no page of its own, so the card
+ * is the share and its links point at the author's profile, where the take
+ * lives. The card is portalled to the body: the swipe card it sits on is
+ * transformed while it moves, which would carry a fixed child with it.
  */
 export function HotTakeSnapshotButton({
   author,
@@ -34,7 +39,7 @@ export function HotTakeSnapshotButton({
    * Credited on the card. Defaults to the take's own user; a profile's list
    * fetches its takes without one, since the profile already names them.
    */
-  author?: SnapshotCreditProps;
+  author?: HotTakeAuthor;
   hotTake: HotTake;
   /** Which placement this is, for the snapshot's share event. */
   origin: Origin;
@@ -45,6 +50,16 @@ export function HotTakeSnapshotButton({
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
   const { logEvent } = useLogContext();
+  const credit = author ?? hotTake.user;
+  const share: SnapshotShare | undefined = credit?.permalink
+    ? {
+        link: credit.permalink,
+        text: hotTake.title,
+        cid: ReferralCampaignKey.ShareProfile,
+        event: LogEvent.ShareHotTake,
+        targetId: hotTake.id,
+      }
+    : undefined;
 
   const onResult = useCallback(
     (result: SnapshotResult) =>
@@ -67,6 +82,8 @@ export function HotTakeSnapshotButton({
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           filename={`hot-take-${hotTake.id}`}
           onResult={onResult}
+          origin={origin}
+          share={share}
           showLabel={showLabel}
           size={size}
           target={cardRef}
@@ -80,11 +97,7 @@ export function HotTakeSnapshotButton({
             aria-hidden
             className="pointer-events-none fixed left-[-300vw] top-0"
           >
-            <HotTakeSnapshotCard
-              author={author ?? hotTake.user}
-              ref={cardRef}
-              take={hotTake}
-            />
+            <HotTakeSnapshotCard author={credit} ref={cardRef} take={hotTake} />
           </div>,
           document.body,
         )}

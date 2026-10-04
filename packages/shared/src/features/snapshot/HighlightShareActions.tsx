@@ -3,8 +3,10 @@ import React, { useCallback, useRef } from 'react';
 import { CopyHighlightsLink } from '../../components/highlights/CopyHighlightsLink';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
 import type { PostHighlightFeed } from '../../graphql/highlights';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import colors from '../../styles/colors';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
@@ -58,6 +60,18 @@ export function HighlightShareActions({
     highlight,
   );
 
+  // The highlight's post is the feed's slim shape, not a full Post, so the
+  // panel shares it as a subject: logged like useLogHighlightShare, no Slack.
+  const share: SnapshotShare = {
+    link: highlight.post.commentsPermalink,
+    text: title,
+    cid: ReferralCampaignKey.SharePost,
+    event: LogEvent.SharePost,
+    targetId: highlight.post.id,
+    targetType: TargetType.Post,
+    extra: { highlight_id: highlight.id },
+  };
+
   const onSnapshot = useCallback(
     (result: SnapshotResult) => logShare(ShareProvider.Snapshot, result),
     [logShare],
@@ -74,6 +88,8 @@ export function HighlightShareActions({
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           filename={`daily-highlight-${highlight.id}`}
           onResult={onSnapshot}
+          origin={Origin.HappeningNowHighlight}
+          share={share}
           showLabel={false}
           target={cardRef}
         />
@@ -98,7 +114,9 @@ export function HighlightShareActions({
         label={<HappeningNowEyebrow />}
         link={highlight.post.commentsPermalink}
         onShare={logSelectionShare}
+        origin={Origin.HappeningNowSelection}
         seed={highlight.id}
+        share={share}
         source={source}
         title={title}
       />

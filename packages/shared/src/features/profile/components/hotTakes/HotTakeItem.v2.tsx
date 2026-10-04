@@ -16,14 +16,14 @@ import {
 import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
 import { CardAction } from '../../../../components/buttons/CardAction';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
+import type { HotTakeAuthor } from '../../../snapshot/HotTakeSnapshotButton';
 import { HotTakeSnapshotButton } from '../../../snapshot/HotTakeSnapshotButton';
-import type { SnapshotCreditProps } from '../../../snapshot/SnapshotCredit';
 import { Origin } from '../../../../lib/log';
 
 interface HotTakeItemProps {
   item: HotTake;
   /** The profile's owner, credited on the take's snapshot. */
-  author?: SnapshotCreditProps;
+  author?: HotTakeAuthor;
   isOwner: boolean;
   onEdit?: (item: HotTake) => void;
   onDelete?: (item: HotTake) => void;

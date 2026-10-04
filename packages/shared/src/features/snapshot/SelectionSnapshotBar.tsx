@@ -10,6 +10,7 @@ import { CopyIcon, LinkIcon } from '../../components/icons';
 import { CopyStateIcon } from '../../components/share/CopyStateIcon';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
@@ -76,6 +77,10 @@ export interface SelectionShareBarProps {
   label?: ReactNode;
   /** Called once per action, with how a snapshot ended, so the host logs it. */
   onShare: (provider: ShareProvider, result?: SnapshotResult) => void;
+  /** What the snapshot's share panel sends, as on SnapshotButton. */
+  post?: Post;
+  share?: SnapshotShare;
+  origin?: Origin;
 }
 
 export function SelectionShareBar({
@@ -86,6 +91,9 @@ export function SelectionShareBar({
   source,
   label,
   onShare,
+  post,
+  share,
+  origin,
 }: SelectionShareBarProps): ReactElement | null {
   const barRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -95,6 +103,10 @@ export function SelectionShareBar({
   const [quote, setQuote] = useState<TextSelection | null>(null);
   const [linkCopied, copyLink] = useCopyPostLink();
   const [textCopied, copyText] = useCopyText(quote?.text);
+  // The share panel hangs off the Snapshot button, so the bar outlives the
+  // selection until the panel closes: pressing Snapshot, or anything in the
+  // panel, collapses it in some browsers.
+  const [isSnapshotActive, setIsSnapshotActive] = useState(false);
 
   const onCopyLink = useCallback(() => {
     onShare(ShareProvider.CopyLink);
@@ -131,7 +143,7 @@ export function SelectionShareBar({
 
   return createPortal(
     <>
-      {selection && (
+      {(selection || isSnapshotActive) && (
         <div
           ref={barRef}
           aria-label="Share selected text"
@@ -144,14 +156,18 @@ export function SelectionShareBar({
           // only skews it.
           className="fixed z-max !mr-0 inline-flex -translate-x-1/2 items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2"
           role="toolbar"
-          style={position(selection)}
+          style={position(selection ?? quote)}
         >
           {/* Snapshot leads, labelled and solid: it is the reason the bar
               exists, and the two copies beside it are the familiar fallbacks. */}
           <SnapshotButton
+            onActiveChange={setIsSnapshotActive}
             onResult={onSnapshot}
             captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
             filename={`daily-quote-${seed}`}
+            origin={origin}
+            post={post}
+            share={share}
             target={cardRef}
             variant={ButtonVariant.Primary}
           />
@@ -229,6 +245,8 @@ export function SelectionSnapshotBar({
       containerRef={containerRef}
       link={post.commentsPermalink}
       onShare={onShare}
+      origin={origin}
+      post={post}
       seed={post.id}
       source={snapshotSource(post)}
       title={post.title}

@@ -17,7 +17,8 @@ import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
-import { SnapshotSharePanel } from './SnapshotSharePanel';
+import type { SnapshotShare } from './SnapshotSharePanel';
+import { getPostSnapshotShare, SnapshotSharePanel } from './SnapshotSharePanel';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
 
@@ -51,8 +52,16 @@ export interface SnapshotButtonProps {
   onResult?: (result: SnapshotResult) => void;
   /** The post the snapshot is from, which the share panel links and sends. */
   post?: Post;
+  /** What the share panel links to when the snapshot is not of a post. */
+  share?: SnapshotShare;
   /** Which placement this is, for the share panel's events. */
   origin?: Origin;
+  /**
+   * True from a press until it is over: once its share panel closes, or as
+   * soon as it ends without one. A host that would unmount the button on its
+   * own, like the selection bar, stays up until then.
+   */
+  onActiveChange?: (isActive: boolean) => void;
 }
 
 export function SnapshotButton({
@@ -65,7 +74,9 @@ export function SnapshotButton({
   onCapture,
   onResult,
   post,
+  share,
   origin,
+  onActiveChange,
   size = ButtonSize.Small,
   variant = ButtonVariant.Tertiary,
   className,
@@ -76,6 +87,13 @@ export function SnapshotButton({
   const [copiedImage, setCopiedImage] = useState<Blob>();
   const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelShare = share ?? (post && getPostSnapshotShare(post));
+  const hasPanel = !!panelShare;
+  const isActive = isCapturing || !!copiedImage;
+
+  useEffect(() => {
+    onActiveChange?.(isActive);
+  }, [isActive, onActiveChange]);
 
   useEffect(
     () => () => {
@@ -119,7 +137,7 @@ export function SnapshotButton({
         // the whole payload: a link pasted beside it lands as a second line of
         // text in the composer, which is not what a snapshot is for.
         if (await copyShareImage(capture)) {
-          if (post) {
+          if (hasPanel) {
             setCopiedImage(await capture);
           } else {
             displayToast('Image copied', { variant: ToastType.Success });
@@ -144,10 +162,10 @@ export function SnapshotButton({
       captureOptions,
       displayToast,
       filename,
+      hasPanel,
       isCapturing,
       onCapture,
       onResult,
-      post,
       target,
     ],
   );
@@ -175,13 +193,14 @@ export function SnapshotButton({
           {showLabel ? label : undefined}
         </Button>
       </Tooltip>
-      {copiedImage && post && (
+      {copiedImage && panelShare && (
         <SnapshotSharePanel
           anchorRef={buttonRef}
           filename={filename}
           image={copiedImage}
           placement={origin}
           post={post}
+          share={panelShare}
           onClose={() => setCopiedImage(undefined)}
         />
       )}

@@ -25,6 +25,7 @@ const snapshotButton = (ownerId = 'u1') => (
       filename="daily-reading-testuser"
       origin={Origin.ReadingOverview}
       ownerId={ownerId}
+      permalink="https://app.daily.dev/testuser"
       renderCard={renderCard}
     />
   </TestBootProvider>
@@ -33,6 +34,8 @@ const renderButton = () => render(snapshotButton());
 
 beforeEach(() => {
   jest.clearAllMocks();
+  URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
+  URL.revokeObjectURL = jest.fn();
   jest
     .mocked(captureShareImage)
     .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));

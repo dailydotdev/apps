@@ -41,7 +41,10 @@ interface AchievementCardProps {
    * Whose achievement this is. The snapshot names them, so it is only offered
    * where the card knows.
    */
-  user?: Pick<PublicProfile, 'id' | 'name' | 'username' | 'image'>;
+  user?: Pick<
+    PublicProfile,
+    'id' | 'name' | 'username' | 'image' | 'permalink'
+  >;
   isOwner?: boolean;
   isTracked?: boolean;
   isTrackPending?: boolean;
@@ -139,6 +142,7 @@ export function AchievementCard({
                 filename={`daily-achievement-${achievement.id}`}
                 origin={Origin.AchievementCard}
                 ownerId={user.id}
+                permalink={user.permalink}
                 renderCard={(ref) => (
                   <AchievementSnapshotCard
                     completedAt={format(new Date(unlockedAt), 'MMM d, yyyy')}

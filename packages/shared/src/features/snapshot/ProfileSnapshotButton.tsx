@@ -5,9 +5,11 @@ import type { ButtonVariant } from '../../components/buttons/common';
 import { ButtonSize } from '../../components/buttons/common';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetType } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { useArmedCard } from './useArmedCard';
@@ -18,6 +20,8 @@ export interface ProfileSnapshotButtonProps {
   filename: string;
   /** The profile's user. The profile is also the target unless one is set. */
   ownerId: string;
+  /** The profile's link, which the share panel sends. */
+  permalink: string;
   targetId?: string;
   targetType?: TargetType;
   /**
@@ -42,6 +46,7 @@ function ArmedProfileSnapshotButton({
   origin,
   filename,
   ownerId,
+  permalink,
   targetId = ownerId,
   targetType = TargetType.ProfilePage,
   renderCard,
@@ -51,6 +56,13 @@ function ArmedProfileSnapshotButton({
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
   const { logEvent } = useLogContext();
+  const share: SnapshotShare = {
+    link: permalink,
+    cid: ReferralCampaignKey.ShareProfile,
+    event: LogEvent.ShareProfile,
+    targetId,
+    targetType,
+  };
 
   const onResult = useCallback(
     (result: SnapshotResult) =>
@@ -74,6 +86,8 @@ function ArmedProfileSnapshotButton({
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           filename={filename}
           onResult={onResult}
+          origin={origin}
+          share={share}
           showLabel={false}
           size={size}
           target={cardRef}

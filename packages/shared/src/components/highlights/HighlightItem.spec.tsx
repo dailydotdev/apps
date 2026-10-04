@@ -1,12 +1,27 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import type { PostHighlightFeed } from '../../graphql/highlights';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
+import { captureShareImage } from '../../lib/imageShare/captureShareImage';
+import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { HighlightItem } from './HighlightItem';
+
+jest.mock('../../lib/imageShare/captureShareImage', () => ({
+  captureShareImage: jest.fn(),
+}));
+jest.mock('../../lib/imageShare/copyShareImage', () => ({
+  copyShareImage: jest.fn(),
+}));
 
 const scrollIntoView = jest.fn();
 const summary = 'A concise summary for the expanded highlight item.';
@@ -136,5 +151,31 @@ describe('HighlightItem', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Happening now')).toBeInTheDocument();
     expect(screen.getByText('The Pragmatic Engineer')).toBeInTheDocument();
+  });
+
+  it('opens the share panel on the highlighted post after a snapshot', async () => {
+    URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
+    URL.revokeObjectURL = jest.fn();
+    jest
+      .mocked(captureShareImage)
+      .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));
+    jest.mocked(copyShareImage).mockResolvedValue(true);
+    const logEvent = jest.fn();
+    renderItem(true, logEvent);
+
+    fireEvent.click(screen.getByRole('button', { name: /snapshot/i }));
+
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.OpenSnapshotSharePanel,
+        target_id: 'post-1',
+        target_type: TargetType.Post,
+        extra: JSON.stringify({
+          placement: Origin.HappeningNowHighlight,
+          highlight_id: 'highlight-1',
+        }),
+      }),
+    );
   });
 });
