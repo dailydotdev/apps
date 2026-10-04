@@ -7,7 +7,9 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { ARCADE, FreezeArt } from './rewardArt';
+import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ARCADE } from './rewardArt';
 import { FINAL_DAY, weekPlan } from './weekPlan';
 
 // The rules the card is built against, and the two notifications the run is
@@ -265,12 +267,14 @@ const PushCard = ({
     className="flex w-full min-w-0 max-w-[26rem] items-start gap-3 rounded-16 p-3"
     style={{ background: ARCADE.surfaceRaised }}
   >
-    <span
-      className="flex size-9 shrink-0 items-center justify-center rounded-10"
-      style={{ background: ARCADE.streak }}
-    >
-      <FreezeArt sizeClass="size-6" />
-    </span>
+    {/* The reading streak's own mark, which is what a notification from this
+        run carries — not the freeze art, which is one reward out of seven. */}
+    <ReadingStreakIcon
+      secondary
+      size={IconSize.Large}
+      aria-hidden
+      className="shrink-0"
+    />
     <span
       className="flex flex-col gap-0.5"
       style={{ minWidth: 0, flex: '1 1 0%', overflowWrap: 'anywhere' }}
