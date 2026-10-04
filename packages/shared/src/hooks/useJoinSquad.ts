@@ -4,7 +4,7 @@ import type { SquadInvitationProps } from '../graphql/squads';
 import { joinSquadInvitation } from '../graphql/squads';
 import { useLogContext } from '../contexts/LogContext';
 import type { Squad } from '../graphql/sources';
-import { LogEvent } from '../lib/log';
+import { LogEvent, TargetType } from '../lib/log';
 import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ActionType } from '../graphql/actions';
@@ -15,6 +15,7 @@ import {
   ContentPreferenceType,
 } from '../graphql/contentPreference';
 import { useActivePostContext } from '../contexts/ActivePostContext';
+import { consumeSquadBoostClick } from '../features/monetization/squadBoostClick';
 
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle' | 'privilegedMembers'>;
@@ -54,6 +55,7 @@ export const useJoinSquad = ({
     }
 
     const result = await joinSquadInvitation(payload);
+    const boostGenId = consumeSquadBoostClick(squad.id);
 
     logEvent({
       event_name: LogEvent.CompleteJoiningSquad,
@@ -61,6 +63,11 @@ export const useJoinSquad = ({
         inviter: user?.id,
         squad: squad.id,
         ...(implicit && { implicit: true }),
+        ...(!!boostGenId && {
+          gen_id: boostGenId,
+          referrer_target_id: squad.id,
+          referrer_target_type: TargetType.Source,
+        }),
         ...(!!referrerPost && {
           author: squad.privilegedMembers?.some(
             (squadMember) =>
