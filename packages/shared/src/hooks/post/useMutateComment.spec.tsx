@@ -8,6 +8,9 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import post from '../../../__tests__/fixture/post';
+import type { Comment, PostCommentsData } from '../../graphql/comments';
+import { SortCommentsBy } from '../../graphql/comments';
+import { generateCommentsQueryKey } from '../../lib/query';
 
 jest.mock('../useRequestProtocol', () => ({
   useRequestProtocol: jest.fn(),
@@ -89,5 +92,80 @@ describe('useMutateComment', () => {
     });
 
     expect(displayToast).toHaveBeenCalledWith(DEFAULT_ERROR);
+  });
+
+  describe('when editing a comment', () => {
+    const queryKey = generateCommentsQueryKey({
+      postId: post.id,
+      sortBy: SortCommentsBy.NewestFirst,
+    });
+    const createComment = (id: string, children: Comment[] = []) =>
+      ({
+        id,
+        content: id,
+        children: {
+          edges: children.map((node) => ({ node })),
+          pageInfo: null,
+        },
+      } as unknown as Comment);
+    const setComments = (comments: Comment[]) =>
+      client.setQueryData<PostCommentsData>(queryKey, {
+        postComments: {
+          edges: comments.map((node) => ({ node })),
+          pageInfo: null,
+        },
+      } as unknown as PostCommentsData);
+    const getComments = () =>
+      client.getQueryData<PostCommentsData>(queryKey)?.postComments.edges;
+
+    const editComment = async (
+      props: Partial<Parameters<typeof useMutateComment>[0]>,
+    ) => {
+      requestMethod.mockResolvedValueOnce({
+        comment: { id: 'reply', content: 'edited' },
+      });
+      const { result } = renderHook(
+        () => useMutateComment({ post, editCommentId: 'reply', ...props }),
+        { wrapper },
+      );
+
+      await act(async () => {
+        await result.current.mutateComment('edited');
+      });
+    };
+
+    it('should update a reply even when its parent is not passed', async () => {
+      const onCommented = jest.fn();
+      setComments([
+        createComment('parent', [
+          createComment('reply', [createComment('nested')]),
+        ]),
+      ]);
+
+      await editComment({ onCommented });
+
+      const reply = getComments()?.[0]?.node.children?.edges[0]?.node;
+      expect(reply?.content).toEqual('edited');
+      expect(reply?.children?.edges[0]?.node.id).toEqual('nested');
+      expect(displayToast).not.toHaveBeenCalled();
+      expect(onCommented).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'reply' }),
+        false,
+        undefined,
+      );
+    });
+
+    it('should refetch a cached list that misses the comment instead of failing', async () => {
+      const onCommented = jest.fn();
+      setComments([createComment('other')]);
+      const invalidateQueries = jest.spyOn(client, 'invalidateQueries');
+
+      await editComment({ onCommented, parentCommentId: 'parent' });
+
+      expect(getComments()?.[0].node.id).toEqual('other');
+      expect(invalidateQueries).toHaveBeenCalledWith({ queryKey });
+      expect(displayToast).not.toHaveBeenCalled();
+      expect(onCommented).toHaveBeenCalled();
+    });
   });
 });
