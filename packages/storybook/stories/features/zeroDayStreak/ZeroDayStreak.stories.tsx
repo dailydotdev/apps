@@ -129,28 +129,35 @@ const STATE_SHEET: Array<{
     pendingDays: [4],
   },
   {
-    title: '5 · Claimed today',
+    title: '5 · A reader already on a long streak',
+    note: 'The row counts in the reader\u2019s streak days, not the run\u2019s 1-to-7. A brand-new account sees 1 to 7 because those are the same number.',
+    day: 3,
+    phase: Phase.Ready,
+    streakDays: 34,
+  },
+  {
+    title: '6 · Claimed today',
     note: "Today's tile keeps its lit frame and takes the flame and tick; the slot becomes its day label.",
     day: 3,
     phase: Phase.Claimed,
     streakDays: 3,
   },
   {
-    title: '6 · One off the end',
+    title: '7 · One off the end',
     note: 'Six behind, one to go. The finale is the only tile left unclaimed.',
     day: 6,
     phase: Phase.Ready,
     streakDays: 6,
   },
   {
-    title: '7 · The finale',
+    title: '8 · The finale',
     note: 'The last claim of the week, and the only state with no reminder offer under it.',
     day: 7,
     phase: Phase.Ready,
     streakDays: 7,
   },
   {
-    title: '8 · Run complete',
+    title: '9 · Run complete',
     note: 'Confetti once, and the one moment the header changes — there is no rule left to state over a finished week.',
     day: 7,
     phase: Phase.Claimed,
@@ -324,7 +331,7 @@ export const Card: Story = {
           <WeeklyRewardsModal
             day={3}
             phase={Phase.Ready}
-            streakDays={3}
+            streakDays={34}
             onClaim={() => undefined}
             onClose={() => undefined}
           />

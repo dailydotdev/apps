@@ -446,12 +446,15 @@ const DaySlot = ({
   planned,
   status,
   phase,
+  label,
   isClaiming,
   onClaim,
 }: {
   planned: PlannedDay;
   status: Status;
   phase: Phase;
+  /** The reader's streak day, which is what the tile prints. */
+  label: number;
   isClaiming?: boolean;
   onClaim: (day: number) => void;
 }): ReactElement => {
@@ -488,7 +491,7 @@ const DaySlot = ({
         }}
       >
         <VIcon secondary size={IconSize.Size16} aria-hidden />
-        Day {planned.day}
+        Day {label}
       </span>
     );
   }
@@ -503,7 +506,7 @@ const DaySlot = ({
         }}
       >
         <ReadingStreakIcon size={IconSize.Size16} aria-hidden />
-        Day {planned.day}
+        Day {label}
       </span>
     );
   }
@@ -514,7 +517,7 @@ const DaySlot = ({
       style={{ background: 'rgba(168,179,206,0.08)', color: ARCADE.ink50 }}
     >
       <LockIcon size={IconSize.Size16} aria-hidden />
-      Day {planned.day}
+      Day {label}
     </span>
   );
 };
@@ -533,6 +536,7 @@ const Tile = ({
   index,
   day,
   phase,
+  streakDays,
   pendingDays,
   isClaiming,
   onClaim,
@@ -542,12 +546,19 @@ const Tile = ({
   index: number;
   day: number;
   phase: Phase;
+  /** The reader's streak, so the row can count in their days and not the run's. */
+  streakDays: number;
   pendingDays?: number[];
   isClaiming?: boolean;
   onClaim: (day: number) => void;
   innerRef?: Ref<HTMLLIElement>;
 }): ReactElement => {
   const status = statusOf(index, day, pendingDays);
+  // The row counts in the reader's streak days, not in the run's 1-to-7. Today
+  // is the streak as it stands, except before the day's post is read — then the
+  // streak is still yesterday's and today is the one about to be earned.
+  const todayStreakDay = phase === Phase.Unread ? streakDays + 1 : streakDays;
+  const streakDay = todayStreakDay + (planned.day - day);
   const isToday = status === Status.Today;
   const done = status === Status.Done || (isToday && phase === Phase.Claimed);
   const quiet = done && !isToday;
@@ -584,7 +595,7 @@ const Tile = ({
   return (
     <li
       ref={innerRef}
-      aria-label={`Day ${planned.day}, ${stateLabel}, ${rewardLabel(planned)}`}
+      aria-label={`Day ${streakDay}, ${stateLabel}, ${rewardLabel(planned)}`}
       className="relative flex h-40 w-[5.75rem] snap-center flex-col items-center justify-between gap-2 rounded-16 p-2 tablet:w-auto tablet:p-1.5 laptop:p-2"
       style={{ background, border }}
     >
@@ -636,6 +647,7 @@ const Tile = ({
         planned={planned}
         status={status}
         phase={phase}
+        label={streakDay}
         isClaiming={isClaiming}
         onClaim={onClaim}
       />
@@ -862,6 +874,7 @@ export const WeeklyRewardsModal = ({
               index={index}
               day={day}
               phase={phase}
+              streakDays={streakDays}
               pendingDays={pendingDays}
               isClaiming={isClaiming}
               onClaim={handleClaim}
