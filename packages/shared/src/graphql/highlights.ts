@@ -26,6 +26,7 @@ export interface PostHighlightFeed {
   significance?: string | null;
   post: {
     id: string;
+    slug?: string;
     type: string;
     commentsPermalink: string;
     title?: string;
@@ -123,6 +124,7 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
     significance
     post {
       id
+      slug
       type
       commentsPermalink
       title

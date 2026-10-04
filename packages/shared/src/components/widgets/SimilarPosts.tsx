@@ -14,6 +14,7 @@ import { ActiveFeedContext } from '../../contexts';
 import { useLogContext } from '../../contexts/LogContext';
 import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
+import { getPostPath } from '../../lib/links';
 import {
   Button,
   ButtonIconPosition,
@@ -56,11 +57,9 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => {
         styles.card,
       )}
     >
-      <CardLink
-        href={post.commentsPermalink}
-        title={post.title}
-        {...combinedClicks(onLinkClick)}
-      />
+      <Link href={getPostPath(post)} passHref prefetch={false}>
+        <CardLink title={post.title} {...combinedClicks(onLinkClick)} />
+      </Link>
       <LazyImage
         imgSrc={post.source?.image ?? ''}
         imgAlt={post.source?.name ?? ''}

@@ -4,6 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import type { Post } from '../../graphql/posts';
 import defaultFeedPage from '../../../__tests__/fixture/feed';
 import BestDiscussions from './BestDiscussions';
+import { getPostPath } from '../../lib/links';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -46,5 +47,5 @@ it('should show number comments', async () => {
 it('should set feeling lucky link to the first post', async () => {
   renderComponent();
   const el = await screen.findByRole('link', { name: `I'm feeling lucky` });
-  expect(el).toHaveAttribute('href', defaultPosts[0].commentsPermalink);
+  expect(el).toHaveAttribute('href', getPostPath(defaultPosts[0]));
 });
