@@ -310,7 +310,7 @@ const CheckBadge = ({ className }: { className?: string }): ReactElement => (
 const EXPLAINERS = {
   cores: {
     title: 'Cores',
-    body: "daily.dev's currency. Spend them on Awards for posts and comments you rate, or on a briefing.",
+    body: "daily.dev's currency. Most of it goes on restoring a lost streak or awarding a post or comment. It also buys streak freezes, a briefing, or a boost for something you want seen.",
     accent: ARCADE.gold,
   },
   freeze: {

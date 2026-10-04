@@ -49,7 +49,8 @@ export const weekPlan: PlannedDay[] = [
     cores: 100,
     amount: '100',
     unit: 'Cores',
-    explainer: "daily.dev's currency. Spend it boosting a post you rate.",
+    explainer:
+      "daily.dev's currency. Restore a lost streak, award a post or comment you rate, or buy a streak freeze.",
   },
   {
     day: 2,
@@ -57,7 +58,8 @@ export const weekPlan: PlannedDay[] = [
     cores: 150,
     amount: '150',
     unit: 'Cores',
-    explainer: "daily.dev's currency. Spend it boosting a post you rate.",
+    explainer:
+      "daily.dev's currency. Restore a lost streak, award a post or comment you rate, or buy a streak freeze.",
   },
   {
     day: 3,
@@ -74,7 +76,8 @@ export const weekPlan: PlannedDay[] = [
     cores: 250,
     amount: '250',
     unit: 'Cores',
-    explainer: "daily.dev's currency. Spend it boosting a post you rate.",
+    explainer:
+      "daily.dev's currency. Restore a lost streak, award a post or comment you rate, or buy a streak freeze.",
   },
   {
     day: 5,
@@ -82,7 +85,8 @@ export const weekPlan: PlannedDay[] = [
     cores: 400,
     amount: '400',
     unit: 'Cores',
-    explainer: "daily.dev's currency. Spend it boosting a post you rate.",
+    explainer:
+      "daily.dev's currency. Restore a lost streak, award a post or comment you rate, or buy a streak freeze.",
   },
   {
     day: 6,
@@ -102,7 +106,8 @@ export const weekPlan: PlannedDay[] = [
     cores: 1000,
     amount: '1000',
     unit: 'Cores',
-    explainer: "daily.dev's currency. Spend it boosting a post you rate.",
+    explainer:
+      "daily.dev's currency. Restore a lost streak, award a post or comment you rate, or buy a streak freeze.",
   },
 ];
 
