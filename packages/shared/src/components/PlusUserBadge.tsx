@@ -8,6 +8,7 @@ import { plusUrl } from '../lib/constants';
 import { DateFormat } from './utilities';
 import { TimeFormatType } from '../lib/dateFormat';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { usePlusPreviewLog } from '../hooks/usePlusPreviewLog';
 import { LogEvent, TargetId } from '../lib/log';
 import { IconSize } from './Icon';
 import { PlusPreview } from './plus/PlusPreview';
@@ -27,12 +28,22 @@ export const PlusUserBadge = ({
 }: Props): ReactElement | null => {
   const router = useRouter();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { logPreviewOpen, logPreviewAction } = usePlusPreviewLog(
+    TargetId.PlusBadge,
+  );
 
   if (!user.isPlus) {
     return null;
   }
 
   const badge = <PlusUser withText={false} iconSize={size} />;
+  const memberSince = (
+    <DateFormat
+      prefix="Plus member since "
+      date={user.plusMemberSince}
+      type={TimeFormatType.PlusMember}
+    />
+  );
 
   if (!tooltip) {
     return <div className="flex items-center">{badge}</div>;
@@ -40,16 +51,7 @@ export const PlusUserBadge = ({
 
   if (isPlus) {
     return (
-      <SimpleTooltip
-        content={
-          <DateFormat
-            prefix="Plus member since "
-            date={user.plusMemberSince}
-            type={TimeFormatType.PlusMember}
-          />
-        }
-        placement="top"
-      >
+      <SimpleTooltip content={memberSince} placement="top">
         <div className="flex items-center">{badge}</div>
       </SimpleTooltip>
     );
@@ -62,7 +64,14 @@ export const PlusUserBadge = ({
     });
 
   return (
-    <PlusPreview side="bottom" onAction={logUpgradeClick}>
+    <PlusPreview
+      side="bottom"
+      onOpen={logPreviewOpen}
+      onAction={logPreviewAction}
+      context={
+        <span className="text-text-tertiary typo-footnote">{memberSince}</span>
+      }
+    >
       {clickable ? (
         <button
           type="button"

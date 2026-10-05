@@ -10,11 +10,15 @@ import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 
 interface CreatePlusMenuItemProps {
   onClick: (event?: MouseEvent<HTMLElement>) => void;
+  onPreviewOpen: () => void;
+  onPreviewAction: (event: MouseEvent<HTMLElement>) => void;
   isSaleActive: boolean;
 }
 
 export const createPlusMenuItem = ({
   onClick,
+  onPreviewOpen,
+  onPreviewAction,
   isSaleActive,
 }: CreatePlusMenuItemProps): SidebarMenuItem => ({
   icon: (active: boolean) => (
@@ -30,10 +34,11 @@ export const createPlusMenuItem = ({
   title: 'Get Plus',
   path: plusUrl,
   isForcedLink: true,
-  requiresLogin: true,
   action: onClick,
   renderPreview: (trigger) => (
-    <PlusPreview onAction={onClick}>{trigger}</PlusPreview>
+    <PlusPreview onOpen={onPreviewOpen} onAction={onPreviewAction}>
+      {trigger}
+    </PlusPreview>
   ),
   ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
 });

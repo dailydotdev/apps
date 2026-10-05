@@ -164,7 +164,7 @@ const bullets = [
   'The sidebar says "Get Plus" and sits right under For You.',
   "Hover it, or any member's Plus badge, for one card that says what Plus does.",
   'The profile menu and Settings get the same row, styled like your profile above it.',
-  'The line under "Get Plus" rotates through seven perks.',
+  'The line under "Get Plus" rotates through the Plus perks.',
   'Every entry opens the Plus page, where people see the plans and subscribe.',
 ];
 
