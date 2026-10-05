@@ -22,10 +22,6 @@ import { SourceType } from '../../../graphql/sources';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import {
-  CleanTitlePreview,
-  CleanTitleReveal,
-} from '../../plus/CleanTitlePreview';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useTrackPostView } from '../../../hooks/post/useTrackPostView';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
@@ -696,25 +692,22 @@ const PostFocusCardRaw = ({
                     )}
                     data-testid="post-modal-title"
                   >
-                    <CleanTitlePreview post={article}>
-                      {canReadArticle ? (
-                        <a
-                          href={readHref}
-                          target="_blank"
-                          rel={anchorNofollowRel}
-                          {...combinedClicks<HTMLAnchorElement>(
-                            withSelectionGuard(handleReadClick),
-                          )}
-                          className="transition-colors hover:text-text-link"
-                        >
-                          {title}
-                        </a>
-                      ) : (
-                        title
-                      )}
-                    </CleanTitlePreview>
+                    {canReadArticle ? (
+                      <a
+                        href={readHref}
+                        target="_blank"
+                        rel={anchorNofollowRel}
+                        {...combinedClicks<HTMLAnchorElement>(
+                          withSelectionGuard(handleReadClick),
+                        )}
+                        className="transition-colors hover:text-text-link"
+                      >
+                        {title}
+                      </a>
+                    ) : (
+                      title
+                    )}
                   </h1>
-                  <CleanTitleReveal post={article} />
                   <PostMetadata
                     // Wraps on mobile so a long domain stays whole (no ellipsis).
                     className="flex-wrap !typo-callout tablet:flex-nowrap"

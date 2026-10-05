@@ -1,4 +1,4 @@
-import type { MouseEvent, ReactElement, ReactNode } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
@@ -21,8 +21,6 @@ import {
 
 const PREVIEW_OPEN_DELAY = 400;
 const PREVIEW_CLOSE_DELAY = 300;
-
-const stopPropagation = (event: MouseEvent): void => event.stopPropagation();
 
 export const plusPreviewPerks = [
   'Removes every ad',
@@ -58,19 +56,12 @@ export const PlusTile = ({
 
 interface PlusPreviewCardProps {
   onAction?: (event: MouseEvent<HTMLAnchorElement>) => void;
-  context?: ReactNode;
 }
 
 export const PlusPreviewCard = ({
   onAction,
-  context,
 }: PlusPreviewCardProps): ReactElement => (
   <div className="flex w-72 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-4 shadow-2">
-    {context && (
-      <div className="flex flex-col gap-1.5 border-b border-border-subtlest-tertiary pb-3">
-        {context}
-      </div>
-    )}
     <div className="flex items-center gap-2">
       <PlusTile />
       <div className="flex flex-col">
@@ -134,7 +125,6 @@ export const PlusPreview = ({
   side = 'right',
   align = 'start',
   onAction,
-  context,
 }: PlusPreviewProps): ReactElement => {
   // After a click the card stays shut until the pointer leaves, otherwise the
   // open delay re-fires on the trigger while the next page loads.
@@ -174,12 +164,8 @@ export const PlusPreview = ({
           sideOffset={8}
           collisionPadding={12}
           className="rail-popup-panel z-tooltip"
-          // React bubbles clicks out of the portal to the trigger's ancestors,
-          // which may be a clickable card.
-          onClick={stopPropagation}
-          onAuxClick={stopPropagation}
         >
-          <PlusPreviewCard onAction={onAction} context={context} />
+          <PlusPreviewCard onAction={onAction} />
         </HoverCardPrimitive.Content>
       </HoverCardPrimitive.Portal>
     </HoverCardPrimitive.Root>

@@ -27,7 +27,6 @@ import { FeedbackList } from './feedback/FeedbackList';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
@@ -128,14 +127,6 @@ export const ArticleList = forwardRef(function ArticleList(
     );
   }
 
-  const linkProps = !isFeedPreview
-    ? {
-        title: post.title,
-        href: post.commentsPermalink,
-        ...combinedClicks(onPostCardClick),
-      }
-    : undefined;
-
   return (
     <FeedItemContainer
       domProps={{
@@ -145,7 +136,15 @@ export const ArticleList = forwardRef(function ArticleList(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
-      linkProps={linkProps}
+      linkProps={
+        !isFeedPreview
+          ? {
+              title: post.title,
+              href: post.commentsPermalink,
+              ...combinedClicks(onPostCardClick),
+            }
+          : undefined
+      }
       bookmarked={post.bookmarked}
     >
       {showFeedback ? (
@@ -185,9 +184,7 @@ export const ArticleList = forwardRef(function ArticleList(
                   lineClamp={undefined}
                   className={post.read ? 'text-text-tertiary' : undefined}
                 >
-                  <CleanTitlePreview post={post} linkProps={linkProps}>
-                    {truncatedTitle}
-                  </CleanTitlePreview>
+                  {truncatedTitle}
                 </CardTitle>
                 <div className="flex flex-1 tablet:hidden" />
                 <div className="flex items-center">

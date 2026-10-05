@@ -1,4 +1,3 @@
-import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -9,16 +8,12 @@ import post from '../../../../__tests__/fixture/post';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import type { PostCardProps } from '../common/common';
 import { visibleOnGroupHover } from '../common/common';
-import { POST_FETCH_SMART_TITLE_QUERY, PostType } from '../../../graphql/posts';
+import { PostType } from '../../../graphql/posts';
 import type { LoggedUser } from '../../../lib/user';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleGrid } from './ArticleGrid';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
-import {
-  completeActionMock,
-  mockGraphQL,
-} from '../../../../__tests__/helpers/graphql';
-import { ActionType } from '../../../graphql/actions';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { USER_INTEGRATIONS } from '../../../graphql/users';
 
 jest.mock('next/router', () => ({
@@ -220,89 +215,5 @@ describe('copy link cover', () => {
       await screen.findByText('Why not share it on social, too?'),
     ).toBeInTheDocument();
     expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
-  });
-});
-
-describe('clean title hint', () => {
-  const clickbaitPost = { ...post, clickbaitTitleDetected: true };
-  const originalTitle = post.title as string;
-  const cleanTitle = 'What the prosecutor gets wrong about probability';
-
-  const renderClickbait = (user: LoggedUser): RenderResult =>
-    render(
-      <TestBootProvider client={new QueryClient()} auth={{ user }}>
-        <ArticleGrid {...defaultProps} post={clickbaitPost} />
-      </TestBootProvider>,
-    );
-
-  it('should show the clean title only after a free reader asks for it', async () => {
-    mockGraphQL({
-      request: {
-        query: POST_FETCH_SMART_TITLE_QUERY,
-        variables: { id: post.id },
-      },
-      result: { data: { fetchSmartTitle: { title: cleanTitle } } },
-    });
-    mockGraphQL(completeActionMock({ action: ActionType.FetchedSmartTitle }));
-    renderClickbait({ ...loggedUser, isPlus: false, clickbaitTries: 2 });
-
-    fireEvent.pointerEnter(screen.getByText(originalTitle));
-
-    expect(await screen.findByText('Clean title by Plus')).toBeInTheDocument();
-    expect(screen.getByText('3 free left this month')).toBeInTheDocument();
-    expect(screen.queryByText(cleanTitle)).not.toBeInTheDocument();
-    expect(nock.isDone()).toBe(false);
-
-    fireEvent.click(screen.getByText('Show clean title'));
-
-    expect(await screen.findByText(cleanTitle)).toBeInTheDocument();
-    expect(screen.getByText('Get Plus')).toBeInTheDocument();
-    expect(screen.getByText(originalTitle)).toBeInTheDocument();
-  });
-
-  it('should not present the original title as clean when the request fails', async () => {
-    mockGraphQL({
-      request: {
-        query: POST_FETCH_SMART_TITLE_QUERY,
-        variables: { id: post.id },
-      },
-      result: { errors: [{ message: 'Limit reached' }] },
-    });
-    renderClickbait({ ...loggedUser, isPlus: false });
-
-    fireEvent.pointerEnter(screen.getByText(originalTitle));
-    fireEvent.click(await screen.findByText('Show clean title'));
-
-    expect(
-      await screen.findByText('The clean title did not load.'),
-    ).toBeInTheDocument();
-    expect(screen.getAllByText(originalTitle)).toHaveLength(1);
-  });
-
-  it('should open the post when a free reader clicks the title', async () => {
-    renderClickbait({ ...loggedUser, isPlus: false });
-
-    screen.getByText(originalTitle).click();
-
-    await waitFor(() => expect(defaultProps.onPostClick).toBeCalled());
-  });
-
-  it('should explain the used allowance instead of fetching', async () => {
-    renderClickbait({ ...loggedUser, isPlus: false, clickbaitTries: 5 });
-
-    fireEvent.pointerEnter(screen.getByText(originalTitle));
-
-    expect(
-      await screen.findByText(
-        'You have seen 5 clean titles this month. Plus rewrites every one.',
-      ),
-    ).toBeInTheDocument();
-    expect(screen.queryByText('Clean title by Plus')).not.toBeInTheDocument();
-  });
-
-  it('should keep the plain title for a Plus member', async () => {
-    renderClickbait({ ...loggedUser, isPlus: true });
-
-    expect(screen.getByText(originalTitle).closest('a')).toBeNull();
   });
 });

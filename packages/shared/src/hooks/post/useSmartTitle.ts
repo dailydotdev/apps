@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ApiErrorResult } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import type { Post, PostSmartTitle } from '../../graphql/posts';
 import { POST_FETCH_SMART_TITLE_QUERY } from '../../graphql/posts';
@@ -23,9 +22,6 @@ import {
 
 type UseSmartTitle = {
   fetchSmartTitle: () => Promise<void>;
-  previewSmartTitle: () => Promise<void>;
-  smartTitle?: string;
-  smartTitleFailed: boolean;
   title: string;
   fetchedSmartTitle: boolean;
   shieldActive: boolean;
@@ -53,11 +49,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...getPostByIdKey(post?.id),
   );
 
-  const {
-    data: smartTitle,
-    refetch,
-    isError: smartTitleFailed,
-  } = useQuery({
+  const { data: smartTitle, refetch } = useQuery({
     queryKey: key,
     queryFn: async (): Promise<PostSmartTitle> => {
       const titleRecord = {
@@ -66,7 +58,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       };
 
       // Enusre that we don't accidentally fetch the smart title for users outside of the feature flag
-      if (!isLoggedIn || !user) {
+      if (!isLoggedIn) {
         return titleRecord;
       }
 
@@ -88,14 +80,13 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
         return data.fetchSmartTitle;
       } catch (error) {
         displayToast(
-          (error as ApiErrorResult).response?.errors?.[0].message ||
-            labels.error.generic,
+          error.response?.errors?.[0].message || labels.error.generic,
         );
-        throw error;
       }
+
+      return titleRecord;
     },
     enabled: false,
-    retry: false,
     staleTime: Infinity,
     ...disabledRefetch,
   });
@@ -113,65 +104,53 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     clickbaitShieldEnabled: !clickbaitShieldEnabled,
   });
 
-  const loadSmartTitle = useCallback(async () => {
-    const smartTitlePost: Post = post.sharedPost ? post.sharedPost : post;
-    smartTitlePost.translation = {
-      ...smartTitlePost?.translation,
-      ...smartTitle?.translation,
-    };
+  const fetchSmartTitle = useCallback(async () => {
+    if (!fetchedSmartTitle) {
+      const smartTitlePost: Post = post.sharedPost ? post.sharedPost : post;
+      smartTitlePost.translation = {
+        ...smartTitlePost?.translation,
+        ...smartTitle?.translation,
+      };
 
-    const [translateResult] = await fetchTranslations([smartTitlePost]);
+      const [translateResult] = await fetchTranslations([smartTitlePost]);
 
-    if (translateResult) {
-      client.setQueryData(
-        key,
-        updateTitleTranslation({
-          post: smartTitlePost,
-          translation: translateResult,
-        }),
-      );
-    } else {
-      await refetch();
+      if (translateResult) {
+        client.setQueryData(
+          key,
+          updateTitleTranslation({
+            post: smartTitlePost,
+            translation: translateResult,
+          }),
+        );
+      } else {
+        await refetch();
+      }
     }
-  }, [client, post, refetch, key, fetchTranslations, smartTitle]);
 
-  const logSmartTitle = useCallback(() => {
+    client.setQueryData(fetchSmartTitleKey, (prevValue: boolean) => !prevValue);
+
     logEvent(
       postLogEvent(LogEvent.ClickbaitShieldTitle, post, {
         extra: { isPlus },
       }),
     );
-  }, [logEvent, post, isPlus]);
-
-  const fetchSmartTitle = useCallback(async () => {
-    if (!fetchedSmartTitle) {
-      await loadSmartTitle();
-    }
-
-    client.setQueryData(fetchSmartTitleKey, (prevValue: boolean) => !prevValue);
-    logSmartTitle();
   }, [
     fetchedSmartTitle,
     client,
     fetchSmartTitleKey,
-    loadSmartTitle,
-    logSmartTitle,
+    logEvent,
+    post,
+    isPlus,
+    refetch,
+    key,
+    fetchTranslations,
+    smartTitle,
   ]);
-
-  // Loads the smart title into the cache without swapping the visible title.
-  const previewSmartTitle = useCallback(async () => {
-    if (smartTitle || client.isFetching({ queryKey: key })) {
-      return;
-    }
-
-    await loadSmartTitle();
-    logSmartTitle();
-  }, [smartTitle, client, key, loadSmartTitle, logSmartTitle]);
 
   const title = useMemo(() => {
     return fetchedSmartTitle && smartTitle
-      ? smartTitle.title ?? ''
-      : post?.title || post?.sharedPost?.title || '';
+      ? smartTitle.title
+      : post?.title || post?.sharedPost?.title;
   }, [fetchedSmartTitle, smartTitle, post?.title, post?.sharedPost?.title]);
 
   const shieldActive = useMemo(() => {
@@ -183,9 +162,6 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
 
   return {
     fetchSmartTitle,
-    previewSmartTitle,
-    smartTitle: smartTitle?.title,
-    smartTitleFailed,
     title,
     fetchedSmartTitle: fetchedSmartTitle ?? false,
     shieldActive: shieldActive ?? false,

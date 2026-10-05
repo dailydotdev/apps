@@ -284,6 +284,9 @@ export const cloudinarySidebarTourDockDrag =
 export const bookmarkFolderSoonImage =
   'https://media.daily.dev/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
 
+export const clickbaitShieldModalImage =
+  'https://media.daily.dev/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
+
 export const cloudinaryGiftedPlusModalImage = `https://media.daily.dev/image/upload/s--JNm5gqXz--/f_auto/v1733838699/daily-dev-plus-gift_qosjrm`;
 export const smallPostImage = (url: string): string => {
   if (!url) {
