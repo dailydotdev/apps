@@ -169,7 +169,11 @@ const ProfilePage = ({
             <ProfileSegments user={user} active={ProfileSegment.About} />
             {haveSegmentsPassed && (
               <ShellDockedRow>
-                <ProfileSegments user={user} active={ProfileSegment.About} />
+                <ProfileSegments
+                  user={user}
+                  active={ProfileSegment.About}
+                  paged={false}
+                />
               </ShellDockedRow>
             )}
           </div>

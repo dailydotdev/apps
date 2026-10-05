@@ -3,6 +3,7 @@ import React from 'react';
 import type { PublicProfile } from '../../lib/user';
 import { webappUrl } from '../../lib/constants';
 import { Segments, ShellRow } from '../shell/ShellRow';
+import { useSegmentPager } from '../shell/useSegmentPager';
 
 export enum ProfileSegment {
   About = 'About',
@@ -22,21 +23,26 @@ const paths: Record<ProfileSegment, string> = {
 export function ProfileSegments({
   user,
   active,
+  paged = true,
 }: {
   user: Pick<PublicProfile, 'username'>;
   active: ProfileSegment;
+  // The profile draws the row twice (in the page and docked in the block);
+  // only one of them listens for the swipe.
+  paged?: boolean;
 }): ReactElement {
+  const items = Object.values(ProfileSegment).map((segment) => ({
+    key: segment,
+    label: segment,
+    href: `${webappUrl}${user.username}${paths[segment]}`,
+    active: segment === active,
+    replace: true,
+  }));
+  useSegmentPager(items, paged);
+
   return (
     <ShellRow>
-      <Segments
-        items={Object.values(ProfileSegment).map((segment) => ({
-          key: segment,
-          label: segment,
-          href: `${webappUrl}${user.username}${paths[segment]}`,
-          active: segment === active,
-          replace: true,
-        }))}
-      />
+      <Segments items={items} />
     </ShellRow>
   );
 }

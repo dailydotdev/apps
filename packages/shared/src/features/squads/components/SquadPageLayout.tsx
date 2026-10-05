@@ -13,6 +13,7 @@ import { useIsPhone } from '../../../hooks/useViewSize';
 import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
 import { Segments, ShellRow } from '../../../components/shell/ShellRow';
 import { usePassedBlock } from '../../../components/shell/usePassedBlock';
+import { useSegmentPager } from '../../../components/shell/useSegmentPager';
 
 enum SquadPageTab {
   Posts = 'Posts',
@@ -57,6 +58,13 @@ export const SquadPageLayout = ({
   const isPhone = useIsPhone();
   const tabsRef = useRef<HTMLDivElement>(null);
   const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasAboutTab);
+  const segments = Object.values(SquadPageTab).map((item) => ({
+    key: item,
+    label: item,
+    active: tab === item,
+    onClick: () => setTab(item),
+  }));
+  useSegmentPager(segments, hasAboutTab);
 
   return (
     <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
@@ -71,14 +79,7 @@ export const SquadPageLayout = ({
         {haveTabsPassed && (
           <ShellDockedRow>
             <ShellRow>
-              <Segments
-                items={Object.values(SquadPageTab).map((item) => ({
-                  key: item,
-                  label: item,
-                  active: tab === item,
-                  onClick: () => setTab(item),
-                }))}
-              />
+              <Segments items={segments} />
             </ShellRow>
           </ShellDockedRow>
         )}

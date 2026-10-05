@@ -17,6 +17,7 @@ import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import type { RowItem } from './ShellRow';
 import { Segments, SheetChoice, ShellRow } from './ShellRow';
+import { useSegmentPager } from './useSegmentPager';
 
 const highlightsUrl = `${webappUrl}highlights`;
 
@@ -148,6 +149,12 @@ export function HomeSegments(): ReactElement {
       active: pathname === '/feeds/new',
     });
   }
+
+  // Happening now pages between its own channels with the same gesture.
+  useSegmentPager(
+    items.filter((item) => item.key !== 'new-feed'),
+    !isHighlights,
+  );
 
   return (
     <>

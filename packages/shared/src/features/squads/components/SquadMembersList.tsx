@@ -29,6 +29,7 @@ import { useIsPhone } from '../../../hooks/useViewSize';
 import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
 import { Segments, ShellRow } from '../../../components/shell/ShellRow';
 import { ShellField } from '../../../components/shell/ShellField';
+import { useSegmentPager } from '../../../components/shell/useSegmentPager';
 
 enum MembersTab {
   Members = 'Members',
@@ -111,6 +112,13 @@ export const SquadMembersList = ({
   const tabs = Object.values(MembersTab).filter(
     (item) => canSeeBlocked || item !== MembersTab.Blocked,
   );
+  const segments = tabs.map((item) => ({
+    key: item,
+    label: item,
+    active: tab === item,
+    onClick: () => setTab(item),
+  }));
+  useSegmentPager(segments);
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -118,14 +126,7 @@ export const SquadMembersList = ({
         <>
           <ShellDockedRow>
             <ShellRow>
-              <Segments
-                items={tabs.map((item) => ({
-                  key: item,
-                  label: item,
-                  active: tab === item,
-                  onClick: () => setTab(item),
-                }))}
-              />
+              <Segments items={segments} />
             </ShellRow>
           </ShellDockedRow>
           <ShellField
