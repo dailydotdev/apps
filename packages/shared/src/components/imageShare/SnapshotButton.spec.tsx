@@ -167,7 +167,27 @@ describe('SnapshotButton share options', () => {
         extra: expect.stringContaining('"method":"paste"'),
       }),
     );
+    expect(
+      screen.getByText(/Image copied\. Press (⌘V|Ctrl\+V) in X to add it\./),
+    ).toBeInTheDocument();
+    expect(
+      client.getQueryData<{ action?: { copy: string } }>(TOAST_NOTIF_KEY)
+        ?.action?.copy,
+    ).toBe('Open X');
     open.mockRestore();
+  });
+
+  it('swaps the snapshot icon for a check once the image is copied', async () => {
+    renderButton();
+
+    press();
+
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    expect(
+      screen
+        .getByLabelText('Snapshot')
+        .querySelector('.text-accent-avocado-default'),
+    ).not.toBeNull();
   });
 
   it('hands the image file to the share sheet on a phone', async () => {

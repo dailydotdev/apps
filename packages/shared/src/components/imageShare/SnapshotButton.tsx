@@ -2,7 +2,7 @@ import type { ReactElement, RefObject } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { SnapshotIcon } from '../icons';
+import { SnapshotIcon, VIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import {
   ToastType,
@@ -21,6 +21,8 @@ import type { SnapshotShare, SnapshotSubject } from './SnapshotSharePanel';
 import { SnapshotSharePanel } from './SnapshotSharePanel';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
+
+const COPIED_CHECK_MS = 2000;
 
 /** Matches the snapshot-shutter-sweep animation in utilities.css. */
 const SHUTTER_SWEEP_MS = 380;
@@ -88,7 +90,9 @@ export function SnapshotButton({
   const [isCapturing, setIsCapturing] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
   const [copiedImage, setCopiedImage] = useState<Blob>();
+  const [isJustCopied, setIsJustCopied] = useState(false);
   const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const copiedTimeout = useRef<ReturnType<typeof setTimeout>>();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const subject: SnapshotSubject | undefined = post
     ? { post, share }
@@ -105,6 +109,7 @@ export function SnapshotButton({
       if (flashTimeout.current) {
         clearTimeout(flashTimeout.current);
       }
+      clearTimeout(copiedTimeout.current);
     },
     [],
   );
@@ -142,6 +147,13 @@ export function SnapshotButton({
         // the whole payload: a link pasted beside it lands as a second line of
         // text in the composer, which is not what a snapshot is for.
         if (await copyShareImage(capture)) {
+          setIsJustCopied(true);
+          clearTimeout(copiedTimeout.current);
+          copiedTimeout.current = setTimeout(
+            () => setIsJustCopied(false),
+            COPIED_CHECK_MS,
+          );
+
           if (hasPanel) {
             setCopiedImage(await capture);
           } else {
@@ -192,7 +204,13 @@ export function SnapshotButton({
           size={size}
           variant={variant}
           loading={isCapturing}
-          icon={<SnapshotIcon />}
+          icon={
+            isJustCopied ? (
+              <VIcon className="text-accent-avocado-default" />
+            ) : (
+              <SnapshotIcon />
+            )
+          }
           onClick={onSnapshot}
         >
           {showLabel ? label : undefined}

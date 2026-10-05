@@ -1,5 +1,5 @@
 import type { ComponentType, ReactElement, RefObject } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
 import { Drawer } from '../drawers/Drawer';
@@ -247,6 +247,14 @@ function SnapshotShareContent({
   );
   const { link, cid } = share;
   const iconSize = isDrawer ? IconSize.Small : IconSize.Size16;
+  const [pasteTarget, setPasteTarget] = useState<{
+    provider: ImageSocialProvider;
+    isCopied: boolean;
+  }>();
+  const pasteKeys = isAppleDevice() ? '⌘V' : 'Ctrl+V';
+  const pasteTargetLabel = socials.find(
+    ({ provider }) => provider === pasteTarget?.provider,
+  )?.label;
 
   const logShare = useCallback(
     (provider: ShareProvider, extra?: Record<string, unknown>) =>
@@ -288,17 +296,34 @@ function SnapshotShareContent({
       return;
     }
 
-    logShare(provider, { method: 'paste' });
-    const isCopied = copyShareImage(Promise.resolve(image));
-    globalThis.window?.open(getImagePostComposerLink(provider), '_blank');
+    // The write finishes before the composer takes focus: Safari drops a
+    // clipboard write whose page has already lost it.
+    const isCopied = await copyShareImage(Promise.resolve(image));
+    logShare(provider, { method: isCopied ? 'paste' : 'download' });
 
-    if (await isCopied) {
-      displayToast(
-        `Image copied. Press ${
-          isAppleDevice() ? '⌘V' : 'Ctrl+V'
-        } to add it to your post.`,
-      );
+    if (!isCopied) {
+      downloadShareImage(image, filename);
     }
+
+    setPasteTarget({ provider, isCopied });
+    const composer = getImagePostComposerLink(provider);
+    const tab = globalThis.window?.open(composer, '_blank');
+    const label = socials.find((social) => social.provider === provider)?.label;
+    displayToast(
+      isCopied
+        ? `Image copied. Press ${pasteKeys} to add it to your post.`
+        : 'Image saved. Attach it to your post.',
+      // Safari can block a tab opened after the copy finished; one more tap
+      // from the toast is a fresh gesture it allows.
+      !tab
+        ? {
+            action: {
+              copy: `Open ${label}`,
+              onClick: () => globalThis.window?.open(composer, '_blank'),
+            },
+          }
+        : undefined,
+    );
   };
 
   const onSave = () => {
@@ -333,10 +358,24 @@ function SnapshotShareContent({
           />
         )}
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="font-bold typo-callout">Copied</span>
-          <span className="text-text-tertiary typo-caption1">
-            Paste it anywhere, or send it:
+          <span className="flex items-center gap-1 font-bold typo-callout">
+            <VIcon
+              size={IconSize.Size16}
+              className="text-accent-avocado-default"
+            />
+            Copied
           </span>
+          {pasteTarget ? (
+            <span className="font-bold text-accent-avocado-default typo-caption1">
+              {pasteTarget.isCopied
+                ? `Image copied. Press ${pasteKeys} in ${pasteTargetLabel} to add it.`
+                : `Image saved. Attach it in ${pasteTargetLabel}.`}
+            </span>
+          ) : (
+            <span className="text-text-tertiary typo-caption1">
+              Paste it anywhere, or send it:
+            </span>
+          )}
         </span>
       </div>
       {isLoggedIn && post && (
@@ -385,7 +424,16 @@ function SnapshotShareContent({
         {socials.map(({ provider, label, Icon }) => (
           <ShareTile
             key={provider}
-            icon={<Icon size={iconSize} />}
+            icon={
+              pasteTarget?.provider === provider ? (
+                <VIcon
+                  size={iconSize}
+                  className="text-accent-avocado-default"
+                />
+              ) : (
+                <Icon size={iconSize} />
+              )
+            }
             isDrawer={isDrawer}
             label={label}
             onClick={() => onSocial(provider)}
