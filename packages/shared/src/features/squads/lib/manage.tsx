@@ -11,6 +11,7 @@ import {
   EmbedIcon,
   LinkIcon,
   LockIcon,
+  SparkleIcon,
   TimerIcon,
   TrashIcon,
   UserIcon,
@@ -38,6 +39,7 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Links]: 'Links',
   [SquadManageSection.Rules]: 'Rules',
   [SquadManageSection.Members]: 'Members',
+  [SquadManageSection.Welcome]: 'Welcome pop-up',
   [SquadManageSection.Moderation]: 'Moderation',
   [SquadManageSection.Posting]: 'Posting and invitations',
   [SquadManageSection.Analytics]: 'Analytics',
@@ -59,6 +61,8 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
       return canEdit && hasSquadFeature(squad, 'links');
     case SquadManageSection.Members:
       return true;
+    case SquadManageSection.Welcome:
+      return canEdit && hasSquadFeature(squad, 'verified');
     case SquadManageSection.Moderation:
       return verifyPermission(squad, SourcePermissions.ModeratePost);
     case SquadManageSection.Analytics:
@@ -105,6 +109,7 @@ export const getSquadManageGroups = (
           <TimerIcon />,
           squad.moderationPostCount,
         ),
+        item(SquadManageSection.Welcome, <SparkleIcon />),
         item(SquadManageSection.Posting, <LockIcon />),
       ],
     },

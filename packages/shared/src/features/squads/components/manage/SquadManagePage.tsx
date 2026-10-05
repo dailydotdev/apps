@@ -27,6 +27,7 @@ import {
 } from './SquadManageProducts';
 import { SquadManageAnalytics } from './SquadManageAnalytics';
 import { SquadManageIntegrations } from './SquadManageIntegrations';
+import { SquadManageWelcome } from './SquadManageWelcome';
 
 const SectionContent = ({
   section,
@@ -54,6 +55,8 @@ const SectionContent = ({
           <SquadModerationList squad={squad} isModerator />
         </SquadManageSectionPanel>
       );
+    case SquadManageSection.Welcome:
+      return <SquadManageWelcome />;
     case SquadManageSection.Posting:
       return <SquadManagePosting />;
     case SquadManageSection.Analytics:

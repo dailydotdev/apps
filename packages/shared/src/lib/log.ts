@@ -221,6 +221,8 @@ export enum LogEvent {
   ToggleSquadPreview = 'toggle squad preview',
   ClickSquadLink = 'click squad link',
   ClickSquadProduct = 'click squad product',
+  ShowSquadWelcome = 'show squad welcome',
+  ClickSquadWelcomeCta = 'click squad welcome cta',
   ClickSimilarSquad = 'click similar squad',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',

@@ -6,6 +6,7 @@ export enum SquadManageSection {
   Links = 'links',
   Rules = 'rules',
   Members = 'members',
+  Welcome = 'welcome',
   Moderation = 'moderation',
   Posting = 'posting',
   Analytics = 'analytics',
