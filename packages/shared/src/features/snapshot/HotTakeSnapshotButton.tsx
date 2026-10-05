@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type {
   ButtonSize,
@@ -8,6 +8,7 @@ import type {
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
+import { getShareSubjectLogEvent } from '../../components/imageShare/SnapshotSharePanel';
 import { useLogContext } from '../../contexts/LogContext';
 import type { HotTake } from '../../graphql/user/userHotTake';
 import type { Origin } from '../../lib/log';
@@ -19,8 +20,6 @@ import { HotTakeSnapshotCard } from './HotTakeSnapshotCard';
 import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { useArmedCard } from './useArmedCard';
 
-export type HotTakeAuthor = SnapshotCreditProps & { permalink?: string };
-
 /**
  * A hot take is a self-contained opinion with no page of its own, so the card
  * is the share and its links point at the author's profile, where the take
@@ -30,6 +29,7 @@ export type HotTakeAuthor = SnapshotCreditProps & { permalink?: string };
 export function HotTakeSnapshotButton({
   author,
   hotTake,
+  permalink = hotTake.user?.permalink,
   origin,
   showLabel,
   size,
@@ -39,7 +39,12 @@ export function HotTakeSnapshotButton({
    * Credited on the card. Defaults to the take's own user; a profile's list
    * fetches its takes without one, since the profile already names them.
    */
-  author?: HotTakeAuthor;
+  author?: SnapshotCreditProps;
+  /**
+   * The author's profile, which the share panel links to. Defaults to the
+   * take's own user's.
+   */
+  permalink?: string;
   hotTake: HotTake;
   /** Which placement this is, for the snapshot's share event. */
   origin: Origin;
@@ -51,28 +56,29 @@ export function HotTakeSnapshotButton({
   const { isArmed, armProps } = useArmedCard();
   const { logEvent } = useLogContext();
   const credit = author ?? hotTake.user;
-  const share: SnapshotShare | undefined = credit?.permalink
+  const subject = useMemo(
+    () => ({ event: LogEvent.ShareHotTake, targetId: hotTake.id }),
+    [hotTake.id],
+  );
+  const share: SnapshotShare | undefined = permalink
     ? {
-        link: credit.permalink,
+        ...subject,
+        link: permalink,
         text: hotTake.title,
         cid: ReferralCampaignKey.ShareProfile,
-        event: LogEvent.ShareHotTake,
-        targetId: hotTake.id,
       }
     : undefined;
 
   const onResult = useCallback(
     (result: SnapshotResult) =>
-      logEvent({
-        event_name: LogEvent.ShareHotTake,
-        target_id: hotTake.id,
-        extra: JSON.stringify({
+      logEvent(
+        getShareSubjectLogEvent(subject, {
           provider: ShareProvider.Snapshot,
           origin,
           result,
         }),
-      }),
-    [hotTake.id, logEvent, origin],
+      ),
+    [subject, logEvent, origin],
   );
 
   return (

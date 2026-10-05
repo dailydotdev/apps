@@ -10,17 +10,15 @@ import { CopyIcon, LinkIcon } from '../../components/icons';
 import { CopyStateIcon } from '../../components/share/CopyStateIcon';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
-import type {
-  SnapshotShare,
-  SnapshotSharePost,
-} from '../../components/imageShare/SnapshotSharePanel';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
+import { getSnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
 import { useLogContext } from '../../contexts/LogContext';
+import type { ShareablePost } from '../../lib/feed';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
-import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
@@ -69,8 +67,6 @@ const position = (selection: TextSelection) => {
 
 export interface SelectionShareBarProps {
   containerRef: RefObject<HTMLElement>;
-  /** The post permalink a copied link points at. */
-  link: string;
   /** Seeds the card's gradient and names the downloaded file. */
   seed: string;
   /** The post the quote was selected from, credited on the card. */
@@ -80,15 +76,14 @@ export interface SelectionShareBarProps {
   label?: ReactNode;
   /** Called once per action, with how a snapshot ended, so the host logs it. */
   onShare: (provider: ShareProvider, result?: SnapshotResult) => void;
-  /** What the snapshot's share panel sends, as on SnapshotButton. */
-  post?: SnapshotSharePost;
+  /** The post the quote is from. `share` overrides what gets linked. */
+  post: ShareablePost;
   share?: SnapshotShare;
   origin?: Origin;
 }
 
 export function SelectionShareBar({
   containerRef,
-  link,
   seed,
   title,
   source,
@@ -106,10 +101,8 @@ export function SelectionShareBar({
   const [quote, setQuote] = useState<TextSelection | null>(null);
   const [linkCopied, copyLink] = useCopyPostLink();
   const [textCopied, copyText] = useCopyText(quote?.text);
-  // The share panel hangs off the Snapshot button, so the bar outlives the
-  // selection until the panel closes: pressing Snapshot, or anything in the
-  // panel, collapses it in some browsers.
   const [isSnapshotActive, setIsSnapshotActive] = useState(false);
+  const { link, cid } = getSnapshotShare({ post, share });
 
   const onCopyLink = useCallback(() => {
     onShare(ShareProvider.CopyLink);
@@ -118,11 +111,11 @@ export function SelectionShareBar({
     copyLink({
       link,
       shorten: true,
-      cid: ReferralCampaignKey.SharePost,
+      cid,
       format: (url) => (quote?.text ? `"${quote.text}"\n\n${url}` : url),
       message: '✅ Copied text and link',
     });
-  }, [copyLink, link, onShare, quote]);
+  }, [cid, copyLink, link, onShare, quote]);
 
   const onCopyText = useCallback(() => {
     onShare(ShareProvider.CopyText);
@@ -164,6 +157,7 @@ export function SelectionShareBar({
           {/* Snapshot leads, labelled and solid: it is the reason the bar
               exists, and the two copies beside it are the familiar fallbacks. */}
           <SnapshotButton
+            ignoreOutsideRef={barRef}
             onActiveChange={setIsSnapshotActive}
             onResult={onSnapshot}
             captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
@@ -246,7 +240,6 @@ export function SelectionSnapshotBar({
   return (
     <SelectionShareBar
       containerRef={containerRef}
-      link={post.commentsPermalink}
       onShare={onShare}
       origin={origin}
       post={post}

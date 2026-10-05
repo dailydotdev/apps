@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, RefObject } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -15,9 +15,10 @@ import type {
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
+import type { ShareablePost } from '../../lib/feed';
 import type { Origin } from '../../lib/log';
-import type { SnapshotShare, SnapshotSharePost } from './SnapshotSharePanel';
-import { getPostSnapshotShare, SnapshotSharePanel } from './SnapshotSharePanel';
+import type { SnapshotShare, SnapshotSubject } from './SnapshotSharePanel';
+import { SnapshotSharePanel } from './SnapshotSharePanel';
 
 export const SNAPSHOT_LABEL = 'Snapshot';
 
@@ -50,11 +51,13 @@ export interface SnapshotButtonProps {
   /** Called once per press with how it ended, so the host can log it. */
   onResult?: (result: SnapshotResult) => void;
   /** The post the snapshot is from, which the share panel links and sends. */
-  post?: SnapshotSharePost;
-  /** What the share panel links to when the snapshot is not of a post. */
+  post?: ShareablePost;
+  /** What the share panel links to, in place of the post's own link. */
   share?: SnapshotShare;
   /** Which placement this is, for the share panel's events. */
   origin?: Origin;
+  /** Pointer and focus inside this element leave the share panel open. */
+  ignoreOutsideRef?: RefObject<HTMLElement>;
   /**
    * True from a press until it is over: once its share panel closes, or as
    * soon as it ends without one. A host that would unmount the button on its
@@ -75,6 +78,7 @@ export function SnapshotButton({
   post,
   share,
   origin,
+  ignoreOutsideRef,
   onActiveChange,
   size = ButtonSize.Small,
   variant = ButtonVariant.Tertiary,
@@ -86,8 +90,10 @@ export function SnapshotButton({
   const [copiedImage, setCopiedImage] = useState<Blob>();
   const flashTimeout = useRef<ReturnType<typeof setTimeout>>();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const panelShare = share ?? (post && getPostSnapshotShare(post));
-  const hasPanel = !!panelShare;
+  const subject: SnapshotSubject | undefined = post
+    ? { post, share }
+    : share && { share };
+  const hasPanel = !!subject;
   const isActive = isCapturing || !!copiedImage;
 
   useEffect(() => {
@@ -192,14 +198,14 @@ export function SnapshotButton({
           {showLabel ? label : undefined}
         </Button>
       </Tooltip>
-      {copiedImage && panelShare && (
+      {copiedImage && subject && (
         <SnapshotSharePanel
+          {...subject}
           anchorRef={buttonRef}
           filename={filename}
+          ignoreOutsideRef={ignoreOutsideRef}
           image={copiedImage}
           placement={origin}
-          post={post}
-          share={panelShare}
           onClose={() => setCopiedImage(undefined)}
         />
       )}

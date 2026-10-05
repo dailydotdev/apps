@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
@@ -32,10 +33,10 @@ const snapshotButton = (ownerId = 'u1') => (
 );
 const renderButton = () => render(snapshotButton());
 
+mockObjectUrls();
+
 beforeEach(() => {
   jest.clearAllMocks();
-  URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
-  URL.revokeObjectURL = jest.fn();
   jest
     .mocked(captureShareImage)
     .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));
