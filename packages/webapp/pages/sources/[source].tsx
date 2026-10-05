@@ -473,9 +473,13 @@ export async function getStaticProps({
         ?.map((edge) => edge.node)
         .filter((post) => !!post.title) ?? [];
     const seoTitles = getPageSeoTitles(`${source.name} posts`);
+    // The API owns the gate: inactive, private and vordr sources stay out.
+    const noindex = source.noindex === true;
     const seo: NextSeoProps = {
       ...defaultSeo,
       ...seoTitles,
+      nofollow: noindex,
+      noindex,
       openGraph: {
         ...defaultOpenGraph,
         ...seoTitles.openGraph,

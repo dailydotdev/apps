@@ -267,9 +267,12 @@ export async function getStaticProps({
     const seoTitles = getPageSeoTitles(
       `Best ${source.name} posts — ${monthName} ${year}`,
     );
+    const noindex = source.noindex === true;
     const seo: NextSeoProps = {
       ...defaultSeo,
       ...seoTitles,
+      nofollow: noindex,
+      noindex,
       openGraph: { ...defaultOpenGraph, ...seoTitles.openGraph },
       description: getArchiveDescription(
         source.name,

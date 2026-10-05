@@ -85,7 +85,7 @@ export interface AdPostItem extends AdItem {
 }
 
 export interface AdSquadItem extends AdItem {
-  ad: Ad & { data: { source?: Squad } };
+  ad: Ad & { data: { source: Squad } };
 }
 
 interface PlaceholderItem extends FeedItemBase<FeedItemType.Placeholder> {

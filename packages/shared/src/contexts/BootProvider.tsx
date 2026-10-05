@@ -271,16 +271,13 @@ export const BootDataProvider = ({
   const [debouncedRefetch] = useDebounceFn(refetch, 200, 1000 * 60);
 
   useEffect(() => {
-    // subscribe to forbidden errors and in case token expired at the
-    // time of error refetch boot to get the new one
-    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
-      if (event.type !== 'updated' || event.action.type !== 'error') {
-        return;
-      }
-
-      const err = event.action.error as unknown as ApiErrorResult;
-
-      if (!getApiError(err, ApiError.Forbidden)) {
+    // subscribe to auth errors of queries and mutations and in case token
+    // expired at the time of error refetch boot to get the new one
+    const onAuthError = (err: ApiErrorResult) => {
+      if (
+        !getApiError(err, ApiError.Forbidden) &&
+        !getApiError(err, ApiError.Unauthenticated)
+      ) {
         return;
       }
 
@@ -289,9 +286,27 @@ export const BootDataProvider = ({
       if (expiresIn && new Date(expiresIn) < new Date()) {
         debouncedRefetch();
       }
-    });
+    };
 
-    return unsubscribe;
+    const unsubscribeQueries = queryClient
+      .getQueryCache()
+      .subscribe((event) => {
+        if (event.type === 'updated' && event.action.type === 'error') {
+          onAuthError(event.action.error as unknown as ApiErrorResult);
+        }
+      });
+    const unsubscribeMutations = queryClient
+      .getMutationCache()
+      .subscribe((event) => {
+        if (event.type === 'updated' && event.action.type === 'error') {
+          onAuthError(event.action.error as unknown as ApiErrorResult);
+        }
+      });
+
+    return () => {
+      unsubscribeQueries();
+      unsubscribeMutations();
+    };
   }, [queryClient, remoteData?.accessToken?.expiresIn, debouncedRefetch]);
 
   const updatedAtActive = user ? dataUpdatedAt : 0;

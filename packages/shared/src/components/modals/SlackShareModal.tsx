@@ -34,6 +34,7 @@ import { ShareProvider } from '../../lib/share';
 export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
   post: Post;
   origin?: Origin;
+  placement?: Origin;
 };
 
 const channelLabel = (name: string) =>
@@ -44,6 +45,7 @@ const maxVisibleChannels = 20;
 const SlackShareModal = ({
   post,
   origin,
+  placement,
   ...props
 }: SlackShareModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
@@ -86,6 +88,7 @@ const SlackShareModal = ({
   ) => {
     const attribution = {
       origin,
+      placement,
       channel_source: channelSource,
       posted_as: canPostAsUser ? 'user' : 'app',
     };
@@ -121,7 +124,7 @@ const SlackShareModal = ({
     logEvent({
       event_name: LogEvent.StartAddingWorkspace,
       target_id: UserIntegrationType.Slack,
-      extra: JSON.stringify({ origin, reason: 'upgrade' }),
+      extra: JSON.stringify({ origin, placement, reason: 'upgrade' }),
     });
 
     connect(getSlackShareRedirectPath(post));
