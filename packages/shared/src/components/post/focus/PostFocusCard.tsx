@@ -119,6 +119,7 @@ interface PostFocusCardProps {
   origin: PostOrigin;
   leftVariant?: FocusCardLeftVariant;
   ads?: PostFocusCardAds;
+  showSnapshots?: boolean;
   /**
    * Never invoked — nothing in the card calls it. Read only as an "am I in the
    * modal?" flag (clamped title, no answered-questions block).
@@ -352,6 +353,7 @@ const PostFocusCardRaw = ({
   leftVariant,
   onClose,
   ads,
+  showSnapshots = true,
 }: PostFocusCardProps): ReactElement => {
   // A shared post (someone reposting a post into a squad or onto their profile)
   // wraps an underlying post. Only true Share-type posts get the "Shared via"
@@ -466,14 +468,15 @@ const PostFocusCardRaw = ({
     ? `${readCtaLabel} on ${article.domain}`
     : readCtaLabel;
 
-  const summarySnapshotButton = article.summary ? (
-    <TextSnapshotButton
-      filename={`daily-summary-${article.id}`}
-      origin={Origin.PostSummary}
-      post={article}
-      text={article.summary}
-    />
-  ) : null;
+  const summarySnapshotButton =
+    showSnapshots && article.summary ? (
+      <TextSnapshotButton
+        filename={`daily-summary-${article.id}`}
+        origin={Origin.PostSummary}
+        post={article}
+        text={article.summary}
+      />
+    ) : null;
   const renderSummary = (summary: string): ReactNode => {
     if (ads?.renderSummarySegments) {
       return ads.renderSummarySegments(summary, summarySnapshotButton);
@@ -504,7 +507,9 @@ const PostFocusCardRaw = ({
       ) : (
         <Markdown content={article.contentHtml} className="break-words" />
       )}
-      <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
+      {showSnapshots && (
+        <ParagraphSnapshotButtons containerRef={bodyRef} post={article} />
+      )}
       {article.type === PostType.Freeform && (
         <YoutubeLinkEmbeds contentHtml={article.contentHtml} />
       )}
@@ -556,7 +561,9 @@ const PostFocusCardRaw = ({
       className="flex w-full flex-col rounded-24 bg-background-default"
       data-testid="post-focus-card"
     >
-      <SelectionSnapshotBar containerRef={cardRef} post={article} />
+      {showSnapshots && (
+        <SelectionSnapshotBar containerRef={cardRef} post={article} />
+      )}
       <div
         className="relative flex flex-col justify-center gap-8 px-4 tablet:px-6 laptop:flex-row laptop:px-8"
         style={focusRowGeometry}
