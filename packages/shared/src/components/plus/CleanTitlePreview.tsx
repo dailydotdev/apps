@@ -12,6 +12,9 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useClickbaitTries } from '../../hooks/useClickbaitTries';
 import { useFeedPreviewMode } from '../../hooks/useFeedPreviewMode';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
+import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureClickbaitShieldIntroQuests } from '../../lib/featureManagement';
 import { LogEvent, TargetId } from '../../lib/log';
 import { DevPlusIcon } from '../icons/DevPlus';
 import { IconSize } from '../Icon';
@@ -36,6 +39,15 @@ const useShowCleanTitleHint = (post: Post): boolean => {
   const { isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const isFeedPreview = useFeedPreviewMode();
+  const hasIntroQuests = useHasIntroQuests({ shouldEvaluate: !isPlus });
+  const { value: showDuringIntroQuests } = useConditionalFeature({
+    feature: featureClickbaitShieldIntroQuests,
+    shouldEvaluate: !isPlus && hasIntroQuests,
+  });
+
+  if (hasIntroQuests && !showDuringIntroQuests) {
+    return false;
+  }
 
   return isLoggedIn && !isPlus && !isFeedPreview && hasClickbaitTitle(post);
 };
