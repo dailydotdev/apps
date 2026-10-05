@@ -55,7 +55,7 @@ const renderStrip = ({ isPlus = false }: { isPlus?: boolean } = {}) => {
 };
 
 describe('BookmarkFoldersStrip', () => {
-  it('should name the folders Plus would sort the loaded bookmarks into', async () => {
+  it('should suggest folders from the loaded bookmarks', async () => {
     renderStrip();
 
     expect(await screen.findByText('PostgreSQL')).toBeInTheDocument();

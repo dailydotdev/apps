@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useSyncExternalStore } from 'react';
+import React, { useCallback, useMemo, useSyncExternalStore } from 'react';
 import type { InfiniteData, QueryKey } from '@tanstack/react-query';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { hashKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from '../utilities/Link';
 import {
   Button,
@@ -16,8 +16,9 @@ import type { FeedItemData } from '../../graphql/feed';
 import { getFeedApiItemPost } from '../../graphql/feed';
 import { tagTitlesQueryOptions } from '../../graphql/keywords';
 import { plusUrl } from '../../lib/constants';
-import { LogEvent, TargetId } from '../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../../hooks/usePersistentContext';
@@ -52,8 +53,18 @@ export const BookmarkFoldersStrip = ({
     number | null
   >(PersistentContextKeys.BookmarkFoldersStripDismissedAt, null);
   const queryClient = useQueryClient();
+  const feedHash = useMemo(() => hashKey(feedQueryKey), [feedQueryKey]);
+  const subscribeToFeed = useCallback(
+    (onChange: () => void) =>
+      queryClient.getQueryCache().subscribe((event) => {
+        if (event.query.queryHash === feedHash) {
+          onChange();
+        }
+      }),
+    [queryClient, feedHash],
+  );
   const feed = useSyncExternalStore(
-    (onChange) => queryClient.getQueryCache().subscribe(onChange),
+    subscribeToFeed,
     () => queryClient.getQueryData<InfiniteData<FeedItemData>>(feedQueryKey),
     () => undefined,
   );
@@ -82,31 +93,39 @@ export const BookmarkFoldersStrip = ({
     enabled: shouldShow,
   });
 
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.Plus,
+      target_id: TargetId.BookmarkFolder,
+    }),
+    { condition: shouldShow },
+  );
+
   if (!shouldShow) {
     return null;
   }
 
   const named = folderTags.slice(0, NAMED_FOLDERS);
-  const moreCount = folderTags.length - named.length;
 
   return (
     <div className="mb-6 flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary py-2 pl-2 pr-1">
       <PlusTile />
       <p className="min-w-0 flex-1 text-text-secondary typo-callout">
         <span className="tablet:hidden">
-          Plus sorts your bookmarks into {folderTags.length} folders.
+          Organize your saves into folders with Plus.
         </span>
         <span className="hidden tablet:inline">
-          Plus sorts your bookmarks into folders:{' '}
+          Organize your saves into folders with Plus, like{' '}
           {named.map((tag, index) => (
             <React.Fragment key={tag}>
+              {index > 0 && (index === named.length - 1 ? ' and ' : ', ')}
               <span className="font-bold text-text-primary">
                 {tagTitles?.[tag] ?? `#${tag}`}
               </span>
-              {index < named.length - 1 ? ', ' : ''}
             </React.Fragment>
           ))}
-          {moreCount > 0 ? ` and ${moreCount} more.` : '.'}
+          .
         </span>
       </p>
       <Link href={plusUrl} passHref>
