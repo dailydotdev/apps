@@ -130,9 +130,11 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
 
 const PageRow = ({
   title,
+  titleFades,
   onBack,
 }: {
   title?: ReactNode;
+  titleFades?: boolean;
   onBack?: () => void;
 }): ReactElement => {
   const historyBack = useShellBack();
@@ -153,7 +155,12 @@ const PageRow = ({
         <ArrowIcon size={IconSize.Small} className="-rotate-90" />
       </ShellSquare>
       {title ? (
-        <h1 className="min-w-0 flex-1 truncate px-1 font-bold typo-title3">
+        <h1
+          className={classNames(
+            'min-w-0 flex-1 truncate px-1 font-bold typo-title3',
+            titleFades && 'shell-title-in',
+          )}
+        >
           {title}
         </h1>
       ) : (
@@ -264,7 +271,11 @@ export function ShellBlock({
       {root ? (
         <RootRow root={root} />
       ) : (
-        <PageRow title={config?.title} onBack={config?.onBack} />
+        <PageRow
+          title={config?.title}
+          titleFades={config?.titleFades}
+          onBack={config?.onBack}
+        />
       )}
       {config?.row ?? row}
     </header>

@@ -370,6 +370,27 @@
   }
 }
 
+/* A thing's name joining the block: a short fade on the clock, never
+   scrubbed by the scroll. */
+.shell-title-in {
+  animation: shell-title-in 100ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-title-in {
+    animation: none;
+  }
+}
+
+@keyframes shell-title-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes shell-sheet-in {
   from {
     transform: translateY(100%);

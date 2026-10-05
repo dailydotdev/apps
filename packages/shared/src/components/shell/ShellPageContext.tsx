@@ -10,6 +10,9 @@ import { createPortal } from 'react-dom';
 
 interface ShellPageConfig {
   title?: ReactNode;
+  // A thing shows its name in its hero first; the block takes the name
+  // once the hero's has scrolled away, and fades it in.
+  titleFades?: boolean;
   actions?: ReactNode;
   row?: ReactNode;
   // A page that draws its own top chrome on phones opts out of the block.
@@ -65,6 +68,7 @@ export const useShellActionsSlot = (): ((
 // its tree; the block in MainLayout picks it up. Unmounting clears it.
 export const ShellPage = ({
   title,
+  titleFades,
   actions,
   row,
   hidden,
@@ -73,8 +77,8 @@ export const ShellPage = ({
   const { setConfig, actionsSlot } = useContext(ShellPageContext);
 
   useLayoutEffect(() => {
-    setConfig({ title, row, hidden, onBack });
-  }, [setConfig, title, row, hidden, onBack]);
+    setConfig({ title, titleFades, row, hidden, onBack });
+  }, [setConfig, title, titleFades, row, hidden, onBack]);
 
   useLayoutEffect(() => () => setConfig(null), [setConfig]);
 

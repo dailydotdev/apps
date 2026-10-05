@@ -5,8 +5,8 @@ import type {
 } from 'next';
 import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
-import type { ReactElement } from 'react';
-import React, { useContext, useMemo } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import React, { useContext, useMemo, useRef } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
@@ -68,6 +68,9 @@ import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/En
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { ShellPrimaryPill } from '@dailydotdev/shared/src/components/shell/ShellSquare';
+import { usePassedBlock } from '@dailydotdev/shared/src/components/shell/usePassedBlock';
+import { useSourceActions } from '@dailydotdev/shared/src/hooks/source/useSourceActions';
 import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
@@ -223,12 +226,44 @@ const getSourcePageJsonLd = (source: Source): string => {
   });
 };
 
+const SourceShellPage = ({
+  source,
+  nameRef,
+  heroRef,
+}: {
+  source: Source;
+  nameRef: RefObject<HTMLElement>;
+  heroRef: RefObject<HTMLElement>;
+}): ReactElement => {
+  const hasNamePassed = usePassedBlock(nameRef);
+  const hasHeroPassed = usePassedBlock(heroRef);
+  const { isFollowing, isBlocked, toggleFollow } = useSourceActions({
+    source,
+  });
+
+  return (
+    <ShellPage
+      title={hasNamePassed ? source.name : undefined}
+      titleFades
+      actions={
+        hasHeroPassed &&
+        !isFollowing &&
+        !isBlocked && (
+          <ShellPrimaryPill onClick={toggleFollow}>Follow</ShellPrimaryPill>
+        )
+      }
+    />
+  );
+};
+
 const SourcePage = ({
   source,
   relatedTags = [],
   topPosts = [],
 }: SourcePageProps): ReactElement => {
   const isPhone = useIsPhone();
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { user } = useContext(AuthContext);
@@ -276,7 +311,9 @@ const SourcePage = ({
           so it spans the full floating-card width without being clamped
           by the list-mode max-width. */}
       {isV2Laptop && <PageHeader title={source.name} />}
-      {isPhone && <ShellPage title={source.name} />}
+      {isPhone && (
+        <SourceShellPage source={source} nameRef={nameRef} heroRef={heroRef} />
+      )}
       <FeedPageLayoutComponent className="overflow-x-hidden">
         <Head>
           <script
@@ -291,14 +328,16 @@ const SourcePage = ({
           ]}
           className={pageSectionClassName}
         />
-        <PageInfoHeader className={pageSectionAutoWidthClassName}>
+        <PageInfoHeader ref={heroRef} className={pageSectionAutoWidthClassName}>
           <div className="flex items-center font-bold">
             <img
               src={source.image}
               alt={`${source.name} logo`}
               className="size-10 rounded-full"
             />
-            <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
+            <h1 ref={nameRef} className="ml-2 w-fit typo-title2">
+              {source.name}
+            </h1>
           </div>
           <div className="flex flex-row gap-3">
             <SourceActions showCopyLink={!isPhone} source={source} />
