@@ -13,12 +13,12 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureOAuthApps } from '@dailydotdev/shared/src/lib/featureManagement';
-import { settingsUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  oauthAppsDocs,
+  pluginMarketplaceDocs,
+  settingsUrl,
+} from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import {
   marketplaceSubmissionsUrl,
   marketplaceUrl,
@@ -60,7 +60,7 @@ const SubmitPluginPage = (): ReactElement => {
           </a>
         </Link>
         <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
-          {editing ? `Update ${editing.name}` : 'Share a plugin'}
+          {editing ? `Update ${editing.name}` : 'Submit a plugin'}
         </Typography>
         <Typography
           type={TypographyType.Callout}
@@ -68,39 +68,46 @@ const SubmitPluginPage = (): ReactElement => {
         >
           A plugin is an about page plus agent instructions (SKILL.md), a link,
           or both, built on top of the daily.dev API. The daily.dev team reviews
-          every submission before it goes live.
+          every submission before it goes live.{' '}
+          <a
+            href={pluginMarketplaceDocs}
+            className="text-text-link hover:underline"
+            target="_blank"
+            rel={anchorDefaultRel}
+          >
+            Read the docs
+          </a>
         </Typography>
+        {isOAuthAppsEnabled && (
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Building an app or service that other developers use?{' '}
+            <a
+              href={`${settingsUrl}/api#oauth-apps`}
+              className="text-text-link hover:underline"
+            >
+              Register it as an OAuth app
+            </a>{' '}
+            so people can sign in with daily.dev and your app calls the API on
+            their behalf, without a personal API token.{' '}
+            <a
+              href={oauthAppsDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              OAuth docs
+            </a>
+          </Typography>
+        )}
       </div>
       <PluginSubmitForm
         key={editing?.id ?? 'new'}
         plugin={editing}
         onSubmitted={() => router.push(marketplaceSubmissionsUrl)}
       />
-      {isOAuthAppsEnabled && (
-        <div className="flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-          <Typography type={TypographyType.Body} bold>
-            Building an app on top of the API?
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            If your plugin is an app or service that other developers use,
-            register it as an OAuth app. People then sign in with daily.dev and
-            approve access, and your app calls the daily.dev API on their
-            behalf, without asking them to create and paste a personal API
-            token.
-          </Typography>
-          <Button
-            tag="a"
-            href={`${settingsUrl}/api#oauth-apps`}
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-          >
-            Set up an OAuth app
-          </Button>
-        </div>
-      )}
     </MarketplacePageLayout>
   );
 };
