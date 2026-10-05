@@ -52,7 +52,10 @@ import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
+import { oauthAppsDocs } from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 
+const OAUTH_APP_NAME_MIN_LENGTH = 3;
 const OAUTH_APP_NAME_MAX_LENGTH = 50;
 const OAUTH_REDIRECT_URIS_MAX_LENGTH = 2000;
 
@@ -115,7 +118,8 @@ const OAuthClientModal = ({
     useUpdateOAuthClient();
   const { displayToast } = useToastNotification();
   const uris = parseRedirectUris(redirectUris);
-  const canSubmit = !!name.trim() && uris.length > 0;
+  const canSubmit =
+    name.trim().length >= OAUTH_APP_NAME_MIN_LENGTH && uris.length > 0;
 
   const handleSubmit = async () => {
     const input: OAuthClientInput = {
@@ -452,8 +456,8 @@ export const OAuthAppsSection = (): ReactElement => {
 
   return (
     <div id="oauth-apps" className="flex flex-col gap-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-1 basis-60 flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
             OAuth apps
           </Typography>
@@ -462,7 +466,15 @@ export const OAuthAppsSection = (): ReactElement => {
             color={TypographyColor.Tertiary}
           >
             Register apps that let people sign in with daily.dev and act on
-            their behalf.
+            their behalf.{' '}
+            <a
+              href={oauthAppsDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              Read docs
+            </a>
           </Typography>
         </div>
         <Tooltip

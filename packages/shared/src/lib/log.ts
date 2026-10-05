@@ -393,6 +393,10 @@ export enum LogEvent {
   ShareWorld = 'share world',
   ShareTool = 'share tool',
   ShareHotTake = 'share hot take',
+  // The creator copied a link to, or downloaded the card of, one of their
+  // achievements. Records the action, not that anything was posted anywhere.
+  ShareCreatorAchievement = 'share creator achievement',
+  UnshareCreatorAchievement = 'unshare creator achievement',
   ShareHighlights = 'share highlights',
   ShareArchive = 'share archive',
   OpenSnapshotSharePanel = 'open snapshot share panel',
@@ -508,16 +512,6 @@ export enum LogEvent {
   VoteHotAndCold = 'vote hot and cold',
   SwipeHotTake = 'swipe hot take',
   SkipHotTake = 'skip hot take',
-  // My Setup - Workspace Photos
-  StartAddWorkspacePhoto = 'start add workspace photo',
-  AddWorkspacePhoto = 'add workspace photo',
-  RemoveWorkspacePhoto = 'remove workspace photo',
-  ReorderWorkspacePhoto = 'reorder workspace photo',
-  // My Setup - Gear
-  StartAddGear = 'start add gear',
-  AddGear = 'add gear',
-  RemoveGear = 'remove gear',
-  ReorderGear = 'reorder gear',
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',

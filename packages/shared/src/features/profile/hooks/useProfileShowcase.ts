@@ -20,13 +20,13 @@ export type UseProfileShowcase<Slice extends keyof ProfileShowcase> =
   };
 
 /**
- * One request behind the stack, hot takes, workspace photos and gear hooks.
+ * One request behind the stack and hot takes hooks.
  *
  * Each caller names its own slice, so a hook still hands back the connection it
- * always did — but four of them mounting together now share a single query key,
- * and React Query collapses that into one round trip.
+ * always did, but mounting together they share a single query key and React
+ * Query collapses that into one round trip.
  *
- * Because the four slices live in one cache entry, writes go through
+ * Because the slices live in one cache entry, writes go through
  * `updateSlice`: the caller only touches its own connection and this hook keeps
  * the sibling slices intact.
  */
@@ -71,7 +71,7 @@ export function useProfileShowcase<Slice extends keyof ProfileShowcase>(
 
       // Cancelling reverts the query to its pre-fetch state, so when the
       // mutation beat the *first* showcase response there is now nothing to
-      // reconcile into — writing would no-op and leave all four sections
+      // reconcile into: writing would no-op and leave every section
       // blank. Schedule a fresh fetch instead and let the server response
       // carry the mutation result.
       if (!queryClient.getQueryData<ProfileShowcase>(queryKey)) {

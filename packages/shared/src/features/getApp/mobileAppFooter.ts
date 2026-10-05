@@ -63,7 +63,6 @@ const momentByRoute: Record<string, MobileAppFooterMoment> = {
   '/popular': explore,
   '/upvoted': explore,
   '/discussed': explore,
-  '/explore/[tag]': explore,
   '/highlights': headlines,
   '/highlights/[channel]': headlines,
   '/highlights/all': headlines,
