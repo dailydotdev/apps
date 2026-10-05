@@ -1,6 +1,7 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
+import { SourceNameWithSeal } from '../../../features/squads/components/VerifiedSquad';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import {
@@ -95,7 +96,7 @@ export const ShareList = forwardRef(function ShareList(
         enableSourceHeader && post.source?.permalink ? (
           <Link href={post.source.permalink}>
             <a href={post.source.permalink} className="relative z-1">
-              {post.source.name}
+              <SourceNameWithSeal source={post.source} />
             </a>
           </Link>
         ) : (
@@ -108,9 +109,8 @@ export const ShareList = forwardRef(function ShareList(
   }, [
     enableSourceHeader,
     isUserSource,
+    post.source,
     post?.author?.name,
-    post.source?.name,
-    post.source?.permalink,
     sharedPost?.source?.handle,
   ]);
 
@@ -158,6 +158,7 @@ export const ShareList = forwardRef(function ShareList(
         onReadArticleClick={onReadArticleClick}
         metadata={metadata}
         postLink={sharedPost?.permalink}
+        isSourceNamed={enableSourceHeader}
       >
         {!isUserSource && post.source && (
           <SourceButton

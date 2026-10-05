@@ -10,6 +10,8 @@ import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import SourceButton from './SourceButton';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedLogoCheck } from '../../../features/squads/components/VerifiedSquad';
 
 const HoverCard = dynamic(
   /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
@@ -45,6 +47,8 @@ interface AuthorSourceStackProps {
   source?: Source | null;
   size?: ProfileImageSize;
   className?: string;
+  /** Off where the squad's name, with its seal, is shown next to it. */
+  showVerifiedCheck?: boolean;
 }
 
 /**
@@ -62,6 +66,7 @@ export const AuthorSourceStack = ({
   source,
   size = ProfileImageSize.Medium,
   className,
+  showVerifiedCheck = true,
 }: AuthorSourceStackProps): ReactElement | null => {
   const alwaysExpanded = !useViewSize(ViewSize.Laptop);
   const { hideSource } = useFeedCardContext();
@@ -86,8 +91,15 @@ export const AuthorSourceStack = ({
     </HoverCard>
   ) : null;
 
+  // The card shows the squad's logo without its name, so a verified squad's
+  // seal sits on the logo itself
   const sourceAvatar = showSource ? (
-    <SourceButton source={source as SourceTooltip} size={size} />
+    <span className="relative flex">
+      <SourceButton source={source as SourceTooltip} size={size} />
+      {showVerifiedCheck && hasSquadFeature(source, 'verified') && (
+        <VerifiedLogoCheck />
+      )}
+    </span>
   ) : null;
 
   // Single avatar: render it bare (no ring / overlap) — keeps non-author cards

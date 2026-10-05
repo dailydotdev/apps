@@ -1,6 +1,7 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
+import { SourceNameWithSeal } from '../../../features/squads/components/VerifiedSquad';
 
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
@@ -92,7 +93,12 @@ export const FreeformList = forwardRef(function SharePostCard(
     }
 
     return {
-      topLabel: enableSourceHeader ? post.source?.name : authorName,
+      topLabel:
+        enableSourceHeader && post.source ? (
+          <SourceNameWithSeal source={post.source} />
+        ) : (
+          authorName
+        ),
       bottomLabel: enableSourceHeader
         ? post.author?.name ?? `@${post.source?.handle ?? 'unknown'}`
         : `@${
@@ -102,10 +108,9 @@ export const FreeformList = forwardRef(function SharePostCard(
   }, [
     enableSourceHeader,
     isUserSource,
+    post.source,
     post?.author?.name,
     post?.sharedPost?.source?.handle,
-    post?.source?.handle,
-    post?.source?.name,
   ]);
 
   if (isHidden) {
@@ -144,7 +149,11 @@ export const FreeformList = forwardRef(function SharePostCard(
       bookmarked={post.bookmarked}
     >
       <CardContainer>
-        <PostCardHeader post={post} metadata={metadata}>
+        <PostCardHeader
+          post={post}
+          metadata={metadata}
+          isSourceNamed={enableSourceHeader}
+        >
           {!isUserSource && post.source && (
             <SquadHeaderPicture
               source={post.source}
