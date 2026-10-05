@@ -53,6 +53,7 @@ import {
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 
+const OAUTH_APP_NAME_MIN_LENGTH = 3;
 const OAUTH_APP_NAME_MAX_LENGTH = 50;
 const OAUTH_REDIRECT_URIS_MAX_LENGTH = 2000;
 
@@ -115,7 +116,8 @@ const OAuthClientModal = ({
     useUpdateOAuthClient();
   const { displayToast } = useToastNotification();
   const uris = parseRedirectUris(redirectUris);
-  const canSubmit = !!name.trim() && uris.length > 0;
+  const canSubmit =
+    name.trim().length >= OAUTH_APP_NAME_MIN_LENGTH && uris.length > 0;
 
   const handleSubmit = async () => {
     const input: OAuthClientInput = {

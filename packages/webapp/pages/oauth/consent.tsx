@@ -48,6 +48,7 @@ const OAuthConsentPage = (): ReactElement => {
   const { showLogin, user, isAuthReady } = useAuthContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [allowWrite, setAllowWrite] = useState(true);
+  const [consentError, setConsentError] = useState<string>();
   const clientId = getFirstQueryParam(query.client_id);
   const requestedScopes = (getFirstQueryParam(query.scope) ?? '')
     .split(' ')
@@ -73,33 +74,49 @@ const OAuthConsentPage = (): ReactElement => {
 
   const onConsent = async (accept: boolean) => {
     setIsSubmitting(true);
-    const res = await fetch(`${apiUrl}/auth/oauth2/consent`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        accept,
-        oauth_query: window.location.search.slice(1),
-        ...(accept &&
-          canWrite &&
-          !allowWrite && {
-            scope: requestedScopes
-              .filter((scope) => scope !== WRITE_SCOPE)
-              .join(' '),
-          }),
-      }),
-    });
-    const data: { url?: string; redirect_uri?: string } = await res
-      .json()
-      .catch(() => ({}));
-    const redirectUrl = data.url ?? data.redirect_uri;
 
-    if (redirectUrl) {
-      window.location.href = redirectUrl;
-      return;
+    try {
+      const res = await fetch(`${apiUrl}/auth/oauth2/consent`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          accept,
+          oauth_query: window.location.search.slice(1),
+          ...(accept &&
+            canWrite &&
+            !allowWrite && {
+              scope: requestedScopes
+                .filter((scope) => scope !== WRITE_SCOPE)
+                .join(' '),
+            }),
+        }),
+      });
+      const data: {
+        url?: string;
+        redirect_uri?: string;
+        error?: string;
+        error_description?: string;
+        message?: string;
+      } = await res.json().catch(() => ({}));
+      const redirectUrl = data.url ?? data.redirect_uri;
+
+      if (res.ok && redirectUrl) {
+        window.location.href = redirectUrl;
+        return;
+      }
+
+      setConsentError(
+        data.error_description ||
+          data.message ||
+          data.error ||
+          'Something went wrong. Please try again from the app.',
+      );
+    } catch {
+      setConsentError('Something went wrong. Please try again from the app.');
     }
 
     setIsSubmitting(false);
@@ -167,23 +184,32 @@ const OAuthConsentPage = (): ReactElement => {
                   ),
                 )}
               </div>
-              <div className="flex gap-3">
-                <Button
-                  variant={ButtonVariant.Primary}
-                  onClick={() => onConsent(true)}
-                  loading={isSubmitting}
-                  disabled={!client}
+              {consentError ? (
+                <Typography
+                  type={TypographyType.Callout}
+                  className="text-accent-ketchup-default"
                 >
-                  Allow
-                </Button>
-                <Button
-                  variant={ButtonVariant.Float}
-                  onClick={() => onConsent(false)}
-                  disabled={isSubmitting}
-                >
-                  Deny
-                </Button>
-              </div>
+                  {consentError}
+                </Typography>
+              ) : (
+                <div className="flex gap-3">
+                  <Button
+                    variant={ButtonVariant.Primary}
+                    onClick={() => onConsent(true)}
+                    loading={isSubmitting}
+                    disabled={!client}
+                  >
+                    Allow
+                  </Button>
+                  <Button
+                    variant={ButtonVariant.Float}
+                    onClick={() => onConsent(false)}
+                    disabled={isSubmitting}
+                  >
+                    Deny
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </div>
