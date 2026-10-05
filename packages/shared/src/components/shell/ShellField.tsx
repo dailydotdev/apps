@@ -1,5 +1,6 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { ClearIcon, SearchIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -8,6 +9,7 @@ import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { cluster, field, lerp, motion } from './constants';
 import { setShellFieldFocused, useRegisterShellField } from './shellFieldStore';
 import { revealShell, useShellScroll } from './useShellScroll';
+import { hidesCluster } from './shellNav';
 
 interface ShellFieldProps {
   placeholder: string;
@@ -33,6 +35,9 @@ export function ShellField({
   onFocus,
 }: ShellFieldProps): ReactElement | null {
   const isPhone = useIsPhone();
+  const router = useRouter();
+  // Settings and forms have no bar; the field rests in the bar's place.
+  const hasBar = !hidesCluster(router?.pathname ?? '');
   const { p } = useShellScroll();
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +63,7 @@ export function ShellField({
     : 0;
   const progress = isFocused ? 0 : p;
   const restBottom = `calc(env(safe-area-inset-bottom, 0px) + ${
-    cluster.lift + cluster.rest + field.gap
+    cluster.lift + (hasBar ? cluster.rest + field.gap : 0)
   }px)`;
   const focusedBottom =
     keyboard > 0
@@ -93,7 +98,9 @@ export function ShellField({
         paddingInline: isFocused
           ? field.focusedInset
           : lerp(cluster.inset, cluster.insetCompact, progress),
-        transform: `translateY(${progress * (cluster.rest + field.gap)}px)`,
+        transform: hasBar
+          ? `translateY(${progress * (cluster.rest + field.gap)}px)`
+          : undefined,
         transition,
       }}
     >
