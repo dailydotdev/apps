@@ -22,8 +22,6 @@ import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
 import { PublicPageSignupBanner } from '../../auth/PublicPageSignupBanner';
-import { useMobileAppHeader } from '../../../features/getApp/hooks/useMobileAppHeader';
-import { MobileAppActions } from '../../../features/getApp/components/MobileAppActions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
@@ -79,7 +77,6 @@ export const SquadDirectoryLayout = (
   const buttonSize = isMobileLayout ? ButtonSize.XSmall : ButtonSize.Small;
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-  const isMobileAppHeader = useMobileAppHeader();
   const isPhone = useIsPhone();
   const { user } = useAuthContext();
 
@@ -147,14 +144,10 @@ export const SquadDirectoryLayout = (
           {!isPhone && (
             <section className="hidden w-full flex-row items-center justify-between typo-body tablet:flex laptop:hidden">
               <strong>Squads</strong>
-              {isMobileAppHeader ? (
-                <MobileAppActions />
-              ) : (
-                <NewSquadButton
-                  icon={<PlusIcon />}
-                  variant={ButtonVariant.Primary}
-                />
-              )}
+              <NewSquadButton
+                icon={<PlusIcon />}
+                variant={ButtonVariant.Primary}
+              />
             </section>
           )}
           <ShellPage

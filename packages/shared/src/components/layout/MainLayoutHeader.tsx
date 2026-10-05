@@ -14,7 +14,6 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import useActiveNav from '../../hooks/useActiveNav';
-import { MobileAppHeader } from '../../features/getApp/components/MobileAppHeader';
 import { ShellBlock } from '../shell/ShellBlock';
 import { ShellRoot } from '../shell/shellNav';
 import { useShellBlockPlan } from '../shell/useShellBlockPlan';
@@ -164,11 +163,10 @@ function MainLayoutHeader({
   return (
     <>
       {block}
-      {isMobileSearchPage && <MobileAppHeader />}
       <header
         className={classNames(
           isMobileSearchPage
-            ? 'sticky top-[var(--mobile-app-header-offset,0px)] w-full bg-background-default transition-[top] duration-200 ease-out tablet:pl-16'
+            ? 'sticky top-0 w-full bg-background-default tablet:pl-16'
             : 'fixed top-0 h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
           'z-header',
           !isMobileSearchPage &&

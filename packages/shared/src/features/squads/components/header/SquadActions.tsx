@@ -103,7 +103,6 @@ export const SquadActions = (): ReactElement => {
   const isAdminView = viewer === SquadViewer.Admin;
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
   const editUrl = getSquadManageUrl(squad.handle, SquadManageSection.Details);
-  const isMobileAppHeader = useMobileAppHeader();
   const isPhone = useIsPhone();
 
   return (
@@ -166,7 +165,7 @@ export const SquadActions = (): ReactElement => {
               onClick={() => openWithSource(getSquadSpotlightSource(squad))}
             />
           </Tooltip>
-          {!isMobileAppHeader && <SquadOptionsMenu />}
+          <SquadOptionsMenu />
         </span>
       )}
       {canBoost(squad) && (

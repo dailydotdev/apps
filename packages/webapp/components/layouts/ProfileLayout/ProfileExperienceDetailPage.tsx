@@ -15,7 +15,6 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from './index';
@@ -62,7 +61,7 @@ export function ProfileExperienceDetailPage({
   return (
     <>
       <NextSeo {...seo} />
-      {isPhone ? <ShellPage title={title} /> : <MobileAppHeader />}
+      {isPhone && <ShellPage title={title} />}
       <div className="rounded-16 border border-border-subtlest-tertiary">
         {!isPhone && (
           <header className="hidden h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4 tablet:flex">

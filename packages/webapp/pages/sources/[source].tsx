@@ -67,7 +67,6 @@ import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/
 import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import Custom404 from '../404';
@@ -412,12 +411,7 @@ const SourcePage = ({
 SourcePage.getLayout = getLayout;
 SourcePage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: (
-    <>
-      <CustomAuthBanner />
-      <MobileAppHeader />
-    </>
-  ),
+  customBanner: <CustomAuthBanner />,
 };
 export default SourcePage;
 

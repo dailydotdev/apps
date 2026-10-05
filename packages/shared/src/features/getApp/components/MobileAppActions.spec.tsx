@@ -9,13 +9,11 @@ import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative } from '../../../lib/func';
 import { AuthTriggers } from '../../../lib/auth';
-import { useMobileAppHeaderIconOnlyRead } from '../hooks/useMobileAppHeader';
-import { MobileAppHeader } from './MobileAppHeader';
-import SettingsContext from '../../../contexts/SettingsContext';
-import type { SettingsContextData } from '../../../contexts/SettingsContext';
-import { openAppUrl } from './MobileAppActions';
-
-jest.mock('../../../components/layout/HeaderLogo', () => () => null);
+import {
+  useMobileAppHeader,
+  useMobileAppHeaderIconOnlyRead,
+} from '../hooks/useMobileAppHeader';
+import { MobileAppActions, openAppUrl } from './MobileAppActions';
 
 jest.mock('../../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../../hooks/useViewSize'),
@@ -55,13 +53,16 @@ const Auth = ({
   </AuthContext.Provider>
 );
 
+const VisitorActions = () =>
+  useMobileAppHeader() ? <MobileAppActions /> : null;
+
 const renderComponent = (auth: Partial<AuthContextData> = {}) =>
   render(
     <Auth auth={auth}>
       <LogContext.Provider
         value={{ logEvent: jest.fn() } as unknown as LogContextData}
       >
-        <MobileAppHeader />
+        <VisitorActions />
       </LogContext.Provider>
     </Auth>,
   );
@@ -72,7 +73,7 @@ beforeEach(() => {
   mockIsIOSNative.mockReturnValue(false);
 });
 
-describe('MobileAppHeader', () => {
+describe('MobileAppActions', () => {
   it('should show Log in and Open app to a logged-out phone visitor', async () => {
     renderComponent();
 
@@ -142,23 +143,5 @@ describe('MobileAppHeader', () => {
     it('should keep its label for logged-in readers', () => {
       expect(renderIconOnlyRead(320, { isLoggedIn: true })).toBe(false);
     });
-  });
-
-  it('leaves once the shell block is on the page', () => {
-    render(
-      <Auth>
-        <SettingsContext.Provider
-          value={{ loadedSettings: true } as unknown as SettingsContextData}
-        >
-          <LogContext.Provider
-            value={{ logEvent: jest.fn() } as unknown as LogContextData}
-          >
-            <MobileAppHeader />
-          </LogContext.Provider>
-        </SettingsContext.Provider>
-      </Auth>,
-    );
-
-    expect(screen.queryByText('Open app')).not.toBeInTheDocument();
   });
 });
