@@ -20,6 +20,7 @@ import {
   achievementSubtitle,
   achievementTitle,
 } from './achievements';
+import { CreatorAchievementShareActions } from './CreatorAchievementShareActions';
 
 interface CreatorAchievementCardProps {
   achievement: CreatorAchievement;
@@ -132,6 +133,9 @@ export const CreatorAchievementCard = ({
               </Link>
             </>
           )}
+        </div>
+        <div className="mt-2">
+          <CreatorAchievementShareActions achievement={achievement} />
         </div>
       </div>
     </div>

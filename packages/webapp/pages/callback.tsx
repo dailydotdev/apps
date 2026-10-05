@@ -45,6 +45,7 @@ function CallbackPage(): ReactElement | null {
   const { logEvent } = useLogContext();
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
+    urlSearchParams.delete('code');
     const params = Object.fromEntries(urlSearchParams.entries());
     const eventKey = params.login
       ? AuthEvent.Login

@@ -7,6 +7,8 @@ import { DiscussIcon } from '@dailydotdev/shared/src/components/icons/Discuss';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { DocsIcon } from '@dailydotdev/shared/src/components/icons/Docs';
 import { UserIcon } from '@dailydotdev/shared/src/components/icons/User';
+import { MedalBadgeIcon } from '@dailydotdev/shared/src/components/icons/MedalBadge';
+import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
 import DevPlusLogo from '@dailydotdev/shared/src/components/icons/DevPlus/filled.svg';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -717,5 +719,61 @@ export const PlusShareCard = (): ReactElement => (
       Plus unlocks advanced AI, custom feeds, and a clutter-free, ad-free
       experience.
     </Subtitle>
+  </OgFrame>
+);
+
+export type AchievementCardKind = 'ranking' | 'upvotes' | 'impressions';
+
+export interface AchievementCardData {
+  creator: { name: string; image?: string };
+  kind: AchievementCardKind;
+  /** The claim itself, e.g. "#2 in Web Development" or "1K upvotes". */
+  headline: string;
+  /**
+   * The line under the headline: the article for per-article awards, what
+   * the total covers for creator-wide ones.
+   */
+  detail?: string;
+  /** What the claim is measured against, e.g. "Best of · August 2026". */
+  context?: string;
+  /** When it was earned, already formatted. */
+  date: string;
+}
+
+const achievementArt: Record<AchievementCardKind, ReactNode> = {
+  ranking: <MedalBadgeIcon secondary className="!size-[200px] text-white" />,
+  upvotes: <UpvoteIcon secondary className="!size-[200px] text-white" />,
+  impressions: <EyeIcon secondary className="!size-[200px] text-white" />,
+};
+
+/**
+ * The one achievement card. Every line is passed in already formatted from the
+ * durable record, so the card states exactly what the creator's dashboard and
+ * the public evidence page state — it has no numbers of its own to get wrong.
+ */
+export const AchievementShareCard = ({
+  data,
+}: {
+  data: AchievementCardData;
+}): ReactElement => (
+  <OgFrame
+    identity={{
+      name: data.creator.name,
+      image: data.creator.image,
+      fallback: true,
+      label: 'earned',
+    }}
+    art={<Tile>{achievementArt[data.kind]}</Tile>}
+    meta={<MetaPill text={data.date} />}
+  >
+    {!!data.context && (
+      <span className="mb-4 line-clamp-1 text-3xl font-bold text-accent-cabbage-default">
+        {data.context}
+      </span>
+    )}
+    <Title className="text-[68px]" lines="line-clamp-2">
+      {data.headline}
+    </Title>
+    {!!data.detail && <Subtitle>{data.detail}</Subtitle>}
   </OgFrame>
 );
