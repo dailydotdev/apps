@@ -38,6 +38,7 @@ import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { AlertColor, AlertDot } from '../../AlertDot';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { createPlusMenuItem } from './plusMenuItem';
 import { AuthTriggers } from '../../../lib/auth';
@@ -53,6 +54,9 @@ export const MainSection = ({
   const isPlus = user?.isPlus;
   const { isActive: isSaleActive } = usePlusSale();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const { logPreviewOpen, logPreviewAction } = usePlusPreviewLog(
+    TargetId.Sidebar,
+  );
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
@@ -105,10 +109,17 @@ export const MainSection = ({
           ),
         };
 
+    const requireLogin = (event?: React.MouseEvent<HTMLElement>): boolean => {
+      if (isLoggedIn) {
+        return false;
+      }
+      event?.preventDefault();
+      showLogin({ trigger: AuthTriggers.Plus });
+      return true;
+    };
+
     const logUpgradeClick = (event?: React.MouseEvent<HTMLElement>) => {
-      if (!isLoggedIn) {
-        event?.preventDefault();
-        showLogin({ trigger: AuthTriggers.Plus });
+      if (requireLogin(event)) {
         return;
       }
 
@@ -120,7 +131,16 @@ export const MainSection = ({
 
     const plusButton = isPlus
       ? undefined
-      : createPlusMenuItem({ onClick: logUpgradeClick, isSaleActive });
+      : createPlusMenuItem({
+          onClick: logUpgradeClick,
+          onPreviewOpen: logPreviewOpen,
+          onPreviewAction: (event) => {
+            if (!requireLogin(event)) {
+              logPreviewAction();
+            }
+          },
+          isSaleActive,
+        });
 
     const gameCenterPath = `${webappUrl}game-center${
       claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
@@ -240,6 +260,8 @@ export const MainSection = ({
     isPlus,
     isSaleActive,
     logSubscriptionEvent,
+    logPreviewOpen,
+    logPreviewAction,
     showLogin,
     isV2,
     onNavTabClick,

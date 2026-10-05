@@ -28,6 +28,9 @@ export const plusPublicApiDocs = 'https://docs.daily.dev/docs/plus/public-api';
 export const plusOverviewDocs = 'https://docs.daily.dev/plus-overview/';
 export const trustpilotReviews = 'https://www.trustpilot.com/review/daily.dev';
 export const chipsDocs = 'https://docs.daily.dev/chips/';
+export const pluginMarketplaceDocs =
+  'https://docs.daily.dev/plugin-marketplace/';
+export const oauthAppsDocs = 'https://docs.daily.dev/oauth-apps/';
 export const markdownGuide = 'https://r.daily.dev/markdown-guide';
 export const careers = 'https://r.daily.dev/careers';
 export const firstNotificationLink = 'https://r.daily.dev/notifications';

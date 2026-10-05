@@ -135,10 +135,10 @@ export default function MainComment({
     <section
       ref={inViewRef}
       className={classNames(
-        'flex scroll-mt-16 flex-col items-stretch border-border-subtlest-tertiary',
+        'flex flex-col items-stretch border-border-subtlest-tertiary',
         isModalThread
-          ? 'relative rounded-none border-0 bg-transparent'
-          : 'rounded-16',
+          ? 'relative scroll-mt-16 rounded-none border-0 bg-transparent'
+          : 'scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))] rounded-16',
         className?.container,
         !isModalThread && inView && 'border',
       )}

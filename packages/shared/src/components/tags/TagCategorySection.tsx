@@ -48,7 +48,7 @@ export function TagCategorySection({
       id={`tag-category-${category.id}`}
       aria-label={category.title}
       className={classNames(
-        'mb-8 flex scroll-mt-24 break-inside-avoid flex-col gap-3',
+        'mb-8 flex scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,5.5rem)+0.5rem)] break-inside-avoid flex-col gap-3',
         className,
       )}
     >

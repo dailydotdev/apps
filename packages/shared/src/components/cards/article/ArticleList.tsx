@@ -29,6 +29,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { getPostPath } from '../../../lib/links';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -140,7 +141,7 @@ export const ArticleList = forwardRef(function ArticleList(
         !isFeedPreview
           ? {
               title: post.title,
-              href: post.commentsPermalink,
+              href: getPostPath(post),
               ...combinedClicks(onPostCardClick),
             }
           : undefined

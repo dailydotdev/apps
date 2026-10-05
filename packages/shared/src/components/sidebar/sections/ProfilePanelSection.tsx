@@ -23,6 +23,7 @@ import {
 import { PlusUser } from '../../PlusUser';
 import { SidebarProfileStats } from '../SidebarProfileStats';
 import { usePlusSale } from '../../../hooks/usePlusSale';
+import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
 import { createPlusMenuItem } from './plusMenuItem';
 
 // The avatar tab panel. Everything "you": identity + your feeds/activity, your
@@ -35,6 +36,9 @@ export const ProfilePanelSection = ({
 }: SidebarSectionProps): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { logPreviewOpen, logPreviewAction } = usePlusPreviewLog(
+    TargetId.ProfileDropdown,
+  );
   const { isActive: isSaleActive } = usePlusSale();
   const router = useRouter();
   const logUpgradeClick = useCallback(
@@ -61,6 +65,8 @@ export const ProfilePanelSection = ({
         !isPlus &&
           createPlusMenuItem({
             onClick: logUpgradeClick,
+            onPreviewOpen: logPreviewOpen,
+            onPreviewAction: logPreviewAction,
             isSaleActive,
           }),
         {
@@ -98,7 +104,14 @@ export const ProfilePanelSection = ({
           ),
         },
       ].filter(Boolean) as SidebarMenuItem[],
-    [onNavTabClick, isPlus, isSaleActive, logUpgradeClick],
+    [
+      onNavTabClick,
+      isPlus,
+      isSaleActive,
+      logUpgradeClick,
+      logPreviewOpen,
+      logPreviewAction,
+    ],
   );
 
   if (!user) {

@@ -2,16 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
-
-export const plusTickerPerks = [
-  'Removes every ad',
-  'Rewrites clickbait titles',
-  'Hides topics you mute',
-  'Sorts your bookmarks',
-  'Translates your feed',
-  'Unlocks every briefing',
-  'Builds smarter feeds',
-];
+import { plusTickerPerks } from './PlusList';
 
 const TICK_INTERVAL_MS = 2800;
 

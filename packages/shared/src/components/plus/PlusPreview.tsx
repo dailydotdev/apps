@@ -1,4 +1,4 @@
-import type { MouseEvent, ReactElement } from 'react';
+import type { MouseEvent, ReactElement, ReactNode } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
@@ -18,16 +18,10 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { plusMorePerksCount, plusPreviewPerks } from './PlusList';
 
 const PREVIEW_OPEN_DELAY = 400;
 const PREVIEW_CLOSE_DELAY = 300;
-
-export const plusPreviewPerks = [
-  'Removes every ad',
-  'Rewrites clickbait titles',
-  'Hides topics you mute',
-  'Sorts your saves into folders',
-];
 
 interface PlusTileProps {
   muted?: boolean;
@@ -56,12 +50,19 @@ export const PlusTile = ({
 
 interface PlusPreviewCardProps {
   onAction?: (event: MouseEvent<HTMLAnchorElement>) => void;
+  context?: ReactNode;
 }
 
 export const PlusPreviewCard = ({
   onAction,
+  context,
 }: PlusPreviewCardProps): ReactElement => (
-  <div className="flex w-72 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-4 shadow-2">
+  <div className="flex w-80 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-4 shadow-2">
+    {context && (
+      <div className="border-b border-border-subtlest-tertiary pb-3">
+        {context}
+      </div>
+    )}
     <div className="flex items-center gap-2">
       <PlusTile />
       <div className="flex flex-col">
@@ -92,6 +93,20 @@ export const PlusPreviewCard = ({
           </Typography>
         </li>
       ))}
+      <li className="flex items-center gap-2">
+        <span
+          aria-hidden
+          className="flex size-4 items-center justify-center font-bold text-text-tertiary typo-footnote"
+        >
+          +
+        </span>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {plusMorePerksCount} more features
+        </Typography>
+      </li>
     </ul>
     <Link href={plusUrl} passHref>
       <Button
@@ -114,6 +129,7 @@ export const PlusPreviewCard = ({
 
 interface PlusPreviewProps extends PlusPreviewCardProps {
   children: ReactElement;
+  onOpen?: () => void;
   side?: HoverCardPrimitive.HoverCardContentProps['side'];
   align?: HoverCardPrimitive.HoverCardContentProps['align'];
 }
@@ -125,18 +141,26 @@ export const PlusPreview = ({
   side = 'right',
   align = 'start',
   onAction,
+  onOpen,
+  context,
 }: PlusPreviewProps): ReactElement => {
   // After a click the card stays shut until the pointer leaves, otherwise the
   // open delay re-fires on the trigger while the next page loads.
   const [open, setOpen] = useState(false);
   const suppressOpenRef = useRef(false);
 
-  const onOpenChange = useCallback((next: boolean) => {
-    if (next && suppressOpenRef.current) {
-      return;
-    }
-    setOpen(next);
-  }, []);
+  const onOpenChange = useCallback(
+    (next: boolean) => {
+      if (next && suppressOpenRef.current) {
+        return;
+      }
+      if (next) {
+        onOpen?.();
+      }
+      setOpen(next);
+    },
+    [onOpen],
+  );
 
   return (
     <HoverCardPrimitive.Root
@@ -165,7 +189,7 @@ export const PlusPreview = ({
           collisionPadding={12}
           className="rail-popup-panel z-tooltip"
         >
-          <PlusPreviewCard onAction={onAction} />
+          <PlusPreviewCard onAction={onAction} context={context} />
         </HoverCardPrimitive.Content>
       </HoverCardPrimitive.Portal>
     </HoverCardPrimitive.Root>
