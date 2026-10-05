@@ -33,7 +33,7 @@ import type { TargetType } from '../../lib/log';
 import { LogEvent, Origin } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { getImagePostComposerLink, ShareProvider } from '../../lib/share';
-import { isAppleDevice } from '../../lib/func';
+import { isAppleDevice, isMobile } from '../../lib/func';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import {
@@ -277,10 +277,11 @@ function SnapshotShareContent({
   };
 
   // The image alone is the share. Share pages only take a link, so it goes
-  // the way that carries a file: the system sheet where it accepts files,
-  // otherwise the clipboard and the network's empty composer.
+  // the way that carries a file: on phones the system sheet, which lists the
+  // apps; on desktop the clipboard and the network's empty composer, since a
+  // desktop sheet (Safari on macOS) offers AirDrop and Mail, not the network.
   const onSocial = async (provider: ImageSocialProvider) => {
-    if (file) {
+    if (file && isMobile()) {
       logShare(provider, { method: 'share_sheet' });
       await shareImageFile(file);
 

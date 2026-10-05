@@ -170,9 +170,13 @@ describe('SnapshotButton share options', () => {
     open.mockRestore();
   });
 
-  it('hands the image file to the share sheet where it accepts files', async () => {
+  it('hands the image file to the share sheet on a phone', async () => {
     const share = jest.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, { canShare: () => true, share });
+    Object.assign(navigator, {
+      canShare: () => true,
+      share,
+      maxTouchPoints: 5,
+    });
     const open = jest.spyOn(window, 'open').mockReturnValue(null);
     renderButton({ withPost: false, share: profileShare });
 
@@ -185,6 +189,36 @@ describe('SnapshotButton share options', () => {
 
     expect(share).toHaveBeenCalledWith({ files: [expect.any(File)] });
     expect(open).not.toHaveBeenCalled();
+    open.mockRestore();
+    Object.assign(navigator, {
+      canShare: undefined,
+      share: undefined,
+      maxTouchPoints: 0,
+    });
+  });
+
+  it('pastes into the composer on a desktop that can share files', async () => {
+    const share = jest.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, {
+      canShare: () => true,
+      share,
+      maxTouchPoints: 0,
+    });
+    const open = jest.spyOn(window, 'open').mockReturnValue(null);
+    renderButton({ withPost: false, share: profileShare });
+
+    press();
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('LinkedIn'));
+    });
+
+    expect(share).not.toHaveBeenCalled();
+    expect(open).toHaveBeenCalledWith(
+      'https://www.linkedin.com/feed/?shareActive=true',
+      '_blank',
+    );
     open.mockRestore();
     Object.assign(navigator, { canShare: undefined, share: undefined });
   });
