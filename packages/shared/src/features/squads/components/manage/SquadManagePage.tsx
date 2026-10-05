@@ -27,6 +27,12 @@ import {
 } from './SquadManageProducts';
 import { SquadManageAnalytics } from './SquadManageAnalytics';
 import { SquadManageIntegrations } from './SquadManageIntegrations';
+import {
+  SquadManageJobForm,
+  SquadManageJobs,
+  SquadManagePerkForm,
+  SquadManagePerks,
+} from './SquadManageJobsPerks';
 
 const SectionContent = ({
   section,
@@ -38,6 +44,10 @@ const SectionContent = ({
   switch (section) {
     case SquadManageSection.Products:
       return <SquadManageProducts />;
+    case SquadManageSection.Jobs:
+      return <SquadManageJobs />;
+    case SquadManageSection.Perks:
+      return <SquadManagePerks />;
     case SquadManageSection.Links:
       return <SquadManageLinks />;
     case SquadManageSection.Rules:
@@ -77,14 +87,27 @@ interface SquadManagePageProps {
   section?: SquadManageSection;
   /** Set on the product form routes: an id edits, `null` adds. */
   productId?: string | null;
+  /** Set on the role form routes: an id edits, `null` adds. */
+  jobId?: string | null;
+  /** Set on the perk form routes: an id edits, `null` adds. */
+  perkId?: string | null;
 }
 
 export const SquadManagePage = ({
   section,
   productId,
+  jobId,
+  perkId,
 }: SquadManagePageProps): ReactElement | null => {
   const router = useRouter();
-  const { squad, viewer, isViewerReady } = useSquadPageContext();
+  const {
+    squad,
+    viewer,
+    isViewerReady: isViewerLoaded,
+    areFeaturesReady,
+  } = useSquadPageContext();
+  // Jobs and perks come from their own query; wait for it before judging
+  const isViewerReady = isViewerLoaded && areFeaturesReady;
   const sections = getSquadManageGroups(squad, viewer).flatMap(({ items }) =>
     items.map(({ id }) => id),
   );
@@ -125,14 +148,18 @@ export const SquadManagePage = ({
   }
 
   const isProductForm = productId !== undefined;
+  let form: ReactElement | null = null;
+  if (isProductForm) {
+    form = <SquadManageProductForm productId={productId ?? undefined} />;
+  } else if (jobId !== undefined) {
+    form = <SquadManageJobForm jobId={jobId ?? undefined} />;
+  } else if (perkId !== undefined) {
+    form = <SquadManagePerkForm perkId={perkId ?? undefined} />;
+  }
 
   return (
     <SquadManageLayout section={section}>
-      {isProductForm ? (
-        <SquadManageProductForm productId={productId ?? undefined} />
-      ) : (
-        <SectionContent section={section ?? sections[0]} />
-      )}
+      {form ?? <SectionContent section={section ?? sections[0]} />}
     </SquadManageLayout>
   );
 };

@@ -28,6 +28,7 @@ import { SquadPinnedPosts } from './feed/SquadPinnedPosts';
 import { SquadEmptyFeed, SquadSearchEmpty } from './feed/SquadEmptyFeed';
 import { SquadSearchHeader } from './feed/SquadSearchHeader';
 import { SquadProductsShelf } from './products/SquadProductsShelf';
+import { useSquadPageTabs } from '../hooks/useSquadPageTabs';
 
 // Two cards a row at most: the feed shares the page with the right column.
 const MAX_FEED_COLUMNS = 2;
@@ -47,6 +48,7 @@ export const SquadHome = ({
   const { postTypesFilter } = useSearchContextProvider();
   const isSearching = searchQuery.length > 0;
   const isAdFree = isSourceAdFree(squad);
+  const { tabs, initialTab, onTabChange } = useSquadPageTabs();
   useSpotlightPageSource(getSquadSpotlightSource(squad), {
     query: searchQuery || undefined,
   });
@@ -154,6 +156,9 @@ export const SquadHome = ({
       header={<SquadProfileHeader />}
       belowHeader={<SquadProductsShelf />}
       hasAboutTab
+      tabs={tabs}
+      initialTab={initialTab}
+      onTabChange={onTabChange}
     >
       <div className="flex flex-col gap-4 border-border-subtlest-tertiary pt-4 tablet:px-6 tablet:pt-6 laptop:border-t">
         <SquadComposer />
