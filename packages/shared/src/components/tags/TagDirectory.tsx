@@ -134,7 +134,7 @@ export function TagDirectory({
                 <section
                   key={letter}
                   id={`tag-letter-${letter}`}
-                  className="scroll-mt-24"
+                  className="scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,5.5rem)+0.5rem)]"
                 >
                   <div className="mb-4 flex items-center gap-3">
                     <Typography

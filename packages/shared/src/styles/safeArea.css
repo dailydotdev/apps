@@ -27,7 +27,9 @@ body {
   padding-top: var(--safe-area-top);
 }
 
-body .antialiased > .sticky.top-0,
+/* The layout's own sticky rows only: a modal's content is `antialiased`
+   too, and its overlay already starts below the status bar. */
+body #__next .antialiased > .sticky.top-0,
 body .fixed.top-0,
 body .fixed.inset-0 {
   top: calc(var(--safe-area-top) + var(--safe-area-top-offset, 0px));
@@ -37,10 +39,57 @@ body .fixed.top-0.h-full {
   height: calc(100vh - var(--safe-area-top) - var(--safe-area-top-offset, 0px));
 }
 
+/* A full screen is the screen less the status bar here: the body is
+   padded by the inset and overlays start below it. */
 .min-h-dvh {
   min-height: calc(100dvh - var(--safe-area-top));
 }
 
 .max-h-dvh {
   max-height: calc(100dvh - var(--safe-area-top));
+}
+
+.h-dvh {
+  height: calc(100dvh - var(--safe-area-top));
+}
+
+.\!h-dvh {
+  height: calc(100dvh - var(--safe-area-top)) !important;
+}
+
+.\!max-h-dvh {
+  max-height: calc(100dvh - var(--safe-area-top)) !important;
+}
+
+/* Only where there is an inset: on the web these two keep Tailwind's
+   100vh and the iOS fill-available fix that follows it. Like the dvh rules
+   above, they come after the utilities at a single class's specificity,
+   so inside a wrapper they also beat a responsive variant of the same
+   property (`min-h-screen tablet:min-h-0`); nothing pairs them today. */
+:where(:root.ios) .min-h-screen {
+  min-height: calc(100vh - var(--safe-area-top));
+}
+
+:where(:root.ios) .h-screen {
+  height: calc(100vh - var(--safe-area-top));
+}
+
+@media (display-mode: standalone) {
+  .min-h-screen {
+    min-height: calc(100vh - var(--safe-area-top));
+  }
+
+  .h-screen {
+    height: calc(100vh - var(--safe-area-top));
+  }
+}
+
+/* A full-screen modal's footer sits on the bottom edge of a phone; it
+   clears the home indicator. A margin, so the footer keeps the height and
+   padding its caller gave it; zero specificity, so a caller's own margin
+   wins. */
+@media (max-width: 655.98px) {
+  :where([data-modal-footer]:last-child) {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
