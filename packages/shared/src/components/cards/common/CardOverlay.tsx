@@ -13,6 +13,25 @@ interface CardOverlayProps {
   ariaLabel?: string;
 }
 
+export const getCardOverlayLinkProps = ({
+  post,
+  onPostCardClick,
+  onPostCardAuxClick,
+}: Omit<CardOverlayProps, 'ariaLabel'>) => ({
+  href: `${webappUrl}posts/${post.slug ?? post.id}`,
+  rel: anchorDefaultRel,
+  onClick: (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.ctrlKey || event.metaKey) {
+      onPostCardAuxClick?.(event);
+    } else {
+      event.preventDefault();
+      onPostCardClick?.(event);
+    }
+  },
+  onAuxClick: (event: MouseEvent<HTMLAnchorElement>) =>
+    onPostCardAuxClick?.(event),
+});
+
 const CardOverlay = ({
   post,
   onPostCardClick,
@@ -29,17 +48,11 @@ const CardOverlay = ({
     <CardLink
       title={ariaLabel || post.title}
       aria-label={ariaLabel || post.title}
-      href={`${webappUrl}posts/${post.slug ?? post.id}`}
-      rel={anchorDefaultRel}
-      onClick={(event) => {
-        if (event.ctrlKey || event.metaKey) {
-          onPostCardAuxClick?.(event);
-        } else {
-          event.preventDefault();
-          onPostCardClick?.(event);
-        }
-      }}
-      onAuxClick={(event) => onPostCardAuxClick?.(event)}
+      {...getCardOverlayLinkProps({
+        post,
+        onPostCardClick,
+        onPostCardAuxClick,
+      })}
     />
   );
 };

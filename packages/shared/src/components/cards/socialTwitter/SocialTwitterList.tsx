@@ -15,6 +15,7 @@ import { PostCardHeader } from '../common/list/PostCardHeader';
 import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
 import { isSourceUserSource } from '../../../graphql/sources';
 import {
   getReadPostButtonText,
@@ -115,6 +116,14 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   ]);
   const metadataBottomLabel = getSocialTwitterMetadataLabel();
 
+  const linkProps = !isFeedPreview
+    ? {
+        title: cardLinkTitle,
+        onClick: onPostCardClick,
+        href: post.commentsPermalink,
+      }
+    : undefined;
+
   return (
     <FeedItemContainer
       domProps={{
@@ -123,15 +132,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending, type: postType }}
-      linkProps={
-        !isFeedPreview
-          ? {
-              title: cardLinkTitle,
-              onClick: onPostCardClick,
-              href: post.commentsPermalink,
-            }
-          : undefined
-      }
+      linkProps={linkProps}
       bookmarked={post.bookmarked}
     >
       <CardContainer>
@@ -163,7 +164,9 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 {...socialTextDirectionProps}
                 className={post.read ? 'text-text-tertiary' : undefined}
               >
-                {truncatedTitle}
+                <CleanTitlePreview post={post} linkProps={linkProps}>
+                  {truncatedTitle}
+                </CleanTitlePreview>
               </CardTitle>
             )}
             {hasDailyDevMarkdown && !!normalizedContent && (

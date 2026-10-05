@@ -1,116 +1,22 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useRouter } from 'next/router';
 import { Button, ButtonSize } from '../../buttons/Button';
-import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import {
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-  useClickbaitTries,
-} from '../../../hooks';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
+import { ShieldCheckIcon, ShieldIcon } from '../../icons';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { Post } from '../../../graphql/posts';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { webappUrl } from '../../../lib/constants';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { useHasIntroQuests } from '../../../hooks/useHasIntroQuests';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureClickbaitShieldIntroQuests } from '../../../lib/featureManagement';
 
 export const ClickbaitShield = ({
   post,
 }: {
   post: Post;
 }): ReactElement | null => {
-  const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
-  const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
-    useSmartTitle(post);
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const router = useRouter();
-  const { user } = useAuthContext();
-  const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
-  const hasIntroQuests = useHasIntroQuests({ shouldEvaluate: !isPlus });
-  const { value: showDuringIntroQuests } = useConditionalFeature({
-    feature: featureClickbaitShieldIntroQuests,
-    shouldEvaluate: !isPlus && hasIntroQuests,
-  });
+  const { fetchSmartTitle, shieldActive } = useSmartTitle(post);
 
   if (!isPlus) {
-    if (hasIntroQuests && !showDuringIntroQuests) {
-      return null;
-    }
-    return (
-      <Tooltip
-        className="max-w-70 text-left !typo-subhead"
-        content={
-          fetchedSmartTitle ? (
-            <>
-              {hasUsedFreeTrial &&
-                'Want to automatically optimize titles across your feed? Upgrade to Plus'}
-            </>
-          ) : (
-            <>
-              {hasUsedFreeTrial
-                ? `Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield`
-                : `This title could be clearer and more informative. Try out Clickbait Shield for free (${triesLeft} uses left this month).`}
-            </>
-          )
-        }
-      >
-        <Button
-          className="relative mr-2 text-accent-cheese-default"
-          size={ButtonSize.XSmall}
-          icon={
-            fetchedSmartTitle ? (
-              <ShieldCheckIcon className="text-status-success" />
-            ) : (
-              <ShieldWarningIcon
-                className={
-                  hasUsedFreeTrial
-                    ? 'text-accent-ketchup-default'
-                    : 'text-accent-cheese-default'
-                }
-              />
-            )
-          }
-          iconSecondaryOnHover
-          onClick={async () => {
-            if (hasUsedFreeTrial) {
-              if (isMobile) {
-                openModal({
-                  type: LazyModal.ClickbaitShield,
-                });
-              } else {
-                if (!user) {
-                  throw new Error(
-                    'ClickbaitShield requires an authenticated user to edit feed settings',
-                  );
-                }
-
-                router.push(
-                  `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
-                );
-              }
-            } else if (isMobile) {
-              openModal({
-                type: LazyModal.ClickbaitShield,
-                props: {
-                  hasUsedFreeTrial,
-                  fetchSmartTitle,
-                },
-              });
-            } else {
-              await fetchSmartTitle();
-            }
-          }}
-        />
-      </Tooltip>
-    );
+    return null;
   }
 
   return (

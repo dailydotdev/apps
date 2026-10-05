@@ -10,6 +10,7 @@ import { LazyImage, LazyVideo } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
+import { CleanTitlePreview } from '../plus/CleanTitlePreview';
 import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
 import { YoutubeLinkEmbeds } from '../contentEmbeds/YoutubeLinkEmbeds';
 import { ParagraphSnapshotButtons } from '../../features/snapshot/ParagraphSnapshotButtons';
@@ -55,7 +56,7 @@ function MarkdownPostContent({
     <>
       <div className={headerClassName}>
         <h1 className="whitespace-pre-line break-words text-[2rem] font-bold leading-[1.3]">
-          {title}
+          <CleanTitlePreview post={post}>{title}</CleanTitlePreview>
         </h1>
         {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
       </div>

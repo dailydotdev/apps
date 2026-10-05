@@ -15,7 +15,7 @@ import {
   CardTitle,
   getPostClassNames,
 } from '../common/Card';
-import CardOverlay from '../common/CardOverlay';
+import CardOverlay, { getCardOverlayLinkProps } from '../common/CardOverlay';
 import { Origin } from '../../../lib/log';
 import styles from '../common/Card.module.css';
 import { PostCardHeader } from '../common/PostCardHeader';
@@ -26,6 +26,7 @@ import ActionButtons from '../common/ActionButtons';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -51,6 +52,11 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
+  const titleLinkProps = getCardOverlayLinkProps({
+    post,
+    onPostCardClick,
+    onPostCardAuxClick,
+  });
   const { pinnedAt, trending } = post;
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
@@ -132,7 +138,9 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             showFeedback={showFeedback}
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
-            {title}
+            <CleanTitlePreview post={post} linkProps={titleLinkProps}>
+              {title}
+            </CleanTitlePreview>
           </CardTitle>
         </CardTextContainer>
         {!showFeedback && (

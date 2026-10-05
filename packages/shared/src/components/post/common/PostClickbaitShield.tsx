@@ -1,29 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
-import {
-  useClickbaitTries,
-  usePlusSubscription,
-  useViewSize,
-  ViewSize,
-} from '../../../hooks';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
+import { ShieldCheckIcon, ShieldIcon } from '../../icons';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { IconSize } from '../../Icon';
 
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import type { Post } from '../../../graphql/posts';
-import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
-import { webappUrl } from '../../../lib/constants';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { AuthTriggers } from '../../../lib/auth';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { Typography, TypographyType } from '../../typography/Typography';
-import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
-import { TargetId } from '../../../lib/log';
+import { CleanTitleReveal } from '../../plus/CleanTitlePreview';
 
 export const PostClickbaitShield = ({
   post,
@@ -31,65 +16,32 @@ export const PostClickbaitShield = ({
 }: {
   post: Post;
   iconOnly?: boolean;
-}): ReactElement => {
-  const { openModal } = useLazyModal();
+}): ReactElement | null => {
   const { isPlus } = usePlusSubscription();
-  const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
-    useSmartTitle(post);
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const router = useRouter();
-  const { user, showLogin } = useAuthContext();
-  const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
+  const { fetchSmartTitle, shieldActive } = useSmartTitle(post);
+
+  if (!isPlus) {
+    return iconOnly ? null : <CleanTitleReveal post={post} className="mt-3" />;
+  }
+
+  const tooltipContent = shieldActive
+    ? 'Click to see the original title'
+    : 'Click to see the optimized title';
 
   if (iconOnly) {
-    const isActive = isPlus ? shieldActive : fetchedSmartTitle;
-    const handleIconClick = async () => {
-      if (isPlus || !hasUsedFreeTrial) {
-        await fetchSmartTitle();
-        return;
-      }
-
-      if (isMobile) {
-        openModal({ type: LazyModal.ClickbaitShield });
-        return;
-      }
-
-      if (!user) {
-        showLogin({ trigger: AuthTriggers.Filter });
-        return;
-      }
-
-      router.push(
-        `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
-      );
-    };
-
-    const tooltipContent = (() => {
-      if (isActive) {
-        return 'Click to see the original title';
-      }
-      return isPlus
-        ? 'Click to see the optimized title'
-        : 'Optimize this title with Clickbait Shield';
-    })();
-
-    const renderIcon = () => {
-      if (isActive) {
-        return <ShieldCheckIcon size={IconSize.Small} />;
-      }
-      if (isPlus) {
-        return <ShieldIcon size={IconSize.Small} />;
-      }
-      return <ShieldWarningIcon size={IconSize.Small} />;
-    };
-
     return (
       <Tooltip content={tooltipContent}>
         <Button
           aria-label="Clickbait Shield"
-          icon={renderIcon()}
+          icon={
+            shieldActive ? (
+              <ShieldCheckIcon size={IconSize.Small} />
+            ) : (
+              <ShieldIcon size={IconSize.Small} />
+            )
+          }
           iconSecondaryOnHover
-          onClick={handleIconClick}
+          onClick={fetchSmartTitle}
           size={ButtonSize.Small}
           type="button"
           variant={ButtonVariant.Tertiary}
@@ -98,106 +50,10 @@ export const PostClickbaitShield = ({
     );
   }
 
-  if (!isPlus) {
-    return (
-      <>
-        <div
-          className={classNames(
-            'mt-4 flex flex-wrap items-center text-text-tertiary typo-callout',
-            !fetchedSmartTitle &&
-              'rounded-12 border border-border-subtlest-tertiary px-3 py-2',
-          )}
-        >
-          <Button
-            className="relative mr-2 cursor-auto font-normal"
-            size={ButtonSize.XSmall}
-            icon={
-              fetchedSmartTitle ? (
-                <ShieldCheckIcon className="text-status-success" />
-              ) : (
-                <ShieldWarningIcon
-                  className={
-                    hasUsedFreeTrial
-                      ? 'text-accent-ketchup-default'
-                      : 'text-accent-cheese-default'
-                  }
-                />
-              )
-            }
-          />
-          <div className="inline flex-1">
-            {fetchedSmartTitle ? (
-              <>This title was optimized with Clickbait Shield</>
-            ) : (
-              <Typography type={TypographyType.Callout}>
-                This title could be clearer and more informative.
-                <Button
-                  size={ButtonSize.XSmall}
-                  variant={ButtonVariant.Option}
-                  tag="a"
-                  role="button"
-                  className="!underline hover:!bg-transparent"
-                  onClick={async () => {
-                    if (!hasUsedFreeTrial) {
-                      await fetchSmartTitle();
-                      return;
-                    }
-
-                    if (isMobile) {
-                      openModal({
-                        type: LazyModal.ClickbaitShield,
-                      });
-                    } else {
-                      if (!user) {
-                        throw new Error(
-                          'PostClickbaitShield requires an authenticated user to edit feed settings',
-                        );
-                      }
-
-                      router.push(
-                        `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
-                      );
-                    }
-                  }}
-                >
-                  {hasUsedFreeTrial
-                    ? 'Enable Clickbait Shield.'
-                    : 'Try out Clickbait Shield'}
-                </Button>
-                {triesLeft > 0
-                  ? `for free (${triesLeft} uses left this month).`
-                  : undefined}
-              </Typography>
-            )}
-          </div>
-        </div>
-        {fetchedSmartTitle && (
-          <PostUpgradeToPlus
-            className="mt-6"
-            targetId={TargetId.ClickbaitShield}
-            title="Want to automatically optimize titles across your feed?"
-          >
-            Clickbait Shield uses AI to automatically optimize post titles by
-            fixing common problems like clickbait, lack of clarity, and overly
-            promotional language.
-            <br />
-            <br />
-            The result is clearer, more informative titles that help you quickly
-            find the content you actually need.
-          </PostUpgradeToPlus>
-        )}
-      </>
-    );
-  }
-
   return (
     <Tooltip
       className="max-w-70 text-left !typo-subhead"
-      content={
-        shieldActive
-          ? 'Click to see the original title'
-          : 'Click to see the optimized title'
-      }
+      content={tooltipContent}
     >
       <Button
         className="relative mr-2 mt-4 !justify-start text-left font-normal"

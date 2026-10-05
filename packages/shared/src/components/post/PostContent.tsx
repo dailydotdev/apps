@@ -24,6 +24,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../plus/CleanTitlePreview';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
@@ -203,9 +204,11 @@ export function PostContentRaw({
             className="text-balance break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
-            <ArticleLink href={post.permalink} onClick={onReadArticle}>
-              {title}
-            </ArticleLink>
+            <CleanTitlePreview post={post}>
+              <ArticleLink href={post.permalink} onClick={onReadArticle}>
+                {title}
+              </ArticleLink>
+            </CleanTitlePreview>
           </h1>
           {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
         </div>

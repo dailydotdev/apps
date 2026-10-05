@@ -7,6 +7,8 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
+import { getCardOverlayLinkProps } from '../common/CardOverlay';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { BlockIcon } from '../../icons';
@@ -56,6 +58,11 @@ export const ShareFeaturedWideGridCard = forwardRef(
   ): ReactElement {
     const { pinnedAt } = post;
     const { title } = useSmartTitle(post);
+    const titleLinkProps = getCardOverlayLinkProps({
+      post,
+      onPostCardClick: () => onPostClick?.(post),
+      onPostCardAuxClick: () => onPostAuxClick?.(post),
+    });
     const { sharedPost } = post;
     const isDeleted = sharedPost?.id === DeletedPostId;
     const postImage = usePostImage(post);
@@ -122,7 +129,9 @@ export const ShareFeaturedWideGridCard = forwardRef(
                     hero ? HERO_TITLE_CLASS_NAME : TITLE_CLASS_NAME,
                   )}
                 >
-                  {title}
+                  <CleanTitlePreview post={post} linkProps={titleLinkProps}>
+                    {title}
+                  </CleanTitlePreview>
                 </h3>
               )}
               <div className="mt-2 flex min-w-0 items-center gap-2">

@@ -10,6 +10,8 @@ import PostMetadata from '../common/PostMetadata';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
+import { getCardOverlayLinkProps } from '../common/CardOverlay';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { stripHtmlTags } from '../../../lib/strings';
@@ -56,6 +58,11 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const { pinnedAt } = post;
     const { showFeedback } = usePostFeedback({ post });
     const { title } = useSmartTitle(post);
+    const titleLinkProps = getCardOverlayLinkProps({
+      post,
+      onPostCardClick: () => onPostClick?.(post),
+      onPostCardAuxClick: () => onPostAuxClick?.(post),
+    });
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
     const { overlay, shouldDimImage } = useCardCover({
@@ -136,7 +143,9 @@ export const ArticleFeaturedWideGridCard = forwardRef(
               hero ? HERO_TITLE_CLASS_NAME : TITLE_CLASS_NAME,
             )}
           >
-            {title}
+            <CleanTitlePreview post={post} linkProps={titleLinkProps}>
+              {title}
+            </CleanTitlePreview>
           </h3>
           <div className="mt-2 flex min-w-0 items-center gap-2">
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}

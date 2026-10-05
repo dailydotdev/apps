@@ -22,6 +22,7 @@ import ActionButtons from '../common/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
 import SocialBar from '../socials/SocialBar';
 import { usePostActions } from '../../../hooks/post/usePostActions';
 import { PostType } from '../../../graphql/posts';
@@ -124,6 +125,14 @@ export const FreeformList = forwardRef(function SharePostCard(
     );
   }
 
+  const linkProps = !isFeedPreview
+    ? {
+        title: post.title,
+        onClick: onPostCardClick,
+        href: post.commentsPermalink,
+      }
+    : undefined;
+
   return (
     <FeedItemContainer
       domProps={{
@@ -132,15 +141,7 @@ export const FreeformList = forwardRef(function SharePostCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, type: postType }}
-      linkProps={
-        !isFeedPreview
-          ? {
-              title: post.title,
-              onClick: onPostCardClick,
-              href: post.commentsPermalink,
-            }
-          : undefined
-      }
+      linkProps={linkProps}
       bookmarked={post.bookmarked}
     >
       <CardContainer>
@@ -164,7 +165,9 @@ export const FreeformList = forwardRef(function SharePostCard(
                 'multi-truncate',
               )}
             >
-              {truncatedTitle}
+              <CleanTitlePreview post={post} linkProps={linkProps}>
+                {truncatedTitle}
+              </CleanTitlePreview>
             </CardTitle>
 
             {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}

@@ -10,7 +10,7 @@ import {
   FreeformCardTitle,
   getPostClassNames,
 } from '../common/Card';
-import CardOverlay from '../common/CardOverlay';
+import CardOverlay, { getCardOverlayLinkProps } from '../common/CardOverlay';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
 import { FreeformCardFooter } from '../common/FreeformCardFooter';
@@ -18,6 +18,7 @@ import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import PostTags from '../common/PostTags';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
@@ -39,6 +40,11 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
+  const titleLinkProps = getCardOverlayLinkProps({
+    post,
+    onPostCardClick,
+    onPostCardAuxClick,
+  });
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
@@ -80,7 +86,11 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           post={post}
           enableSourceHeader={enableSourceHeader}
         />
-        <FreeformCardTitle className="line-clamp-3">{title}</FreeformCardTitle>
+        <FreeformCardTitle className="line-clamp-3">
+          <CleanTitlePreview post={post} linkProps={titleLinkProps}>
+            {title}
+          </CleanTitlePreview>
+        </FreeformCardTitle>
       </CardTextContainer>
       {/* Match the collection card: push the tags + date to the bottom of the
           text area, just above the footer (cover image or text preview). */}

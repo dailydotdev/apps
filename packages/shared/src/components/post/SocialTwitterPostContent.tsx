@@ -25,6 +25,7 @@ import {
 } from '../../lib/image';
 import Markdown from '../Markdown';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
+import { CleanTitlePreview } from '../plus/CleanTitlePreview';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 import {
   getSocialTextDirectionProps,
@@ -192,7 +193,7 @@ export function SocialTwitterPostContentRaw({
                     className="whitespace-pre-line break-words text-text-primary typo-markdown"
                     data-testid="post-modal-title"
                   >
-                    {title}
+                    <CleanTitlePreview post={post}>{title}</CleanTitlePreview>
                   </h1>
                 )}
                 {post.clickbaitTitleDetected && (

@@ -16,6 +16,21 @@ import { PlusEntryRowSize } from '@dailydotdev/shared/src/components/plus/PlusEn
 import { PlusPreviewCard } from '@dailydotdev/shared/src/components/plus/PlusPreview';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
 import { TargetId } from '@dailydotdev/shared/src/lib/log';
+import { HeaderPlusButton } from '@dailydotdev/shared/src/components/plus/HeaderPlusButton';
+import { BookmarkFoldersStrip } from '@dailydotdev/shared/src/components/plus/BookmarkFoldersStrip';
+import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
+import {
+  generateQueryKey,
+  getPostByIdKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { clickbaitTriesMax } from '@dailydotdev/shared/src/lib/featureManagement';
+import { FeatureOverrides } from '../../mock/GrowthBookProvider';
+import {
+  actionHandlers,
+  articlePost,
+} from '../components/cards/adPlacements.mocks';
 
 // The Plus entries that already exist (sidebar row, profile menu, settings,
 // member badge) as one row style and one hover card, rendered from the real
@@ -34,65 +49,75 @@ const settings = {
 
 const Providers = ({
   isPlus = false,
+  seed,
   children,
 }: {
   isPlus?: boolean;
+  seed?: (client: QueryClient) => void;
   children: ReactNode;
 }): ReactElement => {
   const LogContext = getLogContextStatic();
-  const queryClient = useMemo(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: { retry: false, refetchOnWindowFocus: false },
-        },
-      }),
-    [],
-  );
+  const queryClient = useMemo(() => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, refetchOnWindowFocus: false },
+      },
+    });
+    seed?.(client);
+    return client;
+  }, [seed]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthContextProvider
-        user={
-          {
-            id: 'sb-user',
-            name: 'Dev Dana',
-            username: 'dana',
-            image:
-              'https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/1',
-            providers: ['github'],
-            isPlus,
-          } as never
-        }
-        firstLoad={false}
-        isFetched
-        loadingUser={false}
-        tokenRefreshed
-        loadedUserFromCache
-        getRedirectUri={() => ''}
-        updateUser={noop as never}
-        refetchBoot={noop as never}
-        visit={{ visitId: 'sb', sessionId: 'sb' } as never}
-        accessToken={null as never}
-        squads={[]}
-        feeds={undefined}
-        geo={{} as never}
-        isAndroidApp={false}
-      >
-        <LogContext.Provider
-          value={{
-            logEvent: noop,
-            logEventStart: noop,
-            logEventEnd: noop,
-            sendBeacon: noop,
-          }}
+    <FeatureOverrides
+      values={{ [clickbaitTriesMax.id]: clickbaitTriesMax.defaultValue }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <AuthContextProvider
+          user={
+            {
+              id: 'sb-user',
+              name: 'Dev Dana',
+              username: 'dana',
+              image:
+                'https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/1',
+              providers: ['github'],
+              isPlus,
+            } as never
+          }
+          firstLoad={false}
+          isFetched
+          loadingUser={false}
+          tokenRefreshed
+          loadedUserFromCache
+          getRedirectUri={() => ''}
+          updateUser={noop as never}
+          refetchBoot={noop as never}
+          visit={{ visitId: 'sb', sessionId: 'sb' } as never}
+          accessToken={null as never}
+          squads={[]}
+          feeds={undefined}
+          geo={{} as never}
+          isAndroidApp={false}
         >
-          <SettingsContext.Provider value={settings as never}>
-            {children}
-          </SettingsContext.Provider>
-        </LogContext.Provider>
-      </AuthContextProvider>
-    </QueryClientProvider>
+          <LogContext.Provider
+            value={{
+              logEvent: noop,
+              logEventStart: noop,
+              logEventEnd: noop,
+              sendBeacon: noop,
+            }}
+          >
+            <SettingsContext.Provider value={settings as never}>
+              <ActiveFeedContext.Provider
+                value={{ items: [], queryKey: ['sb'] }}
+              >
+                {children}
+              </ActiveFeedContext.Provider>
+            </SettingsContext.Provider>
+          </LogContext.Provider>
+        </AuthContextProvider>
+      </QueryClientProvider>
+    </FeatureOverrides>
   );
 };
 
@@ -303,6 +328,98 @@ export const MemberBadge: Story = {
       <Providers isPlus>
         <Comment />
       </Providers>
+    </div>
+  ),
+};
+
+export const HeaderButton: Story = {
+  name: 'Header Get Plus button',
+  render: () => (
+    <Providers>
+      <div className="flex justify-end pb-72">
+        <HeaderPlusButton />
+      </div>
+    </Providers>
+  ),
+};
+
+const bookmarksFeedKey = ['storybook-bookmarks'];
+const savedTags = [
+  ['postgres', 'sql'],
+  ['postgres'],
+  ['react'],
+  ['react', 'nextjs'],
+  ['security'],
+  ['security'],
+  ['postgres'],
+  ['docker'],
+  ['docker'],
+  ['react'],
+];
+
+const seedBookmarks = (client: QueryClient): void => {
+  client.setQueryData(bookmarksFeedKey, {
+    pages: [
+      {
+        page: {
+          edges: savedTags.map((tags, index) => ({
+            node: { id: `saved-${index}`, tags },
+          })),
+          pageInfo: { hasNextPage: false },
+        },
+      },
+    ],
+    pageParams: [''],
+  });
+  client.setQueryData(generateQueryKey(RequestKey.TagTitles), {
+    postgres: 'PostgreSQL',
+    react: 'React',
+    security: 'Security',
+    docker: 'Docker',
+  });
+};
+
+export const BookmarksStrip: Story = {
+  name: 'Bookmarks folders strip',
+  render: () => (
+    <Providers seed={seedBookmarks}>
+      <div className="w-full" style={{ maxWidth: '42rem' }}>
+        <BookmarkFoldersStrip feedQueryKey={bookmarksFeedKey} />
+      </div>
+    </Providers>
+  ),
+};
+
+const clickbaitPost = {
+  ...articlePost,
+  id: 'sb-clickbait',
+  title: 'You will NEVER guess why this senior dev quit React',
+  clickbaitTitleDetected: true,
+};
+
+const seedCleanTitle = (client: QueryClient): void => {
+  client.setQueryData(
+    [...getPostByIdKey(clickbaitPost.id), { key: 'title', lang: undefined }],
+    { title: 'A senior developer explains moving a dashboard to htmx' },
+  );
+};
+
+export const CleanTitle: Story = {
+  name: 'Clean title on a card (hover the title)',
+  render: () => (
+    <div className="flex flex-wrap items-start gap-10">
+      <div className="flex flex-col gap-3" style={{ width: '20rem' }}>
+        <span className="font-bold typo-callout">Free reader</span>
+        <Providers seed={seedCleanTitle}>
+          <ArticleGrid post={clickbaitPost} {...actionHandlers} />
+        </Providers>
+      </div>
+      <div className="flex flex-col gap-3" style={{ width: '20rem' }}>
+        <span className="font-bold typo-callout">Plus member</span>
+        <Providers isPlus seed={seedCleanTitle}>
+          <ArticleGrid post={clickbaitPost} {...actionHandlers} />
+        </Providers>
+      </div>
     </div>
   ),
 };

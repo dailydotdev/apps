@@ -6,6 +6,8 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
+import { getCardOverlayLinkProps } from '../common/CardOverlay';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { stripHtmlTags } from '../../../lib/strings';
@@ -50,6 +52,11 @@ export const FreeformFeaturedWideGridCard = forwardRef(
   ): ReactElement {
     const { pinnedAt } = post;
     const { title } = useSmartTitle(post);
+    const titleLinkProps = getCardOverlayLinkProps({
+      post,
+      onPostCardClick: () => onPostClick?.(post),
+      onPostCardAuxClick: () => onPostAuxClick?.(post),
+    });
     const image = usePostImage(post);
     const significance = post.hero?.significance;
     const { overlay, shouldDimImage } = useCardCover({
@@ -104,7 +111,9 @@ export const FreeformFeaturedWideGridCard = forwardRef(
                   hero ? HERO_TITLE_CLASS_NAME : TITLE_CLASS_NAME,
                 )}
               >
-                {title}
+                <CleanTitlePreview post={post} linkProps={titleLinkProps}>
+                  {title}
+                </CleanTitlePreview>
               </h3>
               <div className="mt-2 flex min-w-0 items-center gap-2">
                 {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}

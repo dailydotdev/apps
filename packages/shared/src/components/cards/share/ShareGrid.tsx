@@ -11,7 +11,7 @@ import {
   CardTitle,
   getPostClassNames,
 } from '../common/Card';
-import CardOverlay from '../common/CardOverlay';
+import CardOverlay, { getCardOverlayLinkProps } from '../common/CardOverlay';
 import { PostCardHeader } from '../common/PostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
@@ -19,6 +19,7 @@ import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
 import { DeletedPostId } from '../../../lib/constants';
 import { SourceType } from '../../../graphql/sources';
 import classed from '../../../lib/classed';
@@ -55,6 +56,11 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
+  const titleLinkProps = getCardOverlayLinkProps({
+    post,
+    onPostCardClick,
+    onPostCardAuxClick,
+  });
   const containerRef = useRef<HTMLDivElement>();
   const { title } = useSmartTitle(post);
   const { sharedPost } = post;
@@ -193,7 +199,13 @@ export const ShareGrid = forwardRef(function ShareGrid(
             postLink={sharedPost?.permalink}
             onReadArticleClick={onReadArticleClick}
           />
-          {(!isSharedTweet || post.title) && <CardTitle>{title}</CardTitle>}
+          {(!isSharedTweet || post.title) && (
+            <CardTitle>
+              <CleanTitlePreview post={post} linkProps={titleLinkProps}>
+                {title}
+              </CleanTitlePreview>
+            </CardTitle>
+          )}
         </CardTextContainer>
         {(!isSharedTweet || post.title) && <CardSpace />}
         <div className="relative flex flex-col">

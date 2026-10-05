@@ -23,6 +23,7 @@ import ActionButtons from '../common/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { CleanTitlePreview } from '../../plus/CleanTitlePreview';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
@@ -130,6 +131,14 @@ export const ShareList = forwardRef(function ShareList(
     );
   }
 
+  const linkProps = !isFeedPreview
+    ? {
+        title: post.title,
+        onClick: onPostCardClick,
+        href: post.commentsPermalink,
+      }
+    : undefined;
+
   return (
     <FeedItemContainer
       domProps={{
@@ -138,15 +147,7 @@ export const ShareList = forwardRef(function ShareList(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
-      linkProps={
-        !isFeedPreview
-          ? {
-              title: post.title,
-              onClick: onPostCardClick,
-              href: post.commentsPermalink,
-            }
-          : undefined
-      }
+      linkProps={linkProps}
       bookmarked={post.bookmarked}
     >
       <PostCardHeader
@@ -175,7 +176,9 @@ export const ShareList = forwardRef(function ShareList(
                 lineClamp={undefined}
                 className={post.read ? 'text-text-tertiary' : undefined}
               >
-                {truncatedTitle}
+                <CleanTitlePreview post={post} linkProps={linkProps}>
+                  {truncatedTitle}
+                </CleanTitlePreview>
               </CardTitle>
             )}
             <div className="flex items-center">
@@ -200,7 +203,9 @@ export const ShareList = forwardRef(function ShareList(
               lineClamp={undefined}
               className={post.read ? 'text-text-tertiary' : undefined}
             >
-              {truncatedTitle}
+              <CleanTitlePreview post={post} linkProps={linkProps}>
+                {truncatedTitle}
+              </CleanTitlePreview>
             </CardTitle>
             <div className="flex flex-1 tablet:hidden" />
             <div className="flex items-center">

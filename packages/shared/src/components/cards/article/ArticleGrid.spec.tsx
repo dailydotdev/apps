@@ -8,12 +8,16 @@ import post from '../../../../__tests__/fixture/post';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import type { PostCardProps } from '../common/common';
 import { visibleOnGroupHover } from '../common/common';
-import { PostType } from '../../../graphql/posts';
+import { POST_FETCH_SMART_TITLE_QUERY, PostType } from '../../../graphql/posts';
 import type { LoggedUser } from '../../../lib/user';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleGrid } from './ArticleGrid';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
-import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import {
+  completeActionMock,
+  mockGraphQL,
+} from '../../../../__tests__/helpers/graphql';
+import { ActionType } from '../../../graphql/actions';
 import { USER_INTEGRATIONS } from '../../../graphql/users';
 
 jest.mock('next/router', () => ({
@@ -215,5 +219,64 @@ describe('copy link cover', () => {
       await screen.findByText('Why not share it on social, too?'),
     ).toBeInTheDocument();
     expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
+  });
+});
+
+describe('clean title hint', () => {
+  const clickbaitPost = { ...post, clickbaitTitleDetected: true };
+  const originalTitle = post.title as string;
+  const cleanTitle = 'What the prosecutor gets wrong about probability';
+
+  const renderClickbait = (user: LoggedUser): RenderResult =>
+    render(
+      <TestBootProvider client={new QueryClient()} auth={{ user }}>
+        <ArticleGrid {...defaultProps} post={clickbaitPost} />
+      </TestBootProvider>,
+    );
+
+  it('should preview the clean title for a free reader without rewriting the card', async () => {
+    mockGraphQL({
+      request: {
+        query: POST_FETCH_SMART_TITLE_QUERY,
+        variables: { id: post.id },
+      },
+      result: { data: { fetchSmartTitle: { title: cleanTitle } } },
+    });
+    mockGraphQL(completeActionMock({ action: ActionType.FetchedSmartTitle }));
+    renderClickbait({ ...loggedUser, isPlus: false });
+
+    fireEvent.pointerEnter(screen.getByText(originalTitle));
+
+    expect(await screen.findByText('Clean title by Plus')).toBeInTheDocument();
+    expect(await screen.findByText(cleanTitle)).toBeInTheDocument();
+    expect(screen.getByText('Get Plus')).toBeInTheDocument();
+    expect(screen.getByText(originalTitle)).toBeInTheDocument();
+  });
+
+  it('should open the post when a free reader clicks the title', async () => {
+    renderClickbait({ ...loggedUser, isPlus: false });
+
+    screen.getByText(originalTitle).click();
+
+    await waitFor(() => expect(defaultProps.onPostClick).toBeCalled());
+  });
+
+  it('should explain the used allowance instead of fetching', async () => {
+    renderClickbait({ ...loggedUser, isPlus: false, clickbaitTries: 5 });
+
+    fireEvent.pointerEnter(screen.getByText(originalTitle));
+
+    expect(
+      await screen.findByText(
+        'You have seen 5 clean titles this month. Plus rewrites every one.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Clean title by Plus')).not.toBeInTheDocument();
+  });
+
+  it('should keep the plain title for a Plus member', async () => {
+    renderClickbait({ ...loggedUser, isPlus: true });
+
+    expect(screen.getByText(originalTitle).closest('a')).toBeNull();
   });
 });
