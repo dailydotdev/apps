@@ -135,10 +135,12 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
 const PageRow = ({
   title,
   titleFades,
+  isOverCover,
   onBack,
 }: {
   title?: ReactNode;
   titleFades?: boolean;
+  isOverCover?: boolean;
   onBack?: () => void;
 }): ReactElement => {
   const historyBack = useShellBack();
@@ -175,7 +177,7 @@ const PageRow = ({
         style={{ gap: topButton.gap }}
       >
         <div ref={setActionsSlot} className="contents" />
-        {isMobileAppHeader && <MobileAppActions />}
+        {isMobileAppHeader && <MobileAppActions isFloating={isOverCover} />}
       </div>
     </div>
   );
@@ -280,6 +282,7 @@ export function ShellBlock({
         <PageRow
           title={config?.title}
           titleFades={config?.titleFades}
+          isOverCover={config?.transparent}
           onBack={config?.onBack}
         />
       )}

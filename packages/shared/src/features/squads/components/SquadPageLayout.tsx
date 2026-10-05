@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { ButtonSize } from '../../../components/buttons/Button';
 import {
@@ -40,8 +41,19 @@ export const SquadPageLayout = ({
   children,
   hasAboutTab = false,
 }: SquadPageLayoutProps): ReactElement => {
-  const [tab, setTab] = useState(SquadPageTab.Posts);
+  const router = useRouter();
+  const path = (router?.asPath ?? '').split(/[?#]/)[0];
+  const squadPath = path.replace(/\/about$/, '');
+  const tab = path.endsWith('/about') ? SquadPageTab.About : SquadPageTab.Posts;
   const isAbout = hasAboutTab && tab === SquadPageTab.About;
+  // A segment is a view of the page: it replaces the entry, keeps the
+  // reader's place and does not ask the server for the squad again.
+  const setTab = (next: SquadPageTab) =>
+    router.replace(
+      next === SquadPageTab.About ? `${squadPath}/about` : squadPath,
+      undefined,
+      { shallow: true, scroll: false },
+    );
   const isPhone = useIsPhone();
   const tabsRef = useRef<HTMLDivElement>(null);
   const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasAboutTab);
