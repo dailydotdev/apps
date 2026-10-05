@@ -28,6 +28,14 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock('../../hooks/useViewSize', () => ({
+  ...(jest.requireActual('../../hooks/useViewSize') as Record<string, unknown>),
+  useIsPhone: jest.fn(() => false),
+}));
+
+const mockUseIsPhone = jest.requireMock('../../hooks/useViewSize')
+  .useIsPhone as jest.Mock;
+
 const push = jest.fn();
 
 const squad: SpotlightSource = {
@@ -138,6 +146,7 @@ beforeEach(() => {
   } as unknown as NextRouter);
   mockSpotlightActions();
   mockSquadPosts();
+  mockUseIsPhone.mockReturnValue(false);
 });
 
 describe('Spotlight scoped to a squad', () => {
@@ -261,5 +270,49 @@ describe('Spotlight scoped to a squad', () => {
       'Search posts, squads, people, tags, or actions…',
     );
     expect(screen.queryByTestId('source-filter-pill')).not.toBeInTheDocument();
+  });
+});
+
+describe('Spotlight on a phone', () => {
+  beforeEach(() => {
+    mockUseIsPhone.mockReturnValue(true);
+  });
+
+  it('names the scope in the placeholder instead of a pill in the field', async () => {
+    renderSpotlight();
+    fireEvent.click(screen.getByText('Search this squad'));
+    await screen.findByText('Read this first');
+
+    expect(screen.queryByTestId('source-filter-pill')).not.toBeInTheDocument();
+    expect(getInput()).toHaveAttribute(
+      'placeholder',
+      `Search in ${squad.name}`,
+    );
+    expect(screen.getByRole('button', { name: squad.name })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('switches scope from the bar of segments, one lit at a time', async () => {
+    renderSpotlight();
+    fireEvent.click(screen.getByText('Search this squad'));
+    await screen.findByText('Read this first');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tags' }));
+
+    expect(getInput()).toHaveAttribute('placeholder', 'Search in tags');
+    expect(screen.getByRole('button', { name: 'Tags' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: squad.name })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'All' }));
+
+    expect(getInput()).toHaveAttribute('placeholder', 'Search daily.dev');
   });
 });

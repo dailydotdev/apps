@@ -63,7 +63,7 @@ describe('ShellField', () => {
     expect(screen.getByRole('status')).toHaveTextContent('false:false');
   });
 
-  it('takes the compact size once the reader scrolls and rests again on focus', () => {
+  it('takes the compact size once the reader scrolls, keeps its words, and rests again on focus', () => {
     render(<ShellField placeholder="Search tags" />);
     const form = screen.getByRole('search');
     expect(form).toHaveStyle({ height: `${field.rest}px` });
@@ -74,7 +74,7 @@ describe('ShellField', () => {
     expect(form).toHaveStyle({ height: `${field.compact}px` });
     expect(screen.getByRole('searchbox')).toHaveAttribute(
       'placeholder',
-      'Search',
+      'Search tags',
     );
 
     fireEvent.focus(screen.getByRole('searchbox'));

@@ -123,7 +123,7 @@ export function ShellField({
               value ? 'text-text-primary' : 'text-text-tertiary',
             )}
           >
-            {value || (progress === 1 ? 'Search' : placeholder)}
+            {value || placeholder}
           </span>
         </button>
       ) : (
@@ -140,7 +140,7 @@ export function ShellField({
             enterKeyHint="search"
             autoComplete="off"
             aria-label={placeholder}
-            placeholder={progress === 1 ? 'Search' : placeholder}
+            placeholder={placeholder}
             value={value}
             onChange={(event) => onChange?.(event.target.value)}
             onFocus={() => {

@@ -34,7 +34,8 @@ const FilterPill = ({
     aria-label={ariaLabel}
     title={`Press ${backspaceLabel} to remove filter`}
     className={classNames(
-      'flex h-7 min-w-0 shrink-0 items-center gap-1.5 rounded-8 bg-background-subtle px-2 transition-colors',
+      // The token gives way before the words being typed do.
+      'flex h-7 min-w-0 max-w-[45%] shrink items-center gap-1.5 rounded-8 bg-background-subtle px-2 transition-colors',
       'text-text-primary typo-callout',
       'hover:bg-surface-hover',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-1',

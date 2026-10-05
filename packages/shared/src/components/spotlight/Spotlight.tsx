@@ -18,6 +18,8 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
 import { useIsPhone } from '../../hooks/useViewSize';
+import type { RowItem } from '../shell/ShellRow';
+import { Segments, ShellRow } from '../shell/ShellRow';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { isExtension, isInExtensionIframe } from '../../lib/func';
@@ -435,6 +437,22 @@ const getPlaceholder = (
   return scope === SpotlightScope.All
     ? 'Search posts, squads, people, tags, or actions…'
     : scopeMeta[scope].placeholder;
+};
+
+export const phoneSearchPlaceholder = 'Search daily.dev';
+
+// The phone's field carries no scope token: its placeholder says where the
+// search runs.
+const getPhonePlaceholder = (
+  scope: SpotlightScope,
+  source: SpotlightSource | null,
+): string => {
+  if (source) {
+    return `Search in ${source.name}`;
+  }
+  return scope === SpotlightScope.All
+    ? phoneSearchPlaceholder
+    : `Search in ${scopeMeta[scope].label.toLowerCase()}`;
 };
 
 const renderSkeletonGroup = (heading: string) => (
@@ -1001,6 +1019,43 @@ export const Spotlight = ({
     inputRef.current?.focus();
   };
 
+  // The phone's scopes are the block's segments: one is always lit, a tap
+  // on another replaces it, and the keyboard stays up through the switch.
+  const pickPhoneScope = (pick: () => void) => () => {
+    pick();
+    inputRef.current?.focus();
+  };
+  const phoneScopes: RowItem[] = [
+    {
+      key: SpotlightScope.All,
+      label: 'All',
+      active: scope === SpotlightScope.All && !scopedSource,
+      onClick: pickPhoneScope(() => {
+        clearSourceScope();
+        clearScope();
+      }),
+    },
+    ...(source
+      ? [
+          {
+            key: 'source',
+            label: source.name,
+            active: !!scopedSource,
+            onClick: pickPhoneScope(scopeToSource),
+          },
+        ]
+      : []),
+    ...scopeOrder.map((item) => ({
+      key: item,
+      label: scopeMeta[item].label,
+      active: scope === item && !scopedSource,
+      onClick: pickPhoneScope(() => {
+        clearScope();
+        pushScope(item);
+      }),
+    })),
+  ];
+
   const paletteBody = (
     <>
       <h2 id="spotlight-title" className="sr-only">
@@ -1081,14 +1136,19 @@ export const Spotlight = ({
           <>
             <div
               className={
-                isPhone ? 'flex items-center gap-2 px-4 pb-2 pt-1' : 'contents'
+                // On a phone the field sits at the bottom, by the keyboard and
+                // the thumb; the scopes are the bar at the top and the results
+                // fill what is between.
+                isPhone
+                  ? 'order-last flex items-center gap-2 px-4 pt-2 pb-safe-or-2'
+                  : 'contents'
               }
             >
               <div
                 data-cmdk-input-wrapper=""
                 className={
                   isPhone
-                    ? 'flex h-[3.25rem] min-w-0 flex-1 items-center gap-2 rounded-22 bg-surface-float px-3'
+                    ? 'flex h-[3.25rem] min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-22 bg-surface-float px-3'
                     : 'flex h-14 items-center gap-3 border-b border-border-subtlest-tertiary px-4'
                 }
               >
@@ -1097,22 +1157,26 @@ export const Spotlight = ({
                   className="text-text-tertiary transition-colors group-focus-within/spotlight:text-text-primary"
                   aria-hidden
                 />
-                {scopedSource && (
+                {scopedSource && !isPhone && (
                   <SourceFilterPill
                     source={scopedSource}
                     onRemove={onClearSourceScope}
                   />
                 )}
-                {scope !== SpotlightScope.All && (
+                {scope !== SpotlightScope.All && !isPhone && (
                   <ScopeFilterPill scope={scope} onRemove={clearScope} />
                 )}
                 <Command.Input
                   ref={inputRef}
                   value={query}
                   onValueChange={setQuery}
-                  placeholder={getPlaceholder(scope, scopedSource)}
+                  placeholder={
+                    isPhone
+                      ? getPhonePlaceholder(scope, scopedSource)
+                      : getPlaceholder(scope, scopedSource)
+                  }
                   autoFocus
-                  className="h-full flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary"
+                  className="h-full min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary"
                   aria-labelledby="spotlight-title"
                   onKeyDown={(event) => {
                     if (
@@ -1160,7 +1224,7 @@ export const Spotlight = ({
                       setQuery('');
                       inputRef.current?.focus();
                     }}
-                    className="text-text-tertiary transition-colors hover:text-text-primary"
+                    className="shrink-0 text-text-tertiary transition-colors hover:text-text-primary"
                   >
                     <ClearIcon size={IconSize.XSmall} />
                   </button>
@@ -1189,7 +1253,14 @@ export const Spotlight = ({
                 </button>
               )}
             </div>
-            {scope === SpotlightScope.All && !scopedSource && (
+            {isPhone && (
+              <div className="order-first">
+                <ShellRow>
+                  <Segments items={phoneScopes} />
+                </ShellRow>
+              </div>
+            )}
+            {!isPhone && scope === SpotlightScope.All && !scopedSource && (
               <ScopeBreadcrumbs
                 scope={scope}
                 onSelect={pushScope}

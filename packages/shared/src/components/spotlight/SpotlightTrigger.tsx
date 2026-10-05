@@ -78,7 +78,7 @@ export const SpotlightTrigger = ({
 // The phone's trigger: the same door, drawn as the field that floats above
 // the bottom bar.
 export const SpotlightField = ({
-  placeholder = 'Search posts, tags, sources, people',
+  placeholder = 'Search daily.dev',
   query,
 }: {
   placeholder?: string;
