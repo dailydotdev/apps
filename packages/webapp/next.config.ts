@@ -209,6 +209,11 @@ const nextConfig: NextConfig = {
           permanent: false,
         },
         {
+          source: '/explore/:tag',
+          destination: '/',
+          permanent: false,
+        },
+        {
           source: '/mobile',
           destination: '/',
           permanent: true,
