@@ -3,23 +3,23 @@ import { render, screen } from '@testing-library/react';
 import { SquadAudienceBreakdown } from './SquadAudienceBreakdown';
 
 describe('SquadAudienceBreakdown', () => {
-  it('should draw each row at its real share', () => {
+  it('should show each share with a bar scaled to the biggest row', () => {
     render(
       <SquadAudienceBreakdown
-        title="Companies they work at"
+        title="Seniority"
         rows={[
-          { label: 'Shopify', share: 6 },
-          { label: 'Stripe', share: 3 },
+          { label: '4-5 years', share: 40 },
+          { label: '2-3 years', share: 20 },
         ]}
         empty="None yet"
       />,
     );
 
-    expect(screen.getByText('Shopify')).toBeInTheDocument();
-    expect(screen.getByText('6%')).toBeInTheDocument();
-    expect(screen.getAllByTestId('audience-share')[0]).toHaveStyle({
-      width: '6%',
-    });
+    expect(screen.getByText('4-5 years')).toBeInTheDocument();
+    expect(screen.getByText('40%')).toBeInTheDocument();
+    const [top, second] = screen.getAllByTestId('audience-share');
+    expect(top).toHaveStyle({ width: '100%' });
+    expect(second).toHaveStyle({ width: '50%' });
   });
 
   it('should explain an empty breakdown', () => {
