@@ -12,7 +12,8 @@ import {
 import CloseButton from '../CloseButton';
 import { DevPlusIcon } from '../icons/DevPlus';
 import { PlusTile } from './PlusPreview';
-import type { FeedData } from '../../graphql/feed';
+import type { FeedItemData } from '../../graphql/feed';
+import { getFeedApiItemPost } from '../../graphql/feed';
 import { tagTitlesQueryOptions } from '../../graphql/keywords';
 import { plusUrl } from '../../lib/constants';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -53,16 +54,18 @@ export const BookmarkFoldersStrip = ({
   const queryClient = useQueryClient();
   const feed = useSyncExternalStore(
     (onChange) => queryClient.getQueryCache().subscribe(onChange),
-    () => queryClient.getQueryData<InfiniteData<FeedData>>(feedQueryKey),
+    () => queryClient.getQueryData<InfiniteData<FeedItemData>>(feedQueryKey),
     () => undefined,
   );
   const loadedPosts = useMemo(
-    () => feed?.pages.flatMap((page) => page.page.edges) ?? [],
+    () =>
+      feed?.pages.flatMap((page) =>
+        page.page.edges.flatMap(({ node }) => getFeedApiItemPost(node) ?? []),
+      ) ?? [],
     [feed],
   );
   const folderTags = useMemo(
-    () =>
-      getSuggestedFolderTags(loadedPosts.map(({ node }) => node.tags ?? [])),
+    () => getSuggestedFolderTags(loadedPosts.map((post) => post.tags ?? [])),
     [loadedPosts],
   );
   const isDismissed =

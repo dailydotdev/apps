@@ -369,7 +369,11 @@ const seedBookmarks = (client: QueryClient): void => {
       {
         page: {
           edges: savedTags.map((tags, index) => ({
-            node: { id: `saved-${index}`, tags },
+            node: {
+              itemType: 'post',
+              feedMeta: null,
+              post: { id: `saved-${index}`, tags },
+            },
           })),
           pageInfo: { hasNextPage: false },
         },

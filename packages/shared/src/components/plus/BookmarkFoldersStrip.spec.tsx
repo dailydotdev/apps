@@ -28,7 +28,11 @@ const renderStrip = ({ isPlus = false }: { isPlus?: boolean } = {}) => {
       {
         page: {
           edges: tagsPerPost.map((tags, index) => ({
-            node: { id: `post-${index}`, tags },
+            node: {
+              itemType: 'post',
+              feedMeta: null,
+              post: { id: `post-${index}`, tags },
+            },
           })),
           pageInfo: { hasNextPage: false },
         },
