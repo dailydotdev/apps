@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { usePassedBlock } from '@dailydotdev/shared/src/components/shell/usePassedBlock';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
@@ -94,6 +96,14 @@ const ProfilePage = ({
   const { ref: stickyRef, progress: stickyProgress } =
     useDynamicHeader<HTMLDivElement>(true);
   const hideSticky = !stickyProgress;
+  const isPhone = useIsPhone();
+  const coverRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLDivElement>(null);
+  // The owner's completion card sits above the cover, so the cover is not
+  // at the top of the page for them until it is dismissed.
+  const coversBlock = !(isSameUser && showProfileCompletion);
+  const hasCoverPassed = usePassedBlock(coverRef, isPhone && coversBlock);
+  const hasNamePassed = usePassedBlock(nameRef, isPhone);
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),
@@ -108,6 +118,8 @@ const ProfilePage = ({
         user={user}
         isSameUser={isSameUser}
         sticky={!hideSticky}
+        blockTitle={hasNamePassed ? user.name : undefined}
+        isOverCover={coversBlock && !hasCoverPassed}
         className={classNames(
           'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
@@ -122,6 +134,9 @@ const ProfilePage = ({
         userStats={userStats}
         isSameUser={isSameUser}
         isPreviewMode={isPreviewMode}
+        coversBlock={coversBlock}
+        coverRef={coverRef}
+        nameRef={nameRef}
         actions={
           /* The owner always gets the door, even before their world has
              anything in it — the empty world is the invitation to build one.

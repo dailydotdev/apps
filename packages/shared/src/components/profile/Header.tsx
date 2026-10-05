@@ -56,6 +56,11 @@ export interface HeaderProps {
   className?: string;
   style?: CSSProperties;
   isPlus?: boolean;
+  // What the phone's block reads; the profile page hands over the person's
+  // name once theirs has scrolled away, and holds the block transparent
+  // while it floats over the cover.
+  blockTitle?: string;
+  isOverCover?: boolean;
 }
 
 export function Header({
@@ -64,6 +69,8 @@ export function Header({
   sticky,
   className,
   style,
+  blockTitle,
+  isOverCover = false,
 }: HeaderProps): ReactElement | null {
   const { user: loggedUser } = useAuthContext();
   const { alerts } = useAlertsContext();
@@ -299,7 +306,9 @@ export function Header({
   if (isPhone) {
     return (
       <ShellPage
-        title="Profile"
+        title={blockTitle}
+        titleFades
+        transparent={isOverCover}
         actions={
           isSameUser ? (
             <div className="flex flex-row items-center gap-2">

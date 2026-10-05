@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
+import { shellCoverScrim } from '../../styles/custom';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -63,6 +64,14 @@ type ProfileHeaderProps = {
   isPreviewMode?: boolean;
   /** Rendered in the top row, left of the edit button. */
   actions?: ReactNode;
+  /**
+   * On a phone, when the cover is the first thing on the page, it runs up
+   * behind the top block. The refs let the page tell the block when the
+   * cover and the name have scrolled behind it.
+   */
+  coversBlock?: boolean;
+  coverRef?: RefObject<HTMLDivElement>;
+  nameRef?: RefObject<HTMLDivElement>;
 };
 
 const ProfileHeader = ({
@@ -71,6 +80,9 @@ const ProfileHeader = ({
   isSameUser: propIsSameUser,
   isPreviewMode,
   actions,
+  coversBlock = false,
+  coverRef,
+  nameRef,
 }: ProfileHeaderProps) => {
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
@@ -96,16 +108,32 @@ const ProfileHeader = ({
   };
 
   return (
-    <div className="relative w-full overflow-hidden laptop:rounded-t-16">
+    <div
+      className={classNames(
+        'relative -mt-[var(--cover-lift)] w-full overflow-hidden [--cover-lift:0px] laptop:rounded-t-16',
+        coversBlock &&
+          '[--cover-lift:var(--shell-top,var(--shell-top-rest,0px))] tablet:[--cover-lift:0px]',
+      )}
+    >
       <ProfileDesktopPwaBackButton className="absolute left-4 top-4 z-1" />
-      <div className="h-36">
+      <div
+        ref={coverRef}
+        className="shell-cover relative h-[calc(9rem+var(--cover-lift))] overflow-hidden"
+      >
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
+        {coversBlock && (
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-24 tablet:hidden"
+            style={{ background: shellCoverScrim }}
+          />
+        )}
       </div>
       <Image
         src={image}
         fallbackSrc={fallbackImages.avatar}
         alt="Avatar"
-        className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
+        className="absolute left-6 top-[calc(4rem+var(--cover-lift))] h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
         {/* Edit leads and `actions` trails, because edit is only hidden, not
@@ -138,7 +166,7 @@ const ProfileHeader = ({
           </Tooltip>
           {actions}
         </div>
-        <div className="flex items-center gap-1">
+        <div ref={nameRef} className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}
           </Typography>
