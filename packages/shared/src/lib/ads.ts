@@ -141,6 +141,12 @@ export const resolveAdFetchOptions = ({
         consent,
       };
     case AdPlacement.PostSidebar:
+      return {
+        placement,
+        active,
+        allowSquadBoost: boostsEnabled,
+        consent,
+      };
     case AdPlacement.Feed:
     default:
       return {
