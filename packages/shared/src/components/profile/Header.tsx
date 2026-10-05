@@ -46,11 +46,8 @@ import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
 import { ProfileMobileBackButton } from './ProfileBackButton';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
-import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
-import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 import { ShellPage } from '../shell/ShellPageContext';
 import { useIsPhone } from '../../hooks/useViewSize';
-import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -90,12 +87,7 @@ export function Header({
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
   const { isJobsEnabled } = useJobsFeature();
-  const isMobileAppHeader = useMobileAppHeader();
   const isPhone = useIsPhone();
-  const isHidden = useHideOnScrollDown(
-    isMobileAppHeader && !!sticky && !isPhone,
-  );
-  const showIdentity = sticky && !isMobileAppHeader;
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -213,7 +205,7 @@ export function Header({
           </Button>
         </Link>
       )}
-      {!blocked && !isMobileAppHeader && (
+      {!blocked && (
         <FollowButton
           entityId={user.id}
           type={ContentPreferenceType.User}
@@ -249,7 +241,6 @@ export function Header({
           variant={ButtonVariant.Float}
         />
       )}
-      {isMobileAppHeader && !isPhone && <MobileAppActions />}
       {optionsMenu}
     </>
   );
@@ -305,14 +296,7 @@ export function Header({
     </>
   );
 
-  // On a phone the top block carries back, the name and the actions; the
-  // page renders this header twice (in flow, then pinned on scroll) and
-  // only the in-flow one speaks for the block.
   if (isPhone) {
-    if (sticky) {
-      return null;
-    }
-
     return (
       <ShellPage
         title="Profile"
@@ -335,12 +319,11 @@ export function Header({
       className={classNames(
         'hidden h-12 items-center px-4 tablet:flex',
         className,
-        isHidden && '-translate-y-full',
       )}
       style={style}
     >
-      <ProfileMobileBackButton className={!showIdentity ? 'mr-3' : undefined} />
-      {showIdentity ? (
+      <ProfileMobileBackButton className={!sticky ? 'mr-3' : undefined} />
+      {sticky ? (
         <>
           <ProfilePicture
             user={user}
