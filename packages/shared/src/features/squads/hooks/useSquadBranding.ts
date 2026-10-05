@@ -11,7 +11,37 @@ import {
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
+import type {
+  ApiErrorResult,
+  ApiResponseError,
+  ApiZodErrorExtension,
+} from '../../../graphql/common';
+import { ApiError, getApiError } from '../../../graphql/common';
 import { getSquadId } from '../lib/features';
+
+const fieldNames: Record<string, string> = {
+  color: 'Brand colour',
+  label: 'Button label',
+  url: 'Link',
+};
+
+/** The API's own reason when it rejects a save, else the generic error. */
+export const getBrandingErrorMessage = (error: unknown): string => {
+  const result = error as ApiErrorResult;
+  const zod = getApiError(result, ApiError.ZodValidationError) as
+    | ApiResponseError<ApiZodErrorExtension>
+    | undefined;
+  const issue = zod?.extensions?.issues?.[0];
+
+  if (issue) {
+    const field = String(issue.path[issue.path.length - 1] ?? '');
+    return fieldNames[field]
+      ? `${fieldNames[field]}: ${issue.message}`
+      : issue.message;
+  }
+
+  return result?.response?.errors?.[0]?.message ?? labels.error.generic;
+};
 
 /** A verified squad's branding; undefined for others or while loading. */
 export const useSquadBranding = (squad: Squad): SquadBranding | undefined => {
@@ -36,6 +66,6 @@ export const useUpdateSquadBranding = (squad: Squad) => {
       );
       displayToast('The branding has been updated');
     },
-    onError: () => displayToast(labels.error.generic),
+    onError: (error) => displayToast(getBrandingErrorMessage(error)),
   });
 };

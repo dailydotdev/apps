@@ -18,6 +18,7 @@ import {
 } from '../../../../components/typography/Typography';
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 import type { SquadBranding } from '../../../../graphql/squadBranding';
 import { squadBrandingQueryOptions } from '../../../../graphql/squadBranding';
 import { useSquadPageContext } from '../../SquadPageContext';
@@ -221,6 +222,14 @@ const ColourField = ({
           />
         </div>
       </div>
+      {!!color && !isValid && (
+        <Typography
+          type={TypographyType.Footnote}
+          className="text-accent-ketchup-default"
+        >
+          Use six hex digits, like FF570A
+        </Typography>
+      )}
       {ink && (
         <span className="inline-flex w-fit items-center gap-2 rounded-10 bg-surface-float py-1 pl-1 pr-2 text-text-tertiary typo-caption1">
           <span
@@ -252,6 +261,7 @@ const SquadManageBrandingForm = ({
 }): ReactElement => {
   const { squad } = useSquadPageContext();
   const { mutate: onSave, isPending } = useUpdateSquadBranding(squad);
+  const { displayToast } = useToastNotification();
   const [color, setColor] = useState(branding?.color ?? '');
   const [isButtonOn, setIsButtonOn] = useState(!!branding?.button?.enabled);
   const [label, setLabel] = useState(
@@ -259,24 +269,31 @@ const SquadManageBrandingForm = ({
   );
   const [url, setUrl] = useState(branding?.button?.url ?? squad.website ?? '');
   const isColorValid = !color || isHexColor(color);
-  const isUrlValid = !url.trim() || isValidSquadLink(url);
-  const isButtonValid =
-    !isButtonOn || (!!label.trim() && isValidSquadLink(url));
+  // The link only matters while the button is on: a hidden field must never
+  // block Save.
+  const isUrlValid = !isButtonOn || isValidSquadLink(url);
+  const isLabelValid = !isButtonOn || !!label.trim();
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    if (!isColorValid || !isUrlValid || !isButtonValid) {
+    if (!isColorValid || !isUrlValid || !isLabelValid) {
+      displayToast('Fix the highlighted field to save');
       return;
     }
 
-    const hasButton = !!label.trim() && !!url.trim();
+    const draft =
+      label.trim() && isValidSquadLink(url)
+        ? { label: label.trim(), url: url.trim() }
+        : null;
+    // Turned off: keep the saved button so turning it back on restores it
+    const kept = draft ?? branding?.button ?? null;
 
     onSave({
       color: color ? color.toUpperCase() : null,
-      button: hasButton
-        ? { label: label.trim(), url: url.trim(), enabled: isButtonOn }
-        : null,
+      button: isButtonOn
+        ? { ...(draft as { label: string; url: string }), enabled: true }
+        : kept && { label: kept.label, url: kept.url, enabled: false },
     });
   };
 
@@ -342,8 +359,8 @@ const SquadManageBrandingForm = ({
                 maxLength={SQUAD_BUTTON_LABEL_MAX_LENGTH}
                 value={label}
                 valueChanged={setLabel}
-                valid={!!label.trim()}
-                hint={label.trim() ? undefined : 'Add a label'}
+                valid={isLabelValid}
+                hint={isLabelValid ? undefined : 'Add a label'}
               />
               <TextField
                 inputId="squad-header-button-url"
@@ -356,8 +373,8 @@ const SquadManageBrandingForm = ({
                 showMaxLength={false}
                 value={url}
                 valueChanged={setUrl}
-                valid={isUrlValid && isButtonValid}
-                hint={isUrlValid && isButtonValid ? undefined : invalidLinkCopy}
+                valid={isUrlValid}
+                hint={isUrlValid ? undefined : invalidLinkCopy}
               />
             </>
           )}
@@ -370,11 +387,38 @@ const SquadManageBrandingForm = ({
 export const SquadManageBranding = (): ReactElement | null => {
   const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
-  const { data, isPending, isError } = useQuery(
-    squadBrandingQueryOptions({ squad, user }),
-  );
+  // A failed load is not "no branding": never show an empty form whose Save
+  // would overwrite what is stored. Retry a few times, then offer a retry.
+  const { data, isPending, isError, refetch, isRefetching } = useQuery({
+    ...squadBrandingQueryOptions({ squad, user }),
+    retry: 2,
+  });
 
-  if (isPending && !isError) {
+  if (isError && !data) {
+    return (
+      <SquadManageSectionPanel section={SquadManageSection.Branding}>
+        <div className="flex flex-col items-start gap-3 px-4 py-6 tablet:px-6">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            We couldn’t load your branding. Nothing has changed.
+          </Typography>
+          <Button
+            type="button"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            loading={isRefetching}
+            onClick={() => refetch()}
+          >
+            Try again
+          </Button>
+        </div>
+      </SquadManageSectionPanel>
+    );
+  }
+
+  if (isPending || !data) {
     return null;
   }
 

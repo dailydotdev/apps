@@ -93,14 +93,22 @@ export const AuthorSourceStack = ({
 
   // The card shows the squad's logo without its name, so a verified squad's
   // seal sits on the logo itself
-  const sourceAvatar = showSource ? (
-    <span className="relative flex">
-      <SourceButton source={source as SourceTooltip} size={size} />
-      {showVerifiedCheck && hasSquadFeature(source, 'verified') && (
-        <VerifiedLogoCheck />
-      )}
-    </span>
+  const hasCheck =
+    showVerifiedCheck && hasSquadFeature(source ?? undefined, 'verified');
+  const sourceButton = showSource ? (
+    <SourceButton source={source as SourceTooltip} size={size} />
   ) : null;
+  // Only verified squads get the wrapper, so every other card's DOM stays
+  // as it was
+  const sourceAvatar =
+    sourceButton && hasCheck ? (
+      <span className="relative flex">
+        {sourceButton}
+        <VerifiedLogoCheck />
+      </span>
+    ) : (
+      sourceButton
+    );
 
   // Single avatar: render it bare (no ring / overlap) — keeps non-author cards
   // (e.g. articles) pixel-identical to before.
