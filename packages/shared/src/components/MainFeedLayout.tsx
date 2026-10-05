@@ -102,6 +102,7 @@ import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
 import { ExplorePlaces } from './shell/ExplorePlaces';
+import { isRootView, ShellRoot } from './shell/shellNav';
 import { ShellPage } from './shell/ShellPageContext';
 
 const SpotlightField = dynamic(() =>
@@ -266,12 +267,22 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  // Explore's hub is in the server HTML for phones, shown by CSS: the
+  // server cannot know the screen, so it and the first client render emit
+  // it, and wider screens drop it once they have mounted.
+  const [hasMounted, setHasMounted] = useState(false);
+  const isPhoneWidth = useViewSize(ViewSize.MobileL) && !isLaptop;
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
   const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter, postTypesFilter } =
     useSearchContextProvider();
   const isExtension = checkIsExtension();
+  const isExploreRoot =
+    !isExtension && isRootView(ShellRoot.Explore, router?.pathname ?? '');
   const isHomePage = router.pathname === webappUrl;
   const {
     isUpvoted,
@@ -738,16 +749,6 @@ export default function MainFeedLayout({
       );
     }
 
-    if (isPhone) {
-      return (
-        <>
-          <ExplorePlaces />
-          <ExploreSortMenu />
-          <SpotlightField />
-        </>
-      );
-    }
-
     return (
       <FeedExploreHeader
         tab={tab}
@@ -763,7 +764,7 @@ export default function MainFeedLayout({
         }}
       />
     );
-  }, [isLaptop, isPhone, onTabChange, tab]);
+  }, [isLaptop, onTabChange, tab]);
 
   // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
   // Discussions) from the sidebar's Explore panel, so the page header no longer
@@ -881,7 +882,18 @@ export default function MainFeedLayout({
       <FeedPageLayoutComponent
         className={classNames('relative', disableTopPadding && '!pt-0')}
       >
-        {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
+        {isExploreRoot && (!hasMounted || isPhoneWidth) && (
+          <div className="tablet:hidden">
+            <ExplorePlaces />
+            <ExploreSortMenu />
+            <SpotlightField />
+          </div>
+        )}
+        {isAnyExplore && !showExploreV2PageHeader && !isPhone && (
+          <div className="hidden tablet:contents">
+            <FeedExploreComponent />
+          </div>
+        )}
         {isSearchOn && !isSearchPageLaptop && search}
         {isSearchOn && !isSearchPageLaptop && isPhone && (
           <>

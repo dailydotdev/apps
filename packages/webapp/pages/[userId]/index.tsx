@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { usePassedBlock } from '@dailydotdev/shared/src/components/shell/usePassedBlock';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '@dailydotdev/shared/src/components/shell/usePassedBlock';
 import { ShellDockedRow } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import {
   ProfileSegment,
@@ -111,6 +114,7 @@ const ProfilePage = ({
   const hasNamePassed = usePassedBlock(nameRef, isPhone);
   const segmentsRef = useRef<HTMLDivElement>(null);
   const haveSegmentsPassed = usePassedBlock(segmentsRef, isPhone);
+  useHeroDeadZone(segmentsRef, isPhone);
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),

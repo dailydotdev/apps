@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
+import { restoreScrollPosition } from '../../lib/scrollRestoration';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { Dropdown } from '../fields/Dropdown';
@@ -47,9 +49,21 @@ const sorts: { key: string; label: string; href: string; paths: string[] }[] = [
 
 const withPeriod = ['upvoted', 'discussed'];
 
+// Each sort is its own page, so the feed under the places is rebuilt and
+// the document is short for a moment. The reader's place is put back once
+// the new page has grown to it, instead of leaving them above the rows.
+const holdScroll = (router: NextRouter, position: number): void => {
+  const restore = () => {
+    router.events.off('routeChangeComplete', restore);
+    restoreScrollPosition(position);
+  };
+  router.events.on('routeChangeComplete', restore);
+};
+
 export function ExploreSortMenu(): ReactElement {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const scrollBefore = useRef(0);
   const [period, setPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
@@ -65,14 +79,25 @@ export function ExploreSortMenu(): ReactElement {
     active: sort.key === current.key,
     replace: true,
     keepScroll: true,
-    onClick: () => setIsOpen(false),
+    onClick: () => {
+      setIsOpen(false);
+      if (sort.key !== current.key) {
+        holdScroll(router, scrollBefore.current);
+      }
+    },
   }));
 
   return (
     <div className="flex items-center justify-between border-t border-border-subtlest-tertiary pb-2 pl-4 pr-3 pt-4">
       <h2 className="font-bold text-text-primary typo-title3">Explore feed</h2>
       <div className="flex items-center gap-1">
-        <MenuLabel label={current.label} onClick={() => setIsOpen(true)} />
+        <MenuLabel
+          label={current.label}
+          onClick={() => {
+            scrollBefore.current = window.scrollY;
+            setIsOpen(true);
+          }}
+        />
         {withPeriod.includes(current.key) && (
           <Dropdown
             iconOnly

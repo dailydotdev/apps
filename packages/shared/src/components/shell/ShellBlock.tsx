@@ -19,7 +19,7 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { plusUrl, webappUrl } from '../../lib/constants';
 import { ShellSquare } from './ShellSquare';
 import { motion, topButton } from './constants';
-import { revealShell, useShellScroll } from './useShellScroll';
+import { revealShell, setShellEdge, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
 import {
   useShellActionsSlot,
@@ -213,6 +213,7 @@ export function ShellBlock({
         '--shell-top',
         `${element?.offsetHeight ?? 0}px`,
       );
+      setShellEdge(element ? element.offsetTop + element.offsetHeight : 0);
     };
     publish();
     const observer = element ? new ResizeObserver(publish) : undefined;

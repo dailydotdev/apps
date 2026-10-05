@@ -69,7 +69,10 @@ import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ShellPrimaryPill } from '@dailydotdev/shared/src/components/shell/ShellSquare';
-import { usePassedBlock } from '@dailydotdev/shared/src/components/shell/usePassedBlock';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '@dailydotdev/shared/src/components/shell/usePassedBlock';
 import { useSourceActions } from '@dailydotdev/shared/src/hooks/source/useSourceActions';
 import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import Custom404 from '../404';
@@ -237,6 +240,7 @@ const SourceShellPage = ({
 }): ReactElement => {
   const hasNamePassed = usePassedBlock(nameRef);
   const hasHeroPassed = usePassedBlock(heroRef);
+  useHeroDeadZone(heroRef);
   const { isFollowing, isBlocked, toggleFollow } = useSourceActions({
     source,
   });

@@ -199,14 +199,12 @@ export const SquadBlockActions = ({
 
   return (
     <>
-      {!joins && (
-        <ShellSquare
-          aria-label={`Search ${squad.name}`}
-          onClick={() => openWithSource(getSquadSpotlightSource(squad))}
-        >
-          <SearchIcon size={IconSize.Small} />
-        </ShellSquare>
-      )}
+      <ShellSquare
+        aria-label={`Search ${squad.name}`}
+        onClick={() => openWithSource(getSquadSpotlightSource(squad))}
+      >
+        <SearchIcon size={IconSize.Small} />
+      </ShellSquare>
       {!isMobileAppHeader && (
         <SquadOptionsMenu
           variant={ButtonVariant.Tertiary}
@@ -216,7 +214,7 @@ export const SquadBlockActions = ({
       {joins && (
         <SquadJoinButton
           size={ButtonSize.Small}
-          className="!h-[2.375rem] !rounded-14"
+          className="shell-hit relative !h-[2.375rem] !rounded-14"
           joinCopy="Join"
         />
       )}

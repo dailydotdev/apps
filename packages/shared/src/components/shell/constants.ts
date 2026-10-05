@@ -27,6 +27,8 @@ export const motion = {
 
 export const scroll = {
   deadZone: 96,
+  // Past a thing's hero the block holds this much longer.
+  heroDeadZone: 200,
   hideTolerance: 24,
   revealTolerance: 8,
 };

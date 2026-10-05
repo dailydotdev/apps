@@ -72,7 +72,7 @@ import { TagPageNavbar } from './TagPageNavbar';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { ShellPage } from '../shell/ShellPageContext';
 import { ShellPrimaryPill } from '../shell/ShellSquare';
-import { usePassedBlock } from '../shell/usePassedBlock';
+import { useHeroDeadZone, usePassedBlock } from '../shell/usePassedBlock';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { webappUrl } from '../../lib/constants';
@@ -240,6 +240,7 @@ export const TagTopicPage = ({
   const heroRef = useRef<HTMLElement>(null);
   const hasNamePassed = usePassedBlock(nameRef, isPhone);
   const hasHeroPassed = usePassedBlock(heroRef, isPhone);
+  useHeroDeadZone(heroRef, isPhone);
   const queryClient = useQueryClient();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);

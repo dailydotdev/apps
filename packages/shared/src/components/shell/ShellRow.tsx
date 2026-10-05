@@ -177,7 +177,13 @@ export const SheetChoice = ({ items }: { items: RowItem[] }): ReactElement => (
 
       if (item.href) {
         return (
-          <Link key={item.key} href={item.href} passHref replace={item.replace}>
+          <Link
+            key={item.key}
+            href={item.href}
+            passHref
+            replace={item.replace}
+            scroll={item.keepScroll ? false : undefined}
+          >
             <a
               aria-current={item.active ? 'page' : undefined}
               onClick={item.onClick}

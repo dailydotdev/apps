@@ -21,7 +21,6 @@ const places: Place[] = [
   { label: 'Discussions', href: `${webappUrl}discussed`, icon: DiscussIcon },
   { label: 'Tags', href: `${webappUrl}tags`, icon: HashtagIcon },
   { label: 'Sources', href: `${webappUrl}sources`, icon: EarthIcon },
-  { label: 'Leaderboard', href: `${webappUrl}users`, icon: MedalIcon },
 ];
 
 const agents: Place = {
@@ -30,16 +29,24 @@ const agents: Place = {
   icon: AgentIcon,
 };
 
+const leaderboard: Place = {
+  label: 'Leaderboard',
+  href: `${webappUrl}users`,
+  icon: MedalIcon,
+};
+
 export function ExplorePlaces(): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { value: showAgents } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn,
   });
-  const rows = showAgents ? [...places, agents] : places;
+  const rows = showAgents
+    ? [...places, agents, leaderboard]
+    : [...places, leaderboard];
 
   return (
-    <nav aria-label="Explore" className="flex flex-col py-1">
+    <nav aria-label="Explore" className="flex flex-col pb-6 pt-1">
       {rows.map(({ label, href, icon: Icon }) => (
         <Link key={label} href={href} passHref>
           <a className="flex h-12 items-center gap-3 px-4 text-text-primary typo-callout hover:bg-surface-hover">

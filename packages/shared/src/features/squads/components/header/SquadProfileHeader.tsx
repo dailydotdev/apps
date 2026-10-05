@@ -35,7 +35,10 @@ import {
 } from './SquadActions';
 import { ShellPage } from '../../../../components/shell/ShellPageContext';
 import { useIsPhone } from '../../../../hooks/useViewSize';
-import { usePassedBlock } from '../../../../components/shell/usePassedBlock';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '../../../../components/shell/usePassedBlock';
 import { shellCoverScrim } from '../../../../styles/custom';
 
 const MAX_FACES = 3;
@@ -233,6 +236,7 @@ export const SquadProfileHeader = (): ReactElement => {
   const hasCoverPassed = usePassedBlock(coverRef, isPhone);
   const hasNamePassed = usePassedBlock(nameRef, isPhone);
   const hasHeroPassed = usePassedBlock(heroRef, isPhone);
+  useHeroDeadZone(heroRef, isPhone);
 
   return (
     <header ref={heroRef} className="relative w-full">
@@ -262,12 +266,14 @@ export const SquadProfileHeader = (): ReactElement => {
             className="relative size-20 shrink-0 bg-background-default ring-4 ring-background-default tablet:size-26"
           />
           {isViewerReady && <SquadActions />}
-          {isViewerReady && isPhone && (
+          {isPhone && (
             <ShellPage
               title={hasNamePassed ? squad.name : undefined}
               titleFades
               transparent={!hasCoverPassed}
-              actions={<SquadBlockActions showsJoin={hasHeroPassed} />}
+              actions={
+                isViewerReady && <SquadBlockActions showsJoin={hasHeroPassed} />
+              }
             />
           )}
         </div>
