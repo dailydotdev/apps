@@ -4,7 +4,7 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../graphql/posts';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -17,6 +17,7 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureClickbaitShieldIntroQuests } from '../../lib/featureManagement';
 import { LogEvent, TargetId } from '../../lib/log';
 import { DevPlusIcon } from '../icons/DevPlus';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -55,19 +56,12 @@ const useShowCleanTitleHint = (post: Post): boolean => {
 const CleanTitle = ({ post }: { post: Post }): ReactElement => {
   const { smartTitle, previewSmartTitle } = useSmartTitle(post);
   const { maxTries, triesLeft } = useClickbaitTries();
-  const [isAllowanceUsed] = useState(() => !smartTitle && triesLeft <= 0);
-  const hasRequestedRef = useRef(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const originalTitle = post.title || post.sharedPost?.title;
+  const cleanTitle = smartTitle !== originalTitle ? smartTitle : undefined;
+  const hasFailed = !!smartTitle && !cleanTitle;
 
-  useEffect(() => {
-    if (isAllowanceUsed || hasRequestedRef.current) {
-      return;
-    }
-
-    hasRequestedRef.current = true;
-    previewSmartTitle();
-  }, [isAllowanceUsed, previewSmartTitle]);
-
-  if (isAllowanceUsed) {
+  if (!cleanTitle && !isLoading && triesLeft <= 0) {
     return (
       <Typography
         type={TypographyType.Footnote}
@@ -79,18 +73,44 @@ const CleanTitle = ({ post }: { post: Post }): ReactElement => {
     );
   }
 
+  const showCleanTitle = async () => {
+    setIsLoading(true);
+    await previewSmartTitle();
+    setIsLoading(false);
+  };
+
   return (
     <>
       <span className="flex items-center gap-1 text-accent-bacon-subtlest typo-caption1">
         <DevPlusIcon aria-hidden size={IconSize.Size16} />
         Clean title by Plus
       </span>
-      {smartTitle ? (
+      {cleanTitle && (
         <Typography type={TypographyType.Callout} bold>
-          {smartTitle}
+          {cleanTitle}
         </Typography>
-      ) : (
-        <ElementPlaceholder className="h-5 w-4/5 rounded-6" />
+      )}
+      {isLoading && <ElementPlaceholder className="h-5 w-4/5 rounded-6" />}
+      {!cleanTitle && !isLoading && (
+        <div className="flex items-center justify-between gap-2">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            {hasFailed
+              ? 'The clean title did not load.'
+              : `${triesLeft} free left this month`}
+          </Typography>
+          {!hasFailed && (
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              onClick={showCleanTitle}
+            >
+              Show clean title
+            </Button>
+          )}
+        </div>
       )}
     </>
   );

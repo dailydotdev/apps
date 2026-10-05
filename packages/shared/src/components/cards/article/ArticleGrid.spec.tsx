@@ -1,3 +1,4 @@
+import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -234,7 +235,7 @@ describe('clean title hint', () => {
       </TestBootProvider>,
     );
 
-  it('should preview the clean title for a free reader without rewriting the card', async () => {
+  it('should show the clean title only after a free reader asks for it', async () => {
     mockGraphQL({
       request: {
         query: POST_FETCH_SMART_TITLE_QUERY,
@@ -243,14 +244,39 @@ describe('clean title hint', () => {
       result: { data: { fetchSmartTitle: { title: cleanTitle } } },
     });
     mockGraphQL(completeActionMock({ action: ActionType.FetchedSmartTitle }));
-    renderClickbait({ ...loggedUser, isPlus: false });
+    renderClickbait({ ...loggedUser, isPlus: false, clickbaitTries: 2 });
 
     fireEvent.pointerEnter(screen.getByText(originalTitle));
 
     expect(await screen.findByText('Clean title by Plus')).toBeInTheDocument();
+    expect(screen.getByText('3 free left this month')).toBeInTheDocument();
+    expect(screen.queryByText(cleanTitle)).not.toBeInTheDocument();
+    expect(nock.isDone()).toBe(false);
+
+    fireEvent.click(screen.getByText('Show clean title'));
+
     expect(await screen.findByText(cleanTitle)).toBeInTheDocument();
     expect(screen.getByText('Get Plus')).toBeInTheDocument();
     expect(screen.getByText(originalTitle)).toBeInTheDocument();
+  });
+
+  it('should not present the original title as clean when the request fails', async () => {
+    mockGraphQL({
+      request: {
+        query: POST_FETCH_SMART_TITLE_QUERY,
+        variables: { id: post.id },
+      },
+      result: { errors: [{ message: 'Limit reached' }] },
+    });
+    renderClickbait({ ...loggedUser, isPlus: false });
+
+    fireEvent.pointerEnter(screen.getByText(originalTitle));
+    fireEvent.click(await screen.findByText('Show clean title'));
+
+    expect(
+      await screen.findByText('The clean title did not load.'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(originalTitle)).toHaveLength(1);
   });
 
   it('should open the post when a free reader clicks the title', async () => {
