@@ -28,7 +28,7 @@ import {
 } from '../typography/Typography';
 import { PlusPreview } from './PlusPreview';
 
-const cleanTitleUnderline =
+const smartTitleUnderline =
   'underline decoration-text-quaternary decoration-dotted decoration-1 underline-offset-4';
 
 const hasClickbaitTitle = (post: Post): boolean =>
@@ -54,14 +54,12 @@ const useShowCleanTitleHint = (post: Post): boolean => {
 };
 
 const CleanTitle = ({ post }: { post: Post }): ReactElement => {
-  const { smartTitle, previewSmartTitle } = useSmartTitle(post);
+  const { smartTitle, smartTitleFailed, previewSmartTitle } =
+    useSmartTitle(post);
   const { maxTries, triesLeft } = useClickbaitTries();
   const [isLoading, setIsLoading] = useState(false);
-  const originalTitle = post.title || post.sharedPost?.title;
-  const cleanTitle = smartTitle !== originalTitle ? smartTitle : undefined;
-  const hasFailed = !!smartTitle && !cleanTitle;
 
-  if (!cleanTitle && !isLoading && triesLeft <= 0) {
+  if (!smartTitle && !isLoading && triesLeft <= 0) {
     return (
       <Typography
         type={TypographyType.Footnote}
@@ -85,23 +83,23 @@ const CleanTitle = ({ post }: { post: Post }): ReactElement => {
         <DevPlusIcon aria-hidden size={IconSize.Size16} />
         Clean title by Plus
       </span>
-      {cleanTitle && (
+      {smartTitle && (
         <Typography type={TypographyType.Callout} bold>
-          {cleanTitle}
+          {smartTitle}
         </Typography>
       )}
       {isLoading && <ElementPlaceholder className="h-5 w-4/5 rounded-6" />}
-      {!cleanTitle && !isLoading && (
+      {!smartTitle && !isLoading && (
         <div className="flex items-center justify-between gap-2">
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {hasFailed
+            {smartTitleFailed
               ? 'The clean title did not load.'
               : `${triesLeft} free left this month`}
           </Typography>
-          {!hasFailed && (
+          {!smartTitleFailed && (
             <Button
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
@@ -165,7 +163,7 @@ export const CleanTitlePreview = ({
         })
       }
     >
-      <span className={cleanTitleUnderline} onFocus={openOnKeyboardFocus}>
+      <span className={smartTitleUnderline} onFocus={openOnKeyboardFocus}>
         {linkProps ? (
           <Link href={linkProps.href}>
             <a
@@ -230,7 +228,7 @@ export const CleanTitleReveal = ({
         size={IconSize.Size16}
         className="text-action-plus-default"
       />
-      <span className={cleanTitleUnderline}>See the clean title</span>
+      <span className={smartTitleUnderline}>See the clean title</span>
     </button>
   );
 };

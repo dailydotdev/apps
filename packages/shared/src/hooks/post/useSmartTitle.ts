@@ -25,6 +25,7 @@ type UseSmartTitle = {
   fetchSmartTitle: () => Promise<void>;
   previewSmartTitle: () => Promise<void>;
   smartTitle?: string;
+  smartTitleFailed: boolean;
   title: string;
   fetchedSmartTitle: boolean;
   shieldActive: boolean;
@@ -52,7 +53,11 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...getPostByIdKey(post?.id),
   );
 
-  const { data: smartTitle, refetch } = useQuery({
+  const {
+    data: smartTitle,
+    refetch,
+    isError: smartTitleFailed,
+  } = useQuery({
     queryKey: key,
     queryFn: async (): Promise<PostSmartTitle> => {
       const titleRecord = {
@@ -86,11 +91,11 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
           (error as ApiErrorResult).response?.errors?.[0].message ||
             labels.error.generic,
         );
+        throw error;
       }
-
-      return titleRecord;
     },
     enabled: false,
+    retry: false,
     staleTime: Infinity,
     ...disabledRefetch,
   });
@@ -180,6 +185,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     fetchSmartTitle,
     previewSmartTitle,
     smartTitle: smartTitle?.title,
+    smartTitleFailed,
     title,
     fetchedSmartTitle: fetchedSmartTitle ?? false,
     shieldActive: shieldActive ?? false,
