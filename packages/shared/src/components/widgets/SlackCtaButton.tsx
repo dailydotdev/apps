@@ -12,6 +12,8 @@ import { useSlackShareButton } from '../../hooks/integrations/slack/useSlackShar
 export type SlackCtaButtonProps = {
   post: Post;
   origin?: Origin;
+  /** The surface the button sits in, when `origin` names the control. */
+  placement?: Origin;
   size?: ButtonSize;
   variant?: ButtonVariant;
   className?: string;
@@ -21,12 +23,17 @@ export type SlackCtaButtonProps = {
 export const SlackCtaButton = ({
   post,
   origin,
+  placement,
   size,
   variant = ButtonVariant.Primary,
   className,
   onAfterClick,
 }: SlackCtaButtonProps): ReactElement => {
-  const { onClick, isLoading, label } = useSlackShareButton({ post, origin });
+  const { onClick, isLoading, label } = useSlackShareButton({
+    post,
+    origin,
+    placement,
+  });
 
   return (
     <Button

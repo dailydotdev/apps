@@ -32,6 +32,10 @@ import {
 } from '../typography/Typography';
 import { AdvertiseLink } from '../cards/ad/common/AdvertiseLink';
 import { Image } from '../image/Image';
+import {
+  isSquadAd,
+  SquadAdEntityCard,
+} from '../cards/ad/squad/SquadAdEntityCard';
 
 interface PostSidebarAdWidgetProps {
   postId: string;
@@ -88,14 +92,22 @@ export function PostSidebarAdWidget({
     [onAdAction],
   );
 
+  const squadAd = isSquadAd(ad) ? ad : undefined;
+  const shouldShowAd =
+    !isAdFree && (squadAd ? squadAd.data.source.id !== source?.id : !!ad?.link);
+
   useEffect(() => {
-    if (!ad || ad.impressionStatus === ImpressionStatus.LOGGED) {
+    if (
+      !ad ||
+      !shouldShowAd ||
+      ad.impressionStatus === ImpressionStatus.LOGGED
+    ) {
       return;
     }
 
     onAdAction(AdActions.Impression);
     ad.impressionStatus = ImpressionStatus.LOGGED;
-  }, [ad, onAdAction]);
+  }, [ad, onAdAction, shouldShowAd]);
 
   if (isAdFree) {
     return null;
@@ -105,8 +117,20 @@ export function PostSidebarAdWidget({
     return <EntityCardSkeleton className={className} />;
   }
 
-  if (!ad?.link) {
+  if (!ad || !shouldShowAd) {
     return null;
+  }
+
+  if (squadAd) {
+    return (
+      <SquadAdEntityCard
+        ad={squadAd}
+        variant={variant}
+        className={className?.container}
+        onClickAd={() => onAdAction(AdActions.Click)}
+        onViewable={onViewable}
+      />
+    );
   }
 
   const company = ad.company?.trim();

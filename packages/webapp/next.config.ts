@@ -395,6 +395,12 @@ const nextConfig: NextConfig = {
           headers: noindexHeaders,
         },
         {
+          // Screenshot targets for the share images; they mirror post and
+          // profile content without any of the pages' own indexing gates.
+          source: '/image-generator/:path*',
+          headers: noindexHeaders,
+        },
+        {
           // Static page (headers can't come from the page itself); framing is
           // limited to our own origin and our extensions. This CSP takes
           // precedence over the global X-Frame-Options in modern browsers.
