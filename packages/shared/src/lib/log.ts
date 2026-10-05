@@ -508,16 +508,6 @@ export enum LogEvent {
   VoteHotAndCold = 'vote hot and cold',
   SwipeHotTake = 'swipe hot take',
   SkipHotTake = 'skip hot take',
-  // My Setup - Workspace Photos
-  StartAddWorkspacePhoto = 'start add workspace photo',
-  AddWorkspacePhoto = 'add workspace photo',
-  RemoveWorkspacePhoto = 'remove workspace photo',
-  ReorderWorkspacePhoto = 'reorder workspace photo',
-  // My Setup - Gear
-  StartAddGear = 'start add gear',
-  AddGear = 'add gear',
-  RemoveGear = 'remove gear',
-  ReorderGear = 'reorder gear',
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
