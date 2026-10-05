@@ -105,7 +105,9 @@ const OAuthConsentPage = (): ReactElement => {
     setIsSubmitting(false);
   };
 
-  const clientName = client?.client_name ?? 'An application';
+  const clientName = client?.client_name
+    ? `"${client.client_name}"`
+    : 'An application';
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-6">
@@ -152,11 +154,15 @@ const OAuthConsentPage = (): ReactElement => {
                       checked={allowWrite}
                       onToggleCallback={setAllowWrite}
                     >
-                      {scopeDescriptions[scope]}
+                      <span className="text-text-primary">
+                        {scopeDescriptions[scope]}
+                      </span>
                     </Checkbox>
                   ) : (
                     <Checkbox key={scope} name={scope} checked disabled>
-                      {scopeDescriptions[scope]}
+                      <span className="text-text-primary">
+                        {scopeDescriptions[scope]}
+                      </span>
                     </Checkbox>
                   ),
                 )}
