@@ -26,7 +26,10 @@ import { useOpenShareLink } from '../../hooks/useOpenShareLink';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
-import type { SlackSharePost } from '../../hooks/integrations/slack/useSlackShareButton';
+import type {
+  SlackSharePost,
+  SlackShareSnapshot,
+} from '../../hooks/integrations/slack/useSlackShareButton';
 import { SlackCtaButton } from '../widgets/SlackCtaButton';
 import { postLogEvent } from '../../lib/feed';
 import type { TargetType } from '../../lib/log';
@@ -133,16 +136,24 @@ function ShareTile({
 
 function SnapshotSlackRow({
   post,
+  image,
+  filename,
   placement,
   isDrawer,
   onClose,
 }: {
   post: SlackSharePost;
+  image: Blob;
+  filename: string;
   placement?: Origin;
   isDrawer: boolean;
   onClose: () => void;
 }): ReactElement {
   const { integration } = useSlackShare();
+  const snapshot = useMemo<SlackShareSnapshot>(
+    () => ({ image, filename }),
+    [image, filename],
+  );
 
   return (
     <div className="flex flex-col gap-3 rounded-14 bg-surface-float p-3">
@@ -154,7 +165,7 @@ function SnapshotSlackRow({
           <span className="font-bold typo-callout">Send it to your team</span>
           <span className="text-text-tertiary typo-footnote">
             {integration
-              ? 'Share the post to a Slack channel.'
+              ? 'Send the snapshot to a Slack channel.'
               : 'Connect once, then pick a channel.'}
           </span>
         </span>
@@ -164,6 +175,7 @@ function SnapshotSlackRow({
         origin={Origin.SnapshotSharePanel}
         placement={placement}
         post={post}
+        snapshot={snapshot}
         size={isDrawer ? ButtonSize.Medium : ButtonSize.Small}
         onAfterClick={onClose}
       />
@@ -294,6 +306,8 @@ function SnapshotShareContent({
       </div>
       {isLoggedIn && post && (
         <SnapshotSlackRow
+          filename={filename}
+          image={image}
           isDrawer={isDrawer}
           onClose={onClose}
           placement={placement}

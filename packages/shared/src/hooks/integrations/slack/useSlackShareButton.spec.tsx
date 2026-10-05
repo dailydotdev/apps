@@ -2,8 +2,10 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
+import { get as getCache, set as setCache } from 'idb-keyval';
 import {
   getSlackShareOriginPath,
+  slackShareSnapshotKey,
   useSlackShareReturn,
 } from './useSlackShareButton';
 import type { Post } from '../../../graphql/posts';
@@ -22,6 +24,19 @@ import {
 const mockOpenModal = jest.fn();
 const mockDisplayToast = jest.fn();
 const mockRestoreScrollPosition = jest.fn();
+const mockStore = new Map<string, unknown>();
+
+// jsdom's Blob cannot be structured-cloned into fake-indexeddb
+jest.mock('idb-keyval', () => ({
+  ...jest.requireActual('idb-keyval'),
+  get: async (key: string) => mockStore.get(key),
+  set: async (key: string, value: unknown) => {
+    mockStore.set(key, value);
+  },
+  del: async (key: string) => {
+    mockStore.delete(key);
+  },
+}));
 
 jest.mock('../../useLazyModal', () => ({
   ...jest.requireActual('../../useLazyModal'),
@@ -111,6 +126,7 @@ describe('useSlackShareReturn', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockStore.clear();
   });
 
   afterAll(() => {
@@ -152,6 +168,39 @@ describe('useSlackShareReturn', () => {
         props: expect.objectContaining({ post, origin: undefined }),
       }),
     );
+  });
+
+  it('should reopen the picker with the snapshot that left for Slack', async () => {
+    const snapshot = {
+      image: new Blob(['snapshot'], { type: 'image/png' }),
+      filename: 'tldr',
+      message: 'Worth a read',
+      channel: { id: 'c1', name: 'general' },
+    };
+    await setCache(slackShareSnapshotKey, { ...snapshot, postId: post.id });
+    land({ slackSnapshot: '1' });
+    renderReturn([slackIntegration]);
+
+    await waitFor(() =>
+      expect(mockOpenModal).toHaveBeenCalledWith({
+        type: LazyModal.SlackShare,
+        props: expect.objectContaining({ post, snapshot }),
+      }),
+    );
+    expectParamsCleared();
+    expect(await getCache(slackShareSnapshotKey)).toBeUndefined();
+  });
+
+  it('should ask for a new snapshot rather than share the link when it was lost', async () => {
+    land({ slackSnapshot: '1' });
+    renderReturn([slackIntegration]);
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Slack is connected. Take the snapshot again to send it.',
+      ),
+    );
+    expect(mockOpenModal).not.toHaveBeenCalled();
   });
 
   it('should clear the params and say so when Slack refused', async () => {

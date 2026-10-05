@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
+import { del as delCache, get as getCache, set as setCache } from 'idb-keyval';
 import type { Post } from '../../../graphql/posts';
 import { getPostById } from '../../../graphql/posts';
+import type { SlackChannel } from '../../../graphql/integrations';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { useSlackShare } from './useSlackShare';
+import { useSlack } from './useSlack';
 import { useIntegrationsQuery } from '../useIntegrationsQuery';
 import { useLazyModal } from '../../useLazyModal';
 import { useToastNotification } from '../../useToastNotification';
@@ -36,26 +40,91 @@ export type UseSlackShareButton = {
 const postIdParam = 'slackPostId';
 const scrollParam = 'slackScrollY';
 const originParam = 'slackOrigin';
+const snapshotParam = 'slackSnapshot';
 // `error` is appended by the API when the reader cancels or Slack refuses
-const returnParams = ['lzym', postIdParam, scrollParam, originParam, 'error'];
+const returnParams = [
+  'lzym',
+  postIdParam,
+  scrollParam,
+  originParam,
+  snapshotParam,
+  'error',
+];
 const origins = new Set<string>(Object.values(Origin));
+export const slackShareSnapshotKey = 'slack_share_snapshot';
 
 /** What sharing a post to Slack reads: its id, its page and what it logs. */
 export type SlackSharePost = PostLogEventPost & Partial<Pick<Post, 'slug'>>;
+
+/**
+ * A snapshot sent in place of the post link, plus what the picker held when
+ * it left for Slack's OAuth, so the return can put it all back.
+ */
+export type SlackShareSnapshot = {
+  image: Blob;
+  filename: string;
+  message?: string;
+  channel?: SlackChannel;
+};
+
+type StoredSlackShareSnapshot = SlackShareSnapshot & { postId: string };
+
+// OAuth is a full page load, so the snapshot waits in IndexedDB for the return.
+// A failed write only means the return asks for a new snapshot.
+const saveSlackShareSnapshot = async (
+  postId: string,
+  snapshot: SlackShareSnapshot,
+): Promise<void> => {
+  const stored: StoredSlackShareSnapshot = { ...snapshot, postId };
+
+  try {
+    await setCache(slackShareSnapshotKey, stored);
+  } catch {
+    // the return finds nothing and says so
+  }
+};
+
+const takeSlackShareSnapshot = async (
+  postId: string,
+): Promise<SlackShareSnapshot | undefined> => {
+  try {
+    const stored = await getCache<StoredSlackShareSnapshot>(
+      slackShareSnapshotKey,
+    );
+    await delCache(slackShareSnapshotKey);
+
+    if (!stored || stored.postId !== postId) {
+      return undefined;
+    }
+
+    const { image, filename, message, channel } = stored;
+
+    return { image, filename, message, channel };
+  } catch {
+    return undefined;
+  }
+};
 
 /**
  * Where Slack sends the user back when the share has no webapp page of its own
  * to return to, as on the extension: the API callback only ever redirects to a
  * path on the webapp, so it has to be the post's page.
  */
-export const getSlackShareRedirectPath = (post: SlackSharePost): string =>
-  getPathnameWithQuery(
-    `/posts/${post.slug ?? post.id}`,
-    new URLSearchParams({
-      lzym: LazyModal.SlackShare,
-      [postIdParam]: post.id,
-    }),
-  );
+export const getSlackShareRedirectPath = (
+  post: SlackSharePost,
+  hasSnapshot?: boolean,
+): string => {
+  const params = new URLSearchParams({
+    lzym: LazyModal.SlackShare,
+    [postIdParam]: post.id,
+  });
+
+  if (hasSnapshot) {
+    params.set(snapshotParam, '1');
+  }
+
+  return getPathnameWithQuery(`/posts/${post.slug ?? post.id}`, params);
+};
 
 /** The surface the share started on, with the scroll position to put back. */
 export const getSlackShareOriginPath = ({
@@ -63,11 +132,13 @@ export const getSlackShareOriginPath = ({
   origin,
   path,
   scrollY,
+  hasSnapshot,
 }: {
   post: SlackSharePost;
   origin?: Origin;
   path: string;
   scrollY: number;
+  hasSnapshot?: boolean;
 }): string => {
   const [pathname, query] = path.split('#')[0].split('?');
   const params = new URLSearchParams(query);
@@ -80,31 +151,119 @@ export const getSlackShareOriginPath = ({
     params.set(originParam, origin);
   }
 
+  if (hasSnapshot) {
+    params.set(snapshotParam, '1');
+  }
+
   return getPathnameWithQuery(pathname, params);
 };
 
-export const useSlackShareButton = ({
+const getSlackShareReturnPath = ({
+  post,
+  origin,
+  router,
+  hasSnapshot,
+}: {
+  post: SlackSharePost;
+  origin?: Origin;
+  router: NextRouter;
+  hasSnapshot: boolean;
+}): string => {
+  if (isExtension) {
+    return getSlackShareRedirectPath(post, hasSnapshot);
+  }
+
+  // a post modal masks the feed behind it with the post's URL, so the feed's
+  // address and position come from what the modal stashed when it opened
+  const feedPath = router?.query?.pmap as string | undefined;
+
+  return getSlackShareOriginPath({
+    post,
+    origin,
+    path: feedPath ?? router?.asPath ?? window.location.pathname,
+    scrollY: feedPath
+      ? getScrollPosition(window.location.href, 'post-modal') ?? 0
+      : window.scrollY,
+    hasSnapshot,
+  });
+};
+
+/**
+ * Leaves for Slack's OAuth and comes back to the page the share started on,
+ * bringing the snapshot along when there is one.
+ */
+export const useSlackShareConnect = ({
   post,
   origin,
   placement,
 }: {
   post: SlackSharePost;
   origin?: Origin;
-  /** The surface the share control sits in, when `origin` names a control. */
   placement?: Origin;
-}): UseSlackShareButton => {
+}): ((params: {
+  reason: string;
+  snapshot?: SlackShareSnapshot;
+}) => Promise<void>) => {
   const router = useRouter();
   const { logEvent } = useLogContext();
+  const { connect } = useSlack();
+
+  return useCallback(
+    async ({ reason, snapshot }) => {
+      logEvent({
+        event_name: LogEvent.StartAddingWorkspace,
+        target_id: UserIntegrationType.Slack,
+        extra: JSON.stringify({
+          origin,
+          placement,
+          reason,
+          ...(snapshot && { content: 'snapshot' }),
+        }),
+      });
+
+      // the extension's IndexedDB is not the webapp's, where OAuth returns
+      if (snapshot && !isExtension) {
+        await saveSlackShareSnapshot(post.id, snapshot);
+      }
+
+      connect({
+        redirectPath: getSlackShareReturnPath({
+          post,
+          origin,
+          router,
+          hasSnapshot: !!snapshot,
+        }),
+      });
+    },
+    [logEvent, origin, placement, post, router, connect],
+  );
+};
+
+export const useSlackShareButton = ({
+  post,
+  origin,
+  placement,
+  snapshot,
+}: {
+  post: SlackSharePost;
+  origin?: Origin;
+  /** The surface the share control sits in, when `origin` names a control. */
+  placement?: Origin;
+  /** Sent in place of the post link. */
+  snapshot?: SlackShareSnapshot;
+}): UseSlackShareButton => {
+  const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
-  const { integration, canPostAsUser, connect, isLoading } = useSlackShare();
+  const { integration, canPostAsUser, isLoading } = useSlackShare();
+  const connect = useSlackShareConnect({ post, origin, placement });
   const isConnected = !!integration;
 
   const openPicker = useCallback(() => {
     openModal({
       type: LazyModal.SlackShare,
-      props: { post, origin, placement },
+      props: { post, origin, placement, snapshot },
     });
-  }, [openModal, post, origin, placement]);
+  }, [openModal, post, origin, placement, snapshot]);
 
   const onClick = useCallback(() => {
     if (isLoading) {
@@ -120,6 +279,7 @@ export const useSlackShareButton = ({
           placement,
           has_integration: !!integration,
           can_post_as_user: canPostAsUser,
+          ...(snapshot && { content: 'snapshot' }),
         },
       }),
     );
@@ -130,31 +290,7 @@ export const useSlackShareButton = ({
       return;
     }
 
-    logEvent({
-      event_name: LogEvent.StartAddingWorkspace,
-      target_id: UserIntegrationType.Slack,
-      extra: JSON.stringify({ origin, placement, reason: 'share' }),
-    });
-
-    if (isExtension) {
-      connect(getSlackShareRedirectPath(post));
-
-      return;
-    }
-
-    // a post modal masks the feed behind it with the post's URL, so the feed's
-    // address and position come from what the modal stashed when it opened
-    const feedPath = router?.query?.pmap as string | undefined;
-    connect(
-      getSlackShareOriginPath({
-        post,
-        origin,
-        path: feedPath ?? router?.asPath ?? window.location.pathname,
-        scrollY: feedPath
-          ? getScrollPosition(window.location.href, 'post-modal') ?? 0
-          : window.scrollY,
-      }),
-    );
+    connect({ reason: 'share', snapshot });
   }, [
     isLoading,
     integration,
@@ -165,7 +301,7 @@ export const useSlackShareButton = ({
     placement,
     connect,
     post,
-    router,
+    snapshot,
   ]);
 
   return {
@@ -181,6 +317,7 @@ type SlackShareReturn = {
   scrollY?: number;
   origin?: Origin;
   error?: string;
+  hasSnapshot: boolean;
 };
 
 const readSlackShareReturn = (): SlackShareReturn | undefined => {
@@ -201,6 +338,7 @@ const readSlackShareReturn = (): SlackShareReturn | undefined => {
     scrollY: Number(params.get(scrollParam)) || undefined,
     origin: origin && origins.has(origin) ? (origin as Origin) : undefined,
     error: params.get('error') ?? undefined,
+    hasSnapshot: params.has(snapshotParam),
   };
 };
 
@@ -260,6 +398,10 @@ export const useSlackShareReturn = (): void => {
     );
 
     if (isNotConnected) {
+      if (pending.hasSnapshot) {
+        takeSlackShareSnapshot(pending.postId);
+      }
+
       displayToast('Slack was not connected, so nothing was shared');
 
       return;
@@ -270,20 +412,38 @@ export const useSlackShareReturn = (): void => {
     }
 
     const { scrollY, origin } = pending;
-
-    openModal({
-      type: LazyModal.SlackShare,
-      props: {
-        post,
-        origin,
-        // the feed behind the picker is still loading; by the time the picker
-        // closes it is tall enough to scroll back to where the share started
-        onAfterClose: () => {
-          if (scrollY) {
-            restoreScrollPosition(scrollY);
-          }
+    const openPicker = (snapshot?: SlackShareSnapshot) =>
+      openModal({
+        type: LazyModal.SlackShare,
+        props: {
+          post,
+          origin,
+          snapshot,
+          // the feed behind the picker is still loading; by the time the picker
+          // closes it is tall enough to scroll back to where the share started
+          onAfterClose: () => {
+            if (scrollY) {
+              restoreScrollPosition(scrollY);
+            }
+          },
         },
-      },
+      });
+
+    if (!pending.hasSnapshot) {
+      openPicker();
+
+      return;
+    }
+
+    // never fall back to the post link: the reader chose to send the image
+    takeSlackShareSnapshot(pending.postId).then((snapshot) => {
+      if (!snapshot) {
+        displayToast('Slack is connected. Take the snapshot again to send it.');
+
+        return;
+      }
+
+      openPicker(snapshot);
     });
   }, [
     pending,

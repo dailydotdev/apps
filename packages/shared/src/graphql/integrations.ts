@@ -16,6 +16,8 @@ export type UserIntegration = {
   name: string;
   userId: string;
   canPostAsUser?: boolean;
+  /** False until the workspace grants `files:write`, which images need. */
+  canShareImages?: boolean;
 };
 
 export type SlackChannel = {
@@ -84,6 +86,29 @@ export const INTEGRATION_SHARE_POST_MUTATION = gql`
       integrationId: $integrationId
       channelId: $channelId
       postId: $postId
+    ) {
+      _
+    }
+  }
+`;
+
+export const slackShareMessageMaxLength = 2000;
+
+export const INTEGRATION_SHARE_IMAGE_MUTATION = gql`
+  mutation IntegrationShareImage(
+    $integrationId: ID!
+    $channelId: ID!
+    $postId: ID!
+    $message: String
+    $image: Upload!
+  ) {
+    integrationSharePost(
+      integrationId: $integrationId
+      channelId: $channelId
+      postId: $postId
+      message: $message
+      image: $image
+      attachPost: false
     ) {
       _
     }
