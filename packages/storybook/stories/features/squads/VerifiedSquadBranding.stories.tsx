@@ -39,7 +39,9 @@ import { entries, squad as data, team, toPost } from '../../squad-page/data';
 // - UI2 the verified seal after the squad's name (on the logo where the
 //   name is not shown, e.g. feed cards)
 // - Featured vs Verified: Featured is a blue card, purple is verified only
-// The API does not need to be up: the queries are seeded below.
+// The API does not need to be up: the queries are seeded below. Production
+// has no verified squad yet, so these stories are where the verified states
+// can be reviewed until sales ops flag one.
 
 const member = (index: number, role: SourceMemberRole): SourceMember =>
   ({
