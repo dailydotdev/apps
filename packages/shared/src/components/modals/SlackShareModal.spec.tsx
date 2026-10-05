@@ -6,34 +6,29 @@ import SlackShareModal from './SlackShareModal';
 import post from '../../../__tests__/fixture/post';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockIdbStore } from '../../../__tests__/helpers/idbKeyval';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import { gqlClient } from '../../graphql/common';
 import type { UserIntegration } from '../../graphql/integrations';
 import {
   INTEGRATION_RECENT_CHANNELS_QUERY,
   INTEGRATION_SHARE_IMAGE_MUTATION,
+  INTEGRATION_SHARE_POST_MUTATION,
   integrationRecentChannelsQueryOptions,
   SLACK_CHANNELS_QUERY,
   UserIntegrationType,
 } from '../../graphql/integrations';
-import { slackShareSnapshotKey } from '../../hooks/integrations/slack/useSlackShareButton';
+import type { SlackShareSnapshot } from '../../hooks/integrations/slack/slackShareSnapshot';
+import { slackShareSnapshotKey } from '../../hooks/integrations/slack/slackShareSnapshot';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
 const mockConnect = jest.fn();
 const mockDisplayToast = jest.fn();
 const mockShare = jest.fn();
-const mockStore = new Map<string, unknown>();
 
-// jsdom's Blob cannot be structured-cloned into fake-indexeddb
-jest.mock('idb-keyval', () => ({
-  ...jest.requireActual('idb-keyval'),
-  get: async (key: string) => mockStore.get(key),
-  set: async (key: string, value: unknown) => {
-    mockStore.set(key, value);
-  },
-  del: async (key: string) => {
-    mockStore.delete(key);
-  },
-}));
+jest.mock('idb-keyval', () =>
+  jest.requireActual('../../../__tests__/helpers/idbKeyval').idbKeyvalMock(),
+);
 
 jest.mock('../../hooks/integrations/slack/useSlack', () => ({
   useSlack: () => ({ connect: mockConnect, connectSource: jest.fn() }),
@@ -64,7 +59,10 @@ const missingScopeError = {
   },
 };
 
-const renderModal = (integration: Partial<UserIntegration>) => {
+const renderModal = (
+  integration: Partial<UserIntegration>,
+  { withSnapshot = true }: { withSnapshot?: boolean } = {},
+) => {
   const client = new QueryClient();
   const slackIntegration = {
     id: 'slack-1',
@@ -91,21 +89,18 @@ const renderModal = (integration: Partial<UserIntegration>) => {
         isOpen
         ariaHideApp={false}
         post={post}
-        snapshot={snapshot}
+        snapshot={withSnapshot ? snapshot : undefined}
         onRequestClose={jest.fn()}
       />
     </TestBootProvider>,
   );
 };
 
-beforeAll(() => {
-  URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
-  URL.revokeObjectURL = jest.fn();
-});
+mockObjectUrls();
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockStore.clear();
+  mockIdbStore.clear();
   jest.spyOn(gqlClient, 'request').mockImplementation((async (
     query: string,
     variables: unknown,
@@ -138,7 +133,6 @@ it('should send the snapshot under the message, without the post', async () => {
   );
   const [query, variables] = mockShare.mock.calls[0];
   expect(query).toBe(INTEGRATION_SHARE_IMAGE_MUTATION);
-  expect(query).toContain('attachPost: false');
   expect(variables).toEqual({
     integrationId: 'slack-1',
     channelId: channel.id,
@@ -147,6 +141,25 @@ it('should send the snapshot under the message, without the post', async () => {
     image: expect.any(File),
   });
   expect(variables.image.name).toBe('tldr.png');
+});
+
+it('should share the post link when there is no snapshot', async () => {
+  mockShare.mockResolvedValue({ integrationSharePost: { _: true } });
+  renderModal({ canShareImages: false }, { withSnapshot: false });
+
+  expect(
+    screen.queryByPlaceholderText('Add a message (optional)'),
+  ).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '#general' }));
+
+  await waitFor(() =>
+    expect(mockDisplayToast).toHaveBeenCalledWith('Shared to Slack'),
+  );
+  expect(mockShare).toHaveBeenCalledWith(INTEGRATION_SHARE_POST_MUTATION, {
+    integrationId: 'slack-1',
+    channelId: channel.id,
+    postId: post.id,
+  });
 });
 
 it('should ask to reconnect, keeping the snapshot, when images are not allowed yet', async () => {
@@ -164,14 +177,14 @@ it('should ask to reconnect, keeping the snapshot, when images are not allowed y
   fireEvent.click(screen.getByRole('button', { name: 'Reconnect Slack' }));
 
   await waitFor(() => expect(mockConnect).toHaveBeenCalledTimes(1));
-  expect(mockConnect.mock.calls[0][0].redirectPath).toContain(
-    'slackSnapshot=1',
+  const { redirectPath } = mockConnect.mock.calls[0][0];
+  const stored = await getCache<SlackShareSnapshot & { id: string }>(
+    slackShareSnapshotKey,
   );
-  expect(await getCache(slackShareSnapshotKey)).toMatchObject({
-    postId: post.id,
-    filename: 'tldr',
-    message: 'Worth a read',
-  });
+  expect(stored).toMatchObject({ filename: 'tldr', message: 'Worth a read' });
+  expect(
+    new URLSearchParams(redirectPath.split('?')[1]).get('slackSnapshot'),
+  ).toBe(stored?.id);
   expect(mockShare).not.toHaveBeenCalled();
 });
 
@@ -183,7 +196,7 @@ it('should switch to the reconnect prompt when Slack refuses the image', async (
 
   expect(
     await screen.findByRole('button', { name: 'Reconnect Slack' }),
-  ).toBeInTheDocument();
+  ).toHaveFocus();
   expect(mockDisplayToast).not.toHaveBeenCalled();
 
   fireEvent.click(screen.getByRole('button', { name: 'Reconnect Slack' }));

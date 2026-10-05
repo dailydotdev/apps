@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -19,36 +19,34 @@ import {
 } from '../typography/Typography';
 import {
   integrationRecentChannelsQueryOptions,
+  isIntegrationMissingScopeError,
   slackShareMessageMaxLength,
-  UserIntegrationType,
 } from '../../graphql/integrations';
-import {
-  isSlackMissingScopeError,
-  useSlackShare,
-} from '../../hooks/integrations/slack/useSlackShare';
-import type {
-  SlackSharePost,
-  SlackShareSnapshot,
-} from '../../hooks/integrations/slack/useSlackShareButton';
-import {
-  getSlackShareRedirectPath,
-  useSlackShareConnect,
-} from '../../hooks/integrations/slack/useSlackShareButton';
+import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
+import type { SlackShareSnapshot } from '../../hooks/integrations/slack/slackShareSnapshot';
+import type { SlackConnectReason } from '../../hooks/integrations/slack/useSlackShareButton';
+import { useSlackConnect } from '../../hooks/integrations/slack/useSlackShareButton';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { useObjectUrl } from '../../hooks/useObjectUrl';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
+import type { ShareablePost } from '../../lib/feed';
 import { postLogEvent } from '../../lib/feed';
+import { isExtension } from '../../lib/func';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
+import { toPngFile } from '../../lib/imageShare/shareImageFile';
 
 export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
-  post: SlackSharePost;
+  post: ShareablePost;
   origin?: Origin;
   placement?: Origin;
-  /** Sent in place of the post link, under an optional message. */
+  /** Shown above the channel picker with an optional message. */
   snapshot?: SlackShareSnapshot;
+  /** Logged beside the share's own fields, like a highlight's id. */
+  extra?: Record<string, unknown>;
 };
 
 const channelLabel = (name: string) =>
@@ -61,6 +59,7 @@ const SlackShareModal = ({
   origin,
   placement,
   snapshot,
+  extra,
   ...props
 }: SlackShareModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
@@ -73,13 +72,8 @@ const SlackShareModal = ({
     isLoading,
     share,
     isSharing,
-    connect,
   } = useSlackShare();
-  const connectWithSnapshot = useSlackShareConnect({
-    post,
-    origin,
-    placement,
-  });
+  const connectSlack = useSlackConnect({ post, origin, placement });
   const { data: recentChannels = [] } = useQuery(
     integrationRecentChannelsQueryOptions({
       integrationId: integration?.id,
@@ -96,22 +90,18 @@ const SlackShareModal = ({
     snapshot?.channel?.id,
   );
   const [message, setMessage] = useState(snapshot?.message ?? '');
-  const [preview, setPreview] = useState<string>();
+  const preview = useObjectUrl(snapshot?.image);
   const [isMissingScope, setIsMissingScope] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
+  const reconnectRef = useRef<HTMLButtonElement>(null);
   const needsImagePermission =
     !!snapshot && (!canShareImages || isMissingScope);
 
   useEffect(() => {
-    if (!snapshot) {
-      return undefined;
+    if (isMissingScope) {
+      reconnectRef.current?.focus();
     }
-
-    const url = URL.createObjectURL(snapshot.image);
-    setPreview(url);
-
-    return () => URL.revokeObjectURL(url);
-  }, [snapshot]);
+  }, [isMissingScope]);
 
   const channelOptions = useMemo(() => {
     const query = channelQuery.trim().toLowerCase().replace(/^#/, '');
@@ -141,6 +131,7 @@ const SlackShareModal = ({
         content: 'snapshot',
         has_message: !!message.trim(),
       }),
+      ...extra,
     };
 
     try {
@@ -148,9 +139,7 @@ const SlackShareModal = ({
         channelId,
         postId: post.id,
         ...(snapshot && {
-          image: new File([snapshot.image], `${snapshot.filename}.png`, {
-            type: 'image/png',
-          }),
+          image: toPngFile(snapshot.image, snapshot.filename),
           message,
         }),
       });
@@ -175,7 +164,7 @@ const SlackShareModal = ({
         }),
       );
 
-      if (snapshot && isSlackMissingScopeError(error)) {
+      if (snapshot && isIntegrationMissingScopeError(error)) {
         setSelectedChannelId(channelId);
         setIsMissingScope(true);
 
@@ -186,34 +175,28 @@ const SlackShareModal = ({
     }
   };
 
-  const onReconnect = (reason: 'upgrade' | 'image_permission') => {
-    if (snapshot) {
-      const known = [...channels, ...recentChannels];
-
-      if (snapshot.channel) {
-        known.push(snapshot.channel);
-      }
-
-      setIsReconnecting(true);
-      connectWithSnapshot({
-        reason,
-        snapshot: {
-          ...snapshot,
-          message,
-          channel: known.find(({ id }) => id === selectedChannelId),
-        },
-      });
+  const onReconnect = (reason: SlackConnectReason) => {
+    if (!snapshot) {
+      connectSlack({ reason });
 
       return;
     }
 
-    logEvent({
-      event_name: LogEvent.StartAddingWorkspace,
-      target_id: UserIntegrationType.Slack,
-      extra: JSON.stringify({ origin, placement, reason }),
-    });
+    const known = [...channels, ...recentChannels];
 
-    connect(getSlackShareRedirectPath(post));
+    if (snapshot.channel) {
+      known.push(snapshot.channel);
+    }
+
+    setIsReconnecting(true);
+    connectSlack({
+      reason,
+      snapshot: {
+        ...snapshot,
+        message,
+        channel: known.find(({ id }) => id === selectedChannelId),
+      },
+    });
   };
 
   return (
@@ -253,6 +236,7 @@ const SlackShareModal = ({
                 placeholder="Add a message (optional)"
                 rows={2}
                 maxLength={slackShareMessageMaxLength}
+                showMaxLength={false}
                 value={message}
                 valueChanged={setMessage}
               />
@@ -266,17 +250,31 @@ const SlackShareModal = ({
             </>
           )}
           {needsImagePermission && (
-            <div className="flex flex-col gap-3 rounded-14 bg-surface-float p-3">
-              <span className="flex flex-col gap-0.5">
-                <span className="font-bold typo-callout">
+            <div
+              className="flex flex-col gap-3 rounded-14 bg-surface-float p-3"
+              role="status"
+            >
+              <div className="flex flex-col gap-0.5">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Primary}
+                  bold
+                >
                   Allow daily.dev to send images
-                </span>
-                <span className="text-text-tertiary typo-footnote">
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
                   Slack needs an updated permission before it accepts the
-                  snapshot. Reconnect once and you will be right back here.
-                </span>
-              </span>
+                  snapshot.{' '}
+                  {isExtension
+                    ? 'Reconnect, then take the snapshot again to send it.'
+                    : 'Reconnect once and you will be right back here.'}
+                </Typography>
+              </div>
               <Button
+                ref={reconnectRef}
                 type="button"
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Large}

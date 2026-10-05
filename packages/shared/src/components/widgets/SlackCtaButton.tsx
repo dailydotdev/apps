@@ -6,19 +6,18 @@ import { ButtonVariant } from '../buttons/common';
 import { SlackIcon } from '../icons/Slack';
 import type { Origin } from '../../lib/log';
 import { wrapStopPropagation } from '../../lib/func';
-import type {
-  SlackSharePost,
-  SlackShareSnapshot,
-} from '../../hooks/integrations/slack/useSlackShareButton';
+import type { ShareablePost } from '../../lib/feed';
+import type { SlackShareSnapshot } from '../../hooks/integrations/slack/slackShareSnapshot';
 import { useSlackShareButton } from '../../hooks/integrations/slack/useSlackShareButton';
 
 export type SlackCtaButtonProps = {
-  post: SlackSharePost;
+  post: ShareablePost;
   origin?: Origin;
   /** The surface the button sits in, when `origin` names the control. */
   placement?: Origin;
-  /** Sent in place of the post link. */
   snapshot?: SlackShareSnapshot;
+  /** Logged beside the share's own fields, like a highlight's id. */
+  extra?: Record<string, unknown>;
   size?: ButtonSize;
   variant?: ButtonVariant;
   className?: string;
@@ -30,6 +29,7 @@ export const SlackCtaButton = ({
   origin,
   placement,
   snapshot,
+  extra,
   size,
   variant = ButtonVariant.Primary,
   className,
@@ -40,6 +40,7 @@ export const SlackCtaButton = ({
     origin,
     placement,
     snapshot,
+    extra,
   });
 
   return (
