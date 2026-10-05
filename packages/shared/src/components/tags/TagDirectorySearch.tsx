@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { SearchField } from '../fields/SearchField';
+import { ShellField } from '../shell/ShellField';
 import { getTagPageLink } from '../../lib/links';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import {
@@ -38,12 +39,18 @@ export function TagDirectorySearch({
   return (
     <div className={classNames('flex w-full flex-col gap-3', className)}>
       <SearchField
+        className="hidden tablet:flex"
         inputId="tag-directory-search"
         placeholder="Search all tags"
         value={inputValue}
         valueChanged={onValueChange}
         aria-label="Search all tags"
         autoComplete="off"
+      />
+      <ShellField
+        placeholder="Search tags"
+        value={inputValue}
+        onChange={onValueChange}
       />
       {!inputValue && recommendedTags.length > 0 && (
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">

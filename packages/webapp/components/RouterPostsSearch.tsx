@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import type { PostsSearchProps } from '@dailydotdev/shared/src/components/PostsSearch';
 import PostsSearch from '@dailydotdev/shared/src/components/PostsSearch';
 import { useRouter } from 'next/router';
+import { ShellField } from '@dailydotdev/shared/src/components/shell/ShellField';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import {
@@ -19,6 +21,8 @@ export default function RouterPostsSearch(
   props: Omit<PostsSearchProps, 'onSubmitQuery'>,
 ): ReactElement {
   const router = useRouter();
+  const isPhone = useIsPhone();
+  const [draft, setDraft] = useState(router.query.q?.toString() ?? '');
   const { time, contentCurationFilter, postTypesFilter } =
     useSearchContextProvider();
   const { logEvent } = useLogContext();
@@ -55,6 +59,27 @@ export default function RouterPostsSearch(
       pathname: router?.pathname ? router?.pathname : '/search',
     });
   };
+
+  if (isPhone) {
+    const { placeholder } = props;
+
+    return (
+      <ShellField
+        placeholder={placeholder ?? 'Search'}
+        value={draft}
+        onChange={(value) => {
+          setDraft(value);
+          if (!value && router.query.q) {
+            onClearQuery();
+          }
+        }}
+        onSubmit={(value) =>
+          value.trim() ? onSubmitQuery(value.trim()) : onClearQuery()
+        }
+        onFocus={() => logEvent({ event_name: LogEvent.FocusSearch })}
+      />
+    );
+  }
 
   return (
     <PostsSearch

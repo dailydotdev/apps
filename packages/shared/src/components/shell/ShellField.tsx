@@ -17,6 +17,7 @@ interface ShellFieldProps {
   value?: string;
   onChange?: (value: string) => void;
   onSubmit?: (value: string) => void;
+  onFocus?: () => void;
 }
 
 const transition = ['transform', 'height', 'border-radius', 'padding']
@@ -29,6 +30,7 @@ export function ShellField({
   value = '',
   onChange,
   onSubmit,
+  onFocus,
 }: ShellFieldProps): ReactElement | null {
   const isPhone = useIsPhone();
   const { p } = useShellScroll();
@@ -128,6 +130,7 @@ export function ShellField({
             onFocus={() => {
               setIsFocused(true);
               revealShell();
+              onFocus?.();
             }}
             onBlur={() => setIsFocused(false)}
             className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary [&::-webkit-search-cancel-button]:hidden"
