@@ -5,7 +5,6 @@ import type { Post } from './posts';
 export type FurtherReadingData = {
   trendingPosts: Post[];
   similarPosts: Post[];
-  discussedPosts: Post[];
 };
 
 const FURTHER_READING_FRAGMENT = gql`
@@ -40,8 +39,6 @@ export const FURTHER_READING_QUERY = gql`
     $loggedIn: Boolean! = false
     $trendingFirst: Int
     $similarFirst: Int
-    $discussedFirst: Int
-    $withDiscussedPosts: Boolean! = false
     $tags: [String]!
   ) {
     trendingPosts: randomTrendingPosts(post: $post, first: $trendingFirst) {
@@ -58,10 +55,6 @@ export const FURTHER_READING_QUERY = gql`
       ...FurtherReading
       bookmarked @include(if: $loggedIn)
       tags
-    }
-    discussedPosts: randomDiscussedPosts(post: $post, first: $discussedFirst)
-      @include(if: $withDiscussedPosts) {
-      ...FurtherReading
     }
   }
   ${FURTHER_READING_FRAGMENT}
