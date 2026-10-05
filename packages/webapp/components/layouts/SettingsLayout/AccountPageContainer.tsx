@@ -32,6 +32,8 @@ interface AccountPageContainerProps {
   children?: ReactNode;
   className?: ClassName;
   onBack?: () => void;
+  // What the phone's block shows under the title: a section's segments.
+  phoneRow?: ReactNode;
 }
 
 export const AccountPageContainer = ({
@@ -40,6 +42,7 @@ export const AccountPageContainer = ({
   children,
   className = {},
   onBack,
+  phoneRow,
 }: AccountPageContainerProps): ReactElement => {
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
@@ -91,6 +94,7 @@ export const AccountPageContainer = ({
       {!isV2Laptop && (
         <ShellPage
           title={title}
+          row={phoneRow}
           // On a phone the sections menu is the page behind every section,
           // so back returns to it.
           onBack={() => setIsOpen(true)}

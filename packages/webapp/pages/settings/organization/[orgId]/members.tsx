@@ -65,6 +65,7 @@ import {
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import type { MenuItemProps } from '@dailydotdev/shared/src/components/dropdown/common';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
+import { OrganizationSegments } from '../../../../components/layouts/SettingsLayout/OrganizationSegments';
 import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
@@ -362,6 +363,7 @@ const Page = (): ReactElement | null => {
   return (
     <AccountPageContainer
       title={isRegularMember ? organization.name : 'Members overview'}
+      phoneRow={!isRegularMember && <OrganizationSegments active="Members" />}
       className={{ container: 'max-w-full', section: 'gap-6' }}
       onBack={
         isRegularMember ? () => push(`${settingsUrl}/organization`) : undefined
