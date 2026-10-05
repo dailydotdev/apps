@@ -8,6 +8,8 @@ import type {
 import type { ParsedUrlQuery } from 'querystring';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { useQuery } from '@tanstack/react-query';
+import type { ClientError } from 'graphql-request';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import type { SharedCreatorAchievement } from '@dailydotdev/shared/src/graphql/creatorAchievements';
 import {
   getCreatorAchievementCardUrl,
@@ -99,8 +101,17 @@ export async function getStaticProps({
   try {
     ({ sharedCreatorAchievement: achievement } =
       await sharedCreatorAchievementQueryOptions(id).queryFn());
-  } catch {
-    achievement = null;
+  } catch (err) {
+    // The API answers a missing or unshared award with null, so only a
+    // genuine absence code may render the unavailable state. Anything else
+    // (5xx, network, unknown GraphQL error) must throw: ISR would otherwise
+    // cache "not available" and its OG preview for a live award.
+    const errorCode = (err as ClientError)?.response?.errors?.[0]?.extensions
+      ?.code;
+
+    if (errorCode !== ApiError.NotFound && errorCode !== ApiError.Forbidden) {
+      throw err;
+    }
   }
 
   const card = achievement ? achievementCardData(achievement) : null;

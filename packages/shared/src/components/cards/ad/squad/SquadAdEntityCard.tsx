@@ -26,6 +26,7 @@ import { storeSquadBoostClick } from '../../../../features/monetization/squadBoo
 import { useScrambler } from '../../../../hooks/useScrambler';
 import { hasSquadFeature } from '../../../../features/squads/lib/features';
 import { VerifiedSquadBadge } from '../../../../features/squads/components/VerifiedSquad';
+import { SquadRow } from '../../../../features/squads/components/widgets/SquadRow';
 import { useSquadAd } from './common';
 import { SquadAdAction } from './SquadAdAction';
 
@@ -35,9 +36,13 @@ export const isSquadAd = (ad?: Ad | null): ad is SquadAd => !!ad?.data?.source;
 
 interface SquadAdEntityCardProps {
   ad: SquadAd;
-  /** Same variants as the post page ad slot it fills. */
-  variant: 'card' | 'inline';
+  /**
+   * Same variants as the post page ad slot it fills, plus `row` for a list of
+   * squads in the squad page's right column.
+   */
+  variant: 'card' | 'inline' | 'row';
   className?: string;
+  origin?: Origin;
   onClickAd: () => void;
   onViewable: (data: ViewabilityData) => void;
 }
@@ -46,6 +51,7 @@ export function SquadAdEntityCard({
   ad,
   variant,
   className,
+  origin = Origin.ArticlePage,
   onClickAd,
   onViewable,
 }: SquadAdEntityCardProps): ReactElement {
@@ -59,36 +65,33 @@ export function SquadAdEntityCard({
   );
   const { name, handle, image, permalink, description } = squad;
 
+  const onClickCard = () => {
+    onClickAd();
+    storeSquadBoostClick(ad);
+  };
   const cardLink = (
     <Link href={permalink}>
       <a
         href={permalink}
         title={name}
         className="absolute inset-0 z-0"
-        {...combinedClicks(() => {
-          onClickAd();
-          storeSquadBoostClick(ad);
-        })}
+        {...combinedClicks(onClickCard)}
       />
     </Link>
   );
-  const action = (
-    <div className="relative z-1 shrink-0">
-      <SquadAdAction
-        squad={squad}
-        origin={Origin.ArticlePage}
-        size={ButtonSize.Small}
-        shouldShowAction={shouldShowAction}
-        onJustJoined={() => onJustJoined(true)}
-      />
-    </div>
+  const adAction = (
+    <SquadAdAction
+      squad={squad}
+      origin={origin}
+      size={ButtonSize.Small}
+      shouldShowAction={shouldShowAction}
+      onJustJoined={() => onJustJoined(true)}
+      copy={variant === 'row' ? { join: 'Join' } : undefined}
+    />
   );
-  const promotedLine = (
-    <Typography
-      type={TypographyType.Footnote}
-      color={TypographyColor.Tertiary}
-      className="flex min-w-0 items-center"
-    >
+  const action = <div className="relative z-1 shrink-0">{adAction}</div>;
+  const promotedDetails = (
+    <>
       <Tooltip content={promotedByTooltip} visible={!!campaign}>
         <button
           type="button"
@@ -99,7 +102,16 @@ export function SquadAdEntityCard({
         </button>
       </Tooltip>
       <Separator />
-      <span className="truncate">@{handle}</span>
+      <span className="min-w-0 shrink truncate">@{handle}</span>
+    </>
+  );
+  const promotedLine = (
+    <Typography
+      type={TypographyType.Footnote}
+      color={TypographyColor.Tertiary}
+      className="flex min-w-0 items-center"
+    >
+      {promotedDetails}
     </Typography>
   );
   const squadName = (
@@ -115,9 +127,23 @@ export function SquadAdEntityCard({
         gen_id: ad.generationId,
         referrer_target_id: ad.data.source.id,
         referrer_target_type: TargetType.Source,
+        origin,
       })}
     >
-      {variant === 'inline' ? (
+      {variant === 'row' && (
+        <SquadRow
+          squad={squad}
+          details={promotedDetails}
+          action={adAction}
+          onClick={onClickCard}
+        >
+          <span className="absolute bottom-0 left-0">
+            <AdPixel pixel={ad.pixel} />
+          </span>
+          <AdViewability ad={ad} onViewable={onViewable} />
+        </SquadRow>
+      )}
+      {variant === 'inline' && (
         <div
           className={classNames(
             'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 transition-colors hover:bg-surface-hover',
@@ -159,7 +185,8 @@ export function SquadAdEntityCard({
           </span>
           <AdViewability ad={ad} onViewable={onViewable} />
         </div>
-      ) : (
+      )}
+      {variant === 'card' && (
         <EntityCard
           image={image}
           type="squad"
