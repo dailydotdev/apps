@@ -31,6 +31,28 @@ export const getLinkedInShareLink = (link: string): string =>
   `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
     link,
   )}`;
+/**
+ * Where a pasted image can join the post: the composer, not a link-preview
+ * page. The link is the only text, so the image stays the message.
+ */
+export const getImagePostComposerLink = (
+  provider:
+    | ShareProvider.Twitter
+    | ShareProvider.LinkedIn
+    | ShareProvider.WhatsApp,
+  link: string,
+): string => {
+  const text = encodeURIComponent(link);
+
+  switch (provider) {
+    case ShareProvider.Twitter:
+      return `https://x.com/intent/post?text=${text}`;
+    case ShareProvider.LinkedIn:
+      return `https://www.linkedin.com/feed/?shareActive=true&text=${text}`;
+    default:
+      return getWhatsappShareLink(link);
+  }
+};
 export const getTelegramShareLink = (link: string, text: string): string =>
   `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
 export const getEmailShareLink = (

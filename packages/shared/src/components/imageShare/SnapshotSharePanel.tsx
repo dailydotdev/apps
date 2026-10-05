@@ -21,7 +21,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
-import { useOpenShareLink } from '../../hooks/useOpenShareLink';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useObjectUrl } from '../../hooks/useObjectUrl';
@@ -33,7 +33,9 @@ import { postLogEvent } from '../../lib/feed';
 import type { TargetType } from '../../lib/log';
 import { LogEvent, Origin } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
-import { ShareProvider } from '../../lib/share';
+import { getImagePostComposerLink, ShareProvider } from '../../lib/share';
+import { isAppleDevice } from '../../lib/func';
+import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import {
   getShareableImageFile,
@@ -46,8 +48,6 @@ import {
  */
 export interface SnapshotShare {
   link: string;
-  /** Prefilled on the networks that take a message. */
-  text?: string;
   cid: ReferralCampaignKey;
   event: LogEvent;
   targetId: string;
@@ -58,7 +58,6 @@ export interface SnapshotShare {
 
 export const getPostSnapshotShare = (post: ShareablePost): SnapshotShare => ({
   link: post.commentsPermalink,
-  text: post.title,
   cid: ReferralCampaignKey.SharePost,
   event: LogEvent.SharePost,
   targetId: post.id,
@@ -104,8 +103,13 @@ export type SnapshotSharePanelProps = SnapshotSubject & {
   onClose: () => void;
 };
 
+type ImageSocialProvider =
+  | ShareProvider.Twitter
+  | ShareProvider.LinkedIn
+  | ShareProvider.WhatsApp;
+
 const socials: {
-  provider: ShareProvider;
+  provider: ImageSocialProvider;
   label: string;
   Icon: ComponentType<IconProps>;
 }[] = [
@@ -235,15 +239,15 @@ function SnapshotShareContent({
 }: SnapshotShareContentProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { getTrackedUrl } = useGetShortUrl();
-  const openShare = useOpenShareLink();
+  const { getShortUrl, getTrackedUrl } = useGetShortUrl();
+  const { displayToast } = useToastNotification();
   const [linkCopied, copyLink] = useCopyLink();
   const thumbnail = useObjectUrl(image);
   const file = useMemo(
     () => getShareableImageFile(image, filename),
     [image, filename],
   );
-  const { link, text, cid } = share;
+  const { link, cid } = share;
   const iconSize = isDrawer ? IconSize.Small : IconSize.Size16;
 
   const logShare = useCallback(
@@ -274,14 +278,32 @@ function SnapshotShareContent({
     });
   };
 
-  const onSocial = async (provider: ShareProvider) => {
-    logShare(provider);
-    await openShare({
-      provider,
-      link,
-      text,
-      cid,
-    });
+  // Share pages only take a link, so the image goes the way that carries it:
+  // the system sheet where it accepts files, otherwise the clipboard and the
+  // network's composer, where the reader pastes it.
+  const onSocial = async (provider: ImageSocialProvider) => {
+    if (file) {
+      logShare(provider, { method: 'share_sheet' });
+      await shareImageFile(file, getTrackedUrl(link, cid));
+
+      return;
+    }
+
+    logShare(provider, { method: 'paste' });
+    const isCopied = copyShareImage(Promise.resolve(image));
+    const shortLink = await getShortUrl(link, cid);
+    globalThis.window?.open(
+      getImagePostComposerLink(provider, shortLink),
+      '_blank',
+    );
+
+    if (await isCopied) {
+      displayToast(
+        `Image copied. Press ${
+          isAppleDevice() ? '⌘V' : 'Ctrl+V'
+        } to add it to your post.`,
+      );
+    }
   };
 
   const onSave = () => {

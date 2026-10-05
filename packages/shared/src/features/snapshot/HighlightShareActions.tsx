@@ -62,7 +62,6 @@ export function HighlightShareActions({
 
   const share: SnapshotShare = {
     ...getPostSnapshotShare(highlight.post),
-    text: title,
     extra: { highlight_id: highlight.id },
   };
 

@@ -64,7 +64,6 @@ export function HotTakeSnapshotButton({
     ? {
         ...subject,
         link: permalink,
-        text: hotTake.title,
         cid: ReferralCampaignKey.ShareProfile,
       }
     : undefined;

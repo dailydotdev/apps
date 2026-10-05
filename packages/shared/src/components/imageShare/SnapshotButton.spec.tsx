@@ -140,6 +140,60 @@ describe('SnapshotButton share options', () => {
     });
   });
 
+  it('pastes the image into the network composer where files cannot be shared', async () => {
+    const open = jest.spyOn(window, 'open').mockReturnValue(null);
+    renderButton({ withPost: false, share: profileShare });
+
+    press();
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    jest.mocked(copyShareImage).mockClear();
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('X'));
+    });
+
+    expect(copyShareImage).toHaveBeenCalledTimes(1);
+    await waitFor(() =>
+      expect(open).toHaveBeenCalledWith(
+        expect.stringContaining('https://x.com/intent/post?text='),
+        '_blank',
+      ),
+    );
+    await waitFor(() =>
+      expect(
+        client.getQueryData<{ message: string }>(TOAST_NOTIF_KEY)?.message,
+      ).toMatch(/Image copied\. Press (⌘V|Ctrl\+V) to add it to your post\./),
+    );
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.ShareProfile,
+        extra: expect.stringContaining('"method":"paste"'),
+      }),
+    );
+    open.mockRestore();
+  });
+
+  it('hands the image file to the share sheet where it accepts files', async () => {
+    const share = jest.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { canShare: () => true, share });
+    const open = jest.spyOn(window, 'open').mockReturnValue(null);
+    renderButton({ withPost: false, share: profileShare });
+
+    press();
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('WhatsApp'));
+    });
+
+    expect(share).toHaveBeenCalledWith(
+      expect.objectContaining({ files: [expect.any(File)] }),
+    );
+    expect(open).not.toHaveBeenCalled();
+    open.mockRestore();
+    Object.assign(navigator, { canShare: undefined, share: undefined });
+  });
+
   it('only confirms the copy for a snapshot with nothing to link', async () => {
     renderButton({ withPost: false });
 
