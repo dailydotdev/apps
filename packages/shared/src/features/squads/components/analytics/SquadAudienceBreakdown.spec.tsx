@@ -4,7 +4,7 @@ import { SquadAudienceBreakdown } from './SquadAudienceBreakdown';
 
 describe('SquadAudienceBreakdown', () => {
   it('should draw each row at its real share', () => {
-    const { container } = render(
+    render(
       <SquadAudienceBreakdown
         title="Companies they work at"
         rows={[
@@ -17,8 +17,9 @@ describe('SquadAudienceBreakdown', () => {
 
     expect(screen.getByText('Shopify')).toBeInTheDocument();
     expect(screen.getByText('6%')).toBeInTheDocument();
-    const fills = container.querySelectorAll('li > span[aria-hidden]');
-    expect((fills[0] as HTMLElement).style.width).toEqual('6%');
+    expect(screen.getAllByTestId('audience-share')[0]).toHaveStyle({
+      width: '6%',
+    });
   });
 
   it('should explain an empty breakdown', () => {

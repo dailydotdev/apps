@@ -35,6 +35,7 @@ export const SquadAudienceBreakdown = ({
           >
             <span
               aria-hidden
+              data-testid="audience-share"
               className="absolute inset-y-0 left-0 min-w-5 rounded-12 bg-accent-cabbage-flat"
               style={{ width: `${share}%` }}
             />
