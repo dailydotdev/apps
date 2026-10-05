@@ -43,6 +43,8 @@ export enum Origin {
   SquadMembersList = 'squad members list',
   SquadChecklist = 'squad checklist',
   SquadInvitation = 'squad invitation',
+  SimilarSquads = 'similar squads',
+  SimilarSquadsPromoted = 'similar squads promoted',
   // squads - end
   PostCommentButton = 'comment button',
   PollCommentButton = 'poll comment button',
@@ -219,6 +221,7 @@ export enum LogEvent {
   ToggleSquadPreview = 'toggle squad preview',
   ClickSquadLink = 'click squad link',
   ClickSquadProduct = 'click squad product',
+  ClickSimilarSquad = 'click similar squad',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',
@@ -641,6 +644,7 @@ export enum TargetType {
   ExtensionPromo = 'extension promo',
   ProfileWorldToggle = 'profile world toggle',
   PostTopicSignup = 'post topic signup',
+  SimilarSquads = 'similar squads',
 }
 
 export enum TargetId {

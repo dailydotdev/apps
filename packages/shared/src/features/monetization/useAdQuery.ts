@@ -1,4 +1,4 @@
-import type { QueryKey } from '@tanstack/react-query';
+import type { QueryKey, UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useFeature } from '../../components/GrowthBookProvider';
@@ -14,6 +14,7 @@ interface UseAdQueryOptions {
   staleTime?: number;
   placement: FetchAdByPlacementOptions['placement'];
   active?: boolean;
+  retry?: UseQueryOptions<Ad | null>['retry'];
 }
 
 export const useAdQuery = ({
@@ -22,6 +23,7 @@ export const useAdQuery = ({
   staleTime,
   placement,
   active,
+  retry,
 }: UseAdQueryOptions) => {
   const boostsEnabled = useFeature(featurePostBoostAds);
   const consent = useAdMacroContext(enabled) ?? undefined;
@@ -42,6 +44,8 @@ export const useAdQuery = ({
     queryFn: () => fetchAdByPlacement(fetchOptions),
     enabled,
     staleTime,
+    // an explicit undefined would replace the client's default retry rule
+    ...(retry !== undefined && { retry }),
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
