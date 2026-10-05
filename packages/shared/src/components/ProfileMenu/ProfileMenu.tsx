@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ExitIcon } from '../icons';
@@ -68,14 +69,26 @@ export default function ProfileMenu({
       className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
       {showProfileCompletion && <ProfileCompletion />}
-      <ProfileMenuHeader showReferralLadderGift compact />
+      <ProfileMenuHeader
+        showReferralLadderGift
+        shouldOpenProfile
+        showOpenLinkIcon={false}
+        compact
+        className={classNames(
+          '-mx-3 px-3 hover:bg-surface-float',
+          showProfileCompletion
+            ? '-my-1.5 py-1.5'
+            : '-mb-1.5 -mt-3 pb-1.5 pt-3',
+        )}
+      />
 
       <PlusMenuEntry
         target={TargetId.ProfileDropdown}
         size={PlusEntryRowSize.Large}
+        className="-mx-3 -my-1.5 px-3 py-1.5 hover:bg-surface-float"
       />
 
-      <HorizontalSeparator />
+      <HorizontalSeparator className="-mx-3" />
 
       <nav className="flex flex-col gap-2">
         <MainSection />

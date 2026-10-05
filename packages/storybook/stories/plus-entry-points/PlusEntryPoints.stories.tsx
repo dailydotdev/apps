@@ -134,13 +134,19 @@ const Sidebar = (): ReactElement => (
 
 // The same pieces ProfileMenu renders, without its viewport-pinned popup.
 const ProfileMenuPanel = (): ReactElement => (
-  <div className="flex w-80 flex-col gap-3 rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3">
-    <ProfileMenuHeader compact />
+  <div className="flex w-80 flex-col gap-3 overflow-clip rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3">
+    <ProfileMenuHeader
+      shouldOpenProfile
+      showOpenLinkIcon={false}
+      compact
+      className="-mx-3 -mb-1.5 -mt-3 px-3 pb-1.5 pt-3 hover:bg-surface-float"
+    />
     <PlusMenuEntry
       target={TargetId.ProfileDropdown}
       size={PlusEntryRowSize.Large}
+      className="-mx-3 -my-1.5 px-3 py-1.5 hover:bg-surface-float"
     />
-    <HorizontalSeparator />
+    <HorizontalSeparator className="-mx-3" />
     <nav className="flex flex-col gap-2">
       <ProfileMenuMainSection />
     </nav>

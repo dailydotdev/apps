@@ -385,8 +385,11 @@ export const InnerProfileSettingsMenu = ({
     <nav className={classNames('flex flex-col gap-2', className)}>
       {showPlusEntry && (
         <>
-          <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
-          <HorizontalSeparator />
+          <PlusMenuEntry
+            target={TargetId.ProfileSettingsMenu}
+            className="-mx-4 -my-1 px-4 py-1 hover:bg-surface-float"
+          />
+          <HorizontalSeparator className="-mx-4" />
         </>
       )}
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
@@ -454,20 +457,23 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
   return (
     <aside
       className={classNames(
-        'ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64',
+        'ml-auto flex min-h-full flex-col gap-2 self-start overflow-clip rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64',
         featureTheme ? 'bg-transparent' : undefined,
       )}
     >
       <ProfileMenuHeader
-        className="rounded-10 hover:bg-theme-active"
+        className="-mx-2 -mb-1 -mt-2 px-2 pb-1 pt-2 hover:bg-surface-float"
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
         compact
       />
 
-      <PlusMenuEntry target={TargetId.ProfileSettingsMenu} />
+      <PlusMenuEntry
+        target={TargetId.ProfileSettingsMenu}
+        className="-mx-2 -my-1 px-2 py-1 hover:bg-surface-float"
+      />
 
-      <HorizontalSeparator />
+      <HorizontalSeparator className="-mx-2" />
 
       <InnerProfileSettingsMenu showPlusEntry={false} />
     </aside>
