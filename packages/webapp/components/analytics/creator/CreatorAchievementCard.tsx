@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import {
   Typography,
   TypographyColor,
@@ -20,6 +21,7 @@ import {
   achievementSubtitle,
   achievementTitle,
 } from './achievements';
+import { CreatorAchievementShareActions } from './CreatorAchievementShareActions';
 
 interface CreatorAchievementCardProps {
   achievement: CreatorAchievement;
@@ -96,7 +98,7 @@ export const CreatorAchievementCard = ({
               >
                 ·
               </Typography>
-              <Link href={achievement.post.commentsPermalink} passHref>
+              <Link href={getPostPath(achievement.post)} passHref>
                 <Typography
                   tag={TypographyTag.Link}
                   type={TypographyType.Footnote}
@@ -132,6 +134,9 @@ export const CreatorAchievementCard = ({
               </Link>
             </>
           )}
+        </div>
+        <div className="mt-2">
+          <CreatorAchievementShareActions achievement={achievement} />
         </div>
       </div>
     </div>

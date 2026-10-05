@@ -28,6 +28,7 @@ import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { getPostPath } from '../../../lib/links';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -143,7 +144,7 @@ export const ShareList = forwardRef(function ShareList(
           ? {
               title: post.title,
               onClick: onPostCardClick,
-              href: post.commentsPermalink,
+              href: getPostPath(post),
             }
           : undefined
       }

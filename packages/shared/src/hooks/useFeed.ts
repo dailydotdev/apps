@@ -121,7 +121,6 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
-  OtherFeedPage.ExploreTag,
   OtherFeedPage.Tag,
   OtherFeedPage.Tags,
   OtherFeedPage.TagPage,

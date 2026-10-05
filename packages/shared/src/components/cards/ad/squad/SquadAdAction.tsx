@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { SquadActionButton } from '../../../squads/SquadActionButton';
@@ -16,6 +16,7 @@ interface SquadAdActionProps {
   className?: string;
   origin?: Origin;
   size?: ButtonSize;
+  copy?: ComponentProps<typeof SquadActionButton>['copy'];
 }
 
 export function SquadAdAction({
@@ -25,6 +26,7 @@ export function SquadAdAction({
   className,
   origin = Origin.Feed,
   size,
+  copy,
 }: SquadAdActionProps): ReactElement {
   if (shouldShowAction) {
     return (
@@ -32,6 +34,7 @@ export function SquadAdAction({
         squad={squad}
         origin={origin}
         size={size}
+        copy={copy}
         alwaysShow
         buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Subtle]}
         onSuccess={() => onJustJoined()}
