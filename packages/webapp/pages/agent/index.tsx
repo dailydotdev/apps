@@ -14,6 +14,8 @@ import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -30,6 +32,7 @@ const Page = (): ReactElement | null => {
   // An anonymous reader was never evaluated, so they get the sign-in wall below
   // rather than the redirect.
   const isGatedOut = isAuthReady && !!user && !showAgent;
+  const isPhone = useIsPhone();
 
   // Handed over by a shared agent link, and typed into the field rather than
   // run: see `useShareAgent`.
@@ -72,6 +75,7 @@ const Page = (): ReactElement | null => {
 
   return (
     <ProtectedPage>
+      {isPhone && <ShellPage title="Agents" />}
       <AgentHomeScreen
         agents={interests ?? []}
         isPending={isPending}

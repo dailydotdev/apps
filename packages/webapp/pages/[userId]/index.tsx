@@ -131,6 +131,7 @@ const ProfilePage = ({
         sticky={!hideSticky}
         blockTitle={hasNamePassed ? user.name : undefined}
         isOverCover={coversBlock && !hasCoverPassed}
+        showsFollowInBlock={haveSegmentsPassed}
         className={classNames(
           'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',

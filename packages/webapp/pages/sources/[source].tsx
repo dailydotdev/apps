@@ -346,7 +346,11 @@ const SourcePage = ({
             </h1>
           </div>
           <div className="flex flex-row gap-3">
-            <SourceActions showCopyLink={!isPhone} source={source} />
+            <SourceActions
+              showCopyLink={!isPhone}
+              menuInBlock={isPhone}
+              source={source}
+            />
           </div>
           {source?.description && (
             <p className="typo-body">{source?.description}</p>

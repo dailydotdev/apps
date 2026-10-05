@@ -5,9 +5,6 @@ import { useRouter } from 'next/router';
 import { restoreScrollPosition } from '../../lib/scrollRestoration';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
-import { Dropdown } from '../fields/Dropdown';
-import { CalendarIcon } from '../icons';
-import { IconSize } from '../Icon';
 import { periodTexts } from '../layout/common';
 import { useQueryState, QueryStateKeys } from '../../hooks/utils/useQueryState';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
@@ -87,27 +84,23 @@ export function ExploreSortMenu(): ReactElement {
     },
   }));
 
+  const hasPeriod = withPeriod.includes(current.key);
+
   return (
     <div className="flex items-center justify-between border-t border-border-subtlest-tertiary pb-2 pl-4 pr-3 pt-4">
       <h2 className="font-bold text-text-primary typo-title3">Explore feed</h2>
       <div className="flex items-center gap-1">
         <MenuLabel
-          label={current.label}
+          label={
+            hasPeriod
+              ? `${current.label} · ${periodTexts[period]}`
+              : current.label
+          }
           onClick={() => {
             scrollBefore.current = window.scrollY;
             setIsOpen(true);
           }}
         />
-        {withPeriod.includes(current.key) && (
-          <Dropdown
-            iconOnly
-            shouldIndicateSelected
-            icon={<CalendarIcon size={IconSize.Medium} />}
-            selectedIndex={period}
-            options={periodTexts}
-            onChange={(_, index) => setPeriod(index)}
-          />
-        )}
       </div>
       <RootPortal>
         <Drawer
@@ -117,6 +110,24 @@ export function ExploreSortMenu(): ReactElement {
           className={{ drawer: 'py-1' }}
         >
           <SheetChoice items={items} />
+          {hasPeriod && (
+            <>
+              <h3 className="border-t border-border-subtlest-tertiary px-4 pb-1 pt-4 text-text-tertiary typo-footnote">
+                Period
+              </h3>
+              <SheetChoice
+                items={periodTexts.map((text, index) => ({
+                  key: text,
+                  label: text,
+                  active: index === period,
+                  onClick: () => {
+                    setPeriod(index);
+                    setIsOpen(false);
+                  },
+                }))}
+              />
+            </>
+          )}
         </Drawer>
       </RootPortal>
     </div>

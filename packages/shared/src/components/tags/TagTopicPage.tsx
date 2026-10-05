@@ -70,7 +70,7 @@ import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
 import { useIsPhone } from '../../hooks/useViewSize';
-import { ShellPage } from '../shell/ShellPageContext';
+import { ShellActions, ShellPage } from '../shell/ShellPageContext';
 import { ShellPrimaryPill } from '../shell/ShellSquare';
 import { useHeroDeadZone, usePassedBlock } from '../shell/usePassedBlock';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
@@ -82,7 +82,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { getPostPath } from '../../lib/links';
+import { getPostPath, getTagPageLink } from '../../lib/links';
 
 const SUPPORTED_TYPES = [
   PostType.Article,
@@ -379,6 +379,41 @@ export const TagTopicPage = ({
     <span key="stories">{largeNumberFormat(occurrences)} stories</span>,
   );
 
+  const optionsMenu = (
+    <CustomFeedOptionsMenu
+      onCreateNewFeed={() =>
+        push(
+          `${webappUrl}feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
+        )
+      }
+      onAdd={(feedId) =>
+        follow({
+          id: tag,
+          entity: ContentPreferenceType.Keyword,
+          entityName: tag,
+          feedId,
+        })
+      }
+      onUndo={(feedId) =>
+        unfollow({
+          id: tag,
+          entity: ContentPreferenceType.Keyword,
+          entityName: tag,
+          feedId,
+        })
+      }
+      shareProps={shareProps}
+      className={
+        isPhone
+          ? {
+              button: 'shell-material !size-[2.375rem] !rounded-14 !p-0',
+            }
+          : undefined
+      }
+      buttonVariant={isPhone ? ButtonVariant.Tertiary : undefined}
+    />
+  );
+
   return (
     <>
       {isPhone && (
@@ -490,31 +525,32 @@ export const TagTopicPage = ({
                   />
                 </span>
               )}
-              <CustomFeedOptionsMenu
-                onCreateNewFeed={() =>
-                  push(
-                    `${webappUrl}feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
-                  )
-                }
-                onAdd={(feedId) =>
-                  follow({
-                    id: tag,
-                    entity: ContentPreferenceType.Keyword,
-                    entityName: tag,
-                    feedId,
-                  })
-                }
-                onUndo={(feedId) =>
-                  unfollow({
-                    id: tag,
-                    entity: ContentPreferenceType.Keyword,
-                    entityName: tag,
-                    feedId,
-                  })
-                }
-                shareProps={shareProps}
-              />
+              {isPhone ? (
+                <ShellActions>{optionsMenu}</ShellActions>
+              ) : (
+                optionsMenu
+              )}
             </div>
+            {recommendedTags.length > 0 && (
+              <nav
+                aria-label="Related tags"
+                className="flex w-full flex-wrap items-center justify-center gap-1.5 tablet:hidden"
+              >
+                <span className="text-text-tertiary typo-footnote">
+                  Related
+                </span>
+                {recommendedTags
+                  .map((relatedTag) => relatedTag.name)
+                  .filter((name): name is string => !!name)
+                  .map((name) => (
+                    <Link key={name} href={getTagPageLink(name)} passHref>
+                      <a className="shell-press flex h-7 items-center rounded-8 border border-border-subtlest-tertiary px-2 text-text-secondary typo-footnote">
+                        {name}
+                      </a>
+                    </Link>
+                  ))}
+              </nav>
+            )}
             {/* SEO crawl paths preserved from the legacy tag page. */}
             {topPosts.length > 0 && (
               <div className="sr-only">

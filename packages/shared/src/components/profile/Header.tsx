@@ -61,6 +61,8 @@ export interface HeaderProps {
   // while it floats over the cover.
   blockTitle?: string;
   isOverCover?: boolean;
+  // Follow joins the block once the hero, where it lives, has gone.
+  showsFollowInBlock?: boolean;
 }
 
 export function Header({
@@ -71,6 +73,7 @@ export function Header({
   style,
   blockTitle,
   isOverCover = false,
+  showsFollowInBlock = false,
 }: HeaderProps): ReactElement | null {
   const { user: loggedUser } = useAuthContext();
   const { alerts } = useAlertsContext();
@@ -316,7 +319,25 @@ export function Header({
               {ownerActions}
             </div>
           ) : (
-            optionsMenu
+            <>
+              {optionsMenu}
+              {showsFollowInBlock &&
+                !!loggedUser &&
+                !blocked &&
+                contentPreference?.status !== ContentPreferenceStatus.Follow &&
+                contentPreference?.status !==
+                  ContentPreferenceStatus.Subscribed && (
+                  <FollowButton
+                    entityId={user.id}
+                    type={ContentPreferenceType.User}
+                    status={contentPreference?.status}
+                    entityName={`@${user.username}`}
+                    showSubscribe={false}
+                    buttonClassName="shell-hit relative !h-[2.375rem] !rounded-14"
+                    alwaysShow
+                  />
+                )}
+            </>
           )
         }
       />

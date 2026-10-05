@@ -76,6 +76,18 @@ export const useShellPageConfig = (): ShellPageConfig | null =>
 export const useShellDockedRow = (): ReactNode =>
   useContext(ShellPageContext).dockedRow;
 
+// An action that lives in a component apart from the one that speaks for
+// the page (a hero's menu) joins the block's actions from where it is.
+export const ShellActions = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement | null => {
+  const { actionsSlot } = useContext(ShellPageContext);
+
+  return actionsSlot ? createPortal(children, actionsSlot) : null;
+};
+
 // A page's own row of segments joins the block once it has scrolled behind
 // it. It is a second voice beside ShellPage because the hero and the tabs
 // of a thing live in different components.
