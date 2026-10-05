@@ -83,7 +83,7 @@ describe('CreatorPostPerformanceTable', () => {
       screen.getByRole('link', {
         name: 'Open the discussion on A post that exists',
       }),
-    ).toHaveAttribute('href', 'https://app.daily.dev/posts/p1');
+    ).toHaveAttribute('href', '/posts/p1');
   });
 
   it('should render shared post titles and images for share rows', () => {
@@ -118,7 +118,7 @@ describe('CreatorPostPerformanceTable', () => {
       screen.getByRole('link', {
         name: 'Open the discussion on Original article title',
       }),
-    ).toHaveAttribute('href', 'https://app.daily.dev/posts/share1');
+    ).toHaveAttribute('href', '/posts/share1');
   });
 
   it('should announce which column is sorted and in which direction', () => {

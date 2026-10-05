@@ -30,6 +30,7 @@ import {
   useSocialTwitterCardData,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
+import { getPostPath } from '../../../lib/links';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
@@ -128,7 +129,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           ? {
               title: cardLinkTitle,
               onClick: onPostCardClick,
-              href: post.commentsPermalink,
+              href: getPostPath(post),
             }
           : undefined
       }

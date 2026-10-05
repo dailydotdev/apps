@@ -10,6 +10,7 @@ import caret from './tailwind/caret';
 import typography from './tailwind/typography';
 import buttons from './tailwind/buttons';
 import buttonsV2 from './tailwind/buttons-v2';
+import hover from './tailwind/hover';
 import background from './tailwind/colors/background';
 import accent from './tailwind/colors/accent';
 import brand from './tailwind/colors/brand';
@@ -405,7 +406,15 @@ export default {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [caret, typography, buttons, buttonsV2, safeArea, containerQueries],
+  plugins: [
+    caret,
+    typography,
+    buttons,
+    buttonsV2,
+    safeArea,
+    containerQueries,
+    hover,
+  ],
   corePlugins: {
     invert: false,
   },

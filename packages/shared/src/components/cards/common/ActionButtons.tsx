@@ -30,6 +30,7 @@ import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
+import { getPostPath } from '../../../lib/links';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -139,17 +140,14 @@ const ActionButtonsV1 = ({
   const upvoteCount = post.numUpvotes ?? 0;
 
   const commentButton = config.useCommentLink ? (
-    <LinkWithTooltip
-      tooltip={{ content: 'Comment' }}
-      href={post.commentsPermalink}
-    >
+    <LinkWithTooltip tooltip={{ content: 'Comment' }} href={getPostPath(post)}>
       <QuaternaryButton
         labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
         className="btn-tertiary-blueCheese pointer-events-auto"
         color={ButtonColor.BlueCheese}
         tag="a"
-        href={post.commentsPermalink}
+        href={getPostPath(post)}
         pressed={post.commented}
         variant={ButtonVariant.Tertiary}
         size={buttonSize}

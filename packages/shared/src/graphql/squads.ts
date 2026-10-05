@@ -381,6 +381,45 @@ export const squadPinnedPostsQueryOptions = ({
   staleTime: StaleTime.Default,
 });
 
+export const SIMILAR_SQUADS_QUERY = gql`
+  query SimilarSquads($sourceId: ID!, $limit: Int) {
+    similarSquads(sourceId: $sourceId, limit: $limit) {
+      id
+      name
+      handle
+      image
+      permalink
+      public
+      type
+      membersCount
+      features {
+        verified
+      }
+    }
+  }
+`;
+
+export const similarSquadsQueryOptions = ({
+  squadId,
+  user,
+  limit,
+}: {
+  squadId: string;
+  user?: Pick<LoggedUser, 'id'>;
+  limit: number;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.SimilarSquads, user, squadId, limit),
+  queryFn: async (): Promise<Squad[]> => {
+    const res = await gqlBatchRequest<{ similarSquads: Squad[] }>(
+      SIMILAR_SQUADS_QUERY,
+      { sourceId: squadId, limit },
+    );
+
+    return res.similarSquads;
+  },
+  staleTime: StaleTime.OneHour,
+});
+
 export const SQUAD_ANALYTICS_QUERY = gql`
   query SquadAnalytics($sourceId: ID!) {
     squadAnalytics(sourceId: $sourceId) {

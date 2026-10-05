@@ -3,6 +3,7 @@ import React from 'react';
 import { ProfileImageSize } from '../ProfilePicture';
 import { SourceAvatar } from '../profile/source/SourceAvatar';
 import Link from '../utilities/Link';
+import { getPostPath } from '../../lib/links';
 import type { Post } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
 import { DiscussIcon, LockIcon, UpvoteIcon } from '../icons';
@@ -106,18 +107,13 @@ export function RepostListItem({
       {renderUserInfo()}
 
       {/* Post text content */}
-      {!!post.title &&
-        (post.commentsPermalink ? (
-          <Link href={post.commentsPermalink}>
-            <a className="mt-3 line-clamp-3 block text-text-primary !no-underline typo-body hover:!no-underline">
-              {post.title}
-            </a>
-          </Link>
-        ) : (
-          <p className="mt-3 line-clamp-3 text-text-primary typo-body">
+      {!!post.title && (
+        <Link href={getPostPath(post)}>
+          <a className="mt-3 line-clamp-3 block text-text-primary !no-underline typo-body hover:!no-underline">
             {post.title}
-          </p>
-        ))}
+          </a>
+        </Link>
+      )}
 
       {/* Upvotes and comments */}
       <div className="mt-3 flex items-center gap-4 text-text-quaternary typo-callout">
