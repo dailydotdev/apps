@@ -1,108 +1,47 @@
-export enum MobileAppFooterTrigger {
-  // An anchor placed in the page content scrolls into view.
-  Anchor = 'anchor',
-  // The reader scrolls down past the first screen, then back up.
-  ScrollUp = 'scroll_up',
-  // The reader runs a third distinct search in the session.
-  ThirdQuery = 'third_query',
-}
-
-// Where a page's anchor lives. Shared components carry anchors onto other
-// pages (post comments render in the reader modal over a feed), so each one
-// only counts on the page that asked for it.
-export enum MobileAppFooterAnchorPlace {
-  Feed = 'feed',
-  Comments = 'comments',
-  Headlines = 'headlines',
-  Activity = 'activity',
-  Leaderboard = 'leaderboard',
-}
-
 export interface MobileAppFooterMoment {
   title: string;
-  trigger: MobileAppFooterTrigger;
-  anchorAt?: MobileAppFooterAnchorPlace;
-  // Feed pages place the anchor before this card.
-  feedAnchorIndex?: number;
 }
 
-const atAnchor = (
-  title: string,
-  anchorAt: MobileAppFooterAnchorPlace,
-): MobileAppFooterMoment => ({
-  title,
-  trigger: MobileAppFooterTrigger.Anchor,
-  anchorAt,
-});
-
-const atFeedCard = (
-  title: string,
-  feedAnchorIndex: number,
-): MobileAppFooterMoment => ({
-  ...atAnchor(title, MobileAppFooterAnchorPlace.Feed),
-  feedAnchorIndex,
-});
-
-const onScrollUp = (title: string): MobileAppFooterMoment => ({
-  title,
-  trigger: MobileAppFooterTrigger.ScrollUp,
-});
-
-const seeAllPosts = 'See all posts';
-const explore = atFeedCard(seeAllPosts, 12);
-const headlines = atAnchor(seeAllPosts, MobileAppFooterAnchorPlace.Headlines);
-const bestOf = onScrollUp(seeAllPosts);
-const squads = onScrollUp('See all squads');
-const profileFeed = atFeedCard('See full profile', 1);
+const seeAllPosts: MobileAppFooterMoment = { title: 'See all posts' };
+const seeAllSquads: MobileAppFooterMoment = { title: 'See all squads' };
+const seeFullProfile: MobileAppFooterMoment = { title: 'See full profile' };
 
 const momentByRoute: Record<string, MobileAppFooterMoment> = {
-  '/posts': explore,
-  '/posts/latest': explore,
-  '/posts/upvoted': explore,
-  '/posts/discussed': explore,
-  '/popular': explore,
-  '/upvoted': explore,
-  '/discussed': explore,
-  '/highlights': headlines,
-  '/highlights/[channel]': headlines,
-  '/highlights/all': headlines,
-  '/posts/best-of': bestOf,
-  '/posts/best-of/[year]': bestOf,
-  '/posts/best-of/[year]/[month]': bestOf,
-  '/tags/[tag]/best-of': bestOf,
-  '/tags/[tag]/best-of/[year]': bestOf,
-  '/tags/[tag]/best-of/[year]/[month]': bestOf,
-  '/sources/[source]/best-of': bestOf,
-  '/sources/[source]/best-of/[year]': bestOf,
-  '/sources/[source]/best-of/[year]/[month]': bestOf,
-  '/posts/[id]': atAnchor(
-    'See all comments',
-    MobileAppFooterAnchorPlace.Comments,
-  ),
-  '/tags': onScrollUp('See all tags'),
-  '/tags/[tag]': atFeedCard(seeAllPosts, 1),
-  '/sources': onScrollUp('See all sources'),
-  '/sources/[source]': atFeedCard(seeAllPosts, 0),
-  '/squads/discover': squads,
-  '/squads/discover/featured': squads,
-  '/squads/discover/[id]': squads,
-  '/squads/[handle]': atFeedCard('See full squad', 1),
-  '/[userId]': atAnchor(
-    'See full profile',
-    MobileAppFooterAnchorPlace.Activity,
-  ),
-  '/[userId]/posts': profileFeed,
-  '/[userId]/upvoted': profileFeed,
-  '/users': atAnchor(
-    'See full leaderboard',
-    MobileAppFooterAnchorPlace.Leaderboard,
-  ),
-  '/search/posts': {
-    title: seeAllPosts,
-    trigger: MobileAppFooterTrigger.ThirdQuery,
-  },
-  '/tools': onScrollUp(seeAllPosts),
-  '/tools/[slug]': onScrollUp(seeAllPosts),
+  '/posts': seeAllPosts,
+  '/posts/latest': seeAllPosts,
+  '/posts/upvoted': seeAllPosts,
+  '/posts/discussed': seeAllPosts,
+  '/popular': seeAllPosts,
+  '/upvoted': seeAllPosts,
+  '/discussed': seeAllPosts,
+  '/highlights': seeAllPosts,
+  '/highlights/[channel]': seeAllPosts,
+  '/highlights/all': seeAllPosts,
+  '/posts/best-of': seeAllPosts,
+  '/posts/best-of/[year]': seeAllPosts,
+  '/posts/best-of/[year]/[month]': seeAllPosts,
+  '/tags/[tag]/best-of': seeAllPosts,
+  '/tags/[tag]/best-of/[year]': seeAllPosts,
+  '/tags/[tag]/best-of/[year]/[month]': seeAllPosts,
+  '/sources/[source]/best-of': seeAllPosts,
+  '/sources/[source]/best-of/[year]': seeAllPosts,
+  '/sources/[source]/best-of/[year]/[month]': seeAllPosts,
+  '/posts/[id]': { title: 'See all comments' },
+  '/tags': { title: 'See all tags' },
+  '/tags/[tag]': seeAllPosts,
+  '/sources': { title: 'See all sources' },
+  '/sources/[source]': seeAllPosts,
+  '/squads/discover': seeAllSquads,
+  '/squads/discover/featured': seeAllSquads,
+  '/squads/discover/[id]': seeAllSquads,
+  '/squads/[handle]': { title: 'See full squad' },
+  '/[userId]': seeFullProfile,
+  '/[userId]/posts': seeFullProfile,
+  '/[userId]/upvoted': seeFullProfile,
+  '/users': { title: 'See full leaderboard' },
+  '/search/posts': seeAllPosts,
+  '/tools': seeAllPosts,
+  '/tools/[slug]': seeAllPosts,
 };
 
 // Shared by the footer and the page spacer under it, so the end of the page

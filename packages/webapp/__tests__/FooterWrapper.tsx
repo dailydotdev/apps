@@ -10,7 +10,6 @@ import {
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMobileAppFooterContext } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
-import { MobileAppFooterTrigger } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
 import FooterWrapper from '../components/footer/FooterWrapper';
 
 jest.mock('@dailydotdev/shared/src/components/ScrollToTopButton', () => ({
@@ -59,7 +58,7 @@ const renderFooter = (children: React.ReactNode) =>
   );
 
 beforeEach(() => {
-  mockAppFooter.mockReturnValue({ isRevealed: false, reveal: jest.fn() });
+  mockAppFooter.mockReturnValue({ isRevealed: false });
 });
 
 const ComposerOwner = ({
@@ -100,14 +99,10 @@ describe('FooterWrapper', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('swaps the bottom bar for the Charm footer once it is revealed', async () => {
+  it('swaps the bottom bar for the Charm footer when it is shown', async () => {
     mockAppFooter.mockReturnValue({
-      moment: {
-        title: 'See all comments',
-        trigger: MobileAppFooterTrigger.Anchor,
-      },
+      moment: { title: 'See all comments' },
       isRevealed: true,
-      reveal: jest.fn(),
     });
     renderFooter(<FooterWrapper post={post} />);
 
