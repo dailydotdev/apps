@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-export interface ShellPageConfig {
+interface ShellPageConfig {
   title?: ReactNode;
   actions?: ReactNode;
   row?: ReactNode;

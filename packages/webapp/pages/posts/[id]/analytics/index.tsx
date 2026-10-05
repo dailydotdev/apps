@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
-import React, { useEffect, useMemo } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import type { ClientError } from 'graphql-request';

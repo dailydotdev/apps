@@ -19,12 +19,10 @@ export const settle = {
 
 export const motion = {
   interaction: 'cubic-bezier(0.2, 0, 0, 1)',
-  travel: 'cubic-bezier(0.32, 0.72, 0, 1)',
   feedback: 150,
   enter: 300,
   exit: 200,
   snap: 220,
-  press: 0.96,
 };
 
 export const scroll = {
@@ -47,10 +45,7 @@ export const cluster = {
   dragStart: 6,
   // The whole bar lifts this much while a finger is on it.
   pressScale: 1.04,
-  // The glass feel: the pill stretches with the finger's speed, up to 12%,
-  // and the bar leans up to 10px past its ends at 15% of the overshoot.
-  stretchPerPx: 0.004,
-  stretchMax: 0.12,
+  // The bar leans up to 10px past its ends at 15% of the overshoot.
   pullRate: 0.15,
   pullMax: 10,
   // Lifting the finger this far above or below the bar cancels the choice.
@@ -65,7 +60,6 @@ export const cluster = {
 
 export const topButton = {
   size: 38,
-  radius: 14,
   inset: 16,
   gap: 8,
 };

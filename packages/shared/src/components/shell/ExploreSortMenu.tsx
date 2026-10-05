@@ -77,7 +77,6 @@ export function ExploreSortMenu(): ReactElement {
           icon={<CalendarIcon size={IconSize.Medium} />}
           selectedIndex={period}
           options={periodTexts}
-          drawerProps={{ displayCloseButton: true }}
           onChange={(_, index) => setPeriod(index)}
         />
       )}
@@ -94,5 +93,3 @@ export function ExploreSortMenu(): ReactElement {
     </div>
   );
 }
-
-export default ExploreSortMenu;

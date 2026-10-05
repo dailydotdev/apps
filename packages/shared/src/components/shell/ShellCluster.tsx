@@ -39,11 +39,7 @@ interface ClusterTab {
   trigger?: AuthTriggersType;
 }
 
-export function ShellCluster({
-  className,
-}: {
-  className?: string;
-}): ReactElement | null {
+export function ShellCluster(): ReactElement | null {
   const router = useRouter();
   const queryClient = useQueryClient();
   const hidden = hidesCluster(router?.pathname);
@@ -439,10 +435,7 @@ export function ShellCluster({
 
   return (
     <div
-      className={classNames(
-        'pointer-events-none fixed inset-x-0 z-3 flex items-end tablet:hidden',
-        className,
-      )}
+      className="pointer-events-none fixed inset-x-0 z-3 flex items-end tablet:hidden"
       style={{
         bottom: `calc(env(safe-area-inset-bottom, 0px) + ${cluster.lift}px)`,
         paddingInline: inset,
@@ -548,5 +541,3 @@ export function ShellCluster({
     </div>
   );
 }
-
-export default ShellCluster;

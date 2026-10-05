@@ -35,7 +35,7 @@ describe('useShellScroll', () => {
     act(() => {
       scrollTo(scroll.deadZone + scroll.hideTolerance + 4);
     });
-    expect(result.current).toEqual({ p: 1, snapping: true });
+    expect(result.current).toEqual({ p: 1 });
   });
 
   it('never reports a value between shown and hidden', () => {

@@ -10,7 +10,7 @@ export enum ShellRoot {
   Activity = 'activity',
 }
 
-export const rootHref: Record<ShellRoot, string> = {
+const rootHref: Record<ShellRoot, string> = {
   [ShellRoot.Home]: '/',
   [ShellRoot.Explore]: '/posts',
   [ShellRoot.Squads]: squadCategoriesPaths.discover,
@@ -23,7 +23,6 @@ const exploreSortPrefixes = [
   '/posts/upvoted',
   '/posts/discussed',
   '/posts/latest',
-  '/explore',
 ];
 // Explore's own pages that are not one of its views: the best-of archive
 // has a title and a back row, and the lit tab returns from it to Explore.
@@ -138,7 +137,7 @@ interface RouteStack {
 }
 
 // How the document itself was reached, for the one record made on load.
-export type DocumentArrival = 'navigate' | 'reload' | 'back_forward';
+type DocumentArrival = 'navigate' | 'reload' | 'back_forward';
 
 const emptyStack = (): RouteStack => ({ routes: [], pointer: -1 });
 

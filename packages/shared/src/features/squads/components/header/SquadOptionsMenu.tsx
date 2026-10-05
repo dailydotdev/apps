@@ -108,11 +108,9 @@ const getManageEntries = (squad: Squad): ManageEntry[] => {
 export const SquadOptionsMenu = ({
   className,
   variant = ButtonVariant.Subtle,
-  size = ButtonSize.Small,
 }: {
   className?: string;
   variant?: ButtonVariant;
-  size?: ButtonSize;
 } = {}): ReactElement => {
   const router = useRouter();
   const { squad, viewer } = useSquadPageContext();
@@ -287,7 +285,7 @@ export const SquadOptionsMenu = ({
       >
         <Button
           variant={variant}
-          size={size}
+          size={ButtonSize.Small}
           className={className}
           icon={<MenuIcon />}
           aria-label="Squad options"

@@ -170,7 +170,7 @@ const PageRow = ({
   );
 };
 
-export interface ShellBlockProps {
+interface ShellBlockProps {
   root?: ShellRoot;
   row?: ReactNode;
 }
@@ -270,5 +270,3 @@ export function ShellBlock({
     </header>
   );
 }
-
-export default ShellBlock;

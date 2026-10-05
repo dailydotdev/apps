@@ -175,5 +175,3 @@ export const PostOptionsSheet = ({
     </div>
   );
 };
-
-export default PostOptionsSheet;

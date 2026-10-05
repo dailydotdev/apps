@@ -13,8 +13,6 @@ interface SheetDragOptions {
   // The element whose scroll position decides whether a downward touch
   // drags the sheet or scrolls its content; the panel by default.
   scroller?: () => HTMLElement | null;
-  // A sheet grows to the top as the finger pulls it, and shrinks back.
-  expandable?: boolean;
 }
 
 const flick = 0.6;
@@ -23,7 +21,7 @@ const upFlick = -0.5;
 export const attachSheetDrag = (
   panel: HTMLElement,
   onDismiss: (event: TouchEvent) => void,
-  { scroller = () => panel, expandable = true }: SheetDragOptions = {},
+  { scroller = () => panel }: SheetDragOptions = {},
 ): (() => void) => {
   const { style } = panel;
   let startY = 0;
@@ -172,12 +170,8 @@ export const attachSheetDrag = (
       if (Math.abs(dy) < 6) {
         return;
       }
-      // Upward with nowhere to grow is the content's scroll, not a drag:
-      // a sheet that does not expand, or one already at full height.
-      if (
-        dy < 0 &&
-        (!expandable || isExpanded() || panel.offsetHeight >= measureFull() - 1)
-      ) {
+      // Upward with nowhere to grow is the content's scroll, not a drag.
+      if (dy < 0 && (isExpanded() || panel.offsetHeight >= measureFull() - 1)) {
         tracking = false;
         return;
       }
@@ -225,10 +219,6 @@ export const attachSheetDrag = (
       return;
     }
 
-    if (!expandable) {
-      settleTo(false);
-      return;
-    }
     if (velocity < upFlick) {
       settleTo(true);
       return;

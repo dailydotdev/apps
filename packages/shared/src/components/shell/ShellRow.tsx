@@ -19,17 +19,10 @@ export interface RowItem {
 
 export const ShellRow = ({
   children,
-  className,
 }: {
   children: ReactNode;
-  className?: string;
 }): ReactElement => (
-  <div
-    className={classNames(
-      'no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-3',
-      className,
-    )}
-  >
+  <div className="no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-3">
     {children}
   </div>
 );
@@ -147,19 +140,14 @@ export const Chips = ({ items }: { items: RowItem[] }): ReactElement => (
 export const MenuLabel = ({
   label,
   onClick,
-  className,
 }: {
   label: ReactNode;
   onClick: () => void;
-  className?: string;
 }): ReactElement => (
   <button
     type="button"
     onClick={onClick}
-    className={classNames(
-      'shell-press flex h-8 items-center gap-1 rounded-8 px-1 font-bold text-text-primary typo-callout',
-      className,
-    )}
+    className="shell-press flex h-8 items-center gap-1 rounded-8 px-1 font-bold text-text-primary typo-callout"
   >
     {label}
     <ArrowIcon
@@ -173,7 +161,7 @@ export const SheetChoice = ({ items }: { items: RowItem[] }): ReactElement => (
   <div className="flex flex-col py-1">
     {items.map((item) => {
       const className = classNames(
-        'flex h-12 w-full items-center px-4 text-left transition-colors typo-callout hover:bg-surface-hover active:bg-surface-hover',
+        'flex h-12 w-full items-center px-4 text-left transition-colors typo-callout hover:bg-surface-hover',
         item.active ? 'font-bold text-text-primary' : 'text-text-primary',
       );
       const mark = item.active && (

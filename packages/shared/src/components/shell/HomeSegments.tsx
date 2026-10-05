@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useFeeds } from '../../hooks';
+import { useFeeds } from '../../hooks/feed/useFeeds';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import { highlightsPageQueryOptions } from '../../graphql/highlights';
@@ -18,11 +18,11 @@ import { RootPortal } from '../tooltips/Portal';
 import type { RowItem } from './ShellRow';
 import { Segments, SheetChoice, ShellRow } from './ShellRow';
 
-export const highlightsUrl = `${webappUrl}highlights`;
+const highlightsUrl = `${webappUrl}highlights`;
 
 const happeningNowKey = 'happening-now';
 
-export const HappeningNowSheet = ({
+const HappeningNowSheet = ({
   isOpen,
   onClose,
 }: {
@@ -165,5 +165,3 @@ export function HomeSegments(): ReactElement {
     </>
   );
 }
-
-export default HomeSegments;

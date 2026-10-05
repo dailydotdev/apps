@@ -71,5 +71,3 @@ export const ShellTopButton = (): ReactElement => {
     </button>
   );
 };
-
-export default ShellTopButton;

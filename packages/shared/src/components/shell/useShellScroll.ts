@@ -3,7 +3,6 @@ import { scroll } from './constants';
 
 export interface ShellScrollState {
   p: number;
-  snapping: boolean;
 }
 
 // One reader of the window scroll for the whole shell: the top block and
@@ -15,8 +14,8 @@ export interface ShellScrollState {
 // Safari, whose events arrive in bursts.) Direction decides, not
 // position: reading down past the tolerance hides, a short scroll up
 // reveals, and the dead zone at the top always shows.
-const rest: ShellScrollState = { p: 0, snapping: true };
-const away: ShellScrollState = { p: 1, snapping: true };
+const rest: ShellScrollState = { p: 0 };
+const away: ShellScrollState = { p: 1 };
 let state = rest;
 let lastY = 0;
 let armed = 0;

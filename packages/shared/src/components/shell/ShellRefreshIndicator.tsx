@@ -24,5 +24,3 @@ export function ShellRefreshIndicator(): ReactElement {
     </div>
   );
 }
-
-export default ShellRefreshIndicator;

@@ -49,7 +49,7 @@ import {
   webappUrl,
 } from '../../lib/constants';
 import { usePhoneBrowser } from '../../features/getApp/hooks/usePhoneBrowser';
-import { largeNumberFormat } from '../../lib';
+import { largeNumberFormat } from '../../lib/numberFormat';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
@@ -90,7 +90,7 @@ const YouRow = ({
     </>
   );
   const className =
-    'flex h-11 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout hover:bg-surface-hover active:bg-surface-hover';
+    'flex h-11 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout hover:bg-surface-hover';
 
   if (href && external) {
     return (
@@ -121,11 +121,9 @@ const YouRow = ({
 };
 
 const YouGroup = ({
-  title,
   children,
   className,
 }: {
-  title?: string;
   children: ReactNode;
   className?: string;
 }): ReactElement => (
@@ -136,11 +134,6 @@ const YouGroup = ({
       aria-hidden
       className="mx-4 mb-2 h-px shrink-0 bg-border-subtlest-tertiary"
     />
-    {title && (
-      <span className="px-4 pb-1 pt-1 text-text-tertiary typo-caption1">
-        {title}
-      </span>
-    )}
     {children}
   </div>
 );
@@ -157,7 +150,7 @@ const FollowStat = ({
   <button
     type="button"
     onClick={onClick}
-    className="flex items-center gap-1 rounded-8 transition-colors typo-footnote hover:bg-surface-hover active:bg-surface-hover"
+    className="flex items-center gap-1 rounded-8 transition-colors typo-footnote hover:bg-surface-hover"
   >
     <b className="text-text-primary">{largeNumberFormat(amount)}</b>
     <span className="text-text-tertiary">{label}</span>
@@ -178,7 +171,7 @@ const StatPill = ({
   external?: boolean;
 }): ReactElement => {
   const className =
-    'shell-press flex h-8 items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-surface-float pl-2 pr-2.5 typo-footnote transition-colors hover:bg-surface-hover active:bg-surface-hover';
+    'shell-press flex h-8 items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-surface-float pl-2 pr-2.5 typo-footnote transition-colors hover:bg-surface-hover';
   const content = (
     <>
       {icon}
@@ -456,5 +449,3 @@ export function YouPage(): ReactElement | null {
     </div>
   );
 }
-
-export default YouPage;

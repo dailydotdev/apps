@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
-import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import React from 'react';
 import { useRouter } from 'next/router';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
 import {

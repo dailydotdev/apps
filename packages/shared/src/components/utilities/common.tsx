@@ -213,12 +213,6 @@ export const FormErrorMessage = classed(
   'mt-4 text-status-error typo-caption1',
 );
 
-export const ActiveTabIndicator = classed(
-  'div',
-  'absolute inset-x-0 bottom-0 h-0.5 my-0 mx-auto bg-text-primary',
-  styles.activeTabIndicator,
-);
-
 export const CustomFeedHeader = classed(
   'div',
   'flex h-11 self-stretch items-center mb-6 typo-callout',
