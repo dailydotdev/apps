@@ -22,6 +22,7 @@ import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
+import { getPostPath } from '../../../lib/links';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -124,13 +125,10 @@ const ActionButtons = ({
   const upvoteCount = post.numUpvotes ?? 0;
 
   const commentButton = config.useCommentLink ? (
-    <LinkWithTooltip
-      tooltip={{ content: 'Comment' }}
-      href={post.commentsPermalink}
-    >
+    <LinkWithTooltip tooltip={{ content: 'Comment' }} href={getPostPath(post)}>
       <CardAction
         id={`post-${post.id}-comment-btn`}
-        href={post.commentsPermalink}
+        href={getPostPath(post)}
         pressed={post.commented}
         density={FEED_CARD_DENSITY}
         icon={<CommentIcon />}
