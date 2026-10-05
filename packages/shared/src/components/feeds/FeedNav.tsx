@@ -20,6 +20,8 @@ import {
 } from '../layout/common';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { HomeSegments } from '../shell/HomeSegments';
+import { MobileFeedActions } from './MobileFeedActions';
+import { isExtension } from '../../lib/func';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
 import { PlusIcon, SortIcon } from '../icons';
@@ -195,6 +197,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
         scrollClassName,
       )}
     >
+      {isExtension && isMobile && <MobileFeedActions />}
       <div
         className={classNames(
           inShellBlock ? 'relative' : 'mb-4 tablet:relative tablet:mb-0',
