@@ -4,9 +4,9 @@ import { CopyHighlightsLink } from '../../components/highlights/CopyHighlightsLi
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
+import { getPostSnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
 import type { PostHighlightFeed } from '../../graphql/highlights';
-import { LogEvent, Origin, TargetType } from '../../lib/log';
-import { ReferralCampaignKey } from '../../lib/referral';
+import { Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 import colors from '../../styles/colors';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
@@ -61,12 +61,8 @@ export function HighlightShareActions({
   );
 
   const share: SnapshotShare = {
-    link: highlight.post.commentsPermalink,
+    ...getPostSnapshotShare(highlight.post),
     text: title,
-    cid: ReferralCampaignKey.SharePost,
-    event: LogEvent.SharePost,
-    targetId: highlight.post.id,
-    targetType: TargetType.Post,
     extra: { highlight_id: highlight.id },
   };
 
@@ -111,7 +107,6 @@ export function HighlightShareActions({
       <SelectionShareBar
         containerRef={tldrRef}
         label={<HappeningNowEyebrow />}
-        link={highlight.post.commentsPermalink}
         onShare={logSelectionShare}
         origin={Origin.HappeningNowSelection}
         post={highlight.post}

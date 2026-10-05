@@ -8,6 +8,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
@@ -64,11 +65,11 @@ const renderButton = ({
 
 const press = () => fireEvent.click(screen.getByLabelText('Snapshot'));
 
+mockObjectUrls();
+
 beforeEach(() => {
   jest.clearAllMocks();
   client.clear();
-  URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
-  URL.revokeObjectURL = jest.fn();
   jest
     .mocked(captureShareImage)
     .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));

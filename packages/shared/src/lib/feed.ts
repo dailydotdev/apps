@@ -130,6 +130,11 @@ export type PostLogEventPost = Pick<Post, 'id'> &
     source?: Partial<Pick<Source, 'id' | 'type'>>;
   };
 
+/** A post as the share surfaces use it: what they log, link and return to. */
+export type ShareablePost = PostLogEventPost &
+  Pick<Post, 'commentsPermalink'> &
+  Partial<Pick<Post, 'slug'>>;
+
 export function postLogEvent(
   eventName: string,
   post: PostLogEventPost,

@@ -8,6 +8,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import type { HotTake } from '../../graphql/user/userHotTake';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
@@ -43,6 +44,8 @@ const renderButton = (take = hotTake) =>
 
 const cardCopies = () =>
   screen.queryAllByText('Tabs won Prettier just hid the bodies').length;
+
+mockObjectUrls();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -114,8 +117,6 @@ describe('HotTakeSnapshotButton', () => {
   });
 
   it("sends the author's profile from the share panel", async () => {
-    URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
-    URL.revokeObjectURL = jest.fn();
     const writeText = jest.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
     renderButton({

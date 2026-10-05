@@ -9,6 +9,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import type { PostHighlightFeed } from '../../graphql/highlights';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
@@ -46,6 +47,8 @@ const highlight: PostHighlightFeed = {
     },
   },
 };
+
+mockObjectUrls();
 
 beforeAll(() => {
   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
@@ -161,8 +164,6 @@ describe('HighlightItem', () => {
   });
 
   it('opens the share panel on the highlighted post after a snapshot', async () => {
-    URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
-    URL.revokeObjectURL = jest.fn();
     jest
       .mocked(captureShareImage)
       .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));

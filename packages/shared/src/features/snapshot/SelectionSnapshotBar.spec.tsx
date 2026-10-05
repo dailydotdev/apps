@@ -1,8 +1,16 @@
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockDesktop } from '../../../__tests__/helpers/media';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
 import { LogEvent, Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
@@ -22,6 +30,8 @@ jest.mock('../../hooks/integrations/slack/useSlackShare', () => ({
 
 const QUOTE =
   'They optimised the product they had instead of the one their customers were moving to.';
+
+mockObjectUrls();
 
 beforeAll(() => {
   // jsdom has no layout, and the bar refuses a selection it cannot place.
@@ -192,9 +202,11 @@ describe('SelectionSnapshotBar share events', () => {
 });
 
 describe('SelectionSnapshotBar share panel', () => {
-  it('stays up with its panel when the press collapses the selection', async () => {
-    URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
-    URL.revokeObjectURL = jest.fn();
+  // the anchored popover, not the phone drawer
+  beforeEach(() => mockDesktop());
+
+  // Some browsers collapse the selection as soon as Snapshot is pressed.
+  const openPanel = async (logEvent = jest.fn()) => {
     let copied: (value: boolean) => void = () => {};
     jest
       .mocked(captureShareImage)
@@ -204,16 +216,25 @@ describe('SelectionSnapshotBar share panel', () => {
         copied = resolve;
       }),
     );
-    const logEvent = jest.fn();
     renderBar(logEvent);
     select('body');
 
-    fireEvent.click(screen.getByLabelText('Snapshot'));
+    const snapshot = screen.getByLabelText('Snapshot');
+    fireEvent.pointerDown(snapshot);
     window.getSelection()?.removeAllRanges();
+    fireEvent.pointerUp(snapshot);
+    fireEvent.click(snapshot);
     fireEvent.pointerUp(document);
     await act(async () => copied(true));
-
     expect(await screen.findByText('Copied')).toBeInTheDocument();
+    // the popover listens for outside presses from the next tick
+    await act(() => new Promise((resolve) => setTimeout(resolve)));
+  };
+
+  it('stays up with its panel when the press collapses the selection', async () => {
+    const logEvent = jest.fn();
+    await openPanel(logEvent);
+
     expect(toolbar()).toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -221,5 +242,38 @@ describe('SelectionSnapshotBar share panel', () => {
         target_id: post.id,
       }),
     );
+  });
+
+  it('goes away with its panel when nothing is selected', async () => {
+    await openPanel();
+
+    fireEvent.keyDown(document.activeElement ?? document.body, {
+      key: 'Escape',
+    });
+
+    await waitFor(() => expect(toolbar()).not.toBeInTheDocument());
+  });
+
+  it('keeps a press on the bar while its panel is open', async () => {
+    Object.assign(navigator, {
+      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+    });
+    const logEvent = jest.fn();
+    await openPanel(logEvent);
+    const copyText = screen.getByLabelText('Copy text');
+
+    fireEvent.pointerDown(copyText);
+    fireEvent.pointerUp(copyText);
+    await act(async () => {
+      fireEvent.click(copyText);
+    });
+
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.SharePost,
+        extra: expect.stringContaining(ShareProvider.CopyText),
+      }),
+    );
+    expect(toolbar()).toBeInTheDocument();
   });
 });

@@ -1,3 +1,6 @@
+export const toPngFile = (blob: Blob, filename: string): File =>
+  new File([blob], `${filename}.png`, { type: 'image/png' });
+
 /**
  * The PNG as a file the system share sheet accepts, or nothing where Web Share
  * cannot take files: desktop Firefox, and most desktop Chrome builds.
@@ -10,7 +13,7 @@ export function getShareableImageFile(
     return undefined;
   }
 
-  const file = new File([blob], `${filename}.png`, { type: 'image/png' });
+  const file = toPngFile(blob, filename);
 
   return navigator.canShare({ files: [file] }) ? file : undefined;
 }
