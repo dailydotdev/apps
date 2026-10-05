@@ -278,7 +278,8 @@
     border: 0 !important;
     padding: 0.75rem 0 calc(env(safe-area-inset-bottom, 0px) + 0.75rem) !important;
     background: var(--theme-background-default) !important;
-    box-shadow: 0 -8px 40px color-mix(in srgb, var(--theme-shadow-shadow1), transparent 25%);
+    box-shadow: 0 -8px 40px color-mix(in srgb, var(--theme-shadow-shadow1), transparent
+          25%);
     animation-duration: var(--shell-duration-enter) !important;
     animation-timing-function: var(--shell-ease-travel) !important;
     animation-name: shell-sheet-in !important;
@@ -367,6 +368,24 @@
 
   .shell-menu-sheet [role='menuitem'] svg {
     color: var(--theme-text-secondary);
+  }
+}
+
+/* A cover drifts at half the page's speed while it leaves, where the
+   browser can drive an animation from the scroll itself. */
+@media (max-width: 655.98px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .shell-cover > img {
+      animation: shell-cover-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 10.5rem;
+    }
+  }
+}
+
+@keyframes shell-cover-drift {
+  to {
+    transform: translateY(5.25rem);
   }
 }
 

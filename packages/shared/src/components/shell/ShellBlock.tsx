@@ -21,7 +21,11 @@ import { ShellSquare } from './ShellSquare';
 import { motion, topButton } from './constants';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
-import { useShellActionsSlot, useShellPageConfig } from './ShellPageContext';
+import {
+  useShellActionsSlot,
+  useShellDockedRow,
+  useShellPageConfig,
+} from './ShellPageContext';
 import { ShellRoot, useShellBack } from './shellNav';
 
 // The block is in the server HTML, where a layout effect only warns; the
@@ -192,6 +196,7 @@ export function ShellBlock({
 }: ShellBlockProps): ReactElement | null {
   const router = useRouter();
   const config = useShellPageConfig();
+  const dockedRow = useShellDockedRow();
   const { p } = useShellScroll();
   const online = useOnline();
   const ref = useRef<HTMLElement>(null);
@@ -251,13 +256,14 @@ export function ShellBlock({
       ref={ref}
       aria-hidden={hidden || undefined}
       className={classNames(
-        'fixed inset-x-0 z-header flex flex-col bg-background-default tablet:hidden',
+        'fixed inset-x-0 z-header flex flex-col tablet:hidden',
+        !config?.transparent && 'bg-background-default',
         hidden && 'pointer-events-none',
       )}
       style={{
         top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
         transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${p}))`,
-        transition: `transform ${motion.snap}ms ${motion.interaction}`,
+        transition: `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out`,
       }}
     >
       {!online && (
@@ -277,7 +283,7 @@ export function ShellBlock({
           onBack={config?.onBack}
         />
       )}
-      {config?.row ?? row}
+      {config?.row ?? dockedRow ?? row}
     </header>
   );
 }

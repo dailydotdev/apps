@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ButtonSize } from '../../../components/buttons/Button';
 import {
@@ -8,6 +8,10 @@ import {
 } from '../../../components/squads/layout/SquadDirectoryNavbar';
 import { SquadPreviewNotice } from './widgets/SquadPreview';
 import { SquadWidgets } from './widgets/SquadWidgets';
+import { useIsPhone } from '../../../hooks/useViewSize';
+import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
+import { Segments, ShellRow } from '../../../components/shell/ShellRow';
+import { usePassedBlock } from '../../../components/shell/usePassedBlock';
 
 enum SquadPageTab {
   Posts = 'Posts',
@@ -38,6 +42,9 @@ export const SquadPageLayout = ({
 }: SquadPageLayoutProps): ReactElement => {
   const [tab, setTab] = useState(SquadPageTab.Posts);
   const isAbout = hasAboutTab && tab === SquadPageTab.About;
+  const isPhone = useIsPhone();
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasAboutTab);
 
   return (
     <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
@@ -49,8 +56,25 @@ export const SquadPageLayout = ({
             {belowHeader}
           </div>
         </div>
+        {haveTabsPassed && (
+          <ShellDockedRow>
+            <ShellRow>
+              <Segments
+                items={Object.values(SquadPageTab).map((item) => ({
+                  key: item,
+                  label: item,
+                  active: tab === item,
+                  onClick: () => setTab(item),
+                }))}
+              />
+            </ShellRow>
+          </ShellDockedRow>
+        )}
         {hasAboutTab && (
-          <div className="order-2 border-t border-border-subtlest-tertiary px-4 tablet:px-6 laptop:hidden">
+          <div
+            ref={tabsRef}
+            className="order-2 border-t border-border-subtlest-tertiary px-4 tablet:px-6 laptop:hidden"
+          >
             <SquadDirectoryNavbar
               aria-label="Posts and About"
               className="!mx-0 !border-0 !px-0"
