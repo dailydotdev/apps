@@ -79,15 +79,20 @@ export const SpotlightTrigger = ({
 // the bottom bar.
 export const SpotlightField = ({
   placeholder = 'Search posts, tags, sources, people',
+  query,
 }: {
   placeholder?: string;
+  // On a results page the field shows what was searched and reopens
+  // Spotlight with it filled in.
+  query?: string;
 }): ReactElement => {
-  const { open } = useSpotlight();
+  const { open, setQuery } = useSpotlight();
   const { logEvent } = useLogContext();
 
   return (
     <ShellField
       placeholder={placeholder}
+      value={query}
       onOpen={() => {
         logEvent({
           event_name: LogEvent.Click,
@@ -95,6 +100,9 @@ export const SpotlightField = ({
           target_id: TargetId.SpotlightOpen,
         });
         open();
+        if (query) {
+          setQuery(query);
+        }
       }}
     />
   );

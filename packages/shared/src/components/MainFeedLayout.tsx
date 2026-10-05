@@ -901,7 +901,7 @@ export default function MainFeedLayout({
               title={searchQuery || 'Search'}
               actions={<SearchMobileFiltersButton square />}
             />
-            <SpotlightField />
+            <SpotlightField query={searchQuery || undefined} />
           </>
         )}
         {isSearchOn && !isSearchPageLaptop && !isPhone && (

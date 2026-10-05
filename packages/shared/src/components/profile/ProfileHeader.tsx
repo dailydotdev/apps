@@ -118,7 +118,10 @@ const ProfileHeader = ({
       <ProfileDesktopPwaBackButton className="absolute left-4 top-4 z-1" />
       <div
         ref={coverRef}
-        className="shell-cover relative h-[calc(9rem+var(--cover-lift))] overflow-hidden"
+        className={classNames(
+          'shell-cover relative overflow-hidden',
+          coversBlock ? 'h-[10.5rem] tablet:h-36' : 'h-36',
+        )}
       >
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
         {coversBlock && (
@@ -133,7 +136,10 @@ const ProfileHeader = ({
         src={image}
         fallbackSrc={fallbackImages.avatar}
         alt="Avatar"
-        className="absolute left-6 top-[calc(4rem+var(--cover-lift))] h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
+        className={classNames(
+          'absolute left-6 h-[7.5rem] w-[7.5rem] rounded-16 object-cover',
+          coversBlock ? 'top-[5.5rem] tablet:top-16' : 'top-16',
+        )}
       />
       <div className="flex flex-col gap-3 px-6">
         {/* Edit leads and `actions` trails, because edit is only hidden, not

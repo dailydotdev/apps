@@ -141,6 +141,12 @@ export function ShellCluster(): ReactElement | null {
   // A page with a search field gives the field the bar's slot once the
   // reader scrolls, and the whole of the bottom while the keyboard is up.
   const yieldsToField = shellField.focused || (shellField.mounted && p === 1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.inert = yieldsToField;
+    }
+  }, [yieldsToField]);
 
   const logTab = (tab: ClusterTab) => {
     if (tab.root === ShellRoot.Activity) {
@@ -442,12 +448,15 @@ export function ShellCluster(): ReactElement | null {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 z-3 flex items-end tablet:hidden"
+      className="pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
+      ref={containerRef}
       style={{
         bottom: `calc(env(safe-area-inset-bottom, 0px) + ${cluster.lift}px)`,
         paddingInline: inset,
         gap: cluster.gap,
-        transform: yieldsToField ? 'translateY(calc(100% + 4rem))' : undefined,
+        transform: yieldsToField
+          ? `translateY(calc(100% + ${cluster.rest + cluster.lift}px))`
+          : undefined,
         transition: `${transition}, transform ${motion.snap}ms ${motion.interaction}`,
       }}
     >

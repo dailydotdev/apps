@@ -4,7 +4,10 @@ import type { PostsSearchProps } from '@dailydotdev/shared/src/components/PostsS
 import PostsSearch from '@dailydotdev/shared/src/components/PostsSearch';
 import { useRouter } from 'next/router';
 import { ShellField } from '@dailydotdev/shared/src/components/shell/ShellField';
-import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import {
@@ -21,7 +24,7 @@ export default function RouterPostsSearch(
   props: Omit<PostsSearchProps, 'onSubmitQuery'>,
 ): ReactElement {
   const router = useRouter();
-  const isPhone = useIsPhone();
+  const isPhone = useViewSize(ViewSize.MobileL);
   const [draft, setDraft] = useState(router.query.q?.toString() ?? '');
   const { time, contentCurationFilter, postTypesFilter } =
     useSearchContextProvider();

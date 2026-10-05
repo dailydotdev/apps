@@ -392,7 +392,7 @@
 /* A thing's name joining the block: a short fade on the clock, never
    scrubbed by the scroll. */
 .shell-title-in {
-  animation: shell-title-in 100ms ease-out;
+  animation: shell-title-in var(--shell-duration-feedback) ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {

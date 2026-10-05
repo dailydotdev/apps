@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { ClearIcon, SearchIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useIsPhone } from '../../hooks/useViewSize';
+import { useMobileAppFooterContext } from '../../features/getApp/contexts/MobileAppFooterContext';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { cluster, field, lerp, motion } from './constants';
 import { setShellFieldFocused, useRegisterShellField } from './shellFieldStore';
@@ -42,14 +43,17 @@ export function ShellField({
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const viewport = useVisualViewport(isFocused);
-  useRegisterShellField(isPhone);
+  // The app footer owns the bottom while it is up.
+  const { isRevealed: hasAppFooter } = useMobileAppFooterContext();
+  const isShown = isPhone && !hasAppFooter;
+  useRegisterShellField(isShown);
 
   useEffect(() => {
     setShellFieldFocused(isFocused);
     return () => setShellFieldFocused(false);
   }, [isFocused]);
 
-  if (!isPhone) {
+  if (!isShown) {
     return null;
   }
 
@@ -75,7 +79,7 @@ export function ShellField({
     transition,
   };
   const surfaceClassName = classNames(
-    'pointer-events-auto flex w-full items-center gap-2 px-3 text-left',
+    'pointer-events-auto flex w-full items-center gap-2 px-3 text-left motion-reduce:!transition-none',
     isFocused
       ? 'border border-text-primary bg-background-default'
       : 'shell-material',
@@ -92,7 +96,7 @@ export function ShellField({
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 z-3 tablet:hidden"
+      className="pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
       style={{
         bottom: isFocused ? focusedBottom : restBottom,
         paddingInline: isFocused
@@ -113,8 +117,13 @@ export function ShellField({
           style={surfaceStyle}
         >
           {icon}
-          <span className="min-w-0 flex-1 truncate text-text-tertiary typo-body">
-            {progress === 1 ? 'Search' : placeholder}
+          <span
+            className={classNames(
+              'min-w-0 flex-1 truncate typo-body',
+              value ? 'text-text-primary' : 'text-text-tertiary',
+            )}
+          >
+            {value || (progress === 1 ? 'Search' : placeholder)}
           </span>
         </button>
       ) : (
@@ -149,7 +158,7 @@ export function ShellField({
               // Keeps the input focused, so the keyboard stays up.
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => onChange?.('')}
-              className="flex size-6 shrink-0 items-center justify-center text-text-tertiary"
+              className="shell-hit relative flex size-6 shrink-0 items-center justify-center text-text-tertiary"
             >
               <ClearIcon size={IconSize.Small} />
             </button>

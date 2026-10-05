@@ -1081,7 +1081,7 @@ export const Spotlight = ({
           <>
             <div
               className={
-                isPhone ? 'flex items-center gap-3 px-4 pb-2 pt-1' : 'contents'
+                isPhone ? 'flex items-center gap-2 px-4 pb-2 pt-1' : 'contents'
               }
             >
               <div
@@ -1183,7 +1183,7 @@ export const Spotlight = ({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="shell-press font-bold text-text-primary typo-callout"
+                  className="shell-press shell-hit relative flex h-[3.25rem] items-center px-1 font-bold text-text-primary typo-callout"
                 >
                   Cancel
                 </button>

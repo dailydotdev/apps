@@ -306,7 +306,7 @@ export default function BookmarkFeedLayout({
             </FeedPageHeader>
             <CustomFeedHeader
               className={classNames(
-                'mb-6',
+                '!mb-0 !h-0 tablet:!mb-6 tablet:!h-11',
                 shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
               )}
             >
