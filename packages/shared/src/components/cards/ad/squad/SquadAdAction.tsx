@@ -5,6 +5,7 @@ import { SquadActionButton } from '../../../squads/SquadActionButton';
 import { Origin } from '../../../../lib/log';
 import { ButtonVariant } from '../../../buttons/common';
 import Link from '../../../utilities/Link';
+import type { ButtonSize } from '../../../buttons/Button';
 import { Button } from '../../../buttons/Button';
 import type { Squad } from '../../../../graphql/sources';
 
@@ -13,6 +14,8 @@ interface SquadAdActionProps {
   onJustJoined: () => void;
   shouldShowAction: boolean;
   className?: string;
+  origin?: Origin;
+  size?: ButtonSize;
 }
 
 export function SquadAdAction({
@@ -20,12 +23,15 @@ export function SquadAdAction({
   onJustJoined,
   shouldShowAction,
   className,
+  origin = Origin.Feed,
+  size,
 }: SquadAdActionProps): ReactElement {
   if (shouldShowAction) {
     return (
       <SquadActionButton
         squad={squad}
-        origin={Origin.Feed}
+        origin={origin}
+        size={size}
         alwaysShow
         buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Subtle]}
         onSuccess={() => onJustJoined()}
@@ -40,6 +46,7 @@ export function SquadAdAction({
         tag="a"
         href={squad.permalink}
         variant={ButtonVariant.Subtle}
+        size={size}
         className={classNames('mt-auto w-full', className)}
       >
         View Squad

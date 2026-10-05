@@ -23,6 +23,7 @@ import { SquadAdStat } from './SquadAdStat';
 import { SquadFeedStats } from './SquadFeedStats';
 import { SquadAdAction } from './SquadAdAction';
 import { useScrambler } from '../../../../hooks/useScrambler';
+import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
 
 export function SquadAdList({
   item,
@@ -32,9 +33,7 @@ export function SquadAdList({
 }: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
   const { squad, campaign, members, shouldShowAction, onJustJoined } =
-    useSquadAd({
-      item,
-    });
+    useSquadAd({ ad: item.ad });
   const { ref, inView } = useInView({ triggerOnce: true });
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
@@ -55,8 +54,14 @@ export function SquadAdList({
       domProps={{ className: 'flex flex-col gap-4 group' }}
       ref={ref}
     >
-      <Link href={source.permalink} onClick={onClickAd}>
-        <CardLink href={source.permalink} />
+      <Link href={source.permalink}>
+        <CardLink
+          href={source.permalink}
+          onClick={() => {
+            onClickAd();
+            storeSquadBoostClick(item.ad);
+          }}
+        />
       </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
       <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />

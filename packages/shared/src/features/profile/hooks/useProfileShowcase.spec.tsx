@@ -6,8 +6,6 @@ import { gqlClient } from '../../../graphql/common';
 import type { PublicProfile } from '../../../lib/user';
 import { useUserStack } from './useUserStack';
 import { useHotTakes } from './useHotTakes';
-import { useUserWorkspacePhotos } from './useUserWorkspacePhotos';
-import { useGear } from './useGear';
 
 jest.mock('../../../graphql/common', () => ({
   ...jest.requireActual('../../../graphql/common'),
@@ -38,8 +36,6 @@ const connection = <T,>(nodes: T[]) => ({
 const showcase = {
   userStack: connection([{ id: 's1', section: 'editor', position: 0 }]),
   hotTakes: connection([{ id: 'h1', title: 'Tabs' }]),
-  userWorkspacePhotos: connection([{ id: 'p1', image: 'a.png' }]),
-  gear: connection([{ id: 'g1', position: 0 }]),
 };
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -55,15 +51,13 @@ beforeEach(() => {
 });
 
 describe('the profile showcase sections', () => {
-  it('take one round trip between the four of them', async () => {
+  it('take one round trip between the two of them', async () => {
     request.mockResolvedValue(showcase);
 
     const { result } = renderHook(
       () => ({
         stack: useUserStack(user),
         hotTakes: useHotTakes(user),
-        photos: useUserWorkspacePhotos(user),
-        gear: useGear(user),
       }),
       { wrapper },
     );
@@ -72,7 +66,7 @@ describe('the profile showcase sections', () => {
       expect(result.current.stack.stackItems).toHaveLength(1),
     );
 
-    // The whole point: four sections that used to be four requests.
+    // The whole point: two sections that used to be two requests.
     expect(request).toHaveBeenCalledTimes(1);
   });
 
@@ -83,8 +77,6 @@ describe('the profile showcase sections', () => {
       () => ({
         stack: useUserStack(user),
         hotTakes: useHotTakes(user),
-        photos: useUserWorkspacePhotos(user),
-        gear: useGear(user),
       }),
       { wrapper },
     );
@@ -94,8 +86,6 @@ describe('the profile showcase sections', () => {
     );
     expect(result.current.stack.stackItems[0].id).toBe('s1');
     expect(result.current.hotTakes.hotTakes[0].id).toBe('h1');
-    expect(result.current.photos.photos[0].id).toBe('p1');
-    expect(result.current.gear.gearItems[0].id).toBe('g1');
   });
 
   it('ask for nothing without a reader', () => {
@@ -111,8 +101,6 @@ describe('the profile showcase sections', () => {
       () => ({
         stack: useUserStack(user),
         hotTakes: useHotTakes(user),
-        photos: useUserWorkspacePhotos(user),
-        gear: useGear(user),
       }),
       { wrapper },
     );
@@ -126,8 +114,6 @@ describe('the profile showcase sections', () => {
 
     await waitFor(() => expect(result.current.hotTakes.hotTakes).toEqual([]));
     expect(result.current.stack.stackItems[0].id).toBe('s1');
-    expect(result.current.photos.photos[0].id).toBe('p1');
-    expect(result.current.gear.gearItems[0].id).toBe('g1');
     // The write reconciled the cache in place — no showcase refetch.
     expect(request).toHaveBeenCalledTimes(2);
   });

@@ -33,7 +33,7 @@ export function ProfileExperienceDetailPage({
   title,
   seoTitle,
 }: ProfileExperienceDetailPageProps): ReactElement | null {
-  if (!user || !experiences || experiences.length === 0) {
+  if (!user) {
     return null;
   }
 
@@ -48,6 +48,12 @@ export function ProfileExperienceDetailPage({
       noindex,
     ),
   };
+
+  // The experiences load client-side, so the head has to render before they
+  // resolve or the server response falls back to the indexable defaults.
+  if (!experiences || experiences.length === 0) {
+    return <NextSeo {...seo} />;
+  }
 
   return (
     <>

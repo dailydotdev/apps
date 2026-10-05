@@ -46,12 +46,13 @@ export const SquadList = ({
       className="group/squad-row relative flex flex-row items-center gap-4"
       ref={ad ? ref : undefined}
     >
-      <Link
-        href={permalink}
-        legacyBehavior
-        onClick={ad ? onClickAd : undefined}
-      >
-        <CardLink href={permalink} rel="noopener" title={name} />
+      <Link href={permalink} legacyBehavior>
+        <CardLink
+          href={permalink}
+          rel="noopener"
+          title={name}
+          onClick={ad ? onClickAd : undefined}
+        />
       </Link>
       <Image
         className="size-14 rounded-full"
