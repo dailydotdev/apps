@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import {
   Typography,
   TypographyColor,
@@ -97,7 +98,7 @@ export const CreatorAchievementCard = ({
               >
                 ·
               </Typography>
-              <Link href={achievement.post.commentsPermalink} passHref>
+              <Link href={getPostPath(achievement.post)} passHref>
                 <Typography
                   tag={TypographyTag.Link}
                   type={TypographyType.Footnote}
