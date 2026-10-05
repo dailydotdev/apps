@@ -263,6 +263,7 @@ const ReadPostPage = ({
               post={post}
               origin={Origin.ArticlePage}
               ads={readAds}
+              showSnapshots={false}
             />
           </div>
         ) : (
