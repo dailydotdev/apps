@@ -32,6 +32,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
+import { getPostPath } from '../../lib/links';
 
 export interface PostItemCardProps {
   className?: string;
@@ -108,7 +109,7 @@ export default function PostItemCard({
       <ConditionalWrapper
         condition={clickable}
         wrapper={(children) => (
-          <Link href={post.commentsPermalink}>
+          <Link href={getPostPath(post)}>
             <a className={classes} title="Go to post">
               {children}
             </a>

@@ -883,7 +883,10 @@ const PostFocusCardRaw = ({
 
           {ads?.aboveComments}
 
-          <div ref={discussionRef} className="scroll-mt-16">
+          <div
+            ref={discussionRef}
+            className="scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))]"
+          >
             <PostDiscussionPanel
               showMetaBar={false}
               showSortHeader

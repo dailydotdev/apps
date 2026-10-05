@@ -29,6 +29,7 @@ import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { getPostPath } from '../../../lib/links';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -142,7 +143,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           ? {
               title: post.title,
               onClick: onPostCardClick,
-              href: post.commentsPermalink,
+              href: getPostPath(post),
             }
           : undefined
       }
