@@ -17,11 +17,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import {
-  FeedPageLayoutMobile,
-  feedGutter,
-  feedWidth,
-} from './utilities/common';
+import { feedGutter, feedWidth } from './utilities/common';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
 import { useSponsorStripFeed } from '../features/monetization/sponsorStrip/useSponsorStripFeed';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
@@ -40,10 +36,8 @@ import { SharedFeedPage } from './utilities';
 import {
   FEED_V2_HIGHLIGHTS_LIMIT,
   ANONYMOUS_FEED_QUERY,
-  baseFeedSupportedTypes,
   CUSTOM_FEED_QUERY,
   feedV2SupportedTypes,
-  FEED_BY_TAGS_QUERY,
   FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
@@ -200,9 +194,6 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
     query: FOLLOWING_FEED_QUERY,
     emptyScreen: <FollowingFeedEmptyScreen />,
   },
-  [OtherFeedPage.ExploreTag]: {
-    query: FEED_BY_TAGS_QUERY,
-  },
 };
 
 export interface MainFeedLayoutProps
@@ -303,26 +294,10 @@ export default function MainFeedLayout({
     enabled: feedName === OtherFeedPage.Discussed,
   });
   const {
-    shouldUseListFeedLayout: shouldUseListFeedLayoutRaw,
+    shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
-    FeedPageLayoutComponent: FeedPageLayoutComponentRaw,
+    FeedPageLayoutComponent,
   } = useFeedLayout();
-
-  // SSR renders /explore/[tag] with FeedPageLayoutMobile. On client hydration with
-  // a laptop viewport the layout swaps to FeedPage, which causes a hydration
-  // Done just for explore tag for now to avoid impact other pages
-  const isExploreTag = feedName === OtherFeedPage.ExploreTag;
-  const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-  const enableSsrSafeLayout = isExploreTag && !hasMounted;
-  const FeedPageLayoutComponent = enableSsrSafeLayout
-    ? FeedPageLayoutMobile
-    : FeedPageLayoutComponentRaw;
-  const shouldUseListFeedLayout = enableSsrSafeLayout
-    ? true
-    : shouldUseListFeedLayoutRaw;
 
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
@@ -373,7 +348,6 @@ export default function MainFeedLayout({
   const isChipStripPage =
     router.pathname === '/' ||
     router.pathname === '/my-feed' ||
-    router.pathname === '/explore/[tag]' ||
     router.pathname === '/feeds/[slugOrId]' ||
     router.pathname === '/feeds/[slugOrId]/edit';
   const { value: feedChipsVariant } = useConditionalFeature({
@@ -441,12 +415,6 @@ export default function MainFeedLayout({
           feedId: (router.query?.slugOrId as string) || user?.id,
         },
       },
-      [OtherFeedPage.ExploreTag]: {
-        variables: {
-          tags: router.query?.tag ? [router.query.tag as string] : [],
-          supportedTypes: baseFeedSupportedTypes,
-        },
-      },
     };
 
     /**
@@ -504,7 +472,6 @@ export default function MainFeedLayout({
   }, [
     feedName,
     router.query?.slugOrId,
-    router.query?.tag,
     router.pathname,
     user,
     myFeedV,
@@ -554,13 +521,8 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown> | null>(() => {
-    const isExploreTagFeed = feedName === OtherFeedPage.ExploreTag;
     const feedWithActions =
-      isUpvoted ||
-      isPopular ||
-      isSortableFeed ||
-      isCustomFeed ||
-      isExploreTagFeed;
+      isUpvoted || isPopular || isSortableFeed || isCustomFeed;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
@@ -742,8 +704,7 @@ export default function MainFeedLayout({
   // (see `enableSsrSafeLayout`), so keying the spacing to it made the
   // gap change size on navigation and settle differently on reload.
   const disableTopPadding =
-    isFinder ||
-    (shouldUseListFeedLayout && (!isAnyExplore || (isPhone && hasMounted)));
+    isFinder || (shouldUseListFeedLayout && (!isAnyExplore || isPhone));
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
       if (clickedTab === ExploreTabs.BestOf && isExtension) {
@@ -831,7 +792,7 @@ export default function MainFeedLayout({
     return '';
   }, [customFeedsData, feedName, router.query.slugOrId]);
   const chipsTopContent =
-    (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
+    shouldUseListFeedLayout && chipsNode ? (
       <div
         className={classNames('mb-8 w-full', shouldUseListFeedLayout && 'mt-8')}
       >
@@ -916,9 +877,6 @@ export default function MainFeedLayout({
       >
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
-        {isExploreTag && isPhone && (
-          <ShellPage title={`#${router.query?.tag ?? ''}`} />
-        )}
         {isSearchOn && !isSearchPageLaptop && isPhone && (
           <ShellPage
             title={searchQuery || 'Search'}

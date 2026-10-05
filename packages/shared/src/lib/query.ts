@@ -73,7 +73,6 @@ export enum OtherFeedPage {
   Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
-  ExploreTag = 'explore[tag]',
   Watercooler = 'watercooler',
 }
 
@@ -245,6 +244,7 @@ export enum RequestKey {
   UserPostsAnalyticsHistory = 'user_posts_analytics_history',
   UserPostsWithAnalytics = 'user_posts_with_analytics',
   CreatorAchievements = 'creator_achievements',
+  SharedCreatorAchievement = 'shared_creator_achievement',
   CreatorPerformance = 'creator_performance',
   CreatorPostPerformance = 'creator_post_performance',
   SquadAnalytics = 'squad_analytics',
@@ -272,11 +272,6 @@ export enum RequestKey {
   DiscoverHotTakes = 'discover_hot_takes',
   UserTools = 'user_tools',
   ToolSearch = 'tool_search',
-  UserWorkspacePhotos = 'user_workspace_photos',
-  Gear = 'gear',
-  GearSearch = 'gear_search',
-  PopularGear = 'popular_gear',
-  GearCategories = 'gear_categories',
   PersonalAccessTokens = 'personal_access_tokens',
   OAuthClients = 'oauth_clients',
   OAuthConsents = 'oauth_consents',
