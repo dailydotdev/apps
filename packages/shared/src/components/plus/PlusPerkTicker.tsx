@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { usePrefersReducedMotion } from '../../features/giveback/useGivebackMotion';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
 export const plusTickerPerks = [
   'Removes every ad',
