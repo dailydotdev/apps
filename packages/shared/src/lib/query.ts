@@ -177,6 +177,7 @@ export enum RequestKey {
   SourceRelatedTags = 'source_related_tags',
   SourceByTag = 'source_by_tag',
   SimilarSources = 'similar_sources',
+  SimilarSquads = 'similar_squads',
   TopCreatorsByTag = 'top_creators_by_tag',
   UserExperienceLevel = 'user_experience_level',
   SquadStatus = 'squad_status',
