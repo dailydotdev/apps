@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import type { Source } from './sources';
-import { gqlClient } from './common';
+import type { ApiErrorResult, ApiIntegrationErrorExtension } from './common';
+import { ApiError, getApiError, gqlClient } from './common';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import type { LoggedUser } from '../lib/user';
 
@@ -93,6 +94,15 @@ export const INTEGRATION_SHARE_POST_MUTATION = gql`
 `;
 
 export const slackShareMessageMaxLength = 2000;
+
+export const INTEGRATION_MISSING_SCOPE = 'INTEGRATION_MISSING_SCOPE';
+
+/** The workspace's token lacks a scope the share needs, like `files:write`. */
+export const isIntegrationMissingScopeError = (error: unknown): boolean =>
+  getApiError(
+    error as ApiErrorResult<ApiIntegrationErrorExtension>,
+    ApiError.Forbidden,
+  )?.extensions.reason === INTEGRATION_MISSING_SCOPE;
 
 export const INTEGRATION_SHARE_IMAGE_MUTATION = gql`
   mutation IntegrationShareImage(
