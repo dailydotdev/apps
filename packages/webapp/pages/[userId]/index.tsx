@@ -2,6 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { usePassedBlock } from '@dailydotdev/shared/src/components/shell/usePassedBlock';
+import { ShellDockedRow } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
@@ -104,6 +109,8 @@ const ProfilePage = ({
   const coversBlock = !(isSameUser && showProfileCompletion);
   const hasCoverPassed = usePassedBlock(coverRef, isPhone && coversBlock);
   const hasNamePassed = usePassedBlock(nameRef, isPhone);
+  const segmentsRef = useRef<HTMLDivElement>(null);
+  const haveSegmentsPassed = usePassedBlock(segmentsRef, isPhone);
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),
@@ -153,6 +160,16 @@ const ProfilePage = ({
           />
         )}
         {!shouldShowBanner && <div />}
+        {isPhone && (
+          <div ref={segmentsRef} className="-mx-6 !border-0 pb-2">
+            <ProfileSegments user={user} active={ProfileSegment.About} />
+            {haveSegmentsPassed && (
+              <ShellDockedRow>
+                <ProfileSegments user={user} active={ProfileSegment.About} />
+              </ShellDockedRow>
+            )}
+          </div>
+        )}
         <AboutMe user={user} />
         <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
@@ -161,7 +178,11 @@ const ProfilePage = ({
           at={MobileAppFooterAnchorPlace.Activity}
           className="!border-0"
         />
-        <Activity user={user} />
+        {!isPhone && (
+          <div className="hidden tablet:block">
+            <Activity user={user} />
+          </div>
+        )}
         {isSameUser && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
         )}

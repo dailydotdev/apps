@@ -18,6 +18,13 @@ const restOf: Record<ShellRoot, string> = {
   [ShellRoot.Activity]: blockRest.root,
 };
 
+// A profile's posts, replies and upvotes carry the profile's segments.
+const profileSegmentPaths = [
+  '/[userId]/posts',
+  '/[userId]/replies',
+  '/[userId]/upvoted',
+];
+
 const roots = [
   ShellRoot.Explore,
   ShellRoot.Squads,
@@ -40,5 +47,8 @@ export const useShellBlockPlan = (): ShellBlockPlan => {
     return { root, rest: restOf[root] };
   }
 
-  return { rest: bookmarks ? blockRest.pageWithRow : blockRest.page };
+  const hasRow =
+    bookmarks || profileSegmentPaths.includes(router?.pathname ?? '');
+
+  return { rest: hasRow ? blockRest.pageWithRow : blockRest.page };
 };

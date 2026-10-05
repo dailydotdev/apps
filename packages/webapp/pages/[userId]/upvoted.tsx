@@ -13,6 +13,12 @@ import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getStaticPaths as getProfileStaticPaths,
@@ -31,6 +37,7 @@ const ProfileUpvotedPage = ({
   noindex,
 }: ProfileLayoutProps): ReactElement | null => {
   const { isOwner } = useProfilePreview(user);
+  const isPhone = useIsPhone();
   const { shouldUseListFeedLayout } = useFeedLayout();
 
   if (!user) {
@@ -82,7 +89,14 @@ const ProfileUpvotedPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile title="Upvoted posts" />
+      {isPhone ? (
+        <ShellPage
+          title={user.name}
+          row={<ProfileSegments user={user} active={ProfileSegment.Upvoted} />}
+        />
+      ) : (
+        <GoBackHeaderMobile title="Upvoted posts" />
+      )}
       <Feed
         {...feedProps}
         className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
