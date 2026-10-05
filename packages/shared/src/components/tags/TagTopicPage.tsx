@@ -387,6 +387,7 @@ export const TagTopicPage = ({
           titleFades
           actions={
             hasHeroPassed &&
+            !!user &&
             tagStatus === 'unfollowed' && (
               <ShellPrimaryPill onClick={followButtonProps.onClick}>
                 Follow

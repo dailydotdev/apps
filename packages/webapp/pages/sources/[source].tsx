@@ -241,6 +241,7 @@ const SourceShellPage = ({
   const hasNamePassed = usePassedBlock(nameRef);
   const hasHeroPassed = usePassedBlock(heroRef);
   useHeroDeadZone(heroRef);
+  const { isLoggedIn } = useContext(AuthContext);
   const { isFollowing, isBlocked, toggleFollow } = useSourceActions({
     source,
   });
@@ -251,6 +252,7 @@ const SourceShellPage = ({
       titleFades
       actions={
         hasHeroPassed &&
+        isLoggedIn &&
         !isFollowing &&
         !isBlocked && (
           <ShellPrimaryPill onClick={toggleFollow}>Follow</ShellPrimaryPill>
