@@ -47,7 +47,7 @@ export const PlusEntryRow = ({
   member = false,
   size = PlusEntryRowSize.Medium,
   onClick,
-  className = 'rounded-10 py-1.5 pr-1 hover:bg-surface-float',
+  className,
 }: PlusEntryRowProps): ReactElement => (
   <Link href={href} passHref>
     <a

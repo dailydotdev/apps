@@ -12,11 +12,13 @@ import { PlusSaleLabel } from './PlusSaleLabel';
 interface PlusMenuEntryProps {
   target: TargetId;
   size?: PlusEntryRowSize;
+  className?: string;
 }
 
 export const PlusMenuEntry = ({
   target,
   size = PlusEntryRowSize.Medium,
+  className,
 }: PlusMenuEntryProps): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { isActive: isSaleActive } = usePlusSale();
@@ -26,6 +28,7 @@ export const PlusMenuEntry = ({
       <PlusEntryRow
         member
         size={size}
+        className={className}
         href={`${settingsUrl}/subscription`}
         title="Plus member"
         description="Manage your plan and perks"
@@ -36,6 +39,7 @@ export const PlusMenuEntry = ({
   return (
     <PlusEntryRow
       size={size}
+      className={className}
       href={plusUrl}
       title="Get Plus"
       description={<PlusPerkTicker />}
