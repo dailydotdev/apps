@@ -9,6 +9,7 @@ import { useSpotlight } from './SpotlightContext';
 import { ViewSize, useViewSizeClient } from '../../hooks/useViewSize';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { ShellField } from '../shell/ShellField';
 
 interface SpotlightTriggerProps {
   className?: string;
@@ -71,6 +72,31 @@ export const SpotlightTrigger = ({
         <KeyboadShortcutLabel keys={shortcutKeys} />
       </div>
     </button>
+  );
+};
+
+// The phone's trigger: the same door, drawn as the field that floats above
+// the bottom bar.
+export const SpotlightField = ({
+  placeholder = 'Search posts, squads and people',
+}: {
+  placeholder?: string;
+}): ReactElement => {
+  const { open } = useSpotlight();
+  const { logEvent } = useLogContext();
+
+  return (
+    <ShellField
+      placeholder={placeholder}
+      onOpen={() => {
+        logEvent({
+          event_name: LogEvent.Click,
+          target_type: TargetType.Spotlight,
+          target_id: TargetId.SpotlightOpen,
+        });
+        open();
+      }}
+    />
   );
 };
 

@@ -101,13 +101,13 @@ import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
+import { ExplorePlaces } from './shell/ExplorePlaces';
 import { ShellPage } from './shell/ShellPageContext';
 
-const SpotlightTrigger = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "spotlightTrigger" */ './spotlight/SpotlightTrigger'
-    ),
+const SpotlightField = dynamic(() =>
+  import(
+    /* webpackChunkName: "spotlightTrigger" */ './spotlight/SpotlightTrigger'
+  ).then((mod) => mod.SpotlightField),
 );
 
 const FeedExploreHeader = dynamic(
@@ -739,7 +739,13 @@ export default function MainFeedLayout({
     }
 
     if (isPhone) {
-      return <ExploreSortMenu />;
+      return (
+        <>
+          <ExplorePlaces />
+          <ExploreSortMenu />
+          <SpotlightField />
+        </>
+      );
     }
 
     return (
@@ -878,15 +884,13 @@ export default function MainFeedLayout({
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
         {isSearchOn && !isSearchPageLaptop && isPhone && (
-          <ShellPage
-            title={searchQuery || 'Search'}
-            actions={<SearchMobileFiltersButton square />}
-            row={
-              <div className="px-2 pb-1">
-                <SpotlightTrigger />
-              </div>
-            }
-          />
+          <>
+            <ShellPage
+              title={searchQuery || 'Search'}
+              actions={<SearchMobileFiltersButton square />}
+            />
+            <SpotlightField />
+          </>
         )}
         {isSearchOn && !isSearchPageLaptop && !isPhone && (
           <div

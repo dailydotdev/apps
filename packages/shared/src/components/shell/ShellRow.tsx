@@ -14,6 +14,8 @@ export interface RowItem {
   // Segments replace the history entry: a segment is a view of the page,
   // not a place you went to.
   replace?: boolean;
+  // A view switched from inside the page keeps the reader where they are.
+  keepScroll?: boolean;
   ariaLabel?: string;
 }
 
@@ -48,7 +50,12 @@ const RowChip = ({
 
   if (item.href) {
     return (
-      <Link href={item.href} passHref replace={item.replace}>
+      <Link
+        href={item.href}
+        passHref
+        replace={item.replace}
+        scroll={item.keepScroll ? false : undefined}
+      >
         <a
           aria-label={item.ariaLabel}
           aria-current={item.active ? 'page' : undefined}

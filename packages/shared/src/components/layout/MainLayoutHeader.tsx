@@ -17,8 +17,6 @@ import useActiveNav from '../../hooks/useActiveNav';
 import { ShellBlock } from '../shell/ShellBlock';
 import { ShellRoot } from '../shell/shellNav';
 import { useShellBlockPlan } from '../shell/useShellBlockPlan';
-import { Chips, ShellRow } from '../shell/ShellRow';
-import { webappUrl } from '../../lib/constants';
 import { isExtension } from '../../lib/func';
 
 export interface MainLayoutHeaderProps {
@@ -98,37 +96,6 @@ function MainLayoutHeader({
   );
 
   const row = (() => {
-    if (root === ShellRoot.Explore) {
-      return (
-        <>
-          <div className="flex h-[3.25rem] flex-col px-2 pb-1">
-            <SpotlightTrigger />
-          </div>
-          <ShellRow>
-            <Chips
-              items={[
-                { key: 'tags', label: 'Tags', href: `${webappUrl}tags` },
-                {
-                  key: 'sources',
-                  label: 'Sources',
-                  href: `${webappUrl}sources`,
-                },
-                {
-                  key: 'leaderboard',
-                  label: 'Leaderboard',
-                  href: `${webappUrl}users`,
-                },
-                {
-                  key: 'discussions',
-                  label: 'Discussions',
-                  href: `${webappUrl}discussed`,
-                },
-              ]}
-            />
-          </ShellRow>
-        </>
-      );
-    }
     if (root === ShellRoot.Home) {
       // The segments need the member's settings; until they load the row
       // keeps its height, so the block measures the same before and after.

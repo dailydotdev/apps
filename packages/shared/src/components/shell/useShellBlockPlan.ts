@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router';
 import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
-import { useFeedName } from '../../hooks/feed/useFeedName';
 import useActiveNav from '../../hooks/useActiveNav';
 import { SharedFeedPage } from '../utilities/common';
 import { blockRest } from './constants';
@@ -13,7 +12,7 @@ interface ShellBlockPlan {
 
 const restOf: Record<ShellRoot, string> = {
   [ShellRoot.Home]: blockRest.rootWithRow,
-  [ShellRoot.Explore]: blockRest.explore,
+  [ShellRoot.Explore]: blockRest.root,
   [ShellRoot.Squads]: blockRest.rootWithRow,
   // Activity's filters depend on what the member has; they are not held.
   [ShellRoot.Activity]: blockRest.root,
@@ -32,7 +31,6 @@ export const useShellBlockPlan = (): ShellBlockPlan => {
   const router = useRouter();
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.Popular;
-  const { isSearch } = useFeedName({ feedName: activeFeedName });
   const { bookmarks } = useActiveNav(activeFeedName);
   const root = roots.find((candidate) =>
     isRootView(candidate, router?.pathname ?? ''),
@@ -40,12 +38,6 @@ export const useShellBlockPlan = (): ShellBlockPlan => {
 
   if (root) {
     return { root, rest: restOf[root] };
-  }
-
-  // Search results are a page under Explore: back, the query, Filters,
-  // and the field under them.
-  if (isSearch) {
-    return { rest: blockRest.pageWithField };
   }
 
   return { rest: bookmarks ? blockRest.pageWithRow : blockRest.page };

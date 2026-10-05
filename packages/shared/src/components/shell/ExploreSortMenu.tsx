@@ -64,22 +64,26 @@ export function ExploreSortMenu(): ReactElement {
     href: sort.href,
     active: sort.key === current.key,
     replace: true,
+    keepScroll: true,
     onClick: () => setIsOpen(false),
   }));
 
   return (
-    <div className="flex items-center justify-between px-3 pb-1 pt-2">
-      <MenuLabel label={current.label} onClick={() => setIsOpen(true)} />
-      {withPeriod.includes(current.key) && (
-        <Dropdown
-          iconOnly
-          shouldIndicateSelected
-          icon={<CalendarIcon size={IconSize.Medium} />}
-          selectedIndex={period}
-          options={periodTexts}
-          onChange={(_, index) => setPeriod(index)}
-        />
-      )}
+    <div className="flex items-center justify-between border-t border-border-subtlest-tertiary pb-2 pl-4 pr-3 pt-4">
+      <h2 className="font-bold text-text-primary typo-title3">Explore feed</h2>
+      <div className="flex items-center gap-1">
+        <MenuLabel label={current.label} onClick={() => setIsOpen(true)} />
+        {withPeriod.includes(current.key) && (
+          <Dropdown
+            iconOnly
+            shouldIndicateSelected
+            icon={<CalendarIcon size={IconSize.Medium} />}
+            selectedIndex={period}
+            options={periodTexts}
+            onChange={(_, index) => setPeriod(index)}
+          />
+        )}
+      </div>
       <RootPortal>
         <Drawer
           isOpen={isOpen}
