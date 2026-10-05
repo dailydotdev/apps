@@ -32,25 +32,22 @@ export const getLinkedInShareLink = (link: string): string =>
     link,
   )}`;
 /**
- * Where a pasted image can join the post: the composer, not a link-preview
- * page. The link is the only text, so the image stays the message.
+ * An empty composer a pasted image can join, rather than a link-preview page,
+ * so the image is the whole post.
  */
 export const getImagePostComposerLink = (
   provider:
     | ShareProvider.Twitter
     | ShareProvider.LinkedIn
     | ShareProvider.WhatsApp,
-  link: string,
 ): string => {
-  const text = encodeURIComponent(link);
-
   switch (provider) {
     case ShareProvider.Twitter:
-      return `https://x.com/intent/post?text=${text}`;
+      return 'https://x.com/intent/post';
     case ShareProvider.LinkedIn:
-      return `https://www.linkedin.com/feed/?shareActive=true&text=${text}`;
+      return 'https://www.linkedin.com/feed/?shareActive=true';
     default:
-      return getWhatsappShareLink(link);
+      return 'https://web.whatsapp.com/';
   }
 };
 export const getTelegramShareLink = (link: string, text: string): string =>

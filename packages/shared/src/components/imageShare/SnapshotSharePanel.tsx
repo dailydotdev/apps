@@ -20,7 +20,6 @@ import { WhatsappIcon } from '../icons/Whatsapp';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useCopyLink } from '../../hooks/useCopy';
-import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
@@ -239,7 +238,6 @@ function SnapshotShareContent({
 }: SnapshotShareContentProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { getShortUrl, getTrackedUrl } = useGetShortUrl();
   const { displayToast } = useToastNotification();
   const [linkCopied, copyLink] = useCopyLink();
   const thumbnail = useObjectUrl(image);
@@ -278,24 +276,20 @@ function SnapshotShareContent({
     });
   };
 
-  // Share pages only take a link, so the image goes the way that carries it:
-  // the system sheet where it accepts files, otherwise the clipboard and the
-  // network's composer, where the reader pastes it.
+  // The image alone is the share. Share pages only take a link, so it goes
+  // the way that carries a file: the system sheet where it accepts files,
+  // otherwise the clipboard and the network's empty composer.
   const onSocial = async (provider: ImageSocialProvider) => {
     if (file) {
       logShare(provider, { method: 'share_sheet' });
-      await shareImageFile(file, getTrackedUrl(link, cid));
+      await shareImageFile(file);
 
       return;
     }
 
     logShare(provider, { method: 'paste' });
     const isCopied = copyShareImage(Promise.resolve(image));
-    const shortLink = await getShortUrl(link, cid);
-    globalThis.window?.open(
-      getImagePostComposerLink(provider, shortLink),
-      '_blank',
-    );
+    globalThis.window?.open(getImagePostComposerLink(provider), '_blank');
 
     if (await isCopied) {
       displayToast(
@@ -317,7 +311,7 @@ function SnapshotShareContent({
     }
 
     logShare(ShareProvider.Native);
-    shareImageFile(file, getTrackedUrl(link, cid));
+    shareImageFile(file);
   };
 
   const copyLinkIcon = linkCopied ? (

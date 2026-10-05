@@ -154,10 +154,7 @@ describe('SnapshotButton share options', () => {
 
     expect(copyShareImage).toHaveBeenCalledTimes(1);
     await waitFor(() =>
-      expect(open).toHaveBeenCalledWith(
-        expect.stringContaining('https://x.com/intent/post?text='),
-        '_blank',
-      ),
+      expect(open).toHaveBeenCalledWith('https://x.com/intent/post', '_blank'),
     );
     await waitFor(() =>
       expect(
@@ -186,9 +183,7 @@ describe('SnapshotButton share options', () => {
       fireEvent.click(screen.getByLabelText('WhatsApp'));
     });
 
-    expect(share).toHaveBeenCalledWith(
-      expect.objectContaining({ files: [expect.any(File)] }),
-    );
+    expect(share).toHaveBeenCalledWith({ files: [expect.any(File)] });
     expect(open).not.toHaveBeenCalled();
     open.mockRestore();
     Object.assign(navigator, { canShare: undefined, share: undefined });

@@ -23,9 +23,9 @@ export function getShareableImageFile(
  * outlives the gesture, so the file has to be ready before the press.
  * Dismissing the sheet rejects, and is not an error worth reporting.
  */
-export async function shareImageFile(file: File, text?: string): Promise<void> {
+export async function shareImageFile(file: File): Promise<void> {
   try {
-    await navigator.share({ files: [file], text });
+    await navigator.share({ files: [file] });
   } catch {
     // dismissed
   }
