@@ -312,6 +312,10 @@ export const featureCardImpressions = new Feature('card_impressions', false);
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
+// Gates every direct message surface; control hides all of them. Keep the
+// default `false`, GrowthBook ramps it.
+export const featureDirectMessages = new Feature('direct_messages', true);
+
 export const featureOAuthApps = new Feature('oauth_apps', false);
 
 export const featurePluginMarketplace = new Feature(

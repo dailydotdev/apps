@@ -17,7 +17,13 @@ import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { IconSize } from '../../Icon';
 import JoinedDate from '../../profile/JoinedDate';
 import { FollowButton } from '../../contentPreference/FollowButton';
-import { ContentPreferenceType } from '../../../graphql/contentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../../graphql/contentPreference';
+import { MailIcon } from '../../icons/Mail';
+import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
+import { getMessagesUrl } from '../../../features/messages/urls';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import AuthContext from '../../../contexts/AuthContext';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -57,6 +63,7 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
     entityId: user?.id,
     entityType: ContentPreferenceType.User,
   });
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
 
   if (!user?.id || !user.username || !user.permalink || !user.createdAt) {
     return null;
@@ -65,6 +72,10 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
   const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
   const isSameUser = loggedUser?.id === id;
   const showActionBtns = !isLoading && !isSameUser;
+  const canMessage =
+    isMessagesEnabled &&
+    showActionBtns &&
+    contentPreference?.status !== ContentPreferenceStatus.Blocked;
   const worldHref = `${webappUrl}world/${username}`;
 
   return (
@@ -87,6 +98,16 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
             size={ButtonSize.Small}
             variant={ButtonVariant.Secondary}
           />
+          {canMessage && (
+            <Button
+              tag="a"
+              href={getMessagesUrl(id)}
+              aria-label={`Message @${username}`}
+              icon={<MailIcon />}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Secondary}
+            />
+          )}
           {showActionBtns && (
             <FollowButton
               variant={ButtonVariant.Primary}

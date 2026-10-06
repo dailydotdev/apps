@@ -38,6 +38,9 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import type { MenuItemProps } from '../dropdown/common';
+import Link from '../utilities/Link';
+import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
+import { getMessagesUrl } from '../../features/messages/urls';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -77,6 +80,9 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
   );
 
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
+  const canMessage =
+    isMessagesEnabled && !blocked && !!loggedUser && loggedUser.id !== user.id;
 
   const options: MenuItemProps[] = [
     {
@@ -160,6 +166,17 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
             className="flex-row-reverse"
             alwaysShow
           />
+        )}
+        {canMessage && (
+          <Link href={getMessagesUrl(user.id)} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+            >
+              Message
+            </Button>
+          </Link>
         )}
         {canAward && (
           <AwardButton
