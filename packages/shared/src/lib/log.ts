@@ -81,6 +81,7 @@ export enum Origin {
   BadgesAndAwards = 'badges and awards',
   AchievementsWidget = 'achievements widget',
   AchievementCard = 'achievement card',
+  AchievementCompletion = 'achievement completion',
   DevCard = 'devcard',
   // profile share placements - end
   History = 'history',
@@ -223,6 +224,7 @@ export enum LogEvent {
   ToggleSquadPreview = 'toggle squad preview',
   ClickSquadLink = 'click squad link',
   ClickSquadProduct = 'click squad product',
+  ClickSquadHeaderButton = 'click squad header button',
   ClickSimilarSquad = 'click similar squad',
   DismissSquadJoinSuggestions = 'dismiss squad join suggestions',
   // squads - end
