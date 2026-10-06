@@ -24,7 +24,7 @@ export const ShellRow = ({
 }: {
   children: ReactNode;
 }): ReactElement => (
-  <div className="no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-3">
+  <div className="no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-4">
     {children}
   </div>
 );

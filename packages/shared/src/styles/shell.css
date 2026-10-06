@@ -125,10 +125,11 @@
 }
 
 /* A Button that stands in the block as a square keeps the material over
-   the button's own transparent background and dropped shadow. */
+   the button's own transparent background and dropped shadow; its border
+   box goes too, or it rings the inset edge as a second, darker line. */
 .btn.shell-material {
   background: var(--theme-blur-blur-baseline);
-  border-color: transparent;
+  border-width: 0;
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 4px 30px color-mix(in srgb, var(--theme-shadow-shadow1), transparent 62%);
 }

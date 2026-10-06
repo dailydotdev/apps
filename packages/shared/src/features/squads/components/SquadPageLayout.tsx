@@ -2,11 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useRef } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { ButtonSize } from '../../../components/buttons/Button';
-import {
-  SquadDirectoryNavbar,
-  SquadDirectoryNavbarItem,
-} from '../../../components/squads/layout/SquadDirectoryNavbar';
 import { SquadPreviewNotice } from './widgets/SquadPreview';
 import { SquadWidgets } from './widgets/SquadWidgets';
 import { useIsPhone } from '../../../hooks/useViewSize';
@@ -86,23 +81,11 @@ export const SquadPageLayout = ({
         {hasAboutTab && (
           <div
             ref={tabsRef}
-            className="order-2 border-t border-border-subtlest-tertiary px-4 tablet:px-6 laptop:hidden"
+            className="order-2 border-t border-border-subtlest-tertiary laptop:hidden"
           >
-            <SquadDirectoryNavbar
-              aria-label="Posts and About"
-              className="!mx-0 !border-0 !px-0"
-            >
-              {Object.values(SquadPageTab).map((item) => (
-                <SquadDirectoryNavbarItem
-                  key={item}
-                  buttonSize={ButtonSize.Small}
-                  isActive={tab === item}
-                  label={item}
-                  ariaLabel={item}
-                  onClick={() => setTab(item)}
-                />
-              ))}
-            </SquadDirectoryNavbar>
+            <ShellRow>
+              <Segments items={segments} />
+            </ShellRow>
           </div>
         )}
         <div

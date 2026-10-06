@@ -12,7 +12,6 @@ import { IconSize } from '../Icon';
 import {
   AnalyticsIcon,
   BookmarkIcon,
-  CoreIcon,
   DevCardIcon,
   DevPlusIcon,
   DocsIcon,
@@ -34,7 +33,6 @@ import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { SubscriptionStatus } from '../../lib/plus';
-import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import {
   appsUrl,
@@ -45,7 +43,6 @@ import {
   reputation as reputationDocsUrl,
   settingsUrl,
   termsOfService,
-  walletUrl,
   webappUrl,
 } from '../../lib/constants';
 import { usePhoneBrowser } from '../../features/getApp/hooks/usePhoneBrowser';
@@ -220,7 +217,6 @@ export function YouPage(): ReactElement | null {
   const { data: followStats } = useUserFollowStats(user?.id);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const hasAccessToCores = useHasAccessToCores();
   const isPhoneBrowser = usePhoneBrowser();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
     useSettingsContext();
@@ -288,58 +284,39 @@ export function YouPage(): ReactElement | null {
             </span>
           </a>
         </Link>
-        {/* Two columns, not a grid by rows: the stats with an icon stand
-            together on the left, so the plain ones on the right line up. */}
-        <div className="grid grid-cols-2 gap-x-6 typo-footnote">
-          <div className="flex flex-col gap-2">
-            <Stat
-              icon={
-                <ReputationIcon
-                  size={IconSize.Small}
-                  className="text-accent-onion-default"
-                />
-              }
-              amount={user.reputation ?? 0}
-              label="Reputation"
-              href={reputationDocsUrl}
-              external
-            />
-            {hasAccessToCores && (
-              <Stat
-                icon={
-                  <CoreIcon
-                    size={IconSize.Small}
-                    className="text-accent-cheese-default"
-                  />
-                }
-                amount={user.balance?.amount ?? 0}
-                label="Cores"
-                href={walletUrl}
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 typo-footnote">
+          <Stat
+            icon={
+              <ReputationIcon
+                size={IconSize.Small}
+                className="text-accent-onion-default"
               />
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Stat
-              amount={followStats?.numFollowers ?? 0}
-              label="Followers"
-              onClick={() =>
-                openFollowList(
-                  LazyModal.UserFollowersModal,
-                  followStats?.numFollowers ?? 0,
-                )
-              }
-            />
-            <Stat
-              amount={followStats?.numFollowing ?? 0}
-              label="Following"
-              onClick={() =>
-                openFollowList(
-                  LazyModal.UserFollowingModal,
-                  followStats?.numFollowing ?? 0,
-                )
-              }
-            />
-          </div>
+            }
+            amount={user.reputation ?? 0}
+            label="Reputation"
+            href={reputationDocsUrl}
+            external
+          />
+          <Stat
+            amount={followStats?.numFollowers ?? 0}
+            label="Followers"
+            onClick={() =>
+              openFollowList(
+                LazyModal.UserFollowersModal,
+                followStats?.numFollowers ?? 0,
+              )
+            }
+          />
+          <Stat
+            amount={followStats?.numFollowing ?? 0}
+            label="Following"
+            onClick={() =>
+              openFollowList(
+                LazyModal.UserFollowingModal,
+                followStats?.numFollowing ?? 0,
+              )
+            }
+          />
         </div>
       </div>
       <YouGroup className="[&>span:first-child]:hidden">
