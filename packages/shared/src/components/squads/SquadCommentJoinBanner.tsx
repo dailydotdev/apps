@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
+import { VerifiedLogoCheck } from '../../features/squads/components/VerifiedSquad';
+import { hasSquadFeature } from '../../features/squads/lib/features';
 import type { Origin } from '../../lib/log';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { SimpleSquadJoinButton } from './SquadActionButton';
@@ -97,10 +99,18 @@ export const SquadCommentJoinBanner = ({
           </Button>
         </div>
       </div>
-      <SourceButton
-        source={squad}
-        size={isMobile ? ProfileImageSize.Large : ProfileImageSize.XXXXLarge}
-      />
+      <span className="relative flex shrink-0">
+        <SourceButton
+          source={squad}
+          size={isMobile ? ProfileImageSize.Large : ProfileImageSize.XXXXLarge}
+        />
+        {/* The name is only in the sentence, so the seal sits on the logo */}
+        {hasSquadFeature(squad, 'verified') && (
+          <VerifiedLogoCheck
+            className={isMobile ? 'size-4' : 'bottom-1 right-1 size-7 p-0.5'}
+          />
+        )}
+      </span>
     </div>
   );
 };

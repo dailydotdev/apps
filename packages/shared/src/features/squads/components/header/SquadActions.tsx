@@ -6,6 +6,7 @@ import { SourcePermissions } from '../../../../graphql/sources';
 import { verifyPermission } from '../../../../graphql/squads';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
@@ -13,6 +14,7 @@ import {
   BellIcon,
   EditIcon,
   LinkIcon,
+  OpenLinkIcon,
   SearchIcon,
   TourIcon,
 } from '../../../../components/icons';
@@ -31,6 +33,12 @@ import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import { getSquadSpotlightSource } from '../../lib/spotlight';
 import { getSquadShareText } from '../widgets/SquadShareWidget';
 import { SquadOptionsMenu } from './SquadOptionsMenu';
+import { useLogContext } from '../../../../contexts/LogContext';
+import type { SquadBrandingButton } from '../../../../graphql/squadBranding';
+import { useSquadBranding } from '../../hooks/useSquadBranding';
+import { getBrandButtonStyle, getBrandColor } from '../../lib/branding';
+import { hasSquadFeature } from '../../lib/features';
+import { squadLinkRel } from '../../lib/links';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
 import { useOpenSquadWelcome } from '../../hooks/useSquadWelcome';
 
@@ -49,6 +57,53 @@ const useSquadShare = () => {
   });
 };
 
+/**
+ * A verified squad's own button (Manage › Branding), in its brand colour.
+ * Members see it where Join was; Leave stays in the options menu.
+ */
+const SquadHeaderButton = ({
+  button,
+  color,
+  size,
+  className,
+}: {
+  button: SquadBrandingButton;
+  color: string | null;
+  size: ButtonSize;
+  className?: string;
+}): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const { logEvent } = useLogContext();
+
+  return (
+    <Button
+      tag="a"
+      href={button.url}
+      target="_blank"
+      rel={squadLinkRel}
+      variant={ButtonVariant.Primary}
+      size={size}
+      icon={<OpenLinkIcon />}
+      iconPosition={ButtonIconPosition.Right}
+      className={classNames('hover:opacity-90', className)}
+      style={color ? getBrandButtonStyle(color) : undefined}
+      onClick={() =>
+        logEvent({
+          event_name: LogEvent.ClickSquadHeaderButton,
+          target_id: squad.id,
+          extra: JSON.stringify({ origin: Origin.SquadPage, url: button.url }),
+        })
+      }
+    >
+      {button.label}
+    </Button>
+  );
+};
+
+/**
+ * The Join slot: visitors see Join Squad. Once joined, a verified squad's
+ * header button takes its place; without one, members see Joined as before.
+ */
 const SquadJoinButton = ({
   size,
   className,
@@ -58,6 +113,26 @@ const SquadJoinButton = ({
 }): ReactElement | null => {
   const { squad, viewer, isPreviewing } = useSquadPageContext();
   const openWelcome = useOpenSquadWelcome();
+  const branding = useSquadBranding(squad);
+  const headerButton = branding?.button;
+
+  if (
+    !isPreviewing &&
+    isJoinedViewer(viewer) &&
+    hasSquadFeature(squad, 'verified') &&
+    headerButton?.enabled &&
+    headerButton.label &&
+    headerButton.url
+  ) {
+    return (
+      <SquadHeaderButton
+        button={headerButton}
+        color={getBrandColor(branding)}
+        size={size}
+        className={className}
+      />
+    );
+  }
 
   if (
     viewer === SquadViewer.Admin ||
@@ -205,23 +280,26 @@ export const SquadPhoneActions = (): ReactElement => {
   }
 
   return (
-    <div className="mt-4 flex gap-2 tablet:hidden">
-      {canBoost(squad) && (
-        <span className="flex flex-1">
-          <BoostSourceButton
-            squad={squad}
-            buttonProps={{ size: ButtonSize.Medium, className: 'w-full' }}
-          />
-        </span>
-      )}
-      <Button
-        variant={ButtonVariant.Subtle}
-        size={ButtonSize.Medium}
-        className="flex-1"
-        onClick={onShare}
-      >
-        Share page
-      </Button>
+    <div className="mt-4 flex flex-col gap-2 tablet:hidden">
+      <SquadJoinButton size={ButtonSize.Medium} className="w-full" />
+      <div className="flex gap-2">
+        {canBoost(squad) && (
+          <span className="flex flex-1">
+            <BoostSourceButton
+              squad={squad}
+              buttonProps={{ size: ButtonSize.Medium, className: 'w-full' }}
+            />
+          </span>
+        )}
+        <Button
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Medium}
+          className="flex-1"
+          onClick={onShare}
+        >
+          Share page
+        </Button>
+      </div>
     </div>
   );
 };

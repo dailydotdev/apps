@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { hasSquadFeature } from '../../../squads/lib/features';
+import { VerifiedSquadBadge } from '../../../squads/components/VerifiedSquad';
 import type { Squad } from '../../../../graphql/sources';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { largeNumberFormat } from '../../../../lib';
@@ -46,15 +48,18 @@ export const SquadListItem = ({
       </a>
       <div className="min-w-0 flex-1">
         <a href={squad.permalink} target="_blank" rel={anchorDefaultRel}>
-          <Typography
-            bold
-            tag={TypographyTag.H5}
-            type={TypographyType.Callout}
-            truncate
-            data-testid="squad-list-item-name"
-          >
-            {squad.name}
-          </Typography>
+          <span className="flex min-w-0 items-center gap-1">
+            <Typography
+              bold
+              tag={TypographyTag.H5}
+              type={TypographyType.Callout}
+              truncate
+              data-testid="squad-list-item-name"
+            >
+              {squad.name}
+            </Typography>
+            {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+          </span>
         </a>
         <Typography
           color={TypographyColor.Tertiary}
