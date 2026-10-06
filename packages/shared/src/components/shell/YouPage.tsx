@@ -155,7 +155,7 @@ const Stat = ({
   onClick?: () => void;
 }): ReactElement => {
   const className =
-    'flex items-center gap-1 rounded-8 transition-colors hover:bg-surface-hover';
+    'flex h-6 items-center gap-1 rounded-8 transition-colors hover:bg-surface-hover';
   const content = (
     <>
       {icon}
@@ -288,52 +288,58 @@ export function YouPage(): ReactElement | null {
             </span>
           </a>
         </Link>
-        <div className="grid grid-cols-2 items-center gap-x-6 gap-y-2 typo-footnote">
-          <Stat
-            icon={
-              <ReputationIcon
-                size={IconSize.Small}
-                className="text-accent-onion-default"
-              />
-            }
-            amount={user.reputation ?? 0}
-            label="Reputation"
-            href={reputationDocsUrl}
-            external
-          />
-          {hasAccessToCores && (
+        {/* Two columns, not a grid by rows: the stats with an icon stand
+            together on the left, so the plain ones on the right line up. */}
+        <div className="grid grid-cols-2 gap-x-6 typo-footnote">
+          <div className="flex flex-col gap-2">
             <Stat
               icon={
-                <CoreIcon
+                <ReputationIcon
                   size={IconSize.Small}
-                  className="text-accent-cheese-default"
+                  className="text-accent-onion-default"
                 />
               }
-              amount={user.balance?.amount ?? 0}
-              label="Cores"
-              href={walletUrl}
+              amount={user.reputation ?? 0}
+              label="Reputation"
+              href={reputationDocsUrl}
+              external
             />
-          )}
-          <Stat
-            amount={followStats?.numFollowers ?? 0}
-            label="Followers"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowersModal,
-                followStats?.numFollowers ?? 0,
-              )
-            }
-          />
-          <Stat
-            amount={followStats?.numFollowing ?? 0}
-            label="Following"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowingModal,
-                followStats?.numFollowing ?? 0,
-              )
-            }
-          />
+            {hasAccessToCores && (
+              <Stat
+                icon={
+                  <CoreIcon
+                    size={IconSize.Small}
+                    className="text-accent-cheese-default"
+                  />
+                }
+                amount={user.balance?.amount ?? 0}
+                label="Cores"
+                href={walletUrl}
+              />
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <Stat
+              amount={followStats?.numFollowers ?? 0}
+              label="Followers"
+              onClick={() =>
+                openFollowList(
+                  LazyModal.UserFollowersModal,
+                  followStats?.numFollowers ?? 0,
+                )
+              }
+            />
+            <Stat
+              amount={followStats?.numFollowing ?? 0}
+              label="Following"
+              onClick={() =>
+                openFollowList(
+                  LazyModal.UserFollowingModal,
+                  followStats?.numFollowing ?? 0,
+                )
+              }
+            />
+          </div>
         </div>
       </div>
       <YouGroup className="[&>span:first-child]:hidden">
