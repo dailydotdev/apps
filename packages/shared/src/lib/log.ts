@@ -9,6 +9,7 @@ export enum Origin {
   ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
+  FeedHero = 'feed hero',
   CommentFeed = 'comment feed',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
@@ -42,6 +43,10 @@ export enum Origin {
   SquadMembersList = 'squad members list',
   SquadChecklist = 'squad checklist',
   SquadInvitation = 'squad invitation',
+  SimilarSquads = 'similar squads',
+  SimilarSquadsPromoted = 'similar squads promoted',
+  SquadJoinSuggestions = 'squad join suggestions',
+  SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   // squads - end
   PostCommentButton = 'comment button',
   PollCommentButton = 'poll comment button',
@@ -60,7 +65,6 @@ export enum Origin {
   PostSummary = 'post summary',
   PostParagraph = 'post paragraph',
   PollResults = 'poll results',
-  PollVotePrompt = 'poll vote prompt',
   BriefTextSelection = 'brief text selection',
   BriefParagraph = 'brief paragraph',
   BriefMustKnow = 'brief must know',
@@ -69,6 +73,7 @@ export enum Origin {
   HappeningNowHighlight = 'happening now highlight',
   HappeningNowSelection = 'happening now selection',
   HighlightsCard = 'highlights card',
+  SnapshotSharePanel = 'snapshot share panel',
   // snapshot placements - end
   // profile share placements - start
   ProfileHeader = 'profile header',
@@ -82,6 +87,7 @@ export enum Origin {
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
+  CardCover = 'card cover',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
@@ -130,8 +136,6 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
-  EngagementBanner = 'engagement banner',
-  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {
@@ -217,6 +221,12 @@ export enum LogEvent {
   ChecklistClose = 'checklist close',
   DeletePost = 'delete post',
   DeleteComment = 'delete comment',
+  ToggleSquadPreview = 'toggle squad preview',
+  ClickSquadLink = 'click squad link',
+  ClickSquadProduct = 'click squad product',
+  ClickSquadHeaderButton = 'click squad header button',
+  ClickSimilarSquad = 'click similar squad',
+  DismissSquadJoinSuggestions = 'dismiss squad join suggestions',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',
@@ -391,8 +401,13 @@ export enum LogEvent {
   ShareWorld = 'share world',
   ShareTool = 'share tool',
   ShareHotTake = 'share hot take',
+  // The creator copied a link to, or downloaded the card of, one of their
+  // achievements. Records the action, not that anything was posted anywhere.
+  ShareCreatorAchievement = 'share creator achievement',
+  UnshareCreatorAchievement = 'unshare creator achievement',
   ShareHighlights = 'share highlights',
   ShareArchive = 'share archive',
+  OpenSnapshotSharePanel = 'open snapshot share panel',
   // End Share
   /* Start World
      `world view` is the denominator and fires whatever happens next, so the
@@ -505,16 +520,6 @@ export enum LogEvent {
   VoteHotAndCold = 'vote hot and cold',
   SwipeHotTake = 'swipe hot take',
   SkipHotTake = 'skip hot take',
-  // My Setup - Workspace Photos
-  StartAddWorkspacePhoto = 'start add workspace photo',
-  AddWorkspacePhoto = 'add workspace photo',
-  RemoveWorkspacePhoto = 'remove workspace photo',
-  ReorderWorkspacePhoto = 'reorder workspace photo',
-  // My Setup - Gear
-  StartAddGear = 'start add gear',
-  AddGear = 'add gear',
-  RemoveGear = 'remove gear',
-  ReorderGear = 'reorder gear',
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
@@ -534,8 +539,6 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
-  QuestOffersEligible = 'quest offers eligible',
-  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -585,9 +588,12 @@ export enum TargetType {
   SearchInviteButton = 'search invite button',
   HideInviteCheckbox = 'hide invite mechanism',
   ReferralPopup = 'referral popup',
+  ReferralLadderGift = 'referral ladder gift',
+  ReferralLadderPromo = 'referral ladder promo',
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
+  ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
@@ -612,8 +618,6 @@ export enum TargetType {
   Tag = 'tag',
   Tool = 'tool',
   Quest = 'quest',
-  QuestOffer = 'quest offer',
-  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
@@ -644,6 +648,8 @@ export enum TargetType {
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
   ProfileWorldToggle = 'profile world toggle',
+  PostTopicSignup = 'post topic signup',
+  SimilarSquads = 'similar squads',
 }
 
 export enum TargetId {
@@ -653,11 +659,15 @@ export enum TargetId {
   FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
-  ExploreStrip = 'explore strip',
+  PostStrip = 'post strip',
+  PublicPageSignupBanner = 'public page signup banner',
+  MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign
   GenericReferralPopup = 'generic referral popup',
+  ReferralLadderPopup = 'referral ladder popup',
+  ReferralLadderPromo = 'referral ladder promo',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
@@ -712,6 +722,9 @@ export enum TargetId {
   ReaderHeader = 'reader header',
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
+  MobileFooter = 'mobile footer',
+  MobileFooterNav = 'mobile footer nav',
+  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {
@@ -737,7 +750,6 @@ export enum NotificationTarget {
 
 export enum NotificationCtaPlacement {
   TopHero = 'top-hero',
-  CommentInline = 'comment-inline',
   UserCard = 'user-card',
   SourceCard = 'source-card',
   SquadCard = 'squad-card',

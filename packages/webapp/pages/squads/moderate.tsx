@@ -1,12 +1,9 @@
 import type { ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
-import React, { useEffect } from 'react';
+import React from 'react';
+import { useRouter } from 'next/router';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
-import {
-  SquadTab,
-  SquadTabs,
-} from '@dailydotdev/shared/src/components/squads/SquadTabs';
 import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
 import {
   PageHeader,
@@ -17,11 +14,11 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { useSquad } from '@dailydotdev/shared/src/hooks';
-import { useRouter } from 'next/router';
-import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  getSquadManageUrl,
+  SquadManageSection,
+} from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { noindexSeoProps } from '../../next-seo';
 
@@ -30,60 +27,39 @@ const seo: NextSeoProps = {
   ...noindexSeoProps,
 };
 
-interface ModerateSquadPageProps {
-  handle: string | null;
-}
+// One squad's queue lives in its Manage area; this page keeps the queue of
+// every squad the viewer moderates.
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+  const handle = typeof query.handle === 'string' ? query.handle : undefined;
 
-export const getServerSideProps: GetServerSideProps<
-  ModerateSquadPageProps
-> = async ({ query }) => {
-  return {
-    props: {
-      handle: (query.handle as string) || null,
-    },
-  };
+  if (handle) {
+    return {
+      redirect: {
+        destination: getSquadManageUrl(handle, SquadManageSection.Moderation),
+        permanent: true,
+      },
+    };
+  }
+
+  return { props: {} };
 };
 
-export default function ModerateSquadPage({
-  handle,
-}: ModerateSquadPageProps): ReactElement {
+export default function ModerateSquadPage(): ReactElement {
   const router = useRouter();
-  const { squad, isLoading, isFetched } = useSquad({
-    handle,
-  });
-  const isModerator =
-    verifyPermission(squad, SourcePermissions.ModeratePost) || !handle;
-
-  useEffect(() => {
-    if (isLoading || !isFetched) {
-      return;
-    }
-
-    if (handle && !squad.moderationRequired) {
-      router.push(`/squads/${handle}`);
-    }
-  }, [handle, isFetched, isLoading, router, squad]);
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <ManageSquadPageContainer>
       <PageHeader className="border-b-0">
         <Button
-          onClick={() =>
-            handle ? router.push(`/squads/${handle}`) : router.back()
-          }
+          onClick={() => router.back()}
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
         />
         <PageHeaderTitle bold type={TypographyType.Title3}>
-          {isModerator ? 'Squad settings' : 'Pending posts'}
+          Squad settings
         </PageHeaderTitle>
       </PageHeader>
-      {handle && <SquadTabs active={SquadTab.PendingPosts} handle={handle} />}
-      <SquadModerationList squad={squad} isModerator={isModerator} />
+      <SquadModerationList squad={undefined} isModerator />
     </ManageSquadPageContainer>
   );
 }

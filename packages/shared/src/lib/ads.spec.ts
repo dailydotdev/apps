@@ -1,5 +1,11 @@
 import ad from '../../__tests__/fixture/ad';
-import { AdPlacement, fetchAdByPlacement, resolveAdFetchOptions } from './ads';
+import { SourceType } from '../graphql/sources';
+import {
+  AdPlacement,
+  fetchAdByPlacement,
+  resolveAdFetchOptions,
+  shouldSkipSourceAds,
+} from './ads';
 
 describe('ads', () => {
   const originalFetch = global.fetch;
@@ -31,6 +37,18 @@ describe('ads', () => {
         placement: AdPlacement.Feed,
         active: true,
         allowPostBoost: true,
+        allowSquadBoost: true,
+      });
+    });
+
+    it('should not request post boosts for the post sidebar, which cannot render them', () => {
+      expect(
+        resolveAdFetchOptions({
+          placement: AdPlacement.PostSidebar,
+          boostsEnabled: true,
+        }),
+      ).toEqual({
+        placement: AdPlacement.PostSidebar,
         allowSquadBoost: true,
       });
     });
@@ -124,6 +142,43 @@ describe('ads', () => {
         'http://localhost:3000/v1/a/post?gdpr=0',
         { credentials: 'include' },
       );
+    });
+  });
+
+  describe('shouldSkipSourceAds', () => {
+    const features = {
+      verified: null,
+      adFree: null,
+      links: null,
+      products: null,
+    };
+
+    it.each([
+      {
+        name: 'skips an ad-free squad',
+        source: {
+          type: SourceType.Squad,
+          features: { ...features, adFree: true },
+        },
+        expected: true,
+      },
+      {
+        name: 'waits on a squad from a feed card until its post loads',
+        source: { type: SourceType.Squad },
+        expected: true,
+      },
+      {
+        name: 'serves a free squad',
+        source: { type: SourceType.Squad, features },
+        expected: false,
+      },
+      {
+        name: 'serves any other source from a feed card',
+        source: { type: SourceType.Machine },
+        expected: false,
+      },
+    ])('$name', ({ source, expected }) => {
+      expect(shouldSkipSourceAds(source)).toBe(expected);
     });
   });
 });

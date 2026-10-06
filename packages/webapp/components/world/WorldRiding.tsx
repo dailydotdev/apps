@@ -43,7 +43,7 @@ export function WorldRiding({
   const manual = state.riding?.manual;
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-6 z-2 flex justify-center px-4">
+    <div className="pointer-events-none absolute inset-x-0 z-2 flex justify-center px-4 bottom-safe-or-6">
       <div className="flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-16 border border-border-subtlest-tertiary bg-background-default py-2.5 pl-4 pr-2">
         <Typography
           tag={TypographyTag.Span}

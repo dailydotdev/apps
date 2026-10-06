@@ -1,79 +1,121 @@
+/** The lead sponsor keeps a little more height than the partner row. */
+export const GOLD_HEIGHT = 18;
+export const WALL_HEIGHT = 16;
+
 /**
- * The gold mark is drawn at this height, full stop — no optical normalising.
- * That normalising exists to stop a dozen unrelated wall marks fighting each
- * other, and it works by trading height for width, so it punishes exactly the
- * wide mark-plus-wordmark lockup a paid slot is most likely to supply: the
- * lockup came out shorter than the tallest silhouette beside it, which is the
- * opposite of what the slot is sold as. One known creative in one slot does
- * not need normalising, it needs to be the biggest thing on the row.
+ * Fits wordmarks up to 6:1 at the shared height without shrinking them.
  *
- * It is the box height, not the cap height, and a lockup that is all wordmark
- * spends nearly all of that box on letterforms where a mark-plus-wordmark
- * spends it on the mark. Sized for the former: matching the wall's ceiling in
- * height, it still leads the row on width and on being the one slot in
- * colour.
+ * Measured over the first 34 advertisers, the median wall mark is 4.6:1
+ * (74px at this height) and three quarters are under 5.8:1, so 6:1 only
+ * touches the outliers. The earlier 8:1 let a single long lockup run to
+ * 128px, almost two medians, and take the row's attention with it.
  */
-export const GOLD_HEIGHT = 20;
-/** The wall's two tiers differ by a hair of ink, not by a wash of opacity. */
-export const PREMIUM_CAP = 17;
-export const COMMUNITY_CAP = 15;
+export const WALL_MAX_WIDTH = 96;
 
 /**
- * Ceiling for the wall, which the optical sizing knows nothing about: a
- * near-square mark would otherwise take its full optical height and outgrow
- * the 40px row.
+ * The gap between wall marks is clamped, not spread: the row fits as many
+ * marks as the minimum allows, then shares the leftover between them up to
+ * the maximum, and anything beyond that stays empty at the row's end.
+ *
+ * At a fixed 16px height the median mark is 74px wide, so the gap has to be
+ * of that order for the row to read as separate marks rather than one line
+ * of type. On production the gap sat at 16-23px at every width and the wall
+ * was four fifths ink; 48 brings that to roughly three fifths. From desktopL
+ * the row has room for 16 or more marks, and the gap opens to a mark's own
+ * width so the count stops being the thing a reader notices.
  */
-export const WALL_MAX_HEIGHT = 20;
-
-/** Fixed box every wall mark is drawn into, and the gap between boxes. */
-export const SLOT_WIDTH = 88;
-export const SLOT_GAP = 16;
+export const SLOT_GAP = 48;
+export const SLOT_GAP_MAX = 64;
+export const WIDE_SLOT_GAP = 64;
+export const WIDE_SLOT_GAP_MAX = 80;
 
 /**
- * The ratio the normalising is calibrated around: a mark of this shape is
- * drawn at exactly the cap. Also the fallback for a creative that arrives
- * without dimensions, which is every one of them until the ad server sends
- * them.
+ * Below laptop the wall is a few hundred pixels and holds three to five
+ * marks; a 48px floor would cost one of them at every tablet width. This
+ * pair keeps the tablet count where it is today (gaps there already sit at
+ * 25-36px) and only stops the leftover from being spread.
  */
-export const REFERENCE_RATIO = 3.5;
+export const NARROW_SLOT_GAP = 24;
+export const NARROW_SLOT_GAP_MAX = 40;
 
 /**
- * Logo files run from square marks to 6:1 lockups. Sizing them all to one cap
- * height makes the square ones illegible and lets the long ones dominate, so
- * height is normalised by area instead — every mark gets roughly the same ink
- * — and clamped so nothing blows out the row.
+ * The wall's own width at two breakpoints, with the rail collapsed and a
+ * lead mark in place: laptop (1020px) and desktopL (2156px). Read off the
+ * measured wall rather than the viewport: the rail's state and the lead's
+ * width both change how much room the row has, and the measurement
+ * arrives in the same layout effect as the fit, so no mark is ever mounted
+ * against one gap and dropped against another.
  */
-export const opticalHeight = (ratio: number, cap: number): number =>
-  Math.round(
-    Math.min(
-      cap * 1.6,
-      Math.max(cap * 0.8, cap * Math.sqrt(REFERENCE_RATIO / ratio)),
-    ),
-  );
+export const NARROW_WALL_WIDTH = 660;
+export const WIDE_WALL_WIDTH = 1800;
 
-/** Optical height, held down to whatever fits the box and the row. */
-export const boxedLogoHeight = (
-  ratio: number,
-  cap: number,
-  maxWidth: number,
-  maxHeight: number = Number.POSITIVE_INFINITY,
-): number =>
-  Math.floor(Math.min(opticalHeight(ratio, cap), maxWidth / ratio, maxHeight));
-
-/**
- * How many fixed-width slots the measured row holds. `null` means "not
- * measured yet" rather than "nothing fits": a row narrower than a single slot
- * cannot have been laid out, and treating that as zero would empty the row
- * with nothing guaranteed to come along and correct it.
- */
-export const fittedSlotCount = (
+/** The gap pair the row fits with, for the room it measured. */
+export const wallGapRange = (
   available: number,
-  slotWidth: number = SLOT_WIDTH,
-  gap: number = SLOT_GAP,
-): number | null => {
-  if (available < slotWidth) {
-    return null;
+): { min: number; max: number } => {
+  if (available >= WIDE_WALL_WIDTH) {
+    return { min: WIDE_SLOT_GAP, max: WIDE_SLOT_GAP_MAX };
   }
 
-  return Math.floor((available + gap) / (slotWidth + gap));
+  if (available >= NARROW_WALL_WIDTH) {
+    return { min: SLOT_GAP, max: SLOT_GAP_MAX };
+  }
+
+  return { min: NARROW_SLOT_GAP, max: NARROW_SLOT_GAP_MAX };
+};
+
+/** Fallback until the logo's intrinsic dimensions have loaded. */
+export const REFERENCE_RATIO = 3.5;
+
+/** Only unusually wide marks shrink to stay inside their slot. */
+export const boxedLogoHeight = (
+  ratio: number,
+  height: number,
+  maxWidth: number,
+): number => Math.min(height, maxWidth / ratio);
+
+export const boxedLogoWidth = (
+  ratio: number,
+  height: number,
+  maxWidth: number,
+): number => Math.round(boxedLogoHeight(ratio, height, maxWidth) * ratio);
+
+/** Count only whole logos, including the minimum gap between them. */
+export const fittedSlotCount = (
+  available: number,
+  widths: readonly number[],
+  gap: number,
+): number => {
+  let used = 0;
+  const overflow = widths.findIndex((width, index) => {
+    used += width + (index ? gap : 0);
+    return used > available;
+  });
+
+  return overflow === -1 ? widths.length : overflow;
+};
+
+/**
+ * The gap the fitted marks actually get: the row's spare width shared
+ * between them, held between the minimum they were fitted with and the
+ * maximum past which the marks would float apart.
+ *
+ * Floored, never rounded: `available` is a fractional rect width, and
+ * rounding a .5 up would push the row past it and clip the last mark,
+ * whose impression would already have been logged.
+ */
+export const wallGap = (
+  available: number,
+  widths: readonly number[],
+  min: number,
+  max: number,
+): number => {
+  if (widths.length < 2) {
+    return min;
+  }
+
+  const ink = widths.reduce((sum, width) => sum + width, 0);
+  const spread = (available - ink) / (widths.length - 1);
+
+  return Math.floor(Math.min(max, Math.max(min, spread)));
 };

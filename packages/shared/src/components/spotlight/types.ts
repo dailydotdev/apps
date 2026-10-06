@@ -62,7 +62,7 @@ export interface SpotlightContextEnv {
  */
 export type SpotlightCommandMeta =
   | { kind: 'post'; sourceImage?: string; sourceName?: string }
-  | { kind: 'source'; image?: string; handle?: string }
+  | { kind: 'source'; image?: string; handle?: string; verified?: boolean }
   | { kind: 'user'; image?: string; handle?: string }
   | { kind: 'tag'; tagName: string }
   | {
@@ -125,6 +125,14 @@ export enum SpotlightScope {
   Squads = 'squads',
   People = 'people',
   Tags = 'tags',
+}
+
+/** The squad (or source) a Spotlight session can be narrowed to. */
+export interface SpotlightSource {
+  id: string;
+  handle: string;
+  name: string;
+  image?: string;
 }
 
 export interface ScopeMetaEntry {

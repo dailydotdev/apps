@@ -37,7 +37,7 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      <PostSignupWidget post={post} />
       {!isUserSource &&
         (isSquadSource ? (
           <SquadEntityCard
@@ -66,6 +66,7 @@ export function SquadPostWidgets({
       )}
       <PostSidebarAdWidget
         postId={post.id}
+        source={post.source}
         className={{ container: cardClasses }}
       />
       <PreferGoogleSourceAction placement="squad post widgets" />

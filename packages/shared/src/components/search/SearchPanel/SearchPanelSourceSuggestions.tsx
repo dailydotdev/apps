@@ -3,13 +3,15 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import type { SearchSuggestion } from '../../../graphql/search';
-import { SearchProviderEnum } from '../../../graphql/search';
+import {
+  getSourceSuggestionUrl,
+  SearchProviderEnum,
+} from '../../../graphql/search';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
-import { webappUrl } from '../../../lib/constants';
 import type { ButtonProps } from '../../buttons/Button';
 import { SearchPanelItem } from './SearchPanelItem';
 import { Image } from '../../image/Image';
@@ -20,6 +22,7 @@ import {
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { CopyType } from '../../sources/SourceActions/SourceActionsFollow';
 import { FollowButton } from '../../contentPreference/FollowButton';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 export type SearchPanelSourceSuggestionsProps = {
   title: string;
@@ -58,14 +61,17 @@ const PanelItem = ({ suggestion, showFollow, ...rest }: PanelItemProps) => {
       className="px-2 py-1"
     >
       <div className="flex flex-1 flex-col items-start">
-        <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap font-bold text-text-primary typo-subhead">
-          {suggestion.title}
+        <span className="flex max-w-full items-center gap-1">
+          <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap font-bold text-text-primary typo-subhead">
+            {suggestion.title}
+          </span>
+          {suggestion.verified && <VerifiedSquadBadge />}
         </span>
         <span className="text-text-quarternary typo-footnote">
           @{suggestion.subtitle}
         </span>
       </div>
-      {!!showFollow && (
+      {!!showFollow && !!suggestion.id && (
         <FollowButton
           feedId={feed?.id}
           entityId={suggestion.id}
@@ -84,7 +90,7 @@ export const SearchPanelSourceSuggestions = ({
   className,
   showFollow,
   title,
-}: SearchPanelSourceSuggestionsProps): ReactElement => {
+}: SearchPanelSourceSuggestionsProps): ReactElement | null => {
   const feedSettingsEditContext = useContext(FeedSettingsEditContext);
   const feed = feedSettingsEditContext?.feed;
   const router = useRouter();
@@ -112,7 +118,7 @@ export const SearchPanelSourceSuggestions = ({
       }),
     });
 
-    router.push(`${webappUrl}sources/${source}`);
+    router.push(getSourceSuggestionUrl(suggestion));
   };
 
   if (!suggestions?.hits?.length) {

@@ -29,8 +29,6 @@ type EnableNotificationProps = {
 
 const containerClassName: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.NotificationsPage]: 'px-6 w-full bg-surface-float',
-  [NotificationPromptSource.NewComment]:
-    'rounded-16 px-4 w-full bg-surface-float',
   [NotificationPromptSource.NewSourceModal]: '',
   [NotificationPromptSource.NotificationItem]: '',
   [NotificationPromptSource.SquadPostCommentary]: '',
@@ -45,7 +43,6 @@ const sourceRenderTextCloseButton: Partial<
   Record<NotificationPromptSource, boolean>
 > = {
   [NotificationPromptSource.NotificationsPage]: false,
-  [NotificationPromptSource.NewComment]: false,
   [NotificationPromptSource.NewSourceModal]: false,
   [NotificationPromptSource.SquadPostCommentary]: false,
   [NotificationPromptSource.SquadPostModal]: false,
@@ -59,7 +56,6 @@ const sourceRenderTextCloseButton: Partial<
 const sourceToButtonText: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.SquadPostModal]: 'Subscribe',
   [NotificationPromptSource.SourceSubscribe]: 'Enable',
-  [NotificationPromptSource.NewComment]: 'Notify me',
 };
 
 function EnableNotification({
@@ -83,9 +79,6 @@ function EnableNotification({
 
   const sourceToMessage: Partial<Record<NotificationPromptSource, string>> = {
     [NotificationPromptSource.SquadPostModal]: '',
-    [NotificationPromptSource.NewComment]: `Want to get notified when ${
-      contentName ?? 'someone'
-    } responds so you can continue the conversation?`,
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',

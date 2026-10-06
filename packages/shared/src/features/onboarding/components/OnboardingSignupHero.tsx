@@ -30,6 +30,7 @@ import { HorizonArt } from './signupHero/HorizonArt';
 import { LandingAppInstall } from './signupHero/LandingAppInstall';
 import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
 import { sanitizeMessage } from '../lib/utils';
+import { ReferralInviterCard } from '../../../components/referral/ReferralInviterCard';
 
 // =============================================================
 // Onboarding signup hero — a shell that composes individually
@@ -176,6 +177,7 @@ export const OnboardingSignupHero = ({
           logoClassName={{ container: 'h-7' }}
         />
 
+        <ReferralInviterCard className="mx-auto laptop:mx-0" />
         {headline && (
           <h1
             className="onb-hero-headline text-balance text-center font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3 laptop:text-left"
@@ -251,6 +253,7 @@ export const OnboardingSignupHero = ({
           logoClassName={{ container: 'h-7' }}
         />
 
+        <ReferralInviterCard className="mx-auto laptop:mx-0" />
         {headline && (
           <h1
             // no leading-* here: the typo-* utilities set their own line-height
@@ -356,6 +359,7 @@ export const OnboardingSignupHero = ({
             )}
           >
             <div className="mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow">
+              <ReferralInviterCard className="mx-auto mb-4" />
               {headline && (
                 <div className="mb-8 flex flex-col gap-4">
                   <Typography
@@ -401,6 +405,7 @@ export const OnboardingSignupHero = ({
             logoClassName={{ container: 'h-7' }}
           />
 
+          <ReferralInviterCard className="mx-auto laptop:mx-0" />
           {headline && (
             <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title laptop:text-left">
               {headline}
@@ -518,6 +523,7 @@ export const OnboardingSignupHero = ({
               logoClassName={{ container: 'h-7' }}
             />
 
+            <ReferralInviterCard className="mx-auto" />
             {headline && (
               <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title">
                 {headline}

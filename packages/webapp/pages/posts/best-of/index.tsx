@@ -17,12 +17,13 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
-import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import classNames from 'classnames';
 import { FeedExploreTabs } from '@dailydotdev/shared/src/components/header/FeedExploreTabs';
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -80,7 +81,6 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
-        <ExploreSignupStrip className="mb-6" />
         {!isV2 && (
           <ArchiveBreadcrumbs
             items={[{ label: 'Explore', href: '/posts' }, { label: 'Best of' }]}
@@ -92,6 +92,7 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
           scopeName={scopeName}
         />
       </PageWrapperLayout>
+      <PublicPageSignupBanner />
     </>
   );
 };
@@ -102,6 +103,7 @@ const getPageLayout: typeof getLayout = (...props) =>
 GlobalArchiveIndexPage.getLayout = getPageLayout;
 GlobalArchiveIndexPage.layoutProps = {
   screenCentered: false,
+  customBanner: <MobileAppHeader />,
 };
 
 export default GlobalArchiveIndexPage;

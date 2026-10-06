@@ -13,6 +13,7 @@ export enum ShareProvider {
   Snapshot = 'snapshot',
   CopyText = 'copy text',
   Slack = 'slack',
+  DownloadCard = 'download card',
 }
 
 export const getWhatsappShareLink = (link: string): string =>

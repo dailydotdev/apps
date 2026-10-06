@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   useRef,
   useEffect,
@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
+import { FeedItemType } from './cards/common/common';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -67,20 +68,23 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   featureFeedAdTemplate,
-  featureFeedContentVisibility,
 } from '../lib/featureManagement';
 import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
-import { EngagementFeedStrip } from './brand/EngagementFeedStrip';
-import { isEngagementAdFeed } from '../hooks/feed/useFeedName';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
+import { TopHero } from './marketing/banners/HeroBottomBanner';
+import { TopHeroPortal } from '../contexts/TopHeroSlotContext';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import { useMobileAppFooterContext } from '../features/getApp/contexts/MobileAppFooterContext';
+import { MobileAppFooterAnchor } from '../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../features/getApp/mobileAppFooter';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -102,6 +106,14 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  /** The surface shows the highlights itself, so keep them out of the grid. */
+  disableHighlightCards?: boolean;
+  /** The surface owns the top slot, so the feed must not render or measure its own hero. */
+  disableTopHero?: boolean;
+  /** The surface shows an ad above the feed, so drop the grid's first one. */
+  skipFirstAd?: boolean;
+  /** The surface leads with a featured card, so keep wide ones out of row one. */
+  deferWideCards?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
@@ -185,7 +197,6 @@ export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
   {
     [PostType.Article]: ArticlePostModal,
     [PostType.Share]: SharePostModal,
-    [PostType.Welcome]: SharePostModal,
     [PostType.Freeform]: SharePostModal,
     [PostType.VideoYouTube]: ArticlePostModal,
     [PostType.Collection]: CollectionPostModal,
@@ -211,6 +222,10 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  disableHighlightCards,
+  disableTopHero,
+  skipFirstAd,
+  deferWideCards,
   staticAd,
   disableAdRefresh = false,
   allowFetchMore,
@@ -232,8 +247,12 @@ export default function Feed<T>({
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
+  const { moment: appFooterMoment } = useMobileAppFooterContext();
+  const appFooterAnchorIndex = isHorizontal
+    ? undefined
+    : appFooterMoment?.feedAnchorIndex;
   const numCards = currentSettings.numCards.eco;
-  const isSquadFeed = feedName === OtherFeedPage.Squad;
+  const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
@@ -291,7 +310,8 @@ export default function Feed<T>({
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
-  const { isV2 } = useLayoutVariant();
+  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const getFirstSlotCard = (): ReactElement | null => {
     const canShowGrowthCta =
@@ -359,7 +379,7 @@ export default function Feed<T>({
     isSquadFeed || shouldUseListFeedLayout
       ? {
           ...adTemplate,
-          adStart: 2, // always make adStart 2 for squads due to welcome and pinned posts
+          adStart: 2, // always make adStart 2 for squads due to pinned posts
         }
       : adTemplate,
     numCards,
@@ -369,13 +389,15 @@ export default function Feed<T>({
       variables,
       options,
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
-      engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
       firstSlotOffset: Number(eligibleFirstSlotCard !== null),
-      disableTopHero: isV2,
+      disableTopHero: disableTopHero || (isLaptop && isLayoutVariantLoading),
       isHorizontal,
       excludePinnedPosts,
       settings: {
         disableAds,
+        disableHighlightCards,
+        skipFirstAd,
+        deferWideCards,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         feedName,
@@ -392,33 +414,6 @@ export default function Feed<T>({
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
 
-  // Experiment: let the browser skip layout/paint for off-screen cards on long
-  // vertical feeds. Horizontal carousels are short and scroll on the other axis,
-  // so they get no benefit and are excluded from evaluation.
-  const { value: feedContentVisibility } = useConditionalFeature({
-    feature: featureFeedContentVisibility,
-    shouldEvaluate: !isHorizontal,
-  });
-  const useContentVisibility = feedContentVisibility && !isHorizontal;
-  // `contain-intrinsic-size: auto <estimate>` reserves height for skipped cards
-  // so the scrollbar stays stable; `auto` makes the browser remember each card's
-  // real size after its first paint, so the estimate only matters for cards not
-  // yet rendered. Grid cards use the `min-h-card` baseline; list cards are shorter.
-  const contentVisibilityStyle: CSSProperties | undefined = useContentVisibility
-    ? {
-        contentVisibility: 'auto',
-        containIntrinsicSize: shouldUseListFeedLayout
-          ? 'auto 12rem'
-          : 'auto 24rem',
-        // `content-visibility: auto` applies paint containment, which clips
-        // anything drawn outside the box — including the "Video" type label and
-        // the "Hot"/"Pinned" flag, which straddle the card's top edge with a
-        // negative offset. Extend the paint-clip region so those labels aren't
-        // truncated. Covers the tallest overhang (the grid flag, ~1.25rem)
-        // without any layout shift.
-        overflowClipMargin: '1.5rem',
-      }
-    : undefined;
   const {
     onOpenModal,
     onCloseModal,
@@ -452,9 +447,6 @@ export default function Feed<T>({
   const {
     showPromoBanner,
     indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-    engagementStripCreative,
     hero: {
       shouldShowTopHero,
       title: readingReminderTitle,
@@ -744,12 +736,13 @@ export default function Feed<T>({
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
+  const showReadingReminder = shouldShowTopHero && !topContentProp;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
         topContent:
           topContentProp ??
-          (shouldShowTopHero ? (
+          (showReadingReminder && !isV2 ? (
             <ReadingReminderFeedHero
               className="pt-2"
               title={readingReminderTitle}
@@ -772,6 +765,17 @@ export default function Feed<T>({
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
+      {showReadingReminder && isV2 && !isSearchPageLaptop && (
+        <TopHeroPortal>
+          <TopHero
+            className="order-first"
+            title={readingReminderTitle}
+            subtitle={readingReminderSubtitle}
+            onCtaClick={onEnableHero}
+            onClose={onDismissHero}
+          />
+        </TopHeroPortal>
+      )}
       <FeedWrapperComponent {...containerProps}>
         {isSearchPageLaptop && emptyScreen && emptyFeed ? (
           <>{emptyScreen}</>
@@ -786,7 +790,7 @@ export default function Feed<T>({
                 isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
                   ? (colSpan as FeaturedWideColSpan)
                   : undefined;
-              const itemNode: ReactElement = (
+              const itemNode = (
                 <FeedItemComponent
                   item={item}
                   index={index}
@@ -814,39 +818,6 @@ export default function Feed<T>({
                 />
               );
 
-              let renderedItem = itemNode;
-              if (isWidened) {
-                renderedItem = (
-                  <div
-                    className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
-                    style={{
-                      gridColumn: `span ${colSpan}`,
-                      ...contentVisibilityStyle,
-                    }}
-                    data-testid="feedItemColSpanWrapper"
-                  >
-                    {itemNode}
-                  </div>
-                );
-              } else if (useContentVisibility) {
-                // List cards stack at natural height; grid cards must keep
-                // filling their equal-height row, so preserve the h-full pass-through.
-                // The overhanging card labels are handled by `overflowClipMargin`
-                // on `contentVisibilityStyle` (see above), so both branches are safe.
-                renderedItem = (
-                  <div
-                    className={
-                      shouldUseListFeedLayout
-                        ? 'w-full'
-                        : 'flex h-full w-full [&>*]:h-full [&>*]:w-full'
-                    }
-                    style={contentVisibilityStyle}
-                  >
-                    {itemNode}
-                  </div>
-                );
-              }
-
               return (
                 <FeedCardContext.Provider
                   key={getFeedItemKey(item, index)}
@@ -867,11 +838,10 @@ export default function Feed<T>({
                       }}
                     />
                   )}
-                  {showEngagementStrip &&
-                    engagementStripCreative &&
-                    index === indexWhenShowingEngagementStrip && (
-                      <EngagementFeedStrip
-                        creative={engagementStripCreative}
+                  {index === appFooterAnchorIndex &&
+                    item.type !== FeedItemType.Placeholder && (
+                      <MobileAppFooterAnchor
+                        at={MobileAppFooterAnchorPlace.Feed}
                         style={{
                           gridColumn: !shouldUseListFeedLayout
                             ? `span ${virtualizedNumCards}`
@@ -879,7 +849,17 @@ export default function Feed<T>({
                         }}
                       />
                     )}
-                  {renderedItem}
+                  {isWidened ? (
+                    <div
+                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                      style={{ gridColumn: `span ${colSpan}` }}
+                      data-testid="feedItemColSpanWrapper"
+                    >
+                      {itemNode}
+                    </div>
+                  ) : (
+                    itemNode
+                  )}
                 </FeedCardContext.Provider>
               );
             })}

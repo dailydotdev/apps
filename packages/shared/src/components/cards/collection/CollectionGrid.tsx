@@ -11,7 +11,7 @@ import {
   CardTextContainer,
   CardSpace,
 } from '../common/Card';
-import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
+import { FreeformCardFooter } from '../common/FreeformCardFooter';
 import ActionButtons from '../common/ActionButtons';
 import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
@@ -115,7 +115,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         {postMetadata}
       </Container>
       <Container>
-        <WelcomePostCardFooter
+        <FreeformCardFooter
           image={image}
           contentHtml={post.contentHtml}
           post={post}

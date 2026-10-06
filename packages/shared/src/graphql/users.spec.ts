@@ -1,4 +1,8 @@
-import { TOP_READER_BADGE, TOP_READER_BADGE_BY_ID } from './users';
+import {
+  parseProfileFormHint,
+  TOP_READER_BADGE,
+  TOP_READER_BADGE_BY_ID,
+} from './users';
 
 describe('top reader badge queries', () => {
   it('includes the badge owner in the list query', () => {
@@ -17,5 +21,35 @@ describe('top reader badge queries', () => {
     expect(TOP_READER_BADGE_BY_ID).toContain('name');
     expect(TOP_READER_BADGE_BY_ID).toContain('username');
     expect(TOP_READER_BADGE_BY_ID).toContain('image');
+  });
+});
+
+describe('parseProfileFormHint', () => {
+  it('parses a field-keyed hint', () => {
+    expect(
+      parseProfileFormHint(JSON.stringify({ github: 'github already exists' })),
+    ).toEqual({ github: 'github already exists' });
+  });
+
+  it('returns null for a plain-string validation error', () => {
+    expect(parseProfileFormHint('Invalid URL')).toBeNull();
+  });
+
+  it('returns null for a raw database error', () => {
+    expect(
+      parseProfileFormHint('value too long for type character varying(39)'),
+    ).toBeNull();
+  });
+
+  it('returns null for a missing message, an array or a bare value', () => {
+    expect(parseProfileFormHint()).toBeNull();
+    expect(parseProfileFormHint('["github"]')).toBeNull();
+    expect(parseProfileFormHint('42')).toBeNull();
+  });
+
+  it('drops non-string values instead of passing them through', () => {
+    expect(parseProfileFormHint('{"github":"taken","count":2}')).toEqual({
+      github: 'taken',
+    });
   });
 });

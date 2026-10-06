@@ -51,7 +51,7 @@ export const CollectionPillSources = ({
           {sources.map((source) => (
             <SourceAvatarLink
               avatarClassName={classNames(
-                '-my-0.5 !mr-0 box-content border-2 border-background-default',
+                '-my-0.5 !mr-0 box-content border-2 border-background-default bg-background-default',
                 className?.avatar,
               )}
               key={source.handle}

@@ -22,6 +22,8 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
+import { CvTopHero } from '../../features/profile/components/CvTopHero';
+import { TopHeroPortal } from '../../contexts/TopHeroSlotContext';
 import { MarketingCtaVariant } from '../marketing/cta/common';
 import {
   uploadCvBgLaptop,
@@ -53,6 +55,13 @@ export interface FeedContainerProps {
   hasFirstSlotCard?: boolean;
   disableListFrame?: boolean;
 }
+
+/**
+ * Exported because anything in the feed's top slot is a sibling of the grid,
+ * not a child, and has to carry the same inset to line up with it.
+ */
+export const v2FeedSideInsetClass = 'tablet:px-2 laptop:px-6';
+const v2FeedInsetClass = `${v2FeedSideInsetClass} tablet:py-2 laptop:py-6`;
 
 const listGapClass = 'gap-2';
 const gridGapClass = 'gap-8';
@@ -144,7 +153,7 @@ export const FeedContainer = ({
   const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isV2 } = useLayoutVariant();
+  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
@@ -206,8 +215,15 @@ export const FeedContainer = ({
       }
     },
   });
+  // The variant only moves the banner, so on laptop, where the flag is
+  // evaluated, wait for it: mounting in the wrong arm first logs a second
+  // impression.
+  const isLayoutVariantPending = isLaptop && isLayoutVariantLoading;
   const shouldEvaluateBanner =
-    !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
+    !isLayoutVariantPending &&
+    !!marketingCta &&
+    shouldShow &&
+    activeFeedName === SharedFeedPage.MyFeed;
   const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBanner,
   });
@@ -215,6 +231,8 @@ export const FeedContainer = ({
   let uploadCvBannerTitle = 'Complete your profile faster';
   let uploadCvBannerDescription =
     'Upload your CV to import your experience, skills, and education. You can review and edit everything after.';
+  let uploadCvHeroSubtitle =
+    'Upload your CV to autofill your profile in seconds.';
 
   if (isJobsEnabled) {
     uploadCvBannerTitle =
@@ -222,7 +240,13 @@ export const FeedContainer = ({
     uploadCvBannerDescription =
       marketingCta?.flags?.description ||
       'Upload your CV so we quietly match you with roles you might actually want. Nothing is shared without your ok.';
+    uploadCvHeroSubtitle =
+      marketingCta?.flags?.description ||
+      'Upload your CV and let your next job quietly come to you.';
   }
+
+  const onCloseUploadCvBanner = () =>
+    marketingCta && clearMarketingCta(marketingCta.campaignId);
 
   const uploadCvBanner = {
     title: uploadCvBannerTitle,
@@ -256,7 +280,16 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {shouldShowBanner && (
+      {shouldShowBanner && isV2 && (
+        <TopHeroPortal>
+          <CvTopHero
+            subtitle={uploadCvHeroSubtitle}
+            onUpload={onUpload}
+            onClose={onCloseUploadCvBanner}
+          />
+        </TopHeroPortal>
+      )}
+      {shouldShowBanner && !isV2 && (
         <div
           // From tablet up the container above carries `feedGutter`, so
           // any horizontal padding here stacks on top of it and leaves
@@ -283,9 +316,7 @@ export const FeedContainer = ({
             }}
             status={status}
             onUpload={onUpload}
-            onClose={() =>
-              marketingCta && clearMarketingCta(marketingCta.campaignId)
-            }
+            onClose={onCloseUploadCvBanner}
             banner={uploadCvBanner}
             targetId={TargetId.Feed}
           />
@@ -381,7 +412,7 @@ export const FeedContainer = ({
                   // mock. The page-header strip above sets its own
                   // bottom border, so cards sit p-6 inside the floating
                   // card on all four sides.
-                  'tablet:p-2 laptop:p-6 [&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
+                  `${v2FeedInsetClass} [&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary`,
                 // Inner inset for the bordered list frame. With the frame gone
                 // there is nothing to inset from, so the cards run the full
                 // width of the column like the page header above them.

@@ -8,6 +8,7 @@ import {
   getPlatformIconElement,
   getPlatformLabel as getGenericPlatformLabel,
 } from './platforms';
+import { withHttps } from './links';
 
 // Re-export types for backward compatibility
 export type { UserPlatformId as SocialPlatform } from './platforms';
@@ -76,3 +77,28 @@ export const getUserSocialLinks = (
 ): SocialLinkDisplay[] => {
   return mapSocialLinksToDisplay(user.socialLinks || [], iconSize);
 };
+
+/**
+ * Normalize a user-typed social link into a comparable, storable URL.
+ * Returns null when the text cannot be parsed as a URL.
+ */
+export const normalizeSocialLinkUrl = (rawUrl: string): string | null => {
+  const trimmedUrl = rawUrl.trim();
+
+  if (!trimmedUrl) {
+    return null;
+  }
+
+  try {
+    return new URL(withHttps(trimmedUrl)).href.replace(/\/$/, '');
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Compare two social link URLs ignoring case and a trailing slash, so the same
+ * link pasted twice (or added locally and returned by the server) matches.
+ */
+export const isSameSocialLinkUrl = (a: string, b: string): boolean =>
+  a.toLowerCase().replace(/\/$/, '') === b.toLowerCase().replace(/\/$/, '');

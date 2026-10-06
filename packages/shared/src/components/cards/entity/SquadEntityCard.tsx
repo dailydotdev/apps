@@ -9,8 +9,6 @@ import {
 import type { Origin } from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { SourceIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import { useSquad } from '../../../hooks';
 import { ButtonSize } from '../../buttons/Button';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
@@ -19,6 +17,8 @@ import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 type SquadEntityCardProps = {
   handle: string;
@@ -85,25 +85,17 @@ const SquadEntityCard = ({
         <Link passHref href={permalink}>
           <Typography
             tag={TypographyTag.Link}
-            className="flex"
+            className="flex items-center gap-1"
             type={TypographyType.Body}
             color={TypographyColor.Primary}
             bold
           >
             {name}
+            {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
           </Typography>
         </Link>
         {description && <EntityDescription copy={description} length={100} />}
         <div className="flex items-center text-text-tertiary">
-          {flags?.featured && (
-            <>
-              <div className="flex items-center gap-1 text-brand-default">
-                <SourceIcon size={IconSize.Size16} />
-                <Typography type={TypographyType.Footnote}>Featured</Typography>
-              </div>
-              <Separator />
-            </>
-          )}
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}

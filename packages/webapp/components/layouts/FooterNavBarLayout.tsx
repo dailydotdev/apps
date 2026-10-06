@@ -1,9 +1,13 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  MobileAppFooterProvider,
+  useMobileAppFooterContext,
+} from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
+import { mobileAppFooterHeight } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
 
 const FooterWrapper = dynamic(
   () =>
@@ -15,21 +19,37 @@ interface FooterNavBarLayoutProps {
   post?: Post;
 }
 
+function FooterSpacer({
+  post,
+}: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement {
+  const { isRevealed: showAppFooter } = useMobileAppFooterContext();
+
+  if (showAppFooter) {
+    return <div className={mobileAppFooterHeight} />;
+  }
+
+  return <div className={post ? 'h-40' : 'h-16'} />;
+}
+
 export default function FooterNavBarLayout({
   children,
   post,
 }: FooterNavBarLayoutProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
-  const showNav = windowLoaded && isMobile;
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  const showNav = hasHydrated && isMobile;
 
   return (
-    <>
+    <MobileAppFooterProvider>
       {children}
-      {showNav && <div className={post ? 'h-40' : 'h-16'} />}
+      {showNav && <FooterSpacer post={post} />}
       <FooterWrapper showNav={showNav} post={post} />
-    </>
+    </MobileAppFooterProvider>
   );
 }
 

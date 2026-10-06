@@ -25,7 +25,7 @@ const mockedUseAuthContext = useAuthContext as jest.Mock;
 describe('useLayoutVariant', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedUseAuthContext.mockReturnValue({ isAuthReady: true });
+    mockedUseAuthContext.mockReturnValue({ isAuthReadyOrCached: true });
     mockedUseViewSize.mockReturnValue(true);
     mockedUseConditionalFeature.mockReturnValue({
       value: false,
@@ -62,7 +62,7 @@ describe('useLayoutVariant', () => {
   });
 
   it('does not evaluate the flag before auth is ready', () => {
-    mockedUseAuthContext.mockReturnValue({ isAuthReady: false });
+    mockedUseAuthContext.mockReturnValue({ isAuthReadyOrCached: false });
 
     const { result } = renderHook(() => useLayoutVariant());
 
@@ -107,7 +107,7 @@ describe('useLayoutVariant with a server-resolved shell', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedUseAuthContext.mockReturnValue({ isAuthReady: true });
+    mockedUseAuthContext.mockReturnValue({ isAuthReadyOrCached: true });
     mockedUseViewSize.mockReturnValue(true);
   });
 
@@ -125,7 +125,7 @@ describe('useLayoutVariant with a server-resolved shell', () => {
   });
 
   it('holds the shell through the first client render', () => {
-    mockedUseAuthContext.mockReturnValue({ isAuthReady: false });
+    mockedUseAuthContext.mockReturnValue({ isAuthReadyOrCached: false });
     mockedUseViewSize.mockReturnValue(false);
     mockedUseConditionalFeature.mockReturnValue({
       value: false,

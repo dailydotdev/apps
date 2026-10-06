@@ -1,0 +1,17 @@
+/* Press feedback for the phone shell's tappable chrome. */
+.shell-press {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: 150ms ease-out;
+  transition-property: border-color, background-color, box-shadow, color, scale;
+}
+
+.shell-press:active {
+  scale: 0.96;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-press {
+    transition-duration: 0s;
+  }
+}

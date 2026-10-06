@@ -16,7 +16,9 @@ import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
-import { ExploreSignupStrip } from '../../auth/ExploreSignupStrip';
+import { PublicPageSignupBanner } from '../../auth/PublicPageSignupBanner';
+import { useMobileAppHeader } from '../../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../../features/getApp/components/MobileAppActions';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -58,6 +60,7 @@ export const SquadDirectoryLayout = (
   const buttonSize = isMobileLayout ? ButtonSize.XSmall : ButtonSize.Small;
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const isMobileAppHeader = useMobileAppHeader();
 
   useEffect(() => {
     const element = document?.getElementById?.(`squad-item-discover-${id}`);
@@ -110,8 +113,6 @@ export const SquadDirectoryLayout = (
         {isDiscover && (
           <div className="absolute inset-0 -z-1 hidden h-[25rem] w-full bg-gradient-to-t from-accent-cabbage-default to-background-default tablet:flex" />
         )}
-        <ExploreSignupStrip className="mb-4" />
-
         <header
           className={classNames(
             'flex w-full flex-col gap-2',
@@ -123,10 +124,14 @@ export const SquadDirectoryLayout = (
         >
           <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
             <strong>Squads</strong>
-            <NewSquadButton
-              icon={<PlusIcon />}
-              variant={ButtonVariant.Primary}
-            />
+            {isMobileAppHeader ? (
+              <MobileAppActions />
+            ) : (
+              <NewSquadButton
+                icon={<PlusIcon />}
+                variant={ButtonVariant.Primary}
+              />
+            )}
           </section>
           <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
             <SquadDirectoryNavbar className="min-h-14 min-w-0 flex-1">
@@ -147,6 +152,7 @@ export const SquadDirectoryLayout = (
         >
           {children}
         </section>
+        <PublicPageSignupBanner />
       </BaseFeedPage>
     </>
   );

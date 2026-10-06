@@ -213,6 +213,12 @@ export const SOURCE_BASE_FRAGMENT = gql`
     flags {
       totalUpvotes
     }
+    features {
+      verified
+      adFree
+      links
+      products
+    }
     currentMember {
       ...CurrentMember
     }
@@ -296,13 +302,6 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       reputation
       createdAt
       bio
-      companies {
-        name
-        image
-      }
-      contentPreference {
-        status
-      }
       coresRole
     }
     type
@@ -321,10 +320,8 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       flags {
         totalUpvotes
       }
-      currentMember {
-        flags {
-          collapsePinnedPosts
-        }
+      features {
+        verified
       }
     }
     userState {
@@ -542,6 +539,7 @@ export const COMMENT_FRAGMENT = gql`
 export const RELATED_POST_FRAGMENT = gql`
   fragment RelatedPost on Post {
     id
+    slug
     commentsPermalink
     title
     summary

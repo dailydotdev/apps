@@ -66,6 +66,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     turbopackFileSystemCacheForDev: false,
+    useTypeScriptCli: false, // to not clash with our strict ts setup
   },
   ...withBundleAnalyzer({
     compiler: {
@@ -204,6 +205,11 @@ const nextConfig: NextConfig = {
         },
         {
           source: '/daily',
+          destination: '/',
+          permanent: false,
+        },
+        {
+          source: '/explore/:tag',
           destination: '/',
           permanent: false,
         },
@@ -391,6 +397,12 @@ const nextConfig: NextConfig = {
         },
         {
           source: '/posts/:id/read',
+          headers: noindexHeaders,
+        },
+        {
+          // Screenshot targets for the share images; they mirror post and
+          // profile content without any of the pages' own indexing gates.
+          source: '/image-generator/:path*',
           headers: noindexHeaders,
         },
         {

@@ -16,6 +16,10 @@ import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
 import { CharmEmptyState } from '../charm/CharmEmptyState';
 import { cloudinaryCharmNoComments } from '../../lib/image';
+import { MobileAppFooterAnchor } from '../../features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '../../features/getApp/mobileAppFooter';
+
+const commentsBeforeAppFooter = 2;
 
 const threadCommentOrigins = new Set<Origin>([
   Origin.ArticleModal,
@@ -31,7 +35,6 @@ interface PostCommentsProps {
   origin: Origin;
   sortBy?: SortCommentsBy;
   isComposerOpen?: boolean;
-  permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement | null;
   onShare?: (comment: Comment) => void;
@@ -70,7 +73,6 @@ export function PostComments({
   onShare,
   onClickUpvote,
   modalParentSelector,
-  permissionNotificationCommentId,
   joinNotificationCommentId,
   className = {},
   onCommented,
@@ -178,9 +180,6 @@ export function PostComments({
                 postAuthorId={post.author?.id ?? null}
                 postScoutId={post.scout?.id ?? null}
                 appendTooltipTo={getAppendTooltipParent}
-                permissionNotificationCommentId={
-                  permissionNotificationCommentId
-                }
                 joinNotificationCommentId={joinNotificationCommentId}
                 onCommented={onCommented}
                 lazy={!commentHash && index >= lazyCommentThreshold}
@@ -188,6 +187,13 @@ export function PostComments({
                 onReplyBlocked={onReplyBlocked}
                 forceInlineComposer={forceInlineComposer}
               />
+              {index === commentsBeforeAppFooter - 1 &&
+                edges.length > commentsBeforeAppFooter && (
+                  <MobileAppFooterAnchor
+                    at={MobileAppFooterAnchorPlace.Comments}
+                    className="-mt-4"
+                  />
+                )}
               {shouldInterleave &&
                 renderInterleaved(Math.floor(seen / interleaveEvery))}
             </Fragment>

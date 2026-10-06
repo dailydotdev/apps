@@ -1,5 +1,33 @@
 const DAILY_MEDIA_HOST = 'media.daily.dev';
 const PLACEHOLDER_IMAGE_PATTERN = /placeholder/i;
+const IMAGE_FILE_EXTENSION_PATTERN =
+  /\.(?:apng|avif|bmp|cur|gif|heic|heif|ico|jfif|jpe?g|pjp|pjpeg|png|svg|tiff?|webp)$/i;
+const CLOUDINARY_IMAGE_HOST_PATTERN = /(^|\.)cloudinary\.com$/;
+
+export const isImageUrl = (
+  url: string,
+  baseUrl = globalThis.location?.href ?? 'https://daily.dev',
+): boolean => {
+  if (!url) {
+    return false;
+  }
+
+  try {
+    const parsedUrl = new URL(url, baseUrl);
+    const host = parsedUrl.hostname.toLowerCase();
+
+    if (
+      (host === DAILY_MEDIA_HOST || CLOUDINARY_IMAGE_HOST_PATTERN.test(host)) &&
+      parsedUrl.pathname.includes('/image/')
+    ) {
+      return true;
+    }
+
+    return IMAGE_FILE_EXTENSION_PATTERN.test(parsedUrl.pathname);
+  } catch {
+    return false;
+  }
+};
 
 export const cloudinaryPostImageCoverPlaceholder =
   'https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001';
@@ -95,27 +123,6 @@ export const cloudinaryReferralCampaignGenericSad =
 
 export const cloudinaryReferralCampaignGenericHappy =
   'https://media.daily.dev/image/upload/s--gnompkBm--/f_auto/v1697024846/ido_happy_zfosbr';
-
-export const cloudinaryReferralCampaignSearchBg =
-  'https://media.daily.dev/image/upload/s--lYQL8anp--/f_auto/v1697393720/referral_bg_i261vi';
-
-export const cloudinaryReferralCampaignSearchBgMobile =
-  'https://media.daily.dev/image/upload/s--pvdAKlaQ--/f_auto/v1697393719/referral_bg_mobile_on0esi';
-
-export const cloudinaryReferralCampaignSearchBgPopupMobile =
-  'https://media.daily.dev/image/upload/s--19oBvNgw--/f_auto/v1697393719/referral_bg_popup_mobile_on7ss5';
-
-export const cloudinaryReferralCampaignGenericReferralBackgroundDark =
-  'https://media.daily.dev/image/upload/s--GBy6n7jn--/f_auto/v1685961531/public/background_Image';
-
-export const cloudinaryReferralCampaignGenericReferralAppScreenshot =
-  'https://media.daily.dev/image/upload/s--m_DzIlz0--/f_auto/v1698844735/platform_bjdgxm';
-
-export const cloudinaryReferralCampaignGenericReferralPlayButton =
-  'https://media.daily.dev/image/upload/v1698844736/play_button_h38ezx.svg';
-
-export const cloudinaryReferralCampaignGenericReferralPurpleEdgeGlowTablet =
-  'https://media.daily.dev/image/upload/v1698922944/glow_mobile_tablet_lsou4j.svg';
 
 export const cloudinaryOnboardingGlow =
   'https://media.daily.dev/image/upload/v1694596741/Glow_o9ehvn.svg';
@@ -301,6 +308,14 @@ export const purchaseCoinsCheckoutVideo =
 export const purchaseCoinsCheckoutVideoPoster =
   'https://media.daily.dev/image/upload/s--A_4rXIh7--/f_auto/v1741779750/public/Giving%20cores';
 
+// TODO: move to media.daily.dev before merge, like every other asset here.
+// Served from each surface's public/ so the preview build renders the art.
+export const gameCenterLevelBackground =
+  'https://media.daily.dev/image/upload/s--F-IIwLeW--/f_auto,q_auto/covers/game-center-hero.jpg';
+
+export const marketplaceHeroImage =
+  'https://media.daily.dev/image/upload/s--NVYNx8Qd--/f_auto,q_auto/webapp/plugin-marketplace-hero-v2.jpg';
+
 export const featuredAwardImage =
   'https://media.daily.dev/image/upload/s--10Rf2kyK--/f_auto/v1743595864/public/Default';
 
@@ -481,15 +496,6 @@ export const cloudinaryCharmNoPosts =
 
 export const cloudinaryCharmNotEnoughTags =
   'https://media.daily.dev/image/upload/s--0PIPx07_--/f_auto,q_auto/v1781529338/public/daily.dev%20Charm%20-%20no%20enoght%20tags%20(1)';
-
-// The Giveback charm (genie-themed). Artwork sits on solid black — render with
-// `mix-blend-screen` on a dark surface so the black drops out.
-export const cloudinaryCharmGiveback =
-  'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)';
-
-// Dedicated Open Graph / social share image for the giveback pages (1280×800).
-export const cloudinaryGivebackOpenGraph =
-  'https://media.daily.dev/image/upload/s--lQzU56yU--/f_auto,q_auto/v1783863597/public/daily.dev%20Givevback%20-%201280x800%20(1)';
 
 // The signature covers the transformation string, so a width cap cannot be
 // appended — serving this smaller than its 2072px source needs a re-sign.

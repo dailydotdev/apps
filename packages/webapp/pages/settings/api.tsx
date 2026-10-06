@@ -7,7 +7,8 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { plusApiCta, plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { marketplaceUrl } from '@dailydotdev/shared/src/graphql/plugins';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   usePersonalAccessTokens,
@@ -45,6 +46,16 @@ import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import {
+  featureOAuthApps,
+  featurePluginMarketplace,
+} from '@dailydotdev/shared/src/lib/featureManagement';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  ConnectedAppsSection,
+  OAuthAppsSection,
+} from '../../components/settings/OAuthApps';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -207,11 +218,6 @@ const SKILLS: SkillDefinition[] = [
     ],
   },
 ];
-
-const lowercaseRelativeDate = (dateStr: string): string => {
-  const relativeDates = ['Now', 'Today', 'Yesterday'];
-  return relativeDates.includes(dateStr) ? dateStr.toLowerCase() : dateStr;
-};
 
 const ExpirationOptions = [
   { value: '', label: 'Never expires' },
@@ -391,21 +397,20 @@ const TokenListItem = ({
           <span>&#x2022;</span>
           <span>
             Created{' '}
-            {lowercaseRelativeDate(
-              formatDate({ value: createdAt, type: TimeFormatType.Post }),
-            )}
+            {formatDate({
+              value: createdAt,
+              type: TimeFormatType.PostUpdated,
+            })}
           </span>
           {lastUsedAt && (
             <>
               <span>&#x2022;</span>
               <span>
                 Last used{' '}
-                {lowercaseRelativeDate(
-                  formatDate({
-                    value: lastUsedAt,
-                    type: TimeFormatType.Post,
-                  }),
-                )}
+                {formatDate({
+                  value: lastUsedAt,
+                  type: TimeFormatType.PostUpdated,
+                })}
               </span>
             </>
           )}
@@ -459,6 +464,15 @@ const ApiAccessPage = (): ReactElement => {
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
   const { displayToast } = useToastNotification();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { user } = useAuthContext();
+  const { value: isOAuthAppsEnabled } = useConditionalFeature({
+    feature: featureOAuthApps,
+    shouldEvaluate: !!user,
+  });
+  const { value: isMarketplaceEnabled } = useConditionalFeature({
+    feature: featurePluginMarketplace,
+    shouldEvaluate: !!user,
+  });
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -530,7 +544,7 @@ const ApiAccessPage = (): ReactElement => {
         {!isPlus && (
           <div className="plus-entry-gradient flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4">
             <Typography type={TypographyType.Body} bold>
-              {plusApiCta}
+              Full API access and higher rate limits
             </Typography>
             <Typography
               type={TypographyType.Callout}
@@ -754,8 +768,25 @@ const ApiAccessPage = (): ReactElement => {
             >
               OpenAPI Reference
             </Button>
+            {isMarketplaceEnabled && (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                tag="a"
+                href={marketplaceUrl}
+              >
+                Plugin marketplace
+              </Button>
+            )}
           </div>
         </div>
+
+        {isOAuthAppsEnabled && (
+          <>
+            <OAuthAppsSection />
+            <ConnectedAppsSection />
+          </>
+        )}
       </div>
 
       <CreateTokenModal

@@ -32,7 +32,6 @@ export enum SourcePermissions {
   Leave = 'leave',
   Delete = 'delete',
   Edit = 'edit',
-  WelcomePostEdit = 'welcome_post_edit',
   ConnectSlack = 'connect_slack',
   ModeratePost = 'moderate_post',
   BoostSquad = 'boost_squad',
@@ -91,6 +90,17 @@ export interface Squad extends Source {
   category?: SourceCategory;
   moderationPostCount: number;
   favoritedAt?: string | null;
+  /** Paid (`links` feature): empty while the feature is off. */
+  website?: string | null;
+  /** Paid (`links` feature): ordered URLs, empty while the feature is off. */
+  links?: string[];
+  /** The platform defaults until moderators save their own, empty for none. */
+  rules?: SquadRule[];
+}
+
+export interface SquadRule {
+  title: string;
+  description?: string | null;
 }
 
 interface SourceFlags {
@@ -100,6 +110,14 @@ interface SourceFlags {
   totalUpvotes: number;
   totalAwards: number;
   campaignId?: string;
+}
+
+// A missing key comes back as null and means off
+export interface SourceFeatures {
+  verified: boolean | null;
+  adFree: boolean | null;
+  links: boolean | null;
+  products: boolean | null;
 }
 
 export interface Source {
@@ -118,13 +136,21 @@ export interface Source {
   color?: string;
   description?: string;
   flags?: SourceFlags;
+  features?: SourceFeatures;
   createdAt?: Date;
   contentPreference?: ContentPreference;
 }
 
 export type SourceTooltip = Pick<
   Source,
-  'id' | 'name' | 'image' | 'handle' | 'permalink' | 'description' | 'flags'
+  | 'id'
+  | 'name'
+  | 'image'
+  | 'handle'
+  | 'permalink'
+  | 'description'
+  | 'flags'
+  | 'features'
 > & {
   membersCount?: number;
   type?: SourceType;
@@ -137,6 +163,7 @@ export const SOURCE_QUERY = gql`
     source(id: $id) {
       ...SourceDirectoryInfo
       type
+      noindex
     }
   }
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}

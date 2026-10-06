@@ -97,12 +97,6 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
-// Experiment: sponsored partner offers (via Encore) presented as the reward
-// moment once the day's daily quests are all claimed. Enrollment is
-// conditional on the popup actually being eligible, so users who never finish
-// their quests don't dilute the split.
-export const featureQuestOffers = new Feature('quest_offers', isDevelopment);
-
 // whether the user will see post boost ads
 // does not necessarily mean they can't boost a post if they have access to cores
 export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
@@ -175,17 +169,19 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingTagRecommender = new Feature(
-  'onboarding_tag_recommender',
-  false,
-);
-
 export const featureOnboardingPersonas = new Feature(
   'onboarding_personas',
   false,
 );
 
+// Experiment: the mobile-only reading reminder step offered on desktop too.
+export const featureOnboardingReminderDesktop = new Feature(
+  'onboarding_reminder_desktop',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
@@ -221,7 +217,7 @@ export enum FeedChipsVariant {
 }
 export const featureFeedChips = new Feature<FeedChipsVariant>(
   'feed_chips',
-  FeedChipsVariant.V2,
+  FeedChipsVariant.V3,
 );
 
 export enum HijackingVariant {
@@ -248,6 +244,15 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 );
 
 /**
+ * Experiment: the onboarding extension step shows the feature showcase (tab
+ * carousel with a per-feature illustration) instead of the demo video.
+ */
+export const featureOnboardingExtensionShowcase = new Feature(
+  'onboarding_extension_showcase',
+  false,
+);
+
+/**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds with
  * a trending ticker under it. The ticker carries the popular half of
  * `statuslineFeed`; the feed keeps its own Happening Now card and owns the
@@ -259,6 +264,11 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
  * local session still gets the strip without anybody forcing a flag.
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
+
+export const featureSponsorStripBreakingNews = new Feature(
+  'sponsor_strip_breaking_news',
+  true,
+);
 
 export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
@@ -284,17 +294,13 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   },
 });
 
-// Experiment: skip layout/paint for off-screen feed cards via CSS
-// `content-visibility: auto` to keep long feeds responsive.
-export const featureFeedContentVisibility = new Feature(
-  'feed_content_visibility',
-  false,
-);
+// Experiment: a hero section above the feed — a carousel of the current
+// headlines, with the Happening Now list and a direct ad placement beside it.
+export const featureFeedHero = new Feature('feed_hero', false);
 
-export const featurePublicSignupBanner = new Feature(
-  'public_signup_banner',
-  false,
-);
+// Experiment: the post page's full-width signup banner against the cover
+// card pinned over the bottom of the window at the content's width.
+export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
@@ -305,6 +311,13 @@ export const featureCardImpressions = new Feature('card_impressions', false);
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
+
+export const featureOAuthApps = new Feature('oauth_apps', false);
+
+export const featurePluginMarketplace = new Feature(
+  'plugin_marketplace',
+  false,
+);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -343,3 +356,17 @@ export const featureReadAds = new Feature('read_ads', true);
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
+
+// Experiment: logged-out phones get the Charm footer in place of the tab bar
+// once they reach a page's trigger point.
+export const featureMobileAppFooter = new Feature('mobile_app_footer', false);
+
+// Experiment: logged-in phones get the "See daily.dev in…" sheet when they
+// land on the web.
+export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);
+
+// How long the sheet stays away after the reader picks Open or Continue.
+export const featureMobileAppSheetSnoozeHours = new Feature(
+  'mobile_app_sheet_snooze_hours',
+  72,
+);

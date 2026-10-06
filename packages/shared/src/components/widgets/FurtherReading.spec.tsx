@@ -39,19 +39,12 @@ const createFeedMock = (
     defaultFeedPage.edges[3].node,
     defaultFeedPage.edges[4].node,
   ],
-  discussedPosts: Post[] = [
-    defaultFeedPage.edges[1].node,
-    defaultFeedPage.edges[5].node,
-    defaultFeedPage.edges[6].node,
-  ],
   variables: Record<string, unknown> = {
     post: post.id,
     loggedIn: true,
     trendingFirst: 1,
     similarFirst: 3,
-    discussedFirst: 4,
     tags: post.tags,
-    withDiscussedPosts: true,
   },
 ): MockedGraphQLResponse<FurtherReadingData> => ({
   request: {
@@ -62,7 +55,6 @@ const createFeedMock = (
     data: {
       trendingPosts,
       similarPosts,
-      discussedPosts,
     },
   },
 });
@@ -86,8 +78,10 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
           isLoggedIn: !!user,
           closeLogin: jest.fn(),
         }}
@@ -110,7 +104,7 @@ describe('further reading', () => {
     await waitForNock();
     const [el] = await screen.findAllByRole('article');
     await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
-    expect(await screen.findAllByRole('article')).toHaveLength(5);
+    expect(await screen.findAllByRole('article')).toHaveLength(3);
   });
 
   it('should show trending info for trending posts', async () => {

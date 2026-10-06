@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import type { ReadAdSurface } from './ReadAdSlot';
 import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
 import { ORGANIC_SLOT, READ_SLOT } from './slots';
+import type { AdSlotsPost } from './useReadAdSlots';
 import { useOrganicAdSlots, useReadAdSlots } from './useReadAdSlots';
 import { hasLiveAdSlots } from '../../../features/monetization/kueez';
 
@@ -21,6 +22,11 @@ const PHONE_SLOT: Record<ReadAdSurface, number> = {
 
 export interface PhoneTopAdStripProps {
   surface: ReadAdSurface;
+  /**
+   * The page's post. The strip renders in the layout banner, outside the
+   * active post context, so the page hands it over for the ad-free check.
+   */
+  post?: AdSlotsPost;
 }
 
 /**
@@ -33,9 +39,10 @@ export interface PhoneTopAdStripProps {
  */
 export function PhoneTopAdStrip({
   surface,
+  post,
 }: PhoneTopAdStripProps): ReactElement | null {
-  const readSlots = useReadAdSlots();
-  const organicSlots = useOrganicAdSlots();
+  const readSlots = useReadAdSlots(post);
+  const organicSlots = useOrganicAdSlots(post);
   const isActive = hasLiveAdSlots(
     surface === 'organic' ? organicSlots : readSlots,
   );

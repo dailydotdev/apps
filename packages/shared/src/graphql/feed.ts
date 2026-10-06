@@ -26,11 +26,6 @@ export const baseFeedSupportedTypes = [
   PostType.Poll,
 ];
 
-export const supportedTypesForPrivateSources = [
-  ...baseFeedSupportedTypes,
-  PostType.Welcome,
-];
-
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
@@ -296,6 +291,17 @@ export const USER_POST_FRAGMENT = gql`
   }
 `;
 
+/**
+ * The selection every feed card renders from. One place, so a surface that
+ * lists posts outside a connection (the feed hero) gets the same payload as
+ * the grid and cannot silently fall a field behind it.
+ */
+const feedPostNodeSelection = (fields = '') => `
+  ...FeedPost
+  ${fields}
+  ...UserPost @include(if: $loggedIn)
+`;
+
 const getFeedPostFragment = (fields = '') => gql`
   fragment FeedPostConnection on PostConnection {
     pageInfo {
@@ -304,9 +310,7 @@ const getFeedPostFragment = (fields = '') => gql`
     }
     edges {
       node {
-        ...FeedPost
-        ${fields}
-        ...UserPost @include(if: $loggedIn)
+        ${feedPostNodeSelection(fields)}
       }
     }
   }
@@ -412,6 +416,29 @@ export const FEED_V2_QUERY = gql`
   ${POST_HIGHLIGHT_FRAGMENT}
 `;
 
+export interface FeedHeroData {
+  feedHero: {
+    posts: Post[];
+    highlights: PostHighlight[];
+  };
+}
+
+export const FEED_HERO_QUERY = gql`
+  query FeedHero($loggedIn: Boolean! = false, ${SUPPORTED_TYPES}) {
+    feedHero(supportedTypes: $supportedTypes) {
+      posts {
+        ${feedPostNodeSelection('contentHtml')}
+      }
+      highlights {
+        ...PostHighlightCard
+      }
+    }
+  }
+  ${FEED_POST_FRAGMENT}
+  ${USER_POST_FRAGMENT}
+  ${POST_HIGHLIGHT_FRAGMENT}
+`;
+
 export const MOST_UPVOTED_FEED_QUERY = gql`
   query MostUpvotedFeed(
     $loggedIn: Boolean! = false
@@ -458,32 +485,6 @@ export const TAG_FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
   ) {
     page: tagFeed(tag: $tag, first: $first, after: $after, ranking: $ranking, supportedTypes: $supportedTypes) {
-      ...FeedPostConnection
-    }
-  }
-  ${FEED_POST_CONNECTION_FRAGMENT}
-`;
-
-export const FEED_BY_TAGS_QUERY = gql`
-  query FeedByTags(
-    $tags: [String!]!
-    $loggedIn: Boolean! = false
-    $first: Int
-    $after: String
-    $ranking: Ranking
-    $version: Int
-    $columns: Int
-    ${SUPPORTED_TYPES}
-  ) {
-    page: feedByTags(
-      tags: $tags
-      first: $first
-      after: $after
-      ranking: $ranking
-      version: $version
-      supportedTypes: $supportedTypes
-      columns: $columns
-    ) {
       ...FeedPostConnection
     }
   }
@@ -551,7 +552,17 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('pinnedAt contentHtml')}
+  ${getFeedPostFragment(`
+    pinnedAt
+    contentHtml
+    source {
+      currentMember {
+        flags {
+          collapsePinnedPosts
+        }
+      }
+    }
+  `)}
 `;
 
 export const CHANNEL_FEED_QUERY = gql`

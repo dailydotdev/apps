@@ -15,6 +15,7 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
+import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import type { ProfileLayoutProps } from './index';
 import { getProfileSeoDefaults } from './index';
 import { getPageSeoTitles } from '../utils';
@@ -31,7 +32,11 @@ export function ProfileExperienceDetailPage({
   experiences,
   title,
   seoTitle,
-}: ProfileExperienceDetailPageProps): ReactElement {
+}: ProfileExperienceDetailPageProps): ReactElement | null {
+  if (!user) {
+    return null;
+  }
+
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(
       user,
@@ -44,13 +49,16 @@ export function ProfileExperienceDetailPage({
     ),
   };
 
+  // The experiences load client-side, so the head has to render before they
+  // resolve or the server response falls back to the indexable defaults.
   if (!experiences || experiences.length === 0) {
-    return null;
+    return <NextSeo {...seo} />;
   }
 
   return (
     <>
       <NextSeo {...seo} />
+      <MobileAppHeader />
       <div className="rounded-16 border border-border-subtlest-tertiary">
         <header className="flex h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4">
           <Link href={`${webappUrl}${user.username}`} passHref>

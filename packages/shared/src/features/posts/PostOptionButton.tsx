@@ -70,6 +70,7 @@ import {
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
 import { isSourceUserSource, SourceType } from '../../graphql/sources';
+import { squadPinnedPostsQueryOptions } from '../../graphql/squads';
 import { generateQueryKey, getPostByIdKey, RequestKey } from '../../lib/query';
 import { usePostMenuActions } from '../../hooks/usePostMenuActions';
 import type { Post } from '../../graphql/posts';
@@ -324,7 +325,13 @@ const PostOptionButtonContent = ({
         );
       }
 
-      await client.invalidateQueries({ queryKey: activeFeedQueryKey });
+      await Promise.all([
+        client.invalidateQueries({ queryKey: activeFeedQueryKey }),
+        client.invalidateQueries({
+          queryKey: squadPinnedPostsQueryOptions({ squad: source, user })
+            .queryKey,
+        }),
+      ]);
       displayToast(
         post.pinnedAt
           ? 'Your post has been unpinned'
@@ -332,7 +339,13 @@ const PostOptionButtonContent = ({
       );
     },
     onSwapPostSuccessful: async () => {
-      await client.invalidateQueries({ queryKey: activeFeedQueryKey });
+      await Promise.all([
+        client.invalidateQueries({ queryKey: activeFeedQueryKey }),
+        client.invalidateQueries({
+          queryKey: squadPinnedPostsQueryOptions({ squad: source, user })
+            .queryKey,
+        }),
+      ]);
     },
     onPostDeleted: ({ index, post: deletedPost }) => {
       logEvent(
@@ -804,9 +817,7 @@ const PostOptionButtonContent = ({
           // Moderation items keep the dedicated page: it edits a pending
           // submission rather than a post, which the composer cannot do.
           const canUseSmartComposer =
-            post.type === PostType.Freeform ||
-            post.type === PostType.Welcome ||
-            post.type === PostType.Share;
+            post.type === PostType.Freeform || post.type === PostType.Share;
           if (canUseSmartComposer) {
             openModal({
               type: LazyModal.SmartComposer,

@@ -6,6 +6,10 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { webappUrl } from '../lib/constants';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
+import {
+  getSquadManageUrl,
+  SquadManageSection,
+} from '../features/squads/lib/routes';
 
 type OpenNewSquadProps = {
   event?: React.MouseEvent;
@@ -48,7 +52,7 @@ export const useSquadNavigation = (): UseSquadNavigation => {
 
   const editSquad = useCallback(
     ({ handle }: EditSquadProps) => {
-      router.push(`${webappUrl}squads/${handle}/edit`);
+      router.push(getSquadManageUrl(handle, SquadManageSection.Details));
     },
     [router],
   );

@@ -43,8 +43,6 @@ const hotTake = (props: Partial<HotTake> & Pick<HotTake, 'id'>): HotTake => ({
 const showcase = (hotTakes: HotTake[]): ProfileShowcase => ({
   userStack: connection([]),
   hotTakes: connection(hotTakes),
-  userWorkspacePhotos: connection([]),
-  gear: connection([]),
 });
 
 const setup = (initialHotTakes: HotTake[]) => {
@@ -164,7 +162,7 @@ describe('useHotTakes', () => {
     );
 
     // The first showcase read never resolves: cancelling it would revert the
-    // query to empty and blank all four sections, so the mutation has to fall
+    // query to empty and blank every section, so the mutation has to fall
     // back to a refetch.
     request.mockImplementationOnce(() => new Promise(() => {}));
 

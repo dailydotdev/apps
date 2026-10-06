@@ -11,15 +11,17 @@ import { webappUrl } from '../../lib/constants';
 
 interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
   videoId: string;
+  autoPlay?: boolean;
   className?: string;
   placeholderProps: Pick<
     YoutubeVideoWithoutConsentProps,
-    'post' | 'onWatchVideo'
+    'post' | 'onWatchVideo' | 'className'
   >;
 }
 
 const YoutubeVideo = ({
   videoId,
+  autoPlay = false,
   className,
   placeholderProps,
   ...props
@@ -58,7 +60,7 @@ const YoutubeVideo = ({
       <iframe
         {...props}
         title={title}
-        src={embedSrc}
+        src={`${embedSrc}${autoPlay ? '?autoplay=1' : ''}`}
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
         referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen

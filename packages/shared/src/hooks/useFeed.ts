@@ -26,13 +26,16 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
-import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import type { ApiErrorResult } from '../graphql/common';
+import {
+  ApiError,
+  GARMR_ERROR,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
-import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
-import type { ResolvedCreative } from '../lib/engagementAds';
-import { EngagementPlacement } from '../lib/engagementAds';
 import type { FeedAdTemplate } from '../lib/feed';
 import { getAdSlotIndex } from '../lib/feed';
 import { searchResultsLogEvent } from '../lib/searchLog';
@@ -64,6 +67,7 @@ import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
 import type { Squad } from '../graphql/sources';
+import { useCachedTokenRecovery } from './useCachedTokenRecovery';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -81,7 +85,7 @@ export interface AdPostItem extends AdItem {
 }
 
 export interface AdSquadItem extends AdItem {
-  ad: Ad & { data: { source?: Squad } };
+  ad: Ad & { data: { source: Squad } };
 }
 
 interface PlaceholderItem extends FeedItemBase<FeedItemType.Placeholder> {
@@ -117,7 +121,6 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
-  OtherFeedPage.ExploreTag,
   OtherFeedPage.Tag,
   OtherFeedPage.Tags,
   OtherFeedPage.TagPage,
@@ -159,11 +162,6 @@ export type FeedBannerInsertions = {
   briefBannerPage: number;
   showPromoBanner: boolean;
   indexWhenShowingPromoBanner: number;
-  // Campaign-specific engagement strip: a full-row, brand-gradient promo
-  // rendered mid-feed when a creative opted into the feed-strip placement.
-  showEngagementStrip: boolean;
-  indexWhenShowingEngagementStrip: number;
-  engagementStripCreative: ResolvedCreative | null;
   hero: {
     shouldShowTopHero: boolean;
     title: string;
@@ -206,6 +204,12 @@ export type FeedReturnType = {
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
+  /** The surface shows the highlights itself, so keep them out of the grid. */
+  disableHighlightCards?: boolean;
+  /** The surface shows an ad above the feed, so drop the grid's first slot. */
+  skipFirstAd?: boolean;
+  /** The surface leads with a featured card, so keep wide ones out of row one. */
+  deferWideCards?: boolean;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
   /** Set on search feeds so every fetch can be logged as a search execution. */
@@ -217,10 +221,6 @@ const searchFeedNames = new Set<string>([
   SharedFeedPage.Search,
   OtherFeedPage.SearchSquad,
 ]);
-
-// 0-based grid row where the campaign-specific engagement strip breaks the
-// feed. Picking a whole row (not an item index) keeps the row above it full.
-const ENGAGEMENT_STRIP_ROW = 4;
 
 export interface UseFeedOptionalParams<T> {
   query?: string;
@@ -244,12 +244,6 @@ export interface UseFeedOptionalParams<T> {
    */
   isBriefBannerEligible?: boolean;
   /**
-   * Whether the current feed may show the campaign-specific engagement strip
-   * (the right feed page and not a horizontal carousel). The strip only
-   * renders when this is true AND a creative opted into the placement.
-   */
-  engagementStripEligible?: boolean;
-  /**
    * Number of fixed "first slot" cards (e.g. profile completion / brief
    * card) rendered ABOVE the feed grid. Used to shift banner indices so
    * they land at visually predictable positions.
@@ -269,7 +263,7 @@ export interface UseFeedOptionalParams<T> {
   isHorizontal?: boolean;
   /**
    * Drop pinned posts from the feed. `sourceFeed` always orders pinned posts
-   * (welcome post, squad pins) first and offers no way to opt out server-side,
+   * first and offers no way to opt out server-side,
    * so single-squad feeds that don't want them filter here.
    */
   excludePinnedPosts?: boolean;
@@ -291,7 +285,6 @@ export default function useFeed<T>(
     settings,
     onEmptyFeed,
     isBriefBannerEligible = false,
-    engagementStripEligible = false,
     firstSlotOffset = 0,
     disableTopHero = false,
     isHorizontal = false,
@@ -299,7 +292,7 @@ export default function useFeed<T>(
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, isTokenValid } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
@@ -324,6 +317,7 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
+  const isFeedQueryEnabled = !!query && isTokenValid;
   const feedQuery = useInfiniteQuery<
     FeedItemData,
     ClientError,
@@ -415,7 +409,7 @@ export default function useFeed<T>(
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
     ...options,
-    enabled: !!query && tokenRefreshed,
+    enabled: isFeedQueryEnabled,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: avoidRetry ? false : 3,
@@ -424,6 +418,15 @@ export default function useFeed<T>(
   });
 
   const clientError = feedQuery?.error as ClientError;
+  useCachedTokenRecovery({
+    queryKey: feedQueryKey,
+    enabled: isFeedQueryEnabled,
+    isUnauthenticated: !!getApiError(
+      feedQuery.error as ApiErrorResult,
+      ApiError.Unauthenticated,
+    ),
+  });
+
   const adPostLength = settings?.adPostLength;
   const firstPagePostsCount = feedQuery.data?.pages[0]?.page.edges.length ?? 0;
   const meetsAdPostLength = !adPostLength || firstPagePostsCount > adPostLength;
@@ -433,7 +436,7 @@ export default function useFeed<T>(
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
       query &&
-      tokenRefreshed &&
+      isTokenValid &&
       !isFeedPreview &&
       (!adPostLength ||
         (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
@@ -485,33 +488,13 @@ export default function useFeed<T>(
     columnsDiffWithPage * Number(briefBannerPage) -
     effectiveFirstSlotOffset;
 
-  const { getCreativeForPlacement } = useEngagementAdsContext();
-  const engagementStripCreative = engagementStripEligible
-    ? getCreativeForPlacement(EngagementPlacement.FeedStrip)
-    : null;
-  const showEngagementStrip = !!engagementStripCreative;
-  // Break the feed a few rows in. Multiplying the row by the column count
-  // gives the item index at the start of that row; the full-row insertion
-  // machinery pads the row above so the strip always begins a clean row (in
-  // grid) and just slots inline (in list, where virtualizedNumCards === 1).
-  const indexWhenShowingEngagementStrip =
-    ENGAGEMENT_STRIP_ROW * virtualizedNumCards - effectiveFirstSlotOffset;
-
   const fullRowInsertionBeforeIndex = useMemo(() => {
     const set = new Set<number>();
     if (showPromoBanner) {
       set.add(indexWhenShowingPromoBanner);
     }
-    if (showEngagementStrip) {
-      set.add(indexWhenShowingEngagementStrip);
-    }
     return set;
-  }, [
-    showPromoBanner,
-    indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-  ]);
+  }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
   const { fetchAd } = useFetchAd();
   // Per-mount random seed for ad jitter. Stable across re-renders/pagination
@@ -521,6 +504,11 @@ export default function useFeed<T>(
   if (!adJitterSeedRef.current) {
     adJitterSeedRef.current = Math.random().toString(36).slice(2);
   }
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  useCachedTokenRecovery({
+    queryKey: adsQueryKey,
+    enabled: isAdsQueryEnabled,
+  });
   const adsQuery = useInfiniteQuery<
     Ad,
     ClientError,
@@ -528,7 +516,7 @@ export default function useFeed<T>(
     QueryKey,
     string | number
   >({
-    queryKey: [RequestKey.Ads, ...feedQueryKey],
+    queryKey: adsQueryKey,
     queryFn: async ({ pageParam }) => {
       const ad = await fetchAd({
         placement: AdPlacement.Feed,
@@ -573,7 +561,7 @@ export default function useFeed<T>(
       const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
       const adJitter = adTemplate?.adJitter ?? 0;
 
-      const adPage = getAdSlotIndex({
+      const slot = getAdSlotIndex({
         index,
         adStart,
         adRepeat,
@@ -581,7 +569,15 @@ export default function useFeed<T>(
         seed: adJitterSeedRef.current ?? '',
       });
 
-      if (adPage === undefined) {
+      if (slot === undefined) {
+        return undefined;
+      }
+
+      // Shifted rather than skipped, so the creative the first slot would have
+      // shown moves down to the second instead of being fetched and discarded.
+      const adPage = settings?.skipFirstAd ? slot - 1 : slot;
+
+      if (adPage < 0) {
         return undefined;
       }
 
@@ -620,6 +616,7 @@ export default function useFeed<T>(
       adTemplate?.adJitter,
       adsUpdatedAt,
       pageSize,
+      settings?.skipFirstAd,
     ],
   );
 
@@ -664,6 +661,7 @@ export default function useFeed<T>(
         startIndex: heroCardsConfig.startIndex,
         widenableTypes,
         firstSlotOffset: effectiveFirstSlotOffset,
+        minWideCardRow: settings?.deferWideCards ? 1 : 0,
       });
 
       const staticAd = settings?.staticAd;
@@ -709,7 +707,7 @@ export default function useFeed<T>(
           }
 
           if (node.itemType === 'highlight') {
-            if (!node.highlights.length) {
+            if (!node.highlights.length || settings?.disableHighlightCards) {
               return;
             }
             pushAndAdvance({
@@ -762,6 +760,7 @@ export default function useFeed<T>(
     feedQuery.dataUpdatedAt,
     placeholdersPerPage,
     getAd,
+    settings?.disableHighlightCards,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
@@ -772,6 +771,7 @@ export default function useFeed<T>(
     widenableTypes,
     excludePinnedPosts,
     effectiveFirstSlotOffset,
+    settings?.deferWideCards,
   ]);
 
   const placements = useMemo(
@@ -787,6 +787,7 @@ export default function useFeed<T>(
         fullRowInsertionBeforeIndex,
         cadence,
         firstSlotOffset: effectiveFirstSlotOffset,
+        minWideCardRow: settings?.deferWideCards ? 1 : 0,
       }),
     [
       items,
@@ -798,6 +799,7 @@ export default function useFeed<T>(
       cadence,
       widenableTypes,
       effectiveFirstSlotOffset,
+      settings?.deferWideCards,
     ],
   );
 
@@ -844,9 +846,6 @@ export default function useFeed<T>(
     briefBannerPage: Number(briefBannerPage),
     showPromoBanner,
     indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-    engagementStripCreative,
     hero: {
       shouldShowTopHero: heroFeedHero.shouldShowTopHero,
       title: heroFeedHero.title,

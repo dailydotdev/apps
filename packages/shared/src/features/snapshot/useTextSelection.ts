@@ -62,9 +62,6 @@ const readPassage = (
   return highlight ? { passage, highlight } : { passage: text };
 };
 
-/** Under this a selection is a stray double-click, not a quote worth sharing. */
-export const MIN_SELECTION_LENGTH = 24;
-
 /** How long the selection has to hold still before the toolbar commits to it. */
 const SETTLE_MS = 150;
 
@@ -77,7 +74,9 @@ const read = (container: HTMLElement | null): TextSelection | null => {
 
   const text = selection.toString().trim();
 
-  if (text.length < MIN_SELECTION_LENGTH || selection.rangeCount === 0) {
+  // Any run the reader marked is a quote, however short. Only a selection
+  // with no words in it has nothing to put on a card.
+  if (!text || selection.rangeCount === 0) {
     return null;
   }
 

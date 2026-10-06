@@ -217,7 +217,7 @@ export function CommentMarkdownInputComponent(
         hideMarkdownToggle
         stackToolbarLeading
         toolbarLeading={
-          fills && shouldShowCta ? (
+          shouldShowCta ? (
             <Switch
               inputId="push_notification-switch"
               name="push_notification"

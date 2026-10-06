@@ -7,6 +7,7 @@ import { PostType } from '../../graphql/posts';
 import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
+import { getPostPath } from '../../lib/links';
 import { RelativeTime } from '../utilities/RelativeTime';
 import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
 import { snapshotSource } from '../../features/snapshot/snapshotSource';
@@ -90,7 +91,7 @@ export const HighlightItem = ({
             {tldr}
           </p>
           <div className="flex items-center gap-3">
-            <Link href={highlight.post.commentsPermalink}>
+            <Link href={getPostPath(highlight.post)}>
               <a className="flex flex-1 items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
                 Read more
               </a>
@@ -98,6 +99,7 @@ export const HighlightItem = ({
             <HighlightShareActions
               highlight={highlight}
               source={snapshotSource(post)}
+              title={post.title ?? highlight.headline}
               tldr={tldr}
               tldrRef={tldrRef}
             />

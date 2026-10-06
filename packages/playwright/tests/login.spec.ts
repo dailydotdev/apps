@@ -1,14 +1,5 @@
 import { test, expect } from '@playwright/test';
-
-const getRequiredEnv = (name: 'USER_NAME' | 'PASSWORD'): string => {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(`${name} environment variable is required`);
-  }
-
-  return value;
-};
+import { getRequiredEnv } from './helpers';
 
 test.describe.skip('Daily.dev Homepage', () => {
   test('should load the homepage successfully', async ({ page }) => {

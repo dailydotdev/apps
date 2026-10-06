@@ -25,7 +25,6 @@ export enum ModalSize {
 }
 
 export enum LazyModal {
-  SquadMember = 'squadMember',
   SquadTour = 'squadTour',
   UpvotedPopup = 'upvotedPopup',
   RepostsPopup = 'repostsPopup',
@@ -39,17 +38,16 @@ export enum LazyModal {
   NewSource = 'newSource',
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
+  ReferralLadder = 'referralLadder',
+  ReferralLadderPromo = 'referralLadderPromo',
   Video = 'video',
   ImageView = 'imageView',
   NewStreak = 'newStreak',
-  QuestOffers = 'questOffers',
   RecoverStreak = 'recoverStreak',
   StreakFreezePurchase = 'streakFreezePurchase',
   ReputationPrivileges = 'reputationPrivileges',
   MarketingCta = 'marketingCta',
   Share = 'share',
-  PrivilegedMembers = 'privilegedMembers',
-  TopMembers = 'topMembers',
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   SlackShare = 'slackShare',
@@ -110,6 +108,7 @@ export enum LazyModal {
   ReaderExtensionInstall = 'readerExtensionInstall',
   ReaderPreview = 'readerPreview',
   PostImpressions = 'postImpressions',
+  AgentIntro = 'agentIntro',
 }
 
 export type ModalTabItem = {

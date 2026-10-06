@@ -21,6 +21,9 @@ import { TagCategorySection } from '../../../tags/TagCategorySection';
 import { TagDirectoryListItem } from '../../../tags/TagDirectoryListItem';
 import { ClickableText } from '../../../buttons/ClickableText';
 import { Loader } from '../../../Loader';
+import { TutorialVideoButton } from '../../../video/TutorialVideoButton';
+import { feedTagsTutorialVideoId } from '../../../../lib/video';
+import { feedTagsTutorialVideo } from '../../../../lib/constants';
 
 const columns = 'columns-1 gap-x-6 @xs:columns-2 @xl:columns-3';
 
@@ -130,15 +133,22 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           />
         </div>
       )}
-      <Typography
-        color={TypographyColor.Tertiary}
-        type={TypographyType.Callout}
-      >
-        Tags are a great way to tell the system what you&apos;re interested in.
-        They&apos;re a strong starting signal for your feed, and as you engage
-        with content over time, their weight gradually decreases in favor of
-        stronger signals based on your actual activity.
-      </Typography>
+      <div className="flex flex-col items-start gap-2">
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Callout}
+        >
+          Tags are a great way to tell the system what you&apos;re interested
+          in. They&apos;re a strong starting signal for your feed, and as you
+          engage with content over time, their weight gradually decreases in
+          favor of stronger signals based on your actual activity.
+        </Typography>
+        <TutorialVideoButton
+          videoId={feedTagsTutorialVideoId}
+          videoUrl={feedTagsTutorialVideo}
+          title="Make your feed your own"
+        />
+      </div>
       <section aria-label="My tags" className="flex flex-col gap-3">
         <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
           My tags

@@ -27,6 +27,8 @@ import {
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -101,15 +103,12 @@ export const SquadGrid = ({
       )}
       ref={ad ? ref : undefined}
     >
-      <Link
-        href={permalink}
-        legacyBehavior
-        onClick={ad ? onClickAd : undefined}
-      >
+      <Link href={permalink} legacyBehavior>
         <CardLink
           href={permalink}
           rel={anchorDefaultRel}
           title={source.description}
+          onClick={ad ? onClickAd : undefined}
         />
       </Link>
       <Image
@@ -131,7 +130,12 @@ export const SquadGrid = ({
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="mb-5 flex-auto">
-            <div className="font-bold typo-title3">{name}</div>
+            <div className="flex items-center gap-1 font-bold typo-title3">
+              {name}
+              {hasSquadFeature(source, 'verified') && (
+                <VerifiedSquadBadge className="size-5" />
+              )}
+            </div>
             <Typography
               className="flex flex-row items-center"
               type={TypographyType.Callout}

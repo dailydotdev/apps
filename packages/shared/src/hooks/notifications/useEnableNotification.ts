@@ -92,14 +92,37 @@ export const useEnableNotification = ({
       source,
       placement,
     });
+    // A blocked permission hands off to the popup window instead, and its
+    // outcome only arrives later through the message listener.
+    const isPopupHandoff = shouldOpenPopup();
     const isEnabled = await onEnablePush(source);
 
     if (!isEnabled) {
+      if (!isPopupHandoff) {
+        logDismiss({
+          kind: NotificationCtaKind.PushCta,
+          targetType: TargetType.EnableNotifications,
+          source,
+          placement,
+          extra: { reason: 'permission_refused' },
+        });
+        setIsDismissed(true);
+      }
+
       return false;
     }
 
     return runEnableAction();
-  }, [logClick, onEnablePush, placement, runEnableAction, source]);
+  }, [
+    logClick,
+    logDismiss,
+    onEnablePush,
+    placement,
+    runEnableAction,
+    setIsDismissed,
+    shouldOpenPopup,
+    source,
+  ]);
 
   const subscribed = isSubscribed || (shouldOpenPopup() && hasPermissionCache);
   const enabledJustNow = subscribed && acceptedJustNow;

@@ -205,6 +205,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   experienceLevel?: keyof typeof UserExperienceLevel;
   isTeamMember?: boolean;
   isPlus?: boolean;
+  isReferralLadderEligible?: boolean;
   companies?: Company[];
   contentPreference?: ContentPreference;
   defaultFeedId?: string;

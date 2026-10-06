@@ -12,7 +12,7 @@ import AuthHeader from './AuthHeader';
 import type { AuthFormProps } from './common';
 import { providerMap, SocialProvider } from './common';
 import AuthContext from '../../contexts/AuthContext';
-import type { ProfileFormHint } from '../../hooks/useProfileForm';
+import type { ProfileFormHint } from '../../graphql/users';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import AuthForm from './AuthForm';

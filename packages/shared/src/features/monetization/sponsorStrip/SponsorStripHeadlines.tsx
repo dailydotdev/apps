@@ -1,16 +1,10 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback } from 'react';
-import classNames from 'classnames';
 import Link from '../../../components/utilities/Link';
 import { useLogContext } from '../../../contexts/LogContext';
 import type { StatuslineItem } from '../../../graphql/statusline';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { feedHighlightsLogEvent } from '../../../lib/feed';
-import {
-  feedFrameInsetX,
-  feedGutter,
-  feedWidth,
-} from '../../../components/utilities/common';
 import { LogEvent, Origin } from '../../../lib/log';
 
 const HEADLINES_FEED_NAME = 'sponsor-strip-headlines';
@@ -30,10 +24,8 @@ const fadeStyle: CSSProperties = {
 
 export const SponsorStripHeadlines = ({
   headlines,
-  widthStyle,
 }: {
   headlines: StatuslineItem[];
-  widthStyle: CSSProperties;
 }): ReactElement => {
   const { logEvent } = useLogContext();
 
@@ -74,45 +66,37 @@ export const SponsorStripHeadlines = ({
   return (
     <div
       data-testid="sponsorStripHeadlines"
-      className="w-full border-t border-border-subtlest-tertiary bg-background-default"
+      className="flex h-8 w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 tablet:px-8"
     >
-      <div className={classNames(feedGutter, feedWidth)} style={widthStyle}>
-        {/* See the sponsor row: the frame inset is nested rather than stacked
-          so the three horizontal paddings compose instead of racing. */}
-        <div
-          className={classNames('flex h-8 items-center gap-4', feedFrameInsetX)}
-        >
-          {/* The sacrificial left zone, and the reason the strip has two rows
-            at all: the browser paints its link-status bubble over this corner,
-            and a label losing a word to it costs nothing, where the row above
-            it is the one somebody paid for. */}
-          <span className="shrink-0 whitespace-nowrap text-text-quaternary typo-caption2">
-            Trending
-          </span>
-          {/* Scrollable rather than merely clipped: the row carries more than
-            it can show, and a reader who wants the headline under the fade has
-            no other way to reach it. The bar is hidden because the fade
-            already says the row continues. */}
-          <div
-            className="no-scrollbar flex min-w-0 flex-1 items-center gap-5 overflow-x-auto"
-            style={fadeStyle}
-          >
-            {headlines.map((item, index) => (
-              <Link href={item.permalink} key={item.id}>
-                <a
-                  href={item.permalink}
-                  onClick={() => onHeadlineClick(item, index)}
-                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
-                >
-                  {item.title}
-                  {item.upvotes > 0 && (
-                    <span className="text-text-quaternary">{`▲${item.upvotes}`}</span>
-                  )}
-                </a>
-              </Link>
-            ))}
-          </div>
-        </div>
+      {/* The sacrificial left zone, and the reason the strip has two rows
+        at all: the browser paints its link-status bubble over this corner,
+        and a label losing a word to it costs nothing, where the row above
+        it is the one somebody paid for. */}
+      <span className="shrink-0 whitespace-nowrap text-text-quaternary typo-caption2">
+        Trending
+      </span>
+      {/* Scrollable rather than merely clipped: the row carries more than
+        it can show, and a reader who wants the headline under the fade has
+        no other way to reach it. The bar is hidden because the fade
+        already says the row continues. */}
+      <div
+        className="no-scrollbar flex min-w-0 flex-1 items-center gap-5 overflow-x-auto"
+        style={fadeStyle}
+      >
+        {headlines.map((item, index) => (
+          <Link href={item.permalink} key={item.id}>
+            <a
+              href={item.permalink}
+              onClick={() => onHeadlineClick(item, index)}
+              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-text-secondary typo-caption1 hover:text-text-primary"
+            >
+              {item.title}
+              {item.upvotes > 0 && (
+                <span className="text-text-quaternary">{`▲${item.upvotes}`}</span>
+              )}
+            </a>
+          </Link>
+        ))}
       </div>
     </div>
   );

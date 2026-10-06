@@ -35,13 +35,14 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
-import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import { useScrollRestoration } from '@dailydotdev/shared/src/hooks/useScrollRestoration';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import { installDomMutationGuard } from '@dailydotdev/shared/src/lib/domMutationGuard';
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
@@ -51,6 +52,7 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
+import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
@@ -59,6 +61,7 @@ import { PixelsProvider } from '../context/PixelsContext';
 import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
+installDomMutationGuard();
 
 const AuthModal = dynamic(
   () =>
@@ -162,6 +165,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useCheckCoresRole();
   useCheckLocation();
+  useSlackShareReturn();
 
   const activeModalType = modal?.type;
   const hotAndColdModalQuery = router.query[hotAndColdModalQueryKey];
@@ -427,7 +431,7 @@ export default function App(
   const version = useWebappVersion();
   const deviceId = useDeviceId();
   useError();
-  useManualScrollRestoration();
+  useScrollRestoration();
   useScrollbarWidth();
 
   useEffect(() => {

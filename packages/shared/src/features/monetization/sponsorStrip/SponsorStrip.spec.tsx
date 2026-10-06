@@ -11,9 +11,20 @@ import { LogEvent } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
+import {
+  NARROW_SLOT_GAP,
+  SLOT_GAP,
+  WALL_MAX_WIDTH,
+  WIDE_SLOT_GAP_MAX,
+  WIDE_WALL_WIDTH,
+} from './sponsorLogoSizing';
 
 jest.mock('./fetchSponsorStripAds', () => ({
   fetchSponsorStripAds: jest.fn(),
+}));
+
+jest.mock('../../../hooks/utils/useThemedAsset', () => ({
+  useIsLightTheme: () => false,
 }));
 
 const mockFetch = jest.mocked(fetchSponsorStripAds);
@@ -56,7 +67,7 @@ const COMMUNITY = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10'];
 // Wide enough for eight wall slots — four premium, four community — which
 // leaves the community deck bigger than the row it fills, the only state in
 // which a rotation has anywhere to go.
-const WALL_WIDTH = 900;
+const WALL_WIDTH = WALL_MAX_WIDTH * 8 + SLOT_GAP * 7;
 const COMMUNITY_SLOTS = 4;
 
 const ads = bar({
@@ -144,6 +155,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.restoreAllMocks();
   jest.useRealTimers();
   document.documentElement.style.removeProperty('--sponsor-strip-height');
 });
@@ -155,10 +167,12 @@ const setHeadlines = (next: StatuslineItem[]) => {
 const publishedHeight = (): string =>
   document.documentElement.style.getPropertyValue('--sponsor-strip-height');
 
-// SLOT_WIDTH 88 + SLOT_GAP 16: floor((200 + 16) / 104) === 2 wall slots, fewer
-// than the four premium marks the deck holds.
-const NARROW_WALL_WIDTH = 200;
+// Fewer slots than the four premium marks the deck holds. A wall this
+// narrow is fitted with the tablet pair, whose minimum is NARROW_SLOT_GAP.
 const NARROW_WALL_SLOTS = 2;
+const NARROW_WALL_WIDTH =
+  WALL_MAX_WIDTH * NARROW_WALL_SLOTS +
+  NARROW_SLOT_GAP * (NARROW_WALL_SLOTS - 1);
 
 const setWallWidth = (width: number) =>
   jest
@@ -251,7 +265,7 @@ it('should let the gold mark take its own width', async () => {
   // is an image too.
   const gold = within(screen.getByTitle('gold')).getByAltText('gold');
 
-  expect(gold).toHaveStyle({ height: '20px', width: 'auto' });
+  expect(gold).toHaveStyle({ height: '18px', width: 'auto' });
 });
 
 it('should give a masked wall mark a box to paint into', async () => {
@@ -264,7 +278,7 @@ it('should give a masked wall mark a box to paint into', async () => {
   const company = shownLogos().find((name) => PREMIUM.includes(name)) as string;
   const wall = within(screen.getByTitle(company)).getByLabelText(company);
 
-  expect(wall).toHaveStyle({ height: '17px', width: '60px' });
+  expect(wall).toHaveStyle({ height: '16px', width: '56px' });
 });
 
 it('should open air time for every logo on the row', async () => {
@@ -539,4 +553,82 @@ it('should collapse the reserved row once the query answers empty', async () => 
 
   expect(screen.queryByTestId('sponsorStripHeadlines')).not.toBeInTheDocument();
   expect(publishedHeight()).toEqual('40px');
+});
+
+const mockLogoImages = () => {
+  const images: HTMLImageElement[] = [];
+  jest.spyOn(window, 'Image').mockImplementation(() => {
+    const image = document.createElement('img');
+    images.push(image);
+    return image;
+  });
+  return images;
+};
+
+const loadLogos = (images: HTMLImageElement[], ratio: number) => {
+  act(() => {
+    images.forEach((image) => {
+      Object.defineProperties(image, {
+        naturalWidth: { value: ratio * 100 },
+        naturalHeight: { value: 100 },
+      });
+      image.dispatchEvent(new Event('load'));
+    });
+  });
+};
+
+it('should fill unused row space after measuring all candidates without logging hidden ads', async () => {
+  const images = mockLogoImages();
+  // Exactly twelve 2:1 marks (32px) at the minimum gap. Unmeasured, every
+  // mark is budgeted at the maximum width, so only six fit.
+  setWallWidth(32 * 12 + SLOT_GAP * 11);
+  renderStrip();
+  await settle();
+
+  expect(shownLogos()).toHaveLength(7);
+  expect(callsFor(AdActions.Impression)).toHaveLength(7);
+  expect(images).toHaveLength(4 + COMMUNITY.length);
+
+  loadLogos(images, 2);
+  await settle();
+
+  const logos = shownLogos();
+  expect(logos.filter((company) => PREMIUM.includes(company))).toHaveLength(4);
+  expect(logos.filter((company) => COMMUNITY.includes(company))).toHaveLength(
+    8,
+  );
+  expect(callsFor(AdActions.Impression)).toHaveLength(13);
+  expect(logEventStart).toHaveBeenCalledTimes(13);
+});
+
+it('should open the gap to a wide row\u2019s pair without re-fitting after mount', async () => {
+  const images = mockLogoImages();
+  setWallWidth(WIDE_WALL_WIDTH);
+  renderStrip();
+  await settle();
+  loadLogos(images, 2);
+  await settle();
+
+  // Every mark in the deck fits with room to spare, so the gap sits at the
+  // wide ceiling rather than spreading to fill the row.
+  expect(shownLogos()).toHaveLength(1 + 4 + COMMUNITY.length);
+  expect(callsFor(AdActions.Impression)).toHaveLength(1 + 4 + COMMUNITY.length);
+  const wall = screen.getByTestId('sponsorStripRow').lastElementChild;
+  expect(wall).toHaveStyle({ gap: `${WIDE_SLOT_GAP_MAX}px` });
+});
+
+it('should fit measured logos on a row narrower than the maximum logo width', async () => {
+  const images = mockLogoImages();
+  // Two square marks and the tablet gap between them, inside one maximum
+  // width (a wall this narrow is fitted with the narrow pair).
+  setWallWidth(16 * 2 + NARROW_SLOT_GAP);
+  renderStrip();
+  await settle();
+
+  expect(shownLogos()).toEqual(['gold']);
+  loadLogos(images, 1);
+  await settle();
+
+  expect(shownLogos()).toHaveLength(3);
+  expect(callsFor(AdActions.Impression)).toHaveLength(3);
 });

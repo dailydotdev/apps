@@ -18,6 +18,7 @@ import type {
   PrebidBid,
 } from '../../../features/monetization/prebid';
 import {
+  configurePrebid,
   renderPrebidBid,
   requestKueezBid,
 } from '../../../features/monetization/prebid';
@@ -65,6 +66,7 @@ const mockSlotMaps = jest.requireMock('./slots') as {
 
 const mockUseFeature = jest.mocked(useFeature);
 const mockRequestBid = jest.mocked(requestKueezBid);
+const mockConfigurePrebid = jest.mocked(configurePrebid);
 const mockRenderBid = jest.mocked(renderPrebidBid);
 
 const flags = { read: true };
@@ -134,6 +136,9 @@ const setOrganicSlots = (slots: AdSlots): void => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // Every test is its own visit: an unfilled slot is remembered per history
+  // entry, and jsdom would otherwise put the whole file on one.
+  window.history.replaceState({ key: expect.getState().currentTestName }, '');
   mockConstants.isDevelopment = false;
   flags.read = true;
   mockSlotMaps.READ_AD_SLOTS = {};
@@ -252,6 +257,46 @@ describe('ReadAdSlot', () => {
     );
   });
 
+  it('comes back collapsed without a new auction on the same history entry', async () => {
+    // Back navigation remounts the page. A slot above the restored position
+    // never nears the viewport again, so a pending one would hold its whole
+    // reservation there and move the reader off the spot they left.
+    answerWith({ status: 'no_bid' });
+    setSlots({ '2': {} });
+    const { unmount } = render(
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
+    );
+    await settleAuction();
+    unmount();
+
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
+
+    // Never requested, so there is no creative node to reach it through.
+    const wrapper = document.querySelector('[data-ad-status]');
+    expect(wrapper).toHaveAttribute('data-ad-status', 'unfilled');
+    expect(wrapper).toHaveClass('!hidden');
+    expect(mockRequestBid).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs the auction again on a fresh visit to the page', async () => {
+    answerWith({ status: 'no_bid' });
+    setSlots({ '2': {} });
+    const { unmount } = render(
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
+    );
+    await settleAuction();
+    unmount();
+
+    window.history.pushState({ key: 'fresh-visit' }, '');
+    leaveAuctionPending();
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
+
+    expect(screen.getByTestId('ad-slot-2').parentElement).not.toHaveClass(
+      '!hidden',
+    );
+    expect(mockRequestBid).toHaveBeenCalledTimes(2);
+  });
+
   it('keeps the reservation standing while the auction is still out', () => {
     // Hiding early is unrecoverable in the reader's eyes: the box would jump
     // back in under them when a slow bid lands.
@@ -302,6 +347,32 @@ describe('ReadAdSlot', () => {
     );
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('waits on the CMP only where the TCF stub loads', () => {
+    setSlots({ '2': {} });
+    const renderFrom = (region: string) =>
+      rtlRender(
+        <AuthContext.Provider
+          value={
+            { isAuthReady: true, geo: { region } } as unknown as AuthContextData
+          }
+        >
+          <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />
+        </AuthContext.Provider>,
+      );
+
+    // Prebid cancels every auction where it expects a CMP and finds none, so
+    // the scope has to match Iubenda.tsx's, not the wider isGdprCovered.
+    renderFrom('IN');
+    expect(mockConfigurePrebid).toHaveBeenLastCalledWith(
+      expect.objectContaining({ withConsentManagement: false }),
+    );
+
+    renderFrom('GB');
+    expect(mockConfigurePrebid).toHaveBeenLastCalledWith(
+      expect.objectContaining({ withConsentManagement: true }),
+    );
   });
 });
 

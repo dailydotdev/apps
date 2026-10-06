@@ -7,6 +7,11 @@ import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostAnsweredQuestions } from './PostAnsweredQuestions';
 import { ButtonSize } from '../buttons/common';
+import { PostSignupWidget } from './PostSignupWidget';
+import {
+  useMobileAppHeader,
+  useMobileAppHeaderIconOnlyRead,
+} from '../../features/getApp/hooks/useMobileAppHeader';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -40,6 +45,8 @@ export function BasePostContent({
   const { onCopyPostLink } = engagementProps ?? {};
   const postPageNavigationProps = isPostPage ? navigationProps : undefined;
   const onReadArticle = postPageNavigationProps?.onReadArticle;
+  const isMobileAppHeader = useMobileAppHeader();
+  const isIconOnlyRead = useMobileAppHeaderIconOnlyRead();
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -57,14 +64,18 @@ export function BasePostContent({
         >
           <PostHeaderActions
             post={post}
-            className="ml-auto"
+            className={isMobileAppHeader ? undefined : 'ml-auto'}
             contextMenuId="post-page-header-actions"
             onReadArticle={onReadArticle}
             buttonSize={ButtonSize.Small}
+            hideOptions={isMobileAppHeader}
+            inlineActions={isIconOnlyRead}
+            hideSubscribeAction={isMobileAppHeader}
           />
         </GoBackHeaderMobile>
       )}
       {children}
+      {!!post?.id && <PostSignupWidget post={post} inline className="my-6" />}
       {isPostPage && <PostAnsweredQuestions post={post} className="mt-6" />}
       {aboveComments}
       {!!engagementProps && (

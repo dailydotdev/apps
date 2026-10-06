@@ -79,8 +79,6 @@ function PostEngagements({
   const { isPlus } = usePlusSubscription();
   const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
-  const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
-    useState<string>();
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
     useState<string>();
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -101,8 +99,6 @@ function PostEngagements({
     if (!isNew) {
       return;
     }
-
-    setPermissionNotificationCommentId(comment.id);
 
     if (
       isSourcePublicSquad(post.source) &&
@@ -187,7 +183,9 @@ function PostEngagements({
           composer — the one place on the page where someone has already
           decided to engage. */}
       <DiscussionShareRow className="mt-3" post={post} withSquads />
-      {!isPlus && !hideInternalAd && <AdAsComment postId={post.id} />}
+      {!isPlus && !hideInternalAd && (
+        <AdAsComment postId={post.id} source={post.source} />
+      )}
       <PostComments
         post={post}
         sortBy={sortBy}
@@ -197,7 +195,6 @@ function PostEngagements({
         isComposerOpen={isComposerOpen}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
-        permissionNotificationCommentId={permissionNotificationCommentId}
         joinNotificationCommentId={joinNotificationCommentId}
         onCommented={onCommented}
       />

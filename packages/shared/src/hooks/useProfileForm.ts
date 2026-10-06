@@ -2,15 +2,15 @@ import { useContext, useState } from 'react';
 import type { UseMutateFunction } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import { handleRegex, UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
+import type { ProfileFormHint } from '../graphql/users';
+import {
+  handleRegex,
+  parseProfileFormHint,
+  UPDATE_USER_PROFILE_MUTATION,
+} from '../graphql/users';
 import type { LoggedUser, UserFlagsPublic, UserProfile } from '../lib/user';
 import type { ResponseError } from '../graphql/common';
 import { errorMessage, gqlClient } from '../graphql/common';
-
-export interface ProfileFormHint {
-  username?: string;
-  name?: string;
-}
 
 export interface UpdateProfileParameters extends Partial<UserProfile> {
   upload?: File;
@@ -107,12 +107,12 @@ const useProfileForm = ({
         return;
       }
 
-      const firstError = err.response.errors[0];
-      if (!firstError?.message) {
+      const data = parseProfileFormHint(err.response.errors[0]?.message);
+
+      if (!data) {
         return;
       }
 
-      const data: ProfileFormHint = JSON.parse(firstError.message);
       setHint(data);
     },
   });

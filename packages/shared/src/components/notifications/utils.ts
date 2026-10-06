@@ -24,7 +24,6 @@ import {
   MegaphoneIcon,
   WorldIcon,
 } from '../icons';
-import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { AgentIcon } from '../icons/Agent';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
@@ -102,6 +101,8 @@ export enum NotificationType {
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
   WorldDistrictLevelUp = 'world_district_level_up',
+  ReferralSignup = 'referral_signup',
+  CreatorAchievement = 'creator_achievement',
 }
 
 export enum NotificationIconType {
@@ -281,12 +282,6 @@ export const notificationMutingCopy: Partial<
   },
 };
 
-export type SubscriptionCallback = (
-  isSubscribed: boolean,
-  source?: NotificationPromptSource,
-  existing_permission?: boolean,
-) => unknown;
-
 export const FOLLOWING_KEYS = [
   NotificationType.SourcePostAdded,
   NotificationType.UserPostAdded,
@@ -314,6 +309,7 @@ export const ACHIEVEMENT_KEYS = [
 // would mean the only way to stop hearing about a world is to also stop
 // hearing about badges, under a label that never mentions worlds.
 export const WORLD_KEYS = [NotificationType.WorldDistrictLevelUp];
+export const REFERRAL_KEYS = [NotificationType.ReferralSignup];
 export const MENTION_KEYS = [
   NotificationType.PostMention,
   NotificationType.CommentMention,
@@ -454,6 +450,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.WorldDistrictLevelUp,
+    NotificationType.ReferralSignup,
   ],
 };
 
@@ -719,6 +716,13 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     id: NotificationType.PostAnalytics,
     label: 'Post analytics',
     description: 'Get updates about how your posts are performing.',
+    group: false,
+  },
+  {
+    id: NotificationType.CreatorAchievement,
+    label: 'Creator achievements',
+    description:
+      'Get notified when you earn a creator achievement, like a top spot in a monthly category ranking.',
     group: false,
   },
 ];

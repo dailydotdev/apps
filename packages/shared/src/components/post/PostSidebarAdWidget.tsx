@@ -16,7 +16,8 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useAdQuery } from '../../features/monetization/useAdQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
-import { AdActions, AdPlacement } from '../../lib/ads';
+import { AdActions, AdPlacement, shouldSkipSourceAds } from '../../lib/ads';
+import type { Post } from '../../graphql/posts';
 import { adLogEvent } from '../../lib/feed';
 import { adImprovementsV3Feature } from '../../lib/featureManagement';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
@@ -31,9 +32,15 @@ import {
 } from '../typography/Typography';
 import { AdvertiseLink } from '../cards/ad/common/AdvertiseLink';
 import { Image } from '../image/Image';
+import {
+  isSquadAd,
+  SquadAdEntityCard,
+} from '../cards/ad/squad/SquadAdEntityCard';
 
 interface PostSidebarAdWidgetProps {
   postId: string;
+  /** The post's source; an ad-free squad gets no ad and no ad request. */
+  source: Post['source'];
   /**
    * `card` (default) is the boxed sidebar widget. `inline` is a flat,
    * borderless-background layout for in-content placements: the company name
@@ -47,6 +54,7 @@ interface PostSidebarAdWidgetProps {
 
 export function PostSidebarAdWidget({
   postId,
+  source,
   variant = 'card',
   className,
 }: PostSidebarAdWidgetProps): ReactElement | null {
@@ -54,11 +62,12 @@ export function PostSidebarAdWidget({
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const adImprovementsV3 = Boolean(useFeature(adImprovementsV3Feature));
+  const isAdFree = isPlus || shouldSkipSourceAds(source);
 
   const { data: ad, isPending } = useAdQuery({
     placement: AdPlacement.PostSidebar,
     queryKey: generateQueryKey(RequestKey.Ads, user, postId, 'post-sidebar'),
-    enabled: !isPlus,
+    enabled: !isAdFree,
     staleTime: StaleTime.OneHour,
   });
 
@@ -83,16 +92,24 @@ export function PostSidebarAdWidget({
     [onAdAction],
   );
 
+  const squadAd = isSquadAd(ad) ? ad : undefined;
+  const shouldShowAd =
+    !isAdFree && (squadAd ? squadAd.data.source.id !== source?.id : !!ad?.link);
+
   useEffect(() => {
-    if (!ad || ad.impressionStatus === ImpressionStatus.LOGGED) {
+    if (
+      !ad ||
+      !shouldShowAd ||
+      ad.impressionStatus === ImpressionStatus.LOGGED
+    ) {
       return;
     }
 
     onAdAction(AdActions.Impression);
     ad.impressionStatus = ImpressionStatus.LOGGED;
-  }, [ad, onAdAction]);
+  }, [ad, onAdAction, shouldShowAd]);
 
-  if (isPlus) {
+  if (isAdFree) {
     return null;
   }
 
@@ -100,8 +117,20 @@ export function PostSidebarAdWidget({
     return <EntityCardSkeleton className={className} />;
   }
 
-  if (!ad?.link) {
+  if (!ad || !shouldShowAd) {
     return null;
+  }
+
+  if (squadAd) {
+    return (
+      <SquadAdEntityCard
+        ad={squadAd}
+        variant={variant}
+        className={className?.container}
+        onClickAd={() => onAdAction(AdActions.Click)}
+        onViewable={onViewable}
+      />
+    );
   }
 
   const company = ad.company?.trim();

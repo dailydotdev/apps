@@ -1,20 +1,13 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
-import EnableNotification from '../notifications/EnableNotification';
 import type { CommentBoxProps } from './CommentBox';
 import CommentBox from './CommentBox';
 import SubComment from './SubComment';
 import CollapsedRepliesPreview from './CollapsedRepliesPreview';
-import AuthContext from '../../contexts/AuthContext';
-import {
-  LogEvent,
-  NotificationCtaPlacement,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
@@ -38,7 +31,6 @@ type ClassName = {
 
 export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment' | 'className'> {
-  permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
   className?: ClassName;
@@ -58,6 +50,10 @@ export interface MainCommentProps
   forceInlineComposer?: boolean;
 }
 
+// Once rendered, a comment renders eagerly for the rest of the session, remounts
+// included.
+const renderedCommentIds = new Set<string>();
+
 const shouldShowBannerOnComment = (
   commentId: string | undefined,
   comment: Comment,
@@ -71,7 +67,6 @@ export default function MainComment({
   className,
   comment,
   appendTooltipTo,
-  permissionNotificationCommentId,
   joinNotificationCommentId,
   onCommented,
   lazy = false,
@@ -83,12 +78,7 @@ export default function MainComment({
   forceInlineComposer = false,
   ...props
 }: MainCommentProps): ReactElement {
-  const { user } = useContext(AuthContext);
   const { logEvent } = useLogContext();
-  const showNotificationPermissionBanner = useMemo(
-    () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
-    [permissionNotificationCommentId, comment],
-  );
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
@@ -110,11 +100,20 @@ export default function MainComment({
   const commentChildren = comment.children?.edges ?? [];
   const replyCount = commentChildren.length;
 
-  const initialInView = !lazy;
+  const [initialInView] = useState(
+    () => !lazy || renderedCommentIds.has(comment.id),
+  );
   const { ref: inViewRef, inView } = useInView({
     triggerOnce: true,
     initialInView,
+    skip: initialInView,
   });
+
+  useEffect(() => {
+    if (inView) {
+      renderedCommentIds.add(comment.id);
+    }
+  }, [inView, comment.id]);
 
   const [areRepliesExpanded, setAreRepliesExpanded] = useState(true);
   const showThreadRepliesToggle = isModalThread && replyCount > 0;
@@ -136,10 +135,10 @@ export default function MainComment({
     <section
       ref={inViewRef}
       className={classNames(
-        'flex scroll-mt-16 flex-col items-stretch border-border-subtlest-tertiary',
+        'flex flex-col items-stretch border-border-subtlest-tertiary',
         isModalThread
-          ? 'relative rounded-none border-0 bg-transparent'
-          : 'rounded-16',
+          ? 'relative scroll-mt-16 rounded-none border-0 bg-transparent'
+          : 'scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))] rounded-16',
         className?.container,
         !isModalThread && inView && 'border',
       )}
@@ -244,16 +243,6 @@ export default function MainComment({
           squad={props.post?.source as Squad}
           logOrigin={props.origin}
           post={props.post}
-        />
-      )}
-      {!showJoinSquadBanner && showNotificationPermissionBanner && (
-        <EnableNotification
-          className={commentChildren.length === 0 ? 'mt-3' : undefined}
-          placement={NotificationCtaPlacement.CommentInline}
-          source={NotificationPromptSource.NewComment}
-          contentName={
-            user?.id !== comment.author?.id ? comment.author?.name : undefined
-          }
         />
       )}
       {inView && replyCount > 0 && !areRepliesExpanded && (

@@ -16,6 +16,8 @@ export const SHORTCUT_DRAG_MIME = 'application/x-dailydev-shortcut';
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
   title: string;
+  /** Right after the title, e.g. a verified squad's seal. */
+  titleSuffix?: ReactNode;
   titleClassName?: string;
   itemClassName?: string;
   rightIcon?: (active: boolean) => ReactElement;
@@ -278,7 +280,14 @@ export const ItemInner = ({
         title={shouldShowLabel ? item.title : undefined}
         aria-hidden={isLabelHidden}
       >
-        {item.title}
+        {item.titleSuffix ? (
+          <span className="flex min-w-0 items-center gap-1">
+            <span className="truncate">{item.title}</span>
+            {item.titleSuffix}
+          </span>
+        ) : (
+          item.title
+        )}
       </span>
       {shouldShowLabel && item.rightIcon && (
         <ItemInnerIcon

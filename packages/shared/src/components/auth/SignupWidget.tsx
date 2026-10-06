@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -33,6 +33,7 @@ const denseContainer =
 interface SignupWidgetProps {
   title: string;
   description: string;
+  children?: ReactNode;
   /** Which surface is asking, for the analytics on the resulting signup. */
   trigger: AuthTriggersType;
   /**
@@ -41,6 +42,7 @@ interface SignupWidgetProps {
    * ranking without putting the rail into a scroll. The legal strip stays.
    */
   dense?: boolean;
+  centered?: boolean;
   className?: string;
 }
 
@@ -57,7 +59,9 @@ export function SignupWidget({
   description,
   trigger,
   dense,
+  centered = false,
   className,
+  children,
 }: SignupWidgetProps): ReactElement {
   const { showLogin } = useAuthContext();
 
@@ -65,10 +69,19 @@ export function SignupWidget({
     <div
       className={classNames(
         'flex flex-col',
-        !dense && 'rounded-16 border border-border-subtlest-tertiary p-4',
+        !dense && 'rounded-16 border border-border-subtlest-tertiary',
+        !dense && !centered && 'p-4',
+        centered &&
+          'relative isolate items-center overflow-hidden bg-background-subtle px-5 py-8 text-center tablet:px-8 tablet:py-10',
         className,
       )}
     >
+      {centered && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-40 bg-gradient-to-b from-theme-overlay-active-cabbage to-transparent"
+        />
+      )}
       <style>
         {`@keyframes signup-widget-gradient-shift {
           0% { background-position: 0% 50%; }
@@ -79,7 +92,8 @@ export function SignupWidget({
       <h3
         className={classNames(
           'font-bold',
-          dense ? 'typo-callout' : 'typo-title3',
+          !centered && (dense ? 'typo-callout' : 'typo-title3'),
+          centered && 'max-w-lg text-balance typo-title2 tablet:typo-title1',
         )}
         style={gradientStyle}
       >
@@ -88,12 +102,19 @@ export function SignupWidget({
       <p
         className={classNames(
           'text-text-tertiary',
-          dense ? 'mt-1 typo-caption1' : 'mt-2 typo-footnote',
+          !centered && (dense ? 'mt-1 typo-caption1' : 'mt-2 typo-footnote'),
+          centered && 'mt-3 max-w-sm text-balance typo-callout',
         )}
       >
         {description}
       </p>
-      <div className={dense ? 'mt-3' : 'mt-4'}>
+      {children}
+      <div
+        className={classNames(
+          centered && 'mt-6 w-full max-w-[26.25rem]',
+          !centered && (dense ? 'mt-3' : 'mt-4'),
+        )}
+      >
         <AuthOptions
           ignoreMessages
           formRef={null as unknown as React.MutableRefObject<HTMLFormElement>}
@@ -101,6 +122,7 @@ export function SignupWidget({
           simplified
           defaultDisplay={AuthDisplay.OnboardingSignup}
           forceDefaultDisplay
+          signupStyle={centered ? 'singlePrimary' : undefined}
           onAuthStateUpdate={(props) => {
             showLogin({
               trigger,
@@ -115,7 +137,12 @@ export function SignupWidget({
             variant: ButtonVariant.Primary,
             size: dense ? ButtonSize.Small : ButtonSize.Medium,
           }}
-          className={{ container: dense ? denseContainer : undefined }}
+          className={{
+            container: classNames(
+              centered && '!min-h-0 !overflow-visible',
+              !centered && dense && denseContainer,
+            ),
+          }}
           hideLoginLink
           compact
         />

@@ -55,6 +55,10 @@ jest.mock('../../hooks/feed/useFeedName', () => ({
 
 jest.mock('../../hooks/useActiveNav', () => jest.fn());
 
+jest.mock('../../features/getApp/components/MobileAppHeader', () => ({
+  MobileAppHeader: () => null,
+}));
+
 const mockUseSettingsContext = useSettingsContext as jest.Mock;
 const mockUseActiveFeedNameContext = useActiveFeedNameContext as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
@@ -111,7 +115,7 @@ describe('MainLayoutHeader', () => {
     const hydratedHeader = screen.getByRole('banner');
 
     expect(hydratedHeader).toBe(initialHeader);
-    expect(hydratedHeader).toHaveClass('sticky', 'top-0');
+    expect(hydratedHeader).toHaveClass('sticky');
     expect(screen.getByTestId('spotlight-trigger')).toBeInTheDocument();
     expect(recoverableErrors).toHaveLength(0);
 

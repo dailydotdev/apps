@@ -164,7 +164,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {!hideSignupWidget && <PostSignupWidget />}
+      {!hideSignupWidget && <PostSignupWidget post={post} />}
       {withAd(PostWidgetPosition.Source, sourceCard)}
       {withAd(
         PostWidgetPosition.Creator,
@@ -183,6 +183,7 @@ export function PostWidgets({
           PostWidgetPosition.DirectAd,
           <PostSidebarAdWidget
             postId={post.id}
+            source={post.source}
             className={{ container: cardClasses }}
           />,
         )}
@@ -201,12 +202,11 @@ export function PostWidgets({
         </>,
       )}
       {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
-      {tokenRefreshed && (
-        <FurtherReading
-          currentPost={post}
-          hideToc={hideToc}
-          betweenSections={getRailAd?.(PostWidgetPosition.SimilarPosts)}
-        />
+      {withAd(
+        PostWidgetPosition.SimilarPosts,
+        tokenRefreshed && (
+          <FurtherReading currentPost={post} hideToc={hideToc} />
+        ),
       )}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />

@@ -1,5 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import type { ReactElement } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from 'react';
+import type { ForwardedRef, ReactElement } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 import { TextField } from '../fields/TextField';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -12,14 +18,23 @@ import {
   detectUserPlatform,
   getPlatformIcon,
   getPlatformLabel,
+  isSameSocialLinkUrl,
+  normalizeSocialLinkUrl,
   PLATFORM_LABELS,
 } from '../../lib/socialLink';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 
 export interface SocialLinksInputProps {
   name: string;
   label?: string;
   hint?: string;
+  isLoading?: boolean;
+  isError?: boolean;
+}
+
+export interface SocialLinksInputHandle {
+  flushPendingUrl: () => boolean;
 }
 
 /**
@@ -35,14 +50,19 @@ const getSocialLinkDisplay = (link: UserSocialLink): SocialLinkDisplay => {
   };
 };
 
-export function SocialLinksInput({
-  name,
-  label = 'Links',
-  hint = "Paste any URL and we'll auto-detect the platform",
-}: SocialLinksInputProps): ReactElement {
-  const { control } = useFormContext();
+function SocialLinksInputComponent(
+  {
+    name,
+    label = 'Links',
+    hint = "Paste any URL and we'll auto-detect the platform",
+    isLoading = false,
+    isError = false,
+  }: SocialLinksInputProps,
+  ref: ForwardedRef<SocialLinksInputHandle>,
+): ReactElement {
+  const { clearErrors, control, setError } = useFormContext();
   const {
-    field: { value = [], onChange },
+    field: { value = [], onBlur, onChange },
     fieldState: { error },
   } = useController({
     name,
@@ -61,55 +81,92 @@ export function SocialLinksInput({
     ? PLATFORM_LABELS[detectedPlatform]
     : null;
 
+  const updateUrl = useCallback(
+    (nextUrl: string) => {
+      setUrl(nextUrl);
+      clearErrors(name);
+    },
+    [clearErrors, name],
+  );
+
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(e.target.value);
+    updateUrl(e.target.value);
   };
 
-  const handleAdd = useCallback(() => {
-    const trimmedUrl = url.trim();
-    if (!trimmedUrl) {
-      return;
-    }
+  const commitPendingUrl = useCallback(
+    ({ allowDuplicate = false } = {}) => {
+      const trimmedUrl = url.trim();
 
-    // Basic URL validation
-    try {
-      const parsedUrl = new URL(
-        trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`,
-      );
-      // Normalize URL by removing trailing slash for consistency
-      const normalizedUrl = parsedUrl.href.replace(/\/$/, '');
-
-      // Check if URL already exists
-      if (
-        links.some(
-          (link) =>
-            link.url.toLowerCase().replace(/\/$/, '') ===
-            normalizedUrl.toLowerCase(),
-        )
-      ) {
-        displayToast('This link has already been added');
-        return;
+      if (!trimmedUrl) {
+        clearErrors(name);
+        return true;
       }
 
-      const newLink: UserSocialLink = {
-        url: normalizedUrl,
-        platform: detectedPlatform || 'other',
-      };
+      const normalizedUrl = normalizeSocialLinkUrl(trimmedUrl);
+      if (!normalizedUrl) {
+        setError(name, {
+          type: 'manual',
+          message: 'Please enter a valid URL',
+        });
+        return false;
+      }
 
-      onChange([...links, newLink]);
-      setUrl('');
-    } catch {
-      displayToast('Please enter a valid URL');
-    }
-  }, [url, detectedPlatform, links, onChange, displayToast]);
+      const isDuplicate = links.some((link) =>
+        isSameSocialLinkUrl(link.url, normalizedUrl),
+      );
+
+      if (isDuplicate) {
+        displayToast('This link has already been added');
+
+        if (allowDuplicate) {
+          updateUrl('');
+        }
+
+        return allowDuplicate;
+      }
+
+      const platform = detectUserPlatform(trimmedUrl);
+
+      onChange([
+        ...links,
+        {
+          url: normalizedUrl,
+          platform: platform || 'other',
+        },
+      ]);
+      updateUrl('');
+      clearErrors(name);
+
+      return true;
+    },
+    [
+      clearErrors,
+      displayToast,
+      links,
+      name,
+      onChange,
+      setError,
+      updateUrl,
+      url,
+    ],
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      flushPendingUrl: () => commitPendingUrl({ allowDuplicate: true }),
+    }),
+    [commitPendingUrl],
+  );
 
   const handleRemove = useCallback(
     (index: number) => {
       const newLinks = [...links];
       newLinks.splice(index, 1);
       onChange(newLinks);
+      clearErrors(name);
     },
-    [links, onChange],
+    [clearErrors, links, name, onChange],
   );
 
   const displayLinks = useMemo(() => links.map(getSocialLinkDisplay), [links]);
@@ -131,18 +188,22 @@ export function SocialLinksInput({
 
       {/* URL input */}
       <TextField
-        type="url"
+        type="text"
+        inputMode="url"
         inputId="socialLinkUrl"
         label="Add link"
         placeholder="Paste a URL (e.g., github.com/username)"
         value={url}
         onChange={handleUrlChange}
+        onBlur={onBlur}
+        disabled={isLoading || isError}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            handleAdd();
+            commitPendingUrl();
           }
         }}
+        valid={!error}
         fieldType="secondary"
         actionButton={
           <Button
@@ -150,8 +211,8 @@ export function SocialLinksInput({
             variant={ButtonVariant.Secondary}
             size={ButtonSize.XSmall}
             icon={<PlusIcon />}
-            onClick={handleAdd}
-            disabled={!url.trim()}
+            onClick={() => commitPendingUrl()}
+            disabled={isLoading || isError || !url.trim()}
           >
             Add
           </Button>
@@ -168,12 +229,30 @@ export function SocialLinksInput({
         </div>
       )}
 
+      {/* Loading / failed to load */}
+      {isLoading && (
+        <div className="flex flex-col gap-2">
+          <ElementPlaceholder className="h-14 rounded-12" />
+          <ElementPlaceholder className="h-14 rounded-12" />
+        </div>
+      )}
+
+      {isError && (
+        <Typography
+          type={TypographyType.Footnote}
+          className="text-status-error"
+        >
+          We could not load your links. Refresh the page to try again.
+        </Typography>
+      )}
+
       {/* Link list */}
-      {displayLinks.length > 0 && (
+      {!isLoading && !isError && displayLinks.length > 0 && (
         <div className="flex flex-col gap-2">
           {displayLinks.map((link, index) => (
             <div
               key={link.url}
+              data-testid="social-link-row"
               className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-3"
             >
               {/* Platform icon */}
@@ -219,3 +298,6 @@ export function SocialLinksInput({
     </div>
   );
 }
+
+export const SocialLinksInput = forwardRef(SocialLinksInputComponent);
+SocialLinksInput.displayName = 'SocialLinksInput';

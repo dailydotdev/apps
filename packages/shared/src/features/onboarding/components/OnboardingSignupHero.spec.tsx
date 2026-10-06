@@ -28,6 +28,10 @@ jest.mock('../../../components/auth/SignupDisclaimer', () => ({
   default: () => <div data-testid="disclaimer" />,
 }));
 
+jest.mock('../../../components/referral/ReferralInviterCard', () => ({
+  ReferralInviterCard: () => <div data-testid="inviter-card" />,
+}));
+
 jest.mock('../../../hooks', () => ({
   ViewSize: { MobileL: 'mobileL' },
   useViewSize: jest.fn(() => false),
@@ -232,6 +236,30 @@ describe('OnboardingSignupHero', () => {
     renderHero({ headline: 'Hello devs' });
     expect(screen.getByTestId('auth-form')).toBeInTheDocument();
     expect(screen.getByText('Hello devs')).toBeInTheDocument();
+  });
+
+  describe('inviter card', () => {
+    it.each(['cards', 'desk', 'split', 'panel', 'horizon'] as const)(
+      'renders above the headline on the %s background',
+      (background) => {
+        renderHero({ background, headline: 'Hello devs' });
+        const card = screen.getByTestId('inviter-card');
+        expect(
+          card.compareDocumentPosition(screen.getByText('Hello devs')),
+        ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+      },
+    );
+
+    it('renders on mobile', () => {
+      mockUseViewSize.mockReturnValue(true);
+      renderHero();
+      expect(screen.getByTestId('inviter-card')).toBeInTheDocument();
+    });
+
+    it('is dropped once the form is expanded', () => {
+      renderHero({ isFormExpanded: true });
+      expect(screen.queryByTestId('inviter-card')).not.toBeInTheDocument();
+    });
   });
 
   describe('when the form is expanded (email step)', () => {
