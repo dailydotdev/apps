@@ -138,51 +138,35 @@ const YouGroup = ({
   </div>
 );
 
-const FollowStat = ({
-  amount,
-  label,
-  onClick,
-}: {
-  amount: number;
-  label: string;
-  onClick: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="flex items-center gap-1 rounded-8 transition-colors typo-footnote hover:bg-surface-hover"
-  >
-    <b className="text-text-primary">{largeNumberFormat(amount)}</b>
-    <span className="text-text-tertiary">{label}</span>
-  </button>
-);
-
-const StatPill = ({
+// One strip at the profile page's sizes, so You and a profile read the same.
+const Stat = ({
   icon,
   amount,
   label,
   href,
   external = false,
+  onClick,
 }: {
-  icon: ReactNode;
+  icon?: ReactNode;
   amount: number;
   label: string;
-  href: string;
+  href?: string;
   external?: boolean;
+  onClick?: () => void;
 }): ReactElement => {
   const className =
-    'shell-press flex h-8 items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-surface-float pl-2 pr-2.5 typo-footnote transition-colors hover:bg-surface-hover';
+    'flex items-center gap-1 rounded-8 transition-colors hover:bg-surface-hover';
   const content = (
     <>
       {icon}
-      <b className="tabular-nums text-text-primary">
+      <b className="tabular-nums text-text-primary typo-callout">
         {largeNumberFormat(amount)}
       </b>
       <span className="text-text-tertiary">{label}</span>
     </>
   );
 
-  if (external) {
+  if (href && external) {
     return (
       <a
         href={href}
@@ -195,10 +179,18 @@ const StatPill = ({
     );
   }
 
+  if (href) {
+    return (
+      <Link href={href} passHref>
+        <a className={className}>{content}</a>
+      </Link>
+    );
+  }
+
   return (
-    <Link href={href} passHref>
-      <a className={className}>{content}</a>
-    </Link>
+    <button type="button" onClick={onClick} className={className}>
+      {content}
+    </button>
   );
 };
 
@@ -295,30 +287,8 @@ export function YouPage(): ReactElement | null {
             </span>
           </a>
         </Link>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <FollowStat
-            amount={followStats?.numFollowing ?? 0}
-            label="Following"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowingModal,
-                followStats?.numFollowing ?? 0,
-              )
-            }
-          />
-          <FollowStat
-            amount={followStats?.numFollowers ?? 0}
-            label="Followers"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowersModal,
-                followStats?.numFollowers ?? 0,
-              )
-            }
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <StatPill
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 typo-footnote">
+          <Stat
             icon={
               <ReputationIcon
                 size={IconSize.Small}
@@ -331,7 +301,7 @@ export function YouPage(): ReactElement | null {
             external
           />
           {hasAccessToCores && (
-            <StatPill
+            <Stat
               icon={
                 <CoreIcon
                   size={IconSize.Small}
@@ -343,6 +313,26 @@ export function YouPage(): ReactElement | null {
               href={walletUrl}
             />
           )}
+          <Stat
+            amount={followStats?.numFollowers ?? 0}
+            label="Followers"
+            onClick={() =>
+              openFollowList(
+                LazyModal.UserFollowersModal,
+                followStats?.numFollowers ?? 0,
+              )
+            }
+          />
+          <Stat
+            amount={followStats?.numFollowing ?? 0}
+            label="Following"
+            onClick={() =>
+              openFollowList(
+                LazyModal.UserFollowingModal,
+                followStats?.numFollowing ?? 0,
+              )
+            }
+          />
         </div>
       </div>
       <YouGroup className="pt-0 [&>span:first-child]:hidden">
