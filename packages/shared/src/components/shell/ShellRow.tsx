@@ -154,7 +154,7 @@ export const MenuLabel = ({
   <button
     type="button"
     onClick={onClick}
-    className="shell-press flex h-8 items-center gap-1 rounded-8 px-1 font-bold text-text-primary typo-callout"
+    className="shell-press flex h-7 items-center gap-0.5 rounded-8 px-1 text-text-secondary typo-footnote"
   >
     {label}
     <ArrowIcon

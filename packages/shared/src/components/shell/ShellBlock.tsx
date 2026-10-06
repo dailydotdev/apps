@@ -163,7 +163,7 @@ const PageRow = ({
       {title ? (
         <h1
           className={classNames(
-            'min-w-0 flex-1 truncate px-1 font-bold typo-title3',
+            'min-w-0 flex-1 truncate px-1 font-bold typo-callout',
             titleFades && 'shell-title-in',
           )}
         >

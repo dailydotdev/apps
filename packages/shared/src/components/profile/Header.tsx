@@ -7,7 +7,14 @@ import type {
   PublicProfile,
   UserShortProfile,
 } from '../../lib/user';
-import { BlockIcon, FlagIcon, GiftIcon, JobIcon, SettingsIcon } from '../icons';
+import {
+  BlockIcon,
+  FlagIcon,
+  GiftIcon,
+  JobIcon,
+  SettingsIcon,
+  CoreIcon,
+} from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
@@ -30,9 +37,10 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
+import { IconSize } from '../Icon';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
-import { webappUrl } from '../../lib/constants';
+import { walletUrl, webappUrl } from '../../lib/constants';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
@@ -225,7 +233,15 @@ export function Header({
           alwaysShow
         />
       )}
-      {isSameUser && hasCoresAccess && (
+      {isSameUser && hasCoresAccess && isPhone && (
+        <Link href={walletUrl} passHref>
+          <a className="shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center gap-1 rounded-14 px-3 font-bold text-text-primary typo-callout">
+            <CoreIcon size={IconSize.Small} />
+            {largeNumberFormat(loggedUser?.balance?.amount || 0)}
+          </a>
+        </Link>
+      )}
+      {isSameUser && hasCoresAccess && !isPhone && (
         <BuyCreditsButton
           className="laptop:hidden"
           hideBuyButton={!canPurchaseCores}

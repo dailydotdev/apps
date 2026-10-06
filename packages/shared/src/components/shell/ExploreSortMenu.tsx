@@ -87,8 +87,7 @@ export function ExploreSortMenu(): ReactElement {
   const hasPeriod = withPeriod.includes(current.key);
 
   return (
-    <div className="flex items-center justify-between border-t border-border-subtlest-tertiary pb-2 pl-4 pr-3 pt-4">
-      <h2 className="font-bold text-text-primary typo-title3">Explore feed</h2>
+    <div className="flex items-center border-t border-border-subtlest-tertiary px-3 pb-1 pt-3">
       <div className="flex items-center gap-1">
         <MenuLabel
           label={

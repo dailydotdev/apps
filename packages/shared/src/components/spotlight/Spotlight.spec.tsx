@@ -313,6 +313,6 @@ describe('Spotlight on a phone', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'All' }));
 
-    expect(getInput()).toHaveAttribute('placeholder', 'Search daily.dev');
+    expect(getInput()).toHaveAttribute('placeholder', 'Search');
   });
 });

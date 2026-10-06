@@ -174,7 +174,17 @@ export function ArchiveIndexPage({
   return (
     <div className={classNames('flex flex-col', className)}>
       {isPhone && (
-        <ShellPage title={`Best of ${scopeName}`} actions={copyLink} />
+        <ShellPage
+          title={`Best of ${scopeName}`}
+          actions={
+            <ArchiveCopyLinkButton
+              scopeType={scopeType}
+              scopeId={scopeId}
+              text={`Check out the best of ${scopeName} on daily.dev`}
+              inBlock
+            />
+          }
+        />
       )}
       <div className="mx-4 flex items-center gap-2">
         <h1

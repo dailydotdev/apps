@@ -123,7 +123,7 @@ const ProfilePage = ({
   const shouldShowBanner = isSameUser && shouldShow && !hasClosedBanner;
 
   return (
-    <div className="rounded-16 border border-t-0 border-border-subtlest-tertiary laptop:border-t">
+    <div className="tablet:rounded-16 tablet:border tablet:border-t-0 tablet:border-border-subtlest-tertiary laptop:border-t">
       <NextSeo {...seo} />
       <Header
         user={user}

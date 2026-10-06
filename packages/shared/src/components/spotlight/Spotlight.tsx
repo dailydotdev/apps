@@ -439,7 +439,7 @@ const getPlaceholder = (
     : scopeMeta[scope].placeholder;
 };
 
-export const phoneSearchPlaceholder = 'Search daily.dev';
+export const phoneSearchPlaceholder = 'Search';
 
 // The phone's field carries no scope token: its placeholder says where the
 // search runs.

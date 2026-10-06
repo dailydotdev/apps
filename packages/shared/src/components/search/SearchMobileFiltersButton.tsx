@@ -9,6 +9,8 @@ import {
   SearchFilterContentCurationList,
   SearchFilterPostTypeList,
   SearchFilterTimeList,
+  useSearchContentTypeOptions,
+  useSearchContentCurationOptions,
 } from './SearchFilterOptions';
 
 const SearchMobileFilterSection = ({
@@ -30,6 +32,10 @@ const SearchMobileFiltersButton = ({
   square?: boolean;
 }): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
+  // The two lists come from the member's advanced settings; a visitor has
+  // none, and a heading over nothing reads as a dead button.
+  const hasContentTypes = useSearchContentTypeOptions().length > 0;
+  const hasCategories = useSearchContentCurationOptions().length > 0;
 
   return (
     <>
@@ -63,12 +69,16 @@ const SearchMobileFiltersButton = ({
           <SearchMobileFilterSection title="Time">
             <SearchFilterTimeList />
           </SearchMobileFilterSection>
-          <SearchMobileFilterSection title="Content type">
-            <SearchFilterPostTypeList />
-          </SearchMobileFilterSection>
-          <SearchMobileFilterSection title="Category">
-            <SearchFilterContentCurationList />
-          </SearchMobileFilterSection>
+          {hasContentTypes && (
+            <SearchMobileFilterSection title="Content type">
+              <SearchFilterPostTypeList />
+            </SearchMobileFilterSection>
+          )}
+          {hasCategories && (
+            <SearchMobileFilterSection title="Category">
+              <SearchFilterContentCurationList />
+            </SearchMobileFilterSection>
+          )}
         </div>
       </Drawer>
     </>
