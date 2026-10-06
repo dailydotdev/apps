@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import type {
   LoggedUser,
   PublicProfile,
@@ -149,9 +150,18 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
     );
   }
 
+  // On a phone the row is the squad's: full-width buttons at 40px under the
+  // stats; wider screens keep the small pair beside the intro.
   return (
-    <div className="flex h-12 items-center">
-      <div className="flex flex-row gap-2">
+    <div
+      className={classNames('flex items-center', isPhone ? 'w-full' : 'h-12')}
+    >
+      <div
+        className={classNames(
+          'flex flex-row gap-2',
+          isPhone && 'w-full [&>div]:flex-1',
+        )}
+      >
         {!blocked && (
           <FollowButton
             entityId={user.id}
@@ -160,6 +170,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
             status={contentPreference?.status}
             entityName={`@${user.username}`}
             className="flex-row-reverse"
+            buttonClassName={isPhone ? 'flex-1 !h-10 !rounded-12' : undefined}
             alwaysShow
           />
         )}
@@ -172,6 +183,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
               receiver: user,
             }}
             variant={ButtonVariant.Secondary}
+            className={isPhone ? '!h-10 flex-1 !rounded-12' : undefined}
           />
         )}
         {!isPhone && (

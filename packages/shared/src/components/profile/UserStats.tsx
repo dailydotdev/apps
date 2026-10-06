@@ -20,7 +20,9 @@ export interface UserStatsProps {
   className?: string;
 }
 
-const ItemWrapper = classed('div', 'flex items-center gap-1');
+// On a phone the row reads like a squad's stats: the numbers at callout
+// size in a wrapping line; wider screens keep the two-column grid.
+const ItemWrapper = classed('div', 'flex items-baseline gap-1');
 const Item = ({
   stat,
   ...props
@@ -30,7 +32,7 @@ const Item = ({
   className?: string;
 }) => (
   <ItemWrapper {...props} data-testid={stat?.title}>
-    <b className="text-text-primary typo-subhead">
+    <b className="tabular-nums text-text-primary typo-callout tablet:typo-subhead">
       {largeNumberFormat(stat?.amount || 0)}
     </b>
     <span className="capitalize">{stat?.title}</span>
@@ -58,11 +60,11 @@ export function UserStats({
   return (
     <div
       className={classNames(
-        'grid grid-cols-[auto_auto] gap-x-2 gap-y-1 text-text-tertiary typo-footnote tablet:-ml-1',
+        'flex flex-wrap items-center gap-x-6 gap-y-2 text-text-tertiary typo-footnote tablet:-ml-1 tablet:grid tablet:grid-cols-[auto_auto] tablet:gap-x-2 tablet:gap-y-1',
         className,
       )}
     >
-      <div className="flex">
+      <div className="flex items-center">
         <ReputationIcon
           className="text-accent-onion-default"
           size={IconSize.Small}
@@ -72,7 +74,10 @@ export function UserStats({
       <Item stat={{ title: 'Upvotes', amount: stats.upvotes }} />
       <Item
         stat={{ title: 'Followers', amount: stats.numFollowers }}
-        className={classNames('pl-6', stats.numFollowers && 'cursor-pointer')}
+        className={classNames(
+          'tablet:pl-6',
+          stats.numFollowers && 'cursor-pointer',
+        )}
         onClick={() => {
           if (!stats.numFollowers) {
             return;

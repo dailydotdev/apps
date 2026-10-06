@@ -37,9 +37,9 @@ import { ReferralCampaignKey } from '../../lib/referral';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
 const ProfileActionsSkeleton = () => (
-  <div className="flex h-12 items-center gap-2">
-    <ElementPlaceholder className="h-12 w-18 rounded-16" />
-    <ElementPlaceholder className="h-12 w-18 rounded-16" />
+  <div className="flex items-center gap-2 tablet:h-12">
+    <ElementPlaceholder className="h-10 flex-1 rounded-12 tablet:h-12 tablet:w-18 tablet:flex-none tablet:rounded-16" />
+    <ElementPlaceholder className="h-10 flex-1 rounded-12 tablet:h-12 tablet:w-18 tablet:flex-none tablet:rounded-16" />
   </div>
 );
 
@@ -232,7 +232,9 @@ const ProfileHeader = ({
             />
           </div>
           {!isSameUser && (
-            <ProfileActions user={user} isPreviewMode={isPreviewMode} />
+            <div className="order-last mt-2 tablet:order-none tablet:mt-0">
+              <ProfileActions user={user} isPreviewMode={isPreviewMode} />
+            </div>
           )}
           <UserStats
             className="mt-2 border-t border-border-subtlest-tertiary pt-4 tablet:mt-0 tablet:w-fit tablet:border-0 tablet:pt-0"
