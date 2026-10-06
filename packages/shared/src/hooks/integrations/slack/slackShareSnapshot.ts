@@ -12,9 +12,16 @@ export type SlackShareSnapshot = {
   channel?: SlackChannel;
 };
 
-type StoredSlackShareSnapshot = SlackShareSnapshot & { id: string };
+type StoredSlackShareSnapshot = SlackShareSnapshot & {
+  id: string;
+  savedAt: number;
+};
 
 export const slackShareSnapshotKey = 'slack_share_snapshot';
+
+// Long enough for Slack's consent screen, short enough that an abandoned
+// attempt does not leave the image and message on the device.
+const slackShareSnapshotTtlMs = 30 * 60 * 1000;
 
 export const clearSlackShareSnapshot = async (): Promise<void> => {
   try {
@@ -32,7 +39,11 @@ export const saveSlackShareSnapshot = async (
 ): Promise<void> => {
   try {
     await delCache(slackShareSnapshotKey);
-    const stored: StoredSlackShareSnapshot = { ...snapshot, id };
+    const stored: StoredSlackShareSnapshot = {
+      ...snapshot,
+      id,
+      savedAt: Date.now(),
+    };
     await setCache(slackShareSnapshotKey, stored);
   } catch {
     // the return finds nothing and says so
@@ -49,11 +60,14 @@ export const takeSlackShareSnapshot = async (
     );
     await delCache(slackShareSnapshotKey);
 
-    if (stored?.id !== id) {
+    if (
+      stored?.id !== id ||
+      Date.now() - stored.savedAt > slackShareSnapshotTtlMs
+    ) {
       return undefined;
     }
 
-    const { id: storedId, ...snapshot } = stored;
+    const { id: storedId, savedAt, ...snapshot } = stored;
 
     return snapshot;
   } catch {

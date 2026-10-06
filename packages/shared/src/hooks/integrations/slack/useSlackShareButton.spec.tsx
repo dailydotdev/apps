@@ -193,6 +193,24 @@ describe('useSlackShareReturn', () => {
     expect(await getCache(slackShareSnapshotKey)).toBeUndefined();
   });
 
+  it('should not restore a snapshot left over from an abandoned attempt', async () => {
+    await setCache(slackShareSnapshotKey, {
+      ...snapshot,
+      id: 'attempt-2',
+      savedAt: Date.now() - 31 * 60 * 1000,
+    });
+    land({ slackSnapshot: 'attempt-2' });
+    renderReturn([slackIntegration]);
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Slack is connected. Take the snapshot again to send it.',
+      ),
+    );
+    expect(mockOpenModal).not.toHaveBeenCalled();
+    expect(await getCache(slackShareSnapshotKey)).toBeUndefined();
+  });
+
   it('should ask for a new snapshot rather than restore one from another attempt', async () => {
     await setCache(slackShareSnapshotKey, { ...snapshot, id: 'attempt-1' });
     land({ slackSnapshot: 'attempt-2' });
