@@ -49,12 +49,24 @@ const withPeriod = ['upvoted', 'discussed'];
 // Each sort is its own page, so the feed under the places is rebuilt and
 // the document is short for a moment. The reader's place is put back once
 // the new page has grown to it, instead of leaving them above the rows.
-const holdScroll = (router: NextRouter, position: number): void => {
-  const restore = () => {
+const holdScroll = (
+  router: NextRouter,
+  position: number,
+  href: string,
+): void => {
+  let letGo = () => undefined;
+  const restore = (url: string) => {
+    letGo();
+    if (url.split(/[?#]/)[0] === href) {
+      restoreScrollPosition(position);
+    }
+  };
+  letGo = () => {
     router.events.off('routeChangeComplete', restore);
-    restoreScrollPosition(position);
+    router.events.off('routeChangeError', letGo);
   };
   router.events.on('routeChangeComplete', restore);
+  router.events.on('routeChangeError', letGo);
 };
 
 export function ExploreSortMenu(): ReactElement {
@@ -79,7 +91,7 @@ export function ExploreSortMenu(): ReactElement {
     onClick: () => {
       setIsOpen(false);
       if (sort.key !== current.key) {
-        holdScroll(router, scrollBefore.current);
+        holdScroll(router, scrollBefore.current, sort.href);
       }
     },
   }));

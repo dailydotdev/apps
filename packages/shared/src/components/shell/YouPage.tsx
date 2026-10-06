@@ -284,7 +284,7 @@ export function YouPage(): ReactElement | null {
             </span>
           </a>
         </Link>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 typo-footnote">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 typo-footnote">
           <Stat
             icon={
               <ReputationIcon

@@ -60,7 +60,7 @@ export function UserStats({
   return (
     <div
       className={classNames(
-        'flex flex-wrap items-center gap-x-6 gap-y-2 text-text-tertiary typo-footnote tablet:-ml-1 tablet:grid tablet:grid-cols-[auto_auto] tablet:gap-x-2 tablet:gap-y-1',
+        'flex flex-wrap items-center gap-x-3 gap-y-2 text-text-tertiary typo-footnote tablet:-ml-1 tablet:grid tablet:grid-cols-[auto_auto] tablet:gap-x-2 tablet:gap-y-1',
         className,
       )}
     >

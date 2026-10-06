@@ -7,6 +7,7 @@ import { ArrowIcon, DiscussIcon, EarthIcon, HashtagIcon } from '../icons';
 import { AgentIcon } from '../icons/Agent';
 import { MedalIcon } from '../icons/Medal';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureInterestAgent } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
@@ -37,9 +38,10 @@ const leaderboard: Place = {
 
 export function ExplorePlaces(): ReactElement {
   const { isLoggedIn } = useAuthContext();
+  const isPhone = useIsPhone();
   const { value: showAgents } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: isLoggedIn,
+    shouldEvaluate: isLoggedIn && isPhone,
   });
   const rows = showAgents
     ? [...places, agents, leaderboard]

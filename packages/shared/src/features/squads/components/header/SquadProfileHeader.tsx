@@ -155,7 +155,7 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
   const faces = Math.min(members?.length ?? squad.membersCount ?? 0, MAX_FACES);
 
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
+    <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
       <Link href={membersUrl} passHref>
         <a
           href={membersUrl}
