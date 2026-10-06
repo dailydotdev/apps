@@ -373,23 +373,33 @@ interface PlusListProps
   items?: PlusItem[];
 }
 
-const plusPageFeatures = plusFeatureListApiFirst.filter((item) => !item.href);
-
-const plusPreviewFeatureIds = [
+// Most used first, from Plus member usage in analytics.
+const plusFeaturesByUsage = [
+  'presidential-briefing',
   'public-api',
   'custom feeds',
   'clean titles',
+  'bookmark folders',
+  'keyword filter',
   'ad-free',
+  'auto-translate',
+  'bonus-quest-slots',
 ];
 
-export const plusPreviewPerks = plusPageFeatures
-  .filter((item) => !!item.id && plusPreviewFeatureIds.includes(item.id))
-  .map((item) => item.label);
+const usageRank = (item: PlusItem): number => {
+  const rank = plusFeaturesByUsage.indexOf(item.id ?? '');
+  return rank === -1 ? plusFeaturesByUsage.length : rank;
+};
 
-export const plusMorePerksCount =
-  plusPageFeatures.length - plusPreviewPerks.length;
+const plusFeaturesInUsageOrder = plusFeatureListApiFirst
+  .filter((item) => !item.href)
+  .sort((a, b) => usageRank(a) - usageRank(b));
 
-export const plusTickerPerks = plusPageFeatures.flatMap(
+export const plusPreviewPerks = plusFeaturesInUsageOrder.map(
+  (item) => item.label,
+);
+
+export const plusTickerPerks = plusFeaturesInUsageOrder.flatMap(
   (item) => item.perk ?? [],
 );
 
