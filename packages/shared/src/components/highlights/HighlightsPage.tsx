@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type {
@@ -17,13 +17,10 @@ import { useIsPhone } from '../../hooks/useViewSize';
 import { CopyHighlightsLink } from './CopyHighlightsLink';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
-import { MobileAppFooterAnchor } from '../../features/getApp/components/MobileAppFooterAnchor';
-import { MobileAppFooterAnchorPlace } from '../../features/getApp/mobileAppFooter';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
 const ALL_HIGHLIGHTS_LABEL = 'All';
 const SKELETON_COUNT = 5;
-const headlinesBeforeAppFooter = 5;
 const HIGHLIGHTS_BASE_URL = '/highlights';
 const ALL_HIGHLIGHTS_URL = `${HIGHLIGHTS_BASE_URL}/all`;
 
@@ -81,16 +78,12 @@ const HighlightFeedList = ({
 
   return (
     <div className="flex flex-col">
-      {highlights.map((highlight, index) => (
-        <Fragment key={highlight.id}>
-          <HighlightItem
-            highlight={highlight}
-            defaultExpanded={highlight.id === expandedId}
-          />
-          {index === headlinesBeforeAppFooter - 1 && (
-            <MobileAppFooterAnchor at={MobileAppFooterAnchorPlace.Headlines} />
-          )}
-        </Fragment>
+      {highlights.map((highlight) => (
+        <HighlightItem
+          key={highlight.id}
+          highlight={highlight}
+          defaultExpanded={highlight.id === expandedId}
+        />
       ))}
     </div>
   );
