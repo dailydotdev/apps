@@ -45,6 +45,8 @@ export interface SidebarMenuItem {
   // Render a horizontal divider instead of a nav row (groups options like the
   // settings dropdown). Build via `createSidebarSeparatorItem`.
   isSeparator?: boolean;
+  // Wraps the row's link in a hover card. Replaces the collapsed-rail tooltip.
+  renderPreview?: (trigger: ReactElement) => ReactElement;
 }
 
 interface ListIconProps {
