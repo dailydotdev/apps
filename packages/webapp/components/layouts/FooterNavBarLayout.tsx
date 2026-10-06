@@ -22,9 +22,9 @@ interface FooterNavBarLayoutProps {
 function FooterSpacer({
   post,
 }: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement {
-  const { isRevealed: showAppFooter } = useMobileAppFooterContext();
+  const { title: appFooterTitle } = useMobileAppFooterContext();
 
-  if (showAppFooter) {
+  if (appFooterTitle) {
     return <div className={mobileAppFooterHeight} />;
   }
 
