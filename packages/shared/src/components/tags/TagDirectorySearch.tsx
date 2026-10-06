@@ -2,8 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { SearchField } from '../fields/SearchField';
-import { ShellField } from '../shell/ShellField';
-import { useSpotlight } from '../spotlight/SpotlightContext';
+import { SpotlightField } from '../spotlight/SpotlightTrigger';
 import { SpotlightScope } from '../spotlight/types';
 import { getTagPageLink } from '../../lib/links';
 import useDebounceFn from '../../hooks/useDebounceFn';
@@ -28,7 +27,6 @@ export function TagDirectorySearch({
   recommendedTags = [],
   className,
 }: TagDirectorySearchProps): ReactElement {
-  const { openWithScope } = useSpotlight();
   const [inputValue, setInputValue] = useState('');
   const [debouncedReport] = useDebounceFn((value?: string) => {
     onQueryChange((value ?? '').trim());
@@ -49,10 +47,7 @@ export function TagDirectorySearch({
         aria-label="Search all tags"
         autoComplete="off"
       />
-      <ShellField
-        placeholder="Search tags"
-        onOpen={() => openWithScope(SpotlightScope.Tags)}
-      />
+      <SpotlightField placeholder="Search tags" scope={SpotlightScope.Tags} />
       {!inputValue && recommendedTags.length > 0 && (
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <Typography

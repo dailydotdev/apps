@@ -10,6 +10,7 @@ import { ViewSize, useViewSizeClient } from '../../hooks/useViewSize';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { ShellField } from '../shell/ShellField';
+import type { SpotlightScope } from './types';
 
 interface SpotlightTriggerProps {
   className?: string;
@@ -80,13 +81,16 @@ export const SpotlightTrigger = ({
 export const SpotlightField = ({
   placeholder = 'Search',
   query,
+  scope,
 }: {
   placeholder?: string;
   // On a results page the field shows what was searched and reopens
   // Spotlight with it filled in.
   query?: string;
+  // A directory opens search narrowed to what it lists.
+  scope?: SpotlightScope;
 }): ReactElement => {
-  const { open, setQuery } = useSpotlight();
+  const { open, openWithScope, setQuery } = useSpotlight();
   const { logEvent } = useLogContext();
 
   return (
@@ -99,7 +103,11 @@ export const SpotlightField = ({
           target_type: TargetType.Spotlight,
           target_id: TargetId.SpotlightOpen,
         });
-        open();
+        if (scope) {
+          openWithScope(scope);
+        } else {
+          open();
+        }
         if (query) {
           setQuery(query);
         }

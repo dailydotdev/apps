@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ShellSquare } from '../shell/ShellSquare';
 import { IconSize } from '../Icon';
-import { FilterIcon } from '../icons';
+import { FilterIcon, SortIcon } from '../icons';
 import { Drawer, DrawerPosition } from '../drawers';
 import {
   SearchFilterContentCurationList,
@@ -41,10 +41,10 @@ const SearchMobileFiltersButton = ({
     <>
       {square ? (
         <ShellSquare
-          aria-label="Open search filters"
+          aria-label="Sort results by time"
           onClick={() => setIsOpen(true)}
         >
-          <FilterIcon size={IconSize.Small} />
+          <SortIcon size={IconSize.Small} />
         </ShellSquare>
       ) : (
         <Button
@@ -62,19 +62,25 @@ const SearchMobileFiltersButton = ({
         onClose={() => setIsOpen(false)}
         position={DrawerPosition.Bottom}
         appendOnRoot
-        title="Filters"
+        title={square ? 'Time' : 'Filters'}
         className={{ drawer: 'px-4 pb-4 pt-2' }}
       >
         <div className="flex flex-col gap-5">
-          <SearchMobileFilterSection title="Time">
+          {square ? (
+            // The block's square is the sort of the results: the sheet is
+            // the time choice alone, titled as such.
             <SearchFilterTimeList />
-          </SearchMobileFilterSection>
-          {hasContentTypes && (
+          ) : (
+            <SearchMobileFilterSection title="Time">
+              <SearchFilterTimeList />
+            </SearchMobileFilterSection>
+          )}
+          {!square && hasContentTypes && (
             <SearchMobileFilterSection title="Content type">
               <SearchFilterPostTypeList />
             </SearchMobileFilterSection>
           )}
-          {hasCategories && (
+          {!square && hasCategories && (
             <SearchMobileFilterSection title="Category">
               <SearchFilterContentCurationList />
             </SearchMobileFilterSection>

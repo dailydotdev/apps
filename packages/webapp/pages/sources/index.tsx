@@ -22,6 +22,7 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { SpotlightField } from '@dailydotdev/shared/src/components/spotlight/SpotlightTrigger';
 import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
@@ -151,6 +152,7 @@ const SourcesPage = ({
             )
           }
         />
+        <SpotlightField placeholder="Search sources" />
         {!isV2Laptop && !isPhone && (
           <div className="hidden justify-between tablet:flex">
             <BreadCrumbs>
