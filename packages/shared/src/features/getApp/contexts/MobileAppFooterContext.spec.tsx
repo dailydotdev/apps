@@ -37,9 +37,9 @@ const mockIsIOSNative = jest.mocked(isIOSNative);
 const mockIsPWA = jest.mocked(isPWA);
 
 const RevealedTitle = (): ReactElement | null => {
-  const { moment, isRevealed } = useMobileAppFooterContext();
+  const { title } = useMobileAppFooterContext();
 
-  return isRevealed ? <p>{moment?.title}</p> : null;
+  return title ? <p>{title}</p> : null;
 };
 
 const page = (auth: Partial<AuthContextData> = {}): ReactElement => (
@@ -75,11 +75,12 @@ describe('MobileAppFooterContext', () => {
     navigate('/posts/[id]', '/posts/abc');
     render(page());
 
-    expect(screen.getByText('See all comments')).toBeInTheDocument();
+    expect(screen.getByText('See all posts')).toBeInTheDocument();
   });
 
   it.each([
     ['/posts', 'See all posts'],
+    ['/posts/[id]', 'See all posts'],
     ['/tags', 'See all tags'],
     ['/search/posts', 'See all posts'],
     ['/users', 'See full leaderboard'],
@@ -102,7 +103,7 @@ describe('MobileAppFooterContext', () => {
     navigate('/posts/[id]', '/posts/abc');
     render(page({ isLoggedIn: true }));
 
-    expect(screen.queryByText('See all comments')).not.toBeInTheDocument();
+    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
     expect(mockFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
@@ -113,13 +114,13 @@ describe('MobileAppFooterContext', () => {
     navigate('/posts/[id]', '/posts/abc');
     render(page());
 
-    expect(screen.queryByText('See all comments')).not.toBeInTheDocument();
+    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
     expect(mockFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
   });
 
-  it('should leave pages without a footer moment alone', () => {
+  it('should leave pages without a footer title alone', () => {
     navigate('/bookmarks');
     render(page());
 

@@ -52,7 +52,8 @@ export default function FooterWrapper({
   const router = useRouter();
   const { requestOpenComment } = useActivePostContext();
   const { isLoggedIn } = useAuthContext();
-  const { moment, isRevealed: showAppFooter } = useMobileAppFooterContext();
+  const { title: appFooterTitle } = useMobileAppFooterContext();
+  const showAppFooter = !!appFooterTitle;
 
   const pathname = withoutLayoutVariantPrefix(router?.pathname);
   const showPlusButton =
@@ -71,7 +72,7 @@ export default function FooterWrapper({
       <div className="hidden tablet:block">
         <ScrollToTopButton />
       </div>
-      {showAppFooter && moment && <MobileAppFooter title={moment.title} />}
+      {showAppFooter && <MobileAppFooter title={appFooterTitle} />}
       {post && post.type !== PostType.Brief && !showAppFooter && (
         <div className="my-2 w-full px-2 tablet:hidden">
           <MobilePostFloatingBar

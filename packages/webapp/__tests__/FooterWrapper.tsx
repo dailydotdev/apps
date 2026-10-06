@@ -58,7 +58,7 @@ const renderFooter = (children: React.ReactNode) =>
   );
 
 beforeEach(() => {
-  mockAppFooter.mockReturnValue({ isRevealed: false });
+  mockAppFooter.mockReturnValue({});
 });
 
 const ComposerOwner = ({
@@ -100,13 +100,10 @@ describe('FooterWrapper', () => {
   });
 
   it('swaps the bottom bar for the Charm footer when it is shown', async () => {
-    mockAppFooter.mockReturnValue({
-      moment: { title: 'See all comments' },
-      isRevealed: true,
-    });
+    mockAppFooter.mockReturnValue({ title: 'See all posts' });
     renderFooter(<FooterWrapper post={post} />);
 
-    expect(await screen.findByText('See all comments')).toBeInTheDocument();
+    expect(await screen.findByText('See all posts')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Comment' }),
     ).not.toBeInTheDocument();

@@ -6,18 +6,15 @@ import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureMobileAppFooter } from '../../../lib/featureManagement';
 import { safeContextHookExport } from '../../../lib/func';
 import { withoutLayoutVariantPrefix } from '../../../lib/layoutVariant';
-import type { MobileAppFooterMoment } from '../mobileAppFooter';
 import {
-  getMobileAppFooterMoment,
+  getMobileAppFooterTitle,
   isSearchEngineLanding,
 } from '../mobileAppFooter';
 import { usePhoneBrowser } from '../hooks/usePhoneBrowser';
 
 interface MobileAppFooterContextValue {
   // Set only for readers who should see the footer on this page.
-  moment?: MobileAppFooterMoment;
-  // The footer shows as soon as the page loads for enrolled readers.
-  isRevealed: boolean;
+  title?: string;
 }
 
 const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
@@ -26,19 +23,19 @@ const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
       const router = useRouter();
       const { isLoggedIn } = useAuthContext();
       const isPhoneBrowser = usePhoneBrowser();
-      const routeMoment = getMobileAppFooterMoment(
+      const routeTitle = getMobileAppFooterTitle(
         withoutLayoutVariantPrefix(router?.pathname),
       );
       const isSearchLanding = isSearchEngineLanding();
       const shouldEvaluate =
-        !isSearchLanding && !!routeMoment && isPhoneBrowser && !isLoggedIn;
+        !isSearchLanding && !!routeTitle && isPhoneBrowser && !isLoggedIn;
       const { value: isEnabled } = useConditionalFeature({
         feature: featureMobileAppFooter,
         shouldEvaluate,
       });
-      const moment = shouldEvaluate && isEnabled ? routeMoment : undefined;
+      const title = shouldEvaluate && isEnabled ? routeTitle : undefined;
 
-      return useMemo(() => ({ moment, isRevealed: !!moment }), [moment]);
+      return useMemo(() => ({ title }), [title]);
     },
     { errorMessage: 'MobileAppFooterContextNotFound' },
   );
@@ -46,7 +43,7 @@ const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
 const useMobileAppFooterContext = safeContextHookExport(
   useMobileAppFooterContextHook,
   'MobileAppFooterContextNotFound',
-  { isRevealed: false },
+  {},
 );
 
 export { MobileAppFooterProvider, useMobileAppFooterContext };

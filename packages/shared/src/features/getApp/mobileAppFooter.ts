@@ -1,12 +1,8 @@
-export interface MobileAppFooterMoment {
-  title: string;
-}
+const seeAllPosts = 'See all posts';
+const seeAllSquads = 'See all squads';
+const seeFullProfile = 'See full profile';
 
-const seeAllPosts: MobileAppFooterMoment = { title: 'See all posts' };
-const seeAllSquads: MobileAppFooterMoment = { title: 'See all squads' };
-const seeFullProfile: MobileAppFooterMoment = { title: 'See full profile' };
-
-const momentByRoute: Record<string, MobileAppFooterMoment> = {
+const titleByRoute: Record<string, string> = {
   '/posts': seeAllPosts,
   '/posts/latest': seeAllPosts,
   '/posts/upvoted': seeAllPosts,
@@ -26,19 +22,19 @@ const momentByRoute: Record<string, MobileAppFooterMoment> = {
   '/sources/[source]/best-of': seeAllPosts,
   '/sources/[source]/best-of/[year]': seeAllPosts,
   '/sources/[source]/best-of/[year]/[month]': seeAllPosts,
-  '/posts/[id]': { title: 'See all comments' },
-  '/tags': { title: 'See all tags' },
+  '/posts/[id]': seeAllPosts,
+  '/tags': 'See all tags',
   '/tags/[tag]': seeAllPosts,
-  '/sources': { title: 'See all sources' },
+  '/sources': 'See all sources',
   '/sources/[source]': seeAllPosts,
   '/squads/discover': seeAllSquads,
   '/squads/discover/featured': seeAllSquads,
   '/squads/discover/[id]': seeAllSquads,
-  '/squads/[handle]': { title: 'See full squad' },
+  '/squads/[handle]': 'See full squad',
   '/[userId]': seeFullProfile,
   '/[userId]/posts': seeFullProfile,
   '/[userId]/upvoted': seeFullProfile,
-  '/users': { title: 'See full leaderboard' },
+  '/users': 'See full leaderboard',
   '/search/posts': seeAllPosts,
   '/tools': seeAllPosts,
   '/tools/[slug]': seeAllPosts,
@@ -49,9 +45,8 @@ const momentByRoute: Record<string, MobileAppFooterMoment> = {
 export const mobileAppFooterHeight =
   'h-[calc(9.5rem_+_max(env(safe-area-inset-bottom),1.5rem))]';
 
-export const getMobileAppFooterMoment = (
-  pathname: string,
-): MobileAppFooterMoment | undefined => momentByRoute[pathname];
+export const getMobileAppFooterTitle = (pathname: string): string | undefined =>
+  titleByRoute[pathname];
 
 const searchEngineHost =
   /(^|\.)(google|bing|duckduckgo|yahoo|yandex|baidu|ecosia|search\.brave)\./;
