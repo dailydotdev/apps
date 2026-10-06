@@ -1,10 +1,12 @@
 import { createContextProvider } from '@kickass-coderz/react';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
-import type { Squad } from '../../graphql/sources';
+import { useQuery } from '@tanstack/react-query';
+import type { SourceFeatures, Squad } from '../../graphql/sources';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import { squadJobsPerksFeaturesQueryOptions } from '../../graphql/squadJobsPerks';
 import type { SquadViewer } from './lib/viewer';
 import { getSquadViewer, isStaffViewer } from './lib/viewer';
 
@@ -35,6 +37,8 @@ export interface SquadPageContextValue {
   canPreview: boolean;
   isPreviewing: boolean;
   togglePreview: () => void;
+  /** The jobs and perks flags have arrived, or the squad cannot have them. */
+  areFeaturesReady: boolean;
 }
 
 const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
@@ -46,13 +50,24 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
       () => squads?.find(({ id }) => id === squad.id)?.currentMember,
       [squads, squad.id],
     );
-    const viewerSquad = useMemo(
-      () =>
-        isViewerReady || !bootMember
-          ? squad
-          : { ...squad, currentMember: bootMember },
-      [isViewerReady, bootMember, squad],
-    );
+    // Jobs and perks come from their own query (see the query options),
+    // folded into the squad here so every surface reads squad.features
+    const featuresQuery = squadJobsPerksFeaturesQueryOptions({ squad });
+    const { data: jobsPerks, isFetched: isFeaturesFetched } =
+      useQuery(featuresQuery);
+    const areFeaturesReady = !featuresQuery.enabled || isFeaturesFetched;
+    const viewerSquad = useMemo(() => {
+      const withFeatures = jobsPerks
+        ? {
+            ...squad,
+            features: { ...squad.features, ...jobsPerks } as SourceFeatures,
+          }
+        : squad;
+
+      return isViewerReady || !bootMember
+        ? withFeatures
+        : { ...withFeatures, currentMember: bootMember };
+    }, [isViewerReady, bootMember, squad, jobsPerks]);
     const isViewerKnown = isViewerReady || isAuthReadyOrCached;
     const ownViewer = getSquadViewer(viewerSquad, isLoggedIn);
     const canPreview = isViewerKnown && isStaffViewer(ownViewer);
@@ -85,6 +100,7 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
         canPreview,
         isPreviewing: isPreviewActive,
         togglePreview,
+        areFeaturesReady,
       }),
       [
         pageSquad,
@@ -95,6 +111,7 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
         canPreview,
         isPreviewActive,
         togglePreview,
+        areFeaturesReady,
       ],
     );
   },

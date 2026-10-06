@@ -9,6 +9,7 @@ import {
   DocsIcon,
   EditIcon,
   EmbedIcon,
+  JobIcon,
   LinkIcon,
   LockIcon,
   SparkleIcon,
@@ -16,6 +17,7 @@ import {
   TrashIcon,
   UserIcon,
 } from '../../../components/icons';
+import { GiftIcon } from '../../../components/icons/gift';
 import { hasSquadFeature } from './features';
 import { SquadManageSection } from './routes';
 import type { SquadViewer } from './viewer';
@@ -36,6 +38,8 @@ export interface SquadManageGroup {
 export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Details]: 'Details',
   [SquadManageSection.Products]: 'Products',
+  [SquadManageSection.Jobs]: 'Jobs',
+  [SquadManageSection.Perks]: 'Member perks',
   [SquadManageSection.Links]: 'Links',
   [SquadManageSection.Branding]: 'Branding',
   [SquadManageSection.Rules]: 'Rules',
@@ -59,6 +63,10 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
       return canEdit && hasSquadFeature(squad, 'products');
     case SquadManageSection.Links:
       return canEdit && hasSquadFeature(squad, 'links');
+    case SquadManageSection.Jobs:
+      return canEdit && hasSquadFeature(squad, 'jobs');
+    case SquadManageSection.Perks:
+      return canEdit && hasSquadFeature(squad, 'perks');
     case SquadManageSection.Branding:
       return canEdit && hasSquadFeature(squad, 'verified');
     case SquadManageSection.Members:
@@ -96,6 +104,8 @@ export const getSquadManageGroups = (
       items: [
         item(SquadManageSection.Details, <EditIcon />),
         item(SquadManageSection.Products, <AppIcon />),
+        item(SquadManageSection.Jobs, <JobIcon />),
+        item(SquadManageSection.Perks, <GiftIcon />),
         item(SquadManageSection.Links, <LinkIcon />),
         item(SquadManageSection.Branding, <SparkleIcon />),
         item(SquadManageSection.Rules, <DocsIcon />),

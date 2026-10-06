@@ -118,6 +118,8 @@ export interface SourceFeatures {
   adFree: boolean | null;
   links: boolean | null;
   products: boolean | null;
+  jobs?: boolean | null;
+  perks?: boolean | null;
 }
 
 export interface Source {

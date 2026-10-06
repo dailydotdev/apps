@@ -8,10 +8,16 @@ import {
 } from '../../../components/squads/layout/SquadDirectoryNavbar';
 import { SquadPreviewNotice } from './widgets/SquadPreview';
 import { SquadWidgets } from './widgets/SquadWidgets';
+import { SquadPageTab } from '../lib/routes';
 
-enum SquadPageTab {
-  Posts = 'Posts',
-  About = 'About',
+const ABOUT = 'about';
+
+type Tab = SquadPageTab | typeof ABOUT;
+
+export interface SquadPageExtraTab {
+  id: Exclude<SquadPageTab, SquadPageTab.Posts>;
+  label: string;
+  content: ReactNode;
 }
 
 interface SquadPageLayoutProps {
@@ -25,7 +31,39 @@ interface SquadPageLayoutProps {
    * It stays in the DOM either way, since crawlers read the phone render.
    */
   hasAboutTab?: boolean;
+  /**
+   * Tabs beside Posts (Jobs, Perks). From laptop they sit over the feed;
+   * below laptop they join the Posts and About tabs.
+   */
+  tabs?: SquadPageExtraTab[];
+  initialTab?: SquadPageTab;
+  onTabChange?: (tab: SquadPageTab) => void;
 }
+
+const TabBar = ({
+  items,
+  active,
+  label,
+  onSelect,
+}: {
+  items: { id: Tab; label: string }[];
+  active: Tab;
+  label: string;
+  onSelect: (tab: Tab) => void;
+}): ReactElement => (
+  <SquadDirectoryNavbar aria-label={label} className="!mx-0 !border-0 !px-0">
+    {items.map((item) => (
+      <SquadDirectoryNavbarItem
+        key={item.id}
+        buttonSize={ButtonSize.Small}
+        isActive={active === item.id}
+        label={item.label}
+        ariaLabel={item.label}
+        onClick={() => onSelect(item.id)}
+      />
+    ))}
+  </SquadDirectoryNavbar>
+);
 
 // One right column for every width: from laptop it sits beside the card,
 // below laptop the card's wrapper dissolves (`contents`) so the column can
@@ -35,9 +73,31 @@ export const SquadPageLayout = ({
   belowHeader,
   children,
   hasAboutTab = false,
+  tabs = [],
+  initialTab = SquadPageTab.Posts,
+  onTabChange,
 }: SquadPageLayoutProps): ReactElement => {
-  const [tab, setTab] = useState(SquadPageTab.Posts);
-  const isAbout = hasAboutTab && tab === SquadPageTab.About;
+  const [selected, setTab] = useState<Tab>(initialTab);
+  // A tab asked for in the URL may only appear once its data loads
+  const tab: Tab =
+    selected === ABOUT || tabs.some(({ id }) => id === selected)
+      ? selected
+      : SquadPageTab.Posts;
+  const isAbout = hasAboutTab && tab === ABOUT;
+  const extra = tabs.find(({ id }) => id === tab);
+  const contentTabs = [
+    { id: SquadPageTab.Posts, label: 'Posts' },
+    ...tabs.map(({ id, label }) => ({ id, label })),
+  ];
+  const phoneTabs = hasAboutTab
+    ? [...contentTabs, { id: ABOUT as Tab, label: 'About' }]
+    : contentTabs;
+  const onSelect = (next: Tab) => {
+    setTab(next);
+    if (next !== ABOUT) {
+      onTabChange?.(next);
+    }
+  };
 
   return (
     <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
@@ -49,23 +109,18 @@ export const SquadPageLayout = ({
             {belowHeader}
           </div>
         </div>
-        {hasAboutTab && (
+        {(hasAboutTab || !!tabs.length) && (
           <div className="order-2 border-t border-border-subtlest-tertiary px-4 tablet:px-6 laptop:hidden">
-            <SquadDirectoryNavbar
-              aria-label="Posts and About"
-              className="!mx-0 !border-0 !px-0"
-            >
-              {Object.values(SquadPageTab).map((item) => (
-                <SquadDirectoryNavbarItem
-                  key={item}
-                  buttonSize={ButtonSize.Small}
-                  isActive={tab === item}
-                  label={item}
-                  ariaLabel={item}
-                  onClick={() => setTab(item)}
-                />
-              ))}
-            </SquadDirectoryNavbar>
+            <TabBar
+              items={phoneTabs}
+              active={tab}
+              label={
+                tabs.length
+                  ? phoneTabs.map((item) => item.label).join(', ')
+                  : 'Posts and About'
+              }
+              onSelect={onSelect}
+            />
           </div>
         )}
         <div
@@ -74,7 +129,17 @@ export const SquadPageLayout = ({
             isAbout ? 'hidden' : 'flex',
           )}
         >
-          {children}
+          {!!tabs.length && (
+            <div className="hidden border-t border-border-subtlest-tertiary px-6 laptop:block">
+              <TabBar
+                items={contentTabs}
+                active={tab}
+                label={contentTabs.map((item) => item.label).join(', ')}
+                onSelect={onSelect}
+              />
+            </div>
+          )}
+          {extra ? extra.content : children}
         </div>
       </div>
       <aside
