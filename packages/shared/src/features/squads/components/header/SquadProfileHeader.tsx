@@ -5,12 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { Squad } from '../../../../graphql/sources';
 import { squadMembersPreviewQueryOptions } from '../../../../graphql/squads';
 import { SquadImage } from '../../../../components/squads/SquadImage';
-import {
-  EarthIcon,
-  LinkIcon,
-  LockIcon,
-  SourceIcon,
-} from '../../../../components/icons';
+import { EarthIcon, LinkIcon, LockIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import {
   ProfileImageSize,
@@ -29,17 +24,12 @@ import { SquadViewer } from '../../lib/viewer';
 import { getSquadMembersUrl } from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
 import { SquadActions, SquadPhoneActions } from './SquadActions';
+import { useSquadBranding } from '../../hooks/useSquadBranding';
+import { getBrandColor, getBrandWashStyle } from '../../lib/branding';
 
 const MAX_FACES = 3;
 
 const getPrivacy = (squad: Squad): { icon: ReactNode; label: string } => {
-  if (squad.flags?.featured) {
-    return {
-      icon: <SourceIcon size={IconSize.XSmall} secondary />,
-      label: 'Featured',
-    };
-  }
-
   if (squad.public) {
     return { icon: <EarthIcon size={IconSize.XSmall} />, label: 'Public' };
   }
@@ -75,16 +65,12 @@ const SquadMetaLine = ({ squad }: { squad: Squad }): ReactElement => {
     });
   }
 
-  if (squad.flags?.featured || !squad.public) {
+  // Featured shows as its own card in the sidebar, not in this line
+  if (!squad.public) {
     entries.push({
       key: 'privacy',
       node: (
-        <span
-          className={classNames(
-            'flex items-center gap-1',
-            squad.flags?.featured && 'font-bold text-accent-cabbage-default',
-          )}
-        >
+        <span className="flex items-center gap-1">
           {privacy.icon}
           {privacy.label} Squad
         </span>
@@ -218,6 +204,10 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
 
 export const SquadProfileHeader = (): ReactElement => {
   const { squad, viewer, isViewerReady } = useSquadPageContext();
+  const branding = useSquadBranding(squad);
+  const brandColor = hasSquadFeature(squad, 'verified')
+    ? getBrandColor(branding)
+    : null;
 
   return (
     <header className="relative w-full">
@@ -230,7 +220,14 @@ export const SquadProfileHeader = (): ReactElement => {
           />
         )}
       </div>
-      <div className="flex flex-col px-4 pb-5 tablet:px-6">
+      {brandColor && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 top-28 tablet:top-36"
+          style={getBrandWashStyle(brandColor)}
+        />
+      )}
+      <div className="relative flex flex-col px-4 pb-5 tablet:px-6">
         <div className="-mt-8 flex items-end justify-between gap-4 tablet:-mt-12">
           <SquadImage
             {...squad}

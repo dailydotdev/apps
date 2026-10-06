@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 import type { SourceTooltip } from '../../../graphql/sources';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
@@ -85,20 +87,23 @@ export function SourceStrip({
               </a>
             </Link>
             <div className="flex min-w-0 flex-col">
-              <Link passHref href={source.permalink} prefetch={false}>
-                <Typography
-                  tag={TypographyTag.Link}
-                  type={
-                    compact ? TypographyType.Callout : TypographyType.Subhead
-                  }
-                  color={TypographyColor.Primary}
-                  className="truncate hover:underline focus-visible:underline"
-                  title={source.name}
-                  bold
-                >
-                  {source.name}
-                </Typography>
-              </Link>
+              <span className="flex min-w-0 items-center gap-1">
+                <Link passHref href={source.permalink} prefetch={false}>
+                  <Typography
+                    tag={TypographyTag.Link}
+                    type={
+                      compact ? TypographyType.Callout : TypographyType.Subhead
+                    }
+                    color={TypographyColor.Primary}
+                    className="truncate hover:underline focus-visible:underline"
+                    title={source.name}
+                    bold
+                  >
+                    {source.name}
+                  </Typography>
+                </Link>
+                {hasSquadFeature(source, 'verified') && <VerifiedSquadBadge />}
+              </span>
               {!compact && sourceHandle && (
                 <Typography
                   tag={TypographyTag.Span}
