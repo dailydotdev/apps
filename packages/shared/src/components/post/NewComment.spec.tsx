@@ -105,4 +105,41 @@ describe('NewComment', () => {
       expect.objectContaining({ autoFocus: true }),
     );
   });
+
+  it('shows a saved draft on the collapsed trigger', () => {
+    localStorage.setItem('dailydev:comment:draft:post-1', 'Half-written take');
+
+    render(
+      <NewComment
+        post={{ id: 'post-1' } as never}
+        CommentInput={CommentInput}
+      />,
+    );
+
+    expect(screen.getByText('Half-written take')).toBeInTheDocument();
+    localStorage.clear();
+  });
+
+  it('closes the composer when the post changes', () => {
+    const { rerender } = render(
+      <NewComment
+        post={{ id: 'post-1' } as never}
+        CommentInput={CommentInput}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /share your thoughts/i }),
+    );
+    expect(screen.getByTestId('comment-input')).toBeInTheDocument();
+
+    rerender(
+      <NewComment
+        post={{ id: 'post-2' } as never}
+        CommentInput={CommentInput}
+      />,
+    );
+
+    expect(screen.queryByTestId('comment-input')).not.toBeInTheDocument();
+  });
 });

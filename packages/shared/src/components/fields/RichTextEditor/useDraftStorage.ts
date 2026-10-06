@@ -1,6 +1,24 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { generateStorageKey, StorageTopic } from '../../../lib/storage';
 import { storageWrapper } from '../../../lib/storageWrapper';
+
+const DRAFT_SAVE_DELAY = 500;
+
+export const getCommentDraftKey = (identifier: string): string =>
+  generateStorageKey(StorageTopic.Comment, 'draft', identifier);
+
+const persistDraft = (key: string, content: string): void => {
+  if (content.trim().length > 0) {
+    storageWrapper.setItem(key, content);
+  } else {
+    storageWrapper.removeItem(key);
+  }
+};
+
+interface PendingDraft {
+  key: string;
+  content: string;
+}
 
 interface UseDraftStorageProps {
   postId?: string;
@@ -18,14 +36,16 @@ export function useDraftStorage({
   isDirty,
 }: UseDraftStorageProps) {
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const pendingRef = useRef<PendingDraft | null>(null);
 
   const draftStorageKey = useMemo(() => {
     if (!postId) {
       return null;
     }
     const identifier = editCommentId || parentCommentId || postId;
-    return generateStorageKey(StorageTopic.Comment, 'draft', identifier);
+    return getCommentDraftKey(identifier);
   }, [postId, editCommentId, parentCommentId]);
+  const keyRef = useRef(draftStorageKey);
 
   const getInitialValue = useCallback(
     (initialContent: string) => {
@@ -41,39 +61,80 @@ export function useDraftStorage({
     [draftStorageKey],
   );
 
+  const flushDraft = useCallback(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    const pending = pendingRef.current;
+    if (!pending) {
+      return;
+    }
+
+    pendingRef.current = null;
+    persistDraft(pending.key, pending.content);
+  }, []);
+
   const clearDraft = useCallback(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    pendingRef.current = null;
+
     if (draftStorageKey) {
       storageWrapper.removeItem(draftStorageKey);
     }
   }, [draftStorageKey]);
 
   useEffect(() => {
+    if (keyRef.current !== draftStorageKey) {
+      flushDraft();
+      keyRef.current = draftStorageKey;
+      return;
+    }
+
     if (!draftStorageKey || !isDirty) {
-      return undefined;
+      return;
     }
 
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    saveTimeoutRef.current = setTimeout(() => {
-      if (content && content.trim().length > 0) {
-        storageWrapper.setItem(draftStorageKey, content);
-      } else {
-        storageWrapper.removeItem(draftStorageKey);
-      }
-    }, 500);
+    pendingRef.current = { key: draftStorageKey, content };
+    saveTimeoutRef.current = setTimeout(flushDraft, DRAFT_SAVE_DELAY);
+  }, [content, draftStorageKey, isDirty, flushDraft]);
+
+  useEffect(() => {
+    globalThis.addEventListener?.('pagehide', flushDraft);
 
     return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
+      globalThis.removeEventListener?.('pagehide', flushDraft);
+      flushDraft();
     };
-  }, [content, draftStorageKey, isDirty]);
+  }, [flushDraft]);
 
   return {
     draftStorageKey,
     getInitialValue,
     clearDraft,
   };
+}
+
+export function useStoredCommentDraft(
+  postId: string | undefined,
+  shouldRead: boolean,
+): string | null {
+  const [draft, setDraft] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!postId || !shouldRead) {
+      setDraft(null);
+      return;
+    }
+
+    setDraft(storageWrapper.getItem(getCommentDraftKey(postId)));
+  }, [postId, shouldRead]);
+
+  return draft;
 }
