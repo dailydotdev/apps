@@ -29,7 +29,7 @@ import { useIsPhone } from '../../../hooks/useViewSize';
 import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
 import { Segments, ShellRow } from '../../../components/shell/ShellRow';
 import { ShellField } from '../../../components/shell/ShellField';
-import { useSegmentPager } from '../../../components/shell/useSegmentPager';
+import { SegmentPager } from '../../../components/shell/SegmentPager';
 
 enum MembersTab {
   Members = 'Members',
@@ -68,25 +68,19 @@ const InviteRow = ({ squad }: { squad: Squad }): ReactElement | null => {
   );
 };
 
-interface SquadMembersListProps {
-  squad: Squad;
-}
-
-// The members modal as a page: three tabs (Blocked for those who may see
-// it), search, the invitation link first, and the role menu for staff.
-export const SquadMembersList = ({
+// One tab's list, with its own query, so a neighbouring tab can stand
+// beside the lit one while the finger pages between them.
+const MembersPane = ({
   squad,
-}: SquadMembersListProps): ReactElement => {
-  const { user: loggedUser } = useAuthContext();
-  const [tab, setTab] = useState(MembersTab.Members);
-  const [query, setQuery] = useState('');
-  const [fieldValue, setFieldValue] = useState('');
-  const isPhone = useIsPhone();
-  const [onSearch] = useDebounceFn<string>(
-    (value) => setQuery(value ?? ''),
-    defaultSearchDebounceMs,
-  );
-  const role = tabRole[tab];
+  tab,
+  query,
+  canSeeBlocked,
+}: {
+  squad: Squad;
+  tab: MembersTab;
+  query: string;
+  canSeeBlocked: boolean;
+}): ReactElement => {
   const {
     members = [],
     membersQueryResult,
@@ -97,7 +91,7 @@ export const SquadMembersList = ({
   } = useSquadActions({
     squad,
     query: query.trim() || undefined,
-    membersQueryParams: { role },
+    membersQueryParams: { role: tabRole[tab] },
     membersQueryEnabled: true,
   });
 
@@ -106,73 +100,16 @@ export const SquadMembersList = ({
     queryProp: 'sourceMembers',
   });
 
-  const canSeeBlocked =
-    isSystemModerator(loggedUser) ||
-    verifyPermission(squad, SourcePermissions.ViewBlockedMembers);
-  const tabs = Object.values(MembersTab).filter(
-    (item) => canSeeBlocked || item !== MembersTab.Blocked,
-  );
-  const segments = tabs.map((item) => ({
-    key: item,
-    label: item,
-    active: tab === item,
-    onClick: () => setTab(item),
-  }));
-  useSegmentPager(segments);
-
   return (
-    <div className="flex flex-col gap-4 py-4">
-      {isPhone && (
-        <>
-          <ShellDockedRow>
-            <ShellRow>
-              <Segments items={segments} />
-            </ShellRow>
-          </ShellDockedRow>
-          <ShellField
-            placeholder={`Search ${tab.toLowerCase()}`}
-            value={fieldValue}
-            onChange={(value) => {
-              setFieldValue(value);
-              onSearch(value);
-            }}
-          />
-        </>
+    <div className="flex flex-col gap-4">
+      {tab === MembersTab.Members && (
+        <span className="px-4 text-text-tertiary typo-footnote tablet:px-6">
+          <strong className="tabular-nums text-text-primary">
+            {largeNumberFormat(squad.membersCount) ?? 0}
+          </strong>{' '}
+          members
+        </span>
       )}
-      <div className="flex flex-col gap-4 px-4 tablet:px-6">
-        <div className="hidden tablet:block">
-          <SquadDirectoryNavbar
-            aria-label="Members filters"
-            className="!mx-0 !border-0 !px-0"
-          >
-            {tabs.map((item) => (
-              <SquadDirectoryNavbarItem
-                key={item}
-                buttonSize={ButtonSize.Small}
-                isActive={tab === item}
-                label={item}
-                ariaLabel={item}
-                onClick={() => setTab(item)}
-              />
-            ))}
-          </SquadDirectoryNavbar>
-        </div>
-        <SearchField
-          className="hidden tablet:flex"
-          inputId="squad-members-search"
-          placeholder={`Search ${tab.toLowerCase()}`}
-          aria-label={`Search ${tab.toLowerCase()}`}
-          valueChanged={onSearch}
-        />
-        {tab === MembersTab.Members && (
-          <span className="text-text-tertiary typo-footnote">
-            <strong className="tabular-nums text-text-primary">
-              {largeNumberFormat(squad.membersCount) ?? 0}
-            </strong>{' '}
-            members
-          </span>
-        )}
-      </div>
       <UserList
         users={members.map(({ user, role: memberRole }) => ({
           ...user,
@@ -225,6 +162,98 @@ export const SquadMembersList = ({
           showFollow: !canSeeBlocked,
           showSubscribe: false,
         }}
+      />
+    </div>
+  );
+};
+
+interface SquadMembersListProps {
+  squad: Squad;
+}
+
+// The members modal as a page: three tabs (Blocked for those who may see
+// it), search, the invitation link first, and the role menu for staff.
+export const SquadMembersList = ({
+  squad,
+}: SquadMembersListProps): ReactElement => {
+  const { user: loggedUser } = useAuthContext();
+  const [tab, setTab] = useState(MembersTab.Members);
+  const [query, setQuery] = useState('');
+  const [fieldValue, setFieldValue] = useState('');
+  const isPhone = useIsPhone();
+  const [onSearch] = useDebounceFn<string>(
+    (value) => setQuery(value ?? ''),
+    defaultSearchDebounceMs,
+  );
+
+  const canSeeBlocked =
+    isSystemModerator(loggedUser) ||
+    verifyPermission(squad, SourcePermissions.ViewBlockedMembers);
+  const tabs = Object.values(MembersTab).filter(
+    (item) => canSeeBlocked || item !== MembersTab.Blocked,
+  );
+  const segments = tabs.map((item) => ({
+    key: item,
+    label: item,
+    active: tab === item,
+    onClick: () => setTab(item),
+  }));
+
+  return (
+    <div className="flex flex-col gap-4 py-4">
+      {isPhone && (
+        <>
+          <ShellDockedRow>
+            <ShellRow>
+              <Segments items={segments} />
+            </ShellRow>
+          </ShellDockedRow>
+          <ShellField
+            placeholder={`Search ${tab.toLowerCase()}`}
+            value={fieldValue}
+            onChange={(value) => {
+              setFieldValue(value);
+              onSearch(value);
+            }}
+          />
+        </>
+      )}
+      <div className="flex flex-col gap-4 px-4 tablet:px-6">
+        <div className="hidden tablet:block">
+          <SquadDirectoryNavbar
+            aria-label="Members filters"
+            className="!mx-0 !border-0 !px-0"
+          >
+            {tabs.map((item) => (
+              <SquadDirectoryNavbarItem
+                key={item}
+                buttonSize={ButtonSize.Small}
+                isActive={tab === item}
+                label={item}
+                ariaLabel={item}
+                onClick={() => setTab(item)}
+              />
+            ))}
+          </SquadDirectoryNavbar>
+        </div>
+        <SearchField
+          className="hidden tablet:flex"
+          inputId="squad-members-search"
+          placeholder={`Search ${tab.toLowerCase()}`}
+          aria-label={`Search ${tab.toLowerCase()}`}
+          valueChanged={onSearch}
+        />
+      </div>
+      <SegmentPager
+        items={segments}
+        renderPane={(key) => (
+          <MembersPane
+            squad={squad}
+            tab={key as MembersTab}
+            query={query}
+            canSeeBlocked={canSeeBlocked}
+          />
+        )}
       />
     </div>
   );

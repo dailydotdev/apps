@@ -90,6 +90,7 @@ export const SquadPageLayout = ({
         {isPhone && hasAboutTab ? (
           <SegmentPager
             items={segments}
+            keepMounted
             className="order-3 min-w-0"
             renderPane={(key) =>
               key === SquadPageTab.About ? (

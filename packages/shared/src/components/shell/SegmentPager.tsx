@@ -14,6 +14,9 @@ interface SegmentPagerProps {
   // track has settled.
   renderPane: (key: string) => ReactNode;
   enabled?: boolean;
+  // Light panes stay mounted out of frame instead of mounting on the first
+  // drag, so what they hold (a squad's widgets) is there from the start.
+  keepMounted?: boolean;
   className?: string;
 }
 
@@ -35,6 +38,7 @@ export function SegmentPager({
   items,
   renderPane,
   enabled = true,
+  keepMounted = false,
   className,
 }: SegmentPagerProps): ReactElement {
   const router = useRouter();
@@ -218,18 +222,19 @@ export function SegmentPager({
     };
   }, [pages]);
 
-  const panes = (pages && spread ? [active - 1, active, active + 1] : [active])
+  const inFrame = pages && spread ? [active - 1, active, active + 1] : [active];
+  const panes = (keepMounted ? items.map((_, index) => index) : inFrame)
     .filter((index) => index >= 0 && index < items.length)
-    .map((index) => items[index]);
+    .map((index) => ({ item: items[index], shown: inFrame.includes(index) }));
 
   return (
     <div ref={surfaceRef} className={className} style={{ overflow: 'clip' }}>
       <div ref={trackRef} className="flex w-full items-start">
-        {panes.map((item) => (
+        {panes.map(({ item, shown }) => (
           <div
             key={item.key}
             data-lit={items[active]?.key === item.key ? '' : undefined}
-            className="w-full shrink-0"
+            className={shown ? 'w-full shrink-0' : 'hidden'}
           >
             {renderPane(item.key)}
           </div>

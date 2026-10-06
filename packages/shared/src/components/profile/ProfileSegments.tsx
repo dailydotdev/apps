@@ -20,7 +20,7 @@ const paths: Record<ProfileSegment, string> = {
   [ProfileSegment.Upvoted]: '/upvoted',
 };
 
-const getItems = (
+export const getProfileSegmentItems = (
   user: Pick<PublicProfile, 'username'>,
   active: ProfileSegment,
 ): RowItem[] =>
@@ -44,7 +44,7 @@ export function ProfileSegments({
   // only one of them listens for the swipe.
   paged?: boolean;
 }): ReactElement {
-  const items = getItems(user, active);
+  const items = getProfileSegmentItems(user, active);
   useSegmentPager(items, paged);
 
   return (

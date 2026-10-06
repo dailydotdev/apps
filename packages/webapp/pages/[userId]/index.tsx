@@ -6,7 +6,9 @@ import {
   usePassedBlock,
 } from '@dailydotdev/shared/src/components/shell/usePassedBlock';
 import { ShellDockedRow } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { SegmentPager } from '@dailydotdev/shared/src/components/shell/SegmentPager';
 import {
+  getProfileSegmentItems,
   ProfileSegment,
   ProfileSegments,
 } from '@dailydotdev/shared/src/components/profile/ProfileSegments';
@@ -49,15 +51,24 @@ import {
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import { ProfileSideToggle } from '../../components/profile/ProfileSideToggle';
+import { ProfileFeedPane } from '../../components/profile/ProfileFeedPane';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfilePage = ({
+interface ProfilePageProps extends ProfileLayoutProps {
+  // On a phone every profile address is this page with a different view
+  // lit, so the views page between each other under the one header.
+  active?: ProfileSegment;
+  seo?: NextSeoProps;
+}
+
+export const ProfilePage = ({
   user: initialUser,
   noindex,
   userStats,
   sources,
   hasWorld,
-}: ProfileLayoutProps): ReactElement => {
+  active = ProfileSegment.About,
+  seo: seoProp,
+}: ProfilePageProps): ReactElement => {
   useJoinReferral();
   const router = useRouter();
   const { isAuthReady } = useAuthContext();
@@ -116,11 +127,50 @@ const ProfilePage = ({
   const haveSegmentsPassed = usePassedBlock(segmentsRef, isPhone);
   useHeroDeadZone(segmentsRef, isPhone);
 
-  const seo: NextSeoProps = {
+  const seo: NextSeoProps = seoProp ?? {
     ...getProfileSeoDefaults(user, {}, noindex),
   };
 
   const shouldShowBanner = isSameUser && shouldShow && !hasClosedBanner;
+
+  const about = (
+    <>
+      <AboutMe user={user} />
+      <ProfileAchievementShowcase user={user} />
+      <ProfileUserStack user={user} />
+      <ProfileUserHotTakes user={user} />
+      <MobileAppFooterAnchor
+        at={MobileAppFooterAnchorPlace.Activity}
+        className="!border-0"
+      />
+      {!isPhone && (
+        <div className="hidden tablet:block">
+          <Activity user={user} />
+        </div>
+      )}
+      {isSameUser && (
+        <Share permalink={user?.permalink} className="laptop:hidden" />
+      )}
+      <div className="py-4 laptop:hidden">
+        <Typography
+          type={TypographyType.Body}
+          tag={TypographyTag.H1}
+          color={TypographyColor.Primary}
+          bold
+          className="laptop:hidden"
+        >
+          Highlights
+        </Typography>
+        <ProfileWidgets
+          user={user}
+          userStats={userStats}
+          sources={sources}
+          className="no-scrollbar overflow-auto laptop:hidden"
+        />
+      </div>
+      <ProfileUserExperiences user={user} />
+    </>
+  );
 
   return (
     <div className="tablet:rounded-16 tablet:border tablet:border-t-0 tablet:border-border-subtlest-tertiary laptop:border-t">
@@ -165,54 +215,36 @@ const ProfilePage = ({
           />
         )}
         {!shouldShowBanner && <div />}
-        {isPhone && (
-          <div ref={segmentsRef} className="-mx-6 [&+*]:!border-t-0">
-            <ProfileSegments user={user} active={ProfileSegment.About} />
-            {haveSegmentsPassed && (
-              <ShellDockedRow>
-                <ProfileSegments
-                  user={user}
-                  active={ProfileSegment.About}
-                  paged={false}
-                />
-              </ShellDockedRow>
-            )}
-          </div>
+        {isPhone ? (
+          <>
+            <div ref={segmentsRef} className="-mx-6 [&+*]:!border-t-0">
+              <ProfileSegments user={user} active={active} paged={false} />
+              {haveSegmentsPassed && (
+                <ShellDockedRow>
+                  <ProfileSegments user={user} active={active} paged={false} />
+                </ShellDockedRow>
+              )}
+            </div>
+            <SegmentPager
+              className="-mx-6"
+              items={getProfileSegmentItems(user, active)}
+              renderPane={(key) =>
+                key === ProfileSegment.About ? (
+                  <div className="flex flex-col divide-y divide-border-subtlest-tertiary px-6">
+                    {about}
+                  </div>
+                ) : (
+                  <ProfileFeedPane
+                    user={user}
+                    segment={key as ProfileSegment}
+                  />
+                )
+              }
+            />
+          </>
+        ) : (
+          about
         )}
-        <AboutMe user={user} />
-        <ProfileAchievementShowcase user={user} />
-        <ProfileUserStack user={user} />
-        <ProfileUserHotTakes user={user} />
-        <MobileAppFooterAnchor
-          at={MobileAppFooterAnchorPlace.Activity}
-          className="!border-0"
-        />
-        {!isPhone && (
-          <div className="hidden tablet:block">
-            <Activity user={user} />
-          </div>
-        )}
-        {isSameUser && (
-          <Share permalink={user?.permalink} className="laptop:hidden" />
-        )}
-        <div className="py-4 laptop:hidden">
-          <Typography
-            type={TypographyType.Body}
-            tag={TypographyTag.H1}
-            color={TypographyColor.Primary}
-            bold
-            className="laptop:hidden"
-          >
-            Highlights
-          </Typography>
-          <ProfileWidgets
-            user={user}
-            userStats={userStats}
-            sources={sources}
-            className="no-scrollbar overflow-auto laptop:hidden"
-          />
-        </div>
-        <ProfileUserExperiences user={user} />
       </div>
     </div>
   );
