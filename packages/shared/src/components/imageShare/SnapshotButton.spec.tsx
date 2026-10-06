@@ -12,6 +12,7 @@ import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
+import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
@@ -24,6 +25,9 @@ jest.mock('../../lib/imageShare/captureShareImage', () => ({
 }));
 jest.mock('../../lib/imageShare/copyShareImage', () => ({
   copyShareImage: jest.fn(),
+}));
+jest.mock('../../lib/imageShare/downloadShareImage', () => ({
+  downloadShareImage: jest.fn(),
 }));
 jest.mock('../../hooks/integrations/slack/useSlackShare', () => ({
   useSlackShare: () => ({ isLoading: false, canPostAsUser: false }),
@@ -173,5 +177,35 @@ describe('SnapshotButton share options', () => {
         event_name: LogEvent.OpenSnapshotSharePanel,
       }),
     );
+  });
+
+  it('falls back to saving the image when clipboard access is denied', async () => {
+    jest.mocked(copyShareImage).mockResolvedValue(false);
+    renderButton();
+
+    press();
+
+    await waitFor(() => expect(onResult).toHaveBeenCalledWith('download'));
+    expect(downloadShareImage).toHaveBeenCalled();
+    expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
+      message: 'Image saved',
+    });
+    expect(screen.queryByText('Copied')).not.toBeInTheDocument();
+  });
+
+  it('reports a failed capture without opening share options', async () => {
+    jest
+      .mocked(captureShareImage)
+      .mockRejectedValue(new Error('Capture failed'));
+    renderButton();
+
+    press();
+
+    await waitFor(() => expect(onResult).toHaveBeenCalledWith('error'));
+    expect(downloadShareImage).not.toHaveBeenCalled();
+    expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
+      message: 'Could not create the snapshot, please try again',
+    });
+    expect(screen.queryByText('Copied')).not.toBeInTheDocument();
   });
 });

@@ -30,6 +30,8 @@ export interface ProfileSnapshotButtonProps {
    * the page's data is not computed on every profile view.
    */
   renderCard: (ref: Ref<HTMLDivElement>) => ReactElement;
+  /** A labelled button where the snapshot is a call to action, not an affordance. */
+  showLabel?: boolean;
   size?: ButtonSize;
   variant?: ButtonVariant;
 }
@@ -51,6 +53,7 @@ function ArmedProfileSnapshotButton({
   targetId = ownerId,
   targetType = TargetType.ProfilePage,
   renderCard,
+  showLabel = false,
   size = ButtonSize.XSmall,
   variant,
 }: ProfileSnapshotButtonProps): ReactElement {
@@ -89,7 +92,7 @@ function ArmedProfileSnapshotButton({
           onResult={onResult}
           origin={origin}
           share={share}
-          showLabel={false}
+          showLabel={showLabel}
           size={size}
           target={cardRef}
           variant={variant}

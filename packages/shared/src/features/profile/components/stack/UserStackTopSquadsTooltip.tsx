@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { VerifiedSquadBadge } from '../../../squads/components/VerifiedSquad';
 import Link from '../../../../components/utilities/Link';
 import { Image, ImageType } from '../../../../components/image/Image';
 import {
@@ -129,6 +130,7 @@ export const UserStackTopSquadsTooltip = ({
                   >
                     {squad.name}
                   </Typography>
+                  {squad.features?.verified && <VerifiedSquadBadge />}
                 </div>
                 <Typography
                   type={TypographyType.Caption1}

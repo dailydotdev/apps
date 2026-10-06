@@ -151,6 +151,46 @@
 }
 
 /*
+ * Rotating Plus perk line: the next perk rises in and sharpens while the
+ * previous one lifts away and blurs out in the same grid cell.
+ */
+@keyframes plus-perk-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes plus-perk-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-0.375rem);
+    filter: blur(2px);
+  }
+}
+
+.plus-perk-in {
+  animation: plus-perk-in 360ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+}
+
+.plus-perk-out {
+  animation: plus-perk-out 200ms ease-in both;
+}
+
+/*
  * Radix HoverCard panels expose data-state, so they can animate in AND out.
  * Radix/Popper positions these with an inline transform, so we must NOT animate
  * transform here (it would fight the positioning) — fade + de-blur only, which

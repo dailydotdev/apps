@@ -130,6 +130,9 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
         membersCount
         image
         permalink
+        features {
+          verified
+        }
         currentMember {
           role
         }
