@@ -23,6 +23,8 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { UserAcquisitionEvent } from '../../../lib/log';
 import {
+  ACQUISITION_CHANNEL_MAX_LENGTH,
+  ACQUISITION_OTHER_PREFIX,
   AcquisitionChannel,
   updateUserAcquisition,
 } from '../../../graphql/users';
@@ -45,9 +47,9 @@ import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
 const OTHER_PLACEHOLDER = 'Where did you hear about us?';
-// Long enough for "a talk at a meetup in Berlin", short enough to stay a
-// source and not a story.
-export const OTHER_DETAIL_MAX_LENGTH = 100;
+// The answer shares the API's 50 characters with the `other:` prefix.
+export const OTHER_DETAIL_MAX_LENGTH =
+  ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
 
 // Catch-alls stay at the end, in this order, however the rest are ordered.
 const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
@@ -215,22 +217,13 @@ const CHANNEL_OPTIONS: Array<
 ];
 
 // "I don't remember" and "Other" are catch-alls, so they stay last however the
-// rest are ordered. "I don't remember" travels with "Other": a funnel config
-// that offers Other gets it too, without listing the new key.
+// rest are ordered.
 const orderOptions = (
   options: AcquisitionChannel[] | undefined,
   shuffle: boolean,
 ) => {
-  const wanted = options?.length
-    ? new Set([
-        ...options,
-        ...(options.includes(AcquisitionChannel.Other)
-          ? [AcquisitionChannel.DontRemember]
-          : []),
-      ])
-    : undefined;
-  const selected = wanted
-    ? CHANNEL_OPTIONS.filter(({ value }) => wanted.has(value))
+  const selected = options?.length
+    ? CHANNEL_OPTIONS.filter(({ value }) => options.includes(value))
         // Config order, not the constant's.
         .sort((a, b) => options.indexOf(a.value) - options.indexOf(b.value))
     : CHANNEL_OPTIONS;
@@ -240,6 +233,24 @@ const orderOptions = (
   const rest = selected.filter(({ value }) => !PINNED_LAST.includes(value));
 
   return [...(shuffle ? shuffleArray(rest) : rest), ...pinned];
+};
+
+// What the profile stores: the key, or `other:<answer>` when they typed one.
+// Whitespace is collapsed so the cap counts characters people can see.
+export const getStoredChannel = (
+  channel: AcquisitionChannel,
+  otherDetail: string,
+): string => {
+  const detail = otherDetail.replace(/\s+/g, ' ').trim();
+
+  if (channel !== AcquisitionChannel.Other || !detail) {
+    return channel;
+  }
+
+  return `${ACQUISITION_OTHER_PREFIX}${detail}`.slice(
+    0,
+    ACQUISITION_CHANNEL_MAX_LENGTH,
+  );
 };
 
 interface OtherDetailProps {
@@ -326,26 +337,21 @@ function FunnelAcquisitionComponent({
 
   const complete = useCallback(
     (channel: AcquisitionChannel) => {
-      const detail = otherDetail.trim();
-
       logEvent({
         event_name: UserAcquisitionEvent.Submit,
         target_id: channel,
-        // The profile keeps the key, so every report still groups on it; what
-        // they typed lives on the event.
-        ...(channel === AcquisitionChannel.Other &&
-          !!detail && { extra: JSON.stringify({ other: detail }) }),
       });
       onTransition({
         type: FunnelStepTransitionType.Complete,
         details: { acquisitionChannel: channel },
       });
     },
-    [logEvent, onTransition, otherDetail],
+    [logEvent, onTransition],
   );
 
   const { mutate: submit, isPending } = useMutation({
-    mutationFn: updateUserAcquisition,
+    mutationFn: (channel: AcquisitionChannel) =>
+      updateUserAcquisition(getStoredChannel(channel, otherDetail)),
     onSuccess: (_, channel) => complete(channel),
     // The answer is analytics, not something the funnel should stall on.
     onError: (_, channel) => complete(channel),
