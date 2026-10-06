@@ -4,7 +4,7 @@ import { SquadStack } from '../../../../components/squads/stack/SquadStack';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { hasSquadFeature } from '../../lib/features';
 import { isStaffViewer } from '../../lib/viewer';
-import { VerifiedCompanySquadCard } from '../VerifiedSquad';
+import { FeaturedSquadCard, VerifiedCompanySquadCard } from '../VerifiedSquad';
 import { SquadPreviewToggle } from './SquadPreview';
 import { SquadShareWidget } from './SquadShareWidget';
 import { SquadTeamWidget } from './SquadTeamWidget';
@@ -21,6 +21,7 @@ export const SquadWidgets = (): ReactElement => {
     <>
       <SquadPreviewToggle />
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
+      {squad.flags?.featured && <FeaturedSquadCard />}
       {isStaff && <SquadShareWidget squad={squad} />}
       <SquadRulesWidget squad={squad} />
       <SquadTeamWidget squad={squad} />
