@@ -20,6 +20,11 @@ describe('squad links', () => {
     expect(isValidSquadLink('http://daily.dev')).toBe(true);
     expect(isValidSquadLink('ftp://daily.dev/file')).toBe(false);
     expect(isValidSquadLink('daily.dev')).toBe(false);
+    // Like the API: a real domain name, within the length limit
+    expect(isValidSquadLink('https://localhost:3000')).toBe(false);
+    expect(isValidSquadLink(`https://daily.dev/${'a'.repeat(500)}`)).toBe(
+      false,
+    );
   });
 
   it('shows a bare domain for the website', () => {
