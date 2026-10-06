@@ -3,6 +3,7 @@ import React from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SquadPerk } from '../../../../graphql/squadJobsPerks';
 import {
+  isSquadItemGone,
   SquadPerkCodeKind,
   squadPerkQueryOptions,
 } from '../../../../graphql/squadJobsPerks';
@@ -53,6 +54,7 @@ import {
   SquadDetailBullets,
   SquadDetailFacts,
   SquadDetailSection,
+  SquadDetailUnavailable,
 } from '../jobs/SquadDetail';
 
 // Member perks: shop-style cards anyone can see, locked for visitors, and
@@ -242,20 +244,29 @@ const PerkActions = ({ perk }: { perk: SquadPerk }): ReactElement => {
     );
   }
 
-  const claim = () => {
+  const claim = async () => {
     if (perk.claimedByMe) {
       return;
     }
 
-    logEvent({
-      event_name: LogEvent.ClaimSquadPerk,
-      target_id: perk.id,
-      extra: JSON.stringify({ sourceId: squad.id }),
-    });
-    onClaim(perk.id);
+    try {
+      const claimed = await onClaim(perk.id);
+      // Only a claim the API took counts, once
+      if (claimed.claimedByMe) {
+        logEvent({
+          event_name: LogEvent.ClaimSquadPerk,
+          target_id: perk.id,
+          extra: JSON.stringify({ sourceId: squad.id }),
+        });
+      }
+    } catch {
+      // The hook shows why (ended, every code taken)
+    }
   };
 
-  if (!perk.code && !perk.isClaimable) {
+  const canTake = perk.claimedByMe || perk.isClaimable;
+
+  if (!canTake) {
     return (
       <Typography
         type={TypographyType.Callout}
@@ -269,7 +280,7 @@ const PerkActions = ({ perk }: { perk: SquadPerk }): ReactElement => {
   return (
     <>
       {perk.code ? (
-        <CodeBox perk={perk} onCopy={claim} />
+        <CodeBox perk={perk} onCopy={() => claim()} />
       ) : (
         <Button
           type="button"
@@ -311,15 +322,19 @@ const PerkActions = ({ perk }: { perk: SquadPerk }): ReactElement => {
 export const SquadPerkPage = ({ perkId }: { perkId: string }): ReactElement => {
   const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
-  const { data: perk, isError } = useQuery(
+  const { data, error, isError, refetch } = useQuery(
     squadPerkQueryOptions({ id: perkId, user }),
   );
+  // A perk of another squad in this squad's address is not this page's
+  const isOtherSquad = !!data && data.sourceId !== squad.id;
+  const perk = isOtherSquad ? undefined : data;
+  const isGone = isOtherSquad || (isError && isSquadItemGone(error));
   const { perks } = useSquadPerks(squad);
   const more = perks.filter(({ id }) => id !== perkId).slice(0, 4);
   let title = '';
   if (perk) {
     title = perk.title;
-  } else if (isError) {
+  } else if (isGone) {
     title = 'Perk not found';
   }
 
@@ -334,13 +349,12 @@ export const SquadPerkPage = ({ perkId }: { perkId: string }): ReactElement => {
       }
     >
       <div className="flex flex-col gap-10 px-4 pb-10 pt-6 tablet:px-6">
-        {isError && !perk && (
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            This perk is no longer offered.
-          </Typography>
+        {!perk && (isGone || isError) && (
+          <SquadDetailUnavailable
+            isGone={isGone}
+            goneText="This perk is no longer offered."
+            onRetry={() => refetch()}
+          />
         )}
         {perk && (
           <>

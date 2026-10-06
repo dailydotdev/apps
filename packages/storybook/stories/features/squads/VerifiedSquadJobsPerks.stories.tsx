@@ -125,6 +125,7 @@ const daysAgo = (days: number): string =>
 
 const jobs: SquadJob[] = [
   {
+    sourceId: 'coderabbit',
     id: 'job-agents',
     title: 'Senior Software Engineer, Agents',
     team: 'Engineering',
@@ -143,6 +144,7 @@ const jobs: SquadJob[] = [
     createdAt: daysAgo(2),
   },
   {
+    sourceId: 'coderabbit',
     id: 'job-devrel',
     title: 'Developer Advocate',
     team: 'DevRel',
@@ -156,6 +158,7 @@ const jobs: SquadJob[] = [
     createdAt: daysAgo(5),
   },
   {
+    sourceId: 'coderabbit',
     id: 'job-graph',
     title: 'Staff Engineer, Code Graph',
     team: 'Engineering',
@@ -172,6 +175,7 @@ const jobs: SquadJob[] = [
 
 const perk = (extra: Partial<SquadPerk>): SquadPerk => ({
   id: 'perk-pro',
+  sourceId: 'coderabbit',
   title: '3 months of CodeRabbit Pro',
   value: '3 months free',
   summary:

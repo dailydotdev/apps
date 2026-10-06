@@ -1,6 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import {
   Typography,
   TypographyColor,
   TypographyTag,
@@ -71,4 +76,34 @@ export const SquadDetailFacts = ({
       </li>
     ))}
   </ul>
+);
+
+/**
+ * A role or perk page that has nothing to show: gone (or another squad's),
+ * or a load that failed and can be tried again.
+ */
+export const SquadDetailUnavailable = ({
+  isGone,
+  goneText,
+  onRetry,
+}: {
+  isGone: boolean;
+  goneText: string;
+  onRetry: () => void;
+}): ReactElement => (
+  <div className="flex flex-col items-start gap-3">
+    <Typography type={TypographyType.Callout} color={TypographyColor.Secondary}>
+      {isGone ? goneText : 'We couldn’t load this. Please try again.'}
+    </Typography>
+    {!isGone && (
+      <Button
+        type="button"
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        onClick={onRetry}
+      >
+        Try again
+      </Button>
+    )}
+  </div>
 );

@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
-import { gqlClient } from './common';
+import type { ApiErrorResult } from './common';
+import { ApiError, getApiError, gqlClient } from './common';
 import type { EmptyResponse } from './emptyResponse';
 import type { Squad, SourceFeatures } from './sources';
 import type { LoggedUser } from '../lib/user';
@@ -39,6 +40,8 @@ export const squadJobEmploymentTypeLabel: Record<
 
 export interface SquadJob {
   id: string;
+  /** The squad that lists the role. */
+  sourceId: string;
   title: string;
   team: string | null;
   location: string;
@@ -58,6 +61,8 @@ export enum SquadPerkCodeKind {
 
 export interface SquadPerk {
   id: string;
+  /** The squad that offers the perk. */
+  sourceId: string;
   title: string;
   value: string;
   summary: string | null;
@@ -83,6 +88,7 @@ export interface SquadPerk {
 const SQUAD_JOB_FRAGMENT = gql`
   fragment SquadJobInfo on SquadJob {
     id
+    sourceId
     title
     team
     location
@@ -99,6 +105,7 @@ const SQUAD_JOB_FRAGMENT = gql`
 const SQUAD_PERK_FRAGMENT = gql`
   fragment SquadPerkInfo on SquadPerk {
     id
+    sourceId
     title
     value
     summary
@@ -119,6 +126,15 @@ const SQUAD_PERK_FRAGMENT = gql`
     createdAt
   }
 `;
+
+/** A role or perk that is gone, or not this viewer's to see. */
+export const isSquadItemGone = (error: unknown): boolean =>
+  !!getApiError(error as ApiErrorResult, ApiError.NotFound) ||
+  !!getApiError(error as ApiErrorResult, ApiError.Forbidden);
+
+// A blip is retried; only a real absence stops at once
+const retryUnlessGone = (failureCount: number, error: unknown): boolean =>
+  !isSquadItemGone(error) && failureCount < 2;
 
 /* ------------------------------------------------- the feature flags */
 
@@ -216,7 +232,7 @@ export const squadJobQueryOptions = (id?: string) => ({
     return res.squadJob;
   },
   enabled: !!id,
-  retry: false,
+  retry: retryUnlessGone,
   staleTime: StaleTime.Default,
 });
 
@@ -364,7 +380,7 @@ export const squadPerkQueryOptions = ({
     return res.squadPerk;
   },
   enabled: !!id,
-  retry: false,
+  retry: retryUnlessGone,
   staleTime: StaleTime.Default,
 });
 

@@ -18,10 +18,21 @@ export const getSquadJobMeta = (
     .join(' · ');
 };
 
+// A perk ends at the end of a calendar day in UTC, so everyone, wherever
+// they are, sees the same date the editor picked
 const shortDate = new Intl.DateTimeFormat('en-US', {
   month: 'short',
   day: 'numeric',
+  timeZone: 'UTC',
 });
+
+/** "2026-12-31" for a date input, from a perk's stored end. */
+export const toPerkEndDateInput = (iso?: string | null): string =>
+  iso ? new Date(iso).toISOString().slice(0, 10) : '';
+
+/** The end of the picked day, in UTC, so it round-trips to the same date. */
+export const fromPerkEndDateInput = (value: string): string | null =>
+  value ? `${value}T23:59:59.999Z` : null;
 
 /** "Ends Dec 31", or "No end date" for a perk that runs until removed. */
 export const getSquadPerkEndsLabel = (
@@ -52,3 +63,16 @@ export const getLinkHost = (url: string): string | null => {
     return null;
   }
 };
+
+/** The API takes this many codes in one call. */
+export const SQUAD_PERK_CODES_BATCH = 5000;
+
+export const chunkSquadPerkCodes = (codes: string[]): string[][] =>
+  Array.from(
+    { length: Math.ceil(codes.length / SQUAD_PERK_CODES_BATCH) },
+    (_, index) =>
+      codes.slice(
+        index * SQUAD_PERK_CODES_BATCH,
+        (index + 1) * SQUAD_PERK_CODES_BATCH,
+      ),
+  );

@@ -40,6 +40,7 @@ import {
 } from '../../../../components/typography/Typography';
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { usePrompt } from '../../../../hooks/usePrompt';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { useSquadJobMutations, useSquadJobs } from '../../hooks/useSquadJobs';
@@ -52,8 +53,11 @@ import { moveItem } from '../../lib/order';
 import { isValidSquadLink } from '../../lib/links';
 import {
   getSquadJobMeta,
+  chunkSquadPerkCodes,
+  fromPerkEndDateInput,
   getSquadPerkEndsLabel,
   parseSquadPerkCodes,
+  toPerkEndDateInput,
 } from '../../lib/jobsPerks';
 import {
   getSquadJobFormUrl,
@@ -703,13 +707,6 @@ const codeKindOptions = [
 
 const NO_PRODUCT = 'none';
 
-const toDateInput = (iso?: string | null): string =>
-  iso ? new Date(iso).toISOString().slice(0, 10) : '';
-
-// The end of the chosen day, so a perk "ending Dec 31" lasts all of it
-const fromDateInput = (value: string): string | null =>
-  value ? new Date(`${value}T23:59:59`).toISOString() : null;
-
 const PerkForm = ({
   perk,
   onDone,
@@ -719,7 +716,9 @@ const PerkForm = ({
   onDone: () => void;
   onSavingChange: (isSaving: boolean) => void;
 }): ReactElement => {
+  const router = useRouter();
   const { squad } = useSquadPageContext();
+  const { displayToast } = useToastNotification();
   const { products } = useSquadProducts(squad);
   const { onAdd, onUpdate, onAddCodes, onRemove, isRemoving } =
     useSquadPerkMutations(squad);
@@ -734,7 +733,7 @@ const PerkForm = ({
   const [code, setCode] = useState(perk?.code ?? '');
   const [codesText, setCodesText] = useState('');
   const [redeemUrl, setRedeemUrl] = useState(perk?.redeemUrl ?? '');
-  const [endsOn, setEndsOn] = useState(toDateInput(perk?.endsAt));
+  const [endsOn, setEndsOn] = useState(toPerkEndDateInput(perk?.endsAt));
   const [claimLimit, setClaimLimit] = useState(
     perk?.claimLimit ? String(perk.claimLimit) : '',
   );
@@ -782,26 +781,46 @@ const PerkForm = ({
       codeKind,
       code: isShared ? code.trim() : null,
       redeemUrl: redeemUrl.trim() || null,
-      endsAt: fromDateInput(endsOn),
+      endsAt: fromPerkEndDateInput(endsOn),
       claimLimit: Number.isFinite(limit) && limit > 0 ? limit : null,
       steps: filled(steps),
       terms: filled(terms),
     };
 
     onSavingChange(true);
+    let saved: SquadPerk;
     try {
-      const saved = perk
+      saved = perk
         ? await onUpdate({ id: perk.id, input })
         : await onAdd(input);
-      if (!isShared && codes.length) {
-        await onAddCodes({ id: saved.id, codes });
-      }
     } catch {
-      return;
-    } finally {
       onSavingChange(false);
+      return;
     }
 
+    if (!isShared && codes.length) {
+      try {
+        // In batches the API takes; codes already there are skipped, so a
+        // retry after a failure is safe
+        // eslint-disable-next-line no-restricted-syntax
+        for (const batch of chunkSquadPerkCodes(codes)) {
+          // eslint-disable-next-line no-await-in-loop
+          await onAddCodes({ id: saved.id, codes: batch });
+        }
+      } catch {
+        onSavingChange(false);
+        displayToast(
+          'The perk is saved, but the codes did not all upload. Add them again here.',
+        );
+        // A new perk exists now: retry on its edit form, never add it twice
+        if (!perk) {
+          router.replace(getSquadPerkFormUrl(squad.handle, saved.id));
+        }
+        return;
+      }
+    }
+
+    onSavingChange(false);
     onDone();
   };
 
@@ -942,7 +961,8 @@ const PerkForm = ({
                     : '',
                 ]
                   .filter(Boolean)
-                  .join(' · ') || 'Each member gets one code.'}
+                  .join(' · ') ||
+                  'Each member gets one code. Long lists upload in batches.'}
               </Helper>
             </div>
           </>

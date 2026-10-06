@@ -9,7 +9,7 @@ import {
   updateSquadJob,
 } from '../../../graphql/squadJobsPerks';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import { labels } from '../../../lib/labels';
+import { getSquadMutationErrorMessage } from './useSquadPerks';
 import { getSquadId, hasSquadFeature } from '../lib/features';
 
 export const useSquadJobs = (squad: Squad) => {
@@ -28,7 +28,8 @@ export const useSquadJobMutations = (squad: Squad) => {
   const { queryKey } = squadJobsQueryOptions({ squad });
   const setJobs = (update: (jobs: SquadJob[]) => SquadJob[]) =>
     client.setQueryData<SquadJob[]>(queryKey, (jobs) => update(jobs ?? []));
-  const onError = () => displayToast(labels.error.generic);
+  const onError = (error: unknown) =>
+    displayToast(getSquadMutationErrorMessage(error));
 
   const { mutateAsync: onAdd } = useMutation({
     mutationFn: (input: SquadJobInput) =>
@@ -72,9 +73,9 @@ export const useSquadJobMutations = (squad: Squad) => {
       return { previous };
     },
     onSuccess: (jobs) => client.setQueryData(queryKey, jobs),
-    onError: (_, __, context) => {
+    onError: (error, __, context) => {
       client.setQueryData(queryKey, context?.previous);
-      onError();
+      onError(error);
     },
   });
 

@@ -2,7 +2,10 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { SquadJob } from '../../../../graphql/squadJobsPerks';
-import { squadJobQueryOptions } from '../../../../graphql/squadJobsPerks';
+import {
+  isSquadItemGone,
+  squadJobQueryOptions,
+} from '../../../../graphql/squadJobsPerks';
 import {
   Button,
   ButtonIconPosition,
@@ -33,6 +36,7 @@ import {
   SquadDetailBullets,
   SquadDetailFacts,
   SquadDetailSection,
+  SquadDetailUnavailable,
 } from './SquadDetail';
 
 // The squad's public jobs board: a list anyone can browse, and a page per
@@ -195,14 +199,20 @@ const SummaryHeader = ({
 export const SquadJobPage = ({ jobId }: { jobId: string }): ReactElement => {
   const { squad } = useSquadPageContext();
   const { logEvent } = useLogContext();
-  const { data: job, isError } = useQuery(squadJobQueryOptions(jobId));
+  const { data, error, isError, refetch } = useQuery(
+    squadJobQueryOptions(jobId),
+  );
+  // A role of another squad in this squad's address is not this page's
+  const isOtherSquad = !!data && data.sourceId !== squad.id;
+  const job = isOtherSquad ? undefined : data;
+  const isGone = isOtherSquad || (isError && isSquadItemGone(error));
   const { jobs } = useSquadJobs(squad);
   const more = jobs.filter(({ id }) => id !== jobId).slice(0, 3);
   const backUrl = getSquadTabUrl(squad.handle, SquadPageTab.Jobs);
   let title = '';
   if (job) {
     title = job.title;
-  } else if (isError) {
+  } else if (isGone) {
     title = 'Role not found';
   }
 
@@ -217,13 +227,12 @@ export const SquadJobPage = ({ jobId }: { jobId: string }): ReactElement => {
       }
     >
       <div className="flex flex-col gap-10 px-4 pb-10 pt-6 tablet:px-6">
-        {isError && !job && (
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            This role is no longer open.
-          </Typography>
+        {!job && (isGone || isError) && (
+          <SquadDetailUnavailable
+            isGone={isGone}
+            goneText="This role is no longer open."
+            onRetry={() => refetch()}
+          />
         )}
         {job && (
           <>

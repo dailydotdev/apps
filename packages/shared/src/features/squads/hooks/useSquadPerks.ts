@@ -15,6 +15,7 @@ import {
   updateSquadPerk,
 } from '../../../graphql/squadJobsPerks';
 import type { ApiErrorResult } from '../../../graphql/common';
+import { ApiError } from '../../../graphql/common';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
@@ -31,9 +32,24 @@ export const useSquadPerks = (squad: Squad) => {
   };
 };
 
-// The API explains why a claim failed (ended, every code taken)
-const getClaimError = (error: ApiErrorResult): string =>
-  error?.response?.errors?.[0]?.message ?? labels.error.generic;
+/**
+ * The API says why a write failed (ended, every code taken, not one of
+ * the squad's products, the 10-perk limit). Field-level problems arrive
+ * as a validation error, which the forms mostly catch first.
+ */
+export const getSquadMutationErrorMessage = (error: unknown): string => {
+  const first = (error as ApiErrorResult)?.response?.errors?.[0];
+  if (
+    !first?.message ||
+    first.extensions?.code === ApiError.ZodValidationError
+  ) {
+    return first
+      ? 'Some fields are too long or not valid.'
+      : labels.error.generic;
+  }
+
+  return first.message;
+};
 
 export const useSquadPerkMutations = (squad: Squad) => {
   const { user } = useAuthContext();
@@ -51,7 +67,8 @@ export const useSquadPerkMutations = (squad: Squad) => {
       perk,
     );
   };
-  const onError = () => displayToast(labels.error.generic);
+  const onError = (error: unknown) =>
+    displayToast(getSquadMutationErrorMessage(error));
 
   const { mutateAsync: onAdd } = useMutation({
     mutationFn: (input: SquadPerkInput) =>
@@ -72,10 +89,10 @@ export const useSquadPerkMutations = (squad: Squad) => {
     onError,
   });
 
+  // The form explains a failed upload itself, and where to retry
   const { mutateAsync: onAddCodes } = useMutation({
     mutationFn: addSquadPerkCodes,
     onSuccess: (perk) => setPerk(perk),
-    onError,
   });
 
   const { mutateAsync: onRemove, isPending: isRemoving } = useMutation({
@@ -101,16 +118,16 @@ export const useSquadPerkMutations = (squad: Squad) => {
       return { previous };
     },
     onSuccess: (perks) => client.setQueryData(queryKey, perks),
-    onError: (_, __, context) => {
+    onError: (error, __, context) => {
       client.setQueryData(queryKey, context?.previous);
-      onError();
+      onError(error);
     },
   });
 
   const { mutateAsync: onClaim, isPending: isClaiming } = useMutation({
     mutationFn: claimSquadPerk,
     onSuccess: (perk) => setPerk(perk),
-    onError: (error: ApiErrorResult) => displayToast(getClaimError(error)),
+    onError,
   });
 
   return {

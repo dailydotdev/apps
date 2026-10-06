@@ -1,8 +1,12 @@
 import {
+  chunkSquadPerkCodes,
+  fromPerkEndDateInput,
   getLinkHost,
   getSquadJobMeta,
   getSquadPerkEndsLabel,
   parseSquadPerkCodes,
+  SQUAD_PERK_CODES_BATCH,
+  toPerkEndDateInput,
 } from './jobsPerks';
 import {
   SquadJobEmploymentType,
@@ -63,5 +67,36 @@ describe('getLinkHost', () => {
 
   it('should return null for something that is not a link', () => {
     expect(getLinkHost('not a link')).toBeNull();
+  });
+});
+
+describe('perk end date input', () => {
+  it('should round-trip the picked day', () => {
+    const stored = fromPerkEndDateInput('2026-12-31');
+
+    expect(stored).toEqual('2026-12-31T23:59:59.999Z');
+    expect(toPerkEndDateInput(stored)).toEqual('2026-12-31');
+    expect(toPerkEndDateInput(fromPerkEndDateInput('2026-12-31'))).toEqual(
+      '2026-12-31',
+    );
+  });
+
+  it('should leave an empty date empty', () => {
+    expect(fromPerkEndDateInput('')).toBeNull();
+    expect(toPerkEndDateInput(null)).toEqual('');
+  });
+});
+
+describe('chunkSquadPerkCodes', () => {
+  it('should split codes into batches the API takes', () => {
+    const codes = Array.from(
+      { length: SQUAD_PERK_CODES_BATCH + 2 },
+      (_, i) => `C-${i}`,
+    );
+
+    expect(chunkSquadPerkCodes(codes).map((batch) => batch.length)).toEqual([
+      SQUAD_PERK_CODES_BATCH,
+      2,
+    ]);
   });
 });
