@@ -1,0 +1,578 @@
+#agent-feed-mock {
+   --feed-bg:light-dark(#ffffff,#0e1015);
+   --feed-card:light-dark(#ffffff,#15171e);
+   --feed-soft:light-dark(#f4f5f7,#1e212b);
+   --feed-text:light-dark(#17191f,#f4f4f6);
+   --feed-muted:light-dark(#616774,#a1a5b2);
+   --feed-line:light-dark(#e1e3e9,#30333f);
+   --feed-brand:light-dark(#7735ca,#c397ff);
+   --feed-tint:light-dark(#f5efff,#231b33);
+   --feed-green:light-dark(#23784e,#74ce9c);
+   color:var(--feed-text);
+   font-family:system-ui,-apple-system,sans-serif;
+   font-size:14px;
+   line-height:1.5;
+
+}
+
+#agent-feed-mock * {
+  box-sizing:border-box
+}
+
+#agent-feed-mock button {
+  font:inherit;
+   color:inherit;
+   cursor:pointer
+}
+
+#agent-feed-mock .stage {
+  background:var(--feed-bg);
+  border:1px solid var(--feed-line);
+  border-radius:16px;
+  overflow:hidden
+}
+
+#agent-feed-mock .top {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:18px 24px;
+  border-bottom:1px solid var(--feed-line);
+  padding-right:24px
+}
+
+#agent-feed-mock .logo {
+  font-size:22px;
+  font-weight:750;
+  letter-spacing:-1px;
+  white-space:nowrap
+}
+
+#agent-feed-mock .internal {
+  color:var(--feed-muted);
+  font-size:11px;
+  border:1px solid var(--feed-line);
+  padding:2px 7px;
+  border-radius:5px;
+  letter-spacing:.05em
+}
+
+#agent-feed-mock .avatar {
+  margin-left:auto;
+  background:var(--feed-tint);
+  color:var(--feed-brand);
+  border-radius:50%;
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  font-weight:650
+}
+
+#agent-feed-mock .shell {
+  display:grid;
+  grid-template-columns:166px minmax(0,1fr)
+}
+
+#agent-feed-mock .side {
+  padding:24px 12px;
+  border-right:1px solid var(--feed-line)
+}
+
+#agent-feed-mock .navitem {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 12px;
+  color:var(--feed-muted);
+  border-radius:9px;
+  margin-bottom:4px
+}
+
+#agent-feed-mock .navitem.active {
+  background:var(--feed-soft);
+  color:var(--feed-text);
+  font-weight:650
+}
+
+#agent-feed-mock .side-label {
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  color:var(--feed-muted);
+  margin:30px 12px 12px
+}
+
+#agent-feed-mock .agent-name {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:12px;
+  font-size:12px
+}
+
+#agent-feed-mock .agent-name i {
+  color:var(--feed-brand)
+}
+
+#agent-feed-mock .hunting {
+  font-size:11px;
+  color:var(--feed-green);
+  margin:2px 12px 16px 36px
+}
+
+#agent-feed-mock main {
+  padding:26px 24px 32px;
+  min-width:0
+}
+
+#agent-feed-mock .heading {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  margin-bottom:18px
+}
+
+#agent-feed-mock h1 {
+  font-size:22px;
+  letter-spacing:-.6px;
+  margin:0;
+  font-weight:700
+}
+
+#agent-feed-mock .sub {
+  color:var(--feed-muted);
+  font-size:12px;
+  margin-top:3px
+}
+
+#agent-feed-mock .tabs {
+  display:flex;
+  gap:24px;
+  border-bottom:1px solid var(--feed-line);
+  margin-bottom:20px
+}
+
+#agent-feed-mock .tab {
+  padding:10px 0;
+  border-bottom:2px solid var(--feed-text);
+  font-weight:600
+}
+
+#agent-feed-mock .quiet-tab {
+  padding:10px 0;
+  color:var(--feed-muted)
+}
+
+#agent-feed-mock .feed-button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border:1px solid var(--feed-line);
+  border-radius:8px;
+  padding:8px 10px;
+  background:var(--feed-card);
+  font-size:12px
+}
+
+#agent-feed-mock .feed-button:hover {
+  background:var(--feed-soft)
+}
+
+#agent-feed-mock .switch-label {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:var(--feed-muted)
+}
+
+#agent-feed-mock input {
+  accent-color:var(--feed-brand);
+  width:16px;
+  height:16px
+}
+
+#agent-feed-mock .controls {
+  display:flex;
+  gap:14px;
+  align-items:center;
+  flex-wrap:wrap
+}
+
+#agent-feed-mock .feed-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+  align-items:stretch
+}
+
+#agent-feed-mock .post {
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  border:1px solid var(--feed-line);
+  border-radius:14px;
+  background:var(--feed-card);
+  overflow:hidden
+}
+
+#agent-feed-mock .post.agent {
+  border-color:color-mix(in srgb,var(--feed-brand) 55%,var(--feed-line))
+}
+
+#agent-feed-mock .ribbon {
+  background:var(--feed-tint);
+  color:var(--feed-brand);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:9px 12px;
+  font-size:11px;
+  font-weight:600;
+  border-bottom:1px solid color-mix(in srgb,var(--feed-brand) 18%,var(--feed-line))
+}
+
+#agent-feed-mock .post-body {
+  padding:14px 14px 10px;
+  display:flex;
+  flex-direction:column;
+  flex:1
+}
+
+#agent-feed-mock .source {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:11px;
+  color:var(--feed-muted);
+  margin-bottom:10px
+}
+
+#agent-feed-mock .source-mark {
+  width:21px;
+  height:21px;
+  border-radius:6px;
+  background:var(--feed-soft);
+  color:var(--feed-text);
+  display:grid;
+  place-items:center;
+  font-weight:700
+}
+
+#agent-feed-mock h2 {
+  font-size:16px;
+  line-height:1.35;
+  letter-spacing:-.25px;
+  margin:0 0 14px;
+  font-weight:700
+}
+
+#agent-feed-mock .tags {
+  font-size:11px;
+  color:var(--feed-muted);
+  margin-top:auto;
+  margin-bottom:7px
+}
+
+#agent-feed-mock .meta {
+  font-size:11px;
+  color:var(--feed-muted);
+  margin-bottom:10px
+}
+
+#agent-feed-mock .cover {
+  height:104px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:16px;
+  background:var(--feed-soft);
+  border-radius:8px;
+  margin-bottom:10px;
+  overflow:hidden;
+  position:relative
+}
+
+#agent-feed-mock .cover-label {
+  font-family:ui-monospace,monospace;
+  font-size:11px;
+  color:var(--feed-muted)
+}
+
+#agent-feed-mock .cover-title {
+  font-size:25px;
+  letter-spacing:-1px;
+  font-weight:750
+}
+
+#agent-feed-mock .cover.agent-art {
+  background:var(--feed-tint);
+  color:var(--feed-brand)
+}
+
+#agent-feed-mock .cover-pattern {
+  position:absolute;
+  width:80px;
+  height:80px;
+  border:1px solid currentColor;
+  border-radius:20px;
+  right:-26px;
+  transform:rotate(30deg);
+  opacity:.2
+}
+
+#agent-feed-mock .actions {
+  display:flex;
+  justify-content:space-between;
+  gap:4px
+}
+
+#agent-feed-mock .action {
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:6px;
+  border:0;
+  background:transparent;
+  font-size:11px;
+  color:var(--feed-muted);
+  border-radius:6px
+}
+
+#agent-feed-mock .action[aria-pressed=true] {
+  color:var(--feed-brand);
+  background:var(--feed-tint)
+}
+
+#agent-feed-mock .agent-footer {
+  padding:9px 12px;
+  border-top:1px solid var(--feed-line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:4px;
+  font-size:11px;
+  color:var(--feed-brand)
+}
+
+#agent-feed-mock .why {
+  border:0;
+  background:transparent;
+  color:var(--feed-brand);
+  font-size:11px;
+  padding:3px;
+  text-decoration:underline;
+  text-underline-offset:3px
+}
+
+#agent-feed-mock .reason {
+  padding:0 12px 12px;
+  font-size:12px;
+  color:var(--feed-muted)
+}
+
+#agent-feed-mock [hidden] {
+  display:none!important
+}
+
+#agent-feed-mock .settings {
+  background:var(--feed-card);
+  border:1px solid var(--feed-line);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:20px
+}
+
+#agent-feed-mock .settings-head {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:14px
+}
+
+#agent-feed-mock .settings h2 {
+  margin:0
+}
+
+#agent-feed-mock .setting-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:12px 0;
+  border-top:1px solid var(--feed-line)
+}
+
+#agent-feed-mock .setting-row small {
+  display:block;
+  color:var(--feed-muted)
+}
+
+#agent-feed-mock .digest {
+  grid-column:1/-1;
+  border:1px solid color-mix(in srgb,var(--feed-brand) 55%,var(--feed-line));
+  border-radius:14px;
+  background:var(--feed-card);
+  padding:18px
+}
+
+#agent-feed-mock .digest-header {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:15px
+}
+
+#agent-feed-mock .digest-header i {
+  color:var(--feed-brand)
+}
+
+#agent-feed-mock .digest-header h2 {
+  margin:0
+}
+
+#agent-feed-mock .digest-row {
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  padding:14px 0;
+  border-top:1px solid var(--feed-line)
+}
+
+#agent-feed-mock .digest-copy {
+  flex:1;
+  min-width:0
+}
+
+#agent-feed-mock .digest-copy h2 {
+  margin:4px 0 6px
+}
+
+#agent-feed-mock .digest-copy .source {
+  margin:0
+}
+
+#agent-feed-mock .digest-copy .reason {
+  padding:4px 0 0
+}
+
+#agent-feed-mock .digest-thumb {
+  width:70px;
+  height:70px;
+  background:var(--feed-tint);
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  color:var(--feed-brand);
+  font-weight:700;
+  flex-shrink:0
+}
+
+#agent-feed-mock .status {
+  color:var(--feed-muted);
+  font-size:12px;
+  margin-top:20px;
+  min-height:18px
+}
+
+#agent-feed-mock svg {
+  width:16px;
+  height:16px;
+  flex-shrink:0
+}
+
+#agent-feed-mock .density-compact .cover {
+  height:72px
+}
+
+@media(max-width:850px) {
+  #agent-feed-mock .feed-grid {
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+  #agent-feed-mock .shell {
+  grid-template-columns:140px minmax(0,1fr)
+}
+ #agent-feed-mock main {
+  padding:22px 18px
+}
+
+}
+
+@media(max-width:580px) {
+  #agent-feed-mock .side {
+  display:none
+}
+ #agent-feed-mock .shell {
+  grid-template-columns:minmax(0,1fr)
+}
+ #agent-feed-mock .top {
+  padding-left:16px;
+  gap:8px
+}
+ #agent-feed-mock .internal {
+  display:none
+}
+ #agent-feed-mock .avatar {
+  display:none
+}
+ #agent-feed-mock main {
+  padding:18px 14px
+}
+ #agent-feed-mock .feed-grid {
+  grid-template-columns:minmax(0,1fr)
+}
+  #agent-feed-mock .post h2 {
+  font-size:18px
+}
+ #agent-feed-mock .cover {
+  height:130px
+}
+
+}
+
+@media(pointer:coarse) {
+  #agent-feed-mock button {
+  min-height:44px
+}
+ #agent-feed-mock .switch-label {
+  min-height:44px
+}
+
+}
+
+
+:root {
+   color-scheme: light dark;
+
+}
+
+body {
+   margin:0;
+   padding:16px;
+   background:var(--theme-background-default);
+
+}
+
+#agent-feed-mock .variant-control {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+
+}
+
+#agent-feed-mock select {
+  font:inherit;
+  color:var(--feed-text);
+  background:var(--feed-card);
+  border:1px solid var(--feed-line);
+  padding:8px;
+  border-radius:8px;
+
+}
