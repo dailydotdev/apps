@@ -34,6 +34,7 @@ import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
 import { CompassIcon } from '../../../components/icons/Compass';
 import { GitHubIcon } from '../../../components/icons/GitHub';
 import { GoogleIcon } from '../../../components/icons/Google';
+import { HelpIcon } from '../../../components/icons/Help';
 import { InviteIcon } from '../../../components/icons/Invite';
 import { LinkedInIcon } from '../../../components/icons/LinkedIn';
 import { MailIcon } from '../../../components/icons/Mail';
@@ -43,6 +44,13 @@ import { TwitterIcon } from '../../../components/icons/Twitter';
 import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
+const OTHER_PLACEHOLDER = 'Where did you hear about us?';
+// Long enough for "a talk at a meetup in Berlin", short enough to stay a
+// source and not a story.
+export const OTHER_DETAIL_MAX_LENGTH = 100;
+
+// Catch-alls stay at the end, in this order, however the rest are ordered.
+const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
 
 type Icon = (props: IconProps) => ReactElement;
 
@@ -185,6 +193,16 @@ const CHANNEL_OPTIONS: Array<
     ...faviconMark(ChromeIcon),
   },
   {
+    value: AcquisitionChannel.DontRemember,
+    label: "I don't remember",
+    logo: <HelpIcon secondary className="text-text-tertiary" />,
+    tile: (
+      <Tile className="bg-background-default text-text-tertiary">
+        <HelpIcon secondary size={IconSize.Size16} />
+      </Tile>
+    ),
+  },
+  {
     value: AcquisitionChannel.Other,
     label: 'Other',
     logo: <CompassIcon secondary className="text-text-tertiary" />,
@@ -196,25 +214,71 @@ const CHANNEL_OPTIONS: Array<
   },
 ];
 
-// "Other" is a catch-all, so it stays last however the rest are ordered.
+// "I don't remember" and "Other" are catch-alls, so they stay last however the
+// rest are ordered. "I don't remember" travels with "Other": a funnel config
+// that offers Other gets it too, without listing the new key.
 const orderOptions = (
   options: AcquisitionChannel[] | undefined,
   shuffle: boolean,
 ) => {
-  const selected = options?.length
-    ? CHANNEL_OPTIONS.filter(({ value }) => options.includes(value))
+  const wanted = options?.length
+    ? new Set([
+        ...options,
+        ...(options.includes(AcquisitionChannel.Other)
+          ? [AcquisitionChannel.DontRemember]
+          : []),
+      ])
+    : undefined;
+  const selected = wanted
+    ? CHANNEL_OPTIONS.filter(({ value }) => wanted.has(value))
         // Config order, not the constant's.
         .sort((a, b) => options.indexOf(a.value) - options.indexOf(b.value))
     : CHANNEL_OPTIONS;
-  const other = selected.filter(
-    ({ value }) => value === AcquisitionChannel.Other,
+  const pinned = PINNED_LAST.flatMap((channel) =>
+    selected.filter(({ value }) => value === channel),
   );
-  const rest = selected.filter(
-    ({ value }) => value !== AcquisitionChannel.Other,
-  );
+  const rest = selected.filter(({ value }) => !PINNED_LAST.includes(value));
 
-  return [...(shuffle ? shuffleArray(rest) : rest), ...other];
+  return [...(shuffle ? shuffleArray(rest) : rest), ...pinned];
 };
+
+interface OtherDetailProps {
+  icon: ReactElement;
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+// Picking "Other" swaps its row for a text box in the same place, still in its
+// selected state, so the answer reads as a refinement of the choice.
+const OtherDetail = ({
+  icon,
+  name,
+  value,
+  onChange,
+}: OtherDetailProps): ReactElement => (
+  <label
+    className="flex min-h-14 w-full cursor-text items-center gap-3 rounded-8 border border-solid border-brand-default bg-brand-active px-4 typo-body"
+    htmlFor={`${name}-other`}
+  >
+    <span className="flex size-6 items-center justify-center">{icon}</span>
+    <input
+      // The row the user just tapped turns into the field; typing is the next
+      // thing they do.
+      // eslint-disable-next-line jsx-a11y/no-autofocus
+      autoFocus
+      aria-label={OTHER_PLACEHOLDER}
+      className="min-w-0 flex-1 bg-transparent py-3 text-text-primary outline-none placeholder:text-text-tertiary"
+      id={`${name}-other`}
+      maxLength={OTHER_DETAIL_MAX_LENGTH}
+      name={`${name}-other`}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder={OTHER_PLACEHOLDER}
+      type="text"
+      value={value}
+    />
+  </label>
+);
 
 function FunnelAcquisitionComponent({
   id,
@@ -231,6 +295,7 @@ function FunnelAcquisitionComponent({
 }: FunnelStepAcquisition): ReactElement {
   const { logEvent } = useLogContext();
   const [value, setValue] = useState<AcquisitionChannel>();
+  const [otherDetail, setOtherDetail] = useState('');
   // Shuffled once per option set: re-ordering the list under a user who is
   // halfway through reading it is worse than the position bias it corrects.
   const order = useMemo(
@@ -246,6 +311,14 @@ function FunnelAcquisitionComponent({
       })),
     [iconStyle, order],
   );
+  const otherOption = inputOptions.find(
+    ({ value: channel }) => channel === AcquisitionChannel.Other,
+  );
+  const isOtherSelected = value === AcquisitionChannel.Other;
+  // While "Other" is a text box, the buttons above it are the whole group.
+  const groupOptions = isOtherSelected
+    ? inputOptions.filter(({ value: channel }) => channel !== otherOption.value)
+    : inputOptions;
   const headlineHtml = useMemo(
     () => sanitizeMessage(headline || DEFAULT_HEADLINE),
     [headline],
@@ -253,16 +326,22 @@ function FunnelAcquisitionComponent({
 
   const complete = useCallback(
     (channel: AcquisitionChannel) => {
+      const detail = otherDetail.trim();
+
       logEvent({
         event_name: UserAcquisitionEvent.Submit,
         target_id: channel,
+        // The profile keeps the key, so every report still groups on it; what
+        // they typed lives on the event.
+        ...(channel === AcquisitionChannel.Other &&
+          !!detail && { extra: JSON.stringify({ other: detail }) }),
       });
       onTransition({
         type: FunnelStepTransitionType.Complete,
         details: { acquisitionChannel: channel },
       });
     },
-    [logEvent, onTransition],
+    [logEvent, onTransition, otherDetail],
   );
 
   const { mutate: submit, isPending } = useMutation({
@@ -303,13 +382,22 @@ function FunnelAcquisitionComponent({
           <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
         )}
         {/* The rail centres its children, and the group sizes to its content. */}
-        <div className="w-full">
+        <div className="flex w-full flex-col gap-2">
           <FormInputCheckboxGroup
             behaviour={CheckboxGroupBehaviour.Radio}
             name={id}
             onValueChange={onChange}
-            options={inputOptions}
+            options={groupOptions}
+            value={value && !isOtherSelected ? [value] : []}
           />
+          {isOtherSelected && (
+            <OtherDetail
+              icon={otherOption.icon}
+              name={id}
+              onChange={setOtherDetail}
+              value={otherDetail}
+            />
+          )}
         </div>
       </div>
     </FunnelStepCtaWrapper>

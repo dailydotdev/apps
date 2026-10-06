@@ -888,6 +888,7 @@ export enum AcquisitionChannel {
   AppStore = 'app_store',
   NewsletterBlog = 'newsletter_blog',
   Advertisement = 'ad',
+  DontRemember = 'dont_remember',
   Other = 'other',
 }
 

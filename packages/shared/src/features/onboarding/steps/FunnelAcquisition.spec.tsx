@@ -65,13 +65,90 @@ describe('FunnelAcquisition', () => {
       ],
     });
 
-    expect(optionLabels()).toEqual(['Reddit', 'Search engine', 'Other']);
+    expect(optionLabels()).toEqual([
+      'Reddit',
+      'Search engine',
+      "I don't remember",
+      'Other',
+    ]);
   });
 
-  it('should keep Other last when the list is shuffled', () => {
+  it('should keep the catch-alls last when the list is shuffled', () => {
     renderStep({ shuffle: true });
 
-    expect(optionLabels().at(-1)).toBe('Other');
+    expect(optionLabels().slice(-2)).toEqual(["I don't remember", 'Other']);
+  });
+
+  it('should not offer I do not remember when Other is not offered', () => {
+    renderStep({
+      shuffle: false,
+      options: [AcquisitionChannel.Reddit, AcquisitionChannel.SearchEngine],
+    });
+
+    expect(optionLabels()).toEqual(['Reddit', 'Search engine']);
+  });
+
+  it('should save I do not remember as its own channel', async () => {
+    (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
+    renderStep({ shuffle: false });
+
+    fireEvent.click(screen.getByRole('checkbox', { name: "I don't remember" }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    await waitFor(() =>
+      expect(updateUserAcquisition).toHaveBeenCalledWith(
+        AcquisitionChannel.DontRemember,
+      ),
+    );
+  });
+
+  it('should turn Other into a text box and log what was typed', async () => {
+    const logEvent = jest.fn();
+    (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
+    renderStep({ shuffle: false });
+    (useLogContext as jest.Mock).mockReturnValue({ logEvent });
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Other' }));
+
+    expect(
+      screen.queryByRole('checkbox', { name: 'Other' }),
+    ).not.toBeInTheDocument();
+    const field = screen.getByRole('textbox', {
+      name: 'Where did you hear about us?',
+    });
+    expect(field).toHaveFocus();
+
+    fireEvent.change(field, { target: { value: '  A meetup in Berlin ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    await waitFor(() =>
+      expect(onTransition).toHaveBeenCalledWith({
+        type: FunnelStepTransitionType.Complete,
+        details: { acquisitionChannel: AcquisitionChannel.Other },
+      }),
+    );
+    expect(updateUserAcquisition).toHaveBeenCalledWith(
+      AcquisitionChannel.Other,
+    );
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: 'choose ua',
+      target_id: AcquisitionChannel.Other,
+      extra: JSON.stringify({ other: 'A meetup in Berlin' }),
+    });
+  });
+
+  it('should bring Other back when another channel is picked', () => {
+    renderStep({ shuffle: false });
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Other' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Reddit' }));
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Other' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Reddit' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
   });
 
   it('should move on with the answer even when saving it fails', async () => {
