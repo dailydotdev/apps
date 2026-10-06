@@ -63,9 +63,6 @@ const renderComponent = (html: string) => {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // The share panel shows a thumbnail of the copied image.
-  URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
-  URL.revokeObjectURL = jest.fn();
   (captureShareImage as jest.Mock).mockResolvedValue(new Blob());
   (copyShareImage as jest.Mock).mockResolvedValue(true);
 });

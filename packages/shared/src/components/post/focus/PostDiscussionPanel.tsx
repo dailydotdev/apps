@@ -129,6 +129,7 @@ export const PostDiscussionPanel = ({
   const renderComposerTrigger = ({
     user: triggerUser,
     onCommentClick,
+    draft,
   }: NewCommentTriggerRenderProps): ReactElement => (
     <button
       type="button"
@@ -159,9 +160,15 @@ export const PostDiscussionPanel = ({
           width={32}
         />
       )}
-      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-callout">
-        Share your thoughts…
-      </span>
+      {draft ? (
+        <span className="min-w-0 flex-1 truncate text-text-secondary typo-callout">
+          <span className="font-bold">Draft:</span> {draft}
+        </span>
+      ) : (
+        <span className="min-w-0 flex-1 truncate text-text-tertiary typo-callout">
+          Share your thoughts…
+        </span>
+      )}
       <span className="shrink-0 rounded-10 bg-background-default px-3 py-1.5 text-text-secondary transition-colors typo-footnote group-hover:text-text-primary">
         Comment
       </span>

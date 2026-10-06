@@ -29,6 +29,7 @@ import { SquadEmptyFeed, SquadSearchEmpty } from './feed/SquadEmptyFeed';
 import { SquadSearchHeader } from './feed/SquadSearchHeader';
 import { SquadProductsShelf } from './products/SquadProductsShelf';
 import { useSquadPageTabs } from '../hooks/useSquadPageTabs';
+import { SquadJoinSuggestionsInline } from './joinSuggestions/SquadJoinSuggestionsInline';
 
 // Two cards a row at most: the feed shares the page with the right column.
 const MAX_FEED_COLUMNS = 2;
@@ -154,7 +155,12 @@ export const SquadHome = ({
   return (
     <SquadPageLayout
       header={<SquadProfileHeader />}
-      belowHeader={<SquadProductsShelf />}
+      belowHeader={
+        <>
+          <SquadJoinSuggestionsInline squad={squad} />
+          <SquadProductsShelf />
+        </>
+      }
       hasAboutTab
       tabs={tabs}
       initialTab={initialTab}
