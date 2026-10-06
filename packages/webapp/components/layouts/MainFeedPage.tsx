@@ -9,6 +9,7 @@ import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';
+import { renderAgentFeedMockPost } from '../agent/AgentFeedMockCard';
 
 const MainFeedLayout = dynamic(
   () =>
@@ -109,6 +110,12 @@ export default function MainFeedPage({
       searchQuery={router.query?.q?.toString()}
       isFinder={isFinder}
       searchChildren={searchChildren}
+      renderPost={
+        process.env.NEXT_PUBLIC_AGENT_FEED_MOCK === 'true' &&
+        (router.pathname === '/' || router.pathname === '/my-feed')
+          ? renderAgentFeedMockPost
+          : undefined
+      }
     >
       <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
       {children}

@@ -361,6 +361,37 @@ describe('Feed logged in', () => {
     });
   });
 
+  it('should decorate posts in order without decorating ads', async () => {
+    renderComponent(
+      undefined,
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      {
+        renderPost: (post, index, card) => (
+          <div data-testid="decorated-post" data-post-id={post.id}>
+            <span>Agent pick {index + 1}</span>
+            {card}
+          </div>
+        ),
+      },
+    );
+    await waitForNock();
+    const decorated = await screen.findAllByTestId('decorated-post');
+    expect(decorated).toHaveLength(defaultFeedPage.edges.length);
+    decorated.forEach((element, index) => {
+      expect(element).toHaveAttribute(
+        'data-post-id',
+        defaultFeedPage.edges[index].node.id,
+      );
+      expect(
+        within(element).getByText(`Agent pick ${index + 1}`),
+      ).toBeVisible();
+      expect(within(element).queryByTestId('adItem')).not.toBeInTheDocument();
+    });
+    expect(await screen.findByTestId('adItem')).toBeVisible();
+  });
+
   it('should render feed with sorting ranking by date', async () => {
     variables = { ...defaultVariables, ranking: 'TIME' };
     renderComponent(

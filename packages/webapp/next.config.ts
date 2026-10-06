@@ -120,6 +120,11 @@ const nextConfig: NextConfig = {
     },
     env: {
       CURRENT_VERSION: version,
+      NEXT_PUBLIC_AGENT_FEED_MOCK:
+        process.env.VERCEL_ENV === 'preview' ||
+        process.env.NODE_ENV === 'development'
+          ? 'true'
+          : 'false',
       // If both CHROME and EDGE IDs are present (e.g. in a shared CI environment),
       // Chrome silently takes precedence. Since the ID is baked into the build and
       // getBrowserExtensionInstallId cannot distinguish the user's browser, this is expected.
