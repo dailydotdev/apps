@@ -29,7 +29,6 @@ import { useIsPhone } from '../../../hooks/useViewSize';
 import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
 import { Segments, ShellRow } from '../../../components/shell/ShellRow';
 import { ShellField } from '../../../components/shell/ShellField';
-import { SegmentPager } from '../../../components/shell/SegmentPager';
 
 enum MembersTab {
   Members = 'Members',
@@ -68,105 +67,6 @@ const InviteRow = ({ squad }: { squad: Squad }): ReactElement | null => {
   );
 };
 
-// One tab's list, with its own query, so a neighbouring tab can stand
-// beside the lit one while the finger pages between them.
-const MembersPane = ({
-  squad,
-  tab,
-  query,
-  canSeeBlocked,
-}: {
-  squad: Squad;
-  tab: MembersTab;
-  query: string;
-  canSeeBlocked: boolean;
-}): ReactElement => {
-  const {
-    members = [],
-    membersQueryResult,
-    membersQueryKey,
-    onUnblock,
-    onDemoteSelf,
-    onUpdateRole,
-  } = useSquadActions({
-    squad,
-    query: query.trim() || undefined,
-    membersQueryParams: { role: tabRole[tab] },
-    membersQueryEnabled: true,
-  });
-
-  useUsersContentPreferenceMutationSubscription({
-    queryKey: membersQueryKey,
-    queryProp: 'sourceMembers',
-  });
-
-  return (
-    <div className="flex flex-col gap-4">
-      {tab === MembersTab.Members && (
-        <span className="px-4 text-text-tertiary typo-footnote tablet:px-6">
-          <strong className="tabular-nums text-text-primary">
-            {largeNumberFormat(squad.membersCount) ?? 0}
-          </strong>{' '}
-          members
-        </span>
-      )}
-      <UserList
-        users={members.map(({ user, role: memberRole }) => ({
-          ...user,
-          role: memberRole,
-        }))}
-        placeholderAmount={Math.min(squad.membersCount, 5)}
-        isLoading={membersQueryResult?.isPending}
-        scrollingProps={{
-          isFetchingNextPage: !!membersQueryResult?.isFetchingNextPage,
-          canFetchMore:
-            !!membersQueryResult && checkFetchMore(membersQueryResult),
-          fetchNextPage: () =>
-            membersQueryResult?.fetchNextPage() ?? Promise.resolve(),
-        }}
-        initialItem={
-          tab !== MembersTab.Blocked && !query ? (
-            <InviteRow squad={squad} />
-          ) : undefined
-        }
-        emptyPlaceholder={
-          tab === MembersTab.Blocked ? (
-            <BlockedMembersPlaceholder />
-          ) : (
-            <p className="p-10 text-center text-text-tertiary typo-callout">
-              No {tab === MembersTab.Moderators ? 'moderator' : 'member'} found
-            </p>
-          )
-        }
-        afterContent={
-          canSeeBlocked
-            ? (user, index) => (
-                <SquadMemberItemOptionsButton
-                  key={`squad_option_${user.id}`}
-                  squad={squad}
-                  member={members[index]}
-                  onUpdateRole={onUpdateRole}
-                  onDemoteSelf={onDemoteSelf}
-                  onUnblock={() =>
-                    onUnblock?.({
-                      sourceId: getSquadId(squad),
-                      memberId: user.id,
-                    })
-                  }
-                />
-              )
-            : undefined
-        }
-        userInfoProps={{
-          origin: Origin.SquadMembersList,
-          showFollow: !canSeeBlocked,
-          showSubscribe: false,
-        }}
-      />
-    </div>
-  );
-};
-
 interface SquadMembersListProps {
   squad: Squad;
 }
@@ -185,6 +85,25 @@ export const SquadMembersList = ({
     (value) => setQuery(value ?? ''),
     defaultSearchDebounceMs,
   );
+  const role = tabRole[tab];
+  const {
+    members = [],
+    membersQueryResult,
+    membersQueryKey,
+    onUnblock,
+    onDemoteSelf,
+    onUpdateRole,
+  } = useSquadActions({
+    squad,
+    query: query.trim() || undefined,
+    membersQueryParams: { role },
+    membersQueryEnabled: true,
+  });
+
+  useUsersContentPreferenceMutationSubscription({
+    queryKey: membersQueryKey,
+    queryProp: 'sourceMembers',
+  });
 
   const canSeeBlocked =
     isSystemModerator(loggedUser) ||
@@ -243,17 +162,67 @@ export const SquadMembersList = ({
           aria-label={`Search ${tab.toLowerCase()}`}
           valueChanged={onSearch}
         />
-      </div>
-      <SegmentPager
-        items={segments}
-        renderPane={(key) => (
-          <MembersPane
-            squad={squad}
-            tab={key as MembersTab}
-            query={query}
-            canSeeBlocked={canSeeBlocked}
-          />
+        {tab === MembersTab.Members && (
+          <span className="text-text-tertiary typo-footnote">
+            <strong className="tabular-nums text-text-primary">
+              {largeNumberFormat(squad.membersCount) ?? 0}
+            </strong>{' '}
+            members
+          </span>
         )}
+      </div>
+      <UserList
+        users={members.map(({ user, role: memberRole }) => ({
+          ...user,
+          role: memberRole,
+        }))}
+        placeholderAmount={Math.min(squad.membersCount, 5)}
+        isLoading={membersQueryResult?.isPending}
+        scrollingProps={{
+          isFetchingNextPage: !!membersQueryResult?.isFetchingNextPage,
+          canFetchMore:
+            !!membersQueryResult && checkFetchMore(membersQueryResult),
+          fetchNextPage: () =>
+            membersQueryResult?.fetchNextPage() ?? Promise.resolve(),
+        }}
+        initialItem={
+          tab !== MembersTab.Blocked && !query ? (
+            <InviteRow squad={squad} />
+          ) : undefined
+        }
+        emptyPlaceholder={
+          tab === MembersTab.Blocked ? (
+            <BlockedMembersPlaceholder />
+          ) : (
+            <p className="p-10 text-center text-text-tertiary typo-callout">
+              No {tab === MembersTab.Moderators ? 'moderator' : 'member'} found
+            </p>
+          )
+        }
+        afterContent={
+          canSeeBlocked
+            ? (user, index) => (
+                <SquadMemberItemOptionsButton
+                  key={`squad_option_${user.id}`}
+                  squad={squad}
+                  member={members[index]}
+                  onUpdateRole={onUpdateRole}
+                  onDemoteSelf={onDemoteSelf}
+                  onUnblock={() =>
+                    onUnblock?.({
+                      sourceId: getSquadId(squad),
+                      memberId: user.id,
+                    })
+                  }
+                />
+              )
+            : undefined
+        }
+        userInfoProps={{
+          origin: Origin.SquadMembersList,
+          showFollow: !canSeeBlocked,
+          showSubscribe: false,
+        }}
       />
     </div>
   );

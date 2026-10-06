@@ -377,10 +377,8 @@ describe('squad page viewer matrix', () => {
     mockSquad(squad);
     renderSquadPage(squad);
 
-    await screen.findByLabelText('View as a visitor');
-    // The phone layout settles after mount and re-homes the widgets, so the
-    // click goes to the toggle as it stands now, not the one first found.
-    screen.getByLabelText('View as a visitor').click();
+    const toggle = await screen.findByLabelText('View as a visitor');
+    toggle.click();
 
     await screen.findByText(/viewing the page as a visitor/);
     expect(screen.queryByLabelText('Edit page')).not.toBeInTheDocument();

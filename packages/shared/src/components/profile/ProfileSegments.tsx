@@ -19,7 +19,7 @@ const paths: Record<ProfileSegment, string> = {
   [ProfileSegment.Upvoted]: '/upvoted',
 };
 
-export const getProfileSegmentItems = (
+const getItems = (
   user: Pick<PublicProfile, 'username'>,
   active: ProfileSegment,
 ): RowItem[] =>
@@ -39,7 +39,7 @@ export function ProfileSegments({
   user: Pick<PublicProfile, 'username'>;
   active: ProfileSegment;
 }): ReactElement {
-  const items = getProfileSegmentItems(user, active);
+  const items = getItems(user, active);
 
   return (
     <ShellRow>

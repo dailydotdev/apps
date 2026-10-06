@@ -1,9 +1,24 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { USER_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { useProfilePreview } from '@dailydotdev/shared/src/hooks/profile/useProfilePreview';
+import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
+import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
+import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
+import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
-import { ProfileSegment } from '@dailydotdev/shared/src/components/profile/ProfileSegments';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
@@ -13,22 +28,48 @@ import {
   getProfileSeoDefaults,
 } from '../../components/layouts/ProfileLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { ProfileFeedPane } from '../../components/profile/ProfileFeedPane';
-import { ProfilePage } from '../../components/profile/ProfilePage';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
+const commentClassName = {
+  container: 'rounded-none border-0 border-b',
+  commentBox: {
+    container: 'relative border-0 rounded-none',
+  },
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfileCommentsPage = (
-  props: ProfileLayoutProps,
-): ReactElement | null => {
-  const { user, noindex } = props;
+const ProfileCommentsPage = ({
+  user,
+  noindex,
+}: ProfileLayoutProps): ReactElement | null => {
+  const { isOwner } = useProfilePreview(user);
   const isPhone = useIsPhone();
 
   if (!user) {
     return null;
   }
+
+  const userId = user.id;
+
+  const emptyScreen = isOwner ? (
+    <MyProfileEmptyScreen
+      className="items-center px-4 py-6 text-center tablet:px-6"
+      image={cloudinaryCharmEmptyProfile}
+      imageAlt="daily.dev charm with an empty profile"
+      text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
+      cta="Explore posts"
+      buttonProps={{ tag: 'a', href: '/' }}
+    />
+  ) : (
+    <ProfileEmptyScreen
+      image={cloudinaryCharmEmptyProfile}
+      imageAlt="daily.dev charm with an empty profile"
+      title={`${user?.name ?? 'User'} hasn't replied to any post yet`}
+      text="Once they do, those replies will show up here."
+    />
+  );
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(
@@ -44,15 +85,29 @@ const ProfileCommentsPage = (
     ),
   };
 
-  if (isPhone) {
-    return <ProfilePage {...props} active={ProfileSegment.Replies} seo={seo} />;
-  }
-
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile title="Replies" />
-      <ProfileFeedPane user={user} segment={ProfileSegment.Replies} />
+      {isPhone ? (
+        <ShellPage
+          title={user.name}
+          row={<ProfileSegments user={user} active={ProfileSegment.Replies} />}
+        />
+      ) : (
+        <GoBackHeaderMobile title="Replies" />
+      )}
+      <CommentFeed
+        feedQueryKey={generateQueryKey(
+          RequestKey.UserComments,
+          undefined,
+          userId,
+        )}
+        query={USER_COMMENTS_QUERY}
+        logOrigin={Origin.Profile}
+        variables={{ userId }}
+        emptyScreen={emptyScreen}
+        commentClassName={commentClassName}
+      />
     </>
   );
 };

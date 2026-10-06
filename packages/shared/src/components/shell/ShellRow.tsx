@@ -1,11 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { motion } from './constants';
-import { usePagerPosition } from './segmentPagerStore';
 
 export interface RowItem {
   key: string;
@@ -59,7 +57,6 @@ const RowChip = ({
         scroll={item.keepScroll ? false : undefined}
       >
         <a
-          data-segment
           aria-label={item.ariaLabel}
           aria-current={item.active ? 'page' : undefined}
           onClick={item.onClick}
@@ -82,7 +79,6 @@ const RowChip = ({
   return (
     <button
       type="button"
-      data-segment
       aria-label={item.ariaLabel}
       aria-pressed={item.active}
       onClick={item.onClick}
@@ -90,62 +86,6 @@ const RowChip = ({
     >
       {content}
     </button>
-  );
-};
-
-// The lit segment's chip is a highlight of its own behind the labels, so a
-// drag between panes can slide it from one segment to the next.
-const SegmentHighlight = ({
-  items,
-  rowRef,
-}: {
-  items: RowItem[];
-  rowRef: React.RefObject<HTMLDivElement>;
-}): ReactElement | null => {
-  const position = usePagerPosition();
-  const active = items.findIndex((item) => item.active);
-  const at = position ?? active;
-  const [frame, setFrame] = useState<{ left: number; width: number } | null>(
-    null,
-  );
-
-  useEffect(() => {
-    const row = rowRef.current;
-    if (!row || active < 0) {
-      return;
-    }
-    const chips = Array.from(
-      row.querySelectorAll<HTMLElement>('[data-segment]'),
-    );
-    const from = chips[Math.max(0, Math.min(chips.length - 1, Math.floor(at)))];
-    const to = chips[Math.max(0, Math.min(chips.length - 1, Math.ceil(at)))];
-    if (!from || !to) {
-      return;
-    }
-    const t = at - Math.floor(at);
-    setFrame({
-      left: from.offsetLeft + (to.offsetLeft - from.offsetLeft) * t,
-      width: from.offsetWidth + (to.offsetWidth - from.offsetWidth) * t,
-    });
-  }, [at, active, items, rowRef]);
-
-  if (!frame) {
-    return null;
-  }
-
-  return (
-    <span
-      aria-hidden
-      className="pointer-events-none absolute top-1/2 h-7 -translate-y-1/2 rounded-8 border border-border-subtlest-secondary bg-surface-float"
-      style={{
-        left: frame.left,
-        width: frame.width,
-        transition:
-          position === null
-            ? `left ${motion.snap}ms ${motion.interaction}, width ${motion.snap}ms ${motion.interaction}`
-            : 'none',
-      }}
-    />
   );
 };
 
@@ -157,42 +97,36 @@ export const Segments = ({
   items: RowItem[];
   menu?: string;
   onMenu?: () => void;
-}): ReactElement => {
-  const rowRef = useRef<HTMLDivElement>(null);
+}): ReactElement => (
+  <>
+    {items.map((item) => {
+      const className = item.active
+        ? 'border-border-subtlest-secondary bg-surface-float text-text-primary'
+        : 'border-transparent text-text-tertiary';
 
-  return (
-    <div ref={rowRef} className="relative flex items-center gap-1">
-      <SegmentHighlight items={items} rowRef={rowRef} />
-      {items.map((item) => {
-        const className = classNames(
-          'relative border-transparent',
-          item.active ? 'text-text-primary' : 'text-text-tertiary',
+      // The lit segment that carries a menu is already the page, so its
+      // chip is the menu's button rather than a link with a button inside.
+      if (item.active && item.key === menu) {
+        return (
+          <RowChip
+            key={item.key}
+            item={{
+              ...item,
+              href: undefined,
+              ariaLabel: item.ariaLabel ?? `${item.label}, choose a channel`,
+              onClick: onMenu,
+            }}
+            className={className}
+          >
+            <ArrowIcon size={IconSize.XSmall} className="-mr-1 rotate-180" />
+          </RowChip>
         );
+      }
 
-        // The lit segment that carries a menu is already the page, so its
-        // chip is the menu's button rather than a link with a button inside.
-        if (item.active && item.key === menu) {
-          return (
-            <RowChip
-              key={item.key}
-              item={{
-                ...item,
-                href: undefined,
-                ariaLabel: item.ariaLabel ?? `${item.label}, choose a channel`,
-                onClick: onMenu,
-              }}
-              className={className}
-            >
-              <ArrowIcon size={IconSize.XSmall} className="-mr-1 rotate-180" />
-            </RowChip>
-          );
-        }
-
-        return <RowChip key={item.key} item={item} className={className} />;
-      })}
-    </div>
-  );
-};
+      return <RowChip key={item.key} item={item} className={className} />;
+    })}
+  </>
+);
 
 export const Chips = ({ items }: { items: RowItem[] }): ReactElement => (
   <>

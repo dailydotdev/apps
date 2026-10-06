@@ -1,19 +1,221 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-import { ProfilePage } from '../../components/profile/ProfilePage';
-import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '@dailydotdev/shared/src/components/shell/usePassedBlock';
+import { ShellDockedRow } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
+import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
+import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
+import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
+import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
+import { NextSeo } from 'next-seo';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
+import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
+import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
+import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievementShowcase';
+import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
+import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
+import { MobileAppFooterAnchor } from '@dailydotdev/shared/src/features/getApp/components/MobileAppFooterAnchor';
+import { MobileAppFooterAnchorPlace } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
+import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
+import {
+  TypographyType,
+  TypographyTag,
+  TypographyColor,
+  Typography,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { useDynamicHeader } from '@dailydotdev/shared/src/useDynamicHeader';
+import { Header } from '@dailydotdev/shared/src/components/profile/Header';
+import classNames from 'classnames';
+import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
+import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
+import { useRouter } from 'next/router';
+import { useProfileCompletionIndicator } from '@dailydotdev/shared/src/hooks/profile/useProfileCompletionIndicator';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   getLayout as getProfileLayout,
+  getProfileSeoDefaults,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
+import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
+import { ProfileSideToggle } from '../../components/profile/ProfileSideToggle';
 
-const ProfileIndexPage = (props: ProfileLayoutProps): ReactElement => (
-  <ProfilePage {...props} />
-);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ProfilePage = ({
+  user: initialUser,
+  noindex,
+  userStats,
+  sources,
+  hasWorld,
+}: ProfileLayoutProps): ReactElement => {
+  useJoinReferral();
+  const router = useRouter();
+  const { isAuthReady } = useAuthContext();
+  const { status, onUpload, shouldShow } = useUploadCv();
+  const { checkHasCompleted } = useActions();
+  const hasClosedBanner = useMemo(
+    () => checkHasCompleted(ActionType.ClosedProfileBanner),
+    [checkHasCompleted],
+  );
+  const { showIndicator: showProfileCompletion } =
+    useProfileCompletionIndicator();
 
-ProfileIndexPage.getLayout = getProfileLayout;
-export default ProfileIndexPage;
+  const { user, isUserSame: isUserSameBase } = useProfile(initialUser);
+
+  useEffect(() => {
+    if (
+      !isAuthReady ||
+      !router.isReady ||
+      !isUserSameBase ||
+      router.query.userId !== user.id
+    ) {
+      return;
+    }
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, userId: user.username },
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [isAuthReady, isUserSameBase, router, user.id, user.username]);
+
+  // Check if preview mode is enabled via query param
+  const isPreviewMode = router.query.preview === 'true';
+
+  // When in preview mode, act as a visitor (not same user)
+  const isSameUser = useMemo(
+    () => isUserSameBase && !isPreviewMode,
+    [isUserSameBase, isPreviewMode],
+  );
+
+  const { ref: stickyRef, progress: stickyProgress } =
+    useDynamicHeader<HTMLDivElement>(true);
+  const hideSticky = !stickyProgress;
+  const isPhone = useIsPhone();
+  const coverRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLDivElement>(null);
+  // The owner's completion card sits above the cover, so the cover is not
+  // at the top of the page for them until it is dismissed.
+  const coversBlock = !(isSameUser && showProfileCompletion);
+  const hasCoverPassed = usePassedBlock(coverRef, isPhone && coversBlock);
+  const hasNamePassed = usePassedBlock(nameRef, isPhone);
+  const segmentsRef = useRef<HTMLDivElement>(null);
+  const haveSegmentsPassed = usePassedBlock(segmentsRef, isPhone);
+  useHeroDeadZone(segmentsRef, isPhone);
+
+  const seo: NextSeoProps = {
+    ...getProfileSeoDefaults(user, {}, noindex),
+  };
+
+  const shouldShowBanner = isSameUser && shouldShow && !hasClosedBanner;
+
+  return (
+    <div className="tablet:rounded-16 tablet:border tablet:border-t-0 tablet:border-border-subtlest-tertiary laptop:border-t">
+      <NextSeo {...seo} />
+      <Header
+        user={user}
+        isSameUser={isSameUser}
+        sticky={!hideSticky}
+        blockTitle={hasNamePassed ? user.name : undefined}
+        isOverCover={coversBlock && !hasCoverPassed}
+        showsFollowInBlock={haveSegmentsPassed}
+        className={classNames(
+          'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
+          !hideSticky ? 'fixed tablet:pl-20' : 'relative',
+        )}
+      />
+      {isSameUser && showProfileCompletion && (
+        <ProfileCompletion className="laptop:hidden" />
+      )}
+      <div ref={stickyRef} />
+      <ProfileHeader
+        user={user}
+        userStats={userStats}
+        isSameUser={isSameUser}
+        isPreviewMode={isPreviewMode}
+        coversBlock={coversBlock}
+        coverRef={coverRef}
+        nameRef={nameRef}
+        actions={
+          /* The owner always gets the door, even before their world has
+             anything in it — the empty world is the invitation to build one.
+             Everyone else gets it only once there is something to walk into,
+             which the static props already answered without a session. */
+          (hasWorld || isSameUser) && <ProfileSideToggle user={user} />
+        }
+      />
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
+        {shouldShowBanner && (
+          <AutofillProfileBanner
+            onUpload={onUpload}
+            isLoading={status === 'pending'}
+          />
+        )}
+        {!shouldShowBanner && <div />}
+        {isPhone && (
+          <div ref={segmentsRef} className="-mx-6 [&+*]:!border-t-0">
+            <ProfileSegments user={user} active={ProfileSegment.About} />
+            {haveSegmentsPassed && (
+              <ShellDockedRow>
+                <ProfileSegments user={user} active={ProfileSegment.About} />
+              </ShellDockedRow>
+            )}
+          </div>
+        )}
+        <AboutMe user={user} />
+        <ProfileAchievementShowcase user={user} />
+        <ProfileUserStack user={user} />
+        <ProfileUserHotTakes user={user} />
+        <MobileAppFooterAnchor
+          at={MobileAppFooterAnchorPlace.Activity}
+          className="!border-0"
+        />
+        {!isPhone && (
+          <div className="hidden tablet:block">
+            <Activity user={user} />
+          </div>
+        )}
+        {isSameUser && (
+          <Share permalink={user?.permalink} className="laptop:hidden" />
+        )}
+        <div className="py-4 laptop:hidden">
+          <Typography
+            type={TypographyType.Body}
+            tag={TypographyTag.H1}
+            color={TypographyColor.Primary}
+            bold
+            className="laptop:hidden"
+          >
+            Highlights
+          </Typography>
+          <ProfileWidgets
+            user={user}
+            userStats={userStats}
+            sources={sources}
+            className="no-scrollbar overflow-auto laptop:hidden"
+          />
+        </div>
+        <ProfileUserExperiences user={user} />
+      </div>
+    </div>
+  );
+};
+
+ProfilePage.getLayout = getProfileLayout;
+export default ProfilePage;
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
