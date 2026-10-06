@@ -16,6 +16,8 @@ export enum DmMessageStatus {
   Sending = 'sending',
   Sent = 'sent',
   Failed = 'failed',
+  // Refused for good (peer unavailable, daily limit), so retrying is pointless.
+  Rejected = 'rejected',
 }
 
 // Carried as a snapshot so the card still reads after the comment is edited
@@ -51,7 +53,7 @@ export type DmEvent =
   | { type: 'message'; message: DmMessage }
   // The server bounced a message after it left the client, e.g. because the
   // peer blocked the sender or turned direct messages off.
-  | { type: 'failed'; peerId: string; messageId: string }
+  | { type: 'rejected'; peerId: string; messageId: string }
   // The connection came back; anything that arrived meanwhile is only in the
   // archive, so cached threads must refetch.
   | { type: 'reconnected' };
@@ -68,4 +70,6 @@ export interface DmTransport {
   ) => Promise<DmMessage>;
   markRead: (peerId: string) => Promise<void>;
   subscribe: (listener: (event: DmEvent) => void) => () => void;
+  // Ends the session for good, e.g. on logout.
+  close: () => void;
 }

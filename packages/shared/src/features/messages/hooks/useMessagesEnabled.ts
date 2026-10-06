@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureDirectMessages } from '../../../lib/featureManagement';
+import { closeDmTransports, isDmAvailable } from '../transport';
 
 type UseMessagesEnabled = {
   isEnabled: boolean;
@@ -12,14 +14,27 @@ type UseMessagesEnabled = {
 export const useMessagesEnabled = (): UseMessagesEnabled => {
   const { user, isAuthReady } = useAuthContext();
   const isLoggedIn = isAuthReady && !!user;
-  const { value: isEnabled } = useConditionalFeature({
+  const { value: isFlagOn, isLoading } = useConditionalFeature({
     feature: featureDirectMessages,
-    // Evaluating enrolls, so an anonymous visitor must not be measured.
-    shouldEvaluate: isLoggedIn,
+    // Evaluating enrolls, so neither an anonymous visitor nor a surface that
+    // has no chat configured may be measured.
+    shouldEvaluate: isLoggedIn && isDmAvailable,
   });
+  const isEnabled = isLoggedIn && isDmAvailable && isFlagOn;
+
+  // Every surface that can open a chat session renders this hook, so logging
+  // out here ends the session instead of leaving the socket up.
+  useEffect(() => {
+    if (isAuthReady && !user) {
+      closeDmTransports();
+    }
+  }, [isAuthReady, user]);
 
   return {
-    isEnabled: isLoggedIn && isEnabled,
-    isGatedOut: isLoggedIn && !isEnabled,
+    isEnabled,
+    // While GrowthBook is still answering the default is control, so
+    // redirecting then would bounce users who are in the rollout.
+    // A build without chat never evaluates, so it never stops "loading".
+    isGatedOut: isLoggedIn && (!isDmAvailable || (!isLoading && !isFlagOn)),
   };
 };

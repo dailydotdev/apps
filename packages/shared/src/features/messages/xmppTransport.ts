@@ -37,6 +37,8 @@ type Session = {
 const historyPageSize = 50;
 const errorWatchMs = 60 * 1000;
 const maxReconnectDelayMs = 30 * 1000;
+const maxReconnectAttempts = 8;
+const iqTimeoutMs = 10 * 1000;
 
 export const createXmppTransport = ({
   userId,
@@ -50,8 +52,12 @@ export const createXmppTransport = ({
   const openedPeers = new Set<string>();
   let session: Session | null = null;
   let connecting: Promise<Session> | null = null;
+  // Callbacks from a replaced connection must not touch the current one, or a
+  // late disconnect would tear it down and open a second socket.
+  let activeConnection: Connection | null = null;
   let reconnectAttempt = 0;
   let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+  let isClosed = false;
 
   const emit = (event: DmEvent) =>
     listeners.forEach((listener) => listener(event));
@@ -79,7 +85,14 @@ export const createXmppTransport = ({
     };
 
   const scheduleReconnect = () => {
-    if (!listeners.size || reconnectTimer) {
+    // After the cap the next user action (opening messages, sending) tries
+    // again instead of retrying in the background forever.
+    if (
+      isClosed ||
+      !listeners.size ||
+      reconnectTimer ||
+      reconnectAttempt >= maxReconnectAttempts
+    ) {
       return;
     }
 
@@ -110,8 +123,13 @@ export const createXmppTransport = ({
         streamManagement: {},
       });
       let isConnected = false;
+      activeConnection = connection;
 
       connection.connect(token.jid, token.token, (status) => {
+        if (connection !== activeConnection) {
+          return;
+        }
+
         if (status === Strophe.Status.CONNECTED) {
           isConnected = true;
           reconnectAttempt = 0;
@@ -135,11 +153,16 @@ export const createXmppTransport = ({
           status === Strophe.Status.DISCONNECTED
         ) {
           session = null;
+          activeConnection = null;
 
-          if (isConnected) {
-            scheduleReconnect();
-          } else {
+          if (!isConnected) {
             reject(new Error(`Chat connection failed with status ${status}`));
+            return;
+          }
+
+          // A rejected login won't fix itself by retrying with the same token.
+          if (status !== Strophe.Status.AUTHFAIL) {
+            scheduleReconnect();
           }
         }
       });
@@ -147,6 +170,10 @@ export const createXmppTransport = ({
   };
 
   const ensureSession = async (): Promise<Session> => {
+    if (isClosed) {
+      throw new Error('Chat transport is closed');
+    }
+
     if (session) {
       return session;
     }
@@ -229,6 +256,8 @@ export const createXmppTransport = ({
           connection.deleteHandler(handler);
           reject(new Error('Chat history query failed'));
         },
+        // Strophe calls the errback with null on timeout.
+        iqTimeoutMs,
       );
     });
   };
@@ -310,7 +339,7 @@ export const createXmppTransport = ({
       // Blocked or DMs-off bounce back as service-unavailable with our id.
       const errorHandler = connection.addHandler(
         () => {
-          emit({ type: 'failed', peerId: peer.id, messageId: id });
+          emit({ type: 'rejected', peerId: peer.id, messageId: id });
           return false;
         },
         null,
@@ -338,11 +367,23 @@ export const createXmppTransport = ({
     markRead: async () => undefined,
     subscribe: (listener) => {
       listeners.add(listener);
+      // A new subscriber is a fresh user action, so the retry budget resets.
+      reconnectAttempt = 0;
       ensureSession().catch(scheduleReconnect);
 
       return () => {
         listeners.delete(listener);
       };
+    },
+    close: () => {
+      isClosed = true;
+      clearTimeout(reconnectTimer);
+      reconnectTimer = undefined;
+      listeners.clear();
+      const connection = activeConnection;
+      activeConnection = null;
+      session = null;
+      connection?.disconnect('logout');
     },
   };
 };

@@ -45,6 +45,8 @@ import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
 import { DmAccessNotice } from './DmAccessNotice';
 import { DmContextCard } from './DmContextCard';
+import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
+import { LogEvent } from '../../../lib/log';
 
 const formatTime = (value: string): string =>
   new Date(value).toLocaleTimeString([], {
@@ -98,6 +100,14 @@ const MessageBubble = ({
         Not delivered · Retry
       </button>
     )}
+    {message.status === DmMessageStatus.Rejected && (
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.StatusError}
+      >
+        Not delivered
+      </Typography>
+    )}
     {isGroupEnd && message.status === DmMessageStatus.Sent && (
       <Typography
         type={TypographyType.Caption2}
@@ -134,10 +144,19 @@ export const ConversationThread = ({
     setIsContextDismissed(true);
     onCommentContextUsed?.();
   };
-  const { data: peer, isPending: isPeerPending } = useQuery(
-    dmPeerQueryOptions(user, peerId),
+  const peerQuery = useQuery(dmPeerQueryOptions(user, peerId));
+  const { data: peer, isPending: isPeerPending } = peerQuery;
+  const threadQuery = useQuery(dmThreadQueryOptions(user, peerId));
+  const { data: messages = [] } = threadQuery;
+  const isLoadError = peerQuery.isError || threadQuery.isError;
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.OpenDirectMessage,
+      target_id: peerId,
+      extra: JSON.stringify({ has_comment_ref: !!commentId }),
+    }),
+    { condition: !!peer },
   );
-  const { data: messages = [] } = useQuery(dmThreadQueryOptions(user, peerId));
   const { data: conversations } = useQuery(dmConversationsQueryOptions(user));
   const { data: preference } = useContentPreferenceStatusQuery({
     id: peerId,
@@ -177,6 +196,32 @@ export const ConversationThread = ({
       container.scrollTop = container.scrollHeight;
     }
   }, [messages.length, peerId]);
+
+  // A network or chat-server failure is not the same as a missing user, so it
+  // gets a way to try again instead of a dead end.
+  if (isLoadError) {
+    return (
+      <FlexCol className="flex-1 items-center justify-center gap-3 px-6 text-center">
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          Couldn&apos;t load this conversation. Check your connection and try
+          again.
+        </Typography>
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          onClick={() => {
+            peerQuery.refetch();
+            threadQuery.refetch();
+          }}
+        >
+          Try again
+        </Button>
+      </FlexCol>
+    );
+  }
 
   if (!isPeerPending && !peer) {
     return (

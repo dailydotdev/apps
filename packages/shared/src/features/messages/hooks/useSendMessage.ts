@@ -1,6 +1,11 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useLogContext } from '../../../contexts/LogContext';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import type { ApiErrorResult } from '../../../graphql/common';
+import { ApiError, getApiError } from '../../../graphql/common';
+import { LogEvent } from '../../../lib/log';
 import { getDmTransport } from '../transport';
 import { dmConversationsQueryKey, dmThreadQueryKey } from '../queries';
 import type { DmCommentContext, DmMessage, DmPeer } from '../types';
@@ -22,6 +27,8 @@ export const useSendMessage = (
 ): UseSendMessage => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
+  const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const threadKey = dmThreadQueryKey(user, peer?.id ?? '');
 
   const updateThread = useCallback(
@@ -49,19 +56,39 @@ export const useSendMessage = (
         },
       ]);
     },
-    onSuccess: (sent, { tempId }) => {
+    onSuccess: (sent, { tempId, context }) => {
       updateThread((messages) =>
         messages.map((message) => (message.id === tempId ? sent : message)),
       );
       queryClient.invalidateQueries({
         queryKey: dmConversationsQueryKey(user),
       });
+      logEvent({
+        event_name: LogEvent.SendDirectMessage,
+        target_id: peer?.id,
+        extra: JSON.stringify({ has_comment_ref: !!context }),
+      });
     },
-    onError: (_, { tempId }) => {
+    onError: (error: ApiErrorResult, { tempId }) => {
+      // daily-api refusing to open the conversation (peer unavailable, daily
+      // limit) won't change on retry, so say why instead of offering one.
+      const refusal =
+        getApiError(error, ApiError.Forbidden) ??
+        getApiError(error, ApiError.RateLimited);
+
+      if (refusal) {
+        displayToast(refusal.message);
+      }
+
       updateThread((messages) =>
         messages.map((message) =>
           message.id === tempId
-            ? { ...message, status: DmMessageStatus.Failed }
+            ? {
+                ...message,
+                status: refusal
+                  ? DmMessageStatus.Rejected
+                  : DmMessageStatus.Failed,
+              }
             : message,
         ),
       );

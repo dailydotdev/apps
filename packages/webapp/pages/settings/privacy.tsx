@@ -58,7 +58,9 @@ const AccountInvitePage = (): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
   const { openModal } = useLazyModal();
   const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
-  const { allowsMessages, setAllowsMessages } = useDmSettings();
+  const { allowsMessages, setAllowsMessages } = useDmSettings({
+    enabled: isMessagesEnabled,
+  });
 
   useEffect(() => {
     if (!isAuthReady) {

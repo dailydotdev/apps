@@ -205,5 +205,6 @@ export const createMockTransport = (userId: string): DmTransport => {
         listeners.delete(listener);
       };
     },
+    close: () => listeners.clear(),
   };
 };

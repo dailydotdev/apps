@@ -16,6 +16,11 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { publishTimeRelativeShort } from '../../../lib/dateFormat';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
 import { webappUrl } from '../../../lib/constants';
 import { dmConversationsQueryOptions } from '../queries';
 import type { DmConversation } from '../types';
@@ -96,9 +101,32 @@ export const ConversationList = ({
   activePeerId?: string;
 }): ReactElement => {
   const { user } = useAuthContext();
-  const { data: conversations, isPending } = useQuery(
-    dmConversationsQueryOptions(user),
-  );
+  const {
+    data: conversations,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery(dmConversationsQueryOptions(user));
+
+  if (isError) {
+    return (
+      <FlexCol className="items-center gap-3 px-6 py-10 text-center">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Couldn&apos;t load your messages.
+        </Typography>
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          onClick={() => refetch()}
+        >
+          Try again
+        </Button>
+      </FlexCol>
+    );
+  }
 
   if (isPending) {
     return (

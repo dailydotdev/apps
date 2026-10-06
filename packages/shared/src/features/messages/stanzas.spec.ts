@@ -1,4 +1,12 @@
-import { parseChatMessage, parseMamResult, unwrapCarbon } from './stanzas';
+import {
+  decodeJidLocal,
+  encodeJidLocal,
+  jidForUser,
+  parseChatMessage,
+  parseMamResult,
+  unwrapCarbon,
+  userIdFromJid,
+} from './stanzas';
 
 const own = 'me@chat.daily.dev';
 
@@ -142,5 +150,30 @@ describe('parseMamResult', () => {
 
   it('skips results belonging to another query', () => {
     expect(parseMamResult(result, 'q2')).toBeNull();
+  });
+});
+
+describe('JID encoding', () => {
+  it('round-trips mixed-case user ids through a case-folded local part', () => {
+    const jid = jidForUser('aB1cDe', 'chat.daily.dev');
+
+    expect(jid).toBe('a_b1c_de@chat.daily.dev');
+    expect(userIdFromJid(`${jid.toUpperCase()}/web`)).toBe('aB1cDe');
+  });
+
+  it('keeps ids that differ only by case on separate accounts', () => {
+    expect(encodeJidLocal('aB')).not.toBe(encodeJidLocal('ab'));
+    expect(decodeJidLocal(encodeJidLocal('ab'))).toBe('ab');
+  });
+
+  it('decodes the sender of a mixed-case incoming message', () => {
+    const message = parseChatMessage(
+      xml(`<message xmlns="jabber:client" type="chat" from="x_yz@chat.daily.dev/web">
+        <body>hi</body>
+      </message>`),
+      { ownBareJid: own },
+    );
+
+    expect(message).toMatchObject({ peerId: 'xYz', senderId: 'xYz' });
   });
 });

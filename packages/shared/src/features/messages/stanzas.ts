@@ -11,13 +11,24 @@ export const NS_CARBONS = 'urn:xmpp:carbons:2';
 // Agreed with the skirnir owner; bump the trailing version on breaking changes.
 export const NS_COMMENT_REF = 'urn:daily:chat:comment-ref:0';
 
-export const bareJid = (jid: string): string => jid.split('/')[0];
+// Local part and domain compare case-insensitively; only the resource, which
+// this drops, is case-sensitive.
+export const bareJid = (jid: string): string => jid.split('/')[0].toLowerCase();
+
+// ejabberd case-folds the local part while user ids are mixed-case, so the
+// SkirnirService contract encodes each uppercase letter as "_" plus its
+// lowercase form. Ids never contain "_", which keeps the mapping reversible.
+export const encodeJidLocal = (userId: string): string =>
+  userId.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+
+export const decodeJidLocal = (local: string): string =>
+  local.replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
 
 export const userIdFromJid = (jid: string): string =>
-  bareJid(jid).split('@')[0];
+  decodeJidLocal(bareJid(jid).split('@')[0]);
 
 export const jidForUser = (userId: string, domain: string): string =>
-  `${userId}@${domain}`;
+  `${encodeJidLocal(userId)}@${domain}`;
 
 const childOf = (el: Element, name: string, ns?: string): Element | undefined =>
   Array.from(el.children).find(
@@ -86,7 +97,7 @@ export const parseChatMessage = (
     .find(
       (child) =>
         child.localName === 'stanza-id' &&
-        child.getAttribute('by') === ownBareJid,
+        bareJid(child.getAttribute('by') ?? '') === ownBareJid,
     )
     ?.getAttribute('id');
 

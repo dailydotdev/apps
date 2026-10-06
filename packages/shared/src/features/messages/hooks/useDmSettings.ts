@@ -1,7 +1,11 @@
+import { useCallback } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { gqlClient } from '../../../graphql/common';
+import { LogEvent } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import {
   DIRECT_MESSAGE_SETTINGS_QUERY,
@@ -12,15 +16,23 @@ import { isDmMockMode } from '../transport';
 type UseDmSettings = {
   allowsMessages: boolean;
   isFetched: boolean;
-  setAllowsMessages: (value: boolean) => Promise<unknown>;
+  setAllowsMessages: (value: boolean) => void;
 };
 
 type DmSettings = { enabled: boolean };
 
+// Callers outside the messages screen (the privacy page) must pass the flag,
+// so users outside the rollout never query the setting.
+type UseDmSettingsProps = { enabled?: boolean };
+
 // Receiving direct messages is on by default; daily-api owns and enforces it.
-const useApiDmSettings = (): UseDmSettings => {
+const useApiDmSettings = ({
+  enabled = true,
+}: UseDmSettingsProps = {}): UseDmSettings => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
+  const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const queryKey = generateQueryKey(
     RequestKey.DirectMessages,
     user,
@@ -35,30 +47,39 @@ const useApiDmSettings = (): UseDmSettings => {
 
       return res.directMessageSettings;
     },
-    enabled: !!user?.id,
+    enabled: enabled && !!user?.id,
   });
-  const { mutateAsync } = useMutation({
-    mutationFn: async (enabled: boolean) => {
+  const { mutate } = useMutation({
+    mutationFn: async (isEnabled: boolean) => {
       const res = await gqlClient.request<{
         updateDirectMessageSettings: DmSettings;
-      }>(UPDATE_DIRECT_MESSAGE_SETTINGS_MUTATION, { enabled });
+      }>(UPDATE_DIRECT_MESSAGE_SETTINGS_MUTATION, { enabled: isEnabled });
 
       return res.updateDirectMessageSettings;
     },
-    onMutate: (enabled) => {
+    onMutate: (isEnabled) => {
       const previous = queryClient.getQueryData<DmSettings>(queryKey);
-      queryClient.setQueryData<DmSettings>(queryKey, { enabled });
+      queryClient.setQueryData<DmSettings>(queryKey, { enabled: isEnabled });
 
       return previous;
     },
-    onError: (_, __, previous) => queryClient.setQueryData(queryKey, previous),
-    onSuccess: (settings) => queryClient.setQueryData(queryKey, settings),
+    onError: (_, __, previous) => {
+      queryClient.setQueryData(queryKey, previous);
+      displayToast("Couldn't save your message settings. Please try again.");
+    },
+    onSuccess: (settings) => {
+      queryClient.setQueryData(queryKey, settings);
+      logEvent({
+        event_name: LogEvent.ToggleDirectMessages,
+        extra: JSON.stringify({ enabled: settings.enabled }),
+      });
+    },
   });
 
   return {
     allowsMessages: data?.enabled !== false,
     isFetched,
-    setAllowsMessages: mutateAsync,
+    setAllowsMessages: mutate,
   };
 };
 
@@ -70,14 +91,19 @@ const useDeviceDmSettings = (): UseDmSettings => {
       true,
       false,
     ]);
+  const setValue = useCallback(
+    (value: boolean) => {
+      setAllowsMessages(value);
+    },
+    [setAllowsMessages],
+  );
 
   return {
     allowsMessages: allowsMessages !== false,
     isFetched,
-    setAllowsMessages,
+    setAllowsMessages: setValue,
   };
 };
 
-export const useDmSettings: () => UseDmSettings = isDmMockMode
-  ? useDeviceDmSettings
-  : useApiDmSettings;
+export const useDmSettings: (props?: UseDmSettingsProps) => UseDmSettings =
+  isDmMockMode ? useDeviceDmSettings : useApiDmSettings;
