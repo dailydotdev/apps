@@ -45,6 +45,8 @@ export enum Origin {
   SquadInvitation = 'squad invitation',
   SimilarSquads = 'similar squads',
   SimilarSquadsPromoted = 'similar squads promoted',
+  SquadJoinSuggestions = 'squad join suggestions',
+  SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   // squads - end
   PostCommentButton = 'comment button',
   PollCommentButton = 'poll comment button',
@@ -222,6 +224,7 @@ export enum LogEvent {
   ClickSquadLink = 'click squad link',
   ClickSquadProduct = 'click squad product',
   ClickSimilarSquad = 'click similar squad',
+  DismissSquadJoinSuggestions = 'dismiss squad join suggestions',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',
