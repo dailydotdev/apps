@@ -164,6 +164,9 @@ export const PlusPreview = ({
         onPointerLeave={() => {
           suppressOpenRef.current = false;
         }}
+        onBlur={() => {
+          suppressOpenRef.current = false;
+        }}
       >
         {children}
       </HoverCardPrimitive.Trigger>
