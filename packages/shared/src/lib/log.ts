@@ -227,6 +227,7 @@ export enum LogEvent {
   ClickSquadJobApply = 'click squad job apply',
   ClaimSquadPerk = 'claim squad perk',
   ClickSquadPerkRedeem = 'click squad perk redeem',
+  ClickSquadHeaderButton = 'click squad header button',
   ClickSimilarSquad = 'click similar squad',
   DismissSquadJoinSuggestions = 'dismiss squad join suggestions',
   // squads - end

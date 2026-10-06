@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -175,6 +177,9 @@ export const AudienceChip = ({
           <TruncateText className="min-w-0 max-w-48 shrink font-bold">
             {triggerLabel}
           </TruncateText>
+          {!isMulti && hasSquadFeature(primary, 'verified') && (
+            <VerifiedSquadBadge />
+          )}
           {showChevron && (
             <ArrowIcon
               className={classNames(
@@ -246,6 +251,9 @@ export const AudienceChip = ({
                   >
                     {optionLabel}
                   </span>
+                  {hasSquadFeature(option, 'verified') && (
+                    <VerifiedSquadBadge />
+                  )}
                   <span
                     role="presentation"
                     className="flex size-5 shrink-0 items-center justify-center"
