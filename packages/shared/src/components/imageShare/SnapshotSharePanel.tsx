@@ -6,12 +6,10 @@ import { Drawer } from '../drawers/Drawer';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
 import { DownloadIcon } from '../icons/Download';
-import { LinkIcon } from '../icons/Link';
 import { SlackIcon } from '../icons/Slack';
 import { VIcon } from '../icons/V';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useCopyLink } from '../../hooks/useCopy';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useObjectUrl } from '../../hooks/useObjectUrl';
@@ -22,17 +20,14 @@ import type { ShareablePost } from '../../lib/feed';
 import { postLogEvent } from '../../lib/feed';
 import type { TargetType } from '../../lib/log';
 import { LogEvent, Origin } from '../../lib/log';
-import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 
 /**
- * What the panel links to and how it logs: the same event and target the
- * placement's own shares use, so a snapshot without a post still has a subject.
+ * How the panel logs: the same event and target the placement's own shares
+ * use, so a snapshot without a post still has a subject.
  */
 export interface SnapshotShare {
-  link: string;
-  cid: ReferralCampaignKey;
   event: LogEvent;
   targetId: string;
   targetType?: TargetType;
@@ -41,15 +36,13 @@ export interface SnapshotShare {
 }
 
 export const getPostSnapshotShare = (post: ShareablePost): SnapshotShare => ({
-  link: post.commentsPermalink,
-  cid: ReferralCampaignKey.SharePost,
   event: LogEvent.SharePost,
   targetId: post.id,
 });
 
 /**
  * What a snapshot is of. A post adds the Slack row and logs as the post;
- * `share`, when set, is what gets linked.
+ * `share`, when set, is what the panel logs.
  */
 export type SnapshotSubject =
   | { post: ShareablePost; share?: SnapshotShare }
@@ -168,9 +161,7 @@ function SnapshotShareContent({
 }: SnapshotShareContentProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
-  const [linkCopied, copyLink] = useCopyLink();
   const thumbnail = useObjectUrl(image);
-  const { link, cid } = share;
   const buttonSize = isDrawer ? ButtonSize.Medium : ButtonSize.Small;
 
   const logShare = useCallback(
@@ -190,16 +181,6 @@ function SnapshotShareContent({
       ),
     [logEvent, placement, post, share],
   );
-
-  const onCopyLink = () => {
-    logShare(ShareProvider.CopyLink);
-    copyLink({
-      link,
-      shorten: true,
-      cid,
-      disableToast: true,
-    });
-  };
 
   const onSave = () => {
     logShare(ShareProvider.Snapshot, { result: 'download' });
@@ -240,28 +221,16 @@ function SnapshotShareContent({
           post={post}
         />
       )}
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          className="min-w-0 flex-1"
-          size={buttonSize}
-          variant={ButtonVariant.Float}
-          icon={linkCopied ? <VIcon /> : <LinkIcon />}
-          onClick={onCopyLink}
-        >
-          {linkCopied ? 'Copied' : 'Copy link'}
-        </Button>
-        <Button
-          type="button"
-          className="min-w-0 flex-1"
-          size={buttonSize}
-          variant={ButtonVariant.Float}
-          icon={<DownloadIcon />}
-          onClick={onSave}
-        >
-          Save image
-        </Button>
-      </div>
+      <Button
+        type="button"
+        className="w-full"
+        size={buttonSize}
+        variant={ButtonVariant.Float}
+        icon={<DownloadIcon />}
+        onClick={onSave}
+      >
+        Save image
+      </Button>
     </div>
   );
 }

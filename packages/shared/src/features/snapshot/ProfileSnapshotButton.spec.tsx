@@ -26,7 +26,6 @@ const snapshotButton = (ownerId = 'u1') => (
       filename="daily-reading-testuser"
       origin={Origin.ReadingOverview}
       ownerId={ownerId}
-      permalink="https://app.daily.dev/testuser"
       renderCard={renderCard}
     />
   </TestBootProvider>

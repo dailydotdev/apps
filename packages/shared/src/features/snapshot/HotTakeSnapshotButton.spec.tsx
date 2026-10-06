@@ -1,12 +1,6 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import type { HotTake } from '../../graphql/user/userHotTake';
@@ -116,40 +110,22 @@ describe('HotTakeSnapshotButton', () => {
     );
   });
 
-  it("sends the author's profile from the share panel", async () => {
-    const writeText = jest.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, { clipboard: { writeText } });
-    renderButton({
-      ...hotTake,
-      user: {
-        id: 'user-1',
-        name: 'Ada Lovelace',
-        username: 'ada',
-        image: 'https://media.daily.dev/ada.png',
-        createdAt: '2026-01-01T00:00:00.000Z',
-        reputation: 10,
-        permalink: 'https://app.daily.dev/ada',
-      },
-    });
+  it('opens the share panel to save the take as an image', async () => {
+    renderButton(hotTake);
     const button = screen.getByLabelText('Snapshot');
     fireEvent.pointerEnter(button);
     fireEvent.click(button);
 
-    const copyLink = await screen.findByRole('button', { name: 'Copy link' });
-    await act(async () => {
-      fireEvent.click(copyLink);
-    });
-
-    expect(writeText).toHaveBeenCalledWith('https://app.daily.dev/ada');
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.ShareHotTake,
-      target_id: hotTake.id,
-      extra: JSON.stringify({
-        provider: ShareProvider.CopyLink,
-        origin: Origin.SnapshotSharePanel,
-        placement: Origin.HotTakeList,
+    expect(
+      await screen.findByRole('button', { name: 'Save image' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Copy link')).not.toBeInTheDocument();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.OpenSnapshotSharePanel,
+        target_id: hotTake.id,
       }),
-    });
+    );
   });
 
   it('stays filled while capturing and ignores a second press', async () => {

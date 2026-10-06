@@ -28,8 +28,6 @@ interface HotTakeItemProps {
   item: HotTake;
   /** The profile's owner, credited on the take's snapshot. */
   author?: SnapshotCreditProps;
-  /** The owner's profile, which the take's snapshot links to. */
-  permalink?: string;
   isOwner: boolean;
   onEdit?: (item: HotTake) => void;
   onDelete?: (item: HotTake) => void;
@@ -39,7 +37,6 @@ interface HotTakeItemProps {
 function HotTakeItemV1({
   item,
   author,
-  permalink,
   isOwner,
   onEdit,
   onDelete,
@@ -105,7 +102,6 @@ function HotTakeItemV1({
         <HotTakeSnapshotButton
           author={author}
           hotTake={item}
-          permalink={permalink}
           origin={Origin.HotTakeList}
           showLabel={false}
           size={ButtonSize.XSmall}

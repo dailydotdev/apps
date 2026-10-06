@@ -164,7 +164,6 @@ export function ReadingOverview({
             filename={`daily-reading-overview-${user.username ?? user.id}`}
             origin={Origin.ReadingOverview}
             ownerId={user.id}
-            permalink={user.permalink}
             renderCard={(ref) => (
               <ReadingOverviewCard
                 after={after}

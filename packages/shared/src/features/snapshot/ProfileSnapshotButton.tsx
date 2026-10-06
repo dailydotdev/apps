@@ -10,7 +10,6 @@ import { getShareSubjectLogEvent } from '../../components/imageShare/SnapshotSha
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetType } from '../../lib/log';
-import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import { getSnapshotCaptureOptions } from './snapshotCapture';
 import { useArmedCard } from './useArmedCard';
@@ -21,8 +20,6 @@ export interface ProfileSnapshotButtonProps {
   filename: string;
   /** The profile's user. The profile is also the target unless one is set. */
   ownerId: string;
-  /** The profile's link, which the share panel sends. */
-  permalink: string;
   targetId?: string;
   targetType?: TargetType;
   /**
@@ -49,7 +46,6 @@ function ArmedProfileSnapshotButton({
   origin,
   filename,
   ownerId,
-  permalink,
   targetId = ownerId,
   targetType = TargetType.ProfilePage,
   renderCard,
@@ -62,13 +58,11 @@ function ArmedProfileSnapshotButton({
   const { logEvent } = useLogContext();
   const share = useMemo<SnapshotShare>(
     () => ({
-      link: permalink,
-      cid: ReferralCampaignKey.ShareProfile,
       event: LogEvent.ShareProfile,
       targetId,
       targetType,
     }),
-    [permalink, targetId, targetType],
+    [targetId, targetType],
   );
 
   const onResult = useCallback(

@@ -249,7 +249,6 @@ export function ProfileUserHotTakes({
               key={item.id}
               author={user}
               item={item}
-              permalink={user.permalink}
               isOwner={isOwner}
               onEdit={handleEdit}
               onDelete={handleDelete}

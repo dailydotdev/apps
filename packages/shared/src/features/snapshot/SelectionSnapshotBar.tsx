@@ -11,7 +11,6 @@ import { CopyStateIcon } from '../../components/share/CopyStateIcon';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
 import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
-import { getSnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
 import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useCopyText } from '../../hooks/useCopy';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
@@ -19,6 +18,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import type { ShareablePost } from '../../lib/feed';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
 import { HighlightTextSnapshotCard } from './HighlightTextSnapshotCard';
@@ -76,7 +76,7 @@ export interface SelectionShareBarProps {
   label?: ReactNode;
   /** Called once per action, with how a snapshot ended, so the host logs it. */
   onShare: (provider: ShareProvider, result?: SnapshotResult) => void;
-  /** The post the quote is from. `share` overrides what gets linked. */
+  /** The post the quote is from; `share` overrides how the snapshot logs. */
   post: ShareablePost;
   share?: SnapshotShare;
   origin?: Origin;
@@ -102,20 +102,19 @@ export function SelectionShareBar({
   const [linkCopied, copyLink] = useCopyPostLink();
   const [textCopied, copyText] = useCopyText(quote?.text);
   const [isSnapshotActive, setIsSnapshotActive] = useState(false);
-  const { link, cid } = getSnapshotShare({ post, share });
 
   const onCopyLink = useCallback(() => {
     onShare(ShareProvider.CopyLink);
     // `shorten`, not an awaited short URL: the write has to stay inside the
     // task that handled the click or Safari refuses it.
     copyLink({
-      link,
+      link: post.commentsPermalink,
       shorten: true,
-      cid,
+      cid: ReferralCampaignKey.SharePost,
       format: (url) => (quote?.text ? `"${quote.text}"\n\n${url}` : url),
       message: '✅ Copied text and link',
     });
-  }, [cid, copyLink, link, onShare, quote]);
+  }, [copyLink, onShare, post.commentsPermalink, quote]);
 
   const onCopyText = useCallback(() => {
     onShare(ShareProvider.CopyText);

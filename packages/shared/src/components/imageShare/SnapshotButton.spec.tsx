@@ -1,12 +1,6 @@
 import React, { createRef } from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
@@ -14,7 +8,6 @@ import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
-import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import { SnapshotButton } from './SnapshotButton';
@@ -39,8 +32,6 @@ const onResult = jest.fn();
 const client = new QueryClient();
 
 const profileShare: SnapshotShare = {
-  link: 'https://app.daily.dev/ada',
-  cid: ReferralCampaignKey.ShareProfile,
   event: LogEvent.ShareProfile,
   targetId: 'ada-id',
   targetType: TargetType.ProfilePage,
@@ -88,7 +79,10 @@ describe('SnapshotButton share options', () => {
 
     expect(await screen.findByText('Copied')).toBeInTheDocument();
     expect(screen.getByText('Connect Slack')).toBeInTheDocument();
-    expect(screen.getByText('Copy link')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save image' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Copy link')).not.toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.OpenSnapshotSharePanel,
@@ -104,13 +98,12 @@ describe('SnapshotButton share options', () => {
 
     expect(await screen.findByText('Copied')).toBeInTheDocument();
     expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
-    expect(screen.getByText('Copy link')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save image' }),
+    ).toBeInTheDocument();
   });
 
-  it('shares a subject other than a post by its own link and target', async () => {
-    Object.assign(navigator, {
-      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
-    });
+  it('logs a subject other than a post by its own target', async () => {
     renderButton({ withPost: false, share: profileShare });
 
     press();
@@ -120,8 +113,8 @@ describe('SnapshotButton share options', () => {
     expect(
       screen.getByRole('button', { name: 'Save image' }),
     ).toBeInTheDocument();
-    ['X', 'LinkedIn', 'WhatsApp', 'More', 'Share to apps'].forEach((name) =>
-      expect(screen.queryByLabelText(name)).not.toBeInTheDocument(),
+    ['Copy link', 'X', 'LinkedIn', 'WhatsApp', 'More', 'Share to apps'].forEach(
+      (name) => expect(screen.queryByLabelText(name)).not.toBeInTheDocument(),
     );
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.OpenSnapshotSharePanel,
@@ -130,21 +123,18 @@ describe('SnapshotButton share options', () => {
       extra: JSON.stringify({ placement: Origin.PostSummary }),
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save image' }));
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      'https://app.daily.dev/ada',
-    );
+    expect(downloadShareImage).toHaveBeenCalled();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.ShareProfile,
       target_id: 'ada-id',
       target_type: TargetType.ProfilePage,
       extra: JSON.stringify({
-        provider: ShareProvider.CopyLink,
+        provider: ShareProvider.Snapshot,
         origin: Origin.SnapshotSharePanel,
         placement: Origin.PostSummary,
+        result: 'download',
       }),
     });
   });
@@ -162,7 +152,7 @@ describe('SnapshotButton share options', () => {
     ).not.toBeNull();
   });
 
-  it('only confirms the copy for a snapshot with nothing to link', async () => {
+  it('only confirms the copy for a snapshot with no share subject', async () => {
     renderButton({ withPost: false });
 
     press();

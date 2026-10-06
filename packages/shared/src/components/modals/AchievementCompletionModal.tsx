@@ -230,7 +230,6 @@ export const AchievementCompletionModal = ({
                     filename={`daily-achievement-${unlockedAchievement.achievement.id}`}
                     origin={Origin.AchievementCompletion}
                     ownerId={user.id}
-                    permalink={user.permalink}
                     renderCard={(ref) => (
                       <AchievementSnapshotCard
                         completedAt={completedAt}
