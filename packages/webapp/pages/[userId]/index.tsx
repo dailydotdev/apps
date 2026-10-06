@@ -218,10 +218,10 @@ export const ProfilePage = ({
         {isPhone ? (
           <>
             <div ref={segmentsRef} className="-mx-6 [&+*]:!border-t-0">
-              <ProfileSegments user={user} active={active} paged={false} />
+              <ProfileSegments user={user} active={active} />
               {haveSegmentsPassed && (
                 <ShellDockedRow>
-                  <ProfileSegments user={user} active={active} paged={false} />
+                  <ProfileSegments user={user} active={active} />
                 </ShellDockedRow>
               )}
             </div>

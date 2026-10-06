@@ -104,6 +104,9 @@ import { ExploreSortMenu } from './shell/ExploreSortMenu';
 import { ExplorePlaces } from './shell/ExplorePlaces';
 import { isRootView, ShellRoot } from './shell/shellNav';
 import { ShellPage } from './shell/ShellPageContext';
+import { SegmentPager } from './shell/SegmentPager';
+import { useHomeSegmentItems } from './shell/HomeSegments';
+import { HomeNeighbourPane } from './shell/HomeNeighbourPane';
 
 const SpotlightField = dynamic(() =>
   import(
@@ -403,98 +406,104 @@ export default function MainFeedLayout({
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
-  const config = useMemo(() => {
-    if (!feedName) {
-      return { query: null };
-    }
+  // The query behind a feed, by name: the page's own, and a neighbour's
+  // while the finger pages Home's feeds.
+  const buildConfig = useCallback(
+    (name: FeedConfigPage | undefined, slugOrId?: string) => {
+      if (!name) {
+        return { query: null };
+      }
 
-    const dynamicPropsByFeed: Partial<
-      Record<FeedConfigPage, Partial<FeedQueryProps>>
-    > = {
-      [SharedFeedPage.Custom]: {
-        variables: {
-          feedId: router.query?.slugOrId as string,
+      const dynamicPropsByFeed: Partial<
+        Record<FeedConfigPage, Partial<FeedQueryProps>>
+      > = {
+        [SharedFeedPage.Custom]: {
+          variables: {
+            feedId: slugOrId as string,
+          },
         },
-      },
-      [SharedFeedPage.CustomForm]: {
-        // when editing main feed load feed query
-        queryIfLogged:
-          router.query?.slugOrId === user?.id
-            ? FEED_V2_QUERY
-            : CUSTOM_FEED_QUERY,
-        variables: {
-          feedId: (router.query?.slugOrId as string) || user?.id,
+        [SharedFeedPage.CustomForm]: {
+          // when editing main feed load feed query
+          queryIfLogged:
+            slugOrId === user?.id ? FEED_V2_QUERY : CUSTOM_FEED_QUERY,
+          variables: {
+            feedId: (slugOrId as string) || user?.id,
+          },
         },
-      },
-    };
-
-    /**
-     * Various feeds can have different feed versions based on feature flag
-     */
-    const dynamicFeedVersionByFeed: Partial<Record<FeedConfigPage, number>> = {
-      [SharedFeedPage.MyFeed]: myFeedV,
-      [OtherFeedPage.Following]: followingFeedV,
-      [OtherFeedPage.Explore]: exploreFeedV,
-      [OtherFeedPage.ExploreUpvoted]: exploreUpvotedFeedV,
-      [OtherFeedPage.ExploreDiscussed]: exploreDiscussedFeedV,
-      [OtherFeedPage.ExploreLatest]: exploreLatestFeedV,
-      [SharedFeedPage.Custom]: customFeedV,
-    };
-
-    const feedConfig = propsByFeed[feedName];
-    const dynamicFeedConfig =
-      feedName in dynamicPropsByFeed
-        ? dynamicPropsByFeed[feedName as SharedFeedPage]
-        : undefined;
-
-    // do not show feed in background on new page
-    if (router.pathname === '/feeds/new' || !feedConfig) {
-      return {
-        query: null,
       };
-    }
 
-    const query = getQueryBasedOnLogin(
+      /**
+       * Various feeds can have different feed versions based on feature flag
+       */
+      const dynamicFeedVersionByFeed: Partial<Record<FeedConfigPage, number>> =
+        {
+          [SharedFeedPage.MyFeed]: myFeedV,
+          [OtherFeedPage.Following]: followingFeedV,
+          [OtherFeedPage.Explore]: exploreFeedV,
+          [OtherFeedPage.ExploreUpvoted]: exploreUpvotedFeedV,
+          [OtherFeedPage.ExploreDiscussed]: exploreDiscussedFeedV,
+          [OtherFeedPage.ExploreLatest]: exploreLatestFeedV,
+          [SharedFeedPage.Custom]: customFeedV,
+        };
+
+      const feedConfig = propsByFeed[name];
+      const dynamicFeedConfig =
+        name in dynamicPropsByFeed
+          ? dynamicPropsByFeed[name as SharedFeedPage]
+          : undefined;
+
+      // do not show feed in background on new page
+      if (router.pathname === '/feeds/new' || !feedConfig) {
+        return {
+          query: null,
+        };
+      }
+
+      const query = getQueryBasedOnLogin(
+        isTokenValid,
+        user ?? null,
+        dynamicFeedConfig?.query || feedConfig.query,
+        dynamicFeedConfig?.queryIfLogged || feedConfig.queryIfLogged || null,
+      );
+      const shouldRequestFeedV2Highlights = query === FEED_V2_QUERY;
+
+      return {
+        requestKey: feedConfig.requestKey,
+        query,
+        variables: {
+          ...feedConfig.variables,
+          ...dynamicFeedConfig?.variables,
+          ...(shouldRequestFeedV2Highlights
+            ? {
+                supportedTypes: feedV2SupportedTypes,
+                highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
+              }
+            : {}),
+          version:
+            isDevelopment && !isProductionAPI
+              ? 1
+              : dynamicFeedVersionByFeed[name] || feedVersion,
+        },
+      };
+    },
+    [
+      router.pathname,
+      user,
+      myFeedV,
+      followingFeedV,
+      exploreFeedV,
+      exploreUpvotedFeedV,
+      exploreDiscussedFeedV,
+      exploreLatestFeedV,
+      customFeedV,
       isTokenValid,
-      user ?? null,
-      dynamicFeedConfig?.query || feedConfig.query,
-      dynamicFeedConfig?.queryIfLogged || feedConfig.queryIfLogged || null,
-    );
-    const shouldRequestFeedV2Highlights = query === FEED_V2_QUERY;
-
-    return {
-      requestKey: feedConfig.requestKey,
-      query,
-      variables: {
-        ...feedConfig.variables,
-        ...dynamicFeedConfig?.variables,
-        ...(shouldRequestFeedV2Highlights
-          ? {
-              supportedTypes: feedV2SupportedTypes,
-              highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
-            }
-          : {}),
-        version:
-          isDevelopment && !isProductionAPI
-            ? 1
-            : dynamicFeedVersionByFeed[feedName] || feedVersion,
-      },
-    };
-  }, [
-    feedName,
-    router.query?.slugOrId,
-    router.pathname,
-    user,
-    myFeedV,
-    followingFeedV,
-    exploreFeedV,
-    exploreUpvotedFeedV,
-    exploreDiscussedFeedV,
-    exploreLatestFeedV,
-    customFeedV,
-    isTokenValid,
-    feedVersion,
-  ]);
+      feedVersion,
+    ],
+  );
+  const config = useMemo(
+    () => buildConfig(feedName, router.query?.slugOrId as string),
+    [buildConfig, feedName, router.query?.slugOrId],
+  );
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -859,6 +868,107 @@ export default function MainFeedLayout({
     !isSearchPageLaptop &&
     (!!v2ActionButtons || !!feedHeading);
 
+  const feedNode = feedProps && (
+    <Feed
+      {...feedProps}
+      shortcuts={shortcuts}
+      topContent={topContent}
+      // The flag, not the hero's render: this placement logs an
+      // impression, so it has to be suppressed from the first paint
+      // rather than flickering in and out as the hero resolves.
+      disableTopHero={isFeedHeroEnabled}
+      // The render, so a hero that finds no headlines hands the
+      // highlights card and row one back to the grid.
+      disableHighlightCards={isHeroRendered}
+      skipFirstAd={isHeroAdVisible}
+      deferWideCards={isHeroRendered}
+      className={classNames(!isFinder && feedGutter)}
+    />
+  );
+
+  // On a phone Home's feeds page between each other: the neighbour's feed
+  // stands beside the lit one with the query the page would run for it.
+  const { items: homeSegmentItems } = useHomeSegmentItems();
+  const homeItems = homeSegmentItems.filter((item) => item.key !== 'new-feed');
+  const homeActiveKey = homeItems.find((item) => item.active)?.key;
+  const isHomePager =
+    isPhone &&
+    !isExtension &&
+    !!homeActiveKey &&
+    isRootView(ShellRoot.Home, router.pathname) &&
+    !router.pathname.startsWith('/highlights');
+  const neighbourFeedProps = (key: string): FeedProps<unknown> | null => {
+    let name: FeedConfigPage | undefined;
+    let slugOrId: string | undefined;
+    if (key === 'for-you') {
+      name = user ? SharedFeedPage.MyFeed : SharedFeedPage.Popular;
+      if (user && isCustomDefaultFeed && defaultFeedId) {
+        name = SharedFeedPage.Custom;
+        slugOrId = defaultFeedId;
+      }
+    } else if (key === 'following') {
+      name = OtherFeedPage.Following;
+    } else if (key.startsWith('feed-')) {
+      name = SharedFeedPage.Custom;
+      slugOrId = key.slice('feed-'.length);
+    }
+    const neighbour = buildConfig(name, slugOrId);
+    if (!name || !neighbour.query) {
+      return null;
+    }
+    const variables =
+      name === SharedFeedPage.MyFeed || name === SharedFeedPage.Custom
+        ? { ...neighbour.variables, ranking: algorithms[selectedAlgo].value }
+        : neighbour.variables;
+    return {
+      feedName: name,
+      feedQueryKey: generateQueryKey(
+        neighbour.requestKey || name,
+        user,
+        ...Object.values(variables ?? {}),
+      ),
+      query: neighbour.query,
+      variables,
+      emptyScreen: propsByFeed[name]?.emptyScreen,
+    };
+  };
+
+  let feedArea = feedNode;
+  if (shouldUseCommentFeedLayout) {
+    feedArea = (
+      <CommentFeed
+        isMainFeed
+        feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
+        query={COMMENT_FEED_QUERY}
+        logOrigin={Origin.CommentFeed}
+        emptyScreen={
+          <ProfileEmptyScreen
+            title="Nobody has replied to any post yet"
+            text="You could be the first you know?"
+          />
+        }
+        commentClassName={commentClassName}
+      />
+    );
+  } else if (isHomePager) {
+    feedArea = (
+      <SegmentPager
+        items={homeItems}
+        renderPane={(key) =>
+          key === homeActiveKey ? (
+            feedNode
+          ) : (
+            <HomeNeighbourPane
+              segmentKey={key}
+              feedProps={neighbourFeedProps(key)}
+              className={classNames(!isFinder && feedGutter)}
+            />
+          )
+        }
+      />
+    );
+  }
+
   return (
     <>
       {showExploreV2PageHeader && (
@@ -921,39 +1031,7 @@ export default function MainFeedLayout({
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
         )}
-        {shouldUseCommentFeedLayout ? (
-          <CommentFeed
-            isMainFeed
-            feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
-            query={COMMENT_FEED_QUERY}
-            logOrigin={Origin.CommentFeed}
-            emptyScreen={
-              <ProfileEmptyScreen
-                title="Nobody has replied to any post yet"
-                text="You could be the first you know?"
-              />
-            }
-            commentClassName={commentClassName}
-          />
-        ) : (
-          feedProps && (
-            <Feed
-              {...feedProps}
-              shortcuts={shortcuts}
-              topContent={topContent}
-              // The flag, not the hero's render: this placement logs an
-              // impression, so it has to be suppressed from the first paint
-              // rather than flickering in and out as the hero resolves.
-              disableTopHero={isFeedHeroEnabled}
-              // The render, so a hero that finds no headlines hands the
-              // highlights card and row one back to the grid.
-              disableHighlightCards={isHeroRendered}
-              skipFirstAd={isHeroAdVisible}
-              deferWideCards={isHeroRendered}
-              className={classNames(!isFinder && feedGutter)}
-            />
-          )
-        )}
+        {feedArea}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}
       </FeedPageLayoutComponent>

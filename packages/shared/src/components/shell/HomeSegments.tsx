@@ -17,7 +17,6 @@ import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import type { RowItem } from './ShellRow';
 import { Segments, SheetChoice, ShellRow } from './ShellRow';
-import { useSegmentPager } from './useSegmentPager';
 
 const highlightsUrl = `${webappUrl}highlights`;
 
@@ -79,14 +78,20 @@ const HappeningNowSheet = ({
   );
 };
 
-export function HomeSegments(): ReactElement {
+export const happeningNowSegmentKey = happeningNowKey;
+
+// The segments of Home: the feeds a member can read, each on its own
+// address. The row draws them, and the feed pages between them.
+export function useHomeSegmentItems(): {
+  items: RowItem[];
+  isHighlights: boolean;
+} {
   const router = useRouter();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
-  const [isChannelsOpen, setIsChannelsOpen] = useState(false);
   const pathname = withoutLayoutVariantPrefix(router.pathname);
   const path = (router.asPath ?? router.pathname ?? '').split('?')[0];
   const forYouHref = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
@@ -150,11 +155,12 @@ export function HomeSegments(): ReactElement {
     });
   }
 
-  // Happening now pages between its own channels with the same gesture.
-  useSegmentPager(
-    items.filter((item) => item.key !== 'new-feed'),
-    !isHighlights,
-  );
+  return { items, isHighlights };
+}
+
+export function HomeSegments(): ReactElement {
+  const { items } = useHomeSegmentItems();
+  const [isChannelsOpen, setIsChannelsOpen] = useState(false);
 
   return (
     <>

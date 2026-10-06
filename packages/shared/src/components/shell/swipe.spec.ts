@@ -1,4 +1,4 @@
-import { resolveSwipe } from './useSegmentPager';
+import { resolveSwipe } from './swipe';
 import { swipe } from './constants';
 
 describe('resolveSwipe', () => {

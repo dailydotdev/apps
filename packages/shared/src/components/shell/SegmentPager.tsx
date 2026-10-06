@@ -5,7 +5,7 @@ import { useIsPhone } from '../../hooks/useViewSize';
 import { motion, swipe } from './constants';
 import type { RowItem } from './ShellRow';
 import { setPagerPosition } from './segmentPagerStore';
-import { edgeGutter, resolveSwipe, scrollsSideways } from './useSegmentPager';
+import { edgeGutter, resolveSwipe, scrollsSideways } from './swipe';
 
 interface SegmentPagerProps {
   items: RowItem[];
