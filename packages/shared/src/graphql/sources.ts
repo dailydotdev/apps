@@ -143,7 +143,14 @@ export interface Source {
 
 export type SourceTooltip = Pick<
   Source,
-  'id' | 'name' | 'image' | 'handle' | 'permalink' | 'description' | 'flags'
+  | 'id'
+  | 'name'
+  | 'image'
+  | 'handle'
+  | 'permalink'
+  | 'description'
+  | 'flags'
+  | 'features'
 > & {
   membersCount?: number;
   type?: SourceType;
