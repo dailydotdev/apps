@@ -14,7 +14,7 @@ import {
 } from '../../components/layouts/ProfileLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { ProfileFeedPane } from '../../components/profile/ProfileFeedPane';
-import { ProfilePage } from './index';
+import { ProfilePage } from '../../components/profile/ProfilePage';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
