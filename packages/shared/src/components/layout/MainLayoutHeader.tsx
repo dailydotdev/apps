@@ -13,6 +13,7 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
+import { MobileFeedActions } from '../feeds/MobileFeedActions';
 import useActiveNav from '../../hooks/useActiveNav';
 import { ShellBlock } from '../shell/ShellBlock';
 import { ShellRoot } from '../shell/shellNav';
@@ -130,6 +131,7 @@ function MainLayoutHeader({
   return (
     <>
       {block}
+      {isExtension && isMobileSearchPage && <MobileFeedActions />}
       <header
         className={classNames(
           isMobileSearchPage

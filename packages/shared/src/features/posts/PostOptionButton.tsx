@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
-import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { PostOptionsSheet } from './PostOptionsSheet';
 import {
   AddUserIcon,
@@ -447,7 +447,7 @@ const PostOptionButtonContent = ({
     );
   };
 
-  const isPhone = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
 
   const contentTypeItem = useFeedContentTypeAction({
     post,

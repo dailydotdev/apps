@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +17,7 @@ import { IconSize } from '../../Icon';
 import { TruncateText } from '../../utilities';
 import type { Squad } from '../../../graphql/sources';
 import { MAX_AUDIENCE_SQUADS, isUserAudience } from './useComposerAudience';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
+import { useIsPhone } from '../../../hooks/useViewSize';
 
 interface AudienceChipProps {
   audiences: Squad[];
@@ -56,7 +58,7 @@ export const AudienceChip = ({
   disabled,
 }: AudienceChipProps): ReactElement | null => {
   const [open, setOpen] = useState(false);
-  const isSheet = useViewSize(ViewSize.MobileL);
+  const isSheet = useIsPhone();
 
   const selected = audiences.filter(
     (audience) => !!audience.id && selectedIds.includes(audience.id),
@@ -177,6 +179,9 @@ export const AudienceChip = ({
           <TruncateText className="min-w-0 max-w-48 shrink font-bold">
             {triggerLabel}
           </TruncateText>
+          {!isMulti && hasSquadFeature(primary, 'verified') && (
+            <VerifiedSquadBadge />
+          )}
           {showChevron && (
             <ArrowIcon
               className={classNames(
@@ -268,6 +273,9 @@ export const AudienceChip = ({
                   >
                     {optionLabel}
                   </span>
+                  {hasSquadFeature(option, 'verified') && (
+                    <VerifiedSquadBadge />
+                  )}
                   <span
                     role="presentation"
                     className="flex size-5 shrink-0 items-center justify-center"

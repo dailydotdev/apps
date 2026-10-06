@@ -112,7 +112,7 @@ export const OrganizationSidebar = ({
           <>
             <HorizontalSeparator />
 
-            <InnerProfileSettingsMenu className="p-4" />
+            <InnerProfileSettingsMenu />
           </>
         )}
       </>

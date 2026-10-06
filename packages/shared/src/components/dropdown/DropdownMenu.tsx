@@ -31,7 +31,7 @@ import type { MenuItemProps } from './common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 import { useScrollFade } from '../../hooks/useScrollFade';
-import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { attachSheetDrag } from '../shell/sheetDrag';
 
 export const DropdownMenuItem = classed(
@@ -101,7 +101,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
       // DropdownMenu is kept as forwardRef-compatible even though Radix root has no ref target here.
     }
     const [open, setOpen] = useState(false);
-    const isPhone = useViewSize(ViewSize.MobileL);
+    const isPhone = useIsPhone();
 
     // On a phone the menu is a sheet: modal, so a tap on the scrim closes it
     // without reaching the page, and never closed by the scroll the
@@ -158,7 +158,7 @@ export const DropdownMenuContent = React.forwardRef<
     const { isCompanion } = useRequestProtocol();
     const container = isCompanion ? getCompanionWrapper() : undefined;
     const scrollFadeRef = useScrollFade<HTMLDivElement>();
-    const isPhone = useViewSize(ViewSize.MobileL);
+    const isPhone = useIsPhone();
     const close = useContext(DropdownMenuCloseContext);
     const closeRef = useRef(close);
     closeRef.current = close;

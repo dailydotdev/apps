@@ -7,15 +7,17 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from './DropdownMenu';
-import { useViewSize } from '../../hooks/useViewSize';
+import { useIsPhone, useViewSize } from '../../hooks/useViewSize';
 
 jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
   useViewSize: jest.fn(),
+  useIsPhone: jest.fn(),
 }));
 
 const renderMenu = (isPhone: boolean) => {
   jest.mocked(useViewSize).mockReturnValue(isPhone);
+  jest.mocked(useIsPhone).mockReturnValue(isPhone);
   const share = jest.fn();
   const report = jest.fn();
 
