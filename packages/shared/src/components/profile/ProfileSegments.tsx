@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { PublicProfile } from '../../lib/user';
 import { webappUrl } from '../../lib/constants';
+import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 import { useSegmentPager } from '../shell/useSegmentPager';
 import { ButtonSize } from '../buttons/common';
@@ -24,6 +25,18 @@ const paths: Record<ProfileSegment, string> = {
   [ProfileSegment.Upvoted]: '/upvoted',
 };
 
+const getItems = (
+  user: Pick<PublicProfile, 'username'>,
+  active: ProfileSegment,
+): RowItem[] =>
+  Object.values(ProfileSegment).map((segment) => ({
+    key: segment,
+    label: segment,
+    href: `${webappUrl}${user.username}${paths[segment]}`,
+    active: segment === active,
+    replace: true,
+  }));
+
 // A profile's views on a phone, each on the address it already has.
 export function ProfileSegments({
   user,
@@ -36,13 +49,7 @@ export function ProfileSegments({
   // only one of them listens for the swipe.
   paged?: boolean;
 }): ReactElement {
-  const items = Object.values(ProfileSegment).map((segment) => ({
-    key: segment,
-    label: segment,
-    href: `${webappUrl}${user.username}${paths[segment]}`,
-    active: segment === active,
-    replace: true,
-  }));
+  const items = getItems(user, active);
   useSegmentPager(items, paged);
 
   return (
@@ -53,7 +60,8 @@ export function ProfileSegments({
 }
 
 // In the page the profile draws its views the way the squad page draws
-// Posts and About: the directory tabs in a row with a rule above.
+// Posts and About: the directory tabs in a row with a rule above, and the
+// swipe between them listens here, so it works before the row has docked.
 export function ProfileTabs({
   user,
   active,
@@ -61,6 +69,8 @@ export function ProfileTabs({
   user: Pick<PublicProfile, 'username'>;
   active: ProfileSegment;
 }): ReactElement {
+  useSegmentPager(getItems(user, active), true);
+
   return (
     <div className="border-t border-border-subtlest-tertiary px-4 tablet:px-6">
       <SquadDirectoryNavbar

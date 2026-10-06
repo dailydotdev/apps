@@ -137,17 +137,17 @@ const ProfileHeader = ({
         fallbackSrc={fallbackImages.avatar}
         alt="Avatar"
         className={classNames(
-          'absolute left-6 h-[7.5rem] w-[7.5rem] rounded-16 object-cover',
-          coversBlock ? 'top-[5.5rem] tablet:top-16' : 'top-16',
+          'absolute left-4 size-20 rounded-16 object-cover ring-4 ring-background-default tablet:left-6 tablet:size-[7.5rem] tablet:ring-0',
+          coversBlock ? 'top-[8.5rem] tablet:top-16' : 'top-28 tablet:top-16',
         )}
       />
-      <div className="flex flex-col gap-3 px-6">
+      <div className="flex flex-col gap-1 px-4 tablet:gap-3 tablet:px-6">
         {/* Edit leads and `actions` trails, because edit is only hidden, not
             removed: it holds its width so the row keeps its height for a
             visitor. Trailing, that reserved width sat between the actions and
             the right edge and left them looking short of it; leading, it falls
             on the inside and whatever trails stays flush either way. */}
-        <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
+        <div className="mb-3 ml-auto mt-2 flex items-center gap-2 tablet:mb-4">
           <Link passHref href={`${webappUrl}settings/profile`}>
             <Button
               className={classNames(
@@ -184,7 +184,14 @@ const ProfileHeader = ({
           )}
         </div>
         <div className="flex flex-col gap-2">
-          {bio && <Typography type={TypographyType.Body}>{bio}</Typography>}
+          {bio && (
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Secondary}
+            >
+              {bio}
+            </Typography>
+          )}
           <div className="flex items-center">
             {!!user?.companies?.length && (
               <VerifiedCompanyUserBadge
@@ -228,6 +235,7 @@ const ProfileHeader = ({
             <ProfileActions user={user} isPreviewMode={isPreviewMode} />
           )}
           <UserStats
+            className="mt-2 border-t border-border-subtlest-tertiary pt-4 tablet:mt-0 tablet:w-fit tablet:border-0 tablet:pt-0"
             userId={user.id}
             // The zeros are what UserStats already rendered for a missing
             // count (`stat?.amount || 0`), stated here instead of implied.

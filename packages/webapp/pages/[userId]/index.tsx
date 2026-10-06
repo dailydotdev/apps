@@ -167,7 +167,7 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         {isPhone && (
-          <div ref={segmentsRef} className="-mx-6 !border-0">
+          <div ref={segmentsRef} className="-mx-6 !border-0 [&+*]:!border-t-0">
             <ProfileTabs user={user} active={ProfileSegment.About} />
             {haveSegmentsPassed && (
               <ShellDockedRow>

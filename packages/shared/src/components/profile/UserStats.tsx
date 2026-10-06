@@ -17,6 +17,7 @@ export interface UserStatsProps {
     numFollowing: number;
   };
   userId: string;
+  className?: string;
 }
 
 const ItemWrapper = classed('div', 'flex items-center gap-1');
@@ -36,7 +37,11 @@ const Item = ({
   </ItemWrapper>
 );
 
-export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
+export function UserStats({
+  stats,
+  userId,
+  className,
+}: UserStatsProps): ReactElement {
   const { openModal } = useLazyModal<
     LazyModal.UserFollowersModal | LazyModal.UserFollowingModal
   >();
@@ -51,7 +56,12 @@ export function UserStats({ stats, userId }: UserStatsProps): ReactElement {
   };
 
   return (
-    <div className="-ml-1 grid w-fit grid-cols-[auto_auto] gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
+    <div
+      className={classNames(
+        'grid grid-cols-[auto_auto] gap-x-2 gap-y-1 text-text-tertiary typo-footnote tablet:-ml-1',
+        className,
+      )}
+    >
       <div className="flex">
         <ReputationIcon
           className="text-accent-onion-default"
