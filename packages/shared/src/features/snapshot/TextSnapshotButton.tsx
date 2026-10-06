@@ -66,8 +66,6 @@ export function TextSnapshotButton({
           className={className}
           filename={filename}
           onResult={logSnapshot}
-          origin={origin}
-          post={post}
           showLabel={showLabel}
           size={size}
           target={cardRef}

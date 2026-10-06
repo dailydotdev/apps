@@ -105,8 +105,6 @@ export function BriefMustKnowSnapshotButton({
             className="ml-2 align-middle"
             filename={`daily-brief-${post.id}`}
             onResult={logSnapshot}
-            origin={Origin.BriefMustKnow}
-            post={post}
             showLabel={false}
             size={ButtonSize.Small}
             target={cardRef}

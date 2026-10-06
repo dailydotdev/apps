@@ -46,6 +46,7 @@ export const SquadCommentJoinBanner = ({
     mutationFn: useJoinSquad({
       squad,
       referralToken: squad?.currentMember?.referralToken,
+      origin: logOrigin,
     }),
     onSuccess: () => {
       displayToast(`🙌 You joined the Squad ${squad.name}`);
