@@ -17,7 +17,7 @@ import { IconSize } from '../../Icon';
 import { TruncateText } from '../../utilities';
 import type { Squad } from '../../../graphql/sources';
 import { MAX_AUDIENCE_SQUADS, isUserAudience } from './useComposerAudience';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
+import { useIsPhone } from '../../../hooks/useViewSize';
 
 interface AudienceChipProps {
   audiences: Squad[];
@@ -58,7 +58,7 @@ export const AudienceChip = ({
   disabled,
 }: AudienceChipProps): ReactElement | null => {
   const [open, setOpen] = useState(false);
-  const isSheet = useViewSize(ViewSize.MobileL);
+  const isSheet = useIsPhone();
 
   const selected = audiences.filter(
     (audience) => !!audience.id && selectedIds.includes(audience.id),
