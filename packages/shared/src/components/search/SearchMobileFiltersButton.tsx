@@ -68,8 +68,8 @@ const SearchMobileFiltersButton = ({
         <div className="flex flex-col gap-5">
           {square ? (
             // The block's square is the sort of the results: the sheet is
-            // the time choice alone, titled as such.
-            <SearchFilterTimeList />
+            // the time choice alone, titled as such, and a pick closes it.
+            <SearchFilterTimeList onSelect={() => setIsOpen(false)} />
           ) : (
             <SearchMobileFilterSection title="Time">
               <SearchFilterTimeList />

@@ -349,6 +349,7 @@ export function Header({
                     status={contentPreference?.status}
                     entityName={`@${user.username}`}
                     showSubscribe={false}
+                    variant={ButtonVariant.Primary}
                     buttonClassName="shell-hit relative !h-[2.375rem] !rounded-14"
                     alwaysShow
                   />
