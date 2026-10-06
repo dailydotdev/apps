@@ -193,7 +193,7 @@ export const SquadActionButton = ({
     : null;
 
   const { mutateAsync: joinSquad, isPending: isJoiningSquad } = useMutation({
-    mutationFn: useJoinSquad({ squad }),
+    mutationFn: useJoinSquad({ squad, origin }),
     onError: () => {
       displayToast(labels.error.generic);
     },
