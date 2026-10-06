@@ -33,7 +33,8 @@ export default function FooterWrapper({
 }: FooterNavBarProps): ReactElement {
   const { requestOpenComment } = useActivePostContext();
   const { isLoggedIn } = useAuthContext();
-  const { moment, isRevealed: showAppFooter } = useMobileAppFooterContext();
+  const { title: appFooterTitle } = useMobileAppFooterContext();
+  const showAppFooter = !!appFooterTitle;
 
   return (
     <div
@@ -47,9 +48,9 @@ export default function FooterWrapper({
       <div className="hidden tablet:block">
         <ScrollToTopButton />
       </div>
-      {showAppFooter && moment && (
+      {showAppFooter && (
         <div className="pointer-events-auto">
-          <MobileAppFooter title={moment.title} />
+          <MobileAppFooter title={appFooterTitle} />
         </div>
       )}
       {post && post.type !== PostType.Brief && !showAppFooter && (

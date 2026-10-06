@@ -24,11 +24,11 @@ interface FooterNavBarLayoutProps {
 
 function FooterSpacer({
   post,
-}: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement | null {
-  const { isRevealed: showAppFooter } = useMobileAppFooterContext();
+}: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement {
+  const { title: appFooterTitle } = useMobileAppFooterContext();
   const router = useRouter();
 
-  if (showAppFooter) {
+  if (appFooterTitle) {
     return <div className={mobileAppFooterHeight} />;
   }
 
@@ -54,9 +54,9 @@ function FooterSpacer({
 }
 
 function ClusterSlot(): ReactElement | null {
-  const { isRevealed: showAppFooter } = useMobileAppFooterContext();
+  const { title: appFooterTitle } = useMobileAppFooterContext();
 
-  if (showAppFooter) {
+  if (appFooterTitle) {
     return null;
   }
 

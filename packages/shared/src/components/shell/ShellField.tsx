@@ -44,7 +44,8 @@ export function ShellField({
   const inputRef = useRef<HTMLInputElement>(null);
   const viewport = useVisualViewport(isFocused);
   // The app footer owns the bottom while it is up.
-  const { isRevealed: hasAppFooter } = useMobileAppFooterContext();
+  const { title: appFooterTitle } = useMobileAppFooterContext();
+  const hasAppFooter = !!appFooterTitle;
   const isShown = isPhone && !hasAppFooter;
   useRegisterShellField(isShown);
 
