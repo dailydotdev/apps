@@ -9,6 +9,7 @@ import { ShellDockedRow } from '@dailydotdev/shared/src/components/shell/ShellPa
 import {
   ProfileSegment,
   ProfileSegments,
+  ProfileTabs,
 } from '@dailydotdev/shared/src/components/profile/ProfileSegments';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
@@ -166,8 +167,8 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         {isPhone && (
-          <div ref={segmentsRef} className="-mx-6 !border-0 pb-2">
-            <ProfileSegments user={user} active={ProfileSegment.About} />
+          <div ref={segmentsRef} className="-mx-6 !border-0">
+            <ProfileTabs user={user} active={ProfileSegment.About} />
             {haveSegmentsPassed && (
               <ShellDockedRow>
                 <ProfileSegments

@@ -4,6 +4,11 @@ import type { PublicProfile } from '../../lib/user';
 import { webappUrl } from '../../lib/constants';
 import { Segments, ShellRow } from '../shell/ShellRow';
 import { useSegmentPager } from '../shell/useSegmentPager';
+import { ButtonSize } from '../buttons/common';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '../squads/layout/SquadDirectoryNavbar';
 
 export enum ProfileSegment {
   About = 'About',
@@ -44,5 +49,35 @@ export function ProfileSegments({
     <ShellRow>
       <Segments items={items} />
     </ShellRow>
+  );
+}
+
+// In the page the profile draws its views the way the squad page draws
+// Posts and About: the directory tabs in a row with a rule above.
+export function ProfileTabs({
+  user,
+  active,
+}: {
+  user: Pick<PublicProfile, 'username'>;
+  active: ProfileSegment;
+}): ReactElement {
+  return (
+    <div className="border-t border-border-subtlest-tertiary px-4 tablet:px-6">
+      <SquadDirectoryNavbar
+        aria-label="Profile sections"
+        className="!mx-0 !border-0 !px-0"
+      >
+        {Object.values(ProfileSegment).map((segment) => (
+          <SquadDirectoryNavbarItem
+            key={segment}
+            buttonSize={ButtonSize.Small}
+            isActive={segment === active}
+            label={segment}
+            ariaLabel={segment}
+            path={`${webappUrl}${user.username}${paths[segment]}`}
+          />
+        ))}
+      </SquadDirectoryNavbar>
+    </div>
   );
 }
