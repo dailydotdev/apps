@@ -107,7 +107,10 @@ describe('NewComment', () => {
   });
 
   it('shows a saved draft on the collapsed trigger', () => {
-    localStorage.setItem('dailydev:comment:draft:post-1', 'Half-written take');
+    localStorage.setItem(
+      'dailydev:comment:draft:post-1',
+      'Half-written take on [@ido](https://app.daily.dev/ido)',
+    );
 
     render(
       <NewComment
@@ -116,7 +119,7 @@ describe('NewComment', () => {
       />,
     );
 
-    expect(screen.getByText('Half-written take')).toBeInTheDocument();
+    expect(screen.getByText('Half-written take on @ido')).toBeInTheDocument();
     localStorage.clear();
   });
 
@@ -136,6 +139,15 @@ describe('NewComment', () => {
     rerender(
       <NewComment
         post={{ id: 'post-2' } as never}
+        CommentInput={CommentInput}
+      />,
+    );
+
+    expect(screen.queryByTestId('comment-input')).not.toBeInTheDocument();
+
+    rerender(
+      <NewComment
+        post={{ id: 'post-1' } as never}
         CommentInput={CommentInput}
       />,
     );

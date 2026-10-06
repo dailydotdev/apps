@@ -24,20 +24,6 @@ describe('useDraftStorage', () => {
     expect(localStorage.getItem(draftKey('p1'))).toBe('unsaved thought');
   });
 
-  it('does not copy a draft to another post when the key changes', () => {
-    const { rerender } = renderHook(useDraftStorage, {
-      initialProps: { postId: 'p1', content: 'about p1', isDirty: true },
-    });
-
-    rerender({ postId: 'p2', content: 'about p1', isDirty: true });
-    act(() => {
-      jest.runAllTimers();
-    });
-
-    expect(localStorage.getItem(draftKey('p1'))).toBe('about p1');
-    expect(localStorage.getItem(draftKey('p2'))).toBeNull();
-  });
-
   it('does not restore a draft after it was cleared', () => {
     const { result, rerender, unmount } = renderHook(useDraftStorage, {
       initialProps: { postId: 'p1', content: '', isDirty: false },

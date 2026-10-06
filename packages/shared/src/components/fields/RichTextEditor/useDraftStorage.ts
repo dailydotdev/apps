@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { generateStorageKey, StorageTopic } from '../../../lib/storage';
 import { storageWrapper } from '../../../lib/storageWrapper';
+import { getPlainTextFromRichContent } from '../../../lib/strings';
 
 const DRAFT_SAVE_DELAY = 500;
 
@@ -45,7 +46,6 @@ export function useDraftStorage({
     const identifier = editCommentId || parentCommentId || postId;
     return getCommentDraftKey(identifier);
   }, [postId, editCommentId, parentCommentId]);
-  const keyRef = useRef(draftStorageKey);
 
   const getInitialValue = useCallback(
     (initialContent: string) => {
@@ -87,12 +87,6 @@ export function useDraftStorage({
   }, [draftStorageKey]);
 
   useEffect(() => {
-    if (keyRef.current !== draftStorageKey) {
-      flushDraft();
-      keyRef.current = draftStorageKey;
-      return;
-    }
-
     if (!draftStorageKey || !isDirty) {
       return;
     }
@@ -105,14 +99,8 @@ export function useDraftStorage({
     saveTimeoutRef.current = setTimeout(flushDraft, DRAFT_SAVE_DELAY);
   }, [content, draftStorageKey, isDirty, flushDraft]);
 
-  useEffect(() => {
-    globalThis.addEventListener?.('pagehide', flushDraft);
-
-    return () => {
-      globalThis.removeEventListener?.('pagehide', flushDraft);
-      flushDraft();
-    };
-  }, [flushDraft]);
+  // Save what is still pending when the composer closes or the post changes.
+  useEffect(() => flushDraft, [flushDraft]);
 
   return {
     draftStorageKey,
@@ -133,7 +121,14 @@ export function useStoredCommentDraft(
       return;
     }
 
-    setDraft(storageWrapper.getItem(getCommentDraftKey(postId)));
+    const markdown = storageWrapper.getItem(getCommentDraftKey(postId));
+    setDraft(
+      markdown
+        ? getPlainTextFromRichContent({
+            markdown: markdown.replace(/\s+/g, ' '),
+          })
+        : null,
+    );
   }, [postId, shouldRead]);
 
   return draft;

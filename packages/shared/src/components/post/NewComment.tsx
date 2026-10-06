@@ -89,19 +89,16 @@ function NewCommentComponent(
   const { logOpts } = useActiveFeedContext();
   const { user, showLogin } = useAuthContext();
   const inputId = `comment-input-${useId()}`;
-  const [composer, setComposer] = useState<{
-    postId: string;
-    content: string;
-  } | null>(null);
-  const inputContent =
-    composer?.postId === post.id ? composer.content : undefined;
-  const setInputContent = useCallback(
-    (content: string | undefined) =>
-      setComposer(
-        typeof content === 'undefined' ? null : { postId: post.id, content },
-      ),
-    [post.id],
+  const [inputContent, setInputContent] = useState<string | undefined>(
+    undefined,
   );
+  // NewComment stays mounted on client-side navigation between posts, so close
+  // the composer when the post changes instead of carrying it over.
+  const [composerPostId, setComposerPostId] = useState(post.id);
+  if (composerPostId !== post.id) {
+    setComposerPostId(post.id);
+    setInputContent(undefined);
+  }
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
     setInputContent(undefined);
