@@ -8,7 +8,7 @@ import { useIsPhone } from '../../../hooks/useViewSize';
 import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
 import { Segments, ShellRow } from '../../../components/shell/ShellRow';
 import { usePassedBlock } from '../../../components/shell/usePassedBlock';
-import { useSegmentPager } from '../../../components/shell/useSegmentPager';
+import { SegmentPager } from '../../../components/shell/SegmentPager';
 
 enum SquadPageTab {
   Posts = 'Posts',
@@ -59,7 +59,6 @@ export const SquadPageLayout = ({
     active: tab === item,
     onClick: () => setTab(item),
   }));
-  useSegmentPager(segments, hasAboutTab);
 
   return (
     <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
@@ -88,23 +87,41 @@ export const SquadPageLayout = ({
             </ShellRow>
           </div>
         )}
-        <div
+        {isPhone && hasAboutTab ? (
+          <SegmentPager
+            items={segments}
+            className="order-3 min-w-0"
+            renderPane={(key) =>
+              key === SquadPageTab.About ? (
+                <aside className="flex w-full flex-col gap-4 px-4 pb-6">
+                  <SquadWidgets />
+                </aside>
+              ) : (
+                <div className="flex min-w-0 flex-col">{children}</div>
+              )
+            }
+          />
+        ) : (
+          <div
+            className={classNames(
+              'order-4 min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:flex laptop:rounded-b-16 laptop:border laptop:border-t-0',
+              isAbout ? 'hidden' : 'flex',
+            )}
+          >
+            {children}
+          </div>
+        )}
+      </div>
+      {!(isPhone && hasAboutTab) && (
+        <aside
           className={classNames(
-            'order-4 min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:flex laptop:rounded-b-16 laptop:border laptop:border-t-0',
-            isAbout ? 'hidden' : 'flex',
+            'order-3 w-full flex-col gap-4 px-4 pb-6 tablet:px-6 laptop:order-none laptop:flex laptop:w-80 laptop:shrink-0 laptop:p-0',
+            isAbout ? 'flex' : 'hidden',
           )}
         >
-          {children}
-        </div>
-      </div>
-      <aside
-        className={classNames(
-          'order-3 w-full flex-col gap-4 px-4 pb-6 tablet:px-6 laptop:order-none laptop:flex laptop:w-80 laptop:shrink-0 laptop:p-0',
-          isAbout ? 'flex' : 'hidden',
-        )}
-      >
-        <SquadWidgets />
-      </aside>
+          <SquadWidgets />
+        </aside>
+      )}
     </div>
   );
 };

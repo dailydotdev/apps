@@ -3,12 +3,13 @@ import { useRouter } from 'next/router';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { motion, swipe } from './constants';
 import type { RowItem } from './ShellRow';
+import { setPagerPosition } from './segmentPagerStore';
 
 // How far the page gives past the first and last segment.
 const edgeElasticity = 0.05;
 // A touch that starts this close to a screen edge is the browser's own
 // back and forward swipe.
-const edgeGutter = 24;
+export const edgeGutter = 24;
 
 type SwipeResult = -1 | 0 | 1;
 
@@ -34,7 +35,7 @@ export const resolveSwipe = (
   return dx < 0 ? 1 : -1;
 };
 
-const scrollsSideways = (target: EventTarget | null): boolean => {
+export const scrollsSideways = (target: EventTarget | null): boolean => {
   let node = target instanceof Element ? target : null;
 
   while (node && node !== document.body) {
@@ -132,6 +133,9 @@ export const useSegmentPager = (items: RowItem[], enabled = true): void => {
       const hasNeighbour =
         dx < 0 ? index < latest.current.items.length - 1 : index > 0;
       move(hasNeighbour ? dx : dx * edgeElasticity, false);
+      setPagerPosition(
+        index + (hasNeighbour ? -dx / (surface.clientWidth || 1) : 0),
+      );
     };
 
     const onEnd = (event: TouchEvent) => {
@@ -147,9 +151,11 @@ export const useSegmentPager = (items: RowItem[], enabled = true): void => {
         event.timeStamp - startTime,
       );
       const { items: current, router: currentRouter } = latest.current;
-      const next =
-        current[current.findIndex((item) => item.active) + direction];
+      const index = current.findIndex((item) => item.active);
+      const next = current[index + direction];
       move(0, true);
+      setPagerPosition(direction && next ? index + direction : index);
+      window.setTimeout(() => setPagerPosition(null), motion.snap);
 
       if (!direction || !next) {
         return;
@@ -172,6 +178,7 @@ export const useSegmentPager = (items: RowItem[], enabled = true): void => {
       surface.removeEventListener('touchcancel', onEnd);
       surface.style.transform = '';
       surface.style.transition = '';
+      setPagerPosition(null);
     };
   }, [enabled, isPhone, count]);
 };
