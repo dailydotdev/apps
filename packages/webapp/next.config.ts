@@ -209,6 +209,11 @@ const nextConfig: NextConfig = {
           permanent: false,
         },
         {
+          source: '/explore/:tag',
+          destination: '/',
+          permanent: false,
+        },
+        {
           source: '/mobile',
           destination: '/',
           permanent: true,
@@ -392,6 +397,12 @@ const nextConfig: NextConfig = {
         },
         {
           source: '/posts/:id/read',
+          headers: noindexHeaders,
+        },
+        {
+          // Screenshot targets for the share images; they mirror post and
+          // profile content without any of the pages' own indexing gates.
+          source: '/image-generator/:path*',
           headers: noindexHeaders,
         },
         {

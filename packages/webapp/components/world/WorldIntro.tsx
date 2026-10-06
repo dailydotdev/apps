@@ -76,7 +76,7 @@ export function WorldIntro({
            transports, the sparkline and the dates. Hard-coded the same way the
            bar hard-codes the rail's width beside it: if the scrubber grows a
            row, this number moves with it. */
-        hasTimeline ? 'bottom-36' : 'bottom-6',
+        hasTimeline ? 'bottom-36' : 'bottom-safe-or-6',
       )}
     >
       <div className="pointer-events-auto flex max-w-full items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default py-2 pl-4 pr-2">

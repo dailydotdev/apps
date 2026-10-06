@@ -52,6 +52,7 @@ import {
   useTopHeroSlot,
 } from '../contexts/TopHeroSlotContext';
 import { RouteProgressBar } from './RouteProgressBar';
+import { SquadJoinSuggestionsPopup } from '../features/squads/components/joinSuggestions/SquadJoinSuggestionsPopup';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -129,7 +130,7 @@ function MainLayoutComponent({
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const currentFeedName = feedName ?? page ?? SharedFeedPage.Popular;
-  const { isCustomFeed, isExploreTag } = useFeedName({
+  const { isCustomFeed } = useFeedName({
     feedName: currentFeedName,
   });
   const { plusEntryAnnouncementBar } = usePlusEntry();
@@ -268,8 +269,7 @@ function MainLayoutComponent({
   // Feed-shaped pages hold their paint until boot, or a still-valid cached
   // session, so the resolved chrome renders once. Broader than the onboarding gate below on purpose: this is
   // about layout stability, not about forcing onboarding.
-  const isFeedShapedPage =
-    !page || feeds.includes(page) || isCustomFeed || isExploreTag;
+  const isFeedShapedPage = !page || feeds.includes(page) || isCustomFeed;
   const shouldRedirectOnboarding =
     !isExtension &&
     !user &&
@@ -349,6 +349,7 @@ function MainLayoutComponent({
       <QuestUpdatesListener />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
+      <SquadJoinSuggestionsPopup />
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />

@@ -320,6 +320,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       flags {
         totalUpvotes
       }
+      features {
+        verified
+      }
     }
     userState {
       vote
@@ -536,6 +539,7 @@ export const COMMENT_FRAGMENT = gql`
 export const RELATED_POST_FRAGMENT = gql`
   fragment RelatedPost on Post {
     id
+    slug
     commentsPermalink
     title
     summary

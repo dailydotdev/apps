@@ -14,6 +14,7 @@ import ActionButtons from '../ActionButtons';
 import { Image } from '../../../image/Image';
 import { SourceAvatar } from '../../../profile/source/SourceAvatar';
 import { ProfileImageSize } from '../../../ProfilePicture';
+import { getPostPath } from '../../../../lib/links';
 
 const resolveBySource = <T,>(
   sourceId: string | undefined,
@@ -141,7 +142,7 @@ export const SignalList = forwardRef(function SignalList(
       linkProps={
         (!isFeedPreview && {
           title: resolvedTitle || post.title,
-          href: post.commentsPermalink,
+          href: getPostPath(post),
           onClick: onPostCardClick,
         }) ||
         undefined

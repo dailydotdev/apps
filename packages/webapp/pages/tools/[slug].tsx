@@ -95,6 +95,7 @@ import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat
 import {
   getAbsoluteWebappUrl,
   getDomainFromUrl,
+  getPostPath,
 } from '@dailydotdev/shared/src/lib/links';
 import {
   ProfileImageSize,
@@ -1052,7 +1053,7 @@ const ToolPage = ({
                   .filter((post) => !!post.title)
                   .map((post) => (
                     <li key={post.id}>
-                      <Link href={`/posts/${post.slug || post.id}`} passHref>
+                      <Link href={getPostPath(post)} passHref>
                         <a className="text-text-secondary underline decoration-border-subtlest-tertiary underline-offset-2 hover:text-text-primary">
                           {post.title}
                         </a>
