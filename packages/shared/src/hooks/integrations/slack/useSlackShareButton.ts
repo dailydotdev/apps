@@ -374,7 +374,10 @@ export const useSlackShareReturn = (): void => {
         clearSlackShareSnapshot();
       }
 
-      if (!isConnected) {
+      if (!hasIntegrations) {
+        // the integrations query failed, so whether Slack is connected is unknown
+        displayToast("Couldn't check Slack, so nothing was shared");
+      } else if (!isConnected) {
         displayToast('Slack was not connected, so nothing was shared');
       } else if (snapshotId) {
         displayToast(
@@ -432,6 +435,7 @@ export const useSlackShareReturn = (): void => {
     pending,
     isRefused,
     hasSettled,
+    hasIntegrations,
     isNotConnected,
     isPostMissing,
     isConnected,

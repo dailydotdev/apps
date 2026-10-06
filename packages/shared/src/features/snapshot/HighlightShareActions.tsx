@@ -1,5 +1,5 @@
 import type { ReactElement, RefObject } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { CopyHighlightsLink } from '../../components/highlights/CopyHighlightsLink';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
@@ -60,10 +60,13 @@ export function HighlightShareActions({
     highlight,
   );
 
-  const share: SnapshotShare = {
-    ...getPostSnapshotShare(highlight.post),
-    extra: { highlight_id: highlight.id },
-  };
+  const share = useMemo<SnapshotShare>(
+    () => ({
+      ...getPostSnapshotShare(highlight.post),
+      extra: { highlight_id: highlight.id },
+    }),
+    [highlight.id, highlight.post],
+  );
 
   const onSnapshot = useCallback(
     (result: SnapshotResult) => logShare(ShareProvider.Snapshot, result),

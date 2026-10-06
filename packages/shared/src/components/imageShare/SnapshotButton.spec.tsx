@@ -80,6 +80,9 @@ describe('SnapshotButton share options', () => {
     expect(await screen.findByText('Copied')).toBeInTheDocument();
     expect(screen.getByText('Connect Slack')).toBeInTheDocument();
     expect(
+      screen.getByText('Paste it anywhere, or send it:'),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole('button', { name: 'Save image' }),
     ).toBeInTheDocument();
     expect(screen.queryByText('Copy link')).not.toBeInTheDocument();
@@ -110,6 +113,9 @@ describe('SnapshotButton share options', () => {
 
     expect(await screen.findByText('Copied')).toBeInTheDocument();
     expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Paste it anywhere, or save it:'),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Save image' }),
     ).toBeInTheDocument();

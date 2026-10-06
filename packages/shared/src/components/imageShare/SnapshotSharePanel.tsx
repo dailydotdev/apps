@@ -145,6 +145,7 @@ function SnapshotShareContent({
   const { logEvent } = useLogContext();
   const thumbnail = useObjectUrl(image);
   const buttonSize = isDrawer ? ButtonSize.Medium : ButtonSize.Small;
+  const canSendToSlack = isLoggedIn && !!post;
 
   const logShare = useCallback(
     (provider: ShareProvider, extra?: Record<string, unknown>) =>
@@ -188,12 +189,14 @@ function SnapshotShareContent({
             Copied
           </span>
           <span className="text-text-tertiary typo-caption1">
-            Paste it anywhere, or send it:
+            {canSendToSlack
+              ? 'Paste it anywhere, or send it:'
+              : 'Paste it anywhere, or save it:'}
           </span>
         </span>
       </div>
       <div className="flex gap-2">
-        {isLoggedIn && post && (
+        {canSendToSlack && (
           <SnapshotSlackButton
             extra={share.extra}
             filename={filename}

@@ -11,6 +11,7 @@ import { slackShareSnapshotKey } from './slackShareSnapshot';
 import type { Post } from '../../../graphql/posts';
 import type { UserIntegration } from '../../../graphql/integrations';
 import { UserIntegrationType } from '../../../graphql/integrations';
+import { gqlClient } from '../../../graphql/common';
 import { Origin } from '../../../lib/log';
 import { LazyModal } from '../../../components/modals/common/types';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
@@ -237,6 +238,37 @@ describe('useSlackShareReturn', () => {
       { shallow: true, scroll: false },
     );
     expect(mockOpenModal).not.toHaveBeenCalled();
+  });
+
+  it('should not claim Slack is disconnected when the integrations check fails', async () => {
+    const request = jest
+      .spyOn(gqlClient, 'request')
+      .mockRejectedValue(new Error('network'));
+    await setCache(slackShareSnapshotKey, { ...snapshot, id: 'attempt-2' });
+    land({ slackSnapshot: 'attempt-2', error: 'access_denied' });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    renderHook(() => useSlackShareReturn(), {
+      wrapper: ({ children }) => (
+        <TestBootProvider client={client} auth={{ user: loggedUser }}>
+          {children}
+        </TestBootProvider>
+      ),
+    });
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        "Couldn't check Slack, so nothing was shared",
+      ),
+    );
+    expectParamsCleared();
+    expect(mockOpenModal).not.toHaveBeenCalled();
+    await waitFor(async () =>
+      expect(await getCache(slackShareSnapshotKey)).toBeUndefined(),
+    );
+    request.mockRestore();
   });
 
   it('should clear the params and say so when no workspace got connected', async () => {

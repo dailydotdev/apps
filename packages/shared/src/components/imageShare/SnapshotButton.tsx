@@ -52,9 +52,9 @@ export interface SnapshotButtonProps {
   onCapture?: (blob: Blob) => void;
   /** Called once per press with how it ended, so the host can log it. */
   onResult?: (result: SnapshotResult) => void;
-  /** The post the snapshot is from, which the share panel links and sends. */
+  /** The post the snapshot is from, which the share panel sends to Slack. */
   post?: ShareablePost;
-  /** What the share panel links to, in place of the post's own link. */
+  /** How the share panel logs, in place of the post's own share event. */
   share?: SnapshotShare;
   /** Which placement this is, for the share panel's events. */
   origin?: Origin;
