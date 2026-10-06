@@ -6,14 +6,12 @@ import { Drawer } from '../drawers/Drawer';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
 import { DownloadIcon } from '../icons/Download';
-import { SlackIcon } from '../icons/Slack';
 import { VIcon } from '../icons/V';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useObjectUrl } from '../../hooks/useObjectUrl';
-import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
 import type { SlackShareSnapshot } from '../../hooks/integrations/slack/slackShareSnapshot';
 import { SlackCtaButton } from '../widgets/SlackCtaButton';
 import type { ShareablePost } from '../../lib/feed';
@@ -80,7 +78,7 @@ export type SnapshotSharePanelProps = SnapshotSubject & {
   onClose: () => void;
 };
 
-function SnapshotSlackRow({
+function SnapshotSlackButton({
   post,
   image,
   filename,
@@ -97,38 +95,22 @@ function SnapshotSlackRow({
   isDrawer: boolean;
   onClose: () => void;
 }): ReactElement {
-  const { integration } = useSlackShare();
   const snapshot = useMemo<SlackShareSnapshot>(
     () => ({ image, filename }),
     [image, filename],
   );
 
   return (
-    <div className="flex flex-col gap-3 rounded-14 bg-surface-float p-3">
-      <div className="flex items-start gap-3">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-background-default">
-          <SlackIcon secondary />
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="font-bold typo-callout">Send it to your team</span>
-          <span className="text-text-tertiary typo-footnote">
-            {integration
-              ? 'Send the snapshot to a Slack channel.'
-              : 'Connect once, then pick a channel.'}
-          </span>
-        </span>
-      </div>
-      <SlackCtaButton
-        className="w-full"
-        origin={Origin.SnapshotSharePanel}
-        placement={placement}
-        post={post}
-        snapshot={snapshot}
-        extra={extra}
-        size={isDrawer ? ButtonSize.Medium : ButtonSize.Small}
-        onAfterClick={onClose}
-      />
-    </div>
+    <SlackCtaButton
+      className="min-w-0 flex-1"
+      origin={Origin.SnapshotSharePanel}
+      placement={placement}
+      post={post}
+      snapshot={snapshot}
+      extra={extra}
+      size={isDrawer ? ButtonSize.Medium : ButtonSize.Small}
+      onAfterClick={onClose}
+    />
   );
 }
 
@@ -210,27 +192,29 @@ function SnapshotShareContent({
           </span>
         </span>
       </div>
-      {isLoggedIn && post && (
-        <SnapshotSlackRow
-          extra={share.extra}
-          filename={filename}
-          image={image}
-          isDrawer={isDrawer}
-          onClose={onClose}
-          placement={placement}
-          post={post}
-        />
-      )}
-      <Button
-        type="button"
-        className="w-full"
-        size={buttonSize}
-        variant={ButtonVariant.Float}
-        icon={<DownloadIcon />}
-        onClick={onSave}
-      >
-        Save image
-      </Button>
+      <div className="flex gap-2">
+        {isLoggedIn && post && (
+          <SnapshotSlackButton
+            extra={share.extra}
+            filename={filename}
+            image={image}
+            isDrawer={isDrawer}
+            onClose={onClose}
+            placement={placement}
+            post={post}
+          />
+        )}
+        <Button
+          type="button"
+          className="min-w-0 flex-1"
+          size={buttonSize}
+          variant={ButtonVariant.Float}
+          icon={<DownloadIcon />}
+          onClick={onSave}
+        >
+          Save image
+        </Button>
+      </div>
     </div>
   );
 }
