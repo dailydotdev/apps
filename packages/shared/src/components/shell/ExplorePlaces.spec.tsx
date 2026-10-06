@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ExplorePlaces } from './ExplorePlaces';
-import { YourSquads } from './YourSquads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureInterestAgent } from '../../lib/featureManagement';
@@ -61,32 +60,5 @@ describe('ExplorePlaces', () => {
       feature: featureInterestAgent,
       shouldEvaluate: false,
     });
-  });
-});
-
-describe('YourSquads', () => {
-  it('shows nothing to someone with no squads', () => {
-    mockAuth.mockReturnValue({ squads: [] } as unknown as ReturnType<
-      typeof useAuthContext
-    >);
-    const { container } = render(<YourSquads />);
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it('links each of the member’s squads', () => {
-    mockAuth.mockReturnValue({
-      squads: [
-        { id: '1', handle: 'devops', name: 'DevOps' },
-        { id: '2', handle: 'webdev', name: 'WebDev' },
-      ],
-    } as unknown as ReturnType<typeof useAuthContext>);
-    render(<YourSquads />);
-
-    expect(screen.getByRole('link', { name: /DevOps/ })).toHaveAttribute(
-      'href',
-      expect.stringMatching(/squads\/devops$/),
-    );
-    expect(screen.getAllByRole('link')).toHaveLength(2);
   });
 });

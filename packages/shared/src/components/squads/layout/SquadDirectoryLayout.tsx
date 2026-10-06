@@ -23,7 +23,6 @@ import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
 import { PublicPageSignupBanner } from '../../auth/PublicPageSignupBanner';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { YourSquads } from '../../shell/YourSquads';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -186,7 +185,6 @@ export const SquadDirectoryLayout = (
             className,
           )}
         >
-          {isPhone && isDiscover && <YourSquads />}
           {children}
         </section>
         <PublicPageSignupBanner />
