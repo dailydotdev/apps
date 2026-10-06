@@ -9,13 +9,7 @@ import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import {
-  BellIcon,
-  CompassIcon,
-  HomeIcon,
-  PlusIcon,
-  SourceIcon,
-} from '../icons';
+import { BellIcon, SearchIcon, HomeIcon, PlusIcon, SourceIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Bubble } from '../tooltips/utils';
 import { railCountBubbleClass } from '../sidebar/common';
@@ -92,7 +86,7 @@ export function ShellCluster(): ReactElement | null {
       root: ShellRoot.Explore,
       label: 'Explore',
       href: '/posts',
-      Icon: CompassIcon,
+      Icon: SearchIcon,
     },
     {
       root: ShellRoot.Squads,

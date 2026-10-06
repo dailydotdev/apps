@@ -12,7 +12,7 @@ interface ShellBlockPlan {
 
 const restOf: Record<ShellRoot, string> = {
   [ShellRoot.Home]: blockRest.rootWithRow,
-  [ShellRoot.Explore]: blockRest.root,
+  [ShellRoot.Explore]: blockRest.rootWithRow,
   [ShellRoot.Squads]: blockRest.rootWithRow,
   // Activity's filters depend on what the member has; they are not held.
   [ShellRoot.Activity]: blockRest.root,

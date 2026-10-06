@@ -101,7 +101,6 @@ import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
-import { ExplorePlaces } from './shell/ExplorePlaces';
 import { isRootView, ShellRoot } from './shell/shellNav';
 import { ShellPage } from './shell/ShellPageContext';
 
@@ -884,7 +883,6 @@ export default function MainFeedLayout({
       >
         {isExploreRoot && (!hasMounted || isPhoneWidth) && (
           <div className="tablet:hidden">
-            <ExplorePlaces />
             <ExploreSortMenu />
             <SpotlightField />
           </div>

@@ -18,6 +18,7 @@ import useActiveNav from '../../hooks/useActiveNav';
 import { ShellBlock } from '../shell/ShellBlock';
 import { ShellRoot } from '../shell/shellNav';
 import { useShellBlockPlan } from '../shell/useShellBlockPlan';
+import { ExploreSegments } from '../shell/ExploreSegments';
 import { isExtension } from '../../lib/func';
 
 export interface MainLayoutHeaderProps {
@@ -105,6 +106,9 @@ function MainLayoutHeader({
       ) : (
         <div className="h-11" />
       );
+    }
+    if (root === ShellRoot.Explore) {
+      return <ExploreSegments />;
     }
     return undefined;
   })();

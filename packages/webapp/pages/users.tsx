@@ -26,7 +26,6 @@ import { PopularHotTakesList } from '@dailydotdev/shared/src/components/cards/Le
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { MobileAppFooterAnchor } from '@dailydotdev/shared/src/features/getApp/components/MobileAppFooterAnchor';
 import { MobileAppFooterAnchorPlace } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
-import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { SpotlightField } from '@dailydotdev/shared/src/components/spotlight/SpotlightTrigger';
 import { SpotlightScope } from '@dailydotdev/shared/src/components/spotlight/types';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
@@ -97,7 +96,6 @@ const LeaderboardPage = ({
     <>
       {isV2Laptop && <ExploreHubHeader />}
       <PageWrapperLayout>
-        <ShellPage title="Leaderboard" />
         <SpotlightField
           placeholder="Search people"
           scope={SpotlightScope.People}
