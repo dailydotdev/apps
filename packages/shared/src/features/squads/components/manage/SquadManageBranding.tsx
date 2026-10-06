@@ -25,6 +25,7 @@ import { useSquadPageContext } from '../../SquadPageContext';
 import { useUpdateSquadBranding } from '../../hooks/useSquadBranding';
 import {
   getBrandInk,
+  getBrandWashStyle,
   isHexColor,
   SQUAD_BUTTON_LABEL_MAX_LENGTH,
   squadBrandSwatches,
@@ -97,13 +98,7 @@ const BrandPreview = ({
       <div className="h-14 bg-surface-float" />
       <div
         className="px-4 pb-4"
-        style={
-          color
-            ? {
-                background: `linear-gradient(to bottom, color-mix(in srgb, ${color}, transparent 78%), transparent 85%)`,
-              }
-            : undefined
-        }
+        style={color ? getBrandWashStyle(color) : undefined}
       >
         <div className="-mt-5 flex items-end justify-between">
           <span className="size-11 rounded-full bg-surface-hover ring-4 ring-background-default" />
