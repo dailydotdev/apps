@@ -11,6 +11,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
+import type { ApiErrorResult } from '../../../graphql/common';
 import { getSquadId, hasSquadFeature } from '../lib/features';
 
 export const useSquadWelcome = (squad: Squad) => {
@@ -68,6 +69,10 @@ export const useUpdateSquadWelcome = (squad: Squad) => {
       client.setQueryData(queryKey, welcome);
       displayToast('The welcome pop-up has been saved');
     },
-    onError: () => displayToast(labels.error.generic),
+    // The API says what it rejected (a link it does not take, a long label)
+    onError: (error: ApiErrorResult) =>
+      displayToast(
+        error?.response?.errors?.[0]?.message ?? labels.error.generic,
+      ),
   });
 };
