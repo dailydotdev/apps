@@ -117,7 +117,7 @@ const Spec = () => (
     <List
       items={[
         'Listed under Community, for people with Edit permission on a verified squad.',
-        'Fields on the left, a live preview on the right from laptop L (1440px); below that the preview stacks under the form.',
+        'Fields on the left, a live preview on the right from laptop L (1360px); below that the preview stacks under the form.',
         'Switched off, the preview dims to 40% so it still reads as a draft.',
         'Save sends only what changed for images: a new upload, or a reset back to the squad’s own.',
       ]}

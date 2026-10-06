@@ -32,7 +32,7 @@ export const AllWidths: StoryObj = {
           label: 'Manage › Welcome pop-up',
           title: titles.welcomeManage,
           story: 'Filled',
-          note: 'Form and preview side by side from laptop L (1440px), stacked below.',
+          note: 'Form and preview side by side from laptop L (1360px), stacked below.',
         },
       ]}
     />
