@@ -34,6 +34,7 @@ import {
   SquadManagePerkForm,
   SquadManagePerks,
 } from './SquadManageJobsPerks';
+import { SquadManageWelcome } from './SquadManageWelcome';
 
 const SectionContent = ({
   section,
@@ -67,6 +68,8 @@ const SectionContent = ({
           <SquadModerationList squad={squad} isModerator />
         </SquadManageSectionPanel>
       );
+    case SquadManageSection.Welcome:
+      return <SquadManageWelcome />;
     case SquadManageSection.Posting:
       return <SquadManagePosting />;
     case SquadManageSection.Analytics:

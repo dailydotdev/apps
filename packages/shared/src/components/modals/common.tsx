@@ -66,6 +66,13 @@ const SquadNotificationsModal = dynamic(
     ),
 );
 
+const SquadWelcomeModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "squadWelcomeModal" */ './squads/SquadWelcomeModal'
+    ),
+);
+
 const NewSource = dynamic(
   () => import(/* webpackChunkName: "newSourceModal" */ './NewSourceModal'),
 );
@@ -535,6 +542,7 @@ export const modals = {
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
+  [LazyModal.SquadWelcome]: SquadWelcomeModal,
   [LazyModal.NewSource]: NewSource,
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,

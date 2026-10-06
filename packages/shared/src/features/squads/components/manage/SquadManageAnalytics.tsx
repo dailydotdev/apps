@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -29,6 +30,8 @@ import {
 } from '../../hooks/useSquadAnalytics';
 import { SquadManageSection } from '../../lib/routes';
 import { SquadManageSectionPanel } from './SquadManageLayout';
+import { SquadAudience } from '../analytics/SquadAudience';
+import { squadAudienceQueryOptions } from '../../../../graphql/squadWelcomeAudience';
 
 const Section = ({
   title,
@@ -48,6 +51,8 @@ const Section = ({
 export const SquadManageAnalytics = (): ReactElement => {
   const { squad } = useSquadPageContext();
   const { analytics, impressions, hasImpressions } = useSquadAnalytics(squad);
+  // Verified squads only; a missing API leaves the section out
+  const { data: audience } = useQuery(squadAudienceQueryOptions({ squad }));
   const engagement: AnalyticsNumberList = [
     { icon: <UpvoteIcon />, label: 'Upvotes', value: analytics?.upvotes ?? 0 },
     {
@@ -117,6 +122,14 @@ export const SquadManageAnalytics = (): ReactElement => {
         <Section title="Engagement">
           <AnalyticsNumbersList data={engagement} />
         </Section>
+        {!!audience && (
+          <>
+            <HorizontalSeparator />
+            <Section title="Audience">
+              <SquadAudience audience={audience} />
+            </Section>
+          </>
+        )}
       </div>
     </SquadManageSectionPanel>
   );

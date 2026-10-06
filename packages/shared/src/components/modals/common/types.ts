@@ -35,6 +35,7 @@ export enum LazyModal {
   ReportPost = 'reportPost',
   ReportComment = 'reportComment',
   SquadNotifications = 'squadNotifications',
+  SquadWelcome = 'squadWelcome',
   NewSource = 'newSource',
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',

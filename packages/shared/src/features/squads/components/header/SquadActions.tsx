@@ -40,6 +40,7 @@ import { getBrandButtonStyle, getBrandColor } from '../../lib/branding';
 import { hasSquadFeature } from '../../lib/features';
 import { squadLinkRel } from '../../lib/links';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
+import { useOpenSquadWelcome } from '../../hooks/useSquadWelcome';
 
 const useSquadShare = () => {
   const { squad } = useSquadPageContext();
@@ -111,6 +112,7 @@ const SquadJoinButton = ({
   className?: string;
 }): ReactElement | null => {
   const { squad, viewer, isPreviewing } = useSquadPageContext();
+  const openWelcome = useOpenSquadWelcome();
   const branding = useSquadBranding(squad);
   const headerButton = branding?.button;
 
@@ -157,6 +159,7 @@ const SquadJoinButton = ({
       className={{ button: className }}
       copy={{ leave: 'Joined' }}
       buttonVariants={[ButtonVariant.Primary, ButtonVariant.Subtle]}
+      onSuccess={() => openWelcome(squad)}
     />
   );
 };
