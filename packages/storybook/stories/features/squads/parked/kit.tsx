@@ -165,6 +165,9 @@ export const ResponsiveSheet = ({
   screens: SheetScreen[];
 }): ReactElement => {
   const [isActualSize, setIsActualSize] = useState(false);
+  // Frames load one after another: a dozen stories starting at once can
+  // fail to load their modules
+  const [loaded, setLoaded] = useState(0);
 
   return (
     <div className="flex flex-col gap-8 px-4 py-8 tablet:px-8">
@@ -185,7 +188,7 @@ export const ResponsiveSheet = ({
           {isActualSize ? 'Fit to screen' : 'Actual size'}
         </button>
       </div>
-      {screens.map((screen) => (
+      {screens.map((screen, screenIndex) => (
         <section key={screen.label} className="flex flex-col gap-3">
           <div className="flex flex-col gap-0.5">
             <h2 className="font-bold text-text-primary typo-title3">
@@ -201,8 +204,9 @@ export const ResponsiveSheet = ({
               isActualSize ? 'overflow-x-auto pb-4' : 'flex-wrap',
             )}
           >
-            {devices.map((device) => {
+            {devices.map((device, deviceIndex) => {
               const scale = isActualSize ? 1 : device.scale;
+              const index = screenIndex * devices.length + deviceIndex;
 
               return (
                 <figure
@@ -219,21 +223,29 @@ export const ResponsiveSheet = ({
                       height: device.height * scale,
                     }}
                   >
-                    <iframe
-                      title={`${screen.label}, ${device.name}`}
-                      src={`iframe.html?id=${storyId(
-                        screen.title,
-                        screen.story,
-                      )}&viewMode=story`}
-                      loading="lazy"
-                      style={{
-                        width: device.width,
-                        height: device.height,
-                        transform: `scale(${scale})`,
-                        transformOrigin: 'top left',
-                        border: 0,
-                      }}
-                    />
+                    {index > loaded ? (
+                      <p className="p-4 text-text-quaternary typo-footnote">
+                        Loading…
+                      </p>
+                    ) : (
+                      <iframe
+                        title={`${screen.label}, ${device.name}`}
+                        src={`iframe.html?id=${storyId(
+                          screen.title,
+                          screen.story,
+                        )}&viewMode=story`}
+                        onLoad={() =>
+                          setLoaded((count) => Math.max(count, index + 1))
+                        }
+                        style={{
+                          width: device.width,
+                          height: device.height,
+                          transform: `scale(${scale})`,
+                          transformOrigin: 'top left',
+                          border: 0,
+                        }}
+                      />
+                    )}
                   </div>
                 </figure>
               );
