@@ -171,20 +171,29 @@ const WelcomeForm = ({ saved }: { saved: SquadWelcome }): ReactElement => {
       return;
     }
 
-    onSave({
-      input: {
-        enabled,
-        headline: headline.trim() || null,
-        text: text.trim() || null,
-        showRules,
-        ctaLabel: ctaLabel.trim() || null,
-        ctaUrl: ctaUrl.trim() || null,
-        ...(cover.reset && { coverUrl: null }),
-        ...(image.reset && { imageUrl: null }),
+    onSave(
+      {
+        input: {
+          enabled,
+          headline: headline.trim() || null,
+          text: text.trim() || null,
+          showRules,
+          ctaLabel: ctaLabel.trim() || null,
+          ctaUrl: ctaUrl.trim() || null,
+          ...(cover.reset && { resetCover: true }),
+          ...(image.reset && { resetImage: true }),
+        },
+        cover: cover.file,
+        image: image.file,
       },
-      cover: cover.file,
-      image: image.file,
-    });
+      {
+        // Start from what was saved, so a second Save sends nothing again
+        onSuccess: () => {
+          setCover({});
+          setImage({});
+        },
+      },
+    );
   };
 
   return (

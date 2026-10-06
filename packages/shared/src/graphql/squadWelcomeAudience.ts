@@ -85,10 +85,10 @@ export interface SquadWelcomeInput {
   showRules: boolean;
   ctaLabel: string | null;
   ctaUrl: string | null;
-  /** Null goes back to the squad's cover; undefined keeps the current one. */
-  coverUrl?: null;
-  /** Null goes back to the squad's logo; undefined keeps the current one. */
-  imageUrl?: null;
+  /** Go back to the squad's own cover. */
+  resetCover?: boolean;
+  /** Go back to the squad's own logo. */
+  resetImage?: boolean;
 }
 
 const UPDATE_SQUAD_WELCOME_MUTATION = gql`

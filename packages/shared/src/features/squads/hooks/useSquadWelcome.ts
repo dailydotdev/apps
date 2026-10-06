@@ -11,7 +11,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { labels } from '../../../lib/labels';
-import { getSquadId } from '../lib/features';
+import { getSquadId, hasSquadFeature } from '../lib/features';
 
 export const useSquadWelcome = (squad: Squad) => {
   const { data, isPending, isError } = useQuery(
@@ -21,18 +21,36 @@ export const useSquadWelcome = (squad: Squad) => {
   return { welcome: data ?? emptySquadWelcome, isPending, isError };
 };
 
-/** Opens the squad's welcome pop-up, if it set one up, after a join. */
-export const useSquadWelcomeAfterJoin = (squad: Squad) => {
-  const { welcome } = useSquadWelcome(squad);
+/**
+ * Opens a verified squad's welcome pop-up, if it set one up, right after a
+ * join. It asks then, not on page load: only new joiners see it, and a
+ * private squad's pop-up is readable once the person is a member.
+ */
+export const useOpenSquadWelcome = () => {
+  const client = useQueryClient();
   const { openModal } = useLazyModal();
 
-  return useCallback(() => {
-    if (!welcome.enabled) {
-      return;
-    }
+  return useCallback(
+    async (squad: Squad) => {
+      if (!hasSquadFeature(squad, 'verified')) {
+        return;
+      }
 
-    openModal({ type: LazyModal.SquadWelcome, props: { squad, welcome } });
-  }, [openModal, squad, welcome]);
+      const { enabled, ...options } = squadWelcomeQueryOptions({ squad });
+      try {
+        const welcome = await client.fetchQuery({ ...options, staleTime: 0 });
+        if (welcome.enabled) {
+          openModal({
+            type: LazyModal.SquadWelcome,
+            props: { squad, welcome },
+          });
+        }
+      } catch {
+        // No pop-up: none set, or the API is a deploy behind
+      }
+    },
+    [client, openModal],
+  );
 };
 
 export const useUpdateSquadWelcome = (squad: Squad) => {

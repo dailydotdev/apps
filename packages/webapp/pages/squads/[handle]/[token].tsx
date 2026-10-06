@@ -36,6 +36,7 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
 import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
+import { useOpenSquadWelcome } from '@dailydotdev/shared/src/features/squads/hooks/useSquadWelcome';
 import { getPathnameWithQuery, labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadActionButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -160,6 +161,7 @@ const SquadReferral = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member, loggedImpression]);
 
+  const openWelcome = useOpenSquadWelcome();
   const { mutateAsync: onJoinSquad } = useMutation({
     mutationFn: useJoinSquad({
       squad: { handle, id: member?.source?.id },
@@ -167,6 +169,8 @@ const SquadReferral = ({
     }),
     onSuccess: (data) => {
       justJoined.current = true;
+      // A verified squad greets people joining from an invite too
+      openWelcome(data);
       router.replace(
         getJoinRedirectUrl({
           pathname: data.permalink,

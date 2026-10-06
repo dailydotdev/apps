@@ -32,7 +32,7 @@ import { getSquadSpotlightSource } from '../../lib/spotlight';
 import { getSquadShareText } from '../widgets/SquadShareWidget';
 import { SquadOptionsMenu } from './SquadOptionsMenu';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
-import { useSquadWelcomeAfterJoin } from '../../hooks/useSquadWelcome';
+import { useOpenSquadWelcome } from '../../hooks/useSquadWelcome';
 
 const useSquadShare = () => {
   const { squad } = useSquadPageContext();
@@ -57,7 +57,7 @@ const SquadJoinButton = ({
   className?: string;
 }): ReactElement | null => {
   const { squad, viewer, isPreviewing } = useSquadPageContext();
-  const showWelcome = useSquadWelcomeAfterJoin(squad);
+  const openWelcome = useOpenSquadWelcome();
 
   if (
     viewer === SquadViewer.Admin ||
@@ -84,7 +84,7 @@ const SquadJoinButton = ({
       className={{ button: className }}
       copy={{ leave: 'Joined' }}
       buttonVariants={[ButtonVariant.Primary, ButtonVariant.Subtle]}
-      onSuccess={showWelcome}
+      onSuccess={() => openWelcome(squad)}
     />
   );
 };
