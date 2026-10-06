@@ -266,12 +266,13 @@ export function YouPage(): ReactElement | null {
   return (
     <div className="flex flex-col pb-6">
       <ShellPage title="You" actions={actions} />
-      <div className="flex flex-col gap-3 px-4 pb-3 pt-2">
+      <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 pb-4 pt-2">
         <Link href={profileUrl} passHref>
           <a className="flex items-center gap-3">
             <ProfilePicture
               user={user}
               size={ProfileImageSize.XLarge}
+              className="!size-11 !rounded-12"
               nativeLazyLoading
             />
             <span className="flex min-w-0 flex-1 flex-col">
@@ -287,7 +288,7 @@ export function YouPage(): ReactElement | null {
             </span>
           </a>
         </Link>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 typo-footnote">
+        <div className="grid grid-cols-2 items-center gap-x-6 gap-y-2 typo-footnote">
           <Stat
             icon={
               <ReputationIcon
@@ -335,7 +336,7 @@ export function YouPage(): ReactElement | null {
           />
         </div>
       </div>
-      <YouGroup className="pt-0 [&>span:first-child]:hidden">
+      <YouGroup className="[&>span:first-child]:hidden">
         <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
         <YouRow
           icon={DevPlusIcon}
